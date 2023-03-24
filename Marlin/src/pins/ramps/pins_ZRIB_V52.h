@@ -22,7 +22,10 @@
 #pragma once
 
 /**
- * ZRIB V5.2 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ZONESTAR ZRIB V5.2 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/ZONESTAR%20ZRIB%20V5.2/ZRIB_V52_Schematic.pdf
+ * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZRIB/ZRIB_V5/ZRIB_V52_Schematic.pdf
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2

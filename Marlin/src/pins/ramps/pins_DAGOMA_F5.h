@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Dagoma3D F5 supports up to 2 hotends / E steppers."
 #endif

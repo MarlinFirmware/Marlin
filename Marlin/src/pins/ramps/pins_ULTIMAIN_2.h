@@ -23,6 +23,25 @@
 
 /**
  * Ultiboard v2.0 pin assignments
+ * Schematics (2.1.4):
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%202.1.4/schema1.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%202.1.4/schema2.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%202.1.4/schema3.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%202.1.4/schema4.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%202.1.4/schema5.png
+ * Origins (2.1.4):
+ * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema1.SchDoc
+ * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema2.SchDoc
+ * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema3.SchDoc
+ * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema4.SchDoc
+ * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema5.SchDoc
+ * Schematics (Original+):
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%20Original+/Ultimainboard%20rev.%202.1.1%20altium/schema1.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%20Original+/Ultimainboard%20rev.%202.1.1%20altium/schema2.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%20Original+/Ultimainboard%20rev.%202.1.1%20altium/schema3.png
+ * - https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%20Original+/Ultimainboard%20rev.%202.1.1%20altium/schema4.png
+ * Origin (Original+): https://github.com/Ultimaker/Ultimaker-Original-Plus/blob/master/1091_Main_board_v2.1.1_(x1)/Ultimainboard%20rev.%202.1.1%20altium.zip
+ * ATmega2560
  */
 
 /**

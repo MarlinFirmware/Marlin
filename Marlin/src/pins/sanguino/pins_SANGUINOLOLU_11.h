@@ -23,6 +23,16 @@
 
 /**
  * Sanguinololu board pin assignments
+ * Schematic (0.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.1/schematic.png
+ * Origin (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
+ * Schematic (0.6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.6/schematic.jpg
+ * Origin (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
+ * Schematic (0.7): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.7/schematic.jpg
+ * Origin (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
+ * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.0/Sanguinololu-schematic.jpg
+ * Origin (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
+ * Schematic (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.1/schematic.png
+ * Origin (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
  */
 
 /**

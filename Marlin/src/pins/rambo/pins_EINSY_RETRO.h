@@ -23,6 +23,10 @@
 
 /**
  * Einsy-Retro pin assignments
+ * Schematic (1.0b): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Retro/Schematic%20Prints_EinsyRetro_1.0b.PDF
+ * Origin (1.0b): https://github.com/ultimachine/EinsyRetro/blob/master/board/Project%20Outputs/Schematic%20Prints_EinsyRetro_1.0b.PDF
+ * Schematic (1.0c): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Retro/Schematic%20Prints_EinsyRetro_1.0c.PDF
+ * Origin (1.0c): https://github.com/ultimachine/EinsyRetro/blob/master/board/Project%20Outputs/Schematic%20Prints_EinsyRetro_1.0c.PDF
  */
 
 #include "env_validate.h"

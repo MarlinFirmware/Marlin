@@ -23,6 +23,7 @@
 
 /**
  *  Z-Bolt X Series board – based on Arduino Mega2560
+ *  ATmega2560
  */
 
 #define REQUIRE_MEGA2560

@@ -23,6 +23,8 @@
 
 /**
  * Selena Compact pin assignments
+ * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Selena%20Compact/Compact%20Pinout.pdf
+ * Origin: https://github.com/f61/Selena/blob/master/Compact%20Pinout.pdf
  */
 
 #include "env_validate.h"

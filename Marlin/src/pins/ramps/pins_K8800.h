@@ -23,6 +23,9 @@
 
 /**
  * Velleman K8800 (Vertex)
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Velleman%20K8800/K8800-schematic-V1.4.pdf
+ * Origin: https://www.velleman.eu/downloads/files/vertex-delta/schematics/K8800-schematic-V1.4.pdf
+ * ATmega2560, ATmega1280
  */
 
 #include "env_validate.h"

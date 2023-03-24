@@ -24,6 +24,7 @@
 /**
  * VORON Design v2 pin assignments
  * See https://github.com/mzbotreprap/VORON/blob/master/Firmware/Marlin/pins_RAMPS_VORON.h
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "VORON Design v2"

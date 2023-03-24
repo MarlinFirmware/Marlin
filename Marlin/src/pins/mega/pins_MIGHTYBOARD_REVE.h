@@ -23,6 +23,8 @@
 
 /**
  * Mightyboard Rev.E pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mightyboard%20Rev.E/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
+ * Origin: https://github.com/sciguy14/HelioWatcher/blob/master/HelioWatcher%20Circuit/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
  * also works for Rev D boards. It's all rev E despite what the silk screen says
  */
 
