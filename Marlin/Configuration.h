@@ -26,32 +26,6 @@ DEFINE BLTOUCH
 
 #define EEPROM_SETTINGS // Enable for M500 and M501 commands
 
-#define INVERT_E0_DIR true
-** faulty X control circuit - swapped X with E1 to test
-* //chnages made to 
-* pins_RAMPS.h
-// Steppers
-//
-//commented out to fix ramps problems - swapping E1 with X
-//#define X_STEP_PIN         54
-//#define X_DIR_PIN          55
-//#define X_ENABLE_PIN       38
-//#define X_CS_PIN           53
-#define X_STEP_PIN         36
-#define X_DIR_PIN          34
-#define X_ENABLE_PIN       30
-#define X_CS_PIN           44
-
-//#define E1_STEP_PIN        36
-//#define E1_DIR_PIN         34
-//#define E1_ENABLE_PIN      30
-//#define E1_CS_PIN          44
-#define E1_STEP_PIN        54
-#define E1_DIR_PIN         55
-#define E1_ENABLE_PIN      38
-#define E1_CS_PIN          53
- */
-
 
 
 /**
@@ -83,7 +57,6 @@ DEFINE BLTOUCH
  * Basic settings such as:
  *
  * - Type of electronics
- * - Type of temperature sensor
  * - Printer geometry
  * - Endstop configuration
  * - LCD controller
@@ -286,7 +259,7 @@ DEFINE BLTOUCH
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -722,9 +695,9 @@ DEFINE BLTOUCH
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_Kp  41.92
+    #define DEFAULT_Ki   5.82
+    #define DEFAULT_Kd 75.56
   #endif
 #endif
 
@@ -789,7 +762,7 @@ DEFINE BLTOUCH
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  * @section bed temp
  */
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -1223,7 +1196,7 @@ DEFINE BLTOUCH
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 77.8, 77.8, 400, 728.87 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 81.04, 80.83, 400, 101.04 }
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1538,11 +1511,11 @@ DEFINE BLTOUCH
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 48, 0, -2.79 }
+#define NOZZLE_TO_PROBE_OFFSET { 48, 0, -1.60 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 20
+#define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (133*60)
@@ -2009,8 +1982,8 @@ DEFINE BLTOUCH
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 9
-  #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+  #define GRID_MAX_POINTS_X 6
+  #define GRID_MAX_POINTS_Y 5
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -2073,7 +2046,7 @@ DEFINE BLTOUCH
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-//#define LCD_BED_LEVELING
+#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -2517,7 +2490,7 @@ DEFINE BLTOUCH
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: ENABLE CRC
