@@ -73,8 +73,8 @@ void SpindleLaser::init() {
     servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #elif PIN_EXISTS(SPINDLE_LASER_ENA)
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
-  #elif PIN_EXISTS(E0_ENABLE) && ENABLED(SPINDLE_STEPPER)
-    E0_ENABLE_WRITE(!E_ENABLE_ON);    // Init stepper to off
+  #elif ENABLED(SPINDLE_STEPPER)
+    stepper.DISABLE_EXTRUDER(0);    // Init stepper to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
@@ -131,21 +131,28 @@ void SpindleLaser::init() {
    * @param ocr Power value
    */
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
+    // Serial.print("set_ocr2: ");
+    // Serial.println(ocr);
     stepperE0.VACTUAL(((E0_MICROSTEPS*400)/(0.715*255))*ocr);
   }
 
   void SpindleLaser::set_ocr(const uint8_t ocr) {
-    #if PIN_EXISTS(E0_ENABLE)
-      E0_ENABLE_WRITE( E_ENABLE_ON); //Stepper ON
-    #endif
-    //_set_ocr(ocr);//Seems to set the RPM to full speed, can we pull the current value from memory?
-    _set_ocr(1);
+    // #if PIN_EXISTS(E0_ENABLE)
+    //   E0_ENABLE_WRITE( E_ENABLE_ON); //Stepper ON
+    // #endif
+    // Serial.print("set_ocr1: ");
+    // Serial.println(ocr);
+    stepper.ENABLE_EXTRUDER(0); //Stepper ON
+    _set_ocr(ocr);//Seems to set the RPM to full speed, can we pull the current value from memory?
   }
 
   void SpindleLaser::ocr_off() {
-    #if PIN_EXISTS(E0_ENABLE)
-      E0_ENABLE_WRITE(!E_ENABLE_ON); //Stepper OFF
-    #endif
+    // #if PIN_EXISTS(E0_ENABLE)
+    //   E0_ENABLE_WRITE(!E_ENABLE_ON); //Stepper OFF
+    // #endif
+    Serial.println("Stepper Off");
+    stepper.DISABLE_EXTRUDER(0); //Stepper OFF
+    // stepper.disable_e_steppers();
     //_set_ocr(0); //We dont need to set the speed to 0, Dissabeling the EN pin, resets this to 0
   }
 #endif // SPINDLE_STEPPER
@@ -185,6 +192,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     #endif
     isReadyForUI = false; // Only used for UI display updates.
     TERN_(SPINDLE_LASER_USE_PWM, ocr_off());
+    TERN_(SPINDLE_STEPPER, ocr_off());
   }
 }
 

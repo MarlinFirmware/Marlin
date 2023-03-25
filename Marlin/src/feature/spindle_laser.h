@@ -151,7 +151,7 @@ public:
       );
     }
 
-  #endif // SPINDLE_LASER_USE_PWM
+  #endif // SPINDLE_LASER_USE_PWM or SPINDLE_STEPPER
 
   /**
    * Correct power to configured range
@@ -198,7 +198,8 @@ public:
   static void set_enabled(bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
-        apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+        // apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+        apply_power(enable ? TERN(SPINDLE_STEPPER, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
         break;
       case CUTTER_MODE_CONTINUOUS:
         TERN_(LASER_FEATURE, set_inline_enabled(enable));
@@ -254,11 +255,16 @@ public:
     #if ENABLED(SPINDLE_FEATURE)
       static void enable_with_dir(const bool reverse) {
         isReadyForUI = true;
-        const uint8_t ocr = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
+        // const uint8_t ocr = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
+        const uint8_t ocr = TERN(SPINDLE_STEPPER, upower_to_ocr(menuPower), 255);
+        Serial.print("OCR1: ");
+        Serial.println(ocr);
         if (menuPower)
           power = ocr;
         else
           menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
+        Serial.print("menuPower: ");
+        Serial.println(menuPower);
         unitPower = menuPower;
         set_reverse(reverse);
         set_enabled(true);

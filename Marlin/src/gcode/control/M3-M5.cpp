@@ -103,7 +103,8 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     cutter.menuPower = cutter.unitPower = u;
 
     // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
-    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0);
+    // cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0);
+    cutter.power = TERN(SPINDLE_STEPPER, cutter.upower_to_ocr(u), u > 0 ? 255 : 0);
     return u;
   };
 
@@ -126,7 +127,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     cutter.apply_power(
       #if ENABLED(SPINDLE_SERVO)
         cutter.unitPower
-      #elif ENABLED(SPINDLE_LASER_USE_PWM)
+      #elif EITHER(SPINDLE_LASER_USE_PWM,SPINDLE_STEPPER)
         cutter.upower_to_ocr(cutter.unitPower)
       #else
         cutter.unitPower > 0 ? 255 : 0
