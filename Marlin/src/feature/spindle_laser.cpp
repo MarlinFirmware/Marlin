@@ -30,6 +30,10 @@
 
 #include "spindle_laser.h"
 
+#if ENABLED(SPINDLE_STEPPER)
+  #include "../module/stepper.h"
+#endif
+
 #if ENABLED(SPINDLE_SERVO)
   #include "../module/servo.h"
 #endif
@@ -69,6 +73,8 @@ void SpindleLaser::init() {
     servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #elif PIN_EXISTS(SPINDLE_LASER_ENA)
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
+  #elif PIN_EXISTS(E0_ENABLE) && ENABLED(SPINDLE_STEPPER)
+    E0_ENABLE_WRITE(!E_ENABLE_ON);    // Init stepper to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
@@ -118,6 +124,32 @@ void SpindleLaser::init() {
   }
 #endif // SPINDLE_LASER_USE_PWM
 
+#if ENABLED(SPINDLE_STEPPER)
+  /**
+   * Set the Stepper drive frequency directly to the given ocr value
+   *
+   * @param ocr Power value
+   */
+  void SpindleLaser::_set_ocr(const uint8_t ocr) {
+    stepperE0.VACTUAL(((E0_MICROSTEPS*400)/(0.715*255))*ocr);
+  }
+
+  void SpindleLaser::set_ocr(const uint8_t ocr) {
+    #if PIN_EXISTS(E0_ENABLE)
+      E0_ENABLE_WRITE( E_ENABLE_ON); //Stepper ON
+    #endif
+    //_set_ocr(ocr);//Seems to set the RPM to full speed, can we pull the current value from memory?
+    _set_ocr(1);
+  }
+
+  void SpindleLaser::ocr_off() {
+    #if PIN_EXISTS(E0_ENABLE)
+      E0_ENABLE_WRITE(!E_ENABLE_ON); //Stepper OFF
+    #endif
+    //_set_ocr(0); //We dont need to set the speed to 0, Dissabeling the EN pin, resets this to 0
+  }
+#endif // SPINDLE_STEPPER
+
 /**
  * Apply power for Laser or Spindle
  *
@@ -131,7 +163,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     if (opwr == last_power_applied) return;
     last_power_applied = opwr;
     // Handle PWM driven or just simple on/off
-    #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #if EITHER(SPINDLE_LASER_USE_PWM,SPINDLE_STEPPER)
       if (CUTTER_UNIT_IS(RPM) && unitPower == 0)
         ocr_off();
       else if (ENABLED(CUTTER_POWER_RELATIVE) || enabled() || opwr == 0) {

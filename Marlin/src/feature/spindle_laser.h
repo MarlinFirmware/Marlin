@@ -125,7 +125,7 @@ public:
 
   FORCE_INLINE static void refresh() { apply_power(power); }
 
-  #if ENABLED(SPINDLE_LASER_USE_PWM)
+  #if EITHER(SPINDLE_LASER_USE_PWM,SPINDLE_STEPPER)
 
     private:
 
@@ -268,7 +268,7 @@ public:
       FORCE_INLINE static void enable_same_dir() { enable_with_dir(is_reverse()); }
     #endif // SPINDLE_FEATURE
 
-    #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #if EITHER(SPINDLE_LASER_USE_PWM,SPINDLE_STEPPER)
       static void update_from_mpower() {
         if (isReadyForUI) power = upower_to_ocr(menuPower);
         unitPower = menuPower;
