@@ -4191,11 +4191,11 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #elif !(defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
       #error "SPINDLE_LASER_USE_PWM equation constant(s) missing."
     #elif _PIN_CONFLICT(X_MIN)
-      #error "SPINDLE_LASER_USE_PWM pin conflicts with X_MIN_PIN."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with X_MIN_PIN."
     #elif _PIN_CONFLICT(X_MAX)
-      #error "SPINDLE_LASER_USE_PWM pin conflicts with X_MAX_PIN."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with X_MAX_PIN."
     #elif _PIN_CONFLICT(Z_STEP)
-      #error "SPINDLE_LASER_USE_PWM pin conflicts with Z_STEP_PIN."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with Z_STEP_PIN."
     #elif _PIN_CONFLICT(CASE_LIGHT)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CASE_LIGHT_PIN."
     #elif _PIN_CONFLICT(E0_AUTO_FAN)
