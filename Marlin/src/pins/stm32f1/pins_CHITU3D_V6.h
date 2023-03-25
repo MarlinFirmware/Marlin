@@ -33,7 +33,9 @@
   #define FIL_RUNOUT2_PIN                   PF13
 #endif
 
-#define Z_MIN_PROBE_PIN                     PG9
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PG9
+#endif
 
 #include "pins_CHITU3D_common.h"
 
