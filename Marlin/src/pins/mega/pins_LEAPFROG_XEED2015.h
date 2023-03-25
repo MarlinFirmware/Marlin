@@ -23,6 +23,7 @@
 
 /**
  * Leapfrog Xeed Driver board pin assignments
+ * ATmega2560
  *
  * This board is used by other Leapfrog printers in addition to the Xeed,
  * such as the Creatr HS and Bolt. The pin assignments vary wildly between

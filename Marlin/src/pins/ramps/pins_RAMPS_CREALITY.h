@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Creality RAMPS supports up to 2 hotends / E steppers."
 #endif

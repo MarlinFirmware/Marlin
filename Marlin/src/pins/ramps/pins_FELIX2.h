@@ -23,6 +23,7 @@
 
 /**
  * FELIXprinters v2.0/3.0 (RAMPS v1.4) pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2

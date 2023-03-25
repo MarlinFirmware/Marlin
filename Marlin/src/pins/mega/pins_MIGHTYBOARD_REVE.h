@@ -23,6 +23,8 @@
 
 /**
  * Mightyboard Rev.E pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mightyboard%20Rev.E/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
+ * Origin: https://github.com/sciguy14/HelioWatcher/blob/master/HelioWatcher%20Circuit/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
  * also works for Rev D boards. It's all rev E despite what the silk screen says
  */
 
@@ -158,9 +160,9 @@
 // Heaters / Fans (24V)
 //
 
-#define HEATER_0_PIN                MOSFET_1_PIN // EX1
-#define HEATER_1_PIN                MOSFET_3_PIN // EX2
-#define HEATER_BED_PIN              MOSFET_5_PIN // HBP
+#define HEATER_0_PIN                MOSFET_1_PIN  // EX1
+#define HEATER_1_PIN                MOSFET_3_PIN  // EX2
+#define HEATER_BED_PIN              MOSFET_5_PIN  // HBP
 
 // EX1 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
 #ifndef E0_AUTO_FAN_PIN

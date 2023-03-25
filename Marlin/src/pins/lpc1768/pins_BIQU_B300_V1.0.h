@@ -22,11 +22,7 @@
 #pragma once
 
 /**
- * BIQU BQ111-A4
- *
- * Applies to the following boards:
- *
- *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
+ * BIQU Thunder B300 V1.0
  */
 
 #include "env_validate.h"
@@ -77,18 +73,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P0_18  // ETH
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_17  // ETH
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_15  // ETH
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P0_18  // ETH
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_17  // ETH
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_15  // ETH
 #endif
 
 //

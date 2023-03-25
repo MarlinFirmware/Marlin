@@ -25,6 +25,19 @@
  *  Rev B  2 JUN 2017
  *
  *  Converted to Arduino pin numbering
+ *
+ *  Schematic (RevF): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F/schematic.png
+ *  Origin (RevF): https://github.com/lwalkera/printrboard/raw/revF/Printrboard.sch
+ *  Schematic (RevF2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F2/schematic.png
+ *  Origin (RevF2): https://raw.githubusercontent.com/lwalkera/printrboard/revF2/Printrboard.sch
+ *  Schematic (RevF3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F3/schematic.png
+ *  Origin (RevF3): https://raw.githubusercontent.com/lwalkera/printrboard/revF3/Printrboard.sch
+ *  Schematic (RevF4): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F4/schematic.png
+ *  Origin (RevF4): https://raw.githubusercontent.com/lwalkera/printrboard/revF4/Printrboard.sch
+ *  Schematic (RevF5): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F5/schematic.png
+ *  Origin (RevF5): https://raw.githubusercontent.com/lwalkera/printrboard/revF5/Printrboard.sch
+ *  Schematic (RevF6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F6/schematic.png
+ *  Origin (RevF6): https://raw.githubusercontent.com/lwalkera/printrboard/revF6/Printrboard.sch
  */
 
 /**

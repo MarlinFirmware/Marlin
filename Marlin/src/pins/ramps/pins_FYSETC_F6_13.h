@@ -23,6 +23,9 @@
 
 //
 // FYSETC F6 1.3 (and 1.4) pin assignments
+// Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/FYSETC%20F6%201.3/F6_V13.pdf
+// Origin: https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.3/F6_V13.pdf
+// ATmega2560
 //
 
 #if NOT_TARGET(__AVR_ATmega2560__)

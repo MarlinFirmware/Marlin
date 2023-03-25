@@ -23,6 +23,7 @@
 
 /**
  * Ultimaker pin assignments
+ * ATmega2560, ATmega1280
  */
 
 /**

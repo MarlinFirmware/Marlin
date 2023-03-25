@@ -23,6 +23,8 @@
 
 /**
  * Cohesion3D ReMix pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20ReMix/C3D%20ReMix%20rev2.svg
+ * Origin: https://github.com/Cohesion3D/Cohesion3D-ReMix/blob/master/C3D%20ReMix%20rev2.sch
  */
 
 #include "env_validate.h"
@@ -87,16 +89,14 @@
 //
 // Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P1_16  // Ethernet Expansion - Pin 5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P1_17  // Ethernet Expansion - Pin 6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P1_08  // Ethernet Expansion - Pin 7
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P1_16  // Ethernet Expansion - Pin 5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P1_17  // Ethernet Expansion - Pin 6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P1_08  // Ethernet Expansion - Pin 7
 #endif
 
 //

@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Tenlog pin assignments
+ * Tenlog D3 Hero pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

@@ -23,6 +23,12 @@
 
 /**
  * Sanguinololu V1.2 pin assignments
+ * Schematic (1.2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.2/schematic.png
+ * Origin (1.2): https://github.com/mosfet/Sanguinololu/blob/master/rev1.2/sanguinololu.sch
+ * Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.3/schematic.png
+ * Origin (1.3): https://github.com/mosfet/Sanguinololu/blob/master/rev1.3/sanguinololu.sch
+ * Schematic (1.3a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.3a/schematic.png
+ * Origin (1.3a): https://github.com/mosfet/Sanguinololu/blob/master/rev1.3a/sanguinololu.sch
  *
  * Applies to the following boards:
  *

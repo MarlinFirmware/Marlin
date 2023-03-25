@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2561
+
 #if NOT_TARGET(__AVR_ATmega1281__, __AVR_ATmega2561__)
   #error "Oops! Select 'Silvergate' in 'Tools > Board.'"
 #endif
@@ -73,7 +75,7 @@
 #define TEMP_BED_PIN                           6
 
 #if HAS_WIRED_LCD
-  #if IS_U8GLIB_ST7920                      // SPI GLCD 12864 ST7920
+  #if IS_U8GLIB_ST7920                            // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS                       30
     #define LCD_PINS_ENABLE                   20
     #define LCD_PINS_D4                       25
