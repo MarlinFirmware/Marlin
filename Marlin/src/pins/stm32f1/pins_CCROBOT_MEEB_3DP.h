@@ -114,7 +114,7 @@
 #define HEATER_0_PIN                        PC8   // HEATER0
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
-#define FAN_PIN                             PA7   // FAN  (fan2 on board) model cool fan
+#define FAN0_PIN                            PA7   // FAN  (fan2 on board) model cool fan
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 

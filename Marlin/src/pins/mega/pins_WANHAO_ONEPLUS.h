@@ -76,7 +76,7 @@
 //
 #define HEATER_0_PIN                           4
 #define HEATER_BED_PIN                        44
-#define FAN_PIN                               12  // IO pin. Buffer needed
+#define FAN0_PIN                              12  // IO pin. Buffer needed
 
 //
 // SD Card

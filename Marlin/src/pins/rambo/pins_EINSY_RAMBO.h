@@ -128,11 +128,11 @@
 #define HEATER_0_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
+#ifndef FAN0_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN_PIN                            6
+    #define FAN0_PIN                           6
   #else
-    #define FAN_PIN                            8
+    #define FAN0_PIN                           8
   #endif
 #endif
 

@@ -166,8 +166,8 @@
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           MOSFET_D_PIN
-#elif !defined(FAN_PIN)
-  #define FAN_PIN                   MOSFET_D_PIN
+#elif !defined(FAN0_PIN)
+  #define FAN0_PIN                  MOSFET_D_PIN
 #endif
 
 #ifndef E1_AUTO_FAN_PIN
