@@ -41,7 +41,7 @@
 #define MOSFET_A_PIN                           9  // HE0
 #define MOSFET_B_PIN                           8  // HE1
 #define MOSFET_C_PIN                          10  // HBED
-#define FAN_PIN                                7
+#define FAN0_PIN                               7
 
 //
 // CS Pins wired to avoid conflict with the LCD

@@ -149,7 +149,7 @@
 #define SPINDLE_LASER_PWM_PIN                  6
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                               24
+#define FAN0_PIN                              24
 
 //
 // LCD / Controller

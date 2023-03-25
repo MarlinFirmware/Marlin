@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PB0
 #define HEATER_BED_PIN                      PB1
 
-#define FAN_PIN                             PA0   // FAN
+#define FAN0_PIN                            PA0   // FAN
 
 //
 // SD Card

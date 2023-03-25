@@ -172,12 +172,12 @@
 
 #if MB(RAMPS_S_12_EEFB)                           // Hotend0, Hotend1, Fan, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
-  #define FAN_PIN                   RAMPS_S_HE_2
+  #define FAN0_PIN                  RAMPS_S_HE_2
 #elif MB(RAMPS_S_12_EEEB)                         // Hotend0, Hotend1, Hotend2, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
   #define HEATER_2_PIN              RAMPS_S_HE_2
 #elif MB(RAMPS_S_12_EFFB)                         // Hotend, Fan0, Fan1, Bed
-  #define FAN_PIN                   RAMPS_S_HE_1
+  #define FAN0_PIN                  RAMPS_S_HE_1
   #define FAN1_PIN                  RAMPS_S_HE_2
 #endif
 

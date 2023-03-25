@@ -35,7 +35,7 @@
   // Heaters / Fans
   //
   #define MOSFET_B_PIN                         7
-  #define FAN_PIN                              9
+  #define FAN0_PIN                             9
 
   //
   // M3/M4/M5 - Spindle/Laser Control

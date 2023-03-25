@@ -116,7 +116,7 @@
 //
 // Fan
 //
-#define FAN_PIN                             PA7   // FAN
+#define FAN0_PIN                            PA7   // FAN
 
 //
 // Thermocouples

@@ -46,7 +46,7 @@
 //
 // Heaters / Fans
 //
-#define FAN_PIN                                9  // FAN0
+#define FAN0_PIN                               9  // FAN0
 #define FAN1_PIN                               7  // FAN1
 #define FAN2_PIN                              44  // FAN2
 #ifndef E0_AUTO_FAN_PIN

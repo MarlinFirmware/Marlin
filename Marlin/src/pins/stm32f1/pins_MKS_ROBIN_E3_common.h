@@ -119,7 +119,7 @@
 // Heaters 0,1 / Fans / Bed
 //
 #define HEATER_0_PIN                        PC9
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //
