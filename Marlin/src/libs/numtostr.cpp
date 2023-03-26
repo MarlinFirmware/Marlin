@@ -423,3 +423,34 @@ const char* ftostr52sp(const_float_t f) {
   }
   return &conv[1];
 }
+
+// Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
+const char* utostr3(const uint16_t x) {
+  return i16tostr3left(_MIN(x, 999U));
+}
+
+// Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
+const char* ftostr52sprj(const_float_t f) {
+  long i = INTFLOAT(f, 2);
+  LIMIT(i, -99999, 99999);            // cap to -999.99 - 999.99 range
+  if (WITHIN(i, -999, 999)) {         // -9.99 - 9.99 range
+    conv[1] = conv[2] = ' ';          // default to ' ' for smaller numbers
+    conv[3] = MINUSOR(i, ' ');
+  }
+  else if (WITHIN(i, -9999, 9999)) {  // -99.99 - 99.99 range
+    conv[1] = ' ';
+    conv[2] = MINUSOR(i, ' ');
+    conv[3] = DIGIMOD(i, 1000);
+  }
+  else {                              // -999.99 - 999.99 range
+    conv[1] = MINUSOR(i, ' ');
+    conv[2] = DIGIMOD(i, 10000);
+    conv[3] = DIGIMOD(i, 1000);
+  }
+  conv[4] = DIGIMOD(i, 100);          // always convert last 3 digits
+  conv[5] = '.';
+  conv[6] = DIGIMOD(i, 10);
+  conv[7] = DIGIMOD(i, 1);
+
+  return &conv[1];
+}
