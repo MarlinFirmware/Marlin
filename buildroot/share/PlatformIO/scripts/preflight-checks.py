@@ -5,11 +5,13 @@
 import pioutil
 if pioutil.is_pio_build():
 
-    import os,re,sys
+    import re,sys
+    from pathlib import Path
     Import("env")
 
     def get_envs_for_board(board):
-        with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
+        ppath = Path("Marlin/src/pins/pins.h")
+        with ppath.open() as file:
 
             if sys.platform == 'win32':
                 envregex = r"(?:env|win):"
@@ -52,11 +54,16 @@ if pioutil.is_pio_build():
         if 'PIOENV' not in env:
             raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
 
-        if 'MARLIN_FEATURES' not in env:
-            raise SystemExit("Error: this script should be used after common Marlin scripts")
+        # Require PlatformIO 6.1.1 or later
+        vers = pioutil.get_pio_version()
+        if vers < [6, 1, 1]:
+            raise SystemExit("Error: Marlin requires PlatformIO >= 6.1.1. Use 'pio upgrade' to get a newer version.")
 
-        if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
-            raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
+        if 'MARLIN_FEATURES' not in env:
+            raise SystemExit("Error: this script should be used after common Marlin scripts.")
+
+        if len(env['MARLIN_FEATURES']) == 0:
+            raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
@@ -72,9 +79,10 @@ if pioutil.is_pio_build():
         #
         # Check for Config files in two common incorrect places
         #
-        for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
-            for f in [ "Configuration.h", "Configuration_adv.h" ]:
-                if os.path.isfile(os.path.join(p, f)):
+        epath = Path(env['PROJECT_DIR'])
+        for p in [ epath, epath / "config" ]:
+            for f in ("Configuration.h", "Configuration_adv.h"):
+                if (p / f).is_file():
                     err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
                     raise SystemExit(err)
 
@@ -82,12 +90,12 @@ if pioutil.is_pio_build():
         # Find the name.cpp.o or name.o and remove it
         #
         def rm_ofile(subdir, name):
-            build_dir = os.path.join(env['PROJECT_BUILD_DIR'], build_env);
-            for outdir in [ build_dir, os.path.join(build_dir, "debug") ]:
-                for ext in [ ".cpp.o", ".o" ]:
-                    fpath = os.path.join(outdir, "src", "src", subdir, name + ext)
-                    if os.path.exists(fpath):
-                        os.remove(fpath)
+            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env);
+            for outdir in (build_dir, build_dir / "debug"):
+                for ext in (".cpp.o", ".o"):
+                    fpath = outdir / "src/src" / subdir / (name + ext)
+                    if fpath.exists():
+                        fpath.unlink()
 
         #
         # Give warnings on every build
@@ -104,16 +112,27 @@ if pioutil.is_pio_build():
         # Check for old files indicating an entangled Marlin (mixing old and new code)
         #
         mixedin = []
-        p = os.path.join(env['PROJECT_DIR'], "Marlin", "src", "lcd", "dogm")
+        p = Path(env['PROJECT_DIR'], "Marlin/src/lcd/dogm")
         for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
-            if os.path.isfile(os.path.join(p, f)):
+            if (p / f).is_file():
                 mixedin += [ f ]
-        p = os.path.join(env['PROJECT_DIR'], "Marlin", "src", "feature", "bedlevel", "abl")
+        p = Path(env['PROJECT_DIR'], "Marlin/src/feature/bedlevel/abl")
         for f in [ "abl.cpp", "abl.h" ]:
-            if os.path.isfile(os.path.join(p, f)):
+            if (p / f).is_file():
                 mixedin += [ f ]
         if mixedin:
             err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
+
+        #
+        # Check FILAMENT_RUNOUT_SCRIPT has a %c parammeter when required
+        #
+        if 'FILAMENT_RUNOUT_SENSOR' in env['MARLIN_FEATURES'] and 'NUM_RUNOUT_SENSORS' in env['MARLIN_FEATURES']:
+            if env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS'].isdigit() and int(env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS']) > 1:
+                if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
+                    frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
+                    if "M600" in frs and "%c" not in frs:
+                        err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
+                        raise SystemExit(err)
 
     sanity_check_target()
