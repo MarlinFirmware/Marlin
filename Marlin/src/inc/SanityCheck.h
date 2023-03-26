@@ -2948,24 +2948,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
-  #define AF_ERR_SUFF "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."
-  #if HAS_AUTO_FAN_0
-    static_assert(_TEST_PWM(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_1
-    static_assert(_TEST_PWM(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_2
-    static_assert(_TEST_PWM(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_3
-    static_assert(_TEST_PWM(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_4
-    static_assert(_TEST_PWM(E4_AUTO_FAN_PIN), "E4" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_5
-    static_assert(_TEST_PWM(E5_AUTO_FAN_PIN), "E5" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_6
-    static_assert(_TEST_PWM(E6_AUTO_FAN_PIN), "E6" AF_ERR_SUFF);
-  #elif HAS_AUTO_FAN_7
-    static_assert(_TEST_PWM(E7_AUTO_FAN_PIN), "E7" AF_ERR_SUFF);
-  #endif
+  #define AF_ASSERT(N) OPTCODE(HAS_AUTO_FAN_##N, static_assert(_TEST_PWM(E##N##_AUTO_FAN_PIN), "E" STRINGIFY(N) "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."))
+  REPEAT(8, AF_ASSERT)
+  #undef AF_ASSERT
 #endif
 
 /**
