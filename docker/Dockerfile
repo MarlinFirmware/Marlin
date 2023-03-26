@@ -1,5 +1,11 @@
 FROM python:3.9.0-buster
 
+# Disable warnings about not having a TTY
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Disable debconf warnings
+ARG DEBCONF_NOWARNINGS="yes"
+
 # Upgrade pip
 RUN pip install --upgrade pip
 
