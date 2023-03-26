@@ -2402,6 +2402,10 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
 
+    #if ENABLED(CNC_ZERO_AFTER_BACKOFF)
+      set_axis_is_at_home(axis);
+    #endif
+
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
   } // homeaxis()

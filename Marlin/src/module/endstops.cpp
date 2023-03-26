@@ -546,6 +546,10 @@ void Endstops::event_handler() {
       )
     );
 
+    #ifdef CNC_ABORT_ON_ENDSTOP_HIT
+      kill();
+    #endif
+
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
