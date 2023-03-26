@@ -705,7 +705,7 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
               // Get checksum from the last entry of the sequence
               if (pvFat->sequenceNumber & 0x40) {
                 lfnChecksum = pvFat->checksum;
-                memset(lfnName, '\0', sizeof(lfnName));
+                ZERO(lfnName);
               }
               // Get LFN sequence number
               lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
@@ -1136,13 +1136,13 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
    * Get the LFN filename block from a dir. Get the block in lname at startOffset
    */
   void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
+    const uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
     LOOP_L_N(i, FILENAME_LENGTH) {
       const uint16_t utf16_ch = (i >= 11) ? pFatDir->name3[i - 11] : (i >= 5) ? pFatDir->name2[i - 5] : pFatDir->name1[i];
       #if ENABLED(UTF_FILENAME_SUPPORT)
         // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
         // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
-        uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
+        const uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
         lname[idx] = utf16_ch & 0xFF;
         lname[idx + 1] = (utf16_ch >> 8) & 0xFF;
       #else
@@ -1156,8 +1156,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
    * Set the LFN filename block lname to a dir. Put the block based on sequence number
    */
   void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
-    uint8_t nameLength = strlen(lname);
+    const uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH,
+                  nameLength = strlen(lname);
     LOOP_L_N(i, FILENAME_LENGTH) {
       uint16_t ch = 0;
       if ((startOffset + i) < nameLength)
