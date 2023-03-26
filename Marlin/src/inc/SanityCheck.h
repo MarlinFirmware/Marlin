@@ -684,6 +684,14 @@
   #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
 #elif defined(FAN_PIN)
   #error "FAN_PIN is now FAN0_PIN."
+#elif defined(X_MIN_ENDSTOP_INVERTING) || defined(Y_MIN_ENDSTOP_INVERTING) || defined(Z_MIN_ENDSTOP_INVERTING) \
+   || defined(I_MIN_ENDSTOP_INVERTING) || defined(J_MIN_ENDSTOP_INVERTING) || defined(K_MIN_ENDSTOP_INVERTING) \
+   || defined(U_MIN_ENDSTOP_INVERTING) || defined(V_MIN_ENDSTOP_INVERTING) || defined(W_MIN_ENDSTOP_INVERTING) \
+   || defined(X_MAX_ENDSTOP_INVERTING) || defined(Y_MAX_ENDSTOP_INVERTING) || defined(Z_MAX_ENDSTOP_INVERTING) \
+   || defined(I_MAX_ENDSTOP_INVERTING) || defined(J_MAX_ENDSTOP_INVERTING) || defined(K_MAX_ENDSTOP_INVERTING) \
+   || defined(U_MAX_ENDSTOP_INVERTING) || defined(V_MAX_ENDSTOP_INVERTING) || defined(W_MAX_ENDSTOP_INVERTING) \
+   || defined(Z_MIN_PROBE_ENDSTOP_INVERTING)
+  #error "*_ENDSTOP_INVERTING false/true is now set with *_ENDSTOP_HIT_STATE HIGH/LOW."
 #endif
 
 // L64xx stepper drivers have been removed
