@@ -10,12 +10,10 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    import os,sys,marlin
-    Import("env")
+    import marlin
 
-    from SCons.Script import DefaultEnvironment
-    board = DefaultEnvironment().BoardConfig()
-
+    env = marlin.env
+    board = env.BoardConfig()
     board_keys = board.get("build").keys()
 
     #
@@ -55,8 +53,13 @@ if pioutil.is_pio_build():
     #
     if 'rename' in board_keys:
 
+        # If FIRMWARE_BIN is defined by config, override all
+        mf = env["MARLIN_FEATURES"]
+        if "FIRMWARE_BIN" in mf: new_name = mf["FIRMWARE_BIN"]
+        else: new_name = board.get("build.rename")
+
         def rename_target(source, target, env):
-            firmware = os.path.join(target[0].dir.path, board.get("build.rename"))
-            os.replace(target[0].path, firmware)
+            from pathlib import Path
+            Path(target[0].path).replace(Path(target[0].dir.path, new_name))
 
         marlin.add_post_action(rename_target)
