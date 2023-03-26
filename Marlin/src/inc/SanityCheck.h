@@ -4525,22 +4525,19 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
 
+// Abort on Endstop hit
 #if ENABLED(CNC_ABORT_ON_ENDSTOP_HIT)
   #if DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
     #error "CNC_ABORT_ON_ENDSTOP_HIT requires ENDSTOPS_ALWAYS_ON_DEFAULT."
-  #endif
-  #if DISABLED(NO_MOTION_BEFORE_HOMING)
+  #elif DISABLED(NO_MOTION_BEFORE_HOMING)
     #error "CNC_ABORT_ON_ENDSTOP_HIT requires NO_MOTION_BEFORE_HOMING."
-  #endif
-  #ifndef HOMING_BACKOFF_POST_MM
-    #error "CNC_ABORT_ON_ENDSTOP_HIT requires HOMING_BACKOFF_POST_MM."
-  #endif
-  //we can make CNC_ZERO_AFTER_BACKOFF automatic when CNC_ABORT_ON_ENDSTOP_HIT is enabled...
-  #if DISABLED(CNC_ZERO_AFTER_BACKOFF)
+  #elif DISABLED(CNC_ZERO_AFTER_BACKOFF)
+    // CNC_ZERO_AFTER_BACKOFF may be set automatically with CNC_ABORT_ON_ENDSTOP_HIT
     #error "CNC_ABORT_ON_ENDSTOP_HIT requires CNC_ZERO_AFTER_BACKOFF."
-  #endif
-  #if DISABLED(HOME_Z_FIRST)
+  #elif DISABLED(HOME_Z_FIRST)
     #warning "CNC usually homes Z first to clear the workpiece + clamps. remove this if you know otherwise."
+  #elif !defined(HOMING_BACKOFF_POST_MM)
+    #error "CNC_ABORT_ON_ENDSTOP_HIT requires HOMING_BACKOFF_POST_MM."
   #endif
 #endif
 
