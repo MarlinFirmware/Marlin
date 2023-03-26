@@ -2094,7 +2094,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #ifdef CPU_32_BIT
 
-    return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
+    // A fast processor can just do integer division
+    return step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
