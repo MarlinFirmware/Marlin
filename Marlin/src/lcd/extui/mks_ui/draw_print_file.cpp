@@ -435,24 +435,21 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         break;
       }
     }
-    #if HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
-        p_index = (uint16_t *)(&public_buf[i]);
 
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
+    for (i = 0; i < 200;) {
+      p_index = (uint16_t *)(&public_buf[i]);
+      //Color = (*p_index >> 8);
+      //*p_index = Color | ((*p_index & 0xFF) << 8);
+      i += 2;
+      if (*p_index == 0x0000) {
+        #if HAS_TFT_LVGL_UI_SPI
+          *p_index = LV_COLOR_BACKGROUND.full;
+        #else
+          *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3
+        #endif
       }
-    #else // !HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
-        p_index = (uint16_t *)(&public_buf[i]);
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
-      }
-    #endif // !HAS_TFT_LVGL_UI_SPI
+    }
+
     memcpy(data_buf, public_buf, 200);
   #endif // HAS_MEDIA
 }

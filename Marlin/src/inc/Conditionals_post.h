@@ -560,7 +560,7 @@
     #define REINIT_NOISY_LCD 1  // Have the LCD re-init on SD insertion
   #endif
 
-#endif
+#endif // SDSUPPORT
 
 /**
  * Power Supply
