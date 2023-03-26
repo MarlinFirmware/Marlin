@@ -88,6 +88,7 @@
 
 // Some options are disallowed without required axes
 #if !HAS_Y_AXIS
+  #undef DISABLE_IDLE_Y
   #undef SAFE_BED_LEVELING_START_Y
   #undef ARC_SUPPORT
   #undef INPUT_SHAPING_Y
@@ -95,30 +96,42 @@
   #undef SHAPING_BUFFER_Y
 #endif
 #if !HAS_Z_AXIS
+  #undef DISABLE_IDLE_Z
+  #undef ENABLE_LEVELING_FADE_HEIGHT
+  #undef HOME_Z_FIRST
+  #undef HOMING_Z_WITH_PROBE
+  #undef NUM_Z_STEPPERS
   #undef SAFE_BED_LEVELING_START_Z
 #endif
 #if !HAS_I_AXIS
+  #undef DISABLE_IDLE_I
   #undef SAFE_BED_LEVELING_START_I
 #endif
 #if !HAS_J_AXIS
+  #undef DISABLE_IDLE_J
   #undef SAFE_BED_LEVELING_START_J
 #endif
 #if !HAS_K_AXIS
+  #undef DISABLE_IDLE_K
   #undef SAFE_BED_LEVELING_START_K
 #endif
 #if !HAS_U_AXIS
+  #undef DISABLE_IDLE_U
   #undef SAFE_BED_LEVELING_START_U
 #endif
 #if !HAS_V_AXIS
+  #undef DISABLE_IDLE_V
   #undef SAFE_BED_LEVELING_START_V
 #endif
 #if !HAS_W_AXIS
+  #undef DISABLE_IDLE_W
   #undef SAFE_BED_LEVELING_START_W
 #endif
 
 // Disallowed with no extruders
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
+  #undef DISABLE_IDLE_E
   #undef FWRETRACT
   #undef PIDTEMP
   #undef AUTOTEMP
@@ -134,6 +147,43 @@
   #undef MANUAL_E_MOVES_RELATIVE
   #undef STEALTHCHOP_E
 #endif
+
+#if ENABLED(DISABLE_X) && !defined(DISABLE_IDLE_X)
+  #define DISABLE_IDLE_X
+#endif
+#if ENABLED(DISABLE_Y) && !defined(DISABLE_IDLE_Y)
+  #define DISABLE_IDLE_Y
+#endif
+#if ENABLED(DISABLE_Z) && !defined(DISABLE_IDLE_Z)
+  #define DISABLE_IDLE_Z
+#endif
+#if ENABLED(DISABLE_I) && !defined(DISABLE_IDLE_I)
+  #define DISABLE_IDLE_I
+#endif
+#if ENABLED(DISABLE_J) && !defined(DISABLE_IDLE_J)
+  #define DISABLE_IDLE_J
+#endif
+#if ENABLED(DISABLE_K) && !defined(DISABLE_IDLE_K)
+  #define DISABLE_IDLE_K
+#endif
+#if ENABLED(DISABLE_U) && !defined(DISABLE_IDLE_U)
+  #define DISABLE_IDLE_U
+#endif
+#if ENABLED(DISABLE_V) && !defined(DISABLE_IDLE_V)
+  #define DISABLE_IDLE_V
+#endif
+#if ENABLED(DISABLE_W) && !defined(DISABLE_IDLE_W)
+  #define DISABLE_IDLE_W
+#endif
+#if ENABLED(DISABLE_E) && !defined(DISABLE_IDLE_E)
+  #define DISABLE_IDLE_E
+#endif
+
+#define _OR_HAS_DI(A) || BOTH(HAS_##A##_AXIS, DISABLE_IDLE_##A)
+#if BOTH(HAS_EXTRUDERS, DISABLE_IDLE_E) MAP(_OR_HAS_DI, X, Y, Z, I, J, K, U, V, W)
+  #define HAS_DISABLE_IDLE_AXES 1
+#endif
+#undef _OR_HAS_DI
 
 #if HOTENDS <= 7
   #undef E7_AUTO_FAN_PIN
