@@ -216,7 +216,7 @@ uint32_t Planner::acceleration_long_cutoff;
 xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed;
 
-#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+#if ENABLED(DISABLE_OTHER_EXTRUDERS)
   last_move_t Planner::g_uc_extruder_last_move[E_STEPPERS] = { 0 };
 #endif
 
@@ -1321,7 +1321,7 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W, DISABLE_E)
+  #if HAS_DISABLE_AXES
     xyze_bool_t axis_active = { false };
   #endif
 
@@ -1361,7 +1361,7 @@ void Planner::check_axes_activity() {
       TERN_(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
     #endif
 
-    #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_E)
+    #if HAS_DISABLE_AXES
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
         block_t * const bnext = &block_buffer[b];
         LOGICAL_AXIS_CODE(
@@ -1402,18 +1402,20 @@ void Planner::check_axes_activity() {
   //
   // Disable inactive axes
   //
-  LOGICAL_AXIS_CODE(
-    if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
-    if (TERN0(DISABLE_X, !axis_active.x)) stepper.disable_axis(X_AXIS),
-    if (TERN0(DISABLE_Y, !axis_active.y)) stepper.disable_axis(Y_AXIS),
-    if (TERN0(DISABLE_Z, !axis_active.z)) stepper.disable_axis(Z_AXIS),
-    if (TERN0(DISABLE_I, !axis_active.i)) stepper.disable_axis(I_AXIS),
-    if (TERN0(DISABLE_J, !axis_active.j)) stepper.disable_axis(J_AXIS),
-    if (TERN0(DISABLE_K, !axis_active.k)) stepper.disable_axis(K_AXIS),
-    if (TERN0(DISABLE_U, !axis_active.u)) stepper.disable_axis(U_AXIS),
-    if (TERN0(DISABLE_V, !axis_active.v)) stepper.disable_axis(V_AXIS),
-    if (TERN0(DISABLE_W, !axis_active.w)) stepper.disable_axis(W_AXIS)
-  );
+  #if HAS_DISABLE_AXES
+    LOGICAL_AXIS_CODE(
+      if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
+      if (TERN0(DISABLE_X, !axis_active.x)) stepper.disable_axis(X_AXIS),
+      if (TERN0(DISABLE_Y, !axis_active.y)) stepper.disable_axis(Y_AXIS),
+      if (TERN0(DISABLE_Z, !axis_active.z)) stepper.disable_axis(Z_AXIS),
+      if (TERN0(DISABLE_I, !axis_active.i)) stepper.disable_axis(I_AXIS),
+      if (TERN0(DISABLE_J, !axis_active.j)) stepper.disable_axis(J_AXIS),
+      if (TERN0(DISABLE_K, !axis_active.k)) stepper.disable_axis(K_AXIS),
+      if (TERN0(DISABLE_U, !axis_active.u)) stepper.disable_axis(U_AXIS),
+      if (TERN0(DISABLE_V, !axis_active.v)) stepper.disable_axis(V_AXIS),
+      if (TERN0(DISABLE_W, !axis_active.w)) stepper.disable_axis(W_AXIS)
+    );
+  #endif
 
   //
   // Update Fan speeds
@@ -2314,7 +2316,7 @@ bool Planner::_populate_block(
     if (esteps) {
       TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
-      #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+      #if ENABLED(DISABLE_OTHER_EXTRUDERS) // Enable only the selected extruder
 
         // Count down all steppers that were recently moved
         for (uint8_t i = 0; i < E_STEPPERS; ++i)

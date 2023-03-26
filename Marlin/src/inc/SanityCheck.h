@@ -662,6 +662,12 @@
   #error "TMC_SW_(MOSI|MISO|SCK) is now TMC_SPI_(MOSI|MISO|SCK)."
 #elif defined(BTT_MINI_12864_V1)
   #error "BTT_MINI_12864_V1 is now BTT_MINI_12864."
+#elif defined(DISABLE_INACTIVE_X) || defined(DISABLE_INACTIVE_Y) || defined(DISABLE_INACTIVE_Z) \
+   || defined(DISABLE_INACTIVE_I) || defined(DISABLE_INACTIVE_J) || defined(DISABLE_INACTIVE_K) \
+   || defined(DISABLE_INACTIVE_U) || defined(DISABLE_INACTIVE_V) || defined(DISABLE_INACTIVE_W) || defined(DISABLE_INACTIVE_E)
+  #error "DISABLE_INACTIVE_[XYZIJKUVWE] is now DISABLE_IDLE_[XYZIJKUVWE]."
+#elif defined(DEFAULT_STEPPER_DEACTIVE_TIME)
+  #error "DEFAULT_STEPPER_DEACTIVE_TIME is now DEFAULT_STEPPER_TIMEOUT_SEC."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1333,8 +1339,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
-  #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
-    #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
+  #elif ENABLED(DISABLE_OTHER_EXTRUDERS)
+    #error "MIXING_EXTRUDER is incompatible with DISABLE_OTHER_EXTRUDERS."
   #elif HAS_FILAMENT_RUNOUT_DISTANCE
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_RUNOUT_DISTANCE_MM."
   #endif
@@ -2195,10 +2201,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Make sure DISABLE_[XYZ] compatible with selected homing options
  */
-#if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W)
-  #if ANY(HOME_AFTER_DEACTIVATE, Z_SAFE_HOMING)
-    #error "DISABLE_[XYZIJKUVW] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
-  #endif
+#if HAS_DISABLE_MAIN_AXES && ANY(HOME_AFTER_DEACTIVATE, Z_SAFE_HOMING)
+  #error "DISABLE_[XYZIJKUVW] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
 #endif
 
 /**
@@ -4133,7 +4137,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #undef _PIN_CONFLICT
 
   #ifdef LASER_SAFETY_TIMEOUT_MS
-    static_assert(LASER_SAFETY_TIMEOUT_MS < (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL, "LASER_SAFETY_TIMEOUT_MS must be less than DEFAULT_STEPPER_DEACTIVE_TIME (" STRINGIFY(DEFAULT_STEPPER_DEACTIVE_TIME) " seconds)");
+    static_assert(LASER_SAFETY_TIMEOUT_MS < (DEFAULT_STEPPER_TIMEOUT_SEC) * 1000UL, "LASER_SAFETY_TIMEOUT_MS must be less than DEFAULT_STEPPER_TIMEOUT_SEC (" STRINGIFY(DEFAULT_STEPPER_TIMEOUT_SEC) " seconds)");
   #endif
 
 #endif
