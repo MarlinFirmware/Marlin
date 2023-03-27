@@ -698,6 +698,8 @@
   #error "DISABLE_INACTIVE_[XYZIJKUVWE] is now DISABLE_IDLE_[XYZIJKUVWE]."
 #elif defined(DEFAULT_STEPPER_DEACTIVE_TIME)
   #error "DEFAULT_STEPPER_DEACTIVE_TIME is now DEFAULT_STEPPER_TIMEOUT_SEC."
+#elif defined(TFT_SHARED_SPI)
+  #error "TFT_SHARED_SPI is now TFT_SHARED_IO."
 #endif
 
 // L64xx stepper drivers have been removed
