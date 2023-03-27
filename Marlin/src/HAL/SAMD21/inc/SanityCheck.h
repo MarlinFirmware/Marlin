@@ -29,6 +29,10 @@
  * Test SAMD21 specific configuration values for errors at compile-time.
  */
 
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/SAMD21."
+#endif
+
 #if SERVO_TC == MF_TIMER_RTC
   #error "Servos can't use RTC timer"
 #endif
@@ -42,7 +46,7 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN)
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN) are not yet supported on SAMD21."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN) are not yet supported for HAL/SAMD21."
 #endif
 
 #if ENABLED(POSTMORTEM_DEBUGGING)

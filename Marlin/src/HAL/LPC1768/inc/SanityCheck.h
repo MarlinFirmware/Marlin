@@ -77,6 +77,10 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
   #endif
 #endif
 
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not current available for HAL/LPC1768."
+#endif
+
 static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported on LPC176x.");
 
 /**
