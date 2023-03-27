@@ -76,6 +76,31 @@
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
+//constrain axis positon within bounds or abort if defined so for CNC
+#ifdef CNC_ABORT_ON_ENDSTOP_HIT
+  template <class V, class N> static constexpr void POS_NOLESS(V& v, const N n) {
+    if (n > v) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
+      SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
+      SERIAL_EOL();
+      kill();
+    }
+  }
+  template <class V, class N> static constexpr void POS_NOMORE(V& v, const N n) {
+    if (n < v) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
+      SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
+      SERIAL_EOL();
+      kill();
+    }
+  }
+#else
+  #define POS_NOLESS NOLESS
+  #define POS_NOMORE NOMORE
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
@@ -952,20 +977,20 @@ void restore_feedrate_and_scaling() {
 
       if (axis_was_homed(X_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-          NOLESS(target.x, soft_endstop.min.x);
+          POS_NOLESS(target.x, soft_endstop.min.x);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-          NOMORE(target.x, soft_endstop.max.x);
+          POS_NOMORE(target.x, soft_endstop.max.x);
         #endif
       }
 
       #if HAS_Y_AXIS
         if (axis_was_homed(Y_AXIS)) {
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            NOLESS(target.y, soft_endstop.min.y);
+            POS_NOLESS(target.y, soft_endstop.min.y);
           #endif
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            NOMORE(target.y, soft_endstop.max.y);
+            POS_NOMORE(target.y, soft_endstop.max.y);
           #endif
         }
       #endif
@@ -975,70 +1000,70 @@ void restore_feedrate_and_scaling() {
     #if HAS_Z_AXIS
       if (axis_was_homed(Z_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-          NOLESS(target.z, soft_endstop.min.z);
+          POS_NOLESS(target.z, soft_endstop.min.z);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-          NOMORE(target.z, soft_endstop.max.z);
+          POS_NOMORE(target.z, soft_endstop.max.z);
         #endif
       }
     #endif
     #if HAS_I_AXIS
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
-          NOLESS(target.i, soft_endstop.min.i);
+          POS_NOLESS(target.i, soft_endstop.min.i);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_I)
-          NOMORE(target.i, soft_endstop.max.i);
+          POS_NOMORE(target.i, soft_endstop.max.i);
         #endif
       }
     #endif
     #if HAS_J_AXIS
       if (axis_was_homed(J_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_J)
-          NOLESS(target.j, soft_endstop.min.j);
+          POS_NOLESS(target.j, soft_endstop.min.j);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_J)
-          NOMORE(target.j, soft_endstop.max.j);
+          POS_NOMORE(target.j, soft_endstop.max.j);
         #endif
       }
     #endif
     #if HAS_K_AXIS
       if (axis_was_homed(K_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_K)
-          NOLESS(target.k, soft_endstop.min.k);
+          POS_NOLESS(target.k, soft_endstop.min.k);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_K)
-          NOMORE(target.k, soft_endstop.max.k);
+          POS_NOMORE(target.k, soft_endstop.max.k);
         #endif
       }
     #endif
     #if HAS_U_AXIS
       if (axis_was_homed(U_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_U)
-          NOLESS(target.u, soft_endstop.min.u);
+          POS_NOLESS(target.u, soft_endstop.min.u);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_U)
-          NOMORE(target.u, soft_endstop.max.u);
+          POS_NOMORE(target.u, soft_endstop.max.u);
         #endif
       }
     #endif
     #if HAS_V_AXIS
       if (axis_was_homed(V_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_V)
-          NOLESS(target.v, soft_endstop.min.v);
+          POS_NOLESS(target.v, soft_endstop.min.v);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_V)
-          NOMORE(target.v, soft_endstop.max.v);
+          POS_NOMORE(target.v, soft_endstop.max.v);
         #endif
       }
     #endif
     #if HAS_W_AXIS
       if (axis_was_homed(W_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_W)
-          NOLESS(target.w, soft_endstop.min.w);
+          POS_NOLESS(target.w, soft_endstop.min.w);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_W)
-          NOMORE(target.w, soft_endstop.max.w);
+          POS_NOMORE(target.w, soft_endstop.max.w);
         #endif
       }
     #endif
