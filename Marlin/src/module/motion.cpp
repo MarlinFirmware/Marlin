@@ -2368,12 +2368,12 @@ void prepare_line_to_destination() {
 
     #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
 
-      set_axis_is_at_home(axis);
-      sync_plan_position();
-
-      destination[axis] = current_position[axis];
-
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
+      #if DISABLED(CNC_HOMED_AFTER_BACKOFF)
+        set_axis_is_at_home(axis);
+        sync_plan_position();
+        destination[axis] = current_position[axis];
+        if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
+      #endif
 
     #endif
 
@@ -2381,6 +2381,7 @@ void prepare_line_to_destination() {
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
+
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
@@ -2395,14 +2396,19 @@ void prepare_line_to_destination() {
           ) safe_delay(200);  // Short delay to allow belts to spring back
         #endif
       }
-    #endif
+
+      #if !IS_KINEMATIC && ENABLED(CNC_HOMED_AFTER_BACKOFF)
+        set_axis_is_at_home(axis);
+        sync_plan_position();
+        destination[axis] = current_position[axis];
+      #endif
+
+    #endif // !DELTA && HOMING_BACKOFF_POST_MM
 
     // Clear retracted status if homing the Z axis
     #if ENABLED(FWRETRACT)
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
-
-    TERN_(CNC_ZERO_AFTER_BACKOFF, set_axis_is_at_home(axis));
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
