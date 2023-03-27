@@ -891,8 +891,8 @@ void idle(bool no_stepper_sleep/*=false*/) {
  * After this the machine will need to be reset.
  */
 void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
-  TERN_(CNC_ABORT_ON_ENDSTOP_HIT,  minkill(steppers_off));
-  
+  TERN_(CNC_ABORT_ON_ENDSTOP_HIT, minkill(steppers_off));
+
   thermalManager.disable_all_heaters();
 
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
@@ -915,9 +915,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
     hostui.kill();
   #endif
 
-  #if DISABLED(CNC_ABORT_ON_ENDSTOP_HIT)
-    minkill(steppers_off);
-  #endif
+  IF_DISABLED(CNC_ABORT_ON_ENDSTOP_HIT, minkill(steppers_off));
 }
 
 void minkill(const bool steppers_off/*=false*/) {
