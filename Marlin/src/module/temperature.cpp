@@ -988,8 +988,7 @@ volatile bool Temperature::raw_temps_ready = false;
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     init_timers();
     constexpr millis_t test_interval_ms = 1000UL;
-    millis_t next_temperature_test_time_ms, next_heating_test_time_ms;
-    next_temperature_test_time_ms = next_heating_test_time_ms = curr_time_ms + test_interval_ms;
+    millis_t next_test_time_ms = curr_time_ms + test_interval_ms;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
     current_temp = degHotend(e);
@@ -1004,34 +1003,37 @@ volatile bool Temperature::raw_temps_ready = false;
     float temp[2]; // Buffer to store 2 previous temperature reading to establish rate of change
 
     // Initialise rate of change to to steady state at current time
-    temp_fastest = temp[0] = temp[1] = temp[2] = current_temp;
+    temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
-      if (ELAPSED(curr_time_ms, next_heating_test_time_ms)) {
-        // Update the buffer of previous readings
-        temp[0] = temp[1];
-        temp[1] = temp[2];
-        temp[2] = current_temp;
+      if (ELAPSED(curr_time_ms, next_test_time_ms)) {
+        if (current_temp < 100.0f) {
+          // Initial regime (below 100deg): Measure rate of change of heating for differential tuning
 
-        // Measure the rate of change of temperature, https://en.wikipedia.org/wiki/Symmetric_derivative
-        float h = MS_TO_SEC_PRECISE(test_interval_ms);
-        float curr_rate = (temp[2] - temp[0]) / 2 * h;
-        if (curr_rate > rate_fastest) {
-          // Update fastest values
-          rate_fastest = curr_rate;
-          temp_fastest = temp[1];
-          time_fastest = get_elapsed_heating_time();
-        }
-        next_heating_test_time_ms += test_interval_ms * sample_distance;
-      }
+          // Update the buffer of previous readings
+          temp_samples[0] = temp_samples[1];
+          temp_samples[1] = temp_samples[2];
+          temp_samples[2] = current_temp;
 
-      // Record samples between 100C and 200C
-      if (ELAPSED(curr_time_ms, next_temperature_test_time_ms)) {
-        if (current_temp >= 100.0f) {
+          // Measure the rate of change of temperature, https://en.wikipedia.org/wiki/Symmetric_derivative
+          float h = MS_TO_SEC_PRECISE(test_interval_ms);
+          float curr_rate = (temp_samples[2] - temp_samples[0]) / 2 * h;
+          if (curr_rate > rate_fastest) {
+            // Update fastest values
+            rate_fastest = curr_rate;
+            temp_fastest = temp[1];
+            time_fastest = get_elapsed_heating_time();
+          }
+
+          next_test_time_ms += test_interval_ms;
+
+        } else if (current_temp < 200.0f) {
+          // Second regime (after 100deg) measure 3 points to determine asymptotic temperature
+
           // If there are too many samples, space them more widely
           if (sample_count == COUNT(temp_samples)) {
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
@@ -1042,11 +1044,15 @@ volatile bool Temperature::raw_temps_ready = false;
 
           if (sample_count == 0) t1_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
           temp_samples[sample_count++] = current_temp;
+
+          if (current_temp >= 200.0f) break;
+
+          next_test_time_ms += test_interval_ms * sample_distance;
+
+        } else {
+          // Third regime (after 200deg) finished gathering data so finish
+          break;
         }
-
-        if (current_temp >= 200.0f) break;
-
-        next_temperature_test_time_ms += test_interval_ms * sample_distance;
       }
     }
     wait_for_heatup = false;
