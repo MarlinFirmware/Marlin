@@ -368,8 +368,8 @@ void DGUSScreenHandlerMKS::EEPROM_CTRL(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandlerMKS::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t z_value = BE16_P(val_ptr);
-  switch (z_value) {
+  const uint16_t z = BE16_P(val_ptr);
+  switch (z) {
     case 0: Z_distance = 0.01; break;
     case 1: Z_distance = 0.1; break;
     case 2: Z_distance = 0.5; break;
@@ -477,7 +477,7 @@ void DGUSScreenHandlerMKS::MeshLevelDistanceConfig(DGUS_VP_Variable &var, void *
 
 void DGUSScreenHandlerMKS::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
   #if ENABLED(MESH_BED_LEVELING)
-    const uint16_t mesh_value = BE16_P(val_ptr);
+    const uint16_t mesh_val = BE16_P(val_ptr);
     // static uint8_t a_first_level = 1;
     char cmd_buf[30];
     float offset = mesh_adj_distance;
@@ -485,7 +485,7 @@ void DGUSScreenHandlerMKS::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
 
     if (!queue.ring_buffer.empty()) return;
 
-    switch (mesh_value) {
+    switch (mesh_val) {
       case 0:
         offset = mesh_adj_distance;
         integer = offset; // get int
@@ -575,20 +575,19 @@ void DGUSScreenHandlerMKS::SD_FileBack(DGUS_VP_Variable&, void*) {
 }
 
 void DGUSScreenHandlerMKS::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
-
-  const uint16_t lcd_value = BE16_P(val_ptr);
-  lcd_default_light = constrain(lcd_value, 10, 100);
+  const uint16_t lcd_val = BE16_P(val_ptr);
+  lcd_default_light = constrain(lcd_val, 10, 100);
 
   const uint16_t lcd_data[2] = { lcd_default_light, lcd_default_light };
   dgusdisplay.WriteVariable(0x0082, &lcd_data, 5, true);
 }
 
 void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr) {
-  const int16_t point_value = BE16_P(val_ptr);
+  const int16_t point_val = BE16_P(val_ptr);
 
   // Insist on leveling first time at this screen
   static bool first_level_flag = false;
-  if (!first_level_flag || point_value == 0x0001) {
+  if (!first_level_flag || point_val == 0x0001) {
     queue.enqueue_now_P(G28_STR);
     first_level_flag = true;
   }
@@ -601,10 +600,10 @@ void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val
     queue.enqueue_one_now(buf_level);
   };
 
-  if (WITHIN(point_value, 0x0001, 0x0005))
+  if (WITHIN(point_val, 0x0001, 0x0005))
     queue.enqueue_now(F("G1Z10"));
 
-  switch (point_value) {
+  switch (point_val) {
     case 0x0001:
       enqueue_corner_move(X_MIN_POS + ABS(mks_corner_offsets[0].x),
                           Y_MIN_POS + ABS(mks_corner_offsets[0].y), level_speed);
@@ -628,7 +627,7 @@ void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val
       break;
   }
 
-  if (WITHIN(point_value, 0x0002, 0x0005)) {
+  if (WITHIN(point_val, 0x0002, 0x0005)) {
     //queue.enqueue_now(F("G28Z"));
     queue.enqueue_now(F("G1Z-10"));
   }
@@ -638,14 +637,14 @@ void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val
 #define mks_max(a, b) ((a) > (b)) ? (a) : (b)
 void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   #if EITHER(HAS_TRINAMIC_CONFIG, HAS_STEALTHCHOP)
-    const uint16_t tmc_value = BE16_P(val_ptr);
+    const uint16_t tmc_val = BE16_P(val_ptr);
   #endif
 
   switch (var.VP) {
     case VP_TMC_X_STEP:
       #if USE_SENSORLESS
         #if X_HAS_STEALTHCHOP
-          stepperX.homing_threshold(mks_min(tmc_value, 255));
+          stepperX.homing_threshold(mks_min(tmc_val, 255));
           settings.save();
           //tmc_step.x = stepperX.homing_threshold();
         #endif
@@ -654,7 +653,7 @@ void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr
     case VP_TMC_Y_STEP:
       #if USE_SENSORLESS
         #if Y_HAS_STEALTHCHOP
-          stepperY.homing_threshold(mks_min(tmc_value, 255));
+          stepperY.homing_threshold(mks_min(tmc_val, 255));
           settings.save();
           //tmc_step.y = stepperY.homing_threshold();
         #endif
@@ -663,7 +662,7 @@ void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr
     case VP_TMC_Z_STEP:
       #if USE_SENSORLESS
         #if Z_HAS_STEALTHCHOP
-          stepperZ.homing_threshold(mks_min(tmc_value, 255));
+          stepperZ.homing_threshold(mks_min(tmc_val, 255));
           settings.save();
           //tmc_step.z = stepperZ.homing_threshold();
         #endif
@@ -671,49 +670,49 @@ void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr
       break;
     case VP_TMC_X_Current:
       #if AXIS_IS_TMC(X)
-        stepperX.rms_current(tmc_value);
+        stepperX.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_X1_Current:
       #if AXIS_IS_TMC(X2)
-        stepperX2.rms_current(tmc_value);
+        stepperX2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y_Current:
       #if AXIS_IS_TMC(Y)
-        stepperY.rms_current(tmc_value);
+        stepperY.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y1_Current:
       #if AXIS_IS_TMC(X2)
-        stepperY2.rms_current(tmc_value);
+        stepperY2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z_Current:
       #if AXIS_IS_TMC(Z)
-        stepperZ.rms_current(tmc_value);
+        stepperZ.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z1_Current:
       #if AXIS_IS_TMC(Z2)
-        stepperZ2.rms_current(tmc_value);
+        stepperZ2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E0_Current:
       #if AXIS_IS_TMC(E0)
-        stepperE0.rms_current(tmc_value);
+        stepperE0.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E1_Current:
       #if AXIS_IS_TMC(E1)
-        stepperE1.rms_current(tmc_value);
+        stepperE1.rms_current(tmc_val);
         settings.save();
       #endif
       break;
@@ -849,29 +848,29 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandlerMKS::GetParkPos(DGUS_VP_Variable &var, void *val_ptr) {
-  const int16_t value_pos = BE16_P(val_ptr);
+  const int16_t pos = BE16_P(val_ptr);
 
   switch (var.VP) {
-    case VP_X_PARK_POS: mks_park_pos.x = value_pos; break;
-    case VP_Y_PARK_POS: mks_park_pos.y = value_pos; break;
-    case VP_Z_PARK_POS: mks_park_pos.z = value_pos; break;
+    case VP_X_PARK_POS: mks_park_pos.x = pos; break;
+    case VP_Y_PARK_POS: mks_park_pos.y = pos; break;
+    case VP_Z_PARK_POS: mks_park_pos.z = pos; break;
     default: break;
   }
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandlerMKS::HandleChangeLevelPoint(DGUS_VP_Variable &var, void *val_ptr) {
-  const int16_t value_raw = BE16_P(val_ptr);
+  const int16_t raw = BE16_P(val_ptr);
 
-  *(int16_t*)var.memadr = value_raw;
+  *(int16_t*)var.memadr = raw;
 
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandlerMKS::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw;
+  const uint16_t raw = BE16_P(val_ptr);
+  const float value = (float)raw;
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -886,8 +885,8 @@ void DGUSScreenHandlerMKS::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *v
 }
 
 void DGUSScreenHandlerMKS::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw;
+  const uint16_t raw = BE16_P(val_ptr);
+  const float value = (float)raw;
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -905,8 +904,8 @@ void DGUSScreenHandlerMKS::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var,
 }
 
 void DGUSScreenHandlerMKS::HandleMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw;
+  const uint16_t raw = BE16_P(val_ptr);
+  const float value = (float)raw;
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -921,8 +920,8 @@ void DGUSScreenHandlerMKS::HandleMaxSpeedChange(DGUS_VP_Variable &var, void *val
 }
 
 void DGUSScreenHandlerMKS::HandleExtruderMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw;
+  const uint16_t raw = BE16_P(val_ptr);
+  const float value = (float)raw;
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -940,8 +939,8 @@ void DGUSScreenHandlerMKS::HandleExtruderMaxSpeedChange(DGUS_VP_Variable &var, v
 }
 
 void DGUSScreenHandlerMKS::HandleMaxAccChange(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw;
+  const uint16_t raw = BE16_P(val_ptr);
+  const float value = (float)raw;
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -956,8 +955,8 @@ void DGUSScreenHandlerMKS::HandleMaxAccChange(DGUS_VP_Variable &var, void *val_p
 }
 
 void DGUSScreenHandlerMKS::HandleExtruderAccChange(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t value_raw = BE16_P(val_ptr);
-  float value = (float)value_raw;
+  uint16_t raw = BE16_P(val_ptr);
+  float value = (float)raw;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
     default: return;
@@ -974,33 +973,33 @@ void DGUSScreenHandlerMKS::HandleExtruderAccChange(DGUS_VP_Variable &var, void *
 }
 
 void DGUSScreenHandlerMKS::HandleTravelAccChange(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t value_travel = BE16_P(val_ptr);
-  planner.settings.travel_acceleration = (float)value_travel;
+  uint16_t travel = BE16_P(val_ptr);
+  planner.settings.travel_acceleration = (float)travel;
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandlerMKS::HandleFeedRateMinChange(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t value_t = BE16_P(val_ptr);
-  planner.settings.min_feedrate_mm_s = (float)value_t;
+  uint16_t t = BE16_P(val_ptr);
+  planner.settings.min_feedrate_mm_s = (float)t;
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandlerMKS::HandleMin_T_F(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t value_t_f = BE16_P(val_ptr);
-  planner.settings.min_travel_feedrate_mm_s = (float)value_t_f;
+  uint16_t t_f = BE16_P(val_ptr);
+  planner.settings.min_travel_feedrate_mm_s = (float)t_f;
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t value_acc = BE16_P(val_ptr);
-  planner.settings.acceleration = (float)value_acc;
+  uint16_t acc = BE16_P(val_ptr);
+  planner.settings.acceleration = (float)acc;
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   void DGUSScreenHandlerMKS::HandleGetExMinTemp(DGUS_VP_Variable &var, void *val_ptr) {
-    const uint16_t value_ex_min_temp = BE16_P(val_ptr);
-    thermalManager.extrude_min_temp = value_ex_min_temp;
+    const uint16_t ex_min_temp = BE16_P(val_ptr);
+    thermalManager.extrude_min_temp = ex_min_temp;
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
 #endif
@@ -1080,8 +1079,8 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
 #endif // BABYSTEPPING
 
 void DGUSScreenHandlerMKS::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_len = BE16_P(val_ptr);
-  const float value = (float)value_len;
+  const uint16_t len = BE16_P(val_ptr);
+  const float value = (float)len;
 
   distanceFilament = value;
 
@@ -1089,8 +1088,8 @@ void DGUSScreenHandlerMKS::GetManualFilament(DGUS_VP_Variable &var, void *val_pt
 }
 
 void DGUSScreenHandlerMKS::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_len = BE16_P(val_ptr);
-  filamentSpeed_mm_s = value_len;
+  const uint16_t len = BE16_P(val_ptr);
+  filamentSpeed_mm_s = len;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }

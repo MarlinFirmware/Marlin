@@ -50,7 +50,7 @@ class Thermistor:
 
         if c < 0:
             print("//////////////////////////////////////////////////////////////////////////////////////")
-            print("// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //")
+            print("// WARNING: Negative coefficient 'c'! Something may be wrong with the measurements! //")
             print("//////////////////////////////////////////////////////////////////////////////////////")
             c = -c
         self.c1 = a                         # Steinhart-Hart coefficients
@@ -93,8 +93,8 @@ def main(argv):
     r2 = 1641.9                             # resistance at middle temperature (1.6 KOhm)
     t3 = 250                                # high temperature in Kelvin (250 degC)
     r3 = 226.15                             # resistance at high temperature (226.15 Ohm)
-    rp = 4700;                              # pull-up resistor (4.7 kOhm)
-    num_temps = 36;                         # number of entries for look-up table
+    rp = 4700                               # pull-up resistor (4.7 kOhm)
+    num_temps = 36                          # number of entries for look-up table
 
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
@@ -125,13 +125,13 @@ def main(argv):
             num_temps = int(arg)
 
     t = Thermistor(rp, t1, r1, t2, r2, t3, r3)
-    increment = int((ARES-1)/(num_temps-1));
-    step = (TMIN-TMAX) / (num_temps-1)
-    low_bound = t.temp(ARES-1);
-    up_bound = t.temp(1);
+    increment = int((ARES - 1) / (num_temps - 1))
+    step = int((TMIN - TMAX) / (num_temps - 1))
+    low_bound = t.temp(ARES - 1)
+    up_bound = t.temp(1)
     min_temp = int(TMIN if TMIN > low_bound else low_bound)
     max_temp = int(TMAX if TMAX < up_bound else up_bound)
-    temps = list(range(max_temp, TMIN+step, step));
+    temps = list(range(max_temp, TMIN + step, step))
 
     print("// Thermistor lookup table for Marlin")
     print("// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps))

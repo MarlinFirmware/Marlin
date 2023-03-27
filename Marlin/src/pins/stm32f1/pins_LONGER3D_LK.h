@@ -88,7 +88,7 @@
 #define HEATER_0_PIN                        PD3   // pin 84 (Nozzle Heat Mosfet)
 #define HEATER_BED_PIN                      PA8   // pin 67 (Hot Bed Mosfet)
 
-#define FAN_PIN                             PA15  // pin 77 (4cm Fan)
+#define FAN0_PIN                            PA15  // pin 77 (4cm Fan)
 
 #if TERN(MAPLE_STM32F1, ENABLED(FAN_SOFT_PWM), ENABLED(FAST_PWM_FAN)) && FAN_MIN_PWM < 5 // Required to avoid issues with heating or STLink
   #error "FAN_MIN_PWM must be 5 or higher."       // Fan will not start in 1-30 range
@@ -116,7 +116,7 @@
 #define BOARD_PREINIT() { \
   OUT_WRITE_OD(HEATER_0_PIN, 0); \
   OUT_WRITE_OD(HEATER_BED_PIN, 0); \
-  OUT_WRITE_OD(FAN_PIN, 0); \
+  OUT_WRITE_OD(FAN0_PIN, 0); \
 }
 
 //

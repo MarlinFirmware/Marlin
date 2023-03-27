@@ -377,10 +377,9 @@
   #undef W_SERIAL_RX_PIN
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN -1
+#ifndef FAN0_PIN
+  #define FAN0_PIN -1
 #endif
-#define FAN0_PIN FAN_PIN
 #ifndef FAN1_PIN
   #define FAN1_PIN -1
 #endif
@@ -486,6 +485,11 @@
 #ifndef NUM_SERVO_PLUGS
   #define NUM_SERVO_PLUGS 4
 #endif
+
+// Only used within pins files
+#undef NEEDS_X_MINMAX
+#undef NEEDS_Y_MINMAX
+#undef NEEDS_Z_MINMAX
 
 //
 // Assign endstop pins for boards with only 3 connectors

@@ -99,7 +99,7 @@
 // Fans
 //
 #define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
-#define FAN_PIN                             PG13  // FAN
+#define FAN0_PIN                            PG13  // FAN
 #define FAN2_PIN                            PG14
 
 //

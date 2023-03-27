@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.3 pin assignments
+ * ATmega2560, ATmega1280
  *
  * Applies to the following boards:
  *

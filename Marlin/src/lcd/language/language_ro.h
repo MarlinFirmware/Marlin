@@ -606,11 +606,3 @@ namespace Language_ro {
   LSTR MSG_REHEAT                         = _UxGT("Reincalzire");
   LSTR MSG_REHEATING                      = _UxGT("Reincalzire...");
 }
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif

@@ -38,10 +38,8 @@
 
 extern SZ_USART_FIFO WifiRxFifo;
 
-extern int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
-extern int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
-void wifi_delay(int n);
+void wifi_delay(const uint16_t n);
 
 #define ARRAY_SIZE(a) sizeof(a) / sizeof((a)[0])
 
@@ -246,7 +244,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 
   const size_t headerLength = 8;
 
-  uint32_t startTime = getWifiTick();
+  const millis_t startTime = getWifiTick();
   uint8_t hdr[headerLength];
   uint16_t hdrIdx = 0;
 

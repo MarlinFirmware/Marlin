@@ -104,7 +104,7 @@
 #define HEATER_0_PIN                        PA2
 #define HEATER_BED_PIN                      PA3
 
-#define FAN_PIN                             PA1
+#define FAN0_PIN                            PA1
 
 #define FIL_RUNOUT_PIN                      PC7
 

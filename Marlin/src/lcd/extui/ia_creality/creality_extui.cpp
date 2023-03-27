@@ -34,16 +34,8 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
-#include "creality_extui.h"
+#include "ia_creality_extui.h"
 #include "FileNavigator.h"
-#include "../ui_api.h"
-
-#include <HardwareSerial.h>
-#include <WString.h>
-#include <stdio.h>
-
-#define DEBUG_OUT ENABLED(DEBUG_DWIN)
-#include "../../../core/debug_out.h"
 
 namespace ExtUI {
   static uint16_t fileIndex   = 0;
@@ -87,14 +79,17 @@ namespace ExtUI {
   #ifndef CUSTOM_MACHINE_NAME
     #define CUSTOM_MACHINE_NAME MACHINE_NAME
   #endif
+  #ifndef IA_CREALITY_BOOT_DELAY
+    #define IA_CREALITY_BOOT_DELAY 500
+  #endif
 
   void onStartup() {
     DWIN_SERIAL.begin(115200);
     rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
-    memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
+    ZERO(rtscheck.databuf);
 
-    delay_ms(TERN(DWINOS_4, 1500, 500)); // Delay to allow screen startup
+    delay_ms(IA_CREALITY_BOOT_DELAY); // Delay to allow screen startup
     SetTouchScreenConfiguration();
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
     delay_ms(400); // Delay to allow screen to configure
@@ -206,7 +201,7 @@ namespace ExtUI {
 
     if (waitway_lock > 100) {
       waitway_lock = 0;
-      waitway      = 0; // clear waitway if nothing is going on
+      waitway = 0; // clear waitway if nothing is going on
     }
 
     switch (waitway) {
@@ -314,31 +309,31 @@ namespace ExtUI {
       else
         rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(X))  * 10, StepMM_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Y))  * 10, StepMM_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Z))  * 10, StepMM_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E0)) * 10, StepMM_E);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(X)  * 10, StepMM_X);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(Y)  * 10, StepMM_Y);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(Z)  * 10, StepMM_Z);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(E0) * 10, StepMM_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(X)) / 100, Accel_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Y)) / 100, Accel_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Z)) /  10, Accel_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(E0)),      Accel_E);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(X) / 100, Accel_X);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(Y) / 100, Accel_Y);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(Z) /  10, Accel_Z);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(E0),      Accel_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(X)),  Feed_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Y)),  Feed_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Z)),  Feed_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(X),  Feed_X);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(Y),  Feed_Y);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(Z),  Feed_Z);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(E0), Feed_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(X))  * 100, Jerk_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Y))  * 100, Jerk_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Z))  * 100, Jerk_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(E0)) * 100, Jerk_E);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(X) * 100, Jerk_X);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(Y) * 100, Jerk_Y);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(Z) * 100, Jerk_Z);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(E0) * 100, Jerk_E);
 
       #if HAS_HOTEND_OFFSET
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(X, E1)) * 10, T2Offset_X);
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Y, E1)) * 10, T2Offset_Y);
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Z, E1)) * 10, T2Offset_Z);
-        rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E1))   * 10, T2StepMM_E);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(X, E1) * 10, T2Offset_X);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(Y, E1) * 10, T2Offset_Y);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(Z, E1) * 10, T2Offset_Z);
+        rtscheck.RTS_SndData(getAxisSteps_per_mm(E1)   * 10, T2StepMM_E);
       #endif
 
       #if HAS_BED_PROBE
@@ -349,13 +344,13 @@ namespace ExtUI {
       #if HAS_PID_HEATING
         rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
         rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
-        rtscheck.RTS_SndData(uint16_t(getPID_Kp(E0)) * 10, HotendPID_P);
-        rtscheck.RTS_SndData(uint16_t(getPID_Ki(E0)) * 10, HotendPID_I);
-        rtscheck.RTS_SndData(uint16_t(getPID_Kd(E0)) * 10, HotendPID_D);
+        rtscheck.RTS_SndData(getPID_Kp(E0) * 10, HotendPID_P);
+        rtscheck.RTS_SndData(getPID_Ki(E0) * 10, HotendPID_I);
+        rtscheck.RTS_SndData(getPID_Kd(E0) * 10, HotendPID_D);
         #if ENABLED(PIDTEMPBED)
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Kp()) * 10, BedPID_P);
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Ki()) * 10, BedPID_I);
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Kd()) * 10, BedPID_D);
+          rtscheck.RTS_SndData(getBedPID_Kp() * 10, BedPID_P);
+          rtscheck.RTS_SndData(getBedPID_Ki() * 10, BedPID_I);
+          rtscheck.RTS_SndData(getBedPID_Kd() * 10, BedPID_D);
         #endif
       #endif
     }
@@ -416,7 +411,7 @@ namespace ExtUI {
   RTSSHOW::RTSSHOW() {
     recdat.head[0] = snddat.head[0] = FHONE;
     recdat.head[1] = snddat.head[1] = FHTWO;
-    memset(databuf, 0, sizeof(databuf));
+    ZERO(databuf);
   }
 
   int16_t RTSSHOW::RTS_RecData() {
@@ -494,8 +489,8 @@ namespace ExtUI {
     return -1;
   }
 
-  void RTSSHOW::RTS_SndData(void) {
-    if ((snddat.head[0] == FHONE) && (snddat.head[1] == FHTWO) && snddat.len >= 3) {
+  void RTSSHOW::RTS_SndData() {
+    if (snddat.head[0] == FHONE && snddat.head[1] == FHTWO && snddat.len >= 3) {
       databuf[0] = snddat.head[0];
       databuf[1] = snddat.head[1];
       databuf[2] = snddat.len;
@@ -527,7 +522,7 @@ namespace ExtUI {
       }
 
       memset(&snddat, 0, sizeof(snddat));
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
       snddat.head[0] = FHONE;
       snddat.head[1] = FHTWO;
     }
@@ -539,7 +534,6 @@ namespace ExtUI {
   }
 
   void RTSSHOW::RTS_SndData(const char *str, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
-
     int16_t len = strlen(str);
     constexpr int16_t maxlen = SizeofDatabuf - 6;
     if (len > 0) {
@@ -556,22 +550,20 @@ namespace ExtUI {
         DWIN_SERIAL.write(databuf[i]);
         delay_us(1);
       }
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
     }
   }
 
-  void RTSSHOW::RTS_SndData(char c, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
     snddat.command = cmd;
     snddat.addr    = addr;
-    snddat.data[0] = uint32_t(c);
-    snddat.data[0] = snddat.data[0] << 8;
+    snddat.data[0] = uint32_t(uint16_t(c) << 8);
     snddat.len     = 5;
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(uint8_t *str, uint32_t addr, uint8_t cmd) { RTS_SndData((char *)str, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(int16_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+    int16_t n = f;
     if (cmd == VarAddr_W) {
       snddat.data[0] = n;
       snddat.len = 5;
@@ -589,13 +581,32 @@ namespace ExtUI {
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(uint16_t n, uint32_t addr, uint8_t cmd) { RTS_SndData(int16_t(n), addr, cmd); }
+  void RTSSHOW::RTS_SndData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+    if (cmd == VarAddr_W) {
+      if ((unsigned int)n > 0xFFFF) {
+        snddat.data[0] = n >> 16;
+        snddat.data[1] = n & 0xFFFF;
+        snddat.len = 7;
+      }
+      else {
+        snddat.data[0] = n;
+        snddat.len = 5;
+      }
+    }
+    else if (cmd == RegAddr_W) {
+      snddat.data[0] = n;
+      snddat.len = 3;
+    }
+    else if (cmd == VarAddr_R) {
+      snddat.bytelen = n;
+      snddat.len = 4;
+    }
+    snddat.command = cmd;
+    snddat.addr = addr;
+    RTS_SndData();
+  }
 
-  void RTSSHOW::RTS_SndData(float n, uint32_t addr, uint8_t cmd) { RTS_SndData(int16_t(n), addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(int32_t n, uint32_t addr, uint8_t cmd) { RTS_SndData(uint32_t(n), addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(uint32_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
     if (cmd == VarAddr_W) {
       if (n > 0xFFFF) {
         snddat.data[0] = n >> 16;
@@ -632,11 +643,11 @@ namespace ExtUI {
       if (recdat.addr == Addrbuf[i]) {
         if (Addrbuf[i] == NzBdSet || Addrbuf[i] == NozzlePreheat || Addrbuf[i] == BedPreheat || Addrbuf[i] == Flowrate)
           Checkkey = ManualSetTemp;
-        else if (Addrbuf[i] >= Stopprint && Addrbuf[i] <= Resumeprint)
+        else if (WITHIN(Addrbuf[i], Stopprint, Resumeprint))
           Checkkey = PrintChoice;
-        else if (Addrbuf[i] >= AutoZero && Addrbuf[i] <= DisplayZaxis)
+        else if (WITHIN(Addrbuf[i], AutoZero, DisplayZaxis))
           Checkkey = XYZEaxis;
-        else if (Addrbuf[i] >= FilamentUnit1 && Addrbuf[i] <= FilamentUnit2)
+        else if (WITHIN(Addrbuf[i], FilamentUnit1, FilamentUnit2))
           Checkkey = Filament;
         else
           Checkkey = i;
@@ -792,7 +803,6 @@ namespace ExtUI {
         }
         else {
           onStatusChanged(F("Requested Offset Beyond Limits"));
-          RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
         }
 
         rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
@@ -1054,7 +1064,7 @@ namespace ExtUI {
         else if (recdat.data[0] == 2) { // Exchange filament
           InforShowStatus = true;
           TPShowStatus    = false;
-          memset(ChangeMaterialbuf, 0, sizeof(ChangeMaterialbuf));
+          ZERO(ChangeMaterialbuf);
           ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
           RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
@@ -1570,7 +1580,7 @@ namespace ExtUI {
           else if (recdat.data[0] == 4) { // Page Up
             injectCommands(F("M22\nM21"));
           }
-          else if (recdat.data[0] == 0) { //	return to main page
+          else if (recdat.data[0] == 0) { // return to main page
             InforShowStatus = true;
             TPShowStatus    = false;
           }
@@ -1985,12 +1995,12 @@ namespace ExtUI {
     SetTouchScreenConfiguration();
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     #if HAS_MESH
       if (ExtUI::getMeshValid()) {
         uint8_t abl_probe_index = 0;
@@ -2016,6 +2026,9 @@ namespace ExtUI {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
     void onPowerLoss() {
       // Called when power-loss state is detected
     }

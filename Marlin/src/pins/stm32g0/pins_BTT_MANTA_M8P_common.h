@@ -81,10 +81,10 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX                     1
+    #define NEEDS_X_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX                     1
+    #define NEEDS_Y_MINMAX
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -117,7 +117,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // MIN6
   #endif
-#elif NEEDS_Y_MINMAX
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // MIN2
   #endif
@@ -129,9 +129,6 @@
 #endif
 
 #define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
-
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
 
 //
 // Filament Runout Sensors
@@ -182,18 +179,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PA7
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PA6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 #if HAS_TMC_UART
@@ -234,7 +229,7 @@
 #define HEATER_2_PIN                        PB6   // HE2
 #define HEATER_3_PIN                        PE1   // HE3
 
-#define FAN_PIN                             PE6   // FAN0
+#define FAN0_PIN                            PE6   // FAN0
 #define FAN1_PIN                            PE0   // FAN1
 #define FAN2_PIN                            PC12  // FAN2
 #define FAN3_PIN                            PE5   // FAN3
