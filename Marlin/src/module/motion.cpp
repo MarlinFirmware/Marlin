@@ -76,26 +76,10 @@
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
-//constrain axis positon within bounds or abort if defined so for CNC
+// Constrain axis position within bounds or abort
 #ifdef CNC_ABORT_ON_ENDSTOP_HIT
-  template <class V, class N> static constexpr void POS_NOLESS(V& v, const N n) {
-    if (n > v) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
-      SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
-      SERIAL_EOL();
-      kill();
-    }
-  }
-  template <class V, class N> static constexpr void POS_NOMORE(V& v, const N n) {
-    if (n < v) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
-      SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
-      SERIAL_EOL();
-      kill();
-    }
-  }
+  #define POS_NOLESS(v, n) do { __typeof__(v) _n = n; if (_n > v) kill(F(STR_OUT_OF_BOUNDS)); }while(0)
+  #define POS_NOMORE(v, n) do { __typeof__(v) _n = n; if (_n < v) kill(F(STR_OUT_OF_BOUNDS)); }while(0)
 #else
   #define POS_NOLESS NOLESS
   #define POS_NOMORE NOMORE
