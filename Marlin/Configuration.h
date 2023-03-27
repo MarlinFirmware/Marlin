@@ -3292,7 +3292,7 @@
    */
   #define TFT_FONT  NOTOSANS
 
-  //#define TFT_SHARED_IO   // IO is shared between TFT display and other devices. Disable async data transfer
+  //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 #endif
 
 #if ENABLED(TFT_LVGL_UI)
