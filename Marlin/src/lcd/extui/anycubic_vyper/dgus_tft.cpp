@@ -1004,7 +1004,7 @@ namespace Anycubic {
 
       if (0x83 == data_buf[0]) {
         control_index = uint16_t(data_buf[1] << 8) | uint16_t(data_buf[2]);
-        if (control_index == KEY_ADDRESS) { // is KEY
+        if ((control_index & 0xF000) == KEY_ADDRESS) { // is KEY
           //key_index = control_index;
           key_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
         }
@@ -1102,7 +1102,7 @@ namespace Anycubic {
         }
         */
       }
-      else if (data_buf[0] == 0x82) {
+      else if (0x82 == data_buf[0]) {
         // send_cmd_to_pc(cmd ,start );
       }
     }
