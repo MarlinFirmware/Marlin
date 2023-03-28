@@ -163,11 +163,13 @@
 #define TFT_LCD_MODULE_COM                     1
 #define TFT_LCD_MODULE_BAUDRATE              115600
 
-// ESP WiFi Use internal USART-2
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE             115600
-#define ESP_WIFI_MODULE_RESET_PIN             -1
-#define PIGGY_GPIO_PIN                        -1
+#if ENABLED(WIFISUPPORT)
+  // ESP WiFi Use internal USART-2
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE           115600
+  #define ESP_WIFI_MODULE_RESET_PIN           -1
+  #define PIGGY_GPIO_PIN                      -1
+#endif
 
 //
 // EEPROM
