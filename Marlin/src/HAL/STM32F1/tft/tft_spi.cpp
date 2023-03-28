@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef __STM32F1__
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -165,3 +167,5 @@ void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) 
 }
 
 #endif // HAS_SPI_TFT
+
+#endif // __STM32F1__

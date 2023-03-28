@@ -65,7 +65,7 @@ class TFT_FSMC {
     static bool isBusy();
     static void Abort();
 
-    static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) {};
+    static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT) {};
     static void DataTransferEnd() {};
 
     static void WriteData(uint16_t Data) { Transmit(Data); }

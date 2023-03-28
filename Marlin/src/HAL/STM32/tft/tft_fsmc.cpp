@@ -71,7 +71,7 @@ void TFT_FSMC::Init() {
   Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
-  // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
+  // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
   ExtTiming.AddressSetupTime = 8;
   ExtTiming.AddressHoldTime = 15;
   ExtTiming.DataSetupTime = 8;

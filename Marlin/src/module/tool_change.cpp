@@ -435,7 +435,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
   }
 
-
 #endif // TOOL_SENSOR
 
 #if ENABLED(SWITCHING_TOOLHEAD)
