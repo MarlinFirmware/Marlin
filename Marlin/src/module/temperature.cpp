@@ -939,6 +939,8 @@ volatile bool Temperature::raw_temps_ready = false;
     #define SINGLEFAN 1
   #endif
 
+  #define DEBUG_MPC_AUTOTUNE 1
+
   Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx) {
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
   }
@@ -981,6 +983,12 @@ volatile bool Temperature::raw_temps_ready = false;
       }
     }
     wait_for_heatup = false;
+
+    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+      SERIAL_ECHOLNPGM("MPC_autotuner::measure_ambient_temp() Completed");
+      SERIAL_ECHOLNPGM("=====");
+      SERIAL_ECHOLNPGM("ambient_temp ", get_ambient_temp());
+    #endif
 
     return SUCCESS;
   }
@@ -1065,6 +1073,17 @@ volatile bool Temperature::raw_temps_ready = false;
     if (sample_count == 0) return FAILED;
     if (sample_count % 2 == 0) sample_count--;
 
+    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+      SERIAL_ECHOLNPGM("MPC_autotuner::measure_heatup() Completed");
+      SERIAL_ECHOLNPGM("=====");
+      SERIAL_ECHOLNPGM("t1_time ", t1_time);
+      SERIAL_ECHOLNPGM("sample_count ", sample_count);
+      SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
+      for (uint8_t i = 0; i < sample_count; i++)
+        SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
+      SERIAL_ECHOLNPGM("t1 ", get_sample_1_temp(), " t2 ", get_sample_2_temp(), " t3 ", get_sample_3_temp());
+    #endif
+
     return SUCCESS;
   }
 
@@ -1123,6 +1142,13 @@ volatile bool Temperature::raw_temps_ready = false;
 
     power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
     TERN_(HAS_FAN, power_fan255 = (total_energy_fan255 * 1000) / test_duration);
+
+    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+      SERIAL_ECHOLNPGM("MPC_autotuner::measure_transfer() Completed");
+      SERIAL_ECHOLNPGM("=====");
+      SERIAL_ECHOLNPGM("power_fan0 ", power_fan0);
+      TERN_(HAS_FAN, SERIAL_ECHOLNPGM("power_fan255 ", power_fan255));
+    #endif
 
     return SUCCESS;
   }
@@ -1202,6 +1228,11 @@ volatile bool Temperature::raw_temps_ready = false;
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
+    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+      SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
+      SERIAL_ECHOLNPAIR_F("block_responsiveness ", block_responsiveness, 4);
+    #endif
+
     // Make initial guess at transfer coefficients
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - tuner.get_ambient_temp());
     mpc.fan255_adjustment = 0.0f;
@@ -1248,24 +1279,20 @@ volatile bool Temperature::raw_temps_ready = false;
       asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
       block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
+      #if ENABLED(DEBUG_MPC_AUTOTUNE)
+        SERIAL_ECHOLN("Refining estimates for:");
+        SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
+        SERIAL_ECHOLNPAIR_F("block_responsiveness ", block_responsiveness, 4);
+      #endif
+
       // Update analytic tuning values based on the above
       mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
       mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
+
     }
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
     TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
-
-    #if 0
-      SERIAL_ECHOLNPGM("t1_time ", t1_time);
-      SERIAL_ECHOLNPGM("sample_count ", sample_count);
-      SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
-      for (uint8_t i = 0; i < sample_count; i++)
-        SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
-      SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
-      SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
-      SERIAL_ECHOLNPAIR_F("block_responsiveness ", block_responsiveness, 4);
-    #endif
 
     SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", mpc.block_heat_capacity);
     SERIAL_ECHOLNPAIR_F("MPC_SENSOR_RESPONSIVENESS ", mpc.sensor_responsiveness, 4);
