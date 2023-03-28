@@ -31,6 +31,10 @@
   #error "FSMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
 #endif
 
+#ifndef HAL_SRAM_MODULE_ENABLED
+  #error "SRAM module disabled for the STM32 framework (HAL_SRAM_MODULE_ENABLED)! Please consult the development team."
+#endif
+
 #ifndef LCD_READ_ID
   #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
@@ -69,8 +73,8 @@ class TFT_FSMC {
     static bool isBusy();
     static void Abort();
 
-    static void DataTransferBegin(uint16_t DataWidth = TFT_DATASIZE) {}
-    static void DataTransferEnd() {};
+    static void DataTransferBegin(uint16_t DataWidth=TFT_DATASIZE) {}
+    static void DataTransferEnd() {}
 
     static void WriteData(uint16_t Data) { Transmit(tft_data_t(Data)); }
     static void WriteReg(uint16_t Reg) { LCD->REG = tft_data_t(Reg); __DSB(); }

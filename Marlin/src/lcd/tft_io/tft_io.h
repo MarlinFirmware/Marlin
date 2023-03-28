@@ -62,7 +62,7 @@ public:
   inline static void Abort() { io.Abort(); }
   inline static uint32_t GetID() { return io.GetID(); }
 
-  inline static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
+  inline static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
   inline static void DataTransferEnd() { io.DataTransferEnd(); }
 
   inline static void WriteData(uint16_t Data) { io.WriteData(Data); }
