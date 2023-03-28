@@ -521,25 +521,27 @@
   #define NEOPIXEL2_PIN                     PE9
 #endif
 
-//
-// WIFI
-//
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
 
-/**
- *                      -------
- *            GND | 9  |       | 8 | 3.3V
- *  (ESP-CS) PG1  | 10 |       | 7 | PB15 (ESP-MOSI)
- *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
- * (ESP-IO0)  PG0 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PF15 | 13 |       | 4 | --
- *             -- | 14 |       | 3 | 3.3V (ESP-EN)
- *  (ESP-RX)  PE7 | 15 |       | 2 | --
- *  (ESP-TX)  PE8 | 16 |       | 1 | PB2 (ESP-RST)
- *                      -------
- *                       WIFI
- */
-#define ESP_WIFI_MODULE_COM                    7  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PB2
-#define ESP_WIFI_MODULE_GPIO0_PIN           PG0
-#define ESP_WIFI_MODULE_GPIO4_PIN           PF15
+  /**
+   *                      -------
+   *            GND | 9  |       | 8 | 3.3V
+   *  (ESP-CS) PG1  | 10 |       | 7 | PB15 (ESP-MOSI)
+   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
+   * (ESP-IO0)  PG0 | 12 |       | 5 | PB13 (ESP-CLK)
+   * (ESP-IO4) PF15 | 13 |       | 4 | --
+   *             -- | 14 |       | 3 | 3.3V (ESP-EN)
+   *  (ESP-RX)  PE7 | 15 |       | 2 | --
+   *  (ESP-TX)  PE8 | 16 |       | 1 | PB2 (ESP-RST)
+   *                      -------
+   *                       WIFI
+   */
+  #define ESP_WIFI_MODULE_COM                  7  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PB2
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PG0
+  #define ESP_WIFI_MODULE_GPIO4_PIN         PF15
+#endif

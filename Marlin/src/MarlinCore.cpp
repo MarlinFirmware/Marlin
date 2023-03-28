@@ -34,6 +34,10 @@
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
 
+#if ENABLED(WIFISUPPORT)
+  #include "HAL/shared/esp_wifi.h"
+#endif
+
 #ifdef ARDUINO
   #include <pins_arduino.h>
 #endif
@@ -1268,7 +1272,9 @@ void setup() {
 
   SETUP_RUN(hal.init_board());
 
-  SETUP_RUN(esp_wifi_init());
+  #if ENABLED(WIFISUPPORT)
+    SETUP_RUN(esp_wifi_init());
+  #endif
 
   // Report Reset Reason
   if (mcu & RST_POWER_ON)  SERIAL_ECHOLNPGM(STR_POWERUP);

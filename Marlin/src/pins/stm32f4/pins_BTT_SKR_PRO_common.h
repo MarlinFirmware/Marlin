@@ -547,22 +547,24 @@
   #endif
 #endif
 
-//
-// WIFI
-//
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
 
-/**
- *          ------
- *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
- *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
- *          ------
- *            W1
- */
-#define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PG0
-#define ESP_WIFI_MODULE_ENABLE_PIN          PG1
-#define ESP_WIFI_MODULE_GPIO0_PIN           PF14
-#define ESP_WIFI_MODULE_GPIO2_PIN           PF15
+  /**
+   *          ------
+   *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+   *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+   *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
+   *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
+   *          ------
+   *            W1
+   */
+  #define ESP_WIFI_MODULE_COM                  6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PG0
+  #define ESP_WIFI_MODULE_ENABLE_PIN        PG1
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PF14
+  #define ESP_WIFI_MODULE_GPIO2_PIN         PF15
+#endif
