@@ -1236,10 +1236,6 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.target = hotend.modeled_block_temp;
     if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
-    // Calculate a new and better asymptotic temperature and re-evaluate the other constants
-    asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
-
     // Update the transfer coefficients
     mpc.ambient_xfer_coeff_fan0 = tuner.get_power_fan0() / (hotend.target - tuner.get_ambient_temp());
     #if HAS_FAN
@@ -1248,6 +1244,10 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     if (tuning_type == AUTO || tuning_type == FORCE_ASYMPTOTIC) {
+      // Calculate a new and better asymptotic temperature and re-evaluate the other constants
+      asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
+      block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
+
       // Update analytic tuning values based on the above
       mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
       mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
