@@ -152,7 +152,7 @@ void Touch::touch(touch_control_t *control) {
       case CALIBRATE:
         if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
-    #endif // TOUCH_SCREEN_CALIBRATION
+    #endif
 
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;

@@ -92,8 +92,8 @@
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7  //默认不使用PWM_FAN冷却喷嘴，如果需要，则取消注释
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7  //默认不使用PWM_FAN冷却喷嘴，如果需要，则取消注释
 #endif
 
 //

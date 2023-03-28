@@ -49,7 +49,7 @@
 // Heaters / Fans
 //
 #define HEATER_BED_PIN                        -1
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 
 //
 // Misc. Functions

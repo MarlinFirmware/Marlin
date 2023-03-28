@@ -86,8 +86,8 @@
 #define HEATER_1_PIN                           7
 #define HEATER_2_PIN                           8
 #define HEATER_BED_PIN                         9
-#ifndef FAN_PIN
-  #define FAN_PIN                              3
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             3
 #endif
 #define FAN2_PIN                              58  // additional fan or light control output
 

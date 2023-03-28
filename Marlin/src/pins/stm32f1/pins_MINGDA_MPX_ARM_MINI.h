@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PB0
 #define HEATER_BED_PIN                      PB1
 
-#define FAN_PIN                             PA0   // FAN
+#define FAN0_PIN                            PA0   // FAN
 
 //
 // SD Card
@@ -143,8 +143,6 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PG0   // A0
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN

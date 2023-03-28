@@ -123,8 +123,8 @@
 //
 #define HEATER_0_PIN                           4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              3
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             3
 #endif
 
 //

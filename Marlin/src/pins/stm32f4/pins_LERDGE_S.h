@@ -122,7 +122,7 @@
 #define HEATER_1_PIN                        PA1
 #define HEATER_BED_PIN                      PA3
 
-#define FAN_PIN                             PA15  // heater 0 fan 1
+#define FAN0_PIN                            PA15  // heater 0 fan 1
 #define FAN1_PIN                            PB10  // heater 1 fan 2
 #define FAN2_PIN                            PF5   // heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together)
 

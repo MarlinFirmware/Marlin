@@ -44,9 +44,9 @@
 #endif
 
 #if USES_Z_MIN_PROBE_PIN
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
 #else
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
 #endif
 
 #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
@@ -310,9 +310,9 @@ public:
             points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
             points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
-            points[0] = xy_float_t({ _MAX(MESH_MIN_X, min_x()), _MAX(MESH_MIN_Y, min_y()) });
-            points[1] = xy_float_t({ _MIN(MESH_MAX_X, max_x()), _MAX(MESH_MIN_Y, min_y()) });
-            points[2] = xy_float_t({ (_MAX(MESH_MIN_X, min_x()) + _MIN(MESH_MAX_X, max_x())) / 2, _MIN(MESH_MAX_Y, max_y()) });
+            points[0] = xy_float_t({ _MAX(float(MESH_MIN_X), min_x()), _MAX(float(MESH_MIN_Y), min_y()) });
+            points[1] = xy_float_t({ _MIN(float(MESH_MAX_X), max_x()), _MAX(float(MESH_MIN_Y), min_y()) });
+            points[2] = xy_float_t({ (_MAX(float(MESH_MIN_X), min_x()) + _MIN(float(MESH_MAX_X), max_x())) / 2, _MIN(float(MESH_MAX_Y), max_y()) });
           #else
             points[0] = xy_float_t({ min_x(), min_y() });
             points[1] = xy_float_t({ max_x(), min_y() });

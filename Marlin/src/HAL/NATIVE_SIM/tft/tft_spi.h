@@ -52,7 +52,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
+  static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT);
   static void DataTransferEnd();
   static void DataTransferAbort();
 

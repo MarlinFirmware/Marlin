@@ -165,7 +165,7 @@
 #define HEATER_1_PIN                        PB0   // +HE1-
 #define HEATER_2_PIN                        PF9   // +HE2-
 #define HEATER_BED_PIN                      PA0   // +HOT-BED-
-#define FAN_PIN                             PB1   // +FAN-
+#define FAN0_PIN                            PB1   // +FAN-
 
 /**
  * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
@@ -231,8 +231,6 @@
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
