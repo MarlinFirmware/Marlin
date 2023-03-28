@@ -194,8 +194,6 @@
  */
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
-  #undef TEMP_SENSOR_BED
-  #define TEMP_SENSOR_BED 70
   #define HEATER_BED_INVERTING true
 #endif
 
@@ -219,25 +217,7 @@
   #endif
 #endif
 
-//
-// Temperature hysteresis options
-//
-#if HAS_E_TEMP_SENSOR
-  #define TEMP_RESIDENCY_TIME         10  // (seconds) Time to wait for hotend to "settle" in M109
-  #define TEMP_WINDOW                  1  // (°C) Temperature proximity for the "temperature reached" timer
-  #define TEMP_HYSTERESIS              3  // (°C) Temperature proximity considered "close enough" to the target
-#endif
-
-#if TEMP_SENSOR_BED
-  #define TEMP_BED_RESIDENCY_TIME     10  // (seconds) Time to wait for bed to "settle" in M190
-  #define TEMP_BED_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-  #define TEMP_BED_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
-#endif
-
 #if TEMP_SENSOR_CHAMBER
-  #define TEMP_CHAMBER_RESIDENCY_TIME 10  // (seconds) Time to wait for chamber to "settle" in M191
-  #define TEMP_CHAMBER_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-  #define TEMP_CHAMBER_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
   //#define HEATER_CHAMBER_PIN      P2_04   // Required heater on/off pin (example: SKR 1.4 Turbo HE1 plug)
   //#define HEATER_CHAMBER_INVERTING false
   //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (example: SKR 1.4 Turbo HE1 plug)
