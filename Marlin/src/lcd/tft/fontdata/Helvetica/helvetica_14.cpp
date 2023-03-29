@@ -34,8 +34,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#define HELVETICA 123
-#if HAS_GRAPHICAL_TFT && TFT_FONT == HELVETICA
+#if HAS_GRAPHICAL_TFT
 
 #include <stdint.h>
 

@@ -64,8 +64,6 @@
 
 /**
  * 5DPrint D8 Driver board pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/5DPrint%20D8/5DPD8_v1.0_OS_schematics.PDF
- * Origin: https://bitbucket.org/makible/5dprint-d8-controller-board/src/master/5DPD8_v1.0_OS_schematics.PDF
  *
  * https://bitbucket.org/makible/5dprint-d8-controller-board
  */
@@ -133,8 +131,8 @@
 #define HEATER_0_PIN                          15  // C5
 #define HEATER_BED_PIN                        14  // C4
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                            16  // C6  PWM3A
+#ifndef FAN_PIN
+  #define FAN_PIN                             16  // C6  PWM3A
 #endif
 
 //

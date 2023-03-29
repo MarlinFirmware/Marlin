@@ -22,7 +22,6 @@
 
 /**
  * Pxmalion Core i3 - https://github.com/Pxmalion
- * ATmega2560
  */
 
 #include "env_validate.h"

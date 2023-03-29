@@ -141,7 +141,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       else
         ocr_off();
     #elif ENABLED(SPINDLE_SERVO)
-      servo[SPINDLE_SERVO_NR].move(opwr);
+      MOVE_SERVO(SPINDLE_SERVO_NR, power);
     #else
       WRITE(SPINDLE_LASER_ENA_PIN, enabled() ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
       isReadyForUI = true;

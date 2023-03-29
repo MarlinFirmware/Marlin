@@ -159,7 +159,7 @@
   #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
 #endif
 
-#define FAN0_PIN                            PB5   // "FAN0"
+#define FAN_PIN                             PB5   // "FAN0"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"
@@ -390,16 +390,15 @@
   #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
 #endif
 
-#if ENABLED(WIFISUPPORT)
-  //
-  // WIFI
-  //
-  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PA4
-  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
-  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
-#endif
+//
+// WIFI
+//
+
+#define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_RESET_PIN           PA4
+#define ESP_WIFI_MODULE_ENABLE_PIN          PA5
+#define ESP_WIFI_MODULE_GPIO0_PIN           PA6
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
   #define FPC2_PIN                          PB11

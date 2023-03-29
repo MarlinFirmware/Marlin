@@ -377,7 +377,7 @@ void menu_backlash();
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define MPC_EDIT_ITEMS(N) \
-          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
+          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].constants; \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
             thermalManager.temp_hotend[MenuItemBase::itemIndex].applyFanAdjustment(editable.decimal); \
@@ -597,7 +597,7 @@ void menu_backlash();
       ;
 
       LOOP_LOGICAL_AXES(a) {
-        if (TERN0(HAS_C_AXIS, a == C_AXIS) || TERN0(HAS_EXTRUDERS, a == E_AXIS))
+        if (a == C_AXIS || TERN0(HAS_EXTRUDERS, a == E_AXIS))
           EDIT_ITEM_FAST_N(float52sign, a, MSG_VN_JERK, &planner.max_jerk[a], 0.1f, max_jerk_edit[a]);
         else
           EDIT_ITEM_FAST_N(float3, a, MSG_VN_JERK, &planner.max_jerk[a], 1.0f, max_jerk_edit[a]);

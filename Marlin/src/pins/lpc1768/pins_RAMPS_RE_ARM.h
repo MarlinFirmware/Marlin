@@ -23,8 +23,6 @@
 
 /**
  * Re-ARM with RAMPS v1.4 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Re-ARM%20RAMPS%201.4/Re_ARM_Schematic.pdf
- * Origin: https://reprap.org/mediawiki/images/f/fa/Re_ARM_Schematic.pdf
  *
  * Applies to the following boards:
  *
@@ -99,16 +97,18 @@
 #endif
 
 //
-// Default pins for TMC software SPI
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     P1_00  // ETH
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     P1_08  // ETH
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      P1_09  // ETH
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                    P1_00  // ETH
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                    P1_08  // ETH
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                     P1_09  // ETH
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -118,6 +118,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
+
 
   // P2_08 E1-Step
   // P2_13 E1-Dir
@@ -203,15 +204,15 @@
   #endif
 #endif
 
-#ifndef FAN0_PIN
+#ifndef FAN_PIN
   #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN0_PIN                MOSFET_B_PIN
+    #define FAN_PIN                 MOSFET_B_PIN
   #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN0_PIN                MOSFET_C_PIN
+    #define FAN_PIN                 MOSFET_C_PIN
   #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
-    #define FAN0_PIN                       P1_18  // (4) IO pin. Buffer needed
+    #define FAN_PIN                        P1_18  // (4) IO pin. Buffer needed
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-    #define FAN0_PIN                MOSFET_B_PIN
+    #define FAN_PIN                 MOSFET_B_PIN
   #endif
 #endif
 
@@ -353,8 +354,8 @@
   #if EITHER(VIKI2, miniVIKI)
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK                     P0_15  // (52) (SCK)  J3-9 & AUX-3
-    #define DOGLCD_MOSI                    P0_18  // (51) (MOSI) J3-10 & AUX-3
+    #define DOGLCD_SCK                SD_SCK_PIN
+    #define DOGLCD_MOSI              SD_MOSI_PIN
 
     #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes

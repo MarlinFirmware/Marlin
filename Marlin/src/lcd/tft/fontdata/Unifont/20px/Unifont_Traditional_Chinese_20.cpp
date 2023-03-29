@@ -22,8 +22,7 @@
 
 #include "../../../../../inc/MarlinConfigPre.h"
 
-#define UNIFONT 123
-#if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
+#if HAS_GRAPHICAL_TFT
 
 #include <stdint.h>
 

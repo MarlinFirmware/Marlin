@@ -49,7 +49,7 @@
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
-typedef enum : int_fast8_t {
+typedef enum : int8_t {
   H_REDUNDANT = HID_REDUNDANT,
   H_COOLER = HID_COOLER,
   H_PROBE = HID_PROBE,
@@ -377,9 +377,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #elif ENABLED(MPCTEMP)
 
-  typedef struct MPC {
-    static bool e_paused;               // Pause E filament permm tracking
-    static int32_t e_position;          // For E tracking
+  typedef struct {
     float heater_power;                 // M306 P
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
@@ -588,7 +586,7 @@ class Temperature {
 
     #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTENDS];
-      static constexpr celsius_t hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
+      static const celsius_t hotend_maxtemp[HOTENDS];
       static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
 
@@ -645,8 +643,6 @@ class Temperature {
       static bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
       static bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
     #else
-      static constexpr bool allow_cold_extrude = true;
-      static constexpr celsius_t extrude_min_temp = 0;
       static bool tooColdToExtrude(const uint8_t) { return false; }
       static bool targetTooColdToExtrude(const uint8_t) { return false; }
     #endif
@@ -718,39 +714,39 @@ class Temperature {
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
 
+    #if ENABLED(MPCTEMP)
+      static int32_t mpc_e_position;
+    #endif
+
     #if HAS_HOTEND
       static temp_range_t temp_range[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
-      #if WATCH_BED
+      #if ENABLED(WATCH_BED)
         static bed_watch_t watch_bed;
       #endif
-      #if DISABLED(PIDTEMPBED)
-        static millis_t next_bed_check_ms;
-      #endif
+      IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
-      #if WATCH_CHAMBER
+      #if ENABLED(WATCH_CHAMBER)
         static chamber_watch_t watch_chamber;
       #endif
-      #if DISABLED(PIDTEMPCHAMBER)
-        static millis_t next_chamber_check_ms;
-      #endif
+      TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       static raw_adc_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
-      #if WATCH_COOLER
+      #if ENABLED(WATCH_COOLER)
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
+    #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 
@@ -1164,12 +1160,6 @@ class Temperature {
       static void auto_job_check_timer(const bool can_start, const bool can_stop);
     #endif
 
-    #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
-      static bool adaptive_fan_slowing;
-    #elif ENABLED(ADAPTIVE_FAN_SLOWING)
-      static constexpr bool adaptive_fan_slowing = true;
-    #endif
-
     /**
      * Perform auto-tuning for hotend or bed in response to M303
      */
@@ -1180,6 +1170,12 @@ class Temperature {
       #endif
 
       static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+
+      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+        static bool adaptive_fan_slowing;
+      #elif ENABLED(ADAPTIVE_FAN_SLOWING)
+        static constexpr bool adaptive_fan_slowing = true;
+      #endif
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
@@ -1196,8 +1192,8 @@ class Temperature {
 
     #endif
 
-    #if ENABLED(MPC_AUTOTUNE)
-      void MPC_autotune(const uint8_t e);
+    #if ENABLED(MPCTEMP)
+      void MPC_autotune();
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -1319,12 +1315,12 @@ class Temperature {
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
-        celsius_float_t running_temp;
+        float running_temp;
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
-        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
+        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

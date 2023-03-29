@@ -248,7 +248,7 @@ namespace Language_pl {
   LSTR MSG_MOVE_001IN                     = _UxGT("Przesuń co 0.01 cala");
   LSTR MSG_MOVE_01IN                      = _UxGT("Przesuń co 0.1 cala");
   LSTR MSG_SPEED                          = _UxGT("Predkość");
-  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Stół Z");
+  LSTR MSG_BED_Z                          = _UxGT("Stół Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dysza");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dysza ~");
   LSTR MSG_NOZZLE_STANDBY                 = _UxGT("Dysza w oczekiwaniu");
@@ -372,7 +372,7 @@ namespace Language_pl {
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Self-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s%s%s");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");
@@ -538,3 +538,11 @@ namespace Language_pl {
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Kalibracja nie powiodła się");
 
 }
+
+#if FAN_COUNT == 1
+  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+#else
+  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+#endif

@@ -219,7 +219,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
+  LSTR MSG_BED_Z                          = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = _UxGT("Bocal");
   LSTR MSG_NOZZLE_N                       = _UxGT("Bocal ~");
   LSTR MSG_BED                            = _UxGT("Mesa");
@@ -340,7 +340,7 @@ namespace Language_pt_br {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Estender BLTouch");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda-Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recolher Sonda-Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Compensar Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Compensar Sonda em X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Compensar Sonda em Y");

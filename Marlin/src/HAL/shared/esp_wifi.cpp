@@ -21,9 +21,6 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-
-#if ENABLED(WIFISUPPORT)
-
 #include "Delay.h"
 
 void esp_wifi_init(void) {                          // init ESP01 WIFI module pins
@@ -44,5 +41,3 @@ void esp_wifi_init(void) {                          // init ESP01 WIFI module pi
     OUT_WRITE(ESP_WIFI_MODULE_ENABLE_PIN, HIGH);
   #endif
 }
-
-#endif // WIFISUPPORT

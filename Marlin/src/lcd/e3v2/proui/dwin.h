@@ -74,7 +74,7 @@ enum processID : uint8_t {
   NothingToDo
 };
 
-#if EITHER(DWIN_PID_TUNE, MPC_AUTOTUNE)
+#if EITHER(DWIN_PID_TUNE, MPCTEMP)
 
   enum tempcontrol_t : uint8_t {
     #if DWIN_PID_TUNE
@@ -85,7 +85,7 @@ enum processID : uint8_t {
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
     #endif
-    #if ENABLED(MPC_AUTOTUNE)
+    #if ENABLED(MPCTEMP)
       MPC_DONE,
       MPCTEMP_START,
       MPC_TEMP_ERROR,
@@ -229,6 +229,7 @@ void ParkHead();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void UBLMeshTilt();
+  bool UBLValidMesh();
   void UBLMeshSave();
   void UBLMeshLoad();
 #endif
@@ -383,9 +384,7 @@ void Draw_Steps_Menu();
 #endif
 
 // MPC
-#if EITHER(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-  void Draw_HotendMPC_Menu();
-#endif
-#if ENABLED(MPC_AUTOTUNE)
+#if ENABLED(MPCTEMP)
   void DWIN_MPCTuning(tempcontrol_t result);
+  void Draw_HotendMPC_Menu();
 #endif

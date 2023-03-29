@@ -298,7 +298,7 @@ class SdBaseFile {
   bool printName();
   int16_t read();
   int16_t read(void *buf, uint16_t nbyte);
-  int8_t readDir(dir_t *dir, char * const longFilename);
+  int8_t readDir(dir_t *dir, char *longFilename);
   static bool remove(SdBaseFile *dirFile, const char *path);
   bool remove();
 
@@ -309,11 +309,6 @@ class SdBaseFile {
   bool rename(SdBaseFile *dirFile, const char *newPath);
   bool rmdir();
   bool rmRfStar();
-
-  /**
-   * Set or clear DIR_ATT_HIDDEN attribute for directory entry
-   */
-  bool hide(const bool hidden);
 
   /**
    * Set the files position to current position + \a pos. See seekSet().
@@ -392,16 +387,14 @@ class SdBaseFile {
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
 
-  #if ENABLED(UTF_FILENAME_SUPPORT)
-    uint8_t convertUtf16ToUtf8(char * const longFilename);
-  #endif
-
   // Long Filename create/write support
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
     static bool isDirLFN(const dir_t* dir);
     static bool isDirNameLFN(const char *dirname);
     static bool parsePath(const char *str, uint8_t *name, uint8_t *lname, const char **ptr);
-    // Return the number of entries needed in the FAT for this LFN
+    /**
+     * Return the number of entries needed in the FAT for this LFN
+     */
     static inline uint8_t getLFNEntriesNum(const char *lname) { return (strlen(lname) + 12) / 13; }
     static void getLFNName(vfat_t *vFatDir, char *lname, uint8_t startOffset);
     static void setLFNName(vfat_t *vFatDir, char *lname, uint8_t lfnSequenceNumber);

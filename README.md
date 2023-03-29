@@ -1,3 +1,12 @@
+This version is a fork for the Prusa MMU2s connected to a SKR 1.4 Take care on the right amount of filament pushed to the extruder. In configuration_adv.h search for MMU2_CAN_LOAD_SEQUENCE and adjust YOUR needed values!!! Important are also the settings for the IR-sensor used for filament runout.
+
+#define MMU2_CAN_LOAD_SEQUENCE
+{ 0.1, MMU2_CAN_LOAD_FEEDRATE },
+{ 60.0, MMU2_CAN_LOAD_FEEDRATE },
+{ -52.0, MMU2_CAN_LOAD_FEEDRATE }
+
+
+
 <p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
 
 <h1 align="center">Marlin 3D Printer Firmware</h1>
@@ -35,7 +44,6 @@ To build and upload Marlin you will use one of these tools:
 
 - The free [Visual Studio Code](https://code.visualstudio.com/download) using the [Auto Build Marlin](https://marlinfw.org/docs/basics/auto_build_marlin.html) extension.
 - The free [Arduino IDE](https://www.arduino.cc/en/main/software) : See [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html)
-- You can also use VSCode with devcontainer : See [Installing Marlin (VSCode devcontainer)](http://marlinfw.org/docs/basics/install_devcontainer_vscode.html).
 
 Marlin is optimized to build with the **PlatformIO IDE** extension for **Visual Studio Code**. You can still build Marlin with **Arduino IDE**, and we hope to improve the Arduino build experience, but at this time PlatformIO is the better choice.
 
@@ -43,7 +51,7 @@ Marlin is optimized to build with the **PlatformIO IDE** extension for **Visual 
 
 Marlin includes an abstraction layer to provide a common API for all the platforms it targets. This allows Marlin code to address the details of motion and user interface tasks at the lowest and highest levels with no system overhead, tying all events directly to the hardware clock.
 
-Every new HAL opens up a world of hardware. At this time we need HALs for RP2040 and the Duet3D family of boards. A HAL that wraps an RTOS is an interesting concept that could be explored. Did you know that Marlin includes a Simulator that can run on Windows, macOS, and Linux? Join the Discord to help move these sub-projects forward!
+Every new HAL opens up a world of hardware. At this time we need HALs for RP2040 and the Duet3D family of boards. A HAL that wraps an RTOS is an interesting concept we would can explore. Did you know that Marlin includes a Simulator that can run on Windows, macOS, and Linux? Join the Discord to help move these sub-projects forward!
 
 ## 8-Bit AVR Boards
 

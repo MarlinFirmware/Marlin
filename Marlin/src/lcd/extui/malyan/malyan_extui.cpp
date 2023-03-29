@@ -147,8 +147,8 @@ namespace ExtUI {
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
-  void onSettingsStored(const bool) {}
-  void onSettingsLoaded(const bool) {}
+  void onSettingsStored(bool) {}
+  void onSettingsLoaded(bool) {}
 
   #if HAS_MESH
     void onLevelingStart() {}
@@ -158,15 +158,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
+    void onPowerLossResume() {}
   #endif
 
   void onSteppersDisabled() {}

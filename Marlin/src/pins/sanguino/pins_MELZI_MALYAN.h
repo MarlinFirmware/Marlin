@@ -23,7 +23,6 @@
 
 /**
  * Melzi (Malyan M150) pin assignments
- * ATmega644P, ATmega1284P
  */
 
 #define BOARD_INFO_NAME "Melzi (Malyan)"

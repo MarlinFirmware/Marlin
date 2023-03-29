@@ -50,17 +50,18 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers
-// Software and hardware actually, they are connected to SPI2 bus.
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PB15
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PB14
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PB13
+  #endif
 #endif
 
 #include "pins_MKS_ROBIN_E3_V1_1_common.h" // ... MKS_ROBIN_E3_common

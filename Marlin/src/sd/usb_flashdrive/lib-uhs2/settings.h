@@ -65,12 +65,12 @@
  * multiple serial ports are available.
  * For example Serial3.
  */
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define USB_HOST_SERIAL MYSERIAL1
+#endif
+
 #ifndef USB_HOST_SERIAL
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_HOST_SERIAL MYSERIAL1
-  #else
-    #define USB_HOST_SERIAL Serial
-  #endif
+  #define USB_HOST_SERIAL Serial
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

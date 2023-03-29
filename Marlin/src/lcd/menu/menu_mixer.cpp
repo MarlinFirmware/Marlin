@@ -50,7 +50,8 @@
     if (ui.encoderPosition) {
       zvar += float(int32_t(ui.encoderPosition)) * 0.1;
       ui.encoderPosition = 0;
-      LIMIT(zvar, 0, Z_MAX_POS);
+      NOLESS(zvar, 0);
+      NOMORE(zvar, Z_MAX_POS);
     }
 
     if (ui.should_draw()) {

@@ -308,7 +308,7 @@ namespace Language_de {
   LSTR MSG_MOVE_01IN                      = _UxGT("0.100 in");
   LSTR MSG_MOVE_1IN                       = _UxGT("1.000 in");
   LSTR MSG_SPEED                          = _UxGT("Geschw.");
-  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bett Z");
+  LSTR MSG_BED_Z                          = _UxGT("Bett Z");
   LSTR MSG_NOZZLE                         = _UxGT("Düse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Düse ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Düse geparkt");
@@ -539,7 +539,7 @@ namespace Language_de {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI ausfahren");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Sonde ausfahren");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Sonde einfahren");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Vorher %s homen");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Vorher %s%s%s homen");
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Sondeneinstellungen");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Sondenversatz");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");

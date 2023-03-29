@@ -23,7 +23,6 @@
 
 /**
  * Cheaptronic v1.0 pin assignments
- * ATmega2560
  */
 
 #include "env_validate.h"

@@ -23,8 +23,6 @@
 
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
 
-//#define ANYCUBIC_LCD_DEBUG
-
 #include "anycubic_i3mega_lcd.h"
 #include "../ui_api.h"
 
@@ -706,7 +704,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 16: { // A16 set hotend temp
-            uint16_t tempvalue;
+            unsigned int tempvalue;
             if (CodeSeen('S')) {
               tempvalue = constrain(CodeValue(), 0, 275);
               setTargetTemp_celsius(tempvalue, (extruder_t)E0);
@@ -721,7 +719,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           break;
 
           case 17: { // A17 set heated bed temp
-            uint16_t tempbed;
+            unsigned int tempbed;
             if (CodeSeen('S')) {
               tempbed = constrain(CodeValue(), 0, 100);
               setTargetTemp_celsius(tempbed, (heater_t)BED);
@@ -779,7 +777,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 22: // A22 move X/Y/Z or extrude
             if (!isPrinting()) {
               float coorvalue;
-              uint16_t movespeed = 0;
+              unsigned int movespeed = 0;
               char commandStr[30];
               char fullCommandStr[38];
 

@@ -20,8 +20,6 @@
  *
  */
 
-#ifdef __STM32F1__
-
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -156,7 +154,7 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   DataTransferBegin();
   SPIx.dmaSendAsync(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
 void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
@@ -167,5 +165,3 @@ void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) 
 }
 
 #endif // HAS_SPI_TFT
-
-#endif // __STM32F1__

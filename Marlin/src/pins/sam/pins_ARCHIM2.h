@@ -145,17 +145,19 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers.
+// Software SPI pins for TMC2130 stepper drivers.
 // Required for the Archim2 board.
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                        28  // PD3
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                        26  // PD1
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                         27  // PD2
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                       28  // PD3
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                       26  // PD1
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                        27  // PD2
+  #endif
 #endif
 
 //
@@ -174,8 +176,8 @@
 #define HEATER_2_PIN                           8  // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN                         9  // D9 PC21 BED_PWM
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             4  // D4 PC26 FET_PWM1
+#ifndef FAN_PIN
+  #define FAN_PIN                              4  // D4 PC26 FET_PWM1
 #endif
 #define FAN1_PIN                               5  // D5 PC25 FET_PWM2
 

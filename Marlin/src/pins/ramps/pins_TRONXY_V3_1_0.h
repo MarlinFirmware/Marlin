@@ -23,7 +23,6 @@
 
 /**
  * Arduino Mega for Tronxy X5S-2E, etc.
- * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

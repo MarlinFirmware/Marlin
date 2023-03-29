@@ -21,8 +21,6 @@
  */
 #pragma once
 
-// ATmega2560
-
 #define BOARD_INFO_NAME      "Raise3D Rumba"
 #define DEFAULT_MACHINE_NAME "Raise3D N Series"
 

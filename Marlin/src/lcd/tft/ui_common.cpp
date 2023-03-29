@@ -228,24 +228,24 @@ void MarlinUI::clear_lcd() {
   void MarlinUI::touch_calibration_screen() {
     uint16_t x, y;
 
-    calibrationState stage = touch_calibration.get_calibration_state();
+    calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
-    if (stage == CALIBRATION_NONE) {
+    if (calibration_stage == CALIBRATION_NONE) {
       defer_status_screen(true);
       clear_lcd();
-      stage = touch_calibration.calibration_start();
+      calibration_stage = touch_calibration.calibration_start();
     }
     else {
-      x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
-      y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
     }
 
     touch.clear();
 
-    if (stage < CALIBRATION_SUCCESS) {
-      switch (stage) {
+    if (calibration_stage < CALIBRATION_SUCCESS) {
+      switch (calibration_stage) {
         case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
         case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
         case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
@@ -253,8 +253,8 @@ void MarlinUI::clear_lcd() {
         default: break;
       }
 
-      x = touch_calibration.calibration_points[stage].x;
-      y = touch_calibration.calibration_points[stage].y;
+      x = touch_calibration.calibration_points[calibration_stage].x;
+      y = touch_calibration.calibration_points[calibration_stage].y;
 
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
@@ -264,7 +264,7 @@ void MarlinUI::clear_lcd() {
       touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
     }
     else {
-      tft_string.set(stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
+      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
       defer_status_screen(false);
       touch_calibration.calibration_end();
       touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
