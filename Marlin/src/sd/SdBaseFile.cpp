@@ -1003,7 +1003,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
   bool SdBaseFile::isDirLFN(const dir_t* dir) {
     if (DIR_IS_LONG_NAME(dir)) {
       vfat_t *VFAT = (vfat_t*)dir;
-      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      // Sanity-check the VFAT entry. The first cluster is always set to zero.
+      // The sequence number should be higher than 0 and lower than maximum allowed by VFAT spec
       if ((VFAT->firstClusterLow == 0) && WITHIN((VFAT->sequenceNumber & 0x1F), 1, MAX_VFAT_ENTRIES)) return true;
     }
     return false;
@@ -1463,7 +1464,7 @@ int8_t SdBaseFile::readDir(dir_t *dir, char * const longFilename) {
         // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
         if (VFAT->firstClusterLow == 0) {
           const uint8_t seq = VFAT->sequenceNumber & 0x1F;
-          if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
+          if (WITHIN(seq, 1, VFAT_ENTRIES_LIMIT)) {
             if (seq == 1) {
               checksum = VFAT->checksum;
               checksum_error = 0;
@@ -1627,7 +1628,7 @@ bool SdBaseFile::remove() {
     // Check if the entry has a LFN
     bool lastEntry = false;
     // loop back to search for any LFN entries related to this file
-    LOOP_S_LE_N(sequenceNumber, 1, MAX_VFAT_ENTRIES) {
+    LOOP_S_LE_N(sequenceNumber, 1, VFAT_ENTRIES_LIMIT) {
       dirIndex_ = (dirIndex_ - 1) & 0xF;
       if (dirBlock_ == 0) break;
       if (dirIndex_ == 0xF) dirBlock_--;

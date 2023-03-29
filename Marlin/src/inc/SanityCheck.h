@@ -1035,10 +1035,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
     #if SDSORT_CACHE_VFATS < 2
       #error "SDSORT_CACHE_VFATS must be 2 or greater!"
-    #elif SDSORT_CACHE_VFATS > MAX_VFAT_ENTRIES
+    #elif SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
       #undef SDSORT_CACHE_VFATS
-      #define SDSORT_CACHE_VFATS MAX_VFAT_ENTRIES
-      #warning "SDSORT_CACHE_VFATS was reduced to MAX_VFAT_ENTRIES!"
+      #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
+      #warning "SDSORT_CACHE_VFATS was reduced to VFAT_ENTRIES_LIMIT!"
     #endif
   #endif
 #endif
