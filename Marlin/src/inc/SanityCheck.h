@@ -4160,7 +4160,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Touch Screen Calibration
  */
-#if !MB(LINUX_RAMPS) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+#if !MB(SIMULATED) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
     && !(defined(TOUCH_CALIBRATION_X) && defined(TOUCH_CALIBRATION_Y) && defined(TOUCH_OFFSET_X) && defined(TOUCH_OFFSET_Y))
   #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
