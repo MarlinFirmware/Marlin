@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#include "env_validate.h"
+#if NOT_TARGET(STM32H7)
+  #error "Oops! Select an STM32H7 board in 'Tools > Board.'"
+#endif
 
 #define DEFAULT_MACHINE_NAME "Biqu BX"
 
@@ -91,16 +93,18 @@
 #define E1_CS_PIN                           PC8
 
 //
-// SPI pins for TMC2130 stepper drivers
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PC6
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PG3
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PC7
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PC6
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PG3
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PC7
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -158,7 +162,7 @@
 #define HEATER_1_PIN                        PC5
 #define HEATER_BED_PIN                      PA4
 
-#define FAN0_PIN                            PA5   // "FAN0"
+#define FAN_PIN                             PA5   // "FAN0"
 #define FAN1_PIN                            PA6   // "FAN1"
 #define FAN2_PIN                            PA7   // "FAN2"
 

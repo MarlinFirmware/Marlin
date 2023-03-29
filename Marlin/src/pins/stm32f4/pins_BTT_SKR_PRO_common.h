@@ -172,16 +172,18 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PC12
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PC11
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PC10
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PC12
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PC11
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PC10
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -289,7 +291,7 @@
 //
 // Fans
 //
-#define FAN0_PIN                            PC8   // Fan0
+#define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
 
 #ifndef E0_AUTO_FAN_PIN
@@ -485,7 +487,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_BACKLIGHT_PIN            -1
 
   #else
 
@@ -545,24 +547,22 @@
   #endif
 #endif
 
-#if ENABLED(WIFISUPPORT)
-  //
-  // WIFI
-  //
+//
+// WIFI
+//
 
-  /**
-   *          ------
-   *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
-   *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
-   *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
-   *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
-   *          ------
-   *            W1
-   */
-  #define ESP_WIFI_MODULE_COM                  6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PG0
-  #define ESP_WIFI_MODULE_ENABLE_PIN        PG1
-  #define ESP_WIFI_MODULE_GPIO0_PIN         PF14
-  #define ESP_WIFI_MODULE_GPIO2_PIN         PF15
-#endif
+/**
+ *          ------
+ *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
+ *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
+ *          ------
+ *            W1
+ */
+#define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_RESET_PIN           PG0
+#define ESP_WIFI_MODULE_ENABLE_PIN          PG1
+#define ESP_WIFI_MODULE_GPIO0_PIN           PF14
+#define ESP_WIFI_MODULE_GPIO2_PIN           PF15

@@ -23,7 +23,6 @@
 
 /**
  * MKS BASE – Arduino Mega2560 with RAMPS pin assignments
- * ATmega2560
  */
 
 #ifndef BOARD_INFO_NAME
@@ -34,8 +33,8 @@
   //
   // Heaters / Fans
   //
-  #define MOSFET_B_PIN                         7
-  #define FAN0_PIN                             9
+  // Power outputs EFBF or EFBE
+  #define MOSFET_D_PIN                         7
 
   //
   // M3/M4/M5 - Spindle/Laser Control
@@ -50,9 +49,12 @@
     #define CASE_LIGHT_PIN                     2
   #endif
 
-  //
-  // Microstepping pins
-  //                                                     |===== 1.4 =====|===== 1.5+ =====|
+#endif
+
+//
+// Microstepping pins
+//
+#if MKS_BASE_VERSION >= 14                        //     |===== 1.4 =====|===== 1.5+ =====|
   #define X_MS1_PIN                            5  // PE3 | Pin  5 | PWM5 |        | D3    | SERVO2_PIN
   #define X_MS2_PIN                            6  // PH3 | Pin 15 | PWM6 | Pin 14 | D6    | SERVO1_PIN
   #define Y_MS1_PIN                           59  // PF5 | Pin 92 | A5   |        |       |

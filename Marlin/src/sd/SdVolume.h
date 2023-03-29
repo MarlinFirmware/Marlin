@@ -199,5 +199,3 @@ class SdVolume {
   bool readBlock(uint32_t block, uint8_t *dst) { return sdCard_->readBlock(block, dst); }
   bool writeBlock(uint32_t block, const uint8_t *dst) { return sdCard_->writeBlock(block, dst); }
 };
-
-using MarlinVolume = SdVolume;

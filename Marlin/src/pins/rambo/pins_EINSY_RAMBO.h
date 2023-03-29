@@ -23,8 +23,6 @@
 
 /**
  * Einsy-Rambo pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Rambo/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
- * Origin: https://github.com/ultimachine/Einsy-Rambo/blob/1.1a/board/Project%20Outputs/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
  */
 
 #include "env_validate.h"
@@ -37,8 +35,8 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(TMC2130)) || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(TMC2130)) || (HAS_Z_AXIS && !AXIS_DRIVER_TYPE_Z(TMC2130)) || (HAS_EXTRUDERS && !AXIS_DRIVER_TYPE_E0(TMC2130))
-  #error "For EinsyRambo you must set all *_DRIVER_TYPE to TMC2130 in Configuration.h."
+#if !AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130) || !AXIS_DRIVER_TYPE_E0(TMC2130)
+  #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRambo."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
@@ -128,11 +126,11 @@
 #define HEATER_0_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN0_PIN
+#ifndef FAN_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN0_PIN                           6
+    #define FAN_PIN                            6
   #else
-    #define FAN0_PIN                           8
+    #define FAN_PIN                            8
   #endif
 #endif
 

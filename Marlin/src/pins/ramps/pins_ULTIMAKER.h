@@ -23,7 +23,6 @@
 
 /**
  * Ultimaker pin assignments
- * ATmega2560, ATmega1280
  */
 
 /**
@@ -99,8 +98,8 @@
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             7
+#ifndef FAN_PIN
+  #define FAN_PIN                              7
 #endif
 
 //

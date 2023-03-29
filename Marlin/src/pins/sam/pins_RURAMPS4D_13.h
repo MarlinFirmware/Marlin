@@ -114,7 +114,7 @@
 #define HEATER_2_PIN                          11
 #define HEATER_BED_PIN                         7  // BED H1
 
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 #define FAN1_PIN                               8
 #define CONTROLLER_FAN_PIN                    -1
 
@@ -153,13 +153,11 @@
 #define TFT_LCD_MODULE_COM                     1
 #define TFT_LCD_MODULE_BAUDRATE              115200
 
-#if ENABLED(WIFISUPPORT)
-  // ESP WiFi Use internal USART-2
-  #define ESP_WIFI_MODULE_COM                  2
-  #define ESP_WIFI_MODULE_BAUDRATE           115200
-  #define ESP_WIFI_MODULE_RESET_PIN           -1
-  #define PIGGY_GPIO_PIN                      -1
-#endif
+// ESP WiFi Use internal USART-2
+#define ESP_WIFI_MODULE_COM                    2
+#define ESP_WIFI_MODULE_BAUDRATE             115200
+#define ESP_WIFI_MODULE_RESET_PIN             -1
+#define PIGGY_GPIO_PIN                        -1
 
 //
 // EEPROM

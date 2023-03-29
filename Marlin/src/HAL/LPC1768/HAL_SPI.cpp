@@ -60,7 +60,7 @@
 // ------------------------
 // Public functions
 // ------------------------
-#if ENABLED(SOFTWARE_SPI)
+#if ENABLED(LPC_SOFTWARE_SPI)
 
   // Software SPI
 
@@ -161,7 +161,7 @@
     // TODO: Implement this method
   }
 
-#endif // SOFTWARE_SPI
+#endif // LPC_SOFTWARE_SPI
 
 /**
  * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.

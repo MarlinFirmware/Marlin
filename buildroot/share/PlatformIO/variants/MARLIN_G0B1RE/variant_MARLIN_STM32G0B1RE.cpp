@@ -130,7 +130,14 @@ WEAK void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   // Reset clock registers (in case bootloader has changed them)
-  SystemInit();
+  RCC->CR |= RCC_CR_HSION;
+  while (!(RCC->CR & RCC_CR_HSIRDY))
+      ;
+  RCC->CFGR = 0x00000000;
+  RCC->CR = RCC_CR_HSION;
+  while (RCC->CR & RCC_CR_PLLRDY)
+      ;
+  RCC->PLLCFGR = 0x00001000;
 
   /** Configure the main internal regulator output voltage
   */

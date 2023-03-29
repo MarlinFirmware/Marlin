@@ -23,7 +23,6 @@
 
 /**
  * FELIXprinters v2.0/3.0 (RAMPS v1.4) pin assignments
- * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -35,6 +34,7 @@
 //
 // Heaters / Fans
 //
+// Power outputs EFBF or EFBE
 #define MOSFET_D_PIN                          7
 
 #include "pins_RAMPS.h"

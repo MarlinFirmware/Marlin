@@ -4229,7 +4229,8 @@ void CrealityDWINClass::Value_Control() {
     if (funcpointer) funcpointer();
     return;
   }
-  LIMIT(tempvalue, valuemin * valueunit, valuemax * valueunit);
+  NOLESS(tempvalue, (valuemin * valueunit));
+  NOMORE(tempvalue, (valuemax * valueunit));
   Draw_Float(tempvalue / valueunit, selection - scrollpos, true, valueunit);
   DWIN_UpdateLCD();
   if (active_menu == Move && livemove) {
@@ -4271,7 +4272,8 @@ void CrealityDWINClass::Option_Control() {
     DWIN_UpdateLCD();
     return;
   }
-  LIMIT(tempvalue, valuemin, valuemax);
+  NOLESS(tempvalue, valuemin);
+  NOMORE(tempvalue, valuemax);
   Draw_Option(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, true);
   DWIN_UpdateLCD();
 }
@@ -4661,7 +4663,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
     if (sd) {
       #if ENABLED(POWER_LOSS_RECOVERY)
         if (recovery.valid()) {
-          MediaFile *diveDir = nullptr;
+          SdFile *diveDir = nullptr;
           const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
           card.selectFileByName(fname);
         }

@@ -105,16 +105,18 @@
   #define E2_CS_PIN                         PG9
 #endif
 //
-// SPI pins for TMC2130 stepper drivers
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PB15
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PB14
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PB13
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -165,7 +167,7 @@
 #define HEATER_1_PIN                        PB0   // +HE1-
 #define HEATER_2_PIN                        PF9   // +HE2-
 #define HEATER_BED_PIN                      PA0   // +HOT-BED-
-#define FAN0_PIN                            PB1   // +FAN-
+#define FAN_PIN                             PB1   // +FAN-
 
 /**
  * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
@@ -231,6 +233,8 @@
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN

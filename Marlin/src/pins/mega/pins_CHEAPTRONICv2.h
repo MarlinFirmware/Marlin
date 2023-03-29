@@ -24,9 +24,7 @@
 /**
  * Cheaptronic v2.0 pin assignments
  * Built and sold by Michal Dyntar - RRO
- *          www.reprapobchod.cz (DOES NOT EXIST ANYMORE)
- *          https://web.archive.org/web/20190306201523/http://reprapobchod.cz/
- * ATmega2560
+ *          www.reprapobchod.cz
  */
 
 #include "env_validate.h"
@@ -86,8 +84,8 @@
 #define HEATER_1_PIN                           7
 #define HEATER_2_PIN                           8
 #define HEATER_BED_PIN                         9
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             3
+#ifndef FAN_PIN
+  #define FAN_PIN                              3
 #endif
 #define FAN2_PIN                              58  // additional fan or light control output
 

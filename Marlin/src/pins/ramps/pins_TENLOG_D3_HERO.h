@@ -22,8 +22,7 @@
 #pragma once
 
 /**
- * Tenlog D3 Hero pin assignments
- * ATmega2560
+ * Tenlog pin assignments
  */
 
 #define REQUIRE_MEGA2560
@@ -138,7 +137,7 @@
 #define HEATER_1_PIN                          11
 #define HEATER_BED_PIN                         8
 
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 #define FAN1_PIN                               5  // Normally this would be a servo pin
 
 // XXX Runout support unknown?

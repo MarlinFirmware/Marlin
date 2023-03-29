@@ -166,7 +166,8 @@ def compute_build_signature(env):
     #
     if config_dump == 2:
         print("Generating config.ini ...")
-        config_ini = build_path / 'config.ini'
+        #config_ini = build_path / 'config.ini'
+        config_ini = Path('config.ini').resolve()
         with config_ini.open('w') as outfile:
             ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXPORT')
             filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }

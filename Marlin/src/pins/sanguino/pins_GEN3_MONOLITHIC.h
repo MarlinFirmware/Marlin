@@ -23,7 +23,6 @@
 
 /**
  * Gen3 Monolithic Electronics pin assignments
- * https://reprap.org/wiki/Generation_3_Electronics
  */
 
 /**

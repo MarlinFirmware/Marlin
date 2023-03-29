@@ -100,11 +100,11 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onSettingsStored(const bool success) {
+  void onSettingsStored(bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onSettingsLoaded(const bool success) {
+  void onSettingsLoaded(bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
@@ -123,12 +123,6 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
     void onPowerLossResume() {
       // Called on resume from power-loss
       dgus_screen_handler.PowerLossResume();

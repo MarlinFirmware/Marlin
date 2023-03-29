@@ -112,9 +112,9 @@
 
 namespace ExtUI {
   static struct {
-    bool printer_killed : 1;
+    uint8_t printer_killed : 1;
     #if ENABLED(JOYSTICK)
-      bool jogging : 1;
+      uint8_t jogging : 1;
     #endif
   } flags;
 
@@ -843,13 +843,11 @@ namespace ExtUI {
   #endif // BABYSTEPPING
 
   float getZOffset_mm() {
-    return (
+    return (0.0f
       #if HAS_BED_PROBE
-        probe.offset.z
+        + probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
-      #else
-        0.0f
+        + planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
       #endif
     );
   }
@@ -926,7 +924,7 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
         if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
-          TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
+          TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
 
@@ -1125,13 +1123,6 @@ namespace ExtUI {
     #else
       onStatusChanged(FTOP(fstr));
     #endif
-  }
-
-  void onSurviveInKilled() {
-    thermalManager.disable_all_heaters();
-    flags.printer_killed = 0;
-    marlin_state = MF_RUNNING;
-    //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 
   FileList::FileList() { refresh(); }

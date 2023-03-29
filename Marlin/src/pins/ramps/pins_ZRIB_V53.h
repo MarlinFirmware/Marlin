@@ -22,8 +22,7 @@
 #pragma once
 
 /**
- * ZONESTAR ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
- * ATmega2560, ATmega1280
+ * ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  */
 
 #include "env_validate.h"
@@ -164,7 +163,7 @@
 
 #define HEATER_0_PIN                          10
 #define HEATER_1_PIN                           7
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 #define HEATER_BED_PIN                         8
 #define FAN1_PIN                               6
 

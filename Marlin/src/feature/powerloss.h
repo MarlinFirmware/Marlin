@@ -138,7 +138,7 @@ class PrintJobRecovery {
   public:
     static const char filename[5];
 
-    static MediaFile file;
+    static SdFile file;
     static job_recovery_info_t info;
 
     static uint8_t queue_index_r;     //!< Queue index of the active command

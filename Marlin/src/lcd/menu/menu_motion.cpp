@@ -232,7 +232,7 @@ void menu_move() {
   else
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
 
-  #if ANY(HAS_SWITCHING_EXTRUDER, HAS_SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
+  #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
 
     #if EXTRUDERS >= 4
       switch (active_extruder) {
@@ -265,7 +265,7 @@ void menu_move() {
 
     #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
 
-    #if HAS_SWITCHING_EXTRUDER || HAS_SWITCHING_NOZZLE
+    #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
       // ...and the non-switching
       #if E_MANUAL == 7 || E_MANUAL == 5 || E_MANUAL == 3
@@ -360,13 +360,6 @@ void menu_motion() {
   #endif
 
   //
-  // Pen up/down menu
-  //
-  #if ENABLED(PEN_UP_DOWN_MENU)
-    GCODES_ITEM(MSG_MANUAL_PENUP, F("M280 P0 S90"));
-    GCODES_ITEM(MSG_MANUAL_PENDOWN, F("M280 P0 S50"));
-  #endif
-
   // Probe Offset Wizard
   //
   #if ENABLED(PROBE_OFFSET_WIZARD)
@@ -411,7 +404,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

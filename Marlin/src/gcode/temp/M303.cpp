@@ -25,7 +25,6 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
-#include "../queue.h" // for flush_tx
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
@@ -86,8 +85,6 @@ void GcodeSuite::M303() {
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
   thermalManager.PID_autotune(temp, hid, c, u);
   ui.reset_status();
-
-  queue.flush_rx();
 }
 
 #endif // HAS_PID_HEATING

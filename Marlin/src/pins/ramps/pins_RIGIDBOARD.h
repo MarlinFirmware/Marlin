@@ -23,7 +23,6 @@
 
 /**
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
- * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME
@@ -84,8 +83,8 @@
 #undef HEATER_BED_PIN
 #define HEATER_BED_PIN                        10
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             8  // Same as RAMPS_13_EEF
+#ifndef FAN_PIN
+  #define FAN_PIN                              8  // Same as RAMPS_13_EEF
 #endif
 
 //

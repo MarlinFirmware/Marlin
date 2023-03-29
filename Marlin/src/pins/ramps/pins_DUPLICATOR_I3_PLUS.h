@@ -23,7 +23,6 @@
 
 /**
  * Wanhao Duplicator i3 Plus pin assignments
- * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -72,7 +71,7 @@
 #define HEATER_0_PIN                           4  // PG5 / PWM4
 #define HEATER_BED_PIN                         3  // PE5 / PWM3
 
-#define FAN0_PIN                               5  // PE3 / PWM5
+#define FAN_PIN                                5  // PE3 / PWM5
 
 //
 // Misc. Functions

@@ -21,8 +21,6 @@
  */
 #pragma once
 
-// ATmega2560
-
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Ender-4 only supports 1 hotend / E stepper."
 #endif
@@ -36,7 +34,7 @@
 // band (case light). Thus the hotend and controller fans are always-on.
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #undef FAN0_PIN
+  #undef FAN_PIN
   #ifndef CASE_LIGHT_PIN
     #define CASE_LIGHT_PIN MOSFET_B_PIN
   #endif

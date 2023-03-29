@@ -477,7 +477,7 @@
 #endif
 
 // Aliases for LCD features
-#if !DGUS_UI_IS(NONE) || ENABLED(ANYCUBIC_LCD_VYPER)
+#if !DGUS_UI_IS(NONE)
   #define HAS_DGUS_LCD 1
   #if DGUS_UI_IS(ORIGIN, FYSETC, HIPRECY, MKS)
     #define HAS_DGUS_LCD_CLASSIC 1
@@ -485,7 +485,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER, NEXTION_TFT)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT)
   #define IS_EXTUI 1
   #define EXTENSIBLE_UI
 #endif
@@ -603,47 +603,24 @@
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
-  #undef TEMP_SENSOR_0
-  #undef TEMP_SENSOR_1
-  #undef TEMP_SENSOR_2
-  #undef TEMP_SENSOR_3
-  #undef TEMP_SENSOR_4
-  #undef TEMP_SENSOR_5
-  #undef TEMP_SENSOR_6
-  #undef TEMP_SENSOR_7
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
-  #undef MECHANICAL_SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
-  #undef MECHANICAL_SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
   #undef DISABLE_E
-  #undef THERMAL_PROTECTION_HOTENDS
-  #undef PREVENT_COLD_EXTRUSION
-  #undef PREVENT_LENGTHY_EXTRUDE
-  #undef FILAMENT_RUNOUT_SENSOR
-  #undef FILAMENT_RUNOUT_DISTANCE_MM
-  #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
 #define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
 #define E_TERN_(N)  TERN_(HAS_MULTI_EXTRUDER, N)
 #define E_TERN0(N)  TERN0(HAS_MULTI_EXTRUDER, N)
 
-#if EITHER(SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_EXTRUDER)
-  #define HAS_SWITCHING_EXTRUDER 1
-#endif
-#if EITHER(SWITCHING_NOZZLE, MECHANICAL_SWITCHING_NOZZLE)
-  #define HAS_SWITCHING_NOZZLE 1
-#endif
-
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
   #define E_STEPPERS      2
   #define E_MANUAL        1
 
-#elif HAS_SWITCHING_EXTRUDER        // One stepper for every two EXTRUDERS
+#elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
 
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
@@ -652,7 +629,7 @@
   #else
     #define E_STEPPERS    1
   #endif
-  #if !HAS_SWITCHING_NOZZLE
+  #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
 
@@ -677,8 +654,8 @@
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
-#if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1
-  #undef DISABLE_OTHER_EXTRUDERS
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
+  #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
 // Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
@@ -705,28 +682,20 @@
 
 #if E_STEPPERS <= 7
   #undef INVERT_E7_DIR
-  #undef E7_DRIVER_TYPE
   #if E_STEPPERS <= 6
     #undef INVERT_E6_DIR
-    #undef E6_DRIVER_TYPE
     #if E_STEPPERS <= 5
       #undef INVERT_E5_DIR
-      #undef E5_DRIVER_TYPE
       #if E_STEPPERS <= 4
         #undef INVERT_E4_DIR
-        #undef E4_DRIVER_TYPE
         #if E_STEPPERS <= 3
           #undef INVERT_E3_DIR
-          #undef E3_DRIVER_TYPE
           #if E_STEPPERS <= 2
             #undef INVERT_E2_DIR
-            #undef E2_DRIVER_TYPE
             #if E_STEPPERS <= 1
               #undef INVERT_E1_DIR
-              #undef E1_DRIVER_TYPE
               #if E_STEPPERS == 0
                 #undef INVERT_E0_DIR
-                #undef E0_DRIVER_TYPE
               #endif
             #endif
           #endif
@@ -764,38 +733,70 @@
 #else
   #define NUM_AXES 1
 #endif
-#define HAS_X_AXIS 1
 #if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
+  #if NUM_AXES >= XYZ
+    #define HAS_Z_AXIS 1
+    #ifdef Z4_DRIVER_TYPE
+      #define NUM_Z_STEPPERS 4
+    #elif defined(Z3_DRIVER_TYPE)
+      #define NUM_Z_STEPPERS 3
+    #elif defined(Z2_DRIVER_TYPE)
+      #define NUM_Z_STEPPERS 2
+    #else
+      #define NUM_Z_STEPPERS 1
+    #endif
+    #if NUM_AXES >= 4
+      #define HAS_I_AXIS 1
+      #if NUM_AXES >= 5
+        #define HAS_J_AXIS 1
+        #if NUM_AXES >= 6
+          #define HAS_K_AXIS 1
+          #if NUM_AXES >= 7
+            #define HAS_U_AXIS 1
+            #if NUM_AXES >= 8
+              #define HAS_V_AXIS 1
+              #if NUM_AXES >= 9
+                #define HAS_W_AXIS 1
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
-#if NUM_AXES >= XYZ
-  #define HAS_Z_AXIS 1
+
+#if E_STEPPERS <= 0
+  #undef E0_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 4
-  #define HAS_I_AXIS 1
+#if E_STEPPERS <= 1
+  #undef E1_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 5
-  #define HAS_J_AXIS 1
+#if E_STEPPERS <= 2
+  #undef E2_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 6
-  #define HAS_K_AXIS 1
+#if E_STEPPERS <= 3
+  #undef E3_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 7
-  #define HAS_U_AXIS 1
+#if E_STEPPERS <= 4
+  #undef E4_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 8
-  #define HAS_V_AXIS 1
+#if E_STEPPERS <= 5
+  #undef E5_DRIVER_TYPE
 #endif
-#if NUM_AXES >= 9
-  #define HAS_W_AXIS 1
+#if E_STEPPERS <= 6
+  #undef E6_DRIVER_TYPE
+#endif
+#if E_STEPPERS <= 7
+  #undef E7_DRIVER_TYPE
 #endif
 
 #if !HAS_Y_AXIS
-  #undef AVOID_OBSTACLES
   #undef ENDSTOPPULLUP_YMIN
   #undef ENDSTOPPULLUP_YMAX
-  #undef Y_MIN_ENDSTOP_HIT_STATE
-  #undef Y_MAX_ENDSTOP_HIT_STATE
+  #undef Y_MIN_ENDSTOP_INVERTING
+  #undef Y_MAX_ENDSTOP_INVERTING
   #undef Y2_DRIVER_TYPE
   #undef Y_ENABLE_ON
   #undef DISABLE_Y
@@ -806,23 +807,14 @@
   #undef MANUAL_Y_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
+  #undef SAFE_BED_LEVELING_START_Y
 #endif
 
-#if HAS_Z_AXIS
-  #ifdef Z4_DRIVER_TYPE
-    #define NUM_Z_STEPPERS 4
-  #elif defined(Z3_DRIVER_TYPE)
-    #define NUM_Z_STEPPERS 3
-  #elif defined(Z2_DRIVER_TYPE)
-    #define NUM_Z_STEPPERS 2
-  #else
-    #define NUM_Z_STEPPERS 1
-  #endif
-#else
+#if !HAS_Z_AXIS
   #undef ENDSTOPPULLUP_ZMIN
   #undef ENDSTOPPULLUP_ZMAX
-  #undef Z_MIN_ENDSTOP_HIT_STATE
-  #undef Z_MAX_ENDSTOP_HIT_STATE
+  #undef Z_MIN_ENDSTOP_INVERTING
+  #undef Z_MAX_ENDSTOP_INVERTING
   #undef Z2_DRIVER_TYPE
   #undef Z3_DRIVER_TYPE
   #undef Z4_DRIVER_TYPE
@@ -833,16 +825,16 @@
   #undef Z_MIN_POS
   #undef Z_MAX_POS
   #undef MANUAL_Z_HOME_POS
-  #undef Z_SAFE_HOMING
   #undef MIN_SOFTWARE_ENDSTOP_Z
   #undef MAX_SOFTWARE_ENDSTOP_Z
+  #undef SAFE_BED_LEVELING_START_Z
 #endif
 
 #if !HAS_I_AXIS
   #undef ENDSTOPPULLUP_IMIN
   #undef ENDSTOPPULLUP_IMAX
-  #undef I_MIN_ENDSTOP_HIT_STATE
-  #undef I_MAX_ENDSTOP_HIT_STATE
+  #undef I_MIN_ENDSTOP_INVERTING
+  #undef I_MAX_ENDSTOP_INVERTING
   #undef I_ENABLE_ON
   #undef DISABLE_I
   #undef INVERT_I_DIR
@@ -852,13 +844,14 @@
   #undef MANUAL_I_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_I
   #undef MAX_SOFTWARE_ENDSTOP_I
+  #undef SAFE_BED_LEVELING_START_I
 #endif
 
 #if !HAS_J_AXIS
   #undef ENDSTOPPULLUP_JMIN
   #undef ENDSTOPPULLUP_JMAX
-  #undef J_MIN_ENDSTOP_HIT_STATE
-  #undef J_MAX_ENDSTOP_HIT_STATE
+  #undef J_MIN_ENDSTOP_INVERTING
+  #undef J_MAX_ENDSTOP_INVERTING
   #undef J_ENABLE_ON
   #undef DISABLE_J
   #undef INVERT_J_DIR
@@ -868,13 +861,14 @@
   #undef MANUAL_J_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_J
   #undef MAX_SOFTWARE_ENDSTOP_J
+  #undef SAFE_BED_LEVELING_START_J
 #endif
 
 #if !HAS_K_AXIS
   #undef ENDSTOPPULLUP_KMIN
   #undef ENDSTOPPULLUP_KMAX
-  #undef K_MIN_ENDSTOP_HIT_STATE
-  #undef K_MAX_ENDSTOP_HIT_STATE
+  #undef K_MIN_ENDSTOP_INVERTING
+  #undef K_MAX_ENDSTOP_INVERTING
   #undef K_ENABLE_ON
   #undef DISABLE_K
   #undef INVERT_K_DIR
@@ -884,13 +878,14 @@
   #undef MANUAL_K_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_K
   #undef MAX_SOFTWARE_ENDSTOP_K
+  #undef SAFE_BED_LEVELING_START_K
 #endif
 
 #if !HAS_U_AXIS
   #undef ENDSTOPPULLUP_UMIN
   #undef ENDSTOPPULLUP_UMAX
-  #undef U_MIN_ENDSTOP_HIT_STATE
-  #undef U_MAX_ENDSTOP_HIT_STATE
+  #undef U_MIN_ENDSTOP_INVERTING
+  #undef U_MAX_ENDSTOP_INVERTING
   #undef U_ENABLE_ON
   #undef DISABLE_U
   #undef INVERT_U_DIR
@@ -900,13 +895,14 @@
   #undef MANUAL_U_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_U
   #undef MAX_SOFTWARE_ENDSTOP_U
+  #undef SAFE_BED_LEVELING_START_U
 #endif
 
 #if !HAS_V_AXIS
   #undef ENDSTOPPULLUP_VMIN
   #undef ENDSTOPPULLUP_VMAX
-  #undef V_MIN_ENDSTOP_HIT_STATE
-  #undef V_MAX_ENDSTOP_HIT_STATE
+  #undef V_MIN_ENDSTOP_INVERTING
+  #undef V_MAX_ENDSTOP_INVERTING
   #undef V_ENABLE_ON
   #undef DISABLE_V
   #undef INVERT_V_DIR
@@ -916,13 +912,14 @@
   #undef MANUAL_V_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_V
   #undef MAX_SOFTWARE_ENDSTOP_V
+  #undef SAFE_BED_LEVELING_START_V
 #endif
 
 #if !HAS_W_AXIS
   #undef ENDSTOPPULLUP_WMIN
   #undef ENDSTOPPULLUP_WMAX
-  #undef W_MIN_ENDSTOP_HIT_STATE
-  #undef W_MAX_ENDSTOP_HIT_STATE
+  #undef W_MIN_ENDSTOP_INVERTING
+  #undef W_MAX_ENDSTOP_INVERTING
   #undef W_ENABLE_ON
   #undef DISABLE_W
   #undef INVERT_W_DIR
@@ -932,16 +929,8 @@
   #undef MANUAL_W_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_W
   #undef MAX_SOFTWARE_ENDSTOP_W
+  #undef SAFE_BED_LEVELING_START_W
 #endif
-
-#define _OR_HAS_DA(A) ENABLED(DISABLE_##A) ||
-#if MAP(_OR_HAS_DA, X, Y, Z, I, J, K, U, V, W) 0
-  #define HAS_DISABLE_MAIN_AXES 1
-#endif
-#if HAS_DISABLE_MAIN_AXES || ENABLED(DISABLE_E)
-  #define HAS_DISABLE_AXES 1
-#endif
-#undef _OR_HAS_DA
 
 #ifdef X2_DRIVER_TYPE
   #define HAS_X2_STEPPER 1
@@ -954,7 +943,7 @@
 
 /**
  * Number of Primary Linear Axes (e.g., XYZ)
- * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2, Z2, Z3, Z4)
+ * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
  */
 #if NUM_AXES >= 3
   #define PRIMARY_LINEAR_AXES 3
@@ -1082,7 +1071,7 @@
 #endif
 
 // Switching extruder has its own servo?
-#if ENABLED(SWITCHING_EXTRUDER) && (!HAS_SWITCHING_NOZZLE || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
+#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
@@ -1090,8 +1079,10 @@
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
  */
-#if ENABLED(BLTOUCH) && !defined(Z_PROBE_SERVO_NR)
-  #define Z_PROBE_SERVO_NR 0
+#if ENABLED(BLTOUCH)
+  #ifndef Z_PROBE_SERVO_NR
+    #define Z_PROBE_SERVO_NR 0
+  #endif
 #endif
 
 /**
@@ -1115,14 +1106,6 @@
 #endif
 #if ANY(HAS_STOWABLE_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
   #define HAS_BED_PROBE 1
-#endif
-
-// Probing tool change
-#if !HAS_MULTI_EXTRUDER
-  #undef PROBING_TOOL
-#endif
-#if HAS_BED_PROBE && defined(PROBING_TOOL)
-  #define DO_TOOLCHANGE_FOR_PROBING 1
 #endif
 
 /**
@@ -1218,97 +1201,6 @@
     #endif
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
-
-#if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-  #if NUM_MOTION_SENSORS >= 1
-    #ifndef FIL_MOTION1_STATE
-      #define FIL_MOTION1_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION1_PULLUP
-      #define FIL_MOTION1_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION1_PULLDOWN
-      #define FIL_MOTION1_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 2
-    #ifndef FIL_MOTION2_STATE
-      #define FIL_MOTION2_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION2_PULLUP
-      #define FIL_MOTION2_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION2_PULLDOWN
-      #define FIL_MOTION2_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 3
-    #ifndef FIL_MOTION3_STATE
-      #define FIL_MOTION3_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION3_PULLUP
-      #define FIL_MOTION3_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION3_PULLDOWN
-      #define FIL_MOTION3_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 4
-    #ifndef FIL_MOTION4_STATE
-      #define FIL_MOTION4_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION4_PULLUP
-      #define FIL_MOTION4_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION4_PULLDOWN
-      #define FIL_MOTION4_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 5
-    #ifndef FIL_MOTION5_STATE
-      #define FIL_MOTION5_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION5_PULLUP
-      #define FIL_MOTION5_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION5_PULLDOWN
-      #define FIL_MOTION5_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 6
-    #ifndef FIL_MOTION6_STATE
-      #define FIL_MOTION6_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION6_PULLUP
-      #define FIL_MOTION6_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION6_PULLDOWN
-      #define FIL_MOTION6_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 7
-    #ifndef FIL_MOTION7_STATE
-      #define FIL_MOTION7_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION7_PULLUP
-      #define FIL_MOTION7_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION7_PULLDOWN
-      #define FIL_MOTION7_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-  #if NUM_MOTION_SENSORS >= 8
-    #ifndef FIL_MOTION8_STATE
-      #define FIL_MOTION8_STATE FIL_RUNOUT_STATE
-    #endif
-    #ifndef FIL_MOTION8_PULLUP
-      #define FIL_MOTION8_PULLUP FIL_RUNOUT_PULLUP
-    #endif
-    #ifndef FIL_MOTION8_PULLDOWN
-      #define FILMOTION8_PULLDOWN FIL_RUNOUT_PULLDOWN
-    #endif
-  #endif
-#endif // FILAMENT_SWITCH_AND_MOTION
 
 // Homing to Min or Max
 #if X_HOME_DIR > 0
@@ -1577,10 +1469,6 @@
   #define HAS_PID_DEBUG 1
 #endif
 
-#if DISABLED(MPC_AUTOTUNE)
-  #undef MPC_AUTOTUNE_MENU
-#endif
-
 /**
  * TFT Displays
  *
@@ -1661,8 +1549,29 @@
   #endif
 #endif
 
-#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
-  #include "../lcd/tft_io/tft_orientation.h"
+// Set TFT_COLOR_UI_PORTRAIT flag, if needed
+#if defined(TFT_ROTATION) && (HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT)
+  #define _CMP_TFT_ROTATE_90   90
+  #define _CMP_TFT_ROTATE_270 270
+  #define _CMP_TFT_ROTATE_90_MIRROR_X   90
+  #define _CMP_TFT_ROTATE_90_MIRROR_Y   90
+  #define _CMP_TFT_ROTATE_270_MIRROR_X 270
+  #define _CMP_TFT_ROTATE_270_MIRROR_Y 270
+  #define _ISROT(N) || (_CAT(_CMP_, TFT_ROTATION) == N)
+  #define ISROT(V...) (0 MAP(_ISROT, V))
+
+  #if ISROT(90, 270)
+    #define TFT_COLOR_UI_PORTRAIT 1
+  #endif
+
+  #undef _CMP_TFT_ROTATE_90
+  #undef _CMP_TFT_ROTATE_270
+  #undef _CMP_TFT_ROTATE_90_MIRROR_X
+  #undef _CMP_TFT_ROTATE_90_MIRROR_Y
+  #undef _CMP_TFT_ROTATE_270_MIRROR_X
+  #undef _CMP_TFT_ROTATE_270_MIRROR_Y
+  #undef _ISROT
+  #undef ISROT
 #endif
 
 #if ENABLED(TFT_RES_320x240)
@@ -1732,11 +1641,9 @@
   #define HAS_UI_1024x600 1
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
-  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9) // Fewer lines with touch buttons onscreen
-  #else
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
-  #endif
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)   // Fewer lines with touch buttons onscreen
+#elif HAS_UI_240x320
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 6)   // Fewer lines with touch buttons onscreen
 #elif HAS_UI_1024x600
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
 #endif
@@ -1777,9 +1684,7 @@
   #endif
 #endif
 
-#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
-  || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR) \
-  || (HAS_U_AXIS && U_HOME_DIR) || (HAS_V_AXIS && V_HOME_DIR) || (HAS_W_AXIS && W_HOME_DIR)
+#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR)
   #define HAS_ENDSTOPS 1
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else

@@ -23,8 +23,6 @@
 
 /**
  * BigTreeTech SKR 1.4 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20V1.4%20+%20Turbo/BTT%20SKR%20V1.4-SCH.pdf
- * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/blob/master/BTT%20SKR%20V1.4/Hardware/BTT%20SKR%20V1.4-SCH.pdf
  */
 
 #include "env_validate.h"
@@ -196,16 +194,18 @@
 #define TEMP_BED_PIN                    P0_25_A2  // A2 (T2) - (69) - TEMP_BED_PIN
 
 //
-// Default pins for TMC software SPI
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     P1_17
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     P0_05
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      P0_04
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                    P1_17
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                    P0_05
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                     P0_04
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -358,11 +358,11 @@
     #define BEEPER_PIN               EXP1_01_PIN
 
   #elif ENABLED(CR10_STOCKDISPLAY)
+    #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
     #define LCD_PINS_RS              EXP1_07_PIN
 
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
 
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN

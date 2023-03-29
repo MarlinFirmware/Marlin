@@ -113,16 +113,18 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PD14
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PD1
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PD0
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PD14
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PD1
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PD0
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -177,7 +179,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN0_PIN                            PB1   // FAN
+#define FAN_PIN                             PB1   // FAN
 
 //
 // Thermocouples
@@ -236,23 +238,23 @@
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-#define EXP1_01_PIN                         PC5
-#define EXP1_02_PIN                         PE13
-#define EXP1_03_PIN                         PD13
-#define EXP1_04_PIN                         PC6
-#define EXP1_05_PIN                         PE14
-#define EXP1_06_PIN                         PE15
-#define EXP1_07_PIN                         PD11
-#define EXP1_08_PIN                         PD10
+#define EXP1_01_PIN                     PC5
+#define EXP1_02_PIN                     PE13
+#define EXP1_03_PIN                     PD13
+#define EXP1_04_PIN                     PC6
+#define EXP1_05_PIN                     PE14
+#define EXP1_06_PIN                     PE15
+#define EXP1_07_PIN                     PD11
+#define EXP1_08_PIN                     PD10
 
-#define EXP2_01_PIN                         PA6
-#define EXP2_02_PIN                         PA5
-#define EXP2_03_PIN                         PE8
-#define EXP2_04_PIN                         PE10
-#define EXP2_05_PIN                         PE11
-#define EXP2_06_PIN                         PA7
-#define EXP2_07_PIN                         PE12
-#define EXP2_08_PIN                         -1    // RESET
+#define EXP2_01_PIN                     PA6
+#define EXP2_02_PIN                     PA5
+#define EXP2_03_PIN                     PE8
+#define EXP2_04_PIN                     PE10
+#define EXP2_05_PIN                     PE11
+#define EXP2_06_PIN                     PA7
+#define EXP2_07_PIN                     PE12
+#define EXP2_08_PIN                     -1    // RESET
 
 //
 // LCD SD
@@ -361,7 +363,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
-    #if IS_ULTIPANEL
+    #if ENABLED(ULTIPANEL)
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN

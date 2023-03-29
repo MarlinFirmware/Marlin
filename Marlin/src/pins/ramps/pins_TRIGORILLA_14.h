@@ -23,7 +23,6 @@
 
 /**
  * Arduino Mega with RAMPS v1.4 for Anycubic
- * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.4"
@@ -46,7 +45,7 @@
 //
 // Heaters / Fans
 //
-#define FAN0_PIN                               9  // FAN0
+#define FAN_PIN                                9  // FAN0
 #define FAN1_PIN                               7  // FAN1
 #define FAN2_PIN                              44  // FAN2
 #ifndef E0_AUTO_FAN_PIN

@@ -50,7 +50,7 @@ void OTA_init() {
     })
     .onError([](ota_error_t error) {
       Serial.printf("Error[%u]: ", error);
-      const char *str = "unknown";
+      char *str;
       switch (error) {
         case OTA_AUTH_ERROR:    str = "Auth Failed";    break;
         case OTA_BEGIN_ERROR:   str = "Begin Failed";   break;

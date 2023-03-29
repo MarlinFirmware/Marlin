@@ -41,7 +41,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
   #include "../libs/buzzer.h"
 #endif
 
-#if ENABLED(PRINTCOUNTER_SYNC)
+#if PRINTCOUNTER_SYNC
   #include "../module/planner.h"
 #endif
 
