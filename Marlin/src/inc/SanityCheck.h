@@ -737,17 +737,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef _ISSNS_1
 
 /**
- * Hephestos 2 Heated Bed Kit requirements
- */
-#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
-  #if TEMP_SENSOR_BED != 70
-    #error "HEPHESTOS2_HEATED_BED_KIT requires TEMP_SENSOR_BED 70."
-  #elif DISABLED(HEATER_BED_INVERTING)
-    #error "HEPHESTOS2_HEATED_BED_KIT requires HEATER_BED_INVERTING."
-  #endif
-#endif
-
-/**
  * Probe temp compensation requirements
  */
 #if HAS_PTC
@@ -4312,20 +4301,16 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Touch Screen Calibration
  */
-#if !MB(SIMULATED) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+#if !MB(LINUX_RAMPS) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
     && !(defined(TOUCH_CALIBRATION_X) && defined(TOUCH_CALIBRATION_Y) && defined(TOUCH_OFFSET_X) && defined(TOUCH_OFFSET_Y))
   #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
 /**
- * Sanity check WiFi options
+ * Sanity check for WIFI
  */
-#if ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
-  #error "ESP3D_WIFISUPPORT requires an ESP32 MOTHERBOARD."
-#elif ENABLED(WEBSUPPORT) && NONE(ARDUINO_ARCH_ESP32, WIFISUPPORT)
-  #error "WEBSUPPORT requires WIFISUPPORT and an ESP32 MOTHERBOARD."
-#elif BOTH(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "Enable only one of ESP3D_WIFISUPPORT or WIFISUPPORT."
+#if EITHER(ESP3D_WIFISUPPORT, WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
+  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 MOTHERBOARD."
 #endif
 
 /**

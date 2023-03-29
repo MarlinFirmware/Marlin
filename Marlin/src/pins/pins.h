@@ -731,6 +731,8 @@
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 #elif MB(TRONXY_V10)
   #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
+#elif MB(TRONXY_F446)
+  #include "stm32f4/pins_TRONXY_F446.h"         //STM32F4                                 env:tronxy_gemini_s_marlin_ui
 
 //
 // ARM Cortex M7
@@ -809,7 +811,7 @@
 // Linux Native Debug board
 //
 
-#elif MB(SIMULATED)
+#elif MB(LINUX_RAMPS)
   #include "linux/pins_RAMPS_LINUX.h"           // Native or Simulation                   lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
 
 #else
@@ -845,7 +847,6 @@
   #define BOARD_TH3D_EZBOARD_LITE_V2    99923
   #define BOARD_BTT_SKR_SE_BX           99924
   #define BOARD_MKS_MONSTER8            99925
-  #define BOARD_LINUX_RAMPS             99926
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -901,8 +902,6 @@
     #error "BOARD_BTT_SKR_SE_BX is now BOARD_BTT_SKR_SE_BX_V2 or BOARD_BTT_SKR_SE_BX_V3. Please update your configuration."
   #elif MB(MKS_MONSTER8)
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
-  #elif MB(LINUX_RAMPS)
-    #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -936,7 +935,6 @@
   #undef BOARD_TH3D_EZBOARD_LITE_V2
   #undef BOARD_BTT_SKR_SE_BX
   #undef BOARD_MKS_MONSTER8
-  #undef BOARD_LINUX_RAMPS
 
 #endif
 

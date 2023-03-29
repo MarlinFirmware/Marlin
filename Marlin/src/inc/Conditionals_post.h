@@ -2800,23 +2800,53 @@
 #endif
 
 /**
+ * Heater signal inversion defaults
+ */
+
+#if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
+  #define HEATER_0_INVERTING false
+#endif
+#if HAS_HEATER_1 && !defined(HEATER_1_INVERTING)
+  #define HEATER_1_INVERTING false
+#endif
+#if HAS_HEATER_2 && !defined(HEATER_2_INVERTING)
+  #define HEATER_2_INVERTING false
+#endif
+#if HAS_HEATER_3 && !defined(HEATER_3_INVERTING)
+  #define HEATER_3_INVERTING false
+#endif
+#if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
+  #define HEATER_4_INVERTING false
+#endif
+#if HAS_HEATER_5 && !defined(HEATER_5_INVERTING)
+  #define HEATER_5_INVERTING false
+#endif
+#if HAS_HEATER_6 && !defined(HEATER_6_INVERTING)
+  #define HEATER_6_INVERTING false
+#endif
+#if HAS_HEATER_7 && !defined(HEATER_7_INVERTING)
+  #define HEATER_7_INVERTING false
+#endif
+
+/**
  * Helper Macros for heaters and extruder fan
  */
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ ENABLED(HEATER_0_INVERTING))
+
+#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
 #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ ENABLED(HEATER_1_INVERTING))
+  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
   #if HOTENDS > 2
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ ENABLED(HEATER_2_INVERTING))
+    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
     #if HOTENDS > 3
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ ENABLED(HEATER_3_INVERTING))
+      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
       #if HOTENDS > 4
-        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ ENABLED(HEATER_4_INVERTING))
+        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
         #if HOTENDS > 5
-          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ ENABLED(HEATER_5_INVERTING))
+          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ HEATER_5_INVERTING)
           #if HOTENDS > 6
-            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ ENABLED(HEATER_6_INVERTING))
+            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ HEATER_6_INVERTING)
             #if HOTENDS > 7
-              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ ENABLED(HEATER_7_INVERTING))
+              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ HEATER_7_INVERTING)
             #endif // HOTENDS > 7
           #endif // HOTENDS > 6
         #endif // HOTENDS > 5
@@ -2830,6 +2860,10 @@
   #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
 #endif
 
+#ifndef MIN_POWER
+  #define MIN_POWER 0
+#endif
+
 /**
  * Heated bed requires settings
  */
@@ -2840,7 +2874,10 @@
   #ifndef MAX_BED_POWER
     #define MAX_BED_POWER 255
   #endif
-  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ ENABLED(HEATER_BED_INVERTING))
+  #ifndef HEATER_BED_INVERTING
+    #define HEATER_BED_INVERTING false
+  #endif
+  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ HEATER_BED_INVERTING)
 #endif
 
 /**
@@ -2853,7 +2890,10 @@
   #ifndef MAX_CHAMBER_POWER
     #define MAX_CHAMBER_POWER 255
   #endif
-  #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ ENABLED(HEATER_CHAMBER_INVERTING))
+  #ifndef HEATER_CHAMBER_INVERTING
+    #define HEATER_CHAMBER_INVERTING false
+  #endif
+  #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ HEATER_CHAMBER_INVERTING)
 #endif
 
 /**
@@ -2863,7 +2903,10 @@
   #ifndef MAX_COOLER_POWER
     #define MAX_COOLER_POWER 255
   #endif
-  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ ENABLED(COOLER_INVERTING))
+  #ifndef COOLER_INVERTING
+    #define COOLER_INVERTING true
+  #endif
+  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ COOLER_INVERTING)
 #endif
 
 #if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER || HAS_COOLER
