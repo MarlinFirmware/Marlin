@@ -737,6 +737,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef _ISSNS_1
 
 /**
+ * Hephestos 2 Heated Bed Kit requirements
+ */
+#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
+  #if TEMP_SENSOR_BED != 70
+    #error "HEPHESTOS2_HEATED_BED_KIT requires TEMP_SENSOR_BED 70."
+  #elif DISABLED(HEATER_BED_INVERTING)
+    #error "HEPHESTOS2_HEATED_BED_KIT requires HEATER_BED_INVERTING."
+  #endif
+#endif
+
+/**
  * Probe temp compensation requirements
  */
 #if HAS_PTC
