@@ -216,7 +216,6 @@ void ParkHead();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void UBLMeshTilt();
-  bool UBLValidMesh();
   void UBLMeshSave();
   void UBLMeshLoad();
 #endif
