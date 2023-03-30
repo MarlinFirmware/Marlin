@@ -2605,14 +2605,13 @@
   #define MAX_FANS 8  // Max supported fans
 #endif
 
-#define _NOT_E_AUTO(N,F) (E##N##_AUTO_FAN_PIN != FAN##F##_PIN)
-#define _HAS_FAN(F) (PIN_EXISTS(FAN##F) \
+#define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
+#define _HAS_FAN(F) (F < MAX_FANS && PIN_EXISTS(FAN##F) \
                      && CONTROLLER_FAN_PIN != FAN##F##_PIN \
-                     && _NOT_E_AUTO(0,F) && _NOT_E_AUTO(1,F) \
-                     && _NOT_E_AUTO(2,F) && _NOT_E_AUTO(3,F) \
-                     && _NOT_E_AUTO(4,F) && _NOT_E_AUTO(5,F) \
-                     && _NOT_E_AUTO(6,F) && _NOT_E_AUTO(7,F) \
-                     && F < MAX_FANS)
+                     && !_IS_E_AUTO(0,F) && !_IS_E_AUTO(1,F) \
+                     && !_IS_E_AUTO(2,F) && !_IS_E_AUTO(3,F) \
+                     && !_IS_E_AUTO(4,F) && !_IS_E_AUTO(5,F) \
+                     && !_IS_E_AUTO(6,F) && !_IS_E_AUTO(7,F))
 #if _HAS_FAN(0)
   #define HAS_FAN0 1
 #endif
