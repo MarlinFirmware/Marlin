@@ -244,7 +244,7 @@ void GcodeSuite::G34() {
 
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.
-          z_measured[iprobe] = z_probed_height + Z_CLEARANCE_BETWEEN_PROBES;
+          z_measured[iprobe] = z_probed_height + (Z_CLEARANCE_BETWEEN_PROBES);
 
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", iprobe + 1, " measured position is ", z_measured[iprobe]);
 
@@ -446,7 +446,7 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z -= z_measured_min - float(Z_CLEARANCE_BETWEEN_PROBES);
         sync_plan_position();
       #endif
 

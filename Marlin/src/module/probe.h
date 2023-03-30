@@ -33,6 +33,9 @@
   #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
+
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
@@ -139,6 +142,7 @@ public:
     #endif // !IS_KINEMATIC
 
     static void move_z_after_probing() {
+      DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
       #ifdef Z_AFTER_PROBING
         do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
       #endif
@@ -159,6 +163,7 @@ public:
   #endif // !HAS_BED_PROBE
 
   static void move_z_after_homing() {
+    DEBUG_SECTION(mzah, "move_z_after_homing", DEBUGGING(LEVELING));
     #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
       do_z_clearance(Z_POST_CLEARANCE, true);
     #elif HAS_BED_PROBE
