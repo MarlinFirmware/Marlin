@@ -143,25 +143,27 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 
 #endif // LCD_SHOW_E_TOTAL
 
-//
-// Fan Icon and Percentage
-//
-FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
-  const uint16_t fanx = (4 * STATUS_CHR_WIDTH - STATUS_FAN_WIDTH) / 2;
-  const bool fan_on = !!thermalManager.scaledFanSpeed(0);
-  if (fan_on) {
-    DWIN_ICON_Animation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
-    dwin_string.set(i8tostr3rj(thermalManager.scaledFanSpeedPercent(0)));
-    dwin_string.add('%');
-    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
+#if HAS_FAN
+  //
+  // Fan Icon and Percentage
+  //
+  FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
+    const uint16_t fanx = (4 * STATUS_CHR_WIDTH - STATUS_FAN_WIDTH) / 2;
+    const bool fan_on = !!thermalManager.scaledFanSpeed(0);
+    if (fan_on) {
+      DWIN_ICON_Animation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
+      dwin_string.set(i8tostr3rj(thermalManager.scaledFanSpeedPercent(0)));
+      dwin_string.add('%');
+      DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
+    }
+    else {
+      DWIN_ICON_AnimationControl(0x0000); // disable all icon animations (this is the only one)
+      DWIN_ICON_Show(ICON, ICON_Fan0, x + fanx, y);
+      dwin_string.set(F("    "));
+      DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
+    }
   }
-  else {
-    DWIN_ICON_AnimationControl(0x0000); // disable all icon animations (this is the only one)
-    DWIN_ICON_Show(ICON, ICON_Fan0, x + fanx, y);
-    dwin_string.set(F("    "));
-    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
-  }
-}
+#endif
 
 /**
  * Draw a single heater icon with current and target temperature, at the given XY
@@ -300,7 +302,6 @@ void MarlinUI::draw_status_screen() {
   #if HAS_HEATED_BED
     _draw_heater_status(H_BED, hx, STATUS_HEATERS_Y);
   #endif
-
   #if HAS_FAN
     _draw_fan_status(LCD_PIXEL_WIDTH - STATUS_CHR_WIDTH * 5, STATUS_FAN_Y);
   #endif
