@@ -3262,9 +3262,9 @@
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
 #if ANY(SCROLL_LONG_FILENAMES, HAS_DWIN_E3V2, TFT_COLOR_UI)
-  #define MAX_VFAT_ENTRIES (5)
+  #define MAX_VFAT_ENTRIES 5
 #else
-  #define MAX_VFAT_ENTRIES (2)
+  #define MAX_VFAT_ENTRIES 2
 #endif
 
 // Nozzle park for Delta
@@ -3279,14 +3279,17 @@
 #if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SD_SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
-  #undef SDSORT_LIMIT
-  #undef SDSORT_USES_RAM
-  #undef SDSORT_USES_STACK
-  #undef SDSORT_CACHE_NAMES
-  #define SDSORT_LIMIT       64
-  #define SDSORT_USES_RAM    true
-  #define SDSORT_USES_STACK  false
-  #define SDSORT_CACHE_NAMES true
+  #if SDSORT_LIMIT > 64 || !SDSORT_USES_RAM || SDSORT_USES_STACK || !SDSORT_CACHE_NAMES
+    #undef SDSORT_LIMIT
+    #undef SDSORT_USES_RAM
+    #undef SDSORT_USES_STACK
+    #undef SDSORT_CACHE_NAMES
+    #define SDSORT_LIMIT       64
+    #define SDSORT_USES_RAM    true
+    #define SDSORT_USES_STACK  false
+    #define SDSORT_CACHE_NAMES true
+    #define SDSORT_CACHE_LPC1768_WARNING 1
+  #endif
   #ifndef FOLDER_SORTING
     #define FOLDER_SORTING     -1
   #endif
