@@ -3306,9 +3306,9 @@
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
 #if ANY(SCROLL_LONG_FILENAMES, HAS_DWIN_E3V2, TFT_COLOR_UI)
-  #define VFAT_ENTRIES_LIMIT (5)
+  #define VFAT_ENTRIES_LIMIT 5
 #else
-  #define VFAT_ENTRIES_LIMIT (2)
+  #define VFAT_ENTRIES_LIMIT 2
 #endif
 #define MAX_VFAT_ENTRIES 20 // by VFAT specs to fit LFN of length 255
 
@@ -3344,6 +3344,7 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+  #define SDSORT_CACHE_LPC1768_WARNING 1
 #endif
 
 // Fallback SPI Speed for SD
