@@ -361,6 +361,7 @@ void Probe::do_z_raise(const float z_raise) {
 }
 
 FORCE_INLINE void probe_specific_action(const bool deploy) {
+  DEBUG_SECTION(log_psa, "Probe::probe_specific_action", DEBUGGING(LEVELING));
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
@@ -505,7 +506,6 @@ void Probe::probe_error_stop() {
  * Return TRUE if the probe could not be deployed/stowed
  */
 bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
-
   if (DEBUGGING(LEVELING)) {
     DEBUG_POS("Probe::set_deployed", current_position);
     DEBUG_ECHOLNPGM("deploy=", deploy, " no_return=", no_return);
@@ -688,12 +688,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   bool Probe::tare() {
     #if BOTH(PROBE_ACTIVATION_SWITCH, PROBE_TARE_ONLY_WHILE_INACTIVE)
       if (endstops.probe_switch_activated()) {
-        SERIAL_ECHOLNPGM("Cannot tare an active probe");
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Cannot tare an active probe");
         return true;
       }
     #endif
 
-    SERIAL_ECHOLNPGM("Taring probe");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Taring probe");
     WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
     WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
@@ -718,6 +718,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
 
   auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("try_to_probe(..., ", z_probe_low_point, ", ", fr_mm_s, ", ", scheck, ", ", clearance);
+
     // Tare the probe, if supported
     if (TERN0(PROBE_TARE, tare())) return true;
 
@@ -742,6 +744,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   // If Z isn't known then probe to -10mm.
   const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + Z_PROBE_LOW_POINT : -10.0f;
 
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
+
   // Double-probing does a fast probe followed by a slow probe
   #if TOTAL_PROBING == 2
 
@@ -749,6 +753,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (TERN0(PROBE_TARE, tare())) return NAN;
 
     // Do a first probe at the fast speed
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Fast Probe:");
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
@@ -756,17 +761,17 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
-    do_z_clearance(current_position.z + Z_CLEARANCE_MULTI_PROBE);
+    do_z_clearance(Z_CLEARANCE_MULTI_PROBE);
 
   #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
-    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0f + (zoffs > 0 ? zoffs : 0);
+    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0f + _MAX(zoffs, 0.0f);
     if (current_position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!probe_down_to_z(z, z_probe_fast_mm_s))
-        do_z_clearance(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
+        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
     }
   #endif
 
@@ -789,6 +794,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
       if (TERN0(PROBE_TARE, tare())) return true;
 
       // Probe downward slowly to find the bed
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW),
                        sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
 
@@ -798,7 +804,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
-        LOOP_LE_N(i, p) {                            // Iterate the saved Zs to insert the new Z
+        LOOP_LE_N(i, p) {                                             // Iterate the saved Zs to insert the new Z
           if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
             for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
             probes[i] = z;                                            // Insert the new Z measurement
@@ -817,7 +823,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
           #if EXTRA_PROBING > 0
             < TOTAL_PROBING - 1
           #endif
-        ) do_z_clearance(z + Z_CLEARANCE_MULTI_PROBE);
+        ) do_z_clearance(Z_CLEARANCE_MULTI_PROBE);
       #endif
     }
 
@@ -919,7 +925,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   #endif
 
   // Use a safe Z height for the XY move
-  const float safe_z = _MAX(current_position.z, SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance()));
+  const float safe_z = _MAX(current_position.z, Z_PROBE_SAFE_CLEARANCE);
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
   xyz_pos_t npos = NUM_AXIS_ARRAY(
@@ -928,12 +934,16 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     current_position.u, current_position.v, current_position.w
   );
   if (!can_reach(npos, probe_relative)) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Not Reachable");
     return NAN;
   }
 
-  if (probe_relative) // Get the nozzle position, adjust for active hotend if not 0
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
+  if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
     npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, xy_pos_t(hotend_offset[active_extruder]));
+  }
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
@@ -953,11 +963,15 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   // Raise and/or stow the probe depending on 'raise_after' and settings.
   if (!isnan(measured_z)) {
     const ProbePtRaise raise_type = (TERN0(BLTOUCH, !bltouch.high_speed_mode) && raise_after == PROBE_PT_RAISE) ? PROBE_PT_STOW : raise_after;
-    const bool big_raise = raise_type == PROBE_PT_BIG_RAISE;
-    if (big_raise || raise_type == PROBE_PT_RAISE)
-      do_z_clearance(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES));
-    else if (raise_type == PROBE_PT_STOW || raise_type == PROBE_PT_LAST_STOW)
-      if (stow()) measured_z = NAN;   // Error on stow?
+    switch (raise_type) {
+      default: break;
+      case PROBE_PT_RAISE:
+        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+        break;
+      case PROBE_PT_STOW: case PROBE_PT_LAST_STOW:
+        if (stow()) measured_z = NAN;   // Error on stow?
+        break;
+    }
 
     if (verbose_level > 2)
       SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);

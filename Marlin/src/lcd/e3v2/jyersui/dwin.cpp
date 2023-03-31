@@ -38,7 +38,6 @@
 #include "../../../module/planner.h"
 #include "../../../module/settings.h"
 #include "../../../libs/buzzer.h"
-#include "../../../inc/Conditionals_post.h"
 
 //#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
@@ -3862,7 +3861,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Back, F("Cancel"));
             else {
               thermalManager.setTargetHotend(0, 0);
-              thermalManager.set_fan_speed(0, 0);
+              TERN_(HAS_FAN, thermalManager.set_fan_speed(0, 0));
               Redraw_Menu(false, true, true);
             }
             break;
@@ -4474,7 +4473,7 @@ void CrealityDWINClass::Popup_Control() {
         case ETemp:
           if (selection == 0) {
             thermalManager.setTargetHotend(EXTRUDE_MINTEMP, 0);
-            thermalManager.set_fan_speed(0, MAX_FAN_SPEED);
+            TERN_(HAS_FAN, thermalManager.set_fan_speed(0, MAX_FAN_SPEED));
             Draw_Menu(PreheatHotend);
           }
           else
