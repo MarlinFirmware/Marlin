@@ -695,9 +695,9 @@ DEFINE BLTOUCH
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  41.92
-    #define DEFAULT_Ki   5.82
-    #define DEFAULT_Kd 75.56
+    #define DEFAULT_Kp  25.61
+    #define DEFAULT_Ki   1.91
+    #define DEFAULT_Kd 86.02
   #endif
 #endif
 
