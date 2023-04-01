@@ -810,7 +810,7 @@
 #endif
 
 #if SDSORT_CACHE_VFATS_WARNING
-  #warning "SDSORT_CACHE_VFATS has been reduced to MAX_VFAT_ENTRIES."
+  #warning "SDSORT_CACHE_VFATS has been reduced to VFAT_ENTRIES_LIMIT."
 #endif
 #if SDSORT_CACHE_LPC1768_WARNING
   #warning "SDCARD_SORT_ALPHA sub-options overridden for LPC1768 with DOGM LCD SCK overlap."
