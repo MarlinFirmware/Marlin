@@ -34,7 +34,7 @@
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
 
-#if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ENABLED(WIFISUPPORT)
   #include "HAL/shared/esp_wifi.h"
 #endif
 
@@ -1274,7 +1274,7 @@ void setup() {
 
   SETUP_RUN(hal.init_board());
 
-  #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #if ENABLED(WIFISUPPORT)
     SETUP_RUN(esp_wifi_init());
   #endif
 

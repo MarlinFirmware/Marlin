@@ -145,7 +145,7 @@ static const uint16_t st7789v_init[] = {
 
   /**
    * LCM Control
-   * 
+   *
    * Default Power-on Value: 0x2C / 00101100b
    * MY Inversion: 0
    * RGB/BGR Inversion: 1
