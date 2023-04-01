@@ -3303,7 +3303,6 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
-  #define SDSORT_CACHE_LPC1768_WARNING 1
 #endif
 
 // Fallback SPI Speed for SD
