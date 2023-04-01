@@ -43,7 +43,7 @@ class FxdTiCtrl {
       static float cfg_dynFreqK[1 + ENABLED(HAS_Y_AXIS)];   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
     #endif
 
-    static uint8_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];                    // Buffer of stepper commands.
+    static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];               // Buffer of stepper commands.
     static hal_timer_t stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of the stepper command timing.
     static uint8_t stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE];            // Buffer of whether DIR needs to be updated.
     static uint32_t stepperCmdBuff_produceIdx,              // Index of next stepper command write to the buffer.
