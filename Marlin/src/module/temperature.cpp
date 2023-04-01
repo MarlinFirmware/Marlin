@@ -1028,8 +1028,8 @@ volatile bool Temperature::raw_temps_ready = false;
           temp_samples[2] = current_temp;
 
           // Measure the rate of change of temperature, https://en.wikipedia.org/wiki/Symmetric_derivative
-          float h = MS_TO_SEC_PRECISE(test_interval_ms);
-          float curr_rate = (temp_samples[2] - temp_samples[0]) / 2 * h;
+          const float h = MS_TO_SEC_PRECISE(test_interval_ms),
+              curr_rate = (temp_samples[2] - temp_samples[0]) / 2 * h;
           if (curr_rate > rate_fastest) {
             // Update fastest values
             rate_fastest = curr_rate;
