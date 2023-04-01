@@ -1084,7 +1084,7 @@ private:
     static void M575();
   #endif
 
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
   #endif

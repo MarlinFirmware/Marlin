@@ -1248,7 +1248,7 @@
 
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
-  #define HAS_SHAPING 1
+  #define HAS_ZV_SHAPING 1
 #endif
 
 // Toolchange Event G-code

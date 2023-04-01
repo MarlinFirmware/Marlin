@@ -4513,7 +4513,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Input Shaping requirements
  */
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
   #if ENABLED(DELTA)
     #error "Input Shaping is not compatible with DELTA kinematics."
   #elif ENABLED(SCARA)

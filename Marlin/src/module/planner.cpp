@@ -1728,7 +1728,7 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      || TERN0(HAS_SHAPING, stepper.input_shaping_busy())
+      || TERN0(HAS_ZV_SHAPING, stepper.input_shaping_busy())
   );
 }
 

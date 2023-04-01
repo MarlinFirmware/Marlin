@@ -1638,7 +1638,7 @@ void MarlinSettings::postprocess() {
     //
     // Input Shaping
     ///
-    #if HAS_SHAPING
+    #if HAS_ZV_SHAPING
       #if ENABLED(INPUT_SHAPING_X)
         EEPROM_WRITE(stepper.get_shaping_frequency(X_AXIS));
         EEPROM_WRITE(stepper.get_shaping_damping_ratio(X_AXIS));
@@ -3429,7 +3429,7 @@ void MarlinSettings::reset() {
   //
   // Input Shaping
   //
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     #if ENABLED(INPUT_SHAPING_X)
       stepper.set_shaping_frequency(X_AXIS, SHAPING_FREQ_X);
       stepper.set_shaping_damping_ratio(X_AXIS, SHAPING_ZETA_X);
@@ -3690,7 +3690,7 @@ void MarlinSettings::reset() {
     //
     // Input Shaping
     //
-    TERN_(HAS_SHAPING, gcode.M593_report(forReplay));
+    TERN_(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
 
     //
     // Linear Advance

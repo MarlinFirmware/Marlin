@@ -801,7 +801,7 @@
 /**
  * Input Shaping
  */
-#if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif
 
