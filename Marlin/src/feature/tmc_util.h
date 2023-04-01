@@ -110,7 +110,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
 
     #if ENABLED(SPINDLE_LASER_USE_STEPPER)
       uint32_t VACTUAL() { return TMC::VACTUAL(); }
-      void VACTUAL(uint32_t Hz) {
+      void VACTUAL(const uint32_t Hz) {
         this->val_Hz = Hz;
         TMC::VACTUAL(Hz);
       }
