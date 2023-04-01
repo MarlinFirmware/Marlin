@@ -25,7 +25,7 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
-  #define SHORT_BUILD_VERSION "2.1.2_snor-0.5" // 23 chars is too much, st. like 16 max can be displayed
+  #define SHORT_BUILD_VERSION "2.1.2-snor-0.6"
 #endif
 
 /**
@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2023-03-23"
+  #define STRING_DISTRIBUTION_DATE "2023-04-01"
 #endif
 
 /**
