@@ -1038,6 +1038,10 @@ private:
     static void M486();
   #endif
 
+  #if ENABLED(FT_MOTION)
+    static void M493();
+  #endif
+
   static void M500();
   static void M501();
   static void M502();
