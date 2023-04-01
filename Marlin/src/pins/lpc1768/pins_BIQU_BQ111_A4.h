@@ -23,6 +23,10 @@
 
 /**
  * BIQU BQ111-A4 pin assignments
+ *
+ * Applies to the following boards:
+ *
+ *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
  */
 
 #include "env_validate.h"
@@ -70,8 +74,8 @@
 //
 #define HEATER_0_PIN                       P2_07
 #define HEATER_BED_PIN                     P2_05
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_04
 #endif
 
 //
@@ -143,7 +147,7 @@
  *  PWM1.4   P1_23   <none>
  *  PWM1.4   P2_3    E0_STEP_PIN
  *  PWM1.5   P1_24   X_MIN_PIN
- *  PWM1.5   P2_4    FAN_PIN
+ *  PWM1.5   P2_4    FAN0_PIN
  *  PWM1.6   P1_26   Y_MIN_PIN
  *  PWM1.6   P2_5    HEATER_BED_PIN
  */

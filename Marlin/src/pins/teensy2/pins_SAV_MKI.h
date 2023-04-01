@@ -25,6 +25,9 @@
  *  Rev B  2 JUN 2017
  *
  *  Converted to Arduino pin numbering
+ *
+ *  Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/SAV%20MkI/SAV_MK-I.pdf
+ *  Origin: https://reprap.org/mediawiki/images/3/3c/SAV_MK-I.pdf
  */
 
 /**
@@ -113,8 +116,8 @@
 #define HEATER_0_PIN                          15  // C5 PWM3B - Extruder
 #define HEATER_BED_PIN                        14  // C4 PWM3C - Bed
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6 PWM3A
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            16  // C6 PWM3A
 #endif
 
 //

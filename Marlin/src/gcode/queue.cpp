@@ -303,6 +303,24 @@ static bool serial_data_available(serial_index_t index) {
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
+#if (defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON)
+
+  /**
+   * arduinoststm32's USB receive buffer is not well behaved when the buffer overflows
+   *
+   * This can happen when the host programs (such as Pronterface) automatically
+   * send M105 temperature requests.
+   */
+  void GCodeQueue::flush_rx() {
+    // Flush receive buffer
+    LOOP_L_N(p, NUM_SERIAL) {
+      if (!serial_data_available(p)) continue; // No data for this port? Skip.
+      while (SERIAL_IMPL.available(p)) (void)read_serial(p);
+    }
+  }
+
+#endif // (ARDUINO_ARCH_STM32F4 || ARDUINO_ARCH_STM32) && USBCON
+
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();

@@ -117,7 +117,7 @@
 // Fans
 //
 #define CONTROLLER_FAN_PIN                  PD6   // FAN
-#define FAN_PIN                             PG13  // FAN
+#define FAN0_PIN                            PG13  // FAN
 #define FAN1_PIN                            PG14  // FAN
 
 //
@@ -153,8 +153,6 @@
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define ANYCUBIC_TFT35
 #else

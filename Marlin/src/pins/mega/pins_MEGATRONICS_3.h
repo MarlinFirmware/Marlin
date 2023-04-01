@@ -23,6 +23,8 @@
 
 /**
  * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
+ * Schematic Origin: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -125,8 +127,8 @@
 #define HEATER_2_PIN                           8
 #define HEATER_BED_PIN                        10
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              6
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             6
 #endif
 #define FAN1_PIN                               7
 

@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.0, v1.1, v1.2 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #include "env_validate.h"
@@ -87,14 +88,14 @@
 #if ENABLED(RAMPS_V_1_0)
   #define HEATER_0_PIN                        12
   #define HEATER_BED_PIN                      -1
-  #ifndef FAN_PIN
-    #define FAN_PIN                           11
+  #ifndef FAN0_PIN
+    #define FAN0_PIN                          11
   #endif
 #else                                             // RAMPS_V_1_1 or RAMPS_V_1_2
   #define HEATER_0_PIN                        10
   #define HEATER_BED_PIN                       8
-  #ifndef FAN_PIN
-    #define FAN_PIN                            9
+  #ifndef FAN0_PIN
+    #define FAN0_PIN                           9
   #endif
 #endif
 

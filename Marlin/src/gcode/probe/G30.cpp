@@ -53,10 +53,7 @@
  */
 void GcodeSuite::G30() {
 
-  #if HAS_MULTI_HOTEND
-    const uint8_t old_tool_index = active_extruder;
-    tool_change(0);
-  #endif
+  probe.use_probing_tool();
 
   // Convert the given logical position to native position
   const xy_pos_t pos = {
@@ -106,8 +103,7 @@ void GcodeSuite::G30() {
     #endif
   }
 
-  // Restore the active tool
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
+  probe.use_probing_tool(false);
 }
 
 #endif // HAS_BED_PROBE

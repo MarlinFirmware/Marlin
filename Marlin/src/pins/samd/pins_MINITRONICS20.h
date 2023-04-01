@@ -149,7 +149,7 @@
 #define SPINDLE_LASER_PWM_PIN                  6
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                               24
+#define FAN0_PIN                              24
 
 //
 // LCD / Controller
@@ -212,9 +212,9 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       // TO TEST
-      //#define LCD_PINS_RS            EXP3_04_PIN
-      //#define LCD_PINS_ENABLE        EXP3_03_PIN
-      //#define LCD_PINS_D4            EXP3_05_PIN
+      //#define LCD_PINS_RS          EXP3_04_PIN
+      //#define LCD_PINS_ENABLE      EXP3_03_PIN
+      //#define LCD_PINS_D4          EXP3_05_PIN
 
       #if !IS_NEWPANEL
         // TO TEST
@@ -278,7 +278,7 @@
 
     #if IS_RRD_SC
 
-      //#define BEEPER_PIN             EXP1_01_PIN
+      //#define BEEPER_PIN           EXP1_01_PIN
 
       #if ENABLED(CR10_STOCKDISPLAY)
         // TO TEST
@@ -297,7 +297,7 @@
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
-      //#define KILL_PIN               EXP2_10_PIN
+      //#define KILL_PIN             EXP2_10_PIN
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         //#define LCD_BACKLIGHT_PIN  EXP1_08_PIN  // TO TEST

@@ -79,8 +79,8 @@
 // Z Probe (when not Z_STOP_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     PC13  // PROBE
-  //#define Z_MIN_PROBE_PIN                   PC15  // IND-DET (with adjustable pullup set via jumper)
+  #define Z_MIN_PROBE_PIN                   PC13  // PROBE
+  //#define Z_MIN_PROBE_PIN                 PC15  // IND-DET (with adjustable pullup set via jumper)
 #endif
 
 //
@@ -129,18 +129,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15  // Shared with SPI header, Pin 5 (SPI2)
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14  // Shared with SPI header, Pin 6 (SPI2)
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13  // Shared with SPI header, Pin 4 (SPI2)
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB15  // Shared with SPI header, Pin 5 (SPI2)
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB14  // Shared with SPI header, Pin 6 (SPI2)
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB13  // Shared with SPI header, Pin 4 (SPI2)
 #endif
 
 #if HAS_TMC_UART
@@ -177,7 +175,7 @@
 #define HEATER_1_PIN                        PA7   // "HE1"
 #define HEATER_BED_PIN                      PA5   // "HB"
 
-#define FAN_PIN                             PA4   // "FAN0"
+#define FAN0_PIN                            PA4   // "FAN0"
 #define FAN1_PIN                            PA3   // "FAN1"
 
 //

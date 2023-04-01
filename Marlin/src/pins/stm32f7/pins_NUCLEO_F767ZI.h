@@ -154,8 +154,8 @@
 #define HEATER_0_PIN                        PA15  // PWM Capable, TIM2_CH1
 #define HEATER_BED_PIN                      PB3   // PWM Capable, TIM2_CH2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB10  // PWM Capable, TIM2_CH3
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB10  // PWM Capable, TIM2_CH3
 #endif
 #define FAN1_PIN                            PB11  // PWM Capable, TIM2_CH4
 

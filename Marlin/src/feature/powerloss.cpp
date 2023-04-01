@@ -113,6 +113,7 @@ void PrintJobRecovery::changed() {
     purge();
   else if (IS_SD_PRINTING())
     save(true);
+  TERN_(EXTENSIBLE_UI, ExtUI::onSetPowerLoss(enabled));
 }
 
 /**

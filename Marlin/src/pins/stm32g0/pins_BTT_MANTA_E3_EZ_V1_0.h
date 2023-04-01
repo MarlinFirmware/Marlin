@@ -143,18 +143,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PC12  // Shared with SPI header, Pin 5 (SPI3)
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PC11  // Shared with SPI header, Pin 6 (SPI3)
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PC10  // Shared with SPI header, Pin 4 (SPI3)
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PC12  // Shared with SPI header, Pin 5 (SPI3)
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PC11  // Shared with SPI header, Pin 6 (SPI3)
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PC10  // Shared with SPI header, Pin 4 (SPI3)
 #endif
 
 #if HAS_TMC_UART
@@ -191,7 +189,7 @@
 #define HEATER_1_PIN                        PB10  // "HE1"
 #define HEATER_BED_PIN                      PB2   // "HB"
 
-#define FAN_PIN                             PA8   // "FAN0"
+#define FAN0_PIN                            PA8   // "FAN0"
 #define FAN1_PIN                            PB15  // "FAN1"
 #define FAN2_PIN                            PB14  // "FAN2"
 
