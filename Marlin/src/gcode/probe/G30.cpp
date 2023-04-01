@@ -44,6 +44,12 @@
 /**
  * G30: Do a single Z probe at the current XY
  *
+ * If either X or Y are given, the probe is moved to that location.
+ * that will be the probe location.
+ * the probe will be moved to
+ * it will move the probe to that position relative
+ * to the nozzle, by default it probes the position the probe is at.
+ *
  * Parameters:
  *
  *   X   Probe X position (default current X)
@@ -56,10 +62,18 @@ void GcodeSuite::G30() {
   probe.use_probing_tool();
 
   // Convert the given logical position to native position
-  const xy_pos_t pos = {
-    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
-    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
-  };
+  xy_pos_t pos;
+  const bool seenX = parser.seenval('X');
+  pos.x = seenX ? RAW_X_POSITION(parser.value_linear_units()) :
+    current_position.x;
+  const bool seenY = parser.seenval('Y');
+  pos.y = seenY ? RAW_Y_POSITION(parser.value_linear_units()) :
+    current_position.y;
+  // If X or Y was given, then probe that bed location, which means moving
+  // the probe over that point, which is accomplished by indicating the point
+  // is a relative (probe to nozzle) location.  False is absolute and no
+  // movement since it is already at the current location.
+  const bool probe_relative = seenX || seenY;
 
   if (probe.can_reach(pos)) {
     // Disable leveling so the planner won't mess with us
@@ -74,7 +88,8 @@ void GcodeSuite::G30() {
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-    const float measured_z = probe.probe_at_point(pos, raise_after, 1);
+    const float measured_z = probe.probe_at_point(pos, raise_after, 1,
+      probe_relative);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
       SERIAL_ECHOLNPGM("Bed X: ", pos.asLogical().x, " Y: ", pos.asLogical().y, " Z: ", measured_z);
