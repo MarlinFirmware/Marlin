@@ -1,4 +1,4 @@
-SCRIPTS_DIR := scripts
+SCRIPTS_DIR := buildroot/share/scripts
 CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
