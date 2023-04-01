@@ -43,7 +43,7 @@
 #endif
 
 Power powerManager;
-bool Power::psu_on;
+bool Power::psu_on = true;
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../module/stepper.h"
