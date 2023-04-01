@@ -23,6 +23,9 @@
 
 /**
  * RUMBA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
+ * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -156,8 +159,8 @@
 #define HEATER_3_PIN                           8
 #define HEATER_BED_PIN                         9
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             8

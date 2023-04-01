@@ -86,11 +86,7 @@ void GcodeSuite::G35() {
     workspace_plane = PLANE_XY;
   #endif
 
-  // Always home with tool 0 active
-  #if HAS_MULTI_HOTEND
-    const uint8_t old_tool_index = active_extruder;
-    tool_change(0, true);
-  #endif
+  probe.use_probing_tool();
 
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
@@ -153,9 +149,7 @@ void GcodeSuite::G35() {
     SERIAL_ECHOLNPGM("G35 aborted.");
 
   // Restore the active tool after homing
-  #if HAS_MULTI_HOTEND
-    if (old_tool_index != 0) tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
-  #endif
+  probe.use_probing_tool(false);
 
   #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);

@@ -110,7 +110,7 @@
 //
 // These are FAN PWM pins on EXT0..EXT2 connectors.
 //
-//#define FAN_PIN                           PB9   // EXT0 port
+//#define FAN0_PIN                          PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
 
@@ -226,10 +226,11 @@
 
 #define SDSS                           SD_SS_PIN
 
-//
-// ESP WiFi can be soldered to J9 connector which is wired to USART2.
-// Must define WIFISUPPORT in Configuration.h for the printer.
-//
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE          115200
-#define ESP_WIFI_MODULE_RESET_PIN           -1
+#if ENABLED(WIFISUPPORT)
+  //
+  // ESP WiFi can be soldered to J9 connector which is wired to USART2.
+  //
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE        115200
+  #define ESP_WIFI_MODULE_RESET_PIN         -1
+#endif

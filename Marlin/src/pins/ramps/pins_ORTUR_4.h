@@ -23,6 +23,7 @@
 
 /**
  * Ortur 4 Arduino Mega based on RAMPS v1.4 pin assignments
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Ortur 4.3"

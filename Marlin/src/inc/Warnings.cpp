@@ -715,7 +715,7 @@
   #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
-#if PRINTCOUNTER_SYNC
+#if ENABLED(PRINTCOUNTER_SYNC)
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
@@ -780,8 +780,8 @@
 /**
  * GD32 is not exactly like STM32
  */
-#if MB(SOVOL_V131)
-  #warning "GD32 based controllers may not be fully compatible with Maple Generic STM32F103RE. Please report any issues."
+#if MB(SOVOL_V131, TRIGORILLA_V006)
+  #warning "GD32 based controllers may not be fully compatible with STM32 platforms. Please report any issues."
 #endif
 
 /**
@@ -807,4 +807,11 @@
 
 #if MULTISTEPPING_LIMIT_WARNING
   #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
+#endif
+
+#if SDSORT_CACHE_VFATS_WARNING
+  #warning "SDSORT_CACHE_VFATS has been reduced to MAX_VFAT_ENTRIES."
+#endif
+#if SDSORT_CACHE_LPC1768_WARNING
+  #warning "SDCARD_SORT_ALPHA sub-options overridden for LPC1768 with DOGM LCD SCK overlap."
 #endif

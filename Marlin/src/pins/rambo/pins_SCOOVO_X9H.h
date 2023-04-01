@@ -25,7 +25,7 @@
  * Rambo pin assignments MODIFIED FOR Scoovo X9H
  ************************************************/
 
-#include "env_target.h"
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Scoovo X9H"
 
@@ -105,8 +105,8 @@
 #define HEATER_1_PIN                           7
 #define HEATER_BED_PIN                         3
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             8
 #endif
 #define FAN1_PIN                               6
 #define FAN2_PIN                               2

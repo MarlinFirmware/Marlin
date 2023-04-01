@@ -105,8 +105,8 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PC3
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB1   // FAN
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB1   // FAN
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA0
@@ -196,8 +196,6 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
