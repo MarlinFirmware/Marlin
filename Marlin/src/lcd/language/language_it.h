@@ -371,7 +371,7 @@ namespace Language_it {
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Verif.perdita calore");
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Riscalda a >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Raffredda a amb.");
-  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
+  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("Calibra MPC");
   LSTR MSG_MPC_EDIT                       = _UxGT("Modif.MPC *");
   LSTR MSG_MPC_POWER                      = _UxGT("Potenza riscald.");
   LSTR MSG_MPC_POWER_E                    = _UxGT("Potenza *");
@@ -610,9 +610,9 @@ namespace Language_it {
   LSTR MSG_HALTED                         = _UxGT("STAMPANTE FERMATA");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Attendere prego...");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Riavviare prego");
-  LSTR MSG_PREHEATING                     = _UxGT("Preriscaldam...");
+  LSTR MSG_PREHEATING                     = _UxGT("Preriscaldamento...");
   LSTR MSG_HEATING                        = _UxGT("Riscaldamento...");
-  LSTR MSG_COOLING                        = _UxGT("Raffreddamento..");
+  LSTR MSG_COOLING                        = _UxGT("Raffreddamento...");
   LSTR MSG_BED_HEATING                    = _UxGT("Risc. piatto...");
   LSTR MSG_BED_COOLING                    = _UxGT("Raffr. piatto...");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Risc. sonda...");
@@ -849,4 +849,28 @@ namespace Language_it {
   LSTR MSG_USB_DISK                       = _UxGT("Disco USB");
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Arresta host");
+
+// DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Non ammesso durante la stampa");
+  LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Non ammesso mentre è in riposo");
+  LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Nessun file selezionato");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperatura troppo bassa");
+  LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Esecuzione del comando...");
+  LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("PID letto disabilitato");
+  LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID disabilitato");
+  LSTR DGUS_MSG_PID_AUTOTUNING            = _UxGT("Calibrazione PID...");
+  LSTR DGUS_MSG_INVALID_RECOVERY_DATA     = _UxGT("Dati di recupero non validi");
+
+  LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Azzeramento richiesto");
+  LSTR DGUS_MSG_BUSY                      = _UxGT("Occupato");
+  LSTR DGUS_MSG_HOMING                    = _UxGT("Azzeramento...");
+  LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Richiesto aggiornamento DWIN GUI/OS");
+  LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Richiesto autolivellamento letto");
+  LSTR DGUS_MSG_PROBING_FAILED            = _UxGT("Sondaggio fallito");
+  LSTR DGUS_MSG_PROBING_SUCCESS           = _UxGT("Sondaggio effettuato");
+  LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reset EEPROM");
+  LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Scrittura EEPROM fallita");
+  LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Lettura EEPROM fallita");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E%d");
+
 }
