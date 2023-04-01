@@ -182,8 +182,8 @@
   #define HEATER_BED_PIN                    PC8
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB0
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB0
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                          PB1

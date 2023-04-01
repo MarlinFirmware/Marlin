@@ -82,7 +82,7 @@
 //
 #define HEATER_0_PIN                        PC9
 #define HEATER_1_PIN                        PC7
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //

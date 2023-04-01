@@ -240,7 +240,7 @@ uint32_t Stepper::advance_divisor = 0,
   bool        Stepper::la_active = false;
 #endif
 
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
   shaping_time_t      ShapingQueue::times[shaping_echoes];
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
@@ -1494,7 +1494,7 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    TERN_(HAS_SHAPING, shaping_isr());                  // Do Shaper stepping, if needed
+    TERN_(HAS_ZV_SHAPING, shaping_isr());                  // Do Shaper stepping, if needed
 
     if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
 
@@ -1542,7 +1542,7 @@ void Stepper::isr() {
     //
 
     nextMainISR -= interval;
-    TERN_(HAS_SHAPING, ShapingQueue::decrement_delays(interval));
+    TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
     TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
     TERN_(INTEGRATED_BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
@@ -1663,7 +1663,7 @@ void Stepper::pulse_phase_isr() {
     abort_current_block = false;
     if (current_block) {
       discard_current_block();
-      #if HAS_SHAPING
+      #if HAS_ZV_SHAPING
         ShapingQueue::purge();
         #if ENABLED(INPUT_SHAPING_X)
           shaping_x.delta_error = 0;
@@ -1921,7 +1921,7 @@ void Stepper::pulse_phase_isr() {
         #endif
       #endif
 
-      #if HAS_SHAPING
+      #if HAS_ZV_SHAPING
         // record an echo if a step is needed in the primary bresenham
         const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
                    y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled);
@@ -2035,7 +2035,7 @@ void Stepper::pulse_phase_isr() {
   } while (--events_to_do);
 }
 
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
 
   void Stepper::shaping_isr() {
     AxisFlags step_needed{0};
@@ -2087,14 +2087,15 @@ void Stepper::pulse_phase_isr() {
     }
   }
 
-#endif // HAS_SHAPING
+#endif // HAS_ZV_SHAPING
 
 // Calculate timer interval, with all limits applied.
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #ifdef CPU_32_BIT
 
-    return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
+    // A fast processor can just do integer division
+    return step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
@@ -3107,7 +3108,7 @@ void Stepper::init() {
   #endif
 }
 
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
 
   /**
    * Calculate a fixed point factor to apply to the signal and its echo
@@ -3178,7 +3179,7 @@ void Stepper::init() {
     return -1;
   }
 
-#endif // HAS_SHAPING
+#endif // HAS_ZV_SHAPING
 
 /**
  * Set the stepper positions directly in steps

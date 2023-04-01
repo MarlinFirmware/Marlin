@@ -133,7 +133,7 @@
 #define HEATER_1_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PB14  // FAN
+#define FAN0_PIN                            PB14  // FAN
 #define FAN1_PIN                            PB12  // FAN
 #define FAN_SOFT_PWM
 

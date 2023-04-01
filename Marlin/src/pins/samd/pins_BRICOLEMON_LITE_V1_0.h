@@ -102,7 +102,7 @@
 //
 #define HEATER_0_PIN                           6
 #define HEATER_BED_PIN                         7
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                               9
 
 //
@@ -283,7 +283,6 @@
         //#define DOGLCD_MOSI                 17
         //#define DOGLCD_SCK                  23
         //#define DOGLCD_A0          LCD_PINS_DC
-
 
       #else
         // Definitions for any standard Display

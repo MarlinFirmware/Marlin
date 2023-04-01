@@ -152,7 +152,7 @@
 #define HEATER_BED_PIN                         7
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                               9
 #define FAN2_PIN                              30
 #define FAN3_PIN                              31

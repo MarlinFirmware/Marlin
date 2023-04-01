@@ -1580,7 +1580,7 @@ namespace ExtUI {
           else if (recdat.data[0] == 4) { // Page Up
             injectCommands(F("M22\nM21"));
           }
-          else if (recdat.data[0] == 0) { //	return to main page
+          else if (recdat.data[0] == 0) { // return to main page
             InforShowStatus = true;
             TPShowStatus    = false;
           }

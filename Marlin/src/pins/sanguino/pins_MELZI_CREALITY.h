@@ -23,6 +23,9 @@
 
 /**
  * Melzi (Creality) pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20(Creality)/CR-10%20Schematic.pdf
+ * Origin: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
+ * ATmega1284P
  *
  * The Creality board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -96,7 +99,7 @@
   PIN:   2   Port: B2        Z_DIR_PIN                   protected
   PIN:   3   Port: B3        Z_STEP_PIN                  protected
   PIN:   4   Port: B4        AVR_SS_PIN                  protected
-  .                          FAN_PIN                     protected
+  .                          FAN0_PIN                    protected
   .                       SD_SS_PIN                      protected
   PIN:   5   Port: B5        AVR_MOSI_PIN                Output = 1
   .                       SD_MOSI_PIN                    Output = 1

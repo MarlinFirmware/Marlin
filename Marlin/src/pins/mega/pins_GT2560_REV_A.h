@@ -25,6 +25,9 @@
  * Geeetech GT2560 Revision A board pin assignments, based on the work of
  * George Robles (https://georges3dprinters.com) and
  * Richard Smith <galorin@gmail.com>
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Revision%20A/GT2560_sch.pdf
+ * Origin: https://www.geeetech.com/wiki/images/9/90/GT2560_sch.pdf
+ * ATmega2560
  */
 
 #define ALLOW_MEGA1280
@@ -92,8 +95,8 @@
 #define HEATER_0_PIN                           2
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 
 //

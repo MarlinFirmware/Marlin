@@ -81,15 +81,15 @@
 // Steppers
 //
 #define X_ENABLE_PIN                        -1
-#define X_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define X_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define X_DIR_PIN                           -1
 
 #define Y_ENABLE_PIN                        -1
-#define Y_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define Y_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define Y_DIR_PIN                           -1
 
 #define Z_ENABLE_PIN                        -1
-#define Z_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define Z_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define Z_DIR_PIN                           -1
 
 #define E0_ENABLE_PIN                       PD2
@@ -135,7 +135,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA2   // "HE"
-#define FAN_PIN                             PA0   // "FAN0"
+#define FAN0_PIN                            PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
 
 //
