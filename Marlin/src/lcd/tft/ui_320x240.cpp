@@ -958,7 +958,9 @@ void MarlinUI::move_axis_screen() {
 
     x += BTN_WIDTH + spacing;
     uint16_t zplus_x = x;
+    #if defined(Z_AXIS)
     drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+    #endif
 
     // ROW 2 -> "Ex" CurY "Z"
     x = X_MARGIN;
@@ -1013,12 +1015,16 @@ void MarlinUI::move_axis_screen() {
     drawBtn(x, y, "Y-", (intptr_t)y_minus, imgDown, Y_BTN_COLOR, !busy);
 
     x += BTN_WIDTH + spacing;
+    #if defined(Z_AXIS)
     drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+    #endif
 
     // Cur Z
     motionAxisState.zValuePos.x = x;
     motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
+    #if defined(Z_AXIS)
     drawAxisValue(Z_AXIS);
+    #endif
 
     // ROW 6 -> step_size    disable steppers back
     y = TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT; //
