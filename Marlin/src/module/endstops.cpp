@@ -1143,7 +1143,7 @@ void Endstops::update() {
         #endif
       )) { SBI(live_state, X_ENDSTOP); hit = true; }
       #if ENABLED(X_DUAL_ENDSTOPS)
-	      if (tmc_spi_homing.x && stepperX2.test_stall_status()) { SBI(live_state, X2_ENDSTOP); hit = true; }
+        if (tmc_spi_homing.x && stepperX2.test_stall_status()) { SBI(live_state, X2_ENDSTOP); hit = true; }
       #endif
     #endif
     #if Y_SPI_SENSORLESS
@@ -1155,7 +1155,7 @@ void Endstops::update() {
         #endif
       )) { SBI(live_state, Y_ENDSTOP); hit = true; }
       #if ENABLED(Y_DUAL_ENDSTOPS)
-	      if (tmc_spi_homing.y && stepperY2.test_stall_status()) { SBI(live_state, Y2_ENDSTOP); hit = true; }
+        if (tmc_spi_homing.y && stepperY2.test_stall_status()) { SBI(live_state, Y2_ENDSTOP); hit = true; }
       #endif
     #endif
     #if Z_SPI_SENSORLESS
