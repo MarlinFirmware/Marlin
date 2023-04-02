@@ -854,8 +854,10 @@ static void x_minus() { moveAxis(X_AXIS, -1); }
 static void x_plus()  { moveAxis(X_AXIS, 1);  }
 static void y_plus()  { moveAxis(Y_AXIS, 1);  }
 static void y_minus() { moveAxis(Y_AXIS, -1); }
+#if defined(Z_AXIS)
 static void z_plus()  { moveAxis(Z_AXIS, 1);  }
 static void z_minus() { moveAxis(Z_AXIS, -1); }
+#endif
 
 #if ENABLED(TOUCH_SCREEN)
   static void e_select() {
@@ -876,7 +878,9 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
     drawAxisValue(E_AXIS);
     drawAxisValue(X_AXIS);
     drawAxisValue(Y_AXIS);
+    #if defined(Z_AXIS)
     drawAxisValue(Z_AXIS);
+    #endif
   }
 
   static void step_size() {
