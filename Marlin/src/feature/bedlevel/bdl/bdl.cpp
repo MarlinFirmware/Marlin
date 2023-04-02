@@ -48,7 +48,7 @@ BDS_Leveling bdl;
 // M102 S4    Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
 // M102 S-1   Read sensor information
 
-#define MAX_BD_HEIGHT                 3.9f
+#define MAX_BD_HEIGHT                 4.0f
 #define CMD_START_READ_CALIBRATE_DATA 1017
 #define CMD_END_READ_CALIBRATE_DATA   1018
 #define CMD_START_CALIBRATE           1019
@@ -101,7 +101,7 @@ void BDS_Leveling::process() {
           && config_state > 0
           && old_cur_z == cur_z
           && old_buf_z == current_position.z
-          && z_sensor < (MAX_BD_HEIGHT)
+          && z_sensor < (MAX_BD_HEIGHT-0.1)
         ) {
           babystep.set_mm(Z_AXIS, cur_z - z_sensor);
           #if ENABLED(DEBUG_OUT_BD)
