@@ -307,7 +307,7 @@ void MarlinUI::draw_status_screen() {
       nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string
     );
   }
-
+  #if defined(Z_AXIS)
   tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 192, 219), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "Z");
   const bool nhz = axis_should_home(Z_AXIS);
   uint16_t offset = 25;
@@ -329,6 +329,7 @@ void MarlinUI::draw_status_screen() {
       301 - tft_string.width() - offset, tft_string.vcenter(FONT_LINE_HEIGHT),
     #endif
   nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+  #endif
   TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 0, 103,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
       232, FONT_LINE_HEIGHT * 2
