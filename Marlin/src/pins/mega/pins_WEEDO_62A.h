@@ -23,6 +23,7 @@
 /**
  * Based on WEEDO 62A pin configuration
  * Copyright (c) 2019 WEEDO3D Perron
+ * ATmega2560
  */
 
 #pragma once
@@ -73,7 +74,7 @@
 //
 #define HEATER_0_PIN                          10  // EXTRUDER 1
 #define HEATER_BED_PIN                         8  // BED
-#define FAN_PIN                                4  // IO pin. Buffer needed
+#define FAN0_PIN                               4  // IO pin. Buffer needed
 
 //
 // Misc. Functions

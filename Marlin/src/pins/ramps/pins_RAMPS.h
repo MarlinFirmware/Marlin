@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4 (or v1.3) pin assignments
+ * ATmega2560, ATmega1280
  *
  * Applies to the following boards:
  *
@@ -256,15 +257,15 @@
   #endif
 #endif
 
-#ifndef FAN_PIN
+#ifndef FAN0_PIN
   #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 MOSFET_B_PIN
+    #define FAN0_PIN                MOSFET_B_PIN
   #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                 MOSFET_C_PIN
+    #define FAN0_PIN                MOSFET_C_PIN
   #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
-    #define FAN_PIN                            4  // IO pin. Buffer needed
+    #define FAN0_PIN                           4  // IO pin. Buffer needed
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-    #define FAN_PIN                 MOSFET_B_PIN
+    #define FAN0_PIN                MOSFET_B_PIN
   #endif
 #endif
 
@@ -319,16 +320,14 @@
 //
 // TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                        66
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                        44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                         64
 #endif
 
 #if HAS_TMC_UART
@@ -877,7 +876,7 @@
 
       #define BEEPER_PIN             EXP2_05_PIN
 
-      #if ENABLED(PANEL_ONE)                       // Buttons connect directly to AUX-2
+      #if ENABLED(PANEL_ONE)                      // Buttons connect directly to AUX-2
         #define BTN_EN1              AUX2_03_PIN
         #define BTN_EN2              AUX2_04_PIN
         #define BTN_ENC              AUX3_02_PIN

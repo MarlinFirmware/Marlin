@@ -823,12 +823,12 @@ uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bo
 
   if (!path) return 0;
 
-  const uint8_t fileCnt = card.get_num_Files();
+  const int16_t fileCnt = card.get_num_items();
 
   MediaFile file;
   MediaFile *diveDir;
-  for (uint8_t i = 0; i < fileCnt; i++) {
-    card.getfilename_sorted(SD_ORDER(i, fileCnt));
+  for (int16_t i = 0; i < fileCnt; i++) {
+    card.selectFileByIndexSorted(i);
 
     ZERO(Fstream);
     strcpy(Fstream, card.filename);

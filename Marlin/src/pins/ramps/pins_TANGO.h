@@ -23,11 +23,14 @@
 
 /**
  * BIQU Tango pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/BIQU%20Tango/schematic.png
+ * Origin: https://github.com/bigtreetech/Tango-3D-Printer-Motherboard/blob/master/Schematic/Tango%20V1.0.SchDoc
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Tango"
 
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                              -1
 
 #ifndef E0_AUTO_FAN_PIN

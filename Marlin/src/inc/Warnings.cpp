@@ -63,11 +63,6 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER) \
-  && NONE(THERMAL_PROTECTION_VARIANCE_MONITOR, NO_VARIANCE_MONITOR_WARNING)
-  #warning "THERMAL_PROTECTION_VARIANCE_MONITOR is recommended. See Configuration_adv.h for details. (Define NO_VARIANCE_MONITOR_WARNING to suppress this.)"
-#endif
-
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
@@ -785,8 +780,8 @@
 /**
  * GD32 is not exactly like STM32
  */
-#if MB(SOVOL_V131)
-  #warning "GD32 based controllers may not be fully compatible with Maple Generic STM32F103RE. Please report any issues."
+#if MB(SOVOL_V131, TRIGORILLA_V006)
+  #warning "GD32 based controllers may not be fully compatible with STM32 platforms. Please report any issues."
 #endif
 
 /**
@@ -806,10 +801,17 @@
 /**
  * Input Shaping
  */
-#if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif
 
 #if MULTISTEPPING_LIMIT_WARNING
   #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
+#endif
+
+#if SDSORT_CACHE_VFATS_WARNING
+  #warning "SDSORT_CACHE_VFATS has been reduced to VFAT_ENTRIES_LIMIT."
+#endif
+#if SDSORT_CACHE_LPC1768_WARNING
+  #warning "SDCARD_SORT_ALPHA sub-options overridden for LPC1768 with DOGM LCD SCK overlap."
 #endif

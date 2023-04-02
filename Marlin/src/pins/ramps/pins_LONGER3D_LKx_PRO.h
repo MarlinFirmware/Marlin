@@ -23,6 +23,7 @@
 
 /**
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

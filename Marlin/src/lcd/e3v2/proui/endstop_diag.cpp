@@ -89,7 +89,7 @@ void ESDiagClass::Draw() {
 
 void ESDiagClass::Update() {
   DWINUI::cursor.y = 80;
-  #define ES_REPORT(S) draw_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING)
+  #define ES_REPORT(S) draw_es_state(READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
   #endif

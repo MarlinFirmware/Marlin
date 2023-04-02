@@ -23,6 +23,9 @@
 
 /**
  * Dreammaker Overlord v1.1 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Dreammaker%20Overlord%20v1.1/Schematic.pdf
+ * Origin: https://github.com/jdpiercy/Overlord-Pro/blob/master/Motherboard/Schematic.pdf
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -92,7 +95,7 @@
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#define FAN_PIN                                7  // material cooling fan
+#define FAN0_PIN                               7  // material cooling fan
 
 //
 // SD Card

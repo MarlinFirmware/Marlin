@@ -253,7 +253,7 @@
 #define HEATER_2_PIN                        PF9   // Heater2
 #define HEATER_3_PIN                        PF7   // Heater3
 
-#define FAN_PIN                             PA6   // Fan0
+#define FAN0_PIN                            PA6   // Fan0
 #define FAN1_PIN                            PA5   // Fan1
 #define FAN2_PIN                            PA4   // Fan2
 #define FAN3_PIN                            PA3   // Fan3
@@ -273,18 +273,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PE14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PE13
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PE12
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PE14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PE13
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 #if HAS_TMC_UART
@@ -521,25 +519,27 @@
   #define NEOPIXEL2_PIN                     PE9
 #endif
 
-//
-// WIFI
-//
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
 
-/**
- *                      -------
- *            GND | 9  |       | 8 | 3.3V
- *  (ESP-CS) PG1  | 10 |       | 7 | PB15 (ESP-MOSI)
- *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
- * (ESP-IO0)  PG0 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PF15 | 13 |       | 4 | --
- *             -- | 14 |       | 3 | 3.3V (ESP-EN)
- *  (ESP-RX)  PE7 | 15 |       | 2 | --
- *  (ESP-TX)  PE8 | 16 |       | 1 | PB2 (ESP-RST)
- *                      -------
- *                       WIFI
- */
-#define ESP_WIFI_MODULE_COM                    7  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PB2
-#define ESP_WIFI_MODULE_GPIO0_PIN           PG0
-#define ESP_WIFI_MODULE_GPIO4_PIN           PF15
+  /**
+   *                      -------
+   *            GND | 9  |       | 8 | 3.3V
+   *  (ESP-CS) PG1  | 10 |       | 7 | PB15 (ESP-MOSI)
+   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
+   * (ESP-IO0)  PG0 | 12 |       | 5 | PB13 (ESP-CLK)
+   * (ESP-IO4) PF15 | 13 |       | 4 | --
+   *             -- | 14 |       | 3 | 3.3V (ESP-EN)
+   *  (ESP-RX)  PE7 | 15 |       | 2 | --
+   *  (ESP-TX)  PE8 | 16 |       | 1 | PB2 (ESP-RST)
+   *                      -------
+   *                       WIFI
+   */
+  #define ESP_WIFI_MODULE_COM                  7  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PB2
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PG0
+  #define ESP_WIFI_MODULE_GPIO4_PIN         PF15
+#endif

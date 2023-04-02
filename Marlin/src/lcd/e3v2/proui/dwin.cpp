@@ -844,7 +844,7 @@ void SetMediaAutoMount() {
 }
 
 inline uint16_t nr_sd_menu_items() {
-  return _MIN(card.get_num_Files() + !card.flag.workDirIsRoot, MENU_MAX_ITEMS);
+  return _MIN(card.get_num_items() + !card.flag.workDirIsRoot, MENU_MAX_ITEMS);
 }
 
 void make_name_without_ext(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) {
@@ -891,7 +891,7 @@ void onClickSDItem() {
   if (hasUpDir && CurrentMenu->selected == 1) return SDCard_Up();
   else {
     const uint16_t filenum = CurrentMenu->selected - 1 - hasUpDir;
-    card.getfilename_sorted(SD_ORDER(filenum, card.get_num_Files()));
+    card.selectFileByIndexSorted(filenum);
 
     // Enter that folder!
     if (card.flag.filenameIsDir) return SDCard_Folder(card.filename);
@@ -934,7 +934,7 @@ void onClickSDItem() {
       last_itemselected = selected;
       if (selected >= 1 + hasUpDir) {
         const int8_t filenum = selected - 1 - hasUpDir; // Skip "Back" and ".."
-        card.getfilename_sorted(SD_ORDER(filenum, card.get_num_Files()));
+        card.selectFileByIndexSorted(filenum);
         make_name_without_ext(shift_name, card.longest_filename(), LONG_FILENAME_LENGTH);
         shift_len = strlen(shift_name);
         shift_amt = 0;
@@ -959,7 +959,7 @@ void onDrawFileName(MenuItemClass* menuitem, int8_t line) {
   }
   else {
     uint8_t icon;
-    card.getfilename_sorted(SD_ORDER(menuitem->pos - is_subdir - 1, card.get_num_Files()));
+    card.selectFileByIndexSorted(menuitem->pos - is_subdir - 1);
     make_name_without_ext(shift_name, card.longest_filename());
     icon = card.flag.filenameIsDir ? ICON_Folder : card.fileIsBinary() ? ICON_Binary : ICON_File;
     Draw_Menu_Line(line, icon, shift_name);

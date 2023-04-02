@@ -23,6 +23,10 @@
 
 /**
  * Azteeg X5 MINI pin assignments
+ * Schematic (V1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V1/X5%20Mini%20PUB%20v1.0.pdf
+ * Schematic (V2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V2/X5%20Mini%20V2%20SCH%20Pub.pdf
+ * Schematic (V3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V3/X5%20Mini%20V3%20SCH%20Pub.pdf
+ * Origin: http://files.panucatt.com/datasheets/x5mini_design_files.zip
  */
 #include "env_validate.h"
 
@@ -100,8 +104,8 @@
 //
 #define HEATER_BED_PIN                     P2_07
 #define HEATER_0_PIN                       P2_05
-#ifndef FAN_PIN
-  #define FAN_PIN                          P0_26
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P0_26
 #endif
 #define FAN1_PIN                           P1_25
 

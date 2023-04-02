@@ -91,7 +91,7 @@ uint8_t TouchButtons::read_buttons() {
         y = uint16_t((uint32_t(y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
       #endif
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
-      bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? touchIO.getPoint(&y, &x) : touchIO.getPoint(&x, &y));
+      const bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? touchIO.getPoint(&y, &x) : touchIO.getPoint(&x, &y));
       if (!is_touched) return 0;
     #endif
 

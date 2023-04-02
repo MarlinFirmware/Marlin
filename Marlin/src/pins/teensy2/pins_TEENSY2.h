@@ -109,6 +109,7 @@
 
 #include "env_validate.h"
 
+// https://reprap.org/wiki/Teensy_Breadboard
 #define BOARD_INFO_NAME "Teensy++2.0"
 
 //
@@ -148,8 +149,8 @@
 //
 #define HEATER_0_PIN                          15  // C5 PWM3B  Extruder
 #define HEATER_BED_PIN                        14  // C4 PWM3C
-#ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6 PWM3A  Fan
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            16  // C6 PWM3A  Fan
 #endif
 
 //
