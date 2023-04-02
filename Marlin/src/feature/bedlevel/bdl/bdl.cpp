@@ -34,7 +34,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/endstops.h"
 #include "../../babystep.h"
-
+#include "../../../lcd/marlinui.h"
 // I2C software Master library for segment bed heating and bed distance sensor
 #include <Panda_segmentBed_I2C.h>
 
@@ -48,7 +48,7 @@ BDS_Leveling bdl;
 // M102 S4    Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
 // M102 S-1   Read sensor information
 
-#define MAX_BD_HEIGHT                 4.0f
+#define MAX_BD_HEIGHT                 3.9f
 #define CMD_START_READ_CALIBRATE_DATA 1017
 #define CMD_END_READ_CALIBRATE_DATA   1018
 #define CMD_START_CALIBRATE           1019
@@ -73,7 +73,7 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
 float BDS_Leveling::read() {
   const uint16_t tmp = BD_I2C_SENSOR.BD_i2c_read();
   float BD_z = NAN;
-  if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1020)
+  if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1000)
     BD_z = (tmp & 0x3FF) / 100.0f;
   return BD_z;
 }
@@ -84,7 +84,7 @@ void BDS_Leveling::process() {
  static float z_pose = 0.0f;
  const millis_t ms = millis();
  if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
-    next_check_ms = ms + (config_state < 0 ? 1000 : 100);   // check at 1Hz or 10Hz
+    next_check_ms = ms + (config_state < 0 ? 200 : 50);   // check at 5Hz or 20Hz
 
     unsigned short tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS); //current_position.z
@@ -92,8 +92,8 @@ void BDS_Leveling::process() {
                  old_buf_z = current_position.z;
 
     tmp = BD_I2C_SENSOR.BD_i2c_read();
-    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1020) {
-      const float z_sensor = (tmp & 0x3FF) / 100.0f;
+    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1000) {
+      float z_sensor = (tmp & 0x3FF) / 100.0f;
       if (cur_z < 0) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
       #if ENABLED(BABYSTEPPING)
@@ -117,6 +117,17 @@ void BDS_Leveling::process() {
       old_buf_z = current_position.z;
       endstops.bdp_state_update(z_sensor <= 0.01f);
       //endstops.update();
+    #if HAS_STATUS_MESSAGE   
+      static float old_z_sensor=0.0;
+      if (old_z_sensor!=z_sensor) { //  
+        char tmp_1[32]={0};
+        old_z_sensor = z_sensor;
+        sprintf_P(tmp_1,  PSTR("BD:%d.%02dmm"), (int)z_sensor,(int)((int)(z_sensor*100)%100));
+       // SERIAL_ECHOLNPGM("Bed Dis:", z_sensor,"mm");
+        ui.set_status(tmp_1, true);
+      }
+    #endif
+
     }
     else
       stepper.set_directions();
@@ -126,7 +137,7 @@ void BDS_Leveling::process() {
       if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0) SERIAL_ECHOLNPGM("errorCRC");
     #endif
 
-    if ((tmp & 0x3FF) > 1020) {
+    if ((tmp & 0x3FF) > 1000) {
       BD_I2C_SENSOR.BD_i2c_stop();
       safe_delay(10);
     }
@@ -134,30 +145,40 @@ void BDS_Leveling::process() {
     // read raw calibrate data
     if (config_state == -5) {
       BD_I2C_SENSOR.BD_i2c_write(CMD_START_READ_CALIBRATE_DATA);
-      safe_delay(1000);
+      safe_delay(100);
 
       for (int i = 0; i < MAX_BD_HEIGHT * 10; i++) {
         tmp = BD_I2C_SENSOR.BD_i2c_read();
         SERIAL_ECHOLNPGM("Calibrate data:", i, ",", tmp & 0x3FF, ", check:", BD_I2C_SENSOR.BD_Check_OddEven(tmp));
-        safe_delay(500);
+        safe_delay(50);
       }
       config_state = 0;
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
-      safe_delay(500);
+      safe_delay(50);
     }
     else if (config_state <= -6) {   // Start Calibrate
-      safe_delay(100);
+      safe_delay(10);
       if (config_state == -6) {
         //BD_I2C_SENSOR.BD_i2c_write(1019); // begin calibrate
         //delay(1000);
         gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
         gcode.process_subcommands_now(F("M17 Z"));
-        gcode.process_subcommands_now(F("G1 Z0.0"));
-        z_pose = 0;
+        gcode.process_subcommands_now(F("G1 Z-0.05"));     
         safe_delay(1000);
+        gcode.process_subcommands_now(F("G92 Z0"));
+        gcode.process_subcommands_now(F("G1 Z0.05"));   
+        gcode.process_subcommands_now(F("G92 Z0"));
+        safe_delay(1000);
+        while (planner.get_axis_position_mm(Z_AXIS)>0.00001) {
+            
+            safe_delay(1);
+        }
+
+        z_pose = 0.00001;
+        safe_delay(100);
         BD_I2C_SENSOR.BD_i2c_write(CMD_START_CALIBRATE); // Begin calibrate
         SERIAL_ECHOLNPGM("Begin calibrate");
-        safe_delay(2000);
+        safe_delay(200);
         config_state = -7;
       }
       else if (planner.get_axis_position_mm(Z_AXIS) < 10.0f) {
@@ -176,13 +197,15 @@ void BDS_Leveling::process() {
 
           SERIAL_ECHO(tmp_1);
           SERIAL_ECHOLNPGM(" ,Z:", current_position.z);
-
-          while (tmp_k < (z_pose - 0.1f)) {
+   
+          while (0.004f < abs(z_pose - tmp_k)) {
             tmp_k = planner.get_axis_position_mm(Z_AXIS);
-            safe_delay(1);
+            safe_delay(10);
           }
-          safe_delay(800);
-          tmp = (z_pose + 0.0001f) * 10;
+          safe_delay(100);
+          if(z_pose<=0.4)
+            safe_delay(500);
+          tmp = (z_pose + 0.00001f) * 10;
           BD_I2C_SENSOR.BD_i2c_write(tmp);
           SERIAL_ECHOLNPGM("w:", tmp, ",Zpose:", z_pose);
           z_pose += 0.1001f;

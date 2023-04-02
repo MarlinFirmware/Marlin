@@ -43,8 +43,13 @@
  *   M102 S-6       : Start Calibration
  */
 void GcodeSuite::M102() {
-  if (parser.seenval('S'))
-    bdl.config_state = parser.value_int();
+  if (parser.seenval('S')){
+    if(parser.value_int()==-2){
+      SERIAL_ECHOLNPGM("Bed Distance:", bdl.read(),"mm");
+    }
+    else
+      bdl.config_state = parser.value_int();
+  }
   else
     M102_report();
 }
