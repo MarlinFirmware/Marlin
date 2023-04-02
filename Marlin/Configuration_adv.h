@@ -1055,7 +1055,7 @@
 #endif
 
 //
-// Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
+// Add the G35 command and GUI Tramming Wizard to read bed corners to help adjust screws. Requires a bed probe.
 //
 //#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
@@ -1070,19 +1070,26 @@
   #define TRAMMING_POINT_NAME_4 "Back-Left"
 
   #define RESTORE_LEVELING_AFTER_G35    // Enable to restore leveling setup after operation
-  //#define REPORT_TRAMMING_MM          // Report Z deviation (mm) for each point relative to the first
+  //#define REPORT_TRAMMING_MM          NOT USED, CAN BE REMOVED. Milimeters are shown by default. Screw turns are shown only if user defines proper screw thread
 
   //#define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
 
   //#define ASSISTED_TRAMMING_WAIT_POSITION { X_CENTER, Y_CENTER, 30 } // Move the nozzle out of the way for adjustment
 
   /**
-   * Screw thread:
-   *   M3: 30 = Clockwise, 31 = Counter-Clockwise
-   *   M4: 40 = Clockwise, 41 = Counter-Clockwise
-   *   M5: 50 = Clockwise, 51 = Counter-Clockwise
+   * For tramming instructions to also be shown as a number of screw turns, define your thread properties.
+   *
+   * Screw thread and direction of bed lowering:
+   *   M3: 30 = CW, 31 = CCW
+   *   M4: 40 = CW, 41 = CCW
+   *   M5: 50 = CW, 51 = CcW
+   *
+   * Example:
+   *   M30 = 3mm screw, bed lowers when turning Clockwise (CW)
+   *   M51 = 5mm screw, bed lowers when turning Counter-Clockwise (CCW)
+   *
    */
-  #define TRAMMING_SCREW_THREAD 30
+  //#define TRAMMING_SCREW_THREAD 30
 
 #endif
 
