@@ -733,19 +733,6 @@
 #define REPLIST(N,OP)           REPLIST_S(0,N,OP)
 #define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
 
-// Emit a list of N OP(I) items with ascending counter.
-#define _REPLIST(_RPT_I,_RPT_N,_RPT_OP)                          \
-  _RPT_OP(_RPT_I)                                                \
-  IF_ELSE(SUB1(_RPT_N))                                          \
-    ( , DEFER2(__REPLIST)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
-    ( /* Do nothing */ )
-#define __REPLIST() _REPLIST
-
-// Repeat a macro, comma-separated, passing S...N-1.
-#define REPLIST_S(S,N,OP)       EVAL(_REPLIST(S,SUB##S(N),OP))
-#define REPLIST(N,OP)           REPLIST_S(0,N,OP)
-#define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
-
 // Call OP(A) with each item as an argument
 #define _MAP(_MAP_OP,A,V...)       \
   _MAP_OP(A)                       \

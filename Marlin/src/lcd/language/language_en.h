@@ -891,7 +891,6 @@ namespace Language_en {
   LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
   LSTR MSG_BACKLASH_N                     = _UxGT("@");
   LSTR MSG_MENU_DIVIDER                   = _UxGT("----------------");
-}
 
   // DGUS-Specific message strings, not used elsewhere
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Not allowed during print");
