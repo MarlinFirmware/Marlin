@@ -45,6 +45,8 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+//#define SIMULATOR_TESTING
+
 static uint8_t tram_target = 0;
 static float z_measured[G35_PROBE_COUNT];
 static Flags<G35_PROBE_COUNT> z_isvalid;
@@ -63,7 +65,6 @@ static bool menu_mode_measure = true;
 
 static void menu_tramming_wizard();
 
-//#define SIMULATOR_TESTING
 #ifdef SIMULATOR_TESTING
   /*
   * Mock function for probing in simulator, where "probe.probe_at_point" always returns 0.
@@ -130,13 +131,10 @@ static bool _probe_single_point() {
     set_bed_leveling_enabled(false);
   #endif
 
-  do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
-
-  // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
   const float z_probed_height = probing_reference && z_isvalid[tram_target] ?
     z_measured[tram_target] :
     #ifndef SIMULATOR_TESTING
-      probe.probe_at_point(tramming_points[tram_target], TERN0(BLTOUCH, bltouch.high_speed_mode) ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true)
+      probe.probe_at_point(tramming_points[tram_target], PROBE_PT_RAISE, 0, true)
     #else  
       _mock_probe_at_point(tramming_points[tram_target]);
     #endif  
