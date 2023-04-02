@@ -147,7 +147,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
   }
 
   image = noImage;
-  #if DISABLED(TFT_UI_HIDE_CLASSIC_MARKS)
+  #if ENABLED(TFT_MENU_ITEM_SHOW_NAV_ICONS)
     switch (post_char) {
       case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
       case LCD_STR_UPLEVEL[0]: image = imgBack; break;

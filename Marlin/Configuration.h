@@ -3294,6 +3294,8 @@
    */
   #define TFT_FONT  NOTOSANS
 
+  #define TFT_MENU_ITEM_SHOW_NAV_ICONS
+
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 #endif
 
