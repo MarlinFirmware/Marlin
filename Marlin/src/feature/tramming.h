@@ -51,9 +51,7 @@ static_assert(WITHIN(G35_PROBE_COUNT, 3, 9), "TRAMMING_POINT_XY requires between
   #define _NR_TRAM_NAMES 0
 #endif
 
-
 static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_NAME_s for all TRAMMING_POINT_XY entries.");
-
 
 #define _TRAM_NAME_PTR(N) point_name_##N[]
 extern const char REPLIST_1(_NR_TRAM_NAMES, _TRAM_NAME_PTR);
