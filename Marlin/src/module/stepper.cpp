@@ -1578,7 +1578,7 @@ void Stepper::isr() {
           advance_isr();
           nextAdvanceISR = la_interval;
         }
-        else if (nextAdvanceISR == LA_ADV_NEVER)          // Start LA steps if necessary
+        else if (nextAdvanceISR > la_interval)            // Start/accelerate LA steps if necessary
           nextAdvanceISR = la_interval;
       #endif
 
