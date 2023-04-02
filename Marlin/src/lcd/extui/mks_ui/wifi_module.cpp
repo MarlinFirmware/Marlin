@@ -980,80 +980,8 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
               send_ok_to_wifi();
             }
           }
-          break;
-
-        case 24:
-          if (strcmp_P(list_file.file_name[sel_id], PSTR("notValid")) != 0) {
-            if (uiCfg.print_state == IDLE) {
-              clear_cur_ui();
-              reset_print_time();
-              start_print_time();
-              preview_gcode_prehandle(list_file.file_name[sel_id]);
-              uiCfg.print_state = WORKING;
-              lv_draw_printing();
-
-              #if ENABLED(SDSUPPORT)
-                if (!gcode_preview_over) {
-                  char *cur_name = strrchr(list_file.file_name[sel_id], '/');
-
-                  MediaFile file;
-                  MediaFile *curDir;
-                  card.abortFilePrintNow();
-                  const char * const fname = card.diveToFile(false, curDir, cur_name);
-                  if (!fname) return;
-                  if (file.open(curDir, fname, O_READ)) {
-                    gCfgItems.curFilesize = file.fileSize();
-                    file.close();
-                    update_spi_flash();
-                  }
-                  card.openFileRead(cur_name);
-                  if (card.isFileOpen()) {
-                    //saved_feedrate_percentage = feedrate_percentage;
-                    feedrate_percentage = 100;
-                    #if HAS_EXTRUDERS
-                      planner.flow_percentage[0] = 100;
-                      planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
-                    #endif
-                    #if HAS_MULTI_EXTRUDER
-                      planner.flow_percentage[1] = 100;
-                      planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
-                    #endif
-                    card.startOrResumeFilePrinting();
-                    TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-                    once_flag = false;
-                  }
-                }
-              #endif
-            }
-            else if (uiCfg.print_state == PAUSED) {
-              uiCfg.print_state = RESUMING;
-              clear_cur_ui();
-              start_print_time();
-
-              if (gCfgItems.from_flash_pic)
-                flash_preview_begin = true;
-              else
-                default_preview_flg = true;
-              lv_draw_printing();
-            }
-            else if (uiCfg.print_state == REPRINTING) {
-              uiCfg.print_state = REPRINTED;
-              clear_cur_ui();
-              start_print_time();
-              if (gCfgItems.from_flash_pic)
-                flash_preview_begin = true;
-              else
-                default_preview_flg = true;
-              lv_draw_printing();
-            }
-          }
-          SEND_OK_TO_WIFI;
-          break;
-
-        case 25:
-          // Pause print file
-          if (uiCfg.print_state == WORKING) {
-            stop_print_time();
+        }
+        break;
 
       case 24:
         if (strcmp_P(list_file.file_name[sel_id], PSTR("notValid")) != 0) {
