@@ -63,4 +63,36 @@
 
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
+#ifdef TFT_COLOR_UI_PORTRAIT
+  #if ENABLED(TOUCH_SCREEN)
+    #define TOTAL_STATUS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 64 + 29 + 7)
+    #define MARGIN_REGIONS 8
+  #else
+    #define TOTAL_STATUS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 29 + 7)
+    #define MARGIN_REGIONS 7
+  #endif
+
+  #define MARGIN_SIZE (TFT_HEIGHT - TOTAL_STATUS_HEIGHT) / MARGIN_REGIONS
+
+  #define FEEDRATE_X(width) (TFT_WIDTH - 2 * width) / 4
+  #define FLOWRATE_X(width) (3 * TFT_WIDTH - 2 * width) / 4
+  #define SETTINGS_X 3 * TFT_WIDTH / 4 - 32
+  #define SDCARD_X TFT_WIDTH / 4 - 32
+#else
+  #if ENABLED(TOUCH_SCREEN)
+    #define TOTAL_STATUS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 44 + 29 + 7)
+  #else
+    #define TOTAL_STATUS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 29 + 7)
+  #endif
+
+  #define MARGIN_REGIONS 7
+
+  #define MARGIN_SIZE (TFT_HEIGHT - TOTAL_STATUS_HEIGHT) / MARGIN_REGIONS
+
+  #define FEEDRATE_X(width) 3 * TFT_WIDTH / 8 - width / 2
+  #define FLOWRATE_X(width) 5 * TFT_WIDTH / 8 - width / 2
+  #define SETTINGS_X TFT_WIDTH / 8 - 32
+  #define SDCARD_X 7 * TFT_WIDTH / 8 - 32
+#endif
+
 #include "tft_font.h"
