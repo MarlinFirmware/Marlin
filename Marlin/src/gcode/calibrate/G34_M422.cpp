@@ -225,6 +225,8 @@ void GcodeSuite::G34() {
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false);
+          // Dirty fix for dirty trick
+          if (current_position.z < (z_probed_height + Z_PROBE_SAFE_CLEARANCE)) do_blocking_move_to_z(z_probed_height + Z_PROBE_SAFE_CLEARANCE);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
