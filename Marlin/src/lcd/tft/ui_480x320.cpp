@@ -124,8 +124,12 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   celsius_t currentTemperature, targetTemperature;
 
   if (Heater >= 0) { // HotEnd
-    currentTemperature = thermalManager.wholeDegHotend(Heater);
-    targetTemperature = thermalManager.degTargetHotend(Heater);
+    #if HAS_EXTRUDERS
+      currentTemperature = thermalManager.wholeDegHotend(Heater);
+      targetTemperature = thermalManager.degTargetHotend(Heater);
+    #else
+      return;
+    #endif
   }
   #if HAS_HEATED_BED
     else if (Heater == H_BED) {
