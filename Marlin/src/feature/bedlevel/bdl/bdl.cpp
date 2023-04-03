@@ -141,9 +141,23 @@ void BDS_Leveling::process() {
       BD_I2C_SENSOR.BD_i2c_stop();
       safe_delay(10);
     }
+    // read version and Usually used as a connection check
+    if (config_state == -1) {
+      char tmp_1[21]={0};
+      BD_I2C_SENSOR.BD_i2c_write(CMD_READ_VERSION);
+      safe_delay(100);
 
+      for (int i = 0; i < 19; i++) {
+        tmp_1[i] = BD_I2C_SENSOR.BD_i2c_read() & 0x3FF;
+        safe_delay(50);
+      }
+      config_state = 0;
+      BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
+      SERIAL_ECHOLNPGM("BDsensor version:",tmp_1);
+      safe_delay(50);
+    }
     // read raw calibrate data
-    if (config_state == -5) {
+    else if (config_state == -5) {
       BD_I2C_SENSOR.BD_i2c_write(CMD_START_READ_CALIBRATE_DATA);
       safe_delay(100);
 
