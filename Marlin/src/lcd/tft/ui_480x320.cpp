@@ -223,7 +223,7 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.clear());
 
   // Statuses of heaters and fans
-  uint16_t i, x = TFT_STATUS_TOP_Y, y = MARGIN_SIZE;
+  uint16_t i, x = TFT_STATUS_TOP_Y, y = STATUS_MARGIN_SIZE;
 
   for (i = 0; i < ITEMS_COUNT; i++) {
     x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
@@ -252,7 +252,7 @@ void MarlinUI::draw_status_screen() {
     }
   }
 
-  y += MARGIN_SIZE + 114;
+  y += STATUS_MARGIN_SIZE + 114;
 
   // Coordinates
   uint16_t coords_width = TFT_WIDTH - 8;
@@ -294,12 +294,13 @@ void MarlinUI::draw_status_screen() {
 
   const bool nhz = axis_should_home(Z_AXIS);
   tft_string.set(blink && nhz ? "?" : ftostr52sp(LOGICAL_Z_POSITION(current_position.z)));
+  tft_string.ltrim();
   tft_string.rtrim();
   tft.add_text(13 * coords_width / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
 
-  y += MARGIN_SIZE + 34;
+  y += STATUS_MARGIN_SIZE + 34;
 
   // Feed rate (preparing)
   tft_string.set(i16tostr3rj(feedrate_percentage));
@@ -330,7 +331,7 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, x, y, component_width, 32, active_extruder));
 
   #if TFT_COLOR_UI_PORTRAIT || DISABLED(TOUCH_SCREEN)
-    y += MARGIN_SIZE + 32;
+    y += STATUS_MARGIN_SIZE + 32;
   #endif
 
   #if ENABLED(TOUCH_SCREEN)
@@ -347,9 +348,9 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #ifdef TFT_COLOR_UI_PORTRAIT
-      y += MARGIN_SIZE + 64;
+      y += STATUS_MARGIN_SIZE + 64;
     #else
-      y += MARGIN_SIZE + 44; // Some line overlap to save space
+      y += STATUS_MARGIN_SIZE + 44; // Some line overlap to save space
     #endif
   #endif
 
@@ -363,7 +364,7 @@ void MarlinUI::draw_status_screen() {
   tft_string.set(buffer);
   tft.add_text(tft_string.center(128), tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
 
-  y += MARGIN_SIZE + 29;
+  y += STATUS_MARGIN_SIZE + 29;
 
   // Progress bar
   const uint8_t progress = ui.get_progress_percent();
@@ -373,7 +374,7 @@ void MarlinUI::draw_status_screen() {
   if (progress)
     tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
 
-  y += MARGIN_SIZE + 7;
+  y += STATUS_MARGIN_SIZE + 7;
 
   // Status message
   tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
