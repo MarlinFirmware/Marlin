@@ -2248,7 +2248,7 @@ bool Planner::_populate_block(
       stepper.enable_axis(X_AXIS);
       stepper.enable_axis(Y_AXIS);
     }
-  #if HAS_Z_AXIS && DISABLED(Z_LATE_ENABLE)
+    #if HAS_Z_AXIS && DISABLED(Z_LATE_ENABLE)
       if (block->steps.z) stepper.enable_axis(Z_AXIS);
     #endif
   #elif CORE_IS_XZ
