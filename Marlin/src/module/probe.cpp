@@ -966,7 +966,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     switch (raise_type) {
       default: break;
       case PROBE_PT_RAISE:
-        do_z_clearance(current_position.z + Z_PROBE_SAFE_CLEARANCE); //Always want to lift by the whole clearance amount when the probe triggers
+        do_z_clearance(current_position.z + Z_CLEARANCE_BETWEEN_PROBES); //Always want to lift by the whole clearance amount when the probe triggers
         break;
       case PROBE_PT_STOW: case PROBE_PT_LAST_STOW:
         if (stow()) measured_z = NAN;   // Error on stow?
