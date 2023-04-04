@@ -57,32 +57,90 @@ void menu_item(const uint8_t row, bool sel = false);
 
 #define ABSOLUTE_ZERO     -273.15
 
-#if HAS_TEMP_CHAMBER && HAS_MULTI_HOTEND
+#if HAS_EXTRUDERS
   #define ITEM_E0         0
-  #define ITEM_E1         1
-  #define ITEM_BED        2
-  #define ITEM_CHAMBER    3
-  #define ITEM_FAN        4
-  #define ITEMS_COUNT     5
-#elif HAS_TEMP_CHAMBER
-  #define ITEM_E0         0
-  #define ITEM_BED        1
-  #define ITEM_CHAMBER    2
-  #define ITEM_FAN        3
-  #define ITEMS_COUNT     4
-#elif HAS_TEMP_COOLER
-  #define ITEM_COOLER     0
-  #define ITEM_FAN        1
-  #define ITEMS_COUNT     2
-#elif HAS_MULTI_HOTEND
-  #define ITEM_E0         0
-  #define ITEM_E1         1
-  #define ITEM_BED        2
-  #define ITEM_FAN        3
-  #define ITEMS_COUNT     4
+  #if HOTENDS > 1
+    #define ITEM_E1       1
+  #endif
+  #if HOTENDS > 2
+    #define ITEM_E2       2
+  #endif
+#endif
+
+#if HAS_HOTBED
+  #if defined(ITEM_E2)
+    #define ITEM_BED (ITEM_E2 + 1)
+  #elif defined(ITEM_E1)
+    #define ITEM_BED (ITEM_E1 + 1)
+  #elif defined(ITEM_E0)
+    #define ITEM_BED (ITEM_E0 + 1)
+  #else
+    #define ITEM_BED 0
+  #endif
+#endif
+
+#if HAS_TEMP_CHAMBER
+  #if defined(ITEM_BED)
+    #define ITEM_CHAMBER (ITEM_BED + 1)
+  #elif defined(ITEM_E2)
+    #define ITEM_CHAMBER (ITEM_E2 + 1)
+  #elif defined(ITEM_E1)
+    #define ITEM_CHAMBER (ITEM_E1 + 1)
+  #elif defined(ITEM_E0)
+    #define ITEM_CHAMBER (ITEM_E0 + 1)
+  #else
+    #define ITEM_CHAMBER 0
+  #endif
+#endif
+
+#if HAS_TEMP_COOLER
+  #if defined(ITEM_CHAMBER)
+    #define ITEM_COOLER (ITEM_CHAMBER + 1)
+  #elif defined(ITEM_BED)
+    #define ITEM_COOLER (ITEM_BED + 1)
+  #elif defined(ITEM_E2)
+    #define ITEM_COOLER (ITEM_E2 + 1)
+  #elif defined(ITEM_E1)
+    #define ITEM_COOLER (ITEM_E1 + 1)
+  #elif defined(ITEM_E0)
+    #define ITEM_COOLER (ITEM_E0 + 1)
+  #else
+    #define ITEM_COOLER 0
+  #endif
+#endif
+
+#if HAS_FAN
+  #if defined(ITEM_COOLER)
+    #define ITEM_FAN (ITEM_COOLER + 1)
+  #elif defined(ITEM_CHAMBER)
+    #define ITEM_FAN (ITEM_CHAMBER + 1)
+  #elif defined(ITEM_BED)
+    #define ITEM_FAN (ITEM_BED + 1)
+  #elif defined(ITEM_E2)
+    #define ITEM_FAN (ITEM_E2 + 1)
+  #elif defined(ITEM_E1)
+    #define ITEM_FAN (ITEM_E1 + 1)
+  #elif defined(ITEM_E0)
+    #define ITEM_FAN (ITEM_E0 + 1)
+  #else
+    #define ITEM_FAN 0
+  #endif
+#endif
+
+#if defined(ITEM_FAN)
+  #define ITEMS_COUNT (ITEM_FAN + 1)
+#elif defined(ITEM_COOLER)
+  #define ITEMS_COUNT (ITEM_COOLER + 1)
+#elif defined(ITEM_CHAMBER)
+  #define ITEMS_COUNT (ITEM_CHAMBER + 1)
+#elif defined(ITEM_BED)
+  #define ITEMS_COUNT (ITEM_BED + 1)
+#elif defined(ITEM_E2)
+  #define ITEMS_COUNT (ITEM_E2 + 1)
+#elif defined(ITEM_E1)
+  #define ITEMS_COUNT (ITEM_E1 + 1)
+#elif defined(ITEM_E0)
+  #define ITEMS_COUNT (ITEM_E0 + 1)
 #else
-  #define ITEM_E0         0
-  #define ITEM_BED        1
-  #define ITEM_FAN        2
-  #define ITEMS_COUNT     3
+  #define ITEMS_COUNT 0
 #endif
