@@ -466,7 +466,7 @@
  * 
  *  NOTE: Requires TEMP_INTERNAL_SENSOR(RAW) macro to convert the ADC value of the TEMP_BOARD_PIN to the temperature.
  *        HAL\STM32\internal_temp.h provides this macro for STM32 HAL using ATEMP pin and the specs of various STM32 chips.
- *        Therefore, defining TEMP_SENSOR_BOARD -1000 on stm32_variant boards is the only step required to use the internal sensor of the STM32. 
+ *        Therefore, defining TEMP_SENSOR_BOARD -100 on stm32_variant boards is the only step required to use the internal sensor of the STM32. 
  * 
  *  SPI RTD/Thermocouple Boards - IMPORTANT: Read the NOTE below!
  *  -------
