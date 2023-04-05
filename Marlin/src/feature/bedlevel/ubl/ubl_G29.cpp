@@ -863,7 +863,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       idle();
       gcode.reset_stepper_timeout(); // Keep steppers powered
       if (encoder_diff) {
-        do_blocking_move_to_z(current_position.z + float(encoder_diff) * multiplier);
+        do_z_clearance_by(float(encoder_diff) * multiplier);
         encoder_diff = 0;
       }
     }
@@ -916,7 +916,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     echo_and_take_a_measurement();
 
     const float z1 = measure_point_with_encoder();
-    do_blocking_move_to_z(current_position.z + SIZE_OF_LITTLE_RAISE);
+    do_z_clearance_by(SIZE_OF_LITTLE_RAISE);
     planner.synchronize();
 
     SERIAL_ECHOPGM("Remove shim");
@@ -924,7 +924,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     echo_and_take_a_measurement();
 
     const float z2 = measure_point_with_encoder();
-    do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
+    do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
 
     const float thickness = ABS(z1 - z2);
 

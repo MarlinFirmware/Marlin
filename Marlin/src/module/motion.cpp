@@ -795,8 +795,12 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   void do_z_clearance(const_float_t zclear, const bool lower_allowed/*=false*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, ", ", lower_allowed, ")");
     const float zdest = _MIN(zclear, Z_MAX_POS);
-    if (zdest == current_position.z || (!lower_allowed && zdest < current_position.z)) return;
+    if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
     do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
+  }
+  void do_z_clearance_by(const_float_t zclear) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
+    do_z_clearance(current_position.z + zclear);
   }
 #endif
 
