@@ -411,7 +411,12 @@ void GcodeSuite::G28() {
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
 
     const bool seenR = parser.seenval('R');
-    const float z_homing_height = seenR ? (parser.value_linear_units() + current_position.z) : (Z_HOMING_HEIGHT - probe.offset.z);
+    float z_homing_height;
+    if (TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS)) { 
+      z_homing_height = seenR ? (current_position.z + parser.value_linear_units()) : (Z_HOMING_HEIGHT - probe.offset.z);
+    } else {
+      z_homing_height = seenR ? (current_position.z + parser.value_linear_units()) : (current_position.z + Z_HOMING_HEIGHT - probe.offset.z);
+    }
 
     if (z_homing_height && (seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
