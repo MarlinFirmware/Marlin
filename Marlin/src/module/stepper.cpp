@@ -3470,10 +3470,10 @@ void Stepper::report_positions() {
     #endif
 
     if (applyDir) {
-      TERN_(HAS_X_AXIS, X_DIR_WRITE(X, TEST(command, FT_BIT_DIR_X)));
-      TERN_(HAS_Y_AXIS, Y_DIR_WRITE(Y, TEST(command, FT_BIT_DIR_Y)));
-      TERN_(HAS_Z_AXIS, Z_DIR_WRITE(Z, z_dir));
-      TERN_(HAS_EXTRUDERS, E0_DIR_WRITE(E0, TEST(command, FT_BIT_DIR_E)));
+      TERN_(HAS_X_AXIS, X_DIR_WRITE(INVERT_DIR(X, TEST(command, FT_BIT_DIR_X))));
+      TERN_(HAS_Y_AXIS, Y_DIR_WRITE(INVERT_DIR(Y, TEST(command, FT_BIT_DIR_Y))));
+      TERN_(HAS_Z_AXIS, Z_DIR_WRITE(INVERT_DIR(Z, z_dir)));
+      TERN_(HAS_EXTRUDERS, E0_DIR_WRITE(INVERT_DIR(E0, TEST(command, FT_BIT_DIR_E))));
       DIR_WAIT_AFTER();
     }
 
