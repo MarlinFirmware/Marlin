@@ -3732,24 +3732,6 @@ void Stepper::report_positions() {
           #ifdef Z_DIR_WRITE
             Z_DIR_WRITE(ENABLED(INVERT_Z_DIR) ^ z_direction);
           #endif
-          #ifdef I_DIR_WRITE
-            I_DIR_WRITE(ENABLED(INVERT_I_DIR) ^ z_direction);
-          #endif
-          #ifdef J_DIR_WRITE
-            J_DIR_WRITE(ENABLED(INVERT_J_DIR) ^ z_direction);
-          #endif
-          #ifdef K_DIR_WRITE
-            K_DIR_WRITE(ENABLED(INVERT_K_DIR) ^ z_direction);
-          #endif
-          #ifdef U_DIR_WRITE
-            U_DIR_WRITE(ENABLED(INVERT_U_DIR) ^ z_direction);
-          #endif
-          #ifdef V_DIR_WRITE
-            V_DIR_WRITE(ENABLED(INVERT_V_DIR) ^ z_direction);
-          #endif
-          #ifdef W_DIR_WRITE
-            W_DIR_WRITE(ENABLED(INVERT_W_DIR) ^ z_direction);
-          #endif
 
           DIR_WAIT_AFTER();
 
@@ -3762,24 +3744,6 @@ void Stepper::report_positions() {
           #ifdef Z_STEP_WRITE
             Z_STEP_WRITE(STEP_STATE_Z);
           #endif
-          #ifdef I_STEP_WRITE
-            I_STEP_WRITE(STEP_STATE_I);
-          #endif
-          #ifdef J_STEP_WRITE
-            J_STEP_WRITE(STEP_STATE_J);
-          #endif
-          #ifdef K_STEP_WRITE
-            K_STEP_WRITE(STEP_STATE_K);
-          #endif
-          #ifdef U_STEP_WRITE
-            U_STEP_WRITE(STEP_STATE_U);
-          #endif
-          #ifdef V_STEP_WRITE
-            V_STEP_WRITE(STEP_STATE_V);
-          #endif
-          #ifdef W_STEP_WRITE
-            W_STEP_WRITE(STEP_STATE_W);
-          #endif
 
           _PULSE_WAIT();
 
@@ -3789,24 +3753,6 @@ void Stepper::report_positions() {
           #endif
           #ifdef Z_STEP_WRITE
             Z_STEP_WRITE(!STEP_STATE_Z);
-          #endif
-          #ifdef I_STEP_WRITE
-            I_STEP_WRITE(!STEP_STATE_I);
-          #endif
-          #ifdef J_STEP_WRITE
-            J_STEP_WRITE(!STEP_STATE_J);
-          #endif
-          #ifdef K_STEP_WRITE
-            K_STEP_WRITE(!STEP_STATE_K);
-          #endif
-          #ifdef U_STEP_WRITE
-            U_STEP_WRITE(!STEP_STATE_U);
-          #endif
-           #ifdef V_STEP_WRITE
-            V_STEP_WRITE(!STEP_STATE_V);
-          #endif
-          #ifdef W_STEP_WRITE
-            W_STEP_WRITE(!STEP_STATE_W);
           #endif
 
           // Restore direction bits
@@ -3818,24 +3764,6 @@ void Stepper::report_positions() {
           #endif
           #ifdef Z_DIR_WRITE
             Z_DIR_WRITE(old_dir.z);
-          #endif
-          #ifdef I_DIR_WRITE
-            I_DIR_WRITE(old_dir.i);
-          #endif
-          #ifdef J_DIR_WRITE
-            J_DIR_WRITE(old_dir.j);
-          #endif
-          #ifdef K_DIR_WRITE
-            K_DIR_WRITE(old_dir.k);
-          #endif
-          #ifdef U_DIR_WRITE
-            U_DIR_WRITE(old_dir.u);
-          #endif
-          #ifdef V_DIR_WRITE
-            V_DIR_WRITE(old_dir.v);
-          #endif
-          #ifdef W_DIR_WRITE
-            W_DIR_WRITE(old_dir.w);
           #endif
 
           EXTRA_DIR_WAIT_AFTER();
