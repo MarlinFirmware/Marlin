@@ -26,7 +26,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(CONFIGURATION_EMBEDDING)
-  #include "../../sd/SdBaseFile.h"
+  #include "../../sd/cardreader.h"
   #include "../../mczip.h"
 #endif
 
@@ -69,7 +69,7 @@ void GcodeSuite::M502() {
         SdBaseFile file;
         const uint16_t size = sizeof(mc_zip);
         // Need to create the config size on the SD card
-        if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
+        if (file.open(card.getroot(), "mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
           SERIAL_ECHO_MSG("Configuration saved as 'mc.zip'");
       }
     #endif
