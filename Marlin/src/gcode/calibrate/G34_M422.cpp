@@ -225,8 +225,6 @@ void GcodeSuite::G34() {
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false);
-          // Dirty fix for dirty trick
-          if (current_position.z < (z_probed_height + Z_PROBE_SAFE_CLEARANCE)) do_blocking_move_to_z(z_probed_height + Z_PROBE_SAFE_CLEARANCE);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
@@ -234,9 +232,12 @@ void GcodeSuite::G34() {
             break;
           }
 
+          // Dirty fix for dirty trick
+          do_z_clearance(z_probed_height + (Z_PROBE_SAFE_CLEARANCE));
+
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.
-          z_measured[iprobe] = z_probed_height + Z_CLEARANCE_BETWEEN_PROBES;
+          z_measured[iprobe] = z_probed_height + (Z_CLEARANCE_BETWEEN_PROBES);
 
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", iprobe + 1, " measured position is ", z_measured[iprobe]);
 
@@ -250,7 +251,7 @@ void GcodeSuite::G34() {
         // Adapt the next probe clearance height based on the new measurements.
         // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
         z_maxdiff = z_measured_max - z_measured_min;
-        z_probe = Z_PROBE_SAFE_CLEARANCE + z_measured_max + z_maxdiff;
+        z_probe = (Z_PROBE_SAFE_CLEARANCE) + z_measured_max + z_maxdiff;
 
         #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           // Replace the initial values in z_measured with calculated heights at
@@ -438,7 +439,7 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z -= z_measured_min - float(Z_CLEARANCE_BETWEEN_PROBES);
         sync_plan_position();
       #endif
 
