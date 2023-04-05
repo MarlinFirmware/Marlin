@@ -45,6 +45,15 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+
+
+#define BTN_WIDTH 48
+#define BTN_HEIGHT 39
+#define X_MARGIN 15
+#define Y_MARGIN 11
+
+
+
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
@@ -462,9 +471,10 @@ void MarlinUI::draw_status_screen() {
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
 void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
+  ui.defer_status_screen();
   TERN_(TOUCH_SCREEN, touch.clear());
 
-  uint16_t line = 1;
+  uint16_t line = 0;
 
   menu_line(line++);
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
@@ -514,16 +524,40 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
       tft.add_image((SLIDER_LENGTH - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
       touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
+
+    tft.canvas(0, SLIDER_Y_POSITION, (TFT_WIDTH - SLIDER_LENGTH)/2, FONT_LINE_HEIGHT);
+    tft_string.set(ftostr52sign)
   }
 
   tft.draw_edit_screen_buttons();
 }
 
+void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor, TouchControlType touchType = BUTTON, intptr_t data = 0) {
+  
+  //if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
+
+  tft.canvas(x, y, w, h);
+  tft.set_background(bgColor);
+  tft.add_bar(1,1,w-2,h-2,COLOR_BACKGROUND);
+  
+  // TODO: Make an add_text() taking a font arg
+  if (label) {
+    tft_string.set(label);
+    tft_string.trim();
+    tft.add_text(tft_string.center(w), tft_string.vcenter(h), bgColor, tft_string);
+  }
+
+  TERN_(HAS_TFT_XPT2046, if (true/*enabled*/) touch.add_control(touchType, x, y, w, h, data));
+}
+
 void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
-    add_control(TERN(TFT_COLOR_UI_PORTRAIT, 16, 32), TFT_HEIGHT - 64, DECREASE, imgDecrease);
-    add_control(TERN(TFT_COLOR_UI_PORTRAIT, 172, 224), TFT_HEIGHT - 64, INCREASE, imgIncrease);
-    add_control(TERN(TFT_COLOR_UI_PORTRAIT, 96, 128), TFT_HEIGHT - 64, CLICK, imgConfirm);
+    drawSimpleBtn("-", X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT , BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, DECREASE);
+    drawSimpleBtn("OK", X_MARGIN + BTN_WIDTH + X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_GREEN, CLICK);
+    drawSimpleBtn("+", X_MARGIN + 2* (BTN_WIDTH + X_MARGIN), TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, INCREASE);
+    //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 16, 32), TFT_HEIGHT - 64, DECREASE, imgDecrease);
+    //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 172, 224), TFT_HEIGHT - 64, INCREASE, imgIncrease);
+    //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 96, 128), TFT_HEIGHT - 64, CLICK, imgConfirm);
   #endif
 }
 
@@ -676,11 +710,6 @@ struct MotionAxisState {
 };
 
 MotionAxisState motionAxisState;
-
-#define BTN_WIDTH 48
-#define BTN_HEIGHT 39
-#define X_MARGIN 15
-#define Y_MARGIN 11
 
 static void quick_feedback() {
   #if HAS_CHIRP
