@@ -51,6 +51,10 @@
   #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32H7, STM32F4 and STM32F1 hardware."
 #endif
 
+#if TEMP_SENSOR_BOARD_IS_INTERNAL && TEMP_BOARD_PIN != ATEMP
+  #error "TEMP_SENSOR_BOARD=-100 requires 'TEMP_BOARD_PIN ATEMP' on STM32." 
+#endif
+
 /**
  * Check for common serial pin conflicts
  */
