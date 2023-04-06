@@ -67,13 +67,3 @@
 #if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
   #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif
-
-#if EITHER(HAS_ZV_SHAPING, FT_MOTION)
-  #if ENABLED(INPUT_SHAPING_X)
-    #error "INPUT_SHAPING_X is not supported on ESP32."
-  #elif ENABLED(INPUT_SHAPING_Y)
-    #error "INPUT_SHAPING_Y is not supported on ESP32."
-  #elif ENABLED(FT_MOTION)
-    #error "FT_MOTION is not supported on ESP32."
-  #endif
-#endif

@@ -4008,6 +4008,14 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       static_assert(SHAPING_FREQ_X == SHAPING_FREQ_Y, "SHAPING_FREQ_X and SHAPING_FREQ_Y must be the same for COREXY / COREYX / MARKFORGED_*.");
       static_assert(SHAPING_ZETA_X == SHAPING_ZETA_Y, "SHAPING_ZETA_X and SHAPING_ZETA_Y must be the same for COREXY / COREYX / MARKFORGED_*.");
     #endif
+  #elif ENABLED(I2S_STEPPER_STREAM)
+    #if ENABLED(INPUT_SHAPING_X)
+      #error "INPUT_SHAPING_X is not supported with I2S_STEPPER_STREAM."
+    #elif ENABLED(INPUT_SHAPING_Y)
+      #error "INPUT_SHAPING_Y is not supported with I2S_STEPPER_STREAM."
+    #elif ENABLED(FT_MOTION)
+      #error "FT_MOTION is not supported with I2S_STEPPER_STREAM."
+    #endif
   #endif
 
   #ifdef SHAPING_MIN_FREQ
