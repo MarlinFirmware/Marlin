@@ -3149,7 +3149,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #endif
 
 /**
- * Ender 3 V2 controller has some limitations
+ * Ender-3 V2 controller has some limitations
  */
 #if ENABLED(DWIN_CREALITY_LCD)
   #if DISABLED(SDSUPPORT)

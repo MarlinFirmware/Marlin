@@ -262,7 +262,7 @@ FORCE_INLINE void _draw_feedrate_status(const char *value, uint16_t x, uint16_t 
 }
 
 /**
- * Draw the MarlinUI Status Screen for Ender 3 V2
+ * Draw the MarlinUI Status Screen for Ender-3 V2
  */
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
