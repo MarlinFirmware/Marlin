@@ -319,17 +319,6 @@ int i2s_init() {
   // Create the task that will feed the buffer
   xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
-  // If defined by platform headers...
-  //#if !defined(I2S_DATA_PIN) && defined(I2S_DATA)
-  //  #define I2S_DATA_PIN I2S_DATA
-  //#endif
-  //#if !defined(I2S_BCK_PIN) && defined(I2S_BCK)
-  //  #define I2S_BCK_PIN I2S_BCK
-  //#endif
-  //#if !defined(I2S_WS_PIN) && defined(I2S_WS)
-  //  #define I2S_WS_PIN I2S_WS
-  //#endif
-
   // Route the i2s pins to the appropriate GPIO
   // If a pin is not defined, no need to configure
   #if PIN_EXISTS(I2S_DATA)
