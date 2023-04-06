@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-   #error "Creality Ender Series only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "CR4NT220622C10 only supports one hotend / E-stepper."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -37,7 +37,7 @@
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "Ender-3 Series"
 #endif
-#define BOARD_WEBSITE_URL "www.creality.com"
+#define BOARD_WEBSITE_URL      "www.creality.com"
 
 #define BOARD_NO_NATIVE_USB
 //#undef DISABLE_DEBUG                            // DISABLE_(DEBUG|JTAG) is not supported for STM32F4.
@@ -46,10 +46,11 @@
 //
 // EEPROM
 //
-//#if NO_EEPROM_SELECTED
+#if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
-//#endif
+  #undef NO_EEPROM_SELECTED
+#endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
@@ -60,20 +61,22 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PB1   // BLTouch PWM-OUT PIN (TOUCH pins in the schematic have changed)
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN                          PA5
 #define Y_STOP_PIN                          PA6
 
-#ifdef BLTOUCH
-  #define Z_STOP_PIN                        PB0   // BLTouch IN PIN  原理图TOUCH的管脚已经变-----zy
-  #define SERVO0_PIN                        PB1   // BLTouch PWM-OUT PIN  原理图TOUCH的管脚已经变-----zy
-  #define Z_STOP_PIN_NADD                   PA7   // Added z-axis limit switch  rock_20210816
+#if ENABLED(BLTOUCH)
+  #define Z_MIN_PIN                         PB0   // BLTouch IN PIN (TOUCH pins in the schematic have changed)
+  #define Z_MAX_PIN                         PA7
 #else
-  #define Z_STOP_PIN                        PA7   // Z轴限位开关
+  #define Z_STOP_PIN                        PA7   // Z-axis limit switch
 #endif
-
-//#define one (c14 || a15)
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB0   // BLTouch IN
@@ -86,52 +89,48 @@
   #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high"
 #endif
 
-#define HAS_CHECKFILAMENT
-/* CHECKFILAMENT */
-#if ENABLED(HAS_CHECKFILAMENT)
-  #define CHECKFILAMENT_PIN                 PA4
-#endif
-
 //
 // Steppers
 //
 #define X_ENABLE_PIN                        PC3
-#ifndef X_STEP_PIN
-  #define X_STEP_PIN                        PC2
-#endif
-
-#ifndef X_DIR_PIN
-  #define X_DIR_PIN                         PB9
-#endif
+#define X_STEP_PIN                          PC2
+#define X_DIR_PIN                           PB9
 
 #define Y_ENABLE_PIN                        PC3
-#ifndef Y_STEP_PIN
-  #define Y_STEP_PIN                        PB8
-#endif
-
-#ifndef Y_DIR_PIN
-  #define Y_DIR_PIN                         PB7
-#endif
+#define Y_STEP_PIN                          PB8
+#define Y_DIR_PIN                           PB7
 
 #define Z_ENABLE_PIN                        PC3
-#ifndef Z_STEP_PIN
-  #define Z_STEP_PIN                        PB6
-#endif
-
-#ifndef Z_DIR_PIN
-  #define Z_DIR_PIN                         PB5
-#endif
+#define Z_STEP_PIN                          PB6
+#define Z_DIR_PIN                           PB5
 
 #define E0_ENABLE_PIN                       PC3
-#ifndef E0_STEP_PIN
-  #define E0_STEP_PIN                       PB4
-#endif
+#define E0_STEP_PIN                         PB4
+#define E0_DIR_PIN                          PB3
 
-#ifndef E0_DIR_PIN
-  #define E0_DIR_PIN                        PB3
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN                          PC5   // TH1
+#define TEMP_BED_PIN                        PC4   // TB1
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN                        PA1   // HEATER1
+#define HEATER_BED_PIN                      PB10  // HOT BED
+
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PA0   // FAN
+#endif
+#if PIN_EXISTS(FAN0)
+  #define FAN_SOFT_PWM
 #endif
 
 #if HAS_TMC_UART
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
+
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -142,18 +141,6 @@
   #define Y_HARDWARE_SERIAL  Serial6
   #define Z_HARDWARE_SERIAL  Serial6
   #define E0_HARDWARE_SERIAL Serial6
-
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-  //#define E5_HARDWARE_SERIAL Serial1
-  //#define E6_HARDWARE_SERIAL Serial1
-  //#define E7_HARDWARE_SERIAL Serial1
 
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS 0
@@ -190,27 +177,7 @@
   #define Z_DIAG_PIN                        PC15
   #define E0_DIAG_PIN                       PA15
 
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
-
-// Temperature Sensors
-//
-#define TEMP_0_PIN                          PC5   // TH1
-#define TEMP_BED_PIN                        PC4   // TB1
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN                        PA1   // HEATER1
-#define HEATER_BED_PIN                      PB10  // HOT BED
-
-#ifndef FAN0_PIN
-  #define FAN0_PIN                          PA0   // FAN
-#endif
-#if PIN_EXISTS(FAN0)
-  #define FAN_SOFT_PWM
-#endif
+#endif // HAS_TMC_UART
 
 //
 // SD Card
