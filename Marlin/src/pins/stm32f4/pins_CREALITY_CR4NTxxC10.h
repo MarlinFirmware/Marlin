@@ -35,7 +35,7 @@
   #define BOARD_INFO_NAME      "CR4NT220622C10"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 Series"
+  #define DEFAULT_MACHINE_NAME "Ender-3 Series"
 #endif
 #define BOARD_WEBSITE_URL "www.creality.com"
 
