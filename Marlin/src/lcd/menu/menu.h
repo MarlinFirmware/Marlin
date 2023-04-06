@@ -157,6 +157,7 @@ class MenuEditItemBase : public MenuItemBase {
     static FSTR_P editLabel;
     static void *editValue;
     static int32_t minEditValue, maxEditValue;  // Encoder value range
+    static float valueStep;
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
@@ -167,6 +168,7 @@ class MenuEditItemBase : public MenuItemBase {
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
+      const float scale,
       const uint16_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
       const screenFunc_t cb,  // Callback after edit

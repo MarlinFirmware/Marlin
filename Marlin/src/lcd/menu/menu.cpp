@@ -78,6 +78,7 @@ FSTR_P       MenuEditItemBase::editLabel;
 void*        MenuEditItemBase::editValue;
 int32_t      MenuEditItemBase::minEditValue,
              MenuEditItemBase::maxEditValue;
+float        MenuEditItemBase::valueStep;             
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
@@ -138,6 +139,7 @@ void MenuEditItemBase::goto_edit_screen(
   void * const ev,        // Edit value pointer
   const int32_t minv,     // Encoder minimum
   const int32_t maxv,     // Encoder maximum
+  const float step,  // Smallest step
   const uint16_t ep,      // Initial encoder value
   const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
   const screenFunc_t cb,  // Callback after edit
@@ -151,6 +153,7 @@ void MenuEditItemBase::goto_edit_screen(
   editValue = ev;
   minEditValue = minv;
   maxEditValue = maxv;
+  valueStep = step;
   ui.encoderPosition = ep;
   ui.currentScreen = cs;
   callbackFunc = cb;

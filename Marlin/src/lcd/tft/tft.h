@@ -85,7 +85,7 @@ class TFT {
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_bar(x, y, width, height, color); }
     static void add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_rectangle(x, y, width, height, color); }
     static void draw_edit_screen_buttons();
-    static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0);
+    static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int index = -1);
 };
 
 extern TFT tft;

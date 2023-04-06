@@ -469,13 +469,8 @@ void MarlinUI::draw_status_screen() {
 }
 
 static int stepSize = 1;
-static void step_1() { stepSize = 1; ui.refresh(); }
-static void step_5() { stepSize = 5; ui.refresh(); }
-static void step_10() { stepSize = 10; ui.refresh(); }
-static void step_50() { stepSize = 50; ui.refresh(); }
-
-static void batch_add() {
-  ui.encoderPosition += stepSize;
+static void stepChange(touch_event_t e) { 
+  stepSize = e.index;
   ui.refresh();
 }
 
@@ -517,7 +512,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  if (ui.can_show_slider()) {
+  if (true /*ui.can_show_slider()*/) {
 
     #define SLIDER_LENGTH 224
     #define SLIDER_Y_POSITION (TFT_HEIGHT - BTN_HEIGHT*2 - Y_MARGIN*2 - 20)
@@ -549,25 +544,18 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
   }
 
-  int steps[4] = {1,5,10,50};
+  float steps[4] = {1,5,10,50};
   int x_pos = X_MARGIN;
   
-  tft.drawSimpleBtn(ftostr52sp(1), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 1, BUTTON, (intptr_t) step_1 );
-  x_pos += BTN_WIDTH + X_MARGIN;
-  tft.drawSimpleBtn(ftostr52sp(5), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 5, BUTTON, (intptr_t) step_5 );
-  x_pos += BTN_WIDTH + X_MARGIN;
-  tft.drawSimpleBtn(ftostr52sp(10), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 10, BUTTON, (intptr_t) step_10 );
-  x_pos += BTN_WIDTH + X_MARGIN;
-  tft.drawSimpleBtn(ftostr52sp(50), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 50, BUTTON, (intptr_t) step_50 );
-  x_pos += BTN_WIDTH + X_MARGIN;
-
-
-  tft.drawSimpleBtn("Batch ++", X_MARGIN, Y_MARGIN, BTN_WIDTH*2, FONT_LINE_HEIGHT, COLOR_AQUA, false, BUTTON, (intptr_t) batch_add);
+  for (int i=0; i<4;i++) {
+    tft.drawSimpleBtn(ftostr52sp(steps[i]/valueStep), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT - FONT_LINE_HEIGHT, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == steps[i], CALLBACK, (intptr_t) stepChange, steps[i]);
+    x_pos += BTN_WIDTH + X_MARGIN;
+  }
 
   tft.draw_edit_screen_buttons();
 }
 
-void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor , bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0) {
+void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor , bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int index = -1) {
   
   //if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
@@ -582,14 +570,14 @@ void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, u
     tft.add_text(tft_string.center(w), tft_string.vcenter(h), selected ? COLOR_BACKGROUND : bgColor, tft_string);
   }
 
-  TERN_(HAS_TFT_XPT2046, if (true/*enabled*/) touch.add_control(touchType, x, y, w, h, data));
+  TERN_(HAS_TFT_XPT2046, if (true/*enabled*/) touch.add_control(touchType, x, y, w, h, data, index));
 }
 
 void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
-    drawSimpleBtn("-", X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT , BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, DECREASE);
+    drawSimpleBtn("-", X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT , BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, DECREASE, (intptr_t) stepSize);
     drawSimpleBtn("OK", X_MARGIN + BTN_WIDTH + X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_GREEN, false, CLICK);
-    drawSimpleBtn("+", X_MARGIN + 2* (BTN_WIDTH + X_MARGIN), TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, INCREASE);
+    drawSimpleBtn("+", X_MARGIN + 2* (BTN_WIDTH + X_MARGIN), TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, INCREASE, (intptr_t) stepSize);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 16, 32), TFT_HEIGHT - 64, DECREASE, imgDecrease);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 172, 224), TFT_HEIGHT - 64, INCREASE, imgIncrease);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 96, 128), TFT_HEIGHT - 64, CLICK, imgConfirm);

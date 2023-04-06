@@ -67,6 +67,7 @@ enum TouchControlType : uint16_t {
   MOVE_AXIS,
   STOP,
   BUTTON,
+  CALLBACK,
 };
 
 typedef void (*screenFunc_t)();
@@ -82,7 +83,16 @@ typedef struct __attribute__((__packed__)) {
   uint16_t width;
   uint16_t height;
   intptr_t data;
+  int8_t index;
 } touch_control_t;
+
+typedef struct {
+  uint16_t x;
+  uint16_t y;
+  int8_t index;
+} touch_event_t;
+
+typedef void (*touch_handler_t)(touch_event_t*);
 
 #define MAX_CONTROLS        16
 #define MINIMUM_HOLD_TIME   15
@@ -112,6 +122,7 @@ class Touch {
     static void hold(touch_control_t *control, millis_t delay = 0);
 
   public:
+    static touch_event_t touch_event;
     static void init();
     static void reset() { controls_count = 0; touch_time = 0; current_control = nullptr; }
     static void clear() { controls_count = 0; }
@@ -131,7 +142,7 @@ class Touch {
       static void sleepTimeout();
       static void wakeUp();
     #endif
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0, int8_t index = -1);
 };
 
 extern Touch touch;

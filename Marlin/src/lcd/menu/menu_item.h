@@ -31,6 +31,9 @@
   #include "../../module/planner.h"
 #endif
 
+#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
+
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
 ////////////////////////////////////////////
@@ -103,7 +106,7 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scale(minValue), INT32_MIN),
                     maxv = _MIN(scale(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scale(*ptr) - minv,
+      goto_edit_screen(fstr, ptr, minv, maxv - minv, scale(1), scale(*ptr) - minv,
         edit_screen, callback, live);
     }
 };
