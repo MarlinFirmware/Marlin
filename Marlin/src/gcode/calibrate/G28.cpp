@@ -415,7 +415,7 @@ void GcodeSuite::G28() {
     if (seenR)
       z_homing_height = current_position.z + parser.value_linear_units();
     else {
-      z_homing_height = (Z_HOMING_HEIGHT) - _MIN(probe.offset.z, 0);
+      z_homing_height = (Z_CLEARANCE_BETWEEN_PROBES ) + _MIN(probe.offset.z, 0);
       if (!TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS))
         z_homing_height += current_position.z;
     }
