@@ -4013,8 +4013,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "INPUT_SHAPING_X is not supported with I2S_STEPPER_STREAM."
     #elif ENABLED(INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_Y is not supported with I2S_STEPPER_STREAM."
-    #elif ENABLED(FT_MOTION)
-      #error "FT_MOTION is not supported with I2S_STEPPER_STREAM."
     #endif
   #endif
 
@@ -4050,6 +4048,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "FT_MOTION is currently limited to machines with 3 linear axes."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
+  #elif ENABLED(I2S_STEPPER_STREAM)
+    #error "FT_MOTION is not supported with I2S_STEPPER_STREAM."
   #endif
 #endif
 
