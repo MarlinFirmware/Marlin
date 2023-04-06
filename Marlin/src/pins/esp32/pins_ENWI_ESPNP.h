@@ -36,9 +36,9 @@
 //
 #define I2S_STEPPER_STREAM
 #if ENABLED(I2S_STEPPER_STREAM)
-  #define I2S_WS                              17
-  #define I2S_BCK                             22
-  #define I2S_DATA                            21
+  #define I2S_WS_PIN                          17
+  #define I2S_BCK_PIN                         22
+  #define I2S_DATA_PIN                        21
 #endif
 
 //

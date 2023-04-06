@@ -319,16 +319,27 @@ int i2s_init() {
   // Create the task that will feed the buffer
   xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
+  // If defined by platform headers...
+  //#if !defined(I2S_DATA_PIN) && defined(I2S_DATA)
+  //  #define I2S_DATA_PIN I2S_DATA
+  //#endif
+  //#if !defined(I2S_BCK_PIN) && defined(I2S_BCK)
+  //  #define I2S_BCK_PIN I2S_BCK
+  //#endif
+  //#if !defined(I2S_WS_PIN) && defined(I2S_WS)
+  //  #define I2S_WS_PIN I2S_WS
+  //#endif
+
   // Route the i2s pins to the appropriate GPIO
   // If a pin is not defined, no need to configure
-  #if defined(I2S_DATA) && I2S_DATA >= 0
-    gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
+  #if PIN_EXISTS(I2S_DATA)
+    gpio_matrix_out_check(I2S_DATA_PIN, I2S0O_DATA_OUT23_IDX, 0, 0);
   #endif
-  #if defined(I2S_BCK) && I2S_BCK >= 0
-    gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
+  #if PIN_EXISTS(I2S_BCK)
+    gpio_matrix_out_check(I2S_BCK_PIN, I2S0O_BCK_OUT_IDX, 0, 0);
   #endif
-  #if defined(I2S_WS) && I2S_WS >= 0
-    gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
+  #if PIN_EXISTS(I2S_WS)
+    gpio_matrix_out_check(I2S_WS_PIN, I2S0O_WS_OUT_IDX, 0, 0);
   #endif
 
   // Start the I2S peripheral
@@ -355,7 +366,7 @@ uint8_t i2s_state(uint8_t pin) {
 void i2s_push_sample() {
   // Every 4µs (when space in DMA buffer) toggle each expander PWM output using
   // the current duty cycle/frequency so they sync with any steps (once
-  // through the DMA/FIFO buffers).  PWM signal inversion handled by other functions
+  // through the DMA/FIFO buffers). PWM signal inversion is handled by other functions.
   LOOP_L_N(p, MAX_EXPANDER_BITS) {
     if (hal.pwm_pin_data[p].pwm_duty_ticks > 0) { // pin has active pwm?
       if (hal.pwm_pin_data[p].pwm_tick_count == 0) {

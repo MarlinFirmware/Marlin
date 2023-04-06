@@ -41,12 +41,9 @@
 //
 // Redefine I2S for ESP32
 //
-#undef I2S_WS
-#undef I2S_BCK
-#undef I2S_DATA
-#define I2S_WS                                23
-#define I2S_BCK                               22
-#define I2S_DATA                              21
+#define I2S_WS_PIN                            23
+#define I2S_BCK_PIN                           22
+#define I2S_DATA_PIN                          21
 
 //
 // Limit Switches
