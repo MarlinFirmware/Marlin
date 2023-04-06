@@ -143,12 +143,21 @@ void stepperTask(void *parameter) {
   #if ENABLED(LIN_ADVANCE)
     uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER;
   #endif
+  #if ENABLED(INTEGRATED_BABYSTEPPING)
+    uint32_t nextBabystepISR = Stepper::BABYSTEP_NEVER;
+  #endif
 
   for (;;) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
     while (dma.rw_pos < DMA_SAMPLE_COUNT) {
+      TERN_(HAS_ZV_SHAPING, shaping_isr()); // Do Shaper stepping (only if needed)
+
+      #if ENABLED(INTEGRATED_BABYSTEPPING)
+        bool is_babystep = false;
+      #endif
+
       if (!nextMainISR) {
         Stepper::pulse_phase_isr();
         nextMainISR = Stepper::block_phase_isr();
@@ -156,8 +165,12 @@ void stepperTask(void *parameter) {
       #if ENABLED(LIN_ADVANCE)
         else if (!nextAdvanceISR) {
           Stepper::advance_isr();
-          nextAdvanceISR = Stepper::la_interval;
+          nextAdvanceISR = Stepper::LA_ADV_NEVER; // Get la_interval below
         }
+      #endif
+      #if ENABLED(INTEGRATED_BABYSTEPPING)
+        else if ((is_babystep = (nextBabystepISR == 0))) // 0 = Do Babystepping pulses
+          nextBabystepISR = babystepping_isr();
       #endif
       else
         i2s_push_sample();
@@ -170,6 +183,16 @@ void stepperTask(void *parameter) {
 
         if (nextAdvanceISR && nextAdvanceISR != Stepper::LA_ADV_NEVER)
           nextAdvanceISR--;
+      #endif
+
+      #if ENABLED(INTEGRATED_BABYSTEPPING)
+        if (is_babystep)                              // Avoid ANY stepping too soon after baby-stepping
+          NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);  // FULL STOP for 125µs after a baby-step
+
+        if (nextBabystepISR && nextBabystepISR != Stepper::BABYSTEP_NEVER) {
+          nextBabystepISR--;
+          NOLESS(nextBabystepISR, nextMainISR / 2);   // Avoid baby-stepping too soon after axis Stepping
+        }
       #endif
     }
   }

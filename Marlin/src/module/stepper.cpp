@@ -1505,7 +1505,7 @@ void Stepper::isr() {
             fxdTiCtrl.sts_stepperBusy = false; // Set busy false to allow a reset.
             nextMainISR = 0.01f * (STEPPER_TIMER_RATE); // Come back in 10 msec.
           }
-          else { // !(abort_current_block)
+          else { // !abort_current_block
             if (fxdTiCtrl_stepCmdRdy) {
               fxdTiCtrl_stepper(fxdTiCtrl_applyDir, fxdTiCtrl_stepCmd);
               fxdTiCtrl_stepCmdRdy = false;
@@ -1531,8 +1531,8 @@ void Stepper::isr() {
               fxdTiCtrl.sts_stepperBusy = false;
               nextMainISR = 0.01f * (STEPPER_TIMER_RATE); // Come back in 10 msec.
             }
-          } // !(abort_current_block)
-        } // if (!nextMainISR)
+          } // !abort_current_block
+        } // !nextMainISR
 
         // Define 2.5 msec task for auxilliary functions.
         if (!fxdTiCtrl_nextAuxISR) {
