@@ -52,7 +52,7 @@
 #endif
 
 #if TEMP_SENSOR_BOARD_IS_INTERNAL && TEMP_BOARD_PIN != ATEMP
-  #error "TEMP_SENSOR_BOARD=-100 requires 'TEMP_BOARD_PIN ATEMP' on STM32." 
+  #error "TEMP_SENSOR_BOARD=-100 requires 'TEMP_BOARD_PIN ATEMP' on STM32."
 #endif
 
 /**

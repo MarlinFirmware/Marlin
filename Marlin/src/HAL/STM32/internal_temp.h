@@ -146,10 +146,10 @@
 #elif defined(STM32G0xx)
     /*
     STM32G030x6/x8                                      https://www.st.com/resource/en/datasheet/stm32g030c6.pdf
-      --> TS_CAL2 not defined in datasheet 
+      --> TS_CAL2 not defined in datasheet
     STM32G050x6/x8                                      https://www.st.com/resource/en/datasheet/stm32g050c6.pdf
     STM32G0B0KE/CE/RE/VE                                https://www.st.com/resource/en/datasheet/stm32g0b0ce.pdf
-      --> TS_CAL2 not defined in datasheet 
+      --> TS_CAL2 not defined in datasheet
     STM32G081xB                                         https://www.st.com/resource/en/datasheet/stm32g081cb.pdf
     STM32G071x8/xB                                      https://www.st.com/resource/en/datasheet/stm32g071c8.pdf
     STM32G031x4/x6/x8                                   https://www.st.com/resource/en/datasheet/stm32g031c6.pdf
@@ -239,8 +239,8 @@
     */
     #define TS_CAL1_TEMP      30
     #define TS_CAL1_REGOFFSET 0x1FF8007A
-    #define TS_CAL2_TEMP      130   
-    #define TS_CAL2_REGOFFSET 0x1FF8007E 
+    #define TS_CAL2_TEMP      130
+    #define TS_CAL2_REGOFFSET 0x1FF8007E
 
 #elif defined(STM32L1xx)
     /*
@@ -334,8 +334,8 @@
 /**
  * When provided in datasheet, the use of calibrated values (TS_CAL1, TS_CAL2) should always be preferred over typical values.
  * Typical values may result in important variation from the actual temperature.
- * 
- * If calibrated values are not provided in datasheet, it is encouraged to calibrate your specific chip yourself. 
+ *
+ * If calibrated values are not provided in datasheet, it is encouraged to calibrate your specific chip yourself.
  */
 #if defined(TS_CAL1_TEMP) && defined(TS_CAL1_REGOFFSET) && defined(TS_CAL2_TEMP) && defined(TS_CAL2_REGOFFSET)
 
