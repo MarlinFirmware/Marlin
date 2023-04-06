@@ -55,9 +55,9 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE                0x800  // 2Kb (24C16)
+  #define MARLIN_EEPROM_SIZE                0x800  // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE                0x800  // 2Kb
+  #define MARLIN_EEPROM_SIZE                0x800  // 2K
 #endif
 
 //
@@ -253,6 +253,5 @@
   #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
   #define SPINDLE_LASER_PWM_PIN             PC0   // Bed FET
   #define SPINDLE_DIR_PIN                   PC0   // FET 4
-
-  #define LASER_SOFT_PWM_PIN                PC0   //激光软PWM引脚
+  //#define LASER_SOFT_PWM_PIN              PC0
 #endif
