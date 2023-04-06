@@ -736,6 +736,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef _ISMAX_1
 #undef _ISSNS_1
 
+// Internal Temperature Sensor
+#if ANY_EXT_THERMISTOR_IS(-100)
+  #error "Board Internal Temperature Sensor (-100) is only supported for TEMP_SENSOR_BOARD."
+#endif
+
 /**
  * Hephestos 2 Heated Bed Kit requirements
  */
@@ -2728,7 +2733,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
   #elif TEMP_SENSOR_BOARD_IS_INTERNAL && !defined(TEMP_INTERNAL_SENSOR)
-    #error "TEMP_SENSOR_BOARD=-100 requires TEMP_INTERNAL_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
+    #error "TEMP_SENSOR_BOARD -100 requires TEMP_INTERNAL_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
   #endif
 #elif CONTROLLER_FAN_MIN_BOARD_TEMP
   #error "CONTROLLER_FAN_MIN_BOARD_TEMP requires TEMP_SENSOR_BOARD."
