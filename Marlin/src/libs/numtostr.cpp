@@ -424,6 +424,40 @@ const char* ftostr52sp(const_float_t f) {
   return &conv[1];
 }
 
+const char* ftostr52custom(const_float_t f) {
+  long i = INTFLOAT(f, 2);
+  uint8_t dig;
+
+  uint8_t intEnd = 7;
+
+  if ((dig = i % 10)) {          // second digit after decimal point?
+    conv[5] = '.';
+    conv[6] = DIGIMOD(i, 10);
+    conv[7] = DIGIT(dig);
+    intEnd = 4;
+  }
+  else if ((dig = (i / 10) % 10)) { // first digit after decimal point?
+      conv[6] = '.';
+      conv[7] = DIGIT(dig);
+      intEnd = 5;
+  }
+  if (i < 0) i = -i; 
+  conv[intEnd--] = DIGIMOD(i, 100);
+  conv[intEnd--] = RJDIGIT(i, 1000);
+  conv[intEnd] = RJDIGIT(i, 10000);
+  
+  for(;intEnd < 8;intEnd++){
+    if (conv[intEnd] != ' ') {
+      if (f < 0) {
+        conv[--intEnd] = '-';
+      }
+      return &conv[intEnd];
+    }
+  }
+  
+  return &conv[1];
+}
+
 // Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
 const char* utostr3(const uint16_t x) {
   return i16tostr3left(_MIN(x, 999U));

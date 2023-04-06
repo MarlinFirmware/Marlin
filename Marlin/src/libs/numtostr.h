@@ -107,6 +107,8 @@ const char* ftostr51sign(const_float_t x);
 // Convert signed float to space-padded string with -_23.4_ format
 const char* ftostr52sp(const_float_t x);
 
+const char* ftostr52custom(const_float_t f);
+
 // Convert signed float to string with +123.45 format
 const char* ftostr52sign(const_float_t x);
 

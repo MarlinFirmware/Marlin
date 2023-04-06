@@ -468,6 +468,17 @@ void MarlinUI::draw_status_screen() {
   #endif // TOUCH_SCREEN
 }
 
+static int stepSize = 1;
+static void step_1() { stepSize = 1; ui.refresh(); }
+static void step_5() { stepSize = 5; ui.refresh(); }
+static void step_10() { stepSize = 10; ui.refresh(); }
+static void step_50() { stepSize = 50; ui.refresh(); }
+
+static void batch_add() {
+  ui.encoderPosition += stepSize;
+  ui.refresh();
+}
+
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
 void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
@@ -509,7 +520,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
   if (ui.can_show_slider()) {
 
     #define SLIDER_LENGTH 224
-    #define SLIDER_Y_POSITION 140
+    #define SLIDER_Y_POSITION (TFT_HEIGHT - BTN_HEIGHT*2 - Y_MARGIN*2 - 20)
 
     tft.canvas((TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION, SLIDER_LENGTH, 16);
     tft.set_background(COLOR_BACKGROUND);
@@ -525,26 +536,50 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
       touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
 
-    tft.canvas(0, SLIDER_Y_POSITION, (TFT_WIDTH - SLIDER_LENGTH)/2, FONT_LINE_HEIGHT);
-    tft_string.set(ftostr52sign)
+    int w = (TFT_WIDTH - SLIDER_LENGTH)/2 - 2;
+    int h = FONT_LINE_HEIGHT;
+    tft_string.set(ftostr52custom(minEditValue));
+    tft.canvas(0, SLIDER_Y_POSITION, w, h);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
+
+    tft_string.set(ftostr52custom(maxEditValue));
+    tft.canvas(TFT_WIDTH - w, SLIDER_Y_POSITION, w, h);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
   }
+
+  int steps[4] = {1,5,10,50};
+  int x_pos = X_MARGIN;
+  
+  tft.drawSimpleBtn(ftostr52sp(1), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 1, BUTTON, (intptr_t) step_1 );
+  x_pos += BTN_WIDTH + X_MARGIN;
+  tft.drawSimpleBtn(ftostr52sp(5), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 5, BUTTON, (intptr_t) step_5 );
+  x_pos += BTN_WIDTH + X_MARGIN;
+  tft.drawSimpleBtn(ftostr52sp(10), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 10, BUTTON, (intptr_t) step_10 );
+  x_pos += BTN_WIDTH + X_MARGIN;
+  tft.drawSimpleBtn(ftostr52sp(50), x_pos, TFT_HEIGHT - Y_MARGIN*2 - BTN_HEIGHT*2, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, stepSize == 50, BUTTON, (intptr_t) step_50 );
+  x_pos += BTN_WIDTH + X_MARGIN;
+
+
+  tft.drawSimpleBtn("Batch ++", X_MARGIN, Y_MARGIN, BTN_WIDTH*2, FONT_LINE_HEIGHT, COLOR_AQUA, false, BUTTON, (intptr_t) batch_add);
 
   tft.draw_edit_screen_buttons();
 }
 
-void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor, TouchControlType touchType = BUTTON, intptr_t data = 0) {
+void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bgColor , bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0) {
   
   //if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
   tft.canvas(x, y, w, h);
   tft.set_background(bgColor);
-  tft.add_bar(1,1,w-2,h-2,COLOR_BACKGROUND);
+  if (!selected) tft.add_bar(1,1,w-2,h-2,COLOR_BACKGROUND);
   
   // TODO: Make an add_text() taking a font arg
   if (label) {
     tft_string.set(label);
     tft_string.trim();
-    tft.add_text(tft_string.center(w), tft_string.vcenter(h), bgColor, tft_string);
+    tft.add_text(tft_string.center(w), tft_string.vcenter(h), selected ? COLOR_BACKGROUND : bgColor, tft_string);
   }
 
   TERN_(HAS_TFT_XPT2046, if (true/*enabled*/) touch.add_control(touchType, x, y, w, h, data));
@@ -552,9 +587,9 @@ void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, u
 
 void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
-    drawSimpleBtn("-", X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT , BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, DECREASE);
-    drawSimpleBtn("OK", X_MARGIN + BTN_WIDTH + X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_GREEN, CLICK);
-    drawSimpleBtn("+", X_MARGIN + 2* (BTN_WIDTH + X_MARGIN), TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, INCREASE);
+    drawSimpleBtn("-", X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT , BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, DECREASE);
+    drawSimpleBtn("OK", X_MARGIN + BTN_WIDTH + X_MARGIN, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_GREEN, false, CLICK);
+    drawSimpleBtn("+", X_MARGIN + 2* (BTN_WIDTH + X_MARGIN), TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, false, INCREASE);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 16, 32), TFT_HEIGHT - 64, DECREASE, imgDecrease);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 172, 224), TFT_HEIGHT - 64, INCREASE, imgIncrease);
     //add_control(TERN(TFT_COLOR_UI_PORTRAIT, 96, 128), TFT_HEIGHT - 64, CLICK, imgConfirm);
