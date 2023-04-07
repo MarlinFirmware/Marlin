@@ -490,6 +490,12 @@ void GcodeSuite::G28() {
           #else
             homeaxis(Z_AXIS);
           #endif
+
+          #if ENABLED(BLTOUCH)
+            // stow() is not automatic in high_speed_mode
+            if (bltouch.high_speed_mode) probe.stow();
+          #endif
+
           probe.move_z_after_homing();
         }
       #endif
