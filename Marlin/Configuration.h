@@ -544,15 +544,6 @@
  *    -1 : AD595  with Thermocouple
  *
  * ================================================================
- *  Board Temperature Sensor - Internal (SoC)
- * ================================================================
- *  -100 : Use chip internal temperature sensor
- *
- *  NOTE: This sensor only measures the internal silicon temperature.
- *        It DOES NOT provide an accurate ambient reading!
- *        Use only with TEMP_SENSOR_BOARD (for thermal protection).
- *
- * ================================================================
  *  Custom/Dummy/Other Thermal Sensors
  * ================================================================
  *     0 : not used

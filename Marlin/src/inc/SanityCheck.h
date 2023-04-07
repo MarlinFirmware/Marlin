@@ -736,11 +736,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef _ISMAX_1
 #undef _ISSNS_1
 
-// Internal Temperature Sensor
-#if ANY_EXT_THERMISTOR_IS(-100)
-  #error "Board Internal Temperature Sensor (-100) is only supported for TEMP_SENSOR_BOARD."
-#endif
-
 /**
  * Hephestos 2 Heated Bed Kit requirements
  */
@@ -2579,6 +2574,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be PROBE. TEMP_SENSOR_PROBE is in use."
   #elif REDUNDANT_TEMP_MATCH(SOURCE, BOARD) && HAS_TEMP_BOARD
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be BOARD. TEMP_SENSOR_BOARD is in use."
+  #elif REDUNDANT_TEMP_MATCH(SOURCE, SOC)
+    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be SOC."
   #elif REDUNDANT_TEMP_MATCH(SOURCE, CHAMBER) && HAS_TEMP_CHAMBER
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be CHAMBER. TEMP_SENSOR_CHAMBER is in use."
   #elif REDUNDANT_TEMP_MATCH(SOURCE, BED) && HAS_TEMP_BED
@@ -2607,6 +2604,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be CHAMBER without TEMP_CHAMBER_PIN defined."
   #elif REDUNDANT_TEMP_MATCH(TARGET, BOARD) && !PIN_EXISTS(TEMP_BOARD)
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be BOARD without TEMP_BOARD_PIN defined."
+  #elif REDUNDANT_TEMP_MATCH(TARGET, SOC)
+    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be SOC."
   #elif REDUNDANT_TEMP_MATCH(TARGET, PROBE) && !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be PROBE without TEMP_PROBE_PIN defined."
   #elif REDUNDANT_TEMP_MATCH(TARGET, COOLER) && !PIN_EXISTS(TEMP_COOLER)
@@ -2732,15 +2731,19 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
-  #elif TEMP_SENSOR_BOARD_IS_INTERNAL && !defined(TEMP_INTERNAL_SENSOR)
-    #error "TEMP_SENSOR_BOARD -100 requires TEMP_INTERNAL_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
   #endif
 #elif CONTROLLER_FAN_MIN_BOARD_TEMP
   #error "CONTROLLER_FAN_MIN_BOARD_TEMP requires TEMP_SENSOR_BOARD."
 #endif
 
-#if TEMP_SENSOR_BOARD && !PIN_EXISTS(TEMP_BOARD)
-  #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
+#if TEMP_SENSOR_SOC
+  #if !PIN_EXISTS(TEMP_SOC)
+    #error "TEMP_SENSOR_SOC requires TEMP_SOC_PIN."
+  #elif !defined(TEMP_SOC_SENSOR)
+    #error "TEMP_SENSOR_SOC requires TEMP_SOC_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
+  #endif
+#elif CONTROLLER_FAN_MIN_SOC_TEMP
+  #error "CONTROLLER_FAN_MIN_SOC_TEMP requires TEMP_SENSOR_SOC."
 #endif
 
 #if ENABLED(LASER_COOLANT_FLOW_METER) && !(PIN_EXISTS(FLOWMETER) && ENABLED(LASER_FEATURE))

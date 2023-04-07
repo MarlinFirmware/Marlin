@@ -564,6 +564,11 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #endif
 #endif
 
+#if HAS_TEMP_SOC
+  board_info_t Temperature::temp_soc; // = { 0 }
+  raw_adc_t Temperature::maxtemp_raw_SOC = TEMP_SENSOR_SOC_RAW_HI_TEMP;
+#endif
+
 #if BOTH(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
   bool Temperature::allow_cold_extrude_override = false;
 #else
@@ -1355,6 +1360,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
       OPTCODE(HAS_TEMP_COOLER,  case H_COOLER:  SERIAL_ECHOPGM(STR_COOLER);         break)
       OPTCODE(HAS_TEMP_PROBE,   case H_PROBE:   SERIAL_ECHOPGM(STR_PROBE);          break)
       OPTCODE(HAS_TEMP_BOARD,   case H_BOARD:   SERIAL_ECHOPGM(STR_MOTHERBOARD);    break)
+      OPTCODE(HAS_TEMP_SOC,     case H_SOC:     SERIAL_ECHOPGM(STR_SOC);            break)
       OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break)
       OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED);     break)
       default:
@@ -2360,14 +2366,19 @@ void Temperature::task() {
       return TEMP_AD595(raw);
     #elif TEMP_SENSOR_BOARD_IS_AD8495
       return TEMP_AD8495(raw);
-    #elif TEMP_SENSOR_BOARD_IS_INTERNAL
-      return TEMP_INTERNAL_SENSOR(raw);
     #else
       UNUSED(raw);
       return 0;
     #endif
   }
 #endif // HAS_TEMP_BOARD
+
+#if HAS_TEMP_SOC
+  // For SoC temperature measurement.
+  celsius_float_t Temperature::analog_to_celsius_soc(const raw_adc_t raw) {
+    return TEMP_SOC_SENSOR(raw);
+  }
+#endif // HAS_TEMP_SOC
 
 #if HAS_TEMP_REDUNDANT
   // For redundant temperature measurement.
@@ -2431,6 +2442,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HAS_TEMP_COOLER,    temp_cooler.celsius    = analog_to_celsius_cooler(temp_cooler.getraw()));
   TERN_(HAS_TEMP_PROBE,     temp_probe.celsius     = analog_to_celsius_probe(temp_probe.getraw()));
   TERN_(HAS_TEMP_BOARD,     temp_board.celsius     = analog_to_celsius_board(temp_board.getraw()));
+  TERN_(HAS_TEMP_SOC,       temp_soc.celsius       = analog_to_celsius_soc(temp_soc.getraw()));
   TERN_(HAS_TEMP_REDUNDANT, temp_redundant.celsius = analog_to_celsius_redundant(temp_redundant.getraw()));
 
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
@@ -2507,6 +2519,10 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
     if (TP_CMP(BOARD, temp_board.getraw(), maxtemp_raw_BOARD)) maxtemp_error(H_BOARD);
     if (TP_CMP(BOARD, mintemp_raw_BOARD, temp_board.getraw())) mintemp_error(H_BOARD);
+  #endif
+
+  #if BOTH(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
+    if (TP_CMP(SOC, temp_soc.getraw(), maxtemp_raw_SOC)) maxtemp_error(H_SOC);
   #endif
   #undef TP_CMP
 
@@ -2723,6 +2739,7 @@ void Temperature::init() {
   TERN_(HAS_TEMP_ADC_PROBE,     hal.adc_enable(TEMP_PROBE_PIN));
   TERN_(HAS_TEMP_ADC_COOLER,    hal.adc_enable(TEMP_COOLER_PIN));
   TERN_(HAS_TEMP_ADC_BOARD,     hal.adc_enable(TEMP_BOARD_PIN));
+  TERN_(HAS_TEMP_ADC_SOC,       hal.adc_enable(TEMP_SOC_PIN));
   TERN_(HAS_TEMP_ADC_REDUNDANT, hal.adc_enable(TEMP_REDUNDANT_PIN));
   TERN_(FILAMENT_WIDTH_SENSOR,  hal.adc_enable(FILWIDTH_PIN));
   TERN_(HAS_ADC_BUTTONS,        hal.adc_enable(ADC_KEYPAD_PIN));
@@ -2857,6 +2874,10 @@ void Temperature::init() {
   #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
     while (analog_to_celsius_board(mintemp_raw_BOARD) < BOARD_MINTEMP) mintemp_raw_BOARD += TEMPDIR(BOARD) * (OVERSAMPLENR);
     while (analog_to_celsius_board(maxtemp_raw_BOARD) > BOARD_MAXTEMP) maxtemp_raw_BOARD -= TEMPDIR(BOARD) * (OVERSAMPLENR);
+  #endif
+
+  #if BOTH(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
+    while (analog_to_celsius_soc(maxtemp_raw_SOC) > SOC_MAXTEMP) maxtemp_raw_SOC -= OVERSAMPLENR;
   #endif
 
   #if HAS_TEMP_REDUNDANT
@@ -3371,6 +3392,7 @@ void Temperature::readings_ready() {
   TERN_(HAS_TEMP_PROBE,     temp_probe.reset());
   TERN_(HAS_TEMP_COOLER,    temp_cooler.reset());
   TERN_(HAS_TEMP_BOARD,     temp_board.reset());
+  TERN_(HAS_TEMP_SOC,       temp_soc.reset());
   TERN_(HAS_TEMP_REDUNDANT, temp_redundant.reset());
 
   TERN_(HAS_JOY_ADC_X, joystick.x.reset());
@@ -3829,6 +3851,11 @@ void Temperature::isr() {
       case MeasureTemp_BOARD: ACCUMULATE_ADC(temp_board); break;
     #endif
 
+    #if HAS_TEMP_ADC_SOC
+      case PrepareTemp_SOC: hal.adc_start(TEMP_SOC_PIN); break;
+      case MeasureTemp_SOC: ACCUMULATE_ADC(temp_soc); break;
+    #endif
+
     #if HAS_TEMP_ADC_REDUNDANT
       case PrepareTemp_REDUNDANT: hal.adc_start(TEMP_REDUNDANT_PIN); break;
       case MeasureTemp_REDUNDANT: ACCUMULATE_ADC(temp_redundant); break;
@@ -3970,6 +3997,8 @@ void Temperature::isr() {
    *    Chamber: " C:nnn.nn /nnn.nn"
    *      Probe: " P:nnn.nn /nnn.nn"
    *     Cooler: " L:nnn.nn /nnn.nn"
+   *      Board: " M:nnn.nn /nnn.nn"
+   *        SoC: " S:nnn.nn /nnn.nn"
    *  Redundant: " R:nnn.nn /nnn.nn"
    *   Extruder: " T0:nnn.nn /nnn.nn"
    *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
@@ -3997,6 +4026,9 @@ void Temperature::isr() {
       #endif
       #if HAS_TEMP_BOARD
         case H_BOARD: k = 'M'; break;
+      #endif
+      #if HAS_TEMP_SOC
+        case H_SOC: k = 'S'; break;
       #endif
       #if HAS_TEMP_REDUNDANT
         case H_REDUNDANT: k = 'R'; break;
@@ -4043,6 +4075,9 @@ void Temperature::isr() {
     #endif
     #if HAS_TEMP_BOARD
       print_heater_state(H_BOARD, degBoard(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawBoardTemp()));
+    #endif
+    #if HAS_TEMP_SOC
+      print_heater_state(H_SOC, degSoc(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawSocTemp()));
     #endif
     #if HAS_TEMP_REDUNDANT
       if (include_r) print_heater_state(H_REDUNDANT, degRedundant(), degRedundantTarget() OPTARG(SHOW_TEMP_ADC_VALUES, rawRedundantTemp()));
