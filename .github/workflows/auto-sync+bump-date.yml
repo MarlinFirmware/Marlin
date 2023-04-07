@@ -42,19 +42,6 @@ jobs:
 
     - name: Bump Date (bugfix-2.1.x)
       run: |
-        # Exit if upto date
-        git config user.name "${GITHUB_ACTOR}" && \
-        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" && \
-        git config --local user.password ${GITHUB_TOKEN} && \
-        git remote add upstream "https://github.com/MarlinFirmware/Marlin" && \
-        git remote -v
-        MERGE_RESULT=$( git merge upstream/${GITHUB_REF} )
-        if [[ $MERGE_RESULT == "" ]] 
-        then
-          exit 1
-        elif [[ $MERGE_RESULT != *"Already up to date."* ]]
-          git remote -v
-        fi
         # Inline Bump Script
         if [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then
           DIST=$( date +"%Y-%m-%d" )
