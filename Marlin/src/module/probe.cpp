@@ -919,11 +919,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     DEBUG_POS("", current_position);
   }
 
-  #if ENABLED(BLTOUCH)
-    // Reset a BLTouch in HS mode if already triggered
-    if (bltouch.high_speed_mode && bltouch.triggered()) bltouch._reset();
-  #endif
-
   // Use a safe Z height for the XY move
   const float safe_z = _MAX(current_position.z, Z_PROBE_SAFE_CLEARANCE);
 
@@ -950,6 +945,13 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   #if ENABLED(BD_SENSOR)
     return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
+  #endif
+
+  #if ENABLED(BLTOUCH)
+    // Now at the safe_z if it is still triggered it may be in an alarm
+    // condition.  Reset to clear alarm has a side effect of stowing the probe,
+    // which the following deploy will handle.
+    if (bltouch.triggered()) bltouch._reset();
   #endif
 
   float measured_z = NAN;
