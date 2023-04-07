@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,7 +30,6 @@
 #include "env_validate.h"
 
 #define USES_DIAG_JUMPERS
-
 
 //#define MOTOR_EXPANSION
 
@@ -115,18 +114,16 @@
 #endif
 
 #ifdef Z2_STALL_SENSITIVITY
-  #define Z2_STOP_PIN                  E1_DIAG_PIN
+  #define Z2_STOP_PIN                E1_DIAG_PIN
   #if Z2_HOME_TO_MIN
-    #define Z2_MAX_PIN                       PD0   // E3
+    #define Z2_MAX_PIN                      PD0   // E3
   #else
-    #define Z2_MIN_PIN                       PD0   // E3
+    #define Z2_MIN_PIN                      PD0   // E3
   #endif
 #else
-  #define Z2_MIN_PIN                         PD0   // Z2- [E3]
-  #define Z2_MAX_PIN                         PD6   // E4
+  #define Z2_MIN_PIN                        PD0   // Z2- [E3]
+  #define Z2_MAX_PIN                        PD6   // E4
 #endif
-
-
 
 //
 // Z Probe must be this pin
@@ -156,6 +153,7 @@
 #ifndef FIL_RUNOUT6_PIN
   #define FIL_RUNOUT6_PIN                   PD1
 #endif
+
 //
 // Steppers
 //
@@ -203,21 +201,21 @@
 
 #define E3_STEP_PIN                         PE4
 #define E3_DIR_PIN                          PE3
-#define E3_ENABLE_PIN                       PC13 
+#define E3_ENABLE_PIN                       PC13
 #ifndef E3_CS_PIN
   #define E3_CS_PIN                         PE2
 #endif
 
 #define E4_STEP_PIN                         PG14
 #define E4_DIR_PIN                          PG13
-#define E4_ENABLE_PIN                       PE0 
+#define E4_ENABLE_PIN                       PE0
 #ifndef E4_CS_PIN
   #define E4_CS_PIN                         PG11
 #endif
 
 #define E5_STEP_PIN                         PD4
 #define E5_DIR_PIN                          PD3
-#define E5_ENABLE_PIN                       PD5 
+#define E5_ENABLE_PIN                       PD5
 #ifndef E5_CS_PIN
   #define E5_CS_PIN                         PD2
 #endif
@@ -479,7 +477,7 @@
     #define E8_ENABLE_PIN            EXP2_07_PIN
   #endif
 
-#endif 
+#endif
 
 //
 // LCDs and Controllers
@@ -545,7 +543,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN            -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
 

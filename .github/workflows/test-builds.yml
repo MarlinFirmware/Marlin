@@ -103,6 +103,7 @@ jobs:
         - BTT_SKR_SE_BX
         - chitu_f103
         - Opulo_Lumen_REV3
+        - I3DBEEZ9_V1
 
         # ESP32 environments
         - mks_tinybee
