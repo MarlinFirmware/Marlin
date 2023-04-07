@@ -48,12 +48,15 @@ jobs:
         git config --local user.password ${GITHUB_TOKEN} && \
         git remote add upstream "https://github.com/MarlinFirmware/Marlin" && \
         git remote -v
-        MERGE_RESULT=$(git merge upstream/bugfix-2.1.x)
-        if [[ $MERGE_RESULT == *"Already up to date."* ]]
+        MERGE_RESULT=$( git merge upstream/bugfix-2.1.x )
+        if [[ $MERGE_RESULT == "" ]] 
         then
-          exit 0
+          exit 1
+        elif [[ $MERGE_RESULT != *"Already up to date."* ]]
+          git remote -v
+        fi
         # Inline Bump Script
-        elif [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then
+        if [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then
           DIST=$( date +"%Y-%m-%d" )
           eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/src/inc/Version.h" && \
           eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/Version.h" && \
