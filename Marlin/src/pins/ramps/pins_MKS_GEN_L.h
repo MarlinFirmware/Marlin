@@ -23,6 +23,9 @@
 
 /**
  * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/MKS%20GEN%20L%20v1.0/MKS%20Gen_L%20V1.0_008%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V1.0_008/MKS%20Gen_L%20V1.0_008%20SCH.pdf
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -34,14 +37,11 @@
 //
 // Heaters / Fans
 //
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN 7
 
-// Hotend, Hotend, Bed + Fan on D9
-#if FET_ORDER_EEB
-  #define MOSFET_B_PIN 7
-  #define FAN_PIN 9
-#endif
+#define MOSFET_A_PIN                           9  // HE0
+#define MOSFET_B_PIN                           8  // HE1
+#define MOSFET_C_PIN                          10  // HBED
+#define FAN0_PIN                               7
 
 //
 // CS Pins wired to avoid conflict with the LCD
@@ -49,11 +49,11 @@
 //
 
 #ifndef X_CS_PIN
-  #define X_CS_PIN 59
+  #define X_CS_PIN                            59
 #endif
 
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN 63
+  #define Y_CS_PIN                            63
 #endif
 
 #include "pins_RAMPS.h"

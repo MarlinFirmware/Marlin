@@ -59,13 +59,13 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX 1
+    #define NEEDS_X_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX 1
+    #define NEEDS_Y_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_ZMIN_) || _ENDSTOP_IS_ANY(_ZMAX_)
-    #define NEEDS_Z_MINMAX 1
+    #define NEEDS_Z_MINMAX
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -88,7 +88,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-
-#elif NEEDS_Y_MINMAX
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-
   #endif
@@ -101,7 +101,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-
-#elif NEEDS_Z_MINMAX
+#elif ENABLED(NEEDS_Z_MINMAX)
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-
   #endif
@@ -117,10 +117,6 @@
     #define Z_MIN_PROBE_PIN          E2_DIAG_PIN  // defaults to 'Z+' connector
   #endif
 #endif
-
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
-#undef NEEDS_Z_MINMAX
 
 //
 // Steppers
@@ -190,19 +186,19 @@
 #define HEATER_1_PIN                        PB0   // Heater1
 #define HEATER_2_PIN                        PA3   // Heater2
 
-#define FAN_PIN                             PA2   // Fan0
+#define FAN0_PIN                            PA2   // Fan0
 #define FAN1_PIN                            PA1   // Fan1
 #define FAN2_PIN                            PA0   // Fan2
 
 //
-// Software SPI pins for TMC2130 stepper drivers
-// This board doesn't support hardware SPI there
+// Default pins for TMC software SPI
+// This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI                       PE14
-  #define TMC_SW_MISO                       PE13
-  #define TMC_SW_SCK                        PE12
+  #define TMC_SPI_MOSI                      PE14
+  #define TMC_SPI_MISO                      PE13
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 //

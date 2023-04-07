@@ -64,7 +64,7 @@
   }
 
   void spiInit(uint8_t spiRate) {
-    // Use datarates Marlin uses
+    // Use Marlin datarates
     uint32_t clock;
     switch (spiRate) {
       case SPI_FULL_SPEED:      clock = 8000000; break;

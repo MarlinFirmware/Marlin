@@ -76,7 +76,7 @@
     constexpr static bool endstopz2_sta = true;
   #endif
 
-  #define ESTATE(S) (READ(S##_PIN) != S##_ENDSTOP_INVERTING)
+  #define ESTATE(S) (READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
 
   void test_gpio_readlevel_L() {
     WRITE(WIFI_IO0_PIN, HIGH);

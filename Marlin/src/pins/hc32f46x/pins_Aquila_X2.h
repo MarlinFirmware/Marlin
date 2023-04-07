@@ -112,8 +112,9 @@
 #define HEATER_0_PIN PA1   // HEATER1
 #define HEATER_BED_PIN PA2 // HOT BED
 
-#define FAN_PIN PA0 // FAN
+#define FAN0_PIN PA0 // FAN
 #define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card

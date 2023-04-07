@@ -530,7 +530,7 @@
 #elif MB(MKS_ROBIN_E3D)
   #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3D_V1_1)
-  #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3
+  #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p env:mks_robin_e3p_maple
 #elif MB(BTT_EBB42_V1_1)
@@ -629,6 +629,10 @@
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
 #elif MB(AQUILA_X2_H32)
   #include "hc32f46x/pins_Aquila_X2.h"          // HC32F46x  
+#elif MB(SOVOL_V131)
+  #include "stm32f1/pins_SOVOL_V131.h"          // GD32F1                                 env:GD32F103RET6_sovol_maple
+#elif MB(TRIGORILLA_V006)
+  #include "gd32f1/pins_TRIGORILLA_V006.h"      // GD32F103                               env:trigorilla_v006
 
 //
 // ARM Cortex-M4F
@@ -668,11 +672,11 @@
 #elif MB(BTT_SKR_V2_0_REV_B)
   #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug env:BIGTREE_SKR_2_F429 env:BIGTREE_SKR_2_F429_USB env:BIGTREE_SKR_2_F429_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:STM32F446ZE_btt env:STM32F446ZE_btt_USB
 #elif MB(BTT_OCTOPUS_V1_1)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_V1_F407 env:BIGTREE_OCTOPUS_V1_F407_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:STM32F446ZE_btt env:STM32F446ZE_btt_USB env:STM32F429ZG_btt env:STM32F429ZG_btt_USB env:STM32F407ZE_btt env:STM32F407ZE_btt_USB
 #elif MB(BTT_OCTOPUS_PRO_V1_0)
-  #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h" // STM32F4                               env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_PRO_V1_F429 env:BIGTREE_OCTOPUS_PRO_V1_F429_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h" // STM32F4                               env:STM32F446ZE_btt env:STM32F446ZE_btt_USB env:STM32F429ZG_btt env:STM32F429ZG_btt_USB env:STM32H723Zx_btt
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)
@@ -743,9 +747,11 @@
 #elif MB(BTT_SKR_SE_BX_V3)
   #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"    // STM32H7                                env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_V3_0)
-  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H7                                env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
 #elif MB(BTT_SKR_V3_0_EZ)
-  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H7                                env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
+#elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
+  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"  // STM32H7                                env:STM32H723Vx_btt env:STM32H723Zx_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
@@ -805,7 +811,7 @@
 // Linux Native Debug board
 //
 
-#elif MB(LINUX_RAMPS)
+#elif MB(SIMULATED)
   #include "linux/pins_RAMPS_LINUX.h"           // Native or Simulation                   lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
 
 #else
@@ -841,6 +847,7 @@
   #define BOARD_TH3D_EZBOARD_LITE_V2    99923
   #define BOARD_BTT_SKR_SE_BX           99924
   #define BOARD_MKS_MONSTER8            99925
+  #define BOARD_LINUX_RAMPS             99926
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -896,6 +903,8 @@
     #error "BOARD_BTT_SKR_SE_BX is now BOARD_BTT_SKR_SE_BX_V2 or BOARD_BTT_SKR_SE_BX_V3. Please update your configuration."
   #elif MB(MKS_MONSTER8)
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
+  #elif MB(LINUX_RAMPS)
+    #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -929,6 +938,7 @@
   #undef BOARD_TH3D_EZBOARD_LITE_V2
   #undef BOARD_BTT_SKR_SE_BX
   #undef BOARD_MKS_MONSTER8
+  #undef BOARD_LINUX_RAMPS
 
 #endif
 

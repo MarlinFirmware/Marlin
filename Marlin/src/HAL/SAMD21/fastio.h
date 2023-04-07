@@ -213,4 +213,3 @@
 #define DIO53_PIN   PIN_PA21
 #define DIO54_PIN   PIN_PA06
 #define DIO55_PIN   PIN_PA07
-

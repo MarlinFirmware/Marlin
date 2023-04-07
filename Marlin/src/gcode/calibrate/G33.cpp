@@ -63,10 +63,6 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-#if HAS_MULTI_HOTEND
-  const uint8_t old_tool_index = active_extruder;
-#endif
-
 float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
@@ -78,7 +74,7 @@ void ac_home() {
 }
 
 void ac_setup(const bool reset_bed) {
-  TERN_(HAS_MULTI_HOTEND, tool_change(0, true));
+  TERN_(HAS_BED_PROBE, probe.use_probing_tool());
 
   planner.synchronize();
   remember_feedrate_scaling_off();
@@ -92,7 +88,7 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
   TERN_(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
+  TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {

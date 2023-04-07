@@ -1,0 +1,61 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m7",
+    "extra_flags": "-DSTM32H7xx -DSTM32H723xx",
+    "f_cpu": "550000000L",
+    "mcu": "stm32h723zet6",
+    "product_line": "STM32H723xx",
+    "variant": "MARLIN_H723Zx"
+  },
+  "connectivity": [
+    "can",
+    "ethernet"
+  ],
+  "debug": {
+    "jlink_device": "STM32H723ZE",
+    "openocd_target": "stm32h7x",
+    "svd_path": "STM32H7x3.svd",
+    "tools": {
+      "stlink": {
+        "server": {
+          "arguments": [
+            "-f",
+            "scripts/interface/stlink.cfg",
+            "-c",
+            "transport select hla_swd",
+            "-f",
+            "scripts/target/stm32h7x.cfg",
+            "-c",
+            "reset_config none"
+          ],
+          "executable": "bin/openocd",
+          "package": "tool-openocd"
+        }
+      }
+    }
+  },
+  "frameworks": [
+    "arduino",
+    "stm32cube"
+  ],
+  "name": "STM32H723ZE (564k RAM. 512k Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 577536,
+    "maximum_size": 524288,
+    "protocol": "stlink",
+    "protocols": [
+      "stlink",
+      "dfu",
+      "jlink",
+      "cmsis-dap"
+    ],
+    "offset_address": "0x8020000",
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32h723ze.html",
+  "vendor": "ST"
+}

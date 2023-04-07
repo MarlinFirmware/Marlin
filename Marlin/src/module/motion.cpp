@@ -672,6 +672,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   do_blocking_move_to(NUM_AXIS_ELEM(raw), fr_mm_s);
 }
 void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_x(", rx, ", ", fr_mm_s, ")");
   do_blocking_move_to(
     NUM_AXIS_LIST(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
                   current_position.u, current_position.v, current_position.w),
@@ -681,6 +682,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_y(", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
       NUM_AXIS_LIST(current_position.x, ry, current_position.z, current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w),
@@ -691,6 +693,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 
 #if HAS_Z_AXIS
   void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s/*=0.0*/) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_z(", rz, ", ", fr_mm_s, ")");
     do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
   }
 #endif
@@ -769,6 +772,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 
 #if HAS_Y_AXIS
   void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_xy(", rx, ", ", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
       NUM_AXIS_LIST(rx, ry, current_position.z, current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w),
@@ -789,9 +793,10 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     );
   }
   void do_z_clearance(const_float_t zclear, const bool lower_allowed/*=false*/) {
-    float zdest = zclear;
-    if (!lower_allowed) NOLESS(zdest, current_position.z);
-    do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, ", ", lower_allowed, ")");
+    const float zdest = _MIN(zclear, Z_MAX_POS);
+    if (zdest == current_position.z || (!lower_allowed && zdest < current_position.z)) return;
+    do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
   }
 #endif
 
@@ -1947,72 +1952,72 @@ void prepare_line_to_destination() {
           case X_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
-            effectorBackoutDir = -X_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_X_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(X_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_X_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Y_MICROSTEPS
           case Y_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
-            effectorBackoutDir = -Y_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Y_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Y_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Y_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Z_MICROSTEPS
           case Z_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
-            effectorBackoutDir = -Z_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Z_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Z_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Z_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef I_MICROSTEPS
           case I_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
-            effectorBackoutDir = -I_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_I_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(I_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_I_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef J_MICROSTEPS
           case J_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
-            effectorBackoutDir = -J_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_J_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(J_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_J_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef K_MICROSTEPS
           case K_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
-            effectorBackoutDir = -K_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_K_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(K_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_K_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef U_MICROSTEPS
           case U_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
-            effectorBackoutDir = -U_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_U_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(U_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_U_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef V_MICROSTEPS
           case V_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
-            effectorBackoutDir = -V_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_V_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(V_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_V_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef W_MICROSTEPS
           case W_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
-            effectorBackoutDir = -W_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_W_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(W_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_W_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         default: return;

@@ -152,7 +152,7 @@
 #define HEATER_BED_PIN                         7
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                               9
 #define FAN2_PIN                              30
 #define FAN3_PIN                              31
@@ -255,10 +255,10 @@
  * This sections starts with the pins_RAMPS_144.h as example, after if you need any new
  * display, you could use normal duponts and connect it with with the scheme showed before.
  * Tested:
- *   - Ender 3 Old display (Character LCD)
- *   - Ender 3 New Serial DWING Display
+ *   - Ender-3 Old display (Character LCD)
+ *   - Ender-3 New Serial DWING Display
  *   - Reprap Display
- *   - Ender 5 New Serial Display
+ *   - Ender-5 New Serial Display
  *   - Any Reprap character display like
  */
 

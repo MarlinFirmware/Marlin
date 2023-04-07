@@ -298,10 +298,8 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-#define TICK_CYCLE 1
-
-uint16_t getTickDiff(uint16_t curTick, uint16_t lastTick) {
-  return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
+uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
+  return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
@@ -494,6 +492,7 @@ void lv_encoder_pin_init() {
 }
 
 #if 1 // HAS_ENCODER_ACTION
+
   void lv_update_encoder() {
     static uint32_t encoder_time1;
     uint32_t tmpTime, diffTime = 0;
@@ -554,7 +553,7 @@ void lv_encoder_pin_init() {
 
       #endif // HAS_ENCODER_WHEEL
 
-    } // next_button_update_ms
+    } // encoder_time1
   }
 
 #endif // HAS_ENCODER_ACTION

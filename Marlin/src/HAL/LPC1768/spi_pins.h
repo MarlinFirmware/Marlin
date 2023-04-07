@@ -24,10 +24,10 @@
 #include "../../core/macros.h"
 
 #if BOTH(SDSUPPORT, HAS_MARLINUI_U8GLIB) && (LCD_PINS_D4 == SD_SCK_PIN || LCD_PINS_ENABLE == SD_MOSI_PIN || DOGLCD_SCK == SD_SCK_PIN || DOGLCD_MOSI == SD_MOSI_PIN)
-  #define LPC_SOFTWARE_SPI  // If the SD card and LCD adapter share the same SPI pins, then software SPI is currently
-                            // needed due to the speed and mode required for communicating with each device being different.
-                            // This requirement can be removed if the SPI access to these devices is updated to use
-                            // spiBeginTransaction.
+  #define SOFTWARE_SPI  // If the SD card and LCD adapter share the same SPI pins, then software SPI is currently
+                        // needed due to the speed and mode required for communicating with each device being different.
+                        // This requirement can be removed if the SPI access to these devices is updated to use
+                        // spiBeginTransaction.
 #endif
 
 /** onboard SD card */

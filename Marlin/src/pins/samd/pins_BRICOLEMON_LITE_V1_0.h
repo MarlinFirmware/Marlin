@@ -102,7 +102,7 @@
 //
 #define HEATER_0_PIN                           6
 #define HEATER_BED_PIN                         7
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                               9
 
 //
@@ -203,10 +203,10 @@
  * This section starts with the pins_RAMPS_144.h as example, after if you need any new
  * display, you could use normal duponts and connect it with with the scheme showed before.
  * Tested:
- *   - Ender 3 Old display (Character LCD)
- *   - Ender 3 New Serial DWING Display
+ *   - Ender-3 Old display (Character LCD)
+ *   - Ender-3 New Serial DWING Display
  *   - Reprap Display
- *   - Ender 5 New Serial Display
+ *   - Ender-5 New Serial Display
  *   - Any Reprap character display like
  */
 
@@ -283,7 +283,6 @@
         //#define DOGLCD_MOSI                 17
         //#define DOGLCD_SCK                  23
         //#define DOGLCD_A0          LCD_PINS_DC
-
 
       #else
         // Definitions for any standard Display

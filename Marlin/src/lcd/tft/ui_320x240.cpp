@@ -446,7 +446,7 @@ void MarlinUI::draw_status_screen() {
       #else
         256, 130
       #endif
-	   , menu_main, imgSettings
+      , menu_main, imgSettings
     );
     #if ENABLED(SDSUPPORT)
       const bool cm = card.isMounted(), pa = printingIsActive();
