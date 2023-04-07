@@ -23,6 +23,9 @@
 
 /**
  * MKS BASE v1.6 with A4982 stepper drivers and digital micro-stepping
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/MKS%20BASE%201.6/MKS%20Base%20V1.6_004%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-BASE/blob/master/hardware/MKS%20Base%20V1.6_004/MKS%20Base%20V1.6_004%20SCH.pdf
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2

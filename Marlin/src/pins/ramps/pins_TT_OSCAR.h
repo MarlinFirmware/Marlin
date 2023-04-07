@@ -21,10 +21,12 @@
  */
 #pragma once
 
+// ATmega2560
+
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
-  #error "TTOSCAR supports up to 5 hotends / E steppers."
+  #error "TT OSCAR supports up to 5 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "TT OSCAR"
@@ -150,16 +152,14 @@
 //
 // Default pins for TMC software SPI
 //
-//#if ENABLED(TMC_USE_SW_SPI)
-//  #ifndef TMC_SW_MOSI
-//    #define TMC_SW_MOSI    66
-//  #endif
-//  #ifndef TMC_SW_MISO
-//    #define TMC_SW_MISO    44
-//  #endif
-//  #ifndef TMC_SW_SCK
-//    #define TMC_SW_SCK     64
-//  #endif
+//#ifndef TMC_SPI_MOSI
+//  #define TMC_SPI_MOSI                      66
+//#endif
+//#ifndef TMC_SPI_MISO
+//  #define TMC_SPI_MISO                      44
+//#endif
+//#ifndef TMC_SPI_SCK
+//  #define TMC_SPI_SCK                       64
 //#endif
 
 //
@@ -192,7 +192,7 @@
 #define HEATER_2_PIN                          44
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 #if EXTRUDERS >= 5
   #define HEATER_4_PIN                         6

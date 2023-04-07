@@ -899,8 +899,8 @@
   #define _Z_PROBE
 #endif
 
-#if PIN_EXISTS(FAN)
-  #define _FAN0 FAN_PIN,
+#if PIN_EXISTS(FAN0)
+  #define _FAN0 FAN0_PIN,
 #else
   #define _FAN0
 #endif

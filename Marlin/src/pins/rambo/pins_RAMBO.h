@@ -39,6 +39,8 @@
 
 /**
  * Rambo pin assignments
+ * Schematic (1.1b): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMBo/Rambo1-1-schematic.png
+ * Origin (1.1b): https://www.reprap.org/wiki/File:Rambo1-1-schematic.png
  */
 
 #include "env_validate.h"
@@ -138,8 +140,8 @@
 #define HEATER_2_PIN                           6
 #define HEATER_BED_PIN                         3
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             8
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             6

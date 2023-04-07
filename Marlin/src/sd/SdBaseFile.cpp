@@ -91,7 +91,7 @@ bool SdBaseFile::addDirCluster() {
 // cache a file's directory entry
 // cache the current "dirBlock_" and return the entry at index "dirIndex_"
 // return pointer to cached entry or null for failure
-dir_t* SdBaseFile::cacheDirEntry(uint8_t action) {
+dir_t* SdBaseFile::cacheDirEntry(const uint8_t action) {
   if (!vol_->cacheRawBlock(dirBlock_, action)) return nullptr;
   return vol_->cache()->dir + dirIndex_;
 }
@@ -119,7 +119,7 @@ bool SdBaseFile::close() {
  * Reasons for failure include file is not contiguous, file has zero length
  * or an I/O error occurred.
  */
-bool SdBaseFile::contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock) {
+bool SdBaseFile::contiguousRange(uint32_t * const bgnBlock, uint32_t * const endBlock) {
   // error if no blocks
   if (firstCluster_ == 0) return false;
 
@@ -156,7 +156,7 @@ bool SdBaseFile::contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock) {
  * a file is already open, the file already exists, the root
  * directory is full or an I/O error.
  */
-bool SdBaseFile::createContiguous(SdBaseFile *dirFile, const char *path, uint32_t size) {
+bool SdBaseFile::createContiguous(SdBaseFile * const dirFile, const char * const path, const uint32_t size) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   uint32_t count;
@@ -301,7 +301,7 @@ bool SdBaseFile::getDosName(char * const name) {
   return true;
 }
 
-void SdBaseFile::getpos(filepos_t *pos) {
+void SdBaseFile::getpos(filepos_t * const pos) {
   pos->position = curPosition_;
   pos->cluster = curCluster_;
 }
@@ -337,7 +337,7 @@ void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
 
 // saves 32 bytes on stack for ls recursion
 // return 0 - EOF, 1 - normal file, or 2 - directory
-int8_t SdBaseFile::lsPrintNext(uint8_t flags, uint8_t indent) {
+int8_t SdBaseFile::lsPrintNext(const uint8_t flags, const uint8_t indent) {
   dir_t dir;
   uint8_t w = 0;
 
@@ -400,7 +400,7 @@ uint8_t lfn_checksum(const uint8_t *name) {
 }
 
 // Format directory name field from a 8.3 name string
-bool SdBaseFile::make83Name(const char *str, uint8_t *name, const char **ptr) {
+bool SdBaseFile::make83Name(const char *str, uint8_t * const name, const char **ptr) {
   uint8_t n = 7,                      // Max index until a dot is found
           i = 11;
   while (i) name[--i] = ' ';          // Set whole FILENAME.EXT to spaces
@@ -437,13 +437,11 @@ bool SdBaseFile::make83Name(const char *str, uint8_t *name, const char **ptr) {
  * Reasons for failure include this file is already open, \a parent is not a
  * directory, \a path is invalid or already exists in \a parent.
  */
-bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, bool pFlag) {
+bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, const bool pFlag/*=true*/) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
-  uint8_t dname[11];
-  SdBaseFile dir1, dir2;
-  SdBaseFile *sub = &dir1;
-  SdBaseFile *start = parent;
+  SdBaseFile dir1, dir2, *sub = &dir1;
+  SdBaseFile * const start = parent;
 
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
     uint8_t dlname[LONG_FILENAME_LENGTH];
@@ -459,6 +457,7 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, bool pFlag) {
     }
   }
 
+  uint8_t dname[11];
   for (;;) {
     if (!TERN(LONG_FILENAME_WRITE_SUPPORT, parsePath(path, dname, dlname, &path), make83Name(path, dname, &path))) return false;
     while (*path == '/') path++;
@@ -474,7 +473,7 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, bool pFlag) {
   return mkdir(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname));
 }
 
-bool SdBaseFile::mkdir(SdBaseFile *parent, const uint8_t dname[11]
+bool SdBaseFile::mkdir(SdBaseFile * const parent, const uint8_t dname[11]
   OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
 ) {
   if (ENABLED(SDCARD_READONLY)) return false;
@@ -541,7 +540,7 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const uint8_t dname[11]
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::open(const char *path, uint8_t oflag) {
+bool SdBaseFile::open(const char * const path, const uint8_t oflag) {
   return open(cwd_, path, oflag);
 }
 
@@ -595,7 +594,7 @@ bool SdBaseFile::open(const char *path, uint8_t oflag) {
  * a directory, \a path is invalid, the file does not exist
  * or can't be opened in the access mode specified by oflag.
  */
-bool SdBaseFile::open(SdBaseFile *dirFile, const char *path, uint8_t oflag) {
+bool SdBaseFile::open(SdBaseFile * const dirFile, const char *path, const uint8_t oflag) {
   uint8_t dname[11];
   SdBaseFile dir1, dir2;
   SdBaseFile *parent = dirFile, *sub = &dir1;
@@ -627,9 +626,9 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const char *path, uint8_t oflag) {
 }
 
 // open with filename in dname and long filename in dlname
-bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
+bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
     OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
-  , uint8_t oflag
+  , const uint8_t oflag
 ) {
   bool emptyFound = false, fileFound = false;
   uint8_t index = 0;
@@ -703,7 +702,10 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
               // Get VFat dir entry
               pvFat = (vfat_t *) p;
               // Get checksum from the last entry of the sequence
-              if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
+              if (pvFat->sequenceNumber & 0x40) {
+                lfnChecksum = pvFat->checksum;
+                ZERO(lfnName);
+              }
               // Get LFN sequence number
               lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
               if WITHIN(lfnSequenceNumber, 1, reqEntriesNum) {
@@ -711,6 +713,7 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
                 if (lfnChecksum == pvFat->checksum) {
                   // Set chunk of LFN from VFAT entry into lfnName
                   getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
+                  TERN_(UTF_FILENAME_SUPPORT, convertUtf16ToUtf8((char *)lfnName));
                   // LFN found?
                   if (!strncasecmp((char*)dlname, (char*)lfnName, lfnNameLength)) lfnFileFound = true;
                 }
@@ -872,7 +875,7 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
  * See open() by path for definition of flags.
  * \return true for success or false for failure.
  */
-bool SdBaseFile::open(SdBaseFile *dirFile, uint16_t index, uint8_t oflag) {
+bool SdBaseFile::open(SdBaseFile *dirFile, uint16_t index, const uint8_t oflag) {
   vol_ = dirFile->vol_;
 
   // error if already open
@@ -898,7 +901,7 @@ bool SdBaseFile::open(SdBaseFile *dirFile, uint16_t index, uint8_t oflag) {
 }
 
 // open a cached directory entry. Assumes vol_ is initialized
-bool SdBaseFile::openCachedEntry(uint8_t dirIndex, uint8_t oflag) {
+bool SdBaseFile::openCachedEntry(const uint8_t dirIndex, const uint8_t oflag) {
   dir_t *p;
 
   #if ENABLED(SDCARD_READONLY)
@@ -958,7 +961,7 @@ bool SdBaseFile::openCachedEntry(uint8_t dirIndex, uint8_t oflag) {
  * See open() by path for definition of flags.
  * \return true for success or false for failure.
  */
-bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
+bool SdBaseFile::openNext(SdBaseFile *dirFile, const uint8_t oflag) {
   if (!dirFile) return false;
 
   // error if already open
@@ -999,7 +1002,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
   bool SdBaseFile::isDirLFN(const dir_t* dir) {
     if (DIR_IS_LONG_NAME(dir)) {
       vfat_t *VFAT = (vfat_t*)dir;
-      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      // Sanity-check the VFAT entry. The first cluster is always set to zero.
+      // The sequence number should be higher than 0 and lower than maximum allowed by VFAT spec
       if ((VFAT->firstClusterLow == 0) && WITHIN((VFAT->sequenceNumber & 0x1F), 1, MAX_VFAT_ENTRIES)) return true;
     }
     return false;
@@ -1012,9 +1016,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
    * \return true if the dirname is a long file name (LFN)
    * \return false if the dirname is a short file name 8.3 (SFN)
    */
-  bool SdBaseFile::isDirNameLFN(const char *dirname) {
-    uint8_t length = strlen(dirname);
-    uint8_t idx = length;
+  bool SdBaseFile::isDirNameLFN(const char * const dirname) {
+    uint8_t length = strlen(dirname), idx = length;
     bool dotFound = false;
     if (idx > 12) return true;            // LFN due to filename length > 12 ("filename.ext")
     // Check dot(s) position
@@ -1044,7 +1047,7 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
    * The SFN is without dot ("FILENAMEEXT")
    * The LFN is complete ("Filename.ext")
    */
-  bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, const char **ptrNextPath) {
+  bool SdBaseFile::parsePath(const char *path, uint8_t * const name, uint8_t * const lname, const char **ptrNextPath) {
     // Init randomizer for SFN generation
     randomSeed(millis());
     // Parse the LFN
@@ -1132,14 +1135,14 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
   /**
    * Get the LFN filename block from a dir. Get the block in lname at startOffset
    */
-  void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
+  void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, const uint8_t sequenceNumber) {
+    const uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
     LOOP_L_N(i, FILENAME_LENGTH) {
       const uint16_t utf16_ch = (i >= 11) ? pFatDir->name3[i - 11] : (i >= 5) ? pFatDir->name2[i - 5] : pFatDir->name1[i];
       #if ENABLED(UTF_FILENAME_SUPPORT)
         // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
         // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
-        uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
+        const uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
         lname[idx] = utf16_ch & 0xFF;
         lname[idx + 1] = (utf16_ch >> 8) & 0xFF;
       #else
@@ -1152,9 +1155,9 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
   /**
    * Set the LFN filename block lname to a dir. Put the block based on sequence number
    */
-  void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
-    uint8_t nameLength = strlen(lname);
+  void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, const uint8_t sequenceNumber) {
+    const uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH,
+                  nameLength = strlen(lname);
     LOOP_L_N(i, FILENAME_LENGTH) {
       uint16_t ch = 0;
       if ((startOffset + i) < nameLength)
@@ -1301,7 +1304,7 @@ static void print2u(const uint8_t v) {
  * \param[in] pr Print stream for output.
  * \param[in] fatDate The date field from a directory entry.
  */
-void SdBaseFile::printFatDate(uint16_t fatDate) {
+void SdBaseFile::printFatDate(const uint16_t fatDate) {
   SERIAL_ECHO(FAT_YEAR(fatDate));
   SERIAL_CHAR('-');
   print2u(FAT_MONTH(fatDate));
@@ -1318,7 +1321,7 @@ void SdBaseFile::printFatDate(uint16_t fatDate) {
  * \param[in] pr Print stream for output.
  * \param[in] fatTime The time field from a directory entry.
  */
-void SdBaseFile::printFatTime(uint16_t fatTime) {
+void SdBaseFile::printFatTime(const uint16_t fatTime) {
   print2u(FAT_HOUR(fatTime));
   SERIAL_CHAR(':');
   print2u(FAT_MINUTE(fatTime));
@@ -1363,7 +1366,7 @@ int16_t SdBaseFile::read() {
  * read() called before a file has been opened, corrupt file system
  * or an I/O error occurred.
  */
-int16_t SdBaseFile::read(void *buf, uint16_t nbyte) {
+int16_t SdBaseFile::read(void * const buf, uint16_t nbyte) {
   uint8_t *dst = reinterpret_cast<uint8_t*>(buf);
   uint16_t offset, toRead;
   uint32_t block;  // raw device block number
@@ -1425,7 +1428,7 @@ int16_t SdBaseFile::read(void *buf, uint16_t nbyte) {
  * readDir() called before a directory has been opened, this is not
  * a directory file or an I/O error occurred.
  */
-int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
+int8_t SdBaseFile::readDir(dir_t * const dir, char * const longFilename) {
   int16_t n;
   // if not a directory file or miss-positioned return an error
   if (!isDir() || (0x1F & curPosition_)) return -1;
@@ -1460,7 +1463,7 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
         // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
         if (VFAT->firstClusterLow == 0) {
           const uint8_t seq = VFAT->sequenceNumber & 0x1F;
-          if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
+          if (WITHIN(seq, 1, VFAT_ENTRIES_LIMIT)) {
             if (seq == 1) {
               checksum = VFAT->checksum;
               checksum_error = 0;
@@ -1507,43 +1510,54 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
     // Post-process normal file or subdirectory longname, if any
     if (DIR_IS_FILE_OR_SUBDIR(dir)) {
       #if ENABLED(UTF_FILENAME_SUPPORT)
-        #if LONG_FILENAME_CHARSIZE > 2
-          // Add warning for developers for currently not supported 3-byte cases (Conversion series of 2-byte
-          // codepoints to 3-byte in-place will break the rest of filename)
-          #error "Currently filename re-encoding is done in-place. It may break the remaining chars to use 3-byte codepoints."
-        #endif
-
         // Is there a long filename to decode?
         if (longFilename) {
-          // Reset n to the start of the long name
-          n = 0;
-          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH) / 2; idx += 2) {    // idx is fixed since FAT LFN always contains UTF-16LE encoding
-            const uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
-            if (0xD800 == (utf16_ch & 0xF800))                                    // Surrogate pair - encode as '_'
-              longFilename[n++] = '_';
-            else if (0 == (utf16_ch & 0xFF80))                                    // Encode as 1-byte UTF-8 char
-              longFilename[n++] = utf16_ch & 0x007F;
-            else if (0 == (utf16_ch & 0xF800)) {                                  // Encode as 2-byte UTF-8 char
-              longFilename[n++] = 0xC0 | ((utf16_ch >> 6) & 0x1F);
-              longFilename[n++] = 0x80 | ( utf16_ch       & 0x3F);
-            }
-            else {
-              #if LONG_FILENAME_CHARSIZE > 2                                      // Encode as 3-byte UTF-8 char
-                longFilename[n++] = 0xE0 | ((utf16_ch >> 12) & 0x0F);
-                longFilename[n++] = 0xC0 | ((utf16_ch >>  6) & 0x3F);
-                longFilename[n++] = 0xC0 | ( utf16_ch        & 0x3F);
-              #else                                                               // Encode as '_'
-                longFilename[n++] = '_';
-              #endif
-            }
-            if (0 == utf16_ch) break; // End of filename
-          } // idx
-        } // longFilename
+          n = convertUtf16ToUtf8(longFilename);
+        }
       #endif
       return n;
     } // DIR_IS_FILE_OR_SUBDIR
   }
 }
+
+#if ENABLED(UTF_FILENAME_SUPPORT)
+
+  uint8_t SdBaseFile::convertUtf16ToUtf8(char * const longFilename) {
+    #if LONG_FILENAME_CHARSIZE > 2
+      // Add warning for developers for unsupported 3-byte cases.
+      // (Converting 2-byte codepoints to 3-byte in-place would break the rest of filename.)
+      #error "Currently filename re-encoding is done in-place. It may break the remaining chars to use 3-byte codepoints."
+    #endif
+
+    int16_t n;
+    // Reset n to the start of the long name
+    n = 0;
+    for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH); idx += 2) {  // idx is fixed since FAT LFN always contains UTF-16LE encoding
+      const uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
+      if (0xD800 == (utf16_ch & 0xF800))                              // Surrogate pair - encode as '_'
+        longFilename[n++] = '_';
+      else if (0 == (utf16_ch & 0xFF80))                              // Encode as 1-byte UTF-8 char
+        longFilename[n++] = utf16_ch & 0x007F;
+      else if (0 == (utf16_ch & 0xF800)) {                            // Encode as 2-byte UTF-8 char
+        longFilename[n++] = 0xC0 | ((utf16_ch >> 6) & 0x1F);
+        longFilename[n++] = 0x80 | ( utf16_ch       & 0x3F);
+      }
+      else {
+        #if LONG_FILENAME_CHARSIZE > 2                                // Encode as 3-byte UTF-8 char
+          longFilename[n++] = 0xE0 | ((utf16_ch >> 12) & 0x0F);
+          longFilename[n++] = 0xC0 | ((utf16_ch >>  6) & 0x3F);
+          longFilename[n++] = 0xC0 | ( utf16_ch        & 0x3F);
+        #else                                                         // Encode as '_'
+          longFilename[n++] = '_';
+        #endif
+      }
+      if (0 == utf16_ch) break; // End of filename
+    } // idx
+
+    return n;
+  }
+
+#endif // UTF_FILENAME_SUPPORT
 
 // Read next directory entry into the cache
 // Assumes file is correctly positioned
@@ -1613,7 +1627,7 @@ bool SdBaseFile::remove() {
     // Check if the entry has a LFN
     bool lastEntry = false;
     // loop back to search for any LFN entries related to this file
-    LOOP_S_LE_N(sequenceNumber, 1, MAX_VFAT_ENTRIES) {
+    LOOP_S_LE_N(sequenceNumber, 1, VFAT_ENTRIES_LIMIT) {
       dirIndex_ = (dirIndex_ - 1) & 0xF;
       if (dirBlock_ == 0) break;
       if (dirIndex_ == 0xF) dirBlock_--;
@@ -1661,7 +1675,7 @@ bool SdBaseFile::remove() {
  * \a dirFile is not a directory, \a path is not found
  * or an I/O error occurred.
  */
-bool SdBaseFile::remove(SdBaseFile *dirFile, const char *path) {
+bool SdBaseFile::remove(SdBaseFile * const dirFile, const char * const path) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   SdBaseFile file;
@@ -1700,7 +1714,7 @@ bool SdBaseFile::hide(const bool hidden) {
  * Reasons for failure include \a dirFile is not open or is not a directory
  * file, newPath is invalid or already exists, or an I/O error occurs.
  */
-bool SdBaseFile::rename(SdBaseFile *dirFile, const char *newPath) {
+bool SdBaseFile::rename(SdBaseFile * const dirFile, const char * const newPath) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   uint32_t dirCluster = 0;
@@ -1885,7 +1899,7 @@ bool SdBaseFile::rmRfStar() {
  * \param[in] oflag Values for \a oflag are constructed by a bitwise-inclusive
  * OR of open flags. see SdBaseFile::open(SdBaseFile*, const char*, uint8_t).
  */
-SdBaseFile::SdBaseFile(const char *path, uint8_t oflag) {
+SdBaseFile::SdBaseFile(const char * const path, const uint8_t oflag) {
   type_ = FAT_FILE_TYPE_CLOSED;
   writeError = false;
   open(path, oflag);
@@ -1928,7 +1942,7 @@ bool SdBaseFile::seekSet(const uint32_t pos) {
   return true;
 }
 
-void SdBaseFile::setpos(filepos_t *pos) {
+void SdBaseFile::setpos(filepos_t * const pos) {
   curPosition_ = pos->position;
   curCluster_ = pos->cluster;
 }
@@ -1983,7 +1997,7 @@ bool SdBaseFile::sync() {
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::timestamp(SdBaseFile *file) {
+bool SdBaseFile::timestamp(SdBaseFile * const file) {
   dir_t dir;
 
   // get timestamps
@@ -2040,8 +2054,8 @@ bool SdBaseFile::timestamp(SdBaseFile *file) {
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::timestamp(uint8_t flags, uint16_t year, uint8_t month,
-                           uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
+bool SdBaseFile::timestamp(const uint8_t flags, const uint16_t year, const uint8_t month,
+                           const uint8_t day, const uint8_t hour, const uint8_t minute, const uint8_t second) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   uint16_t dirDate, dirTime;

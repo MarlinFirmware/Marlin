@@ -490,9 +490,6 @@ namespace Language_hu {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Hiba: MIN höfok");
   LSTR MSG_HALTED                         = _UxGT("A NYOMTATÓ LEÁLLT");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Indítsd újra!");
-  LSTR MSG_SHORT_DAY                      = _UxGT("n"); // Csak egy karakter
-  LSTR MSG_SHORT_HOUR                     = _UxGT("ó"); // Csak egy karakter
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("p"); // Csak egy karakter
   LSTR MSG_HEATING                        = _UxGT("Fütés...");
   LSTR MSG_COOLING                        = _UxGT("Hütés...");
   LSTR MSG_BED_HEATING                    = _UxGT("Ágy fütés...");
@@ -696,12 +693,8 @@ namespace Language_hu {
 
   LSTR MSG_SD_CARD                        = _UxGT("SD Kártya");
   LSTR MSG_USB_DISK                       = _UxGT("USB Lemez");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("n"); // Csak egy karakter
+  LSTR MSG_SHORT_HOUR                     = _UxGT("ó"); // Csak egy karakter
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("p"); // Csak egy karakter
+}

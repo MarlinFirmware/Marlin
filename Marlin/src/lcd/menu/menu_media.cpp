@@ -109,10 +109,10 @@ void menu_media_filelist() {
   ui.encoder_direction_menus();
 
   #if HAS_MARLINUI_U8GLIB
-    static uint16_t fileCnt;
-    if (ui.first_page) fileCnt = card.get_num_Files();
+    static int16_t fileCnt;
+    if (ui.first_page) fileCnt = card.get_num_items();
   #else
-    const uint16_t fileCnt = card.get_num_Files();
+    const int16_t fileCnt = card.get_num_items();
   #endif
 
   START_MENU();
@@ -129,9 +129,9 @@ void menu_media_filelist() {
   else if (card.isMounted())
     ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
-  if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
+  if (ui.should_draw()) for (int16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      card.getfilename_sorted(SD_ORDER(i, fileCnt));
+      card.selectFileByIndexSorted(i);
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else

@@ -293,7 +293,7 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

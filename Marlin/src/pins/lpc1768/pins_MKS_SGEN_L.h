@@ -23,6 +23,8 @@
 
 /**
  * Makerbase MKS SGEN-L pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS_GEN_L_V1_0/MKS%20Gen_L%20V1.0_008%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/SGEN_L/blob/master/Hardware/MKS%20SGEN_L%20V1.0_001/MKS%20SGEN_L%20V1.0_001%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -132,18 +134,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P4_28
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_05
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_04
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P4_28
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_05
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_04
 #endif
 
 #if HAS_TMC_UART
@@ -209,8 +209,8 @@
     #define HEATER_1_PIN                   P2_06
   #endif
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_04
 #endif
 
 //

@@ -241,15 +241,18 @@ public:
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static uint32_t adc_result;
-  static void adc_start(const pin_t pin) {
-    adc_result = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
-  }
+  static pin_t adc_pin;
+
+  static void adc_start(const pin_t pin) { adc_pin = pin; }
 
   // Is the ADC ready for reading?
-  static bool adc_ready() { return true; }
+  static bool adc_ready() { return LPC176x::adc_hardware.done(LPC176x::pin_get_adc_channel(adc_pin)); }
 
   // The current value of the ADC register
-  static uint16_t adc_value() { return uint16_t(adc_result); }
+  static uint16_t adc_value() {
+    adc_result = FilteredADC::read(adc_pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+    return uint16_t(adc_result);
+  }
 
   /**
    * Set the PWM duty cycle for the pin to the given value.

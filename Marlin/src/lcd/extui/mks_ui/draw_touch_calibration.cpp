@@ -55,22 +55,22 @@ static void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 void lv_update_touch_calibration_screen() {
   uint16_t x, y;
 
-  calibrationState calibration_stage = touch_calibration.get_calibration_state();
-  if (calibration_stage == CALIBRATION_NONE) {
+  calibrationState stage = touch_calibration.get_calibration_state();
+  if (stage == CALIBRATION_NONE) {
     // start and clear screen
-    calibration_stage = touch_calibration.calibration_start();
+    stage = touch_calibration.calibration_start();
   }
   else {
     // clear last cross
-    x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
-    y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+    x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+    y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
     drawCross(x, y, LV_COLOR_BACKGROUND.full);
   }
 
   const char *str = nullptr;
-  if (calibration_stage < CALIBRATION_SUCCESS) {
+  if (stage < CALIBRATION_SUCCESS) {
     // handle current state
-    switch (calibration_stage) {
+    switch (stage) {
       case CALIBRATION_TOP_LEFT:     str = GET_TEXT(MSG_TOP_LEFT); break;
       case CALIBRATION_BOTTOM_LEFT:  str = GET_TEXT(MSG_BOTTOM_LEFT); break;
       case CALIBRATION_TOP_RIGHT:    str = GET_TEXT(MSG_TOP_RIGHT); break;
@@ -78,13 +78,13 @@ void lv_update_touch_calibration_screen() {
       default: break;
     }
 
-    x = touch_calibration.calibration_points[calibration_stage].x;
-    y = touch_calibration.calibration_points[calibration_stage].y;
+    x = touch_calibration.calibration_points[stage].x;
+    y = touch_calibration.calibration_points[stage].y;
     drawCross(x, y, LV_COLOR_WHITE.full);
   }
   else {
     // end calibration
-    str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED);
+    str = stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED);
     touch_calibration.calibration_end();
     lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_TC_RETURN);
   }
