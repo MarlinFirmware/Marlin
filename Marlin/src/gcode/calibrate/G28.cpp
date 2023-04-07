@@ -415,14 +415,14 @@ void GcodeSuite::G28() {
     if (seenR)
       z_homing_height = current_position.z + parser.value_linear_units();
     else {
-      z_homing_height = (Z_HOMING_HEIGHT) + _MIN(probe.offset.z, 0);
+      z_homing_height = SUM_TERN(HOMING_Z_WITH_PROBE, Z_HOMING_HEIGHT, _MIN(probe.offset.z, 0));
       if (!TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS))
         z_homing_height += current_position.z;
     }
 
     if (z_homing_height && (seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) to ", z_homing_height);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
       do_z_clearance(z_homing_height);
       TERN_(BLTOUCH, bltouch.init());
     }
