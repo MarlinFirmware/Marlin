@@ -382,7 +382,7 @@ xyze_int8_t Stepper::count_direction{0};
   }
 
 #if HAS_DUAL_X_STEPPERS
-  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ ENABLED(INVERT_X2_VS_X_DIR)); }while(0)
+  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE(INVERT_DIR(X2_VS_X, v)); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
   #else
@@ -403,7 +403,7 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 
 #if HAS_DUAL_Y_STEPPERS
-  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) ^ ENABLED(INVERT_Y2_VS_Y_DIR)); }while(0)
+  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE(INVERT_DIR(Y2_VS_Y, v)); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
   #else
@@ -416,8 +416,8 @@ xyze_int8_t Stepper::count_direction{0};
 
 #if NUM_Z_STEPPERS == 4
   #define Z_APPLY_DIR(v,Q) do{ \
-    Z_DIR_WRITE(v); Z2_DIR_WRITE((v) ^ ENABLED(INVERT_Z2_VS_Z_DIR)); \
-    Z3_DIR_WRITE((v) ^ ENABLED(INVERT_Z3_VS_Z_DIR)); Z4_DIR_WRITE((v) ^ ENABLED(INVERT_Z4_VS_Z_DIR)); \
+    Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); \
+    Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, v)); Z4_DIR_WRITE(INVERT_DIR(Z4_VS_Z, v)); \
   }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) QUAD_ENDSTOP_APPLY_STEP(Z,v)
@@ -428,7 +428,7 @@ xyze_int8_t Stepper::count_direction{0};
   #endif
 #elif NUM_Z_STEPPERS == 3
   #define Z_APPLY_DIR(v,Q) do{ \
-    Z_DIR_WRITE(v); Z2_DIR_WRITE((v) ^ ENABLED(INVERT_Z2_VS_Z_DIR)); Z3_DIR_WRITE((v) ^ ENABLED(INVERT_Z3_VS_Z_DIR)); \
+    Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, v)); \
   }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
@@ -438,7 +438,7 @@ xyze_int8_t Stepper::count_direction{0};
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif
 #elif NUM_Z_STEPPERS == 2
-  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE((v) ^ ENABLED(INVERT_Z2_VS_Z_DIR)); }while(0)
+  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -3276,7 +3276,7 @@ void Stepper::_set_position(const abce_long_t &spos) {
     #if CORE_IS_XY
       // corexy positioning
       // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
-      count_position.set(spos.a + spos.b, CORESIGN(spos.a - spos.b), spos.c);
+      count_position.set(spos.a + spos.b, CORESIGN(spos.a - spos.b) OPTARG(HAS_Z_AXIS, spos.c));
     #elif CORE_IS_XZ
       // corexz planning
       count_position.set(spos.a + spos.c, spos.b, CORESIGN(spos.a - spos.c));
@@ -3470,14 +3470,14 @@ void Stepper::report_positions() {
     #endif
 
     if (applyDir) {
-      X_DIR_WRITE(TEST(command, FT_BIT_DIR_X));
-      TERN_(HAS_Y_AXIS, Y_DIR_WRITE(TEST(command, FT_BIT_DIR_Y)));
-      TERN_(HAS_Z_AXIS, Z_DIR_WRITE(z_dir));
-      TERN_(HAS_EXTRUDERS, E0_DIR_WRITE(TEST(command, FT_BIT_DIR_E)));
+      TERN_(HAS_X_AXIS, X_DIR_WRITE(INVERT_DIR(X, TEST(command, FT_BIT_DIR_X))));
+      TERN_(HAS_Y_AXIS, Y_DIR_WRITE(INVERT_DIR(Y, TEST(command, FT_BIT_DIR_Y))));
+      TERN_(HAS_Z_AXIS, Z_DIR_WRITE(INVERT_DIR(Z, z_dir)));
+      TERN_(HAS_EXTRUDERS, E0_DIR_WRITE(INVERT_DIR(E0, TEST(command, FT_BIT_DIR_E))));
       DIR_WAIT_AFTER();
     }
 
-    X_STEP_WRITE(TEST(command, FT_BIT_STEP_X));
+    TERN_(HAS_X_AXIS, X_STEP_WRITE(TEST(command, FT_BIT_STEP_X)));
     TERN_(HAS_Y_AXIS, Y_STEP_WRITE(TEST(command, FT_BIT_STEP_Y)));
     TERN_(HAS_Z_AXIS, Z_STEP_WRITE(z_step));
     TERN_(HAS_EXTRUDERS, E0_STEP_WRITE(TEST(command, FT_BIT_STEP_E)));
@@ -3580,7 +3580,6 @@ void Stepper::report_positions() {
 
   #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
-  #define _INVERT_DIR(AXIS) ENABLED(INVERT_## AXIS ##_DIR)
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if MINIMUM_STEPPER_PULSE
@@ -3627,19 +3626,19 @@ void Stepper::report_positions() {
 
   #if DISABLED(DELTA)
 
-    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{      \
-      const uint8_t old_dir = _READ_DIR(AXIS);     \
-      _ENABLE_AXIS(AXIS);                          \
-      DIR_WAIT_BEFORE();                           \
-      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INV); \
-      DIR_WAIT_AFTER();                            \
-      _SAVE_START();                               \
-      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);  \
-      _PULSE_WAIT();                               \
-      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true); \
-      EXTRA_DIR_WAIT_BEFORE();                     \
-      _APPLY_DIR(AXIS, old_dir);                   \
-      EXTRA_DIR_WAIT_AFTER();                      \
+    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
+      const uint8_t old_dir = _READ_DIR(AXIS);          \
+      _ENABLE_AXIS(AXIS);                               \
+      DIR_WAIT_BEFORE();                                \
+      _APPLY_DIR(AXIS, INVERT_DIR(AXIS, (DIR)^(INV)));  \
+      DIR_WAIT_AFTER();                                 \
+      _SAVE_START();                                    \
+      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);       \
+      _PULSE_WAIT();                                    \
+      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true);      \
+      EXTRA_DIR_WAIT_BEFORE();                          \
+      _APPLY_DIR(AXIS, old_dir);                        \
+      EXTRA_DIR_WAIT_AFTER();                           \
     }while(0)
 
   #endif
@@ -3650,8 +3649,8 @@ void Stepper::report_positions() {
       const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
       _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
       DIR_WAIT_BEFORE();                                        \
-      _APPLY_DIR(A, _INVERT_DIR(A)^DIR^INV);                    \
-      _APPLY_DIR(B, _INVERT_DIR(B)^DIR^INV^ALT);                \
+      _APPLY_DIR(A, INVERT_DIR(A, (DIR)^(INV));                 \
+      _APPLY_DIR(B, INVERT_DIR(B, (DIR)^(INV)^(ALT));           \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
       _APPLY_STEP(A, _STEP_STATE(A), true);                     \
@@ -3725,117 +3724,53 @@ void Stepper::report_positions() {
             U_DIR_READ(), V_DIR_READ(), W_DIR_READ()
           );
 
-          X_DIR_WRITE(ENABLED(INVERT_X_DIR) ^ z_direction);
+          #ifdef X_DIR_WRITE
+            X_DIR_WRITE(INVERT_DIR(X, z_direction));
+          #endif
           #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(ENABLED(INVERT_Y_DIR) ^ z_direction);
+            Y_DIR_WRITE(INVERT_DIR(Y, z_direction));
           #endif
           #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(ENABLED(INVERT_Z_DIR) ^ z_direction);
-          #endif
-          #ifdef I_DIR_WRITE
-            I_DIR_WRITE(ENABLED(INVERT_I_DIR) ^ z_direction);
-          #endif
-          #ifdef J_DIR_WRITE
-            J_DIR_WRITE(ENABLED(INVERT_J_DIR) ^ z_direction);
-          #endif
-          #ifdef K_DIR_WRITE
-            K_DIR_WRITE(ENABLED(INVERT_K_DIR) ^ z_direction);
-          #endif
-          #ifdef U_DIR_WRITE
-            U_DIR_WRITE(ENABLED(INVERT_U_DIR) ^ z_direction);
-          #endif
-          #ifdef V_DIR_WRITE
-            V_DIR_WRITE(ENABLED(INVERT_V_DIR) ^ z_direction);
-          #endif
-          #ifdef W_DIR_WRITE
-            W_DIR_WRITE(ENABLED(INVERT_W_DIR) ^ z_direction);
+            Z_DIR_WRITE(INVERT_DIR(Z, z_direction));
           #endif
 
           DIR_WAIT_AFTER();
 
           _SAVE_START();
 
-          X_STEP_WRITE(STEP_STATE_X);
+          #ifdef X_STEP_WRITE
+            X_STEP_WRITE(STEP_STATE_X);
+          #endif
           #ifdef Y_STEP_WRITE
             Y_STEP_WRITE(STEP_STATE_Y);
           #endif
           #ifdef Z_STEP_WRITE
             Z_STEP_WRITE(STEP_STATE_Z);
           #endif
-          #ifdef I_STEP_WRITE
-            I_STEP_WRITE(STEP_STATE_I);
-          #endif
-          #ifdef J_STEP_WRITE
-            J_STEP_WRITE(STEP_STATE_J);
-          #endif
-          #ifdef K_STEP_WRITE
-            K_STEP_WRITE(STEP_STATE_K);
-          #endif
-          #ifdef U_STEP_WRITE
-            U_STEP_WRITE(STEP_STATE_U);
-          #endif
-          #ifdef V_STEP_WRITE
-            V_STEP_WRITE(STEP_STATE_V);
-          #endif
-          #ifdef W_STEP_WRITE
-            W_STEP_WRITE(STEP_STATE_W);
-          #endif
 
           _PULSE_WAIT();
 
-          X_STEP_WRITE(!STEP_STATE_X);
+          #ifdef X_STEP_WRITE
+            X_STEP_WRITE(!STEP_STATE_X);
+          #endif
           #ifdef Y_STEP_WRITE
             Y_STEP_WRITE(!STEP_STATE_Y);
           #endif
           #ifdef Z_STEP_WRITE
             Z_STEP_WRITE(!STEP_STATE_Z);
           #endif
-          #ifdef I_STEP_WRITE
-            I_STEP_WRITE(!STEP_STATE_I);
-          #endif
-          #ifdef J_STEP_WRITE
-            J_STEP_WRITE(!STEP_STATE_J);
-          #endif
-          #ifdef K_STEP_WRITE
-            K_STEP_WRITE(!STEP_STATE_K);
-          #endif
-          #ifdef U_STEP_WRITE
-            U_STEP_WRITE(!STEP_STATE_U);
-          #endif
-           #ifdef V_STEP_WRITE
-            V_STEP_WRITE(!STEP_STATE_V);
-          #endif
-          #ifdef W_STEP_WRITE
-            W_STEP_WRITE(!STEP_STATE_W);
-          #endif
 
           // Restore direction bits
           EXTRA_DIR_WAIT_BEFORE();
 
-          X_DIR_WRITE(old_dir.x);
+          #ifdef X_DIR_WRITE
+            X_DIR_WRITE(old_dir.x);
+          #endif
           #ifdef Y_DIR_WRITE
             Y_DIR_WRITE(old_dir.y);
           #endif
           #ifdef Z_DIR_WRITE
             Z_DIR_WRITE(old_dir.z);
-          #endif
-          #ifdef I_DIR_WRITE
-            I_DIR_WRITE(old_dir.i);
-          #endif
-          #ifdef J_DIR_WRITE
-            J_DIR_WRITE(old_dir.j);
-          #endif
-          #ifdef K_DIR_WRITE
-            K_DIR_WRITE(old_dir.k);
-          #endif
-          #ifdef U_DIR_WRITE
-            U_DIR_WRITE(old_dir.u);
-          #endif
-          #ifdef V_DIR_WRITE
-            V_DIR_WRITE(old_dir.v);
-          #endif
-          #ifdef W_DIR_WRITE
-            W_DIR_WRITE(old_dir.w);
           #endif
 
           EXTRA_DIR_WAIT_AFTER();
