@@ -47,18 +47,18 @@ public:
    *
    * \return true for success or false for failure.
    */
-  virtual bool readCSD(csd_t* csd) = 0;
+  virtual bool readCSD(csd_t * const csd) = 0;
 
   virtual bool readStart(const uint32_t block) = 0;
-  virtual bool readData(uint8_t* dst) = 0;
+  virtual bool readData(uint8_t * const dst) = 0;
   virtual bool readStop() = 0;
 
   virtual bool writeStart(const uint32_t block, const uint32_t) = 0;
   virtual bool writeData(const uint8_t* src) = 0;
   virtual bool writeStop() = 0;
 
-  virtual bool readBlock(uint32_t block, uint8_t* dst) = 0;
-  virtual bool writeBlock(uint32_t blockNumber, const uint8_t* src) = 0;
+  virtual bool readBlock(const uint32_t block, uint8_t * const dst) = 0;
+  virtual bool writeBlock(const uint32_t blockNumber, const uint8_t * const src) = 0;
 
   virtual uint32_t cardSize() = 0;
 

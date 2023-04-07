@@ -35,7 +35,7 @@
   #define BOARD_INFO_NAME      "Creality V4"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 V2"
+  #define DEFAULT_MACHINE_NAME "Ender-3 V2"
 #endif
 
 #define BOARD_NO_NATIVE_USB

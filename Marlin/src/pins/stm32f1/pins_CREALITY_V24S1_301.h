@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Creality V24S1_301 (STM32F103RE / STM32F103RC) board pin assignments as found on Ender 3 S1.
+ * Creality V24S1_301 (STM32F103RE / STM32F103RC) board pin assignments as found on Ender-3 S1.
  * Also supports the STM32F4 version of the board with identical pin mapping.
  */
 
@@ -40,7 +40,7 @@
   #define BOARD_INFO_NAME      "Creality V24S1-301"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 S1"
+  #define DEFAULT_MACHINE_NAME "Ender-3 S1"
 #endif
 
 //
