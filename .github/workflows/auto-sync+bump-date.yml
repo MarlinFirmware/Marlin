@@ -48,7 +48,7 @@ jobs:
         git config --local user.password ${GITHUB_TOKEN} && \
         git remote add upstream "https://github.com/MarlinFirmware/Marlin" && \
         git remote -v
-        MERGE_RESULT=$( git merge upstream/bugfix-2.1.x )
+        MERGE_RESULT=$( git merge upstream/${GITHUB_REF} )
         if [[ $MERGE_RESULT == "" ]] 
         then
           exit 1
@@ -65,5 +65,5 @@ jobs:
           git add . && \
           git commit -m "[cron] Bump distribution date ($DIST)" && \
           git push
-          fi
+        fi
           exit 0
