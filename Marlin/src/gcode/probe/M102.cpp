@@ -38,15 +38,15 @@
  *   M102 S0       : Disable adjustable Z height.
  *
  * Negative S values are commands:
- *   M102 S-1       : Read sensor information
+ *   M102 S-1       : Read BDsensor version
+ *   M102 S-2       : Read BDsensor information
  *   M102 S-5       : Read raw Calibration data
  *   M102 S-6       : Start Calibration
  */
 void GcodeSuite::M102() {
-  if (parser.seenval('S')){
-    if(parser.value_int()==-2){
-      SERIAL_ECHOLNPGM("Bed Distance:", bdl.read(),"mm");
-    }
+  if (parser.seenval('S')) {
+    if (parser.value_int() == -2)
+      SERIAL_ECHOLNPGM("Bed Distance:", bdl.read(), "mm");
     else
       bdl.config_state = parser.value_int();
   }
