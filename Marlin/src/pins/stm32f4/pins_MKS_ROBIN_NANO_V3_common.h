@@ -342,7 +342,6 @@
 
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
-    //#undef SHOW_BOOTSCREEN
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define LCD_PINS_DC              EXP1_04_PIN

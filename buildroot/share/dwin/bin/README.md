@@ -4,7 +4,7 @@ Tools for processing `.ICO` files used by DWIN displays.
 
 ## Introduction
 
-The DWIN LCDs that come with the Creality Ender 3 v2 and other 3D printers contain image and container files stored on them which are used to draw various the UI elements.
+The DWIN LCDs that come with the Creality Ender-3 v2 and other 3D printers contain image and container files stored on them which are used to draw various the UI elements.
 
 Standard `.JPG` files can be installed for things like the boot screen, and `.ICO` files can contain several images within a structured file format.
 
