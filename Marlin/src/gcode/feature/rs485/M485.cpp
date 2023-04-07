@@ -4,9 +4,6 @@
 #include "../../../feature/rs485.h"
 #include "../../gcode.h"
 
-#define RS485_SEND_BUFFER_SIZE 32
-//#define DEBUG_M485
-
 bool m485_handle_packet_response() {
   if(! packetizer.hasPacket()) {
     return false;
@@ -19,14 +16,12 @@ bool m485_handle_packet_response() {
 
     SERIAL_PRINT(data, PrintBase::Hex);
   }
-  SERIAL_ECHOLN("");
+  serial_print(F("\n"));
   packetizer.clearPacket();
   return true;
 }
 
 void GcodeSuite::M485() {
-  bus.setReadBackDelay(10);
-  bus.setReadBackRetries(3);
   if(strlen(parser.string_arg) % 2 != 0) {
     SERIAL_ERROR_MSG("String parameter must be an even number of bytes");
     return;
@@ -37,22 +32,32 @@ void GcodeSuite::M485() {
     return;
   }
 
-  uint8_t buffer[RS485_SEND_BUFFER_SIZE];
-
+  // Read in the hex data string provided into our internal buffer
   for(size_t i=0; i<strlen(parser.string_arg); i += 2) {
-    // TODO Throw an error if it's not within the hex range
-    uint8_t byte = HEXCHR(parser.string_arg[i]) << 4 | HEXCHR(parser.string_arg[i+1]);
+    int firstNibble = HEXCHR(parser.string_arg[i]);
+    int secondNibble = HEXCHR(parser.string_arg[i+1]);
+
+    if(firstNibble == -1 || secondNibble == -1) {
+      SERIAL_ERROR_START();
+      serial_print(F("Not a hex character: "));
+      SERIAL_CHAR(firstNibble == -1 ? parser.string_arg[i] : parser.string_arg[i+1]);
+      serial_print(F("\n"));
+      
+      return;
+    }
+
+    uint8_t byte = (firstNibble & 0xF) << 4 | (secondNibble & 0xF);
     buffer[i >> 1] = byte;
-
-#ifdef DEBUG_M485
-    SERIAL_ECHO((byte < 0x10) ? "0" : "");
-    SERIAL_PRINT(byte, PrintBase::Hex);
-#endif
   }
-#ifdef DEBUG_M485
-  SERIAL_ECHOLN("");
-#endif
 
+  // Read and ignore any packets that may have come in, before we write.
+  while(packetizer.hasPacket()){
+    delay(50);
+    packetizer.clearPacket();
+  }
+
+  bus.setReadBackDelay(10);
+  bus.setReadBackRetries(3);
   PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
 
   switch(writeResult) {
@@ -69,48 +74,15 @@ void GcodeSuite::M485() {
       break;
   }
 
-  packetizer.setMaxReadTimeout(1000);
+  packetizer.setMaxReadTimeout(1500);
   
-  for(uint8_t attempt = 0; attempt < 5; attempt++) {
-    delay(100);
-#ifdef DEBUG_M485
-    bus.fetch();
-    SERIAL_ECHO("Attempt ");
-    SERIAL_PRINT(attempt, PrintBase::Dec);
-    SERIAL_ECHO(" (");
-    SERIAL_PRINT(bus.available(), PrintBase::Dec);
-    SERIAL_ECHO(") bytes: ");
-    for(size_t i=0; i<bus.available(); i++) {
-      uint8_t data = bus[i];
-      SERIAL_ECHO((data < 0x10) ? "0" : "");
+  // for(uint8_t attempt = 0; attempt < 5; attempt++) {
+    // delay(10);
 
-      SERIAL_PRINT(data, PrintBase::Hex);
+    if(m485_handle_packet_response()) {
+      return;
     }
-    SERIAL_ECHOLN("");
-
-    for(size_t i=0; i<bus.available(); i++) {
-      IsPacketResult isPacket = protocol.isPacket(bus, i, bus.available() - 1);
-      SERIAL_ECHO(i);
-      SERIAL_ECHO(": ");
-      switch(isPacket.status) {
-        case PacketStatus::YES:
-          SERIAL_ECHOLN("Yes");
-          m485_handle_packet_response();
-          return;
-        case PacketStatus::NO:
-          SERIAL_ECHOLN("No");
-          break;
-        case PacketStatus::NOT_ENOUGH_BYTES:
-          SERIAL_ECHOLN("Not Enough Bytes");
-          break;
-      }
-    }
-#else
-  if(m485_handle_packet_response()) {
-    return;
-  }
-#endif
-  }
+  // }
   SERIAL_ECHOLN("rs485-reply: TIMEOUT");
 }
 

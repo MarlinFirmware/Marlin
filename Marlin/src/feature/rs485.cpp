@@ -11,6 +11,8 @@ PhotonProtocol protocol;
 
 Packetizer packetizer(bus, protocol);
 
+uint8_t buffer[RS485_SEND_BUFFER_SIZE];
+
 void rs485_init() {
   RS485_SERIAL.begin(57600);
 }
