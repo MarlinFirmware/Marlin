@@ -388,40 +388,25 @@ const char* ftostr61rj(const_float_t f) {
 }
 
 // Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
-const char* ftostr7xrj(const_float_t f) {
-  uint8_t intEnd = 7;
-  uint8_t decimals = 0;
-  for (;;decimals++) {
-    if ()
-  }
-  float fp = f < 0 ? f*-1 : f;
-  long wholePart = FLOOR(f);
-  long decimal = (f - wholePart)*1000000;
-  for (; intEnd >= 0;){
-    uint8_t dig = decimal % 10;
-    if (dig != 0) {
-      conv[intEnd--] = DIGIT(dig);
-    }
-    if (decimal > 10) {
-      decimal /= 10; 
-    } else {
-      break;
-    }
-  }
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
   
-  for (; intEnd >= 0;){
-    uint8_t dig = decimal % 10;
-    if (dig != 0) {
-      conv[intEnd--] = DIGIT(dig);
+  if (intVal < 0) intVal *= -1;
+
+  auto peek = &conv;
+
+  int8_t intEnd = 7;
+  uint8_t dig = 0;
+  uint32_t div = 1;
+  for (;intEnd >= 0 && (((float)intVal / div) >= 1 || ((float)decimal / div) >= 1);intEnd--) {
+    dig = (intVal / div) % 10;
+    if (decimal == div && intEnd > 0 && intEnd < 7) {
+      conv[intEnd--] = '.';
     }
-    if (decimal > 10) {
-      decimal /= 10; 
-    } else {
-      break;
-    }
+    conv[intEnd] = DIGIT(dig);
+    div *= 10;
   }
-  
-  return conv;
+
+  return &conv[intEnd+1];
 }
 
 // Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format

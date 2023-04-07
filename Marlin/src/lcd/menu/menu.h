@@ -192,6 +192,7 @@ class MenuEditItemBase : public MenuItemBase {
 
     // This method is for the current menu item
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+    static void put_new_value(float val); //todo fix this should not be here or preprocessor controlled, this is TFT_COLOR_UI with touch specific
 };
 
 #if ENABLED(SDSUPPORT)

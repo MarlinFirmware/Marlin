@@ -119,7 +119,7 @@ const char* ftostr53sign(const_float_t f);
 const char* ftostr61rj(const_float_t x);
 
 // Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
-const char* ftostr8xrj(const_float_t f);
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal);
 
 // Convert unsigned float to string with 12345.67 format omitting trailing zeros
 const char* ftostr72rj(const_float_t x);
