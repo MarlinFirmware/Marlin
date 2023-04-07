@@ -1,0 +1,63 @@
+name: Sync and Merge with MarlinFirmware/Marlin
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron:  "* */24 * * *"
+  
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Sync and merge upstream repo
+  # You may pin to the exact commit or the version.
+  # uses: dabreadman/sync-upstream-repo@fc5fe9952946b1daaafd9abd7fcd7e260b81ddbe
+      uses: dabreadman/sync-upstream-repo@v1.3.0
+      with:
+    # URL of gitHub public upstream repo
+        upstream_repo: https://github.com/MarlinFirmware/Marlin.git
+    # Branch to merge from upstream (defaults to downstream branch)
+        upstream_branch: bugfix-2.1.x
+    # Branch to merge into downstream
+        downstream_branch: bugfix-2.1.x
+    # GitHub Bot token
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+  notify:
+    needs: sync
+    name: Bump Distribution Date
+    if: github.repository == 'classicrocker883/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Check out bugfix-2.1.x
+      uses: actions/checkout@v2
+      with:
+        ref: bugfix-2.1.x
+
+    - name: Bump Date (bugfix-2.1.x)
+      run: |
+        # Exit if upto date
+        git config user.name "${GITHUB_ACTOR}" && \
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" && \
+        MERGE_RESULT=$(git merge upstream/bugfix-2.1.x)
+        if [[ $MERGE_RESULT == *"Already up to date."* ]]
+        then
+          exit 1
+        # Inline Bump Script
+        elif [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then
+          DIST=$( date +"%Y-%m-%d" )
+          eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/src/inc/Version.h" && \
+          eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/Version.h" && \
+          git config user.name "${GITHUB_ACTOR}" && \
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" && \
+          git add . && \
+          git commit -m "[cron] Bump distribution date ($DIST)" && \
+          git push
+          fi
+          exit 0
