@@ -408,20 +408,37 @@ void GcodeSuite::G28() {
       #endif
     #endif
 
+    // Z may home first, e.g., when homing away from the bed
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
 
+    // 'R' to specify a specific raise. 'R0' indicates no raise, e.g., for recovery.resume
+    // When 'R0' is used, there should already be adequate clearance, e.g., from homing Z to max.
     const bool seenR = parser.seenval('R');
-    float z_homing_height = seenR ? parser.value_linear_units() : SUM_TERN(HOMING_Z_WITH_PROBE, Z_HOMING_HEIGHT, _MIN(probe.offset.z, 0));
 
-    if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS))
-      z_homing_height += current_position.z;
+    // Use raise given by 'R' or Z_HOMING_HEIGHT (above the probe trigger point)
+    float z_homing_height = seenR ? parser.value_linear_units() : DIFF_TERN(HOMING_Z_WITH_PROBE, Z_HOMING_HEIGHT, _MIN(probe.offset.z, 0));
 
-    if (z_homing_height && (seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW))) {
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
-      do_z_clearance(z_homing_height);
-      TERN_(BLTOUCH, bltouch.init());
+    // Check for any lateral motion that might require clearance
+    const bool may_skate = seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+
+    if (seenR && z_homing_height == 0) {
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
     }
+    else {
+      // Raise above the current Z (which should be synced in the planner)
+      // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
+      if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS))
+        z_homing_height += current_position.z;
+
+      if (may_skate) {
+        // Apply Z clearance before doing any lateral motion
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
+        do_z_clearance(z_homing_height);
+      }
+    }
+
+    // Init BLTouch ahead of any lateral motion, even if not homing with the probe
+    TERN_(BLTOUCH, if (may_skate) bltouch.init());
 
     // Diagonal move first if both are homing
     TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
