@@ -387,12 +387,16 @@ const char* ftostr61rj(const_float_t f) {
   return &conv[1];
 }
 
-// Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
+// Converts float to string representing its absolute value with up to 8 characters including decimal dot, right aligned, example: ____5678, ____5.67, ___45.67, __345.67, _2345.67, 12345.67
+/**
+ * IMPORTANT: Supports only floats that can be displayed by above mentioned format
+ * IMPORTANT: Float is represented by somewhat revered scientific notation using two parameters, from which float can be acquired by dividing: @param intVal / @param decimal
+ * @param intVal significant digits of float
+ * @param decimal divisor to acquire the float, must be power of 10
+ * */ 
 const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
   
   if (intVal < 0) intVal *= -1;
-
-  auto peek = &conv;
 
   int8_t intEnd = 7;
   uint8_t dig = 0;
@@ -522,11 +526,9 @@ const char* ftostr52sprj(const_float_t f) {
   return &conv[1];
 }
 
-const char* shortenNum(const char * convptr, bool removeWhole0 = true, bool removeUnit = true) {
+const char* shortenNum(const char * convptr, bool removeWhole0, bool removeUnit) {
 
-  if (convptr != conv) {
-    //DEBUG_ECHOLNPGM("Non Conv Passed", 5);
-  }
+  //todo implementation behaves as if removeWhole0 and removeUnit were true
 
   uint8_t intStart = 7;
   uint8_t returnStart = 8;

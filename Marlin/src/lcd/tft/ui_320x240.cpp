@@ -727,7 +727,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
   tft.draw_edit_screen_buttons(mode_keypad);
 }
 
-void TFT::draw_edit_screen_buttons(bool mode_keypad = false) {
+void TFT::draw_edit_screen_buttons(bool mode_keypad) {
   #if ENABLED(TOUCH_SCREEN)
     #define BUTTON_ROW_Y (TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT)
     drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,  BUTTON_ROW_Y,   BTN_WIDTH,  BTN_HEIGHT, COLOR_BLACK, COLOR_WHITE, BTN_FILLED, false, CALLBACK, (intptr_t) switchKeypad);
