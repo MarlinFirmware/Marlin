@@ -1267,8 +1267,7 @@ void setup() {
   #endif
 
   #if ENABLED(PSU_CONTROL)
-    SETUP_LOG("PSU_CONTROL");
-    powerManager.init();
+    SETUP_RUN(powerManager.init());
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

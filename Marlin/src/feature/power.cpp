@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
+#if ENABLED(PSU_CONTROL)
 
 #include "power.h"
 #include "../module/planner.h"
@@ -43,7 +43,7 @@
 #endif
 
 Power powerManager;
-bool Power::psu_on = true;
+bool Power::psu_on;
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../module/stepper.h"
@@ -58,7 +58,6 @@ bool Power::psu_on = true;
 
 /**
  * Initialize pins & state for the power manager.
- *
  */
 void Power::init() {
   psu_on = ENABLED(PSU_DEFAULT_OFF);              // Set opposite state to get full power_off/on
@@ -68,7 +67,6 @@ void Power::init() {
 /**
  * Power on if the power is currently off.
  * Restores stepper drivers and processes any PSU_POWERUP_GCODE.
- *
  */
 void Power::power_on() {
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -249,4 +247,4 @@ void Power::power_off() {
 
 #endif // AUTO_POWER_CONTROL
 
-#endif // PSU_CONTROL || AUTO_POWER_CONTROL
+#endif // PSU_CONTROL
