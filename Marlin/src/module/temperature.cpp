@@ -565,7 +565,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if HAS_TEMP_SOC
-  board_info_t Temperature::temp_soc; // = { 0 }
+  soc_info_t Temperature::temp_soc; // = { 0 }
   raw_adc_t Temperature::maxtemp_raw_SOC = TEMP_SENSOR_SOC_RAW_HI_TEMP;
 #endif
 
@@ -3362,6 +3362,7 @@ void Temperature::update_raw_temperatures() {
   TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
   TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
   TERN_(HAS_TEMP_ADC_BOARD,   temp_board.update());
+  TERN_(HAS_TEMP_ADC_SOC,     temp_soc.update());
 
   TERN_(HAS_JOY_ADC_X, joystick.x.update());
   TERN_(HAS_JOY_ADC_Y, joystick.y.update());
