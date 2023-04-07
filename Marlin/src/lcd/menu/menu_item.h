@@ -106,7 +106,7 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scale(minValue), INT32_MIN),
                     maxv = _MIN(scale(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scale(1), scale(*ptr) - minv,
+      goto_edit_screen(fstr, ptr, minv, maxv - minv, NAME::scaleVal(), (intptr_t) to_string, scale(*ptr) - minv,
         edit_screen, callback, live);
     }
 };
@@ -134,6 +134,7 @@ class TMenuEditItem : MenuEditItemBase {
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
     static float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+    static float scaleVal()   { return SCALE; } \
     static float unscale(const_float_t value) { return value / (SCALE) ETC; } \
     static const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \

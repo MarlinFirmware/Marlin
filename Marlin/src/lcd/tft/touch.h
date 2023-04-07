@@ -83,13 +83,13 @@ typedef struct __attribute__((__packed__)) {
   uint16_t width;
   uint16_t height;
   intptr_t data;
-  int8_t index;
+  int32_t index;
 } touch_control_t;
 
 typedef struct {
   uint16_t x;
   uint16_t y;
-  int8_t index;
+  int32_t index;
 } touch_event_t;
 
 typedef void (*touch_handler_t)(touch_event_t*);
@@ -142,7 +142,7 @@ class Touch {
       static void sleepTimeout();
       static void wakeUp();
     #endif
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0, int8_t index = -1);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0, int32_t index = 0);
 };
 
 extern Touch touch;

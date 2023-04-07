@@ -67,7 +67,7 @@ void Touch::init() {
   enable();
 }
 
-void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data, int8_t index) {
+void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data, int32_t index) {
   if (controls_count == MAX_CONTROLS) return;
 
   controls[controls_count].type = type;
@@ -183,8 +183,13 @@ void Touch::touch(touch_control_t *control) {
       ui.refresh();
       break;
     case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
-    case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition+=control->data, ui.encoderPosition+=control->data); break;
-    case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition-=control->data, ui.encoderPosition-=control->data); break;
+    case INCREASE:
+    case DECREASE: {
+      int32_t step = control->type == INCREASE ? 1 : -1;
+      if (control->data != 0) step *= control->data;
+      hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff+=step : ui.encoderPosition+=step, ui.encoderPosition+=step);
+      break;
+    }
     case HEATER:
       int8_t heater;
       heater = control->data;

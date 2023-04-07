@@ -25,6 +25,9 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
+#define DEBUG_OUT 1
+#include "../core/debug_out.h"
+
 char conv[9] = { 0 };
 
 #define DIGIT(n) ('0' + (n))
@@ -384,6 +387,43 @@ const char* ftostr61rj(const_float_t f) {
   return &conv[1];
 }
 
+// Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
+const char* ftostr7xrj(const_float_t f) {
+  uint8_t intEnd = 7;
+  uint8_t decimals = 0;
+  for (;;decimals++) {
+    if ()
+  }
+  float fp = f < 0 ? f*-1 : f;
+  long wholePart = FLOOR(f);
+  long decimal = (f - wholePart)*1000000;
+  for (; intEnd >= 0;){
+    uint8_t dig = decimal % 10;
+    if (dig != 0) {
+      conv[intEnd--] = DIGIT(dig);
+    }
+    if (decimal > 10) {
+      decimal /= 10; 
+    } else {
+      break;
+    }
+  }
+  
+  for (; intEnd >= 0;){
+    uint8_t dig = decimal % 10;
+    if (dig != 0) {
+      conv[intEnd--] = DIGIT(dig);
+    }
+    if (decimal > 10) {
+      decimal /= 10; 
+    } else {
+      break;
+    }
+  }
+  
+  return conv;
+}
+
 // Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
 const char* ftostr72rj(const_float_t f) {
   const long i = UINTFLOAT(f, 2);
@@ -425,29 +465,37 @@ const char* ftostr52sp(const_float_t f) {
 }
 
 const char* ftostr52custom(const_float_t f) {
-  long i = INTFLOAT(f, 2);
+  long i = INTFLOAT(f, 3);
+  if (i < 0) i = -i; 
+  
   uint8_t dig;
-
   uint8_t intEnd = 7;
 
-  if ((dig = i % 10)) {          // second digit after decimal point?
-    conv[5] = '.';
+  if ((dig = i % 10)) {          // third digit after decimal point?
+    conv[4] = '.';
+    conv[5] = DIGIMOD(i, 100);
     conv[6] = DIGIMOD(i, 10);
+    conv[7] = DIGIT(dig);
+    intEnd = 3;
+  }
+  else if ((dig = (i / 10) % 10)) {          // second digit after decimal point?
+    conv[5] = '.';
+    conv[6] = DIGIMOD(i, 100);
     conv[7] = DIGIT(dig);
     intEnd = 4;
   }
-  else if ((dig = (i / 10) % 10)) { // first digit after decimal point?
+  else if ((dig = (i / 100) % 10)) { // first digit after decimal point?
       conv[6] = '.';
       conv[7] = DIGIT(dig);
       intEnd = 5;
   }
-  if (i < 0) i = -i; 
-  conv[intEnd--] = DIGIMOD(i, 100);
-  conv[intEnd--] = RJDIGIT(i, 1000);
-  conv[intEnd] = RJDIGIT(i, 10000);
+
+  conv[intEnd--] = DIGIMOD(i, 1000);
+  conv[intEnd--] = RJDIGIT(i, 10000);
+  conv[intEnd] = RJDIGIT(i,   100000);
   
   for(;intEnd < 8;intEnd++){
-    if (conv[intEnd] != ' ') {
+    if (conv[intEnd] != ' ' && ((i % 10) == 0 || conv[intEnd] != '0')) { //todo this should be moved under a flag or sep func
       if (f < 0) {
         conv[--intEnd] = '-';
       }
@@ -455,7 +503,7 @@ const char* ftostr52custom(const_float_t f) {
     }
   }
   
-  return &conv[1];
+  return &conv[0];
 }
 
 // Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
@@ -487,4 +535,42 @@ const char* ftostr52sprj(const_float_t f) {
   conv[7] = DIGIMOD(i, 1);
 
   return &conv[1];
+}
+
+const char* shortenNum(const char * convptr, bool removeWhole0 = true, bool removeUnit = true) {
+
+  if (convptr != conv) {
+    //DEBUG_ECHOLNPGM("Non Conv Passed", 5);
+  }
+
+  uint8_t intStart = 7;
+  uint8_t returnStart = 8;
+  bool numberFound = false;
+  int8_t decimalIdx = -1;
+  int i = 0;
+
+  while (convptr[i] != 0) {
+    if (convptr[i] == '.') { decimalIdx = i; }
+    i++;
+  }
+  
+  for (i--; i >= 0 ;) {
+    if (convptr[i] == ' ' || convptr[i] == '%' || (!numberFound && decimalIdx != -1 && decimalIdx <= i && (convptr[i] == '0' || convptr[i] == '.'))) {
+    } else {
+      numberFound = true;
+      conv[intStart] = convptr[i];
+      if ((decimalIdx > -1 && i >= decimalIdx) || convptr[i] != '0') {
+        returnStart = intStart;  
+        if (convptr[i] == '-') {
+          conv[returnStart] = '-';
+        }
+      }
+      intStart--;
+    }
+    i--;
+  }
+
+  if (returnStart == 8) { returnStart--; }
+  
+  return &conv[returnStart];
 }
