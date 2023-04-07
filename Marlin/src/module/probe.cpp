@@ -514,7 +514,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   if (z_raise_wanted) {
     const float zoffs = _MIN(DIFF_TERN(HAS_HOTEND_OFFSET, offset.z, hotend_offset[active_extruder].z), 0.0f),
                 zdest = _MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE) - zoffs;
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest, ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
     do_z_clearance(zdest);
   }
 
@@ -959,7 +959,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     switch (raise_type) {
       default: break;
       case PROBE_PT_RAISE:
-        do_z_clearance_by((Z_PROBE_SAFE_CLEARANCE) + _MIN(probe.offset.z, 0)); // Always raise over the current Z position when the probe triggers
+        do_z_clearance_by((Z_PROBE_SAFE_CLEARANCE) + _MIN(probe.offset.z, 0));
         break;
       case PROBE_PT_STOW: case PROBE_PT_LAST_STOW:
         if (stow()) measured_z = NAN;   // Error on stow?

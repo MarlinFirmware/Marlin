@@ -153,7 +153,7 @@ void GcodeSuite::G34() {
         const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
         return HYPOT2(diff.x, diff.y);
       };
-      float z_probe = Z_PROBE_SAFE_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
+      float z_probe = (Z_PROBE_SAFE_CLEARANCE) + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
         #if TRIPLE_Z
           , magnitude2(2, 1), magnitude2(2, 0)
           #if QUAD_Z
