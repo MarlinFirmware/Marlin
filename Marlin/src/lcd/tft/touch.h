@@ -67,7 +67,7 @@ enum TouchControlType : uint16_t {
   MOVE_AXIS,
   STOP,
   BUTTON,
-  CALLBACK,
+  CALLBACK
 };
 
 typedef void (*screenFunc_t)();

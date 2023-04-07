@@ -27,7 +27,10 @@
 #include "tft_string.h"
 #include "tft_image.h"
 #include "../tft_io/tft_io.h"
-#include "touch.h"
+
+#if ENABLED(TOUCH_SCREEN)
+  #include "touch.h"
+#endif
 
 #include "../../inc/MarlinConfig.h"
 
@@ -87,7 +90,9 @@ class TFT {
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_bar(x, y, width, height, color); }
     static void add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_rectangle(x, y, width, height, color); }
     static void draw_edit_screen_buttons(bool mode_keypad = false);
-    static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int32_t index = 0);
+    #if ENABLED(TOUCH_SCREEN)
+      static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int32_t index = 0);
+    #endif  
 };
 
 extern TFT tft;

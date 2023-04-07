@@ -424,7 +424,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
   tft.draw_edit_screen_buttons();
 }
 
-void TFT::draw_edit_screen_buttons() {
+void TFT::draw_edit_screen_buttons(bool mode_keypad) {
   #if ENABLED(TOUCH_SCREEN)
     add_control(164, TFT_HEIGHT - 64, DECREASE, imgDecrease);
     add_control(796, TFT_HEIGHT - 64, INCREASE, imgIncrease);
