@@ -242,6 +242,10 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
+  // Migrated to pins/lcd
+
 #else
 
   #define BEEPER_PIN                 EXP1_01_PIN
@@ -288,16 +292,12 @@
       #define DOGLCD_A0              EXP1_07_PIN
     #endif
 
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
-
   #endif
 
   #if IS_NEWPANEL
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
   #endif
 #endif
 

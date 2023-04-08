@@ -290,20 +290,23 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
+  // Migrated to pins/lcd
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
-
-  #define LCD_PINS_RS                EXP1_04_PIN
-
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
 
-  #define LCD_SDSS_PIN               EXP2_04_PIN
-
+  #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
+
+  #define LCD_SDSS_PIN               EXP2_04_PIN
 
   #if ENABLED(FYSETC_MINI_12864)
     // See https://wiki.fysetc.com/Mini12864_Panel
