@@ -287,7 +287,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
@@ -306,7 +306,7 @@
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
 
     // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_EN                    -1
     #define LCD_PINS_RS                    -1
 
     #ifndef TFT_BUFFER_SIZE
@@ -351,7 +351,7 @@
 
       #define LCD_PINS_RS            EXP1_04_PIN
 
-      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN
       #define LCD_PINS_D4            EXP1_05_PIN
 
       #if ENABLED(FYSETC_MINI_12864)

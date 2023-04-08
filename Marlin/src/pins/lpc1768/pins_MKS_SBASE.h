@@ -238,7 +238,7 @@
   #define BTN_EN2                          P3_25  // EXP2.3
   #define LCD_PINS_RS                      P0_16  // EXP1.4
   #define LCD_SDSS                         P0_28  // EXP2.4
-  #define LCD_PINS_ENABLE                  P0_18  // EXP1.3
+  #define LCD_PINS_EN                      P0_18  // EXP1.3
   #define LCD_PINS_D4                      P0_15  // EXP1.5
   #if EITHER(VIKI2, miniVIKI)
     #define DOGLCD_SCK                SD_SCK_PIN
@@ -257,8 +257,8 @@
      * Pins 6, 7 & 8 on EXP2 are no connects. That means a second special
      * cable will be needed if the RGB LEDs are to be active.
      */
-    #define DOGLCD_CS            LCD_PINS_ENABLE  // EXP1.3  (LCD_EN on FYSETC schematic)
-    #define DOGLCD_A0                LCD_PINS_RS  // EXP1.4  (LCD_A0 on FYSETC schematic)
+    #define DOGLCD_CS                      P0_18  // EXP1.3  (LCD_EN on FYSETC schematic)
+    #define DOGLCD_A0                      P0_16  // EXP1.4  (LCD_A0 on FYSETC schematic)
     #define DOGLCD_SCK                     P2_11  // J8-5  (SCK on FYSETC schematic)
     #define DOGLCD_MOSI                    P4_28  // J8-6  (MOSI on FYSETC schematic)
 

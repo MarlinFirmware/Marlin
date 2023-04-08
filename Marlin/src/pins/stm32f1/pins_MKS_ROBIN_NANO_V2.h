@@ -296,7 +296,7 @@
 
 #if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_EN                       PD13
   #define LCD_PINS_RS                       PC6
   #define BTN_ENC                           PE13
   #define BTN_EN1                           PE8
@@ -308,7 +308,7 @@
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
-  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_EN                       PD13
   #define LCD_PINS_RS                       PC6
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
