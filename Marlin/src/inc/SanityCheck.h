@@ -2739,8 +2739,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if TEMP_SENSOR_SOC
   #if !PIN_EXISTS(TEMP_SOC)
     #error "TEMP_SENSOR_SOC requires TEMP_SOC_PIN."
-  #elif !defined(TEMP_SOC_SENSOR)
-    #error "TEMP_SENSOR_SOC requires TEMP_SOC_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
   #endif
 #elif CONTROLLER_FAN_MIN_SOC_TEMP
   #error "CONTROLLER_FAN_MIN_SOC_TEMP requires TEMP_SENSOR_SOC."

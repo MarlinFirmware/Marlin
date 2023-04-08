@@ -2376,9 +2376,16 @@ void Temperature::task() {
 #if HAS_TEMP_SOC
   // For SoC temperature measurement.
   celsius_float_t Temperature::analog_to_celsius_soc(const raw_adc_t raw) {
-    return TEMP_SOC_SENSOR(raw);
+    return (
+      #ifdef TEMP_SOC_SENSOR
+        TEMP_SOC_SENSOR(raw)
+      #else
+        0
+        #error "TEMP_SENSOR_SOC requires the TEMP_SOC_SENSOR(RAW) macro to be defined for your board."
+      #endif
+    );
   }
-#endif // HAS_TEMP_SOC
+#endif
 
 #if HAS_TEMP_REDUNDANT
   // For redundant temperature measurement.
@@ -3996,10 +4003,10 @@ void Temperature::isr() {
    * Print a single heater state in the form:
    *        Bed: " B:nnn.nn /nnn.nn"
    *    Chamber: " C:nnn.nn /nnn.nn"
-   *      Probe: " P:nnn.nn /nnn.nn"
+   *      Probe: " P:nnn.nn"
    *     Cooler: " L:nnn.nn /nnn.nn"
-   *      Board: " M:nnn.nn /nnn.nn"
-   *        SoC: " S:nnn.nn /nnn.nn"
+   *      Board: " M:nnn.nn"
+   *        SoC: " S:nnn.nn"
    *  Redundant: " R:nnn.nn /nnn.nn"
    *   Extruder: " T0:nnn.nn /nnn.nn"
    *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
@@ -4008,6 +4015,7 @@ void Temperature::isr() {
     OPTARG(SHOW_TEMP_ADC_VALUES, const float r)
   ) {
     char k;
+    bool show_t = true;
     switch (e) {
       default:
         #if HAS_TEMP_HOTEND
@@ -4020,16 +4028,16 @@ void Temperature::isr() {
         case H_CHAMBER: k = 'C'; break;
       #endif
       #if HAS_TEMP_PROBE
-        case H_PROBE: k = 'P'; break;
+        case H_PROBE: k = 'P'; show_t = false; break;
       #endif
       #if HAS_TEMP_COOLER
         case H_COOLER: k = 'L'; break;
       #endif
       #if HAS_TEMP_BOARD
-        case H_BOARD: k = 'M'; break;
+        case H_BOARD: k = 'M'; show_t = false; break;
       #endif
       #if HAS_TEMP_SOC
-        case H_SOC: k = 'S'; break;
+        case H_SOC: k = 'S'; show_t = false; break;
       #endif
       #if HAS_TEMP_REDUNDANT
         case H_REDUNDANT: k = 'R'; break;
@@ -4044,10 +4052,8 @@ void Temperature::isr() {
     #else
       #define SFP 2
     #endif
-    SERIAL_CHAR(':');
-    SERIAL_PRINT(c, SFP);
-    SERIAL_ECHOPGM(" /");
-    SERIAL_PRINT(t, SFP);
+    SERIAL_CHAR(':'); SERIAL_PRINT(c, SFP);
+    if (show_t) { SERIAL_ECHOPGM(" /"); SERIAL_PRINT(t, SFP); }
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
       SERIAL_ECHOPGM(" (", TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR));
