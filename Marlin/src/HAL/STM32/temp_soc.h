@@ -21,11 +21,6 @@
  */
 #pragma once
 
-// Using STM32 SoC temp sensor (TEMP_SENSOR_SOC) requires TEMP_SOC_PIN ATEMP.
-#ifndef TEMP_SOC_PIN
-  #define TEMP_SOC_PIN ATEMP
-#endif
-
 #ifdef STM32F0xx
   /*
   STM32F030x4 STM32F030x6 STM32F030x8 STM32F030xC     https://www.st.com/resource/en/datasheet/stm32f030f4.pdf
