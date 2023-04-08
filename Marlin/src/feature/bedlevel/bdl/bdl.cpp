@@ -74,7 +74,13 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
 float BDS_Leveling::read() {
   const uint16_t tmp = BD_I2C_SENSOR.BD_i2c_read();
   float BD_z = NAN;
-  if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1000)
+  if(BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)
+    SERIAL_ECHOLNPGM("Read Error.");
+  else if((tmp & 0x3FF) >= 1015)
+    SERIAL_ECHOLNPGM("Invalid data,please calibrate.");
+  else if((tmp & 0x3FF) >= (MAX_BD_HEIGHT-0.1f))
+    SERIAL_ECHOLNPGM("Out of Range.");  
+  else
     BD_z = (tmp & 0x3FF) / 100.0f;
   return BD_z;
 }
@@ -153,6 +159,8 @@ void BDS_Leveling::process() {
       config_state = 0;
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
       SERIAL_ECHOLNPGM("BDsensor version:", tmp_1);
+      if(tmp_1[0] != 'V')
+        SERIAL_ECHOLNPGM("Read Error,check connection or delay value.");
       safe_delay(50);
     }
     // read raw calibrate data
@@ -163,6 +171,12 @@ void BDS_Leveling::process() {
       for (int i = 0; i < MAX_BD_HEIGHT * 10; i++) {
         tmp = BD_I2C_SENSOR.BD_i2c_read();
         SERIAL_ECHOLNPGM("Calibrate data:", i, ",", tmp & 0x3FF, ", check:", BD_I2C_SENSOR.BD_Check_OddEven(tmp));
+        if(BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)
+          SERIAL_ECHOLNPGM("Read Error");
+        else if((tmp & 0x3FF) >= 1015)
+          SERIAL_ECHOLNPGM("Invalid data!");
+        else if(((tmp & 0x3FF) > 550) && i == 0)
+          SERIAL_ECHOLNPGM("BDsensor mounted too high!");
         safe_delay(50);
       }
       config_state = 0;
@@ -172,14 +186,19 @@ void BDS_Leveling::process() {
     else if (config_state <= -6) {   // Start Calibrate
       safe_delay(10);
       if (config_state == -6) {
-        //BD_I2C_SENSOR.BD_i2c_write(1019); // begin calibrate
-        //delay(1000);
         const millis_t old_inactive_time = gcode.stepper_inactive_time;
         gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
         //gcode.process_subcommands_now(F("M17 Z"));
+        ////////////move the z axis instead of enable the z axis with M17 
         gcode.process_subcommands_now(F("G1Z-0.05"));
         safe_delay(1000);
-        gcode.process_subcommands_now(F("G92Z0\nG1Z0.05\nG92Z0"));
+        ///gcode.process_subcommands_now(F("G92Z0\nG1Z0.05\nG92Z0"));
+        current_position.z = 0; 
+        sync_plan_position();
+        gcode.process_subcommands_now(F("G1Z0.05"));
+        current_position.z = 0; 
+        sync_plan_position();
+        ////////////////
         safe_delay(1000);
         while (planner.get_axis_position_mm(Z_AXIS) > 0.00001f) safe_delay(1);
         z_pose = 0.00001f;
