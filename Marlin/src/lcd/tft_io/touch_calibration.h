@@ -21,39 +21,13 @@
  */
 #pragma once
 
-#include "tft_io.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
   #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
 #endif
 #ifndef TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS
   #define TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS   2500
-#endif
-
-// XPT2046_** Compatibility
-#if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET) \
-    && !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
-  #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
-  #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
-  #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
-  #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
-  #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
-#endif
-
-#ifndef TOUCH_CALIBRATION_X
-  #define TOUCH_CALIBRATION_X   0
-#endif
-#ifndef TOUCH_CALIBRATION_Y
-  #define TOUCH_CALIBRATION_Y   0
-#endif
-#ifndef TOUCH_OFFSET_X
-  #define TOUCH_OFFSET_X        0
-#endif
-#ifndef TOUCH_OFFSET_Y
-  #define TOUCH_OFFSET_Y        0
-#endif
-#ifndef TOUCH_ORIENTATION
-  #define TOUCH_ORIENTATION     TOUCH_LANDSCAPE
 #endif
 
 typedef struct __attribute__((__packed__)) {

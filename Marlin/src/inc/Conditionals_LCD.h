@@ -1668,6 +1668,10 @@
   #endif
 #endif
 
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
+  #include "../lcd/tft_io/tft_orientation.h" // for TFT_COLOR_UI_PORTRAIT
+#endif
+
 #if ENABLED(TFT_RES_320x240)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
     #define TFT_WIDTH  240

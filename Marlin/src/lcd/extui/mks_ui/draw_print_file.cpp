@@ -120,8 +120,6 @@ bool have_pre_pic(char *path) {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   uint8_t i, file_count = 0;
-  //switch (obj->mks_obj_id)
-  //{
   if (obj->mks_obj_id == ID_P_UP) {
     if (dir_offset[curDirLever].curPage > 0) {
       // 2015.05.19
@@ -435,21 +433,13 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         break;
       }
     }
-
     for (i = 0; i < 200;) {
       p_index = (uint16_t *)(&public_buf[i]);
       //Color = (*p_index >> 8);
       //*p_index = Color | ((*p_index & 0xFF) << 8);
       i += 2;
-      if (*p_index == 0x0000) {
-        #if HAS_TFT_LVGL_UI_SPI
-          *p_index = LV_COLOR_BACKGROUND.full;
-        #else
-          *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3
-        #endif
-      }
+      if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
     }
-
     memcpy(data_buf, public_buf, 200);
   #endif // HAS_MEDIA
 }
