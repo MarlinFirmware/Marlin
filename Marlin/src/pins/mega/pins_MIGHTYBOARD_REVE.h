@@ -226,6 +226,8 @@
 
 #if HAS_WIRED_LCD
 
+  // NOTE: Kept inline — MightyBoard REV-E is a custom Makerbot board with raw ATmega
+  // pin numbers and no EXP1/EXP2 connector tokens. STAT_LED pins are board-specific.
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
