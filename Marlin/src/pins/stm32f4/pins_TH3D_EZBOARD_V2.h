@@ -45,9 +45,9 @@
 #endif
 
 //
-// Neopixels
+// NeoPixel
 //
-#define NEOPIXEL_PIN                        PA8
+#define BOARD_NEOPIXEL_PIN                  PA8
 
 //
 // Servos

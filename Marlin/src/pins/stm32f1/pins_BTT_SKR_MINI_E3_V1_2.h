@@ -25,8 +25,8 @@
 
 #define BOARD_INFO_NAME "BTT SKR Mini E3 V1.2"
 
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PC7   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PC7   // LED driving pin
 #endif
 
 /**

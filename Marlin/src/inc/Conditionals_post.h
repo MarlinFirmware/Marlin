@@ -3216,18 +3216,6 @@
 #endif
 
 /**
- * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
- */
-#if HAS_MARLINUI_U8GLIB
-  #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SD_SCK_PIN
-  #endif
-  #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI SD_MOSI_PIN
-  #endif
-#endif
-
-/**
  * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
  */
 #ifndef Z_CLEARANCE_FOR_HOMING
