@@ -66,11 +66,8 @@
 
 #elif ENABLED(ENDER2_STOCKDISPLAY)
 
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
-  #define DOGLCD_CS                  EXP1_07_PIN
-  #define DOGLCD_A0                  EXP1_06_PIN
+  // Migrated to pins/lcd
+  #define ADAPTER_MELZI_CREALITY
   #define LCD_PINS_DEFINED
 
 #endif
