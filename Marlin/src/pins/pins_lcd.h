@@ -47,6 +47,8 @@
     #include "lcd/FYSETC_242_OLED_12864.h"
   #elif IS_RRD_FG_SC
     #include "lcd/RRD_FG_SC.h"
+  #elif IS_RRD_SC
+    #include "lcd/RRD_SC.h"
   #else
 
     // More displays to come
