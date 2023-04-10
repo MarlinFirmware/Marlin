@@ -1895,9 +1895,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #endif
     #endif
 
-    #if ENABLED(BLTOUCH_HS_MODE) && BLTOUCH_HS_MODE == 0
-      #error "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state."
+    #if ENABLED(BLTOUCH_HS_MODE)
+      #if BLTOUCH_HS_MODE == 0
+        #error "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state."
+      #endif
+      #ifdef Z_CLEARANCE_BLTOUCH_HS
+        static_assert(Z_CLEARANCE_BLTOUCH_HS > 0, "BLTOUCH_HS_MODE requires a positive Z_CLEARANCE_BLTOUCH_HS.");
+      #endif
     #endif
+
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #endif

@@ -1622,9 +1622,10 @@
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #if ENABLED(BLTOUCH_HS_MODE)
-// Probe offset is trigger point to nozzle. This need to be large enough to
-// get the probe pin off the bed or it will drag.
-#define Z_CLEARANCE_BLTOUCH_HS      3 // Extra Z Clearance
+  // The probe Z offset (M851 Z) is the height at which the probe triggers.
+  // This must be large enough to keep the probe pin off the bed and prevent
+  // it from snagging on the bed clips.
+  #define Z_CLEARANCE_BLTOUCH_HS    3 // Extra Z Clearance
 #endif
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping

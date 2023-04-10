@@ -3202,17 +3202,8 @@
   #ifndef Z_CLEARANCE_MULTI_PROBE
     #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
   #endif
-  #if ENABLED(BLTOUCH)
-    #if ENABLED(BLTOUCH_HS_MODE)
-      #if !defined(Z_CLEARANCE_BLTOUCH_HS) || Z_CLEARANCE_BLTOUCH_HS <= 0
-        // High speed mode moves with the probe deployed, this is to avoid
-        // dragging the probe after raising the probe to nozzle offset.
-        #warning "BLTOUCH_HS_MODE with a positive Z_CLEARANCE_BLTOUCH_HS will use the full probe stroke."
-      #endif
-    #endif
-    #if !defined(BLTOUCH_DELAY)
-      #define BLTOUCH_DELAY 500
-    #endif
+  #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
+    #define BLTOUCH_DELAY 500
   #endif
 #endif
 
