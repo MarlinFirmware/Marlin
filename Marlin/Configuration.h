@@ -1621,13 +1621,6 @@
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
-#if ENABLED(BLTOUCH_HS_MODE)
-  // The probe Z offset (M851 Z) is the height at which the probe triggers.
-  // This must be large enough to keep the probe pin off the bed and prevent
-  // it from snagging on the bed clips.
-  #define Z_CLEARANCE_BLTOUCH_HS    3 // Extra Z Clearance
-#endif
-
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset

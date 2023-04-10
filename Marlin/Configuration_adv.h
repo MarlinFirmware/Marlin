@@ -966,6 +966,9 @@
    */
   //#define BLTOUCH_SET_5V_MODE
 
+  // Safety: Enable voltage mode settings in the LCD menu.
+  //#define BLTOUCH_LCD_VOLTAGE_MENU
+
   /**
    * Safety: Activate if connecting a probe with an unknown voltage mode.
    * V3.0: Set a probe into mode selected above at Marlin startup. Required for 5V mode on 3.0
@@ -984,8 +987,12 @@
    */
   //#define BLTOUCH_HS_MODE true
 
-  // Safety: Enable voltage mode settings in the LCD menu.
-  //#define BLTOUCH_LCD_VOLTAGE_MENU
+  #if ENABLED(BLTOUCH_HS_MODE)
+    // The probe Z offset (M851 Z) is the height at which the probe triggers.
+    // This must be large enough to keep the probe pin off the bed and prevent
+    // it from snagging on the bed clips.
+    #define Z_CLEARANCE_BLTOUCH_HS    3 // Extra Z Clearance
+  #endif
 
 #endif // BLTOUCH
 
