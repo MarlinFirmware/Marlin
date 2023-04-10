@@ -186,7 +186,7 @@
   #define BTN_ENC                           PE11  // BTN_ENC
   #define SD_DETECT_PIN                     PD14
   #define LCD_PINS_RS                       PF12  // LCD_RS
-  #define LCD_PINS_ENABLE                   PD15  // LCD_EN
+  #define LCD_PINS_EN                       PD15  // LCD_EN
   #define LCD_PINS_D4                       PB13  // LCD_D4
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2

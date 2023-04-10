@@ -264,7 +264,7 @@
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PG2
-  #define LCD_PINS_ENABLE                   PG0
+  #define LCD_PINS_EN                       PG0
   #define LCD_PINS_RS                       PG1
   #define BTN_EN1                           PG5
   #define BTN_EN2                           PG4

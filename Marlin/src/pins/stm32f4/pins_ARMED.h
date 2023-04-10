@@ -173,7 +173,7 @@
   #endif
 #else
   #define LCD_PINS_RS                       PE9
-  #define LCD_PINS_ENABLE                   PE8
+  #define LCD_PINS_EN                       PE8
   #define LCD_PINS_D4                       PB12
   #define LCD_PINS_D5                       PB13
   #define LCD_PINS_D6                       PB14
