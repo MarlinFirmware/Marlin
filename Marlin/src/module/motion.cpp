@@ -2088,10 +2088,12 @@ void prepare_line_to_destination() {
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
     //
-    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy())) {
-      probe.stow();
-      return;
-    }
+    #if HOMING_Z_WITH_PROBE
+      if (axis == Z_AXIS && probe.deploy()) {
+        probe.stow();
+        return;
+      }
+    #endif
 
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
