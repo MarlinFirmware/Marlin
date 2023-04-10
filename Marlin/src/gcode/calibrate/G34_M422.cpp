@@ -233,7 +233,7 @@ void GcodeSuite::G34() {
           }
 
           // Dirty fix for dirty trick
-          do_z_clearance(z_probed_height + (Z_PROBE_SAFE_CLEARANCE));
+          do_z_clearance(z_probed_height + (Z_PROBE_SAFE_CLEARANCE), false);
 
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.

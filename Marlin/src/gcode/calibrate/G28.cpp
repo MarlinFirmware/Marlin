@@ -416,7 +416,7 @@ void GcodeSuite::G28() {
     const bool seenR = parser.seenval('R');
 
     // Use raise given by 'R' or Z_HOMING_HEIGHT (above the probe trigger point)
-    float z_homing_height = seenR ? parser.value_linear_units() : DIFF_TERN(HOMING_Z_WITH_PROBE, Z_HOMING_HEIGHT, _MIN(probe.offset.z, 0));
+    float z_homing_height = seenR ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
     // Check for any lateral motion that might require clearance
     const bool may_skate = seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
@@ -425,15 +425,18 @@ void GcodeSuite::G28() {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
     }
     else {
+      bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
       // Raise above the current Z (which should be synced in the planner)
       // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
-      if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS))
+      if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS)) {
         z_homing_height += current_position.z;
+        with_probe = false;
+      }
 
       if (may_skate) {
         // Apply Z clearance before doing any lateral motion
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
-        do_z_clearance(z_homing_height);
+        do_z_clearance(z_homing_height, with_probe);
       }
     }
 

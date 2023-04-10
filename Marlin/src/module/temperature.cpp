@@ -982,7 +982,7 @@ volatile bool Temperature::raw_temps_ready = false;
           planner.sync_fan_speeds(fan_speed);
         #endif
 
-        do_z_clearance(MPC_TUNING_END_Z);
+        do_z_clearance(MPC_TUNING_END_Z, false);
 
         TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       }

@@ -403,10 +403,10 @@ void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
+  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
   void do_z_clearance_by(const_float_t zclear);
 #else
-  inline void do_z_clearance(float, bool=false) {}
+  inline void do_z_clearance(float, bool=true, bool=false) {}
   inline void do_z_clearance_by(float) {}
 #endif
 

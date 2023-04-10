@@ -863,7 +863,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       idle();
       gcode.reset_stepper_timeout(); // Keep steppers powered
       if (encoder_diff) {
-        do_z_clearance_by(float(encoder_diff) * multiplier);
+        do_blocking_move_to_z(current_position.z + float(encoder_diff) * multiplier);
         encoder_diff = 0;
       }
     }
