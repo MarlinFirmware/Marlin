@@ -153,7 +153,7 @@
 #define TEMP_0_CS_PIN                         65
 #define TEMP_1_CS_PIN                         52
 #define TEMP_2_CS_PIN                         50
-#define TEMP_3_CS_PIN                         51
+#define TEMP_3_CS_PIN                         51  // Not yet supported
 
 #define ENC424_SS                             61
 
