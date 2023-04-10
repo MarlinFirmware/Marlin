@@ -185,7 +185,11 @@
 // LCD / Controller
 //
 
-#if IS_TFTGLCD_PANEL
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
     #define TFTGLCD_CS               EXP2_03_PIN
@@ -198,87 +202,73 @@
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(CR10_STOCKDISPLAY)
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+
+  #define LCD_SDSS_PIN               EXP2_04_PIN
+
+  #if ENABLED(MKS_12864OLED_SSD1306)
+
+    #define LCD_PINS_DC              EXP1_06_PIN
+    #define DOGLCD_CS                EXP1_04_PIN
+    #define DOGLCD_A0                LCD_PINS_DC
+    #define DOGLCD_SCK               EXP1_05_PIN
+    #define DOGLCD_MOSI              EXP1_03_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
+    #define LCD_PINS_D7              EXP1_08_PIN
+    #define KILL_PIN                       -1     // NC
 
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
+  #else // !MKS_12864OLED_SSD1306
 
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
+    #define LCD_PINS_RS              EXP1_04_PIN
 
-  #else
+    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
+    #if ENABLED(FYSETC_MINI_12864)
 
-    #define LCD_SDSS_PIN             EXP2_04_PIN
+      #define DOGLCD_CS              EXP1_03_PIN
+      #define DOGLCD_A0              EXP1_04_PIN
+      #define DOGLCD_SCK             EXP2_02_PIN
+      #define DOGLCD_MOSI            EXP2_06_PIN
 
-    #if ENABLED(MKS_12864OLED_SSD1306)
+      #define LCD_BACKLIGHT_PIN            -1
 
-      #define LCD_PINS_DC            EXP1_06_PIN
-      #define DOGLCD_CS              EXP1_04_PIN
-      #define DOGLCD_A0              LCD_PINS_DC
-      #define DOGLCD_SCK             EXP1_05_PIN
-      #define DOGLCD_MOSI            EXP1_03_PIN
+      #define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
+                                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-      #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-      #define KILL_PIN                     -1     // NC
+      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-    #else // !MKS_12864OLED_SSD1306
-
-      #define LCD_PINS_RS            EXP1_04_PIN
-
-      #define LCD_PINS_EN            EXP1_03_PIN
-      #define LCD_PINS_D4            EXP1_05_PIN
-
-      #if ENABLED(FYSETC_MINI_12864)
-
-        #define DOGLCD_CS            EXP1_03_PIN
-        #define DOGLCD_A0            EXP1_04_PIN
-        #define DOGLCD_SCK           EXP2_02_PIN
-        #define DOGLCD_MOSI          EXP2_06_PIN
-
-        #define LCD_BACKLIGHT_PIN          -1
-
-        #define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
-
-        #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-
-        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-          #ifndef RGB_LED_R_PIN
-            #define RGB_LED_R_PIN    EXP1_06_PIN
-          #endif
-          #ifndef RGB_LED_G_PIN
-            #define RGB_LED_G_PIN    EXP1_07_PIN
-          #endif
-          #ifndef RGB_LED_B_PIN
-            #define RGB_LED_B_PIN    EXP1_08_PIN
-          #endif
-        #elif ENABLED(FYSETC_MINI_12864_2_1)
-          #define NEOPIXEL_PIN       EXP1_06_PIN
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
-
-      #else // !FYSETC_MINI_12864
-
-        #if ENABLED(MKS_MINI_12864)
-          #define DOGLCD_CS          EXP1_06_PIN
-          #define DOGLCD_A0          EXP1_07_PIN
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN      EXP1_07_PIN
         #endif
-
-        #if ENABLED(ULTIPANEL)
-          #define LCD_PINS_D5        EXP1_06_PIN
-          #define LCD_PINS_D6        EXP1_07_PIN
-          #define LCD_PINS_D7        EXP1_08_PIN
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN      EXP1_08_PIN
         #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN         EXP1_06_PIN
+      #endif
 
-      #endif // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
-    #endif // !MKS_12864OLED_SSD1306
+      #if ENABLED(MKS_MINI_12864)
+        #define DOGLCD_CS            EXP1_06_PIN
+        #define DOGLCD_A0            EXP1_07_PIN
+      #endif
 
-  #endif // !CR10_STOCKDISPLAY
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5          EXP1_06_PIN
+        #define LCD_PINS_D6          EXP1_07_PIN
+        #define LCD_PINS_D7          EXP1_08_PIN
+      #endif
+
+    #endif // !FYSETC_MINI_12864
+
+  #endif // !MKS_12864OLED_SSD1306
 
 #endif // HAS_WIRED_LCD

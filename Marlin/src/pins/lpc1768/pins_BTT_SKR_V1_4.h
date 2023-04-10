@@ -236,6 +236,8 @@
 
   CONTROLLER_WARNING("BTT_SKR_V1_4", "CTC_A10S_A13")
 
+#elif ENABLED(CR10_STOCKDISPLAY)
+
   // Migrated to pins/lcd
 
 #elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
@@ -251,17 +253,7 @@
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_07_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif ENABLED(ENDER2_STOCKDISPLAY)
+  #if ENABLED(ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
      *                   ------
