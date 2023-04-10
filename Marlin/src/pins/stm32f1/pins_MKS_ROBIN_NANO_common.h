@@ -192,7 +192,7 @@
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
 
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
+  #define DOGLCD_MOSI                       -1    // Prevent auto-define by pins_lcd.h
   #define DOGLCD_SCK                        -1
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
