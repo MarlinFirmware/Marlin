@@ -223,10 +223,9 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.clear());
 
   // Statuses of heaters and fans
-  uint16_t i, x = TFT_STATUS_TOP_Y, y = STATUS_MARGIN_SIZE;
-
-  for (i = 0; i < ITEMS_COUNT; i++) {
-    x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
+  uint16_t y = STATUS_MARGIN_SIZE;
+  for (uint16_t i = 0; i < ITEMS_COUNT; i++) {
+    uint16_t x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
     switch (i) {
       #ifdef ITEM_E0
         case ITEM_E0: draw_heater_status(x, y, H_E0); break;
@@ -255,7 +254,7 @@ void MarlinUI::draw_status_screen() {
   y += STATUS_MARGIN_SIZE + 114;
 
   // Coordinates
-  uint16_t coords_width = TFT_WIDTH - 8;
+  constexpr uint16_t coords_width = TFT_WIDTH - 8;
   tft.canvas((TFT_WIDTH - coords_width) / 2, y, coords_width, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_rectangle(0, 0, coords_width, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
@@ -307,7 +306,7 @@ void MarlinUI::draw_status_screen() {
   tft_string.add("%");
   uint16_t component_width = 36 + tft_string.width(); // 32px icon size + 4px margin before text
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  x = FEEDRATE_X(component_width);
+  uint16_t x = FEEDRATE_X(component_width);
 
   // Feed rate (drawing)
   tft.canvas(x, y, component_width, 32);
@@ -347,11 +346,7 @@ void MarlinUI::draw_status_screen() {
         add_control(SDCARD_X, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED); // 64px icon size
     #endif
 
-    #ifdef TFT_COLOR_UI_PORTRAIT
-      y += STATUS_MARGIN_SIZE + 64;
-    #else
-      y += STATUS_MARGIN_SIZE + 44; // Some line overlap to save space
-    #endif
+    y += STATUS_MARGIN_SIZE + TERN(TFT_COLOR_UI_PORTRAIT, 64, 44);
   #endif
 
   // Print duration
@@ -924,7 +919,7 @@ void MarlinUI::move_axis_screen() {
   drawAxisValue(Z_AXIS);
 
   // ROW 4 -> step_size  disable steppers back
-  y = TFT_HEIGHT - Y_MARGIN - 32; //
+  y = TFT_HEIGHT - Y_MARGIN - 32;
   x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
   motionAxisState.stepValuePos.x = x;
   motionAxisState.stepValuePos.y = y;

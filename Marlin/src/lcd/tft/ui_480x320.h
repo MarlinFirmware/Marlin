@@ -63,49 +63,46 @@
 
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
-/* 
-Status screen - portrait layout:
-
-| FAN   E0   BED   .. | - 120px
-|     Coordinates     | - FONT_LINE_HEIGHT
-| Feedrate   Flowrate | - 32px
-| SD         Settings | - 64px if ENABLED(TOUCHSCREEN), else 0px
-| Print duration time | - 29px
-|     Progress bar    | - 7px
-|    Status message   | - FONT_LINE_HEIGHT
-
-Summary with touchscreen:
-- Total height: 252px + 2 * FONT_LINE_HEIGHT (320px if FONT_LINE_HEIGHT is 34px)
-- Rows count: 7
-- Margins count: 8
-
-Summary without touchscreen:
-- Total height: 188px + 2 * FONT_LINE_HEIGHT (256px if FONT_LINE_HEIGHT is 34px)
-- Rows count: 6
-- Margins count: 7
-
-
-
-Status screen - landscape layout:
-
-|          FAN   E0   BED   ...          | - 120px
-|              Coordinates               | - FONT_LINE_HEIGHT
-| SD    Flowrate    Feedrate    Settings | - 44px if ENABLED(TOUCHSCREEN), else 32px
-|          Print duration time           | - 29px
-|              Progress bar              | - 7px
-|             Status message             | - FONT_LINE_HEIGHT
-
-Summary with touchscreen:
-- Total height: 200px (268px if FONT_LINE_HEIGHT is 34px)
-- Rows count: 6
-- Margins count: 7
-
-Summary without touchscreen:
-- Total height: 188px + 2 * FONT_LINE_HEIGHT (256px if FONT_LINE_HEIGHT is 34px)
-- Rows count: 6
-- Margins count: 7
-*/
-
+/**
+ * Status screen - portrait layout:
+ *
+ * | FAN   E0   BED   .. | - 120px
+ * |     Coordinates     | - FONT_LINE_HEIGHT
+ * | Feedrate   Flowrate | - 32px
+ * | SD         Settings | - 64px if ENABLED(TOUCHSCREEN), else 0px
+ * | Print duration time | - 29px
+ * |     Progress bar    | - 7px
+ * |    Status message   | - FONT_LINE_HEIGHT
+ *
+ * Summary with touchscreen:
+ * - Total height: 252px + 2 * FONT_LINE_HEIGHT (320px if FONT_LINE_HEIGHT is 34px)
+ * - Rows count: 7
+ * - Margins count: 8
+ *
+ * Summary without touchscreen:
+ * - Total height: 188px + 2 * FONT_LINE_HEIGHT (256px if FONT_LINE_HEIGHT is 34px)
+ * - Rows count: 6
+ * - Margins count: 7
+ *
+ * Status screen - landscape layout:
+ *
+ * |          FAN   E0   BED   ...          | - 120px
+ * |              Coordinates               | - FONT_LINE_HEIGHT
+ * | SD    Flowrate    Feedrate    Settings | - 44px for TOUCHSCREEN, else 32px
+ * |          Print duration time           | - 29px
+ * |              Progress bar              | - 7px
+ * |             Status message             | - FONT_LINE_HEIGHT
+ *
+ * Summary with touchscreen:
+ * - Total height: 200px (268px if FONT_LINE_HEIGHT is 34px)
+ * - Rows count: 6
+ * - Margins count: 7
+ *
+ * Summary without touchscreen:
+ * - Total height: 188px + 2 * FONT_LINE_HEIGHT (256px if FONT_LINE_HEIGHT is 34px)
+ * - Rows count: 6
+ * - Margins count: 7
+ */
 #ifdef TFT_COLOR_UI_PORTRAIT
   #if ENABLED(TOUCH_SCREEN)
     #define STATUS_TOTAL_ROWS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 64 + 29 + 7)
@@ -115,27 +112,20 @@ Summary without touchscreen:
     #define STATUS_MARGINS_REGIONS 7
   #endif
 
-  #define STATUS_MARGIN_SIZE (TFT_HEIGHT - STATUS_TOTAL_ROWS_HEIGHT) / STATUS_MARGINS_REGIONS
-
-  #define FEEDRATE_X(width) (TFT_WIDTH - 2 * width) / 4
-  #define FLOWRATE_X(width) (3 * TFT_WIDTH - 2 * width) / 4
-  #define SETTINGS_X 3 * TFT_WIDTH / 4 - 32
-  #define SDCARD_X TFT_WIDTH / 4 - 32
+  #define FEEDRATE_X(W) ((TFT_WIDTH - 2 * (W)) / 4)
+  #define FLOWRATE_X(W) ((3 * TFT_WIDTH - 2 * (W)) / 4)
+  #define SETTINGS_X (3 * TFT_WIDTH / 4 - 32)
+  #define SDCARD_X (TFT_WIDTH / 4 - 32)
 #else
-  #if ENABLED(TOUCH_SCREEN)
-    #define STATUS_TOTAL_ROWS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 44 + 29 + 7)
-  #else
-    #define STATUS_TOTAL_ROWS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 29 + 7)
-  #endif
-
+  #define STATUS_TOTAL_ROWS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + TERN(TOUCH_SCREEN, 44, 32) + 29 + 7)
   #define STATUS_MARGINS_REGIONS 7
 
-  #define STATUS_MARGIN_SIZE (TFT_HEIGHT - STATUS_TOTAL_ROWS_HEIGHT) / STATUS_MARGINS_REGIONS
-
-  #define FEEDRATE_X(width) 3 * TFT_WIDTH / 8 - width / 2
-  #define FLOWRATE_X(width) 5 * TFT_WIDTH / 8 - width / 2
-  #define SETTINGS_X TFT_WIDTH / 8 - 32
-  #define SDCARD_X 7 * TFT_WIDTH / 8 - 32
+  #define FEEDRATE_X(W) (3 * TFT_WIDTH / 8 - (W) / 2)
+  #define FLOWRATE_X(W) (5 * TFT_WIDTH / 8 - (W) / 2)
+  #define SETTINGS_X (TFT_WIDTH / 8 - 32)
+  #define SDCARD_X (7 * TFT_WIDTH / 8 - 32)
 #endif
+
+#define STATUS_MARGIN_SIZE ((TFT_HEIGHT - STATUS_TOTAL_ROWS_HEIGHT) / STATUS_MARGINS_REGIONS)
 
 #include "tft_font.h"
