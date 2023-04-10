@@ -2526,8 +2526,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
     #elif !HAS_HEATER_2
       #error "HEATER_2_PIN not defined for this board."
-    #elif !PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_2_IS_DUMMY
-      #error "TEMP_2_PIN not defined for this board."
+    #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY
+      #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
     #endif
     #if HOTENDS > 3
       #if TEMP_SENSOR_3 == 0
