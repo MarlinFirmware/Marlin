@@ -42,13 +42,7 @@
 #endif
 
 /**
- * G30: Do a single Z probe at the current XY
- *
- * If either X or Y are given, the probe is moved to that location.
- * that will be the probe location.
- * the probe will be moved to
- * it will move the probe to that position relative
- * to the nozzle, by default it probes the position the probe is at.
+ * G30: Do a single Z probe at the given XY (default: current)
  *
  * Parameters:
  *
@@ -62,20 +56,12 @@ void GcodeSuite::G30() {
   probe.use_probing_tool();
 
   // Convert the given logical position to native position
-  xy_pos_t pos;
-  const bool seenX = parser.seenval('X');
-  pos.x = seenX ? RAW_X_POSITION(parser.value_linear_units()) :
-    current_position.x;
-  const bool seenY = parser.seenval('Y');
-  pos.y = seenY ? RAW_Y_POSITION(parser.value_linear_units()) :
-    current_position.y;
-  // If X or Y was given, then probe that bed location, which means moving
-  // the probe over that point, which is accomplished by indicating the point
-  // is a relative (probe to nozzle) location.  False is absolute and no
-  // movement since it is already at the current location.
-  const bool probe_relative = seenX || seenY;
+  const xy_pos_t probepos = {
+    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x + probe.offset.x,
+    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y + probe.offset.y
+  };
 
-  if (probe.can_reach(pos)) {
+  if (probe.can_reach(probepos)) {
     // Disable leveling so the planner won't mess with us
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
@@ -88,16 +74,15 @@ void GcodeSuite::G30() {
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-    const float measured_z = probe.probe_at_point(pos, raise_after, 1,
-      probe_relative);
+    const float measured_z = probe.probe_at_point(probepos, raise_after, 1);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
-      SERIAL_ECHOLNPGM("Bed X: ", pos.asLogical().x, " Y: ", pos.asLogical().y, " Z: ", measured_z);
+      SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
       #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
         char msg[31], str_1[6], str_2[6], str_3[6];
         sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
-          dtostrf(pos.x, 1, 1, str_1),
-          dtostrf(pos.y, 1, 1, str_2),
+          dtostrf(probepos.x, 1, 1, str_1),
+          dtostrf(probepos.y, 1, 1, str_2),
           dtostrf(measured_z, 1, 2, str_3)
         );
         ui.set_status(msg);
