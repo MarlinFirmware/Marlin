@@ -98,10 +98,10 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
     // raising by the offset would give 0 clearance and probe offset is the
     // trigger point, not the contact point. Expect a minimum of 1mm before
     // the probe pin lifts off the surface.
-    #ifdef Z_CLEARANCE_BLTOUCH_HS
+    #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
       // The probe trigger point should be below the nozzle, but there's no guarantee!
-      const float zclear = (Z_CLEARANCE_BLTOUCH_HS) - probe.offset.z;
-      if (zclear > 0) return zclear;
+      const float zclear = (BLTOUCH_HS_EXTRA_CLEARANCE) - probe.offset.z;
+      if (zclear > 0 && zclear < 7) return zclear;
     #endif
 
     // Offset not set or positive (invalid), use BLTOUCH stroke
