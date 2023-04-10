@@ -220,7 +220,18 @@
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #define EXP1_01_PIN                        151
+  #define EXP1_02_PIN                         12
+  #define EXP1_03_PIN                          2
+  #define EXP1_05_PIN                          4
+  //#define EXP1_06_PIN                       16
+  //#define EXP1_07_PIN                       13
+  //#define EXP1_08_PIN                       17
+
+#elif HAS_WIRED_LCD
 
   #define BTN_ENC                             12
   #define BTN_EN1                              2
@@ -230,11 +241,7 @@
   //#define LCD_PINS_EN                       17
   //#define LCD_PINS_D4                       16
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-
-    #define BEEPER_PIN                       151
-
-  #elif IS_RRD_FG_SC
+  #if IS_RRD_FG_SC
 
     #define BEEPER_PIN                       151
 

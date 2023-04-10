@@ -167,7 +167,11 @@
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
 
