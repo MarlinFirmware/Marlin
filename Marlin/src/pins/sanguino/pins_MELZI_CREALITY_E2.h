@@ -57,23 +57,22 @@
 // LCD / Controller
 //
 
-#if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #if HAS_MEDIA
-      #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
-    #endif
-    #define LCD_PINS_RS              EXP1_07_PIN  // ST9720 CS
-    #define LCD_PINS_EN              EXP1_08_PIN  // ST9720 DAT
-    #define LCD_PINS_D4              EXP1_06_PIN  // ST9720 CLK
-    #define BEEPER_PIN               EXP1_01_PIN
-  #elif ENABLED(ENDER2_STOCKDISPLAY)
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #if HAS_MEDIA
+    #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
   #endif
+
+#elif ENABLED(ENDER2_STOCKDISPLAY)
+
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_05_PIN
+  #define DOGLCD_CS                  EXP1_07_PIN
+  #define DOGLCD_A0                  EXP1_06_PIN
   #define LCD_PINS_DEFINED
+
 #endif
 
 #define LCD_SDSS_PIN                          31  // Controller's SD card

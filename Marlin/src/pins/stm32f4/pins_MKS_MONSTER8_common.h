@@ -279,75 +279,67 @@
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_07_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
 
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
 
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
+  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+  #if ENABLED(MKS_MINI_12864)
+
+    #define ENABLE_SPI1
+    #define FORCE_SOFT_SPI
+    #define DOGLCD_A0                EXP1_07_PIN
+    #define DOGLCD_CS                EXP1_06_PIN
+    #define DOGLCD_SCK               EXP2_02_PIN
+    #define DOGLCD_MOSI              EXP2_06_PIN
+    //#define LCD_BACKLIGHT_PIN             -1
+    //#define LCD_RESET_PIN                 -1
+
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+
+    #define LCD_PINS_DC              EXP1_04_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                LCD_PINS_DC
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN            EXP1_05_PIN
+    #define NEOPIXEL_PIN             EXP1_06_PIN
+    #define DOGLCD_MOSI              EXP2_06_PIN
+    #define DOGLCD_SCK               EXP2_02_PIN
+    #if SD_CONNECTION_IS(ONBOARD)
+      #define FORCE_SOFT_SPI
+    #endif
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-    #if ENABLED(MKS_MINI_12864)
-
-      #define ENABLE_SPI1
-      #define FORCE_SOFT_SPI
-      #define DOGLCD_A0              EXP1_07_PIN
-      #define DOGLCD_CS              EXP1_06_PIN
-      #define DOGLCD_SCK             EXP2_02_PIN
-      #define DOGLCD_MOSI            EXP2_06_PIN
-      //#define LCD_BACKLIGHT_PIN           -1
-      //#define LCD_RESET_PIN               -1
-
-    #elif ENABLED(FYSETC_MINI_12864_2_1)
-
-      #define LCD_PINS_DC            EXP1_04_PIN
-      #define DOGLCD_CS              EXP1_03_PIN
-      #define DOGLCD_A0              LCD_PINS_DC
-      #define LCD_BACKLIGHT_PIN             -1
-      #define LCD_RESET_PIN          EXP1_05_PIN
-      #define NEOPIXEL_PIN           EXP1_06_PIN
-      #define DOGLCD_MOSI            EXP2_06_PIN
-      #define DOGLCD_SCK             EXP2_02_PIN
-      #if SD_CONNECTION_IS(ONBOARD)
-        #define FORCE_SOFT_SPI
-      #endif
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
-
-    #else
-
-      #define LCD_PINS_D4            EXP1_05_PIN
-      #if IS_ULTIPANEL
-        #define LCD_PINS_D5          EXP1_06_PIN
-        #define LCD_PINS_D6          EXP1_07_PIN
-        #define LCD_PINS_D7          EXP1_08_PIN
-      #endif
-
-      #ifndef BOARD_ST7920_DELAY_1
-        #define BOARD_ST7920_DELAY_1            96
-      #endif
-      #ifndef BOARD_ST7920_DELAY_2
-        #define BOARD_ST7920_DELAY_2            48
-      #endif
-      #ifndef BOARD_ST7920_DELAY_3
-        #define BOARD_ST7920_DELAY_3           600
-      #endif
-
+    #define LCD_PINS_D4              EXP1_05_PIN
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
     #endif
+
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1            96
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2            48
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3           600
+    #endif
+
   #endif
 #endif // HAS_WIRED_LCD
 

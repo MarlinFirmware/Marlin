@@ -33,7 +33,9 @@
 
   #include "lcd/adapters.h"
 
-  #if ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #include "lcd/CR10_STOCKDISPLAY.h"
+  #elif ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
     #include "lcd/ANET_FULL_GRAPHICS_LCD.h"
   #else
 
