@@ -198,6 +198,14 @@
   // Migrated to pins/lcd
   #define FORCE_SOFT_SPI
 
+#elif ENABLED(ULTI_CONTROLLER)
+
+  // Migrated to pins/lcd
+
+  #define LCD_PINS_D6                EXP1_03_PIN
+  #define DOGLCD_SCL_PIN             EXP1_07_PIN  // I2C1
+  #define DOGLCD_SDA_PIN             EXP1_08_PIN  // I2C1
+
 #elif HAS_WIRED_LCD
 
   #if ENABLED(ZONESTAR_LCD)                       // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -272,12 +280,6 @@
 
     #define LCD_BACKLIGHT_PIN               -1
     #define FORCE_SOFT_SPI
-
-  #elif ENABLED(ULTI_CONTROLLER)
-
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define DOGLCD_SCL_PIN           EXP1_07_PIN  // I2C1
-    #define DOGLCD_SDA_PIN           EXP1_08_PIN  // I2C1
 
   #else
     #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, ULTI_CONTROLLER, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the SKR E3 DIP."

@@ -45,6 +45,8 @@
     #include "lcd/ANET_FULL_GRAPHICS_LCD.h"
   #elif ENABLED(FYSETC_242_OLED_12864)
     #include "lcd/FYSETC_242_OLED_12864.h"
+  #elif ENABLED(ULTI_CONTROLLER)
+    #include "lcd/ULTI_CONTROLLER.h"
   #elif IS_RRD_FG_SC
     #include "lcd/RRD_FG_SC.h"
   #elif IS_RRD_SC
