@@ -811,6 +811,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 static float saved_feedrate_mm_s;
 static int16_t saved_feedrate_percentage;
 void remember_feedrate_and_scaling() {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("remember_feedrate_and_scaling: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
   saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
 }
@@ -821,6 +822,7 @@ void remember_feedrate_scaling_off() {
 void restore_feedrate_and_scaling() {
   feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("restore_feedrate_and_scaling: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
 }
 
 #if HAS_SOFTWARE_ENDSTOPS
