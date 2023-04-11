@@ -152,7 +152,7 @@ namespace Anycubic {
 
     // Enable levelling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
-    injectCommands_P(AC_cmnd_enable_levelling);
+    injectCommands(AC_cmnd_enable_leveling);
 
     // Startup tunes are defined in Tunes.h
     //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
@@ -1299,7 +1299,7 @@ namespace Anycubic {
             #if ENABLED(POWER_LOSS_RECOVERY)
               if (printer_state == AC_printer_resuming_from_power_outage) {
                 // Need to home here to restore the Z position
-                //injectCommands_P(AC_cmnd_power_loss_recovery);
+                //injectCommands(AC_cmnd_power_loss_recovery);
                 //SERIAL_ECHOLNPGM("start resuming from power outage: ", AC_cmnd_power_loss_recovery);
                 ChangePageOfTFT(PAGE_STATUS2);    // show pause
                 injectCommands(F("M1000"));       // home and start recovery
@@ -2280,11 +2280,11 @@ namespace Anycubic {
       if (!isPrinting()) {
         if (filament_status == 1) {
           if (canMove(E0) && !commandsInQueue())
-            injectCommands_P(AC_cmnd_manual_load_filament);
+            injectCommands(AC_cmnd_manual_load_filament);
         }
         else if (filament_status == 2) {
           if (canMove(E0) && !commandsInQueue())
-            injectCommands_P(AC_cmnd_manual_unload_filament);
+            injectCommands(AC_cmnd_manual_unload_filament);
         }
       }
     }
