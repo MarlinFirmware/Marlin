@@ -956,7 +956,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       switch (raise_after) {
         default: break;
         case PROBE_PT_RAISE:
-          do_z_clearance_by(Z_PROBE_SAFE_CLEARANCE);
+          do_z_clearance(Z_PROBE_SAFE_CLEARANCE);
           break;
         case PROBE_PT_STOW: case PROBE_PT_LAST_STOW:
           if (stow()) measured_z = NAN;   // Error on stow?
