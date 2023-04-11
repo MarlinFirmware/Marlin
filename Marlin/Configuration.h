@@ -2519,7 +2519,7 @@
   #define PASSWORD_ON_STARTUP
   #define PASSWORD_UNLOCK_GCODE             // Unlock with the M511 P<password> command. Disable to prevent brute-force attack.
   #define PASSWORD_CHANGE_GCODE             // Change the password with M512 P<old> S<new>.
-  //#define PASSWORD_ON_SD_PRINT_MENU       // This does not prevent gcodes from running
+  //#define PASSWORD_ON_SD_PRINT_MENU       // This does not prevent G-codes from running
   //#define PASSWORD_AFTER_SD_PRINT_END
   //#define PASSWORD_AFTER_SD_PRINT_ABORT
   //#include "Configuration_Secure.h"       // External file with PASSWORD_DEFAULT_VALUE
@@ -3268,9 +3268,9 @@
   /**
    * TFT Font for Color_UI. Choose one of the following:
    *
-   * NOTOSANS  - Default font with antialiasing. Supports Latin Extended and non-Latin characters.
-   * UNIFONT   - Lightweight font, no antialiasing. Supports Latin Extended and non-Latin characters.
-   * HELVETICA - Lightweight font, no antialiasing. Supports Basic Latin (0x0020-0x007F) and Latin-1 Supplement (0x0080-0x00FF) characters only.
+   * NOTOSANS  - Default font with anti-aliasing. Supports Latin Extended and non-Latin characters.
+   * UNIFONT   - Lightweight font, no anti-aliasing. Supports Latin Extended and non-Latin characters.
+   * HELVETICA - Lightweight font, no anti-aliasing. Supports Basic Latin (0x0020-0x007F) and Latin-1 Supplement (0x0080-0x00FF) characters only.
    */
   #define TFT_FONT  NOTOSANS
 
