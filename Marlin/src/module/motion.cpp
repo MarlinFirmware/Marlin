@@ -798,6 +798,10 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (zdest == current_position.z || (!lower_allowed && zdest < current_position.z)) return;
     do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
   }
+  void do_z_clearance_by(const_float_t zclear) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
+    do_z_clearance(current_position.z + zclear);
+  }
 #endif
 
 //
@@ -1952,72 +1956,72 @@ void prepare_line_to_destination() {
           case X_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
-            effectorBackoutDir = -X_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_X_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(X_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_X_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Y_MICROSTEPS
           case Y_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
-            effectorBackoutDir = -Y_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Y_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Y_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Y_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Z_MICROSTEPS
           case Z_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
-            effectorBackoutDir = -Z_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Z_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Z_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Z_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef I_MICROSTEPS
           case I_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
-            effectorBackoutDir = -I_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_I_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(I_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_I_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef J_MICROSTEPS
           case J_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
-            effectorBackoutDir = -J_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_J_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(J_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_J_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef K_MICROSTEPS
           case K_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
-            effectorBackoutDir = -K_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_K_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(K_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_K_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef U_MICROSTEPS
           case U_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
-            effectorBackoutDir = -U_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_U_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(U_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_U_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef V_MICROSTEPS
           case V_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
-            effectorBackoutDir = -V_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_V_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(V_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_V_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef W_MICROSTEPS
           case W_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
-            effectorBackoutDir = -W_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_W_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(W_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_W_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         default: return;
@@ -2149,12 +2153,12 @@ void prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
-    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
-    #endif
-
     // If a second homing move is configured...
     if (bump) {
+      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+        if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+      #endif
+
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
       do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
@@ -2205,11 +2209,11 @@ void prepare_line_to_destination() {
       const float rebump = bump * 2;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
       do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
-
-      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS) bltouch.stow(); // The final STOW
-      #endif
     }
+
+    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
+    #endif
 
     #if HAS_EXTRA_ENDSTOPS
       const bool pos_dir = axis_home_dir > 0;
@@ -2458,15 +2462,10 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
-
         current_position.z -= probe.offset.z;
-
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
-
       #else
-
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
-
       #endif
     }
   #endif

@@ -35,7 +35,7 @@
   #define BOARD_INFO_NAME      "Creality V4"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 V2"
+  #define DEFAULT_MACHINE_NAME "Ender-3 V2"
 #endif
 
 #define BOARD_NO_NATIVE_USB
@@ -211,7 +211,7 @@
 #if ENABLED(CR10_STOCKDISPLAY)
 
   #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
   #define LCD_PINS_D4                EXP3_06_PIN
 
   #define BTN_ENC                    EXP3_02_PIN
