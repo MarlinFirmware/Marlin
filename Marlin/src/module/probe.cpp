@@ -349,17 +349,6 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #endif // HAS_QUIET_PROBING
 
-/**
- * Raise Z to a minimum height to make room for a probe to move
- */
-void Probe::do_z_raise(const float z_raise) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe::do_z_raise(", z_raise, ")");
-  float z_dest = z_raise;
-  const float zoffs = DIFF_TERN(HAS_HOTEND_OFFSET, offset.z, hotend_offset[active_extruder].z);
-  if (zoffs < 0) z_dest -= zoffs;
-  do_z_clearance(z_dest);
-}
-
 FORCE_INLINE void probe_specific_action(const bool deploy) {
   DEBUG_SECTION(log_psa, "Probe::probe_specific_action", DEBUGGING(LEVELING));
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
@@ -522,8 +511,11 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
     constexpr bool z_raise_wanted = true;
   #endif
 
-  if (z_raise_wanted)
-    do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+  if (z_raise_wanted) {
+    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, _MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE), hotend_offset[active_extruder].z);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
+    do_z_clearance(zdest);
+  }
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
     if (homing_needed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
