@@ -89,31 +89,6 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
     mode_conv_proc(ENABLED(BLTOUCH_SET_5V_MODE));
 }
 
-#ifdef BLTOUCH_HS_MODE
-  /**
-   * In BLTOUCH HS mode, the probe travels in a deployed state. Provide
-   * extra clearance to accommodate this deployed state. Use the probe
-   * nozzle-to-trigger-point offset plus a configured extra margin, or
-   * the extra length of the deployed versus stowed pin (~7mm).
-   */
-  float BLTouch::z_extra_clearance() {
-    if (!high_speed_mode) return 0;
-
-    // Only use probe offset option if a margin value is available. Otherwise
-    // raising by the offset would give 0 clearance and probe offset is the
-    // trigger point, not the contact point. Expect a minimum of 1mm before
-    // the probe pin lifts off the surface.
-    #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
-      // The probe trigger point should be below the nozzle, but there's no guarantee!
-      const float zclear = (BLTOUCH_HS_EXTRA_CLEARANCE) - probe.offset.z;
-      if (zclear > 0 && zclear < 7) return zclear;
-    #endif
-
-    // Offset not set or positive (invalid), use BLTOUCH stroke
-    return 7;
-  }
-#endif
-
 void BLTouch::clear() {
   _reset();    // RESET or RESET_SW will clear an alarm condition but...
                // ...it will not clear a triggered condition in SW mode when the pin is currently up
