@@ -753,7 +753,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
 
     // Raise to give the probe clearance
-    do_z_clearance_by(Z_CLEARANCE_MULTI_PROBE);
+    do_z_clearance(Z_CLEARANCE_MULTI_PROBE);
 
   #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
@@ -763,7 +763,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (current_position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!probe_down_to_z(z, z_probe_fast_mm_s))
-        do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
+        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
     }
   #endif
 
