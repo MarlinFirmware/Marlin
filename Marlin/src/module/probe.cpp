@@ -702,6 +702,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  * @details Used by probe_at_point to get the bed Z height at the current XY.
  *          Leaves current_position.z at the height where the probe triggered.
  *
+ * @param sanity_check Flag to compare the probe result with the expected result
+ *                     based on the probe Z offset. If the result is too far away
+ *                     (more than 2mm too early) then consider it an error.
+ *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
 float Probe::run_z_probe(const bool sanity_check/*=true*/) {
@@ -709,22 +713,24 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
 
-  auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("try_to_probe(..., ", z_probe_low_point, ", ", fr_mm_s, ", ", scheck, ", ", clearance);
+  auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
+    constexpr float error_tolerance = 2.0f;
+    if (DEBUGGING(LEVELING)) {
+      DEBUG_ECHOPGM_P(plbl);
+      DEBUG_ECHOLNPGM("> try_to_probe(..., ", z_probe_low_point, ", ", fr_mm_s, ", ...)");
+    }
 
     // Tare the probe, if supported
     if (TERN0(PROBE_TARE, tare())) return true;
 
     // Do a first probe at the fast speed
-    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),          // No probe trigger?
-               early_fail = (scheck && current_position.z > zoffs + clearance);   // Probe triggered too high?
+    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),              // No probe trigger?
+               early_fail = (scheck && current_position.z > zoffs + error_tolerance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
-        DEBUG_ECHOPGM_P(plbl);
-        DEBUG_ECHOPGM(" Probe fail! -");
-        if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
-        if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
-        DEBUG_EOL();
+        DEBUG_ECHOPGM(" Probe fail! - ");
+        if (probe_fail) DEBUG_ECHOLNPGM("No trigger.");
+        if (early_fail) DEBUG_ECHOLNPGM("Triggered early (above ", zoffs + error_tolerance, "mm)");
       }
     #else
       UNUSED(plbl);
@@ -733,7 +739,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   };
 
   // Stop the probe before it goes too low to prevent damage.
-  // If Z isn't known then probe to -10mm.
+  // For known Z probe below the expected trigger point, otherwise -10mm.
   const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + Z_PROBE_LOW_POINT : -10.0f;
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
@@ -745,9 +751,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (TERN0(PROBE_TARE, tare())) return NAN;
 
     // Do a first probe at the fast speed
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Fast Probe:");
-    if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
-                     sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
+    if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s, sanity_check)) return NAN;
 
     const float z1 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
@@ -787,8 +791,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       // Probe downward slowly to find the bed
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW),
-                       sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW), sanity_check)) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
@@ -883,7 +886,6 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 #endif
 
 /**
- * - Switch to PROBING_TOOL if necessary
  * - Move to the given XY
  * - Deploy the probe, if not already deployed
  * - Probe the bed, get the Z position
@@ -962,13 +964,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       }
     }
 
-    if (!isnan(measured_z)) {
-      TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
-      TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
-      if (verbose_level > 2 || DEBUGGING(LEVELING))
-        SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
-    }
-
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
       stow();
@@ -976,6 +971,12 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       #if DISABLED(G29_RETRY_AND_RECOVER)
         SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
       #endif
+    }
+    else {
+      TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
+      TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
+      if (verbose_level > 2 || DEBUGGING(LEVELING))
+        SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
     }
 
     return measured_z;
