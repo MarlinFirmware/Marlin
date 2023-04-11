@@ -112,7 +112,7 @@
  *                    If omitted, the nozzle will raise by Z_CLEARANCE_BETWEEN_PROBES.
  *
  *   H #   Offset     With P4, 'H' specifies the Offset above the mesh height to place the nozzle.
- *                    If omitted, Z_CLEARANCE_BETWEEN_PROBES will be used.
+ *                    If omitted, Z_PROBE_SAFE_CLEARANCE will be used.
  *
  *   I #   Invalidate Invalidate the specified number of Mesh Points near the given 'X' 'Y'. If X or Y are omitted,
  *                    the nozzle location is used. If no 'I' value is given, only the point nearest to the location
@@ -917,14 +917,13 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     const float z1 = measure_point_with_encoder();
     do_z_clearance_by(SIZE_OF_LITTLE_RAISE);
-    planner.synchronize();
 
     SERIAL_ECHOPGM("Remove shim");
     LCD_MESSAGE(MSG_UBL_BC_REMOVE);
     echo_and_take_a_measurement();
 
     const float z2 = measure_point_with_encoder();
-    do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
+    do_z_clearance(Z_PROBE_SAFE_CLEARANCE);
 
     const float thickness = ABS(z1 - z2);
 
@@ -1037,7 +1036,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     LCD_MESSAGE(MSG_UBL_FINE_TUNE_MESH);
     ui.capture();                                               // Take over control of the LCD encoder
 
-    do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
+    do_blocking_move_to_xy_z(pos, Z_PROBE_SAFE_CLEARANCE);  // Move to the given XY with probe clearance
 
     MeshFlags done_flags{0};
     const xy_int8_t &lpos = location.pos;
@@ -1054,7 +1053,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
       done_flags.mark(lpos);                              // Mark this location as 'adjusted' so a new
                                                           // location is used on the next loop
-      const xyz_pos_t raw = { get_mesh_x(lpos.x), get_mesh_y(lpos.y), Z_CLEARANCE_BETWEEN_PROBES };
+      const xyz_pos_t raw = { get_mesh_x(lpos.x), get_mesh_y(lpos.y), Z_PROBE_SAFE_CLEARANCE };
 
       if (!position_is_reachable(raw)) break;             // SHOULD NOT OCCUR (find_closest_mesh_point_of_type only returns reachable)
 
@@ -1094,7 +1093,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       // Button held down? Abort editing
       if (_click_and_hold([]{
         ui.return_to_status();
-        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+        do_z_clearance(Z_PROBE_SAFE_CLEARANCE);
         set_message_with_feedback(GET_TEXT_F(MSG_EDITING_STOPPED));
       })) break;
 
@@ -1114,7 +1113,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     if (do_ubl_mesh_map) display_map(param.T_map_type);
     restore_ubl_active_state_and_leave();
 
-    do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);
+    do_blocking_move_to_xy_z(pos, Z_PROBE_SAFE_CLEARANCE);
 
     LCD_MESSAGE(MSG_UBL_DONE_EDITING_MESH);
     SERIAL_ECHOLNPGM("Done Editing Mesh");
