@@ -53,15 +53,21 @@
  */
 void GcodeSuite::G30() {
 
+  xy_pos_t old_pos = current_position,
+           probepos = current_position;
+
+  const bool seenX = parser.seenval('X');
+  if (seenX) probepos.x = RAW_X_POSITION(parser.value_linear_units());
+  const bool seenY = parser.seenval('Y');
+  if (seenY) probepos.y = RAW_Y_POSITION(parser.value_linear_units());
+
   probe.use_probing_tool();
 
-  // Convert the given logical position to native position
-  const xy_pos_t probepos = {
-    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x + probe.offset.x,
-    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y + probe.offset.y
-  };
-
   if (probe.can_reach(probepos)) {
+
+    if (seenX) old_pos.x = probepos.x;
+    if (seenY) old_pos.y = probepos.y;
+
     // Disable leveling so the planner won't mess with us
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
@@ -90,6 +96,8 @@ void GcodeSuite::G30() {
     }
 
     restore_feedrate_and_scaling();
+
+    do_blocking_move_to(old_pos);
 
     if (raise_after == PROBE_PT_STOW)
       probe.move_z_after_probing();
