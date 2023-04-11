@@ -173,12 +173,6 @@ public:
 
     #endif // !IS_KINEMATIC
 
-    static void move_z_after_probing() {
-      DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-      #ifdef Z_AFTER_PROBING
-        do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
-      #endif
-    }
     static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
@@ -196,10 +190,17 @@ public:
 
   static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
 
+  #ifndef Z_AFTER_PROBING
+    #define Z_AFTER_PROBING 0
+  #endif
+  static void move_z_after_probing(const float z=Z_AFTER_PROBING) {
+    DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
+    if (z != 0) do_z_clearance(z, true, true); // Move down still permitted
+  }
   static void move_z_after_homing() {
     DEBUG_SECTION(mzah, "move_z_after_homing", DEBUGGING(LEVELING));
-    #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
-      do_z_clearance(Z_POST_CLEARANCE, true);
+    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+      move_z_after_probing(Z_POST_CLEARANCE);
     #elif HAS_BED_PROBE
       move_z_after_probing();
     #endif
