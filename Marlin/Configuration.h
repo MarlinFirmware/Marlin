@@ -2409,6 +2409,14 @@
 //#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
+  // Enable all patterns by default, though you'll probably need just one/
+  #define NOZZLE_CLEAN_PATTERN_LINE
+  #define NOZZLE_CLEAN_PATTERN_ZIGZAG
+  #define NOZZLE_CLEAN_PATTERN_CIRCULAR
+
+  // Default pattern to use (needen when NOZZLE_CLEAN_PATTERN_LINE is disabled)
+  #define NOZZLE_CLEAN_DEFAULT_PATTERN 0
+
   // Default number of pattern repetitions
   #define NOZZLE_CLEAN_STROKES  12
 

@@ -163,6 +163,27 @@ Nozzle nozzle;
 
     const uint8_t arrPos = EITHER(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
+    switch(pattern) {
+      case 0:
+        #if !ENABLED(NOZZLE_CLEAN_PATTERN_LINE)
+          SERIAL_ECHOLNPGM("Pattern LINE not enabled - Skipping wipe");
+          return;
+        #endif
+      break;
+      case 1:
+        #if !ENABLED(NOZZLE_CLEAN_PATTERN_ZIGZAG)
+          SERIAL_ECHOLNPGM("Pattern ZIGZAG not enabled - Skipping wipe");
+          return;
+        #endif
+      break;
+      case 2:
+        #if !ENABLED(NOZZLE_CLEAN_PATTERN_CIRCULAR)
+          SERIAL_ECHOLNPGM("Pattern CIRCULAR not enabled - Skipping wipe");
+          return;
+        #endif
+      break;
+    }
+
     #if NOZZLE_CLEAN_MIN_TEMP > 20
       if (thermalManager.degTargetHotend(arrPos) < NOZZLE_CLEAN_MIN_TEMP) {
         #if ENABLED(NOZZLE_CLEAN_HEATUP)
@@ -189,35 +210,46 @@ Nozzle nozzle;
         LIMIT_AXIS(x);
         LIMIT_AXIS(y);
         LIMIT_AXIS(z);
-        const bool radiusOutOfRange = (middle[arrPos].x + radius > soft_endstop.max.x)
-                                   || (middle[arrPos].x - radius < soft_endstop.min.x)
-                                   || (middle[arrPos].y + radius > soft_endstop.max.y)
-                                   || (middle[arrPos].y - radius < soft_endstop.min.y);
-        if (radiusOutOfRange && pattern == 2) {
-          SERIAL_ECHOLNPGM("Warning: Radius Out of Range");
-          return;
-        }
-
+        #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCULAR)
+          const bool radiusOutOfRange = (middle[arrPos].x + radius > soft_endstop.max.x)
+                                     || (middle[arrPos].x - radius < soft_endstop.min.x)
+                                     || (middle[arrPos].y + radius > soft_endstop.max.y)
+                                     || (middle[arrPos].y - radius < soft_endstop.min.y);
+          if (radiusOutOfRange && pattern == 2) {
+            SERIAL_ECHOLNPGM("Warning: Radius Out of Range");
+            return;
+          }
+        #endif
       }
 
     #endif
 
-    if (pattern == 2) {
-      if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
-        SERIAL_ECHOLNPGM("Warning: Clean Circle requires XY");
-        return;
+    #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCULAR)
+      if (pattern == 2) {
+        if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
+          SERIAL_ECHOLNPGM("Warning: Clean Circle requires XY");
+          return;
+        }
       }
-    }
-    else {
-      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = current_position.y;
-    }
+      else {
+    #endif
+        if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = current_position.x;
+        if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = current_position.y;
+    #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCULAR)
+      }
+    #endif
     if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = current_position.z;
 
     switch (pattern) {
-       case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
-       case 2: circle(start[arrPos], middle[arrPos], strokes, radius);  break;
-      default: stroke(start[arrPos], end[arrPos], strokes);
+      #if ENABLED(NOZZLE_CLEAN_PATTERN_ZIGZAG)
+        case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
+      #endif
+      #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCULAR)
+        case 2: circle(start[arrPos], middle[arrPos], strokes, radius); break;
+      #endif
+      #if ENABLED(NOZZLE_CLEAN_PATTERN_LINE)
+        default: stroke(start[arrPos], end[arrPos], strokes);
+      #endif
     }
   }
 
