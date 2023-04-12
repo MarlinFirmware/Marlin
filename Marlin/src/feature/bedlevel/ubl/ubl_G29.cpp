@@ -923,7 +923,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     echo_and_take_a_measurement();
 
     const float z2 = measure_point_with_encoder();
-    do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+    do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
 
     const float thickness = ABS(z1 - z2);
 
