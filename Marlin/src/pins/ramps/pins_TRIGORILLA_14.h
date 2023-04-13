@@ -53,6 +53,23 @@
   #define E0_AUTO_FAN_PIN               FAN2_PIN
 #endif
 
+/**
+ * Trigorilla Plugs (oriented with stepper plugs at the top)
+ *
+ *       AUX : D42 GND 5V  (Chiron Y-STOP)
+ *             D43 GND 5V  (Chiron Z-STOP)
+ *
+ *     UART3 : GND D15 D14 5V
+ *                (RX3 TX3)
+ *
+ *       IIC : 12V GND D21 D20 GND 5V
+ *                    (SCL SDA)
+ *
+ * END STOPS : D19 D18 D15 D14 D2  D3
+ *             GND GND GND GND GND GND
+ *             5V  5V  5V  5V  5V  5V
+ */
+
 //
 // AnyCubic pin mappings
 //
@@ -61,9 +78,6 @@
 // - TRIGORILLA_MAPPING_I3MEGA
 //
 
-//
-// Limit Switches
-//
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
@@ -75,7 +89,7 @@
   #define Z2_MIN_PIN                          18  // Z-
 
   #ifndef Z_MIN_PROBE_PIN
-    #define Z_MIN_PROBE_PIN                    2
+    #define Z_MIN_PROBE_PIN                    2  // X+
   #endif
 
   #define CONTROLLER_FAN_PIN            FAN1_PIN
@@ -86,14 +100,14 @@
   #endif
 
   #if ENABLED(TRIGORILLA_MAPPING_CHIRON)
-    #ifndef FIL_RUNOUT_PIN
-      #define FIL_RUNOUT_PIN                  33
+    #if ENABLED(ANYCUBIC_LCD_CHIRON) && !defined(FIL_RUNOUT_PIN)
+      #define FIL_RUNOUT_PIN                  33  // Chiron LCD Adapter only
     #endif
     #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
-  #else
-    #ifndef FIL_RUNOUT_PIN
-      #define FIL_RUNOUT_PIN                  19
-    #endif
+  #endif
+
+  #ifndef FIL_RUNOUT_PIN
+    #define FIL_RUNOUT_PIN                    19  // Z+
   #endif
 
   #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)

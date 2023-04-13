@@ -206,7 +206,7 @@
     #define BTN_EN2                         PB2
 
     #define LCD_PINS_RS                     PB1
-    #define LCD_PINS_ENABLE                 PE11
+    #define LCD_PINS_EN                     PE11
     #define LCD_PINS_D4                     PE10
 
     #if ENABLED(LCD_FOR_MELZI)
@@ -252,7 +252,7 @@
     #endif
 
     #define LCD_PINS_RS                     PE10
-    #define LCD_PINS_ENABLE                 PE9
+    #define LCD_PINS_EN                     PE9
     #define LCD_PINS_D4                     PB1
     #define LCD_PINS_D5                     PB2
     #define LCD_PINS_D6                     PE7

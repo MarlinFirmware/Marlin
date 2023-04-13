@@ -51,7 +51,7 @@
 #if ANY(MKS_MINI_12864, CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define LCD_PINS_RS                       28  // ST9720 CS
-    #define LCD_PINS_ENABLE                   17  // ST9720 DAT
+    #define LCD_PINS_EN                       17  // ST9720 DAT
     #define LCD_PINS_D4                       30  // ST9720 CLK
   #endif
   #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -119,7 +119,7 @@
   PIN:  15   Port: D7        X_STEP_PIN                  protected
   PIN:  16   Port: C0        BTN_ENC                     Input  = 1
   .                          SCL                         Input  = 1
-  PIN:  17   Port: C1        LCD_PINS_ENABLE             Output = 0
+  PIN:  17   Port: C1        LCD_PINS_EN                 Output = 0
   .                          SDA                         Output = 0
   PIN:  18   Port: C2        X_MIN_PIN                   protected
   .                          X_STOP_PIN                  protected
@@ -145,8 +145,8 @@
  *        ------                                      ------
  *   PA4 | 1  2 | PC0                     BEEPER_PIN | 1  2 | BTN_ENC
  *   PD3 | 3  4 | RESET                      BTN_EN1 | 3  4 | RESET
- *   PD2   5  6 | PA1                        BTN_EN2   5  6 | LCD_PINS_D4     (ST9720 CLK)
- *   PA3 | 7  8 | PC1        (ST9720 CS) LCD_PINS_RS | 7  8 | LCD_PINS_ENABLE (ST9720 DAT)
+ *   PD2   5  6 | PA1                        BTN_EN2   5  6 | LCD_D4 (ST9720 CLK)
+ *   PA3 | 7  8 | PC1             (ST9720 CS) LCD_RS | 7  8 | LCD_EN (ST9720 DAT)
  *   GND | 9 10 | 5V                             GND | 9 10 | 5V
  *        ------                                      ------
  */

@@ -104,13 +104,14 @@
 #define MARLIN_msg_filament_purging    PSTR("Filament Purging...")
 #define MARLIN_msg_media_removed       PSTR("Media Removed")
 #define MARLIN_msg_special_pause       PSTR("PB")
-#define AC_cmnd_auto_unload_filament   PSTR("M701")                    // Use Marlin unload routine
-#define AC_cmnd_auto_load_filament     PSTR("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
 
-#define AC_cmnd_manual_load_filament   PSTR("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
-#define AC_cmnd_manual_unload_filament PSTR("M83\nG1 E-50 F1200\nM82")
-#define AC_cmnd_enable_levelling       PSTR("M420 S1 V1")
-#define AC_cmnd_power_loss_recovery    PSTR("G28 R5 X Y\nG28 Z")       // Lift, home X and Y then home Z when in 'safe' position
+#define AC_cmnd_auto_unload_filament   F("M701")                    // Use Marlin unload routine
+#define AC_cmnd_auto_load_filament     F("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
+
+#define AC_cmnd_manual_load_filament   F("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
+#define AC_cmnd_manual_unload_filament F("M83\nG1 E-50 F1200\nM82")
+#define AC_cmnd_enable_leveling        F("M420SV")
+#define AC_cmnd_power_loss_recovery    F("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
 
 namespace Anycubic {
   enum heater_state_t : uint8_t {
