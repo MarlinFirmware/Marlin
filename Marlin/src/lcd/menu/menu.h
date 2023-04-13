@@ -35,7 +35,8 @@ typedef void (*selectFunc_t)();
 
 #define SS_LEFT    0x00
 #define SS_CENTER  0x01
-#define SS_INVERT  0x02
+#define SS_FULL    0x02
+#define SS_INVERT  0x04
 #define SS_DEFAULT SS_CENTER
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
@@ -75,7 +76,7 @@ class MenuItemBase {
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char *vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
