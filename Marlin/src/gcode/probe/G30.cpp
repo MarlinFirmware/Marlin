@@ -105,8 +105,8 @@ void GcodeSuite::G30() {
     report_current_position();
   }
   else {
+    SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
     #if ENABLED(DWIN_LCD_PROUI)
-      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
       LCD_MESSAGE(MSG_ZPROBE_OUT);
     #endif
   }
