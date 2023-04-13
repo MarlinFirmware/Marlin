@@ -1262,8 +1262,9 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       #else
         #define _AUTOFAN_SPEED() EXTRUDER_AUTO_FAN_SPEED
       #endif
-      #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break
-      #define AUTOFAN_CASE(N) OPTCODE(HAS_AUTO_FAN_##N, _AUTOFAN_CASE(N))
+      #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break;
+      #define _AUTOFAN_NOT(N)
+      #define AUTOFAN_CASE(N) TERN(HAS_AUTO_FAN_##N, _AUTOFAN_CASE, _AUTOFAN_NOT)(N)
 
       switch (f) {
         REPEAT(8, AUTOFAN_CASE)
