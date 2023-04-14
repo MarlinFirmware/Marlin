@@ -2,16 +2,47 @@
 
 This project aims to port vanilla Marlin to the [Voxlab Aquila X2](https://www.voxelab3dp.com/product/aquila-x2-fdm-3d-printer) 3D-Printer with H32 (HC32F46x) SoC.
 
+⚠ before doing anything, read the **FULL** readme first ⚠
+
 this project is based on the following projects and wouldn't have been possible without them:
 
 - [shadow578/platform-hc32f46x](https://github.com/shadow578/platform-hc32f46x) (platformio platform for HC32F46x)
 - [shadow578/framework-arduino-hc32f46x](https://github.com/shadow578/framework-arduino-hc32f46x) (Arduino framework for HC32F46x)
 - [MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin) (base Marlin firmware)
-- [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2) (base `h32_core` and HAL)
-- [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32) (optimizations to `h32_core` and `HAL`)
+- [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2) (platform, framework and HAL)
+- [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32) (optimizations to framework and `HAL`)
 - [stm32duino/Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) (misc. Arduino functions)
 
 details on the origin of code used is described in README files accompanying the components.
+
+# Forking this Project
+
+if you wish to fork this project, please keep the following in mind:
+
+1. create a proper fork of this repository, and not a copy. this makes it easier to keep track of changes.
+
+- you can do this by clicking the "fork" button in the top-right corner of this page.
+- if your repo does **not** show a little "forked from" message in the top-left corner, you've done it wrong.
+
+2. if you make improvements, please consider creating a PR to this repo. to make it easier to merge, please keep the following in mind:
+
+- avoid changing files outside of the HAL as much as possible. doing so makes it **way** easier to merge changes from upstream.
+- the focus of this repo is to **port** marlin to the HC32F46x SoC. if you want to add new features, please consider creating a PR to the upstream marlin repo instead.
+- keep your commits small and focused. this makes it easier to review and merge.
+  - this also means that you should avoid changes to files not related to the HC32F46x SoC, like for example the vscode config files.
+- if you make changes that require changes to the arduino core, create a PR in both repos and add links to each other.
+
+# Disclaimer
+
+my abilities to debug the firmware are currently extremely limited (i basically just compile, flash, and pray).
+because of this, i cannot offer much support for the firmware, and the following is a bit more harsh than i'd normally do (sorry). So here goes:
+
+this firmware comes without **any** support or gurantees.
+if you brick your printer, you're on your own.
+
+- issues opened demanding a bug to be fixed (without any intention of helping) will be closed and/or ignored.
+- issues requesting new features will be closed. this is just a port of vanilla marlin.
+- again, if you break your printer, you're on your own.
 
 # Building
 
@@ -151,18 +182,6 @@ available documents include:
 - programming tools and emulators
 
 > Note: i'm not publishing these documents as i'm unsure on their license.
-
-## Disclaimer
-
-my abilities to debug the firmware are currently extremely limited (i basically just compile, flash, and pray).
-because of this, i cannot offer much support for the firmware, and the following is a bit more harsh than i'd normally do (sorry). So here goes:
-
-this firmware comes without **any** support or gurantees.
-if you brick your printer, you're on your own.
-
-- issues opened demanding a bug to be fixed (without any intention of helping) will be closed and/or ignored.
-- issues requesting new features will be closed. this is just a port of vanilla marlin.
-- again, if you break your printer, you're on your own.
 
 ---
 
