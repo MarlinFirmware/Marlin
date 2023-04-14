@@ -4,14 +4,14 @@
 
 #include "rs485.h"
 
-HardwareSerialBusIO busIO(&RS485_SERIAL);
-RS485Bus<RS485_BUS_BUFFER_SIZE> bus(busIO, RS485_RX_ENABLE_PIN, RS485_TX_ENABLE_PIN);
+HardwareSerialBusIO rs485BusIO(&RS485_SERIAL);
+RS485Bus<RS485_BUS_BUFFER_SIZE> rs485Bus(rs485BusIO, RS485_RX_ENABLE_PIN, RS485_TX_ENABLE_PIN);
 
-PhotonProtocol protocol;
+PhotonProtocol rs485Protocol;
 
-Packetizer packetizer(bus, protocol);
+Packetizer rs485Packetizer(rs485Bus, rs485Protocol);
 
-uint8_t buffer[RS485_SEND_BUFFER_SIZE];
+uint8_t rs485Buffer[RS485_SEND_BUFFER_SIZE];
 
 void rs485_init() {
   RS485_SERIAL.begin(57600);

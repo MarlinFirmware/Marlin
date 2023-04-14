@@ -5,8 +5,8 @@
 #include "../../gcode.h"
 
 void write_packet_data() {
-  for(size_t i=0; i<packetizer.packetLength(); i++) {
-    uint8_t data = bus[i];
+  for(size_t i=0; i<rs485Packetizer.packetLength(); i++) {
+    uint8_t data = rs485Bus[i];
     SERIAL_ECHO((data < 0x10) ? "0" : "");
 
     SERIAL_PRINT(data, PrintBase::Hex);
@@ -40,19 +40,19 @@ void GcodeSuite::M485() {
     }
 
     uint8_t byte = (firstNibble & 0xF) << 4 | (secondNibble & 0xF);
-    buffer[i >> 1] = byte;
+    rs485Buffer[i >> 1] = byte;
   }
 
-  packetizer.setMaxReadTimeout(10);  // This can be super small since ideally any packets will already be in our buffer
+  rs485Packetizer.setMaxReadTimeout(10);  // This can be super small since ideally any packets will already be in our buffer
 
   // Read and ignore any packets that may have come in, before we write.
-  while(packetizer.hasPacket()) {
+  while(rs485Packetizer.hasPacket()) {
     SERIAL_ECHO("rs485-unexpected-packet: ");
     write_packet_data();
-    packetizer.clearPacket();
+    rs485Packetizer.clearPacket();
   }
 
-  PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
+  PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
 
   switch(writeResult) {
     case PacketWriteResult::OK:
@@ -68,10 +68,10 @@ void GcodeSuite::M485() {
       return;
   }
 
-  packetizer.setMaxReadTimeout(50000);  // 50 ms
+  rs485Packetizer.setMaxReadTimeout(50000);  // 50 ms
 
   // unsigned long startTime = millis();
-  bool hasPacket = packetizer.hasPacket();
+  bool hasPacket = rs485Packetizer.hasPacket();
   // unsigned long endTime = millis();
   // SERIAL_ECHO("rs485-time: ");
   // SERIAL_PRINTLN(endTime - startTime, PrintBase::Dec);
@@ -83,7 +83,7 @@ void GcodeSuite::M485() {
 
   SERIAL_ECHO("rs485-reply: ");
   write_packet_data();
-  packetizer.clearPacket();
+  rs485Packetizer.clearPacket();
 }
 
 #endif

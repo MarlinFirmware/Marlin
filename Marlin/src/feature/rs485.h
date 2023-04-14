@@ -14,11 +14,11 @@
 
 #define RS485_SEND_BUFFER_SIZE 32
 
-extern HardwareSerialBusIO busIO;
-extern RS485Bus<RS485_BUS_BUFFER_SIZE> bus;
-extern PhotonProtocol protocol;
-extern Packetizer packetizer;
-extern uint8_t buffer[RS485_SEND_BUFFER_SIZE];
+extern HardwareSerialBusIO rs485BusIO;
+extern RS485Bus<RS485_BUS_BUFFER_SIZE> rs485Bus;
+extern PhotonProtocol rs485Protocol;
+extern Packetizer rs485Packetizer;
+extern uint8_t rs485Buffer[RS485_SEND_BUFFER_SIZE];
 
 void rs485_init();
 
