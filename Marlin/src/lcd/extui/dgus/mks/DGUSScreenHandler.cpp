@@ -739,7 +739,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     return;
 
   char axiscode;
-  uint16_t speed = _mf[X_AXIS]; // Default feedrate for manual moves
+  uint16_t speed = manual_feedrate_mm_m[X_AXIS]; // Default feedrate for manual moves
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
@@ -751,7 +751,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     #if HAS_Y_AXIS
       case VP_MOVE_Y:
         axiscode = 'Y';
-        speed = _mf[Y_AXIS];
+        speed = manual_feedrate_mm_m[Y_AXIS];
         if (!ExtUI::canMove(ExtUI::axis_t::Y)) goto cannotmove;
         break;
     #endif
@@ -759,7 +759,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     #if HAS_Z_AXIS
       case VP_MOVE_Z:
         axiscode = 'Z';
-        speed = _mf[Z_AXIS];
+        speed = manual_feedrate_mm_m[Z_AXIS];
         if (!ExtUI::canMove(ExtUI::axis_t::Z)) goto cannotmove;
         break;
     #endif

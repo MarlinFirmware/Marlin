@@ -243,7 +243,7 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    #ifdef BLTOUCH_HS_MODE
+    #if HAS_BLTOUCH_HS_MODE
       EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
     #endif
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)

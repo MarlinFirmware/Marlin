@@ -403,9 +403,11 @@ void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
+  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
+  void do_z_clearance_by(const_float_t zclear);
 #else
-  inline void do_z_clearance(float, bool=false) {}
+  inline void do_z_clearance(float, bool=true, bool=false) {}
+  inline void do_z_clearance_by(float) {}
 #endif
 
 /**
@@ -434,25 +436,20 @@ void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
   bool homing_needed_error(main_axes_bits_t axes_mask=main_axes_mask);
-  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axes_homed, axis); }
-  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axes_trusted, axis); }
-  inline void set_all_unhomed()                       { axes_homed = axes_trusted = 0; }
-  inline void set_axis_homed(const AxisEnum axis)     { SBI(axes_homed, axis); }
-  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axes_trusted, axis); }
-  inline void set_all_homed()                         { axes_homed = axes_trusted = main_axes_mask; }
 #else
   constexpr main_axes_bits_t axes_homed = main_axes_mask, axes_trusted = main_axes_mask; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
   inline main_axes_bits_t axes_should_home(main_axes_bits_t=main_axes_mask) { return 0; }
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
-  inline void set_axis_unhomed(const AxisEnum axis)   {}
-  inline void set_axis_untrusted(const AxisEnum axis) {}
-  inline void set_all_unhomed()                       {}
-  inline void set_axis_homed(const AxisEnum axis)     {}
-  inline void set_axis_trusted(const AxisEnum axis)   {}
-  inline void set_all_homed()                         {}
 #endif
+
+inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
+inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
+inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
+inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
+inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
+inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
