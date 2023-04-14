@@ -84,7 +84,7 @@ void GcodeSuite::M48() {
   };
 
   if (!probe.can_reach(test_position)) {
-    ui.set_status(GET_TEXT_F(MSG_M48_OUT_OF_BOUNDS), 99);
+    LCD_MESSAGE_MAX(MSG_M48_OUT_OF_BOUNDS);
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }

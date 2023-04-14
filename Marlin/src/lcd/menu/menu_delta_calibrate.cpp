@@ -68,8 +68,8 @@ void _man_probe_pt(const xy_pos_t &xy) {
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
     ui.defer_status_screen();
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Delta Calibration in progress"), FPSTR(CONTINUE_STR)));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Delta Calibration in progress")));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_DELTA_CALIBRATION_IN_PROGRESS), FPSTR(CONTINUE_STR)));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_DELTA_CALIBRATION_IN_PROGRESS)));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     ui.goto_previous_screen_no_defer();
     return current_position.z;

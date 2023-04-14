@@ -201,7 +201,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Load Filament")));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENTLOAD)));
 
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, active_extruder);
@@ -460,7 +460,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // If axes don't need to home then the nozzle can park
   if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
-  TERN_(DWIN_LCD_PROUI, if (!do_park) ui.set_status(GET_TEXT_F(MSG_PARK_FAILED)));
+  if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
@@ -549,9 +549,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, GET_TEXT_F(MSG_REHEATING)));
 
-      TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(GET_TEXT_F(MSG_REHEATING)));
-
-      TERN_(DWIN_LCD_PROUI, LCD_MESSAGE(MSG_REHEATING));
+      LCD_MESSAGE(MSG_REHEATING);
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -568,8 +566,11 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_REHEATDONE), FPSTR(CONTINUE_STR)));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_REHEATDONE)));
-      TERN_(DWIN_LCD_PROUI, LCD_MESSAGE(MSG_REHEATDONE));
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_REHEATDONE));
+      #else
+        LCD_MESSAGE(MSG_REHEATDONE);
+      #endif
 
       IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
 
