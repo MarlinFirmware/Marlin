@@ -981,7 +981,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   if (recover)  {
     LCD_MESSAGE(MSG_MMU2_REMOVE_AND_CLICK);
     mmu2_attn_buzz();
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_MMU2_EJECT_RECOVER), FPSTR(CONTINUE_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     mmu2_attn_buzz(true);
