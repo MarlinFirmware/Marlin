@@ -151,15 +151,6 @@ __pycache__
 # IOLogger logs
 *_log.csv
 
-# HC32F46x
-Marlin/build/
-!Marlin/lib/h32_core/
-!Marlin/lib/h32_core/main/hdsc32core/common/hdsc.a
-!.vscode/extensions.json
-!.vscode/tasks.json
-!.vscode/c_cpp_properties.json
-
-
 # Misc.
 *~
 *.orig

@@ -20,7 +20,7 @@
  *
  */
 #pragma once
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 bool SDIO_Init();
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);

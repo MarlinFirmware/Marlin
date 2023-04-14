@@ -41,7 +41,7 @@ uint8_t ServoCount = 0;
 #define TIMERA_UNIT1_CH1_PIN Pin00
 #define TIMERA_UNIT1_CH1_FUNC Func_Tima0
 
-#include <boards.h>
+#include "../../core/boards.h"
 #include <io.h>
 #ifndef TARGET_HC32F46x
 #include <pwm.h>

@@ -64,3 +64,5 @@ private:
   void pauseSoftPWM();
   void pwmSetDuty(const uint16_t duty_cycle);
 };
+
+typedef H32Servo hal_servo_t;

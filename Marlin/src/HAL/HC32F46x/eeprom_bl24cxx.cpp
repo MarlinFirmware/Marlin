@@ -25,7 +25,7 @@
  * with simple implementations supplied by Marlin.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
 
