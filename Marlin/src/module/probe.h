@@ -29,10 +29,6 @@
 
 #include "motion.h"
 
-#if ENABLED(BLTOUCH)
-  #include "../feature/bltouch.h"
-#endif
-
 #if ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
 #endif
