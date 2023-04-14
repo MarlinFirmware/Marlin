@@ -33,6 +33,11 @@
 #define ST7796S_MADCTL_RGB 0x00
 #define ST7796S_MADCTL_MH  0x04 // Horizontal Refresh Order
 
+#define ST7796S_ORIENTATION_TOP     ST7796S_MADCTL_MX                                         // 320x480 ; FPC cable on the top side
+#define ST7796S_ORIENTATION_RIGHT   ST7796S_MADCTL_MV                                         // 480x320 ; FPC cable on the right side
+#define ST7796S_ORIENTATION_LEFT    ST7796S_MADCTL_MY | ST7796S_MADCTL_MX | ST7796S_MADCTL_MV // 480x320 ; FPC cable on the left side
+#define ST7796S_ORIENTATION_BOTTOM  ST7796S_MADCTL_MY                                         // 320x480 ; FPC cable on the bottom side
+
 #define ST7796S_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ST7796S_MADCTL_MV) | \
                             IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ST7796S_MADCTL_MX) | \
                             IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ST7796S_MADCTL_MY)
@@ -132,6 +137,7 @@ static const uint16_t st7796s_init[] = {
   ESC_REG(ST7796S_COLMOD), 0x0055,
 
   ESC_REG(ST7796S_DIC), 0x0001,  // 1-dot inversion
+  ESC_REG(ST7796S_DFC), 0x0080, 0x0002, 0x003B, // Source Output Scan Direction: 0, Gate Output Scan Direction: 0
   ESC_REG(ST7796S_EM), 0x00C6,
 
   ESC_REG(ST7796S_PWR2), 0x0015,
@@ -144,11 +150,7 @@ static const uint16_t st7796s_init[] = {
   ESC_REG(ST7796S_PGC), 0x00F0, 0x0004, 0x0008, 0x0009, 0x0008, 0x0015, 0x002F, 0x0042, 0x0046, 0x0028, 0x0015, 0x0016, 0x0029, 0x002D,
   ESC_REG(ST7796S_NGC), 0x00F0, 0x0004, 0x0009, 0x0009, 0x0008, 0x0015, 0x002E, 0x0046, 0x0046, 0x0028, 0x0015, 0x0015, 0x0029, 0x002D,
 
-  #if ENABLED(ST7796S_INVERTED)
-    ESC_REG(ST7796S_INVON),    // Display inversion ON
-  #else
-    ESC_REG(ST7796S_NORON),
-  #endif
+  ESC_REG(TERN(ST7796S_INVERTED, ST7796S_INVON, ST7796S_NORON)), // Display inversion
   ESC_REG(ST7796S_WRCTRLD), 0x0024,
   ESC_REG(ST7796S_CSCON), 0x003C,  // disable command 2 part I
   ESC_REG(ST7796S_CSCON), 0x0069,  // disable command 2 part II

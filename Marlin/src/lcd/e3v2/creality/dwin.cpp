@@ -411,7 +411,7 @@ void Scroll_Menu(const uint8_t dir) {
 }
 
 inline uint16_t nr_sd_menu_items() {
-  return card.get_num_Files() + !card.flag.workDirIsRoot;
+  return card.get_num_items() + !card.flag.workDirIsRoot;
 }
 
 void Erase_Menu_Text(const uint8_t line) {
@@ -1830,9 +1830,9 @@ void MarlinUI::refresh() { /* Nothing to see here */ }
   void Init_Shift_Name() {
     const bool is_subdir = !card.flag.workDirIsRoot;
     const int8_t filenum = select_file.now - 1 - is_subdir; // Skip "Back" and ".."
-    const uint16_t fileCnt = card.get_num_Files();
+    const int16_t fileCnt = card.get_num_items();
     if (WITHIN(filenum, 0, fileCnt - 1)) {
-      card.getfilename_sorted(SD_ORDER(filenum, fileCnt));
+      card.selectFileByIndexSorted(filenum);
       char * const name = card.longest_filename();
       make_name_without_ext(shift_name, name, 100);
     }
@@ -1857,7 +1857,7 @@ void Draw_SDItem(const uint16_t item, int16_t row=-1) {
     return;
   }
 
-  card.getfilename_sorted(SD_ORDER(item - is_subdir, card.get_num_Files()));
+  card.selectFileByIndexSorted(item - is_subdir);
   char * const name = card.longest_filename();
 
   #if ENABLED(SCROLL_LONG_FILENAMES)
@@ -2223,7 +2223,7 @@ void HMI_SelectFile() {
     }
     else {
       const uint16_t filenum = select_file.now - 1 - hasUpDir;
-      card.getfilename_sorted(SD_ORDER(filenum, card.get_num_Files()));
+      card.selectFileByIndexSorted(filenum);
 
       // Enter that folder!
       if (card.flag.filenameIsDir) {
@@ -2243,7 +2243,7 @@ void HMI_SelectFile() {
       card.openAndPrintFile(card.filename);
 
       #if HAS_FAN
-        // All fans on for Ender 3 v2 ?
+        // All fans on for Ender-3 v2 ?
         // The slicer should manage this for us.
         //for (uint8_t i = 0; i < FAN_COUNT; i++)
         //  thermalManager.fan_speed[i] = 255;
@@ -3395,11 +3395,11 @@ void Draw_Max_Accel_Menu() {
 
     Draw_Back_First();
     LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
-    Draw_Edit_Float3(1, planner.max_jerk[X_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(2, planner.max_jerk[Y_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(3, planner.max_jerk[Z_AXIS] * MINUNITMULT);
+    Draw_Edit_Float3(1, planner.max_jerk.x * MINUNITMULT);
+    Draw_Edit_Float3(2, planner.max_jerk.y * MINUNITMULT);
+    Draw_Edit_Float3(3, planner.max_jerk.z * MINUNITMULT);
     #if HAS_HOTEND
-      Draw_Edit_Float3(4, planner.max_jerk[E_AXIS] * MINUNITMULT);
+      Draw_Edit_Float3(4, planner.max_jerk.e * MINUNITMULT);
     #endif
   }
 #endif

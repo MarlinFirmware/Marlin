@@ -23,6 +23,9 @@
 
 /**
  * Geeetech GT2560 3.0/3.1 pin assignments
+ * Schematic (3.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%203.0/GT2560_V3.0_SCH.pdf
+ * Origin (3.0): https://github.com/Geeetech3D/Diagram/blob/master/GT2560_V3.0_SCH.pdf
+ * ATmega2560
  *
  * Also GT2560 RevB and GT2560 4.0/4.1
  */
@@ -135,7 +138,7 @@
 #define HEATER_1_PIN                           3
 #define HEATER_2_PIN                           2
 #define HEATER_BED_PIN                         4
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN1_PIN                               8
 #define FAN2_PIN                               7
 
@@ -177,8 +180,8 @@
   #ifndef LCD_PINS_RS
     #define LCD_PINS_RS                       20
   #endif
-  #ifndef LCD_PINS_ENABLE
-    #define LCD_PINS_ENABLE                   17
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN                       17
   #endif
   #ifndef LCD_PINS_D4
     #define LCD_PINS_D4                       16

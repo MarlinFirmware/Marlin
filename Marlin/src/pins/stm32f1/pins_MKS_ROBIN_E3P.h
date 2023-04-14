@@ -112,18 +112,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PD14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PD1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PD0
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PD14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PD1
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PD0
 #endif
 
 #if HAS_TMC_UART
@@ -173,7 +171,7 @@
 #define HEATER_0_PIN                        PC3   // HEATER1
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
+#define FAN0_PIN                            PB1   // FAN
 
 //
 // Misc. Functions
@@ -298,7 +296,7 @@
 
 #if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
@@ -310,7 +308,7 @@
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
@@ -377,8 +375,8 @@
 
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PB15

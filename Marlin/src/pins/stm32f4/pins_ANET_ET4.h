@@ -123,7 +123,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PE3   // Layer fan
+#define FAN0_PIN                            PE3   // Layer fan
 #define FAN1_PIN                            PE1   // Hotend fan
 
 #ifndef E0_AUTO_FAN_PIN
@@ -206,6 +206,7 @@
   #if DISABLED(SDIO_SUPPORT)
     #define SOFTWARE_SPI
     #define SDSS                            PC11
+    #define SD_SS_PIN                       SDSS
     #define SD_SCK_PIN                      PC12
     #define SD_MISO_PIN                     PC8
     #define SD_MOSI_PIN                     PD2

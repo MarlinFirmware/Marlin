@@ -119,8 +119,8 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_06
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_06
 #endif
 #define FAN1_PIN                           P1_22
 
@@ -130,12 +130,6 @@
 #define AUTO_FAN_PIN                       P1_22  // FET 3
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
 
 //
@@ -191,7 +185,7 @@
    */
   #define BEEPER_PIN                 EXP1_01_PIN
   #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   #define KILL_PIN                   EXP1_04_PIN
 

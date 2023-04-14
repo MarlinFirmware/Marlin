@@ -303,6 +303,24 @@ static bool serial_data_available(serial_index_t index) {
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
+#if (defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON)
+
+  /**
+   * arduinoststm32's USB receive buffer is not well behaved when the buffer overflows
+   *
+   * This can happen when the host programs (such as Pronterface) automatically
+   * send M105 temperature requests.
+   */
+  void GCodeQueue::flush_rx() {
+    // Flush receive buffer
+    LOOP_L_N(p, NUM_SERIAL) {
+      if (!serial_data_available(p)) continue; // No data for this port? Skip.
+      while (SERIAL_IMPL.available(p)) (void)read_serial(p);
+    }
+  }
+
+#endif // (ARDUINO_ARCH_STM32F4 || ARDUINO_ARCH_STM32) && USBCON
+
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
@@ -469,8 +487,11 @@ void GCodeQueue::get_serial_commands() {
 
           const long gcode_N = strtol(npos + 1, nullptr, 10);
 
+          // The line number must be in the correct sequence.
           if (gcode_N != serial.last_N + 1 && !M110) {
-            // In case of error on a serial port, don't prevent other serial port from making progress
+            // A request-for-resend line was already in transit so we got two - oops!
+            if (WITHIN(gcode_N, serial.last_N - 1, serial.last_N)) continue;
+            // A corrupted line or too high, indicating a lost line
             gcode_line_error(F(STR_ERR_LINE_NO), p);
             break;
           }
@@ -480,13 +501,11 @@ void GCodeQueue::get_serial_commands() {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
             if (strtol(apos + 1, nullptr, 10) != checksum) {
-              // In case of error on a serial port, don't prevent other serial port from making progress
               gcode_line_error(F(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
           }
           else {
-            // In case of error on a serial port, don't prevent other serial port from making progress
             gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
             break;
           }

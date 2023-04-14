@@ -23,6 +23,7 @@
 
 /**
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -33,56 +34,68 @@
 #endif
 
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || SERIAL_PORT_3 == 1
-  #warning "Serial 1 is originally reserved to DGUS LCD."
+  #warning "Serial 1 is originally reserved for DGUS LCD."
 #endif
 #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2
   #warning "Serial 2 has no connector. Hardware changes may be required to use it."
 #endif
 #if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAL_PORT_3 == 3 || LCD_SERIAL_PORT == 3
-  #define CHANGE_Y_LIMIT_PINS
-  #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
+  #warning "Serial 3 is originally reserved for Y limit switches. Hardware changes are required to use it."
+  #define Y_STOP_PIN                          37
+  #if MB(LONGER3D_LKx_PRO)
+    #define Z_STOP_PIN                        35
+  #endif
 #endif
 
-// Custom flags and defines for the build
-//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
-
 #define BOARD_INFO_NAME "LGT KIT V1.0"
+#if ENABLED(LONGER_LK5)
+  #define DEFAULT_MACHINE_NAME "LONGER LK5"
+#else
+  #define DEFAULT_MACHINE_NAME "LONGER 3D Printer"
+#endif
 
 //
 // Servos
 //
-#if !MB(LONGER3D_LK1_PRO)
+#if MB(LONGER3D_LKx_PRO)
   #define SERVO0_PIN                           7
 #endif
-#define SERVO1_PIN -1
-#define SERVO2_PIN -1
-#define SERVO3_PIN -1
+#define SERVO1_PIN                            -1
+#define SERVO2_PIN                            -1
+#define SERVO3_PIN                            -1
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             3
-
-#ifdef CHANGE_Y_LIMIT_PINS
-  #define Y_STOP_PIN                          37
+#if ENABLED(LONGER_LK5)
+  #define X_MIN_PIN                            3
+  #define X_MAX_PIN                            2
 #else
-  #define Y_MIN_PIN                           14
-  #define Y_MAX_PIN                           15
+  #define X_STOP_PIN                           3
 #endif
 
-#if !MB(LONGER3D_LK1_PRO)
-  #ifdef CHANGE_Y_LIMIT_PINS
-    #define Z_STOP_PIN                        35
+#if !ANY_PIN(Y_MIN, Y_MAX, Y_STOP)
+  #if ENABLED(LONGER_LK5)
+    #define Y_STOP_PIN                        14
   #else
-    #define Z_MIN_PIN                         35
-    #define Z_MAX_PIN                         37
+    #define Y_MIN_PIN                         14
+    #define Y_MAX_PIN                         15
   #endif
-#else
-  #define Z_MIN_PIN                           11
+#endif
+
+#if !ANY_PIN(Z_MIN, Z_MAX, Z_STOP)
+  #if MB(LONGER3D_LKx_PRO)
+    #define Z_MIN_PIN                         35
+  #else
+    #define Z_MIN_PIN                         11
+  #endif
   #define Z_MAX_PIN                           37
 #endif
 
-#undef CHANGE_Y_LIMIT_PINS
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#define Z_MIN_PROBE_PIN                       -1
 
 //
 // Steppers - No E1 pins
@@ -91,11 +104,6 @@
 #define E1_DIR_PIN                            -1
 #define E1_ENABLE_PIN                         -1
 #define E1_CS_PIN                             -1
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#define Z_MIN_PROBE_PIN                       -1
 
 //
 // Temperature Sensors
@@ -115,7 +123,36 @@
 #define SD_DETECT_PIN                         49
 #define FIL_RUNOUT_PIN                         2
 
+//          ------------------        ----------------        ---------------        -------------
+//    Aux-1 | D19 D18 GND 5V |    J21 | D4 D5 D6 GND |    J17 | D11 GND 24V |    J18 | D7 GND 5V |
+//          ------------------        ----------------        ---------------        -------------
+
+#if BOTH(CR10_STOCKDISPLAY, LONGER_LK5)
+  /**       CR-10 Stock Display
+   *             ------
+   * BEEPER D11 | 1  2 | D15 ENC
+   *    EN1 D18 | 3  4 | GND
+   *    EN2 D19   5  6 | D6  LCD_D4
+   * LCD_RS D5  | 7  8 | D4  LCD_ENABLE
+   *        GND | 9 10 | 5V
+   *             ------
+   *      Connected via provided custom cable to:
+   *      Aux-1, J21, J17 and Y-Max.
+   */
+  #define LCD_PINS_RS                          5
+  #define LCD_PINS_EN                          4
+  #define LCD_PINS_D4                          6
+  #define BTN_EN1                             18
+  #define BTN_EN2                             19
+  #define BTN_ENC                             15
+  #define BEEPER_PIN                          11
+
+  #define SDCARD_CONNECTION              ONBOARD
+
+  #define LCD_PINS_DEFINED
+#endif
+
 //
 // Other RAMPS 1.3 pins
 //
-#include "pins_RAMPS_13.h" // ... RAMPS
+#include "pins_RAMPS_13.h" // ... pins_RAMPS.h

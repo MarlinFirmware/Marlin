@@ -109,284 +109,90 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 
 void Endstops::init() {
 
+  #define _INIT_ENDSTOP(T,A,N) TERN(ENDSTOPPULLUP_##A##T, SET_INPUT_PULLUP, TERN(ENDSTOPPULLDOWN_##A##T, SET_INPUT_PULLDOWN, SET_INPUT))(A##N##_##T##_PIN)
   #if HAS_X_MIN
-    #if ENABLED(ENDSTOPPULLUP_XMIN)
-      SET_INPUT_PULLUP(X_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_XMIN)
-      SET_INPUT_PULLDOWN(X_MIN_PIN);
-    #else
-      SET_INPUT(X_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,X,);
   #endif
-
-  #if HAS_X2_MIN
-    #if ENABLED(ENDSTOPPULLUP_XMIN)
-      SET_INPUT_PULLUP(X2_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_XMIN)
-      SET_INPUT_PULLDOWN(X2_MIN_PIN);
-    #else
-      SET_INPUT(X2_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Y_MIN
-    #if ENABLED(ENDSTOPPULLUP_YMIN)
-      SET_INPUT_PULLUP(Y_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_YMIN)
-      SET_INPUT_PULLDOWN(Y_MIN_PIN);
-    #else
-      SET_INPUT(Y_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Y2_MIN
-    #if ENABLED(ENDSTOPPULLUP_YMIN)
-      SET_INPUT_PULLUP(Y2_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_YMIN)
-      SET_INPUT_PULLDOWN(Y2_MIN_PIN);
-    #else
-      SET_INPUT(Y2_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Z_MIN
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      SET_INPUT_PULLUP(Z_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
-      SET_INPUT_PULLDOWN(Z_MIN_PIN);
-    #else
-      SET_INPUT(Z_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Z2_MIN
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      SET_INPUT_PULLUP(Z2_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
-      SET_INPUT_PULLDOWN(Z2_MIN_PIN);
-    #else
-      SET_INPUT(Z2_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Z3_MIN
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      SET_INPUT_PULLUP(Z3_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
-      SET_INPUT_PULLDOWN(Z3_MIN_PIN);
-    #else
-      SET_INPUT(Z3_MIN_PIN);
-    #endif
-  #endif
-
-  #if HAS_Z4_MIN
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      SET_INPUT_PULLUP(Z4_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
-      SET_INPUT_PULLDOWN(Z4_MIN_PIN);
-    #else
-      SET_INPUT(Z4_MIN_PIN);
-    #endif
-  #endif
-
   #if HAS_X_MAX
-    #if ENABLED(ENDSTOPPULLUP_XMAX)
-      SET_INPUT_PULLUP(X_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_XMAX)
-      SET_INPUT_PULLDOWN(X_MAX_PIN);
-    #else
-      SET_INPUT(X_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,X,);
   #endif
-
+  #if HAS_X2_MIN
+    _INIT_ENDSTOP(MIN,X,2);
+  #endif
   #if HAS_X2_MAX
-    #if ENABLED(ENDSTOPPULLUP_XMAX)
-      SET_INPUT_PULLUP(X2_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_XMAX)
-      SET_INPUT_PULLDOWN(X2_MAX_PIN);
-    #else
-      SET_INPUT(X2_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,X,2);
   #endif
-
+  #if HAS_Y_MIN
+    _INIT_ENDSTOP(MIN,Y,);
+  #endif
   #if HAS_Y_MAX
-    #if ENABLED(ENDSTOPPULLUP_YMAX)
-      SET_INPUT_PULLUP(Y_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_YMAX)
-      SET_INPUT_PULLDOWN(Y_MAX_PIN);
-    #else
-      SET_INPUT(Y_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Y,);
   #endif
-
+  #if HAS_Y2_MIN
+    _INIT_ENDSTOP(MIN,Y,2);
+  #endif
   #if HAS_Y2_MAX
-    #if ENABLED(ENDSTOPPULLUP_YMAX)
-      SET_INPUT_PULLUP(Y2_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_YMAX)
-      SET_INPUT_PULLDOWN(Y2_MAX_PIN);
-    #else
-      SET_INPUT(Y2_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Y,2);
   #endif
-
+  #if HAS_Z_MIN
+    _INIT_ENDSTOP(MIN,Z,);
+  #endif
   #if HAS_Z_MAX
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      SET_INPUT_PULLUP(Z_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
-      SET_INPUT_PULLDOWN(Z_MAX_PIN);
-    #else
-      SET_INPUT(Z_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Z,);
   #endif
-
+  #if HAS_Z2_MIN
+    _INIT_ENDSTOP(MIN,Z,2);
+  #endif
   #if HAS_Z2_MAX
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      SET_INPUT_PULLUP(Z2_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
-      SET_INPUT_PULLDOWN(Z2_MAX_PIN);
-    #else
-      SET_INPUT(Z2_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Z,2);
   #endif
-
+  #if HAS_Z3_MIN
+    _INIT_ENDSTOP(MIN,Z,3);
+  #endif
   #if HAS_Z3_MAX
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      SET_INPUT_PULLUP(Z3_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
-      SET_INPUT_PULLDOWN(Z3_MAX_PIN);
-    #else
-      SET_INPUT(Z3_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Z,3);
   #endif
-
+  #if HAS_Z4_MIN
+    _INIT_ENDSTOP(MIN,Z,4);
+  #endif
   #if HAS_Z4_MAX
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      SET_INPUT_PULLUP(Z4_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
-      SET_INPUT_PULLDOWN(Z4_MAX_PIN);
-    #else
-      SET_INPUT(Z4_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,Z,4);
   #endif
-
   #if HAS_I_MIN
-    #if ENABLED(ENDSTOPPULLUP_IMIN)
-      SET_INPUT_PULLUP(I_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_IMIN)
-      SET_INPUT_PULLDOWN(I_MIN_PIN);
-    #else
-      SET_INPUT(I_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,I,);
   #endif
-
   #if HAS_I_MAX
-    #if ENABLED(ENDSTOPPULLUP_IMAX)
-      SET_INPUT_PULLUP(I_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_IMAX)
-      SET_INPUT_PULLDOWN(I_MAX_PIN);
-    #else
-      SET_INPUT(I_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,I,);
   #endif
-
   #if HAS_J_MIN
-    #if ENABLED(ENDSTOPPULLUP_JMIN)
-      SET_INPUT_PULLUP(J_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_IMIN)
-      SET_INPUT_PULLDOWN(J_MIN_PIN);
-    #else
-      SET_INPUT(J_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,J,);
   #endif
-
   #if HAS_J_MAX
-    #if ENABLED(ENDSTOPPULLUP_JMAX)
-      SET_INPUT_PULLUP(J_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_JMAX)
-      SET_INPUT_PULLDOWN(J_MAX_PIN);
-    #else
-      SET_INPUT(J_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,J,);
   #endif
-
   #if HAS_K_MIN
-    #if ENABLED(ENDSTOPPULLUP_KMIN)
-      SET_INPUT_PULLUP(K_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_KMIN)
-      SET_INPUT_PULLDOWN(K_MIN_PIN);
-    #else
-      SET_INPUT(K_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,K,);
   #endif
-
   #if HAS_K_MAX
-    #if ENABLED(ENDSTOPPULLUP_KMAX)
-      SET_INPUT_PULLUP(K_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_KMIN)
-      SET_INPUT_PULLDOWN(K_MAX_PIN);
-    #else
-      SET_INPUT(K_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,K,);
   #endif
-
   #if HAS_U_MIN
-    #if ENABLED(ENDSTOPPULLUP_UMIN)
-      SET_INPUT_PULLUP(U_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_UMIN)
-      SET_INPUT_PULLDOWN(U_MIN_PIN);
-    #else
-      SET_INPUT(U_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,U,);
   #endif
-
   #if HAS_U_MAX
-    #if ENABLED(ENDSTOPPULLUP_UMAX)
-      SET_INPUT_PULLUP(U_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_UMIN)
-      SET_INPUT_PULLDOWN(U_MAX_PIN);
-    #else
-      SET_INPUT(U_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,U,);
   #endif
-
   #if HAS_V_MIN
-    #if ENABLED(ENDSTOPPULLUP_VMIN)
-      SET_INPUT_PULLUP(V_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_VMIN)
-      SET_INPUT_PULLDOWN(V_MIN_PIN);
-    #else
-      SET_INPUT(V_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,V,);
   #endif
-
   #if HAS_V_MAX
-    #if ENABLED(ENDSTOPPULLUP_VMAX)
-      SET_INPUT_PULLUP(V_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_VMIN)
-      SET_INPUT_PULLDOWN(V_MAX_PIN);
-    #else
-      SET_INPUT(V_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,V,);
   #endif
-
   #if HAS_W_MIN
-    #if ENABLED(ENDSTOPPULLUP_WMIN)
-      SET_INPUT_PULLUP(W_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_WMIN)
-      SET_INPUT_PULLDOWN(W_MIN_PIN);
-    #else
-      SET_INPUT(W_MIN_PIN);
-    #endif
+    _INIT_ENDSTOP(MIN,W,);
   #endif
-
   #if HAS_W_MAX
-    #if ENABLED(ENDSTOPPULLUP_WMAX)
-      SET_INPUT_PULLUP(W_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_WMIN)
-      SET_INPUT_PULLDOWN(W_MAX_PIN);
-    #else
-      SET_INPUT(W_MAX_PIN);
-    #endif
+    _INIT_ENDSTOP(MAX,W,);
   #endif
 
   #if PIN_EXISTS(CALIBRATION)
@@ -577,7 +383,7 @@ static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
 void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
-  #define ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) != S##_ENDSTOP_INVERTING, F(STR_##S))
+  #define ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) == S##_ENDSTOP_HIT_STATE, F(STR_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
   #endif
@@ -691,15 +497,9 @@ void __O2 Endstops::report_states() {
 
 } // Endstops::report_states
 
-#if HAS_DELTA_SENSORLESS_PROBING
-  #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
-  #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
-  #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING
-#else
-  #define __ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
-  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
-  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
-#endif
+#define __ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
+#define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
+#define _ENDSTOP_HIT_STATE(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_HIT_STATE
 #define _ENDSTOP(AXIS, MINMAX) __ENDSTOP(AXIS, MINMAX)
 
 /**
@@ -714,7 +514,7 @@ void Endstops::update() {
   #endif
 
   // Macros to update / copy the live_state
-  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ_ENDSTOP(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
+  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ_ENDSTOP(_ENDSTOP_PIN(AXIS, MINMAX)) == _ENDSTOP_HIT_STATE(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
   #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -1336,75 +1136,54 @@ void Endstops::update() {
     bool hit = false;
     #if X_SPI_SENSORLESS
       if (tmc_spi_homing.x && (stepperX.test_stall_status()
-        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SPI_SENSORLESS
+        #if Y_SPI_SENSORLESS && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
           || stepperY.test_stall_status()
-        #elif CORE_IS_XZ && Z_SPI_SENSORLESS
+        #elif Z_SPI_SENSORLESS && CORE_IS_XZ
           || stepperZ.test_stall_status()
         #endif
-      )) {
-        SBI(live_state, X_ENDSTOP);
-        hit = true;
-      }
+      )) { SBI(live_state, X_ENDSTOP); hit = true; }
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        if (tmc_spi_homing.x && stepperX2.test_stall_status()) { SBI(live_state, X2_ENDSTOP); hit = true; }
+      #endif
     #endif
     #if Y_SPI_SENSORLESS
       if (tmc_spi_homing.y && (stepperY.test_stall_status()
-        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SPI_SENSORLESS
+        #if X_SPI_SENSORLESS && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
           || stepperX.test_stall_status()
-        #elif CORE_IS_YZ && Z_SPI_SENSORLESS
+        #elif Z_SPI_SENSORLESS && CORE_IS_YZ
           || stepperZ.test_stall_status()
         #endif
-      )) {
-        SBI(live_state, Y_ENDSTOP);
-        hit = true;
-      }
+      )) { SBI(live_state, Y_ENDSTOP); hit = true; }
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        if (tmc_spi_homing.y && stepperY2.test_stall_status()) { SBI(live_state, Y2_ENDSTOP); hit = true; }
+      #endif
     #endif
     #if Z_SPI_SENSORLESS
       if (tmc_spi_homing.z && (stepperZ.test_stall_status()
-        #if CORE_IS_XZ && X_SPI_SENSORLESS
+        #if X_SPI_SENSORLESS && CORE_IS_XZ
           || stepperX.test_stall_status()
-        #elif CORE_IS_YZ && Y_SPI_SENSORLESS
+        #elif Y_SPI_SENSORLESS && CORE_IS_YZ
           || stepperY.test_stall_status()
         #endif
-      )) {
-        SBI(live_state, Z_ENDSTOP);
-        hit = true;
-      }
+      )) { SBI(live_state, Z_ENDSTOP); hit = true; }
     #endif
     #if I_SPI_SENSORLESS
-      if (tmc_spi_homing.i && stepperI.test_stall_status()) {
-        SBI(live_state, I_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.i && stepperI.test_stall_status()) { SBI(live_state, I_ENDSTOP); hit = true; }
     #endif
     #if J_SPI_SENSORLESS
-      if (tmc_spi_homing.j && stepperJ.test_stall_status()) {
-        SBI(live_state, J_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.j && stepperJ.test_stall_status()) { SBI(live_state, J_ENDSTOP); hit = true; }
     #endif
     #if K_SPI_SENSORLESS
-      if (tmc_spi_homing.k && stepperK.test_stall_status()) {
-        SBI(live_state, K_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.k && stepperK.test_stall_status()) { SBI(live_state, K_ENDSTOP); hit = true; }
     #endif
     #if U_SPI_SENSORLESS
-      if (tmc_spi_homing.u && stepperU.test_stall_status()) {
-        SBI(live_state, U_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.u && stepperU.test_stall_status()) { SBI(live_state, U_ENDSTOP); hit = true; }
     #endif
     #if V_SPI_SENSORLESS
-      if (tmc_spi_homing.v && stepperV.test_stall_status()) {
-        SBI(live_state, V_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.v && stepperV.test_stall_status()) { SBI(live_state, V_ENDSTOP); hit = true; }
     #endif
     #if W_SPI_SENSORLESS
-      if (tmc_spi_homing.w && stepperW.test_stall_status()) {
-        SBI(live_state, W_ENDSTOP);
-        hit = true;
-      }
+      if (tmc_spi_homing.w && stepperW.test_stall_status()) { SBI(live_state, W_ENDSTOP); hit = true; }
     #endif
 
     if (TERN0(ENDSTOP_INTERRUPTS_FEATURE, hit)) update();
@@ -1414,7 +1193,13 @@ void Endstops::update() {
 
   void Endstops::clear_endstop_state() {
     TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
+    #if BOTH(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
+      CBI(live_state, X2_ENDSTOP);
+    #endif
     TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
+    #if BOTH(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
+      CBI(live_state, Y2_ENDSTOP);
+    #endif
     TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
     TERN_(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
     TERN_(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));

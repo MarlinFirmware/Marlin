@@ -431,27 +431,27 @@ void NextionTFT::PanelInfo(uint8_t req) {
 
   case 36: // Endstop Info
     #if X_HOME_TO_MIN
-      SEND_VALasTXT("x1", READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("x1", READ(X_MIN_PIN) == X_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif X_HOME_TO_MAX
-      SEND_VALasTXT("x2", READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("x2", READ(X_MAX_PIN) == X_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if Y_HOME_TO_MIN
-      SEND_VALasTXT("y1", READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("y1", READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif Y_HOME_TO_MAX
-      SEND_VALasTXT("y2", READ(X_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("y2", READ(X_MAX_PIN) == Y_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if Z_HOME_TO_MIN
-      SEND_VALasTXT("z1", READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z1", READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif Z_HOME_TO_MAX
-      SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_Z2_MIN
-      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) == Z2_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif HAS_Z2_MAX
-      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE
-      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING ? "triggered" : "open");
+      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #else
       SEND_NA("bltouch");
     #endif

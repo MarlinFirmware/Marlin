@@ -25,6 +25,10 @@
  * Test Arduino Due specific configuration values for errors at compile-time.
  */
 
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/DUE."
+#endif
+
 /**
  * Check for common serial pin conflicts
  */
@@ -36,15 +40,15 @@
   || X_DIR_PIN  == N || Y_DIR_PIN  == N || Z_DIR_PIN  == N \
   || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN  == N \
 )
-#if CONF_SERIAL_IS(0) // D0-D1. No known conflicts.
+#if SERIAL_IN_USE(0) // D0-D1. No known conflicts.
 #endif
-#if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
+#if SERIAL_IN_USE(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
   #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
 #endif
-#if CONF_SERIAL_IS(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
+#if SERIAL_IN_USE(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
   #error "Serial Port 2 pin D16 and/or D17 conflicts with another pin on the board."
 #endif
-#if CONF_SERIAL_IS(3) && (CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15))
+#if SERIAL_IN_USE(3) && (CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15))
   #error "Serial Port 3 pin D14 and/or D15 conflicts with another pin on the board."
 #endif
 #undef CHECK_SERIAL_PIN
@@ -64,7 +68,7 @@
  * Usually the hardware SPI pins are only available to the LCD. This makes the DUE hard SPI used at the same time
  * as the TMC2130 soft SPI the most common setup.
  */
-#define _IS_HW_SPI(P) (defined(TMC_SW_##P) && (TMC_SW_##P == SD_MOSI_PIN || TMC_SW_##P == SD_MISO_PIN || TMC_SW_##P == SD_SCK_PIN))
+#define _IS_HW_SPI(P) (defined(TMC_SPI_##P) && (TMC_SPI_##P == SD_MOSI_PIN || TMC_SPI_##P == SD_MISO_PIN || TMC_SPI_##P == SD_SCK_PIN))
 
 #if ENABLED(SDSUPPORT) && HAS_DRIVER(TMC2130)
   #if ENABLED(TMC_USE_SW_SPI)
@@ -77,7 +81,7 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on DUE."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported for HAL/DUE."
 #endif
 
 #if HAS_TMC_SW_SERIAL

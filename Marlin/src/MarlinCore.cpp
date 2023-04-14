@@ -34,6 +34,10 @@
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
 
+#if ENABLED(WIFISUPPORT)
+  #include "HAL/shared/esp_wifi.h"
+#endif
+
 #ifdef ARDUINO
   #include <pins_arduino.h>
 #endif
@@ -46,6 +50,9 @@
 #include "module/settings.h"
 #include "module/stepper.h"
 #include "module/temperature.h"
+#if ENABLED(FT_MOTION)
+  #include "module/ft_motion.h"
+#endif
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
@@ -168,6 +175,8 @@
   #include "module/polargraph.h"
 #elif IS_SCARA
   #include "module/scara.h"
+#elif ENABLED(POLAR)
+  #include "module/polar.h"
 #endif
 
 #if HAS_LEVELING
@@ -232,7 +241,7 @@
   #include "feature/password/password.h"
 #endif
 
-#if ENABLED(DGUS_LCD_UI_MKS)
+#if DGUS_LCD_UI_MKS
   #include "lcd/extui/dgus/DGUSScreenHandler.h"
 #endif
 
@@ -351,7 +360,7 @@ void startOrResumeJob() {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
-    #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+    #if ENABLED(SET_REMAINING_TIME)
       ui.reset_remaining_time();
     #endif
   }
@@ -431,7 +440,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   if (has_blocks) gcode.reset_stepper_timeout(ms);      // Reset timeout for M18/M84, M85 max 'kill', and laser.
 
   // M18 / M84 : Handle steppers inactive time timeout
-  #if HAS_DISABLE_INACTIVE_AXIS
+  #if HAS_DISABLE_IDLE_AXES
     if (gcode.stepper_inactive_time) {
 
       static bool already_shutdown_steppers; // = false
@@ -441,16 +450,16 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           already_shutdown_steppers = true;
 
           // Individual axes will be disabled if configured
-          TERN_(DISABLE_INACTIVE_X, stepper.disable_axis(X_AXIS));
-          TERN_(DISABLE_INACTIVE_Y, stepper.disable_axis(Y_AXIS));
-          TERN_(DISABLE_INACTIVE_Z, stepper.disable_axis(Z_AXIS));
-          TERN_(DISABLE_INACTIVE_I, stepper.disable_axis(I_AXIS));
-          TERN_(DISABLE_INACTIVE_J, stepper.disable_axis(J_AXIS));
-          TERN_(DISABLE_INACTIVE_K, stepper.disable_axis(K_AXIS));
-          TERN_(DISABLE_INACTIVE_U, stepper.disable_axis(U_AXIS));
-          TERN_(DISABLE_INACTIVE_V, stepper.disable_axis(V_AXIS));
-          TERN_(DISABLE_INACTIVE_W, stepper.disable_axis(W_AXIS));
-          TERN_(DISABLE_INACTIVE_E, stepper.disable_e_steppers());
+          TERN_(DISABLE_IDLE_X, stepper.disable_axis(X_AXIS));
+          TERN_(DISABLE_IDLE_Y, stepper.disable_axis(Y_AXIS));
+          TERN_(DISABLE_IDLE_Z, stepper.disable_axis(Z_AXIS));
+          TERN_(DISABLE_IDLE_I, stepper.disable_axis(I_AXIS));
+          TERN_(DISABLE_IDLE_J, stepper.disable_axis(J_AXIS));
+          TERN_(DISABLE_IDLE_K, stepper.disable_axis(K_AXIS));
+          TERN_(DISABLE_IDLE_U, stepper.disable_axis(U_AXIS));
+          TERN_(DISABLE_IDLE_V, stepper.disable_axis(V_AXIS));
+          TERN_(DISABLE_IDLE_W, stepper.disable_axis(W_AXIS));
+          TERN_(DISABLE_IDLE_E, stepper.disable_e_steppers());
 
           TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
         }
@@ -522,8 +531,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
-          queue.inject(F(BUTTON##N##_GCODE));                     \
-          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());                    \
+          queue.inject(F(BUTTON##N##_GCODE));                          \
+          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());               \
         }                                                              \
       }                                                                \
     }while(0)
@@ -671,7 +680,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
-      #if ENABLED(SWITCHING_EXTRUDER)
+      #if HAS_SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
           default: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, 0); stepper.ENABLE_EXTRUDER(0); break;
@@ -685,7 +694,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
-      #else // !SWITCHING_EXTRUDER
+      #else // !HAS_SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
           default:
@@ -701,7 +710,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
-      #if ENABLED(SWITCHING_EXTRUDER)
+      #if HAS_SWITCHING_EXTRUDER
         switch (active_extruder) {
           default: if (oldstatus) stepper.ENABLE_EXTRUDER(0); else stepper.DISABLE_EXTRUDER(0); break;
           #if E_STEPPERS > 1
@@ -711,12 +720,12 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
-      #else // !SWITCHING_EXTRUDER
+      #else // !HAS_SWITCHING_EXTRUDER
         switch (active_extruder) {
           #define _CASE_RESTORE(N) case N: if (oldstatus) stepper.ENABLE_EXTRUDER(N); else stepper.DISABLE_EXTRUDER(N); break;
           REPEAT(E_STEPPERS, _CASE_RESTORE);
         }
-      #endif // !SWITCHING_EXTRUDER
+      #endif // !HAS_SWITCHING_EXTRUDER
 
       gcode.reset_stepper_timeout(ms);
     }
@@ -777,7 +786,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
-void idle(bool no_stepper_sleep/*=false*/) {
+void idle(const bool no_stepper_sleep/*=false*/) {
   #ifdef MAX7219_DEBUG_PROFILE
     CodeProfiler idle_profiler;
   #endif
@@ -883,8 +892,12 @@ void idle(bool no_stepper_sleep/*=false*/) {
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 
+  // Manage Fixed-time Motion Control
+  TERN_(FT_MOTION, fxdTiCtrl.loop());
+
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
+
   return;
 }
 
@@ -1272,7 +1285,9 @@ void setup() {
 
   SETUP_RUN(hal.init_board());
 
-  SETUP_RUN(esp_wifi_init());
+  #if ENABLED(WIFISUPPORT)
+    SETUP_RUN(esp_wifi_init());
+  #endif
 
   // Report Reset Reason
   if (mcu & RST_POWER_ON)  SERIAL_ECHOLNPGM(STR_POWERUP);

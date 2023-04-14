@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "../ui_api.h"
 #include "DGUSScreenHandler.h"
@@ -100,11 +100,11 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
@@ -123,6 +123,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
       dgus_screen_handler.PowerLossResume();

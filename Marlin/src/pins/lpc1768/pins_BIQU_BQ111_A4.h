@@ -23,6 +23,10 @@
 
 /**
  * BIQU BQ111-A4 pin assignments
+ *
+ * Applies to the following boards:
+ *
+ *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
  */
 
 #include "env_validate.h"
@@ -70,8 +74,8 @@
 //
 #define HEATER_0_PIN                       P2_07
 #define HEATER_BED_PIN                     P2_05
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_04
 #endif
 
 //
@@ -100,7 +104,7 @@
 
   #define SD_DETECT_PIN                    P0_27  // EXP2-7
   #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
+  #define LCD_PINS_EN                      P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
   #if BOTH(HAS_MARLINUI_HD44780, IS_RRD_SC)
@@ -134,7 +138,7 @@
  *
  *  There are 6 PWMS.  Each PWM can be assigned to one of two pins.
  *
- *  PWM1.1   P0_18   LCD_PINS_ENABLE
+ *  PWM1.1   P0_18   LCD_PINS_EN
  *  PWM1.1   P2_0    X_STEP_PIN
  *  PWM1.2   P1_20   <none>
  *  PWM1.2   P2_1    Y_STEP_PIN
@@ -143,7 +147,7 @@
  *  PWM1.4   P1_23   <none>
  *  PWM1.4   P2_3    E0_STEP_PIN
  *  PWM1.5   P1_24   X_MIN_PIN
- *  PWM1.5   P2_4    FAN_PIN
+ *  PWM1.5   P2_4    FAN0_PIN
  *  PWM1.6   P1_26   Y_MIN_PIN
  *  PWM1.6   P2_5    HEATER_BED_PIN
  */

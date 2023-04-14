@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 //
@@ -134,7 +133,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PC14  // FAN
+#define FAN0_PIN                            PC14  // FAN
 #define FAN1_PIN                            PB1   // FAN1
 
 //
@@ -225,7 +224,7 @@
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  #define HAS_SPI_FLASH                        1
+  #define SPI_FLASH
   #define SPI_DEVICE                           2
   #define SPI_FLASH_SIZE               0x1000000
   #define SPI_FLASH_CS_PIN                  PB12
@@ -328,7 +327,7 @@
 
 #elif HAS_WIRED_LCD
 
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 
@@ -343,7 +342,6 @@
 
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
-    //#undef SHOW_BOOTSCREEN
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define LCD_PINS_DC              EXP1_04_PIN
@@ -362,7 +360,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN

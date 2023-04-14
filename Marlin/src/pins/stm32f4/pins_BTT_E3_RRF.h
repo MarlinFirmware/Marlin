@@ -159,7 +159,7 @@
   #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
 #endif
 
-#define FAN_PIN                             PB5   // "FAN0"
+#define FAN0_PIN                            PB5   // "FAN0"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"
@@ -206,7 +206,7 @@
     #define BTN_EN2                         PB2
 
     #define LCD_PINS_RS                     PB1
-    #define LCD_PINS_ENABLE                 PE11
+    #define LCD_PINS_EN                     PE11
     #define LCD_PINS_D4                     PE10
 
     #if ENABLED(LCD_FOR_MELZI)
@@ -252,7 +252,7 @@
     #endif
 
     #define LCD_PINS_RS                     PE10
-    #define LCD_PINS_ENABLE                 PE9
+    #define LCD_PINS_EN                     PE9
     #define LCD_PINS_D4                     PB1
     #define LCD_PINS_D5                     PB2
     #define LCD_PINS_D6                     PE7
@@ -390,15 +390,16 @@
   #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
 #endif
 
-//
-// WIFI
-//
-
-#define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PA4
-#define ESP_WIFI_MODULE_ENABLE_PIN          PA5
-#define ESP_WIFI_MODULE_GPIO0_PIN           PA6
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
+  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PA4
+  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
+#endif
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
   #define FPC2_PIN                          PB11

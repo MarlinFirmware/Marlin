@@ -46,7 +46,7 @@ enum StealthIndex : uint8_t {
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
 #else
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
 #endif
@@ -227,7 +227,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -262,7 +262,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -684,7 +684,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -726,7 +726,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -766,7 +766,7 @@ enum StealthIndex : uint8_t {
     st.sdoff(0);
     st.rms_current(mA);
     st.microsteps(microsteps);
-    TERN_(SQUARE_WAVE_STEPPING, st.dedge(true));
+    TERN_(EDGE_STEPPING, st.dedge(true));
     st.intpol(interpolate);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
     TERN_(TMC_DEBUG, st.rdsel(0b01));
@@ -784,7 +784,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -819,7 +819,7 @@ enum StealthIndex : uint8_t {
     chopconf.intpol = interpolate;
     chopconf.hend = chop_init.hend + 3;
     chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -1022,8 +1022,6 @@ void reset_trinamic_drivers() {
 //      If an axis is not in use, populate it with recognizable placeholder data.
 // 2. For each axis in use, static_assert using a constexpr function, which counts the
 //      number of matching/conflicting axis. If the value is not exactly 1, fail.
-
-#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
 
 #if ANY_AXIS_HAS(HW_SERIAL)
   // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.

@@ -326,8 +326,8 @@ void process_lcd_s_command(const char *command) {
         // select a file for printing during a print, there's
         // little reason not to do it this way.
         char message_buffer[MAX_CURLY_COMMAND];
-        uint16_t file_count = card.get_num_Files();
-        for (uint16_t i = 0; i < file_count; i++) {
+        int16_t file_count = card.get_num_items();
+        for (int16_t i = 0; i < file_count; i++) {
           card.selectFileByIndex(i);
           sprintf_P(message_buffer, card.flag.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);

@@ -195,7 +195,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
-    return hash_changed || !ui.did_first_redraw;
+    return hash_changed || !did_first_redraw;
   };
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -213,7 +213,7 @@ void MarlinUI::draw_status_message(const bool blink) {
         lcd_put_u8str(status_message);
 
         // Fill the rest with spaces
-        while (slen < max_status_chars) { lcd_put_lchar(' '); ++slen; }
+        while (slen < max_status_chars) { lcd_put_u8str(F(" ")); ++slen; }
       }
     }
     else {
@@ -227,10 +227,10 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the string doesn't completely fill the line...
       if (rlen < max_status_chars) {
-        lcd_put_lchar('.');                   // Always at 1+ spaces left, draw a dot
+        lcd_put_u8str(F("."));                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters
         if (--chars) {                        // Draw a second dot if there's space
-          lcd_put_lchar('.');
+          lcd_put_u8str(F("."));
           if (--chars)
             lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
         }
@@ -254,7 +254,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       lcd_put_u8str_max(status_message, max_status_chars);
 
       // Fill the rest with spaces if there are missing spaces
-      while (slen < max_status_chars) { lcd_put_lchar(' '); ++slen; }
+      while (slen < max_status_chars) { lcd_put_u8str(F(" ")); ++slen; }
     }
 
   #endif
@@ -565,7 +565,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     void MarlinUI::zoffset_overlay(const int8_t dir) {
       const int rot_up = TERN(OVERLAY_GFX_REVERSE, ICON_RotateCCW, ICON_RotateCW),
@@ -587,7 +587,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       DWIN_ICON_Show(ICON, rot_up, LCD_PIXEL_WIDTH - 10 - 48, arrow_y);
     }
 
-  #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
+  #endif // BABYSTEP_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
 #endif // HAS_MARLINUI_MENU
 

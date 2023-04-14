@@ -74,7 +74,7 @@
 //
 #define HEATER_0_PIN                         108
 #define HEATER_BED_PIN                       109
-#define FAN_PIN                              118  // FAN0
+#define FAN0_PIN                             118  // FAN0
 #define FAN1_PIN                             119  // FAN1
 
 #ifndef E0_AUTO_FAN_PIN
@@ -123,6 +123,6 @@
   #define BTN_EN2                    EXP2_05_PIN
 
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
 #endif

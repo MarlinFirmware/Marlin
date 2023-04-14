@@ -104,7 +104,7 @@
 //
 #define HEATER_0_PIN                         145
 #define HEATER_1_PIN                         146
-#define FAN_PIN                              147
+#define FAN0_PIN                             147
 #define FAN1_PIN                             148
 #define HEATER_BED_PIN                       144
 
@@ -158,7 +158,7 @@
 
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN

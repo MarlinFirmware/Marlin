@@ -166,8 +166,8 @@
 #define HEATER_5_PIN                        PE3
 #define HEATER_BED_PIN                      PE2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PF8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PF8
 #endif
 #define FAN1_PIN                            PF9
 #define FAN2_PIN                            PA2
@@ -235,18 +235,16 @@
 #endif
 
 //
-// Trinamic Software SPI
+// Trinamic SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK               EXP2_02_PIN
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO              EXP2_01_PIN
-  #endif
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI              EXP2_06_PIN
-  #endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                EXP2_02_PIN
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO               EXP2_01_PIN
+#endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI               EXP2_06_PIN
 #endif
 
 //
@@ -288,7 +286,7 @@
 #if IS_RRD_SC
   #define BEEPER_PIN                 EXP1_01_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #define LCD_PINS_D5                EXP1_06_PIN
   #define LCD_PINS_D6                EXP1_07_PIN

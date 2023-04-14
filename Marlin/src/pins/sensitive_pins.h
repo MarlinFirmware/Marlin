@@ -419,7 +419,7 @@
 
 // Mixing stepper, Switching stepper, or regular stepper
 #define E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
-                 || (ENABLED(SWITCHING_EXTRUDER) && E_STEPPERS > N) \
+                 || (HAS_SWITCHING_EXTRUDER && E_STEPPERS > N) \
                  || (NONE(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
 
 #define _E0_CS
@@ -632,7 +632,7 @@
   #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if HAS_SWITCHING_EXTRUDER
                       // Tools 0 and 1 use E0
   #if EXTRUDERS > 2   // Tools 2 and 3 use E1
     #undef _E1_PINS
@@ -899,8 +899,8 @@
   #define _Z_PROBE
 #endif
 
-#if PIN_EXISTS(FAN)
-  #define _FAN0 FAN_PIN,
+#if PIN_EXISTS(FAN0)
+  #define _FAN0 FAN0_PIN,
 #else
   #define _FAN0
 #endif

@@ -51,7 +51,7 @@ inline void z_clearance_move() {
 void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
 
@@ -119,7 +119,7 @@ void prepare_for_probe_offset_wizard() {
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
   current_position += probe.offset_xy;
-  line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
+  line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
   ui.synchronize(GET_TEXT_F(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 
@@ -143,7 +143,7 @@ void goto_probe_offset_wizard() {
 
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
+    menu_leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 

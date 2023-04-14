@@ -36,12 +36,6 @@ extern const char M23_STR[], M24_STR[];
   #endif
 #endif
 
-#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-  #define SD_ORDER(N,C) ((C) - 1 - (N))
-#else
-  #define SD_ORDER(N,C) N
-#endif
-
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
@@ -110,13 +104,11 @@ public:
     #endif
   #endif
 
-  // // // Methods // // //
-
   CardReader();
 
   static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
 
-  static SdFile getroot() { return root; }
+  static MediaFile getroot() { return root; }
 
   static void mount();
   static void release();
@@ -146,17 +138,17 @@ public:
   static char* longest_filename() { return longFilename[0] ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     static void printLongPath(char * const path);   // Used by M33
+    static void getLongPath(char * const pathLong, char * const pathShort); // Used by anycubic_vyper
   #endif
 
   // Working Directory for SD card menu
   static void cdroot();
   static void cd(const char *relpath);
   static int8_t cdup();
-  static uint16_t countFilesInWorkDir();
-  static uint16_t get_num_Files();
+  static int16_t get_num_items();
 
   // Select a file
-  static void selectFileByIndex(const uint16_t nr);
+  static void selectFileByIndex(const int16_t nr);
   static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
@@ -190,23 +182,25 @@ public:
    * Relative paths apply to the workDir.
    *
    * update_cwd: Pass 'true' to update the workDir on success.
-   *   inDirPtr: On exit your pointer points to the target SdFile.
+   *   inDirPtr: On exit your pointer points to the target MediaFile.
    *             A nullptr indicates failure.
    *       path: Start with '/' for abs path. End with '/' to get a folder ref.
    *       echo: Set 'true' to print the path throughout the loop.
    */
-  static const char* diveToFile(const bool update_cwd, SdFile* &inDirPtr, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, MediaFile* &inDirPtr, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
-    static void getfilename_sorted(const uint16_t nr);
+    static void selectFileByIndexSorted(const int16_t nr);
     #if ENABLED(SDSORT_GCODE)
       FORCE_INLINE static void setSortOn(bool b)        { sort_alpha   = b; presort(); }
       FORCE_INLINE static void setSortFolders(int i)    { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
-    FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
+    FORCE_INLINE static void selectFileByIndexSorted(const int16_t nr) {
+      selectFileByIndex(TERN(SDCARD_RATHERRECENTFIRST, get_num_items() - 1 - nr, (nr)));
+    }
   #endif
 
   static void ls(const uint8_t lsflags);
@@ -223,7 +217,7 @@ public:
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
-  static SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
+  static MediaFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
 
   // Print File stats
   static uint32_t getFileSize()  { return filesize; }
@@ -262,14 +256,15 @@ private:
   //
   // Working directory and parents
   //
-  static SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
+  static MediaFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   static uint8_t workDirDepth;
+  static int16_t nrItems; // Cache the total count
 
   //
   // Alphabetical file and folder sorting
   //
   #if ENABLED(SDCARD_SORT_ALPHA)
-    static uint16_t sort_count;   // Count of sorted items in the current directory
+    static int16_t sort_count;    // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
       static bool sort_alpha;     // Flag to enable / disable the feature
       static int sort_folders;    // Folder sorting before/none/after
@@ -296,7 +291,6 @@ private:
 
       // If using dynamic ram for names, allocate on the heap.
       #if ENABLED(SDSORT_CACHE_NAMES)
-        static uint16_t nrFiles; // Cache the total count
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static char **sortshort, **sortnames;
         #else
@@ -322,8 +316,8 @@ private:
   #endif // SDCARD_SORT_ALPHA
 
   static DiskIODriver *driver;
-  static SdVolume volume;
-  static SdFile file;
+  static MarlinVolume volume;
+  static MediaFile file;
 
   static uint32_t filesize, // Total size of the current file, in bytes
                   sdpos;    // Index most recently read (one behind file.getPos)
@@ -341,10 +335,11 @@ private:
   // Directory items
   //
   static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
-  static int countItems(SdFile dir);
-  static void selectByIndex(SdFile dir, const uint8_t index);
-  static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend, const uint8_t lsflags
+  static int16_t countVisibleItems(MediaFile dir);
+  static void selectByIndex(MediaFile dir, const int16_t index);
+  static void selectByName(MediaFile dir, const char * const match);
+  static void printListing(
+    MediaFile parent, const char * const prepend, const uint8_t lsflags
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 
