@@ -153,7 +153,8 @@ void GcodeSuite::G34() {
         const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
         return HYPOT2(diff.x, diff.y);
       };
-      float z_probe = (Z_PROBE_SAFE_CLEARANCE) + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
+      const float zoffs = (probe.offset.z < 0) ? -probe.offset.z : 0.0f;
+      float z_probe = (Z_PROBE_SAFE_CLEARANCE + zoffs) + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
         #if TRIPLE_Z
           , magnitude2(2, 1), magnitude2(2, 0)
           #if QUAD_Z
@@ -166,8 +167,8 @@ void GcodeSuite::G34() {
       home_if_needed();
 
       // Move the Z coordinate realm towards the positive - dirty trick
-      current_position.z += z_probe * 0.5f;
-      sync_plan_position();
+      //current_position.z += z_probe * 0.5f;
+      //sync_plan_position();
       // Now, the Z origin lies below the build plate. That allows to probe deeper, before run_z_probe throws an error.
       // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
 
@@ -214,7 +215,7 @@ void GcodeSuite::G34() {
           const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPERS - 1 - i : i;
 
           // Safe clearance even on an incline
-          if ((iteration == 0 || i > 0) && z_probe > current_position.z) do_blocking_move_to_z(z_probe);
+          if ((iteration == 0 || i > 0) && z_probe > current_position.z) do_blocking_move_to_z(z_probe*0.5);
 
           xy_pos_t &ppos = z_stepper_align.xy[iprobe];
 
@@ -224,7 +225,7 @@ void GcodeSuite::G34() {
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
-          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false);
+          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false, (Z_PROBE_LOW_POINT-(z_probe * 0.5f)));
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
@@ -232,12 +233,9 @@ void GcodeSuite::G34() {
             break;
           }
 
-          // Dirty fix for dirty trick
-          do_z_clearance(z_probed_height + (Z_PROBE_SAFE_CLEARANCE), false);
-
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.
-          z_measured[iprobe] = z_probed_height + (Z_CLEARANCE_BETWEEN_PROBES);
+          z_measured[iprobe] = z_probed_height + (Z_PROBE_SAFE_CLEARANCE + zoffs); //do we need to add the clearance to this?
 
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", iprobe + 1, " measured position is ", z_measured[iprobe]);
 
@@ -251,7 +249,7 @@ void GcodeSuite::G34() {
         // Adapt the next probe clearance height based on the new measurements.
         // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
         z_maxdiff = z_measured_max - z_measured_min;
-        z_probe = (Z_PROBE_SAFE_CLEARANCE) + z_measured_max + z_maxdiff;
+        z_probe = (Z_PROBE_SAFE_CLEARANCE + zoffs) + z_measured_max + z_maxdiff; //we should add probe offset here (if negative)
 
         #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           // Replace the initial values in z_measured with calculated heights at
@@ -439,7 +437,7 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - float(Z_CLEARANCE_BETWEEN_PROBES);
+        current_position.z -= z_measured_min - (Z_PROBE_SAFE_CLEARANCE + zoffs); //we shouldn't want to subtract the clearance from here right?
         sync_plan_position();
       #endif
 
