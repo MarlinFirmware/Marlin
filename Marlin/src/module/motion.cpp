@@ -525,25 +525,15 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
-  const feedRate_t old_feedrate = feedrate_mm_s;
+  REMEMBER(fr, feedrate_mm_s);
+  REMEMBER(pct, feedrate_percentage, 100);
+  TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[active_extruder], 1.0f));
+
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
-
-  const uint16_t old_pct = feedrate_percentage;
-  feedrate_percentage = 100;
-
-  #if HAS_EXTRUDERS
-    const float old_fac = planner.e_factor[active_extruder];
-    planner.e_factor[active_extruder] = 1.0f;
-  #endif
-
   if (TERN0(IS_KINEMATIC, is_fast))
     TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
   else
     prepare_line_to_destination();
-
-  feedrate_mm_s = old_feedrate;
-  feedrate_percentage = old_pct;
-  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
 }
 
 /**
