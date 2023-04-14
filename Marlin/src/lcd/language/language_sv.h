@@ -51,7 +51,7 @@ namespace Language_sv {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Underanrop överskriden");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Slutstop"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Mjuk slutstopp");
-  LSTR MSG_MAIN                           = _UxGT("Huvud");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Huvud");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advancerade inställningar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostarta Filer");
