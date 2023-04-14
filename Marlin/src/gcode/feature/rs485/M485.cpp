@@ -4,12 +4,7 @@
 #include "../../../feature/rs485.h"
 #include "../../gcode.h"
 
-bool m485_handle_packet_response() {
-  if(! packetizer.hasPacket()) {
-    return false;
-  }
-
-  SERIAL_ECHO("rs485-reply: ");
+void write_packet_data() {
   for(size_t i=0; i<packetizer.packetLength(); i++) {
     uint8_t data = bus[i];
     SERIAL_ECHO((data < 0x10) ? "0" : "");
@@ -17,8 +12,6 @@ bool m485_handle_packet_response() {
     SERIAL_PRINT(data, PrintBase::Hex);
   }
   serial_print(F("\n"));
-  packetizer.clearPacket();
-  return true;
 }
 
 void GcodeSuite::M485() {
@@ -50,14 +43,15 @@ void GcodeSuite::M485() {
     buffer[i >> 1] = byte;
   }
 
+  packetizer.setMaxReadTimeout(10);  // This can be super small since ideally any packets will already be in our buffer
+
   // Read and ignore any packets that may have come in, before we write.
-  while(packetizer.hasPacket()){
-    delay(50);
+  while(packetizer.hasPacket()) {
+    SERIAL_ECHO("rs485-unexpected-packet: ");
+    write_packet_data();
     packetizer.clearPacket();
   }
 
-  bus.setReadBackDelay(10);
-  bus.setReadBackRetries(3);
   PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
 
   switch(writeResult) {
@@ -65,25 +59,31 @@ void GcodeSuite::M485() {
       break;  // Nothing to do
     case PacketWriteResult::FAILED_INTERRUPTED:
       SERIAL_ERROR_MSG("RS485: Write failed interrupted");
-      break;
+      return;
     case PacketWriteResult::FAILED_BUFFER_FULL:
       SERIAL_ERROR_MSG("RS485: Write failed buffer full");
-      break;
+      return;
     case PacketWriteResult::FAILED_TIMEOUT:
       SERIAL_ERROR_MSG("RS485: Write failed timeout");
-      break;
+      return;
   }
 
-  packetizer.setMaxReadTimeout(1500);
-  
-  // for(uint8_t attempt = 0; attempt < 5; attempt++) {
-    // delay(10);
+  packetizer.setMaxReadTimeout(50000);  // 50 ms
 
-    if(m485_handle_packet_response()) {
-      return;
-    }
-  // }
-  SERIAL_ECHOLN("rs485-reply: TIMEOUT");
+  // unsigned long startTime = millis();
+  bool hasPacket = packetizer.hasPacket();
+  // unsigned long endTime = millis();
+  // SERIAL_ECHO("rs485-time: ");
+  // SERIAL_PRINTLN(endTime - startTime, PrintBase::Dec);
+
+  if(! hasPacket) {
+    SERIAL_ECHOLN("rs485-reply: TIMEOUT");
+    return;
+  }
+
+  SERIAL_ECHO("rs485-reply: ");
+  write_packet_data();
+  packetizer.clearPacket();
 }
 
 #endif
