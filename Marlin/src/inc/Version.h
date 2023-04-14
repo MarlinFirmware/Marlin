@@ -42,11 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-<<<<<<< HEAD
-  #define STRING_DISTRIBUTION_DATE "2023-04-11"
-=======
   #define STRING_DISTRIBUTION_DATE "2023-04-14"
->>>>>>> 161b99cb54f5d6d183877902581d3d77e8a1fa78
 #endif
 
 /**
