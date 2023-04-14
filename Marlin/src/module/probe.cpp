@@ -705,10 +705,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  * @param sanity_check Flag to compare the probe result with the expected result
  *                     based on the probe Z offset. If the result is too far away
  *                     (more than 2mm too early) then consider it an error.
+ * @param z_min_point Overrides the minimum probing height of -2mm if set, to allow probing
+ *                    deeper probing.
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
-float Probe::run_z_probe(const bool sanity_check/*=true*/) {
+float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
@@ -740,7 +742,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm.
-  const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + Z_PROBE_LOW_POINT : -10.0f;
+  const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + z_min_point : -10.0f;
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
@@ -900,7 +902,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
  * with the previously active tool.
  *
  */
-float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
+float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
   if (DEBUGGING(LEVELING)) {
@@ -948,7 +950,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   #else // !BD_SENSOR
 
-    float measured_z = deploy() ? NAN : run_z_probe(sanity_check) + offset.z;
+    float measured_z = deploy() ? NAN : run_z_probe(sanity_check, z_min_point) + offset.z;
 
     // Deploy succeeded and a successful measurement was done.
     // Raise and/or stow the probe depending on 'raise_after' and settings.
