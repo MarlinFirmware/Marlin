@@ -1133,6 +1133,9 @@
   #endif
 #endif
 
+// Test for edge stepping on any axis
+#define AXIS_HAS_DEDGE(A) (ENABLED(EDGE_STEPPING) && AXIS_IS_TMC(A))
+
 #if ENABLED(DIRECT_STEPPING)
   #ifndef STEPPER_PAGES
     #define STEPPER_PAGES 16
