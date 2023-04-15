@@ -33,14 +33,22 @@
  * With MULTI_VOLUME:
  *  P0 or S - Change to the SD Card and mount it
  *  P1 or U - Change to the USB Drive and mount it
+ *  P2 or O - Change to the SDIO Card and mount it
  */
 void GcodeSuite::M21() {
   #if ENABLED(MULTI_VOLUME)
     const int8_t vol = parser.intval('P', -1);
     if (vol == 0 || parser.seen_test('S'))       // "S" for SD Card
       card.changeMedia(&card.media_driver_sdcard);
-    else if (vol == 1 || parser.seen_test('U'))  // "U" for USB
+    else if (vol == 1 || parser.seen_test('U')) { // "U" for USB
+      #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
       card.changeMedia(&card.media_driver_usbFlash);
+      #endif
+    } else if (vol == 2 || parser.seen_test('O')) { // "O" for Onboard SDIO
+      #if ENABLED(SDIO_SUPPORT)
+      card.changeMedia(&card.media_driver_sdiocard);
+      #endif
+    }
   #endif
   card.mount();
 }
