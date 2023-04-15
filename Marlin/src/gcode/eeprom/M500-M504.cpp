@@ -76,7 +76,7 @@ void GcodeSuite::M502() {
             const uint8_t c = pgm_read_byte(&mc_zip[i]);
             file.write(c);
           }
-          success = file.close() & success;
+          success = file.close() && success;
 
           if (success) SERIAL_ECHO_MSG("Configuration saved as 'mc.zip'");
         }
