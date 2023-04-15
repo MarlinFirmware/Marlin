@@ -71,7 +71,7 @@ void GcodeSuite::M502() {
         MediaFile root = card.getroot();
         if (file.open(&root, "mc.zip", O_WRITE|O_CREAT)) {
           bool success = true;
-          for (uint16_t i; success && i < sizeof(mc_zip); ++i) {
+          for (uint16_t i = 0; success && i < sizeof(mc_zip); ++i) {
             const uint8_t c = pgm_read_byte(&mc_zip[i]);
             file.write(c);
           }
