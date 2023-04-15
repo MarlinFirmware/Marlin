@@ -56,13 +56,14 @@ def compute_build_signature(env):
     files_to_keep = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
 
     build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
+    build_path_relative = Path('.pio', 'build', env['PIOENV'])
 
     # Check if we can skip processing
     hashes = ''
     for header in files_to_keep:
         hashes += get_file_sha256sum(header)[0:10]
 
-    marlin_json = build_path / 'marlin_config.json'
+    marlin_json = build_path_relative / 'marlin_config.json'
     marlin_zip = build_path / 'mc.zip'
 
     # Read existing config file
