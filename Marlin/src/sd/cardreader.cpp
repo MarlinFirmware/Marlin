@@ -132,8 +132,12 @@ int16_t CardReader::nrItems = -1;
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
-#if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+#if NEED_SD2CARD_SPI
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
+#endif
+
+#if NEED_SD2CARD_SDIO
+  CardReader::sdiocard_driver_t CardReader::media_driver_sdiocard;
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
