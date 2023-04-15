@@ -1660,6 +1660,11 @@ void setup() {
 
   marlin_state = MF_RUNNING;
 
+  #if ENABLED(SPEAKER) && defined(STARTUP_TUNE)
+    constexpr uint16_t tune[] = STARTUP_TUNE;
+    for (uint8_t i = 0; i < COUNT(tune); i += 2) BUZZ(tune[i + 1], tune[i]);
+  #endif
+
   SETUP_LOG("setup() completed.");
 
   TERN_(MARLIN_TEST_BUILD, runStartupTests());
