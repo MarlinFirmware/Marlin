@@ -228,7 +228,7 @@ public:
   #endif
 
   #if USE_MARLINUI_BUZZER
-    static void buzz(const long duration, const uint16_t freq);
+    static void buzz(const long duration, const uint16_t freq=0);
   #endif
 
   static void chirp() {
