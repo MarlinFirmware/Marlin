@@ -32,14 +32,14 @@ struct MoveAxisScreenData {
 
 class BaseMoveAxisScreen : public BaseNumericAdjustmentScreen {
   private:
-    static float getManualFeedrate(uint8_t axis, float increment_mm);
+    static float getManualFeedrate(const uint8_t axis, const_float_t increment_mm);
   public:
     static void raiseZtoTop();
-    static void setManualFeedrate(ExtUI::axis_t, float increment_mm);
-    static void setManualFeedrate(ExtUI::extruder_t, float increment_mm);
+    static void setManualFeedrate(const ExtUI::axis_t, const_float_t increment_mm);
+    static void setManualFeedrate(const ExtUI::extruder_t, const_float_t increment_mm);
 
     static void onEntry();
-    static bool onTouchHeld(uint8_t tag);
+    static bool onTouchHeld(const uint8_t tag);
 };
 
 class MoveAxisScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_AXIS_SCREEN_CACHE> {

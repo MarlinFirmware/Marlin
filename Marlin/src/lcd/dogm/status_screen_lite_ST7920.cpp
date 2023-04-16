@@ -629,14 +629,14 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
     #endif
   }
   else {
-    write_byte(alt_label ? alt_label : 'X');
+    write_byte(alt_label ?: 'X');
     write_str(dtostrf(pos.x, -4, 0, str), 4);
 
-    write_byte(alt_label ? alt_label : 'Y');
+    write_byte(alt_label ?: 'Y');
     write_str(dtostrf(pos.y, -4, 0, str), 4);
   }
 
-  write_byte(alt_label ? alt_label : 'Z');
+  write_byte(alt_label ?: 'Z');
   write_str(dtostrf(pos.z, -5, 1, str), 5);
 }
 

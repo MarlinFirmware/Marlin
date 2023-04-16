@@ -62,7 +62,7 @@ namespace Language_it {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Overflow subchiamate");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Finecor."); // Max 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Finecorsa Soft");
-  LSTR MSG_MAIN                           = _UxGT("Menu principale");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principale");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Impostaz. avanzate");
   LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Cnf barra strumenti");
   LSTR MSG_OPTION_DISABLED                = _UxGT("Opzione disab.");
