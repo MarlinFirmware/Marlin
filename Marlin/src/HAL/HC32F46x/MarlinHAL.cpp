@@ -4,7 +4,7 @@
 #ifdef TARGET_HC32F46x
 
 #include "HAL.h"
-#include "hc32f46x_wdt.h"
+#include "hc32f460_wdt.h"
 #include "../../inc/MarlinConfig.h"
 #include "soctemp.h"
 

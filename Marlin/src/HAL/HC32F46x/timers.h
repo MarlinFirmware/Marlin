@@ -21,7 +21,7 @@
  */
 #pragma once
 #include <stdint.h>
-#include "hc32f46x_timer0.h"
+#include "hc32f460_timer0.h"
 
 //
 // Misc.

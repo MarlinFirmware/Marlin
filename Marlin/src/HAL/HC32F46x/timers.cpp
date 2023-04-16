@@ -1,8 +1,8 @@
 #include "timers.h"
-#include "hc32f46x_clk.h"
-#include "hc32f46x_pwc.h"
-#include "hc32f46x_timer0.h"
-#include "hc32f46x_interrupts.h"
+#include "hc32f460_clk.h"
+#include "hc32f460_pwc.h"
+#include "hc32f460_timer0.h"
+#include "hc32f460_interrupts.h"
 
 #define TMR_UNIT M4_TMR02
 
