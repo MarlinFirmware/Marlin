@@ -96,7 +96,7 @@
 #define FAN_SOFT_PWM_REQUIRED
 
 //
-// LED
+// Onboard (bright!) LED
 //
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                       64  // K2
@@ -107,3 +107,5 @@
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                       63  // K1
 #endif
+
+#define BEEPER_PIN                            24  // A2
