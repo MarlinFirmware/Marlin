@@ -205,7 +205,7 @@
   #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
 #elif MB(PXMALION_CORE_I3)
   #include "ramps/pins_PXMALION_CORE_I3.h"      // ATmega2560                             env:mega2560
-#elif MB(KODAMA_PANOWIN_F1)
+#elif MB(PANOWIN_F1)
   #include "ramps/pins_PANOWIN_F1.h"            // ATmega2560                             env:mega2560
 #elif MB(KODAMA_BARDO)
   #include "ramps/pins_KODAMA_BARDO.h"          // ATmega2560                             env:mega2560
