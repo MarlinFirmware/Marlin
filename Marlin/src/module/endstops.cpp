@@ -920,7 +920,7 @@ void Endstops::update() {
       #if HAS_Y_AXIS
         else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
       #endif
-      #if HAS_Z_AXIS && USE_ZMIN_PLUG
+      #if (HAS_Z_AXIS && USE_ZMIN_PLUG)
         else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Z_AXIS); }
       #endif
       G38_did_trigger = true;
