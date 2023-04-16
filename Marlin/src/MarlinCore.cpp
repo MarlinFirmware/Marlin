@@ -261,7 +261,7 @@
   #include "tests/marlin_tests.h"
 #endif
 
-#if ENABLED(RS485_ENABLED)
+#if HAS_RS485_SERIAL
   #include "feature/rs485.h"
 #endif
 
@@ -1662,7 +1662,7 @@ void setup() {
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
   #endif
 
-  #if ENABLED(RS485_ENABLED)
+  #if HAS_RS485_SERIAL
     SETUP_RUN(rs485_init());
   #endif
 

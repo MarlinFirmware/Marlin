@@ -891,7 +891,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
-      #if ENABLED(RS485_ENABLED)
+      #if HAS_RS485_SERIAL
         case 485: M485(); break;                                  // M485: Send RS485 packets
       #endif
 

@@ -3349,7 +3349,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #elif LCD_SERIAL_PORT == -1
     #error "LCD_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set LCD_SERIAL_PORT to a valid value for your board."
   #elif RS485_SERIAL_PORT == -1
-    #error "RS485_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set LCD_SERIAL_PORT to a valid value for your board."
+    #error "RS485_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set RS485_SERIAL_PORT to a valid value for your board."
   #endif
 #endif
 
