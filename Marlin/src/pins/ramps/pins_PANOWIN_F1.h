@@ -109,3 +109,4 @@
 #endif
 
 #define BEEPER_PIN                            24  // A2
+#define SD_DETECT_PIN                         28  // A6 Onboard SD
