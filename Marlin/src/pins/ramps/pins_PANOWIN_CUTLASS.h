@@ -96,7 +96,31 @@
 #define FAN_SOFT_PWM_REQUIRED
 
 //
-// Onboard (bright!) LED
+// M3/M4/M5 - Spindle/Laser Control
+//
+#if HAS_CUTTER
+  #define SPINDLE_LASER_ENA_PIN               74  // J7
+#endif
+
+//
+// Serial LCD
+//
+#if LCD_NEEDS_SERIAL_PORT && !defined(LCD_SERIAL_PORT)
+  #define LCD_SERIAL_PORT                      2  // D16 H1 (TX2), D17 H0 (RX2)
+#endif
+
+//
+// SD Card
+//
+#define SD_DETECT_PIN                         28  // A6 Onboard SD
+
+//
+// Misc. Functions
+//
+#define BEEPER_PIN                            24  // A2
+
+//
+// Onboard (bright!) RGB LED
 //
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                       64  // K2
@@ -107,6 +131,3 @@
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                       63  // K1
 #endif
-
-#define BEEPER_PIN                            24  // A2
-#define SD_DETECT_PIN                         28  // A6 Onboard SD
