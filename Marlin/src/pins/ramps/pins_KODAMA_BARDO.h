@@ -31,4 +31,4 @@
 #define BOARD_NAME "Kodama Bardo V1.x"
 #define DEFAULT_MACHINE_NAME "Kodama Trinus"
 
-#include "pins_PANOWIN_F1.h"
+#include "pins_PANOWIN_CUTLASS.h"

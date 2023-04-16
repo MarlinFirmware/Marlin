@@ -31,7 +31,7 @@
 #include "env_validate.h"
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME "Panowin"
+  #define BOARD_NAME "Panowin Cutlass"
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME
@@ -48,7 +48,7 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                            38
+#define X_STEP_PIN                            38  // D7
 #define X_DIR_PIN                             83
 #define X_ENABLE_PIN                          82
 
