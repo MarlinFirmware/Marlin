@@ -143,19 +143,25 @@ void menu_media_filelist() {
 }
 
 #if ENABLED(MULTI_VOLUME)
+
   void menu_media_select() {
+    auto _select_media = [](DiskIODriver *driver) {
+      card.changeMedia(driver);
+      card.mount();
+      ui.goto_screen(menu_media_filelist);
+    };
     START_MENU();
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
     #if ENABLED(VOLUME_SD_ONBOARD)
       #if ENABLED(SDSUPPORT)
-        ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+        ACTION_ITEM(MSG_SD_CARD, []{ _select_media(&card.media_driver_sdcard); });
       #endif
       #if ENABLED(SDIO_SUPPORT)
-        ACTION_ITEM(MSG_SDIO_CARD, []{ card.changeMedia(&card.media_driver_sdiocard); card.mount(); ui.goto_screen(menu_media_filelist); });
+        ACTION_ITEM(MSG_SDIO_CARD, []{ _select_media(&card.media_driver_sdiocard); });
       #endif
     #endif
     #if ENABLED(VOLUME_USB_FLASH_DRIVE)
-      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+      ACTION_ITEM(MSG_USB_DISK, []{ _select_media(&card.media_driver_usbFlash); });
     #endif
     END_MENU();
   }
