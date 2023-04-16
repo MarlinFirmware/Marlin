@@ -78,7 +78,7 @@ float BDS_Leveling::read() {
     SERIAL_ECHOLNPGM("Read Error.");
   else if((tmp & 0x3FF) >= 1015)
     SERIAL_ECHOLNPGM("Invalid data,please calibrate.");
-  else if((tmp & 0x3FF) >= (MAX_BD_HEIGHT-0.1f))
+  else if((tmp & 0x3FF) >= (MAX_BD_HEIGHT*100-10))
     SERIAL_ECHOLNPGM("Out of Range.");  
   else
     BD_z = (tmp & 0x3FF) / 100.0f;
