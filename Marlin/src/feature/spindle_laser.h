@@ -210,7 +210,7 @@ public:
         enable = false;
         apply_power(0);
     }
-    #if SPINDLE_LASER_ENA_PIN
+    #if PIN_EXISTS(SPINDLE_LASER_ENA)
       WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     #endif
     enable_state = enable;
