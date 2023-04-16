@@ -2648,7 +2648,6 @@
  */
 //#define SDSUPPORT
 //#define SDIO_SUPPORT
-//#define USB_FLASH_DRIVE_SUPPORT
 
 /**
  * SD CARD: ENABLE CRC
