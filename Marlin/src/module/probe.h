@@ -195,11 +195,11 @@ public:
   static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
 
   #ifndef Z_AFTER_PROBING
-    #define Z_AFTER_PROBING 0
+    #define Z_AFTER_PROBING -1000
   #endif
   static void move_z_after_probing(const float z=Z_AFTER_PROBING) {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-    if (z != 0) do_z_clearance(z, true, true); // Move down still permitted
+    if (z != -1000) do_z_clearance(z, true, true); // Move down still permitted
   }
   static void move_z_after_homing() {
     DEBUG_SECTION(mzah, "move_z_after_homing", DEBUGGING(LEVELING));
