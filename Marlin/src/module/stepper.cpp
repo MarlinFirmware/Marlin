@@ -1578,7 +1578,7 @@ void Stepper::isr() {
           advance_isr();
           nextAdvanceISR = la_interval;
         }
-        else if (nextAdvanceISR == LA_ADV_NEVER)          // Start LA steps if necessary
+        else if (nextAdvanceISR > la_interval)            // Start/accelerate LA steps if necessary
           nextAdvanceISR = la_interval;
       #endif
 
@@ -2169,7 +2169,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #ifdef CPU_32_BIT
 
     // A fast processor can just do integer division
-    return step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
+    constexpr uint32_t min_step_rate = uint32_t(STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX;
+    return step_rate > min_step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
