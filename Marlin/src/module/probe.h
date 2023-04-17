@@ -195,7 +195,7 @@ public:
   #endif
   static void move_z_after_probing(const float z=Z_AFTER_PROBING) {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-    if (z != 0) do_z_clearance(z, true, true); // Move down still permitted
+    if (z != Z_HOME_POS) do_z_clearance(z, true, true); // Move down still permitted
   }
   static void move_z_after_homing() {
     DEBUG_SECTION(mzah, "move_z_after_homing", DEBUGGING(LEVELING));
