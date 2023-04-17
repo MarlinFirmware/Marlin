@@ -3198,9 +3198,9 @@ void Stepper::init() {
     else if (zeta >= 1.0f) factor2 = 0.0f;
     else {
       factor2 = 64.44056192 + -99.02008832 * zeta;
-      const_float_t zeta2 = zeta * zeta;
+      const float zeta2 = sq(zeta);
       factor2 += -7.58095488 * zeta2;
-      const_float_t zeta3 = zeta2 * zeta;
+      const float zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
       factor2 = floor(factor2);
     }
