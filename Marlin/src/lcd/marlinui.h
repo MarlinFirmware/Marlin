@@ -469,6 +469,7 @@ public:
 
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
+        static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
       #if HAS_TOUCH_SLEEP
@@ -492,6 +493,11 @@ public:
       #endif
 
       static void status_screen();
+
+    #else
+
+      static void quick_feedback(const bool=true) {}
+      static void completion_feedback(const bool=true) {}
 
     #endif
 
@@ -803,5 +809,7 @@ private:
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
+#define LCD_MESSAGE_MIN(M)     ui.set_status(GET_TEXT_F(M), -1)
+#define LCD_MESSAGE_MAX(M)     ui.set_status(GET_TEXT_F(M), 99)
 #define LCD_ALERTMESSAGE_F(S)  ui.set_alert_status(F(S))
 #define LCD_ALERTMESSAGE(M)    ui.set_alert_status(GET_TEXT_F(M))

@@ -1499,7 +1499,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       LOOP_L_N(i, 3) {
         SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), i + 1, GET_TEXT(MSG_LCD_TILTING_MESH)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_LCD_TILTING_MESH), i + 1));
 
         measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
         if ((abort_flag = isnan(measured_z))) break;

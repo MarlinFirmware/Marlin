@@ -214,9 +214,11 @@
 #elif defined(PID_ADD_EXTRUSION_RATE)
   #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default."
 #elif defined(Z_RAISE_BEFORE_HOMING)
-  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT."
+  #error "Z_RAISE_BEFORE_HOMING is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)
-  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT."
+  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_CLEARANCE_FOR_HOMING."
+#elif defined(Z_HOMING_HEIGHT)
+  #error "Z_HOMING_HEIGHT is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
   #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE and Z_AFTER_PROBING instead."
 #elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
@@ -1895,10 +1897,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #endif
     #endif
 
-    #if ENABLED(BLTOUCH_HS_MODE)
-      #if BLTOUCH_HS_MODE == 0
-        #error "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state."
-      #endif
+    #if HAS_BLTOUCH_HS_MODE
+      constexpr char hs[] = STRINGIFY(BLTOUCH_HS_MODE);
+      static_assert(!(strcmp(hs, "1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "false")), \
+        "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state.");
       #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
         static_assert(BLTOUCH_HS_EXTRA_CLEARANCE > 0, "BLTOUCH_HS_MODE requires a positive BLTOUCH_HS_EXTRA_CLEARANCE.");
       #endif
@@ -1945,8 +1947,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "TOUCH_MI_PROBE requires TOUCH_MI_RETRACT_Z."
     #elif defined(Z_AFTER_PROBING)
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
-    #elif Z_HOMING_HEIGHT < 10
-      #error "TOUCH_MI_PROBE requires Z_HOMING_HEIGHT >= 10."
+    #elif Z_CLEARANCE_FOR_HOMING < 10
+      #error "TOUCH_MI_PROBE requires Z_CLEARANCE_FOR_HOMING >= 10."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
     #elif !HAS_RESUME_CONTINUE
@@ -3324,6 +3326,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
+// Startup Tune requirements
+#ifdef STARTUP_TUNE
+  #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+    #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
+  #elif !(BOTH(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
+    #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
+    #undef STARTUP_TUNE
+  #endif
+#endif
+
 /**
  * Display Sleep is not supported by these common displays
  */
@@ -4311,6 +4323,40 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
  */
 #if HAS_TMC_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
+#endif
+
+// Although it just toggles STEP, EDGE_STEPPING requires HIGH state for logic
+#if ENABLED(EDGE_STEPPING)
+  #if AXIS_HAS_DEDGE(X) && STEP_STATE_X != HIGH
+    #error "STEP_STATE_X must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(Y) && STEP_STATE_Y != HIGH
+    #error "STEP_STATE_Y must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(Z) && STEP_STATE_Z != HIGH
+    #error "STEP_STATE_Z must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(I) && STEP_STATE_I != HIGH
+    #error "STEP_STATE_I must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(J) && STEP_STATE_J != HIGH
+    #error "STEP_STATE_J must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(K) && STEP_STATE_K != HIGH
+    #error "STEP_STATE_K must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(U) && STEP_STATE_U != HIGH
+    #error "STEP_STATE_U must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(V) && STEP_STATE_V != HIGH
+    #error "STEP_STATE_V must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(W) && STEP_STATE_W != HIGH
+    #error "STEP_STATE_W must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(E0) && STEP_STATE_E != HIGH
+    #error "STEP_STATE_E must be HIGH for EDGE_STEPPING."
+  #endif
 #endif
 
 // G60/G61 Position Save

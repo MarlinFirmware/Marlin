@@ -243,7 +243,7 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    #ifdef BLTOUCH_HS_MODE
+    #if HAS_BLTOUCH_HS_MODE
       EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
     #endif
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
@@ -360,7 +360,7 @@ void menu_advanced_settings();
 
   void custom_menus_configuration() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
@@ -472,7 +472,7 @@ void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Debug Menu when certain options are enabled

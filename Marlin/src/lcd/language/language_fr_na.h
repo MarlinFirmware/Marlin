@@ -49,7 +49,7 @@ namespace Language_fr_na {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur media USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butees");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butees SW");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancee");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exec. auto.gcode");

@@ -48,7 +48,7 @@ namespace Language_zh_CN {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
-  LSTR MSG_MAIN                           = _UxGT("主菜单");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主菜单");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始");     // "Autostart"
