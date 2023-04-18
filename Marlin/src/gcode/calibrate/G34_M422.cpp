@@ -430,7 +430,7 @@ void GcodeSuite::G34() {
 
       #if ENABLED(HOME_AFTER_G34)
         // After this operation the z position needs correction
-        set_axis_never_homed(Z_AXIS);
+        //set_axis_never_homed(Z_AXIS); // This causes an extra lift before the last G28. Does G28 Z Throw an error if the bed is too far from it's trusted position? if not we can remove this as the bed clearance should only increase with G34
         // Home Z after the alignment procedure
         process_subcommands_now(F("G28Z"));
       #else
