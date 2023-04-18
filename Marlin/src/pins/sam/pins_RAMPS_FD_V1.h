@@ -171,6 +171,10 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(MINIPANEL)
+
+  // Migrated to pins/lcd
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
@@ -212,17 +216,10 @@
     #endif
 
   #elif IS_NEWPANEL
-
     #define LCD_PINS_D4              EXP1_06_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_04_PIN
     #define LCD_PINS_D7              EXP1_03_PIN
-
-    #if ENABLED(MINIPANEL)
-      #define DOGLCD_CS              EXP1_05_PIN
-      #define DOGLCD_A0              EXP1_04_PIN
-    #endif
-
   #endif
 
   #if ANY(VIKI2, miniVIKI)
