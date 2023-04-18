@@ -33,13 +33,13 @@
 
 #if ENABLED(SOFT_I2C_EEPROM)
   #include <SlowSoftWire.h>
-  SlowSoftWire Wire2 = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
+  SlowSoftWire WireI2C = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
 #else
   #include <Wire.h>
 #endif
 
 void eeprom_init() {
-  Wire2.begin(
+  WireI2C.begin(
     #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
       uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
     #endif
@@ -75,16 +75,16 @@ static uint8_t _eeprom_calc_device_address(uint8_t * const pos) {
 
 static void _eeprom_begin(uint8_t * const pos) {
   const unsigned eeprom_address = (unsigned)pos;
-  Wire2.beginTransmission(_eeprom_calc_device_address(pos));
+  WireI2C.beginTransmission(_eeprom_calc_device_address(pos));
   if (!SMALL_EEPROM)
-    Wire2.write(uint8_t((eeprom_address >> 8) & 0xFF));  // Address High, if needed
-  Wire2.write(uint8_t(eeprom_address & 0xFF));           // Address Low
+    WireI2C.write(uint8_t((eeprom_address >> 8) & 0xFF));  // Address High, if needed
+  WireI2C.write(uint8_t(eeprom_address & 0xFF));           // Address Low
 }
 
 void eeprom_write_byte(uint8_t *pos, uint8_t value) {
   _eeprom_begin(pos);
-  Wire2.write(value);
-  Wire2.endTransmission();
+  WireI2C.write(value);
+  WireI2C.endTransmission();
 
   // wait for write cycle to complete
   // this could be done more efficiently with "acknowledge polling"
@@ -93,9 +93,9 @@ void eeprom_write_byte(uint8_t *pos, uint8_t value) {
 
 uint8_t eeprom_read_byte(uint8_t *pos) {
   _eeprom_begin(pos);
-  Wire2.endTransmission();
-  Wire2.requestFrom(_eeprom_calc_device_address(pos), (byte)1);
-  return Wire2.available() ? Wire2.read() : 0xFF;
+  WireI2C.endTransmission();
+  WireI2C.requestFrom(_eeprom_calc_device_address(pos), (byte)1);
+  return WireI2C.available() ? WireI2C.read() : 0xFF;
 }
 
 #endif // USE_SHARED_EEPROM
