@@ -214,9 +214,11 @@
 #elif defined(PID_ADD_EXTRUSION_RATE)
   #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default."
 #elif defined(Z_RAISE_BEFORE_HOMING)
-  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT."
+  #error "Z_RAISE_BEFORE_HOMING is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)
-  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT."
+  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_CLEARANCE_FOR_HOMING."
+#elif defined(Z_HOMING_HEIGHT)
+  #error "Z_HOMING_HEIGHT is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
   #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE and Z_AFTER_PROBING instead."
 #elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
@@ -1945,8 +1947,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "TOUCH_MI_PROBE requires TOUCH_MI_RETRACT_Z."
     #elif defined(Z_AFTER_PROBING)
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
-    #elif Z_HOMING_HEIGHT < 10
-      #error "TOUCH_MI_PROBE requires Z_HOMING_HEIGHT >= 10."
+    #elif Z_CLEARANCE_FOR_HOMING < 10
+      #error "TOUCH_MI_PROBE requires Z_CLEARANCE_FOR_HOMING >= 10."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
     #elif !HAS_RESUME_CONTINUE

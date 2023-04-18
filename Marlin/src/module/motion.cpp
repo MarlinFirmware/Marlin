@@ -38,6 +38,10 @@
   #include "../lcd/marlinui.h"
 #endif
 
+#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 #if ENABLED(POLAR)
   #include "polar.h"
 #endif
@@ -795,6 +799,14 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
     do_z_clearance(current_position.z + zclear, false);
   }
+  void do_move_after_z_homing() {
+    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
+    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+      do_z_clearance(Z_POST_CLEARANCE, true, true);
+    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
+      probe.move_z_after_probing();
+    #endif
+  }
 #endif
 
 //
@@ -803,13 +815,10 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 //
 static float saved_feedrate_mm_s;
 static int16_t saved_feedrate_percentage;
-void remember_feedrate_and_scaling() {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("remember_feedrate_and_scaling: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
+void remember_feedrate_scaling_off() {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("remember_feedrate_scaling_off: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
   saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
-}
-void remember_feedrate_scaling_off() {
-  remember_feedrate_and_scaling();
   feedrate_percentage = 100;
 }
 void restore_feedrate_and_scaling() {

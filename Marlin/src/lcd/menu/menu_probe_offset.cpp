@@ -44,10 +44,6 @@ void _goto_manual_move_z(const_float_t);
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-inline void z_clearance_move() {
-  do_z_clearance(Z_POST_CLEARANCE);
-}
-
 void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
@@ -75,17 +71,17 @@ void probe_offset_wizard_menu() {
     set_offset_and_go_back(calculated_z_offset);
     current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
     sync_plan_position();
-    z_clearance_move();                 // Raise Z as if it was homed
+    do_z_post_clearance();
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // If wizard-homing was done by probe with PROBE_OFFSET_WIZARD_START_Z
+    // On cancel the Z position needs correction
     #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
-      set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
+      set_axis_never_homed(Z_AXIS);
       queue.inject(F("G28Z"));
-    #else // Otherwise do a Z clearance move like after Homing
-      z_clearance_move();
+    #else
+      do_z_post_clearance();
     #endif
   });
 

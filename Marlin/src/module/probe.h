@@ -29,10 +29,6 @@
 
 #include "motion.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -49,16 +45,6 @@
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
 #else
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
-#endif
-
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #define Z_POST_CLEARANCE HMI_data.z_after_homing
-#elif defined(Z_AFTER_HOMING)
-  #define Z_POST_CLEARANCE Z_AFTER_HOMING
-#elif defined(Z_HOMING_HEIGHT)
-  #define Z_POST_CLEARANCE Z_HOMING_HEIGHT
-#else
-  #define Z_POST_CLEARANCE 10
 #endif
 
 // In BLTOUCH HS mode, the probe travels in a deployed state.
@@ -190,19 +176,10 @@ public:
 
   static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
 
-  #ifndef Z_AFTER_PROBING
-    #define Z_AFTER_PROBING 0
-  #endif
-  static void move_z_after_probing(const float z=Z_AFTER_PROBING) {
+  static void move_z_after_probing() {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-    if (z != 0) do_z_clearance(z, true, true); // Move down still permitted
-  }
-  static void move_z_after_homing() {
-    DEBUG_SECTION(mzah, "move_z_after_homing", DEBUGGING(LEVELING));
-    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-      move_z_after_probing(Z_POST_CLEARANCE);
-    #elif HAS_BED_PROBE
-      move_z_after_probing();
+    #ifdef Z_AFTER_PROBING
+      do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
     #endif
   }
 

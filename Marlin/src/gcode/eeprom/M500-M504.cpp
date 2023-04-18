@@ -73,7 +73,7 @@ void GcodeSuite::M502() {
           bool success = true;
           for (uint16_t i = 0; success && i < sizeof(mc_zip); ++i) {
             const uint8_t c = pgm_read_byte(&mc_zip[i]);
-            file.write(c);
+            success = (file.write(c) == 1);
           }
           success = file.close() && success;
 
