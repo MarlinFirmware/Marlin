@@ -634,7 +634,7 @@ void GcodeSuite::G28() {
 
   report_current_position();
 
-  if (BOTH(NANODLP_Z_SYNC, NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ))
+  if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
