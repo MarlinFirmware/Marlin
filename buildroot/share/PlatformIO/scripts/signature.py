@@ -41,7 +41,7 @@ def get_file_sha256sum(filepath):
 import zipfile
 def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
-        zipf.write(filepath,arcname=storedname,compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
+        zipf.write(filepath, arcname=storedname, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
 #
 # Compute the build signature. The idea is to extract all defines in the configuration headers
