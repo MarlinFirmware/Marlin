@@ -916,24 +916,10 @@ void Endstops::update() {
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
       G38_did_trigger = true;
-      #if HAS_X_AXIS
-        const bool xmoving = stepper.axis_is_moving(X_AXIS);
-      #endif
-      #if HAS_Y_AXIS
-        const bool ymoving = stepper.axis_is_moving(Y_AXIS);
-      #endif
-      #if HAS_Z_AXIS
-        const bool zmoving = stepper.axis_is_moving(Z_AXIS);
-      #endif
-      #if HAS_X_AXIS
-        if (xmoving) { _ENDSTOP_HIT(X, ENDSTOP); planner.endstop_triggered(X_AXIS); }
-      #endif
-      #if HAS_Y_AXIS
-        if (ymoving) { _ENDSTOP_HIT(Y, ENDSTOP); planner.endstop_triggered(Y_AXIS); }
-      #endif
-      #if HAS_Z_AXIS
-        if (zmoving) { _ENDSTOP_HIT(Z, ENDSTOP); planner.endstop_triggered(Z_AXIS); }
-      #endif
+      #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
+      #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
+      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif
 
