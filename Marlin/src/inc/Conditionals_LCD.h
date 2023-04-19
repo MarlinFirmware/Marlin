@@ -694,7 +694,11 @@
 #endif
 
 #ifndef HOTENDS
-  #define HOTENDS EXTRUDERS
+  #if TEMP_SENSOR_0 == 0
+    #define HOTENDS 0
+  #else
+    #define HOTENDS EXTRUDERS
+  #endif
 #endif
 #ifndef E_STEPPERS
   #define E_STEPPERS EXTRUDERS
