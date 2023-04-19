@@ -922,15 +922,18 @@ void Endstops::update() {
       #if HAS_Y_AXIS
         const bool ymoving = stepper.axis_is_moving(Y_AXIS);
       #endif
-      #if HAS_Z_MIN
+      #if HAS_Z_AXIS
         const bool zmoving = stepper.axis_is_moving(Z_AXIS);
       #endif
-      TERN_(HAS_X_AXIS, if (xmoving) _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)));
-      TERN_(HAS_Y_AXIS, if (ymoving) _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)));
-      TERN_(HAS_Z_MIN,  if (zmoving) _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)));
-      TERN_(HAS_X_AXIS, if (xmoving) planner.endstop_triggered(X_AXIS));
-      TERN_(HAS_Y_AXIS, if (ymoving) planner.endstop_triggered(Y_AXIS));
-      TERN_(HAS_Z_MIN,  if (zmoving) planner.endstop_triggered(Z_AXIS));
+      #if HAS_X_AXIS
+        if (xmoving) { _ENDSTOP_HIT(X, ENDSTOP); planner.endstop_triggered(X_AXIS); }
+      #endif
+      #if HAS_Y_AXIS
+        if (ymoving) { _ENDSTOP_HIT(Y, ENDSTOP); planner.endstop_triggered(Y_AXIS); }
+      #endif
+      #if HAS_Z_AXIS
+        if (zmoving) { _ENDSTOP_HIT(Z, ENDSTOP); planner.endstop_triggered(Z_AXIS); }
+      #endif
     }
   #endif
 
