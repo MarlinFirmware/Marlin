@@ -57,90 +57,15 @@ void menu_item(const uint8_t row, bool sel = false);
 
 #define ABSOLUTE_ZERO     -273.15
 
-#if HAS_EXTRUDERS
-  #define ITEM_E0         0
-  #if HOTENDS > 1
-    #define ITEM_E1       1
-  #endif
+enum {
+  OPTITEM(HAS_EXTRUDERS, ITEM_E0)
+  OPTITEM(HAS_MULTI_HOTEND, ITEM_E1)
   #if HOTENDS > 2
-    #define ITEM_E2       2
+    ITEM_E2,
   #endif
-#endif
-
-#if HAS_HOTBED
-  #if defined(ITEM_E2)
-    #define ITEM_BED (ITEM_E2 + 1)
-  #elif defined(ITEM_E1)
-    #define ITEM_BED (ITEM_E1 + 1)
-  #elif defined(ITEM_E0)
-    #define ITEM_BED (ITEM_E0 + 1)
-  #else
-    #define ITEM_BED 0
-  #endif
-#endif
-
-#if HAS_TEMP_CHAMBER
-  #if defined(ITEM_BED)
-    #define ITEM_CHAMBER (ITEM_BED + 1)
-  #elif defined(ITEM_E2)
-    #define ITEM_CHAMBER (ITEM_E2 + 1)
-  #elif defined(ITEM_E1)
-    #define ITEM_CHAMBER (ITEM_E1 + 1)
-  #elif defined(ITEM_E0)
-    #define ITEM_CHAMBER (ITEM_E0 + 1)
-  #else
-    #define ITEM_CHAMBER 0
-  #endif
-#endif
-
-#if HAS_TEMP_COOLER
-  #if defined(ITEM_CHAMBER)
-    #define ITEM_COOLER (ITEM_CHAMBER + 1)
-  #elif defined(ITEM_BED)
-    #define ITEM_COOLER (ITEM_BED + 1)
-  #elif defined(ITEM_E2)
-    #define ITEM_COOLER (ITEM_E2 + 1)
-  #elif defined(ITEM_E1)
-    #define ITEM_COOLER (ITEM_E1 + 1)
-  #elif defined(ITEM_E0)
-    #define ITEM_COOLER (ITEM_E0 + 1)
-  #else
-    #define ITEM_COOLER 0
-  #endif
-#endif
-
-#if HAS_FAN
-  #if defined(ITEM_COOLER)
-    #define ITEM_FAN (ITEM_COOLER + 1)
-  #elif defined(ITEM_CHAMBER)
-    #define ITEM_FAN (ITEM_CHAMBER + 1)
-  #elif defined(ITEM_BED)
-    #define ITEM_FAN (ITEM_BED + 1)
-  #elif defined(ITEM_E2)
-    #define ITEM_FAN (ITEM_E2 + 1)
-  #elif defined(ITEM_E1)
-    #define ITEM_FAN (ITEM_E1 + 1)
-  #elif defined(ITEM_E0)
-    #define ITEM_FAN (ITEM_E0 + 1)
-  #else
-    #define ITEM_FAN 0
-  #endif
-#endif
-
-#if defined(ITEM_FAN)
-  #define ITEMS_COUNT (ITEM_FAN + 1)
-#elif defined(ITEM_COOLER)
-  #define ITEMS_COUNT (ITEM_COOLER + 1)
-#elif defined(ITEM_CHAMBER)
-  #define ITEMS_COUNT (ITEM_CHAMBER + 1)
-#elif defined(ITEM_BED)
-  #define ITEMS_COUNT (ITEM_BED + 1)
-#elif defined(ITEM_E2)
-  #define ITEMS_COUNT (ITEM_E2 + 1)
-#elif defined(ITEM_E1)
-  #define ITEMS_COUNT (ITEM_E1 + 1)
-#elif defined(ITEM_E0)
-  #define ITEMS_COUNT (ITEM_E0 + 1)
-#else
-  #define ITEMS_COUNT 0
-#endif
+  OPTITEM(HAS_HEATED_BED, ITEM_BED)
+  OPTITEM(HAS_TEMP_CHAMBER, ITEM_CHAMBER)
+  OPTITEM(HAS_TEMP_COOLER, ITEM_COOLER)
+  OPTITEM(HAS_FAN, ITEM_FAN)
+  ITEMS_COUNT
+};
