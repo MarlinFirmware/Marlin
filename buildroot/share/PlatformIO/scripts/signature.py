@@ -39,9 +39,9 @@ def get_file_sha256sum(filepath):
 # Compress a JSON file into a zip file
 #
 import zipfile
-def compress_file(filepath, outpath):
+def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
-        zipf.write(filepath, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
+        zipf.write(filepath, arcname=storedname, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
 #
 # Compute the build signature. The idea is to extract all defines in the configuration headers
@@ -56,14 +56,13 @@ def compute_build_signature(env):
     files_to_keep = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
 
     build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
-    build_path_relative = Path('.pio', 'build', env['PIOENV'])
 
     # Check if we can skip processing
     hashes = ''
     for header in files_to_keep:
         hashes += get_file_sha256sum(header)[0:10]
 
-    marlin_json = build_path_relative / 'marlin_config.json'
+    marlin_json = build_path / 'marlin_config.json'
     marlin_zip = build_path / 'mc.zip'
 
     # Read existing config file
@@ -72,7 +71,7 @@ def compute_build_signature(env):
             conf = json.load(infile)
             if conf['__INITIAL_HASH'] == hashes:
                 # Same configuration, skip recomputing the building signature
-                compress_file(marlin_json, marlin_zip)
+                compress_file(marlin_json, 'marlin_config.json', marlin_zip)
                 return
     except:
         pass
@@ -256,7 +255,7 @@ def compute_build_signature(env):
         return
 
     # Compress the JSON file as much as we can
-    compress_file(marlin_json, marlin_zip)
+    compress_file(marlin_json, 'marlin_config.json', marlin_zip)
 
     # Generate a C source file for storing this array
     with open('Marlin/src/mczip.h','wb') as result_file:
