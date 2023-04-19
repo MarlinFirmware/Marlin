@@ -27,9 +27,9 @@ String.prototype.rpad = function(len, chr) {
   return s;
 };
 
-const mpatt = [ '-?\\d+', 'P[A-I]\\d+', 'P\\d_\\d+' ],
-      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${mpatt[0]}|${mpatt[1]}|${mpatt[2]})\\s*(//.*)?$`, 'gm'),
-      ppad = [ 3, 4, 5 ],
+const mpatt = [ '-?\\d{1,3}', 'P[A-I]\\d+', 'P\\d_\\d+', 'Pin[A-Z]\\d\\b' ],
+      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${mpatt[0]}|${mpatt[1]}|${mpatt[2]}|${mpatt[3]})\\s*(//.*)?$`, 'gm'),
+      ppad = [ 3, 4, 5, 5 ],
       col_comment = 50,
       col_value_rj = col_comment - 3;
 
@@ -55,7 +55,7 @@ else
 
 // Find the pin pattern so non-pin defines can be skipped
 function get_pin_pattern(txt) {
-  var r, m = 0, match_count = [ 0, 0, 0 ];
+  var r, m = 0, match_count = [ 0, 0, 0, 0 ];
   definePatt.lastIndex = 0;
   while ((r = definePatt.exec(txt)) !== null) {
     let ind = -1;
@@ -65,7 +65,7 @@ function get_pin_pattern(txt) {
       return r[2].match(p);
     }) ) {
       const m = ++match_count[ind];
-      if (m >= 10) {
+      if (m >= 5) {
         return { match: mpatt[ind], pad:ppad[ind] };
       }
     }
@@ -79,7 +79,8 @@ function process_text(txt) {
   if (!patt) return txt;
   const pindefPatt = new RegExp(`^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(${patt.match})\\s*(//.*)?$`),
          noPinPatt = new RegExp(`^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(-1)\\s*(//.*)?$`),
-          skipPatt = new RegExp('^(\\s*(//)?#define)\\s+(AT90USB|USBCON|BOARD_.+|.+_MACHINE_NAME|.+_SERIAL)\\s+(.+)\\s*(//.*)?$'),
+         skipPatt1 = new RegExp('^(\\s*(//)?#define)\\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BAUDRATE|CLOCK|CONNECTION|DEFAULT|FREQ|ITEM|MODULE|NAME|ONLY|PERIOD|RANGE|RATE|SERIAL|SIZE|SPI|STATE|STEP|TIMER))\\s+(.+)\\s*(//.*)?$'),
+         skipPatt2 = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(0x[0-9A-Fa-f]+|\d+|.+[a-z].+)\\s*(//.*)?$'),
          aliasPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([A-Z_][A-Z0-9_()]+)\\s*(//.*)?$'),
         switchPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
          undefPatt = new RegExp('^(\\s*(//)?#undef)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
@@ -96,6 +97,12 @@ function process_text(txt) {
       // Comments in column 45
       line = ''.rpad(col_comment) + r[1];
 
+    else if (skipPatt1.exec(line) !== null) {
+      //
+      // #define SKIP_ME
+      //
+      if (do_log) console.log("skip:", line);
+    }
     else if ((r = pindefPatt.exec(line)) !== null) {
       //
       // #define MY_PIN [pin]
@@ -115,7 +122,7 @@ function process_text(txt) {
       line = line.rpad(col_value_lj) + '-1';
       if (r[5]) line = line.rpad(col_comment) + r[5];
     }
-    else if ((r = skipPatt.exec(line)) !== null) {
+    else if (skipPatt2.exec(line) !== null) {
       //
       // #define SKIP_ME
       //

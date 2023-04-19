@@ -133,7 +133,7 @@
 #define HEATER_1_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PB14  // FAN
+#define FAN0_PIN                            PB14  // FAN
 #define FAN1_PIN                            PB12  // FAN
 #define FAN_SOFT_PWM
 
@@ -197,7 +197,7 @@
   #endif
 
   #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
   #define LCD_PINS_D4                EXP3_06_PIN
 
   #define BTN_ENC                    EXP3_02_PIN

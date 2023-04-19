@@ -123,7 +123,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PE3   // Layer fan
+#define FAN0_PIN                            PE3   // Layer fan
 #define FAN1_PIN                            PE1   // Hotend fan
 
 #ifndef E0_AUTO_FAN_PIN

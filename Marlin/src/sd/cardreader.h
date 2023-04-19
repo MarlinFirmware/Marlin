@@ -36,12 +36,6 @@ extern const char M23_STR[], M24_STR[];
   #endif
 #endif
 
-#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-  #define SD_ORDER(N,C) ((C) - 1 - (N))
-#else
-  #define SD_ORDER(N,C) N
-#endif
-
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
@@ -110,8 +104,6 @@ public:
     #endif
   #endif
 
-  // // // Methods // // //
-
   CardReader();
 
   static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
@@ -146,17 +138,17 @@ public:
   static char* longest_filename() { return longFilename[0] ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     static void printLongPath(char * const path);   // Used by M33
+    static void getLongPath(char * const pathLong, char * const pathShort); // Used by anycubic_vyper
   #endif
 
   // Working Directory for SD card menu
   static void cdroot();
   static void cd(const char *relpath);
   static int8_t cdup();
-  static uint16_t countFilesInWorkDir();
-  static uint16_t get_num_Files();
+  static int16_t get_num_items();
 
   // Select a file
-  static void selectFileByIndex(const uint16_t nr);
+  static void selectFileByIndex(const int16_t nr);
   static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
@@ -199,14 +191,16 @@ public:
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
-    static void getfilename_sorted(const uint16_t nr);
+    static void selectFileByIndexSorted(const int16_t nr);
     #if ENABLED(SDSORT_GCODE)
       FORCE_INLINE static void setSortOn(bool b)        { sort_alpha   = b; presort(); }
       FORCE_INLINE static void setSortFolders(int i)    { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
-    FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
+    FORCE_INLINE static void selectFileByIndexSorted(const int16_t nr) {
+      selectFileByIndex(TERN(SDCARD_RATHERRECENTFIRST, get_num_items() - 1 - nr, (nr)));
+    }
   #endif
 
   static void ls(const uint8_t lsflags);
@@ -264,12 +258,13 @@ private:
   //
   static MediaFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   static uint8_t workDirDepth;
+  static int16_t nrItems; // Cache the total count
 
   //
   // Alphabetical file and folder sorting
   //
   #if ENABLED(SDCARD_SORT_ALPHA)
-    static uint16_t sort_count;   // Count of sorted items in the current directory
+    static int16_t sort_count;    // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
       static bool sort_alpha;     // Flag to enable / disable the feature
       static int sort_folders;    // Folder sorting before/none/after
@@ -296,7 +291,6 @@ private:
 
       // If using dynamic ram for names, allocate on the heap.
       #if ENABLED(SDSORT_CACHE_NAMES)
-        static uint16_t nrFiles; // Cache the total count
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static char **sortshort, **sortnames;
         #else
@@ -341,8 +335,8 @@ private:
   // Directory items
   //
   static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
-  static int countItems(MediaFile dir);
-  static void selectByIndex(MediaFile dir, const uint8_t index);
+  static int16_t countVisibleItems(MediaFile dir);
+  static void selectByIndex(MediaFile dir, const int16_t index);
   static void selectByName(MediaFile dir, const char * const match);
   static void printListing(
     MediaFile parent, const char * const prepend, const uint8_t lsflags

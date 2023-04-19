@@ -196,8 +196,8 @@
   #define HEATER_BED_PIN                       7  // BED
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 #define FAN1_PIN                               8
 
@@ -229,7 +229,7 @@
   #if ENABLED(RADDS_DISPLAY)
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
     #define LCD_PINS_D5                       45
     #define LCD_PINS_D6                       46
@@ -252,7 +252,7 @@
     // an adapter such as https://www.thingiverse.com/thing:1740725
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
 
     #define BEEPER_PIN                        41
@@ -276,7 +276,7 @@
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
     #define LCD_PINS_D4                       29
-    #define LCD_PINS_ENABLE                   27
+    #define LCD_PINS_EN                       27
     #define LCD_PINS_RS                       25
 
     #define BTN_EN1                           35

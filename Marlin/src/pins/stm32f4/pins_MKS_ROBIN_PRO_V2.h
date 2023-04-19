@@ -113,18 +113,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PD14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PD1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PD0
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PD14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PD1
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PD0
 #endif
 
 #if HAS_TMC_UART
@@ -179,7 +177,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
+#define FAN0_PIN                            PB1   // FAN
 
 //
 // Thermocouples
@@ -238,23 +236,23 @@
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-#define EXP1_01_PIN                     PC5
-#define EXP1_02_PIN                     PE13
-#define EXP1_03_PIN                     PD13
-#define EXP1_04_PIN                     PC6
-#define EXP1_05_PIN                     PE14
-#define EXP1_06_PIN                     PE15
-#define EXP1_07_PIN                     PD11
-#define EXP1_08_PIN                     PD10
+#define EXP1_01_PIN                         PC5
+#define EXP1_02_PIN                         PE13
+#define EXP1_03_PIN                         PD13
+#define EXP1_04_PIN                         PC6
+#define EXP1_05_PIN                         PE14
+#define EXP1_06_PIN                         PE15
+#define EXP1_07_PIN                         PD11
+#define EXP1_08_PIN                         PD10
 
-#define EXP2_01_PIN                     PA6
-#define EXP2_02_PIN                     PA5
-#define EXP2_03_PIN                     PE8
-#define EXP2_04_PIN                     PE10
-#define EXP2_05_PIN                     PE11
-#define EXP2_06_PIN                     PA7
-#define EXP2_07_PIN                     PE12
-#define EXP2_08_PIN                     -1    // RESET
+#define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PE8
+#define EXP2_04_PIN                         PE10
+#define EXP2_05_PIN                         PE11
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PE12
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // LCD SD
@@ -341,7 +339,7 @@
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
@@ -358,7 +356,6 @@
 
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
-    //#undef SHOW_BOOTSCREEN
 
   #else                                           // !MKS_MINI_12864
 

@@ -23,6 +23,8 @@
 
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
 
+//#define ANYCUBIC_LCD_DEBUG
+
 #include "anycubic_i3mega_lcd.h"
 #include "../ui_api.h"
 

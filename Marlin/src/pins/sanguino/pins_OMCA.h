@@ -128,8 +128,8 @@
 #define HEATER_0_PIN                           3  // DONE PWM on RIGHT connector
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             14  // PWM on MIDDLE connector
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            14  // PWM on MIDDLE connector
 #endif
 
 //

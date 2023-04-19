@@ -126,22 +126,23 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 // This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
-#if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
-    #define TMC_SW_MOSI                     PE14
-  #endif
-  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
-    #define TMC_SW_MISO                     PE13
-  #endif
-  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
-    #define TMC_SW_SCK                      PE12
-  #endif
+#if !defined(TMC_SPI_MOSI) || TMC_SPI_MOSI == -1
+  #undef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PE14
+#endif
+#if !defined(TMC_SPI_MISO) || TMC_SPI_MISO == -1
+  #undef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PE13
+#endif
+#if !defined(TMC_SPI_SCK) || TMC_SPI_SCK == -1
+  #undef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 #if HAS_TMC_UART
@@ -193,7 +194,7 @@
 #define HEATER_2_PIN                        PA3   // HE2
 #define HEATER_BED_PIN                      PB10  // H-BED
 
-#define FAN_PIN                             PA2   // FAN0
+#define FAN0_PIN                            PA2   // FAN0
 #define FAN1_PIN                            PA1   // FAN1
 #define FAN2_PIN                            PA0   // FAN2
 
@@ -310,7 +311,7 @@
 
 #elif HAS_WIRED_LCD
 
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 

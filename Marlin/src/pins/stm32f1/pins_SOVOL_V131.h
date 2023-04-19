@@ -175,8 +175,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA2   // HOT BED
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PA0   // FAN
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PA0   // FAN
 #endif
 #define FAN_SOFT_PWM_REQUIRED
 
@@ -216,7 +216,7 @@
   #if ENABLED(RET6_12864_LCD)
 
     #define LCD_PINS_RS              EXP3_07_PIN
-    #define LCD_PINS_ENABLE          EXP3_08_PIN
+    #define LCD_PINS_EN              EXP3_08_PIN
     #define LCD_PINS_D4              EXP3_06_PIN
 
     #define BTN_ENC                  EXP3_02_PIN

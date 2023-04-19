@@ -21,10 +21,12 @@
  */
 #pragma once
 
+// ATmega2560
+
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
-  #error "TTOSCAR supports up to 5 hotends / E steppers."
+  #error "TT OSCAR supports up to 5 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "TT OSCAR"
@@ -150,16 +152,14 @@
 //
 // Default pins for TMC software SPI
 //
-//#if ENABLED(TMC_USE_SW_SPI)
-//  #ifndef TMC_SW_MOSI
-//    #define TMC_SW_MOSI    66
-//  #endif
-//  #ifndef TMC_SW_MISO
-//    #define TMC_SW_MISO    44
-//  #endif
-//  #ifndef TMC_SW_SCK
-//    #define TMC_SW_SCK     64
-//  #endif
+//#ifndef TMC_SPI_MOSI
+//  #define TMC_SPI_MOSI                      66
+//#endif
+//#ifndef TMC_SPI_MISO
+//  #define TMC_SPI_MISO                      44
+//#endif
+//#ifndef TMC_SPI_SCK
+//  #define TMC_SPI_SCK                       64
 //#endif
 
 //
@@ -192,7 +192,7 @@
 #define HEATER_2_PIN                          44
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 #if EXTRUDERS >= 5
   #define HEATER_4_PIN                         6
@@ -276,13 +276,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
+    #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
+    #define LCD_PINS_EN                       42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -291,7 +291,7 @@
   #elif ENABLED(ZONESTAR_LCD)
 
     #define LCD_PINS_RS                       64
-    #define LCD_PINS_ENABLE                   44
+    #define LCD_PINS_EN                       44
     #define LCD_PINS_D4                       63
     #define LCD_PINS_D5                       40
     #define LCD_PINS_D6                       42
@@ -303,7 +303,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 29
+      #define LCD_PINS_EN                     29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -322,7 +322,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27

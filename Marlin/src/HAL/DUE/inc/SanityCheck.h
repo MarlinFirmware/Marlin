@@ -25,6 +25,10 @@
  * Test Arduino Due specific configuration values for errors at compile-time.
  */
 
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/DUE."
+#endif
+
 /**
  * Check for common serial pin conflicts
  */
@@ -64,7 +68,7 @@
  * Usually the hardware SPI pins are only available to the LCD. This makes the DUE hard SPI used at the same time
  * as the TMC2130 soft SPI the most common setup.
  */
-#define _IS_HW_SPI(P) (defined(TMC_SW_##P) && (TMC_SW_##P == SD_MOSI_PIN || TMC_SW_##P == SD_MISO_PIN || TMC_SW_##P == SD_SCK_PIN))
+#define _IS_HW_SPI(P) (defined(TMC_SPI_##P) && (TMC_SPI_##P == SD_MOSI_PIN || TMC_SPI_##P == SD_MISO_PIN || TMC_SPI_##P == SD_SCK_PIN))
 
 #if ENABLED(SDSUPPORT) && HAS_DRIVER(TMC2130)
   #if ENABLED(TMC_USE_SW_SPI)
@@ -77,7 +81,7 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on DUE."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported for HAL/DUE."
 #endif
 
 #if HAS_TMC_SW_SERIAL

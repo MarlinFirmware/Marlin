@@ -23,6 +23,7 @@
 
 /**
  * Leapfrog Driver board pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280
@@ -78,7 +79,7 @@
 #define HEATER_2_PIN                          11  // 13
 #define HEATER_BED_PIN                        10  // 14/15
 
-#define FAN_PIN                                7
+#define FAN0_PIN                               7
 
 //
 // Misc. Functions

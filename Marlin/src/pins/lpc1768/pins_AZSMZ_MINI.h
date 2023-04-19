@@ -23,6 +23,8 @@
 
 /**
  * AZSMZ MINI pin assignments
+ * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/AZSMZ%20MINI/AZSMZ.svg
+ * Source: https://raw.githubusercontent.com/Rose-Fish/AZSMZ-mini/master/AZSMZ.sch
  */
 
 #include "env_validate.h"
@@ -80,8 +82,8 @@
 // EFB
 #define HEATER_0_PIN                       P2_04
 #define HEATER_BED_PIN                     P2_05
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_07
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_07
 #endif
 #define FAN1_PIN                           P0_26
 

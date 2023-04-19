@@ -72,10 +72,10 @@
 //#define SPI_FLASH
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x200000  // 2MB
-  #define W25QXX_CS_PIN                     PG15  // SPI2
-  #define W25QXX_MOSI_PIN                   PB5
-  #define W25QXX_MISO_PIN                   PB4
-  #define W25QXX_SCK_PIN                    PB3
+  #define SPI_FLASH_CS_PIN                  PG15  // SPI2
+  #define SPI_FLASH_MOSI_PIN                PB5
+  #define SPI_FLASH_MISO_PIN                PB4
+  #define SPI_FLASH_SCK_PIN                 PB3
 #endif
 
 //
@@ -152,7 +152,7 @@
 #define HEATER_BED_PIN                      PE2   // HOT BED
 //#define HEATER_BED_INVERTING              true
 
-#define FAN_PIN                             PG0   // FAN0
+#define FAN0_PIN                            PG0   // FAN0
 #define FAN1_PIN                            PB6   // FAN1
 #define FAN2_PIN                            PG9   // FAN2
 #define FAN3_PIN                            PF10  // FAN3
@@ -200,8 +200,6 @@
   #define TFT_BACKLIGHT_PIN                 PG8
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                        PG12
   #define TFT_RS_PIN                        PG2

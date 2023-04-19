@@ -146,7 +146,7 @@
 //
 #define HEATER_0_PIN                        PA15  // "HE"
 #define HEATER_BED_PIN                      PB3   // "HB"
-#define FAN_PIN                             PC9   // "FAN0"
+#define FAN0_PIN                            PC9   // "FAN0"
 #define FAN1_PIN                            PA8   // "FAN1"
 #define FAN2_PIN                            PC8   // "FAN2"
 
@@ -202,7 +202,7 @@
     #define BTN_EN2                  EXP1_05_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -212,7 +212,7 @@
     #endif
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_ENABLE          EXP1_02_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN

@@ -55,7 +55,7 @@ namespace Language_tr {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Yazılımsal Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Ana");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
   LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Araç Çubuğu Kurulumu");
   LSTR MSG_OPTION_DISABLED                = _UxGT("Seçenek Devre Dışı");

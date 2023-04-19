@@ -186,19 +186,19 @@
 #define HEATER_1_PIN                        PB0   // Heater1
 #define HEATER_2_PIN                        PA3   // Heater2
 
-#define FAN_PIN                             PA2   // Fan0
+#define FAN0_PIN                            PA2   // Fan0
 #define FAN1_PIN                            PA1   // Fan1
 #define FAN2_PIN                            PA0   // Fan2
 
 //
-// Software SPI pins for TMC2130 stepper drivers
-// This board doesn't support hardware SPI there
+// Default pins for TMC software SPI
+// This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI                       PE14
-  #define TMC_SW_MISO                       PE13
-  #define TMC_SW_SCK                        PE12
+  #define TMC_SPI_MOSI                      PE14
+  #define TMC_SPI_MISO                      PE13
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 //
@@ -307,7 +307,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #else
@@ -317,7 +317,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)

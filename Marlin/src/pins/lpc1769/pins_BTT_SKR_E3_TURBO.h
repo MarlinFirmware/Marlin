@@ -23,6 +23,8 @@
 
 /**
  * BigTreeTech SKR E3 Turbo pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20E3%20Turbo/BTT%20SKR%20E3%20Turbo-SCH.pdf
+ * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-E3-Turbo/blob/master/Hardware/BTT%20SKR%20E3%20Turbo-SCH.pdf
  */
 
 #include "env_validate.h"
@@ -177,7 +179,7 @@
 #define HEATER_0_PIN                       P2_03  // EXTRUDER 0
 #define HEATER_1_PIN                       P2_04  // EXTRUDER 1
 #define HEATER_BED_PIN                     P2_05  // BED
-#define FAN_PIN                            P2_01
+#define FAN0_PIN                           P2_01
 #define FAN1_PIN                           P2_02
 
 #ifndef CONTROLLER_FAN_PIN
@@ -209,7 +211,7 @@
   #endif
 
  /**
-  *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
+  *          Ender-3 V2 display                       SKR E3 Turbo (EXP1)                Ender-3 V2 display --> SKR E3 Turbo
   *                ------                                     ------                                  RX  3 -->  5  P0_15
   *           --  | 1  2 | --                (BEEPER)  P2_08 |10  9 | P0_16 (BTN_ENC)                 TX  4 -->  9  P0_16
   * (SKR_TX1) RX  | 3  4 | TX (SKR_RX1)      (BTN_EN1) P0_19 | 8  7 | RESET                       BEEPER  6 --> 10  P2_08
@@ -235,7 +237,7 @@
     #define BTN_ENC                  EXP1_02_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -245,7 +247,7 @@
     #endif
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_ENABLE          EXP1_02_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN
