@@ -341,21 +341,21 @@
   #ifdef MANUAL_U_HOME_POS
     #define U_HOME_POS MANUAL_U_HOME_POS
   #else
-    #define U_HOME_POS (U_HOME_DIR < 0 ? U_MIN_POS : U_MAX_POS)
+    #define U_HOME_POS TERN(U_HOME_TO_MIN, U_MIN_POS, U_MAX_POS)
   #endif
 #endif
 #if HAS_V_AXIS
   #ifdef MANUAL_V_HOME_POS
     #define V_HOME_POS MANUAL_V_HOME_POS
   #else
-    #define V_HOME_POS (V_HOME_DIR < 0 ? V_MIN_POS : V_MAX_POS)
+    #define V_HOME_POS TERN(V_HOME_TO_MIN, V_MIN_POS, V_MAX_POS)
   #endif
 #endif
 #if HAS_W_AXIS
   #ifdef MANUAL_W_HOME_POS
     #define W_HOME_POS MANUAL_W_HOME_POS
   #else
-    #define W_HOME_POS (W_HOME_DIR < 0 ? W_MIN_POS : W_MAX_POS)
+    #define W_HOME_POS TERN(W_HOME_TO_MIN, W_MIN_POS, W_MAX_POS)
   #endif
 #endif
 
