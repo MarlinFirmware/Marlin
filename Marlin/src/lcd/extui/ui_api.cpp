@@ -932,22 +932,21 @@ namespace ExtUI {
 
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
         #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
-          const feedRate_t old_feedrate = feedrate_mm_s;
+          REMEMBER(fr, feedrate_mm_s);
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
             destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
             prepare_line_to_destination();
-            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
             destination.set(x_target, y_target);
             prepare_line_to_destination();
           }
-          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
           destination.z = z;
           prepare_line_to_destination();
-          feedrate_mm_s = old_feedrate;
         #else
           UNUSED(pos);
           UNUSED(z);
@@ -1136,12 +1135,12 @@ namespace ExtUI {
 
   FileList::FileList() { refresh(); }
 
-  void FileList::refresh() { num_files = 0xFFFF; }
+  void FileList::refresh() { }
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.selectFileByIndexSorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);
@@ -1167,7 +1166,7 @@ namespace ExtUI {
   }
 
   uint16_t FileList::count() {
-    return TERN0(SDSUPPORT, (num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)));
+    return TERN0(SDSUPPORT, card.get_num_items());
   }
 
   bool FileList::isAtRootDir() {
@@ -1175,19 +1174,11 @@ namespace ExtUI {
   }
 
   void FileList::upDir() {
-    #if ENABLED(SDSUPPORT)
-      card.cdup();
-      num_files = 0xFFFF;
-    #endif
+    TERN_(SDSUPPORT, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {
-    #if ENABLED(SDSUPPORT)
-      card.cd(dirname);
-      num_files = 0xFFFF;
-    #else
-      UNUSED(dirname);
-    #endif
+    TERN(SDSUPPORT, card.cd(dirname), UNUSED(dirname));
   }
 
 } // namespace ExtUI

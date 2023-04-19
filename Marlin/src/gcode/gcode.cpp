@@ -895,6 +895,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif
 
+      #if ENABLED(FT_MOTION)
+        case 493: M493(); break;                                  // M493: Fixed-Time Motion control
+      #endif
+
       case 500: M500(); break;                                    // M500: Store settings in EEPROM
       case 501: M501(); break;                                    // M501: Read settings from EEPROM
       case 502: M502(); break;                                    // M502: Revert to default settings
@@ -933,8 +937,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
-      #if HAS_SHAPING
-        case 593: M593(); break;                                  // M593: Set Input Shaping parameters
+      #if HAS_ZV_SHAPING
+        case 593: M593(); break;                                  // M593: Input Shaping control
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)

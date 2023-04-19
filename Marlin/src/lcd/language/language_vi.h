@@ -44,7 +44,7 @@ namespace Language_vi {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB khởi thất bại");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Công tắc");                             // Endstops - công tắc hành trình
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Công tắc mềm");                         // soft Endstops
-  LSTR MSG_MAIN                           = _UxGT("Chính");                                // Main
+  LSTR MSG_MAIN_MENU                      = _UxGT("Chính");                                // Main
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Thiết lập cấp cao");                    // Advanced Settings
   LSTR MSG_CONFIGURATION                  = _UxGT("Cấu hình");                             // Configuration
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Khởi chạy tự động");                    // Autostart

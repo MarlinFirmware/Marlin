@@ -1038,6 +1038,10 @@ private:
     static void M486();
   #endif
 
+  #if ENABLED(FT_MOTION)
+    static void M493();
+  #endif
+
   static void M500();
   static void M501();
   static void M502();
@@ -1084,7 +1088,7 @@ private:
     static void M575();
   #endif
 
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
   #endif

@@ -97,10 +97,10 @@
     #define Z_MAX_PIN                         -1
   #endif
   #ifndef I_STOP_PIN
-    #define I_STOP_PIN                        18
+    #define I_STOP_PIN                        18  // Z-
   #endif
   #ifndef J_STOP_PIN
-    #define J_STOP_PIN                        19
+    #define J_STOP_PIN                        19  // Z+
   #endif
 #endif
 
@@ -109,26 +109,26 @@
 //
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
-    #define X_MIN_PIN                          3
+    #define X_MIN_PIN                          3  // X-
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                          2
+    #define X_MAX_PIN                          2  // X+
   #endif
 #endif
 #ifndef Y_STOP_PIN
   #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                         14
+    #define Y_MIN_PIN                         14  // Y-
   #endif
   #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                         15
+    #define Y_MAX_PIN                         15  // Y+
   #endif
 #endif
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         18
+    #define Z_MIN_PIN                         18  // Z-
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         19
+    #define Z_MAX_PIN                         19  // Z+
   #endif
 #endif
 
@@ -594,13 +594,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE          EXP2_06_PIN  // SID (MOSI)
+    #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
     #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS              AUX2_06_PIN
-    #define LCD_PINS_ENABLE          AUX2_08_PIN
+    #define LCD_PINS_EN              AUX2_08_PIN
     #define LCD_PINS_D4              AUX2_10_PIN
     #define LCD_PINS_D5              AUX2_09_PIN
     #define LCD_PINS_D6              AUX2_07_PIN
@@ -615,7 +615,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_ENABLE        EXP1_08_PIN
+      #define LCD_PINS_EN            EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
 
       #if !IS_NEWPANEL
@@ -629,7 +629,7 @@
       #endif
 
       #define LCD_PINS_RS            AUX2_05_PIN
-      #define LCD_PINS_ENABLE        AUX2_07_PIN
+      #define LCD_PINS_EN            AUX2_07_PIN
       #define LCD_PINS_D4            AUX2_04_PIN
       #define LCD_PINS_D5            AUX2_06_PIN
       #define LCD_PINS_D6            AUX2_08_PIN
@@ -651,7 +651,7 @@
         #define DOGLCD_SCK           EXP1_05_PIN
       #else
         #define LCD_PINS_RS          EXP1_04_PIN
-        #define LCD_PINS_ENABLE      EXP1_03_PIN
+        #define LCD_PINS_EN          EXP1_03_PIN
         #define LCD_PINS_D4          EXP1_05_PIN
         #define LCD_PINS_D5          EXP1_06_PIN
         #define LCD_PINS_D6          EXP1_07_PIN
@@ -686,8 +686,6 @@
   #if IS_NEWPANEL
 
     #if IS_RRD_SC
-
-      #define BEEPER_PIN             EXP1_01_PIN
 
       #if ENABLED(CR10_STOCKDISPLAY)
         #define BTN_EN1              EXP1_03_PIN
@@ -743,7 +741,9 @@
       #define DOGLCD_A0              AUX2_07_PIN
       #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-      #define BEEPER_PIN             EXP2_05_PIN
+      #ifndef BEEPER_PIN
+        #define BEEPER_PIN           EXP2_05_PIN
+      #endif
       #define STAT_LED_RED_PIN       AUX4_03_PIN
       #define STAT_LED_BLUE_PIN      EXP1_02_PIN
 
@@ -761,7 +761,9 @@
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
 
-      #define BEEPER_PIN             EXP1_05_PIN
+      #ifndef BEEPER_PIN
+        #define BEEPER_PIN           EXP1_05_PIN
+      #endif
       #define LCD_BACKLIGHT_PIN      EXP2_05_PIN
 
       #define BTN_EN1                EXP1_02_PIN
@@ -776,7 +778,6 @@
 
     #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
-      #define BEEPER_PIN             EXP1_01_PIN
       #define BTN_ENC                EXP1_02_PIN
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
@@ -830,7 +831,9 @@
 
     #elif ENABLED(MINIPANEL)
 
-      #define BEEPER_PIN             AUX2_08_PIN
+      #ifndef BEEPER_PIN
+        #define BEEPER_PIN           AUX2_08_PIN
+      #endif
       #define LCD_BACKLIGHT_PIN      AUX2_10_PIN
 
       #define DOGLCD_A0              AUX2_07_PIN
@@ -855,8 +858,6 @@
 
     #elif ENABLED(G3D_PANEL)
 
-      #define BEEPER_PIN             EXP1_01_PIN
-
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
@@ -874,7 +875,9 @@
 
     #else
 
-      #define BEEPER_PIN             EXP2_05_PIN
+      #ifndef BEEPER_PIN
+        #define BEEPER_PIN           EXP2_05_PIN
+      #endif
 
       #if ENABLED(PANEL_ONE)                      // Buttons connect directly to AUX-2
         #define BTN_EN1              AUX2_03_PIN
@@ -888,6 +891,10 @@
 
     #endif
   #endif // IS_NEWPANEL
+
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN               EXP1_01_PIN  // Most common mapping
+  #endif
 
 #endif // HAS_WIRED_LCD && !LCD_PINS_DEFINED
 

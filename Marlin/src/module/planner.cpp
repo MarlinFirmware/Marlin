@@ -69,6 +69,9 @@
 #include "stepper.h"
 #include "motion.h"
 #include "temperature.h"
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
 #include "../lcd/marlinui.h"
 #include "../gcode/parser.h"
 
@@ -112,7 +115,8 @@
 
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
-#define BLOCK_DELAY_FOR_1ST_MOVE 100
+#define BLOCK_DELAY_NONE         0U
+#define BLOCK_DELAY_FOR_1ST_MOVE 100U
 
 Planner planner;
 
@@ -127,7 +131,7 @@ volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be
                  Planner::block_buffer_planned, // Index of the optimally planned block
                  Planner::block_buffer_tail;    // Index of the busy block, if any
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
-uint8_t Planner::delay_before_delivering;       // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
@@ -223,6 +227,10 @@ float Planner::previous_nominal_speed;
   int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
   float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
+#endif
+
+#if ENABLED(FT_MOTION)
+  bool Planner::fxdTiCtrl_busy = false;
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -1683,7 +1691,8 @@ void Planner::quick_stop() {
 
   // Restart the block delay for the first movement - As the queue was
   // forced to empty, there's no risk the ISR will touch this.
-  delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+
+  delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
 
   TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
 
@@ -1728,7 +1737,8 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      || TERN0(HAS_SHAPING, stepper.input_shaping_busy())
+      || TERN0(HAS_ZV_SHAPING, stepper.input_shaping_busy())
+      || TERN0(FT_MOTION, fxdTiCtrl_busy)
   );
 }
 
@@ -1841,7 +1851,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   // Move buffer head
@@ -1962,7 +1972,7 @@ bool Planner::_populate_block(
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     if (da < 0) SBI(dm, X_HEAD);                  // Save the toolhead's true direction in X
     if (db < 0) SBI(dm, Y_HEAD);                  // ...and Y
-    if (dc < 0) SBI(dm, Z_AXIS);
+    TERN_(HAS_Z_AXIS, if (dc < 0) SBI(dm, Z_AXIS));
   #endif
   #if IS_CORE
     #if CORE_IS_XY
@@ -2086,7 +2096,7 @@ bool Planner::_populate_block(
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
     steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
-    steps_dist_mm.z      = dc * mm_per_step[Z_AXIS];
+    TERN_(HAS_Z_AXIS, steps_dist_mm.z = dc * mm_per_step[Z_AXIS]);
   #endif
   #if IS_CORE
     #if CORE_IS_XY
@@ -2234,7 +2244,7 @@ bool Planner::_populate_block(
       stepper.enable_axis(X_AXIS);
       stepper.enable_axis(Y_AXIS);
     }
-    #if DISABLED(Z_LATE_ENABLE)
+    #if HAS_Z_AXIS && DISABLED(Z_LATE_ENABLE)
       if (block->steps.z) stepper.enable_axis(Z_AXIS);
     #endif
   #elif CORE_IS_XZ
@@ -2945,7 +2955,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   block_buffer_head = next_buffer_head;
@@ -3243,7 +3253,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       // As there are no queued movements, the Stepper ISR will not touch this
       // variable, so there is no risk setting this here (but it MUST be done
       // before the following line!!)
-      delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+      delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
     }
 
     // Move buffer head

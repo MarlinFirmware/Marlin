@@ -49,6 +49,10 @@
   #include "stepper/speed_lookuptable.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "ft_types.h"
+#endif
+
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
@@ -94,7 +98,7 @@
   #endif
 
   // Input shaping base time
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     #define ISR_SHAPING_BASE_CYCLES 180UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
@@ -128,7 +132,7 @@
   #endif
 
   // Input shaping base time
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     #define ISR_SHAPING_BASE_CYCLES 290UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
@@ -217,7 +221,7 @@
 #define ISR_LOOP_CYCLES(R) ((ISR_LOOP_BASE_CYCLES + MIN_ISR_LOOP_CYCLES + MIN_STEPPER_PULSE_CYCLES) * ((1UL << R) - 1) + _MAX(MIN_ISR_LOOP_CYCLES, MIN_STEPPER_PULSE_CYCLES))
 
 // Model input shaping as an extra loop call
-#define ISR_SHAPING_LOOP_CYCLES(R) (TERN0(HAS_SHAPING, (ISR_LOOP_BASE_CYCLES + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)) << R))
+#define ISR_SHAPING_LOOP_CYCLES(R) (TERN0(HAS_ZV_SHAPING, (ISR_LOOP_BASE_CYCLES + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)) << R))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -315,7 +319,7 @@ constexpr ena_mask_t enable_overlap[] = {
 
 //static_assert(!any_enable_overlap(), "There is some overlap.");
 
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
 
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
@@ -463,13 +467,14 @@ constexpr ena_mask_t enable_overlap[] = {
     int32_t last_block_end_pos = 0;
   };
 
-#endif // HAS_SHAPING
+#endif // HAS_ZV_SHAPING
 
 //
 // Stepper class definition
 //
 class Stepper {
   friend class Max7219;
+  friend class FxdTiCtrl;
   friend void stepperTask(void *);
 
   public:
@@ -577,7 +582,7 @@ class Stepper {
       static bool bezier_2nd_half; // If Bézier curve has been initialized or not
     #endif
 
-    #if HAS_SHAPING
+    #if HAS_ZV_SHAPING
       #if ENABLED(INPUT_SHAPING_X)
         static ShapeParams shaping_x;
       #endif
@@ -646,7 +651,7 @@ class Stepper {
     // The stepper block processing ISR phase
     static hal_timer_t block_phase_isr();
 
-    #if HAS_SHAPING
+    #if HAS_ZV_SHAPING
       static void shaping_isr();
     #endif
 
@@ -669,7 +674,7 @@ class Stepper {
     // Check if the given block is busy or not - Must not be called from ISR contexts
     static bool is_block_busy(const block_t * const block);
 
-    #if HAS_SHAPING
+    #if HAS_ZV_SHAPING
       // Check whether the stepper is processing any input shaping echoes
       static bool input_shaping_busy() {
         const bool was_on = hal.isr_state();
@@ -817,7 +822,12 @@ class Stepper {
       set_directions();
     }
 
-    #if HAS_SHAPING
+    #if ENABLED(FT_MOTION)
+      // Manage the planner
+      static void fxdTiCtrl_BlockQueueUpdate();
+    #endif
+
+    #if HAS_ZV_SHAPING
       static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
       static void set_shaping_frequency(const AxisEnum axis, const_float_t freq);
@@ -846,6 +856,11 @@ class Stepper {
 
     #if HAS_MICROSTEPS
       static void microstep_init();
+    #endif
+
+    #if ENABLED(FT_MOTION)
+      static void fxdTiCtrl_stepper(const bool applyDir, const ft_command_t command);
+      static void fxdTiCtrl_refreshAxisDidMove();
     #endif
 
 };

@@ -65,7 +65,7 @@ namespace Language_sk {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Preteč. podprogramu");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znakov
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft. endstopy");
-  LSTR MSG_MAIN                           = _UxGT("Hlavná ponuka");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hlavná ponuka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Pokročilé nastav.");
   LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Panel nástrojov");
   LSTR MSG_OPTION_DISABLED                = _UxGT("Možnosť vypnutá");

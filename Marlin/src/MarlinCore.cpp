@@ -34,6 +34,10 @@
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
 
+#if ENABLED(WIFISUPPORT)
+  #include "HAL/shared/esp_wifi.h"
+#endif
+
 #ifdef ARDUINO
   #include <pins_arduino.h>
 #endif
@@ -46,6 +50,9 @@
 #include "module/settings.h"
 #include "module/stepper.h"
 #include "module/temperature.h"
+#if ENABLED(FT_MOTION)
+  #include "module/ft_motion.h"
+#endif
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
@@ -775,7 +782,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
-void idle(bool no_stepper_sleep/*=false*/) {
+void idle(const bool no_stepper_sleep/*=false*/) {
   #ifdef MAX7219_DEBUG_PROFILE
     CodeProfiler idle_profiler;
   #endif
@@ -881,8 +888,12 @@ void idle(bool no_stepper_sleep/*=false*/) {
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 
+  // Manage Fixed-time Motion Control
+  TERN_(FT_MOTION, fxdTiCtrl.loop());
+
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
+
   return;
 }
 
@@ -1270,7 +1281,9 @@ void setup() {
 
   SETUP_RUN(hal.init_board());
 
-  SETUP_RUN(esp_wifi_init());
+  #if ENABLED(WIFISUPPORT)
+    SETUP_RUN(esp_wifi_init());
+  #endif
 
   // Report Reset Reason
   if (mcu & RST_POWER_ON)  SERIAL_ECHOLNPGM(STR_POWERUP);
@@ -1646,6 +1659,12 @@ void setup() {
   #endif
 
   marlin_state = MF_RUNNING;
+
+  #ifdef STARTUP_TUNE
+    // Play a short startup tune before continuing.
+    constexpr uint16_t tune[] = STARTUP_TUNE;
+    for (uint8_t i = 0; i < COUNT(tune) - 1; i += 2) BUZZ(tune[i + 1], tune[i]);
+  #endif
 
   SETUP_LOG("setup() completed.");
 

@@ -982,7 +982,7 @@ volatile bool Temperature::raw_temps_ready = false;
           planner.sync_fan_speeds(fan_speed);
         #endif
 
-        do_z_clearance(MPC_TUNING_END_Z);
+        do_z_clearance(MPC_TUNING_END_Z, false);
 
         TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       }
@@ -1085,9 +1085,9 @@ volatile bool Temperature::raw_temps_ready = false;
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
 
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - ambient_temp);
-    mpc.fan255_adjustment = 0.0f;
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
+    TERN_(MPC_INCLUDE_FAN, mpc.fan255_adjustment = 0.0f);
 
     hotend.modeled_block_temp = asymp_temp + (ambient_temp - asymp_temp) * exp(-block_responsiveness * (ms - heat_start_time) / 1000.0f);
     hotend.modeled_sensor_temp = current_temp;
@@ -1290,8 +1290,9 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       #else
         #define _AUTOFAN_SPEED() EXTRUDER_AUTO_FAN_SPEED
       #endif
-      #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break
-      #define AUTOFAN_CASE(N) OPTCODE(HAS_AUTO_FAN_##N, _AUTOFAN_CASE(N))
+      #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break;
+      #define _AUTOFAN_NOT(N)
+      #define AUTOFAN_CASE(N) TERN(HAS_AUTO_FAN_##N, _AUTOFAN_CASE, _AUTOFAN_NOT)(N)
 
       switch (f) {
         REPEAT(8, AUTOFAN_CASE)
@@ -2630,47 +2631,47 @@ void Temperature::init() {
 
   #if HAS_HEATER_0
     #ifdef BOARD_OPENDRAIN_MOSFETS
-      OUT_WRITE_OD(HEATER_0_PIN, HEATER_0_INVERTING);
+      OUT_WRITE_OD(HEATER_0_PIN, ENABLED(HEATER_0_INVERTING));
     #else
-      OUT_WRITE(HEATER_0_PIN, HEATER_0_INVERTING);
+      OUT_WRITE(HEATER_0_PIN, ENABLED(HEATER_0_INVERTING));
     #endif
   #endif
   #if HAS_HEATER_1
-    OUT_WRITE(HEATER_1_PIN, HEATER_1_INVERTING);
+    OUT_WRITE(HEATER_1_PIN, ENABLED(HEATER_1_INVERTING));
   #endif
   #if HAS_HEATER_2
-    OUT_WRITE(HEATER_2_PIN, HEATER_2_INVERTING);
+    OUT_WRITE(HEATER_2_PIN, ENABLED(HEATER_2_INVERTING));
   #endif
   #if HAS_HEATER_3
-    OUT_WRITE(HEATER_3_PIN, HEATER_3_INVERTING);
+    OUT_WRITE(HEATER_3_PIN, ENABLED(HEATER_3_INVERTING));
   #endif
   #if HAS_HEATER_4
-    OUT_WRITE(HEATER_4_PIN, HEATER_4_INVERTING);
+    OUT_WRITE(HEATER_4_PIN, ENABLED(HEATER_4_INVERTING));
   #endif
   #if HAS_HEATER_5
-    OUT_WRITE(HEATER_5_PIN, HEATER_5_INVERTING);
+    OUT_WRITE(HEATER_5_PIN, ENABLED(HEATER_5_INVERTING));
   #endif
   #if HAS_HEATER_6
-    OUT_WRITE(HEATER_6_PIN, HEATER_6_INVERTING);
+    OUT_WRITE(HEATER_6_PIN, ENABLED(HEATER_6_INVERTING));
   #endif
   #if HAS_HEATER_7
-    OUT_WRITE(HEATER_7_PIN, HEATER_7_INVERTING);
+    OUT_WRITE(HEATER_7_PIN, ENABLED(HEATER_7_INVERTING));
   #endif
 
   #if HAS_HEATED_BED
     #ifdef BOARD_OPENDRAIN_MOSFETS
-      OUT_WRITE_OD(HEATER_BED_PIN, HEATER_BED_INVERTING);
+      OUT_WRITE_OD(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
     #else
-      OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
+      OUT_WRITE(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
     #endif
   #endif
 
   #if HAS_HEATED_CHAMBER
-    OUT_WRITE(HEATER_CHAMBER_PIN, HEATER_CHAMBER_INVERTING);
+    OUT_WRITE(HEATER_CHAMBER_PIN, ENABLED(HEATER_CHAMBER_INVERTING));
   #endif
 
   #if HAS_COOLER
-    OUT_WRITE(COOLER_PIN, COOLER_INVERTING);
+    OUT_WRITE(COOLER_PIN, ENABLED(COOLER_INVERTING));
   #endif
 
   #if HAS_FAN0

@@ -2605,14 +2605,13 @@
   #define MAX_FANS 8  // Max supported fans
 #endif
 
-#define _NOT_E_AUTO(N,F) (E##N##_AUTO_FAN_PIN != FAN##F##_PIN)
-#define _HAS_FAN(F) (PIN_EXISTS(FAN##F) \
+#define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
+#define _HAS_FAN(F) (F < MAX_FANS && PIN_EXISTS(FAN##F) \
                      && CONTROLLER_FAN_PIN != FAN##F##_PIN \
-                     && _NOT_E_AUTO(0,F) && _NOT_E_AUTO(1,F) \
-                     && _NOT_E_AUTO(2,F) && _NOT_E_AUTO(3,F) \
-                     && _NOT_E_AUTO(4,F) && _NOT_E_AUTO(5,F) \
-                     && _NOT_E_AUTO(6,F) && _NOT_E_AUTO(7,F) \
-                     && F < MAX_FANS)
+                     && !_IS_E_AUTO(0,F) && !_IS_E_AUTO(1,F) \
+                     && !_IS_E_AUTO(2,F) && !_IS_E_AUTO(3,F) \
+                     && !_IS_E_AUTO(4,F) && !_IS_E_AUTO(5,F) \
+                     && !_IS_E_AUTO(6,F) && !_IS_E_AUTO(7,F))
 #if _HAS_FAN(0)
   #define HAS_FAN0 1
 #endif
@@ -2800,53 +2799,23 @@
 #endif
 
 /**
- * Heater signal inversion defaults
- */
-
-#if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
-  #define HEATER_0_INVERTING false
-#endif
-#if HAS_HEATER_1 && !defined(HEATER_1_INVERTING)
-  #define HEATER_1_INVERTING false
-#endif
-#if HAS_HEATER_2 && !defined(HEATER_2_INVERTING)
-  #define HEATER_2_INVERTING false
-#endif
-#if HAS_HEATER_3 && !defined(HEATER_3_INVERTING)
-  #define HEATER_3_INVERTING false
-#endif
-#if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
-  #define HEATER_4_INVERTING false
-#endif
-#if HAS_HEATER_5 && !defined(HEATER_5_INVERTING)
-  #define HEATER_5_INVERTING false
-#endif
-#if HAS_HEATER_6 && !defined(HEATER_6_INVERTING)
-  #define HEATER_6_INVERTING false
-#endif
-#if HAS_HEATER_7 && !defined(HEATER_7_INVERTING)
-  #define HEATER_7_INVERTING false
-#endif
-
-/**
  * Helper Macros for heaters and extruder fan
  */
-
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
+#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ ENABLED(HEATER_0_INVERTING))
 #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
+  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ ENABLED(HEATER_1_INVERTING))
   #if HOTENDS > 2
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
+    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ ENABLED(HEATER_2_INVERTING))
     #if HOTENDS > 3
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
+      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ ENABLED(HEATER_3_INVERTING))
       #if HOTENDS > 4
-        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
+        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ ENABLED(HEATER_4_INVERTING))
         #if HOTENDS > 5
-          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ HEATER_5_INVERTING)
+          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ ENABLED(HEATER_5_INVERTING))
           #if HOTENDS > 6
-            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ HEATER_6_INVERTING)
+            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ ENABLED(HEATER_6_INVERTING))
             #if HOTENDS > 7
-              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ HEATER_7_INVERTING)
+              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ ENABLED(HEATER_7_INVERTING))
             #endif // HOTENDS > 7
           #endif // HOTENDS > 6
         #endif // HOTENDS > 5
@@ -2860,10 +2829,6 @@
   #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
 #endif
 
-#ifndef MIN_POWER
-  #define MIN_POWER 0
-#endif
-
 /**
  * Heated bed requires settings
  */
@@ -2874,10 +2839,7 @@
   #ifndef MAX_BED_POWER
     #define MAX_BED_POWER 255
   #endif
-  #ifndef HEATER_BED_INVERTING
-    #define HEATER_BED_INVERTING false
-  #endif
-  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ HEATER_BED_INVERTING)
+  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ ENABLED(HEATER_BED_INVERTING))
 #endif
 
 /**
@@ -2890,10 +2852,7 @@
   #ifndef MAX_CHAMBER_POWER
     #define MAX_CHAMBER_POWER 255
   #endif
-  #ifndef HEATER_CHAMBER_INVERTING
-    #define HEATER_CHAMBER_INVERTING false
-  #endif
-  #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ HEATER_CHAMBER_INVERTING)
+  #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ ENABLED(HEATER_CHAMBER_INVERTING))
 #endif
 
 /**
@@ -2903,10 +2862,7 @@
   #ifndef MAX_COOLER_POWER
     #define MAX_COOLER_POWER 255
   #endif
-  #ifndef COOLER_INVERTING
-    #define COOLER_INVERTING true
-  #endif
-  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ COOLER_INVERTING)
+  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ ENABLED(COOLER_INVERTING))
 #endif
 
 #if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER || HAS_COOLER
@@ -3224,24 +3180,24 @@
 #endif
 
 /**
- * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
+ * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
  */
-#ifndef Z_HOMING_HEIGHT
+#ifndef Z_CLEARANCE_FOR_HOMING
   #ifdef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_HOMING_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_FOR_HOMING Z_CLEARANCE_BETWEEN_PROBES
   #else
-    #define Z_HOMING_HEIGHT 0
+    #define Z_CLEARANCE_FOR_HOMING 0
   #endif
 #endif
 
 #if PROBE_SELECTED
   #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
+    #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
   #endif
-  #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+  #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
     #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
   #else
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_HOMING_HEIGHT
+    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_FOR_HOMING
   #endif
   #ifndef Z_CLEARANCE_MULTI_PROBE
     #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
@@ -3306,10 +3262,11 @@
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
 #if ANY(SCROLL_LONG_FILENAMES, HAS_DWIN_E3V2, TFT_COLOR_UI)
-  #define MAX_VFAT_ENTRIES (5)
+  #define VFAT_ENTRIES_LIMIT 5
 #else
-  #define MAX_VFAT_ENTRIES (2)
+  #define VFAT_ENTRIES_LIMIT 2
 #endif
+#define MAX_VFAT_ENTRIES 20 // by VFAT specs to fit LFN of length 255
 
 // Nozzle park for Delta
 #if BOTH(NOZZLE_PARK_FEATURE, DELTA)
@@ -3323,14 +3280,17 @@
 #if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SD_SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
-  #undef SDSORT_LIMIT
-  #undef SDSORT_USES_RAM
-  #undef SDSORT_USES_STACK
-  #undef SDSORT_CACHE_NAMES
-  #define SDSORT_LIMIT       64
-  #define SDSORT_USES_RAM    true
-  #define SDSORT_USES_STACK  false
-  #define SDSORT_CACHE_NAMES true
+  #if SDSORT_LIMIT > 64 || !SDSORT_USES_RAM || SDSORT_USES_STACK || !SDSORT_CACHE_NAMES
+    #undef SDSORT_LIMIT
+    #undef SDSORT_USES_RAM
+    #undef SDSORT_USES_STACK
+    #undef SDSORT_CACHE_NAMES
+    #define SDSORT_LIMIT       64
+    #define SDSORT_USES_RAM    true
+    #define SDSORT_USES_STACK  false
+    #define SDSORT_CACHE_NAMES true
+    #define SDSORT_CACHE_LPC1768_WARNING 1
+  #endif
   #ifndef FOLDER_SORTING
     #define FOLDER_SORTING     -1
   #endif

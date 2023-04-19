@@ -76,9 +76,14 @@
 #endif // !defined(NUM_SERVOS)
 
 // Convenience override for a BLTouch alone
-#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
-  #undef SERVO_DELAY
-  #define SERVO_DELAY { 50 }
+#if ENABLED(BLTOUCH)
+  #ifdef BLTOUCH_HS_MODE
+    #define HAS_BLTOUCH_HS_MODE 1
+  #endif
+  #if NUM_SERVOS == 1
+    #undef SERVO_DELAY
+    #define SERVO_DELAY { 50 }
+  #endif
 #endif
 
 #if !HAS_BED_PROBE
@@ -1128,6 +1133,9 @@
   #endif
 #endif
 
+// Test for edge stepping on any axis
+#define AXIS_HAS_DEDGE(A) (ENABLED(EDGE_STEPPING) && AXIS_IS_TMC(A))
+
 #if ENABLED(DIRECT_STEPPING)
   #ifndef STEPPER_PAGES
     #define STEPPER_PAGES 16
@@ -1248,7 +1256,7 @@
 
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
-  #define HAS_SHAPING 1
+  #define HAS_ZV_SHAPING 1
 #endif
 
 // Toolchange Event G-code

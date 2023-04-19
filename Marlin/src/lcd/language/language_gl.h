@@ -50,7 +50,7 @@ namespace Language_gl {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbord. Subch.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("FinCarro");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("FinCarro SW");
-  LSTR MSG_MAIN                           = _UxGT("Menú principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Axustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autoarranque");

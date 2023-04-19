@@ -214,9 +214,11 @@
 #elif defined(PID_ADD_EXTRUSION_RATE)
   #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default."
 #elif defined(Z_RAISE_BEFORE_HOMING)
-  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT."
+  #error "Z_RAISE_BEFORE_HOMING is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)
-  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT."
+  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_CLEARANCE_FOR_HOMING."
+#elif defined(Z_HOMING_HEIGHT)
+  #error "Z_HOMING_HEIGHT is now Z_CLEARANCE_FOR_HOMING."
 #elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
   #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE and Z_AFTER_PROBING instead."
 #elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
@@ -700,6 +702,8 @@
   #error "DEFAULT_STEPPER_DEACTIVE_TIME is now DEFAULT_STEPPER_TIMEOUT_SEC."
 #elif defined(TFT_SHARED_SPI)
   #error "TFT_SHARED_SPI is now TFT_SHARED_IO."
+#elif defined(LCD_PINS_ENABLE)
+  #error "LCD_PINS_ENABLE is now LCD_PINS_EN."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -735,6 +739,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 #undef _ISMAX_1
 #undef _ISSNS_1
+
+/**
+ * Hephestos 2 Heated Bed Kit requirements
+ */
+#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
+  #if TEMP_SENSOR_BED != 70
+    #error "HEPHESTOS2_HEATED_BED_KIT requires TEMP_SENSOR_BED 70."
+  #elif DISABLED(HEATER_BED_INVERTING)
+    #error "HEPHESTOS2_HEATED_BED_KIT requires HEATER_BED_INVERTING."
+  #endif
+#endif
 
 /**
  * Probe temp compensation requirements
@@ -1020,7 +1035,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * SD File Sorting
  */
 #if ENABLED(SDCARD_SORT_ALPHA)
-  #if SDSORT_LIMIT > 256
+  #if NONE(EXTENSIBLE_UI, HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_PROUI)
+    #error "SDCARD_SORT_ALPHA requires an LCD that supports it. (It doesn't apply to M20, etc.)"
+  #elif SDSORT_LIMIT > 256
     #error "SDSORT_LIMIT must be 256 or smaller."
   #elif SDSORT_LIMIT < 10
     #error "SDSORT_LIMIT should be greater than 9 to be useful."
@@ -1035,10 +1052,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
     #if SDSORT_CACHE_VFATS < 2
       #error "SDSORT_CACHE_VFATS must be 2 or greater!"
-    #elif SDSORT_CACHE_VFATS > MAX_VFAT_ENTRIES
+    #elif SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
       #undef SDSORT_CACHE_VFATS
-      #define SDSORT_CACHE_VFATS MAX_VFAT_ENTRIES
-      #warning "SDSORT_CACHE_VFATS was reduced to MAX_VFAT_ENTRIES!"
+      #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
+      #define SDSORT_CACHE_VFATS_WARNING 1
     #endif
   #endif
 #endif
@@ -1880,9 +1897,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #endif
     #endif
 
-    #if ENABLED(BLTOUCH_HS_MODE) && BLTOUCH_HS_MODE == 0
-      #error "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state."
+    #if HAS_BLTOUCH_HS_MODE
+      constexpr char hs[] = STRINGIFY(BLTOUCH_HS_MODE);
+      static_assert(!(strcmp(hs, "1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "false")), \
+        "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state.");
+      #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+        static_assert(BLTOUCH_HS_EXTRA_CLEARANCE > 0, "BLTOUCH_HS_MODE requires a positive BLTOUCH_HS_EXTRA_CLEARANCE.");
+      #endif
     #endif
+
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #endif
@@ -1924,8 +1947,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "TOUCH_MI_PROBE requires TOUCH_MI_RETRACT_Z."
     #elif defined(Z_AFTER_PROBING)
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
-    #elif Z_HOMING_HEIGHT < 10
-      #error "TOUCH_MI_PROBE requires Z_HOMING_HEIGHT >= 10."
+    #elif Z_CLEARANCE_FOR_HOMING < 10
+      #error "TOUCH_MI_PROBE requires Z_CLEARANCE_FOR_HOMING >= 10."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
     #elif !HAS_RESUME_CONTINUE
@@ -2631,8 +2654,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
     #elif !HAS_HEATER_2
       #error "HEATER_2_PIN not defined for this board."
-    #elif !PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_2_IS_DUMMY
-      #error "TEMP_2_PIN not defined for this board."
+    #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY
+      #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
     #endif
     #if HOTENDS > 3
       #if TEMP_SENSOR_3 == 0
@@ -3106,14 +3129,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Make sure features that need to write to the SD card can
  */
-#if ENABLED(SDCARD_READONLY) && ANY(POWER_LOSS_RECOVERY, BINARY_FILE_TRANSFER, SDCARD_EEPROM_EMULATION)
-  #undef SDCARD_READONLY
+#if ENABLED(SDCARD_READONLY)
   #if ENABLED(POWER_LOSS_RECOVERY)
-    #warning "Either disable SDCARD_READONLY or disable POWER_LOSS_RECOVERY."
+    #error "Either disable SDCARD_READONLY or disable POWER_LOSS_RECOVERY."
   #elif ENABLED(BINARY_FILE_TRANSFER)
-    #warning "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
+    #error "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
-    #warning "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
+    #error "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
   #endif
 #endif
 
@@ -3262,7 +3284,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #endif
 
 /**
- * Ender 3 V2 controller has some limitations
+ * Ender-3 V2 controller has some limitations
  */
 #if ENABLED(DWIN_CREALITY_LCD)
   #if DISABLED(SDSUPPORT)
@@ -3301,6 +3323,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #endif
   #elif !PIN_EXISTS(LCD_BACKLIGHT)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires either LCD_BACKLIGHT_PIN or NEOPIXEL_BKGD_INDEX_FIRST."
+  #endif
+#endif
+
+// Startup Tune requirements
+#ifdef STARTUP_TUNE
+  #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+    #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
+  #elif !(BOTH(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
+    #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
+    #undef STARTUP_TUNE
   #endif
 #endif
 
@@ -3634,15 +3666,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(X,TMC2209)
       #if X_HOME_TO_MIN && X_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE LOW for X_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE HIGH for X_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE LOW for X_MIN homing."
         #endif
       #elif X_HOME_TO_MAX && X_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE LOW for X_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE HIGH for X_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE LOW for X_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3652,15 +3684,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(Y,TMC2209)
       #if Y_HOME_TO_MIN && Y_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE LOW for Y_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE HIGH for Y_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE LOW for Y_MIN homing."
         #endif
       #elif Y_HOME_TO_MAX && Y_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Y_MAY_ENDSTOP_HIT_STATE LOW for Y_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires Y_MAY_ENDSTOP_HIT_STATE HIGH for Y_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires Y_MAY_ENDSTOP_HIT_STATE LOW for Y_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3670,15 +3702,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(Z,TMC2209)
       #if Z_HOME_TO_MIN && Z_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE LOW for Z_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE HIGH for Z_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE LOW for Z_MIN homing."
         #endif
       #elif Z_HOME_TO_MAX && Z_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Z_MAZ_ENDSTOP_HIT_STATE LOW for Z_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires Z_MAZ_ENDSTOP_HIT_STATE HIGH for Z_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires Z_MAZ_ENDSTOP_HIT_STATE LOW for Z_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3688,15 +3720,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(I,TMC2209)
       #if I_HOME_TO_MIN && I_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE LOW for I_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE HIGH for I_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE LOW for I_MIN homing."
         #endif
       #elif I_HOME_TO_MAX && I_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires I_MAI_ENDSTOP_HIT_STATE LOW for I_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires I_MAI_ENDSTOP_HIT_STATE HIGH for I_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires I_MAI_ENDSTOP_HIT_STATE LOW for I_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3706,15 +3738,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(J,TMC2209)
       #if J_HOME_TO_MIN && J_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE LOW for J_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE HIGH for J_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE LOW for J_MIN homing."
         #endif
       #elif J_HOME_TO_MAX && J_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires J_MAJ_ENDSTOP_HIT_STATE LOW for J_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires J_MAJ_ENDSTOP_HIT_STATE HIGH for J_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires J_MAJ_ENDSTOP_HIT_STATE LOW for J_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3724,15 +3756,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(K,TMC2209)
       #if K_HOME_TO_MIN && K_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE LOW for K_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE HIGH for K_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE LOW for K_MIN homing."
         #endif
       #elif K_HOME_TO_MAX && K_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires K_MAK_ENDSTOP_HIT_STATE LOW for K_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires K_MAK_ENDSTOP_HIT_STATE HIGH for K_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires K_MAK_ENDSTOP_HIT_STATE LOW for K_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3742,15 +3774,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(U,TMC2209)
       #if U_HOME_TO_MIN && U_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE LOW for U_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE HIGH for U_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE LOW for U_MIN homing."
         #endif
       #elif U_HOME_TO_MAX && U_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires U_MAU_ENDSTOP_HIT_STATE LOW for U_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires U_MAU_ENDSTOP_HIT_STATE HIGH for U_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires U_MAU_ENDSTOP_HIT_STATE LOW for U_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3760,15 +3792,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(V,TMC2209)
       #if V_HOME_TO_MIN && V_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE LOW for V_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE HIGH for V_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE LOW for V_MIN homing."
         #endif
       #elif V_HOME_TO_MAX && V_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires V_MAV_ENDSTOP_HIT_STATE LOW for V_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires V_MAV_ENDSTOP_HIT_STATE HIGH for V_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires V_MAV_ENDSTOP_HIT_STATE LOW for V_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -3778,15 +3810,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #define _HIT_STATE AXIS_DRIVER_TYPE(W,TMC2209)
       #if W_HOME_TO_MIN && W_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE LOW for W_MIN homing."
-        #else
           #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE HIGH for W_MIN homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE LOW for W_MIN homing."
         #endif
       #elif W_HOME_TO_MAX && W_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires W_MAW_ENDSTOP_HIT_STATE LOW for W_MAX homing."
-        #else
           #error "SENSORLESS_HOMING requires W_MAW_ENDSTOP_HIT_STATE HIGH for W_MAX homing with TMC2209."
+        #else
+          #error "SENSORLESS_HOMING requires W_MAW_ENDSTOP_HIT_STATE LOW for W_MAX homing."
         #endif
       #endif
       #undef _HIT_STATE
@@ -4293,6 +4325,40 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
 #endif
 
+// Although it just toggles STEP, EDGE_STEPPING requires HIGH state for logic
+#if ENABLED(EDGE_STEPPING)
+  #if AXIS_HAS_DEDGE(X) && STEP_STATE_X != HIGH
+    #error "STEP_STATE_X must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(Y) && STEP_STATE_Y != HIGH
+    #error "STEP_STATE_Y must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(Z) && STEP_STATE_Z != HIGH
+    #error "STEP_STATE_Z must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(I) && STEP_STATE_I != HIGH
+    #error "STEP_STATE_I must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(J) && STEP_STATE_J != HIGH
+    #error "STEP_STATE_J must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(K) && STEP_STATE_K != HIGH
+    #error "STEP_STATE_K must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(U) && STEP_STATE_U != HIGH
+    #error "STEP_STATE_U must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(V) && STEP_STATE_V != HIGH
+    #error "STEP_STATE_V must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(W) && STEP_STATE_W != HIGH
+    #error "STEP_STATE_W must be HIGH for EDGE_STEPPING."
+  #endif
+  #if AXIS_HAS_DEDGE(E0) && STEP_STATE_E != HIGH
+    #error "STEP_STATE_E must be HIGH for EDGE_STEPPING."
+  #endif
+#endif
+
 // G60/G61 Position Save
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
@@ -4301,16 +4367,20 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Touch Screen Calibration
  */
-#if !MB(LINUX_RAMPS) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+#if !MB(SIMULATED) && ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
     && !(defined(TOUCH_CALIBRATION_X) && defined(TOUCH_CALIBRATION_Y) && defined(TOUCH_OFFSET_X) && defined(TOUCH_OFFSET_Y))
   #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
 /**
- * Sanity check for WIFI
+ * Sanity check WiFi options
  */
-#if EITHER(ESP3D_WIFISUPPORT, WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
-  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 MOTHERBOARD."
+#if ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
+  #error "ESP3D_WIFISUPPORT requires an ESP32 MOTHERBOARD."
+#elif ENABLED(WEBSUPPORT) && NONE(ARDUINO_ARCH_ESP32, WIFISUPPORT)
+  #error "WEBSUPPORT requires WIFISUPPORT and an ESP32 MOTHERBOARD."
+#elif BOTH(ESP3D_WIFISUPPORT, WIFISUPPORT)
+  #error "Enable only one of ESP3D_WIFISUPPORT or WIFISUPPORT."
 #endif
 
 /**
@@ -4497,7 +4567,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Input Shaping requirements
  */
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
   #if ENABLED(DELTA)
     #error "Input Shaping is not compatible with DELTA kinematics."
   #elif ENABLED(SCARA)

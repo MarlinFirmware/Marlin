@@ -39,7 +39,7 @@
     #endif
 
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #if PWM_ABLE_SPINDLE
       // Change the cutter's "current power" value without turning the cutter on or off

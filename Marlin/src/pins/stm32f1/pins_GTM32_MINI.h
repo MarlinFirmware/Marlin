@@ -143,7 +143,7 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     //
     #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
+    #define LCD_PINS_EN                     PE14  // SID (MOSI)
     #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD9
     #define LCD_PINS_D6                     PD10
@@ -226,10 +226,11 @@
 
 #define SDSS                           SD_SS_PIN
 
-//
-// ESP WiFi can be soldered to J9 connector which is wired to USART2.
-// Must define WIFISUPPORT in Configuration.h for the printer.
-//
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE          115200
-#define ESP_WIFI_MODULE_RESET_PIN           -1
+#if ENABLED(WIFISUPPORT)
+  //
+  // ESP WiFi can be soldered to J9 connector which is wired to USART2.
+  //
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE        115200
+  #define ESP_WIFI_MODULE_RESET_PIN         -1
+#endif

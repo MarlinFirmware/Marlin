@@ -155,7 +155,7 @@
 //
 #define BEEPER_PIN                            -1
 #define LCD_PINS_RS                           -1
-#define LCD_PINS_ENABLE                       -1
+#define LCD_PINS_EN                           -1
 
 #if ENABLED(SAV_3DLCD)
   // For LCD SHIFT register LCD
