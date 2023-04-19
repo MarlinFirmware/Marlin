@@ -913,7 +913,7 @@ void Endstops::update() {
   #endif
 
   #if HAS_G38_PROBE // TODO (DerAndere): Add support for HAS_I_AXIS
-    // For G38 moves check the probes pin for ALL movement
+    // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
       G38_did_trigger = true;
       #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
