@@ -208,14 +208,14 @@ void TFT_Queue::set_background(uint16_t color) {
 
 #define QUEUE_SAFETY_FREE_SPACE 100
 
-void TFT_Queue::handle_queue_overflow(uint16_t sizeNeeded) {
+void TFT_Queue::handle_queue_overflow(const uint16_t sizeNeeded) {
   if (uintptr_t(end_of_queue) + sizeNeeded + (QUEUE_SAFETY_FREE_SPACE) - uintptr_t(queue) >= TFT_QUEUE_SIZE) {
     end_of_queue = queue;
     ((parametersCanvasText_t *)last_parameter)->nextParameter = end_of_queue;
   }
 }
 
-void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth) {
+void TFT_Queue::add_text(const uint16_t x, const uint16_t y, const uint16_t color, const uint8_t *string, uint16_t maxWidth) {
   handle_queue_overflow(sizeof(parametersCanvasText_t) + maxWidth);
   parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
   parametersCanvasText_t *parameters = (parametersCanvasText_t *)end_of_queue;
@@ -247,7 +247,7 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *
   task_parameters->count++;
 }
 
-void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint16_t *string, uint16_t maxWidth) {
+void TFT_Queue::add_text(const uint16_t x, const uint16_t y, const uint16_t color, const uint16_t *string, uint16_t maxWidth) {
   handle_queue_overflow(sizeof(parametersCanvasText_t) + maxWidth);
   parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
   parametersCanvasText_t *parameters = (parametersCanvasText_t *)end_of_queue;

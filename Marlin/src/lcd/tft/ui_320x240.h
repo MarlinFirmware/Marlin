@@ -46,4 +46,9 @@
 
 #define FONT_LINE_HEIGHT      24
 
+#define BTN_WIDTH  48
+#define BTN_HEIGHT 39
+#define X_MARGIN   15
+#define Y_MARGIN   11
+
 #include "tft_font.h"

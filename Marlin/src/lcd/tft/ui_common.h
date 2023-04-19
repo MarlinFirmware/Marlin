@@ -45,11 +45,31 @@
   #error "Unsupported display resolution!"
 #endif
 
-void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
-void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
+typedef void (*voidFunc_t)();
 
-void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
-void menu_item(const uint8_t row, bool sel = false);
+void draw_heater_status(const uint16_t x, const uint16_t y, const int8_t heater);
+void draw_fan_status(const uint16_t x, const uint16_t y, const bool blink);
+
+void drawMessage(PGM_P const msg);
+inline void drawMessage(FSTR_P const fmsg) { drawMessage(FTOP(fmsg)); }
+
+void quick_feedback();
+
+void drawCurZSelection();
+void drawCurESelection();
+
+void moveAxis(const AxisEnum axis, const int8_t direction);
+inline void e_plus()  { moveAxis(E_AXIS,  1); }
+inline void e_minus() { moveAxis(E_AXIS, -1); }
+inline void x_minus() { moveAxis(X_AXIS, -1); }
+inline void x_plus()  { moveAxis(X_AXIS,  1); }
+inline void y_plus()  { moveAxis(Y_AXIS,  1); }
+inline void y_minus() { moveAxis(Y_AXIS, -1); }
+inline void z_plus()  { moveAxis(Z_AXIS,  1); }
+inline void z_minus() { moveAxis(Z_AXIS, -1); }
+
+void menu_line(const uint8_t row, const uint16_t color=COLOR_BACKGROUND);
+void menu_item(const uint8_t row, const bool sel=false);
 
 #if HAS_TOUCH_SLEEP
   bool lcd_sleep_task();
@@ -86,3 +106,17 @@ void menu_item(const uint8_t row, bool sel = false);
   #define ITEM_FAN        2
   #define ITEMS_COUNT     3
 #endif
+
+#define Z_SELECTION_Z 1
+#define Z_SELECTION_Z_PROBE -1
+
+struct MotionAxisState {
+  xy_int_t xValuePos, yValuePos, zValuePos, eValuePos, stepValuePos, zTypePos, eNamePos;
+  float currentStepSize = 10.0;
+  int z_selection = Z_SELECTION_Z;
+  uint8_t e_selection = 0;
+  bool blocked = false;
+  char message[32];
+};
+
+extern MotionAxisState motionAxisState;

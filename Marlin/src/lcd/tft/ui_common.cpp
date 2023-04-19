@@ -33,6 +33,8 @@ void menu_pause_option();
 
 static xy_uint_t cursor;
 
+MotionAxisState motionAxisState;
+
 #if ENABLED(TOUCH_SCREEN)
   bool draw_menu_navigation = false;
 #endif
@@ -58,13 +60,24 @@ static xy_uint_t cursor;
 
 #endif
 
-void menu_line(const uint8_t row, uint16_t color) {
+void quick_feedback() {
+  #if HAS_CHIRP
+    ui.chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
+    #if BOTH(HAS_MARLINUI_MENU, HAS_BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #elif HAS_MARLINUI_MENU
+      delay(10);
+    #endif
+  #endif
+}
+
+void menu_line(const uint8_t row, const uint16_t color) {
   cursor.set(0, row);
   tft.canvas(0, TFT_TOP_LINE_Y + cursor.y * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT);
   tft.set_background(color);
 }
 
-void menu_item(const uint8_t row, bool sel ) {
+void menu_item(const uint8_t row, const bool sel ) {
   #if ENABLED(TOUCH_SCREEN)
     if (row == 0) {
       touch.clear();
@@ -77,6 +90,28 @@ void menu_item(const uint8_t row, bool sel ) {
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
     touch.add_control(tct, 0, TFT_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
   #endif
+}
+
+void drawCurZSelection() {
+  tft_string.set('Z');
+  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), FONT_LINE_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+  tft.queue.sync();
+  tft_string.set(F("Offset"));
+  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + FONT_LINE_HEIGHT, tft_string.width(), FONT_LINE_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+    tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+  }
+}
+
+void drawCurESelection() {
+  tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set('E');
+  tft.add_text(0, 0, E_BTN_COLOR , tft_string);
+  tft.add_text(tft_string.width(), 0, E_BTN_COLOR, ui8tostr3rj(motionAxisState.e_selection));
 }
 
 //

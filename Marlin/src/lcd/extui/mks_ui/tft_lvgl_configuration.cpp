@@ -302,7 +302,7 @@ uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
   return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-static bool get_point(int16_t *x, int16_t *y) {
+static bool get_point(int16_t * const x, int16_t * const y) {
   if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)

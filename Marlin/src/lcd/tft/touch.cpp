@@ -63,7 +63,7 @@ void Touch::init() {
   enable();
 }
 
-void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data) {
+void Touch::add_control(const TouchControlType type, const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height, voidFunc_t func) {
   if (controls_count == MAX_CONTROLS) return;
 
   controls[controls_count].type = type;
@@ -71,7 +71,7 @@ void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t 
   controls[controls_count].y = y;
   controls[controls_count].width = width;
   controls[controls_count].height = height;
-  controls[controls_count].data = data;
+  controls[controls_count].func = func;
   controls_count++;
 }
 
@@ -244,11 +244,11 @@ void Touch::touch(touch_control_t *control) {
     #endif
 
     case MOVE_AXIS:
-      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
+      ui.goto_screen(ui.move_axis_screen);
       break;
 
     // TODO: TOUCH could receive data to pass to the callback
-    case BUTTON: ((screenFunc_t)control->data)(); break;
+    case BUTTON: (*control->func)(); break;
 
     default: break;
   }
@@ -263,7 +263,7 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
   ui.refresh();
 }
 
-bool Touch::get_point(int16_t *x, int16_t *y) {
+bool Touch::get_point(int16_t * const x, int16_t * const y) {
   #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
@@ -320,13 +320,13 @@ bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
 }
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, screenFunc_t func, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
   uint16_t width = Images[image].width;
   uint16_t height = Images[image].height;
   tft.canvas(x, y, width, height);
   tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
   if (is_enabled)
-    touch.add_control(control_type, x, y, width, height, data);
+    touch.add_control(control_type, x, y, width, height, func);
 }
 
 #endif // TOUCH_SCREEN
