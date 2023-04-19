@@ -915,14 +915,22 @@ void Endstops::update() {
   #if HAS_G38_PROBE // TODO (DerAndere): Add support for HAS_I_AXIS
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
-             if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
+      G38_did_trigger = true;
+      #if HAS_X_AXIS
+        const bool xmoving = stepper.axis_is_moving(X_AXIS);
+      #endif
       #if HAS_Y_AXIS
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
+        const bool ymoving = stepper.axis_is_moving(Y_AXIS);
       #endif
       #if HAS_Z_MIN
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Z_AXIS); }
+        const bool zmoving = stepper.axis_is_moving(Z_AXIS);
       #endif
-      G38_did_trigger = true;
+      TERN_(HAS_X_AXIS, if (xmoving) _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)));
+      TERN_(HAS_Y_AXIS, if (ymoving) _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)));
+      TERN_(HAS_Z_MIN,  if (zmoving) _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)));
+      TERN_(HAS_X_AXIS, if (xmoving) planner.endstop_triggered(X_AXIS));
+      TERN_(HAS_Y_AXIS, if (ymoving) planner.endstop_triggered(Y_AXIS));
+      TERN_(HAS_Z_MIN,  if (zmoving) planner.endstop_triggered(Z_AXIS));
     }
   #endif
 
