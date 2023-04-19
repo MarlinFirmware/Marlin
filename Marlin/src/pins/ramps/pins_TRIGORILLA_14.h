@@ -56,6 +56,10 @@
 /**
  * Trigorilla Plugs (oriented with stepper plugs at the top)
  *
+ *   SENSORS : GND GND GND GND
+ *             A12 A15 A14 A13
+ *            (D66 D69 D68 D67)
+ *
  *       AUX : D42 GND 5V  (Chiron Y-STOP)
  *             D43 GND 5V  (Chiron Z-STOP)
  *
@@ -70,6 +74,34 @@
  *             5V  5V  5V  5V  5V  5V
  */
 
+/**               Expansion Headers
+ *        ------                    ------
+ *    37 | 1  2 | 35     (MISO) 50 | 1  2 | 52 (SCK)
+ *    17 | 3  4 | 16            31 | 3  4 | 53
+ *    23   5  6 | 25            33   5  6 | 51 (MOSI)
+ *    27 | 7  8 | 29            49 | 7  8 | 41
+ * (GND) | 9 10 | (5V)       (GND) | 9 10 | RESET
+ *        ------                    ------
+ *         EXP1                      EXP2
+ */
+#define EXP1_01_PIN                           37
+#define EXP1_02_PIN                           35
+#define EXP1_03_PIN                           17
+#define EXP1_04_PIN                           16
+#define EXP1_05_PIN                           23
+#define EXP1_06_PIN                           25
+#define EXP1_07_PIN                           27
+#define EXP1_08_PIN                           29
+
+#define EXP2_01_PIN                           50  // MISO
+#define EXP2_02_PIN                           52  // SCK
+#define EXP2_03_PIN                           31
+#define EXP2_04_PIN                           53
+#define EXP2_05_PIN                           33
+#define EXP2_06_PIN                           51  // MOSI
+#define EXP2_07_PIN                           49
+#define EXP2_08_PIN                           41
+
 //
 // AnyCubic pin mappings
 //
@@ -80,12 +112,12 @@
 
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
-  #define X_MAX_PIN                           43
-  #define Y_STOP_PIN                          19
+  #define X_MAX_PIN                           43  // AUX (2)
+  #define Y_STOP_PIN                          19  // Z+
 #elif EITHER(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
   // Chiron uses AUX header for Y and Z endstops
-  #define Y_STOP_PIN                          42  // AUX
-  #define Z_STOP_PIN                          43  // AUX
+  #define Y_STOP_PIN                          42  // AUX (1)
+  #define Z_STOP_PIN                          43  // AUX (2)
   #define Z2_MIN_PIN                          18  // Z-
 
   #ifndef Z_MIN_PROBE_PIN
@@ -101,7 +133,7 @@
 
   #if ENABLED(TRIGORILLA_MAPPING_CHIRON)
     #if ENABLED(ANYCUBIC_LCD_CHIRON) && !defined(FIL_RUNOUT_PIN)
-      #define FIL_RUNOUT_PIN                  33  // Chiron LCD Adapter only
+      #define FIL_RUNOUT_PIN         EXP2_05_PIN  // Chiron Standard Adapter
     #endif
     #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
   #endif
@@ -125,8 +157,10 @@
 #endif
 
 #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
-  #define BEEPER_PIN                          31
-  #define SD_DETECT_PIN                       49
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN               EXP2_03_PIN  // Chiron Standard Adapter
+  #endif
+  #define SD_DETECT_PIN              EXP2_07_PIN  // Chiron Standard Adapter
 #endif
 
 #if HAS_TMC_UART
@@ -145,35 +179,3 @@
 #endif
 
 #include "pins_RAMPS.h"
-
-//
-// AnyCubic made the following changes to 1.1.0-RC8
-// If these are appropriate for your LCD let us know.
-//
-#if 0 && HAS_WIRED_LCD
-
-  // LCD Display output pins
-  #if BOTH(IS_NEWPANEL, PANEL_ONE)
-    #undef LCD_PINS_D6
-    #define LCD_PINS_D6                       57
-  #endif
-
-  // LCD Display input pins
-  #if IS_NEWPANEL
-    #if EITHER(VIKI2, miniVIKI)
-      #undef DOGLCD_A0
-      #define DOGLCD_A0                       23
-    #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-      #undef BEEPER_PIN
-      #define BEEPER_PIN                      33
-      #undef LCD_BACKLIGHT_PIN
-      #define LCD_BACKLIGHT_PIN               67
-    #endif
-  #elif ENABLED(MINIPANEL)
-    #undef BEEPER_PIN
-    #define BEEPER_PIN                        33
-    #undef DOGLCD_A0
-    #define DOGLCD_A0                         42
-  #endif
-
-#endif // HAS_WIRED_LCD

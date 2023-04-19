@@ -40,7 +40,7 @@ namespace Language_el_gr {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Εισαγωγή κάρτας");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Αφαίρεση κάρτας");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Βασική Οθόνη");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Βασική Οθόνη");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Αυτόματη εκκίνηση");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση βηματιστή");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο");

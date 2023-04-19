@@ -60,7 +60,7 @@ namespace Language_uk {
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Прогр.кінцевики");
   #endif
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Кінцевик"); // Max length 8 characters
-  LSTR MSG_MAIN                             = _UxGT("Основне меню");
+  LSTR MSG_MAIN_MENU                        = _UxGT("Основне меню");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Інші налаштування");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфігурація");
   LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
