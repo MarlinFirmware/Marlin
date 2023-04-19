@@ -2626,84 +2626,85 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #endif
 
 /**
- * Test Sensor & Heater pin combos.
  * Pins and Sensor IDs must be set for each heater
  */
-#if HAS_HOTEND && !ANY_PIN(TEMP_0, TEMP_0_CS)
-  #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
-#elif HAS_HOTEND && !HAS_HEATER_0
-  #error "HEATER_0_PIN not defined for this board."
-#elif TEMP_SENSOR_IS_MAX_TC(0) && !PIN_EXISTS(TEMP_0_CS)
-  #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
-#elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
-  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
-  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
-#endif
-
-#if HAS_MULTI_HOTEND
-  #if TEMP_SENSOR_IS_MAX_TC(1) && !PIN_EXISTS(TEMP_1_CS)
-    #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
-  #elif TEMP_SENSOR_1 == 0
-    #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-  #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
-    #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
+#if HAS_HOTEND
+  #if !HAS_HEATER_0
+    #error "HEATER_0_PIN not defined for this board."
+  #elif TEMP_SENSOR_IS_MAX_TC(0) && !PIN_EXISTS(TEMP_0_CS)
+    #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
+  #elif TEMP_SENSOR_0 == 0
+    #error "TEMP_SENSOR_0 is required with 1 or more HOTENDS."
+  #elif !ANY_PIN(TEMP_0, TEMP_0_CS) && !TEMP_SENSOR_0_IS_DUMMY
+    #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
   #endif
-  #if HOTENDS > 2
-    #if TEMP_SENSOR_2 == 0
-      #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
-    #elif !HAS_HEATER_2
-      #error "HEATER_2_PIN not defined for this board."
-    #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY
-      #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
+  #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+    #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
+  #endif
+  #if HAS_MULTI_HOTEND
+    #if TEMP_SENSOR_IS_MAX_TC(1) && !PIN_EXISTS(TEMP_1_CS)
+      #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
+    #elif TEMP_SENSOR_1 == 0
+      #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
+    #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
+      #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
     #endif
-    #if HOTENDS > 3
-      #if TEMP_SENSOR_3 == 0
-        #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
-      #elif !HAS_HEATER_3
-        #error "HEATER_3_PIN not defined for this board."
-      #elif !PIN_EXISTS(TEMP_3) && !TEMP_SENSOR_3_IS_DUMMY
-        #error "TEMP_3_PIN not defined for this board."
+    #if HOTENDS > 2
+      #if TEMP_SENSOR_2 == 0
+        #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
+      #elif !HAS_HEATER_2
+        #error "HEATER_2_PIN not defined for this board."
+      #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY
+        #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
       #endif
-      #if HOTENDS > 4
-        #if TEMP_SENSOR_4 == 0
-          #error "TEMP_SENSOR_4 is required with 5 or more HOTENDS."
-        #elif !HAS_HEATER_4
-          #error "HEATER_4_PIN not defined for this board."
-        #elif !PIN_EXISTS(TEMP_4) && !TEMP_SENSOR_4_IS_DUMMY
-          #error "TEMP_4_PIN not defined for this board."
+      #if HOTENDS > 3
+        #if TEMP_SENSOR_3 == 0
+          #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
+        #elif !HAS_HEATER_3
+          #error "HEATER_3_PIN not defined for this board."
+        #elif !PIN_EXISTS(TEMP_3) && !TEMP_SENSOR_3_IS_DUMMY
+          #error "TEMP_3_PIN not defined for this board."
         #endif
-        #if HOTENDS > 5
-          #if TEMP_SENSOR_5 == 0
-            #error "TEMP_SENSOR_5 is required with 6 HOTENDS."
-          #elif !HAS_HEATER_5
-            #error "HEATER_5_PIN not defined for this board."
-          #elif !PIN_EXISTS(TEMP_5) && !TEMP_SENSOR_5_IS_DUMMY
-            #error "TEMP_5_PIN not defined for this board."
+        #if HOTENDS > 4
+          #if TEMP_SENSOR_4 == 0
+            #error "TEMP_SENSOR_4 is required with 5 or more HOTENDS."
+          #elif !HAS_HEATER_4
+            #error "HEATER_4_PIN not defined for this board."
+          #elif !PIN_EXISTS(TEMP_4) && !TEMP_SENSOR_4_IS_DUMMY
+            #error "TEMP_4_PIN not defined for this board."
           #endif
-          #if HOTENDS > 6
-            #if TEMP_SENSOR_6 == 0
-              #error "TEMP_SENSOR_6 is required with 6 HOTENDS."
-            #elif !HAS_HEATER_6
-              #error "HEATER_6_PIN not defined for this board."
-            #elif !PIN_EXISTS(TEMP_6) && !TEMP_SENSOR_6_IS_DUMMY
-              #error "TEMP_6_PIN not defined for this board."
+          #if HOTENDS > 5
+            #if TEMP_SENSOR_5 == 0
+              #error "TEMP_SENSOR_5 is required with 6 HOTENDS."
+            #elif !HAS_HEATER_5
+              #error "HEATER_5_PIN not defined for this board."
+            #elif !PIN_EXISTS(TEMP_5) && !TEMP_SENSOR_5_IS_DUMMY
+              #error "TEMP_5_PIN not defined for this board."
             #endif
-            #if HOTENDS > 7
-              #if TEMP_SENSOR_7 == 0
-                #error "TEMP_SENSOR_7 is required with 7 HOTENDS."
-              #elif !HAS_HEATER_7
-                #error "HEATER_7_PIN not defined for this board."
-              #elif !PIN_EXISTS(TEMP_7) && !TEMP_SENSOR_7_IS_DUMMY
-                #error "TEMP_7_PIN not defined for this board."
+            #if HOTENDS > 6
+              #if TEMP_SENSOR_6 == 0
+                #error "TEMP_SENSOR_6 is required with 6 HOTENDS."
+              #elif !HAS_HEATER_6
+                #error "HEATER_6_PIN not defined for this board."
+              #elif !PIN_EXISTS(TEMP_6) && !TEMP_SENSOR_6_IS_DUMMY
+                #error "TEMP_6_PIN not defined for this board."
               #endif
-            #endif // HOTENDS > 7
-          #endif // HOTENDS > 6
-        #endif // HOTENDS > 5
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#endif // HAS_MULTI_HOTEND
+              #if HOTENDS > 7
+                #if TEMP_SENSOR_7 == 0
+                  #error "TEMP_SENSOR_7 is required with 7 HOTENDS."
+                #elif !HAS_HEATER_7
+                  #error "HEATER_7_PIN not defined for this board."
+                #elif !PIN_EXISTS(TEMP_7) && !TEMP_SENSOR_7_IS_DUMMY
+                  #error "TEMP_7_PIN not defined for this board."
+                #endif
+              #endif // HOTENDS > 7
+            #endif // HOTENDS > 6
+          #endif // HOTENDS > 5
+        #endif // HOTENDS > 4
+      #endif // HOTENDS > 3
+    #endif // HOTENDS > 2
+  #endif // HAS_MULTI_HOTEND
+#endif // HAS_HOTEND
 
 #if DO_TOOLCHANGE_FOR_PROBING && PROBING_TOOL >= EXTRUDERS
   #error "PROBING_TOOL must be a valid tool index."

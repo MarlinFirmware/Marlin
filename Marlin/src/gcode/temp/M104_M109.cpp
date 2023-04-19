@@ -135,4 +135,4 @@ void GcodeSuite::M104_M109(const bool isM109) {
     (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
 }
 
-#endif // HOTEND
+#endif // HAS_HOTEND

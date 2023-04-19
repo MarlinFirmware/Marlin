@@ -184,7 +184,6 @@
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef ADVANCED_PAUSE_FEATURE
-  #undef AUTOTEMP
   #undef DISABLE_IDLE_E
   #undef EXTRUDER_RUNOUT_PREVENT
   #undef FILAMENT_LOAD_UNLOAD_GCODES
@@ -193,11 +192,8 @@
   #undef LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
   #undef PID_EXTRUSION_SCALING
-  #undef PIDTEMP
   #undef SHOW_TEMP_ADC_VALUES
   #undef STEALTHCHOP_E
-  #undef THERMAL_PROTECTION_PERIOD
-  #undef WATCH_TEMP_PERIOD
 #endif
 
 #if ENABLED(DISABLE_X) && !defined(DISABLE_IDLE_X)
@@ -237,22 +233,46 @@
 #endif
 #undef _OR_HAS_DI
 
-#if HOTENDS <= 7
+// Remove hotend-dependent settings
+#if HOTENDS < 8
   #undef E7_AUTO_FAN_PIN
-  #if HOTENDS <= 6
+  #undef HEATER_7_MAXTEMP
+  #undef HEATER_7_MINTEMP
+  #if HOTENDS < 7
     #undef E6_AUTO_FAN_PIN
-    #if HOTENDS <= 5
+    #undef HEATER_6_MAXTEMP
+    #undef HEATER_6_MINTEMP
+    #if HOTENDS < 6
       #undef E5_AUTO_FAN_PIN
-      #if HOTENDS <= 4
+      #undef HEATER_5_MAXTEMP
+      #undef HEATER_5_MINTEMP
+      #if HOTENDS < 5
         #undef E4_AUTO_FAN_PIN
-        #if HOTENDS <= 3
+        #undef HEATER_4_MAXTEMP
+        #undef HEATER_4_MINTEMP
+        #if HOTENDS < 4
           #undef E3_AUTO_FAN_PIN
-          #if HOTENDS <= 2
+          #undef HEATER_3_MAXTEMP
+          #undef HEATER_3_MINTEMP
+          #if HOTENDS < 3
             #undef E2_AUTO_FAN_PIN
-            #if HOTENDS <= 1
+            #undef HEATER_2_MAXTEMP
+            #undef HEATER_2_MINTEMP
+            #if HOTENDS < 2
               #undef E1_AUTO_FAN_PIN
-              #if HOTENDS == 0
+              #undef HEATER_1_MAXTEMP
+              #undef HEATER_1_MINTEMP
+              #if HOTENDS < 1
+                #undef AUTOTEMP
                 #undef E0_AUTO_FAN_PIN
+                #undef HEATER_0_MAXTEMP
+                #undef HEATER_0_MINTEMP
+                #undef PID_PARAMS_PER_HOTEND
+                #undef PIDTEMP
+                #undef PREVENT_COLD_EXTRUSION
+                #undef THERMAL_PROTECTION_HOTENDS
+                #undef THERMAL_PROTECTION_PERIOD
+                #undef WATCH_TEMP_PERIOD
               #endif
             #endif
           #endif
@@ -331,15 +351,6 @@
   #define TEMP_SENSOR_0_IS_DUMMY 1
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
-#else
-  #undef HEATER_0_MINTEMP
-  #undef HEATER_0_MAXTEMP
-  #undef THERMAL_PROTECTION_HOTENDS
-  #undef THERMAL_PROTECTION_PERIOD
-  #undef WATCH_TEMP_PERIOD
-  #undef PREVENT_COLD_EXTRUSION
-  #undef PIDTEMP
-  #undef AUTOTEMP
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(1)
@@ -382,9 +393,6 @@
   #define TEMP_SENSOR_1_IS_DUMMY 1
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
-#else
-  #undef HEATER_1_MINTEMP
-  #undef HEATER_1_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(2)
@@ -427,9 +435,6 @@
   #define TEMP_SENSOR_2_IS_DUMMY 1
 #elif TEMP_SENSOR_2 > 0
   #define TEMP_SENSOR_2_IS_THERMISTOR 1
-#else
-  #undef HEATER_2_MINTEMP
-  #undef HEATER_2_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_3 == 1000
@@ -585,9 +590,6 @@
   #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
     #define TEMP_SENSOR_3_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_3_MINTEMP
-  #undef HEATER_3_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_4 == -4
@@ -605,9 +607,6 @@
   #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
     #define TEMP_SENSOR_4_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_4_MINTEMP
-  #undef HEATER_4_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_5 == -4
@@ -625,9 +624,6 @@
   #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
     #define TEMP_SENSOR_5_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_5_MINTEMP
-  #undef HEATER_5_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_6 == -4
@@ -645,9 +641,6 @@
   #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
     #define TEMP_SENSOR_6_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_6_MINTEMP
-  #undef HEATER_6_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_7 == -4
@@ -665,9 +658,6 @@
   #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
     #define TEMP_SENSOR_7_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_7_MINTEMP
-  #undef HEATER_7_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_BED == -4
