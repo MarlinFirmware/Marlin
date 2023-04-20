@@ -1125,7 +1125,7 @@
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+#if HAS_USB_FLASH_DRIVE && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
   #define USE_UHS2_USB
 #endif
 
@@ -1215,18 +1215,7 @@
   #define HAS_SAFE_BED_LEVELING 1
 #endif
 
-//
-// SD Card connection methods
-// Defined here so pins and sanity checks can use them
-//
-#if HAS_MEDIA
-  #define _SDCARD_LCD          1
-  #define _SDCARD_ONBOARD      2
-  #define _SDCARD_CUSTOM_CABLE 3
-  #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
-  #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
-#else
-  #define SD_CONNECTION_IS(...) 0
+#if !HAS_MEDIA
   #undef SD_ABORT_ON_ENDSTOP_HIT
 #endif
 

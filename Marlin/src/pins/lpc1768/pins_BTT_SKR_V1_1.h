@@ -128,11 +128,11 @@
 // MKS_MINI_12864 strongly prefers the SD card on the display and
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
-#ifndef SDCARD_CONNECTION
+#ifndef VOLUME0
   #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, IS_TFTGLCD_PANEL)
-    #define SDCARD_CONNECTION                LCD
+    #define VOLUME0                          LCD
   #else
-    #define SDCARD_CONNECTION            ONBOARD
+    #define VOLUME0                      ONBOARD
   #endif
 #endif
 
@@ -209,7 +209,7 @@
     // EXAMPLES
 
     // Example 1: No LCD attached or a TFT style display using the AUX header RX/TX pins.
-    //            SDCARD_CONNECTION must not be 'LCD'. Nothing should be connected to EXP1/EXP2.
+    //            VOLUME0 must not be 'LCD'. Nothing should be connected to EXP1/EXP2.
     //#define SKR_USE_LCD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_PINS_FOR_CS)
       #define X_CS_PIN               EXP2_04_PIN
@@ -221,7 +221,7 @@
 
     // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
     //            The SD card reader attached to the LCD (if present) can't be used because
-    //            the pins will be in use. So SDCARD_CONNECTION must not be 'LCD'.
+    //            the pins will be in use. So VOLUME0 must not be 'LCD'.
     //#define SKR_USE_LCD_SD_CARD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
       #define X_CS_PIN                     P0_02

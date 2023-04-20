@@ -113,7 +113,7 @@ void menu_media_filelist() {
   #endif
 
   START_MENU();
-  #if ENABLED(MULTI_VOLUME)
+  #if HAS_MULTI_VOLUME
     ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
   #else
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
@@ -142,17 +142,18 @@ void menu_media_filelist() {
   END_MENU();
 }
 
-#if ENABLED(MULTI_VOLUME)
+#if HAS_MULTI_VOLUME
 
   void menu_media_select() {
     START_MENU();
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
+    // TODO: For justa single SD Card, "SD Card"
     #if ENABLED(VOLUME_SD_ONBOARD)
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         ACTION_ITEM(TERN(SPI_IS_EXTERNAL, MSG_SD_CARD_EXTERNAL, MSG_SD_CARD), []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
       #endif
-      #if ENABLED(SDIO_SUPPORT)
-        ACTION_ITEM(TERN(SDIO_IS_ONBOARD, MSG_SD_CARD_ONBOARD, MSG_SDIO_CARD), []{ card.changeMedia(&card.media_driver_sdiocard); card.mount(); ui.goto_screen(menu_media_filelist); });
+      #if ENABLED(ONBOARD_SDIO)
+        ACTION_ITEM(TERN(SDIO_IS_ONBOARD, MSG_SD_CARD_ONBOARD, MSG_SD_CARD_SDIO), []{ card.changeMedia(&card.media_driver_sdiocard); card.mount(); ui.goto_screen(menu_media_filelist); });
       #endif
     #endif
     #if ENABLED(VOLUME_USB_FLASH_DRIVE)
@@ -160,10 +161,11 @@ void menu_media_filelist() {
     #endif
     END_MENU();
   }
-#endif
+
+#endif // HAS_MULTI_VOLUME
 
 void menu_media() {
-  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
+  TERN(HAS_MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
 #endif // HAS_MARLINUI_MENU && HAS_MEDIA

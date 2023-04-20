@@ -523,7 +523,7 @@
  */
 #if HAS_MEDIA
 
-  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
+  #if HAS_SD_HOST_DRIVE && ANY_VOLUME_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -539,7 +539,7 @@
   #endif
 
   // Not onboard or custom cable
-  #if SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION)
+  #if VOLUME_IS(1, LCD) || !defined(VOLUME0)
     #define SD_CONNECTION_TYPICAL 1
   #endif
 
@@ -555,8 +555,8 @@
     #endif
   #endif
 
-  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || ALL(MULTI_VOLUME, VOLUME_SD_ONBOARD)
-    #if ENABLED(SDSUPPORT)
+  #if DISABLED(HAS_USB_FLASH_DRIVE) || defined(VOLUME_SD_ONBOARD)
+    #if ANY_VOLUME_IS(LCD) || (ANY_VOLUME_IS(ONBOARD) && DISABLED(ONBOARD_SDIO))
       #define NEED_SD2CARD_SPI 1
     #endif
     #if ENABLED(ONBOARD_SDIO)

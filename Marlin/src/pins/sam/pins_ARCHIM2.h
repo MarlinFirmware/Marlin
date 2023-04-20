@@ -252,9 +252,9 @@
   #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
 #endif
 
-#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, USB_FLASH_DRIVE_SUPPORT)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, HAS_USB_FLASH_DRIVE)
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if HAS_USB_FLASH_DRIVE
     #define DISABLE_DUE_SD_MMC
   #endif
 #endif

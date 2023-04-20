@@ -252,11 +252,11 @@
 //
 // SD Support
 //
-#ifndef SDCARD_CONNECTION
+#ifndef VOLUME0
   #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
-    #define SDCARD_CONNECTION                LCD
+    #define VOLUME0                          LCD
   #else
-    #define SDCARD_CONNECTION            ONBOARD
+    #define VOLUME0                      ONBOARD
   #endif
 #endif
 
@@ -354,7 +354,7 @@
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SD_CONNECTION_IS(ONBOARD)
+#if ANY_VOLUME_IS(ONBOARD)
   #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   #ifndef SD_DETECT_STATE
     #define SD_DETECT_STATE HIGH
@@ -362,7 +362,7 @@
     #error "BOARD_BTT_OCTOPUS_V1_1 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
   #define SD_DETECT_PIN                     PC14
-#elif SD_CONNECTION_IS(LCD)
+#elif ANY_VOLUME_IS(LCD)
 
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
@@ -371,8 +371,8 @@
   #define SD_MOSI_PIN                       PA7
   #define SD_DETECT_PIN                     PC15
 
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+#elif ANY_VOLUME_IS(CUSTOM_CABLE)
+  #error "CUSTOM_CABLE is not a supported VOLUMEn for this board"
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)

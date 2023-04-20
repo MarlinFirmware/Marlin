@@ -201,8 +201,8 @@
 #define MKS_WIFI_MODULE_SERIAL   1  // USART1
 #define MKS_WIFI_MODULE_SPI      2  // SPI2
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif
 
 // MKS WIFI MODULE
@@ -222,7 +222,7 @@
 // Onboard SD card
 // Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
-#if SD_CONNECTION_IS(ONBOARD)
+#if ANY_VOLUME_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
   #define SDSS                              PC9
@@ -273,7 +273,7 @@
 //
 // SPI SD Card
 //
-#if SD_CONNECTION_IS(LCD)
+#if ANY_VOLUME_IS(LCD)
   #define ENABLE_SPI1
   #define SDSS                       EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
@@ -361,7 +361,7 @@
     #define NEOPIXEL_PIN             EXP1_06_PIN
     #define DOGLCD_MOSI              EXP2_06_PIN
     #define DOGLCD_SCK               EXP2_02_PIN
-    #if SD_CONNECTION_IS(ONBOARD)
+    #if ANY_VOLUME_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270

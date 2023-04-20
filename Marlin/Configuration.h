@@ -2641,22 +2641,14 @@
 #define LCD_INFO_SCREEN_STYLE 0
 
 /**
- * SD CARD
+ * Media Drives
  *
- * SD Card support is disabled by default. If your controller has an SD slot,
- * you must uncomment the following option or it won't work.
+ * If your controller has any SD Card readers or
+ * USB Flash Drives set the following options:
  */
-//#define SDSUPPORT
-#if ENABLED(SDSUPPORT)                // SDSUPPORT enables SPI Storage by default
-  //#define SDIO_SUPPORT              // Enable SDIO storage
-  #if ENABLED(SDIO_SUPPORT)
-    //#define SDIO_IS_ONBOARD         // Use friendly label for SDIO on UI menu
-    #if ENABLED(SDIO_IS_ONBOARD)
-      //#define SPI_IS_EXTERNAL       // Use friendly label to specify that the SPI SD card is external if SDIO is onboard
-    #endif
-  #endif
-  //#define USB_FLASH_DRIVE_SUPPORT   // Enable USD Flash drive storage
-#endif
+//#define VOLUME0 ONBOARD
+//#define VOLUME1 LCD
+//#define VOLUME2 USBFD
 
 /**
  * SD CARD: ENABLE CRC

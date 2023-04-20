@@ -113,11 +113,11 @@
 // #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 
 #define SD_DETECT_PIN                       -1
-#define SDCARD_CONNECTION                ONBOARD
+#define VOLUME0                          ONBOARD
 //#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if SD_CONNECTION_IS(ONBOARD)
+#if ANY_VOLUME_IS(ONBOARD)
   #define SDSS                              PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6

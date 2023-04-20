@@ -182,7 +182,7 @@
 // SD Card
 //
 
-#define SDCARD_CONNECTION                ONBOARD
+#define VOLUME0                          ONBOARD
 
 //#define SOFTWARE_SPI
 #define CUSTOM_SPI_PINS

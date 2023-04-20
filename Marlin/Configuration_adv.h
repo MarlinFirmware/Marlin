@@ -1845,8 +1845,7 @@
    *
    * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
-  //#define USB_FLASH_DRIVE_SUPPORT
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if HAS_USB_FLASH_DRIVE
     /**
      * USB Host Shield Library
      *
@@ -1905,17 +1904,6 @@
     //#define CUSTOM_FIRMWARE_UPLOAD
   #endif
 
-  /**
-   * Set this option to one of the following (or the board's defaults apply):
-   *
-   *           LCD - Use the SD drive in the external LCD controller.
-   *       ONBOARD - Use the SD drive on the control board.
-   *  CUSTOM_CABLE - Use a custom cable to access the SD (as defined in a pins file).
-   *
-   * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
-   */
-  //#define SDCARD_CONNECTION LCD
-
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
 
@@ -1923,15 +1911,14 @@
    * Multiple volume support - EXPERIMENTAL.
    * Adds 'M21 Pm' / 'M21 S' / 'M21 U' / 'M21 O' to mount SD Card / USB Drive / SDIO Card.
    */
-  //#define MULTI_VOLUME
-  #if ENABLED(MULTI_VOLUME)
-    #define VOLUME_SD_ONBOARD
-    #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if HAS_MULTI_VOLUME
+    #define VOLUME_SD_ONBOARD 0
+    #if HAS_USB_FLASH_DRIVE
       #define VOLUME_USB_FLASH_DRIVE
       #if ENABLED(VOLUME_USB_FLASH_DRIVE)
         #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
       #endif
-    #elif ENABLED(VOLUME_SD_ONBOARD)
+    #elif defined(VOLUME_SD_ONBOARD)
       #define DEFAULT_SHARED_VOLUME SV_SD_ONBOARD
     #else
       #define DEFAULT_SHARED_VOLUME SV_SDIO_ONBOARD
