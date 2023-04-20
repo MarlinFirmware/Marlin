@@ -591,14 +591,14 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
-#define SET_STEP_DIR(A)                       \
-  if (motor_direction(_AXIS(A))) {            \
-    A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
-    count_direction[_AXIS(A)] = -1;           \
-  }                                           \
-  else {                                      \
-    A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
-    count_direction[_AXIS(A)] = 1;            \
+#define SET_STEP_DIR(A)                         \
+  if (motor_direction(_AXIS(A))) {              \
+    A##_APPLY_DIR(INVERT_DIR(A, LOW), false);   \
+    count_direction[_AXIS(A)] = -1;             \
+  }                                             \
+  else {                                        \
+    A##_APPLY_DIR(INVERT_DIR(A, HIGH), false);  \
+    count_direction[_AXIS(A)] = 1;              \
   }
 
 /**
