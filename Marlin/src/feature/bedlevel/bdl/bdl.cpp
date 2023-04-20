@@ -80,8 +80,7 @@ float BDS_Leveling::read() {
     SERIAL_ECHOLNPGM("Invalid data,please calibrate.");
   else if((tmp & 0x3FF) >= (MAX_BD_HEIGHT*100-10))
     SERIAL_ECHOLNPGM("Out of Range.");  
-  else
-    BD_z = (tmp & 0x3FF) / 100.0f;
+  BD_z = (tmp & 0x3FF) / 100.0f;
   return BD_z;
 }
 
@@ -99,7 +98,7 @@ void BDS_Leveling::process() {
                  old_buf_z = current_position.z;
 
     tmp = BD_I2C_SENSOR.BD_i2c_read();
-    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1000) {
+    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1016) {
       const float z_sensor = (tmp & 0x3FF) / 100.0f;
       if (cur_z < 0) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
@@ -143,7 +142,7 @@ void BDS_Leveling::process() {
       if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0) SERIAL_ECHOLNPGM("errorCRC");
     #endif
 
-    if ((tmp & 0x3FF) > 1000) {
+    if ((tmp & 0x3FF) > 1016) {
       BD_I2C_SENSOR.BD_i2c_stop();
       safe_delay(10);
     }
