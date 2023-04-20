@@ -517,8 +517,7 @@ void Endstops::update() {
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ_ENDSTOP(_ENDSTOP_PIN(AXIS, MINMAX)) == _ENDSTOP_HIT_STATE(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
-  #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-    #define HAS_G38_PROBE 1
+  #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
   #endif
@@ -912,18 +911,14 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #if HAS_G38_PROBE // TODO (DerAndere): Add support for HAS_I_AXIS
-    #define _G38_OPEN_STATE TERN(G38_PROBE_AWAY, (G38_move >= 4), LOW)
+  #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
-    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) != _G38_OPEN_STATE) {
-             if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
-      #if HAS_Y_AXIS
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
-      #endif
-      #if HAS_Z_AXIS
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Z_AXIS); }
-      #endif
+    if (G38_move && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
       G38_did_trigger = true;
+      #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
+      #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
+      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif
 
