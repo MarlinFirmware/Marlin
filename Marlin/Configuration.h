@@ -2578,19 +2578,18 @@
  * SD CARD
  *
  * SD Card support is disabled by default. If your controller has an SD slot,
- * you must uncomment the following option or it won't work. 
+ * you must uncomment the following option or it won't work.
  */
-#define SDSUPPORT 
-#if ENABLED(SDSUPPORT) //SDSUPPORT enables SPI Storage by default
-  #define SDIO_SUPPORT //Enable SDIO storage
+//#define SDSUPPORT
+#if ENABLED(SDSUPPORT)                // SDSUPPORT enables SPI Storage by default
+  //#define SDIO_SUPPORT              // Enable SDIO storage
   #if ENABLED(SDIO_SUPPORT)
-    #define SDIO_IS_ONBOARD //Use friendly label for SDIO on UI menu
+    //#define SDIO_IS_ONBOARD         // Use friendly label for SDIO on UI menu
     #if ENABLED(SDIO_IS_ONBOARD)
-      //#define SPI_IS_EXTERNAL //Use friendly label to specify that the SPI SD card is external if SDIO is onboard
+      //#define SPI_IS_EXTERNAL       // Use friendly label to specify that the SPI SD card is external if SDIO is onboard
     #endif
   #endif
-
-  //#define USB_FLASH_DRIVE_SUPPORT //Enable USD Flash drive storage
+  //#define USB_FLASH_DRIVE_SUPPORT   // Enable USD Flash drive storage
 #endif
 
 /**

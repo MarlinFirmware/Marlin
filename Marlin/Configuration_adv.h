@@ -1857,7 +1857,7 @@
    * Multiple volume support - EXPERIMENTAL.
    * Adds 'M21 Pm' / 'M21 S' / 'M21 U' / 'M21 O' to mount SD Card / USB Drive / SDIO Card.
    */
-  #define MULTI_VOLUME
+  //#define MULTI_VOLUME
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
@@ -1871,6 +1871,7 @@
       #define DEFAULT_SHARED_VOLUME SV_SDIO_ONBOARD
     #endif
   #endif
+
 #endif // SDSUPPORT
 
 /**
