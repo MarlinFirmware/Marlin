@@ -269,6 +269,7 @@
                 #undef HEATER_0_MINTEMP
                 #undef PID_PARAMS_PER_HOTEND
                 #undef PIDTEMP
+                #undef MPCTEMP
                 #undef PREVENT_COLD_EXTRUSION
                 #undef THERMAL_PROTECTION_HOTENDS
                 #undef THERMAL_PROTECTION_PERIOD
