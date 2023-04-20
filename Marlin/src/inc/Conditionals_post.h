@@ -558,9 +558,9 @@
   #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || ALL(MULTI_VOLUME, VOLUME_SD_ONBOARD)
     #if ENABLED(SDSUPPORT)
       #define NEED_SD2CARD_SPI 1
-    #endif
-    #if ENABLED(ONBOARD_SDIO)
-      #define NEED_SD2CARD_SDIO 1
+      #if ENABLED(ONBOARD_SDIO)
+        #define NEED_SD2CARD_SDIO 1
+      #endif
     #endif
   #endif
 
