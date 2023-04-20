@@ -4381,7 +4381,7 @@ void Temperature::isr() {
    *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
    */
   static void print_heater_state(const heater_id_t e, const_celsius_float_t c, const_celsius_float_t t
-    OPTARG(SHOW_TEMP_ADC_VALUES, const float r)
+    OPTARG(SHOW_TEMP_ADC_VALUES, const_float_t r)
   ) {
     char k;
     bool show_t = true;

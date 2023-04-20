@@ -39,17 +39,17 @@ static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
   SERIAL_ECHOPGM_P(name, C(':'));
 }
-static void config_line(PGM_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
+static void config_line(PGM_P const name, const_float_t val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
   SERIAL_ECHOLN(val);
 }
-static void config_line(FSTR_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
+static void config_line(FSTR_P const name, const_float_t val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
   config_line(FTOP(name), val, FTOP(pref) , ind);
 }
-static void config_line_e(const int8_t e, PGM_P const name, const float val) {
+static void config_line_e(const int8_t e, PGM_P const name, const_float_t val) {
   config_line(name, val, PSTR("Extr."), e + 1);
 }
-static void config_line_e(const int8_t e, FSTR_P const name, const float val) {
+static void config_line_e(const int8_t e, FSTR_P const name, const_float_t val) {
   config_line_e(e, FTOP(name), val);
 }
 

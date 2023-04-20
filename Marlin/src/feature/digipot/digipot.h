@@ -27,7 +27,7 @@
 class DigipotI2C {
 public:
   static void init();
-  static void set_current(const uint8_t channel, const float current);
+  static void set_current(const uint8_t channel, const_float_t current);
 };
 
 extern DigipotI2C digipot_i2c;

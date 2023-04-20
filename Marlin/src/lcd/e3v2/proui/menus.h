@@ -141,7 +141,7 @@ void onDrawIntMenu(MenuItem* menuitem, int8_t line, int32_t value);
 void onDrawPIntMenu(MenuItem* menuitem, int8_t line);
 void onDrawPInt8Menu(MenuItem* menuitem, int8_t line);
 void onDrawPInt32Menu(MenuItem* menuitem, int8_t line);
-void onDrawFloatMenu(MenuItem* menuitem, int8_t line, uint8_t dp, const float value);
+void onDrawFloatMenu(MenuItem* menuitem, int8_t line, uint8_t dp, const_float_t value);
 void onDrawPFloatMenu(MenuItem* menuitem, int8_t line, uint8_t dp);
 inline void onDrawPFloatMenu(MenuItem* menuitem, int8_t line) { onDrawPFloatMenu(menuitem, line, UNITFDIGITS); };
 inline void onDrawPFloat2Menu(MenuItem* menuitem, int8_t line) { onDrawPFloatMenu(menuitem, line, 2); };
@@ -154,11 +154,11 @@ void onDrawChkbMenu(MenuItem* menuitem, int8_t line);
 
 void setOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp, const int32_t val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
 void setValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const int32_t val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
-void setValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
+void setValueOnClick(uint8_t process, const_float_t lo, const_float_t hi, uint8_t dp, const_float_t val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
 void setIntOnClick(const int32_t lo, const int32_t hi, const int32_t val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
 void setPIntOnClick(const int32_t lo, const int32_t hi, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
-void setFloatOnClick(const float lo, const float hi, uint8_t dp, const float val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
-void setPFloatOnClick(const float lo, const float hi, uint8_t dp, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
+void setFloatOnClick(const_float_t lo, const_float_t hi, uint8_t dp, const_float_t val, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
+void setPFloatOnClick(const_float_t lo, const_float_t hi, uint8_t dp, void (*apply)()=nullptr, void (*liveUpdate)()=nullptr);
 
 // HMI user control functions =================================================
 

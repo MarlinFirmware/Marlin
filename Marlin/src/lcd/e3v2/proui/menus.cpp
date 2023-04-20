@@ -137,7 +137,7 @@ void onDrawPInt32Menu(MenuItem* menuitem, int8_t line) {
   onDrawIntMenu(menuitem, line, value);
 }
 
-void onDrawFloatMenu(MenuItem* menuitem, int8_t line, uint8_t dp, const float value) {
+void onDrawFloatMenu(MenuItem* menuitem, int8_t line, uint8_t dp, const_float_t value) {
   onDrawMenuItem(menuitem, line);
   DWINUI::drawSignedFloat(hmiData.colorText, hmiData.colorBackground, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(line), value);
 }
@@ -212,7 +212,7 @@ void setValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const 
 //  val: value
 //  liveUpdate: live update function when the encoder changes
 //  apply: update function when the encoder is pressed
-void setValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
+void setValueOnClick(uint8_t process, const_float_t lo, const_float_t hi, uint8_t dp, const_float_t val, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
   const int32_t value =  round(val * POW(10, dp));
   setOnClick(process, lo * POW(10, dp), hi * POW(10, dp), dp, value, apply, liveUpdate);
   DrawItemEdit(true);
@@ -245,7 +245,7 @@ void setPIntOnClick(const int32_t lo, const int32_t hi, void (*apply)()/*=nullpt
 //  hi: high limit
 //  dp: decimal places
 //  val: value
-void setFloatOnClick(const float lo, const float hi, uint8_t dp, const float val, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
+void setFloatOnClick(const_float_t lo, const_float_t hi, uint8_t dp, const_float_t val, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
   setValueOnClick(ID_SetFloat, lo, hi, dp, val, apply, liveUpdate);
 }
 
@@ -254,7 +254,7 @@ void setFloatOnClick(const float lo, const float hi, uint8_t dp, const float val
 //  hi: high limit
 //  liveUpdate: live update function when the encoder changes
 //  apply: update function when the encoder is pressed
-void setPFloatOnClick(const float lo, const float hi, uint8_t dp, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
+void setPFloatOnClick(const_float_t lo, const_float_t hi, uint8_t dp, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
   menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
   setValueOnClick(ID_SetPFloat, lo, hi, dp, *menuData.floatPtr, apply, liveUpdate);
 }
