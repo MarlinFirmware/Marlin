@@ -36,6 +36,7 @@
   SlowSoftWire WireI2C = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
 #else
   #include <Wire.h>
+  #define WireI2C Wire
 #endif
 
 void eeprom_init() {
