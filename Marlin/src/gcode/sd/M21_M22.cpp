@@ -47,8 +47,8 @@ void GcodeSuite::M21() {
     const int8_t newvol = (
                                      parser.seen_test('S')  ? 0 : // "S" for SD Card
       TERN0(USB_FLASH_DRIVE_SUPPORT, parser.seen_test('U')) ? 1 : // "U" for USB
-      TERN0(SDIO_SUPPORT,            parser.seen_test('O')) ? 2 : // "O" for Onboard (SDIO)
-                                     parser.intval('P', vol)      // "P" for S, U, O
+      TERN0(SDIO_SUPPORT,            parser.seen_test('O')) ? 2 : // "O" for SDIO (usually onboard)
+                                     parser.intval('P', vol)      // "P" for integer volume number
     );
 
     if (newvol != vol) {

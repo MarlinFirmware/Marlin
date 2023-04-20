@@ -849,6 +849,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_DRIVER_BACKWARD                = _UxGT(" driver backward");
 
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
+  LSTR MSG_ONBOARD_SD_CARD                = _UxGT("Onboard SD Card");
   LSTR MSG_SDIO_CARD                      = _UxGT("SDIO Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
 
