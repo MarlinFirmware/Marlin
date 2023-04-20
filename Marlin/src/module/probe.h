@@ -52,7 +52,7 @@
 #endif
 
 // In BLTOUCH HS mode, the probe travels in a deployed state.
-#define Z_PROBE_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
+#define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
 
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
   #ifndef LEVELING_NOZZLE_TEMP
@@ -163,8 +163,14 @@ public:
 
     #endif // !IS_KINEMATIC
 
-    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_PROBE_SAFE_CLEARANCE);
-    static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_PROBE_SAFE_CLEARANCE) {
+    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE,
+      const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
+      const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE);
+
+    static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE,
+      const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
+      const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE
+    ) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance);
     }
 
@@ -334,7 +340,7 @@ public:
 
 private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
-  static float run_z_probe(const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_PROBE_SAFE_CLEARANCE);
+  static float run_z_probe(const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE);
 };
 
 extern Probe probe;
