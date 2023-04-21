@@ -41,11 +41,18 @@
     PROBE_PT_RAISE      // Raise to "between" clearance after run_z_probe
   };
 #endif
-
-#if USES_Z_MIN_PROBE_PIN
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
+#if ENABLED(BD_SENSOR)
+  #if USES_Z_MIN_PROBE_PIN
+    #define PROBE_TRIGGERED() (bdp_state == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
+  #else
+    #define PROBE_TRIGGERED() (bdp_state == Z_MIN_ENDSTOP_HIT_STATE)
+  #endif
 #else
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
+#if USES_Z_MIN_PROBE_PIN
+    #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
+  #else
+    #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
+  #endif
 #endif
 
 #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)

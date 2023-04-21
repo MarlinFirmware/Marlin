@@ -27,6 +27,7 @@ class BDS_Leveling {
 public:
   static int8_t config_state;
   static uint8_t homing;
+  static float pos_zero_offset;
   static void echo_name();
   static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
   static void process();
