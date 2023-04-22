@@ -255,12 +255,14 @@
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
+    #define CAN_CALIBRATE(A,B) TERN0(HAS_##A##_AXIS, (_AXIS(A) == B))
   #else
-    #define CAN_CALIBRATE(A,B) true
+    #define CAN_CALIBRATE(A,B) ENABLED(HAS_##A##_AXIS)
   #endif
+  #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
+#else
+  #define AXIS_CAN_CALIBRATE(A) false
 #endif
-#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
 
 /**
  * No adjustable bed on non-cartesians
@@ -2294,6 +2296,49 @@
 #endif
 #if PIN_EXISTS(Z4_MAX)
   #define HAS_Z4_MAX 1
+#endif
+
+#if HAS_X_MIN || HAS_X_MAX
+  #define HAS_X_ENDSTOP 1
+#endif
+#if HAS_X2_MIN || HAS_X2_MAX
+  #define HAS_X2_ENDSTOP 1
+#endif
+#if HAS_Y_MIN || HAS_Y_MAX
+  #define HAS_Y_ENDSTOP 1
+#endif
+#if HAS_Y2_MIN || HAS_Y2_MAX
+  #define HAS_Y2_ENDSTOP 1
+#endif
+#if HAS_Z_MIN || HAS_Z_MAX
+  #define HAS_Z_ENDSTOP 1
+#endif
+#if HAS_Z2_MIN || HAS_Z2_MAX
+  #define HAS_Z2_ENDSTOP 1
+#endif
+#if HAS_Z3_MIN || HAS_Z3_MAX
+  #define HAS_Z3_ENDSTOP 1
+#endif
+#if HAS_Z4_MIN || HAS_Z4_MAX
+  #define HAS_Z4_ENDSTOP 1
+#endif
+#if HAS_I_MIN || HAS_I_MAX
+  #define HAS_I_ENDSTOP 1
+#endif
+#if HAS_J_MIN || HAS_J_MAX
+  #define HAS_J_ENDSTOP 1
+#endif
+#if HAS_K_MIN || HAS_K_MAX
+  #define HAS_K_ENDSTOP 1
+#endif
+#if HAS_U_MIN || HAS_U_MAX
+  #define HAS_U_ENDSTOP 1
+#endif
+#if HAS_V_MIN || HAS_V_MAX
+  #define HAS_V_ENDSTOP 1
+#endif
+#if HAS_W_MIN || HAS_W_MAX
+  #define HAS_W_ENDSTOP 1
 #endif
 
 #if HAS_BED_PROBE && PIN_EXISTS(Z_MIN_PROBE)

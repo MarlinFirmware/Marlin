@@ -962,17 +962,41 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     if (!PanelDetected) return;
-    uint8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if ((style & SS_CENTER) && !valstr) {
-      int8_t pad = (LCD_WIDTH - utf8_strlen(fstr)) / 2;
-      while (--pad >= 0) { lcd.write(' '); n--; }
+
+    uint8_t n = LCD_WIDTH;
+    const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+    const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
+                 vlen = vstr ? utf8_strlen(vstr) : 0;
+    int8_t pad = (center || full) ? n - plen - vlen : 0;
+
+    // SS_CENTER: Pad with half of the unused space first
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
+
+    // Draw as much of the label as fits
+    if (plen) {
+      const int8_t expl = n;
+      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+      pad -= (expl - n - plen); // Reduce the padding
     }
-    n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-    if (valstr) n -= lcd_put_u8str_max(valstr, n);
-    for (; n; --n) lcd.write(' ');
+
+    if (vlen && n > 0) {
+      // SS_FULL: Pad with enough space to justify the value
+      if (full && !center) {
+        // Move the leading colon from the value to the label
+        if (*vstr == ':') { lcd.write(':'); vstr++; n--; }
+        // Move spaces to the padding
+        while (*vstr == ' ') { vstr++; pad++; }
+        // Pad in-between
+        for (; pad > 0; --pad) { lcd.write(' '); n--; }
+      }
+      n -= lcd_put_u8str_max(vstr, n);
+    }
+
+    for (; n > 0; --n) lcd.write(' ');
+
     lcd.print_line();
   }
 

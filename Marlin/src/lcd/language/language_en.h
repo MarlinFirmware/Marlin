@@ -76,6 +76,8 @@ namespace Language_en {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disable Steppers");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Progress Bar Test");
+  LSTR MSG_ENDSTOP_TEST                   = _UxGT("Endstop Test");
+  LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
@@ -430,6 +432,7 @@ namespace Language_en {
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Motion");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
+  LSTR MSG_FILAMENT_EN                    = _UxGT("Filament *");
   LSTR MSG_VOLUMETRIC_ENABLED             = _UxGT("E in mm") SUPERSCRIPT_THREE;
   LSTR MSG_VOLUMETRIC_LIMIT               = _UxGT("E Limit in mm") SUPERSCRIPT_THREE;
   LSTR MSG_VOLUMETRIC_LIMIT_E             = _UxGT("E Limit *");
