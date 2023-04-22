@@ -116,19 +116,19 @@ void menu_advanced_settings();
     START_SCREEN();
     STATIC_ITEM_F(GET_TEXT_F(MSG_ENDSTOP_TEST), SS_DEFAULT|SS_INVERT);
 
-    #if HAS_X_MIN || HAS_X_MAX
+    #if HAS_X_ENDSTOP
       STOP_ITEM(X,);
       #if ENABLED(X_DUAL_ENDSTOPS)
         STOP_ITEM(X,2);
       #endif
     #endif
-    #if HAS_Y_MIN || HAS_Y_MAX
+    #if HAS_Y_ENDSTOP
       STOP_ITEM(Y,);
       #if ENABLED(Y_DUAL_ENDSTOPS)
         STOP_ITEM(Y,2);
       #endif
     #endif
-    #if HAS_Z_MIN || HAS_Z_MAX
+    #if HAS_Z_ENDSTOP
       STOP_ITEM(Z,);
       #if ENABLED(Z_MULTI_ENDSTOPS)
         STOP_ITEM(Z,2);
@@ -140,22 +140,22 @@ void menu_advanced_settings();
         #endif
       #endif
     #endif
-    #if HAS_I_MIN || HAS_I_MAX
+    #if HAS_I_ENDSTOP
       STOP_ITEM(I,);
     #endif
-    #if HAS_J_MIN || HAS_J_MAX
+    #if HAS_J_ENDSTOP
       STOP_ITEM(J,);
     #endif
-    #if HAS_K_MIN || HAS_K_MAX
+    #if HAS_K_ENDSTOP
       STOP_ITEM(K,);
     #endif
-    #if HAS_U_MIN || HAS_U_MAX
+    #if HAS_U_ENDSTOP
       STOP_ITEM(U,);
     #endif
-    #if HAS_V_MIN || HAS_V_MAX
+    #if HAS_V_ENDSTOP
       STOP_ITEM(V,);
     #endif
-    #if HAS_W_MIN || HAS_W_MAX
+    #if HAS_W_ENDSTOP
       STOP_ITEM(W,);
     #endif
     #if HAS_BED_PROBE && !HAS_DELTA_SENSORLESS_PROBING
@@ -246,7 +246,7 @@ void menu_advanced_settings();
     }
   #endif
 
-#endif
+#endif // HAS_MULTI_EXTRUDER
 
 #if HAS_HOTEND_OFFSET
   #include "../../module/motion.h"
