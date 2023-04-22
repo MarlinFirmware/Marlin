@@ -624,8 +624,6 @@
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
   #undef DISABLE_E
-  #undef THERMAL_PROTECTION_HOTENDS
-  #undef PREVENT_COLD_EXTRUSION
   #undef PREVENT_LENGTHY_EXTRUDE
   #undef FILAMENT_RUNOUT_SENSOR
   #undef FILAMENT_RUNOUT_DISTANCE_MM
@@ -656,9 +654,6 @@
     #define E_STEPPERS    2
   #else
     #define E_STEPPERS    1
-  #endif
-  #if !HAS_SWITCHING_NOZZLE
-    #define HOTENDS       E_STEPPERS
   #endif
 
 #elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
@@ -691,16 +686,7 @@
   #define SINGLENOZZLE
 #endif
 
-#if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
-  #undef HOTENDS
-  #define HOTENDS       1
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-#endif
-
-#ifndef HOTENDS
-  #define HOTENDS EXTRUDERS
-#endif
+// Default E steppers / manual motion is one per extruder
 #ifndef E_STEPPERS
   #define E_STEPPERS EXTRUDERS
 #endif
@@ -708,6 +694,45 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+// Number of hotends...
+#if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)               // Only one for singlenozzle or mixing extruder
+  #define HOTENDS 1
+#elif HAS_SWITCHING_EXTRUDER && !HAS_SWITCHING_NOZZLE   // One for each pair of abstract "extruders"
+  #define HOTENDS E_STEPPERS
+#elif TEMP_SENSOR_0
+  #define HOTENDS EXTRUDERS                             // One per extruder if at least one heater exists
+#else
+  #define HOTENDS 0                                     // A machine with no hotends at all can still extrude
+#endif
+
+// More than one hotend...
+#if HOTENDS > 1
+  #define HAS_MULTI_HOTEND 1
+  #define HAS_HOTEND_OFFSET 1
+  #ifndef HOTEND_OFFSET_X
+    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Y
+    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Z
+    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
+  #endif
+#else
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+  #undef HOTEND_OFFSET_Z
+#endif
+
+// At least one hotend...
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+#endif
+
+// Clean up E-stepper-based settings...
 #if E_STEPPERS <= 7
   #undef INVERT_E7_DIR
   #undef E7_DRIVER_TYPE
@@ -1037,19 +1062,6 @@
   #define E_INDEX_N(E) 0
 #endif
 
-#if HOTENDS
-  #define HAS_HOTEND 1
-  #ifndef HOTEND_OVERSHOOT
-    #define HOTEND_OVERSHOOT 15
-  #endif
-  #if HOTENDS > 1
-    #define HAS_MULTI_HOTEND 1
-    #define HAS_HOTEND_OFFSET 1
-  #endif
-#else
-  #undef PID_PARAMS_PER_HOTEND
-#endif
-
 // Helper macros for extruder and hotend arrays
 #define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
 #define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
@@ -1060,21 +1072,6 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-/**
- * Default hotend offsets, if not defined
- */
-#if HAS_HOTEND_OFFSET
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
-  #endif
-#endif
 
 /**
  * Disable unused SINGLENOZZLE sub-options
