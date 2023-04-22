@@ -41,7 +41,7 @@ using namespace ExtUI;
 namespace Anycubic {
 
   FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
-  char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+  char      FileNavigator::currentfoldername[];               // Current folder path
   uint16_t  FileNavigator::lastindex;
   uint8_t   FileNavigator::folderdepth;
   uint16_t  FileNavigator::currentindex;                      // override the panel request
