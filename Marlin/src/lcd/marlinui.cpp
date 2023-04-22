@@ -1413,6 +1413,13 @@ void MarlinUI::init() {
 
   #endif // HAS_ENCODER_ACTION
 
+  #if HAS_SOUND
+    void MarlinUI::completion_feedback(const bool good/*=true*/) {
+      TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
+      if (good) OKAY_BUZZ(); else ERR_BUZZ();
+    }
+  #endif
+
 #endif // HAS_WIRED_LCD
 
 #if HAS_STATUS_MESSAGE
