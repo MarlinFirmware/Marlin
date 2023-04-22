@@ -521,9 +521,12 @@ public:
 
     static void update() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
+
+  #endif
+
+  #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}
     static void completion_feedback(const bool=true) {}
-
   #endif
 
   #if ENABLED(SDSUPPORT)
