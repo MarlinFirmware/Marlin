@@ -886,7 +886,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
     do_blocking_move_to(
-      NUM_AXIS_LIST(
+      xyz_pos_t({
         0.5f * ((MESH_MAX_X) - (MESH_MIN_X)),
         0.5f * ((MESH_MAX_Y) - (MESH_MIN_Y)),
         MANUAL_PROBE_START_Z
@@ -908,7 +908,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
         #ifdef SAFE_BED_LEVELING_START_W
           , SAFE_BED_LEVELING_START_W
         #endif
-      )
+      })
       //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f
     );
     planner.synchronize();
