@@ -841,7 +841,7 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+//#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 #define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
