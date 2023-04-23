@@ -44,7 +44,7 @@ namespace Anycubic {
     for (uint8_t pos = 1; pos < MAX_TUNE_LENGTH; pos += 2) {
       const uint16_t freq = tune[pos];
       if (freq == n_END) break;
-      BUZZ(freq, wholenotelen / tune[pos + 1]);
+      BUZZ(wholenotelen / tune[pos + 1],freq);
     }
   }
 
