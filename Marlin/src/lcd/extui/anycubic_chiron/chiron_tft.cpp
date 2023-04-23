@@ -215,7 +215,7 @@ void ChironTFT::ConfirmationRequest(const char * const msg)  {
       if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
         pause_state = AC_paused_heater_timed_out;
         SendtoTFTLN(AC_msg_paused); // enable continue button
-        PlayTune(BEEPER_PIN,Heater_Timedout,1);
+        PlayTune(Heater_Timedout,1);
       }
       // Reheat finished, send acknowledgement
       else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
