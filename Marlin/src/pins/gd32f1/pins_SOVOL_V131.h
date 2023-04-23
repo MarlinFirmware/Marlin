@@ -27,8 +27,9 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "SOVOL V131 only supports 1 hotend / E-stepper."
+  #define E_ERROR 1
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -37,7 +38,6 @@
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "Sovol SV06"
 #endif
-
 
 #include "../stm32f1/pins_CREALITY_V4.h"
 
