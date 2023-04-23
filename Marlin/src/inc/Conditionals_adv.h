@@ -1233,17 +1233,6 @@
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif
 
-// Fan Kickstart
-#if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
-  #define FAN_KICKSTART_POWER 180
-#endif
-
-#if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
-  #define CALC_FAN_SPEED(f) (f ?: FAN_OFF_PWM)
-#else
-  #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
-#endif
-
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
   #define HAS_ZV_SHAPING 1
