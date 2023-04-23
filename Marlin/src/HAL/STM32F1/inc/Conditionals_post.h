@@ -30,5 +30,5 @@
 
 // Allow for no media drives
 #if !HAS_MEDIA
-  #undef SDIO_SUPPORT
+  #undef ONBOARD_SDIO
 #endif

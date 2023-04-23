@@ -195,7 +195,7 @@
 //
 // SD Card
 //
-//#define SDIO_SUPPORT
+//#define ONBOARD_SDIO
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION         CUSTOM_CABLE
@@ -203,7 +203,7 @@
 
 #if HAS_MEDIA
 
-  #if DISABLED(SDIO_SUPPORT)
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI
     #define SDSS                            PC11
     #define SD_SS_PIN                       SDSS
