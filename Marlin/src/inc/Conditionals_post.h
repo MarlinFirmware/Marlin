@@ -2719,11 +2719,8 @@
   #define HAS_FAN 1
 #endif
 
-/**
- * Part Cooling fan multipliexer
- */
 #if PIN_EXISTS(FANMUX0)
-  #define HAS_FANMUX 1
+  #define HAS_FANMUX 1  // Part Cooling fan multipliexer
 #endif
 
 /**
@@ -2745,6 +2742,35 @@
   #else
     #undef CONTROLLER_FAN_TRIGGER_TEMP
   #endif
+#endif
+
+/**
+ * MIN/MAX fan PWM scaling
+ */
+#if EITHER(HAS_FAN, USE_CONTROLLER_FAN)
+  #ifndef FAN_OFF_PWM
+    #define FAN_OFF_PWM 0
+  #endif
+  #ifndef FAN_MIN_PWM
+    #if FAN_OFF_PWM > 0
+      #define FAN_MIN_PWM (FAN_OFF_PWM + 1)
+    #else
+      #define FAN_MIN_PWM 0
+    #endif
+  #endif
+  #ifndef FAN_MAX_PWM
+    #define FAN_MAX_PWM 255
+  #endif
+  #if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
+    #define CALC_FAN_SPEED(f) (f ?: FAN_OFF_PWM)
+  #else
+    #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+  #endif
+#endif
+
+// Fan Kickstart
+#if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
+  #define FAN_KICKSTART_POWER 180
 #endif
 
 // Servos

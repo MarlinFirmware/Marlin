@@ -1560,11 +1560,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Part-Cooling Fan Multiplexer requirements
  */
-#if PIN_EXISTS(FANMUX1)
-  #if !HAS_FANMUX
-    #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
-  #endif
-#elif PIN_EXISTS(FANMUX2)
+#if HAS_FANMUX && !HAS_FAN0
+  #error "FAN0_PIN must be defined to use Fan Multiplexing."
+#elif PIN_EXISTS(FANMUX1) && !PIN_EXISTS(FANMUX0)
+  #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
+#elif PIN_EXISTS(FANMUX2) && !PINS_EXIST(FANMUX0, FANMUX1)
   #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
 #endif
 
@@ -1608,7 +1608,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
-  #if FAN_COUNT < 1
+  #if !HAS_FAN
     #error "MPC_INCLUDE_FAN requires at least one fan."
   #endif
   #if FAN_COUNT < HOTENDS
@@ -1627,8 +1627,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
 #endif
 
-// Fan Kickstart
-#if FAN_KICKSTART_TIME && defined(FAN_KICKSTART_POWER) && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
+// Fan Kickstart power
+#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
   #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
 #endif
 
@@ -2451,6 +2451,21 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "You cannot set E6_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #elif PIN_EXISTS(E7_AUTO_FAN) && E7_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
     #error "You cannot set E7_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+  #endif
+#endif
+
+/**
+ * Make sure FAN_*_PWM values are sensible
+ */
+#if EITHER(HAS_FAN, USE_CONTROLLER_FAN)
+  #if !WITHIN(FAN_MIN_PWM, 0, 255)
+    #error "FAN_MIN_PWM must be a value from 0 to 255."
+  #elif !WITHIN(FAN_MAX_PWM, 0, 255)
+    #error "FAN_MAX_PWM must be a value from 0 to 255."
+  #elif FAN_MIN_PWM > FAN_MAX_PWM
+    #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+  #elif FAN_OFF_PWM > FAN_MIN_PWM
+    #error "FAN_OFF_PWM must be less than or equal to FAN_MIN_PWM."
   #endif
 #endif
 
