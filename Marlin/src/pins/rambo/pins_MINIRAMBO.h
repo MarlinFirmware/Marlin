@@ -162,7 +162,7 @@
       #define BTN_ENC                         21
 
       #define LCD_PINS_RS                     38
-      #define LCD_PINS_ENABLE                  5
+      #define LCD_PINS_EN                      5
       #define LCD_PINS_D4                     14
       #define LCD_PINS_D5                     15
       #define LCD_PINS_D6                     32
@@ -181,7 +181,7 @@
       #define BTN_ENC                          9
 
       #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 18
+      #define LCD_PINS_EN                     18
       #define LCD_PINS_D4                     19
       #define LCD_PINS_D5                     70
       #define LCD_PINS_D6                     85

@@ -115,8 +115,6 @@
 void restore_trinamic_drivers();
 void reset_trinamic_drivers();
 
-#define AXIS_HAS_DEDGE(A) (AXIS_IS_TMC(A) && ENABLED(EDGE_STEPPING))
-
 // X Stepper
 #if AXIS_IS_TMC(X)
   extern TMC_CLASS(X, X) stepperX;

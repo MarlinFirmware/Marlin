@@ -68,7 +68,7 @@
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #define HAS_MENU_FILAMENT
   #endif
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define HAS_MENU_MEDIA
   #endif
   #if ENABLED(MIXING_EXTRUDER)

@@ -38,6 +38,10 @@
   #include "../lcd/marlinui.h"
 #endif
 
+#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 #if ENABLED(POLAR)
   #include "polar.h"
 #endif
@@ -528,25 +532,15 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
-  const feedRate_t old_feedrate = feedrate_mm_s;
+  REMEMBER(fr, feedrate_mm_s);
+  REMEMBER(pct, feedrate_percentage, 100);
+  TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[active_extruder], 1.0f));
+
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
-
-  const uint16_t old_pct = feedrate_percentage;
-  feedrate_percentage = 100;
-
-  #if HAS_EXTRUDERS
-    const float old_fac = planner.e_factor[active_extruder];
-    planner.e_factor[active_extruder] = 1.0f;
-  #endif
-
   if (TERN0(IS_KINEMATIC, is_fast))
     TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
   else
     prepare_line_to_destination();
-
-  feedrate_mm_s = old_feedrate;
-  feedrate_percentage = old_pct;
-  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
 }
 
 /**
@@ -798,11 +792,26 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
       fr_mm_s
     );
   }
-  void do_z_clearance(const_float_t zclear, const bool lower_allowed/*=false*/) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, ", ", lower_allowed, ")");
-    const float zdest = _MIN(zclear, Z_MAX_POS);
-    if (zdest == current_position.z || (!lower_allowed && zdest < current_position.z)) return;
+  void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
+    UNUSED(with_probe);
+    float zdest = zclear;
+    TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
+    NOMORE(zdest, Z_MAX_POS);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, " [", current_position.z, " to ", zdest, "], ", lower_allowed, ")");
+    if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
     do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
+  }
+  void do_z_clearance_by(const_float_t zclear) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
+    do_z_clearance(current_position.z + zclear, false);
+  }
+  void do_move_after_z_homing() {
+    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
+    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+      do_z_clearance(Z_POST_CLEARANCE, true, true);
+    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
+      probe.move_z_after_probing();
+    #endif
   }
 #endif
 
@@ -812,17 +821,16 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 //
 static float saved_feedrate_mm_s;
 static int16_t saved_feedrate_percentage;
-void remember_feedrate_and_scaling() {
+void remember_feedrate_scaling_off() {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("remember_feedrate_scaling_off: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
   saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
-}
-void remember_feedrate_scaling_off() {
-  remember_feedrate_and_scaling();
   feedrate_percentage = 100;
 }
 void restore_feedrate_and_scaling() {
   feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("restore_feedrate_and_scaling: fr=", feedrate_mm_s, " ", feedrate_percentage, "%");
 }
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -1427,13 +1435,13 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
   void idex_set_mirrored_mode(const bool mirr) {
     idex_mirrored_mode = mirr;
-    stepper.set_directions();
+    stepper.apply_directions();
   }
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index/*=-1*/) {
     extruder_duplication_enabled = dupe;
     if (tool_index >= 0) active_extruder = tool_index;
-    stepper.set_directions();
+    stepper.apply_directions();
   }
 
   void idex_set_parked(const bool park/*=true*/) {
@@ -1479,7 +1487,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
               line_to_current_position(fr_zfast);
             }
           }
-          stepper.set_directions();
+          stepper.apply_directions();
 
           idex_set_parked(false);
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("idex_set_parked(false)");
@@ -1972,72 +1980,72 @@ void prepare_line_to_destination() {
           case X_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
-            effectorBackoutDir = -X_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_X_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(X_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_X_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Y_MICROSTEPS
           case Y_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
-            effectorBackoutDir = -Y_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Y_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Y_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Y_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Z_MICROSTEPS
           case Z_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
-            effectorBackoutDir = -Z_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_Z_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(Z_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_Z_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef I_MICROSTEPS
           case I_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
-            effectorBackoutDir = -I_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_I_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(I_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_I_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef J_MICROSTEPS
           case J_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
-            effectorBackoutDir = -J_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_J_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(J_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_J_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef K_MICROSTEPS
           case K_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
-            effectorBackoutDir = -K_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_K_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(K_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_K_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef U_MICROSTEPS
           case U_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
-            effectorBackoutDir = -U_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_U_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(U_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_U_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef V_MICROSTEPS
           case V_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
-            effectorBackoutDir = -V_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_V_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(V_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_V_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef W_MICROSTEPS
           case W_AXIS:
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
-            effectorBackoutDir = -W_HOME_DIR;
-            stepperBackoutDir = IF_DISABLED(INVERT_W_DIR, -)effectorBackoutDir;
+            effectorBackoutDir = -(W_HOME_DIR);
+            stepperBackoutDir = TERN_(INVERT_W_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         default: return;
@@ -2169,12 +2177,12 @@ void prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
-    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
-    #endif
-
     // If a second homing move is configured...
     if (bump) {
+      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+        if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+      #endif
+
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
       do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
@@ -2183,34 +2191,9 @@ void prepare_line_to_destination() {
         // Check for a broken endstop
         EndstopEnum es;
         switch (axis) {
-          default:
-          #if HAS_X_AXIS
-            case X_AXIS: es = X_ENDSTOP; break;
-          #endif
-          #if HAS_Y_AXIS
-            case Y_AXIS: es = Y_ENDSTOP; break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: es = Z_ENDSTOP; break;
-          #endif
-          #if HAS_I_AXIS
-            case I_AXIS: es = I_ENDSTOP; break;
-          #endif
-          #if HAS_J_AXIS
-            case J_AXIS: es = J_ENDSTOP; break;
-          #endif
-          #if HAS_K_AXIS
-            case K_AXIS: es = K_ENDSTOP; break;
-          #endif
-          #if HAS_U_AXIS
-            case U_AXIS: es = U_ENDSTOP; break;
-          #endif
-          #if HAS_V_AXIS
-            case V_AXIS: es = V_ENDSTOP; break;
-          #endif
-          #if HAS_W_AXIS
-            case W_AXIS: es = W_ENDSTOP; break;
-          #endif
+          #define _ESCASE(A) case A##_AXIS: es = A##_ENDSTOP; break;
+          MAIN_AXIS_MAP(_ESCASE)
+          default: break;
         }
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", AS_CHAR(AXIS_CHAR(axis)), " Endstop?");
@@ -2227,11 +2210,11 @@ void prepare_line_to_destination() {
       const float rebump = bump * 2;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
       do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
-
-      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS) bltouch.stow(); // The final STOW
-      #endif
     }
+
+    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
+    #endif
 
     #if HAS_EXTRA_ENDSTOPS
       const bool pos_dir = axis_home_dir > 0;
@@ -2480,15 +2463,10 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
-
         current_position.z -= probe.offset.z;
-
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
-
       #else
-
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
-
       #endif
     }
   #endif

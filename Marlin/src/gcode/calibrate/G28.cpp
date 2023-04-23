@@ -381,7 +381,7 @@ void GcodeSuite::G28() {
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
                    needU = _UNSAFE(U), needV = _UNSAFE(V), needW = _UNSAFE(W)
-                 )
+                 ),
                  NUM_AXIS_LIST_(              // Home each axis if needed or flagged
                    homeX = needX || parser.seen_test('X'),
                    homeY = needY || parser.seen_test('Y'),
@@ -389,38 +389,62 @@ void GcodeSuite::G28() {
                    homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
                    homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                    homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
-                 )
+                 ),
                  home_all = NUM_AXIS_GANG_(   // Home-all if all or none are flagged
                       homeX == homeX, && homeY == homeX, && homeZ == homeX,
                    && homeI == homeX, && homeJ == homeX, && homeK == homeX,
                    && homeU == homeX, && homeV == homeX, && homeW == homeX
-                 )
+                 ),
                  NUM_AXIS_LIST(
                    doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ,
                    doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK,
                    doU = home_all || homeU, doV = home_all || homeV, doW = home_all || homeW
                  );
 
-      #if HAS_Z_AXIS
-        UNUSED(needZ); UNUSED(homeZZ);
-      #else
-        constexpr bool doZ = false;
-        #if !HAS_Y_AXIS
-          constexpr bool doY = false;
-        #endif
+      #if !HAS_Y_AXIS
+        constexpr bool doY = false;
       #endif
 
-      TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
+      #if HAS_Z_AXIS
 
-      const bool seenR = parser.seenval('R');
-      const float z_homing_height = seenR ? parser.value_linear_units() : Z_HOMING_HEIGHT;
+        UNUSED(needZ); UNUSED(homeZZ);
 
-      if (z_homing_height && (seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW))) {
-        // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
-        do_z_clearance(z_homing_height);
-        TERN_(BLTOUCH, bltouch.init());
-      }
+        // Z may home first, e.g., when homing away from the bed
+        TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
+
+        // 'R' to specify a specific raise. 'R0' indicates no raise, e.g., for recovery.resume
+        // When 'R0' is used, there should already be adequate clearance, e.g., from homing Z to max.
+        const bool seenR = parser.seenval('R');
+
+        // Use raise given by 'R' or Z_CLEARANCE_FOR_HOMING (above the probe trigger point)
+        float z_homing_height = seenR ? parser.value_linear_units() : Z_CLEARANCE_FOR_HOMING;
+
+        // Check for any lateral motion that might require clearance
+        const bool may_skate = seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+
+        if (seenR && z_homing_height == 0) {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
+        }
+        else {
+          bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
+          // Raise above the current Z (which should be synced in the planner)
+          // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
+          if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS)) {
+            z_homing_height += current_position.z;
+            with_probe = false;
+          }
+
+          if (may_skate) {
+            // Apply Z clearance before doing any lateral motion
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
+            do_z_clearance(z_homing_height, with_probe);
+          }
+        }
+
+        // Init BLTouch ahead of any lateral motion, even if not homing with the probe
+        TERN_(BLTOUCH, if (may_skate) bltouch.init());
+
+      #endif // HAS_Z_AXIS
 
       // Diagonal move first if both are homing
       TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
@@ -478,11 +502,14 @@ void GcodeSuite::G28() {
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
       #if ENABLED(FOAMCUTTER_XYUV)
-        // skip homing of unused Z axis for foamcutters
+
+        // Skip homing of unused Z axis for foamcutters
         if (doZ) set_axis_is_at_home(Z_AXIS);
-      #else
+
+      #elif HAS_Z_AXIS
+
         // Home Z last if homing towards the bed
-        #if HAS_Z_AXIS && DISABLED(HOME_Z_FIRST)
+        #if DISABLED(HOME_Z_FIRST)
           if (doZ) {
             #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
               stepper.set_all_z_lock(false);
@@ -494,7 +521,7 @@ void GcodeSuite::G28() {
             #else
               homeaxis(Z_AXIS);
             #endif
-            probe.move_z_after_homing();
+            do_move_after_z_homing();
           }
         #endif
 
@@ -506,11 +533,12 @@ void GcodeSuite::G28() {
           if (doV) homeaxis(V_AXIS),
           if (doW) homeaxis(W_AXIS)
         );
-      #endif
+
+      #endif // HAS_Z_AXIS
 
       sync_plan_position();
 
-    #endif // !DELTA && !AXEL_TPARA
+    #endif
 
     /**
      * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
@@ -603,7 +631,7 @@ void GcodeSuite::G28() {
       #endif
     #endif // HAS_HOMING_CURRENT
 
-    if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
+    if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   #endif // NUM_AXES

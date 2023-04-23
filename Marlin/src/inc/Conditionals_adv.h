@@ -76,9 +76,14 @@
 #endif // !defined(NUM_SERVOS)
 
 // Convenience override for a BLTouch alone
-#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
-  #undef SERVO_DELAY
-  #define SERVO_DELAY { 50 }
+#if ENABLED(BLTOUCH)
+  #ifdef BLTOUCH_HS_MODE
+    #define HAS_BLTOUCH_HS_MODE 1
+  #endif
+  #if NUM_SERVOS == 1
+    #undef SERVO_DELAY
+    #define SERVO_DELAY { 50 }
+  #endif
 #endif
 
 #if !HAS_BED_PROBE
@@ -197,7 +202,6 @@
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef ADVANCED_PAUSE_FEATURE
-  #undef AUTOTEMP
   #undef DISABLE_IDLE_E
   #undef EXTRUDER_RUNOUT_PREVENT
   #undef FILAMENT_LOAD_UNLOAD_GCODES
@@ -206,11 +210,8 @@
   #undef LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
   #undef PID_EXTRUSION_SCALING
-  #undef PIDTEMP
   #undef SHOW_TEMP_ADC_VALUES
   #undef STEALTHCHOP_E
-  #undef THERMAL_PROTECTION_PERIOD
-  #undef WATCH_TEMP_PERIOD
 #endif
 
 #if ENABLED(DISABLE_X) && !defined(DISABLE_IDLE_X)
@@ -250,22 +251,47 @@
 #endif
 #undef _OR_HAS_DI
 
-#if HOTENDS <= 7
+// Remove hotend-dependent settings
+#if HOTENDS < 8
   #undef E7_AUTO_FAN_PIN
-  #if HOTENDS <= 6
+  #undef HEATER_7_MAXTEMP
+  #undef HEATER_7_MINTEMP
+  #if HOTENDS < 7
     #undef E6_AUTO_FAN_PIN
-    #if HOTENDS <= 5
+    #undef HEATER_6_MAXTEMP
+    #undef HEATER_6_MINTEMP
+    #if HOTENDS < 6
       #undef E5_AUTO_FAN_PIN
-      #if HOTENDS <= 4
+      #undef HEATER_5_MAXTEMP
+      #undef HEATER_5_MINTEMP
+      #if HOTENDS < 5
         #undef E4_AUTO_FAN_PIN
-        #if HOTENDS <= 3
+        #undef HEATER_4_MAXTEMP
+        #undef HEATER_4_MINTEMP
+        #if HOTENDS < 4
           #undef E3_AUTO_FAN_PIN
-          #if HOTENDS <= 2
+          #undef HEATER_3_MAXTEMP
+          #undef HEATER_3_MINTEMP
+          #if HOTENDS < 3
             #undef E2_AUTO_FAN_PIN
-            #if HOTENDS <= 1
+            #undef HEATER_2_MAXTEMP
+            #undef HEATER_2_MINTEMP
+            #if HOTENDS < 2
               #undef E1_AUTO_FAN_PIN
-              #if HOTENDS == 0
+              #undef HEATER_1_MAXTEMP
+              #undef HEATER_1_MINTEMP
+              #if HOTENDS < 1
+                #undef AUTOTEMP
                 #undef E0_AUTO_FAN_PIN
+                #undef HEATER_0_MAXTEMP
+                #undef HEATER_0_MINTEMP
+                #undef PID_PARAMS_PER_HOTEND
+                #undef PIDTEMP
+                #undef MPCTEMP
+                #undef PREVENT_COLD_EXTRUSION
+                #undef THERMAL_PROTECTION_HOTENDS
+                #undef THERMAL_PROTECTION_PERIOD
+                #undef WATCH_TEMP_PERIOD
               #endif
             #endif
           #endif
@@ -338,15 +364,13 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
-#elif TEMP_SENSOR_0 == 1000
-  #define TEMP_SENSOR_0_IS_CUSTOM 1
 #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
   #define TEMP_SENSOR_0_IS_DUMMY 1
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
-#else
-  #undef HEATER_0_MINTEMP
-  #undef HEATER_0_MAXTEMP
+  #if TEMP_SENSOR_0 == 1000
+    #define TEMP_SENSOR_0_IS_CUSTOM 1
+  #endif
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(1)
@@ -383,15 +407,13 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
-#elif TEMP_SENSOR_1 == 1000
-  #define TEMP_SENSOR_1_IS_CUSTOM 1
 #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
   #define TEMP_SENSOR_1_IS_DUMMY 1
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
-#else
-  #undef HEATER_1_MINTEMP
-  #undef HEATER_1_MAXTEMP
+  #if TEMP_SENSOR_1 == 1000
+    #define TEMP_SENSOR_1_IS_CUSTOM 1
+  #endif
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(2)
@@ -428,70 +450,58 @@
   #define TEMP_SENSOR_2_IS_AD8495 1
 #elif TEMP_SENSOR_2 == -1
   #define TEMP_SENSOR_2_IS_AD595 1
-#elif TEMP_SENSOR_2 == 1000
-  #define TEMP_SENSOR_2_IS_CUSTOM 1
 #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
   #define TEMP_SENSOR_2_IS_DUMMY 1
 #elif TEMP_SENSOR_2 > 0
   #define TEMP_SENSOR_2_IS_THERMISTOR 1
-#else
-  #undef HEATER_2_MINTEMP
-  #undef HEATER_2_MAXTEMP
+  #if TEMP_SENSOR_2 == 1000
+    #define TEMP_SENSOR_2_IS_CUSTOM 1
+  #endif
 #endif
 
-#if TEMP_SENSOR_3 == 1000
-  #define TEMP_SENSOR_3_IS_CUSTOM 1
-#elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+#if TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
   #define TEMP_SENSOR_3_IS_DUMMY 1
 #elif TEMP_SENSOR_3 > 0
   #define TEMP_SENSOR_3_IS_THERMISTOR 1
-#elif !TEMP_SENSOR_3
-  #undef HEATER_3_MINTEMP
-  #undef HEATER_3_MAXTEMP
+  #if TEMP_SENSOR_3 == 1000
+    #define TEMP_SENSOR_3_IS_CUSTOM 1
+  #endif
 #endif
 
-#if TEMP_SENSOR_4 == 1000
-  #define TEMP_SENSOR_4_IS_CUSTOM 1
-#elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+#if TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
   #define TEMP_SENSOR_4_IS_DUMMY 1
 #elif TEMP_SENSOR_4 > 0
   #define TEMP_SENSOR_4_IS_THERMISTOR 1
-#elif !TEMP_SENSOR_4
-  #undef HEATER_4_MINTEMP
-  #undef HEATER_4_MAXTEMP
+  #if TEMP_SENSOR_4 == 1000
+    #define TEMP_SENSOR_4_IS_CUSTOM 1
+  #endif
 #endif
 
-#if TEMP_SENSOR_5 == 1000
-  #define TEMP_SENSOR_5_IS_CUSTOM 1
-#elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+#if TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
   #define TEMP_SENSOR_5_IS_DUMMY 1
 #elif TEMP_SENSOR_5 > 0
   #define TEMP_SENSOR_5_IS_THERMISTOR 1
-#elif !TEMP_SENSOR_5
-  #undef HEATER_5_MINTEMP
-  #undef HEATER_5_MAXTEMP
+  #if TEMP_SENSOR_5 == 1000
+    #define TEMP_SENSOR_5_IS_CUSTOM 1
+  #endif
 #endif
 
-#if TEMP_SENSOR_6 == 1000
-  #define TEMP_SENSOR_6_IS_CUSTOM 1
-#elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+#if TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
   #define TEMP_SENSOR_6_IS_DUMMY 1
 #elif TEMP_SENSOR_6 > 0
   #define TEMP_SENSOR_6_IS_THERMISTOR 1
-#elif !TEMP_SENSOR_6
-  #undef HEATER_6_MINTEMP
-  #undef HEATER_6_MAXTEMP
+  #if TEMP_SENSOR_6 == 1000
+    #define TEMP_SENSOR_6_IS_CUSTOM 1
+  #endif
 #endif
 
-#if TEMP_SENSOR_7 == 1000
-  #define TEMP_SENSOR_7_IS_CUSTOM 1
-#elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+#if TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
   #define TEMP_SENSOR_7_IS_DUMMY 1
 #elif TEMP_SENSOR_7 > 0
   #define TEMP_SENSOR_7_IS_THERMISTOR 1
-#elif !TEMP_SENSOR_7
-  #undef HEATER_7_MINTEMP
-  #undef HEATER_7_MAXTEMP
+  #if TEMP_SENSOR_7 == 1000
+    #define TEMP_SENSOR_7_IS_CUSTOM 1
+  #endif
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
@@ -555,12 +565,12 @@
   #define TEMP_SENSOR_REDUNDANT_IS_AD8495 1
 #elif TEMP_SENSOR_REDUNDANT == -1
   #define TEMP_SENSOR_REDUNDANT_IS_AD595 1
+#elif TEMP_SENSOR_REDUNDANT == 998 || TEMP_SENSOR_REDUNDANT == 999
+  #error "Dummy sensors are not supported for TEMP_SENSOR_REDUNDANT."
 #elif TEMP_SENSOR_REDUNDANT > 0
   #define TEMP_SENSOR_REDUNDANT_IS_THERMISTOR 1
   #if TEMP_SENSOR_REDUNDANT == 1000
     #define TEMP_SENSOR_REDUNDANT_IS_CUSTOM 1
-  #elif TEMP_SENSOR_REDUNDANT == 998 || TEMP_SENSOR_REDUNDANT == 999
-    #error "Dummy sensors are not supported for TEMP_SENSOR_REDUNDANT."
   #endif
 #endif
 
@@ -585,16 +595,13 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 == -1
   #define TEMP_SENSOR_3_IS_AD595 1
+#elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+  #define TEMP_SENSOR_3_IS_DUMMY 1
 #elif TEMP_SENSOR_3 > 0
   #define TEMP_SENSOR_3_IS_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
     #define TEMP_SENSOR_3_IS_CUSTOM 1
-  #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
-    #define TEMP_SENSOR_3_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_3_MINTEMP
-  #undef HEATER_3_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_4 == -4
@@ -605,16 +612,13 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 == -1
   #define TEMP_SENSOR_4_IS_AD595 1
+#elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+  #define TEMP_SENSOR_4_IS_DUMMY 1
 #elif TEMP_SENSOR_4 > 0
   #define TEMP_SENSOR_4_IS_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
     #define TEMP_SENSOR_4_IS_CUSTOM 1
-  #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
-    #define TEMP_SENSOR_4_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_4_MINTEMP
-  #undef HEATER_4_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_5 == -4
@@ -625,16 +629,13 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_5."
 #elif TEMP_SENSOR_5 == -1
   #define TEMP_SENSOR_5_IS_AD595 1
+#elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+  #define TEMP_SENSOR_5_IS_DUMMY 1
 #elif TEMP_SENSOR_5 > 0
   #define TEMP_SENSOR_5_IS_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
     #define TEMP_SENSOR_5_IS_CUSTOM 1
-  #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
-    #define TEMP_SENSOR_5_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_5_MINTEMP
-  #undef HEATER_5_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_6 == -4
@@ -645,16 +646,13 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_6."
 #elif TEMP_SENSOR_6 == -1
   #define TEMP_SENSOR_6_IS_AD595 1
+#elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+  #define TEMP_SENSOR_6_IS_DUMMY 1
 #elif TEMP_SENSOR_6 > 0
   #define TEMP_SENSOR_6_IS_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
     #define TEMP_SENSOR_6_IS_CUSTOM 1
-  #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
-    #define TEMP_SENSOR_6_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_6_MINTEMP
-  #undef HEATER_6_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_7 == -4
@@ -665,16 +663,13 @@
   #error "MAX7775 Thermocouples (-2) not supported for TEMP_SENSOR_7."
 #elif TEMP_SENSOR_7 == -1
   #define TEMP_SENSOR_7_IS_AD595 1
+#elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+  #define TEMP_SENSOR_7_IS_DUMMY 1
 #elif TEMP_SENSOR_7 > 0
   #define TEMP_SENSOR_7_IS_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
     #define TEMP_SENSOR_7_IS_CUSTOM 1
-  #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
-    #define TEMP_SENSOR_7_IS_DUMMY 1
   #endif
-#else
-  #undef HEATER_7_MINTEMP
-  #undef HEATER_7_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_BED == -4
@@ -685,12 +680,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -1
   #define TEMP_SENSOR_BED_IS_AD595 1
+#elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
+  #define TEMP_SENSOR_BED_IS_DUMMY 1
 #elif TEMP_SENSOR_BED > 0
   #define TEMP_SENSOR_BED_IS_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
     #define TEMP_SENSOR_BED_IS_CUSTOM 1
-  #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
-    #define TEMP_SENSOR_BED_IS_DUMMY 1
   #endif
 #else
   #undef THERMAL_PROTECTION_BED
@@ -707,12 +702,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -1
   #define TEMP_SENSOR_CHAMBER_IS_AD595 1
+#elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
+  #define TEMP_SENSOR_CHAMBER_IS_DUMMY 1
 #elif TEMP_SENSOR_CHAMBER > 0
   #define TEMP_SENSOR_CHAMBER_IS_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
     #define TEMP_SENSOR_CHAMBER_IS_CUSTOM 1
-  #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
-    #define TEMP_SENSOR_CHAMBER_IS_DUMMY 1
   #endif
 #else
   #undef THERMAL_PROTECTION_CHAMBER
@@ -728,12 +723,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_COOLER."
 #elif TEMP_SENSOR_COOLER == -1
   #define TEMP_SENSOR_COOLER_IS_AD595 1
+#elif TEMP_SENSOR_COOLER == 998 || TEMP_SENSOR_COOLER == 999
+  #define TEMP_SENSOR_COOLER_IS_DUMMY 1
 #elif TEMP_SENSOR_COOLER > 0
   #define TEMP_SENSOR_COOLER_IS_THERMISTOR 1
   #if TEMP_SENSOR_COOLER == 1000
     #define TEMP_SENSOR_COOLER_IS_CUSTOM 1
-  #elif TEMP_SENSOR_COOLER == 998 || TEMP_SENSOR_COOLER == 999
-    #define TEMP_SENSOR_COOLER_IS_DUMMY 1
   #endif
 #else
   #undef THERMAL_PROTECTION_COOLER
@@ -749,12 +744,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE == -1
   #define TEMP_SENSOR_PROBE_IS_AD595 1
+#elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
+  #define TEMP_SENSOR_PROBE_IS_DUMMY 1
 #elif TEMP_SENSOR_PROBE > 0
   #define TEMP_SENSOR_PROBE_IS_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
     #define TEMP_SENSOR_PROBE_IS_CUSTOM 1
-  #elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
-    #define TEMP_SENSOR_PROBE_IS_DUMMY 1
   #endif
 #endif
 
@@ -766,12 +761,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BOARD."
 #elif TEMP_SENSOR_BOARD == -1
   #define TEMP_SENSOR_BOARD_IS_AD595 1
+#elif TEMP_SENSOR_BOARD == 998 || TEMP_SENSOR_BOARD == 999
+  #define TEMP_SENSOR_BOARD_IS_DUMMY 1
 #elif TEMP_SENSOR_BOARD > 0
   #define TEMP_SENSOR_BOARD_IS_THERMISTOR 1
   #if TEMP_SENSOR_BOARD == 1000
     #define TEMP_SENSOR_BOARD_IS_CUSTOM 1
-  #elif TEMP_SENSOR_BOARD == 998 || TEMP_SENSOR_BOARD == 999
-    #define TEMP_SENSOR_BOARD_IS_DUMMY 1
   #endif
 #endif
 
@@ -817,7 +812,7 @@
   #undef MENU_ADDAUTOSTART
 #endif
 
-#if EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
+#if EITHER(HAS_MEDIA, SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
 #endif
 
@@ -835,7 +830,7 @@
   #define HAS_STATUS_MESSAGE_TIMEOUT 1
 #endif
 
-#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+#if HAS_MEDIA && SD_PROCEDURE_DEPTH
   #define HAS_MEDIA_SUBCALLS 1
 #endif
 
@@ -873,7 +868,7 @@
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
-#if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
+#if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
 #if DISPLAY_SLEEP_MINUTES || TOUCH_IDLE_SLEEP_MINS
@@ -1146,6 +1141,9 @@
   #endif
 #endif
 
+// Test for edge stepping on any axis
+#define AXIS_HAS_DEDGE(A) (ENABLED(EDGE_STEPPING) && AXIS_IS_TMC(A))
+
 #if ENABLED(DIRECT_STEPPING)
   #ifndef STEPPER_PAGES
     #define STEPPER_PAGES 16
@@ -1168,7 +1166,7 @@
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define _SDCARD_LCD          1
   #define _SDCARD_ONBOARD      2
   #define _SDCARD_CUSTOM_CABLE 3
@@ -1248,25 +1246,14 @@
 #endif
 
 // AVR are (usually) too limited in resources to store the configuration into the binary
-#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
+#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || EITHER(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif
 
-// Fan Kickstart
-#if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
-  #define FAN_KICKSTART_POWER 180
-#endif
-
-#if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
-  #define CALC_FAN_SPEED(f) (f ?: FAN_OFF_PWM)
-#else
-  #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
-#endif
-
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
-  #define HAS_SHAPING 1
+  #define HAS_ZV_SHAPING 1
 #endif
 
 // Toolchange Event G-code

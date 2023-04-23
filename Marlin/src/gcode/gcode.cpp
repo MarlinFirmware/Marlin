@@ -519,7 +519,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 20: M20(); break;                                    // M20: List SD card
         case 21: M21(); break;                                    // M21: Init SD card
         case 22: M22(); break;                                    // M22: Release SD card
@@ -545,7 +545,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
 
         case 928: M928(); break;                                  // M928: Start SD write
-      #endif // SDSUPPORT
+      #endif // HAS_MEDIA
 
       case 31: M31(); break;                                      // M31: Report time since the start of SD print or last M109
 
@@ -581,7 +581,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
-      #if HAS_EXTRUDERS
+      #if HAS_HOTEND
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -895,6 +895,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif
 
+      #if ENABLED(FT_MOTION)
+        case 493: M493(); break;                                  // M493: Fixed-Time Motion control
+      #endif
+
       case 500: M500(); break;                                    // M500: Store settings in EEPROM
       case 501: M501(); break;                                    // M501: Read settings from EEPROM
       case 502: M502(); break;                                    // M502: Revert to default settings
@@ -915,7 +919,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
 
@@ -933,8 +937,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
-      #if HAS_SHAPING
-        case 593: M593(); break;                                  // M593: Set Input Shaping parameters
+      #if HAS_ZV_SHAPING
+        case 593: M593(); break;                                  // M593: Input Shaping control
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -1057,7 +1061,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
-      #if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+      #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif
@@ -1077,7 +1081,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
       #endif
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 

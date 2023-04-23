@@ -160,7 +160,7 @@
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
 
     #define BTN_BACK                          52

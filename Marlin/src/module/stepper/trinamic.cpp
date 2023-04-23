@@ -1010,7 +1010,7 @@ void reset_trinamic_drivers() {
     TMC_ADV()
   #endif
 
-  stepper.set_directions();
+  stepper.apply_directions();
 }
 
 // TMC Slave Address Conflict Detection

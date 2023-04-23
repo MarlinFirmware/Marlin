@@ -185,7 +185,6 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
-    {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       #if NUM_AXES
       {

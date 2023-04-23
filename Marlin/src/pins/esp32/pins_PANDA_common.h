@@ -107,7 +107,7 @@
 //
 // SD Card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
@@ -123,6 +123,6 @@
   #define BTN_EN2                    EXP2_05_PIN
 
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
 #endif

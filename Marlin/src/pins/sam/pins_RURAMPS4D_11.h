@@ -145,7 +145,7 @@
 
 // SPI for MAX Thermocouple
 /*
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN              EXP1_08_PIN
 #else
   #define TEMP_0_CS_PIN                       49
@@ -230,12 +230,12 @@
   #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
 
   #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
   #elif HAS_U8GLIB_I2C_OLED
 
@@ -273,7 +273,7 @@
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
     #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
     //#define LCD_PINS_D4                     29  //?
-    //#define LCD_PINS_ENABLE                 27  //?
+    //#define LCD_PINS_EN                     27  //?
     //#define LCD_PINS_RS                     25  //?
     //#define BTN_EN1                         35  //?
     //#define BTN_EN2                         33  //?

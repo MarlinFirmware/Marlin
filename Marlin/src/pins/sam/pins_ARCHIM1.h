@@ -183,7 +183,7 @@
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
-  #define LCD_PINS_ENABLE                     24  // D23 PA14_RTS1
+  #define LCD_PINS_EN                         24  // D23 PA14_RTS1
   #define LCD_PINS_D4                         69  // D69 PA0_CANTX0
   #define LCD_PINS_D5                         54  // D54 PA16_SCK1
   #define LCD_PINS_D6                         68  // D68 PA1_CANRX0

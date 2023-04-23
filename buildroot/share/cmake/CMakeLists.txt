@@ -25,7 +25,7 @@ set(SCRIPT_BRANCH 1.0.2) #Set to wanted marlin-cmake release tag or branch
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
 
 	file(DOWNLOAD https://github.com/tohara/marlin-cmake/archive/${SCRIPT_BRANCH}.tar.gz
-				  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz SHOW_PROGRESS)
+	${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz SHOW_PROGRESS)
 
 	execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvf ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
@@ -36,7 +36,7 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
 endif()
 
 if(WIN32 AND NOT EXISTS ${CMAKE_BINARY_DIR}/make.exe)
-    file(COPY ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe DESTINATION ${CMAKE_BINARY_DIR}/)
+	file(COPY ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe DESTINATION ${CMAKE_BINARY_DIR}/)
 endif()
 
 set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules)
@@ -105,9 +105,9 @@ set(${PROJECT_NAME}_SRCS "${SOURCES};../../../Marlin/Marlin.ino")
 #    cmake .. -DUPLOAD_PORT=/dev/ttyACM0                             #
 #====================================================================#
 if(UPLOAD_PORT)
-    set(${PROJECT_NAME}_PORT ${UPLOAD_PORT})
+	set(${PROJECT_NAME}_PORT ${UPLOAD_PORT})
 else()
-    set(${PROJECT_NAME}_PORT /dev/ttyACM0)
+	set(${PROJECT_NAME}_PORT /dev/ttyACM0)
 endif()
 
 #====================================================================#

@@ -29,9 +29,8 @@
 
 #include "motion.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
-#endif
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
 
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
@@ -46,16 +45,6 @@
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
 #else
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
-#endif
-
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #define Z_POST_CLEARANCE HMI_data.z_after_homing
-#elif defined(Z_AFTER_HOMING)
-  #define Z_POST_CLEARANCE Z_AFTER_HOMING
-#elif defined(Z_HOMING_HEIGHT)
-  #define Z_POST_CLEARANCE Z_HOMING_HEIGHT
-#else
-  #define Z_POST_CLEARANCE 10
 #endif
 
 // In BLTOUCH HS mode, the probe travels in a deployed state.
@@ -170,11 +159,6 @@ public:
 
     #endif // !IS_KINEMATIC
 
-    static void move_z_after_probing() {
-      #ifdef Z_AFTER_PROBING
-        do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
-      #endif
-    }
     static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
@@ -192,11 +176,10 @@ public:
 
   static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
 
-  static void move_z_after_homing() {
-    #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
-      do_z_clearance(Z_POST_CLEARANCE, true);
-    #elif HAS_BED_PROBE
-      move_z_after_probing();
+  static void move_z_after_probing() {
+    DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
+    #ifdef Z_AFTER_PROBING
+      do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
     #endif
   }
 
@@ -347,7 +330,6 @@ public:
 
 private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
-  static void do_z_raise(const float z_raise);
   static float run_z_probe(const bool sanity_check=true);
 };
 

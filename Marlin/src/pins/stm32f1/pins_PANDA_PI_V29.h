@@ -171,7 +171,7 @@
   #define BTN_EN2                           PC5
 
   #define LCD_PINS_RS                       PC0
-  #define LCD_PINS_ENABLE                   PC2
+  #define LCD_PINS_EN                       PC2
   #define LCD_PINS_D4                       PC1
 #endif
 

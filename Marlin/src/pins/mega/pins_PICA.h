@@ -123,7 +123,7 @@
 #define SSR_PIN                                6
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -142,7 +142,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         33
-  #define LCD_PINS_ENABLE                     30
+  #define LCD_PINS_EN                         30
   #define LCD_PINS_D4                         35
   #define LCD_PINS_D5                         32
   #define LCD_PINS_D6                         37

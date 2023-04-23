@@ -238,7 +238,7 @@
 #define EXP2_07_PIN                         PB11
 #define EXP2_08_PIN                         -1    // RESET
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #ifndef SDCARD_CONNECTION
     #define SDCARD_CONNECTION            ONBOARD
   #endif
@@ -311,7 +311,7 @@
 
 #elif HAS_WIRED_LCD
 
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 

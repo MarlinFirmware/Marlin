@@ -43,10 +43,10 @@
   #include "game/game.h"
 #endif
 
-#if EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL)
+#if EITHER(HAS_MEDIA, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL)
   #define MACHINE_CAN_STOP 1
 #endif
-#if ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE)
+#if ANY(HAS_MEDIA, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE)
   #define MACHINE_CAN_PAUSE 1
 #endif
 
@@ -114,7 +114,7 @@ void menu_configuration();
 
   void custom_menus_main() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
@@ -234,7 +234,7 @@ void menu_configuration();
 
 void menu_main() {
   const bool busy = printingIsActive()
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       , card_detected = card.isMounted()
       , card_open = card_detected && card.isFileOpen()
     #endif
@@ -243,7 +243,7 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
     #define MEDIA_MENU_AT_TOP
   #endif
 
@@ -273,7 +273,7 @@ void menu_main() {
     #endif
   }
   else {
-    #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
+    #if BOTH(HAS_MEDIA, MEDIA_MENU_AT_TOP)
       // BEGIN MEDIA MENU
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
@@ -388,7 +388,7 @@ void menu_main() {
       GCODES_ITEM(MSG_SWITCH_PS_ON, F("M80"));
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
+  #if HAS_MEDIA && DISABLED(MEDIA_MENU_AT_TOP)
     // BEGIN MEDIA MENU
     #if ENABLED(MENU_ADDAUTOSTART)
       ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files

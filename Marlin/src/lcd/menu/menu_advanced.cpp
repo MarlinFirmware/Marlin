@@ -370,6 +370,7 @@ void menu_backlash();
     #if ENABLED(MPC_EDIT_MENU)
 
       #define _MPC_EDIT_ITEMS(N) \
+        MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
         EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
         EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0, 40); \
         EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0, 1); \
@@ -377,7 +378,6 @@ void menu_backlash();
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define MPC_EDIT_ITEMS(N) \
-          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
             thermalManager.temp_hotend[MenuItemBase::itemIndex].applyFanAdjustment(editable.decimal); \
