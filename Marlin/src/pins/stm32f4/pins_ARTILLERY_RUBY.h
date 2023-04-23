@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Artillery Ruby only supports 1 hotend / E stepper."
 #endif
 
