@@ -34,7 +34,7 @@
 
 void menu_backlash() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   editable.uint8 = backlash.get_correction_uint8();
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &editable.uint8, backlash.all_off, backlash.all_on, []{ backlash.set_correction_uint8(editable.uint8); });

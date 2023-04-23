@@ -1273,7 +1273,7 @@ void Goto_MainMenu() {
     DWIN_Frame_TitleCopy(2, 2, 26, 13);   // "Home" etc
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title(GET_TEXT_F(MSG_MAIN));
+      Draw_Title(GET_TEXT_F(MSG_MAIN_MENU));
     #else
       DWIN_Frame_TitleCopy(0, 2, 40, 11); // "Home"
     #endif

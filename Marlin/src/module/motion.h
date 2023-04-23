@@ -398,13 +398,21 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
-void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
+  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    #define Z_POST_CLEARANCE HMI_data.z_after_homing
+  #elif defined(Z_AFTER_HOMING)
+    #define Z_POST_CLEARANCE Z_AFTER_HOMING
+  #else
+    #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+  #endif
   void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
   void do_z_clearance_by(const_float_t zclear);
+  void do_move_after_z_homing();
+  inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 #else
   inline void do_z_clearance(float, bool=true, bool=false) {}
   inline void do_z_clearance_by(float) {}

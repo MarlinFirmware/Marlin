@@ -159,7 +159,7 @@
 //
 #define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION ONBOARD
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)

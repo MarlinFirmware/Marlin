@@ -57,7 +57,7 @@ namespace Language_ru {
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр. концевики");
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters
-  LSTR MSG_MAIN                             = _UxGT("Главное меню");
+  LSTR MSG_MAIN_MENU                        = _UxGT("Главное меню");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфигурация");
   LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS                 = _UxGT("Выключить двигатели");

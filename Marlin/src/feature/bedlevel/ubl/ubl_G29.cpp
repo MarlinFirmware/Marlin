@@ -883,7 +883,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
     do_blocking_move_to(
-      NUM_AXIS_LIST(
+      xyz_pos_t({
         0.5f * ((MESH_MAX_X) - (MESH_MIN_X)),
         0.5f * ((MESH_MAX_Y) - (MESH_MIN_Y)),
         MANUAL_PROBE_START_Z
@@ -905,7 +905,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
         #ifdef SAFE_BED_LEVELING_START_W
           , SAFE_BED_LEVELING_START_W
         #endif
-      )
+      })
       //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f
     );
     planner.synchronize();
@@ -1499,7 +1499,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       LOOP_L_N(i, 3) {
         SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), i + 1, GET_TEXT(MSG_LCD_TILTING_MESH)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_LCD_TILTING_MESH), i + 1));
 
         measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
         if ((abort_flag = isnan(measured_z))) break;
