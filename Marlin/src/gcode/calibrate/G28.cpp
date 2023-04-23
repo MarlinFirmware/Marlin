@@ -381,7 +381,7 @@ void GcodeSuite::G28() {
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
                    needU = _UNSAFE(U), needV = _UNSAFE(V), needW = _UNSAFE(W)
-                 ),
+                 )
                  NUM_AXIS_LIST_(              // Home each axis if needed or flagged
                    homeX = needX || parser.seen_test('X'),
                    homeY = needY || parser.seen_test('Y'),
@@ -389,12 +389,12 @@ void GcodeSuite::G28() {
                    homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
                    homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                    homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
-                 ),
+                 )
                  home_all = NUM_AXIS_GANG_(   // Home-all if all or none are flagged
                       homeX == homeX, && homeY == homeX, && homeZ == homeX,
                    && homeI == homeX, && homeJ == homeX, && homeK == homeX,
                    && homeU == homeX, && homeV == homeX, && homeW == homeX
-                 ),
+                 )
                  NUM_AXIS_LIST(
                    doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ,
                    doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK,

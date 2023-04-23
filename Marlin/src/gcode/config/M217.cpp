@@ -206,7 +206,6 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
         );
       }
       #endif
-    }
     #endif
 
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
