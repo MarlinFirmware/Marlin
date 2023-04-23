@@ -115,21 +115,20 @@
   extern Buzzer buzzer;
 
   // Buzz directly via the BEEPER pin tone queue
-  #define BUZZ(d,f) buzzer.tone(d, f)
+  #define BUZZ(V...) buzzer.tone(V)
 
 #elif USE_MARLINUI_BUZZER
 
   // Use MarlinUI for a buzzer on the LCD
-  #include "../lcd/marlinui.h"
-  #define BUZZ(d,f) ui.buzz(d,f)
+  #define BUZZ(V...) ui.buzz(V)
 
 #else
 
   // No buzz capability
-  #define BUZZ(d,f) NOOP
+  #define BUZZ(...) NOOP
 
 #endif
 
-#define ERR_BUZZ() BUZZ(400, 40);
-#define OKAY_BUZZ() do{ BUZZ(100, 659); BUZZ(10, 0); BUZZ(100, 698); }while(0)
-#define DONE_BUZZ(OK) do{ if (OK) OKAY_BUZZ(); else ERR_BUZZ(); }while(0)
+#define ERR_BUZZ() BUZZ(400, 40)
+#define OKAY_BUZZ() do{ BUZZ(100, 659); BUZZ(10); BUZZ(100, 698); }while(0)
+#define DONE_BUZZ(ok) do{ if (ok) OKAY_BUZZ(); else ERR_BUZZ(); }while(0)
