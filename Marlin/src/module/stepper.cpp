@@ -608,7 +608,7 @@ void Stepper::disable_all_steppers() {
  *   COREXZ: X_AXIS=A_AXIS and Z_AXIS=C_AXIS
  *   COREYZ: Y_AXIS=B_AXIS and Z_AXIS=C_AXIS
  */
-void Stepper::set_directions() {
+void Stepper::apply_directions() {
 
   DIR_WAIT_BEFORE();
 
