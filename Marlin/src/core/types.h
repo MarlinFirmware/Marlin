@@ -185,7 +185,9 @@ enum AxisEnum : uint8_t {
   #endif
 
   // A, B, and C are for DELTA, SCARA, etc.
-  , A_AXIS = X_AXIS
+  #if HAS_X_AXIS
+    , A_AXIS = X_AXIS
+  #endif
   #if HAS_Y_AXIS
     , B_AXIS = Y_AXIS
   #endif

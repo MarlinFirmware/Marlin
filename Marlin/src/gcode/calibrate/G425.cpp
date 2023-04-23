@@ -398,11 +398,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.obj_side[TOP]);
     #endif
-    #if ENABLED(CALIBRATION_MEASURE_LEFT)
-      SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
-    #endif
-    #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-      SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+    #if HAS_X_AXIS
+      #if ENABLED(CALIBRATION_MEASURE_LEFT)
+        SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_RIGHT)
+        SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+      #endif
     #endif
     #if HAS_Y_AXIS
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
