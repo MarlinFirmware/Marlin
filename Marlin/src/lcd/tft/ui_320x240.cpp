@@ -36,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -448,7 +448,7 @@ void MarlinUI::draw_status_screen() {
       #endif
       , menu_main, imgSettings
     );
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
       if (cm && pa)
         add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), STOP, imgCancel, true, COLOR_CONTROL_CANCEL);

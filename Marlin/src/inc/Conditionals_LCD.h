@@ -26,6 +26,10 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+#if ENABLED(SDSUPPORT)
+  #define HAS_MEDIA 1
+#endif
+
 // MKS_LCD12864A/B is a variant of MKS_MINI_12864
 #if EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define MKS_MINI_12864
@@ -217,7 +221,7 @@
   #define IS_TFTGLCD_PANEL 1
   #define IS_ULTIPANEL 1                    // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
-  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
+  #if HAS_MEDIA && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)

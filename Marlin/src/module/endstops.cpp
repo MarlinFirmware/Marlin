@@ -38,7 +38,7 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, HAS_MEDIA)
   #include "printcounter.h" // for print_job_timer
 #endif
 
@@ -352,7 +352,7 @@ void Endstops::event_handler() {
       )
     );
 
-    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, HAS_MEDIA)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
         quickstop_stepper();

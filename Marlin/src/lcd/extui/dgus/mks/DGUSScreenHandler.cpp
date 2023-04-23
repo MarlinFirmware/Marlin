@@ -47,7 +47,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   extern ExtUI::FileList filelist;
 #endif
 
@@ -140,7 +140,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #endif
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)BE16_P(val_ptr) + top_file;
@@ -262,7 +262,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     const uint16_t value = BE16_P(val_ptr);
     if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   uint8_t *tmp = (uint8_t*)val_ptr;

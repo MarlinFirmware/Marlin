@@ -91,7 +91,7 @@ static xyze_pos_t resume_position;
 
 fil_change_settings_t fc_settings[EXTRUDERS];
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../sd/cardreader.h"
 #endif
 
@@ -420,7 +420,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   ++did_pause_print;
 
   // Pause the print job and timer
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     const bool was_sd_printing = IS_SD_PRINTING();
     if (was_sd_printing) {
       card.pauseSDPrint();
@@ -701,7 +701,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   // Resume the print job timer if it was running
   if (print_job_timer.isPaused()) print_job_timer.start();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     if (did_pause_print) {
       --did_pause_print;
       card.startOrResumeFilePrinting();

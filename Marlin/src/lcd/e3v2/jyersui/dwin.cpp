@@ -4389,7 +4389,7 @@ void CrealityDWINClass::Print_Screen_Control() {
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
-              TERN_(SDSUPPORT, queue.inject(F("M24")));
+              TERN_(HAS_MEDIA, queue.inject(F("M24")));
             #endif
           }
           else {
@@ -4427,7 +4427,7 @@ void CrealityDWINClass::Popup_Control() {
             #endif
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               Popup_Handler(Home, true);
-              #if ENABLED(SDSUPPORT)
+              #if HAS_MEDIA
                 if (IS_SD_PRINTING()) card.pauseSDPrint();
               #endif
               planner.synchronize();
