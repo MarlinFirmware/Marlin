@@ -500,7 +500,6 @@ class MenuItem_bool : public MenuEditItemBase {
   MenuItemBase::setRAlignedString(nullptr);                               \
 } while(0)
 
-
 #define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \
     ui.push_current_screen();                                \

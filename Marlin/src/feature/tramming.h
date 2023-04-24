@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../module/probe.h"
 
-#if ENABLED(TRAMMING_SCREW_THREAD) && (!WITHIN(TRAMMING_SCREW_THREAD, 30, 51) || TRAMMING_SCREW_THREAD % 10 > 1)
+#if defined(TRAMMING_SCREW_THREAD) && !(WITHIN(TRAMMING_SCREW_THREAD, 30, 51) && TRAMMING_SCREW_THREAD % 10 < 2)
   #error "TRAMMING_SCREW_THREAD must be equal to 30, 31, 40, 41, 50, or 51."
 #endif
 

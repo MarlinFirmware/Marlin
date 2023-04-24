@@ -67,7 +67,7 @@ void GcodeSuite::G35() {
 
   #ifdef TRAMMING_SCREW_THREAD
     const uint8_t screw_thread = parser.byteval('S', TRAMMING_SCREW_THREAD);
-    if (!WITHIN(screw_thread, 30, 51) || screw_thread % 10 > 1) {
+    if (!(WITHIN(screw_thread, 30, 51) && screw_thread % 10 < 2)) {
       SERIAL_ECHOLNPGM("?(S)crew thread must be 30, 31, 40, 41, 50, or 51.");
       return;
     }
@@ -84,9 +84,7 @@ void GcodeSuite::G35() {
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   probe.use_probing_tool();
 
@@ -140,7 +138,6 @@ void GcodeSuite::G35() {
       const float diff_mm = z_measured[i] - z_measured[0];
       #ifdef TRAMMING_SCREW_THREAD
         const float diff_turns_abs = ABS(diff_mm) < 0.001f ? 0 : ABS(diff_mm) / threads_factor[(screw_thread - 30) / 10];
-    
         const int full_turns = trunc(diff_turns_abs);
         const float decimal_part = diff_turns_abs - float(full_turns);
         const int degrees = trunc(decimal_part * 360.0f);

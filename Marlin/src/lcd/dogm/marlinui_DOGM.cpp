@@ -421,12 +421,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         int pad = (LCD_WIDTH - plen - vlen) / 2;
         for (;pad && n;pad--, n--) lcd_put_u8str(F(" "));
       }
-    
+
       if (plen) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n); // this put deals in characters
       n *= MENU_FONT_WIDTH; // dealing with pixels from now on
       if (vlen) n -= lcd_put_u8str_max(vstr, n);
       while (n > 0) n -= lcd_put_u8str(F(" ")); // this put !!with the same name!! deals in pixels
-      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1)*MENU_FONT_WIDTH); };
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1) * MENU_FONT_WIDTH); };
     }
   }
 
@@ -439,7 +439,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
       n *= MENU_FONT_WIDTH;
       while (n > 0) n -= lcd_put_u8str(F(" "));
-      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1 - post_char_len)*MENU_FONT_WIDTH); }
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1 - post_char_len) * MENU_FONT_WIDTH); }
       if (post_char_len) lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_u8str(F(" "));
     }

@@ -241,7 +241,7 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
   message_ptrs[0] = fmsg ?: GET_TEXT_F(MSG_MOVING);
   push_current_screen();
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT/2 -1, message_ptrs[0]);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, message_ptrs[0]);
   });
   defer_status_screen();
   planner.synchronize(); // idle() is called until moves complete
@@ -249,16 +249,14 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
 }
 
 /**
-* Displays screen with custom message.
-*   Message is automatically wrapped to fit screen width.
-*   Line breaks can be forced by "\n"
-*   Takes up to 2 FSTR_P (str1, str2) that are seamlessly joined
-*/
-void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/,FSTR_P const str2/*=nullptr*/) {
+ * Displays screen with custom message.
+ *   Message is automatically wrapped to fit screen width.
+ *   Line breaks can be forced by "\n"
+ *   Takes up to 2 FSTR_P (str1, str2) that are seamlessly joined
+ */
+void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/, FSTR_P const str2/*=nullptr*/) {
 
-  static uint8_t ptr_count;
-  ptr_count = 0;
-
+  uint8_t ptr_count = 0;
   if (str1 != nullptr) message_ptrs[ptr_count++] = str1;
   if (str2 != nullptr) message_ptrs[ptr_count++] = str2;
 
@@ -266,32 +264,31 @@ void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/,FSTR_P const st
   goto_screen([]{
     if (should_draw()) {
 
-      uint8_t item_line_pos = 0;
-      uint8_t line_to_draw = 0;
+      uint8_t item_line_pos = 0, line_to_draw = 0;
 
-      for (uint8_t p=0; p < ptr_count;p++) {
+      for (uint8_t p = 0; p < ptr_count; p++) {
 
-        const char * str = FTOP(message_ptrs[p]);
+        PGM_P const str = FTOP(message_ptrs[p]);
         const uint8_t str_len = strlen_P(str);
 
-        for (uint8_t i=0; i<=str_len; i++) {
-          const char c = str[i];
+        for (uint8_t i = 0; i <= str_len; i++) {
+          const char c = pgm_read_byte(&str[i]);
 
-          if (c == '\n' || item_line_pos == LCD_WIDTH || (c == '\0' && p == ptr_count-1)) {
+          if (c == '\n' || item_line_pos == LCD_WIDTH || (c == '\0' && p == ptr_count - 1)) {
             item_line_buf[item_line_pos] = '\0';
-            const uint8_t lcd_line = LCD_HEIGHT/2 - 1 + line_to_draw;
-            if (lcd_line < LCD_HEIGHT) { // implementation limited
+            const uint8_t lcd_line = LCD_HEIGHT / 2 - 1 + line_to_draw;
+            if (lcd_line < LCD_HEIGHT)  // implementation limited
               MenuItem_static::draw(lcd_line, FPSTR(item_line_buf));
-            }
             line_to_draw++;
             item_line_pos = 0;
-          } else if (c != '\0') {
+          }
+          else if (c != '\0') {
             item_line_buf[item_line_pos] = c;
             item_line_pos++;
           }
         }
       }
-    };
+    }
   });
 }
 

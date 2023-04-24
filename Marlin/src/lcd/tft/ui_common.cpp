@@ -155,11 +155,10 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
   #endif
 
   uint16_t r_offset = TFT_WIDTH;
-  if (image != noImage) {
+  if (image != noImage)
     tft.add_image(r_offset -= MENU_ITEM_ICON_SPACE, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  } else {
+  else
     r_offset -= MENU_TEXT_X_OFFSET;
-  }
 
   uint16_t max_width;
   if (itemRAlignedStringC) {
@@ -198,7 +197,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
   if (vstr) tft_string.add(vstr);
 
-  uint16_t l_offset = style == SS_LEFT ? MENU_TEXT_X_OFFSET : tft_string.center(TFT_WIDTH);
+  const uint16_t l_offset = style == SS_LEFT ? MENU_TEXT_X_OFFSET : tft_string.center(TFT_WIDTH);
   tft.add_text(l_offset , MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, _MAX(r_offset - l_offset - MENU_TEXT_X_OFFSET, 1));
 }
 
