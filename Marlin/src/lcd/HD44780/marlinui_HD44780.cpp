@@ -1181,7 +1181,7 @@ void MarlinUI::draw_status_screen() {
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-    uint8_t n = LCD_WIDTH-1;
+    uint8_t n = LCD_WIDTH - 1;
     n -= lcd_put_u8str(0, 1, ftpl, itemIndex, itemStringC, itemStringF, n);
     if (value) {
       lcd_put_u8str(F(":")); n--;

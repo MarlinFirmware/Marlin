@@ -82,9 +82,7 @@ void GcodeSuite::G35() {
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   probe.use_probing_tool();
 
@@ -108,7 +106,7 @@ void GcodeSuite::G35() {
 
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
       SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
       err_break = true;
@@ -117,7 +115,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
+      DEBUG_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
@@ -138,8 +136,8 @@ void GcodeSuite::G35() {
       const int minutes = trunc(decimal_part * 60.0f);
 
       SERIAL_ECHOPGM("Turn ");
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? F("CCW") : F("CW"), " by ", ABS(full_turns), " turns");
       if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
       if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
       SERIAL_EOL();
