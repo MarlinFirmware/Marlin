@@ -1141,7 +1141,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, row);
     const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
                  vlen = vstr ? utf8_strlen(vstr) : 0,
-                 rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) +1 : 0;
+                 rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;
     int8_t n = _MAX(LCD_WIDTH - rlen, 0);
     if (style & SS_CENTER) {
       int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
@@ -1150,7 +1150,7 @@ void MarlinUI::draw_status_screen() {
     if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     if (vlen) n -= lcd_put_u8str_max(vstr, n);
     for (; n; --n) lcd_put_u8str(F(" "));
-    if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, LCD_WIDTH-1); };
+    if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, LCD_WIDTH - 1); };
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
