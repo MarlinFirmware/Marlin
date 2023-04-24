@@ -293,7 +293,7 @@ namespace Language_pt_br {
   LSTR MSG_STOP_PRINT                     = _UxGT("Parar impressão");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Imprimindo objeto");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancelar Objeto");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Recuperar Impressão");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Imprimir do SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Sem cartão SD");

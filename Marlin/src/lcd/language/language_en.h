@@ -30,7 +30,7 @@
  * Substitutions are applied for the following characters when used in menu items titles:
  *
  *   $ displays an inserted string
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -173,7 +173,7 @@ namespace Language_en {
   LSTR MSG_TW_MENU_MODE_MEASURE           = _UxGT("Menu mode: Measure");
   LSTR MSG_TW_MENU_MODE_DETAIL            = _UxGT("Menu mode: Pt Detail");
   LSTR MSG_TW_UNITS_MM                    = _UxGT("Unit: mm");
-  LSTR MSG_TW_UNITS_SCREW                 = _UxGT("Unit: M= screw turns");
+  LSTR MSG_TW_UNITS_SCREW                 = _UxGT("Unit: M{ screw turns");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Next Corner");
   LSTR MSG_MESH_EDITOR                    = _UxGT("Mesh Editor");
   LSTR MSG_MESH_VIEWER                    = _UxGT("Mesh Viewer");
@@ -303,7 +303,7 @@ namespace Language_en {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Violet");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("White");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Default");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Channel =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Channel {");
   LSTR MSG_LEDS2                          = _UxGT("Lights #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Light #2 Presets");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Brightness");
@@ -509,7 +509,7 @@ namespace Language_en {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Start Host Print");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Printing Object");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancel Object");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Object =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Object {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continue Print Job");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Print from ") MEDIA_TYPE_EN;
     LSTR MSG_TURN_OFF                     = _UxGT("Turn off the printer");
@@ -518,7 +518,7 @@ namespace Language_en {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Host Start");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Print Obj");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancel Obj");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Obj =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Obj {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continue Job");
     LSTR MSG_MEDIA_MENU                   = MEDIA_TYPE_EN _UxGT(" Print");
     LSTR MSG_TURN_OFF                     = _UxGT("Turn off now");
@@ -759,7 +759,7 @@ namespace Language_en {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Remove, click");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");

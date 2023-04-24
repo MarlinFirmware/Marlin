@@ -280,7 +280,7 @@ namespace Language_tr {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Menekşe");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Beyaz");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Varsayılan");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Işıklar #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Işık #2 Ön Ayarları");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Parlaklık");
@@ -479,7 +479,7 @@ namespace Language_tr {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");
     LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
     LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
@@ -488,7 +488,7 @@ namespace Language_tr {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Host Başlatma");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Nesneyi Yazdır");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("İşe Devam Et");
     LSTR MSG_MEDIA_MENU                   = MEDIA_TYPE_EN _UxGT(" Yazdır");
     LSTR MSG_TURN_OFF                     = _UxGT("Şimdi kapat");
@@ -720,7 +720,7 @@ namespace Language_tr {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Kaldır, tıkla");
 
   LSTR MSG_MIX                            = _UxGT("Karışım");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Bileşen =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Bileşen {");
   LSTR MSG_MIXER                          = _UxGT("Karıştırıcı");
   LSTR MSG_GRADIENT                       = _UxGT("Gradyan");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Tam Gradyan");

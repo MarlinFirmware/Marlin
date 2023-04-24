@@ -338,7 +338,7 @@ namespace Language_es {
   LSTR MSG_STOP_PRINT                     = _UxGT("Detener impresión");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Imprimiendo Objeto");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancelar Objeto");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Rec. Fallo electrico");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Imprim. desde SD/FD");
   LSTR MSG_NO_MEDIA                       = _UxGT("SD/FD no presente");
@@ -510,7 +510,7 @@ namespace Language_es {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retirar, y pulsar");
 
   LSTR MSG_MIX                            = _UxGT("Mezcla");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente {");
   LSTR MSG_MIXER                          = _UxGT("Miezclador");
   LSTR MSG_GRADIENT                       = _UxGT("Degradado");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Degradado Total");
