@@ -962,7 +962,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
 
@@ -1003,7 +1003,7 @@ void MarlinUI::draw_status_screen() {
   // Draw a generic menu item with pre_char (if selected) and post_char
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
     if (!PanelDetected) return;
-    uint8_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;   //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method in TFTGLCD is UNTESTED fallback  !!! itemRAlignedStringC should be aligned to the right when fully implemented.
+    const uint8_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0; // UNTESTED! itemRAlignedStringC should be aligned to the right.
     lcd_moveto(0, row);
     lcd.write(sel ? pre_char : ' ');
     uint8_t n = LCD_WIDTH - 2;

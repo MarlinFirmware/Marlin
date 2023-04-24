@@ -311,7 +311,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -365,7 +365,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.fg = Color_White;
 
       dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
-      if (itemRAlignedStringC) { dwin_string.add(' '); dwin_string.add(itemRAlignedStringC); } //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method of e3v2 is UNTESTED fallback !!! itemRAlignedStringC should be aligned to the right when fully implemented.
+      if (itemRAlignedStringC) { dwin_string.add(' '); dwin_string.add(itemRAlignedStringC); } // UNTESTED! itemRAlignedStringC should be aligned to the right.
 
       pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
       while (--n > 1) dwin_string.add(' ');

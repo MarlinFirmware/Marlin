@@ -188,7 +188,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 }
 
 // Draw a static item with no left-right margin required. Centered by default.
-void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
 
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
