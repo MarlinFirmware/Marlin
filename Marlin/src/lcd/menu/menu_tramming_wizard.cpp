@@ -234,10 +234,8 @@ static void menu_tramming_wizard() {
       );
   }
 
-  if (!reference_valid) {
-    ACTION_ITEM_S_F("=", F("Z $ 0"), []{ _set_reference_z(0.0f); _menu_jump_to_top(); });
-    // Substitution hack to get "=" into the item title. Using ACTION_ITEM_F doesn't work. The substitution is applied no matter the item type.
-  }
+  if (!reference_valid)
+    ACTION_ITEM_F(F("Z = 0"), []{ _set_reference_z(0.0f); _menu_jump_to_top(); });
 
   STATIC_ITEM(MSG_MENU_DIVIDER);
 
