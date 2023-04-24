@@ -53,6 +53,10 @@ bool Power::psu_on;
     #include "controllerfan.h"
   #endif
 
+  #if (ANY(LASER_FEATURE, SPINDLE_FEATURE))
+    #include "spindle_laser.h"
+  #endif
+
   millis_t Power::lastPowerOn;
 #endif
 
@@ -196,6 +200,10 @@ void Power::power_off() {
       if (controllerFan.state()) return true;
     #endif
 
+    #if (ANY(LASER_FEATURE, SPINDLE_FEATURE))
+      if (TERN0(AUTO_POWER_SPINDLE_LASER, cutter.enabled())) return true;
+    #endif
+    
     if (TERN0(AUTO_POWER_CHAMBER_FAN, thermalManager.chamberfan_speed))
       return true;
 
