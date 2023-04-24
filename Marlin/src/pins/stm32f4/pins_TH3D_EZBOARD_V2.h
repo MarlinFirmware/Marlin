@@ -24,7 +24,7 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "TH3D EZBoard only supports 1 hotend / E stepper."
 #endif
 
@@ -233,7 +233,7 @@
     #define BEEPER_PIN               EXP1_01_PIN  // Not connected in dev board
   #endif
   #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   //#define KILL_PIN                        -1
 

@@ -49,7 +49,7 @@ namespace Language_es {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Menú principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ajustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automático");

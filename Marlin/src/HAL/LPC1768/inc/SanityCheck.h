@@ -77,6 +77,10 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
   #endif
 #endif
 
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not current available for HAL/LPC1768."
+#endif
+
 static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported on LPC176x.");
 
 /**
@@ -197,7 +201,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)
     #define PIN_IS_SDA0(P) (P##_PIN == P0_27)
     #define IS_SCL0(P)     (P == P0_28)
-    #if ENABLED(SDSUPPORT) && PIN_IS_SDA0(SD_DETECT)
+    #if HAS_MEDIA && PIN_IS_SDA0(SD_DETECT)
       #error "SDA0 overlaps with SD_DETECT_PIN!"
     #elif PIN_IS_SDA0(E0_AUTO_FAN)
       #error "SDA0 overlaps with E0_AUTO_FAN_PIN!"

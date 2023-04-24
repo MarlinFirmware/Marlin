@@ -46,7 +46,7 @@ namespace Language_zh_TW {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB啟動失敗");  // "USB start failed"
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("擋塊");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("軟體擋塊");    // "Soft Endstops"
-  LSTR MSG_MAIN                           = _UxGT("主選單");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主選單");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("進階設置");   // "Advanced Settings"
   LSTR MSG_CONFIGURATION                  = _UxGT("設置");    //Configuration
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自動開始");     // "Autostart"

@@ -72,7 +72,7 @@
 #define TEMP_BOARD_PIN                         5  // Analog Input (OnBoard thermistor beta 3950)
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       53
@@ -103,7 +103,7 @@
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
-  #define LCD_PINS_ENABLE                     43
+  #define LCD_PINS_EN                         43
   #define LCD_PINS_D4                         44
   #define LCD_PINS_D5                         45
   #define LCD_PINS_D6                         46
@@ -147,7 +147,7 @@
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
     #define LCD_PINS_D4                       29
-    #define LCD_PINS_ENABLE                   27
+    #define LCD_PINS_EN                       27
     #define LCD_PINS_RS                       25
 
     #define BTN_EN1                           35

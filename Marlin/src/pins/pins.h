@@ -205,6 +205,10 @@
   #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
 #elif MB(PXMALION_CORE_I3)
   #include "ramps/pins_PXMALION_CORE_I3.h"      // ATmega2560                             env:mega2560
+#elif MB(PANOWIN_CUTLASS)
+  #include "ramps/pins_PANOWIN_CUTLASS.h"       // ATmega2560                             env:mega2560ext
+#elif MB(KODAMA_BARDO)
+  #include "ramps/pins_KODAMA_BARDO.h"          // ATmega2560                             env:mega2560ext
 
 //
 // RAMBo and derivatives
@@ -628,7 +632,7 @@
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
 #elif MB(SOVOL_V131)
-  #include "stm32f1/pins_SOVOL_V131.h"          // GD32F1                                 env:GD32F103RET6_sovol_maple
+  #include "gd32f1/pins_SOVOL_V131.h"           // GD32F1                                 env:GD32F103RET6_sovol_maple
 #elif MB(TRIGORILLA_V006)
   #include "gd32f1/pins_TRIGORILLA_V006.h"      // GD32F103                               env:trigorilla_v006
 

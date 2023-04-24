@@ -54,7 +54,7 @@ namespace Language_hu {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Túlfolyás");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Végállás"); // Maximum 8 karakter
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Szoft. végállás");
-  LSTR MSG_MAIN                           = _UxGT("<Fömenü>");
+  LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("További beállítások");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguráció");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Fájl auto. futtatás");

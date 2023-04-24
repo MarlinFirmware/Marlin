@@ -54,7 +54,7 @@ namespace Language_cz {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");
-  LSTR MSG_MAIN                           = _UxGT("Hlavní nabídka");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hlavní nabídka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Další nastavení");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurace");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");

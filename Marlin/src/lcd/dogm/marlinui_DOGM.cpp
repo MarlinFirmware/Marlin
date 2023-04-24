@@ -56,7 +56,7 @@
 #include "../../module/printcounter.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../libs/duration_t.h"
 #endif
 
@@ -411,22 +411,39 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+
     if (mark_as_selected(row, style & SS_INVERT)) {
-      const int plen = ftpl ? calculateWidth(ftpl) / (MENU_FONT_WIDTH) : 0,
-                vlen = vstr ? utf8_strlen(vstr) : 0,
-                rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;
-      pixel_len_t n = _MAX(LCD_WIDTH - rlen, 0); // pixel width of left string allowed
-      if (style & SS_CENTER) {
-        int pad = (LCD_WIDTH - plen - vlen) / 2;
-        for (;pad && n;pad--, n--) lcd_put_u8str(F(" "));
+      pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
+
+      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+      const int pwide = ftpl ? calculateWidth(ftpl) : 0,
+                vlen = vstr ? utf8_strlen(vstr) : 0;
+      int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
+
+      // SS_CENTER: Pad with half of the unused space first
+      if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
+
+      // Draw as much of the label as fits
+      if (pwide) {
+        const pixel_len_t expw = n;
+        n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+        pad -= (expw - n - pwide) / (MENU_FONT_WIDTH);  // Reduce the padding
       }
 
-      if (plen) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n); // this put deals in characters
-      n *= MENU_FONT_WIDTH; // dealing with pixels from now on
-      if (vlen) n -= lcd_put_u8str_max(vstr, n);
-      while (n > 0) n -= lcd_put_u8str(F(" ")); // this put !!with the same name!! deals in pixels
-      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1) * (MENU_FONT_WIDTH)); };
+      if (vlen) {
+        // SS_FULL: Pad with enough space to justify the value
+        if (full && !center && n > MENU_FONT_WIDTH) {
+          // Move the leading colon from the value to the label
+          if (*vstr == ':') { n -= lcd_put_u8str(F(":")); vstr++; }
+          // Move spaces to the padding
+          while (*vstr == ' ') { vstr++; pad++; }
+          // Pad in-between
+          for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
+        }
+        n -= lcd_put_u8str_max(vstr, n);
+      }
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
     }
   }
 
@@ -535,7 +552,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -547,7 +564,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       }
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
