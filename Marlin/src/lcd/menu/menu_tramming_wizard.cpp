@@ -118,7 +118,7 @@ static void _set_reference_z(const_float_t z) {
 
 static bool _probe_single_point() {
 
-  bool probing_reference = !reference_valid;
+  const bool probing_reference = !reference_valid;
 
   if (probing_reference)
     ui.goto_message_screen(GET_TEXT_F(MSG_TW_MEASURING_REF), FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));

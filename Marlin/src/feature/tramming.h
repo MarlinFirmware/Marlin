@@ -54,7 +54,6 @@ static_assert(WITHIN(G35_PROBE_COUNT, 3, 9), "TRAMMING_POINT_XY requires between
 static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_NAME_s for all TRAMMING_POINT_XY entries.");
 
 #define _TRAM_NAME_PTR(N) point_name_##N[]
-extern const char REPLIST_1(_NR_TRAM_NAMES, _TRAM_NAME_PTR);
 
 #define _CHECK_TRAM_POINT(N) static_assert(Probe::build_time::can_reach(tramming_points[N]), "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.");
 REPEAT(_NR_TRAM_NAMES, _CHECK_TRAM_POINT)

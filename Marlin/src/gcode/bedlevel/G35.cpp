@@ -108,7 +108,7 @@ void GcodeSuite::G35() {
 
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
       SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
       err_break = true;
@@ -117,7 +117,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
+      DEBUG_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
@@ -130,30 +130,27 @@ void GcodeSuite::G35() {
       const float threads_factor[] = { 0.5, 0.7, 0.8 };
     #endif
 
-    SERIAL_ECHOLNPGM(F("G35 Bed Tramming Report"), "");
-    SERIAL_ECHOLNPGM(F("Reference point: "), (PGM_P)pgm_read_ptr(&tramming_point_name[0]));
+    SERIAL_ECHOLNPGM("G35 Bed Tramming Report");
+    SERIAL_ECHOLNPGM("Reference point: ", FPSTR(pgm_read_ptr(&tramming_point_name[0])));
 
     // Calculate adjusts
     LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
       const float diff_mm = z_measured[i] - z_measured[0];
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM(": Diff ", diff_mm, "mm");
       #ifdef TRAMMING_SCREW_THREAD
         const float diff_turns_abs = ABS(diff_mm) < 0.001f ? 0 : ABS(diff_mm) / threads_factor[(screw_thread - 30) / 10];
-        const int full_turns = trunc(diff_turns_abs);
+        const int full_turns = int(diff_turns_abs);
         const float decimal_part = diff_turns_abs - float(full_turns);
-        const int degrees = trunc(decimal_part * 360.0f);
-      #endif
-
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPGM(F(": Diff "), diff_mm, F("mm"));
-      #ifdef TRAMMING_SCREW_THREAD
-        SERIAL_ECHOPGM(F(", Turn "), (screw_thread & 1) == (diff_mm > 0) ? F("CCW") : F("CW"), F(" by "), full_turns, (" turns"));
-        if (degrees) SERIAL_ECHOPGM(F(" and "), degrees, F(" degrees"));
+        const int degrees = int(decimal_part * 360.0f);
+        SERIAL_ECHOPGM(", Turn ", (screw_thread & 1) == (diff_mm > 0) ? F("CCW") : F("CW"), " by ", full_turns, " turns");
+        if (degrees) SERIAL_ECHOPGM(" and ", degrees, " degrees");
       #endif
       SERIAL_EOL();
     }
   }
   else
-    SERIAL_ECHOLNPGM(F("G35 aborted."), "");
+    SERIAL_ECHOLNPGM("G35 aborted.");
 
   // Restore the active tool after homing
   probe.use_probing_tool(false);
