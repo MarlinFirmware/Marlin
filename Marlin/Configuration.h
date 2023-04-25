@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -546,7 +546,7 @@
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
 #define TEMP_SENSOR_BOARD 0
-#define TEMP_SENSOR_SOC 0
+#define TEMP_SENSOR_SOC 0  // N.B. any value, not 0, to enable it.
 #define TEMP_SENSOR_REDUNDANT 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
