@@ -42,6 +42,9 @@
 #if ABL_PLANAR
   #include "../../../libs/vector_3.h"
 #endif
+#if ENABLED(BD_SENSOR_PROBE_NO_STOP)
+  #include "../../../feature/bedlevel/bdl/bdl.h"
+#endif
 
 #include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
@@ -699,9 +702,53 @@ G29_TYPE GcodeSuite::G29() {
 
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
-
+        #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
+          if(PR_INNER_VAR == inStart){
+            char tmp_1[32];
+            abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+            for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop;  PR_INNER_VAR += inInc);   
+            PR_INNER_VAR -= inInc;      
+            abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
+            abl.probePos.x = abl.probePos.x - probe.offset_xy.x;
+            abl.probePos.y = abl.probePos.y - probe.offset_xy.y;
+            sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F"), int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
+                                                      int(abl.probePos.y), int(abl.probePos.y * 10) % 10,feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+            gcode.process_subcommands_now(tmp_1);
+            SERIAL_ECHOLNPGM("destX: ", abl.probePos.x, " Y:", abl.probePos.y);
+            PR_INNER_VAR = inStart;
+            abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();                         
+            
+          }
+          
+          #if ENABLED(PROBE_Y_FIRST)
+          if(inInc>0){
+            while(planner.get_axis_position_mm(Y_AXIS)<(abl.probePos.y-probe.offset_xy.y)){
+              idle_no_sleep();
+            }
+          }
+          else{
+            while(planner.get_axis_position_mm(Y_AXIS)>(abl.probePos.y-probe.offset_xy.y)){
+              idle_no_sleep();
+            }
+          }
+          SERIAL_ECHOLNPGM("y_cur ", planner.get_axis_position_mm(Y_AXIS));
+          #else
+          if(inInc>0){
+            while(planner.get_axis_position_mm(X_AXIS)<(abl.probePos.x-probe.offset_xy.x)){
+              idle_no_sleep();
+            }
+          }
+          else{
+            while(planner.get_axis_position_mm(X_AXIS)>(abl.probePos.x-probe.offset_xy.x)){
+              idle_no_sleep();
+            }
+          }
+          SERIAL_ECHOLNPGM("x_cur ", planner.get_axis_position_mm(X_AXIS));
+          #endif     
+          abl.measured_z = current_position.z - bdl.read();
+        #else
           abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
-
+        #endif
           if (isnan(abl.measured_z)) {
             set_bed_leveling_enabled(abl.reenable);
             break; // Breaks out of both loops
