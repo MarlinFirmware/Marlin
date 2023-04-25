@@ -186,7 +186,7 @@
 // SPI1(PA7) & SPI3(PB5) not available
 #define SPI_DEVICE                             2
 
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   #define SD_SCK_PIN                        PB13  // SPI2 ok
   #define SD_MISO_PIN                       PB14  // SPI2 ok
   #define SD_MOSI_PIN                       PB15  // SPI2 ok

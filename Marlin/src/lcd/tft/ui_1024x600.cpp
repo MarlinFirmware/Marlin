@@ -36,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -228,25 +228,25 @@ void MarlinUI::draw_status_screen() {
   for (i = 0 ; i < ITEMS_COUNT; i++) {
     x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
     switch (i) {
-      #ifdef ITEM_E0
+      #if HAS_EXTRUDERS
         case ITEM_E0: draw_heater_status(x, y, H_E0); break;
       #endif
-      #ifdef ITEM_E1
+      #if HAS_MULTI_HOTEND
         case ITEM_E1: draw_heater_status(x, y, H_E1); break;
       #endif
-      #ifdef ITEM_E2
+      #if HOTENDS > 2
         case ITEM_E2: draw_heater_status(x, y, H_E2); break;
       #endif
-      #ifdef ITEM_BED
+      #if HAS_HEATED_BED
         case ITEM_BED: draw_heater_status(x, y, H_BED); break;
       #endif
-      #ifdef ITEM_CHAMBER
+      #if HAS_TEMP_CHAMBER
         case ITEM_CHAMBER: draw_heater_status(x, y, H_CHAMBER); break;
       #endif
-      #ifdef ITEM_COOLER
+      #if HAS_TEMP_COOLER
         case ITEM_COOLER: draw_heater_status(x, y, H_COOLER); break;
       #endif
-      #ifdef ITEM_FAN
+      #if HAS_FAN
         case ITEM_FAN: draw_fan_status(x, y, blink); break;
       #endif
     }
@@ -326,7 +326,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(900, y, menu_main, imgSettings);
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
       if (cm && pa)
         add_control(12, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);

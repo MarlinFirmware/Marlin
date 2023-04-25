@@ -39,7 +39,7 @@
 #include "../../../module/printcounter.h"
 #include "../../../module/planner.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../../libs/duration_t.h"
 #endif
 

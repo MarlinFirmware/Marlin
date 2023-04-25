@@ -145,8 +145,8 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-  #if DISABLED(SDIO_SUPPORT)
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                            PC11
     #define SD_SCK_PIN                      PC12

@@ -53,7 +53,7 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_SS)
+  #if HAS_MEDIA && PIN_EXISTS(SD_SS)
     OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
 }

@@ -83,7 +83,7 @@
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       -1
 #else
   #define TEMP_0_CS_PIN                       -1

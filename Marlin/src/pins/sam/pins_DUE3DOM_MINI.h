@@ -72,7 +72,7 @@
 #define TEMP_BOARD_PIN                         5  // Analog Input (OnBoard thermistor beta 3950)
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       53

@@ -44,7 +44,7 @@ uint8_t read_byte(const uint8_t *byte) { return *byte; }
  * Add a string, applying substitutions for the following characters:
  *
  *   $ displays the clipped string given by fstr or cstr
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -57,9 +57,9 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
     if (wc > 255) wc |= 0x0080;
     const uint8_t ch = uint8_t(wc & 0x00FF);
 
-    if (ch == '=' || ch == '~' || ch == '*') {
+    if (ch == '{' || ch == '~' || ch == '*') {
       if (index >= 0) {
-        int8_t inum = index + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+        int8_t inum = index + ((ch == '{') ? 0 : LCD_FIRST_TOOL);
         if (ch == '*') add_character('E');
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
