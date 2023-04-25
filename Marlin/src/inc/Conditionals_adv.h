@@ -1203,17 +1203,16 @@
 #endif
 
 /**
- * LCD_SERIAL_PORT must be defined ahead of HAL.h
+ * LCD_SERIAL_PORT must be defined ahead of HAL.h and
+ * currently HAL.h must be included ahead of pins.h.
  */
-#ifndef LCD_SERIAL_PORT
-  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI || HAS_DGUS_LCD
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1)
-      #define LCD_SERIAL_PORT 1
-    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN)
-      #define LCD_SERIAL_PORT 2 // Creality Ender3S1, MKS Robin
-    #else
-      #define LCD_SERIAL_PORT 3 // Other boards
-    #endif
+#if LCD_IS_SERIAL_HOST && !defined(LCD_SERIAL_PORT)
+  #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1)
+    #define LCD_SERIAL_PORT 1
+  #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN, PANOWIN_CUTLASS, KODAMA_BARDO)
+    #define LCD_SERIAL_PORT 2
+  #else
+    #define LCD_SERIAL_PORT 3
   #endif
   #ifdef LCD_SERIAL_PORT
     #define AUTO_ASSIGNED_LCD_SERIAL 1
