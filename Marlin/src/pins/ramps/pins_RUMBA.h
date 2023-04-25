@@ -228,7 +228,7 @@
 
 #else
   #define LCD_PINS_RS                         19
-  #define LCD_PINS_ENABLE                     42
+  #define LCD_PINS_EN                         42
   #define LCD_PINS_D4                         18
   #define LCD_PINS_D5                         38
   #define LCD_PINS_D6                         41
@@ -241,7 +241,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

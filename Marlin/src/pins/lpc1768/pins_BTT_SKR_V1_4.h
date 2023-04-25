@@ -316,7 +316,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_01_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
     #define BEEPER_PIN               EXP1_08_PIN
 
@@ -352,7 +352,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_03_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_06_PIN
+    #define LCD_PINS_EN              EXP1_06_PIN
     #define LCD_PINS_D4              EXP1_04_PIN
 
     #define BEEPER_PIN               EXP1_01_PIN
@@ -364,7 +364,7 @@
     #define BTN_EN2                  EXP1_05_PIN
     #define BTN_ENC                  EXP1_02_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ENDER2_STOCKDISPLAY)
@@ -429,7 +429,7 @@
     #define BTN_EN1                  EXP2_03_PIN  // (31) J3-2 & AUX-4
     #define BTN_EN2                  EXP2_05_PIN  // (33) J3-4 & AUX-4
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #define LCD_SDSS                 EXP2_04_PIN  // (16) J3-7 & AUX-4

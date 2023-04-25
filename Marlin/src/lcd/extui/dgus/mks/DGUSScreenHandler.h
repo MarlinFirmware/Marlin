@@ -83,7 +83,7 @@ public:
     static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
   #else

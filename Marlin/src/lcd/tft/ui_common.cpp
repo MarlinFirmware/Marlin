@@ -164,14 +164,31 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 }
 
 // Draw a static item with no left-right margin required. Centered by default.
-void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
   menu_item(row);
+
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
-  if (vstr) tft_string.add(vstr);
-  tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+
+  const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+  if (!full || !vstr) {
+    if (vstr) tft_string.add(vstr);
+    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+    return;
+  }
+
+  // Move the leading colon from the value to the label
+  if (*vstr == ':') { tft_string.add(':'); vstr++; }
+
+  // Left-justified label
+  tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+
+  // Right-justified value, after spaces
+  while (*vstr == ' ') vstr++;
+  tft_string.set(vstr);
+  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
