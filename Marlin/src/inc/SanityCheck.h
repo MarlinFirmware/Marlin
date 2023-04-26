@@ -1379,7 +1379,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z and Z_STALL_SENSITIVITY."
     #endif
   #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if !HAS_Z_MIN
+    #if !HAS_Z_MIN_PIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
     #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != Z_MIN_ENDSTOP_HIT_STATE
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_HIT_STATE to match Z_MIN_PROBE_ENDSTOP_HIT_STATE."

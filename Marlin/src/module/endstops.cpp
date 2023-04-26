@@ -134,7 +134,7 @@ void Endstops::init() {
   #if HAS_Y2_MAX
     _INIT_ENDSTOP(MAX,Y,2);
   #endif
-  #if HAS_Z_MIN
+  #if HAS_Z_MIN_PIN
     _INIT_ENDSTOP(MIN,Z,);
   #endif
   #if HAS_Z_MAX
@@ -598,7 +598,9 @@ void Endstops::update() {
   #endif
 
   #if HAS_Z_MIN && NONE(Z_SPI_SENSORLESS, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    UPDATE_LIVE_STATE(Z, MIN);
+    #if HAS_Z_MIN_PIN
+      UPDATE_LIVE_STATE(Z, MIN);
+    #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #if HAS_Z2_MIN
         UPDATE_LIVE_STATE(Z2, MIN);
@@ -1179,7 +1181,7 @@ void Endstops::update() {
     #if HAS_Y_MAX
       ES_GET_STATE(Y_MAX);
     #endif
-    #if HAS_Z_MIN
+    #if HAS_Z_MIN_PIN
       ES_GET_STATE(Z_MIN);
     #endif
     #if HAS_Z_MAX

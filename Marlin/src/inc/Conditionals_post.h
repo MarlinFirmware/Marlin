@@ -1049,7 +1049,7 @@
   #if HAS_Y_MIN
     #define ENDSTOPPULLUP_YMIN
   #endif
-  #if HAS_Z_MIN
+  #if HAS_Z_MIN_PIN
     #define ENDSTOPPULLUP_ZMIN
   #endif
   #if HAS_I_MIN
@@ -1109,7 +1109,7 @@
   #if HAS_Y_MIN
     #define ENDSTOPPULLDOWN_YMIN
   #endif
-  #if HAS_Z_MIN
+  #if HAS_Z_MIN_PIN
     #define ENDSTOPPULLDOWN_ZMIN
   #endif
   #if HAS_I_MIN
@@ -2083,6 +2083,9 @@
 
 #if _HAS_STOP(Z,,MIN,EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING))
   #define HAS_Z_MIN 1
+  #if !HAS_DELTA_SENSORLESS_PROBING
+    #define HAS_Z_MIN_PIN 1
+  #endif
 #endif
 #if _HAS_STOP(Z,,MAX,)
   #define HAS_Z_MAX 1
