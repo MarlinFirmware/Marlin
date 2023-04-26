@@ -524,6 +524,11 @@
  *    -1 : AD595  with Thermocouple
  *
  * ================================================================
+ *  SoC internal sensor
+ * ================================================================
+ *   100 : SoC internal sensor
+ *
+ * ================================================================
  *  Custom/Dummy/Other Thermal Sensors
  * ================================================================
  *     0 : not used
@@ -546,7 +551,7 @@
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
 #define TEMP_SENSOR_BOARD 0
-#define TEMP_SENSOR_SOC 0  // N.B. any value, not 0, to enable it.
+#define TEMP_SENSOR_SOC 0
 #define TEMP_SENSOR_REDUNDANT 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
