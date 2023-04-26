@@ -1719,6 +1719,24 @@
 #if !defined(USE_ZMAX_PLUG) && _STOP_IN_USE(_ZMAX_)
   #define USE_ZMAX_PLUG
 #endif
+#if !defined(USE_IMAX_PLUG) && _STOP_IN_USE(_IMAX_)
+  #define USE_IMAX_PLUG
+#endif
+#if !defined(USE_JMAX_PLUG) && _STOP_IN_USE(_JMAX_)
+  #define USE_JMAX_PLUG
+#endif
+#if !defined(USE_KMAX_PLUG) && _STOP_IN_USE(_KMAX_)
+  #define USE_KMAX_PLUG
+#endif
+#if !defined(USE_UMAX_PLUG) && _STOP_IN_USE(_UMAX_)
+  #define USE_UMAX_PLUG
+#endif
+#if !defined(USE_VMAX_PLUG) && _STOP_IN_USE(_VMAX_)
+  #define USE_VMAX_PLUG
+#endif
+#if !defined(USE_WMAX_PLUG) && _STOP_IN_USE(_WMAX_)
+  #define USE_WMAX_PLUG
+#endif
 #if !defined(USE_XMIN_PLUG) && _STOP_IN_USE(_XMIN_)
   #define USE_XMIN_PLUG
 #endif
@@ -1727,6 +1745,24 @@
 #endif
 #if !defined(USE_ZMIN_PLUG) && _STOP_IN_USE(_ZMIN_)
   #define USE_ZMIN_PLUG
+#endif
+#if !defined(USE_IMIN_PLUG) && _STOP_IN_USE(_IMIN_)
+  #define USE_IMIN_PLUG
+#endif
+#if !defined(USE_JMIN_PLUG) && _STOP_IN_USE(_JMIN_)
+  #define USE_JMIN_PLUG
+#endif
+#if !defined(USE_KMIN_PLUG) && _STOP_IN_USE(_KMIN_)
+  #define USE_KMIN_PLUG
+#endif
+#if !defined(USE_UMIN_PLUG) && _STOP_IN_USE(_UMIN_)
+  #define USE_UMIN_PLUG
+#endif
+#if !defined(USE_VMIN_PLUG) && _STOP_IN_USE(_VMIN_)
+  #define USE_VMIN_PLUG
+#endif
+#if !defined(USE_WMIN_PLUG) && _STOP_IN_USE(_WMIN_)
+  #define USE_WMIN_PLUG
 #endif
 #undef _STOP_IN_USE
 #if !USES_Z_MIN_PROBE_PIN

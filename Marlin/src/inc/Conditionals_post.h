@@ -1264,6 +1264,24 @@
   #if ENABLED(USE_ZMAX_PLUG)
     #define ENDSTOPPULLDOWN_ZMAX
   #endif
+  #if ENABLED(USE_IMAX_PLUG)
+    #define ENDSTOPPULLDOWN_IMAX
+  #endif
+  #if ENABLED(USE_JMAX_PLUG)
+    #define ENDSTOPPULLDOWN_JMAX
+  #endif
+  #if ENABLED(USE_KMAX_PLUG)
+    #define ENDSTOPPULLDOWN_KMAX
+  #endif
+  #if ENABLED(USE_UMAX_PLUG)
+    #define ENDSTOPPULLDOWN_UMAX
+  #endif
+  #if ENABLED(USE_VMAX_PLUG)
+    #define ENDSTOPPULLDOWN_VMAX
+  #endif
+  #if ENABLED(USE_WMAX_PLUG)
+    #define ENDSTOPPULLDOWN_WMAX
+  #endif
   #if ENABLED(USE_XMIN_PLUG)
     #define ENDSTOPPULLDOWN_XMIN
   #endif
@@ -1272,6 +1290,24 @@
   #endif
   #if ENABLED(USE_ZMIN_PLUG)
     #define ENDSTOPPULLDOWN_ZMIN
+  #endif
+  #if ENABLED(USE_IMIN_PLUG)
+    #define ENDSTOPPULLDOWN_IMIN
+  #endif
+  #if ENABLED(USE_JMIN_PLUG)
+    #define ENDSTOPPULLDOWN_JMIN
+  #endif
+  #if ENABLED(USE_KMIN_PLUG)
+    #define ENDSTOPPULLDOWN_KMIN
+  #endif
+  #if ENABLED(USE_UMIN_PLUG)
+    #define ENDSTOPPULLDOWN_UMIN
+  #endif
+  #if ENABLED(USE_VMIN_PLUG)
+    #define ENDSTOPPULLDOWN_VMIN
+  #endif
+  #if ENABLED(USE_WMIN_PLUG)
+    #define ENDSTOPPULLDOWN_WMIN
   #endif
 #endif
 
