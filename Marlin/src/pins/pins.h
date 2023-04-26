@@ -65,6 +65,57 @@
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
+//
+// Check for additional used endstop pins
+//
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN 1001
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN 1002
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN 1003
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN 1004
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN 1005
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN 1006
+#endif
+#define _ENDSTOP_IS_ANY(P) (HAS_EXTRA_ENDSTOPS && (X2_STOP_PIN == P || Y2_STOP_PIN == P || Z2_STOP_PIN == P || Z3_STOP_PIN == P || Z4_STOP_PIN == P))
+#if ENABLED(DUAL_X_CARRIAGE) || _ENDSTOP_IS_ANY(X_MIN_PIN) || _ENDSTOP_IS_ANY(X_MAX_PIN)
+  #define NEEDS_X_MINMAX 1
+#endif
+#if _ENDSTOP_IS_ANY(Y_MIN_PIN) || _ENDSTOP_IS_ANY(Y_MAX_PIN)
+  #define NEEDS_Y_MINMAX 1
+#endif
+#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || BOTH(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define NEEDS_Z_MINMAX 1
+#endif
+#undef _ENDSTOP_IS_ANY
+#if X_MIN_PIN > 1000
+  #undef X_MIN_PIN
+#endif
+#if Y_MIN_PIN > 1000
+  #undef Y_MIN_PIN
+#endif
+#if Z_MIN_PIN > 1000
+  #undef Z_MIN_PIN
+#endif
+#if X_MAX_PIN > 1000
+  #undef X_MAX_PIN
+#endif
+#if Y_MAX_PIN > 1000
+  #undef Y_MAX_PIN
+#endif
+#if Z_MAX_PIN > 1000
+  #undef Z_MAX_PIN
+#endif
+
 // Test the target within the included pins file
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
