@@ -35,7 +35,7 @@
 #include "../core/debug_out.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include HAL_PATH(../HAL, endstop_interrupts.h)
+  #include HAL_PATH(.., endstop_interrupts.h)
 #endif
 
 #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)

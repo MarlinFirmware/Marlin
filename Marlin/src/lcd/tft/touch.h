@@ -31,10 +31,10 @@
 #endif
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
-  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #include HAL_PATH(../.., tft/gt911.h)
   #define TOUCH_DRIVER_CLASS GT911
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #include HAL_PATH(../.., tft/xpt2046.h)
   #define TOUCH_DRIVER_CLASS XPT2046
 #else
   #error "Unknown Touch Screen Type."
