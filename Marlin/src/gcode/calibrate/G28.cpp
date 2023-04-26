@@ -625,7 +625,7 @@ void GcodeSuite::G28() {
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
   #endif // HAS_HOMING_CURRENT
-  
+
   if (doZ) do_move_after_z_homing();
 
   ui.refresh();
