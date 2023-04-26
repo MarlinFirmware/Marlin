@@ -113,7 +113,7 @@
 #endif
 
 #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #ifndef Z_MIN_PROBE
+  #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN          E2_DIAG_PIN  // defaults to 'Z+' connector
   #endif
 #endif
