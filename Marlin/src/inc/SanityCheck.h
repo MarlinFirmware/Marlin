@@ -2029,6 +2029,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "HEATER_0_PIN not defined for this board."
   #elif TEMP_SENSOR_IS_MAX_TC(0) && !PIN_EXISTS(TEMP_0_CS)
     #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
+  #elif TEMP_SENSOR_0 == 100
+    #error "TEMP_SENSOR_0 can't use Soc temperature sensor."
   #elif TEMP_SENSOR_0 == 0
     #error "TEMP_SENSOR_0 is required with 1 or more HOTENDS."
   #elif !ANY_PIN(TEMP_0, TEMP_0_CS) && !TEMP_SENSOR_0_IS_DUMMY
@@ -2040,13 +2042,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_IS_MAX_TC(1) && !PIN_EXISTS(TEMP_1_CS)
       #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
+    #elif TEMP_SENSOR_1 == 100
+      #error "TEMP_SENSOR_1 can't use Soc temperature sensor."
     #elif TEMP_SENSOR_1 == 0
       #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
     #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
       #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
     #endif
     #if HOTENDS > 2
-      #if TEMP_SENSOR_2 == 0
+      #if TEMP_SENSOR_2 == 100
+        #error "TEMP_SENSOR_2 can't use Soc temperature sensor."
+      #elif TEMP_SENSOR_2 == 0
         #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
       #elif !HAS_HEATER_2
         #error "HEATER_2_PIN not defined for this board."
@@ -2054,7 +2060,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
         #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
       #endif
       #if HOTENDS > 3
-        #if TEMP_SENSOR_3 == 0
+        #if TEMP_SENSOR_3 == 100
+          #error "TEMP_SENSOR_3 can't use Soc temperature sensor."
+        #elif TEMP_SENSOR_3 == 0
           #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
         #elif !HAS_HEATER_3
           #error "HEATER_3_PIN not defined for this board."
@@ -2062,7 +2070,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
           #error "TEMP_3_PIN not defined for this board."
         #endif
         #if HOTENDS > 4
-          #if TEMP_SENSOR_4 == 0
+          #if TEMP_SENSOR_4 == 100
+            #error "TEMP_SENSOR_4 can't use Soc temperature sensor."
+          #elif TEMP_SENSOR_4 == 0
             #error "TEMP_SENSOR_4 is required with 5 or more HOTENDS."
           #elif !HAS_HEATER_4
             #error "HEATER_4_PIN not defined for this board."
@@ -2070,7 +2080,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
             #error "TEMP_4_PIN not defined for this board."
           #endif
           #if HOTENDS > 5
-            #if TEMP_SENSOR_5 == 0
+            #if TEMP_SENSOR_5 == 100
+              #error "TEMP_SENSOR_5 can't use Soc temperature sensor."
+            #elif TEMP_SENSOR_5 == 0
               #error "TEMP_SENSOR_5 is required with 6 HOTENDS."
             #elif !HAS_HEATER_5
               #error "HEATER_5_PIN not defined for this board."
@@ -2078,7 +2090,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
               #error "TEMP_5_PIN not defined for this board."
             #endif
             #if HOTENDS > 6
-              #if TEMP_SENSOR_6 == 0
+              #if TEMP_SENSOR_6 == 100
+                #error "TEMP_SENSOR_6 can't use Soc temperature sensor."
+              #elif TEMP_SENSOR_6 == 0
                 #error "TEMP_SENSOR_6 is required with 6 HOTENDS."
               #elif !HAS_HEATER_6
                 #error "HEATER_6_PIN not defined for this board."
@@ -2086,7 +2100,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
                 #error "TEMP_6_PIN not defined for this board."
               #endif
               #if HOTENDS > 7
-                #if TEMP_SENSOR_7 == 0
+                #if TEMP_SENSOR_7 == 100
+                  #error "TEMP_SENSOR_7 can't use Soc temperature sensor."
+                #elif TEMP_SENSOR_7 == 0
                   #error "TEMP_SENSOR_7 is required with 7 HOTENDS."
                 #elif !HAS_HEATER_7
                   #error "HEATER_7_PIN not defined for this board."
@@ -2109,12 +2125,22 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Pins must be set for temp sensors, with some other feature requirements.
  */
-#if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
-  #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
+#if TEMP_SENSOR_BED == 100
+  #error "TEMP_SENSOR_BED can't use Soc temperature sensor."
+#endif
+
+#if TEMP_SENSOR_CHAMBER
+  #if TEMP_SENSOR_CHAMBER == 100
+    #error "TEMP_SENSOR_CHAMBER can't use Soc temperature sensor."
+  #elif !PIN_EXISTS(TEMP_CHAMBER)
+    #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
+  #endif
 #endif
 
 #if TEMP_SENSOR_COOLER
-  #if !PIN_EXISTS(TEMP_COOLER)
+  #if TEMP_SENSOR_COOLER == 100
+    #error "TEMP_SENSOR_COOLER can't use Soc temperature sensor."
+  #elif !PIN_EXISTS(TEMP_COOLER)
     #error "TEMP_SENSOR_COOLER requires TEMP_COOLER_PIN."
   #elif DISABLED(LASER_FEATURE)
     #error "TEMP_SENSOR_COOLER requires LASER_FEATURE."
@@ -2122,7 +2148,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if TEMP_SENSOR_PROBE
-  #if !PIN_EXISTS(TEMP_PROBE)
+  #if TEMP_SENSOR_PROBE == 100
+    #error "TEMP_SENSOR_PROBE can't use Soc temperature sensor."
+  #elif !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
   #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
@@ -2130,7 +2158,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if TEMP_SENSOR_BOARD
-  #if !PIN_EXISTS(TEMP_BOARD)
+  #if TEMP_SENSOR_BOARD == 100
+    #error "TEMP_SENSOR_BOARD can't use Soc temperature sensor."
+  #elif !PIN_EXISTS(TEMP_BOARD)
     #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
@@ -2140,7 +2170,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if TEMP_SENSOR_SOC
-  #if !PIN_EXISTS(TEMP_SOC)
+  #if TEMP_SENSOR_SOC != 100
+    #error "TEMP_SENSOR_SOC requires TEMP_SENSOR_SOC 100."
+  #elif !PIN_EXISTS(TEMP_SOC)
     #error "TEMP_SENSOR_SOC requires TEMP_SOC_PIN."
   #elif ENABLED(THERMAL_PROTECTION_SOC) && !defined(SOC_MAXTEMP)
     #error "THERMAL_PROTECTION_SOC requires SOC_MAXTEMP."
