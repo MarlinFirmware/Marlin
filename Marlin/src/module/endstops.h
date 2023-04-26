@@ -28,58 +28,65 @@
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
 
-#define __ES_ITEM(N) N,
-#define _ES_ITEM(K,N) TERN_(K,DEFER4(__ES_ITEM)(N))
+#define _ES_ITEM(N) N,
+#define ES_ITEM(K,N) TERN_(K,DEFER4(_ES_ITEM)(N))
 
 /**
  * Basic Endstop Flag Bits:
- * - Each axis gets one endstop flag bit based on the homing direction (e.g., "EndstopEnum::X_MIN").
+ * - Each axis with an endstop gets a flag for its homing direction.
  *   (The use of "MIN" or "MAX" makes it easier to pair with similarly-named endstop pins.)
- * - Multi-stepper axes can optionally enable endstops for all axis steppers.
- * - The bed probe gets a 'Z_PROBE' flag bit (but DELTA sensorless probing uses 3 endstops).
+ * - Bed probes with a single pin get a Z_MIN_PROBE flag. This includes Sensorless Z Probe.
+ *
+ * Extended Flag Bits:
+ * - Multi-stepper axes may have multi-endstops such as X2_MIN, Y2_MAX, etc.
+ * - DELTA gets X_MAX, Y_MAX, and Z_MAX corresponding to its "A", "B", "C" towers.
+ * - For DUAL_X_CARRIAGE the X axis has both X_MIN and X_MAX flags.
+ * - The Z axis may have both MIN and MAX when homing to MAX and the probe is Z_MIN.
+ * - DELTA Sensorless Probe uses X/Y/Z_MAX but sets the Z_MIN flag.
  *
  * Endstop Flag Bit Aliases:
  * - Each *_MIN or *_MAX flag is aliased to *_ENDSTOP.
- * - 'Z_ENDSTOP' is aliased to 'Z_PROBE' if homing with the probe.
+ * - Z_MIN_PROBE is an alias to Z_MIN when the Z_MIN_PIN is being used as the probe pin.
+ * - When homing with the probe Z_ENDSTOP is a Z_MIN_PROBE alias, otherwise a Z_MIN/MAX alias.
  */
 enum EndstopEnum : char {
-  // Common XYZ (ABC) endstops. Defined according to USE_[XYZ](MIN|MAX)_PLUG settings.
-  _ES_ITEM(HAS_X_MIN, X_MIN) _ES_ITEM(HAS_X_MAX, X_MAX)
-  _ES_ITEM(HAS_Y_MIN, Y_MIN) _ES_ITEM(HAS_Y_MAX, Y_MAX)
-  _ES_ITEM(HAS_Z_MIN, Z_MIN) _ES_ITEM(HAS_Z_MAX, Z_MAX)
-  _ES_ITEM(HAS_I_MIN, I_MIN) _ES_ITEM(HAS_I_MAX, I_MAX)
-  _ES_ITEM(HAS_J_MIN, J_MIN) _ES_ITEM(HAS_J_MAX, J_MAX)
-  _ES_ITEM(HAS_K_MIN, K_MIN) _ES_ITEM(HAS_K_MAX, K_MAX)
-  _ES_ITEM(HAS_U_MIN, U_MIN) _ES_ITEM(HAS_U_MAX, U_MAX)
-  _ES_ITEM(HAS_V_MIN, V_MIN) _ES_ITEM(HAS_V_MAX, V_MAX)
-  _ES_ITEM(HAS_W_MIN, W_MIN) _ES_ITEM(HAS_W_MAX, W_MAX)
+  // Common XYZ (ABC) endstops.
+  ES_ITEM(HAS_X_MIN, X_MIN) ES_ITEM(HAS_X_MAX, X_MAX)
+  ES_ITEM(HAS_Y_MIN, Y_MIN) ES_ITEM(HAS_Y_MAX, Y_MAX)
+  ES_ITEM(HAS_Z_MIN, Z_MIN) ES_ITEM(HAS_Z_MAX, Z_MAX)
+  ES_ITEM(HAS_I_MIN, I_MIN) ES_ITEM(HAS_I_MAX, I_MAX)
+  ES_ITEM(HAS_J_MIN, J_MIN) ES_ITEM(HAS_J_MAX, J_MAX)
+  ES_ITEM(HAS_K_MIN, K_MIN) ES_ITEM(HAS_K_MAX, K_MAX)
+  ES_ITEM(HAS_U_MIN, U_MIN) ES_ITEM(HAS_U_MAX, U_MAX)
+  ES_ITEM(HAS_V_MIN, V_MIN) ES_ITEM(HAS_V_MAX, V_MAX)
+  ES_ITEM(HAS_W_MIN, W_MIN) ES_ITEM(HAS_W_MAX, W_MAX)
 
   // Extra Endstops for XYZ
   #if ENABLED(X_DUAL_ENDSTOPS)
-    _ES_ITEM(HAS_X_MIN, X2_MIN) _ES_ITEM(HAS_X_MAX, X2_MAX)
+    ES_ITEM(HAS_X_MIN, X2_MIN) ES_ITEM(HAS_X_MAX, X2_MAX)
   #endif
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    _ES_ITEM(HAS_Y_MIN, Y2_MIN) _ES_ITEM(HAS_Y_MAX, Y2_MAX)
+    ES_ITEM(HAS_Y_MIN, Y2_MIN) ES_ITEM(HAS_Y_MAX, Y2_MAX)
   #endif
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    _ES_ITEM(HAS_Z_MIN, Z2_MIN) _ES_ITEM(HAS_Z_MAX, Z2_MAX)
+    ES_ITEM(HAS_Z_MIN, Z2_MIN) ES_ITEM(HAS_Z_MAX, Z2_MAX)
     #if NUM_Z_STEPPERS >= 3
-      _ES_ITEM(HAS_Z_MIN, Z3_MIN) _ES_ITEM(HAS_Z_MAX, Z3_MAX)
+      ES_ITEM(HAS_Z_MIN, Z3_MIN) ES_ITEM(HAS_Z_MAX, Z3_MAX)
       #if NUM_Z_STEPPERS >= 4
-        _ES_ITEM(HAS_Z_MIN, Z4_MIN) _ES_ITEM(HAS_Z_MAX, Z4_MAX)
+        ES_ITEM(HAS_Z_MIN, Z4_MIN) ES_ITEM(HAS_Z_MAX, Z4_MAX)
       #endif
     #endif
   #endif
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
   #if !HAS_DELTA_SENSORLESS_PROBING
-    _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
+    ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
   #endif
 
   // The total number of states
   NUM_ENDSTOP_STATES
 
-  // Endstops can be either MIN or MAX but not both
+  // Endstop aliased to MIN or MAX
   #if HAS_X_ENDSTOP
     , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -126,8 +133,8 @@ enum EndstopEnum : char {
   #endif
 };
 
-#undef __ES_ITEM
 #undef _ES_ITEM
+#undef ES_ITEM
 
 class Endstops {
   public:
