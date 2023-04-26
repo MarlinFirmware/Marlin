@@ -1379,9 +1379,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z and Z_STALL_SENSITIVITY."
     #endif
   #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if DISABLED(USE_ZMIN_PLUG)
-      #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
-    #elif !HAS_Z_MIN
+    #if !HAS_Z_MIN_PIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
     #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != Z_MIN_ENDSTOP_HIT_STATE
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_HIT_STATE to match Z_MIN_PROBE_ENDSTOP_HIT_STATE."
@@ -1772,7 +1770,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
   #elif !HAS_X_MAX
-    #error "DUAL_X_CARRIAGE requires USE_XMAX_PLUG and an X Max Endstop."
+    #error "DUAL_X_CARRIAGE requires an X_MAX_PIN in addition to the X_MIN_PIN."
   #elif !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS)
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX || X2_HOME_TO_MIN
@@ -2302,90 +2300,49 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Endstop Tests
  */
-
-#define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
-  && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
-  && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
-#define _AXIS_PLUG_UNUSED_TEST(A) (HAS_##A##_A NUM_AXIS_GANG(&& _PLUG_UNUSED_TEST(A,X), && _PLUG_UNUSED_TEST(A,Y), && _PLUG_UNUSED_TEST(A,Z), \
-                                                      && _PLUG_UNUSED_TEST(A,I), && _PLUG_UNUSED_TEST(A,J), && _PLUG_UNUSED_TEST(A,K), \
-                                                      && _PLUG_UNUSED_TEST(A,U), && _PLUG_UNUSED_TEST(A,V), && _PLUG_UNUSED_TEST(A,W) ) )
-
-// A machine with endstops must have a minimum of 3
 #if HAS_ENDSTOPS
-  #if _AXIS_PLUG_UNUSED_TEST(X)
-    #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(Y)
-    #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(Z)
-    #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(I)
-    #error "You must enable USE_IMIN_PLUG or USE_IMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(J)
-    #error "You must enable USE_JMIN_PLUG or USE_JMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(K)
-    #error "You must enable USE_KMIN_PLUG or USE_KMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(U)
-    #error "You must enable USE_UMIN_PLUG or USE_UMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(V)
-    #error "You must enable USE_VMIN_PLUG or USE_VMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(W)
-    #error "You must enable USE_WMIN_PLUG or USE_WMAX_PLUG."
-  #endif
-
   // Delta and Cartesian use 3 homing endstops
   #if NONE(IS_SCARA, SPI_ENDSTOPS)
-    #if X_HOME_TO_MIN && DISABLED(USE_XMIN_PLUG)
-      #error "Enable USE_XMIN_PLUG when homing X to MIN."
-    #elif X_HOME_TO_MAX && DISABLED(USE_XMAX_PLUG)
-      #error "Enable USE_XMAX_PLUG when homing X to MAX."
-    #elif Y_HOME_TO_MIN && DISABLED(USE_YMIN_PLUG)
-      #error "Enable USE_YMIN_PLUG when homing Y to MIN."
-    #elif Y_HOME_TO_MAX && DISABLED(USE_YMAX_PLUG)
-      #error "Enable USE_YMAX_PLUG when homing Y to MAX."
-    #elif I_HOME_TO_MIN && DISABLED(USE_IMIN_PLUG)
-      #error "Enable USE_IMIN_PLUG when homing I to MIN."
-    #elif I_HOME_TO_MAX && DISABLED(USE_IMAX_PLUG)
-      #error "Enable USE_IMAX_PLUG when homing I to MAX."
-    #elif J_HOME_TO_MIN && DISABLED(USE_JMIN_PLUG)
-      #error "Enable USE_JMIN_PLUG when homing J to MIN."
-    #elif J_HOME_TO_MAX && DISABLED(USE_JMAX_PLUG)
-      #error "Enable USE_JMAX_PLUG when homing J to MAX."
-    #elif K_HOME_TO_MIN && DISABLED(USE_KMIN_PLUG)
-      #error "Enable USE_KMIN_PLUG when homing K to MIN."
-    #elif K_HOME_TO_MAX && DISABLED(USE_KMAX_PLUG)
-      #error "Enable USE_KMAX_PLUG when homing K to MAX."
-    #elif U_HOME_TO_MIN && DISABLED(USE_UMIN_PLUG)
-      #error "Enable USE_UMIN_PLUG when homing U to MIN."
-    #elif U_HOME_TO_MAX && DISABLED(USE_UMAX_PLUG)
-      #error "Enable USE_UMAX_PLUG when homing U to MAX."
-    #elif V_HOME_TO_MIN && DISABLED(USE_VMIN_PLUG)
-      #error "Enable USE_VMIN_PLUG when homing V to MIN."
-    #elif V_HOME_TO_MAX && DISABLED(USE_VMAX_PLUG)
-      #error "Enable USE_VMAX_PLUG when homing V to MAX."
-    #elif W_HOME_TO_MIN && DISABLED(USE_WMIN_PLUG)
-      #error "Enable USE_WMIN_PLUG when homing W to MIN."
-    #elif W_HOME_TO_MAX && DISABLED(USE_WMAX_PLUG)
-      #error "Enable USE_WMAX_PLUG when homing W to MAX."
+    #if X_HOME_TO_MIN && !PIN_EXISTS(X_MIN)
+      #error "X_MIN_PIN (or X_STOP_PIN) is required for X axis homing."
+    #elif X_HOME_TO_MAX && !PIN_EXISTS(X_MAX)
+      #error "X_MAX_PIN (or X_STOP_PIN) is required for X axis homing."
+    #elif Y_HOME_TO_MIN && !PIN_EXISTS(Y_MIN)
+      #error "Y_MIN_PIN (or Y_STOP_PIN) is required for Y axis homing."
+    #elif Y_HOME_TO_MAX && !PIN_EXISTS(Y_MAX)
+      #error "Y_MAX_PIN (or Y_STOP_PIN) is required for Y axis homing."
+    #elif I_HOME_TO_MIN && !PIN_EXISTS(I_MIN)
+      #error "I_MIN_PIN (or I_STOP_PIN) is required for I axis homing."
+    #elif I_HOME_TO_MAX && !PIN_EXISTS(I_MAX)
+      #error "I_MAX_PIN (or I_STOP_PIN) is required for I axis homing."
+    #elif J_HOME_TO_MIN && !PIN_EXISTS(J_MIN)
+      #error "J_MIN_PIN (or J_STOP_PIN) is required for J axis homing."
+    #elif J_HOME_TO_MAX && !PIN_EXISTS(J_MAX)
+      #error "J_MAX_PIN (or J_STOP_PIN) is required for J axis homing."
+    #elif K_HOME_TO_MIN && !PIN_EXISTS(K_MIN)
+      #error "K_MIN_PIN (or K_STOP_PIN) is required for K axis homing."
+    #elif K_HOME_TO_MAX && !PIN_EXISTS(K_MAX)
+      #error "K_MAX_PIN (or K_STOP_PIN) is required for K axis homing."
+    #elif U_HOME_TO_MIN && !PIN_EXISTS(U_MIN)
+      #error "U_MIN_PIN (or U_STOP_PIN) is required for U axis homing."
+    #elif U_HOME_TO_MAX && !PIN_EXISTS(U_MAX)
+      #error "U_MAX_PIN (or U_STOP_PIN) is required for U axis homing."
+    #elif V_HOME_TO_MIN && !PIN_EXISTS(V_MIN)
+      #error "V_MIN_PIN (or V_STOP_PIN) is required for V axis homing."
+    #elif V_HOME_TO_MAX && !PIN_EXISTS(V_MAX)
+      #error "V_MAX_PIN (or V_STOP_PIN) is required for V axis homing."
+    #elif W_HOME_TO_MIN && !PIN_EXISTS(W_MIN)
+      #error "W_MIN_PIN (or W_STOP_PIN) is required for W axis homing."
+    #elif W_HOME_TO_MAX && !PIN_EXISTS(W_MAX)
+      #error "W_MAX_PIN (or W_STOP_PIN) is required for W axis homing."
     #endif
   #endif
 
-  // Z homing direction and plug usage flags
-  #if Z_HOME_TO_MIN && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
-    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-  #elif Z_HOME_TO_MAX && ENABLED(USE_PROBE_FOR_Z_HOMING)
+  // Z homing requirements
+  #if Z_HOME_TO_MAX && ENABLED(USE_PROBE_FOR_Z_HOMING)
     #error "Z_HOME_DIR must be -1 when homing Z with the probe."
   #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
     #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
-  #elif Z_HOME_TO_MAX && DISABLED(USE_ZMAX_PLUG)
-    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
   #endif
 #endif
 
@@ -2397,26 +2354,26 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "X_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !X2_USE_ENDSTOP
-    #error "X2_USE_ENDSTOP must be set with X_DUAL_ENDSTOPS."
+  #elif !HAS_X2_ENDSTOP
+    #error "X2 Endstop Pin must be defined for X_DUAL_ENDSTOPS."
   #endif
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Y_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !Y2_USE_ENDSTOP
-    #error "Y2_USE_ENDSTOP must be set with Y_DUAL_ENDSTOPS."
+  #elif !HAS_Y2_ENDSTOP
+    #error "Y2 Endstop Pin must be defined for Y_DUAL_ENDSTOPS."
   #endif
 #endif
 #if ENABLED(Z_MULTI_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
-  #elif !Z2_USE_ENDSTOP
-    #error "Z2_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS."
-  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPERS >= 3
-    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
-  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPERS >= 4
-    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
+  #elif !HAS_Z2_ENDSTOP
+    #error "Z2 Endstop Pin must be defined for Z_MULTI_ENDSTOPS."
+  #elif NUM_Z_STEPPERS >= 3 && !HAS_Z3_ENDSTOP
+    #error "Z3 Endstop Pin must be defined for Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
+  #elif NUM_Z_STEPPERS >= 4 && !HAS_Z4_ENDSTOP
+    #error "Z4 Endstop Pin must be defined for Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #endif
 #endif
 
@@ -3310,10 +3267,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * TMC SPI Chaining
  */
 #define IN_CHAIN(A) A##_CHAIN_POS > 0
-#if  IN_CHAIN(X ) || IN_CHAIN(Y ) || IN_CHAIN(Z ) || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(Z4) \
+#if  IN_CHAIN(X) || IN_CHAIN(Y) || IN_CHAIN(Z) || IN_CHAIN(I) || IN_CHAIN(J) || IN_CHAIN(K) || IN_CHAIN(U) || IN_CHAIN(V) || IN_CHAIN(W) \
+  || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(Z4) \
   || IN_CHAIN(E0) || IN_CHAIN(E1) || IN_CHAIN(E2) || IN_CHAIN(E3) || IN_CHAIN(E4) || IN_CHAIN(E5) || IN_CHAIN(E6) || IN_CHAIN(E7)
   #define BAD_CHAIN(A) (IN_CHAIN(A) && !PIN_EXISTS(A##_CS))
-  #if  BAD_CHAIN(X ) || BAD_CHAIN(Y ) || BAD_CHAIN(Z ) || BAD_CHAIN(X2) || BAD_CHAIN(Y2) || BAD_CHAIN(Z2) || BAD_CHAIN(Z3) || BAD_CHAIN(Z4) \
+  #if  BAD_CHAIN(X) || BAD_CHAIN(Y) || BAD_CHAIN(Z) || BAD_CHAIN(I) || BAD_CHAIN(J) || BAD_CHAIN(K) || BAD_CHAIN(U) || BAD_CHAIN(V) || BAD_CHAIN(W) \
+    || BAD_CHAIN(X2) || BAD_CHAIN(Y2) || BAD_CHAIN(Z2) || BAD_CHAIN(Z3) || BAD_CHAIN(Z4) \
     || BAD_CHAIN(E0) || BAD_CHAIN(E1) || BAD_CHAIN(E2) || BAD_CHAIN(E3) || BAD_CHAIN(E4) || BAD_CHAIN(E5) || BAD_CHAIN(E6) || BAD_CHAIN(E7)
     #error "All chained TMC drivers need a CS pin."
   #else
@@ -3361,9 +3320,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #define CS_COMPARE E7_CS_PIN
     #endif
     #define BAD_CS_PIN(A) (IN_CHAIN(A) && A##_CS_PIN != CS_COMPARE)
-    #if  BAD_CS_PIN(X ) || BAD_CS_PIN(Y ) || BAD_CS_PIN(Z ) || BAD_CS_PIN(X2) || BAD_CS_PIN(Y2) || BAD_CS_PIN(Z2) || BAD_CS_PIN(Z3) || BAD_CS_PIN(Z4) \
-      || BAD_CS_PIN(I) || BAD_CS_PIN(J) || BAD_CS_PIN(K) \
-      || BAD_CS_PIN(U) || BAD_CS_PIN(V) || BAD_CS_PIN(W) \
+    #if  BAD_CS_PIN(X) || BAD_CS_PIN(Y) || BAD_CS_PIN(Z) || BAD_CS_PIN(I) || BAD_CS_PIN(J) || BAD_CS_PIN(K) || BAD_CS_PIN(U) || BAD_CS_PIN(V) || BAD_CS_PIN(W) \
+      || BAD_CS_PIN(X2) || BAD_CS_PIN(Y2) || BAD_CS_PIN(Z2) || BAD_CS_PIN(Z3) || BAD_CS_PIN(Z4) \
       || BAD_CS_PIN(E0) || BAD_CS_PIN(E1) || BAD_CS_PIN(E2) || BAD_CS_PIN(E3) || BAD_CS_PIN(E4) || BAD_CS_PIN(E5) || BAD_CS_PIN(E6) || BAD_CS_PIN(E7)
       #error "All chained TMC drivers must use the same CS pin."
     #endif

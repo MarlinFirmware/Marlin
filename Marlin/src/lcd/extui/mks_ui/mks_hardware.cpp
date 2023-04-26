@@ -87,12 +87,12 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = ESTATE(TERN(HAS_X_MIN,   X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = ESTATE(TERN(HAS_X2_MIN, X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = ESTATE(TERN(HAS_Y_MIN,   Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = ESTATE(TERN(HAS_Y2_MIN, Y2_MIN, Y2_MAX)));
-    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = ESTATE(TERN(HAS_Z_MIN,   Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = ESTATE(TERN(HAS_Z2_MIN, Z2_MIN, Z2_MAX)));
+    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = ESTATE(TERN(HAS_X_MIN,      X_MIN,  X_MAX)));
+    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = ESTATE(TERN(HAS_X2_MIN,    X2_MIN, X2_MAX)));
+    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = ESTATE(TERN(HAS_Y_MIN,      Y_MIN,  Y_MAX)));
+    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = ESTATE(TERN(HAS_Y2_MIN,    Y2_MIN, Y2_MAX)));
+    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = ESTATE(TERN(HAS_Z_MIN_PIN,  Z_MIN,  Z_MAX)));
+    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = ESTATE(TERN(HAS_Z2_MIN,    Z2_MIN, Z2_MAX)));
   }
 
   void test_gpio_readlevel_H() {
@@ -104,12 +104,12 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = !ESTATE(TERN(HAS_X_MIN,   X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = !ESTATE(TERN(HAS_X2_MIN, X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = !ESTATE(TERN(HAS_Y_MIN,   Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = !ESTATE(TERN(HAS_Y2_MIN, Y2_MIN, Y2_MAX)));
-    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = !ESTATE(TERN(HAS_Z_MIN,   Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = !ESTATE(TERN(HAS_Z2_MIN, Z2_MIN, Z2_MAX)));
+    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = !ESTATE(TERN(HAS_X_MIN,     X_MIN,  X_MAX)));
+    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = !ESTATE(TERN(HAS_X2_MIN,   X2_MIN, X2_MAX)));
+    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = !ESTATE(TERN(HAS_Y_MIN,     Y_MIN,  Y_MAX)));
+    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = !ESTATE(TERN(HAS_Y2_MIN,   Y2_MIN, Y2_MAX)));
+    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = !ESTATE(TERN(HAS_Z_MIN_PIN, Z_MIN,  Z_MAX)));
+    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = !ESTATE(TERN(HAS_Z2_MIN,   Z2_MIN, Z2_MAX)));
   }
 
   #include "../../../libs/buzzer.h"
