@@ -1016,58 +1016,58 @@
  * Set ENDSTOPPULLUPS for active endstop switches
  */
 #if ENABLED(ENDSTOPPULLUPS)
-  #if ENABLED(USE_XMAX_PLUG)
+  #if HAS_X_MAX
     #define ENDSTOPPULLUP_XMAX
   #endif
-  #if ENABLED(USE_YMAX_PLUG)
+  #if HAS_Y_MAX
     #define ENDSTOPPULLUP_YMAX
   #endif
-  #if ENABLED(USE_ZMAX_PLUG)
+  #if HAS_Z_MAX
     #define ENDSTOPPULLUP_ZMAX
   #endif
-  #if ENABLED(USE_IMAX_PLUG)
+  #if HAS_I_MAX
     #define ENDSTOPPULLUP_IMAX
   #endif
-  #if ENABLED(USE_JMAX_PLUG)
+  #if HAS_J_MAX
     #define ENDSTOPPULLUP_JMAX
   #endif
-  #if ENABLED(USE_KMAX_PLUG)
+  #if HAS_K_MAX
     #define ENDSTOPPULLUP_KMAX
   #endif
-  #if ENABLED(USE_UMAX_PLUG)
+  #if HAS_U_MAX
     #define ENDSTOPPULLUP_UMAX
   #endif
-  #if ENABLED(USE_VMAX_PLUG)
+  #if HAS_V_MAX
     #define ENDSTOPPULLUP_VMAX
   #endif
-  #if ENABLED(USE_WMAX_PLUG)
+  #if HAS_W_MAX
     #define ENDSTOPPULLUP_WMAX
   #endif
-  #if ENABLED(USE_XMIN_PLUG)
+  #if HAS_X_MIN
     #define ENDSTOPPULLUP_XMIN
   #endif
-  #if ENABLED(USE_YMIN_PLUG)
+  #if HAS_Y_MIN
     #define ENDSTOPPULLUP_YMIN
   #endif
-  #if ENABLED(USE_ZMIN_PLUG)
+  #if HAS_Z_MIN
     #define ENDSTOPPULLUP_ZMIN
   #endif
-  #if ENABLED(USE_IMIN_PLUG)
+  #if HAS_I_MIN
     #define ENDSTOPPULLUP_IMIN
   #endif
-  #if ENABLED(USE_JMIN_PLUG)
+  #if HAS_J_MIN
     #define ENDSTOPPULLUP_JMIN
   #endif
-  #if ENABLED(USE_KMIN_PLUG)
+  #if HAS_K_MIN
     #define ENDSTOPPULLUP_KMIN
   #endif
-  #if ENABLED(USE_UMIN_PLUG)
+  #if HAS_U_MIN
     #define ENDSTOPPULLUP_UMIN
   #endif
-  #if ENABLED(USE_VMIN_PLUG)
+  #if HAS_V_MIN
     #define ENDSTOPPULLUP_VMIN
   #endif
-  #if ENABLED(USE_WMIN_PLUG)
+  #if HAS_W_MIN
     #define ENDSTOPPULLUP_WMIN
   #endif
 #endif
@@ -1076,58 +1076,58 @@
  * Set ENDSTOPPULLDOWNS for active endstop switches
  */
 #if ENABLED(ENDSTOPPULLDOWNS)
-  #if ENABLED(USE_XMAX_PLUG)
+  #if HAS_X_MAX
     #define ENDSTOPPULLDOWN_XMAX
   #endif
-  #if ENABLED(USE_YMAX_PLUG)
+  #if HAS_Y_MAX
     #define ENDSTOPPULLDOWN_YMAX
   #endif
-  #if ENABLED(USE_ZMAX_PLUG)
+  #if HAS_Z_MAX
     #define ENDSTOPPULLDOWN_ZMAX
   #endif
-  #if ENABLED(USE_IMAX_PLUG)
+  #if HAS_I_MAX
     #define ENDSTOPPULLDOWN_IMAX
   #endif
-  #if ENABLED(USE_JMAX_PLUG)
+  #if HAS_J_MAX
     #define ENDSTOPPULLDOWN_JMAX
   #endif
-  #if ENABLED(USE_KMAX_PLUG)
+  #if HAS_K_MAX
     #define ENDSTOPPULLDOWN_KMAX
   #endif
-  #if ENABLED(USE_UMAX_PLUG)
+  #if HAS_U_MAX
     #define ENDSTOPPULLDOWN_UMAX
   #endif
-  #if ENABLED(USE_VMAX_PLUG)
+  #if HAS_V_MAX
     #define ENDSTOPPULLDOWN_VMAX
   #endif
-  #if ENABLED(USE_WMAX_PLUG)
+  #if HAS_W_MAX
     #define ENDSTOPPULLDOWN_WMAX
   #endif
-  #if ENABLED(USE_XMIN_PLUG)
+  #if HAS_X_MIN
     #define ENDSTOPPULLDOWN_XMIN
   #endif
-  #if ENABLED(USE_YMIN_PLUG)
+  #if HAS_Y_MIN
     #define ENDSTOPPULLDOWN_YMIN
   #endif
-  #if ENABLED(USE_ZMIN_PLUG)
+  #if HAS_Z_MIN
     #define ENDSTOPPULLDOWN_ZMIN
   #endif
-  #if ENABLED(USE_IMIN_PLUG)
+  #if HAS_I_MIN
     #define ENDSTOPPULLDOWN_IMIN
   #endif
-  #if ENABLED(USE_JMIN_PLUG)
+  #if HAS_J_MIN
     #define ENDSTOPPULLDOWN_JMIN
   #endif
-  #if ENABLED(USE_KMIN_PLUG)
+  #if HAS_K_MIN
     #define ENDSTOPPULLDOWN_KMIN
   #endif
-  #if ENABLED(USE_UMIN_PLUG)
+  #if HAS_U_MIN
     #define ENDSTOPPULLDOWN_UMIN
   #endif
-  #if ENABLED(USE_VMIN_PLUG)
+  #if HAS_V_MIN
     #define ENDSTOPPULLDOWN_VMIN
   #endif
-  #if ENABLED(USE_WMIN_PLUG)
+  #if HAS_W_MIN
     #define ENDSTOPPULLDOWN_WMIN
   #endif
 #endif
