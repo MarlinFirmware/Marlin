@@ -185,7 +185,7 @@
    */
   #define BEEPER_PIN                 EXP1_01_PIN
   #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   #define KILL_PIN                   EXP1_04_PIN
 

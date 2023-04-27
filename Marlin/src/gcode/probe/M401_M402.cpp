@@ -28,7 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-#ifdef BLTOUCH_HS_MODE
+#if HAS_BLTOUCH_HS_MODE
   #include "../../feature/bltouch.h"
 #endif
 
@@ -42,7 +42,7 @@
  *  R<bool> Remain in place after deploying (and before activating) the probe
  */
 void GcodeSuite::M401() {
-  #ifdef BLTOUCH_HS_MODE
+  #if HAS_BLTOUCH_HS_MODE
     const bool seenH = parser.seen_test('H'),
                seenS = parser.seen('S');
     if (seenH || seenS) {
@@ -65,7 +65,9 @@ void GcodeSuite::M401() {
  */
 void GcodeSuite::M402() {
   probe.stow(parser.boolval('R'));
-  probe.move_z_after_probing();
+  #ifdef Z_AFTER_PROBING
+    do_z_clearance(Z_AFTER_PROBING);
+  #endif
   report_current_position();
 }
 

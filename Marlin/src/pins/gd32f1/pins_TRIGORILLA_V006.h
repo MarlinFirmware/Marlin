@@ -115,10 +115,10 @@
 //
 #define SD_DETECT_PIN                       PC7
 
-#ifndef SDIO_SUPPORT
-  #define SDIO_SUPPORT
+#ifndef ONBOARD_SDIO
+  #define ONBOARD_SDIO
 #endif
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   //
   // SPI
   //

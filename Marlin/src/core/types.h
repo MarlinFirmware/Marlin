@@ -67,6 +67,8 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 
 #define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
+#define SECONDARY_AXIS_LIST(V...) LIST_N(SECONDARY_AXES, V)
+#define SECONDARY_AXIS_ARGS(T)    SECONDARY_AXIS_LIST(T i, T j, T k, T u, T v, T w)
 
 #if HAS_ROTATIONAL_AXES
   #define ROTATIONAL_AXIS_GANG(V...) GANG_N(ROTATIONAL_AXES, V)

@@ -66,9 +66,9 @@ struct partitionTable {
    * Sector part of Cylinder-head-sector address of the first block in
    * the partition. Legal values are 1-63. Only used in old PC BIOS.
    */
-  unsigned beginSector : 6;
+  uint8_t beginSector : 6;
   /** High bits cylinder for first block in partition. */
-  unsigned beginCylinderHigh : 2;
+  uint8_t beginCylinderHigh : 2;
   /**
    * Combine beginCylinderLow with beginCylinderHigh. Legal values
    * are 0-1023.  Only used in old PC BIOS.
@@ -88,9 +88,9 @@ struct partitionTable {
    * Sector part of cylinder-head-sector address of the last sector in
    * the partition.  Legal values are 1-63. Only used in old PC BIOS.
    */
-  unsigned endSector : 6;
+  uint8_t endSector : 6;
   /** High bits of end cylinder */
-  unsigned endCylinderHigh : 2;
+  uint8_t endCylinderHigh : 2;
   /**
    * Combine endCylinderLow with endCylinderHigh. Legal values
    * are 0-1023.  Only used in old PC BIOS.

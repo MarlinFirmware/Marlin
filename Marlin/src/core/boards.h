@@ -21,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * Whenever changes are made to this file, please update Marlin/Makefile
+ * and _data/boards.yml in the MarlinDocumentation repo.
+ */
+
 #include "macros.h"
 
 #define BOARD_UNKNOWN -1
@@ -118,6 +123,8 @@
 #define BOARD_LONGER3D_LKx_PRO        1162  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
 #define BOARD_ZRIB_V53                1163  // Zonestar zrib V5.3 (Chinese RAMPS replica)
 #define BOARD_PXMALION_CORE_I3        1164  // Pxmalion Core I3
+#define BOARD_PANOWIN_CUTLASS         1165  // Panowin Cutlass (as found in the Panowin F1)
+#define BOARD_KODAMA_BARDO            1166  // Kodama Bardo V1.x (as found in the Kodama Trinus)
 
 //
 // RAMBo and derivatives

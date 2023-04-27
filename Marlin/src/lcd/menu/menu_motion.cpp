@@ -317,7 +317,7 @@ void menu_motion() {
   //
   // ^ Main
   //
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Move Axis

@@ -49,6 +49,10 @@
   #include "stepper/speed_lookuptable.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "ft_types.h"
+#endif
+
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
@@ -470,6 +474,7 @@ constexpr ena_mask_t enable_overlap[] = {
 //
 class Stepper {
   friend class Max7219;
+  friend class FxdTiCtrl;
   friend void stepperTask(void *);
 
   public:
@@ -809,13 +814,18 @@ class Stepper {
     static void disable_all_steppers();
 
     // Update direction states for all steppers
-    static void set_directions();
+    static void apply_directions();
 
     // Set direction bits and update all stepper DIR states
     static void set_directions(const axis_bits_t bits) {
       last_direction_bits = bits;
-      set_directions();
+      apply_directions();
     }
+
+    #if ENABLED(FT_MOTION)
+      // Manage the planner
+      static void fxdTiCtrl_BlockQueueUpdate();
+    #endif
 
     #if HAS_ZV_SHAPING
       static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
@@ -846,6 +856,11 @@ class Stepper {
 
     #if HAS_MICROSTEPS
       static void microstep_init();
+    #endif
+
+    #if ENABLED(FT_MOTION)
+      static void fxdTiCtrl_stepper(const bool applyDir, const ft_command_t command);
+      static void fxdTiCtrl_refreshAxisDidMove();
     #endif
 
 };

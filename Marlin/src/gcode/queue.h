@@ -256,7 +256,7 @@ private:
 
   static void get_serial_commands();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void get_sdcard_commands();
   #endif
 

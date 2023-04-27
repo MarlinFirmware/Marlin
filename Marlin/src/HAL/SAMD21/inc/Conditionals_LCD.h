@@ -20,12 +20,4 @@
  *
  */
 
-/**
- * SAMD21 HAL developed by Bart Meijer (brupje)
- * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
- */
 #pragma once
-
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/SAMD21."
-#endif

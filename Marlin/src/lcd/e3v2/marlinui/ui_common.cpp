@@ -28,9 +28,8 @@
 #include "dwin_lcd.h"
 #include "dwin_string.h"
 
-//#include "../../lcdprint.h"
 #include "lcdprint_dwin.h"
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../../libs/numtostr.h"
 #include "../../marlinui.h"
 
@@ -39,7 +38,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../../libs/duration_t.h"
 #endif
 
@@ -311,7 +310,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -320,19 +319,37 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.fg = Color_White;
 
       dwin_string.set();
+
+      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
       const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
                    vlen = vstr ? utf8_strlen(vstr) : 0;
-      if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
-        while (--pad) dwin_string.add(' ');
+      int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
+
+      // SS_CENTER: Pad with half of the unused space first
+      if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
+
+      // Append the templated label string
+      if (plen) {
+        dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+        pad -= dwin_string.length - plen;
       }
 
-      if (plen) dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
-      if (vlen) dwin_string.add(vstr);
-      if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
-        while (--pad) dwin_string.add(' ');
+      // SS_FULL: Pad with enough space to justify the value
+      if (vlen) {
+        if (full && !center) {
+          // Move the leading colon from the value to the label
+          if (*vstr == ':') { dwin_string.add(':'); vstr++; }
+          // Move spaces to the padding
+          while (*vstr == ' ') { vstr++; pad++; }
+          // Pad in-between
+          for (; pad > 0; --pad) dwin_string.add(' ');
+        }
+        // Append the value
+        dwin_string.add(vstr);
       }
+
+      // SS_CENTER: Pad the rest of the string
+      if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
 
       lcd_moveto(1, row);
       lcd_put_dwin_string();
@@ -449,7 +466,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     if (yes) draw_boxed_string(true, yes,  yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -469,7 +486,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 

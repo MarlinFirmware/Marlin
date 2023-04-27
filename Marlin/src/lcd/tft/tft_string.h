@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "../fontutils.h"
+#include "../utf8.h"
 
 #define NO_GLYPH  0xFF
 

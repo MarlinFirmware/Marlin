@@ -259,7 +259,9 @@ void report_current_position_projected();
 
 #if ENABLED(AUTO_REPORT_POSITION)
   #include "../libs/autoreport.h"
-  struct PositionReport { static void report() { report_current_position_projected(); } };
+  struct PositionReport { static void report() {
+    TERN(AUTO_REPORT_REAL_POSITION, report_real_position(), report_current_position_projected());
+  } };
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
@@ -398,14 +400,24 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
-void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
+  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    #define Z_POST_CLEARANCE HMI_data.z_after_homing
+  #elif defined(Z_AFTER_HOMING)
+    #define Z_POST_CLEARANCE Z_AFTER_HOMING
+  #else
+    #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+  #endif
+  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
+  void do_z_clearance_by(const_float_t zclear);
+  void do_move_after_z_homing();
+  inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 #else
-  inline void do_z_clearance(float, bool=false) {}
+  inline void do_z_clearance(float, bool=true, bool=false) {}
+  inline void do_z_clearance_by(float) {}
 #endif
 
 /**
@@ -434,25 +446,20 @@ void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
   bool homing_needed_error(main_axes_bits_t axes_mask=main_axes_mask);
-  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axes_homed, axis); }
-  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axes_trusted, axis); }
-  inline void set_all_unhomed()                       { axes_homed = axes_trusted = 0; }
-  inline void set_axis_homed(const AxisEnum axis)     { SBI(axes_homed, axis); }
-  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axes_trusted, axis); }
-  inline void set_all_homed()                         { axes_homed = axes_trusted = main_axes_mask; }
 #else
   constexpr main_axes_bits_t axes_homed = main_axes_mask, axes_trusted = main_axes_mask; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
   inline main_axes_bits_t axes_should_home(main_axes_bits_t=main_axes_mask) { return 0; }
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
-  inline void set_axis_unhomed(const AxisEnum axis)   {}
-  inline void set_axis_untrusted(const AxisEnum axis) {}
-  inline void set_all_unhomed()                       {}
-  inline void set_axis_homed(const AxisEnum axis)     {}
-  inline void set_axis_trusted(const AxisEnum axis)   {}
-  inline void set_all_homed()                         {}
 #endif
+
+inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
+inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
+inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
+inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
+inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
+inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }

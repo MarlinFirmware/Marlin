@@ -104,14 +104,14 @@
 
   #define SD_DETECT_PIN                    P0_27  // EXP2-7
   #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
+  #define LCD_PINS_EN                      P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
   #if BOTH(HAS_MARLINUI_HD44780, IS_RRD_SC)
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER displays aren't supported by the BIQU BQ111-A4"
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #error "SDSUPPORT is not supported by the BIQU BQ111-A4 when an LCD controller is used"
   #endif
 
@@ -123,7 +123,7 @@
  * Software SPI is used to interface with a stand-alone SD card reader connected to EXP1.
  * Hardware SPI can't be used because P0_17 (MISO) is not brought out on this board.
  */
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   #define SD_SCK_PIN                       P0_15  // EXP1-5
   #define SD_MISO_PIN                      P0_16  // EXP1-4
@@ -131,14 +131,14 @@
   #define SD_SS_PIN                        P1_30  // EXP1-2
   #define SDSS                         SD_SS_PIN
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 /**
  *  PWMS
  *
  *  There are 6 PWMS.  Each PWM can be assigned to one of two pins.
  *
- *  PWM1.1   P0_18   LCD_PINS_ENABLE
+ *  PWM1.1   P0_18   LCD_PINS_EN
  *  PWM1.1   P2_0    X_STEP_PIN
  *  PWM1.2   P1_20   <none>
  *  PWM1.2   P2_1    Y_STEP_PIN

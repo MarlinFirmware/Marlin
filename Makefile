@@ -1,4 +1,4 @@
-SCRIPTS_DIR := scripts
+SCRIPTS_DIR := buildroot/share/scripts
 CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
@@ -27,7 +27,7 @@ help:
 
 tests-single-ci:
 	export GIT_RESET_HARD=true
-	$(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET)
+	$(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) PLATFORMIO_BUILD_FLAGS=-DGITHUB_ACTION
 .PHONY: tests-single-ci
 
 tests-single-local:

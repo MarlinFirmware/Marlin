@@ -28,7 +28,7 @@
 
 namespace DGUSTxHandler {
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     void SetFileControlState(int16_t, bool);
     void FileType(DGUS_VP &);
     void FileName(DGUS_VP &);
