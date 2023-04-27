@@ -30,7 +30,7 @@
  */
 #pragma once
 
-#include "fontutils.h"
+#include "utf8.h"
 
 #include "../inc/MarlinConfig.h"
 

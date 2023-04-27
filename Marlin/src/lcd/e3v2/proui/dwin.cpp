@@ -31,7 +31,7 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include "../../../sd/cardreader.h"

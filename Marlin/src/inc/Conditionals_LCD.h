@@ -540,6 +540,10 @@
   #define HAS_LCDPRINT 1
 #endif
 
+#if HAS_DISPLAY || HAS_LCDPRINT
+  #define HAS_UTF8_UTILS 1
+#endif
+
 #if HAS_DISPLAY || HAS_DWIN_E3V2
   #define HAS_STATUS_MESSAGE 1
 #endif

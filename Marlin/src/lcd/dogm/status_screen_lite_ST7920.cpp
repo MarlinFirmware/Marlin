@@ -73,7 +73,6 @@
 #if ENABLED(LIGHTWEIGHT_UI)
 
 #include "../marlinui.h"
-#include "../fontutils.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"
 #include "../../module/motion.h"

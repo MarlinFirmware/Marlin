@@ -25,7 +25,7 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "tft_string.h"
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../marlinui.h"
 
 //#define DEBUG_TFT_FONT
