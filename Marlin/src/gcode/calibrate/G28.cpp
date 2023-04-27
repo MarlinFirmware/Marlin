@@ -385,6 +385,7 @@ void GcodeSuite::G28() {
                NUM_AXIS_LIST(              // Home each axis if needed or flagged
                  homeX = needX || parser.seen_test('X'),
                  homeY = needY || parser.seen_test('Y'),
+                 homeZZ = homeZ,
                  homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
                  homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                  homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
