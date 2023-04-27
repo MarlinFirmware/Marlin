@@ -27,7 +27,9 @@
 
 #include "MarlinConfigPre.h"
 
-#ifndef __MARLIN_DEPS__
+#ifdef __MARLIN_DEPS__
+  #include "../HAL/shared/fauxpins.h"
+#else
   #include "../HAL/HAL.h"
 #endif
 

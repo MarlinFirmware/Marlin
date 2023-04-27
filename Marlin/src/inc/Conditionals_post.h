@@ -2503,6 +2503,24 @@
   #undef AUTO_POWER_COOLER_FAN
 #endif
 
+/**
+ * Controller Fan Settings
+ */
+#if PIN_EXISTS(CONTROLLER_FAN)
+  #define HAS_CONTROLLER_FAN 1
+#endif
+
+#if HAS_CONTROLLER_FAN
+  #if ENABLED(CONTROLLER_FAN_USE_BOARD_TEMP)
+    #define HAS_CONTROLLER_FAN_BOARD_TEMP_TRIGGER 1
+    #ifndef CONTROLLER_FAN_TRIGGER_TEMP
+      #define CONTROLLER_FAN_TRIGGER_TEMP 30
+    #endif
+  #else
+    #undef CONTROLLER_FAN_TRIGGER_TEMP
+  #endif
+#endif
+
 // Print Cooling fans (limit)
 #ifdef NUM_M106_FANS
   #define MAX_FANS NUM_M106_FANS
@@ -2512,11 +2530,12 @@
 
 #define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
 #define _HAS_FAN(F) (F < MAX_FANS && PIN_EXISTS(FAN##F) \
-                     && CONTROLLER_FAN_PIN != FAN##F##_PIN \
+                     && !(HAS_CONTROLLER_FAN && CONTROLLER_FAN_PIN == FAN##F##_PIN) \
                      && !_IS_E_AUTO(0,F) && !_IS_E_AUTO(1,F) \
                      && !_IS_E_AUTO(2,F) && !_IS_E_AUTO(3,F) \
                      && !_IS_E_AUTO(4,F) && !_IS_E_AUTO(5,F) \
                      && !_IS_E_AUTO(6,F) && !_IS_E_AUTO(7,F))
+
 #if _HAS_FAN(0)
   #define HAS_FAN0 1
 #endif
@@ -2581,24 +2600,6 @@
 
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
-#endif
-
-/**
- * Controller Fan Settings
- */
-#if PIN_EXISTS(CONTROLLER_FAN)
-  #define HAS_CONTROLLER_FAN 1
-#endif
-
-#if HAS_CONTROLLER_FAN
-  #if ENABLED(CONTROLLER_FAN_USE_BOARD_TEMP)
-    #define HAS_CONTROLLER_FAN_BOARD_TEMP_TRIGGER 1
-    #ifndef CONTROLLER_FAN_TRIGGER_TEMP
-      #define CONTROLLER_FAN_TRIGGER_TEMP 30
-    #endif
-  #else
-    #undef CONTROLLER_FAN_TRIGGER_TEMP
-  #endif
 #endif
 
 /**
