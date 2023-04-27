@@ -156,6 +156,7 @@
 #define Y_MAX_PIN                           PB14
 #define Z_MAX_PIN                           PB13
 
+// TODO: Use different pin names for auto-remapping
 #ifdef OPTION_Z2_ENDSTOP
   #define Z2_MIN_PIN                        PD1
   #define Z2_MAX_PIN                        PB12
