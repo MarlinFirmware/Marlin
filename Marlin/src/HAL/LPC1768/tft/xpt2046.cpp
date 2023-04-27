@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef TARGET_LPC1768
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
@@ -130,4 +132,5 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
   return result;
 }
 
-#endif // HAS_TFT_XPT2046
+#endif // HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
+#endif // TARGET_LPC1768
