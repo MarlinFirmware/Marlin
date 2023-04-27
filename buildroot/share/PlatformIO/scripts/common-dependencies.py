@@ -273,16 +273,6 @@ if pioutil.is_pio_build():
             feature = define[8:].strip().decode().split(' ')
             feature, definition = feature[0], ' '.join(feature[1:])
             marlin_features[feature] = definition
-
-        # Only build with the required font files, shortens build time.
-        if 'HAS_GRAPHICAL_TFT' in marlin_features:
-            notofont_feat = "NOTOSANS"  # default
-            if 'TFT_FONT' in marlin_features:
-                notofont_feat = marlin_features["TFT_FONT"]
-
-            if notofont_feat:
-                marlin_features["TFT_FONT_" + notofont_feat] = "1"
-
         env['MARLIN_FEATURES'] = marlin_features
 
     #
@@ -303,7 +293,7 @@ if pioutil.is_pio_build():
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)
 
-        #print(feature + " is " + str(some_on))
+        #blab("%s is %s" % (feature, str(some_on)))
 
         return some_on
 
