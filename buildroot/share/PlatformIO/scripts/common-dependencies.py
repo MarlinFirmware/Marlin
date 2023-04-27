@@ -189,30 +189,26 @@ if pioutil.is_pio_build():
         src_filter = ""
         if True:
             # Build the actual equivalent build_src_filter list based on the inclusions by the features.
-            # PlatformIO itself is NOT smart enough to do this! Maybe in the future it may become smart...
+            # PlatformIO doesn't do it this way, but maybe in the future....
             cur_srcs = set()
-            # first we need to remove the references to the same folder
+            # Remove the references to the same folder
             my_srcs = re.findall(r'([+-]<.*?>)', build_filters)
-            def printpathdbg(x):
-                #print(x)
-                return
             for d in my_srcs:
-                # gonna assume normalized relative paths here.
+                # Assume normalized relative paths
                 plain = d[2:-1]
                 if d[0] == '+':
                     def addentry(fullpath, info=None):
                         relp = os.path.relpath(fullpath, marlinbasedir)
                         if srcfilepattern.match(relp):
                             if info:
-                                printpathdbg( "Added src file " + relp + " (" + str(info) + ")" )
+                                blab("Added src file %s (%s)" % (relp, str(info)))
                             else:
-                                printpathdbg( "Added src file " + relp )
+                                blab("Added src file %s " % relp)
                             cur_srcs.add(relp)
-                    # Special rule by PlatformIO: if a direct folder is specified then add all files
-                    # inside of that folder
+                    # Special rule: If a direct folder is specified add all files within.
                     fullplain = os.path.join(marlinbasedir, plain)
                     if os.path.isdir(fullplain):
-                        printpathdbg( "Directory content addition for " + plain )
+                        blab("Directory content addition for %s " % plain)
                         gpattern = os.path.join(fullplain, "**")
                         for fname in glob.glob(gpattern, recursive=True):
                             addentry(fname, "dca")
@@ -227,42 +223,38 @@ if pioutil.is_pio_build():
                         for fname in glob.glob(gpattern, recursive=True):
                             addentry(fname)
                 else:
-                    # Special rule by PlatformIO: if a direct folder is specified then remove all files
-                    # from it.
+                    # Special rule: If a direct folder is specified then remove all files within.
                     def onremove(relp, info=None):
                         if info:
-                            printpathdbg( "Removed src file " + relp + " (" + str(info) + ")" )
+                            blab("Removed src file %s (%s)" % (relp, str(info)))
                         else:
-                            printpathdbg( "Removed src file " + relp )
+                            blab("Removed src file %s " % relp)
                     fullplain = os.path.join(marlinbasedir, plain)
                     if os.path.isdir(fullplain):
-                        printpathdbg( "Directory content removal for " + plain )
+                        blab("Directory content removal for %s " % plain)
                         def filt(x):
                             common = os.path.commonpath([plain, x])
-                            if not common == os.path.normpath(plain):
-                                return True
+                            if not common == os.path.normpath(plain): return True
                             onremove(x, "dcr")
                             return False
                         cur_srcs = set(filter(filt, cur_srcs))
                     else:
-                        # Remove source entries that match pattern.
+                        # Remove matching source entries.
                         def filt(x):
-                            if not fnmatch.fnmatch(x, plain):
-                                return True
+                            if not fnmatch.fnmatch(x, plain): return True
                             onremove(x)
                             return False
                         cur_srcs = set(filter(filt, cur_srcs))
-            # Transform the set into a string.
+            # Transform the resulting set into a string.
             for x in cur_srcs:
-                if len(src_filter) > 0:
-                    src_filter += ' '
+                if len(src_filter) > 0: src_filter += ' '
                 src_filter += "+<" + x + ">"
 
-            #print( "Final: " + src_filter )
+            #blab("Final src_filter: " + src_filter)
         else:
             src_filter = build_filters
 
-        # Tell it to PlatformIO.
+        # Update in PlatformIO
         set_env_field('build_src_filter', [src_filter])
         env.Replace(SRC_FILTER=src_filter)
 
@@ -311,7 +303,7 @@ if pioutil.is_pio_build():
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)
 
-        #print( feature + " is " + str(some_on) )
+        #print(feature + " is " + str(some_on))
 
         return some_on
 
