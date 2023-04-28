@@ -1013,8 +1013,6 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
 
-    float temp[2]; // Buffer to store 2 previous temperature reading to establish rate of change
-
     // Initialise rate of change to to steady state at current time
     temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
@@ -1038,7 +1036,7 @@ volatile bool Temperature::raw_temps_ready = false;
           if (curr_rate > rate_fastest) {
             // Update fastest values
             rate_fastest = curr_rate;
-            temp_fastest = temp[1];
+            temp_fastest = temp_samples[1];
             time_fastest = get_elapsed_heating_time();
           }
 
