@@ -165,13 +165,13 @@ public:
 
     static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE,
       const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
-      const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE);
+      const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE, const bool lift_relative=false);
 
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE,
       const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
-      const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE
+      const float z_min_point=Z_PROBE_LOW_POINT, float z_clearance=Z_TWEEN_SAFE_CLEARANCE, const bool lift_relative=false
     ) {
-      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance);
+      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance, lift_relative);
     }
 
   #else // !HAS_BED_PROBE
