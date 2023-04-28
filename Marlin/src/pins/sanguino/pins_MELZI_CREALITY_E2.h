@@ -21,21 +21,6 @@
  */
 #pragma once
 
-/**
- * Melzi (Creality) pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20(Creality)/CR-10%20Schematic.pdf
- * Origin: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
- * ATmega1284P
- *
- * The Creality board needs a bootloader installed before Marlin can be uploaded.
- * If you don't have a chip programmer you can use a spare Arduino plus a few
- * electronic components to write the bootloader.
- *
- * See https://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
- *
- * Schematic: https://bit.ly/2XOnsWb
- */
-
 #define BOARD_INFO_NAME "Melzi Ender 2 (Creality)"
 
 /*
@@ -60,14 +45,14 @@
  *               ------                            ------                               ------
  */
 
-#define EXP1_01_PIN                 7
-#define EXP1_02_PIN                16
-#define EXP1_03_PIN                11
-#define EXP1_04_PIN                -1  // hardware reset line
-#define EXP1_05_PIN                10
-#define EXP1_06_PIN                30
-#define EXP1_07_PIN                28
-#define EXP1_08_PIN                 5
+#define EXP1_01_PIN                            7
+#define EXP1_02_PIN                           16
+#define EXP1_03_PIN                           11
+#define EXP1_04_PIN                           -1  // hardware reset line
+#define EXP1_05_PIN                           10
+#define EXP1_06_PIN                           30
+#define EXP1_07_PIN                           28
+#define EXP1_08_PIN                            5
 
 //
 // LCD / Controller
@@ -77,21 +62,21 @@
     #if ENABLED(SDSUPPORT)
       #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
     #endif
-    #define LCD_PINS_RS                  EXP1_07_PIN  // ST9720 CS
-    #define LCD_PINS_EN                  EXP1_08_PIN  // ST9720 DAT
-    #define LCD_PINS_D4                  EXP1_06_PIN  // ST9720 CLK
-    #define BEEPER_PIN                   EXP1_01_PIN
+    #define LCD_PINS_RS              EXP1_07_PIN  // ST9720 CS
+    #define LCD_PINS_EN              EXP1_08_PIN  // ST9720 DAT
+    #define LCD_PINS_D4              EXP1_06_PIN  // ST9720 CLK
+    #define BEEPER_PIN               EXP1_01_PIN
   #elif ENABLED(ENDER2_STOCKDISPLAY)
-    #define DOGLCD_CS                    EXP1_07_PIN
-    #define DOGLCD_A0                    EXP1_06_PIN
+    #define DOGLCD_CS                EXP1_07_PIN
+    #define DOGLCD_A0                EXP1_06_PIN
   #endif
-  #define BTN_ENC                        EXP1_02_PIN
-  #define BTN_EN1                        EXP1_03_PIN
-  #define BTN_EN2                        EXP1_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
   #define LCD_PINS_DEFINED
 #endif
 
-#define LCD_SDSS                               31  // Controller's SD card
+#define LCD_SDSS                              31  // Controller's SD card
 
 #include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 
@@ -110,4 +95,3 @@
     #undef BEEPER_PIN
   #endif
 #endif
-
