@@ -1082,14 +1082,14 @@ namespace ExtUI {
   #endif
 
   void printFile(const char *filename) {
-    TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
+    TERN(HAS_MEDIA, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, IS_SD_PAUSED());
+    return TERN0(HAS_MEDIA, IS_SD_PAUSED());
   }
 
-  bool isPrintingFromMedia() { return TERN0(SDSUPPORT, IS_SD_PRINTING() || IS_SD_PAUSED()); }
+  bool isPrintingFromMedia() { return TERN0(HAS_MEDIA, IS_SD_PRINTING() || IS_SD_PAUSED()); }
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
@@ -1099,7 +1099,7 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED()); }
+  bool isMediaInserted() { return TERN0(HAS_MEDIA, IS_SD_INSERTED()); }
 
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
@@ -1138,7 +1138,7 @@ namespace ExtUI {
   void FileList::refresh() { }
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (!skip_range_check && (pos + 1) > count()) return false;
       card.selectFileByIndexSorted(pos);
       return card.filename[0] != '\0';
@@ -1150,35 +1150,35 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return TERN(SDSUPPORT, card.longest_filename(), "");
+    return TERN(HAS_MEDIA, card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
-    return TERN(SDSUPPORT, card.filename, "");
+    return TERN(HAS_MEDIA, card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    return TERN(SDSUPPORT, card.longFilename, "");
+    return TERN(HAS_MEDIA, card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    return TERN0(SDSUPPORT, card.flag.filenameIsDir);
+    return TERN0(HAS_MEDIA, card.flag.filenameIsDir);
   }
 
   uint16_t FileList::count() {
-    return TERN0(SDSUPPORT, card.get_num_items());
+    return TERN0(HAS_MEDIA, card.get_num_items());
   }
 
   bool FileList::isAtRootDir() {
-    return TERN1(SDSUPPORT, card.flag.workDirIsRoot);
+    return TERN1(HAS_MEDIA, card.flag.workDirIsRoot);
   }
 
   void FileList::upDir() {
-    TERN_(SDSUPPORT, card.cdup());
+    TERN_(HAS_MEDIA, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {
-    TERN(SDSUPPORT, card.cd(dirname), UNUSED(dirname));
+    TERN(HAS_MEDIA, card.cd(dirname), UNUSED(dirname));
   }
 
 } // namespace ExtUI

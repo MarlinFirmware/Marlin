@@ -33,6 +33,10 @@
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "GT2560 supports up to 3 hotends / E steppers."
+#endif
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 3.x"
 #endif

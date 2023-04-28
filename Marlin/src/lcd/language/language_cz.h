@@ -334,7 +334,7 @@ namespace Language_cz {
   LSTR MSG_STOP_PRINT                     = _UxGT("Zastavit tisk");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Tisk objektu");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Zrušit objekt");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Zrušit objekt =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Zrušit objekt {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Obnova výpadku");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Tisknout z SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Žádná SD karta");
@@ -512,7 +512,7 @@ namespace Language_cz {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Vytáhněte, klikněte");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponenta =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponenta {");
   LSTR MSG_MIXER                          = _UxGT("Mixér");
   LSTR MSG_GRADIENT                       = _UxGT("Přechod");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Celý přechod");

@@ -103,13 +103,6 @@
 #endif
 
 //
-// Serial LCD
-//
-#if LCD_NEEDS_SERIAL_PORT && !defined(LCD_SERIAL_PORT)
-  #define LCD_SERIAL_PORT                      2  // D16 H1 (TX2), D17 H0 (RX2)
-#endif
-
-//
 // SD Card
 //
 #define SD_DETECT_PIN                         28  // A6 Onboard SD

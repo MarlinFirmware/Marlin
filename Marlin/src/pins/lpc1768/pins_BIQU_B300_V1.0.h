@@ -134,7 +134,7 @@
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER displays aren't supported by the BIQU B300 v1.0"
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #error "SDSUPPORT is not supported by the BIQU B300 v1.0 when an LCD controller is used"
   #endif
 
@@ -146,7 +146,7 @@
  * Software SPI is used to interface with a stand-alone SD card reader connected to EXP1.
  * Hardware SPI can't be used because P0_17 (MISO) is not brought out on this board.
  */
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_SCK_PIN                       P0_15  // EXP1-5
   #define SD_MISO_PIN                      P0_16  // EXP1-4
   #define SD_MOSI_PIN                      P0_18  // EXP1-3

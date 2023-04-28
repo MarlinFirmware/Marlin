@@ -540,6 +540,21 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
     prepare_line_to_destination();
 }
 
+#if SECONDARY_AXES
+
+  void secondary_axis_moves(SECONDARY_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s) {
+    auto move_one = [&](const AxisEnum a, const_float_t p) {
+      const feedRate_t fr = fr_mm_s ?: homing_feedrate(a);
+      current_position[a] = p; line_to_current_position(fr);
+    };
+    SECONDARY_AXIS_CODE(
+      move_one(I_AXIS, i), move_one(J_AXIS, j), move_one(K_AXIS, k),
+      move_one(U_AXIS, u), move_one(V_AXIS, v), move_one(W_AXIS, w)
+    );
+  }
+
+#endif
+
 /**
  * Plan a move to (X, Y, Z, [I, [J, [K...]]]) and set the current_position
  * Plan a move to (X, Y, Z, [I, [J, [K...]]]) with separation of Z from other components.
@@ -558,14 +573,6 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/
   #if HAS_Z_AXIS
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
   #endif
-  SECONDARY_AXIS_CODE(
-    const feedRate_t i_feedrate = fr_mm_s ?: homing_feedrate(I_AXIS),
-    const feedRate_t j_feedrate = fr_mm_s ?: homing_feedrate(J_AXIS),
-    const feedRate_t k_feedrate = fr_mm_s ?: homing_feedrate(K_AXIS),
-    const feedRate_t u_feedrate = fr_mm_s ?: homing_feedrate(U_AXIS),
-    const feedRate_t v_feedrate = fr_mm_s ?: homing_feedrate(V_AXIS),
-    const feedRate_t w_feedrate = fr_mm_s ?: homing_feedrate(W_AXIS)
-  );
 
   #if IS_KINEMATIC && DISABLED(POLARGRAPH)
     // kinematic machines are expected to home to a point 1.5x their range? never reachable.
@@ -608,12 +615,20 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/
       if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
     }
 
+    #if SECONDARY_AXES
+      secondary_axis_moves(SECONDARY_AXIS_LIST(i, j, k, u, v, w), fr_mm_s);
+    #endif
+
   #elif IS_SCARA
 
     // If Z needs to raise, do it before moving XY
     if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
 
     destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate);
+
+    #if SECONDARY_AXES
+      secondary_axis_moves(SECONDARY_AXIS_LIST(i, j, k, u, v, w), fr_mm_s);
+    #endif
 
     // If Z needs to lower, do it after moving XY
     if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
@@ -626,23 +641,8 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/
 
     current_position.set(x OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
 
-    #if HAS_I_AXIS
-      current_position.i = i; line_to_current_position(i_feedrate);
-    #endif
-    #if HAS_J_AXIS
-      current_position.j = j; line_to_current_position(j_feedrate);
-    #endif
-    #if HAS_K_AXIS
-      current_position.k = k; line_to_current_position(k_feedrate);
-    #endif
-    #if HAS_U_AXIS
-      current_position.u = u; line_to_current_position(u_feedrate);
-    #endif
-    #if HAS_V_AXIS
-      current_position.v = v; line_to_current_position(v_feedrate);
-    #endif
-    #if HAS_W_AXIS
-      current_position.w = w; line_to_current_position(w_feedrate);
+    #if SECONDARY_AXES
+      secondary_axis_moves(SECONDARY_AXIS_LIST(i, j, k, u, v, w), fr_mm_s);
     #endif
 
     #if HAS_Z_AXIS
@@ -1419,13 +1419,13 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
   void idex_set_mirrored_mode(const bool mirr) {
     idex_mirrored_mode = mirr;
-    stepper.set_directions();
+    stepper.apply_directions();
   }
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index/*=-1*/) {
     extruder_duplication_enabled = dupe;
     if (tool_index >= 0) active_extruder = tool_index;
-    stepper.set_directions();
+    stepper.apply_directions();
   }
 
   void idex_set_parked(const bool park/*=true*/) {
@@ -1471,7 +1471,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
               line_to_current_position(fr_zfast);
             }
           }
-          stepper.set_directions();
+          stepper.apply_directions();
 
           idex_set_parked(false);
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("idex_set_parked(false)");
@@ -2171,32 +2171,9 @@ void prepare_line_to_destination() {
         // Check for a broken endstop
         EndstopEnum es;
         switch (axis) {
-          default:
-          case X_AXIS: es = X_ENDSTOP; break;
-          #if HAS_Y_AXIS
-            case Y_AXIS: es = Y_ENDSTOP; break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: es = Z_ENDSTOP; break;
-          #endif
-          #if HAS_I_AXIS
-            case I_AXIS: es = I_ENDSTOP; break;
-          #endif
-          #if HAS_J_AXIS
-            case J_AXIS: es = J_ENDSTOP; break;
-          #endif
-          #if HAS_K_AXIS
-            case K_AXIS: es = K_ENDSTOP; break;
-          #endif
-          #if HAS_U_AXIS
-            case U_AXIS: es = U_ENDSTOP; break;
-          #endif
-          #if HAS_V_AXIS
-            case V_AXIS: es = V_ENDSTOP; break;
-          #endif
-          #if HAS_W_AXIS
-            case W_AXIS: es = W_ENDSTOP; break;
-          #endif
+          #define _ESCASE(A) case A##_AXIS: es = A##_ENDSTOP; break;
+          MAIN_AXIS_MAP(_ESCASE)
+          default: break;
         }
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", AS_CHAR(AXIS_CHAR(axis)), " Endstop?");
