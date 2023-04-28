@@ -512,7 +512,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #endif
 
   if (z_raise_wanted) {
-    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, _MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE), hotend_offset[active_extruder].z);
+    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, hotend_offset[active_extruder].z);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
     do_z_clearance(zdest);
   }
