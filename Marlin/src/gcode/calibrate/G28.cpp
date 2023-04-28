@@ -407,7 +407,7 @@ void GcodeSuite::G28() {
 
     #if HAS_Z_AXIS
 
-      UNUSED(needZ);UNUSED(homeZZ);
+      UNUSED(needZ); UNUSED(homeZZ);
 
       // Z may home first, e.g., when homing away from the bed.
       // This is also permitted when homing with a Z endstop.
