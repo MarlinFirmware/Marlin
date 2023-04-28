@@ -741,8 +741,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
   };
 
   // Stop the probe before it goes too low to prevent damage.
-  // For known Z probe below the expected trigger point, otherwise -10mm.
-  const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + z_min_point : -10.0f;
+  // For known Z probe below the expected trigger point, otherwise -10mm lower.
+  const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? zoffs + z_min_point : zoffs + z_min_point - 10.0f;
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
