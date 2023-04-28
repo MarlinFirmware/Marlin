@@ -356,6 +356,8 @@ void GcodeSuite::G28() {
 
   endstops.enable(true); // Enable endstops for next homing move
 
+  bool finalRaiseZ = false;
+
   #if ENABLED(DELTA)
 
     constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
@@ -407,8 +409,9 @@ void GcodeSuite::G28() {
 
       UNUSED(needZ); UNUSED(homeZZ);
 
-      // Z may home first, e.g., when homing away from the bed
-      TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
+      // Z may home first, e.g., when homing away from the bed.
+      // This is also permitted when homing with a Z endstop.
+      if (TERN0(HOME_Z_FIRST, doZ)) homeaxis(Z_AXIS);
 
       // 'R' to specify a specific raise. 'R0' indicates no raise, e.g., for recovery.resume
       // When 'R0' is used, there should already be adequate clearance, e.g., from homing Z to max.
@@ -517,7 +520,10 @@ void GcodeSuite::G28() {
           #else
             homeaxis(Z_AXIS);
           #endif
-          do_move_after_z_homing();
+
+          #if EITHER(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+            finalRaiseZ = true;
+          #endif
         }
       #endif
 
@@ -575,18 +581,6 @@ void GcodeSuite::G28() {
   // Clear endstop state for polled stallGuard endstops
   TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
-  // Move to a height where we can use the full xy-area
-  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
-
-  TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
-
-  restore_feedrate_and_scaling();
-
-  // Restore the active tool after homing
-  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
-  #endif
-
   #if HAS_HOMING_CURRENT
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
     #if HAS_CURRENT_HOME(X)
@@ -626,6 +620,23 @@ void GcodeSuite::G28() {
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
   #endif // HAS_HOMING_CURRENT
+
+  // Move to a height where we can use the full xy-area
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+
+  // Move to the configured Z only if Z was homed to MIN, because machines that
+  // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
+  // print, and do_move_after_z_homing is not very nuanced.
+  if (finalRaiseZ) do_move_after_z_homing();
+
+  TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
+
+  // Restore the active tool after homing
+  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+    tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
+  #endif
+
+  restore_feedrate_and_scaling();
 
   ui.refresh();
 

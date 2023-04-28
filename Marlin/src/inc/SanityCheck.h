@@ -2350,6 +2350,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "HOME_Z_FIRST can't be used when homing Z with a probe."
 #endif
 
+#if Z_HOME_TO_MAX && defined(Z_AFTER_HOMING) && DISABLED(ALLOW_Z_AFTER_HOMING)
+  #error "Z_AFTER_HOMING shouldn't be used with Z max homing to keep 'G28 Z' safe for end-of-print usage. Define ALLOW_Z_AFTER_HOMING to allow this at your own risk."
+#endif
+
 // Dual/multiple endstops requirements
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
