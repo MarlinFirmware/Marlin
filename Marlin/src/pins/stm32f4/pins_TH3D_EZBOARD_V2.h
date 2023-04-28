@@ -24,7 +24,7 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "TH3D EZBoard only supports 1 hotend / E stepper."
 #endif
 

@@ -28,6 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#include "../../lcd/marlinui.h"
 
 #if HAS_PTC
   #include "../../feature/probe_temp_comp.h"
@@ -35,10 +36,6 @@
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
-#endif
-
-#if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
-  #include "../../lcd/marlinui.h"
 #endif
 
 /**
@@ -80,7 +77,7 @@ void GcodeSuite::G30() {
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-    const float measured_z = probe.probe_at_point(probepos, raise_after, 1);
+    const float measured_z = probe.probe_at_point(probepos, raise_after);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
       SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
@@ -105,10 +102,8 @@ void GcodeSuite::G30() {
     report_current_position();
   }
   else {
-    #if ENABLED(DWIN_LCD_PROUI)
-      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
-      LCD_MESSAGE(MSG_ZPROBE_OUT);
-    #endif
+    SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
+    LCD_MESSAGE(MSG_ZPROBE_OUT);
   }
 
   probe.use_probing_tool(false);

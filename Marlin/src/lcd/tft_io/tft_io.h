@@ -24,11 +24,11 @@
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+  #include HAL_PATH(../.., tft/tft_spi.h)
 #elif HAS_FSMC_TFT
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+  #include HAL_PATH(../.., tft/tft_fsmc.h)
 #elif HAS_LTDC_TFT
-  #include HAL_PATH(../../HAL, tft/tft_ltdc.h)
+  #include HAL_PATH(../.., tft/tft_ltdc.h)
 #else
   #error "TFT IO only supports SPI, FSMC or LTDC interface."
 #endif

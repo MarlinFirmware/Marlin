@@ -591,14 +591,14 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
-#define SET_STEP_DIR(A)                       \
-  if (motor_direction(_AXIS(A))) {            \
-    A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
-    count_direction[_AXIS(A)] = -1;           \
-  }                                           \
-  else {                                      \
-    A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
-    count_direction[_AXIS(A)] = 1;            \
+#define SET_STEP_DIR(A)                         \
+  if (motor_direction(_AXIS(A))) {              \
+    A##_APPLY_DIR(INVERT_DIR(A, LOW), false);   \
+    count_direction[_AXIS(A)] = -1;             \
+  }                                             \
+  else {                                        \
+    A##_APPLY_DIR(INVERT_DIR(A, HIGH), false);  \
+    count_direction[_AXIS(A)] = 1;              \
   }
 
 /**
@@ -608,7 +608,7 @@ void Stepper::disable_all_steppers() {
  *   COREXZ: X_AXIS=A_AXIS and Z_AXIS=C_AXIS
  *   COREYZ: Y_AXIS=B_AXIS and Z_AXIS=C_AXIS
  */
-void Stepper::set_directions() {
+void Stepper::apply_directions() {
 
   DIR_WAIT_BEFORE();
 
@@ -1578,7 +1578,7 @@ void Stepper::isr() {
           advance_isr();
           nextAdvanceISR = la_interval;
         }
-        else if (nextAdvanceISR == LA_ADV_NEVER)          // Start LA steps if necessary
+        else if (nextAdvanceISR > la_interval)            // Start/accelerate LA steps if necessary
           nextAdvanceISR = la_interval;
       #endif
 
@@ -2169,7 +2169,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #ifdef CPU_32_BIT
 
     // A fast processor can just do integer division
-    return step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
+    constexpr uint32_t min_step_rate = uint32_t(STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX;
+    return step_rate > min_step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
@@ -3197,9 +3198,9 @@ void Stepper::init() {
     else if (zeta >= 1.0f) factor2 = 0.0f;
     else {
       factor2 = 64.44056192 + -99.02008832 * zeta;
-      const_float_t zeta2 = zeta * zeta;
+      const float zeta2 = sq(zeta);
       factor2 += -7.58095488 * zeta2;
-      const_float_t zeta3 = zeta2 * zeta;
+      const float zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
       factor2 = floor(factor2);
     }
@@ -3626,7 +3627,7 @@ void Stepper::report_positions() {
 
   #if DISABLED(DELTA)
 
-    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
+    #define BABYSTEP_AXIS(AXIS, DIR, INV) do{           \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE_AXIS(AXIS);                               \
       DIR_WAIT_BEFORE();                                \
@@ -3645,12 +3646,12 @@ void Stepper::report_positions() {
 
   #if IS_CORE
 
-    #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
+    #define BABYSTEP_CORE(A, B, DIR, INV, ALT) do{              \
       const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
       _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
       DIR_WAIT_BEFORE();                                        \
-      _APPLY_DIR(A, INVERT_DIR(A, (DIR)^(INV));                 \
-      _APPLY_DIR(B, INVERT_DIR(B, (DIR)^(INV)^(ALT));           \
+      _APPLY_DIR(A, INVERT_DIR(A, (DIR)^(INV)));                \
+      _APPLY_DIR(B, INVERT_DIR(B, (DIR)^(INV)^(ALT)));          \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
       _APPLY_STEP(A, _STEP_STATE(A), true);                     \
@@ -3677,21 +3678,21 @@ void Stepper::report_positions() {
 
         case X_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, 0, direction, 0);
+            BABYSTEP_CORE(X, Y, direction, 0, 0);
           #elif CORE_IS_XZ
-            BABYSTEP_CORE(X, Z, 0, direction, 0);
+            BABYSTEP_CORE(X, Z, direction, 0, 0);
           #else
-            BABYSTEP_AXIS(X, 0, direction);
+            BABYSTEP_AXIS(X, direction, 0);
           #endif
           break;
 
         case Y_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, 1, !direction, (CORESIGN(1)>0));
+            BABYSTEP_CORE(X, Y, !direction, 1, (CORESIGN(1)>0));
           #elif CORE_IS_YZ
-            BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
+            BABYSTEP_CORE(Y, Z, direction, 0, (CORESIGN(1)<0));
           #else
-            BABYSTEP_AXIS(Y, 0, direction);
+            BABYSTEP_AXIS(Y, direction, 0);
           #endif
           break;
 
@@ -3700,11 +3701,11 @@ void Stepper::report_positions() {
       case Z_AXIS: {
 
         #if CORE_IS_XZ
-          BABYSTEP_CORE(X, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
+          BABYSTEP_CORE(X, Z, direction, BABYSTEP_INVERT_Z, (CORESIGN(1)<0));
         #elif CORE_IS_YZ
-          BABYSTEP_CORE(Y, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
+          BABYSTEP_CORE(Y, Z, direction, BABYSTEP_INVERT_Z, (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
-          BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction);
+          BABYSTEP_AXIS(Z, direction, BABYSTEP_INVERT_Z);
 
         #else // DELTA
 
@@ -3780,22 +3781,22 @@ void Stepper::report_positions() {
       } break;
 
       #if HAS_I_AXIS
-        case I_AXIS: BABYSTEP_AXIS(I, 0, direction); break;
+        case I_AXIS: BABYSTEP_AXIS(I, direction, 0); break;
       #endif
       #if HAS_J_AXIS
-        case J_AXIS: BABYSTEP_AXIS(J, 0, direction); break;
+        case J_AXIS: BABYSTEP_AXIS(J, direction, 0); break;
       #endif
       #if HAS_K_AXIS
-        case K_AXIS: BABYSTEP_AXIS(K, 0, direction); break;
+        case K_AXIS: BABYSTEP_AXIS(K, direction, 0); break;
       #endif
       #if HAS_U_AXIS
-        case U_AXIS: BABYSTEP_AXIS(U, 0, direction); break;
+        case U_AXIS: BABYSTEP_AXIS(U, direction, 0); break;
       #endif
       #if HAS_V_AXIS
-        case V_AXIS: BABYSTEP_AXIS(V, 0, direction); break;
+        case V_AXIS: BABYSTEP_AXIS(V, direction, 0); break;
       #endif
       #if HAS_W_AXIS
-        case W_AXIS: BABYSTEP_AXIS(W, 0, direction); break;
+        case W_AXIS: BABYSTEP_AXIS(W, direction, 0); break;
       #endif
 
       default: break;
@@ -3984,7 +3985,7 @@ void Stepper::report_positions() {
 
 #else // PRINTRBOARD_G2
 
-  #include HAL_PATH(../HAL, fastio/G2_PWM.h)
+  #include HAL_PATH(.., fastio/G2_PWM.h)
 
 #endif
 
