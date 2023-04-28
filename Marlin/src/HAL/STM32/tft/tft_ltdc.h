@@ -58,7 +58,7 @@ class TFT_LTDC {
     static bool isBusy();
     static void Abort() { /*__HAL_DMA_DISABLE(&DMAtx);*/ }
 
-    static void DataTransferBegin(uint16_t DataWidth = TFT_DATASIZE) {}
+    static void DataTransferBegin(uint16_t DataWidth=TFT_DATASIZE) {}
     static void DataTransferEnd() {};
 
     static void WriteData(uint16_t Data);

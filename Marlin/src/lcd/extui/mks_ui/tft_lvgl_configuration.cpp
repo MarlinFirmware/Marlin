@@ -38,7 +38,7 @@
 #include "../../../MarlinCore.h"
 #include "../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../../HAL, tft/xpt2046.h)
+#include HAL_PATH(../../.., tft/xpt2046.h)
 #include "../../marlinui.h"
 XPT2046 touch;
 
@@ -78,7 +78,7 @@ XPT2046 touch;
 
 static lv_disp_buf_t disp_buf;
 lv_group_t*  g;
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void UpdateAssets();
 #endif
 uint16_t DeviceCode = 0x9488;
@@ -153,7 +153,7 @@ void tft_lvgl_init() {
 
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     UpdateAssets();
     hal.watchdog_refresh();   // LVGL init takes time
     TERN_(MKS_TEST, mks_test_get());
@@ -246,7 +246,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if BOTH(MKS_TEST, SDSUPPORT)
+  #if BOTH(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }
@@ -298,10 +298,8 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-#define TICK_CYCLE 1
-
-unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
-  return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
+uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
+  return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
@@ -494,6 +492,7 @@ void lv_encoder_pin_init() {
 }
 
 #if 1 // HAS_ENCODER_ACTION
+
   void lv_update_encoder() {
     static uint32_t encoder_time1;
     uint32_t tmpTime, diffTime = 0;
@@ -554,7 +553,7 @@ void lv_encoder_pin_init() {
 
       #endif // HAS_ENCODER_WHEEL
 
-    } // next_button_update_ms
+    } // encoder_time1
   }
 
 #endif // HAS_ENCODER_ACTION

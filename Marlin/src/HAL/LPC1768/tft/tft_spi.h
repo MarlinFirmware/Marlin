@@ -69,7 +69,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
+  static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT);
   static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); SSP_Cmd(LPC_SSPx, DISABLE); };
   static void DataTransferAbort();
 

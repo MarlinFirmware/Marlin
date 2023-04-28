@@ -94,18 +94,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB4
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB4
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
 #endif
 
 #if HAS_TMC_UART
@@ -147,7 +145,7 @@
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-#define FAN_PIN                             PA8   // "FAN0"
+#define FAN0_PIN                            PA8   // "FAN0"
 
 //
 // USB connect control
@@ -186,7 +184,7 @@
     #define BTN_EN2                  EXP1_05_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -196,7 +194,7 @@
     #endif
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_ENABLE          EXP1_02_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN

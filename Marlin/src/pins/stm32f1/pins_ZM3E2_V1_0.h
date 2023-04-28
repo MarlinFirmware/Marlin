@@ -39,7 +39,7 @@
 // Zonestar ZM3E2 V1.0 (STM32F103RCT6) board pin assignments
 //=============================================================================
 //  PA0     PWR_HOLD    |  PB0     BEEP            |  PC0     HEATER_0
-//  PA1     FAN_PIN     |  PB1     KILL            |  PC1     HEATER_BED
+//  PA1     FAN0_PIN    |  PB1     KILL            |  PC1     HEATER_BED
 //  PA2     TX2         |  PB2     LCD_SDA         |  PC2     TEMP_BED
 //  PA3     RX2         |  PB3     E1_EN           |  PC3     TEMP_E0
 //  PA4     SD_CS       |  PB4     Z_STOP          |  PC4     SD_DETECT
@@ -149,7 +149,7 @@
 #define HEATER_BED_PIN                      PC1   // BED
 
 #define FAN1_PIN                            PC6
-#define FAN_PIN                             PA1
+#define FAN0_PIN                            PA1
 
 //
 // Temperature Sensors
@@ -186,7 +186,7 @@
   //   8 TX1      PA9     LCD_PINS_RS
   //   7 RX1      PA10    LCD_PINS_D4
   //   6 ENA      PC5     BTN_EN2
-  //   5 DAT      PB2     LCD_PINS_ENABLE
+  //   5 DAT      PB2     LCD_PINS_EN
   //   4 TX3      PB10    BTN_ENC
   //   3 RX3      PB11    BTN_EN1
   //   2 +5V
@@ -194,7 +194,7 @@
 
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN
-  #define LCD_PINS_ENABLE            EXP1_06_PIN
+  #define LCD_PINS_EN                EXP1_06_PIN
   #define LCD_PINS_D4                EXP1_04_PIN
   //#define KILL_PIN                 EXP1_01_PIN
   #define BEEPER_PIN                 EXP1_02_PIN

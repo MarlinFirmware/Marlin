@@ -259,7 +259,9 @@ void report_current_position_projected();
 
 #if ENABLED(AUTO_REPORT_POSITION)
   #include "../libs/autoreport.h"
-  struct PositionReport { static void report() { report_current_position_projected(); } };
+  struct PositionReport { static void report() {
+    TERN(AUTO_REPORT_REAL_POSITION, report_real_position(), report_current_position_projected());
+  } };
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
@@ -301,6 +303,8 @@ void report_current_position_projected();
     void quickresume_stepper();
   #endif
 #endif
+
+float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move));
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -346,7 +350,7 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
@@ -396,23 +400,33 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
-void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
+  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    #define Z_POST_CLEARANCE HMI_data.z_after_homing
+  #elif defined(Z_AFTER_HOMING)
+    #define Z_POST_CLEARANCE Z_AFTER_HOMING
+  #else
+    #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+  #endif
+  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
+  void do_z_clearance_by(const_float_t zclear);
+  void do_move_after_z_homing();
+  inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 #else
-  inline void do_z_clearance(float, bool=false) {}
+  inline void do_z_clearance(float, bool=true, bool=false) {}
+  inline void do_z_clearance_by(float) {}
 #endif
 
 /**
  * Homing and Trusted Axes
  */
-typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type main_axes_bits_t;
+typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 
-typedef IF<(NUM_AXES + EXTRUDERS > 8), uint16_t, uint8_t>::type e_axis_bits_t;
+typedef bits_t(NUM_AXES + EXTRUDERS) e_axis_bits_t;
 constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
@@ -432,25 +446,20 @@ void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
   bool homing_needed_error(main_axes_bits_t axes_mask=main_axes_mask);
-  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axes_homed, axis); }
-  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axes_trusted, axis); }
-  inline void set_all_unhomed()                       { axes_homed = axes_trusted = 0; }
-  inline void set_axis_homed(const AxisEnum axis)     { SBI(axes_homed, axis); }
-  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axes_trusted, axis); }
-  inline void set_all_homed()                         { axes_homed = axes_trusted = main_axes_mask; }
 #else
   constexpr main_axes_bits_t axes_homed = main_axes_mask, axes_trusted = main_axes_mask; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
   inline main_axes_bits_t axes_should_home(main_axes_bits_t=main_axes_mask) { return 0; }
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
-  inline void set_axis_unhomed(const AxisEnum axis)   {}
-  inline void set_axis_untrusted(const AxisEnum axis) {}
-  inline void set_all_unhomed()                       {}
-  inline void set_axis_homed(const AxisEnum axis)     {}
-  inline void set_axis_trusted(const AxisEnum axis)   {}
-  inline void set_all_homed()                         {}
 #endif
+
+inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
+inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
+inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
+inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
+inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
+inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
@@ -618,7 +627,7 @@ void home_if_needed(const bool keeplev=false);
 #endif
 
 #if HAS_M206_COMMAND
-  void set_home_offset(const AxisEnum axis, const float v);
+  void set_home_offset(const AxisEnum axis, const_float_t v);
 #endif
 
 #if USE_SENSORLESS

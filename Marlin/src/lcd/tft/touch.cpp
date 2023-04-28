@@ -27,7 +27,7 @@
 #include "touch.h"
 
 #include "../marlinui.h"  // for ui methods
-#include "../menu/menu_item.h" // for touch_screen_calibration
+#include "../menu/menu_item.h" // for MSG_FIRST_FAN_SPEED
 
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -113,10 +113,8 @@ void Touch::idle() {
     if (x != 0 && y != 0) {
       if (current_control) {
         if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
-          NOLESS(x, current_control->x);
-          NOMORE(x, current_control->x + current_control->width);
-          NOLESS(y, current_control->y);
-          NOMORE(y, current_control->y + current_control->height);
+          LIMIT(x, current_control->x, current_control->x + current_control->width);
+          LIMIT(y, current_control->y, current_control->y + current_control->height);
           touch(current_control);
         }
         else
@@ -154,7 +152,7 @@ void Touch::touch(touch_control_t *control) {
       case CALIBRATE:
         if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
-    #endif // TOUCH_SCREEN_CALIBRATION
+    #endif
 
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
@@ -232,6 +230,13 @@ void Touch::touch(touch_control_t *control) {
       #else
         MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
       #endif
+      break;
+    case STOP:
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
+          GET_TEXT_F(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
+          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?"));
+        });
       break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)

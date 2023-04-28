@@ -83,8 +83,8 @@
 #define HEATER_0_PIN                        PD12  // HOT-END
 #define HEATER_BED_PIN                      PG11  // HOT-BED
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PG14  // MAIN BOARD FAN
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PG14  // MAIN BOARD FAN
 #endif
 
 #define FAN_SOFT_PWM_REQUIRED
@@ -102,18 +102,18 @@
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define LCD_PINS_RS                     PD1   // 49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PD3   // 51  // SID (MOSI)
+    #define LCD_PINS_EN                     PD3   // 51  // SID (MOSI)
     #define LCD_PINS_D4                     PD4   // 52  // SCK (CLK) clock
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PD2
+    #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
     #define LCD_PINS_D7                     PB15
   #else
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PD2
+    #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14

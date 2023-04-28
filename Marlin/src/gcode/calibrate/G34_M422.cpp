@@ -108,6 +108,7 @@ void GcodeSuite::G34() {
   }
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+
     do { // break out on error
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
@@ -142,18 +143,9 @@ void GcodeSuite::G34() {
 
       TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
-      // Always home with tool 0 active
-      #if HAS_MULTI_HOTEND
-        const uint8_t old_tool_index = active_extruder;
-        tool_change(0, true);
-      #endif
+      probe.use_probing_tool();
 
       TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
-
-      // In BLTOUCH HS mode, the probe travels in a deployed state.
-      // Users of G34 might have a badly misaligned bed, so raise Z by the
-      // length of the deployed pin (BLTOUCH stroke < 7mm)
-      #define Z_BASIC_CLEARANCE (Z_CLEARANCE_BETWEEN_PROBES + TERN0(BLTOUCH, bltouch.z_extra_clearance()))
 
       // Compute a worst-case clearance height to probe from. After the first
       // iteration this will be re-calculated based on the actual bed position
@@ -161,7 +153,7 @@ void GcodeSuite::G34() {
         const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
         return HYPOT2(diff.x, diff.y);
       };
-      float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
+      float z_probe = (Z_PROBE_SAFE_CLEARANCE) + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
         #if TRIPLE_Z
           , magnitude2(2, 1), magnitude2(2, 0)
           #if QUAD_Z
@@ -242,7 +234,7 @@ void GcodeSuite::G34() {
 
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.
-          z_measured[iprobe] = z_probed_height + Z_CLEARANCE_BETWEEN_PROBES;
+          z_measured[iprobe] = z_probed_height + (Z_CLEARANCE_BETWEEN_PROBES);
 
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", iprobe + 1, " measured position is ", z_measured[iprobe]);
 
@@ -256,7 +248,7 @@ void GcodeSuite::G34() {
         // Adapt the next probe clearance height based on the new measurements.
         // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
         z_maxdiff = z_measured_max - z_measured_min;
-        z_probe = Z_BASIC_CLEARANCE + z_measured_max + z_maxdiff;
+        z_probe = (Z_PROBE_SAFE_CLEARANCE) + z_measured_max + z_maxdiff;
 
         #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           // Replace the initial values in z_measured with calculated heights at
@@ -444,18 +436,20 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z -= z_measured_min - float(Z_CLEARANCE_BETWEEN_PROBES);
         sync_plan_position();
       #endif
 
-      // Restore the active tool after homing
-      TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER))); // Fetch previous tool for parking extruder
+      probe.use_probing_tool(false);
 
       #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
         set_bed_leveling_enabled(leveling_was_active);
       #endif
 
     }while(0);
+
+    probe.use_probing_tool(false);
+
   #endif // Z_STEPPER_AUTO_ALIGN
 }
 

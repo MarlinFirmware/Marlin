@@ -201,6 +201,12 @@ public:
    */
   static void flush_and_request_resend(const serial_index_t serial_ind);
 
+  #if (defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON)
+    static void flush_rx();
+  #else
+    static void flush_rx() {}
+  #endif
+
   /**
    * (Re)Set the current line number for the last received command
    */
@@ -250,7 +256,7 @@ private:
 
   static void get_serial_commands();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void get_sdcard_commands();
   #endif
 

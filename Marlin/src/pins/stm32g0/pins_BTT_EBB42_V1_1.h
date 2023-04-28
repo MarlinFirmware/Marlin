@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 /** CAUTION **
  * This board definition is to facilitate support for a Filament Extrusion
  * devices, used to convert waste plastic into 3D printable filament.
@@ -42,7 +44,7 @@
     #define FLASH_EEPROM_EMULATION
   #endif
   #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x0801F800UL)
+  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #endif
 
@@ -79,15 +81,15 @@
 // Steppers
 //
 #define X_ENABLE_PIN                        -1
-#define X_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define X_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define X_DIR_PIN                           -1
 
 #define Y_ENABLE_PIN                        -1
-#define Y_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define Y_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define Y_DIR_PIN                           -1
 
 #define Z_ENABLE_PIN                        -1
-#define Z_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
+#define Z_STEP_PIN                          PA10  // Unused. Assigned so Marlin will compile
 #define Z_DIR_PIN                           -1
 
 #define E0_ENABLE_PIN                       PD2
@@ -133,7 +135,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA2   // "HE"
-#define FAN_PIN                             PA0   // "FAN0"
+#define FAN0_PIN                            PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
 
 //

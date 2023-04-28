@@ -21,13 +21,17 @@
  */
 
 /**
- * @file    fontutils.cpp
- * @brief   help functions for font and char
+ * @file    utf8.cpp
+ * @brief   Helper functions for UTF-8 strings
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2016-08-19
  * @copyright GPL/BSD
  */
+
+#include "../inc/MarlinConfigPre.h"
+
+#if HAS_UTF8_UTILS
 
 #include "../inc/MarlinConfig.h"
 
@@ -36,7 +40,7 @@
   #include "../MarlinCore.h"
 #endif
 
-#include "fontutils.h"
+#include "utf8.h"
 
 uint8_t read_byte_ram(const uint8_t *str) { return *str; }
 uint8_t read_byte_rom(const uint8_t *str) { return pgm_read_byte(str); }
@@ -203,3 +207,5 @@ uint8_t utf8_byte_pos_by_char_num(const char *pstart, const uint8_t charnum) {
 uint8_t utf8_byte_pos_by_char_num_P(PGM_P pstart, const uint8_t charnum) {
   return utf8_byte_pos_by_char_num_cb(pstart, read_byte_rom, charnum);
 }
+
+#endif // HAS_UTF8_UTILS

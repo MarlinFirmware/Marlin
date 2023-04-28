@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 //#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
 #ifndef BOARD_INFO_NAME
@@ -134,7 +136,7 @@
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-#define FAN_PIN                             PC6   // "FAN0"
+#define FAN0_PIN                            PC6   // "FAN0"
 #define FAN1_PIN                            PC7   // "FAN1"
 #define FAN2_PIN                            PB15  // "FAN2"
 
@@ -194,7 +196,7 @@
      *            CS  | 3  4 | SCK               (EN1) PA10 | 3  4 | --
      *          MOSI  | 5  6 | MISO              (EN2)  PA9   5  6 | MOSI
      *           3V3  | 7  8 | GND                       -- | 7  8 | --
-     *                 ------                           GND | 9  10| RESET (Kill)
+     *                 ------                           GND | 9 10 | RESET (Kill)
      *                  SPI                                  ------
      *                                                        EXP2
      *
@@ -203,7 +205,7 @@
      *            PA9 | 3  4 | RESET           (LCD CS) PB8 | 3  4 | PD6  (LCD_A0)
      *           PA10   5  6 | PB9              (RESET) PB9   5  6 | PA15 (DIN)
      *            PB8 | 7  8 | PD6                       -- | 7  8 | --
-     *            GND | 9  10| 5V                       GND | 9  10| 5V
+     *            GND | 9 10 | 5V                       GND | 9 10 | 5V
      *                 ------                                ------
      *                  EXP1                                  EXP1
      */
@@ -236,7 +238,7 @@
       #define BTN_EN2                EXP1_05_PIN
 
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_ENABLE        EXP1_08_PIN
+      #define LCD_PINS_EN            EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
 
     #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -246,7 +248,7 @@
       #endif
 
       #define LCD_PINS_RS            EXP1_06_PIN
-      #define LCD_PINS_ENABLE        EXP1_02_PIN
+      #define LCD_PINS_EN            EXP1_02_PIN
       #define LCD_PINS_D4            EXP1_07_PIN
       #define LCD_PINS_D5            EXP1_05_PIN
       #define LCD_PINS_D6            EXP1_03_PIN

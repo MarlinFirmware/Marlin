@@ -403,7 +403,7 @@ public:
   }
   FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
 
-  #if HAS_DISABLE_INACTIVE_AXIS
+  #if HAS_DISABLE_IDLE_AXES
     static millis_t stepper_inactive_time;
     FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
       return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
@@ -476,6 +476,9 @@ public:
 private:
 
   friend class MarlinSettings;
+  #if ENABLED(ARC_SUPPORT)
+    friend void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);
@@ -639,7 +642,7 @@ private:
 
   static void M18_M84();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M20();
     static void M21();
     static void M22();
@@ -655,7 +658,7 @@ private:
 
   static void M31();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #if HAS_MEDIA_SUBCALLS
       static void M32();
     #endif
@@ -713,7 +716,7 @@ private:
     static void M102_report(const bool forReplay=true);
   #endif
 
-  #if HAS_EXTRUDERS
+  #if HAS_HOTEND
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }
@@ -1035,6 +1038,10 @@ private:
     static void M486();
   #endif
 
+  #if ENABLED(FT_MOTION)
+    static void M493();
+  #endif
+
   static void M500();
   static void M501();
   static void M502();
@@ -1055,7 +1062,7 @@ private:
     #endif
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M524();
   #endif
 
@@ -1081,7 +1088,7 @@ private:
     static void M575();
   #endif
 
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
   #endif
@@ -1188,7 +1195,7 @@ private:
     static void M910();
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M928();
   #endif
 
@@ -1200,7 +1207,7 @@ private:
     static void M995();
   #endif
 
-  #if BOTH(SPI_FLASH, SDSUPPORT)
+  #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
   #endif
@@ -1222,7 +1229,7 @@ private:
     static void M423_report(const bool forReplay=true);
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M1001();
   #endif
 
