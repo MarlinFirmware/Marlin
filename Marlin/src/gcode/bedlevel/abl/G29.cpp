@@ -711,8 +711,8 @@ G29_TYPE GcodeSuite::G29() {
             abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
             abl.probePos.x = abl.probePos.x - probe.offset_xy.x;
             abl.probePos.y = abl.probePos.y - probe.offset_xy.y;
-            sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F"), int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
-                                                      int(abl.probePos.y), int(abl.probePos.y * 10) % 10,feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+            sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"), int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
+                                                      int(abl.probePos.y), int(abl.probePos.y * 10) % 10,int(feedRate_t(XY_PROBE_FEEDRATE_MM_S)));
             gcode.process_subcommands_now(tmp_1);
             SERIAL_ECHOLNPGM("destX: ", abl.probePos.x, " Y:", abl.probePos.y);
             PR_INNER_VAR = inStart;

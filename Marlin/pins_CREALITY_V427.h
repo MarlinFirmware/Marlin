@@ -44,6 +44,6 @@
 #define E0_DIR_PIN                          PB4
 
 #include "pins_CREALITY_V4.h"
-#define  I2C_BD_SDA_PIN    PB1   // Please change to the actual number which the SDA wire is connected to your mainboard
-#define  I2C_BD_SCL_PIN    PB0   // Please change to the actual number which the SCL wire is connected to your mainboard
+#define  I2C_BD_SDA_PIN    PB0   // Please change to the actual number which the SDA wire is connected to your mainboard
+#define  I2C_BD_SCL_PIN    PB1   // Please change to the actual number which the SCL wire is connected to your mainboard
 #define  I2C_BD_DELAY  20      // this value depends on the process speed of the MCU. here 20 is for the stm32f103(72MHz), higher value for higher MCU speed.
