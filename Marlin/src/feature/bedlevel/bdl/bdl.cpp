@@ -115,8 +115,10 @@ void BDS_Leveling::process() {
           #endif
         }
         else {
-          babystep.set_mm(Z_AXIS, 0);          //if (old_cur_z <= cur_z) Z_DIR_WRITE(!INVERT_Z_DIR);
-          stepper.set_directions();
+          if(config_state>0){
+            babystep.set_mm(Z_AXIS, 0);
+            stepper.set_directions();
+          }
         }
       #endif
       old_cur_z = cur_z;
