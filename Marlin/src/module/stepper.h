@@ -317,17 +317,17 @@ class Stepper {
     #endif
 
     #if ENABLED(FREEZE_FEATURE)
-      static bool frozen;                   // Set this flag to instantly freeze motion
+      static bool frozen;                 // Set this flag to instantly freeze motion
     #endif
 
   private:
 
-    static block_t* current_block;          // A pointer to the block currently being traced
+    static block_t* current_block;        // A pointer to the block currently being traced
 
-    static axis_bits_t last_direction_bits, // The next stepping-bits to be output
-                       axis_did_move;       // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
+    static AxisBits last_direction_bits,  // The next stepping-bits to be output
+                    axis_did_move;        // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
-    static bool abort_current_block;        // Signals to the stepper that current block should be aborted
+    static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
@@ -523,10 +523,10 @@ class Stepper {
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
     // The direction of a single motor. A true result indicates reversed or negative motion.
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return TEST(last_direction_bits, axis); }
+    FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return last_direction_bits[axis]; }
 
     // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
-    FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return TEST(axis_did_move, axis); }
+    FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return axis_did_move[axis]; }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
@@ -626,7 +626,7 @@ class Stepper {
     static void apply_directions();
 
     // Set direction bits and update all stepper DIR states
-    static void set_directions(const axis_bits_t bits) {
+    static void set_directions(const AxisBits bits) {
       last_direction_bits = bits;
       apply_directions();
     }

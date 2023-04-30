@@ -199,8 +199,6 @@ enum AxisEnum : uint8_t {
   , ALL_AXES_ENUM = 0xFE, NO_AXIS_ENUM = 0xFF
 };
 
-typedef bits_t(NUM_AXIS_ENUMS) axis_bits_t;
-
 //
 // Loop over axes
 //
@@ -787,6 +785,156 @@ struct XYZEval {
   FI bool        operator==(const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e == rs.e, && x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
   FI bool        operator!=(const XYZval<T>  &rs) const { return !operator==(rs); }
   FI bool        operator!=(const XYZEval<T> &rs) const { return !operator==(rs); }
+};
+
+#include <string.h> // for memset
+
+class AxisBits;
+
+class AxisBits {
+public:
+  typedef bits_t(NUM_AXIS_ENUMS) el;
+  union {
+    el bits;
+    struct {
+      union {
+        bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
+        bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
+        bool NUM_AXIS_LIST(a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+        bool NUM_AXIS_LIST(A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      };
+      #if HAS_EXTRUDERS
+        union { bool e:1; bool e0:1; };
+        #define _EN_ITEM(N) bool e##N:1;
+        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
+        #undef _EN_ITEM
+      #endif
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool hx:1, hy:1, hz:1;
+      #endif
+    };
+  };
+
+  AxisBits() { bits = 0; }
+
+  // Constructor, setter, and operator= for bit mask
+  AxisBits(const el p) { set(p); }
+  void set(const el p) { bits = el(p); }
+  FI AxisBits& operator=(const el p) { set(p); return *this; }
+
+  #define MSET(pE,pX,pY,pZ,pI,pJ,pK,pU,pV,pW) LOGICAL_AXIS_CODE(e=pE, x=pX, y=pY, z=pZ, i=pI, j=pJ, k=pK, u=pU, v=pV, w=pW)
+
+  // Constructor, setter, and operator= for XYZE type
+  AxisBits(const xyze_bool_t &p) { set(p); }
+  void set(const xyze_bool_t &p) {
+    MSET(p.e, p.x, p.y, p.z, p.i, p.j, p.k, p.u, p.v, p.w);
+  }
+  FI AxisBits& operator=(const xyze_bool_t &p) { set(p); return *this; }
+
+  // Constructor, setter, and operator= for bool array
+  AxisBits(const bool (&p)[LOGICAL_AXES]) { set(p); }
+  void set(const bool (&p)[LOGICAL_AXES]) {
+    MSET(p[E_AXIS], p[X_AXIS], p[Y_AXIS], p[Z_AXIS],
+                    p[I_AXIS], p[J_AXIS], p[K_AXIS],
+                    p[U_AXIS], p[V_AXIS], p[W_AXIS]);
+  }
+  FI AxisBits& operator=(const bool (&p)[LOGICAL_AXES]) { set(p); return *this; }
+
+  // Constructor, setter, and operator= for undersized bool arrays
+  #if LOGICAL_AXES > 1
+    AxisBits(const bool (&p)[1]) { set(p); }
+    FI void set(const bool (&p)[1]) {
+      MSET(0, p[X_AXIS], 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[1]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 2
+    AxisBits(const bool (&p)[2]) { set(p); }
+    FI void set(const bool (&p)[2]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], 0, 0, 0, 0, 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[2]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 3
+    AxisBits(const bool (&p)[3]) { set(p); }
+    FI void set(const bool (&p)[3]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], 0, 0, 0, 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[3]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 4
+    AxisBits(const bool (&p)[4]) { set(p); }
+    FI void set(const bool (&p)[4]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], 0, 0, 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[4]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 5
+    AxisBits(const bool (&p)[5]) { set(p); }
+    FI void set(const bool (&p)[5]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], p[J_AXIS], 0, 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[5]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 6
+    AxisBits(const bool (&p)[6]) { set(p); }
+    FI void set(const bool (&p)[6]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], p[J_AXIS], p[K_AXIS], 0, 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[6]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 7
+    AxisBits(const bool (&p)[7]) { set(p); }
+    FI void set(const bool (&p)[7]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], p[J_AXIS], p[K_AXIS], p[U_AXIS], 0, 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[7]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 8
+    AxisBits(const bool (&p)[8]) { set(p); }
+    FI void set(const bool (&p)[8]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], p[J_AXIS], p[K_AXIS], p[U_AXIS], p[V_AXIS], 0);
+    }
+    FI AxisBits& operator=(const bool (&p)[8]) { set(p); return *this; }
+  #endif
+  #if LOGICAL_AXES > 9
+    AxisBits(const bool (&p)[9]) { set(p); }
+    FI void set(const bool (&p)[9]) {
+      MSET(0, p[X_AXIS], p[Y_AXIS], p[Z_AXIS], p[I_AXIS], p[J_AXIS], p[K_AXIS], p[U_AXIS], p[V_AXIS], p[W_AXIS]);
+    }
+    FI AxisBits& operator=(const bool (&p)[9]) { set(p); return *this; }
+  #endif
+  #undef MSET
+
+  FI const bool toggle(const AxisEnum n) { return TBI(bits, n); }
+
+  // Accessor via an AxisEnum (or any integer) [index]
+  FI const bool operator[](const int n) const { return TEST(bits, n); }
+  FI const bool operator[](const AxisEnum n) const { return TEST(bits, n); }
+
+  FI AxisBits& operator|=(const el &p) { bits |= el(p); return *this; }
+  FI AxisBits& operator&=(const el &p) { bits &= el(p); return *this; }
+  FI AxisBits& operator^=(const el &p) { bits ^= el(p); return *this; }
+
+  FI AxisBits& operator|=(const AxisBits &p) { bits |= p.bits; return *this; }
+  FI AxisBits& operator&=(const AxisBits &p) { bits &= p.bits; return *this; }
+  FI AxisBits& operator^=(const AxisBits &p) { bits ^= p.bits; return *this; }
+
+  FI bool operator==(const AxisBits &p) const { return p.bits == bits; }
+  FI bool operator!=(const AxisBits &p) const { return p.bits != bits; }
+
+  FI el operator|(const el &p) const { return bits | el(p); }
+  FI el operator&(const el &p) const { return bits & el(p); }
+  FI el operator^(const el &p) const { return bits ^ el(p); }
+
+  FI AxisBits operator|(const AxisBits &p) const { return AxisBits(bits | p.bits); }
+  FI AxisBits operator&(const AxisBits &p) const { return AxisBits(bits & p.bits); }
+  FI AxisBits operator^(const AxisBits &p) const { return AxisBits(bits ^ p.bits); }
+
+  FI operator bool() const { return !!bits; }
+  FI operator uint16_t() const { return uint16_t(bits & 0xFFFF); }
+  FI operator uint32_t() const { return uint32_t(bits); }
+
 };
 
 #undef _RECIP
