@@ -636,9 +636,9 @@ void Stepper::apply_directions() {
     }
     else {
       #if ENABLED(MIXING_EXTRUDER)
-        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+        MIXER_STEPPER_LOOP(j) FWD_E_DIR(j);
       #else
-        NORM_E_DIR(stepper_extruder);
+        FWD_E_DIR(stepper_extruder);
       #endif
       count_direction.e = 1;
     }
@@ -2420,9 +2420,9 @@ hal_timer_t Stepper::block_phase_isr() {
                 }
                 else {
                   #if ENABLED(MIXING_EXTRUDER)
-                    MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+                    MIXER_STEPPER_LOOP(j) FWD_E_DIR(j);
                   #else
-                    NORM_E_DIR(stepper_extruder);
+                    FWD_E_DIR(stepper_extruder);
                   #endif
                 }
 

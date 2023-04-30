@@ -866,36 +866,38 @@ void Endstops::update() {
 
   // Signal, after validation, if an endstop limit is pressed or not
 
-  if (stepper.axis_is_moving(X_AXIS)) {
-    if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-      #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
-        PROCESS_ENDSTOP_X(MIN);
-        #if   CORE_DIAG(XY, Y, MIN)
-          PROCESS_CORE_ENDSTOP(Y,MIN,X,MIN);
-        #elif CORE_DIAG(XY, Y, MAX)
-          PROCESS_CORE_ENDSTOP(Y,MAX,X,MIN);
-        #elif CORE_DIAG(XZ, Z, MIN)
-          PROCESS_CORE_ENDSTOP(Z,MIN,X,MIN);
-        #elif CORE_DIAG(XZ, Z, MAX)
-          PROCESS_CORE_ENDSTOP(Z,MAX,X,MIN);
+  #if HAS_X_AXIS
+    if (stepper.axis_is_moving(X_AXIS)) {
+      if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+        #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
+          PROCESS_ENDSTOP_X(MIN);
+          #if   CORE_DIAG(XY, Y, MIN)
+            PROCESS_CORE_ENDSTOP(Y,MIN,X,MIN);
+          #elif CORE_DIAG(XY, Y, MAX)
+            PROCESS_CORE_ENDSTOP(Y,MAX,X,MIN);
+          #elif CORE_DIAG(XZ, Z, MIN)
+            PROCESS_CORE_ENDSTOP(Z,MIN,X,MIN);
+          #elif CORE_DIAG(XZ, Z, MAX)
+            PROCESS_CORE_ENDSTOP(Z,MAX,X,MIN);
+          #endif
         #endif
-      #endif
-    }
-    else { // +direction
-      #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
-        PROCESS_ENDSTOP_X(MAX);
-        #if   CORE_DIAG(XY, Y, MIN)
-          PROCESS_CORE_ENDSTOP(Y,MIN,X,MAX);
-        #elif CORE_DIAG(XY, Y, MAX)
-          PROCESS_CORE_ENDSTOP(Y,MAX,X,MAX);
-        #elif CORE_DIAG(XZ, Z, MIN)
-          PROCESS_CORE_ENDSTOP(Z,MIN,X,MAX);
-        #elif CORE_DIAG(XZ, Z, MAX)
-          PROCESS_CORE_ENDSTOP(Z,MAX,X,MAX);
+      }
+      else { // +direction
+        #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
+          PROCESS_ENDSTOP_X(MAX);
+          #if   CORE_DIAG(XY, Y, MIN)
+            PROCESS_CORE_ENDSTOP(Y,MIN,X,MAX);
+          #elif CORE_DIAG(XY, Y, MAX)
+            PROCESS_CORE_ENDSTOP(Y,MAX,X,MAX);
+          #elif CORE_DIAG(XZ, Z, MIN)
+            PROCESS_CORE_ENDSTOP(Z,MIN,X,MAX);
+          #elif CORE_DIAG(XZ, Z, MAX)
+            PROCESS_CORE_ENDSTOP(Z,MAX,X,MAX);
+          #endif
         #endif
-      #endif
+      }
     }
-  }
+  #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
     if (stepper.axis_is_moving(Y_AXIS)) {
@@ -928,7 +930,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
     if (stepper.axis_is_moving(Z_AXIS)) {
@@ -973,7 +975,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_Z_AXIS
 
   #if HAS_I_AXIS
     if (stepper.axis_is_moving(I_AXIS)) {
@@ -988,7 +990,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_I_AXIS
 
   #if HAS_J_AXIS
     if (stepper.axis_is_moving(J_AXIS)) {
@@ -1003,7 +1005,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_J_AXIS
 
   #if HAS_K_AXIS
     if (stepper.axis_is_moving(K_AXIS)) {
@@ -1018,7 +1020,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_K_AXIS
 
   #if HAS_U_AXIS
     if (stepper.axis_is_moving(U_AXIS)) {
@@ -1033,7 +1035,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_U_AXIS
 
   #if HAS_V_AXIS
     if (stepper.axis_is_moving(V_AXIS)) {
@@ -1048,7 +1050,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_V_AXIS
 
   #if HAS_W_AXIS
     if (stepper.axis_is_moving(W_AXIS)) {
@@ -1063,7 +1065,7 @@ void Endstops::update() {
         #endif
       }
     }
-  #endif
+  #endif // HAS_W_AXIS
 } // Endstops::update()
 
 #if ENABLED(SPI_ENDSTOPS)
