@@ -44,21 +44,21 @@
   #define BOARD_ST7920_DELAY_2               125
   #define BOARD_ST7920_DELAY_3               125
 #endif
-/*
- *            EXP1                  EXP1 as ENDER2 STOCKDISPLAY           EXP1 as CR10 STOCKDISPLAY
- *           ------                            ------                               ------
- *      D27 | 1  2 | D16                  SCK | 1  2 | BTN_E            BEEPER_PIN | 1  2 | BTN_ENC
- *      D11 | 3  4 | RESET            BTN_EN1 | 3  4 | RESET               BTN_EN1 | 3  4 | RESET
- *      D10   5  6 | D30              BTN_EN2   5  6 | LCD_A0              BTN_EN2   5  6 | LCD_D4 (ST9720 CLK)
- *      D28 | 7  8 | D17               LCD_CS | 7  8 | MOSI     (ST9720 CS) LCD_RS | 7  8 | LCD_EN (ST9720 DAT)
- *      GND | 9 10 | 5V                   GND | 9 10 | 5V                      GND | 9 10 | 5V
- *           ------                            ------                               ------
- */
 
+/**
+ *       EXP1          EXP1 as ENDER2 STOCKDISPLAY           EXP1 as CR10 STOCKDISPLAY
+ *      ------                    ------                               ------
+ * D27 | 1  2 | D16          SCK | 1  2 | BTN_E            BEEPER_PIN | 1  2 | BTN_ENC
+ * D11 | 3  4 | RESET    BTN_EN1 | 3  4 | RESET               BTN_EN1 | 3  4 | RESET
+ * D10   5  6 | D30      BTN_EN2   5  6 | LCD_A0              BTN_EN2   5  6 | LCD_D4 (ST9720 CLK)
+ * D28 | 7  8 | D17       LCD_CS | 7  8 | MOSI     (ST9720 CS) LCD_RS | 7  8 | LCD_EN (ST9720 DAT)
+ * GND | 9 10 | 5V           GND | 9 10 | 5V                      GND | 9 10 | 5V
+ *      ------                    ------                               ------
+ */
 #define EXP1_01_PIN                           27
 #define EXP1_02_PIN                           16
 #define EXP1_03_PIN                           11
-#define EXP1_04_PIN                           -1  // hardware reset line
+#define EXP1_04_PIN                           -1  // RESET
 #define EXP1_05_PIN                           10
 #define EXP1_06_PIN                           30
 #define EXP1_07_PIN                           28
