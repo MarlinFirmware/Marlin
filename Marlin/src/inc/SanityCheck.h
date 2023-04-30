@@ -1279,7 +1279,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       static_assert(!(strcmp(hs, "1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "false")), \
         "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state.");
       #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
-        static_assert(BLTOUCH_HS_EXTRA_CLEARANCE > 0, "BLTOUCH_HS_MODE requires a positive BLTOUCH_HS_EXTRA_CLEARANCE.");
+        static_assert(BLTOUCH_HS_EXTRA_CLEARANCE >= 0, "BLTOUCH_HS_MODE requires 0 or positive BLTOUCH_HS_EXTRA_CLEARANCE.");
       #endif
     #endif
 
