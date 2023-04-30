@@ -522,7 +522,7 @@ class Stepper {
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
-    // The direction of a single motor
+    // The direction of a single motor. A true result indicates reversed or negative motion.
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
