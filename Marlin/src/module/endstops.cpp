@@ -1092,6 +1092,15 @@ void Endstops::update() {
       CBI(live_state, Y2_ENDSTOP);
     #endif
     TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
+    #if ALL(Z_SPI_SENSORLESS, Z_MULTI_ENDSTOPS)
+      CBI(live_state, Z2_ENDSTOP);
+      #if NUM_Z_STEPPERS >= 3
+        CBI(live_state, Z3_ENDSTOP);
+        #if NUM_Z_STEPPERS >= 4
+          CBI(live_state, Z4_ENDSTOP);
+        #endif
+      #endif
+    #endif
     TERN_(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
     TERN_(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));
     TERN_(K_SPI_SENSORLESS, CBI(live_state, K_ENDSTOP));
@@ -1316,52 +1325,80 @@ void Endstops::update() {
   /**
    * Change TMC driver currents to N##_CURRENT_HOME, saving the current configuration of each.
    */
-  void Endstops::set_homing_current(const bool onoff) {
-    #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-    #define HAS_DELTA_X_CURRENT (ENABLED(DELTA) && HAS_CURRENT_HOME(X))
-    #define HAS_DELTA_Y_CURRENT (ENABLED(DELTA) && HAS_CURRENT_HOME(Y))
-    #if HAS_DELTA_X_CURRENT || HAS_DELTA_Y_CURRENT || HAS_CURRENT_HOME(Z)
+  void Endstops::set_z_sensorless_current(const bool onoff) {
+    #if ENABLED(DELTA) && HAS_CURRENT_HOME(X)
+      #define HAS_DELTA_X_CURRENT 1
+    #endif
+    #if ENABLED(DELTA) && HAS_CURRENT_HOME(Y)
+      #define HAS_DELTA_Y_CURRENT 1
+    #endif
+    #if HAS_DELTA_X_CURRENT || HAS_DELTA_Y_CURRENT || HAS_CURRENT_HOME(Z) || HAS_CURRENT_HOME(Z2) || HAS_CURRENT_HOME(Z3) || HAS_CURRENT_HOME(Z4)
       #if HAS_DELTA_X_CURRENT
-        static int16_t saved_current_x;
+        static int16_t saved_current_X;
       #endif
       #if HAS_DELTA_Y_CURRENT
-        static int16_t saved_current_y;
+        static int16_t saved_current_Y;
       #endif
       #if HAS_CURRENT_HOME(Z)
-        static int16_t saved_current_z;
+        static int16_t saved_current_Z;
       #endif
-      auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
-        if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
-      };
+      #if HAS_CURRENT_HOME(Z2)
+        static int16_t saved_current_Z2;
+      #endif
+      #if HAS_CURRENT_HOME(Z3)
+        static int16_t saved_current_Z3;
+      #endif
+      #if HAS_CURRENT_HOME(Z4)
+        static int16_t saved_current_Z4;
+      #endif
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+        };
+      #else
+        #define debug_current(...)
+      #endif
+
+      #define _SAVE_SET_CURRENT(A) \
+        saved_current_##A = stepper##A.getMilliamps(); \
+        stepper##A.rms_current(A##_CURRENT_HOME); \
+        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+
+      #define _RESTORE_CURRENT(A) \
+        stepper##A.rms_current(saved_current_##A); \
+        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+
       if (onoff) {
-        #if HAS_DELTA_X_CURRENT
-          saved_current_x = stepperX.getMilliamps();
-          stepperX.rms_current(X_CURRENT_HOME);
-          debug_current_on(PSTR("X"), saved_current_x, X_CURRENT_HOME);
-        #endif
-        #if HAS_DELTA_Y_CURRENT
-          saved_current_y = stepperY.getMilliamps();
-          stepperY.rms_current(Y_CURRENT_HOME);
-          debug_current_on(PSTR("Y"), saved_current_y, Y_CURRENT_HOME);
-        #endif
+        TERN_(HAS_DELTA_X_CURRENT, _SAVE_SET_CURRENT(X));
+        TERN_(HAS_DELTA_Y_CURRENT, _SAVE_SET_CURRENT(Y));
         #if HAS_CURRENT_HOME(Z)
-          saved_current_z = stepperZ.getMilliamps();
-          stepperZ.rms_current(Z_CURRENT_HOME);
-          debug_current_on(PSTR("Z"), saved_current_z, Z_CURRENT_HOME);
+          _SAVE_SET_CURRENT(Z);
+        #endif
+        #if HAS_CURRENT_HOME(Z2)
+          _SAVE_SET_CURRENT(Z2);
+        #endif
+        #if HAS_CURRENT_HOME(Z3)
+          _SAVE_SET_CURRENT(Z3);
+        #endif
+        #if HAS_CURRENT_HOME(Z4)
+          _SAVE_SET_CURRENT(Z4);
         #endif
       }
       else {
-        #if HAS_DELTA_X_CURRENT
-          stepperX.rms_current(saved_current_x);
-          debug_current_on(PSTR("X"), X_CURRENT_HOME, saved_current_x);
-        #endif
-        #if HAS_DELTA_Y_CURRENT
-          stepperY.rms_current(saved_current_y);
-          debug_current_on(PSTR("Y"), Y_CURRENT_HOME, saved_current_y);
-        #endif
+        TERN_(HAS_DELTA_X_CURRENT, _RESTORE_CURRENT(X));
+        TERN_(HAS_DELTA_Y_CURRENT, _RESTORE_CURRENT(Y));
         #if HAS_CURRENT_HOME(Z)
-          stepperZ.rms_current(saved_current_z);
-          debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_z);
+          _RESTORE_CURRENT(Z);
+        #endif
+        #if HAS_CURRENT_HOME(Z2)
+          _RESTORE_CURRENT(Z2);
+        #endif
+        #if HAS_CURRENT_HOME(Z3)
+          _RESTORE_CURRENT(Z3);
+        #endif
+        #if HAS_CURRENT_HOME(Z4)
+          _RESTORE_CURRENT(Z4);
         #endif
       }
 
