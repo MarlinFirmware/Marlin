@@ -64,7 +64,7 @@ void GcodeSuite::G12() {
       NOZZLE_CLEAN_DEFAULT_PATTERN
     #endif
   );
-  const uint8_t strokes = TERN0(NOZZLE_CLEAN_PATTERN_LINEAR, parser.ushortval('S', NOZZLE_CLEAN_STROKES)),
+  const uint8_t strokes = TERN0(NOZZLE_CLEAN_PATTERN_LINE, parser.ushortval('S', NOZZLE_CLEAN_STROKES)),
                 objects = TERN0(NOZZLE_CLEAN_PATTERN_ZIGZAG, parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES));
   const float radius = TERN0(NOZZLE_CLEAN_PATTERN_CIRCLE, parser.linearval('R', NOZZLE_CLEAN_CIRCLE_RADIUS));
 
