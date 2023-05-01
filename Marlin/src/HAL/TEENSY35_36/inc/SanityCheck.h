@@ -26,7 +26,7 @@
  */
 
 #if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for Teensy 3.5/3.6.
+  #error "Sorry! TFT displays are not available for Teensy 3.5/3.6."
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
