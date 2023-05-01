@@ -230,10 +230,9 @@ Nozzle nozzle;
     }
     if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = current_position.z;
 
-    switch (pattern) {
-      default:
+    switch (pattern) { // no default clause as pattern is already validated
       #if ENABLED(NOZZLE_CLEAN_PATTERN_LINE)
-        case 0: stroke(start[arrPos], end[arrPos], strokes);
+        case 0: stroke(start[arrPos], end[arrPos], strokes); break;
       #endif
       #if ENABLED(NOZZLE_CLEAN_PATTERN_ZIGZAG)
         case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
