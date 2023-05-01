@@ -65,13 +65,13 @@ void GcodeSuite::G12() {
     #endif
   );
   const uint8_t objects = TERN0(NOZZLE_CLEAN_PATTERN_ZIGZAG, parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES)),
-		strokes = (
-      #if EITHER(NOZZLE_CLEAN_PATTERN_LINE, NOZZLE_CLEAN_PATTERN_ZIGZAG)
-        parser.ushortval('S', NOZZLE_CLEAN_STROKES)
-      #else
-        0
-      #endif
-		);
+                strokes = (
+                  #if EITHER(NOZZLE_CLEAN_PATTERN_LINE, NOZZLE_CLEAN_PATTERN_ZIGZAG)
+                    parser.ushortval('S', NOZZLE_CLEAN_STROKES)
+                  #else
+                    0
+                  #endif
+                );
   const float radius = TERN0(NOZZLE_CLEAN_PATTERN_CIRCLE, parser.linearval('R', NOZZLE_CLEAN_CIRCLE_RADIUS));
 
   const bool seenxyz = parser.seen("XYZ");
