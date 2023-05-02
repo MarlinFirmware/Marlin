@@ -266,7 +266,7 @@ typedef struct {
     struct {
       bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
       #if HAS_EXTRUDERS
-        bool LIST_N(EXTRUDERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
+        bool LIST_N(E_STEPPERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
     };
   };
