@@ -683,7 +683,8 @@ volatile bool Temperature::raw_temps_ready = false;
     int cycles = 0;
     bool heating = true;
 
-    millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
+    millis_t next_temp_ms, t1, t2;
+    next_temp_ms = t1 = t2 = millis();
     long t_high = 0, t_low = 0;
 
     raw_pid_t tune_pid = { 0, 0, 0 };
@@ -858,7 +859,7 @@ volatile bool Temperature::raw_temps_ready = false;
                 _TEMP_ERROR(heater_id, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, current_temp);
               }
             }
-            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
+            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
               TERN_(CREALITY_RTS, RTS_Error(heater_id == H_BED ? Error_10 : Error_07));
               _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current_temp);
             }
@@ -870,7 +871,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
-      if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
+      if (ms - _MIN(t1, t2) > MIN_TO_MS(MAX_CYCLE_TIME_PID_AUTOTUNE)) {
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
         TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
