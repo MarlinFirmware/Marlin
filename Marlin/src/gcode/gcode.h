@@ -711,7 +711,7 @@ private:
   #endif
 
   #if ENABLED(CREALITY_RTS)
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       static void M72();
     #endif
     static void M79();
