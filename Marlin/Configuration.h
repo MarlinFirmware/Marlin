@@ -2408,7 +2408,7 @@
   // Default pattern to use when 'P' is not provided to G12. One of the enabled options above.
   #define NOZZLE_CLEAN_DEFAULT_PATTERN 0
 
-  #define NOZZLE_CLEAN_STROKES   12   // Default number of pattern repetitions
+  #define NOZZLE_CLEAN_STROKES     12   // Default number of pattern repetitions
 
   #if ENABLED(NOZZLE_CLEAN_PATTERN_ZIGZAG)
     #define NOZZLE_CLEAN_TRIANGLES  3   // Default number of triangles
