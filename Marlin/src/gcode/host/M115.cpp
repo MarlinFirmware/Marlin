@@ -39,22 +39,15 @@
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  #if ENABLED(MINIMAL_CAP_LINES)
-    #define cap_line(S,C) if (C) _cap_line(S)
-    static void _cap_line(FSTR_P const name) {
-      SERIAL_ECHOPGM("Cap:");
-      SERIAL_ECHOF(name);
-      SERIAL_ECHOLNPGM(":1");
-    }
-  #else
-    #define cap_line(V...) _cap_line(V)
-    static void _cap_line(FSTR_P const name, bool ena=false) {
-      SERIAL_ECHOPGM("Cap:");
-      SERIAL_ECHOF(name);
+  inline void cap_line(FSTR_P const name, const bool ena=true) {
+    #if ENABLED(MINIMAL_CAP_LINES)
+      if (ena) SERIAL_ECHOLNPGM("Cap:", name, ":1");
+    #else
+      SERIAL_ECHOPGM("Cap:", name);
       SERIAL_CHAR(':', '0' + ena);
       SERIAL_EOL();
-    }
-  #endif
+    #endif
+  }
 #endif
 
 /**
@@ -100,10 +93,10 @@ void GcodeSuite::M115() {
     serial_index_t port = queue.ring_buffer.command_port();
 
     // PAREN_COMMENTS
-    TERN_(PAREN_COMMENTS, cap_line(F("PAREN_COMMENTS"), true));
+    TERN_(PAREN_COMMENTS, cap_line(F("PAREN_COMMENTS")));
 
     // QUOTED_STRINGS
-    TERN_(GCODE_QUOTED_STRINGS, cap_line(F("QUOTED_STRINGS"), true));
+    TERN_(GCODE_QUOTED_STRINGS, cap_line(F("QUOTED_STRINGS")));
 
     // SERIAL_XON_XOFF
     cap_line(F("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
@@ -124,10 +117,10 @@ void GcodeSuite::M115() {
     cap_line(F("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
 
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
-    cap_line(F("PROGRESS"));
+    cap_line(F("PROGRESS"), false);
 
     // Print Job timer M75, M76, M77
-    cap_line(F("PRINT_JOB"), true);
+    cap_line(F("PRINT_JOB"));
 
     // AUTOLEVEL (G29)
     cap_line(F("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
@@ -153,9 +146,9 @@ void GcodeSuite::M115() {
 
     // SPINDLE AND LASER CONTROL (M3, M4, M5)
     #if ENABLED(SPINDLE_FEATURE)
-      cap_line(F("SPINDLE"), true);
+      cap_line(F("SPINDLE"));
     #elif ENABLED(LASER_FEATURE)
-      cap_line(F("LASER"), true);
+      cap_line(F("LASER"));
     #endif
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
