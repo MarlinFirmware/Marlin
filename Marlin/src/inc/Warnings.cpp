@@ -749,3 +749,10 @@
 #if SDSORT_CACHE_LPC1768_WARNING
   #warning "SDCARD_SORT_ALPHA sub-options overridden for LPC1768 with DOGM LCD SCK overlap."
 #endif
+
+/**
+ * Ender-5 S1 bootloader
+ */
+#ifdef STM32F4_UPDATE_FOLDER
+  #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
+#endif
