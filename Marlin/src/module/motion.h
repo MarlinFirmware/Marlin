@@ -259,7 +259,9 @@ void report_current_position_projected();
 
 #if ENABLED(AUTO_REPORT_POSITION)
   #include "../libs/autoreport.h"
-  struct PositionReport { static void report() { report_current_position_projected(); } };
+  struct PositionReport { static void report() {
+    TERN(AUTO_REPORT_REAL_POSITION, report_real_position(), report_current_position_projected());
+  } };
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 

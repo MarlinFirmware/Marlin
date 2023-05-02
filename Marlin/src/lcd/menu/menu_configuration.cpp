@@ -59,9 +59,13 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#include "../../core/debug_out.h"
+#if EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+  #include "../lcdprint.h"
+  #define HAS_DEBUG_MENU 1
+#endif
 
-#define HAS_DEBUG_MENU EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
 
 void menu_advanced_settings();
 #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
@@ -69,8 +73,6 @@ void menu_advanced_settings();
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
-
-  #include "../lcdprint.h"
 
   static void progress_bar_test() {
     static int8_t bar_percent = 0;
@@ -95,8 +97,6 @@ void menu_advanced_settings();
 #endif // LCD_PROGRESS_BAR_TEST
 
 #if ENABLED(LCD_ENDSTOP_TEST)
-
-  #include "../lcdprint.h"
 
   #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL)
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)

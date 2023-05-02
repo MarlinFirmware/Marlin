@@ -223,7 +223,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      const float pz = probe.probe_at_point(test_position, raise_after, 0);
+      const float pz = probe.probe_at_point(test_position, raise_after);
 
       // Break the loop if the probe fails
       probing_good = !isnan(pz);

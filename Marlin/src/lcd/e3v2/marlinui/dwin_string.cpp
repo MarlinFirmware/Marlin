@@ -25,7 +25,7 @@
 #if IS_DWIN_MARLINUI
 
 #include "dwin_string.h"
-//#include "../../fontutils.h"
+//#include "../../utf8.h"
 
 char DWIN_String::data[];
 uint16_t DWIN_String::span;

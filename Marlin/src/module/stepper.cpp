@@ -3466,7 +3466,7 @@ void Stepper::report_positions() {
     #if HAS_Z_AXIS
       // Z is handled differently to update the stepper
       // counts (needed by Marlin for bed level probing).
-      const bool z_dir = !TEST(command, FT_BIT_DIR_Z),
+      const bool z_dir = TEST(command, FT_BIT_DIR_Z),
                 z_step = TEST(command, FT_BIT_STEP_Z);
     #endif
 
@@ -3985,7 +3985,7 @@ void Stepper::report_positions() {
 
 #else // PRINTRBOARD_G2
 
-  #include HAL_PATH(../HAL, fastio/G2_PWM.h)
+  #include HAL_PATH(.., fastio/G2_PWM.h)
 
 #endif
 

@@ -42,7 +42,7 @@ MarlinUI ui;
 
 #if HAS_DISPLAY
   #include "../gcode/queue.h"
-  #include "fontutils.h"
+  #include "utf8.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
