@@ -124,7 +124,7 @@ void GcodeSuite::M115() {
     cap_line(F("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
 
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
-    cap_line(F("PROGRESS"));
+    cap_line(F("PROGRESS"), true);
 
     // Print Job timer M75, M76, M77
     cap_line(F("PRINT_JOB"), true);
