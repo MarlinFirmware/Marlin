@@ -27,6 +27,9 @@
 #include "../gcode.h"
 #include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 /**
  * M414: Set the language for the UI

@@ -30,6 +30,9 @@
 
 #include "MarlinCore.h"
 
+#define DEBUG_OUT ENABLED(MARLIN_DEV_MODE)
+#include "core/debug_out.h"
+
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
@@ -82,6 +85,10 @@
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
+#endif
+
+#if ENABLED(CREALITY_RTS)
+  #include "lcd/rts/lcd_rts.h"
 #endif
 
 #if HAS_ETHERNET
@@ -383,7 +390,11 @@ void startOrResumeJob() {
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
     #ifdef EVENT_GCODE_SD_ABORT
-      queue.inject(F(EVENT_GCODE_SD_ABORT));
+      DEBUG_ECHOLNPGM("abortSDPrinting");
+      //queue.inject(F(EVENT_GCODE_SD_ABORT));
+      queue.enqueue_now(F(EVENT_GCODE_SD_ABORT));
+      report_current_position();
+      TERN_(CREALITY_RTS, RTS_UpdatePosition());
     #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
@@ -429,7 +440,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     SERIAL_ERROR_START();
     SERIAL_ECHOPGM(STR_KILL_PRE);
     SERIAL_ECHOLNPGM(STR_KILL_INACTIVE_TIME, parser.command_ptr);
-    kill();
+    TERN(CREALITY_RTS, RTS_StepperTimeout(), kill());
   }
 
   const bool has_blocks = planner.has_blocks_queued();  // Any moves in the planner?
@@ -460,7 +471,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
         }
       }
-      else
+      else // if (!parked_or_ignoring && gcode.stepper_inactive_timeout() && !card.isPrinting() && !IS_SD_PAUSED()) // rock_20220815
         already_shutdown_steppers = false;
     }
   #endif
@@ -804,7 +815,10 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Handle SD Card insert / remove
-  TERN_(HAS_MEDIA, card.manage_media());
+  #if HAS_MEDIA
+    if (TERN1(CREALITY_RTS, !home_flag && !G29_flag)) // Avoid the problem of leveling and returning to zero, plugging and unplugging the card will affect the probe and report error 203
+      card.manage_media();
+  #endif
 
   // Handle USB Flash Drive insert / remove
   TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
@@ -819,7 +833,15 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  ui.update();
+  #if ENABLED(CREALITY_RTS)
+    RTS_Update();
+  #else
+    ui.update();
+  #endif
+
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
+    endstops.enable_z_probe(TERN1(CREALITY_RTS, (home_flag || G29_flag)) && (LOW == READ(PROBE_ACTIVATION_SWITCH_PIN)));
+  #endif
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -859,6 +881,24 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+  #if ENABLED(MENU_RESET_WIFI)
+    static uint32_t wifi_recordms = 0;
+
+    if (WIFI_STATE == PRESSED) {
+      wifi_recordms = millis();
+      wifi_recordms += 7000;
+      WIFI_STATE = RECORDTIME;
+    }
+
+    if (WIFI_STATE == RECORDTIME) {
+      if (wifi_recordms == millis()) {
+        OUT_WRITE(RESET_WIFI_PIN, HIGH);
+        WIFI_STATE = INITIAL;
+        SERIAL_ECHOPGM("wifi is reset");
+      }
+    }
+  #endif
 
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
@@ -1275,13 +1315,14 @@ void setup() {
 
   // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
+  SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__ " " __TIME__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1590,6 +1631,8 @@ void setup() {
 
   #if HAS_DWIN_E3V2_BASIC
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(CREALITY_RTS)
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
@@ -1692,3 +1735,13 @@ void loop() {
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }
+
+//void HardFault_Handler(void) {
+//  SERIAL_ECHO_MSG("HardFault_Handler");
+//  OUT_WRITE(E0_AUTO_FAN_PIN, LOW);
+//  OUT_WRITE(FAN_PIN, LOW);
+//  for (int i = 0; i < 0xFFFF; i++) OUT_WRITE(FAN_PIN, HIGH);
+//  OUT_WRITE(E0_AUTO_FAN_PIN, HIGH);
+//  OUT_WRITE(FAN_PIN, HIGH);
+//  while(1);
+//}

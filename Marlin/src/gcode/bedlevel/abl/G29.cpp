@@ -34,6 +34,12 @@
 #include "../../../module/planner.h"
 #include "../../../module/probe.h"
 #include "../../queue.h"
+#include "../../../module/settings.h"
+#include "../../../sd/cardreader.h"
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../../lcd/rts/lcd_rts.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
@@ -96,6 +102,8 @@ public:
   bool      dryrun,
             reenable;
 
+  uint8_t showcount;
+
   #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     int abl_probe_index;
   #endif
@@ -138,9 +146,125 @@ public:
   #endif
 };
 
-#if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   constexpr xy_uint8_t G29_State::grid_points;
   constexpr grid_count_t G29_State::abl_points;
+#endif
+
+#if HAS_MESH
+  void apply_mesh_correction(bed_mesh_t &z_values) {
+    float grok[3][5][5] = { 0 };
+
+    // lower left corner
+    grok[0][0][0] = -((z_values[0][4] - z_values[0][3]) + (z_values[0][3] - z_values[0][2]) + (z_values[0][2] - z_values[0][1])) / 3.0f + z_values[0][1];
+    grok[1][0][0] = -((z_values[4][0] - z_values[3][0]) + (z_values[3][0] - z_values[2][0]) + (z_values[2][0] - z_values[1][0])) / 3.0f + z_values[1][0];
+    grok[2][0][0] = -((z_values[4][4] - z_values[3][3]) + (z_values[3][3] - z_values[2][2]) + (z_values[2][2] - z_values[1][1])) / 3.0f + z_values[1][1];
+
+    grok[0][0][1] = -((z_values[0][4] - z_values[0][3]) + (z_values[0][3] - z_values[0][2])) / 2.0f + z_values[0][2];
+    grok[1][0][1] = -((z_values[4][1] - z_values[3][1]) + (z_values[3][1] - z_values[2][1]) + (z_values[2][1] - z_values[1][1])) / 3.0f + z_values[1][1];
+    grok[2][0][1] = -((z_values[3][4] - z_values[2][3]) + (z_values[2][3] - z_values[1][2])) / 2.0f + z_values[1][2];
+
+    grok[0][1][0] = -((z_values[1][4] - z_values[1][3]) + (z_values[1][3] - z_values[1][2]) + (z_values[1][2] - z_values[1][1])) / 3.0f + z_values[1][1];
+    grok[1][1][0] = -((z_values[4][0] - z_values[3][0]) + (z_values[3][0] - z_values[2][0])) / 2.0f + z_values[2][0];
+    grok[2][1][0] = -((z_values[4][3] - z_values[3][2]) + (z_values[3][2] - z_values[2][1])) / 2.0f + z_values[2][1];
+
+    grok[0][1][1] = -((z_values[1][4] - z_values[1][3]) + (z_values[1][3] - z_values[1][2])) / 2.0f + z_values[1][2];
+    grok[1][1][1] = -((z_values[4][1] - z_values[3][1]) + (z_values[3][1] - z_values[2][1])) / 2.0f + z_values[2][1];
+    grok[2][1][1] = -((z_values[4][4] - z_values[3][3]) + (z_values[3][3] - z_values[2][2])) / 2.0f + z_values[2][2];
+
+    // upper left corner
+    grok[0][0][4] = -((z_values[4][4] - z_values[3][4]) + (z_values[3][4] - z_values[2][4]) + (z_values[2][4] - z_values[1][4])) / 3.0f + z_values[1][4];
+    grok[1][0][4] = -((z_values[0][0] - z_values[0][1]) + (z_values[0][1] - z_values[0][2]) + (z_values[0][2] - z_values[0][3])) / 3.0f + z_values[0][3];
+    grok[2][0][4] = -((z_values[4][0] - z_values[3][1]) + (z_values[3][1] - z_values[2][2]) + (z_values[2][2] - z_values[1][3])) / 3.0f + z_values[1][3];
+
+    grok[0][0][3] = -((z_values[4][3] - z_values[3][3]) + (z_values[3][3] - z_values[2][3]) + (z_values[2][3] - z_values[1][3])) / 3.0f + z_values[1][3];
+    grok[1][0][3] = -((z_values[0][0] - z_values[0][1]) + (z_values[0][1] - z_values[0][2])) / 2.0f + z_values[0][2];
+    grok[2][0][3] = -((z_values[3][0] - z_values[2][1]) + (z_values[2][1] - z_values[1][2])) / 2.0f + z_values[1][2];
+
+    grok[0][1][4] = -((z_values[1][0] - z_values[1][1]) + (z_values[1][1] - z_values[1][2]) + (z_values[1][2] - z_values[1][3])) / 3.0f + z_values[1][3];
+    grok[1][1][4] = -((z_values[4][4] - z_values[3][4]) + (z_values[3][4] - z_values[2][4])) / 2.0f + z_values[2][4];
+    grok[2][1][4] = -((z_values[4][1] - z_values[3][2]) + (z_values[3][2] - z_values[2][3])) / 2.0f + z_values[2][3];
+
+    grok[0][1][3] = -((z_values[4][3] - z_values[3][3]) + (z_values[3][3] - z_values[2][3])) / 2.0f + z_values[2][3];
+    grok[1][1][3] = -((z_values[1][0] - z_values[1][1]) + (z_values[1][1] - z_values[1][2])) / 2.0f + z_values[1][2];
+    grok[2][1][3] = -((z_values[4][0] - z_values[3][1]) + (z_values[3][1] - z_values[2][2])) / 2.0f + z_values[2][2];
+
+    // upper right corner
+    grok[0][4][4] = -((z_values[0][4] - z_values[1][4]) + (z_values[1][4] - z_values[2][4]) + (z_values[2][4] - z_values[3][4])) / 3.0f + z_values[3][4];
+    grok[1][4][4] = -((z_values[4][0] - z_values[4][1]) + (z_values[4][1] - z_values[4][2]) + (z_values[4][2] - z_values[4][3])) / 3.0f + z_values[4][3];
+    grok[2][4][4] = -((z_values[0][0] - z_values[1][1]) + (z_values[1][1] - z_values[2][2]) + (z_values[2][2] - z_values[3][3])) / 3.0f + z_values[3][3];
+
+    grok[0][3][4] = -((z_values[3][0] - z_values[3][1]) + (z_values[3][1] - z_values[3][2]) + (z_values[3][2] - z_values[3][3])) / 3.0f + z_values[3][3];
+    grok[1][3][4] = -((z_values[0][4] - z_values[1][4]) + (z_values[1][4] - z_values[2][4])) / 2.0f + z_values[2][4];
+    grok[2][3][4] = -((z_values[0][1] - z_values[1][2]) + (z_values[1][2] - z_values[2][3])) / 2.0f + z_values[2][3];
+
+    grok[0][4][3] = -((z_values[0][3] - z_values[1][3]) + (z_values[1][3] - z_values[2][3]) + (z_values[2][3] - z_values[3][3])) / 3.0f + z_values[3][3];
+    grok[1][4][3] = -((z_values[4][0] - z_values[4][1]) + (z_values[4][1] - z_values[4][2])) / 2.0f + z_values[4][2];
+    grok[2][4][3] = -((z_values[1][0] - z_values[2][1]) + (z_values[2][1] - z_values[3][2])) / 2.0f + z_values[3][2];
+
+    grok[0][3][3] = -((z_values[0][3] - z_values[1][3]) + (z_values[1][3] - z_values[2][3])) / 2.0f + z_values[2][3];
+    grok[1][3][3] = -((z_values[3][0] - z_values[3][1]) + (z_values[3][1] - z_values[3][2])) / 2.0f + z_values[3][2];
+    grok[2][3][3] = -((z_values[0][0] - z_values[1][1]) + (z_values[1][1] - z_values[2][2])) / 2.0f + z_values[2][2];
+
+    // lower right corner
+    grok[0][4][0] = -((z_values[4][4] - z_values[4][3]) + (z_values[4][3] - z_values[4][2]) + (z_values[4][2] - z_values[4][1])) / 3.0f + z_values[4][1];
+    grok[1][4][0] = -((z_values[0][0] - z_values[1][0]) + (z_values[1][0] - z_values[2][0]) + (z_values[2][0] - z_values[3][0])) / 3.0f + z_values[3][0];
+    grok[2][4][0] = -((z_values[0][4] - z_values[1][3]) + (z_values[1][3] - z_values[2][2]) + (z_values[2][2] - z_values[3][1])) / 3.0f + z_values[3][1];
+
+    grok[0][3][0] = -((z_values[3][4] - z_values[3][3]) + (z_values[3][3] - z_values[3][2]) + (z_values[3][2] - z_values[3][1])) / 3.0f + z_values[3][1];
+    grok[1][3][0] = -((z_values[0][0] - z_values[1][0]) + (z_values[1][0] - z_values[2][0])) / 2.0f + z_values[2][0];
+    grok[2][3][0] = -((z_values[0][3] - z_values[1][2]) + (z_values[1][2] - z_values[2][1])) / 2.0f + z_values[2][1];
+
+    grok[0][4][1] = -((z_values[0][1] - z_values[1][1]) + (z_values[1][1] - z_values[2][1]) + (z_values[2][1] - z_values[3][1])) / 3.0f + z_values[3][1];
+    grok[1][4][1] = -((z_values[4][4] - z_values[4][3]) + (z_values[4][3] - z_values[4][2])) / 2.0f + z_values[4][2];
+    grok[2][4][1] = -((z_values[1][4] - z_values[2][3]) + (z_values[2][3] - z_values[3][2])) / 2.0f + z_values[3][2];
+
+    grok[0][3][1] = -((z_values[3][4] - z_values[3][3]) + (z_values[3][3] - z_values[3][2])) / 2.0f + z_values[3][2];
+    grok[1][3][1] = -((z_values[0][1] - z_values[1][1]) + (z_values[1][1] - z_values[2][1])) / 2.0f + z_values[2][1];
+    grok[2][3][1] = -((z_values[0][4] - z_values[1][3]) + (z_values[1][3] - z_values[2][2])) / 2.0f + z_values[2][2];
+
+    // Calculate mean
+    z_values[0][0] = (grok[0][0][0] + grok[1][0][0] + grok[2][0][0]) / 3.0f;
+    z_values[0][1] = (grok[0][0][1] + grok[1][0][1] + grok[2][0][1] + z_values[0][1]) / 4.0f;
+    z_values[1][0] = (grok[0][1][0] + grok[1][1][0] + grok[2][1][0] + z_values[1][0]) / 4.0f;
+    z_values[1][1] = (grok[0][1][1] + grok[1][1][1] + grok[2][1][1] + z_values[1][1]) / 4.0f;
+
+    z_values[0][4] = (grok[0][0][4] + grok[1][0][4] + grok[2][0][4] + z_values[0][4]) / 4.0f;
+    z_values[0][3] = (grok[0][0][3] + grok[1][0][3] + grok[2][0][3] + z_values[0][3]) / 4.0f;
+    z_values[1][4] = (grok[0][1][4] + grok[1][1][4] + grok[2][1][4] + z_values[1][4]) / 4.0f;
+    z_values[1][3] = (grok[0][1][3] + grok[1][1][3] + grok[2][1][3] + z_values[1][3]) / 4.0f;
+
+    z_values[4][4] = (grok[0][4][4] + grok[1][4][4] + grok[2][4][4] + z_values[4][4]) / 4.0f;
+    z_values[3][4] = (grok[0][3][4] + grok[1][3][4] + grok[2][3][4] + z_values[3][4]) / 4.0f;
+    z_values[4][3] = (grok[0][4][3] + grok[1][4][3] + grok[2][4][3] + z_values[4][3]) / 4.0f;
+    z_values[3][3] = (grok[0][3][3] + grok[1][3][3] + grok[2][3][3] + z_values[3][3]) / 4.0f;
+
+    z_values[4][0] = (grok[0][4][0] + grok[1][4][0] + grok[2][4][0] + z_values[4][0]) / 4.0f;
+    z_values[3][0] = (grok[0][3][0] + grok[1][3][0] + grok[2][3][0] + z_values[3][0]) / 4.0f;
+    z_values[4][1] = (grok[0][4][1] + grok[1][4][1] + grok[2][4][1] + z_values[4][1]) / 4.0f;
+    z_values[3][1] = (grok[0][3][1] + grok[1][3][1] + grok[2][3][1] + z_values[3][1]) / 4.0f;
+
+    // weighted calculation method
+    //z_values[0][0] = (grok[0][0][0] + grok[1][0][0] + grok[2][0][0]) / 3.0f * 0.4f + z_values[0][0] * 0.6;
+    //z_values[0][1] = (grok[0][0][1] + grok[1][0][1] + grok[2][0][1]) / 3.0f * 0.4f + z_values[0][1] * 0.6;
+    //z_values[1][0] = (grok[0][1][0] + grok[1][1][0] + grok[2][1][0]) / 3.0f * 0.4f + z_values[1][0] * 0.6;
+    //z_values[1][1] = (grok[0][1][1] + grok[1][1][1] + grok[2][1][1]) / 3.0f * 0.4f + z_values[1][1] * 0.6;
+
+    //z_values[0][4] = (grok[0][0][4] + grok[1][0][4] + grok[2][0][4]) / 3.0f * 0.4f + z_values[0][4] * 0.6;
+    //z_values[0][3] = (grok[0][0][3] + grok[1][0][3] + grok[2][0][3]) / 3.0f * 0.4f + z_values[0][3] * 0.6;
+    //z_values[1][4] = (grok[0][1][4] + grok[1][1][4] + grok[2][1][4]) / 3.0f * 0.4f + z_values[1][4] * 0.6;
+    //z_values[1][3] = (grok[0][1][3] + grok[1][1][3] + grok[2][1][3]) / 3.0f * 0.4f + z_values[1][3] * 0.6;
+
+    //z_values[4][4] = (grok[0][4][4] + grok[1][4][4] + grok[2][4][4]) / 3.0f * 0.4f + z_values[4][4] * 0.6;
+    //z_values[3][4] = (grok[0][3][4] + grok[1][3][4] + grok[2][3][4]) / 3.0f * 0.4f + z_values[3][4] * 0.6;
+    //z_values[4][3] = (grok[0][4][3] + grok[1][4][3] + grok[2][4][3]) / 3.0f * 0.4f + z_values[4][3] * 0.6;
+    //z_values[3][3] = (grok[0][3][3] + grok[1][3][3] + grok[2][3][3]) / 3.0f * 0.4f + z_values[3][3] * 0.6;
+
+    //z_values[4][0] = (grok[0][4][0] + grok[1][4][0] + grok[2][4][0]) / 3.0f * 0.4f + z_values[4][0] * 0.6;
+    //z_values[3][0] = (grok[0][3][0] + grok[1][3][0] + grok[2][3][0]) / 3.0f * 0.4f + z_values[3][0] * 0.6;
+    //z_values[4][1] = (grok[0][4][1] + grok[1][4][1] + grok[2][4][1]) / 3.0f * 0.4f + z_values[4][1] * 0.6;
+    //z_values[3][1] = (grok[0][3][1] + grok[1][3][1] + grok[2][3][1]) / 3.0f * 0.4f + z_values[3][1] * 0.6;
+  }
 #endif
 
 /**
@@ -229,6 +353,14 @@ G29_TYPE GcodeSuite::G29() {
 
   // Keep powered steppers from timing out
   reset_stepper_timeout();
+
+  reset_bed_level(); // not 0 but NaN
+
+  #if ENABLED(CREALITY_RTS)
+    G29_flag = true;
+    RTS_ProbingPauseHotend();
+    RTS_ProbingPauseFans();
+  #endif
 
   // Q = Query leveling and G29 state
   const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
@@ -567,7 +699,7 @@ G29_TYPE GcodeSuite::G29() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         const float newz = abl.measured_z + abl.Z_offset;
-        abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
+        bedlevel.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
@@ -603,6 +735,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Is there a next point to move to?
       if (abl.abl_probe_index < abl.abl_points) {
+        //abl.probePos.y -= probe.offset.y;
         _manual_goto_xy(abl.probePos); // Can be used here too!
         // Disable software endstops to allow manual adjustment
         // If G29 is not completed, they will not be re-enabled
@@ -652,6 +785,7 @@ G29_TYPE GcodeSuite::G29() {
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     abl.measured_z = 0;
+    abl.showcount = 0;
 
     #if ABL_USES_GRID
 
@@ -659,7 +793,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
-      for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
+      for (PR_OUTER_VAR = 0, abl.showcount = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
 
         int8_t inStart, inStop, inInc;
 
@@ -773,8 +907,10 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            bedlevel.z_values[abl.meshCount.x][abl.meshCount.y] = z;
+
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
+            TERN_(CREALITY_RTS, RTS_LevelingUpdate(abl.showcount, abl.abl_points));
 
           #endif
 
@@ -783,6 +919,28 @@ G29_TYPE GcodeSuite::G29() {
 
         } // inner
       } // outer
+
+      // Leveling data compensation interface
+      //for (uint8_t index = 0; index <= 3; ++index) {
+      //  //bedlevel.z_values[3][index] *= 1.3f;
+      //  //bedlevel.z_values[2][index] *= 1.3f;
+      //  //bedlevel.z_values[2][index] += bedlevel.z_values[1][index] * 0.3f;
+      //  //bedlevel.z_values[0][index] *= 1.3f;
+      //  bedlevel.z_values[index][1] *= 0.8f;
+      //  bedlevel.z_values[index][2] *= 0.8f;
+      //  bedlevel.z_values[index][3] *= 0.8f;
+      //  bedlevel.z_values[index][0] *= 0.8f;
+      //}
+
+      TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.print_leveling_grid()); // print raw data
+
+      // Force smoothing of the bottom left corner data
+      //float bedlevel.z_valuesTemp = 0;
+      //bedlevel.z_valuesTemp = (bedlevel.z_values[0][0] + bedlevel.z_values[0][1] + bedlevel.z_values[1][0]) / 3.0f;
+      //bedlevel.z_values[0][0] -= 0.08f;
+      //bedlevel.z_values[0][1] -= 0.05f;
+      //bedlevel.z_values[1][0] -= 0.05f;
+      //bedlevel.z_values[1][1] -= 0.02f;
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
@@ -812,6 +970,8 @@ G29_TYPE GcodeSuite::G29() {
       }
 
     #endif // AUTO_BED_LEVELING_3POINT
+
+    TERN_(HAS_MESH, apply_mesh_correction(bedlevel.z_values));
 
     TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
 
@@ -845,10 +1005,10 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bedlevel.print_leveling_grid(&abl.z_values);
+        bedlevel.print_leveling_grid(&bedlevel.z_values);
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
-        COPY(bedlevel.z_values, abl.z_values);
+        COPY(bedlevel.z_values, bedlevel.z_values);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
 
@@ -995,9 +1155,23 @@ G29_TYPE GcodeSuite::G29() {
 
   probe.use_probing_tool(false);
 
+  #if ENABLED(Z_SAFE_HOMING)
+    do_blocking_move_to_xy(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+    //do_blocking_move_to_xy(Z_SAFE_HOMING_X_POINT-2, Z_SAFE_HOMING_Y_POINT+44.5);//rock_20220610 将Z轴复位后的终点改成平台中心
+  #endif
+
+  settings.save();
+
   report_current_position();
 
+  #if ENABLED(CREALITY_RTS)
+    RTS_LevelingDone();
+    RTS_ProbingResumeFans();
+    RTS_ProbingResumeHotend();
+  #endif
+
   G29_RETURN(isnan(abl.measured_z), true);
+
 }
 
 #endif // HAS_ABL_NOT_UBL

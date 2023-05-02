@@ -37,6 +37,9 @@
 
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
 
 #include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
 
@@ -1011,6 +1014,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
       stow();
+      TERN_(CREALITY_RTS, RTS_ProbingFailed());
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)
         SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);

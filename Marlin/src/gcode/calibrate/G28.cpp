@@ -56,6 +56,10 @@
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
+
 #if ENABLED(LASER_FEATURE)
   #include "../../feature/spindle_laser.h"
 #endif
@@ -225,6 +229,7 @@ void GcodeSuite::G28() {
 
   TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
+  TERN_(CREALITY_RTS, home_flag = true);
 
   planner.synchronize();          // Wait for planner moves to finish!
 
@@ -654,6 +659,15 @@ void GcodeSuite::G28() {
 
   TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
+
+  #if ENABLED(CREALITY_RTS)
+    home_flag = false;
+    RTS_MoveAxisHoming();
+    //DEBUG_ECHOLNPGM(" leveling_flag=: ", leveling_flag);
+    // If it is in leveling, the automatic compensation function will not be restored
+    //process_subcommands_now_P(leveling_flag ? PSTR("M420 S0") : PSTR("M420 S1 Z10"));
+    st_bedNozzleHeightCal.goHomeSta = GO_HOME_DONE;
+  #endif
 
   report_current_position();
 
