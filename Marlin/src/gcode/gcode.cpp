@@ -1061,6 +1061,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
+      #if ENABLED(OTA_FIRMWARE_UPDATE)
+        case 936: M936(); break;                                  // M936: OTA update firmware.
+      #endif
+
       #if SPI_FLASH_BACKUP
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash

@@ -65,6 +65,10 @@
   #undef IIC_BL24CXX_EEPROM
 #endif
 
+#if DISABLED(IIC_BL24CXX_EEPROM)
+  #undef OTA_FIRMWARE_UPDATE
+#endif
+
 #ifdef TEENSYDUINO
   #undef max
   #define max(a,b) ((a)>(b)?(a):(b))
