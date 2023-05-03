@@ -22,9 +22,13 @@
 #pragma once
 
 #ifdef STM32F1xx
-  #include <stm32f1xx_hal.h>
+  #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
-  #include <stm32f4xx_hal.h>
+  #include "stm32f4xx_hal.h"
+#elif defined(STM32H7xx)
+  #include "stm32h7xx_hal.h"
+#else
+  #error SPI Touch Screen is currently only supported on STM32F1, STM32F4 and STM32H7 hardware.
 #endif
 
 #include "../../../inc/MarlinConfig.h"

@@ -25,8 +25,10 @@
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
+#elif defined(STM32H7xx)
+  #include "stm32h7xx_hal.h"
 #else
-  #error SPI TFT is currently only supported on STM32F1 and STM32F4 hardware.
+  #error SPI TFT is currently only supported on STM32F1, STM32F4 and STM32H7 hardware.
 #endif
 
 #ifndef LCD_READ_ID
@@ -38,6 +40,7 @@
 
 #define DATASIZE_8BIT  SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
+#define DATASIZE_32BIT SPI_DATASIZE_32BIT
 #define TFT_IO_DRIVER  TFT_SPI
 #define DMA_MAX_SIZE   0xFFFF
 
@@ -60,7 +63,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT);
+  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
   static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); __HAL_SPI_DISABLE(&SPIx); };
   static void DataTransferAbort();
 
