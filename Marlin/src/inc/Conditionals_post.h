@@ -560,7 +560,7 @@
     #define REINIT_NOISY_LCD 1  // Have the LCD re-init on SD insertion
   #endif
 
-#endif
+#endif // HAS_MEDIA
 
 /**
  * Power Supply
@@ -3150,6 +3150,25 @@
   #endif
   #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
     #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
+  #endif
+#endif
+
+// Touch Calibration
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X 0
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y 0
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X 0
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y 0
+  #endif
+  #ifndef TOUCH_ORIENTATION
+    #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
   #endif
 #endif
 
