@@ -255,6 +255,17 @@
 // This does not account for the possibility of multi-stepping.
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X >> 1)
 
+// TODO: Review and ensure proper handling for special E axes with commands like M17/M18, stepper timeout, etc.
+#if ENABLED(MIXING_EXTRUDER)
+  #define E_STATES EXTRUDERS  // All steppers are set together for each mixer. (Currently limited to 1.)
+#elif HAS_SWITCHING_EXTRUDER
+  #define E_STATES E_STEPPERS // One stepper for every two EXTRUDERS. The last extruder can be non-switching.
+#elif HAS_PRUSA_MMU2
+  #define E_STATES E_STEPPERS // One E stepper shared with all EXTRUDERS, so setting any only sets one.
+#else
+  #define E_STATES E_STEPPERS // One stepper for each extruder, so each can be disabled individually.
+#endif
+
 // Number of axes that could be enabled/disabled. Dual/multiple steppers are combined.
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
 typedef bits_t(ENABLE_COUNT) ena_mask_t;
