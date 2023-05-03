@@ -519,7 +519,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 20: M20(); break;                                    // M20: List SD card
         case 21: M21(); break;                                    // M21: Init SD card
         case 22: M22(); break;                                    // M22: Release SD card
@@ -545,7 +545,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
 
         case 928: M928(); break;                                  // M928: Start SD write
-      #endif // SDSUPPORT
+      #endif // HAS_MEDIA
 
       case 31: M31(); break;                                      // M31: Report time since the start of SD print or last M109
 
@@ -581,7 +581,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
-      #if HAS_EXTRUDERS
+      #if HAS_HOTEND
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -919,7 +919,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
 
@@ -954,7 +954,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 
-      #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+      #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
         case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
       #endif
 
@@ -1061,7 +1061,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
-      #if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+      #if ENABLED(OTA_FIRMWARE_UPDATE)
+        case 936: M936(); break;                                  // M936: OTA update firmware.
+      #endif
+
+      #if SPI_FLASH_BACKUP
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif
@@ -1081,7 +1085,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
       #endif
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 

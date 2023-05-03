@@ -29,7 +29,7 @@
 #if ENABLED(ANYCUBIC_LCD_VYPER)
 
 #include "dgus_tft.h"
-#include "Tunes.h"
+#include "../anycubic/Tunes.h"
 #include "FileNavigator.h"
 
 #include "../../../gcode/queue.h"
@@ -154,9 +154,6 @@ namespace Anycubic {
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands(AC_cmnd_enable_leveling);
 
-    // Startup tunes are defined in Tunes.h
-    //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
-    //PlayTune(BEEPER_PIN, GB_PowerOn, 1);
     #if ACDEBUGLEVEL
       DEBUG_ECHOLNPGM("Startup   AC Debug Level ", ACDEBUGLEVEL);
     #endif
@@ -466,7 +463,7 @@ namespace Anycubic {
       pop_up_index = 15;  // show filament lack.
 
       if (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_STATE) {
-        PlayTune(BEEPER_PIN, FilamentOut, 1);
+        PlayTune(FilamentOut);
 
         feedrate_back = getFeedrate_percent();
 
@@ -508,7 +505,7 @@ namespace Anycubic {
         if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           SendtoTFTLN(AC_msg_paused); // enable continue button
-          PlayTune(BEEPER_PIN, Heater_Timedout, 1);
+          PlayTune(HeaterTimeout);
         }
         // Reheat finished, send acknowledgement
         else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
@@ -579,7 +576,7 @@ namespace Anycubic {
 
           // If probing fails don't save the mesh raise the probe above the bad point
           if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
-            PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
+            PlayTune(BeepBeepBeeep);
             injectCommands(F("G1 Z50 F500"));
             ChangePageOfTFT(PAGE_CHS_ABNORMAL_LEVELING_SENSOR);
             SendtoTFTLN(AC_msg_probing_complete);
@@ -1073,7 +1070,7 @@ namespace Anycubic {
                 #else
                   SendTxtToTFT(recovery.info.sd_filename, TXT_OUTAGE_RECOVERY_FILE);
                 #endif
-                PlayTune(BEEPER_PIN, SOS, 1);
+                PlayTune(SOS);
               }
             #else
               constexpr bool is_outage = false;
@@ -1083,12 +1080,13 @@ namespace Anycubic {
 
           }
           else if (control_value == 0x010000) {         // startup first gif
-            PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);  // takes 3500 ms
+            // Startup tunes are defined in Tunes.h
+            PlayTune(Anycubic_PowerOn);                 // takes 3500 ms
           }
         }
 
         /*
-        else if ((control_index & 0xF000) == 0x2000) { // is TXT ADDRESS
+        else if ((control_index & 0xF000) == 0x2000) {  // is TXT ADDRESS
           tft_txt_index = control_index;
           j = 0;
           for (i = 4; ;i++) {

@@ -35,10 +35,10 @@
 #include "../core/debug_out.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include HAL_PATH(../HAL, endstop_interrupts.h)
+  #include HAL_PATH(.., endstop_interrupts.h)
 #endif
 
-#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, HAS_MEDIA)
   #include "printcounter.h" // for print_job_timer
 #endif
 
@@ -134,7 +134,7 @@ void Endstops::init() {
   #if HAS_Y2_MAX
     _INIT_ENDSTOP(MAX,Y,2);
   #endif
-  #if HAS_Z_MIN
+  #if HAS_Z_MIN_PIN
     _INIT_ENDSTOP(MIN,Z,);
   #endif
   #if HAS_Z_MAX
@@ -352,7 +352,7 @@ void Endstops::event_handler() {
       )
     );
 
-    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, HAS_MEDIA)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
         quickstop_stepper();
@@ -514,13 +514,12 @@ void Endstops::update() {
   #endif
 
   // Macros to update / copy the live_state
-  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ_ENDSTOP(_ENDSTOP_PIN(AXIS, MINMAX)) == _ENDSTOP_HIT_STATE(AXIS, MINMAX)))
+  #define UPDATE_LIVE_STATE(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ_ENDSTOP(_ENDSTOP_PIN(AXIS, MINMAX)) == _ENDSTOP_HIT_STATE(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
-  #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-    #define HAS_G38_PROBE 1
+  #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
-    if (G38_move) UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
+    if (G38_move) UPDATE_LIVE_STATE(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -555,10 +554,10 @@ void Endstops::update() {
    * Check and update endstops
    */
   #if HAS_X_MIN && !X_SPI_SENSORLESS
-    UPDATE_ENDSTOP_BIT(X, MIN);
+    UPDATE_LIVE_STATE(X, MIN);
     #if ENABLED(X_DUAL_ENDSTOPS)
       #if HAS_X2_MIN
-        UPDATE_ENDSTOP_BIT(X2, MIN);
+        UPDATE_LIVE_STATE(X2, MIN);
       #else
         COPY_LIVE_STATE(X_MIN, X2_MIN);
       #endif
@@ -566,10 +565,10 @@ void Endstops::update() {
   #endif
 
   #if HAS_X_MAX && !X_SPI_SENSORLESS
-    UPDATE_ENDSTOP_BIT(X, MAX);
+    UPDATE_LIVE_STATE(X, MAX);
     #if ENABLED(X_DUAL_ENDSTOPS)
       #if HAS_X2_MAX
-        UPDATE_ENDSTOP_BIT(X2, MAX);
+        UPDATE_LIVE_STATE(X2, MAX);
       #else
         COPY_LIVE_STATE(X_MAX, X2_MAX);
       #endif
@@ -577,10 +576,10 @@ void Endstops::update() {
   #endif
 
   #if HAS_Y_MIN && !Y_SPI_SENSORLESS
-    UPDATE_ENDSTOP_BIT(Y, MIN);
+    UPDATE_LIVE_STATE(Y, MIN);
     #if ENABLED(Y_DUAL_ENDSTOPS)
       #if HAS_Y2_MIN
-        UPDATE_ENDSTOP_BIT(Y2, MIN);
+        UPDATE_LIVE_STATE(Y2, MIN);
       #else
         COPY_LIVE_STATE(Y_MIN, Y2_MIN);
       #endif
@@ -588,10 +587,10 @@ void Endstops::update() {
   #endif
 
   #if HAS_Y_MAX && !Y_SPI_SENSORLESS
-    UPDATE_ENDSTOP_BIT(Y, MAX);
+    UPDATE_LIVE_STATE(Y, MAX);
     #if ENABLED(Y_DUAL_ENDSTOPS)
       #if HAS_Y2_MAX
-        UPDATE_ENDSTOP_BIT(Y2, MAX);
+        UPDATE_LIVE_STATE(Y2, MAX);
       #else
         COPY_LIVE_STATE(Y_MAX, Y2_MAX);
       #endif
@@ -599,23 +598,25 @@ void Endstops::update() {
   #endif
 
   #if HAS_Z_MIN && NONE(Z_SPI_SENSORLESS, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    UPDATE_ENDSTOP_BIT(Z, MIN);
+    #if HAS_Z_MIN_PIN
+      UPDATE_LIVE_STATE(Z, MIN);
+    #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #if HAS_Z2_MIN
-        UPDATE_ENDSTOP_BIT(Z2, MIN);
+        UPDATE_LIVE_STATE(Z2, MIN);
       #else
         COPY_LIVE_STATE(Z_MIN, Z2_MIN);
       #endif
       #if NUM_Z_STEPPERS >= 3
         #if HAS_Z3_MIN
-          UPDATE_ENDSTOP_BIT(Z3, MIN);
+          UPDATE_LIVE_STATE(Z3, MIN);
         #else
           COPY_LIVE_STATE(Z_MIN, Z3_MIN);
         #endif
       #endif
       #if NUM_Z_STEPPERS >= 4
         #if HAS_Z4_MIN
-          UPDATE_ENDSTOP_BIT(Z4, MIN);
+          UPDATE_LIVE_STATE(Z4, MIN);
         #else
           COPY_LIVE_STATE(Z_MIN, Z4_MIN);
         #endif
@@ -626,189 +627,129 @@ void Endstops::update() {
   #if HAS_BED_PROBE
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
-      UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
+      UPDATE_LIVE_STATE(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS
     // Check both Z dual endstops
     #if ENABLED(Z_MULTI_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(Z, MAX);
+      UPDATE_LIVE_STATE(Z, MAX);
       #if HAS_Z2_MAX
-        UPDATE_ENDSTOP_BIT(Z2, MAX);
+        UPDATE_LIVE_STATE(Z2, MAX);
       #else
         COPY_LIVE_STATE(Z_MAX, Z2_MAX);
       #endif
       #if NUM_Z_STEPPERS >= 3
         #if HAS_Z3_MAX
-          UPDATE_ENDSTOP_BIT(Z3, MAX);
+          UPDATE_LIVE_STATE(Z3, MAX);
         #else
           COPY_LIVE_STATE(Z_MAX, Z3_MAX);
         #endif
       #endif
       #if NUM_Z_STEPPERS >= 4
         #if HAS_Z4_MAX
-          UPDATE_ENDSTOP_BIT(Z4, MAX);
+          UPDATE_LIVE_STATE(Z4, MAX);
         #else
           COPY_LIVE_STATE(Z_MAX, Z4_MAX);
         #endif
       #endif
     #elif TERN1(USES_Z_MIN_PROBE_PIN, Z_MAX_PIN != Z_MIN_PROBE_PIN)
       // If this pin isn't the bed probe it's the Z endstop
-      UPDATE_ENDSTOP_BIT(Z, MAX);
+      UPDATE_LIVE_STATE(Z, MAX);
     #endif
   #endif
 
   #if HAS_I_MIN && !I_SPI_SENSORLESS
     #if ENABLED(I_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(I, MIN);
-      #if HAS_I2_MIN
-        UPDATE_ENDSTOP_BIT(I2, MAX);
-      #else
-        COPY_LIVE_STATE(I_MIN, I2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(I, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(I, MIN);
+      UPDATE_LIVE_STATE(I, MIN);
     #endif
   #endif
 
   #if HAS_I_MAX && !I_SPI_SENSORLESS
     #if ENABLED(I_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(I, MAX);
-      #if HAS_I2_MAX
-        UPDATE_ENDSTOP_BIT(I2, MAX);
-      #else
-        COPY_LIVE_STATE(I_MAX, I2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(I, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(I, MAX);
+      UPDATE_LIVE_STATE(I, MAX);
     #endif
   #endif
 
   #if HAS_J_MIN && !J_SPI_SENSORLESS
     #if ENABLED(J_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(J, MIN);
-      #if HAS_J2_MIN
-        UPDATE_ENDSTOP_BIT(J2, MIN);
-      #else
-        COPY_LIVE_STATE(J_MIN, J2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(J, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(J, MIN);
+      UPDATE_LIVE_STATE(J, MIN);
     #endif
   #endif
 
   #if HAS_J_MAX && !J_SPI_SENSORLESS
     #if ENABLED(J_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(J, MAX);
-      #if HAS_J2_MAX
-        UPDATE_ENDSTOP_BIT(J2, MAX);
-      #else
-        COPY_LIVE_STATE(J_MAX, J2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(J, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(J, MAX);
+      UPDATE_LIVE_STATE(J, MAX);
     #endif
   #endif
 
   #if HAS_K_MIN && !K_SPI_SENSORLESS
     #if ENABLED(K_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(K, MIN);
-      #if HAS_K2_MIN
-        UPDATE_ENDSTOP_BIT(K2, MIN);
-      #else
-        COPY_LIVE_STATE(K_MIN, K2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(K, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(K, MIN);
+      UPDATE_LIVE_STATE(K, MIN);
     #endif
   #endif
 
   #if HAS_K_MAX && !K_SPI_SENSORLESS
     #if ENABLED(K_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(K, MAX);
-      #if HAS_K2_MAX
-        UPDATE_ENDSTOP_BIT(K2, MAX);
-      #else
-        COPY_LIVE_STATE(K_MAX, K2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(K, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(K, MAX);
+      UPDATE_LIVE_STATE(K, MAX);
     #endif
   #endif
 
   #if HAS_U_MIN && !U_SPI_SENSORLESS
     #if ENABLED(U_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(U, MIN);
-      #if HAS_U2_MIN
-        UPDATE_ENDSTOP_BIT(U2, MIN);
-      #else
-        COPY_LIVE_STATE(U_MIN, U2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(U, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(U, MIN);
+      UPDATE_LIVE_STATE(U, MIN);
     #endif
   #endif
 
   #if HAS_U_MAX && !U_SPI_SENSORLESS
     #if ENABLED(U_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(U, MAX);
-      #if HAS_U2_MAX
-        UPDATE_ENDSTOP_BIT(U2, MAX);
-      #else
-        COPY_LIVE_STATE(U_MAX, U2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(U, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(U, MAX);
+      UPDATE_LIVE_STATE(U, MAX);
     #endif
   #endif
 
   #if HAS_V_MIN && !V_SPI_SENSORLESS
     #if ENABLED(V_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(V, MIN);
-      #if HAS_V2_MIN
-        UPDATE_ENDSTOP_BIT(V2, MIN);
-      #else
-        COPY_LIVE_STATE(V_MIN, V2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(V, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(V, MIN);
+      UPDATE_LIVE_STATE(V, MIN);
     #endif
   #endif
   #if HAS_V_MAX && !V_SPI_SENSORLESS
     #if ENABLED(O_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(V, MAX);
-      #if HAS_V2_MAX
-        UPDATE_ENDSTOP_BIT(V2, MAX);
-      #else
-        COPY_LIVE_STATE(V_MAX, V2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(V, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(V, MAX);
+      UPDATE_LIVE_STATE(V, MAX);
     #endif
   #endif
 
   #if HAS_W_MIN && !W_SPI_SENSORLESS
     #if ENABLED(W_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(W, MIN);
-      #if HAS_W2_MIN
-        UPDATE_ENDSTOP_BIT(W2, MIN);
-      #else
-        COPY_LIVE_STATE(W_MIN, W2_MIN);
-      #endif
+      UPDATE_LIVE_STATE(W, MIN);
     #else
-      UPDATE_ENDSTOP_BIT(W, MIN);
+      UPDATE_LIVE_STATE(W, MIN);
     #endif
   #endif
   #if HAS_W_MAX && !W_SPI_SENSORLESS
     #if ENABLED(W_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(W, MAX);
-      #if HAS_W2_MAX
-        UPDATE_ENDSTOP_BIT(W2, MAX);
-      #else
-        COPY_LIVE_STATE(W_MAX, W2_MAX);
-      #endif
+      UPDATE_LIVE_STATE(W, MAX);
     #else
-      UPDATE_ENDSTOP_BIT(W, MAX);
+      UPDATE_LIVE_STATE(W, MAX);
     #endif
   #endif
 
@@ -912,18 +853,14 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #if HAS_G38_PROBE // TODO (DerAndere): Add support for HAS_I_AXIS
-    #define _G38_OPEN_STATE TERN(G38_PROBE_AWAY, (G38_move >= 4), LOW)
+  #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
-    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) != _G38_OPEN_STATE) {
-             if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
-      #if HAS_Y_AXIS
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
-      #endif
-      #if HAS_Z_AXIS
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, TERN(Z_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Z_AXIS); }
-      #endif
+    if (G38_move && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
       G38_did_trigger = true;
+      #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
+      #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
+      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif
 
@@ -1244,7 +1181,7 @@ void Endstops::update() {
     #if HAS_Y_MAX
       ES_GET_STATE(Y_MAX);
     #endif
-    #if HAS_Z_MIN
+    #if HAS_Z_MIN_PIN
       ES_GET_STATE(Z_MIN);
     #endif
     #if HAS_Z_MAX

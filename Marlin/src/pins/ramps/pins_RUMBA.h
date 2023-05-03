@@ -53,9 +53,6 @@
 #ifndef X_MIN_PIN
   #define X_MIN_PIN                           37
 #endif
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN                           37
-#endif
 #ifndef X_MAX_PIN
   #define X_MAX_PIN                           36
 #endif
@@ -241,7 +238,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

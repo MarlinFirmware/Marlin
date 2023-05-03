@@ -814,12 +814,12 @@ class Stepper {
     static void disable_all_steppers();
 
     // Update direction states for all steppers
-    static void set_directions();
+    static void apply_directions();
 
     // Set direction bits and update all stepper DIR states
     static void set_directions(const axis_bits_t bits) {
       last_direction_bits = bits;
-      set_directions();
+      apply_directions();
     }
 
     #if ENABLED(FT_MOTION)

@@ -31,7 +31,7 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include "../../../sd/cardreader.h"
@@ -2211,10 +2211,8 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
   void ProbeStow() { probe.stow(); }
   void ProbeDeploy() { probe.deploy(); }
 
-  #if ENABLED(BLTOUCH_HS_MODE)
-    void SetHSMode() {
-      Toggle_Chkb_Line(bltouch.high_speed_mode);
-    }
+  #if HAS_BLTOUCH_HS_MODE
+    void SetHSMode() { Toggle_Chkb_Line(bltouch.high_speed_mode); }
   #endif
 
 #endif
@@ -3184,7 +3182,7 @@ void Draw_Move_Menu() {
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, ProbeStow);
         MENU_ITEM(ICON_ProbeDeploy, MSG_MANUAL_DEPLOY, onDrawMenuItem, ProbeDeploy);
         MENU_ITEM(ICON_BltouchReset, MSG_BLTOUCH_RESET, onDrawMenuItem, bltouch._reset);
-        #if ENABLED(BLTOUCH_HS_MODE)
+        #if HAS_BLTOUCH_HS_MODE
           EDIT_ITEM(ICON_HSMode, MSG_ENABLE_HS_MODE, onDrawChkbMenu, SetHSMode, &bltouch.high_speed_mode);
         #endif
       #endif
