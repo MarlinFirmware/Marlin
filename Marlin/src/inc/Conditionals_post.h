@@ -3156,32 +3156,16 @@
 // Touch Calibration
 #if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
   #ifndef TOUCH_CALIBRATION_X
-    #ifdef XPT2046_X_CALIBRATION
-      #define TOUCH_CALIBRATION_X XPT2046_X_CALIBRATION
-    #else
-      #define TOUCH_CALIBRATION_X 0
-    #endif
+    #define TOUCH_CALIBRATION_X 0
   #endif
   #ifndef TOUCH_CALIBRATION_Y
-    #ifdef XPT2046_Y_CALIBRATION
-      #define TOUCH_CALIBRATION_Y XPT2046_Y_CALIBRATION
-    #else
-      #define TOUCH_CALIBRATION_Y 0
-    #endif
+    #define TOUCH_CALIBRATION_Y 0
   #endif
   #ifndef TOUCH_OFFSET_X
-    #ifdef XPT2046_X_OFFSET
-      #define TOUCH_OFFSET_X XPT2046_X_OFFSET
-    #else
-      #define TOUCH_OFFSET_X 0
-    #endif
+    #define TOUCH_OFFSET_X 0
   #endif
   #ifndef TOUCH_OFFSET_Y
-    #ifdef XPT2046_Y_OFFSET
-      #define TOUCH_OFFSET_Y XPT2046_Y_OFFSET
-    #else
-      #define TOUCH_OFFSET_Y 0
-    #endif
+    #define TOUCH_OFFSET_Y 0
   #endif
   #ifndef TOUCH_ORIENTATION
     #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
