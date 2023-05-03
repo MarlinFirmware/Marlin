@@ -971,10 +971,9 @@ volatile bool Temperature::raw_temps_ready = false;
     init_timers();
     const millis_t test_interval_ms = 10000UL;
     millis_t next_test_ms = curr_time_ms + test_interval_ms;
-    ambient_temp = current_temp;
-
-    current_temp = degHotend(e);
+    ambient_temp = current_temp = degHotend(e);
     wait_for_heatup = true;
+    
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
