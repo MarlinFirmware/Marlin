@@ -796,21 +796,48 @@ public:
   typedef bits_t(NUM_AXIS_ENUMS) el;
   union {
     el bits;
+    // x, y, z ... e0, e1, e2 ... hx, hy, hz
     struct {
-      union {
-        bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
-        bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
-        bool NUM_AXIS_LIST(a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
-        bool NUM_AXIS_LIST(A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
-      };
-      #if HAS_EXTRUDERS
-        union { bool e:1; bool e0:1; };
-        #define _EN_ITEM(N) bool e##N:1;
+      bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
+      #define _EN_ITEM(N) bool e##N:1;
+      REPEAT(EXTRUDERS,_EN_ITEM)
+      #undef _EN_ITEM
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool hx:1, hy:1, hz:1;
+      #endif
+    };
+    // X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
+    struct {
+      bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
+      #define _EN_ITEM(N) bool E##N:1;
+      REPEAT(EXTRUDERS,_EN_ITEM)
+      #undef _EN_ITEM
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool HX:1, HY:1, HZ:1;
+      #endif
+    };
+    // a, b, c, e ... ha, hb, hc
+    struct {
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+      #if EXTRUDERS > 1
+        #define _EN_ITEM(N) bool _e##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
       #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool hx:1, hy:1, hz:1;
+        bool ha:1, hb:1, hc:1;
+      #endif
+    };
+    // A, B, C, E ... HA, HB, HC
+    struct {
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      #if EXTRUDERS > 1
+        #define _EN_ITEM(N) bool _E##N:1;
+        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
+        #undef _EN_ITEM
+      #endif
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool HA:1, HB:1, HC:1;
       #endif
     };
   };
