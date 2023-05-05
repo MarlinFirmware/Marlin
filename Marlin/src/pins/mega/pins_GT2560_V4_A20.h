@@ -29,7 +29,7 @@
 #define BOARD_INFO_NAME "GT2560 4.x"
 
 #define LCD_PINS_RS                            5
-#define LCD_PINS_ENABLE                       36
+#define LCD_PINS_EN                           36
 #define LCD_PINS_D4                           21
 #define LCD_PINS_D7                            6
 

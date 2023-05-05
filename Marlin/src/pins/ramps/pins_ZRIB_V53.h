@@ -336,9 +336,9 @@
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_SDSS                            16
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS     (PIN4 of LCD module)
-  #define LCD_PINS_ENABLE                     23  // ST7920_DAT_PIN LCD_PIN_R/W    (PIN5 of LCD module)
-  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN LCD_PIN_ENABLE (PIN6 of LCD module)
+  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS  (PIN4 of LCD module)
+  #define LCD_PINS_EN                         23  // ST7920_DAT_PIN LCD_PIN_R/W (PIN5 of LCD module)
+  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN LCD_PIN_ENA (PIN6 of LCD module)
   #define BTN_EN2                             25
   #define BTN_EN1                             27
   #define BTN_ENC                             29
@@ -348,7 +348,7 @@
   #define LCDSCREEN_NAME "Reprap LCD12864"
   // Use EXP1 & EXP2 connector
   #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS
-  #define LCD_PINS_ENABLE                     17  // ST7920_DAT_PIN LCD_PIN_ENABLE
+  #define LCD_PINS_EN                         17  // ST7920_DAT_PIN LCD_PIN_ENA
   #define LCD_PINS_D4                         23  // ST7920_CLK_PIN LCD_PIN_R/W
   #define BTN_EN1                             31
   #define BTN_EN2                             33
@@ -388,7 +388,7 @@
 #if ENABLED(ZONESTAR_LCD)
   #define LCDSCREEN_NAME "LCD2004 ADCKEY"
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #define LCD_PINS_D5                EXP1_06_PIN
   #define LCD_PINS_D6                EXP1_07_PIN

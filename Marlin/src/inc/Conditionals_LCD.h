@@ -26,6 +26,10 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+#if ENABLED(SDSUPPORT)
+  #define HAS_MEDIA 1
+#endif
+
 // MKS_LCD12864A/B is a variant of MKS_MINI_12864
 #if EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define MKS_MINI_12864
@@ -217,7 +221,7 @@
   #define IS_TFTGLCD_PANEL 1
   #define IS_ULTIPANEL 1                    // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
-  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
+  #if HAS_MEDIA && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
@@ -324,24 +328,22 @@
   #define IS_ULTIPANEL 1
 #endif
 
-// TFT Legacy Compatibility
+// TFT Legacy options masquerade as TFT_GENERIC
 #if ANY(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
   #define IS_LEGACY_TFT 1
   #define TFT_GENERIC
-#endif
-
-#if ANY(FSMC_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_LVGL_UI_FSMC)
-  #define TFT_INTERFACE_FSMC
-#elif ANY(SPI_GRAPHICAL_TFT, TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_SPI)
-  #define TFT_INTERFACE_SPI
-#endif
-
-#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
-  #define TFT_CLASSIC_UI
-#elif ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI)
-  #define TFT_COLOR_UI
-#elif EITHER(TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
-  #define TFT_LVGL_UI
+  #if ANY(FSMC_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_LVGL_UI_FSMC)
+    #define TFT_INTERFACE_FSMC
+  #elif ANY(SPI_GRAPHICAL_TFT, TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_SPI)
+    #define TFT_INTERFACE_SPI
+  #endif
+  #if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
+    #define TFT_CLASSIC_UI
+  #elif ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI)
+    #define TFT_COLOR_UI
+  #elif EITHER(TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
+    #define TFT_LVGL_UI
+  #endif
 #endif
 
 // FSMC/SPI TFT Panels (LVGL)
@@ -485,7 +487,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER, NEXTION_TFT)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI 1
   #define EXTENSIBLE_UI
 #endif
@@ -497,18 +499,22 @@
 #if EITHER(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DWIN_E3V2 1
 #endif
-#if ENABLED(DWIN_LCD_PROUI)
-  #define DO_LIST_BIN_FILES 1
-#endif
 
 // E3V2 extras
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #define SERIAL_CATCHALL 0
   #define HAS_LCD_BRIGHTNESS 1
   #define LCD_BRIGHTNESS_MAX 250
-  #if ENABLED(DWIN_LCD_PROUI)
-    #define LCD_BRIGHTNESS_DEFAULT 127
-  #endif
+#endif
+
+#if ENABLED(DWIN_LCD_PROUI)
+  #define DO_LIST_BIN_FILES 1
+  #define LCD_BRIGHTNESS_DEFAULT 127
+#endif
+
+// Serial Controllers require LCD_SERIAL_PORT
+#if ANY(IS_DWIN_MARLINUI, HAS_DWIN_E3V2, HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT)
+  #define LCD_IS_SERIAL_HOST 1
 #endif
 
 #if HAS_WIRED_LCD
@@ -530,6 +536,10 @@
 
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
   #define HAS_LCDPRINT 1
+#endif
+
+#if HAS_DISPLAY || HAS_LCDPRINT
+  #define HAS_UTF8_UTILS 1
 #endif
 
 #if HAS_DISPLAY || HAS_DWIN_E3V2
@@ -619,8 +629,6 @@
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
   #undef DISABLE_E
-  #undef THERMAL_PROTECTION_HOTENDS
-  #undef PREVENT_COLD_EXTRUSION
   #undef PREVENT_LENGTHY_EXTRUDE
   #undef FILAMENT_RUNOUT_SENSOR
   #undef FILAMENT_RUNOUT_DISTANCE_MM
@@ -651,9 +659,6 @@
     #define E_STEPPERS    2
   #else
     #define E_STEPPERS    1
-  #endif
-  #if !HAS_SWITCHING_NOZZLE
-    #define HOTENDS       E_STEPPERS
   #endif
 
 #elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
@@ -686,16 +691,7 @@
   #define SINGLENOZZLE
 #endif
 
-#if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
-  #undef HOTENDS
-  #define HOTENDS       1
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-#endif
-
-#ifndef HOTENDS
-  #define HOTENDS EXTRUDERS
-#endif
+// Default E steppers / manual motion is one per extruder
 #ifndef E_STEPPERS
   #define E_STEPPERS EXTRUDERS
 #endif
@@ -703,6 +699,45 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+// Number of hotends...
+#if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)               // Only one for singlenozzle or mixing extruder
+  #define HOTENDS 1
+#elif HAS_SWITCHING_EXTRUDER && !HAS_SWITCHING_NOZZLE   // One for each pair of abstract "extruders"
+  #define HOTENDS E_STEPPERS
+#elif TEMP_SENSOR_0
+  #define HOTENDS EXTRUDERS                             // One per extruder if at least one heater exists
+#else
+  #define HOTENDS 0                                     // A machine with no hotends at all can still extrude
+#endif
+
+// More than one hotend...
+#if HOTENDS > 1
+  #define HAS_MULTI_HOTEND 1
+  #define HAS_HOTEND_OFFSET 1
+  #ifndef HOTEND_OFFSET_X
+    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Y
+    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Z
+    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
+  #endif
+#else
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+  #undef HOTEND_OFFSET_Z
+#endif
+
+// At least one hotend...
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+#endif
+
+// Clean up E-stepper-based settings...
 #if E_STEPPERS <= 7
   #undef INVERT_E7_DIR
   #undef E7_DRIVER_TYPE
@@ -1032,19 +1067,6 @@
   #define E_INDEX_N(E) 0
 #endif
 
-#if HOTENDS
-  #define HAS_HOTEND 1
-  #ifndef HOTEND_OVERSHOOT
-    #define HOTEND_OVERSHOOT 15
-  #endif
-  #if HOTENDS > 1
-    #define HAS_MULTI_HOTEND 1
-    #define HAS_HOTEND_OFFSET 1
-  #endif
-#else
-  #undef PID_PARAMS_PER_HOTEND
-#endif
-
 // Helper macros for extruder and hotend arrays
 #define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
 #define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
@@ -1055,21 +1077,6 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-/**
- * Default hotend offsets, if not defined
- */
-#if HAS_HOTEND_OFFSET
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
-  #endif
-#endif
 
 /**
  * Disable unused SINGLENOZZLE sub-options
@@ -1662,7 +1669,7 @@
 #endif
 
 #if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
-  #include "../lcd/tft_io/tft_orientation.h"
+  #include "../lcd/tft_io/tft_orientation.h" // for TFT_COLOR_UI_PORTRAIT
 #endif
 
 #if ENABLED(TFT_RES_320x240)
@@ -1771,17 +1778,6 @@
   #endif
 #endif
 
-// XPT2046_** Compatibility
-#if !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
-  #if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET)
-    #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
-    #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
-    #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
-    #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
-    #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
-  #endif
-#endif
-
 #if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
   || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR) \
   || (HAS_U_AXIS && U_HOME_DIR) || (HAS_V_AXIS && V_HOME_DIR) || (HAS_W_AXIS && W_HOME_DIR)
@@ -1796,4 +1792,8 @@
  */
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
+#endif
+
+#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+  #define SPI_FLASH_BACKUP 1
 #endif

@@ -484,33 +484,33 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
-  const axis_bits_t direction = current_block->direction_bits;
+  const AxisBits direction = current_block->direction_bits;
 
   #if HAS_X_AXIS
     x_startPosn = x_endPosn_prevBlock;
     float x_moveDist = current_block->steps.a / planner.settings.axis_steps_per_mm[X_AXIS];
-    if (TEST(direction, X_AXIS)) x_moveDist *= -1.0f;
+    if (direction.x) x_moveDist *= -1.0f;
     x_Ratio = x_moveDist * oneOverLength;
   #endif
 
   #if HAS_Y_AXIS
     y_startPosn = y_endPosn_prevBlock;
     float y_moveDist = current_block->steps.b / planner.settings.axis_steps_per_mm[Y_AXIS];
-    if (TEST(direction, Y_AXIS)) y_moveDist *= -1.0f;
+    if (direction.y) y_moveDist *= -1.0f;
     y_Ratio = y_moveDist * oneOverLength;
   #endif
 
   #if HAS_Z_AXIS
     z_startPosn = z_endPosn_prevBlock;
     float z_moveDist = current_block->steps.c / planner.settings.axis_steps_per_mm[Z_AXIS];
-    if (TEST(direction, Z_AXIS)) z_moveDist *= -1.0f;
+    if (direction.z) z_moveDist *= -1.0f;
     z_Ratio = z_moveDist * oneOverLength;
   #endif
 
   #if HAS_EXTRUDERS
     e_startPosn = e_endPosn_prevBlock;
     float extrusion = current_block->steps.e / planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)];
-    if (TEST(direction, E_AXIS_N(current_block->extruder))) extrusion *= -1.0f;
+    if (direction.e) extrusion *= -1.0f;
     e_Ratio = extrusion * oneOverLength;
   #endif
 

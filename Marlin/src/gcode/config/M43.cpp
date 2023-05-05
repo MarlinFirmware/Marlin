@@ -305,7 +305,7 @@ void GcodeSuite::M43() {
 
   // 'P' Get the range of pins to test or watch
   uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-          last_pin = parser.seenval('L') ? PARSED_PIN_INDEX('L', 0) : parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1;
+          last_pin = parser.seenval('L') ? PARSED_PIN_INDEX('L', 0) : (parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1);
 
   NOMORE(first_pin, (NUMBER_PINS_TOTAL) - 1);
   NOMORE(last_pin, (NUMBER_PINS_TOTAL) - 1);
@@ -321,15 +321,18 @@ void GcodeSuite::M43() {
 
   // 'W' Watch until click, M108, or reset
   if (parser.boolval('W')) {
-    SERIAL_ECHOLNPGM("Watching pins");
     #ifdef ARDUINO_ARCH_SAM
       NOLESS(first_pin, 2); // Don't hijack the UART pins
     #endif
-    uint8_t pin_state[last_pin - first_pin + 1];
+
+    const uint8_t pin_count = last_pin - first_pin + 1;
+    uint8_t pin_state[pin_count];
+    bool can_watch = false;
     LOOP_S_LE_N(i, first_pin, last_pin) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
+      can_watch = true;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
       /*
@@ -340,11 +343,31 @@ void GcodeSuite::M43() {
         pin_state[i - first_pin] = extDigitalRead(pin);
     }
 
+    const bool multipin = (pin_count > 1);
+
+    if (!can_watch) {
+      SERIAL_ECHOPGM("Specified pin");
+      SERIAL_ECHOPGM_P(multipin ? PSTR("s are") : PSTR(" is"));
+      SERIAL_ECHOLNPGM(" protected. Use 'I' to override.");
+      return;
+    }
+
+    // "Watching pin(s) # - #"
+    SERIAL_ECHOPGM("Watching pin");
+    if (multipin) SERIAL_CHAR('s');
+    SERIAL_CHAR(' '); SERIAL_ECHO(first_pin);
+    if (multipin) SERIAL_ECHOPGM(" - ", last_pin);
+    SERIAL_EOL();
+
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("M43 Wait Called"), FPSTR(CONTINUE_STR)));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("M43 Wait Called")));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired(F("M43 Waiting..."));
+      #else
+        LCD_MESSAGE(MSG_USERWAIT);
+      #endif
     #endif
 
     for (;;) {
@@ -372,6 +395,8 @@ void GcodeSuite::M43() {
 
       safe_delay(200);
     }
+
+    TERN_(HAS_RESUME_CONTINUE, ui.reset_status());
   }
   else {
     // Report current state of selected pin(s)

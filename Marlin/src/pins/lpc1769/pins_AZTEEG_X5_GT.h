@@ -108,7 +108,6 @@
 //
 // Display
 //
-
 #if EITHER(VIKI2, miniVIKI)
   #define BEEPER_PIN                       P1_31
   #define DOGLCD_A0                        P2_06

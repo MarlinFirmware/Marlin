@@ -65,6 +65,57 @@
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
+//
+// Check for additional used endstop pins
+//
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN 1001
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN 1002
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN 1003
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN 1004
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN 1005
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN 1006
+#endif
+#define _ENDSTOP_IS_ANY(P) (HAS_EXTRA_ENDSTOPS && (X2_STOP_PIN == P || Y2_STOP_PIN == P || Z2_STOP_PIN == P || Z3_STOP_PIN == P || Z4_STOP_PIN == P))
+#if ENABLED(DUAL_X_CARRIAGE) || _ENDSTOP_IS_ANY(X_MIN_PIN) || _ENDSTOP_IS_ANY(X_MAX_PIN)
+  #define NEEDS_X_MINMAX 1
+#endif
+#if _ENDSTOP_IS_ANY(Y_MIN_PIN) || _ENDSTOP_IS_ANY(Y_MAX_PIN)
+  #define NEEDS_Y_MINMAX 1
+#endif
+#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || BOTH(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define NEEDS_Z_MINMAX 1
+#endif
+#undef _ENDSTOP_IS_ANY
+#if X_MIN_PIN > 1000
+  #undef X_MIN_PIN
+#endif
+#if Y_MIN_PIN > 1000
+  #undef Y_MIN_PIN
+#endif
+#if Z_MIN_PIN > 1000
+  #undef Z_MIN_PIN
+#endif
+#if X_MAX_PIN > 1000
+  #undef X_MAX_PIN
+#endif
+#if Y_MAX_PIN > 1000
+  #undef Y_MAX_PIN
+#endif
+#if Z_MAX_PIN > 1000
+  #undef Z_MAX_PIN
+#endif
+
 // Test the target within the included pins file
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
@@ -205,6 +256,10 @@
   #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
 #elif MB(PXMALION_CORE_I3)
   #include "ramps/pins_PXMALION_CORE_I3.h"      // ATmega2560                             env:mega2560
+#elif MB(PANOWIN_CUTLASS)
+  #include "ramps/pins_PANOWIN_CUTLASS.h"       // ATmega2560                             env:mega2560ext
+#elif MB(KODAMA_BARDO)
+  #include "ramps/pins_KODAMA_BARDO.h"          // ATmega2560                             env:mega2560ext
 
 //
 // RAMBo and derivatives
@@ -317,6 +372,8 @@
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino1284p_optimized env:sanguino1284p env:sanguino644p
 #elif MB(MELZI_CREALITY)
   #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi_optiboot_optimized env:melzi_optiboot env:melzi_optimized env:melzi
+#elif MB(MELZI_CREALITY_ENDER2)
+  #include "sanguino/pins_MELZI_CREALITY_E2.h"  // ATmega1284P                            env:melzi_optiboot_optimized env:melzi_optiboot env:melzi_optimized env:melzi
 #elif MB(MELZI_MALYAN)
   #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino1284p_optimized env:sanguino1284p env:sanguino644p
 #elif MB(MELZI_TRONXY)
@@ -628,7 +685,7 @@
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
 #elif MB(SOVOL_V131)
-  #include "stm32f1/pins_SOVOL_V131.h"          // GD32F1                                 env:GD32F103RET6_sovol_maple
+  #include "gd32f1/pins_SOVOL_V131.h"           // GD32F1                                 env:GD32F103RET6_sovol_maple
 #elif MB(TRIGORILLA_V006)
   #include "gd32f1/pins_TRIGORILLA_V006.h"      // GD32F103                               env:trigorilla_v006
 
@@ -731,6 +788,8 @@
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 #elif MB(TRONXY_V10)
   #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
+#elif MB(CREALITY_F401RE)
+  #include "stm32f4/pins_CREALITY_F401.h"       // STM32F4                                env:STM32F401RE_creality
 
 //
 // ARM Cortex M7

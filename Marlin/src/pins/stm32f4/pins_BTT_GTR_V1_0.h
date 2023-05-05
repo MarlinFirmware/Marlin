@@ -106,11 +106,21 @@
 // Pins on the extender
 //
 #if ENABLED(M5_EXTENDER)
-  #define X2_STOP_PIN                       PI4   // M5 M1_STOP
-  #define Y2_STOP_PIN                       PF12  // M5 M5_STOP
-  #define Z2_STOP_PIN                       PF4   // M5 M2_STOP
-  #define Z3_STOP_PIN                       PI7   // M5 M4_STOP
-  #define Z4_STOP_PIN                       PF6   // M5 M3_STOP
+  #ifndef X2_STOP_PIN
+    #define X2_STOP_PIN                     PI4   // M5 M1_STOP
+  #endif
+  #ifndef Y2_STOP_PIN
+    #define Y2_STOP_PIN                     PF12  // M5 M5_STOP
+  #endif
+  #ifndef Z2_STOP_PIN
+    #define Z2_STOP_PIN                     PF4   // M5 M2_STOP
+  #endif
+  #ifndef Z3_STOP_PIN
+    #define Z3_STOP_PIN                     PI7   // M5 M4_STOP
+  #endif
+  #ifndef Z4_STOP_PIN
+    #define Z4_STOP_PIN                     PF6   // M5 M3_STOP
+  #endif
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
@@ -419,7 +429,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -438,7 +448,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)

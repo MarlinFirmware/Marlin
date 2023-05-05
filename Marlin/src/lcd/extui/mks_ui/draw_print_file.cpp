@@ -55,7 +55,7 @@ extern char public_buf_m[100];
 
 uint8_t sel_id = 0;
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   static uint8_t search_file() {
     int valid_name_cnt = 0;
@@ -100,10 +100,10 @@ uint8_t sel_id = 0;
     return valid_name_cnt;
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 bool have_pre_pic(char *path) {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     char *ps1, *ps2, *cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
@@ -120,8 +120,6 @@ bool have_pre_pic(char *path) {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   uint8_t i, file_count = 0;
-  //switch (obj->mks_obj_id)
-  //{
   if (obj->mks_obj_id == ID_P_UP) {
     if (dir_offset[curDirLever].curPage > 0) {
       // 2015.05.19
@@ -130,9 +128,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
 
-      #if ENABLED(SDSUPPORT)
-        file_count = search_file();
-      #endif
+      TERN_(HAS_MEDIA, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage--;
         lv_clear_print_file();
@@ -144,9 +140,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     if (dir_offset[curDirLever].cur_page_last_offset > 0) {
       list_file.Sd_file_cnt    = 0;
       list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
-      #if ENABLED(SDSUPPORT)
-        file_count = search_file();
-      #endif
+      TERN_(HAS_MEDIA, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage++;
         lv_clear_print_file();
@@ -161,17 +155,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
       if (ch) {
         *ch = 0;
-        #if ENABLED(SDSUPPORT)
-          card.cdup();
-        #endif
+        TERN_(HAS_MEDIA, card.cdup());
         dir_offset[curDirLever].curPage               = 0;
         dir_offset[curDirLever].cur_page_first_offset = 0;
         dir_offset[curDirLever].cur_page_last_offset  = 0;
         curDirLever--;
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-        #if ENABLED(SDSUPPORT)
-          file_count = search_file();
-        #endif
+        TERN_(HAS_MEDIA, file_count = search_file());
         lv_clear_print_file();
         disp_gcode_icon(file_count);
       }
@@ -189,9 +179,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             strcpy(list_file.curDirPath, list_file.file_name[i]);
             curDirLever++;
             list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-            #if ENABLED(SDSUPPORT)
-              file_count = search_file();
-            #endif
+            TERN_(HAS_MEDIA, file_count = search_file());
             lv_clear_print_file();
             disp_gcode_icon(file_count);
           }
@@ -222,7 +210,7 @@ void lv_draw_print_file() {
   ZERO(list_file.curDirPath);
 
   list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     card.mount();
     file_count = search_file();
   #endif
@@ -359,7 +347,7 @@ void disp_gcode_icon(uint8_t file_num) {
 }
 
 uint32_t lv_open_gcode_file(char *path) {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     uint32_t *ps4;
     uintptr_t pre_sread_cnt = UINTPTR_MAX;
     char *cur_name;
@@ -375,7 +363,7 @@ uint32_t lv_open_gcode_file(char *path) {
       card.setIndex(pre_sread_cnt);
     }
     return pre_sread_cnt;
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 }
 
 int ascii2dec_test(char *ascii) {
@@ -395,9 +383,8 @@ int ascii2dec_test(char *ascii) {
 }
 
 void lv_gcode_file_read(uint8_t *data_buf) {
-  #if ENABLED(SDSUPPORT)
-    uint16_t i = 0, j = 0, k = 0;
-    uint16_t row_1    = 0;
+  #if HAS_MEDIA
+    uint16_t i = 0, j = 0, k = 0, row_1 = 0;
     bool ignore_start = true;
     char temp_test[200];
     volatile uint16_t *p_index;
@@ -435,29 +422,18 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         break;
       }
     }
-    #if HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
-        p_index = (uint16_t *)(&public_buf[i]);
-
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
-      }
-    #else // !HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
-        p_index = (uint16_t *)(&public_buf[i]);
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
-      }
-    #endif // !HAS_TFT_LVGL_UI_SPI
+    for (i = 0; i < 200;) {
+      p_index = (uint16_t *)(&public_buf[i]);
+      //Color = (*p_index >> 8);
+      //*p_index = Color | ((*p_index & 0xFF) << 8);
+      i += 2;
+      if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
+    }
     memcpy(data_buf, public_buf, 200);
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 }
 
-void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}
+void lv_close_gcode_file() {TERN_(HAS_MEDIA, card.closefile());}
 
 void lv_gcode_file_seek(uint32_t pos) {
   card.setIndex(pos);

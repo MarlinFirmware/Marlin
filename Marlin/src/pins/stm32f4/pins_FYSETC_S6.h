@@ -268,7 +268,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #else
@@ -280,7 +280,7 @@
 
     #define LCD_SDSS                 EXP2_04_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)

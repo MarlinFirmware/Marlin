@@ -413,7 +413,7 @@ const PinMap PinMap_USB_OTG_HS[] = {
     */
   {NC,    NP,    0}
 };
-
+#endif
 
 #ifdef HAL_SD_MODULE_ENABLED
 WEAK const PinMap PinMap_SD[] = {
@@ -429,5 +429,4 @@ WEAK const PinMap PinMap_SD[] = {
   {PD_2,  SDIO, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_SDIO)}, // SDIO_CMD
   {NC,    NP,    0}
 };
-#endif
 #endif

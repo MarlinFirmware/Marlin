@@ -301,7 +301,7 @@
   #define BTN_ENC                          P3_25  // J3-4 & AUX-4
 
   #define LCD_PINS_RS                      P0_15  // J3-9 & AUX-4 (CS)
-  #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
+  #define LCD_PINS_EN                      P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
 #elif ENABLED(ZONESTAR_LCD)
@@ -394,7 +394,7 @@
     #endif
 
     #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
+    #define LCD_PINS_EN                    P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
