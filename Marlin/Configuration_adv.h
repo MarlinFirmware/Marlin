@@ -1670,7 +1670,7 @@
 
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
-  #define NO_SD_AUTOSTART                 // Remove auto#.g file support completely to save some Flash, SRAM
+  //#define NO_SD_AUTOSTART                 // Remove auto#.g file support completely to save some Flash, SRAM
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
   //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
@@ -1683,7 +1683,7 @@
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
   #endif
 
-  #define ONE_CLICK_PRINT                  // Prompt to print newest file on sdcard
+  //#define ONE_CLICK_PRINT                  // Prompt to print newest file on sdcard
   #if ENABLED(ONE_CLICK_PRINT)
     #define OCP_SD_PATH_LENGTH 128         // Max length of stored file path
   #endif
