@@ -166,8 +166,8 @@ stepper_flags_t Stepper::axis_enabled; // {0}
 
 block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
-axis_bits_t Stepper::last_direction_bits, // = 0
-            Stepper::axis_did_move; // = 0
+AxisBits Stepper::last_direction_bits, // = 0
+         Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -624,15 +624,11 @@ void Stepper::apply_directions() {
 
   DIR_WAIT_BEFORE();
 
-  TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
-  TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
-  TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
-  TERN_(HAS_I_DIR, SET_STEP_DIR(I));
-  TERN_(HAS_J_DIR, SET_STEP_DIR(J));
-  TERN_(HAS_K_DIR, SET_STEP_DIR(K));
-  TERN_(HAS_U_DIR, SET_STEP_DIR(U));
-  TERN_(HAS_V_DIR, SET_STEP_DIR(V));
-  TERN_(HAS_W_DIR, SET_STEP_DIR(W));
+  NUM_AXIS_CODE(
+    SET_STEP_DIR(X), SET_STEP_DIR(Y), SET_STEP_DIR(Z), // ABC
+    SET_STEP_DIR(I), SET_STEP_DIR(J), SET_STEP_DIR(K),
+    SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
+  );
 
   #if HAS_EXTRUDERS
      // Because this is valid for the whole block we don't know
@@ -1829,7 +1825,7 @@ void Stepper::pulse_phase_isr() {
         de += step_fwd ? -128 : 128; \
         if ((MAXDIR(AXIS) && step_bak) || (MINDIR(AXIS) && step_fwd)) { \
           { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
-          TBI(last_direction_bits, _AXIS(AXIS)); \
+          last_direction_bits.toggle(_AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
           DIR_WAIT_AFTER(); \
@@ -1861,11 +1857,11 @@ void Stepper::pulse_phase_isr() {
 
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{   \
-                 if ((VALUE) <  7) SBI(dm, _AXIS(AXIS)); \
-            else if ((VALUE) >  7) CBI(dm, _AXIS(AXIS)); \
-            page_step_state.sd[_AXIS(AXIS)] = VALUE;     \
-            page_step_state.bd[_AXIS(AXIS)] += VALUE;    \
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{      \
+                 if ((VALUE) <  7) dm[_AXIS(AXIS)] = true;  \
+            else if ((VALUE) >  7) dm[_AXIS(AXIS)] = false; \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
@@ -1881,7 +1877,7 @@ void Stepper::pulse_phase_isr() {
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
-              axis_bits_t dm = last_direction_bits;
+              const AxisBits dm = last_direction_bits;
 
               PAGE_SEGMENT_UPDATE(X, low >> 4);
               PAGE_SEGMENT_UPDATE(Y, low & 0xF);
@@ -2417,7 +2413,7 @@ hal_timer_t Stepper::block_phase_isr() {
               la_interval = calc_timer_interval((reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) >> current_block->la_scaling);
 
               if (reverse_e != motor_direction(E_AXIS)) {
-                TBI(last_direction_bits, E_AXIS);
+                last_direction_bits.toggle(E_AXIS);
                 count_direction.e = -count_direction.e;
 
                 DIR_WAIT_BEFORE();
@@ -2648,7 +2644,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
-      axis_bits_t axis_bits = 0;
+      AxisBits axis_bits;
       NUM_AXIS_CODE(
         if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
         if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
@@ -2692,24 +2688,24 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(INPUT_SHAPING_X)
         if (shaping_x.enabled) {
-          const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
+          const int64_t steps = current_block->direction_bits.x ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
           shaping_x.last_block_end_pos += steps;
 
           // If there are any remaining echos unprocessed, then direction change must
           // be delayed and processed in PULSE_PREP_SHAPING. This will cause half a step
           // to be missed, which will need recovering and this can be done through shaping_x.remainder.
-          shaping_x.forward = !TEST(current_block->direction_bits, X_AXIS);
-          if (!ShapingQueue::empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS));
+          shaping_x.forward = !current_block->direction_bits.x;
+          if (!ShapingQueue::empty_x()) current_block->direction_bits.x = last_direction_bits.x;
         }
       #endif
 
       // Y follows the same logic as X (but the comments aren't repeated)
       #if ENABLED(INPUT_SHAPING_Y)
         if (shaping_y.enabled) {
-          const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
+          const int64_t steps = current_block->direction_bits.y ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
           shaping_y.last_block_end_pos += steps;
-          shaping_y.forward = !TEST(current_block->direction_bits, Y_AXIS);
-          if (!ShapingQueue::empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS));
+          shaping_y.forward = !current_block->direction_bits.y;
+          if (!ShapingQueue::empty_y()) current_block->direction_bits.y = last_direction_bits.y;
         }
       #endif
 
@@ -2912,24 +2908,10 @@ void Stepper::init() {
       Z4_DIR_INIT();
     #endif
   #endif
-  #if HAS_I_DIR
-    I_DIR_INIT();
-  #endif
-  #if HAS_J_DIR
-    J_DIR_INIT();
-  #endif
-  #if HAS_K_DIR
-    K_DIR_INIT();
-  #endif
-  #if HAS_U_DIR
-    U_DIR_INIT();
-  #endif
-  #if HAS_V_DIR
-    V_DIR_INIT();
-  #endif
-  #if HAS_W_DIR
-    W_DIR_INIT();
-  #endif
+  SECONDARY_AXIS_CODE(
+    I_DIR_INIT(), J_DIR_INIT(), K_DIR_INIT(),
+    U_DIR_INIT(), V_DIR_INIT(), W_DIR_INIT()
+  );
   #if HAS_E0_DIR
     E0_DIR_INIT();
   #endif
