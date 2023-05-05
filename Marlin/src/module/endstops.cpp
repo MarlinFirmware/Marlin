@@ -647,32 +647,38 @@ void Endstops::update() {
 
   #if USE_I_MIN
     UPDATE_LIVE_STATE(I, MIN);
-  #elif USE_I_MAX
+  #endif
+  #if USE_I_MAX
     UPDATE_LIVE_STATE(I, MAX);
   #endif
   #if USE_J_MIN
     UPDATE_LIVE_STATE(J, MIN);
-  #elif USE_J_MAX
+  #endif
+  #if USE_J_MAX
     UPDATE_LIVE_STATE(J, MAX);
   #endif
   #if USE_K_MIN
     UPDATE_LIVE_STATE(K, MIN);
-  #elif USE_K_MAX
+  #endif
+  #if USE_K_MAX
     UPDATE_LIVE_STATE(K, MAX);
   #endif
   #if USE_U_MIN
     UPDATE_LIVE_STATE(U, MIN);
-  #elif USE_U_MAX
+  #endif
+  #if USE_U_MAX
     UPDATE_LIVE_STATE(U, MAX);
   #endif
   #if USE_V_MIN
     UPDATE_LIVE_STATE(V, MIN);
-  #elif USE_V_MAX
+  #endif
+  #if USE_V_MAX
     UPDATE_LIVE_STATE(V, MAX);
   #endif
   #if USE_W_MIN
     UPDATE_LIVE_STATE(W, MIN);
-  #elif USE_W_MAX
+  #endif
+  #if USE_W_MAX
     UPDATE_LIVE_STATE(W, MAX);
   #endif
 

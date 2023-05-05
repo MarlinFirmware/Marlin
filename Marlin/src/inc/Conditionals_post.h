@@ -1954,8 +1954,12 @@
  *   - Note: Dual X Carriage uses "X" and "X2" steppers, but X_MIN and X_MAX endstop states (i.e., not X2_MAX).
  * - Set a HAS_(AXIS)_(MIN|MAX)_STATE flag for each endstop that has a state, including SPI Sensorless which don't use a pin.
  * - Set a HAS_(AXIS)_STATE flag for each axis that has at least one state.
+ * - Consider (AXIS)_SAFETY_STOP for the case where the axis has a second endstop.
+ *   Currently this must be distinct, but we can add a mechanism to use the same pin for sensorless
+ *   or switches wired to the same pin, or for the single SPI stall state on the axis.
  */
-#define _USE_STOP(A,N,M,C) ((A##_HOME_TO_##M || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
+#define _USE_STOP(A,N,M,C) ((ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
+#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) && A##_SPI_SENSORLESS))
 
 #if _USE_STOP(X,,MIN,)
   #define USE_X_MIN 1
@@ -1963,10 +1967,10 @@
 #if _USE_STOP(X,,MAX,ENABLED(DUAL_X_CARRIAGE))
   #define USE_X_MAX 1
 #endif
-#if USE_X_MIN || BOTH(X_SPI_SENSORLESS, X_HOME_TO_MIN)
+#if _HAS_STATE(X,,MIN)
   #define HAS_X_MIN_STATE 1
 #endif
-#if USE_X_MAX || BOTH(X_SPI_SENSORLESS, X_HOME_TO_MAX)
+#if _HAS_STATE(X,,MAX)
   #define HAS_X_MAX_STATE 1
 #endif
 #if HAS_X_MIN_STATE || HAS_X_MAX_STATE
@@ -1975,12 +1979,14 @@
 
 #if _USE_STOP(Y,,MIN,)
   #define USE_Y_MIN 1
-#elif _USE_STOP(Y,,MAX,)
+#endif
+#if _USE_STOP(Y,,MAX,)
   #define USE_Y_MAX 1
 #endif
-#if USE_Y_MIN || BOTH(Y_SPI_SENSORLESS, Y_HOME_TO_MIN)
+#if _HAS_STATE(Y,,MIN)
   #define HAS_Y_MIN_STATE 1
-#elif USE_Y_MAX || BOTH(Y_SPI_SENSORLESS, Y_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(Y,,MAX)
   #define HAS_Y_MAX_STATE 1
 #endif
 #if HAS_Y_MIN_STATE || HAS_Y_MAX_STATE
@@ -1993,10 +1999,10 @@
 #if _USE_STOP(Z,,MAX,)
   #define USE_Z_MAX 1
 #endif
-#if USE_Z_MIN || BOTH(Z_SPI_SENSORLESS, Z_HOME_TO_MIN)
+#if _HAS_STATE(Z,,MIN)
   #define HAS_Z_MIN_STATE 1
 #endif
-#if USE_Z_MAX || BOTH(Z_SPI_SENSORLESS, Z_HOME_TO_MAX)
+#if _HAS_STATE(Z,,MAX)
   #define HAS_Z_MAX_STATE 1
 #endif
 #if HAS_Z_MIN_STATE || HAS_Z_MAX_STATE
@@ -2005,12 +2011,14 @@
 
 #if _USE_STOP(I,,MIN,)
   #define USE_I_MIN 1
-#elif _USE_STOP(I,,MAX,)
+#endif
+#if _USE_STOP(I,,MAX,)
   #define USE_I_MAX 1
 #endif
-#if USE_I_MIN || BOTH(I_SPI_SENSORLESS, I_HOME_TO_MIN)
+#if _HAS_STATE(I,,MIN)
   #define HAS_I_MIN_STATE 1
-#elif USE_I_MAX || BOTH(I_SPI_SENSORLESS, I_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(I,,MAX)
   #define HAS_I_MAX_STATE 1
 #endif
 #if HAS_I_MIN_STATE || HAS_I_MAX_STATE
@@ -2019,12 +2027,14 @@
 
 #if _USE_STOP(J,,MIN,)
   #define USE_J_MIN 1
-#elif _USE_STOP(J,,MAX,)
+#endif
+#if _USE_STOP(J,,MAX,)
   #define USE_J_MAX 1
 #endif
-#if USE_J_MIN || BOTH(J_SPI_SENSORLESS, J_HOME_TO_MIN)
+#if _HAS_STATE(J,,MIN)
   #define HAS_J_MIN_STATE 1
-#elif USE_J_MAX || BOTH(J_SPI_SENSORLESS, J_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(J,,MAX)
   #define HAS_J_MAX_STATE 1
 #endif
 #if HAS_J_MIN_STATE || HAS_J_MAX_STATE
@@ -2033,12 +2043,14 @@
 
 #if _USE_STOP(K,,MIN,)
   #define USE_K_MIN 1
-#elif _USE_STOP(K,,MAX,)
+#endif
+#if _USE_STOP(K,,MAX,)
   #define USE_K_MAX 1
 #endif
-#if USE_K_MIN || BOTH(K_SPI_SENSORLESS, K_HOME_TO_MIN)
+#if _HAS_STATE(K,,MIN)
   #define HAS_K_MIN_STATE 1
-#elif USE_K_MAX || BOTH(K_SPI_SENSORLESS, K_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(K,,MAX)
   #define HAS_K_MAX_STATE 1
 #endif
 #if HAS_K_MIN_STATE || HAS_K_MAX_STATE
@@ -2047,12 +2059,14 @@
 
 #if _USE_STOP(U,,MIN,)
   #define USE_U_MIN 1
-#elif _USE_STOP(U,,MAX,)
+#endif
+#if _USE_STOP(U,,MAX,)
   #define USE_U_MAX 1
 #endif
-#if USE_U_MIN || BOTH(U_SPI_SENSORLESS, U_HOME_TO_MIN)
+#if _HAS_STATE(U,,MIN)
   #define HAS_U_MIN_STATE 1
-#elif USE_U_MAX || BOTH(U_SPI_SENSORLESS, U_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(U,,MAX)
   #define HAS_U_MAX_STATE 1
 #endif
 #if HAS_U_MIN_STATE || HAS_U_MAX_STATE
@@ -2061,12 +2075,14 @@
 
 #if _USE_STOP(V,,MIN,)
   #define USE_V_MIN 1
-#elif _USE_STOP(V,,MAX,)
+#endif
+#if _USE_STOP(V,,MAX,)
   #define USE_V_MAX 1
 #endif
-#if USE_V_MIN || BOTH(V_SPI_SENSORLESS, V_HOME_TO_MIN)
+#if _HAS_STATE(V,,MIN)
   #define HAS_V_MIN_STATE 1
-#elif USE_V_MAX || BOTH(V_SPI_SENSORLESS, V_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(V,,MAX)
   #define HAS_V_MAX_STATE 1
 #endif
 #if HAS_V_MIN_STATE || HAS_V_MAX_STATE
@@ -2075,12 +2091,14 @@
 
 #if _USE_STOP(W,,MIN,)
   #define USE_W_MIN 1
-#elif _USE_STOP(W,,MAX,)
+#endif
+#if _USE_STOP(W,,MAX,)
   #define USE_W_MAX 1
 #endif
-#if USE_W_MIN || BOTH(W_SPI_SENSORLESS, W_HOME_TO_MIN)
+#if _HAS_STATE(W,,MIN)
   #define HAS_W_MIN_STATE 1
-#elif USE_W_MAX || BOTH(W_SPI_SENSORLESS, W_HOME_TO_MAX)
+#endif
+#if _HAS_STATE(W,,MAX)
   #define HAS_W_MAX_STATE 1
 #endif
 #if HAS_W_MIN_STATE || HAS_W_MAX_STATE
@@ -2090,12 +2108,14 @@
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if _USE_STOP(X,2,MIN,)
     #define USE_X2_MIN 1
-  #elif _USE_STOP(X,2,MAX,)
+  #endif
+  #if _USE_STOP(X,2,MAX,)
     #define USE_X2_MAX 1
   #endif
-  #if USE_X2_MIN || HAS_X_MIN_STATE
+  #if _HAS_STATE(X,2,MIN) || HAS_X_MIN_STATE
     #define HAS_X2_MIN_STATE 1
-  #elif USE_X2_MAX || HAS_X_MAX_STATE
+  #endif
+  #if _HAS_STATE(X,2,MAX) || HAS_X_MAX_STATE
     #define HAS_X2_MAX_STATE 1
   #endif
   #if HAS_X2_MIN_STATE || HAS_X2_MAX_STATE
@@ -2106,12 +2126,14 @@
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if _USE_STOP(Y,2,MIN,)
     #define USE_Y2_MIN 1
-  #elif _USE_STOP(Y,2,MAX,)
+  #endif
+  #if _USE_STOP(Y,2,MAX,)
     #define USE_Y2_MAX 1
   #endif
-  #if USE_Y2_MIN || HAS_Y_MIN_STATE
+  #if _HAS_STATE(Y,2,MIN) || HAS_Y_MIN_STATE
     #define HAS_Y2_MIN_STATE 1
-  #elif USE_Y2_MAX || HAS_Y_MAX_STATE
+  #endif
+  #if _HAS_STATE(Y,2,MAX) || HAS_Y_MAX_STATE
     #define HAS_Y2_MAX_STATE 1
   #endif
   #if HAS_Y2_MIN_STATE || HAS_Y2_MAX_STATE
@@ -2122,12 +2144,14 @@
 #if ENABLED(Z_MULTI_ENDSTOPS)
   #if _USE_STOP(Z,2,MIN,)
     #define USE_Z2_MIN 1
-  #elif _USE_STOP(Z,2,MAX,)
+  #endif
+  #if _USE_STOP(Z,2,MAX,)
     #define USE_Z2_MAX 1
   #endif
-  #if USE_Z2_MIN || HAS_Z_MIN_STATE
+  #if _HAS_STATE(Z,2,MIN) || HAS_Z_MIN_STATE
     #define HAS_Z2_MIN_STATE 1
-  #elif USE_Z2_MAX || HAS_Z_MAX_STATE
+  #endif
+  #if _HAS_STATE(Z,2,MAX) || HAS_Z_MAX_STATE
     #define HAS_Z2_MAX_STATE 1
   #endif
   #if HAS_Z2_MIN_STATE || HAS_Z2_MAX_STATE
@@ -2136,12 +2160,14 @@
   #if NUM_Z_STEPPERS >= 3
     #if _USE_STOP(Z,3,MIN,)
       #define USE_Z3_MIN 1
-    #elif _USE_STOP(Z,3,MAX,)
+    #endif
+    #if _USE_STOP(Z,3,MAX,)
       #define USE_Z3_MAX 1
     #endif
-    #if USE_Z3_MIN || HAS_Z_MIN_STATE
+    #if _HAS_STATE(Z,3,MIN) || HAS_Z_MIN_STATE
       #define HAS_Z3_MIN_STATE 1
-    #elif USE_Z3_MAX || HAS_Z_MAX_STATE
+    #endif
+    #if _HAS_STATE(Z,3,MAX) || HAS_Z_MAX_STATE
       #define HAS_Z3_MAX_STATE 1
     #endif
     #if HAS_Z3_MIN_STATE || HAS_Z3_MAX_STATE
@@ -2151,12 +2177,14 @@
   #if NUM_Z_STEPPERS >= 4
     #if _USE_STOP(Z,4,MIN,)
       #define USE_Z4_MIN 1
-    #elif _USE_STOP(Z,4,MAX,)
+    #endif
+    #if _USE_STOP(Z,4,MAX,)
       #define USE_Z4_MAX 1
     #endif
-    #if USE_Z4_MIN || HAS_Z_MIN_STATE
+    #if _HAS_STATE(Z,4,MIN) || HAS_Z_MIN_STATE
       #define HAS_Z4_MIN_STATE 1
-    #elif USE_Z4_MAX || HAS_Z_MAX_STATE
+    #endif
+    #if _HAS_STATE(Z,4,MAX) || HAS_Z_MAX_STATE
       #define HAS_Z4_MAX_STATE 1
     #endif
     #if HAS_Z4_MIN_STATE || HAS_Z4_MAX_STATE
