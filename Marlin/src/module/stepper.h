@@ -267,7 +267,7 @@
 #endif
 
 // Number of axes that could be enabled/disabled. Dual/multiple steppers are combined.
-#define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
+#define ENABLE_COUNT (NUM_AXES + E_STATES)
 typedef bits_t(ENABLE_COUNT) ena_mask_t;
 
 // Axis flags type, for enabled state or other simple state
@@ -276,8 +276,8 @@ typedef struct {
     ena_mask_t bits;
     struct {
       bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
-      #if E_STEPPERS
-        bool LIST_N(E_STEPPERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
+      #if E_STATES
+        bool LIST_N(E_STATES, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
     };
   };
