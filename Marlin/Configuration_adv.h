@@ -2857,7 +2857,7 @@
 
   #if AXIS_IS_TMC_CONFIG(X2)
     #define X2_CURRENT      X_CURRENT
-    #define X2_CURRENT_HOME X2_CURRENT
+    #define X2_CURRENT_HOME X_CURRENT_HOME
     #define X2_MICROSTEPS   X_MICROSTEPS
     #define X2_RSENSE       X_RSENSE
     #define X2_CHAIN_POS     -1
@@ -2877,7 +2877,7 @@
 
   #if AXIS_IS_TMC_CONFIG(Y2)
     #define Y2_CURRENT      Y_CURRENT
-    #define Y2_CURRENT_HOME Y2_CURRENT
+    #define Y2_CURRENT_HOME Y_CURRENT_HOME
     #define Y2_MICROSTEPS   Y_MICROSTEPS
     #define Y2_RSENSE       Y_RSENSE
     #define Y2_CHAIN_POS     -1
@@ -2897,7 +2897,7 @@
 
   #if AXIS_IS_TMC_CONFIG(Z2)
     #define Z2_CURRENT      Z_CURRENT
-    #define Z2_CURRENT_HOME Z2_CURRENT
+    #define Z2_CURRENT_HOME Z_CURRENT_HOME
     #define Z2_MICROSTEPS   Z_MICROSTEPS
     #define Z2_RSENSE       Z_RSENSE
     #define Z2_CHAIN_POS     -1
@@ -2907,7 +2907,7 @@
 
   #if AXIS_IS_TMC_CONFIG(Z3)
     #define Z3_CURRENT      Z_CURRENT
-    #define Z3_CURRENT_HOME Z3_CURRENT
+    #define Z3_CURRENT_HOME Z_CURRENT_HOME
     #define Z3_MICROSTEPS   Z_MICROSTEPS
     #define Z3_RSENSE       Z_RSENSE
     #define Z3_CHAIN_POS     -1
@@ -2917,7 +2917,7 @@
 
   #if AXIS_IS_TMC_CONFIG(Z4)
     #define Z4_CURRENT      Z_CURRENT
-    #define Z4_CURRENT_HOME Z4_CURRENT
+    #define Z4_CURRENT_HOME Z_CURRENT_HOME
     #define Z4_MICROSTEPS   Z_MICROSTEPS
     #define Z4_RSENSE       Z_RSENSE
     #define Z4_CHAIN_POS     -1
