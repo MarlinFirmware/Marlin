@@ -56,6 +56,10 @@
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(ONE_CLICK_PRINT)
+  #include "../../src/lcd/menu/menu.h"
+#endif
+
 #define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
@@ -70,6 +74,10 @@ PGMSTR(M24_STR, "M24");
 
 card_flags_t CardReader::flag;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
+
+#if ENABLED(ONE_CLICK_PRINT)
+  char ocp_newest_file[OCP_SD_PATH_LENGTH+FILENAME_LENGTH+2]; 
+#endif
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
@@ -536,6 +544,11 @@ void CardReader::manage_media() {
     if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
+
+    // Look for newest file and prompt to print it
+    #if ENABLED(ONE_CLICK_PRINT)
+      oneclickstart_begin();
+    #endif
   }
   else {
     TERN_(HAS_SD_DETECT, release()); // Card is released
@@ -884,6 +897,72 @@ void CardReader::write_command(char * const buf) {
     }
     autofile_cancel();
     return false;
+  }
+#endif
+
+#if ENABLED(ONE_CLICK_PRINT)
+  void CardReader::oneclickstart_begin() {
+    (void)oneclickstart_check();
+  }
+
+  bool CardReader::oneclickstart_check() {
+    if (!isMounted())
+      mount();
+    else if (ENABLED(SDCARD_EEPROM_EMULATION))
+      settings.first_load();
+
+    // Don't run auto#.g when a PLR file exists
+    if (isMounted() && TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {
+      root.rewind();
+      CardReader::findnewestfile(root,nullptr, ocp_newest_file);
+      SERIAL_ECHO_MSG(" OCP File: ",ocp_newest_file,"\n");
+
+      ui.init();
+      ui.goto_screen(one_click_print);
+    }
+    return false;
+  }
+
+  uint16_t highest_crmodTime, highest_crmodDate = 0;
+  void  CardReader::findnewestfile(MediaFile parent, const char * const prepend, char * filenameandpath ) {
+    dir_t p;
+    while (parent.readDir(&p, longFilename) > 0) {
+      if (DIR_IS_SUBDIR(&p)) {
+
+        size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
+        // Allocate enough stack space for the full path including / separator
+        char path[lenPrepend + FILENAME_LENGTH];
+        if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
+        char* dosFilename = path + lenPrepend;
+        createFilename(dosFilename, p);
+
+        // Get a new directory object using the full path
+        // and dive recursively into it.
+        MediaFile child; // child.close() in destructor
+        if (child.open(&parent, dosFilename, O_READ)) {
+          findnewestfile(child, path, filenameandpath);
+        }
+        else {
+          SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
+          return;
+        }
+      }
+      else if (is_visible_entity(p)) {
+        uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
+        if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
+          crmodDate = p.creationDate;
+          crmodTime = p.creationTime;
+        }
+
+        if (crmodDate > highest_crmodDate || (crmodDate == highest_crmodDate && crmodTime > highest_crmodTime)) {
+          highest_crmodDate = crmodDate;
+          highest_crmodTime = crmodTime;
+          strcpy(filenameandpath,prepend);
+          strcat(filenameandpath,"/");
+          strcat(filenameandpath,createFilename(filename, p));
+        }
+      }
+    }
   }
 #endif
 

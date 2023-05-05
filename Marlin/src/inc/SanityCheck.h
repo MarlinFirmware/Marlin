@@ -4034,6 +4034,19 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
 
+// One Click Print
+#if ENABLED(ONE_CLICK_PRINT)
+  #if DISABLED(SDSUPPORT)
+    #error "SDSUPPORT is requred for ONE_CLICK_PRINT."
+  #endif
+  #if DISABLED(NO_SD_AUTOSTART)
+    #error "NO_SD_AUTOSTART must be enabled for ONE_CLICK_PRINT.";
+  #endif
+  #if !defined(HAS_MARLINUI_MENU)
+    #error "ONE_CLICK_PRINT needs a display that has Marlin UI menus.";
+  #endif
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _NUM_AXES_STR

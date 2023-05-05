@@ -875,6 +875,8 @@ namespace Language_en {
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
+  LSTR MSG_ONE_CLICK_PRINT                = _UxGT("One Click Print");
+
   // These strings can be the same in all languages
   LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_PID_P                          = _UxGT("PID-P");

@@ -128,6 +128,12 @@ public:
     static void autofile_cancel() { autofile_index = 0; }
   #endif
 
+  #if ENABLED(ONE_CLICK_PRINT)
+    static void oneclickstart_begin();   // Begin check. Called automatically after boot-up.
+    static bool oneclickstart_check();   // Check for the newest file and promt to run it.
+    static void findnewestfile(MediaFile parent, const char * const prepend, char * fullfilename);
+  #endif
+
   // Basic file ops
   static void openFileRead(const char * const path, const uint8_t subcall=0);
   static void openFileWrite(const char * const path);
