@@ -4030,6 +4030,13 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
+/**
+ * Fixed-Time Motion limitations
+ */
+#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_DUAL_X_STEPPERS, HAS_DUAL_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
+  #error "FT_MOTION is currently limited to machines with 3 linear axes and a single extruder."
+#endif
+
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
 

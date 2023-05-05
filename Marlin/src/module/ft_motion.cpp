@@ -211,9 +211,6 @@ void FxdTiCtrl::loop() {
 
   if (!cfg_mode) return;
 
-  static bool initd = false;
-  if (!initd) { init(); initd = true; }
-
   // Handle block abort with the following sequence:
   // 1. Zero out commands in stepper ISR.
   // 2. Drain the motion buffer, stop processing until they are emptied.

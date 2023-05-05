@@ -3466,7 +3466,7 @@ void Stepper::report_positions() {
 
     #if HAS_Z_AXIS
       // Update step counts
-      if (z_step) count_position.z += z_dir ? -1 : 1;
+      if (z_step) count_position.z += z_dir ? 1 : -1;
     #endif
 
     AWAIT_HIGH_PULSE();

@@ -1624,6 +1624,11 @@ void setup() {
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
   #endif
 
+
+  #if ENABLED(FT_MOTION)
+    SETUP_RUN(fxdTiCtrl.init());
+  #endif
+
   marlin_state = MF_RUNNING;
 
   #ifdef STARTUP_TUNE
