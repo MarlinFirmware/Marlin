@@ -332,7 +332,7 @@ void GcodeSuite::G28() {
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
-  #endif
+  #endif // HAS_HOMING_CURRENT
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     motion_state_t saved_motion_state = begin_slow_homing();

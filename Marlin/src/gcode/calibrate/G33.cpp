@@ -476,8 +476,7 @@ void GcodeSuite::G33() {
   #if HAS_DELTA_SENSORLESS_PROBING
     if (verbose_level > 0 && do_save_offset_adj) {
       offset_sensorless_adj.reset();
-
-      auto caltower = [&](Probe::sense_bool_t s){
+      auto caltower = [&](Probe::sense_bool_t s) {
         float z_at_pt[NPP + 1];
         LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
         probe.test_sensitivity = s;
