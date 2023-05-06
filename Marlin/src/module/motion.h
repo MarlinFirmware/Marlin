@@ -608,7 +608,7 @@ void home_if_needed(const bool keeplev=false);
 
   float x_home_pos(const uint8_t extruder);
 
-  #define TOOL_X_HOME_DIR(T) ((T) ? X2_HOME_DIR : X_HOME_DIR)
+  #define TOOL_X_HOME_DIR(T) ((T) ? 1 : -1)
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
   void idex_set_mirrored_mode(const bool mirr);

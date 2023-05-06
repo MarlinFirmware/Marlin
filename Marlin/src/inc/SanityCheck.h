@@ -1253,7 +1253,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #else
         #define _IS_5V_TOLERANT(P) 1 // Assume 5V tolerance
       #endif
-      #if USES_Z_MIN_PROBE_PIN
+      #if USE_Z_MIN_PROBE
         #if !_IS_5V_TOLERANT(Z_MIN_PROBE_PIN)
           #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PROBE_PIN."
         #endif
@@ -1265,7 +1265,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #undef _IS_5V_TOLERANT
       #undef _5V
     #elif NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
-      #if USES_Z_MIN_PROBE_PIN
+      #if USE_Z_MIN_PROBE
         #error "BLTOUCH on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
       #else
         #error "BLTOUCH on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
@@ -1382,7 +1382,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != Z_MIN_ENDSTOP_HIT_STATE
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_HIT_STATE to match Z_MIN_PROBE_ENDSTOP_HIT_STATE."
     #endif
-  #elif !HAS_Z_MIN_PROBE_PIN
+  #elif !USE_Z_MIN_PROBE
     #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
@@ -1767,12 +1767,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX, or MARKFORGED_XY."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
-  #elif !HAS_X_MAX
+  #elif !USE_X_MAX
     #error "DUAL_X_CARRIAGE requires an X_MAX_PIN in addition to the X_MIN_PIN."
   #elif !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS)
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
-  #elif X_HOME_TO_MAX || X2_HOME_TO_MIN
-    #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1 and X2_HOME_DIR 1."
+  #elif X_HOME_TO_MAX
+    #error "DUAL_X_CARRIAGE requires X_HOME_DIR 1."
   #endif
 #endif
 
@@ -3045,13 +3045,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_WMIN (or ENDSTOPPULLUPS) for W MIN homing."
     #elif W_SENSORLESS && W_HOME_TO_MAX && DISABLED(ENDSTOPPULLUP_WMAX)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_WMAX (or ENDSTOPPULLUPS) for W MAX homing."
-
     #endif
   #endif
 
   #if ENABLED(SPI_ENDSTOPS)
-    #if ENABLED(QUICK_HOME)
-      #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
+    #if !ANY_AXIS_HAS(SPI)
+      #error "SPI_ENDSTOPS requires stepper drivers with SPI support."
     #endif
   #else // !SPI_ENDSTOPS
     // Stall detection DIAG = HIGH : TMC2209
@@ -3228,7 +3227,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, Z, I, J, K, U, V, or W axes."
   #endif
 
-#endif
+#endif // SENSORLESS_HOMING
 
 // Sensorless probing requirements
 #if ENABLED(SENSORLESS_PROBING)

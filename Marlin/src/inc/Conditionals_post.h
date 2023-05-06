@@ -1398,6 +1398,7 @@
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     #define USE_SENSORLESS 1
   #endif
+
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_STALL_SENSITIVITY
@@ -1480,15 +1481,6 @@
       #ifndef Y2_SLAVE_ADDRESS
         #define Y2_SLAVE_ADDRESS 0
       #endif
-    #endif
-    #if HAS_U_AXIS
-      #define U_SPI_SENSORLESS U_SENSORLESS
-    #endif
-    #if HAS_V_AXIS
-      #define V_SPI_SENSORLESS V_SENSORLESS
-    #endif
-    #if HAS_W_AXIS
-      #define W_SPI_SENSORLESS W_SENSORLESS
     #endif
   #endif
 
@@ -1944,202 +1936,205 @@
 // Endstops and bed probe
 //
 
-#define _HAS_STOP(A,N,M,C) ((A##_HOME_TO_##M || (C+0)) && PIN_EXISTS(A##N##_##M))
+#define _USE_STOP(A,N,M,C) ((A##_HOME_TO_##M || (C+0)) && PIN_EXISTS(A##N##_##M))
 
-#if _HAS_STOP(X,,MIN,)
-  #define HAS_X_MIN 1
+#if _USE_STOP(X,,MIN,)
+  #define USE_X_MIN 1
 #endif
-#if _HAS_STOP(X,,MAX,ENABLED(DUAL_X_CARRIAGE))
-  #define HAS_X_MAX 1
+#if _USE_STOP(X,,MAX,ENABLED(DUAL_X_CARRIAGE))
+  #define USE_X_MAX 1
 #endif
-#if HAS_X_MIN || HAS_X_MAX
+#if USE_X_MIN || USE_X_MAX
   #define HAS_X_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(Y,,MIN,)
-  #define HAS_Y_MIN 1
-#elif _HAS_STOP(Y,,MAX,)
-  #define HAS_Y_MAX 1
+#if _USE_STOP(Y,,MIN,)
+  #define USE_Y_MIN 1
+#elif _USE_STOP(Y,,MAX,)
+  #define USE_Y_MAX 1
 #endif
-#if HAS_Y_MIN || HAS_Y_MAX
+#if USE_Y_MIN || USE_Y_MAX
   #define HAS_Y_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(Z,,MIN,EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING))
-  #define HAS_Z_MIN 1
+#if _USE_STOP(Z,,MIN,EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING))
+  #define USE_Z_MIN 1
   #if !HAS_DELTA_SENSORLESS_PROBING
     #define HAS_Z_MIN_PIN 1
   #endif
 #endif
-#if _HAS_STOP(Z,,MAX,)
-  #define HAS_Z_MAX 1
+#if _USE_STOP(Z,,MAX,)
+  #define USE_Z_MAX 1
 #endif
-#if HAS_Z_MIN || HAS_Z_MAX
+#if USE_Z_MIN || USE_Z_MAX
   #define HAS_Z_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(I,,MIN,)
-  #define HAS_I_MIN 1
-#elif _HAS_STOP(I,,MAX,)
-  #define HAS_I_MAX 1
+#if _USE_STOP(I,,MIN,)
+  #define USE_I_MIN 1
+#elif _USE_STOP(I,,MAX,)
+  #define USE_I_MAX 1
 #endif
-#if HAS_I_MIN || HAS_I_MAX
+#if USE_I_MIN || USE_I_MAX
   #define HAS_I_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(J,,MIN,)
-  #define HAS_J_MIN 1
-#elif _HAS_STOP(J,,MAX,)
-  #define HAS_J_MAX 1
+#if _USE_STOP(J,,MIN,)
+  #define USE_J_MIN 1
+#elif _USE_STOP(J,,MAX,)
+  #define USE_J_MAX 1
 #endif
-#if HAS_J_MIN || HAS_J_MAX
+#if USE_J_MIN || USE_J_MAX
   #define HAS_J_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(K,,MIN,)
-  #define HAS_K_MIN 1
-#elif _HAS_STOP(K,,MAX,)
-  #define HAS_K_MAX 1
+#if _USE_STOP(K,,MIN,)
+  #define USE_K_MIN 1
+#elif _USE_STOP(K,,MAX,)
+  #define USE_K_MAX 1
 #endif
-#if HAS_K_MIN || HAS_K_MAX
+#if USE_K_MIN || USE_K_MAX
   #define HAS_K_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(U,,MIN,)
-  #define HAS_U_MIN 1
-#elif _HAS_STOP(U,,MAX,)
-  #define HAS_U_MAX 1
+#if _USE_STOP(U,,MIN,)
+  #define USE_U_MIN 1
+#elif _USE_STOP(U,,MAX,)
+  #define USE_U_MAX 1
 #endif
-#if HAS_U_MIN || HAS_U_MAX
+#if USE_U_MIN || USE_U_MAX
   #define HAS_U_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(V,,MIN,)
-  #define HAS_V_MIN 1
-#elif _HAS_STOP(V,,MAX,)
-  #define HAS_V_MAX 1
+#if _USE_STOP(V,,MIN,)
+  #define USE_V_MIN 1
+#elif _USE_STOP(V,,MAX,)
+  #define USE_V_MAX 1
 #endif
-#if HAS_V_MIN || HAS_V_MAX
+#if USE_V_MIN || USE_V_MAX
   #define HAS_V_ENDSTOP 1
 #endif
 
-#if _HAS_STOP(W,,MIN,)
-  #define HAS_W_MIN 1
-#elif _HAS_STOP(W,,MAX,)
-  #define HAS_W_MAX 1
+#if _USE_STOP(W,,MIN,)
+  #define USE_W_MIN 1
+#elif _USE_STOP(W,,MAX,)
+  #define USE_W_MAX 1
 #endif
-#if HAS_W_MIN || HAS_W_MAX
+#if USE_W_MIN || USE_W_MAX
   #define HAS_W_ENDSTOP 1
 #endif
 
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_ENDSTOPS)
-  #if _HAS_STOP(X,2,MIN,)
-    #define HAS_X2_MIN 1
-  #elif _HAS_STOP(X,2,MAX,)
-    #define HAS_X2_MAX 1
+  #if _USE_STOP(X,2,MIN,)
+    #define USE_X2_MIN 1
+  #elif _USE_STOP(X,2,MAX,)
+    #define USE_X2_MAX 1
   #endif
-  #if HAS_X2_MIN || HAS_X2_MAX
+  #if USE_X2_MIN || USE_X2_MAX
     #define HAS_X2_ENDSTOP 1
   #endif
 #endif
 
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  #if _HAS_STOP(Y,2,MIN,)
-    #define HAS_Y2_MIN 1
-  #elif _HAS_STOP(Y,2,MAX,)
-    #define HAS_Y2_MAX 1
+  #if _USE_STOP(Y,2,MIN,)
+    #define USE_Y2_MIN 1
+  #elif _USE_STOP(Y,2,MAX,)
+    #define USE_Y2_MAX 1
   #endif
-  #if HAS_Y2_MIN || HAS_Y2_MAX
+  #if USE_Y2_MIN || USE_Y2_MAX
     #define HAS_Y2_ENDSTOP 1
   #endif
 #endif
 
 #if ENABLED(Z_MULTI_ENDSTOPS)
-  #if _HAS_STOP(Z,2,MIN,)
-    #define HAS_Z2_MIN 1
-  #elif _HAS_STOP(Z,2,MAX,)
-    #define HAS_Z2_MAX 1
+  #if _USE_STOP(Z,2,MIN,)
+    #define USE_Z2_MIN 1
+  #elif _USE_STOP(Z,2,MAX,)
+    #define USE_Z2_MAX 1
   #endif
-  #if HAS_Z2_MIN || HAS_Z2_MAX
+  #if USE_Z2_MIN || USE_Z2_MAX
     #define HAS_Z2_ENDSTOP 1
   #endif
   #if NUM_Z_STEPPERS >= 3
-    #if _HAS_STOP(Z,3,MIN,)
-      #define HAS_Z3_MIN 1
-    #elif _HAS_STOP(Z,3,MAX,)
-      #define HAS_Z3_MAX 1
+    #if _USE_STOP(Z,3,MIN,)
+      #define USE_Z3_MIN 1
+    #elif _USE_STOP(Z,3,MAX,)
+      #define USE_Z3_MAX 1
     #endif
-    #if HAS_Z3_MIN || HAS_Z3_MAX
+    #if USE_Z3_MIN || USE_Z3_MAX
       #define HAS_Z3_ENDSTOP 1
     #endif
   #endif
   #if NUM_Z_STEPPERS >= 4
-    #if _HAS_STOP(Z,4,MIN,)
-      #define HAS_Z4_MIN 1
-    #elif _HAS_STOP(Z,4,MAX,)
-      #define HAS_Z4_MAX 1
+    #if _USE_STOP(Z,4,MIN,)
+      #define USE_Z4_MIN 1
+    #elif _USE_STOP(Z,4,MAX,)
+      #define USE_Z4_MAX 1
     #endif
-    #if HAS_Z4_MIN || HAS_Z4_MAX
+    #if USE_Z4_MIN || USE_Z4_MAX
       #define HAS_Z4_ENDSTOP 1
     #endif
   #endif
 #endif
 
-#if HAS_BED_PROBE && PIN_EXISTS(Z_MIN_PROBE)
-  #define HAS_Z_MIN_PROBE_PIN 1
-#endif
-
-#undef _HAS_STOP
+#undef _USE_STOP
 
 /**
  * Set ENDSTOPPULLUPS for active endstop switches
  */
 #if ENABLED(ENDSTOPPULLUPS)
-  #if HAS_X_MIN
+  #if USE_X_MIN
     #define ENDSTOPPULLUP_XMIN
   #endif
-  #if HAS_X_MAX
+  #if USE_X_MAX
     #define ENDSTOPPULLUP_XMAX
   #endif
-  #if HAS_Y_MIN
+  #if USE_Y_MIN
     #define ENDSTOPPULLUP_YMIN
-  #elif HAS_Y_MAX
+  #endif
+  #if USE_Y_MAX
     #define ENDSTOPPULLUP_YMAX
   #endif
   #if HAS_Z_MIN_PIN
     #define ENDSTOPPULLUP_ZMIN
   #endif
-  #if HAS_Z_MAX
+  #if USE_Z_MAX
     #define ENDSTOPPULLUP_ZMAX
   #endif
-  #if HAS_I_MIN
+  #if USE_I_MIN
     #define ENDSTOPPULLUP_IMIN
-  #elif HAS_I_MAX
+  #endif
+  #if USE_I_MAX
     #define ENDSTOPPULLUP_IMAX
   #endif
-  #if HAS_J_MIN
+  #if USE_J_MIN
     #define ENDSTOPPULLUP_JMIN
-  #elif HAS_J_MAX
+  #endif
+  #if USE_J_MAX
     #define ENDSTOPPULLUP_JMAX
   #endif
-  #if HAS_K_MIN
+  #if USE_K_MIN
     #define ENDSTOPPULLUP_KMIN
-  #elif HAS_K_MAX
+  #endif
+  #if USE_K_MAX
     #define ENDSTOPPULLUP_KMAX
   #endif
-  #if HAS_U_MIN
+  #if USE_U_MIN
     #define ENDSTOPPULLUP_UMIN
-  #elif HAS_U_MAX
+  #endif
+  #if USE_U_MAX
     #define ENDSTOPPULLUP_UMAX
   #endif
-  #if HAS_V_MIN
+  #if USE_V_MIN
     #define ENDSTOPPULLUP_VMIN
-  #elif HAS_V_MAX
+  #endif
+  #if USE_V_MAX
     #define ENDSTOPPULLUP_VMAX
   #endif
-  #if HAS_W_MIN
+  #if USE_W_MIN
     #define ENDSTOPPULLUP_WMIN
-  #elif HAS_W_MAX
+  #endif
+  #if USE_W_MAX
     #define ENDSTOPPULLUP_WMAX
   #endif
 #endif
@@ -2148,51 +2143,58 @@
  * Set ENDSTOPPULLDOWNS for active endstop switches
  */
 #if ENABLED(ENDSTOPPULLDOWNS)
-  #if HAS_X_MIN
+  #if USE_X_MIN
     #define ENDSTOPPULLDOWN_XMIN
   #endif
-  #if HAS_X_MAX
+  #if USE_X_MAX
     #define ENDSTOPPULLDOWN_XMAX
   #endif
-  #if HAS_Y_MIN
+  #if USE_Y_MIN
     #define ENDSTOPPULLDOWN_YMIN
-  #elif HAS_Y_MAX
+  #endif
+  #if USE_Y_MAX
     #define ENDSTOPPULLDOWN_YMAX
   #endif
-  #if HAS_Z_MIN_PIN
+  #if USE_Z_MIN
     #define ENDSTOPPULLDOWN_ZMIN
   #endif
-  #if HAS_Z_MAX
+  #if USE_Z_MAX
     #define ENDSTOPPULLDOWN_ZMAX
   #endif
-  #if HAS_I_MIN
+  #if USE_I_MIN
     #define ENDSTOPPULLDOWN_IMIN
-  #elif HAS_I_MAX
+  #endif
+  #if USE_I_MAX
     #define ENDSTOPPULLDOWN_IMAX
   #endif
-  #if HAS_J_MIN
+  #if USE_J_MIN
     #define ENDSTOPPULLDOWN_JMIN
-  #elif HAS_J_MAX
+  #endif
+  #if USE_J_MAX
     #define ENDSTOPPULLDOWN_JMAX
   #endif
-  #if HAS_K_MIN
+  #if USE_K_MIN
     #define ENDSTOPPULLDOWN_KMIN
-  #elif HAS_K_MAX
+  #endif
+  #if USE_K_MAX
     #define ENDSTOPPULLDOWN_KMAX
   #endif
-  #if HAS_U_MIN
+  #if USE_U_MIN
     #define ENDSTOPPULLDOWN_UMIN
-  #elif HAS_U_MAX
+  #endif
+  #if USE_U_MAX
     #define ENDSTOPPULLDOWN_UMAX
   #endif
-  #if HAS_V_MIN
+  #if USE_V_MIN
     #define ENDSTOPPULLDOWN_VMIN
-  #elif HAS_V_MAX
+  #endif
+  #if USE_V_MAX
     #define ENDSTOPPULLDOWN_VMAX
   #endif
-  #if HAS_W_MIN
+  #if USE_W_MIN
     #define ENDSTOPPULLDOWN_WMIN
-  #elif HAS_W_MAX
+  #endif
+  #if USE_W_MAX
     #define ENDSTOPPULLDOWN_WMAX
   #endif
 #endif
@@ -2817,7 +2819,7 @@
   #endif
 #endif
 #if HAS_BED_PROBE
-  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
+  #if BOTH(ENDSTOPPULLUPS, USE_Z_MIN_PROBE)
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE

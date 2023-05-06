@@ -1044,12 +1044,6 @@
   #define POLL_JOG
 #endif
 
-#if X2_HOME_DIR > 0
-  #define X2_HOME_TO_MAX 1
-#elif X2_HOME_DIR < 0
-  #define X2_HOME_TO_MIN 1
-#endif
-
 #ifndef HOMING_BUMP_MM
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
@@ -1156,6 +1150,7 @@
   #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
 #else
   #define SD_CONNECTION_IS(...) 0
+  #undef SD_ABORT_ON_ENDSTOP_HIT
 #endif
 
 // Power Monitor sensors
