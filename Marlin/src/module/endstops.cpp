@@ -869,7 +869,7 @@ void Endstops::update() {
   #if HAS_X_AXIS
     if (stepper.axis_is_moving(X_AXIS)) {
       if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-        #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
+        #if USE_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
             PROCESS_CORE_ENDSTOP(Y,MIN,X,MIN);
@@ -883,7 +883,7 @@ void Endstops::update() {
         #endif
       }
       else { // +direction
-        #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
+        #if USE_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
           PROCESS_ENDSTOP_X(MAX);
           #if   CORE_DIAG(XY, Y, MIN)
             PROCESS_CORE_ENDSTOP(Y,MIN,X,MAX);
