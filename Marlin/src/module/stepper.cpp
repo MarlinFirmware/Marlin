@@ -3156,6 +3156,9 @@ void Stepper::init() {
     sei();
   #endif
 
+  // Init direction states
+  apply_directions();
+
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
     initialized = true;
     digipot_init();
