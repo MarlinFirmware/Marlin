@@ -1225,14 +1225,19 @@ void HMI_WaitForUser() {
 }
 
 void HMI_Init() {
-  DWINUI::Draw_Box(1, Color_Black, { 5, 220, DWIN_WIDTH - 5, DWINUI::fontHeight() });
-  DWINUI::Draw_CenteredString(Color_White, 220, F("Professional Firmware "));
-  for (uint16_t t = 15; t <= 257; t += 10) {
-    DWINUI::Draw_Icon(ICON_Bar, 15, 260);
-    DWIN_Draw_Rectangle(1, HMI_data.Background_Color, t, 260, 257, 280);
-    DWIN_UpdateLCD();
-    delay(50);
-  }
+  #if ENABLED(SHOW_BOOTSCREEN)
+    #ifndef BOOTSCREEN_TIMEOUT
+      #define BOOTSCREEN_TIMEOUT 1100
+    #endif
+    DWINUI::Draw_Box(1, Color_Black, { 5, 220, DWIN_WIDTH - 5, DWINUI::fontHeight() });
+    DWINUI::Draw_CenteredString(Color_White, 220, F("Professional Firmware "));
+    for (uint16_t t = 15; t < 257; t += 11) {
+      DWINUI::Draw_Icon(ICON_Bar, 15, 260);
+      DWIN_Draw_Rectangle(1, HMI_data.Background_Color, t, 260, 257, 280);
+      DWIN_UpdateLCD();
+      delay((BOOTSCREEN_TIMEOUT) / 22);
+    }
+  #endif
   HMI_SetLanguage();
 }
 
