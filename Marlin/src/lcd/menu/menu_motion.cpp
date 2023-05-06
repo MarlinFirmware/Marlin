@@ -338,46 +338,11 @@ void menu_motion() {
   #endif
 
   //
-  // Auto-calibration
-  //
-  #if ENABLED(CALIBRATION_GCODE)
-    GCODES_ITEM(MSG_AUTO_CALIBRATE, F("G425"));
-  #endif
-
-  //
-  // Auto Z-Align
-  //
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
-    GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
-  #endif
-
-  //
-  // Probe Deploy/Stow
-  //
-  #if ENABLED(PROBE_DEPLOY_STOW_MENU)
-    GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
-    GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
-  #endif
-
-  //
   // Pen up/down menu
   //
   #if ENABLED(PEN_UP_DOWN_MENU)
     GCODES_ITEM(MSG_MANUAL_PENUP, F("M280 P0 S90"));
     GCODES_ITEM(MSG_MANUAL_PENDOWN, F("M280 P0 S50"));
-  #endif
-
-  // Probe Offset Wizard
-  //
-  #if ENABLED(PROBE_OFFSET_WIZARD)
-    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
-  #endif
-
-  //
-  // Assisted Bed Tramming
-  //
-  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
-    SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
   #endif
 
   //
@@ -410,12 +375,47 @@ void menu_motion() {
 
   #endif
 
+  //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+    SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
+  #endif
+
+  //
+  // Bed Tramming Submenu
+  //
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
     SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
+  //
+  // Auto Z-Align
+  //
+  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+    GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
+  #endif
+
+  //
+  // Probe Deploy/Stow
+  //
+  #if ENABLED(PROBE_DEPLOY_STOW_MENU)
+    GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
+    GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
+  #endif
+
+  //
+  // Probe Repeatability Test
+  //
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     GCODES_ITEM(MSG_M48_TEST, F("G28O\nM48 P10"));
+  #endif
+
+  //
+  // Auto-calibration with Object
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, F("G425"));
   #endif
 
   //
