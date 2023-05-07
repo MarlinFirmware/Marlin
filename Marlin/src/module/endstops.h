@@ -28,6 +28,9 @@
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
 
+#define _ES_ENUM(A,M) A##_##M
+#define ES_ENUM(A,M) _ES_ENUM(A,M)
+
 #define _ES_ITEM(N) N,
 #define ES_ITEM(K,N) TERN_(K,DEFER4(_ES_ITEM)(N))
 
