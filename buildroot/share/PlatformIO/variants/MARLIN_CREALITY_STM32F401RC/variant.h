@@ -119,6 +119,8 @@ extern "C" {
 #define PIN_SERIAL1_TX          PA9
 #define PIN_SERIAL2_RX          PA3
 #define PIN_SERIAL2_TX          PA2
+#define PIN_SERIAL6_RX          PC7
+#define PIN_SERIAL6_TX          PC6
 
 #ifdef __cplusplus
 } // extern "C"

@@ -790,6 +790,9 @@
   #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
 #elif MB(CREALITY_F401RE)
   #include "stm32f4/pins_CREALITY_F401.h"       // STM32F4                                env:STM32F401RE_creality
+#elif MB(CREALITY_CR4NTxxC10)
+  #include "stm32f4/pins_CREALITY_CR4NTxxC10.h" // STM32F4                                env:STM32F401RC_creality_freeruns
+
 
 //
 // ARM Cortex M7
