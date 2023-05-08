@@ -3173,14 +3173,14 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
         if (delta.a <= POLAR_FAST_RADIUS )
           calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
-            // Normalized vector of movement
-            const float diffBLength = ABS((2.0f * PI * diff.a) * (diff.b / 360.0f)),
-                        diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
-                        normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
+          // Normalized vector of movement
+          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
+                      diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
+                      normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
-            // Normalized position along the radius
-            const float radiusRatio = PRINTABLE_RADIUS/delta.a;
-            calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
+          // Normalized position along the radius
+          const float radiusRatio = (PRINTABLE_RADIUS) / delta.a;
+          calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
         }
       }
       const feedRate_t feedrate = calculated_feedrate;
