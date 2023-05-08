@@ -842,28 +842,28 @@ public:
     };
   };
 
-  AxisBits() { bits = 0; }
+  AxisBits() { reset(); }
 
   // Constructor, setter, and operator= for bit mask
   AxisBits(const el p) { set(p); }
-
-  void reset() { bits = 0; }
-
-  void set(const el p) { bits = el(p); }
+  FI void set(const el p) { bits = el(p); }
   FI AxisBits& operator=(const el p) { set(p); return *this; }
+
+  FI void reset() { set(0); }
+  FI void fill() { set(_BV(NUM_AXIS_ENUMS) - 1); }
 
   #define MSET(pE,pX,pY,pZ,pI,pJ,pK,pU,pV,pW) LOGICAL_AXIS_CODE(e=pE, x=pX, y=pY, z=pZ, i=pI, j=pJ, k=pK, u=pU, v=pV, w=pW)
 
   // Constructor, setter, and operator= for XYZE type
   AxisBits(const xyze_bool_t &p) { set(p); }
-  void set(const xyze_bool_t &p) {
+  FI void set(const xyze_bool_t &p) {
     MSET(p.e, p.x, p.y, p.z, p.i, p.j, p.k, p.u, p.v, p.w);
   }
   FI AxisBits& operator=(const xyze_bool_t &p) { set(p); return *this; }
 
   // Constructor, setter, and operator= for bool array
   AxisBits(const bool (&p)[LOGICAL_AXES]) { set(p); }
-  void set(const bool (&p)[LOGICAL_AXES]) {
+  FI void set(const bool (&p)[LOGICAL_AXES]) {
     MSET(p[E_AXIS], p[X_AXIS], p[Y_AXIS], p[Z_AXIS],
                     p[I_AXIS], p[J_AXIS], p[K_AXIS],
                     p[U_AXIS], p[V_AXIS], p[W_AXIS]);
