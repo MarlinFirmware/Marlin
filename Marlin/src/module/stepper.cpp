@@ -2583,7 +2583,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if IS_CORE
         // Define conditions for checking endstops
         #define S_(N) current_block->steps[CORE_AXIS_##N]
-        #define D_(N) TEST(current_block->direction_bits, CORE_AXIS_##N)
+        #define D_(N) current_block->direction_bits[CORE_AXIS_##N]
       #endif
 
       #if CORE_IS_XY || CORE_IS_XZ
@@ -2646,20 +2646,20 @@ hal_timer_t Stepper::block_phase_isr() {
 
       AxisBits axis_bits;
       NUM_AXIS_CODE(
-        if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
-        if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
-        if (Z_MOVE_TEST)            SBI(axis_bits, C_AXIS),
-        if (current_block->steps.i) SBI(axis_bits, I_AXIS),
-        if (current_block->steps.j) SBI(axis_bits, J_AXIS),
-        if (current_block->steps.k) SBI(axis_bits, K_AXIS),
-        if (current_block->steps.u) SBI(axis_bits, U_AXIS),
-        if (current_block->steps.v) SBI(axis_bits, V_AXIS),
-        if (current_block->steps.w) SBI(axis_bits, W_AXIS)
+        if (X_MOVE_TEST)            axis_bits.a = true,
+        if (Y_MOVE_TEST)            axis_bits.b = true,
+        if (Z_MOVE_TEST)            axis_bits.c = true,
+        if (current_block->steps.i) axis_bits.i = true,
+        if (current_block->steps.j) axis_bits.j = true,
+        if (current_block->steps.k) axis_bits.k = true,
+        if (current_block->steps.u) axis_bits.u = true,
+        if (current_block->steps.v) axis_bits.v = true,
+        if (current_block->steps.w) axis_bits.w = true
       );
-      //if (current_block->steps.e) SBI(axis_bits, E_AXIS);
-      //if (current_block->steps.a) SBI(axis_bits, X_HEAD);
-      //if (current_block->steps.b) SBI(axis_bits, Y_HEAD);
-      //if (current_block->steps.c) SBI(axis_bits, Z_HEAD);
+      //if (current_block->steps.e) axis_bits.e = true;
+      //if (current_block->steps.a) axis_bits.x = true;
+      //if (current_block->steps.b) axis_bits.y = true;
+      //if (current_block->steps.c) axis_bits.z = true;
       axis_did_move = axis_bits;
 
       // No acceleration / deceleration time elapsed so far
@@ -3487,7 +3487,7 @@ void Stepper::report_positions() {
       // If the current block is not done processing, return right away
       if (!fxdTiCtrl.getBlockProcDn()) return;
 
-      axis_did_move = 0;
+      axis_did_move.reset();
       current_block = nullptr;
       discard_current_block();
     }
@@ -3533,25 +3533,25 @@ void Stepper::report_positions() {
                                 // or the set conditions should be changed from the block to
                                 // the motion trajectory or motor commands.
 
-    uint8_t axis_bits = 0U;
+    AxisBits axis_bits;
 
     static uint32_t a_debounce = 0U;
     if (!!current_block->steps.a) a_debounce = (AXIS_DID_MOVE_DEB) * 400; // divide by 0.0025f
-    if (a_debounce) { SBI(axis_bits, A_AXIS); a_debounce--; }
+    if (a_debounce) { axis_bits.a = true; a_debounce--; }
     #if HAS_Y_AXIS
       static uint32_t b_debounce = 0U;
       if (!!current_block->steps.b) b_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (b_debounce) { SBI(axis_bits, B_AXIS); b_debounce--; }
+      if (b_debounce) { axis_bits.b = true; b_debounce--; }
     #endif
     #if HAS_Z_AXIS
       static uint32_t c_debounce = 0U;
       if (!!current_block->steps.c) c_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (c_debounce) { SBI(axis_bits, C_AXIS); c_debounce--; }
+      if (c_debounce) { axis_bits.c = true; c_debounce--; }
     #endif
     #if HAS_EXTRUDERS
       static uint32_t e_debounce = 0U;
       if (!!current_block->steps.e) e_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (e_debounce) { SBI(axis_bits, E_AXIS); e_debounce--; }
+      if (e_debounce) { axis_bits.e = true; e_debounce--; }
     #endif
 
     axis_did_move = axis_bits;

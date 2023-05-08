@@ -846,6 +846,9 @@ public:
 
   // Constructor, setter, and operator= for bit mask
   AxisBits(const el p) { set(p); }
+
+  void reset() { bits = 0; }
+
   void set(const el p) { bits = el(p); }
   FI AxisBits& operator=(const el p) { set(p); return *this; }
 
