@@ -3609,31 +3609,31 @@ void Stepper::report_positions() {
 
   #if DISABLED(DELTA)
 
-    #define BABYSTEP_AXIS(AXIS, DIR, INV) do{           \
-      const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE_AXIS(AXIS);                               \
-      DIR_WAIT_BEFORE();                                \
-      _APPLY_DIR(AXIS, (DIR)^(INV));                    \
-      DIR_WAIT_AFTER();                                 \
-      _SAVE_START();                                    \
-      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);       \
-      _PULSE_WAIT();                                    \
-      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true);      \
-      EXTRA_DIR_WAIT_BEFORE();                          \
-      _APPLY_DIR(AXIS, old_dir);                        \
-      EXTRA_DIR_WAIT_AFTER();                           \
+    #define BABYSTEP_AXIS(AXIS, FWD, INV) do{      \
+      const bool old_fwd = _READ_DIR(AXIS);        \
+      _ENABLE_AXIS(AXIS);                          \
+      DIR_WAIT_BEFORE();                           \
+      _APPLY_DIR(AXIS, (FWD)^(INV));               \
+      DIR_WAIT_AFTER();                            \
+      _SAVE_START();                               \
+      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);  \
+      _PULSE_WAIT();                               \
+      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true); \
+      EXTRA_DIR_WAIT_BEFORE();                     \
+      _APPLY_DIR(AXIS, old_fwd);                   \
+      EXTRA_DIR_WAIT_AFTER();                      \
     }while(0)
 
   #endif
 
   #if IS_CORE
 
-    #define BABYSTEP_CORE(A, B, DIR, INV, ALT) do{              \
-      const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
+    #define BABYSTEP_CORE(A, B, FWD, INV, ALT) do{              \
+      const xy_byte_t old_fwd = { _READ_DIR(A), _READ_DIR(B) }; \
       _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
       DIR_WAIT_BEFORE();                                        \
-      _APPLY_DIR(A, (DIR)^(INV));                               \
-      _APPLY_DIR(B, (DIR)^(INV)^(ALT));                         \
+      _APPLY_DIR(A, (FWD)^(INV));                               \
+      _APPLY_DIR(B, (FWD)^(INV)^(ALT));                         \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
       _APPLY_STEP(A, _STEP_STATE(A), true);                     \
@@ -3642,7 +3642,7 @@ void Stepper::report_positions() {
       _APPLY_STEP(A, !_STEP_STATE(A), true);                    \
       _APPLY_STEP(B, !_STEP_STATE(B), true);                    \
       EXTRA_DIR_WAIT_BEFORE();                                  \
-      _APPLY_DIR(A, old_dir.a); _APPLY_DIR(B, old_dir.b);       \
+      _APPLY_DIR(A, old_fwd.a); _APPLY_DIR(B, old_fwd.b);       \
       EXTRA_DIR_WAIT_AFTER();                                   \
     }while(0)
 
@@ -3683,103 +3683,52 @@ void Stepper::report_positions() {
       case Z_AXIS: {
 
         #if CORE_IS_XZ
-          BABYSTEP_CORE(X, Z, direction, BABYSTEP_INVERT_Z, (CORESIGN(1)>0));
+          BABYSTEP_CORE(X, Z, direction, ENABLED(BABYSTEP_INVERT_Z), (CORESIGN(1)>0));
         #elif CORE_IS_YZ
-          BABYSTEP_CORE(Y, Z, direction, BABYSTEP_INVERT_Z, (CORESIGN(1)<0));
+          BABYSTEP_CORE(Y, Z, direction, ENABLED(BABYSTEP_INVERT_Z), (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
-          BABYSTEP_AXIS(Z, direction, BABYSTEP_INVERT_Z);
+          BABYSTEP_AXIS(Z, direction, ENABLED(BABYSTEP_INVERT_Z));
 
         #else // DELTA
 
           const bool z_direction = TERN_(BABYSTEP_INVERT_Z, !) direction;
 
-          NUM_AXIS_CODE(
-            enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
-            enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS),
-            enable_axis(U_AXIS), enable_axis(V_AXIS), enable_axis(W_AXIS)
-          );
+          enable_axis(A_AXIS); enable_axis(B_AXIS); enable_axis(C_AXIS);
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = NUM_AXIS_ARRAY(
-            X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
-            I_DIR_READ(), J_DIR_READ(), K_DIR_READ(),
-            U_DIR_READ(), V_DIR_READ(), W_DIR_READ()
-          );
+          const bool old_fwd[3] = { X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ() };
 
-          #ifdef X_DIR_WRITE
-            X_DIR_WRITE(z_direction);
-          #endif
-          #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(z_direction);
-          #endif
-          #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(z_direction);
-          #endif
+          X_DIR_WRITE(z_direction);
+          Y_DIR_WRITE(z_direction);
+          Z_DIR_WRITE(z_direction);
 
           DIR_WAIT_AFTER();
 
           _SAVE_START();
 
-          #ifdef X_STEP_WRITE
-            X_STEP_WRITE(STEP_STATE_X);
-          #endif
-          #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(STEP_STATE_Y);
-          #endif
-          #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(STEP_STATE_Z);
-          #endif
+          X_STEP_WRITE(STEP_STATE_X);
+          Y_STEP_WRITE(STEP_STATE_Y);
+          Z_STEP_WRITE(STEP_STATE_Z);
 
           _PULSE_WAIT();
 
-          #ifdef X_STEP_WRITE
-            X_STEP_WRITE(!STEP_STATE_X);
-          #endif
-          #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(!STEP_STATE_Y);
-          #endif
-          #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(!STEP_STATE_Z);
-          #endif
+          X_STEP_WRITE(!STEP_STATE_X);
+          Y_STEP_WRITE(!STEP_STATE_Y);
+          Z_STEP_WRITE(!STEP_STATE_Z);
 
           // Restore direction bits
           EXTRA_DIR_WAIT_BEFORE();
 
-          #ifdef X_DIR_WRITE
-            X_DIR_WRITE(old_dir.x);
-          #endif
-          #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(old_dir.y);
-          #endif
-          #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(old_dir.z);
-          #endif
+          X_DIR_WRITE(old_fwd[A_AXIS]);
+          Y_DIR_WRITE(old_fwd[B_AXIS]);
+          Z_DIR_WRITE(old_fwd[C_AXIS]);
 
           EXTRA_DIR_WAIT_AFTER();
 
         #endif
 
       } break;
-
-      #if HAS_I_AXIS
-        case I_AXIS: BABYSTEP_AXIS(I, direction, 0); break;
-      #endif
-      #if HAS_J_AXIS
-        case J_AXIS: BABYSTEP_AXIS(J, direction, 0); break;
-      #endif
-      #if HAS_K_AXIS
-        case K_AXIS: BABYSTEP_AXIS(K, direction, 0); break;
-      #endif
-      #if HAS_U_AXIS
-        case U_AXIS: BABYSTEP_AXIS(U, direction, 0); break;
-      #endif
-      #if HAS_V_AXIS
-        case V_AXIS: BABYSTEP_AXIS(V, direction, 0); break;
-      #endif
-      #if HAS_W_AXIS
-        case W_AXIS: BABYSTEP_AXIS(W, direction, 0); break;
-      #endif
 
       default: break;
     }
