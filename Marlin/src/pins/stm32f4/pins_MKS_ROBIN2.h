@@ -99,3 +99,39 @@
 
 #define SD_DETECT_PIN                       PF9
 #define BEEPER_PIN                          PG2
+
+//
+// TFT with FSMC interface
+//
+#if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers.
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   */
+  #define LCD_RESET_PIN                     PD13
+  #define LCD_BACKLIGHT_PIN                 PD12
+
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
+  #define FSMC_CS_PIN                       PG12  // NE4
+  #define FSMC_RS_PIN                       PF12  // A0
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
+
+  #define TFT_BUFFER_SIZE                  14400
+
+  #define BEEPER_PIN                        PG2
+
+  #if NEED_TOUCH_PINS
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+    #define TOUCH_CS_PIN                    PD11  // SPI1_NSS
+    #define TOUCH_SCK_PIN                   PB3   // SPI1_SCK
+    #define TOUCH_MISO_PIN                  PB4   // SPI1_MISO
+    #define TOUCH_MOSI_PIN                  PB5   // SPI1_MOSI
+  #endif
+
+#endif
