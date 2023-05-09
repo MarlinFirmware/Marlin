@@ -875,6 +875,17 @@
 #endif
 
 // Multiple Z steppers
+#ifdef INVERT_Z_DIR
+  #if NUM_Z_STEPPERS > 3
+    #define INVERT_Z4_DIR INVERT_Z_DIR
+  #endif
+  #if NUM_Z_STEPPERS > 2
+    #define INVERT_Z3_DIR INVERT_Z_DIR
+  #endif
+  #if NUM_Z_STEPPERS > 1
+    #define INVERT_Z2_DIR INVERT_Z_DIR
+  #endif
+#endif
 #if NUM_Z_STEPPERS < 4
   #undef INVERT_Z4_VS_Z_DIR
   #if NUM_Z_STEPPERS < 3
