@@ -83,21 +83,23 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define INVERT_DIR(AXIS, D) (TERN_(INVERT_## AXIS ##_DIR, !)(D))
 
 // X Stepper
-#ifndef X_ENABLE_INIT
-  #define X_ENABLE_INIT() SET_OUTPUT(X_ENABLE_PIN)
-  #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
-  #define X_ENABLE_READ() bool(READ(X_ENABLE_PIN))
+#if HAS_X_AXIS
+  #ifndef X_ENABLE_INIT
+    #define X_ENABLE_INIT() SET_OUTPUT(X_ENABLE_PIN)
+    #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
+    #define X_ENABLE_READ() bool(READ(X_ENABLE_PIN))
+  #endif
+  #ifndef X_DIR_INIT
+    #define X_DIR_INIT() SET_OUTPUT(X_DIR_PIN)
+    #define X_DIR_WRITE(STATE) WRITE(X_DIR_PIN,INVERT_DIR(X, STATE))
+    #define X_DIR_READ() INVERT_DIR(X, bool(READ(X_DIR_PIN)))
+  #endif
+  #define X_STEP_INIT() SET_OUTPUT(X_STEP_PIN)
+  #ifndef X_STEP_WRITE
+    #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
+  #endif
+  #define X_STEP_READ() bool(READ(X_STEP_PIN))
 #endif
-#ifndef X_DIR_INIT
-  #define X_DIR_INIT() SET_OUTPUT(X_DIR_PIN)
-  #define X_DIR_WRITE(STATE) WRITE(X_DIR_PIN,INVERT_DIR(X, STATE))
-  #define X_DIR_READ() INVERT_DIR(X, bool(READ(X_DIR_PIN)))
-#endif
-#define X_STEP_INIT() SET_OUTPUT(X_STEP_PIN)
-#ifndef X_STEP_WRITE
-  #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
-#endif
-#define X_STEP_READ() bool(READ(X_STEP_PIN))
 
 // Y Stepper
 #if HAS_Y_AXIS
@@ -977,8 +979,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define AFTER_CHANGE(N,TF) NOOP
 #endif
 
-#define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
-#define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+#if HAS_X_AXIS
+  #define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
+  #define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+#else
+  #define  ENABLE_AXIS_X() NOOP
+  #define DISABLE_AXIS_X() NOOP
+#endif
 
 #if HAS_Y_AXIS
   #define  ENABLE_AXIS_Y() if (SHOULD_ENABLE(y))  {  ENABLE_STEPPER_Y();  ENABLE_STEPPER_Y2(); AFTER_CHANGE(y, true); }

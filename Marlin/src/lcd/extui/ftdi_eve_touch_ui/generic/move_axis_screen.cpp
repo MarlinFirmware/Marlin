@@ -77,8 +77,10 @@ bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
   #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT_AXIS(X); break;
-    case  3: UI_INCREMENT_AXIS(X); break;
+    #if HAS_X_AXIS
+      case  2: UI_DECREMENT_AXIS(X); break;
+      case  3: UI_INCREMENT_AXIS(X); break;
+    #endif
     #if HAS_EXTRUDERS
       // For extruders, also update relative distances.
       case  8: UI_DECREMENT_AXIS(E0); mydata.e_rel[0] -= increment; break;

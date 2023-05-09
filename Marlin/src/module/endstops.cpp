@@ -300,7 +300,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char NUM_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' '),
+      char NUM_AXIS_LIST_(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' ')
            chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -348,7 +348,7 @@ void Endstops::event_handler() {
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
-        NUM_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW), chrP
+        NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
 
@@ -367,18 +367,22 @@ void Endstops::event_handler() {
   }
 }
 
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
+#if NUM_AXES
+
+  #pragma GCC diagnostic push
+  #if GCC_VERSION <= 50000
+    #pragma GCC diagnostic ignored "-Wunused-function"
+  #endif
+
+  static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
+    if (flabel) SERIAL_ECHOF(flabel);
+    SERIAL_ECHOPGM(": ");
+    SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
+  }
+
+  #pragma GCC diagnostic pop
+
 #endif
-
-static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-  if (flabel) SERIAL_ECHOF(flabel);
-  SERIAL_ECHOPGM(": ");
-  SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
-}
-
-#pragma GCC diagnostic pop
 
 void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
