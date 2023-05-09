@@ -468,10 +468,10 @@
     #define BTN_EN2                  EXP2_05_PIN
 
     #ifndef TFT_WIDTH
-      #define TFT_WIDTH                    480
+      #define TFT_WIDTH                      480
     #endif
     #ifndef TFT_HEIGHT
-      #define TFT_HEIGHT                   320
+      #define TFT_HEIGHT                     320
     #endif
 
     #if ENABLED(BTT_TFT35_SPI_V1_0)

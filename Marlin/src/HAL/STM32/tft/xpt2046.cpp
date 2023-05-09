@@ -64,18 +64,18 @@ void XPT2046::Init() {
     SPIx.Init.CRCCalculation     = SPI_CRCCALCULATION_DISABLE;
     SPIx.Init.CRCPolynomial      = 10;
 
-    #ifdef STM32H7xx
-      SPIx.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_16; // 5 MBit/s for H743
-      SPIx.Init.NSSPMode                   = SPI_NSS_PULSE_ENABLE;
-      SPIx.Init.NSSPolarity                = SPI_NSS_POLARITY_LOW;
-      SPIx.Init.FifoThreshold              = SPI_FIFO_THRESHOLD_01DATA;
-      SPIx.Init.MasterSSIdleness           = SPI_MASTER_SS_IDLENESS_00CYCLE;
-      SPIx.Init.MasterInterDataIdleness    = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
-      SPIx.Init.MasterReceiverAutoSusp     = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-      SPIx.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_ENABLE;
-      SPIx.Init.IOSwap                     = SPI_IO_SWAP_DISABLE;
+    #ifndef STM32H7xx
+      SPIx.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_8; // 4.5 MBit/s for F103 and 5.25 MBit/s for F407
     #else
-      SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; // 4.5 MBit/s for F103 and 5.25 MBit/s for F407
+      SPIx.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_16; // 5 MBit/s for H743
+      SPIx.Init.NSSPMode                = SPI_NSS_PULSE_ENABLE;
+      SPIx.Init.NSSPolarity             = SPI_NSS_POLARITY_LOW;
+      SPIx.Init.FifoThreshold           = SPI_FIFO_THRESHOLD_01DATA;
+      SPIx.Init.MasterSSIdleness        = SPI_MASTER_SS_IDLENESS_00CYCLE;
+      SPIx.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
+      SPIx.Init.MasterReceiverAutoSusp  = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+      SPIx.Init.MasterKeepIOState       = SPI_MASTER_KEEP_IO_STATE_ENABLE;
+      SPIx.Init.IOSwap                  = SPI_IO_SWAP_DISABLE;
     #endif
 
 

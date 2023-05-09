@@ -60,18 +60,18 @@ void TFT_SPI::Init() {
   SPIx.Init.CRCCalculation     = SPI_CRCCALCULATION_DISABLE;
   SPIx.Init.CRCPolynomial      = 10;
 
-  #ifdef STM32H7xx
-    SPIx.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_4; // 20 MBit/s for H743
-    SPIx.Init.NSSPMode                   = SPI_NSS_PULSE_ENABLE;
-    SPIx.Init.NSSPolarity                = SPI_NSS_POLARITY_LOW;
-    SPIx.Init.FifoThreshold              = SPI_FIFO_THRESHOLD_01DATA;
-    SPIx.Init.MasterSSIdleness           = SPI_MASTER_SS_IDLENESS_00CYCLE;
-    SPIx.Init.MasterInterDataIdleness    = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
-    SPIx.Init.MasterReceiverAutoSusp     = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-    SPIx.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_ENABLE;
-    SPIx.Init.IOSwap                     = SPI_IO_SWAP_DISABLE;
+  #ifndef STM32H7xx
+    SPIx.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2; // 18 MBit/s for F103, 21 MBit/s for F407, 25 MBit/s for F411
   #else
-    SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2; // 18 MBit/s for F103, 21 MBit/s for F407, 25 MBit/s for F411
+    SPIx.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_4; // 20 MBit/s for H743
+    SPIx.Init.NSSPMode                = SPI_NSS_PULSE_ENABLE;
+    SPIx.Init.NSSPolarity             = SPI_NSS_POLARITY_LOW;
+    SPIx.Init.FifoThreshold           = SPI_FIFO_THRESHOLD_01DATA;
+    SPIx.Init.MasterSSIdleness        = SPI_MASTER_SS_IDLENESS_00CYCLE;
+    SPIx.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
+    SPIx.Init.MasterReceiverAutoSusp  = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+    SPIx.Init.MasterKeepIOState       = SPI_MASTER_KEEP_IO_STATE_ENABLE;
+    SPIx.Init.IOSwap                  = SPI_IO_SWAP_DISABLE;
   #endif
 
   pinmap_pinout(digitalPinToPinName(TFT_SCK_PIN), PinMap_SPI_SCLK);
@@ -140,7 +140,7 @@ void TFT_SPI::Init() {
   DMAtx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   DMAtx.Init.Mode = DMA_NORMAL;
   DMAtx.Init.Priority = DMA_PRIORITY_LOW;
-  #if ANY(STM32F4xx, STM32H7xx)
+  #if EITHER(STM32F4xx, STM32H7xx)
     DMAtx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   #endif
 }
