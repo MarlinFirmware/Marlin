@@ -243,7 +243,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_X2_STEPPER && !GOOD_AXIS_PINS(X2)
   #error "If X2_DRIVER_TYPE is defined, then X2 ENABLE/STEP/DIR pins are also needed."
 #endif
-#if HAS_DUAL_Y_STEPPERS && !GOOD_AXIS_PINS(Y2)
+#if HAS_Y2_STEPPER && !GOOD_AXIS_PINS(Y2)
   #error "If Y2_DRIVER_TYPE is defined, then Y2 ENABLE/STEP/DIR pins are also needed."
 #endif
 #if HAS_Z_AXIS
@@ -4035,7 +4035,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_DUAL_X_STEPPERS, HAS_DUAL_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
+#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_SYNCED_X_STEPPERS, HAS_SYNCED_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
   #error "FT_MOTION is currently limited to machines with 3 linear axes and a single extruder."
 #endif
 

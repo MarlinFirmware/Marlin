@@ -859,7 +859,7 @@
   #endif
 #endif
 
-#if HAS_DUAL_Y_STEPPERS
+#if HAS_Y2_STEPPER
   //#define INVERT_Y2_VS_Y_DIR        // Y2 direction signal is the opposite of Y
   //#define Y_DUAL_ENDSTOPS           // Y2 has its own endstop
   #if ENABLED(Y_DUAL_ENDSTOPS)

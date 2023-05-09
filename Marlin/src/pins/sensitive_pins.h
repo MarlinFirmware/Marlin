@@ -785,7 +785,7 @@
   #define _X2_PINS
 #endif
 
-#if HAS_DUAL_Y_STEPPERS
+#if HAS_Y2_STEPPER
   #if PIN_EXISTS(Y2_CS) && AXIS_HAS_SPI(Y2)
     #define _Y2_CS Y2_CS_PIN,
   #else

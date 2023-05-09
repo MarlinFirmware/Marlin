@@ -803,33 +803,34 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
-#endif
-#if NUM_AXES >= XY
-  #define HAS_Y_AXIS 1
-#endif
-#if NUM_AXES >= XYZ
-  #define HAS_Z_AXIS 1
-#endif
-#if NUM_AXES >= 4
-  #define HAS_I_AXIS 1
-#endif
-#if NUM_AXES >= 5
-  #define HAS_J_AXIS 1
-#endif
-#if NUM_AXES >= 6
-  #define HAS_K_AXIS 1
-#endif
-#if NUM_AXES >= 7
-  #define HAS_U_AXIS 1
-#endif
-#if NUM_AXES >= 8
-  #define HAS_V_AXIS 1
-#endif
-#if NUM_AXES >= 9
-  #define HAS_W_AXIS 1
+  #if NUM_AXES >= XY
+    #define HAS_Y_AXIS 1
+    #if NUM_AXES >= XYZ
+      #define HAS_Z_AXIS 1
+      #if NUM_AXES >= 4
+        #define HAS_I_AXIS 1
+        #if NUM_AXES >= 5
+          #define HAS_J_AXIS 1
+          #if NUM_AXES >= 6
+            #define HAS_K_AXIS 1
+            #if NUM_AXES >= 7
+              #define HAS_U_AXIS 1
+              #if NUM_AXES >= 8
+                #define HAS_V_AXIS 1
+                #if NUM_AXES >= 9
+                  #define HAS_W_AXIS 1
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 #if !HAS_X_AXIS
+  #undef AVOID_OBSTACLES
   #undef ENDSTOPPULLUP_XMIN
   #undef ENDSTOPPULLUP_XMAX
   #undef X_MIN_ENDSTOP_INVERTING
@@ -1001,11 +1002,9 @@
 
 #ifdef X2_DRIVER_TYPE
   #define HAS_X2_STEPPER 1
-  // Dual X Carriage isn't known yet. TODO: Consider moving it to Configuration.h.
 #endif
 #ifdef Y2_DRIVER_TYPE
   #define HAS_Y2_STEPPER 1
-  #define HAS_DUAL_Y_STEPPERS 1
 #endif
 
 /**

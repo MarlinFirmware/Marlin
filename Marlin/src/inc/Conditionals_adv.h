@@ -882,17 +882,28 @@
   #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
-#if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  #ifdef Z_STEPPER_ALIGN_STEPPER_XY
-    #define HAS_Z_STEPPER_ALIGN_STEPPER_XY 1
-    #undef Z_STEPPER_ALIGN_AMP
-  #endif
-  #ifndef Z_STEPPER_ALIGN_AMP
-    #define Z_STEPPER_ALIGN_AMP 1.0
-  #endif
+// X2 but not IDEX => Dual Synchronized X Steppers
+#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
+  #define HAS_SYNCED_X_STEPPERS 1
+#endif
+
+// Y2 Stepper => Dual Synchronized Y Steppers
+#ifdef Y2_DRIVER_TYPE
+  #define HAS_SYNCED_Y_STEPPERS 1
 #endif
 
 // Multiple Z steppers
+#ifdef INVERT_Z_DIR
+  #if NUM_Z_STEPPERS >= 2 && !defined(INVERT_Z2_DIR)
+    #define INVERT_Z2_DIR INVERT_Z_DIR
+    #if NUM_Z_STEPPERS >= 3 && !defined(INVERT_Z3_DIR)
+      #define INVERT_Z3_DIR INVERT_Z_DIR
+      #if NUM_Z_STEPPERS >= 4 && !defined(INVERT_Z4_DIR)
+        #define INVERT_Z4_DIR INVERT_Z_DIR
+      #endif
+    #endif
+  #endif
+#endif
 #if NUM_Z_STEPPERS < 4
   #undef INVERT_Z4_VS_Z_DIR
   #if NUM_Z_STEPPERS < 3
@@ -903,8 +914,15 @@
   #endif
 #endif
 
-#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
-  #define HAS_DUAL_X_STEPPERS 1
+// Z Stepper Auto-align
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #ifdef Z_STEPPER_ALIGN_STEPPER_XY
+    #define HAS_Z_STEPPER_ALIGN_STEPPER_XY 1
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
 #endif
 
 //

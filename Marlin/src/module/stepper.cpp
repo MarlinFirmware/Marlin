@@ -382,7 +382,7 @@ xyze_int8_t Stepper::count_direction{0};
     A##4_STEP_WRITE(V);                           \
   }
 
-#if HAS_DUAL_X_STEPPERS
+#if HAS_SYNCED_X_STEPPERS
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE(INVERT_DIR(X2_VS_X, v)); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
@@ -403,7 +403,7 @@ xyze_int8_t Stepper::count_direction{0};
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
 #endif
 
-#if HAS_DUAL_Y_STEPPERS
+#if HAS_SYNCED_Y_STEPPERS
   #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE(INVERT_DIR(Y2_VS_Y, v)); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
@@ -2892,7 +2892,7 @@ void Stepper::init() {
   TERN_(HAS_X2_DIR, X2_DIR_INIT());
   #if HAS_Y_DIR
     Y_DIR_INIT();
-    #if BOTH(HAS_DUAL_Y_STEPPERS, HAS_Y2_DIR)
+    #if BOTH(HAS_Y2_STEPPER, HAS_Y2_DIR)
       Y2_DIR_INIT();
     #endif
   #endif
@@ -2955,7 +2955,7 @@ void Stepper::init() {
     #endif
     Y_ENABLE_INIT();
     if (Y_ENABLE_INIT_STATE) Y_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
-    #if BOTH(HAS_DUAL_Y_STEPPERS, HAS_Y2_ENABLE)
+    #if BOTH(HAS_Y2_STEPPER, HAS_Y2_ENABLE)
       Y2_ENABLE_INIT();
       if (Y_ENABLE_INIT_STATE) Y2_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
     #endif
@@ -3084,7 +3084,7 @@ void Stepper::init() {
   #endif
 
   #if HAS_Y_STEP
-    #if HAS_DUAL_Y_STEPPERS
+    #if HAS_Y2_STEPPER
       Y2_STEP_INIT();
       Y2_STEP_WRITE(!STEP_STATE_Y);
     #endif

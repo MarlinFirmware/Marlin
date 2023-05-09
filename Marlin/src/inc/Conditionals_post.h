@@ -1077,17 +1077,19 @@
     #define HAS_Y_MS_PINS 1
   #endif
 
-  #if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
-    #define HAS_Y2_ENABLE 1
-  #endif
-  #if PIN_EXISTS(Y2_DIR)
-    #define HAS_Y2_DIR 1
-  #endif
-  #if PIN_EXISTS(Y2_STEP)
-    #define HAS_Y2_STEP 1
-  #endif
-  #if PIN_EXISTS(Y2_MS1)
-    #define HAS_Y2_MS_PINS 1
+  #if HAS_Y2_STEPPER
+    #if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
+      #define HAS_Y2_ENABLE 1
+    #endif
+    #if PIN_EXISTS(Y2_DIR)
+      #define HAS_Y2_DIR 1
+    #endif
+    #if PIN_EXISTS(Y2_STEP)
+      #define HAS_Y2_STEP 1
+    #endif
+    #if PIN_EXISTS(Y2_MS1)
+      #define HAS_Y2_MS_PINS 1
+    #endif
   #endif
 #endif
 
@@ -1439,7 +1441,6 @@
       #define X_SLAVE_ADDRESS 0
     #endif
   #endif
-
   #if AXIS_IS_TMC(X2)
     #if defined(X2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2)
       #define X2_SENSORLESS 1
@@ -1477,22 +1478,22 @@
     #ifndef Y_SLAVE_ADDRESS
       #define Y_SLAVE_ADDRESS 0
     #endif
-    #if HAS_DUAL_Y_STEPPERS
-      #if defined(Y2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2)
-        #define Y2_SENSORLESS 1
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Y2)
-        #define Y2_HAS_STEALTHCHOP 1
-      #endif
-      #ifndef Y2_INTERPOLATE
-        #define Y2_INTERPOLATE Y_INTERPOLATE
-      #endif
-      #ifndef Y2_HOLD_MULTIPLIER
-        #define Y2_HOLD_MULTIPLIER Y_HOLD_MULTIPLIER
-      #endif
-      #ifndef Y2_SLAVE_ADDRESS
-        #define Y2_SLAVE_ADDRESS 0
-      #endif
+  #endif
+  #if AXIS_IS_TMC(Y2)
+    #if defined(Y2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2)
+      #define Y2_SENSORLESS 1
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Y2)
+      #define Y2_HAS_STEALTHCHOP 1
+    #endif
+    #ifndef Y2_INTERPOLATE
+      #define Y2_INTERPOLATE Y_INTERPOLATE
+    #endif
+    #ifndef Y2_HOLD_MULTIPLIER
+      #define Y2_HOLD_MULTIPLIER Y_HOLD_MULTIPLIER
+    #endif
+    #ifndef Y2_SLAVE_ADDRESS
+      #define Y2_SLAVE_ADDRESS 0
     #endif
   #endif
 
@@ -1515,56 +1516,56 @@
     #ifndef Z_SLAVE_ADDRESS
       #define Z_SLAVE_ADDRESS 0
     #endif
-    #if NUM_Z_STEPPERS >= 2
-      #if defined(Z2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2)
-        #define Z2_SENSORLESS 1
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z2)
-        #define Z2_HAS_STEALTHCHOP 1
-      #endif
-      #ifndef Z2_INTERPOLATE
-        #define Z2_INTERPOLATE Z_INTERPOLATE
-      #endif
-      #ifndef Z2_HOLD_MULTIPLIER
-        #define Z2_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
-      #endif
-      #ifndef Z2_SLAVE_ADDRESS
-        #define Z2_SLAVE_ADDRESS 0
-      #endif
+  #endif
+  #if NUM_Z_STEPPERS >= 2 && AXIS_IS_TMC(Z2)
+    #if defined(Z2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2)
+      #define Z2_SENSORLESS 1
     #endif
-    #if NUM_Z_STEPPERS >= 3
-      #if defined(Z3_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3)
-        #define Z3_SENSORLESS 1
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z3)
-        #define Z3_HAS_STEALTHCHOP 1
-      #endif
-      #ifndef Z3_INTERPOLATE
-        #define Z3_INTERPOLATE Z_INTERPOLATE
-      #endif
-      #ifndef Z3_HOLD_MULTIPLIER
-        #define Z3_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
-      #endif
-      #ifndef Z3_SLAVE_ADDRESS
-        #define Z3_SLAVE_ADDRESS 0
-      #endif
+    #if AXIS_HAS_STEALTHCHOP(Z2)
+      #define Z2_HAS_STEALTHCHOP 1
     #endif
-    #if NUM_Z_STEPPERS >= 4
-      #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
-        #define Z4_SENSORLESS 1
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z4)
-        #define Z4_HAS_STEALTHCHOP 1
-      #endif
-      #ifndef Z4_INTERPOLATE
-        #define Z4_INTERPOLATE Z_INTERPOLATE
-      #endif
-      #ifndef Z4_HOLD_MULTIPLIER
-        #define Z4_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
-      #endif
-      #ifndef Z4_SLAVE_ADDRESS
-        #define Z4_SLAVE_ADDRESS 0
-      #endif
+    #ifndef Z2_INTERPOLATE
+      #define Z2_INTERPOLATE Z_INTERPOLATE
+    #endif
+    #ifndef Z2_HOLD_MULTIPLIER
+      #define Z2_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
+    #endif
+    #ifndef Z2_SLAVE_ADDRESS
+      #define Z2_SLAVE_ADDRESS 0
+    #endif
+  #endif
+  #if NUM_Z_STEPPERS >= 3 && AXIS_IS_TMC(Z3)
+    #if defined(Z3_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3)
+      #define Z3_SENSORLESS 1
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Z3)
+      #define Z3_HAS_STEALTHCHOP 1
+    #endif
+    #ifndef Z3_INTERPOLATE
+      #define Z3_INTERPOLATE Z_INTERPOLATE
+    #endif
+    #ifndef Z3_HOLD_MULTIPLIER
+      #define Z3_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
+    #endif
+    #ifndef Z3_SLAVE_ADDRESS
+      #define Z3_SLAVE_ADDRESS 0
+    #endif
+  #endif
+  #if NUM_Z_STEPPERS >= 4 && AXIS_IS_TMC(Z4)
+    #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
+      #define Z4_SENSORLESS 1
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Z4)
+      #define Z4_HAS_STEALTHCHOP 1
+    #endif
+    #ifndef Z4_INTERPOLATE
+      #define Z4_INTERPOLATE Z_INTERPOLATE
+    #endif
+    #ifndef Z4_HOLD_MULTIPLIER
+      #define Z4_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
+    #endif
+    #ifndef Z4_SLAVE_ADDRESS
+      #define Z4_SLAVE_ADDRESS 0
     #endif
   #endif
 
