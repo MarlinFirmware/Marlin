@@ -35,6 +35,10 @@
 
 #include "env_validate.h"
 
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "PICA supports up to 2 hotends / E steppers."
+#endif
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
 #endif

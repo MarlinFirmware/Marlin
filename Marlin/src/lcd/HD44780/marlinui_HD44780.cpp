@@ -125,7 +125,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
 
-  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+  void MarlinUI::buzz(const long duration, const uint16_t freq/*=0*/) {
     if (sound_on) lcd.buzz(duration, freq);
   }
 

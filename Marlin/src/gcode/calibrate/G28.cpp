@@ -216,8 +216,6 @@ void GcodeSuite::G28() {
     }
   #endif
 
-  TERN_(BD_SENSOR, bdl.config_state = 0);
-
   /**
    * Set the laser power to false to stop the planner from processing the current power setting.
    */
@@ -230,6 +228,8 @@ void GcodeSuite::G28() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
+
+  TERN_(BD_SENSOR, bdl.config_state = 0);
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
@@ -334,7 +334,7 @@ void GcodeSuite::G28() {
       #if SENSORLESS_STALLGUARD_DELAY
         safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
       #endif
-    #endif
+    #endif // HAS_HOMING_CURRENT
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       motion_state_t saved_motion_state = begin_slow_homing();
@@ -358,6 +358,8 @@ void GcodeSuite::G28() {
 
     endstops.enable(true); // Enable endstops for next homing move
 
+    bool finalRaiseZ = false;
+
     #if ENABLED(DELTA)
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
@@ -377,12 +379,12 @@ void GcodeSuite::G28() {
       #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
 
       const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
-                 NUM_AXIS_LIST_(              // Other axes should be homed before Z safe-homing
+                 NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
                    needU = _UNSAFE(U), needV = _UNSAFE(V), needW = _UNSAFE(W)
                  )
-                 NUM_AXIS_LIST_(              // Home each axis if needed or flagged
+                 NUM_AXIS_LIST_(             // Home each axis if needed or flagged
                    homeX = needX || parser.seen_test('X'),
                    homeY = needY || parser.seen_test('Y'),
                    homeZZ = homeZ,
@@ -390,7 +392,7 @@ void GcodeSuite::G28() {
                    homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                    homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
                  )
-                 home_all = NUM_AXIS_GANG_(   // Home-all if all or none are flagged
+                 home_all = NUM_AXIS_GANG_(  // Home-all if all or none are flagged
                       homeX == homeX, && homeY == homeX, && homeZ == homeX,
                    && homeI == homeX, && homeJ == homeX, && homeK == homeX,
                    && homeU == homeX, && homeV == homeX, && homeW == homeX
@@ -409,8 +411,9 @@ void GcodeSuite::G28() {
 
         UNUSED(needZ); UNUSED(homeZZ);
 
-        // Z may home first, e.g., when homing away from the bed
-        TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
+        // Z may home first, e.g., when homing away from the bed.
+        // This is also permitted when homing with a Z endstop.
+        if (TERN0(HOME_Z_FIRST, doZ)) homeaxis(Z_AXIS);
 
         // 'R' to specify a specific raise. 'R0' indicates no raise, e.g., for recovery.resume
         // When 'R0' is used, there should already be adequate clearance, e.g., from homing Z to max.
@@ -521,7 +524,10 @@ void GcodeSuite::G28() {
             #else
               homeaxis(Z_AXIS);
             #endif
-            do_move_after_z_homing();
+
+            #if EITHER(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+              finalRaiseZ = true;
+            #endif
           }
         #endif
 
@@ -579,18 +585,6 @@ void GcodeSuite::G28() {
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
-    // Move to a height where we can use the full xy-area
-    TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
-
-    TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
-
-    restore_feedrate_and_scaling();
-
-    // Restore the active tool after homing
-    #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-      tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
-    #endif
-
     #if HAS_HOMING_CURRENT
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
       #if HAS_CURRENT_HOME(X)
@@ -631,6 +625,23 @@ void GcodeSuite::G28() {
       #endif
     #endif // HAS_HOMING_CURRENT
 
+    // Move to a height where we can use the full xy-area
+    TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+
+    // Move to the configured Z only if Z was homed to MIN, because machines that
+    // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
+    // print, and do_move_after_z_homing is not very nuanced.
+    if (finalRaiseZ) do_move_after_z_homing();
+
+    TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
+
+    // Restore the active tool after homing
+    #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+      tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
+    #endif
+
+    restore_feedrate_and_scaling();
+
     if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
@@ -644,4 +655,5 @@ void GcodeSuite::G28() {
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
+
 }

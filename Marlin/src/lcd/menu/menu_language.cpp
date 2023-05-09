@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE
+#if HAS_MENU_MULTI_LANGUAGE
 
 #include "menu_item.h"
 #include "../../MarlinCore.h"
@@ -56,4 +56,4 @@ void menu_language() {
   END_MENU();
 }
 
-#endif // HAS_MULTI_LANGUAGE
+#endif // HAS_MENU_MULTI_LANGUAGE

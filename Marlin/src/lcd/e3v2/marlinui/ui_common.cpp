@@ -28,9 +28,8 @@
 #include "dwin_lcd.h"
 #include "dwin_string.h"
 
-//#include "../../lcdprint.h"
 #include "lcdprint_dwin.h"
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../../libs/numtostr.h"
 #include "../../marlinui.h"
 

@@ -353,7 +353,7 @@ namespace Language_fr_na {
   LSTR MSG_STOP_PRINT                     = _UxGT("Arreter impr.");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Impression objet");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Annuler objet");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Recup. coup.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Impression SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Pas de media");
@@ -543,7 +543,7 @@ namespace Language_fr_na {
   LSTR MSG_MMU2_RESETTING                 = _UxGT("Reinit. MMU...");
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retrait, click");
 
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante {");
   LSTR MSG_MIXER                          = _UxGT("Mixeur");
   LSTR MSG_GRADIENT                       = _UxGT("Degrade");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Degrade complet");
