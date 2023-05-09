@@ -980,11 +980,9 @@
 
 #ifdef X2_DRIVER_TYPE
   #define HAS_X2_STEPPER 1
-  // Dual X Carriage isn't known yet. TODO: Consider moving it to Configuration.h.
 #endif
 #ifdef Y2_DRIVER_TYPE
   #define HAS_Y2_STEPPER 1
-  #define HAS_DUAL_Y_STEPPERS 1
 #endif
 
 /**
