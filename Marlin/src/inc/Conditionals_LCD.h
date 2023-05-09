@@ -796,33 +796,55 @@
   #define NUM_AXES 3
 #elif defined(Y_DRIVER_TYPE)
   #define NUM_AXES 2
-#else
+#elif defined(X_DRIVER_TYPE)
   #define NUM_AXES 1
+#else
+  #define NUM_AXES 0
 #endif
-#define HAS_X_AXIS 1
-#if NUM_AXES >= XY
-  #define HAS_Y_AXIS 1
+#if NUM_AXES >= 1
+  #define HAS_X_AXIS 1
+  #if NUM_AXES >= XY
+    #define HAS_Y_AXIS 1
+    #if NUM_AXES >= XYZ
+      #define HAS_Z_AXIS 1
+      #if NUM_AXES >= 4
+        #define HAS_I_AXIS 1
+        #if NUM_AXES >= 5
+          #define HAS_J_AXIS 1
+          #if NUM_AXES >= 6
+            #define HAS_K_AXIS 1
+            #if NUM_AXES >= 7
+              #define HAS_U_AXIS 1
+              #if NUM_AXES >= 8
+                #define HAS_V_AXIS 1
+                #if NUM_AXES >= 9
+                  #define HAS_W_AXIS 1
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
-#if NUM_AXES >= XYZ
-  #define HAS_Z_AXIS 1
-#endif
-#if NUM_AXES >= 4
-  #define HAS_I_AXIS 1
-#endif
-#if NUM_AXES >= 5
-  #define HAS_J_AXIS 1
-#endif
-#if NUM_AXES >= 6
-  #define HAS_K_AXIS 1
-#endif
-#if NUM_AXES >= 7
-  #define HAS_U_AXIS 1
-#endif
-#if NUM_AXES >= 8
-  #define HAS_V_AXIS 1
-#endif
-#if NUM_AXES >= 9
-  #define HAS_W_AXIS 1
+
+#if !HAS_X_AXIS
+  #undef AVOID_OBSTACLES
+  #undef ENDSTOPPULLUP_XMIN
+  #undef ENDSTOPPULLUP_XMAX
+  #undef X_MIN_ENDSTOP_HIT_STATE
+  #undef X_MAX_ENDSTOP_HIT_STATE
+  #undef X2_DRIVER_TYPE
+  #undef X_ENABLE_ON
+  #undef DISABLE_X
+  #undef INVERT_X_DIR
+  #undef X_HOME_DIR
+  #undef X_MIN_POS
+  #undef X_MAX_POS
+  #undef MANUAL_X_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_X
+  #undef MAX_SOFTWARE_ENDSTOP_X
 #endif
 
 #if !HAS_Y_AXIS
