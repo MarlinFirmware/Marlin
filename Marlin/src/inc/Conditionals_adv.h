@@ -94,8 +94,26 @@
 #endif
 
 // Some options are disallowed without required axes
+#if !HAS_X_AXIS
+  //#define LCD_SHOW_E_TOTAL
+  #define NO_WORKSPACE_OFFSETS
+  #undef AUTOTEMP
+  #undef CALIBRATION_MEASURE_LEFT
+  #undef CALIBRATION_MEASURE_RIGHT
+  #undef CALIBRATION_MEASURE_XMAX
+  #undef CALIBRATION_MEASURE_XMIN
+  #undef DISABLE_IDLE_X
+  #undef INPUT_SHAPING_X
+  #undef SAFE_BED_LEVELING_START_X
+  #undef SHAPING_BUFFER_X
+  #undef SHAPING_FREQ_X
+  #undef STEALTHCHOP_X
+#endif
+
 #if !HAS_Y_AXIS
   #undef ARC_SUPPORT
+  #undef CALIBRATION_MEASURE_BACK
+  #undef CALIBRATION_MEASURE_FRONT
   #undef CALIBRATION_MEASURE_YMAX
   #undef CALIBRATION_MEASURE_YMIN
   #undef DISABLE_IDLE_Y

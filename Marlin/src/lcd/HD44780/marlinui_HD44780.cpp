@@ -975,7 +975,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
+            const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -986,10 +986,14 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
             else {
-              const xy_pos_t lpos = current_position.asLogical();
-              _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
-              lcd_put_u8str(F(" "));
-              _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #if HAS_X_AXIS
+                const xy_pos_t lpos = current_position.asLogical();
+                _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+              #endif
+              #if HAS_Y_AXIS
+                TERN_(HAS_X_AXIS, lcd_put_u8str(F(" ")));
+                _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #endif
             }
 
           #endif // !HAS_DUAL_MIXING
@@ -1065,8 +1069,10 @@ void MarlinUI::draw_status_screen() {
     //
     // Z Coordinate
     //
-    lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #if HAS_Z_AXIS
+      lcd_moveto(LCD_WIDTH - 9, 0);
+      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #endif
 
     #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_lchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
