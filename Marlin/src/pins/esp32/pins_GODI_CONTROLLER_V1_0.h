@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,7 +33,7 @@
 #if EXTRUDERS > 1 || E_STEPPERS > 1
   #error "Godi Controller only supports 1 E stepper."
 #elif HAS_MULTI_HOTEND
-  #error "Godi Controller only supports 1 hotend / E stepper."
+  #error "Godi Controller only supports 1 hotend."
 #endif
 
 #define BOARD_INFO_NAME       "Godi Controller 32-Bit V1.0"
@@ -131,11 +131,11 @@
 
 #if EITHER(EDUTRONICS_12864OLED_SH1106, EDUTRONICS_12864OLED_SSD1306)
   #define LCDSCREEN_NAME "EDUTRONICS 12864 OLED"
-  #define BTN_EN2                             1
-  #define BTN_EN1                             3
-  #define BTN_ENC                             0
+  #define BTN_EN2                              1
+  #define BTN_EN1                              3
+  #define BTN_ENC                              0
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
   #define DOGLCD_SDA                          21  // SDA
   #define DOGLCD_SCL                          22  // SCL
-#endif // OLED 128x64
+#endif

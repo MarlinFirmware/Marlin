@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -68,15 +68,14 @@
 #define E0_DIR_PIN                          PB0
 #define E0_ENABLE_PIN                       PC4
 
-
 // Special Drivers
 
 // L6470 or L6474 on SPI
-#if HAS_DRIVER(L6470) || HAS_DRIVER(L6474) // Shared with SPI on EXP2
-    #define L6470_CHAIN_SCK_PIN                      PB3
-    #define L6470_CHAIN_MISO_PIN                     PB4
-    #define L6470_CHAIN_MOSI_PIN                     PB5
-    #define L6470_CHAIN_SS_PIN                     	 PA15
+#if HAS_DRIVER(L6470) || HAS_DRIVER(L6474)        // Shared with SPI on EXP2
+    #define L6470_CHAIN_SCK_PIN             PB3
+    #define L6470_CHAIN_MISO_PIN            PB4
+    #define L6470_CHAIN_MOSI_PIN            PB5
+    #define L6470_CHAIN_SS_PIN              PA15
 	#define ENABLE_RESET_L64XX_CHIPS
 #endif
 
@@ -97,48 +96,46 @@
 // CS Pins (One pin for each driver)
 #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160)
  #ifndef X_CS_PIN
-  #define X_CS_PIN	                    PC10
+  #define X_CS_PIN                          PC10
  #endif
  #ifndef Y_CS_PIN
-  #define Y_CS_PIN	                    PC11
+  #define Y_CS_PIN                          PC11
  #endif
  #ifndef Z_CS_PIN
-  #define Z_CS_PIN	                    PC12
+  #define Z_CS_PIN                          PC12
  #endif
  #ifndef E0_CS_PIN
-  #define E0_CS_PIN	                    PC14
+  #define E0_CS_PIN                         PC14
  #endif
 #endif
-
 
 // TMC2208 or TMC2209 on UART
 #if HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209)
 
 // UART Pins (Single pin for both RX & TX)
  #ifndef X_PIN_UART
-  #define X_PIN_UART					PC10
+  #define X_PIN_UART                        PC10
  #endif
  #ifndef Y_PIN_UART
-  #define Y_PIN_UART					PC11
+  #define Y_PIN_UART                        PC11
  #endif
  #ifndef Z_PIN_UART
-  #define Z_PIN_UART					PC12
+  #define Z_PIN_UART                        PC12
  #endif
  #ifndef E0_PIN_UART
-  #define E0_PIN_UART					PC14
+  #define E0_PIN_UART                       PC14
  #endif
 
 // Configurating Pins
-#define X_SERIAL_TX_PIN X_PIN_UART
-#define X_SERIAL_RX_PIN X_PIN_UART
-#define Y_SERIAL_TX_PIN Y_PIN_UART
-#define Y_SERIAL_RX_PIN Y_PIN_UART
-#define Z_SERIAL_TX_PIN Z_PIN_UART
-#define Z_SERIAL_RX_PIN Z_PIN_UART
-#define E0_SERIAL_TX_PIN E0_PIN_UART
-#define E0_SERIAL_RX_PIN E0_PIN_UART
+#define X_SERIAL_TX_PIN               X_PIN_UART
+#define X_SERIAL_RX_PIN               X_PIN_UART
+#define Y_SERIAL_TX_PIN               Y_PIN_UART
+#define Y_SERIAL_RX_PIN               Y_PIN_UART
+#define Z_SERIAL_TX_PIN               Z_PIN_UART
+#define Z_SERIAL_RX_PIN               Z_PIN_UART
+#define E0_SERIAL_TX_PIN             E0_PIN_UART
+#define E0_SERIAL_RX_PIN             E0_PIN_UART
 #endif
-
 
 //
 // Heaters / Fans
@@ -298,4 +295,3 @@
 #endif
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-
