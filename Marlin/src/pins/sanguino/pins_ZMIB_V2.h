@@ -31,6 +31,8 @@
 
 /**
  * ZMIB pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/ZONESTAR%20ZMIB%20V2/ZMIB_V2_Schmatic.pdf
+ * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
  *
  * The ZMIB board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -77,7 +79,7 @@
  * PIN:  25   Port: A6   FIL_RUNOUT_PIN
  * PIN:  26   Port: A5   E0_DIR_PIN
  * PIN:  27   Port: A4   E0_STEP_PIN
- * PIN:  28   Port: A3   FAN_PIN
+ * PIN:  28   Port: A3   FAN0_PIN
  * PIN:  29   Port: A2   EXP1_3(BTN_ENC)
  *                       ADC_KEY_PIN
  * PIN:  30   Port: A1   TEMP_0_PIN
@@ -142,7 +144,7 @@
 //
 #define HEATER_0_PIN                           0
 #define HEATER_BED_PIN                         1
-#define FAN_PIN                               28
+#define FAN0_PIN                              28
 #define FAN1_PIN                              -1
 
 //
@@ -157,7 +159,7 @@
 //
 // SD card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
@@ -192,7 +194,7 @@
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS                 EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_03_PIN  // ST7920_CS_PIN  (LCD module pin 4)
-  #define LCD_PINS_ENABLE            EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
+  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
   #define LCD_PINS_D4                EXP1_04_PIN  // ST7920_CLK_PIN (LCD module pin 6)
 
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP

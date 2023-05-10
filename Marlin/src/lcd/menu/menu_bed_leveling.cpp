@@ -299,6 +299,10 @@ void menu_bed_leveling() {
     if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, goto_lcd_babystep_mesh_zoffset);
   #endif
 
+  #if ENABLED(PROBE_OFFSET_WIZARD)
+    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+  #endif
+
   #if ENABLED(LCD_BED_TRAMMING)
     SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif

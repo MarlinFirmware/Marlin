@@ -78,7 +78,7 @@ namespace ExtUI {
     while (LCD_SERIAL.available())
       parse_lcd_byte((byte)LCD_SERIAL.read());
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       // The way last printing status works is simple:
       // The UI needs to see at least one TQ which is not 100%
       // and then when the print is complete, one which is.
@@ -147,8 +147,8 @@ namespace ExtUI {
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
-  void onSettingsStored(bool) {}
-  void onSettingsLoaded(bool) {}
+  void onSettingsStored(const bool) {}
+  void onSettingsLoaded(const bool) {}
 
   #if HAS_MESH
     void onLevelingStart() {}
@@ -158,6 +158,9 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
     void onPowerLoss() {
       // Called when power-loss state is detected
     }
