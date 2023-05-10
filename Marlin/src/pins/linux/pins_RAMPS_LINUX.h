@@ -408,7 +408,7 @@
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #ifndef TOUCH_SCREEN_CALIBRATION
+  #if DISABLED(TOUCH_SCREEN_CALIBRATION)
     #if ENABLED(TFT_RES_320x240)
       #ifndef TOUCH_CALIBRATION_X
         #define TOUCH_CALIBRATION_X        20525

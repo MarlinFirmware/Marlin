@@ -100,7 +100,9 @@
 #endif
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors

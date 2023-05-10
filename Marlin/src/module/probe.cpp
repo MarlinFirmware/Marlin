@@ -615,7 +615,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);   // All machines will check Z-DIAG for stall
     endstops.set_homing_current(true);                                            // The "homing" current also applies to probing
     endstops.enable(true);
-  #endif
+  #endif // SENSORLESS_PROBING
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
 
@@ -623,13 +623,13 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
-  const bool probe_triggered =
+  const bool probe_triggered = (
     #if HAS_DELTA_SENSORLESS_PROBING
       endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
     #endif
-  ;
+  );
 
   // Offset sensorless probing
   #if HAS_DELTA_SENSORLESS_PROBING

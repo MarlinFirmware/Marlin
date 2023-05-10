@@ -2365,14 +2365,16 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           else
             Draw_Menu(Motion, MOTION_SPEED);
           break;
-        case SPEED_X:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeedX, F("X Axis"));
-            Draw_Float(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, 1);
-          }
-          else
-            Modify_Value(planner.settings.max_feedrate_mm_s[X_AXIS], 0, default_max_feedrate[X_AXIS] * 2, 1);
-          break;
+        #if HAS_X_AXIS
+          case SPEED_X:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_MaxSpeedX, F("X Axis"));
+              Draw_Float(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, 1);
+            }
+            else
+              Modify_Value(planner.settings.max_feedrate_mm_s[X_AXIS], 0, default_max_feedrate[X_AXIS] * 2, 1);
+            break;
+        #endif
 
         #if HAS_Y_AXIS
           case SPEED_Y:

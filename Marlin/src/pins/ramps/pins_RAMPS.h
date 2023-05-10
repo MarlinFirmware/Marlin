@@ -337,8 +337,9 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    *
-   * Serial2 -- AUX-4 Pin 18 (D16 TX2) and AUX-4 Pin 17 (D17 RX2)
-   * Serial1 -- Pins D18 and D19 are used for Z-MIN and Z-MAX
+   * Serial1 -- TX1 = D18   RX1 = D19 (Z-MIN and Z-MAX on RAMPS)
+   * Serial2 -- TX2 = D16   RX2 = D17 (AUX4-18 and AUX4-17)
+   * Serial3 -- TX3 = D14   RX3 = D15 (Available on some RAMPS-like boards)
    */
   //#define X_HARDWARE_SERIAL Serial1
   //#define X2_HARDWARE_SERIAL Serial1

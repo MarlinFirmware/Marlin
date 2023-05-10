@@ -80,19 +80,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 #endif
 
 // Relative motion mode for each logical axis
-static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
-  | (ar_init.e << REL_E),
-  | (ar_init.x << REL_X),
-  | (ar_init.y << REL_Y),
-  | (ar_init.z << REL_Z),
-  | (ar_init.i << REL_I),
-  | (ar_init.j << REL_J),
-  | (ar_init.k << REL_K),
-  | (ar_init.u << REL_U),
-  | (ar_init.v << REL_V),
-  | (ar_init.w << REL_W)
-);
+relative_t GcodeSuite::axis_relative; // Init in constructor
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
   bool GcodeSuite::autoreport_paused; // = false
