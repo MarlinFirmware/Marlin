@@ -113,7 +113,7 @@ typedef struct {
   millis_t print_job_elapsed;
 
   // Relative axis modes
-  uint8_t axis_relative;
+  relative_t axis_relative;
 
   // Misc. Marlin flags
   struct {
@@ -138,7 +138,7 @@ class PrintJobRecovery {
   public:
     static const char filename[5];
 
-    static SdFile file;
+    static MediaFile file;
     static job_recovery_info_t info;
 
     static uint8_t queue_index_r;     //!< Queue index of the active command

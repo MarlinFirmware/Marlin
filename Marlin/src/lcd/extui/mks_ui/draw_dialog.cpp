@@ -85,12 +85,12 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_printing();
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (!gcode_preview_over) {
         char *cur_name;
         cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-        SdFile file, *curDir;
+        MediaFile file, *curDir;
         card.abortFilePrintNow();
         const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
@@ -121,7 +121,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_ready_print();
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       uiCfg.print_state = IDLE;
       card.abortFilePrintSoon();
     #endif

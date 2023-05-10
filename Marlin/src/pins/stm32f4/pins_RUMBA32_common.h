@@ -91,16 +91,14 @@
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
 
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PA7
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PA6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 //
@@ -120,7 +118,7 @@
 #define HEATER_2_PIN                        PC8
 #define HEATER_BED_PIN                      PA1
 
-#define FAN_PIN                             PC9
+#define FAN0_PIN                            PC9
 #define FAN1_PIN                            PA8
 
 //
@@ -151,7 +149,7 @@
   #define BTN_ENC                           PE7
 
   #define LCD_PINS_RS                       PE10
-  #define LCD_PINS_ENABLE                   PE9
+  #define LCD_PINS_EN                       PE9
   #define LCD_PINS_D4                       PE12
 
   #if ENABLED(MKS_MINI_12864)

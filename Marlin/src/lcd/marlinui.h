@@ -228,7 +228,7 @@ public:
   #endif
 
   #if USE_MARLINUI_BUZZER
-    static void buzz(const long duration, const uint16_t freq);
+    static void buzz(const long duration, const uint16_t freq=0);
   #endif
 
   static void chirp() {
@@ -248,7 +248,7 @@ public:
     }
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
@@ -334,7 +334,7 @@ public:
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    #if LCD_WITH_BLINK
+    #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
       #if ENABLED(SHOW_PROGRESS_PERCENT)
         static void drawPercent();
       #endif
@@ -348,6 +348,8 @@ public:
         static void drawInter();
       #endif
       static void rotate_progress();
+    #else
+      static void rotate_progress() {}
     #endif
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
@@ -465,8 +467,9 @@ public:
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 
-      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      #if BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
         static millis_t next_filament_display;
+        static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
       #if HAS_TOUCH_SLEEP
@@ -501,10 +504,9 @@ public:
 
     #if IS_DWIN_MARLINUI
       static bool did_first_redraw;
-      static bool old_is_printing;
     #endif
 
-    #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
       static void zoffset_overlay(const int8_t dir);
       static void zoffset_overlay(const_float_t zvalue);
     #endif
@@ -522,7 +524,12 @@ public:
 
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if !HAS_WIRED_LCD
+    static void quick_feedback(const bool=true) {}
+    static void completion_feedback(const bool=true) {}
+  #endif
+
+  #if HAS_MEDIA
     #if BOTH(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
@@ -802,5 +809,7 @@ private:
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
+#define LCD_MESSAGE_MIN(M)     ui.set_status(GET_TEXT_F(M), -1)
+#define LCD_MESSAGE_MAX(M)     ui.set_status(GET_TEXT_F(M), 99)
 #define LCD_ALERTMESSAGE_F(S)  ui.set_alert_status(F(S))
 #define LCD_ALERTMESSAGE(M)    ui.set_alert_status(GET_TEXT_F(M))

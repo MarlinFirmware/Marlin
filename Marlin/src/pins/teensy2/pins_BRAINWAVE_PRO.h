@@ -26,6 +26,8 @@
  *
  * Requires hardware bundle for Arduino:
  * https://github.com/unrepentantgeek/brainwave-arduino
+ *
+ * Not to be confused with the regular Brainwave controller (https://www.reprap.org/wiki/Brainwave)
  */
 
 /**
@@ -124,8 +126,8 @@
 //
 #define HEATER_0_PIN                          27  // B7
 #define HEATER_BED_PIN                        26  // B6  Bed
-#ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6  Fan, PWM3A
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            16  // C6  Fan, PWM3A
 #endif
 
 //

@@ -51,22 +51,23 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 // This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
-#if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
-    #define TMC_SW_MOSI                     PD14
-  #endif
-  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
-    #define TMC_SW_MISO                     PD1
-  #endif
-  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
-    #define TMC_SW_SCK                      PD0
-  #endif
+#if !defined(TMC_SPI_MOSI) || TMC_SPI_MOSI == -1
+  #undef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PD14
+#endif
+#if !defined(TMC_SPI_MISO) || TMC_SPI_MISO == -1
+  #undef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PD1
+#endif
+#if !defined(TMC_SPI_SCK) || TMC_SPI_SCK == -1
+  #undef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PD0
 #endif
 
 #include "pins_MKS_ROBIN_NANO_V3_common.h"

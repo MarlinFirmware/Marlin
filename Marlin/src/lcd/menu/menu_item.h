@@ -153,6 +153,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10     );   // 12345.6    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100     );   // 12345.67   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
 DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
@@ -367,19 +368,29 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                               \
 }while(0)
 
-// PSTRING_ITEM is like STATIC_ITEM but it takes
-// two PSTRs with the style as the last parameter.
+// PSTRING_ITEM is like STATIC_ITEM
+// but also takes a PSTR and style.
 
-#define PSTRING_ITEM_F(FLABEL, PVAL, STYL) do{ \
-  constexpr int m = 20;                        \
-  char msg[m+1];                               \
-  msg[0] = ':'; msg[1] = ' ';                  \
-  strncpy_P(msg+2, PSTR(PVAL), m-2);           \
-  if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
-  STATIC_ITEM_F(FLABEL, STYL, msg);            \
+#define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
+  constexpr int m = 20;                          \
+  char msg[m+1];                                 \
+  if (_menuLineNr == _thisItemNr) {              \
+    msg[0] = ':'; msg[1] = ' ';                  \
+    strncpy_P(msg+2, PVAL, m-2);                 \
+    if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
+  }                                              \
+  STATIC_ITEM_F(FLABEL, STYL, msg);              \
 }while(0)
 
-#define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM_N_F_P(N, V...) do{ \
+  if (_menuLineNr == _thisItemNr)       \
+    MenuItemBase::init(N);              \
+  PSTRING_ITEM_F_P(V);                  \
+}while(0)
+
+#define PSTRING_ITEM_N_P(N, LABEL, V...)          PSTRING_ITEM_N_F_P(N, GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM_P(LABEL, V...)                 PSTRING_ITEM_F_P(GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM(LABEL, S, V...)                  PSTRING_ITEM_P(LABEL, PSTR(S), ##V)
 
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
 #define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
@@ -536,7 +547,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 #if ENABLED(LCD_BED_TRAMMING)
-  void _lcd_level_bed_corners();
+  void _lcd_bed_tramming();
 #endif
 
 #if HAS_FAN
@@ -552,6 +563,14 @@ class MenuItem_bool : public MenuEditItemBase {
     #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
   #else
     #define EDIT_EXTRA_FAN_SPEED(...)
+  #endif
+
+  #if FAN_COUNT == 1
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #else
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
   #endif
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \

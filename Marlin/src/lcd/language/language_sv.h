@@ -51,7 +51,7 @@ namespace Language_sv {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Underanrop överskriden");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Slutstop"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Mjuk slutstopp");
-  LSTR MSG_MAIN                           = _UxGT("Huvud");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Huvud");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advancerade inställningar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostarta Filer");
@@ -233,7 +233,7 @@ namespace Language_sv {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Violet");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Vitt");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Ljus #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Ljus #2 Förinställd");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Ljusstyrka");
@@ -262,7 +262,7 @@ namespace Language_sv {
   LSTR MSG_MOVE_001IN                     = _UxGT("Flytta 0.01tum");
   LSTR MSG_MOVE_01IN                      = _UxGT("Flytta 0.1tum");
   LSTR MSG_SPEED                          = _UxGT("Hastighet");
-  LSTR MSG_BED_Z                          = _UxGT("Bädd Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bädd Z");
   LSTR MSG_NOZZLE                         = _UxGT("Munstycke");
   LSTR MSG_NOZZLE_N                       = _UxGT("Munstycke ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Munstycke Parkerad");
@@ -291,10 +291,9 @@ namespace Language_sv {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autojustera");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autojustera *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autojustera misslyckad! Dålig extruder.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autojustera misslyckad! Dålig extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autojustera misslyckad! Temperatur för hög.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autojustera misslyckad! Tidsgräns.");
-  LSTR MSG_SELECT                         = _UxGT("Välj");
   LSTR MSG_SELECT_E                       = _UxGT("Välj *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Ryck");
@@ -382,7 +381,7 @@ namespace Language_sv {
   LSTR MSG_END_LOOPS                      = _UxGT("Slut Upprepningsloop");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Skriver Objekt");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Avbryt Objekt");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Avbryt Objekt =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Avbryt Objekt {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Ström Avbrott");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Skriv fråm Media");
   LSTR MSG_NO_MEDIA                       = _UxGT("Inget Media");
@@ -453,7 +452,7 @@ namespace Language_sv {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Fällut TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Fällut Z-Sond");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Stuva undan Z-Sond");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Hem %s%s%s Först");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Hem %s Först");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Sond Offsets");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sond X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sond Y Offset");
@@ -570,7 +569,7 @@ namespace Language_sv {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Ta bort, Klicka");
 
   LSTR MSG_MIX                            = _UxGT("Mixa");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");
