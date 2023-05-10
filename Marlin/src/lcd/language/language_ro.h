@@ -49,7 +49,7 @@ namespace Language_ro {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Eroare:Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Setari Avansate");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurare");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
@@ -348,7 +348,7 @@ namespace Language_ro {
   LSTR MSG_STOP_PRINT                     = _UxGT("Stop Print");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Printing Object");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Object");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Object =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Object {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Outage Recovery");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Print from Media");
   LSTR MSG_NO_MEDIA                       = _UxGT("No Media");
@@ -532,7 +532,7 @@ namespace Language_ro {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Remove, click");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");

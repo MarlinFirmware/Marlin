@@ -46,7 +46,7 @@ enum StealthIndex : uint8_t {
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
 #else
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
 #endif
@@ -493,7 +493,7 @@ enum StealthIndex : uint8_t {
   #endif
 
   #define _EN_ITEM(N) , E##N
-  enum TMCAxis : uint8_t { MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
+  enum TMCAxis : uint8_t { MAIN_AXIS_NAMES_ X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
   #undef _EN_ITEM
 
   void tmc_serial_begin() {
@@ -991,13 +991,13 @@ void reset_trinamic_drivers() {
 
   #if USE_SENSORLESS
     TERN_(X_SENSORLESS, stepperX.homing_threshold(X_STALL_SENSITIVITY));
-    TERN_(X2_SENSORLESS, stepperX2.homing_threshold(CAT(TERN(X2_SENSORLESS, X2, X), _STALL_SENSITIVITY)));
+    TERN_(X2_SENSORLESS, stepperX2.homing_threshold(X2_STALL_SENSITIVITY));
     TERN_(Y_SENSORLESS, stepperY.homing_threshold(Y_STALL_SENSITIVITY));
-    TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(CAT(TERN(Y2_SENSORLESS, Y2, Y), _STALL_SENSITIVITY)));
+    TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(Y2_STALL_SENSITIVITY));
     TERN_(Z_SENSORLESS, stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
-    TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(CAT(TERN(Z2_SENSORLESS, Z2, Z), _STALL_SENSITIVITY)));
-    TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(CAT(TERN(Z3_SENSORLESS, Z3, Z), _STALL_SENSITIVITY)));
-    TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(CAT(TERN(Z4_SENSORLESS, Z4, Z), _STALL_SENSITIVITY)));
+    TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(Z2_STALL_SENSITIVITY));
+    TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(Z3_STALL_SENSITIVITY));
+    TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(Z4_STALL_SENSITIVITY));
     TERN_(I_SENSORLESS, stepperI.homing_threshold(I_STALL_SENSITIVITY));
     TERN_(J_SENSORLESS, stepperJ.homing_threshold(J_STALL_SENSITIVITY));
     TERN_(K_SENSORLESS, stepperK.homing_threshold(K_STALL_SENSITIVITY));
@@ -1010,7 +1010,7 @@ void reset_trinamic_drivers() {
     TMC_ADV()
   #endif
 
-  stepper.set_directions();
+  stepper.apply_directions();
 }
 
 // TMC Slave Address Conflict Detection

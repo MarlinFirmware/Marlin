@@ -113,7 +113,7 @@ typedef struct {
   millis_t print_job_elapsed;
 
   // Relative axis modes
-  uint8_t axis_relative;
+  relative_t axis_relative;
 
   // Misc. Marlin flags
   struct {

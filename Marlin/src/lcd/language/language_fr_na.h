@@ -49,7 +49,7 @@ namespace Language_fr_na {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur media USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butees");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butees SW");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancee");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exec. auto.gcode");
@@ -353,7 +353,7 @@ namespace Language_fr_na {
   LSTR MSG_STOP_PRINT                     = _UxGT("Arreter impr.");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Impression objet");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Annuler objet");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Recup. coup.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Impression SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Pas de media");
@@ -543,7 +543,7 @@ namespace Language_fr_na {
   LSTR MSG_MMU2_RESETTING                 = _UxGT("Reinit. MMU...");
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retrait, click");
 
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante {");
   LSTR MSG_MIXER                          = _UxGT("Mixeur");
   LSTR MSG_GRADIENT                       = _UxGT("Degrade");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Degrade complet");

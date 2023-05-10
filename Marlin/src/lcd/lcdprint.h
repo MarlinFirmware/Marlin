@@ -30,7 +30,7 @@
  */
 #pragma once
 
-#include "fontutils.h"
+#include "utf8.h"
 
 #include "../inc/MarlinConfig.h"
 
@@ -209,7 +209,7 @@ inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P cons
  * @brief Draw a string with optional substitution
  * @details Print a string with optional substitutions:
  *   $ displays the clipped string given by fstr or cstr
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder

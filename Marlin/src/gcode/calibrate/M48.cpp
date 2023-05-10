@@ -84,7 +84,7 @@ void GcodeSuite::M48() {
   };
 
   if (!probe.can_reach(test_position)) {
-    ui.set_status(GET_TEXT_F(MSG_M48_OUT_OF_BOUNDS), 99);
+    LCD_MESSAGE_MAX(MSG_M48_OUT_OF_BOUNDS);
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -223,7 +223,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      const float pz = probe.probe_at_point(test_position, raise_after, 0);
+      const float pz = probe.probe_at_point(test_position, raise_after);
 
       // Break the loop if the probe fails
       probing_good = !isnan(pz);

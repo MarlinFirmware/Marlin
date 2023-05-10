@@ -162,7 +162,7 @@ void menu_temperature() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Nozzle:
@@ -291,7 +291,7 @@ void menu_temperature() {
 
   void menu_preheat_only() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;

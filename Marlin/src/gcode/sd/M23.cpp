@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -41,4 +41,4 @@ void GcodeSuite::M23() {
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

@@ -26,6 +26,9 @@
  *
  *   Logical Pin: 08 09 10 11 12 13 14 15 16 17 18 19 20 21 00 01 02 03 04 05 06 07
  *   Port:        B0 B1 B2 B3 B4 B5 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7
+ *
+ * Arduino Pin Layout video: https://youtu.be/rIqeVCX09FA
+ * AVR alternate pin function overview video: https://youtu.be/1yd8wuI5Plg
  */
 
 #include "../fastio.h"

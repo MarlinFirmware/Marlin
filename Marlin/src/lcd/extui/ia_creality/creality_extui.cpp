@@ -1066,7 +1066,7 @@ namespace ExtUI {
           TPShowStatus    = false;
           ZERO(ChangeMaterialbuf);
           ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
-          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
+          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show, instead of current_position.e in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
           RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
           RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
@@ -1381,7 +1381,7 @@ namespace ExtUI {
             case 0xF0: // not to cancel heating
               break;
           }
-          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
+          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show, instead of current_position.e in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
         }
         else if (recdat.addr == FilamentUnit1) {
@@ -1580,7 +1580,7 @@ namespace ExtUI {
           else if (recdat.data[0] == 4) { // Page Up
             injectCommands(F("M22\nM21"));
           }
-          else if (recdat.data[0] == 0) { //	return to main page
+          else if (recdat.data[0] == 0) { // return to main page
             InforShowStatus = true;
             TPShowStatus    = false;
           }
@@ -1995,12 +1995,12 @@ namespace ExtUI {
     SetTouchScreenConfiguration();
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     #if HAS_MESH
       if (ExtUI::getMeshValid()) {
         uint8_t abl_probe_index = 0;
@@ -2026,6 +2026,9 @@ namespace ExtUI {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
     void onPowerLoss() {
       // Called when power-loss state is detected
     }

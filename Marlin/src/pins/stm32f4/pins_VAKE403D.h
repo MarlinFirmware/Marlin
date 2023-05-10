@@ -129,8 +129,8 @@
 #define HEATER_1_PIN                        PD14
 #define HEATER_BED_PIN                      PD12
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PD13
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PD13
 #endif
 #define FAN1_PIN                            PB5   // PA0
 #define FAN2_PIN                            PB4   // PA1
@@ -160,7 +160,7 @@
 #define KILL_PIN                            PD5
 #define POWER_LOSS_PIN                      PA4   // ?? Power loss / nAC_FAULT
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SS_PIN                         PB15  // USD_CS -> CS for onboard SD
 #endif
@@ -198,7 +198,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
 
@@ -208,7 +208,7 @@
   #define BTN_EN2                    EXP2_05_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
 
   #define LCD_PINS_D4                EXP1_05_PIN
