@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -69,31 +69,31 @@
 //
 #define X_STEP_PIN                          PB0
 #define X_DIR_PIN                           PB1
-#define X_ENABLE_PIN                        PB2  // Shared
+#define X_ENABLE_PIN                        PB2   // Shared
 
 #define Y_STEP_PIN                          PB3
 #define Y_DIR_PIN                           PB4
-#define Y_ENABLE_PIN                        X_ENABLE_PIN
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 
 #define Z_STEP_PIN                          PB8
 #define Z_DIR_PIN                           PB5
-#define Z_ENABLE_PIN                        X_ENABLE_PIN
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 
 #define E0_STEP_PIN                         PB9
 #define E0_DIR_PIN                          PB10
-#define E0_ENABLE_PIN                       X_ENABLE_PIN
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA0  // TH1
+#define TEMP_0_PIN                          PA0   // TH1
 #define TEMP_BED_PIN                        PA1   // TB1
 
 //
 // Heaters / Fans
 //
 #define HEATER_BED_PIN                      PA2   // HOT BED
-#define FAN1_PIN                            PA8  // extruder fan
+#define FAN1_PIN                            PA8   // extruder fan
 #define HEATER_0_PIN                        PA3   // HEATER1
 
 //
@@ -105,7 +105,6 @@
 #define BTN_ENC                             PB14
 #define BEEPER_PIN                          PC15
 #endif
-
 
 //
 // SD Card
@@ -119,10 +118,10 @@
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if SD_CONNECTION_IS(ONBOARD)                      
-  #define SDSS                            PA4
-  #define SD_SCK_PIN                      PA5
-  #define SD_MISO_PIN                     PA6
-  #define SD_MOSI_PIN                     PA7
+  #define SDSS                              PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
 #endif
 
 // Pins for documentation and sanity checks only.
