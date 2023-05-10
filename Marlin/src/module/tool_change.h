@@ -28,7 +28,7 @@
 #if HAS_MULTI_EXTRUDER
 
   typedef struct {
-    #if ENABLED(STM_EEPROM_STORAGE)
+    #if ENABLED(MAN_ST_EEPROM_STORAGE)
       int8_t selected_tool = 0;
     #endif
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -118,7 +118,7 @@
 
 #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-  void stm_init();
+  void mst_init();
 
   extern millis_t last_tool_change;
   inline millis_t ms_since_tool_change(const millis_t ms=millis()) { return ms - last_tool_change; }

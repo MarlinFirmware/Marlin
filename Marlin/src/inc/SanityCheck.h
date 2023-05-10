@@ -627,8 +627,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #define MAX_EXTRUDERS  8
 #endif
 
-#if ENABLED(STM_CUTTER)
-  static_assert(STM_NUM_TOOLS < MAX_EXTRUDERS, "STM_CUTTER requires STM_NUM_TOOLS < " STRINGIFY(MAX_EXTRUDERS) ".");
+#if ENABLED(MAN_ST_CUTTER)
+  static_assert(MAN_ST_NUM_TOOLS < MAX_EXTRUDERS, "MAN_ST_CUTTER requires MAN_ST_NUM_TOOLS < " STRINGIFY(MAX_EXTRUDERS) ".");
 #endif
 
 /**
@@ -876,39 +876,39 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Manual Switching Toolhead requirements
  */
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  #if STM_NUM_TOOLS < 2
-    #error "MANUAL_SWITCHING_TOOLHEAD requires STM_NUM_TOOLS >= 2."
-  #elif STM_NUM_TOOLS > 8
-    #error "STM_NUM_TOOLS can not be more than 8."
+  #if MAN_ST_NUM_TOOLS < 2
+    #error "MANUAL_SWITCHING_TOOLHEAD requires MAN_ST_NUM_TOOLS >= 2."
+  #elif MAN_ST_NUM_TOOLS > 8
+    #error "MAN_ST_NUM_TOOLS can not be more than 8."
   #elif E_STEPPERS != 1 && E_STEPPERS != HOTENDS
     #error "MANUAL_SWITCHING_TOOLHEAD requires either matching hotend/EXTRUDER count, or just one EXTRUDER."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     #error "MANUAL_SWITCHING_TOOLHEAD requires ADVANCED_PAUSE_FEATURE."
   #endif
 
-  #if STM_NUM_TOOLS < 8
+  #if MAN_ST_NUM_TOOLS < 8
     #undef TOOL_NAME_7
   #endif
-  #if STM_NUM_TOOLS < 7
+  #if MAN_ST_NUM_TOOLS < 7
     #undef TOOL_NAME_6
   #endif
-  #if STM_NUM_TOOLS < 6
+  #if MAN_ST_NUM_TOOLS < 6
     #undef TOOL_NAME_5
   #endif
-  #if STM_NUM_TOOLS < 5
+  #if MAN_ST_NUM_TOOLS < 5
     #undef TOOL_NAME_4
   #endif
-  #if STM_NUM_TOOLS < 4
+  #if MAN_ST_NUM_TOOLS < 4
     #undef TOOL_NAME_3
   #endif
-  #if STM_NUM_TOOLS < 3
+  #if MAN_ST_NUM_TOOLS < 3
     #undef TOOL_NAME_2
   #endif
 
-  #if ENABLED(STM_EEPROM_STORAGE) && DISABLED(EEPROM_SETTINGS)
-    #error "STM_EEPROM_STORAGE requires EEPROM_SETTINGS."
-  #elif ENABLED(STM_EEPROM_AUTOSAVE) && DISABLED(STM_EEPROM_STORAGE)
-    #error "STM_EEPROM_AUTOSAVE requires STM_EEPROM_STORAGE."
+  #if ENABLED(MAN_ST_EEPROM_STORAGE) && DISABLED(EEPROM_SETTINGS)
+    #error "MAN_ST_EEPROM_STORAGE requires EEPROM_SETTINGS."
+  #elif ENABLED(MAN_ST_EEPROM_AUTOSAVE) && DISABLED(MAN_ST_EEPROM_STORAGE)
+    #error "MAN_ST_EEPROM_AUTOSAVE requires MAN_ST_EEPROM_STORAGE."
   #endif
 #endif
 
@@ -966,8 +966,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif !PIN_EXISTS(SOL0)
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
-  #elif !defined(EST_Z_HOP)
-    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires EST_Z_HOP."
+  #elif !defined(EM_ST_Z_HOP)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires EM_ST_Z_HOP."
   #endif
 #endif
 

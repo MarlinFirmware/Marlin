@@ -24,9 +24,7 @@
  * temperature.cpp - temperature control
  */
 
-#include "../MarlinCore.h"
-
-//#define DEBUG_TEMPERATURE
+#include "temperature.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_TEMPERATURE)
 #include "../core/debug_out.h"
@@ -34,11 +32,11 @@
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
+#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 #include "../lcd/marlinui.h"
 #include "../gcode/gcode.h"
 
-#include "temperature.h"
 #include "endstops.h"
 #include "planner.h"
 #include "printcounter.h"
@@ -1649,7 +1647,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
-            DEBUG_ECHOLNPGM("heating failed: watch_hotends");
+            DEBUG_ECHOLNPGM("heating failed: manage_hotends");
             _temp_error((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
           }
         }

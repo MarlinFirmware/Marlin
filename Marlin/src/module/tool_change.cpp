@@ -59,7 +59,7 @@
   #include "../lcd/marlinui.h"
 #endif
 
-#if ENABLED(STM_EEPROM_STORAGE)
+#if ENABLED(MAN_ST_EEPROM_STORAGE)
   #include "settings.h"
 #endif
 
@@ -395,11 +395,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   millis_t last_tool_change = 0;
 
-  void stm_init() {
-    TERN_(STM_EEPROM_STORAGE, active_extruder = toolchange_settings.selected_tool); // set active_extruder on first load
+  void mst_init() {
+    TERN_(MAN_ST_EEPROM_STORAGE, active_extruder = toolchange_settings.selected_tool); // set active_extruder on first load
   }
 
-  inline void stm_set_new_tool(const uint8_t new_tool) {
+  inline void mst_set_new_tool(const uint8_t new_tool) {
     thermalManager.temp_hotend[new_tool].reset();
     active_extruder = new_tool;
     toolchange_settings.selected_tool = new_tool;
@@ -412,12 +412,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       )
     );
 
-    #if ENABLED(STM_EEPROM_AUTOSAVE)
+    #if ENABLED(MAN_ST_EEPROM_AUTOSAVE)
       settings.save();
     #endif
   }
 
-  PauseMessage stm_pause_message(const uint8_t new_tool) {
+  PauseMessage mst_pause_message(const uint8_t new_tool) {
     switch (new_tool) {
       case 0: return PAUSE_MESSAGE_TOOL_CHANGE_0;
       case 1: return PAUSE_MESSAGE_TOOL_CHANGE_1;
@@ -432,18 +432,18 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     return PAUSE_MESSAGE_TOOL_CHANGE;
   }
 
-  inline void stm_tool_change(const uint8_t new_tool) {
+  inline void mst_tool_change(const uint8_t new_tool) {
     DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
 
     disable_e_steppers();
     thermalManager.heating_enabled = false;
     thermalManager.disable_all_heaters(); // ?
 
-    PauseMessage pm = stm_pause_message(new_tool);
+    PauseMessage pm = mst_pause_message(new_tool);
     ui.pause_show_message(pm, PAUSE_MODE_TOOL_CHANGE);
     if (pause_print(0.0, current_position, true, 0)) {
       wait_for_confirmation(false, 2, pm);
-      stm_set_new_tool(new_tool);
+      mst_set_new_tool(new_tool);
       ui.set_status_P(PSTR("Tool Changed"));
     }
     else {
@@ -676,7 +676,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     if (no_move) return;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS,
-                    toolheadclearx[] = MST_X_SECURITY;
+                    toolheadclearx[] = MAG_ST_X_SECURITY;
 
     const float placexpos = toolheadposx[active_extruder],
                 placexclear = toolheadclearx[active_extruder],
@@ -727,7 +727,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MST_Y_RELEASE;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MAG_ST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
@@ -752,7 +752,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MST_Y_RELEASE;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MAG_ST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -763,14 +763,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     _line_to_current(Y_AXIS, 0.2f);
 
-    #if ENABLED(MST_PRIME_BEFORE_REMOVE) && (MST_PRIME_MM || MST_RETRACT_MM)
-      #if MST_PRIME_MM
-        current_position.e += MST_PRIME_MM;
-        planner.buffer_line(current_position, MMM_TO_MMS(MST_PRIME_FEEDRATE), new_tool);
+    #if ENABLED(MAG_ST_PRIME_BEFORE_REMOVE) && (MAG_ST_PRIME_MM || MAG_ST_RETRACT_MM)
+      #if MAG_ST_PRIME_MM
+        current_position.e += MAG_ST_PRIME_MM;
+        planner.buffer_line(current_position, MMM_TO_MMS(MAG_ST_PRIME_FEEDRATE), new_tool);
       #endif
-      #if MST_RETRACT_MM
-        current_position.e -= MST_RETRACT_MM;
-        planner.buffer_line(current_position, MMM_TO_MMS(MST_RETRACT_FEEDRATE), new_tool);
+      #if MAG_ST_RETRACT_MM
+        current_position.e -= MAG_ST_RETRACT_MM;
+        planner.buffer_line(current_position, MMM_TO_MMS(MAG_ST_RETRACT_FEEDRATE), new_tool);
       #endif
     #else
       planner.synchronize();
@@ -793,8 +793,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
 
-  inline void est_activate_solenoid()    { OUT_WRITE(SOL0_PIN, HIGH); }
-  inline void est_deactivate_solenoid()  { OUT_WRITE(SOL0_PIN, LOW); }
+  inline void est_activate_solenoid()   { OUT_WRITE(SOL0_PIN, HIGH); }
+  inline void est_deactivate_solenoid() { OUT_WRITE(SOL0_PIN, LOW); }
   void est_init() { est_activate_solenoid(); }
 
   inline void em_switching_toolhead_tool_change(const uint8_t new_tool, bool no_move) {
@@ -821,7 +821,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Raise Z-Axis to give enough clearance
 
-    current_position.z += EST_Z_HOP;
+    current_position.z += EM_ST_Z_HOP;
     DEBUG_POS("(1) Raise Z-Axis ", current_position);
     fast_line_to_current(Z_AXIS);
 
@@ -1209,7 +1209,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, STM_NUM_TOOLS, EXTRUDERS))
+    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, MAN_ST_NUM_TOOLS, EXTRUDERS))
       return invalid_extruder_error(new_tool);
 
     if (!no_move && homing_needed()) {
@@ -1340,7 +1340,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
       #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)                          // Manual Switching Toolhead
-        stm_tool_change(new_tool);
+        mst_tool_change(new_tool);
       #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
         servo_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead

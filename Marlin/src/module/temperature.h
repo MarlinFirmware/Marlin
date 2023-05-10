@@ -25,6 +25,8 @@
  * temperature.h - temperature controller
  */
 
+//#define DEBUG_TEMPERATURE
+
 #include "thermistor/thermistors.h"
 
 #include "../inc/MarlinConfig.h"

@@ -307,9 +307,9 @@
    * depends on a TEMP_SENSOR_n being defined for each tool. Hotends must come first,
    * so start with TEMP_SENSOR_0.
    *
-   * Don't include a laser/spindle in this total; enable STM_CUTTER to put the cutter last.
+   * Don't include a laser/spindle in this total; enable MAN_ST_CUTTER to put the cutter last.
    */
-  #define STM_NUM_TOOLS 4
+  #define MAN_ST_NUM_TOOLS 4
 
   /**
    * Hotend / Extruder Setup
@@ -319,16 +319,16 @@
    *  - DISTINCT_E_FACTORS and related settings
    *  - PID_PARAMS_PER_HOTEND
    */
-  //#define STM_DIRECT_DRIVE
+  //#define MAN_ST_DIRECT_DRIVE
 
   // TODO: Extra Extruders; use these for extruder-only tools, such as cake/frosting/clay extruders.
-  #define STM_EXTRA_EXTRUDERS 0
+  //#define MAN_ST_EXTRA_EXTRUDERS 0
 
   /**
    * TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE or a fan-PWM based laser.
-   * Always the last tool. Cannot be used if STM_NUM_TOOLS > 7.
+   * Always the last tool. Cannot be used if MAN_ST_NUM_TOOLS > 7.
    */
-  //#define STM_CUTTER
+  //#define MAN_ST_CUTTER
 
   /**
    * Define the names of Hotends/Unpowered tools. Optional.
@@ -344,13 +344,14 @@
   //#define TOOL_NAME_7 "Tool 7"
 
   // TODO: Display a menu prompting you to select the inserted toolhead at boot.
-  //#define STM_BOOT_MENU
+  //#define MAN_ST_BOOT_MENU
 
   // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
-  #define STM_EEPROM_STORAGE
-
-  // Auto-save EEPROM on toolchange. Warning: this will save ALL settings.
-  //#define STM_EEPROM_AUTOSAVE
+  #define MAN_ST_EEPROM_STORAGE
+  #if ENABLED(MAN_ST_EEPROM_STORAGE)
+    // Auto-save EEPROM on toolchange. Warning: this will save ALL settings.
+    //#define MAN_ST_EEPROM_AUTOSAVE
+  #endif
 #endif
 
 /**
@@ -373,14 +374,14 @@
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
 #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
-  #define MST_Y_RELEASE      5         // (mm) Security distance Y axis
-  #define MST_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
-  //#define MST_PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
-  #if ENABLED(MST_PRIME_BEFORE_REMOVE)
-    #define MST_PRIME_MM           20  // (mm)   Extruder prime length
-    #define MST_RETRACT_MM         10  // (mm)   Retract after priming length
-    #define MST_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
-    #define MST_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
+  #define MAG_ST_Y_RELEASE              5   // (mm) Security distance Y axis
+  #define MAG_ST_X_SECURITY   { 90, 150 }   // (mm) Security distance X axis (T0,T1)
+  //#define MAG_ST_PRIME_BEFORE_REMOVE      // Prime the nozzle before release from the dock
+  #if ENABLED(MAG_ST_PRIME_BEFORE_REMOVE)
+    #define MAG_ST_PRIME_MM             20  // (mm)   Extruder prime length
+    #define MAG_ST_RETRACT_MM           10  // (mm)   Retract after priming length
+    #define MAG_ST_PRIME_FEEDRATE      300  // (mm/min) Extruder prime feedrate
+    #define MAG_ST_RETRACT_FEEDRATE   2400  // (mm/min) Extruder retract feedrate
   #endif
 #endif
 
@@ -393,17 +394,17 @@
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define EST_Z_HOP          2         // (mm) Z raise for switching
+  #define EM_ST_Z_HOP  2  // (mm) Z raise for switching
 #endif
 
 /**
  * Common Switching Toolhead settings
  */
 #if ANY(SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Y_POS          235       // (mm) Y position of the toolhead dock
-  #define SWITCHING_TOOLHEAD_Y_SECURITY      10       // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_Y_CLEAR         60       // (mm) Minimum distance from dock for unobstructed X axis
-  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+  #define SWITCHING_TOOLHEAD_Y_POS        235     // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10     // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60     // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS   { 215, 0 }   // (mm) X positions for parking the extruders
 #endif
 
 /**

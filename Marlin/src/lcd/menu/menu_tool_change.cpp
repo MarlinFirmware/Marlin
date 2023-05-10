@@ -60,7 +60,7 @@ void menu_tool_change_hotend() {
   BACK_ITEM(MSG_TOOL_CHANGE);
 
   // Display Hotend 1 .. Hotend n, or hotend names.
-  LOOP_L_N(e, STM_NUM_TOOLS) {
+  LOOP_L_N(e, MAN_ST_NUM_TOOLS) {
     if (e >= HOTENDS) break;
     if (e == active_extruder) continue;
 
@@ -105,7 +105,7 @@ void menu_tool_change_unpowered() {
   BACK_ITEM(MSG_TOOL_CHANGE);
 
   // Display Tool 1 .. Tool n, or tool names.
-  LOOP_S_L_N(e, HOTENDS, STM_NUM_TOOLS) {
+  LOOP_S_L_N(e, HOTENDS, MAN_ST_NUM_TOOLS) {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
@@ -136,12 +136,12 @@ void menu_tool_change() {
   BACK_ITEM(MSG_MAIN);
 
   #if HOTENDS > 0
-    if (HAS_MULTI_HOTEND || active_extruder != (STM_NUM_TOOLS - 1))
+    if (HAS_MULTI_HOTEND || active_extruder != (MAN_ST_NUM_TOOLS - 1))
       SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
   #endif
 
   #if UNPOWERED_TOOLS > 0
-    if (UNPOWERED_TOOLS > 1 || active_extruder != (STM_NUM_TOOLS - 1))
+    if (UNPOWERED_TOOLS > 1 || active_extruder != (MAN_ST_NUM_TOOLS - 1))
       SUBMENU(MSG_TOOL_CHANGE_UNPOWERED, menu_tool_change_unpowered);
   #endif
 

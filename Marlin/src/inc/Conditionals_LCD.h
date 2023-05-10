@@ -675,20 +675,20 @@
   // All hotends will use *_0_PIN for heaters/sensors.
   #define HAS_HOTEND_OFFSET 1
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
-  #define NUM_TOOL_OFFSET STM_NUM_TOOLS
+  #define NUM_TOOL_OFFSET MAN_ST_NUM_TOOLS
   #define HAS_TOOL_0 1
   #define HAS_TOOL_1 1
-  #if STM_NUM_TOOLS > 2
+  #if MAN_ST_NUM_TOOLS > 2
     #define HAS_TOOL_2 1
-    #if STM_NUM_TOOLS > 3
+    #if MAN_ST_NUM_TOOLS > 3
       #define HAS_TOOL_3 1
-      #if STM_NUM_TOOLS > 4
+      #if MAN_ST_NUM_TOOLS > 4
         #define HAS_TOOL_4 1
-        #if STM_NUM_TOOLS > 5
+        #if MAN_ST_NUM_TOOLS > 5
           #define HAS_TOOL_5 1
-          #if STM_NUM_TOOLS > 6
+          #if MAN_ST_NUM_TOOLS > 6
             #define HAS_TOOL_6 1
-            #if STM_NUM_TOOLS > 7
+            #if MAN_ST_NUM_TOOLS > 7
               #define HAS_TOOL_7 1
             #endif
           #endif
@@ -697,10 +697,10 @@
     #endif
   #endif
 
-  #define TOOLHEAD_LOOP() for (int8_t e = 0; e < STM_NUM_TOOLS; e++)  // Stand-in for HOTEND_LOOP()
+  #define TOOLHEAD_LOOP() for (int8_t e = 0; e < MAN_ST_NUM_TOOLS; e++)  // Stand-in for HOTEND_LOOP()
 
   // Determine the number of hotend tools based on defined temp sensors
-  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && STM_NUM_TOOLS > P
+  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && MAN_ST_NUM_TOOLS > P
   #if HOTEND_TEST(1)
     #define STM_HAS_MULTI_HOTEND 1
   #endif
@@ -732,12 +732,12 @@
   #define E_MANUAL   1
 
   // Non-hotend tools are classified as "unpowered tools"
-  #define UNPOWERED_TOOLS (STM_NUM_TOOLS - HOTENDS)
+  #define UNPOWERED_TOOLS (MAN_ST_NUM_TOOLS - HOTENDS)
 
-  #if ENABLED(STM_DIRECT_DRIVE)           // Multiple extruders - plates likely direct drive, or multiple bowden tools
+  #if ENABLED(MAN_ST_DIRECT_DRIVE)           // Multiple extruders - plates likely direct drive, or multiple bowden tools
     #define STM_HAS_MULTI_EXTRUDER 1
   #else                                   // Single extruder - plates don't have steppers on them
-    #define MST_SINGLE_EXTRUDER 1
+    #define MAN_ST_SINGLE_EXTRUDER 1
     #define E_STEPPERS  1
   #endif
 

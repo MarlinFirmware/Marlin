@@ -1539,7 +1539,7 @@ void setup() {
   #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
     SETUP_RUN(sst_init());
   #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    SETUP_RUN(stm_init());
+    SETUP_RUN(mst_init());
   #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
   #endif

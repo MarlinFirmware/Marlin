@@ -296,15 +296,15 @@ void _lcd_pause_message(FSTR_P const fmsg) {
   END_SCREEN();
 }
 
-void lcd_pause_parking_message()       { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING));     }
-void lcd_pause_changing_message()      { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT));    }
-void lcd_pause_unload_message()        { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD));  }
-void lcd_pause_heating_message()       { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); }
-void lcd_pause_heat_message()          { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT));    }
-void lcd_pause_insert_message()        { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT));  }
-void lcd_pause_load_message()          { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD));    }
-void lcd_pause_waiting_message()       { _lcd_pause_message(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING));  }
-void lcd_pause_resume_message()        { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME));  }
+void lcd_pause_parking_message()  { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING));     }
+void lcd_pause_changing_message() { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT));    }
+void lcd_pause_unload_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD));  }
+void lcd_pause_heating_message()  { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); }
+void lcd_pause_heat_message()     { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT));    }
+void lcd_pause_insert_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT));  }
+void lcd_pause_load_message()     { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD));    }
+void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING));  }
+void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME));  }
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   void lcd_pause_tool_change_message()   { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE));     }
   void lcd_pause_tool_change_0_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_0));   }
@@ -337,18 +337,18 @@ void lcd_pause_purge_message() {
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   switch (message) {
-    case PAUSE_MESSAGE_PARKING:     return lcd_pause_parking_message;
-    case PAUSE_MESSAGE_CHANGING:    return lcd_pause_changing_message;
-    case PAUSE_MESSAGE_UNLOAD:      return lcd_pause_unload_message;
-    case PAUSE_MESSAGE_WAITING:     return lcd_pause_waiting_message;
-    case PAUSE_MESSAGE_INSERT:      return lcd_pause_insert_message;
-    case PAUSE_MESSAGE_LOAD:        return lcd_pause_load_message;
-    case PAUSE_MESSAGE_PURGE:       return lcd_pause_purge_message;
-    case PAUSE_MESSAGE_RESUME:      return lcd_pause_resume_message;
-    case PAUSE_MESSAGE_HEAT:        return lcd_pause_heat_message;
-    case PAUSE_MESSAGE_HEATING:     return lcd_pause_heating_message;
-    case PAUSE_MESSAGE_OPTION:      pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-                                    return menu_pause_option;
+    case PAUSE_MESSAGE_PARKING:  return lcd_pause_parking_message;
+    case PAUSE_MESSAGE_CHANGING: return lcd_pause_changing_message;
+    case PAUSE_MESSAGE_UNLOAD:   return lcd_pause_unload_message;
+    case PAUSE_MESSAGE_WAITING:  return lcd_pause_waiting_message;
+    case PAUSE_MESSAGE_INSERT:   return lcd_pause_insert_message;
+    case PAUSE_MESSAGE_LOAD:     return lcd_pause_load_message;
+    case PAUSE_MESSAGE_PURGE:    return lcd_pause_purge_message;
+    case PAUSE_MESSAGE_RESUME:   return lcd_pause_resume_message;
+    case PAUSE_MESSAGE_HEAT:     return lcd_pause_heat_message;
+    case PAUSE_MESSAGE_HEATING:  return lcd_pause_heating_message;
+    case PAUSE_MESSAGE_OPTION:   pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+                                 return menu_pause_option;
     #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
       case PAUSE_MESSAGE_TOOL_CHANGE:   return lcd_pause_tool_change_message;
       case PAUSE_MESSAGE_TOOL_CHANGE_0: return lcd_pause_tool_change_0_message;
