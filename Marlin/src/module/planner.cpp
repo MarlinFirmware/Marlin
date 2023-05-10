@@ -69,6 +69,9 @@
 #include "stepper.h"
 #include "motion.h"
 #include "temperature.h"
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
 #include "../lcd/marlinui.h"
 #include "../gcode/parser.h"
 
@@ -112,7 +115,8 @@
 
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
-#define BLOCK_DELAY_FOR_1ST_MOVE 100
+#define BLOCK_DELAY_NONE         0U
+#define BLOCK_DELAY_FOR_1ST_MOVE 100U
 
 Planner planner;
 
@@ -127,7 +131,7 @@ volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be
                  Planner::block_buffer_planned, // Index of the optimally planned block
                  Planner::block_buffer_tail;    // Index of the busy block, if any
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
-uint8_t Planner::delay_before_delivering;       // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
@@ -198,13 +202,12 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
   constexpr bool Planner::leveling_active;
 #endif
 
-skew_factor_t Planner::skew_factor; // Initialized by settings.load()
+#if ENABLED(SKEW_CORRECTION)
+  skew_factor_t Planner::skew_factor; // Initialized by settings.load()
+#endif
 
 #if ENABLED(AUTOTEMP)
-  celsius_t Planner::autotemp_max = 250,
-            Planner::autotemp_min = 210;
-  float Planner::autotemp_factor = 0.1f;
-  bool Planner::autotemp_enabled = false;
+  autotemp_t Planner::autotemp = { AUTOTEMP_MIN, AUTOTEMP_MAX, AUTOTEMP_FACTOR, false };
 #endif
 
 // private:
@@ -216,14 +219,18 @@ uint32_t Planner::acceleration_long_cutoff;
 xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed;
 
-#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-  last_move_t Planner::g_uc_extruder_last_move[E_STEPPERS] = { 0 };
+#if ENABLED(DISABLE_OTHER_EXTRUDERS)
+  last_move_t Planner::extruder_last_move[E_STEPPERS] = { 0 };
 #endif
 
 #ifdef XY_FREQUENCY_LIMIT
   int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
   float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
+#endif
+
+#if ENABLED(FT_MOTION)
+  bool Planner::fxdTiCtrl_busy = false;
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -1321,7 +1328,7 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W, DISABLE_E)
+  #if HAS_DISABLE_AXES
     xyze_bool_t axis_active = { false };
   #endif
 
@@ -1361,7 +1368,7 @@ void Planner::check_axes_activity() {
       TERN_(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
     #endif
 
-    #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_E)
+    #if HAS_DISABLE_AXES
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
         block_t * const bnext = &block_buffer[b];
         LOGICAL_AXIS_CODE(
@@ -1402,18 +1409,20 @@ void Planner::check_axes_activity() {
   //
   // Disable inactive axes
   //
-  LOGICAL_AXIS_CODE(
-    if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
-    if (TERN0(DISABLE_X, !axis_active.x)) stepper.disable_axis(X_AXIS),
-    if (TERN0(DISABLE_Y, !axis_active.y)) stepper.disable_axis(Y_AXIS),
-    if (TERN0(DISABLE_Z, !axis_active.z)) stepper.disable_axis(Z_AXIS),
-    if (TERN0(DISABLE_I, !axis_active.i)) stepper.disable_axis(I_AXIS),
-    if (TERN0(DISABLE_J, !axis_active.j)) stepper.disable_axis(J_AXIS),
-    if (TERN0(DISABLE_K, !axis_active.k)) stepper.disable_axis(K_AXIS),
-    if (TERN0(DISABLE_U, !axis_active.u)) stepper.disable_axis(U_AXIS),
-    if (TERN0(DISABLE_V, !axis_active.v)) stepper.disable_axis(V_AXIS),
-    if (TERN0(DISABLE_W, !axis_active.w)) stepper.disable_axis(W_AXIS)
-  );
+  #if HAS_DISABLE_AXES
+    LOGICAL_AXIS_CODE(
+      if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
+      if (TERN0(DISABLE_X, !axis_active.x)) stepper.disable_axis(X_AXIS),
+      if (TERN0(DISABLE_Y, !axis_active.y)) stepper.disable_axis(Y_AXIS),
+      if (TERN0(DISABLE_Z, !axis_active.z)) stepper.disable_axis(Z_AXIS),
+      if (TERN0(DISABLE_I, !axis_active.i)) stepper.disable_axis(I_AXIS),
+      if (TERN0(DISABLE_J, !axis_active.j)) stepper.disable_axis(J_AXIS),
+      if (TERN0(DISABLE_K, !axis_active.k)) stepper.disable_axis(K_AXIS),
+      if (TERN0(DISABLE_U, !axis_active.u)) stepper.disable_axis(U_AXIS),
+      if (TERN0(DISABLE_V, !axis_active.v)) stepper.disable_axis(V_AXIS),
+      if (TERN0(DISABLE_W, !axis_active.w)) stepper.disable_axis(W_AXIS)
+    );
+  #endif
 
   //
   // Update Fan speeds
@@ -1434,8 +1443,8 @@ void Planner::check_axes_activity() {
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
     void Planner::_autotemp_update_from_hotend() {
       const celsius_t target = thermalManager.degTargetHotend(active_extruder);
-      autotemp_min = target + AUTOTEMP_MIN_P;
-      autotemp_max = target + AUTOTEMP_MAX_P;
+      autotemp.min = target + AUTOTEMP_MIN_P;
+      autotemp.max = target + AUTOTEMP_MAX_P;
     }
   #endif
 
@@ -1446,8 +1455,8 @@ void Planner::check_axes_activity() {
    */
   void Planner::autotemp_update() {
     _autotemp_update_from_hotend();
-    autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-    autotemp_enabled = autotemp_factor != 0;
+    autotemp.factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.enabled = autotemp.factor != 0;
   }
 
   /**
@@ -1457,13 +1466,13 @@ void Planner::check_axes_activity() {
   void Planner::autotemp_M104_M109() {
     _autotemp_update_from_hotend();
 
-    if (parser.seenval('S')) autotemp_min = parser.value_celsius();
-    if (parser.seenval('B')) autotemp_max = parser.value_celsius();
+    if (parser.seenval('S')) autotemp.min = parser.value_celsius();
+    if (parser.seenval('B')) autotemp.max = parser.value_celsius();
 
     // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
     // Normally, leaving off F also disables autotemp.
-    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-    autotemp_enabled = autotemp_factor != 0;
+    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.enabled = autotemp.factor != 0;
   }
 
   /**
@@ -1474,8 +1483,8 @@ void Planner::check_axes_activity() {
   void Planner::autotemp_task() {
     static float oldt = 0.0f;
 
-    if (!autotemp_enabled) return;
-    if (thermalManager.degTargetHotend(active_extruder) < autotemp_min - 2) return; // Below the min?
+    if (!autotemp.enabled) return;
+    if (thermalManager.degTargetHotend(active_extruder) < autotemp.min - 2) return; // Below the min?
 
     float high = 0.0f;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
@@ -1486,14 +1495,14 @@ void Planner::check_axes_activity() {
       }
     }
 
-    float t = autotemp_min + high * autotemp_factor;
-    LIMIT(t, autotemp_min, autotemp_max);
+    float t = autotemp.min + high * autotemp.factor;
+    LIMIT(t, autotemp.min, autotemp.max);
     if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, active_extruder);
   }
 
-#endif
+#endif // AUTOTEMP
 
 #if DISABLED(NO_VOLUMETRICS)
 
@@ -1682,7 +1691,8 @@ void Planner::quick_stop() {
 
   // Restart the block delay for the first movement - As the queue was
   // forced to empty, there's no risk the ISR will touch this.
-  delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+
+  delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
 
   TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
 
@@ -1727,7 +1737,8 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      || TERN0(HAS_SHAPING, stepper.input_shaping_busy())
+      || TERN0(HAS_ZV_SHAPING, stepper.input_shaping_busy())
+      || TERN0(FT_MOTION, fxdTiCtrl_busy)
   );
 }
 
@@ -1840,7 +1851,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   // Move buffer head
@@ -1892,7 +1903,9 @@ bool Planner::_populate_block(
   /* <-- add a slash to enable
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
-      " A:", target.a, " (", da, " steps)"
+      #if HAS_X_AXIS
+        " A:", target.a, " (", da, " steps)"
+      #endif
       #if HAS_Y_AXIS
         " B:", target.b, " (", db, " steps)"
       #endif
@@ -1957,54 +1970,50 @@ bool Planner::_populate_block(
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
-  axis_bits_t dm = 0;
+  AxisBits dm;
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    if (da < 0) SBI(dm, X_HEAD);                  // Save the toolhead's true direction in X
-    if (db < 0) SBI(dm, Y_HEAD);                  // ...and Y
-    if (dc < 0) SBI(dm, Z_AXIS);
+    dm.hx = (da < 0);                 // Save the toolhead's true direction in X
+    dm.hy = (db < 0);                 // ...and Y
+    TERN_(HAS_Z_AXIS, dm.z = (dc < 0));
   #endif
   #if IS_CORE
     #if CORE_IS_XY
-      if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
+      dm.a = (da + db < 0);           // Motor A direction
+      dm.b = (CORESIGN(da - db) < 0); // Motor B direction
     #elif CORE_IS_XZ
-      if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
-      if (db < 0) SBI(dm, Y_AXIS);
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (da + dc < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
+      dm.hx = (da < 0);               // Save the toolhead's true direction in X
+      dm.y = (db < 0);
+      dm.hz = (dc < 0);               // ...and Z
+      dm.a = (da + dc < 0);           // Motor A direction
+      dm.c = (CORESIGN(da - dc) < 0); // Motor C direction
     #elif CORE_IS_YZ
-      if (da < 0) SBI(dm, X_AXIS);
-      if (db < 0) SBI(dm, Y_HEAD);                // Save the toolhead's true direction in Y
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (db + dc < 0) SBI(dm, B_AXIS);           // Motor B direction
-      if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
+      dm.x = (da < 0);
+      dm.hy = (db < 0);               // Save the toolhead's true direction in Y
+      dm.hz = (dc < 0);               // ...and Z
+      dm.b = (db + dc < 0);           // Motor B direction
+      dm.c = (CORESIGN(db - dc) < 0); // Motor C direction
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    if (da + db < 0) SBI(dm, A_AXIS);              // Motor A direction
-    if (db < 0) SBI(dm, B_AXIS);                   // Motor B direction
+    dm.a = (da + db < 0);             // Motor A direction
+    dm.b = (db < 0);                  // Motor B direction
   #elif ENABLED(MARKFORGED_YX)
-    if (da < 0) SBI(dm, A_AXIS);                   // Motor A direction
-    if (db + da < 0) SBI(dm, B_AXIS);              // Motor B direction
+    dm.a = (da < 0);                  // Motor A direction
+    dm.b = (db + da < 0);             // Motor B direction
   #else
     XYZ_CODE(
-      if (da < 0) SBI(dm, X_AXIS),
-      if (db < 0) SBI(dm, Y_AXIS),
-      if (dc < 0) SBI(dm, Z_AXIS)
+      dm.x = (da < 0),
+      dm.y = (db < 0),
+      dm.z = (dc < 0)
     );
   #endif
 
   SECONDARY_AXIS_CODE(
-    if (di < 0) SBI(dm, I_AXIS),
-    if (dj < 0) SBI(dm, J_AXIS),
-    if (dk < 0) SBI(dm, K_AXIS),
-    if (du < 0) SBI(dm, U_AXIS),
-    if (dv < 0) SBI(dm, V_AXIS),
-    if (dw < 0) SBI(dm, W_AXIS)
+    dm.i = (di < 0), dm.j = (dj < 0), dm.k = (dk < 0),
+    dm.u = (du < 0), dm.v = (dv < 0), dm.w = (dw < 0)
   );
 
   #if HAS_EXTRUDERS
-    if (de < 0) SBI(dm, E_AXIS);
+    dm.e = (de < 0);
     const float esteps_float = de * e_factor[extruder];
     const uint32_t esteps = ABS(esteps_float) + 0.5f;
   #else
@@ -2085,7 +2094,7 @@ bool Planner::_populate_block(
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
     steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
-    steps_dist_mm.z      = dc * mm_per_step[Z_AXIS];
+    TERN_(HAS_Z_AXIS, steps_dist_mm.z = dc * mm_per_step[Z_AXIS]);
   #endif
   #if IS_CORE
     #if CORE_IS_XY
@@ -2131,8 +2140,8 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-    bool cartesian_move = true;
+  #if HAS_ROTATIONAL_AXES
+    bool cartesian_move = hints.cartesian_move;
   #endif
 
   if (true NUM_AXIS_GANG(
@@ -2153,71 +2162,34 @@ bool Planner::_populate_block(
     if (hints.millimeters)
       block->millimeters = hints.millimeters;
     else {
-      /**
-       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of NIST
-       * RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       * Assume that X, Y, Z are the primary linear axes and U, V, W are secondary linear axes and A, B, C are
-       * rotational axes. Then dX, dY, dZ are the displacements of the primary linear axes and dU, dV, dW are the displacements of linear axes and
-       * dA, dB, dC are the displacements of rotational axes.
-       * The time it takes to execute move command with feedrate F is t = D/F, where D is the total distance, calculated as follows:
-       *   D^2 = dX^2 + dY^2 + dZ^2
-       *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
-       *     D^2 = dU^2 + dV^2 + dW^2
-       *   if D^2 == 0 (only rotational axes are moved):
-       *     D^2 = dA^2 + dB^2 + dC^2
-       */
-      float distance_sqr = (
-        #if ENABLED(ARTICULATED_ROBOT_ARM)
-          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
-          // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
-          NUM_AXIS_GANG(
-              sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
-            + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w)
-          )
-        #elif ENABLED(FOAMCUTTER_XYUV)
-          #if HAS_J_AXIS
-            // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
-            _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
-          #else // Foamcutter with only two axes (XY)
-            sq(steps_dist_mm.x) + sq(steps_dist_mm.y)
-          #endif
-        #elif ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-          XYZ_GANG(sq(steps_dist_mm.head.x), + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.z))
+      const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
+        steps_dist_mm.e,
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+          steps_dist_mm.head.x,
+          steps_dist_mm.head.y,
+          steps_dist_mm.z,
         #elif CORE_IS_XZ
-          XYZ_GANG(sq(steps_dist_mm.head.x), + sq(steps_dist_mm.y),      + sq(steps_dist_mm.head.z))
+          steps_dist_mm.head.x,
+          steps_dist_mm.y,
+          steps_dist_mm.head.z,
         #elif CORE_IS_YZ
-          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.head.z))
+          steps_dist_mm.x,
+          steps_dist_mm.head.y,
+          steps_dist_mm.head.z,
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          steps_dist_mm.x,
+          steps_dist_mm.y,
+          steps_dist_mm.z,
         #endif
+        steps_dist_mm.i,
+        steps_dist_mm.j,
+        steps_dist_mm.k,
+        steps_dist_mm.u,
+        steps_dist_mm.v,
+        steps_dist_mm.w
       );
 
-      #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          distance_sqr = (0.0f
-            SECONDARY_AXIS_GANG(
-              IF_DISABLED(AXIS4_ROTATES, + sq(steps_dist_mm.i)),
-              IF_DISABLED(AXIS5_ROTATES, + sq(steps_dist_mm.j)),
-              IF_DISABLED(AXIS6_ROTATES, + sq(steps_dist_mm.k)),
-              IF_DISABLED(AXIS7_ROTATES, + sq(steps_dist_mm.u)),
-              IF_DISABLED(AXIS8_ROTATES, + sq(steps_dist_mm.v)),
-              IF_DISABLED(AXIS9_ROTATES, + sq(steps_dist_mm.w))
-            )
-          );
-        }
-      #endif
-
-      #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          TERN_(INCH_MODE_SUPPORT, cartesian_move = false);
-          distance_sqr = ROTATIONAL_AXIS_GANG(sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k), + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w));
-        }
-      #endif
-
-      block->millimeters = SQRT(distance_sqr);
+      block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
     /**
@@ -2234,11 +2206,17 @@ bool Planner::_populate_block(
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
 
-  block->step_event_count = _MAX(LOGICAL_AXIS_LIST(esteps,
-    block->steps.a, block->steps.b, block->steps.c,
-    block->steps.i, block->steps.j, block->steps.k,
-    block->steps.u, block->steps.v, block->steps.w
-  ));
+  block->step_event_count = (
+    #if NUM_AXES
+      _MAX(LOGICAL_AXIS_LIST(esteps,
+        block->steps.a, block->steps.b, block->steps.c,
+        block->steps.i, block->steps.j, block->steps.k,
+        block->steps.u, block->steps.v, block->steps.w
+      ))
+    #elif HAS_EXTRUDERS
+      esteps
+    #endif
+  );
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
@@ -2270,7 +2248,7 @@ bool Planner::_populate_block(
       stepper.enable_axis(X_AXIS);
       stepper.enable_axis(Y_AXIS);
     }
-    #if DISABLED(Z_LATE_ENABLE)
+    #if HAS_Z_AXIS && DISABLED(Z_LATE_ENABLE)
       if (block->steps.z) stepper.enable_axis(Z_AXIS);
     #endif
   #elif CORE_IS_XZ
@@ -2314,25 +2292,25 @@ bool Planner::_populate_block(
     if (esteps) {
       TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
-      #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
+      #if ENABLED(DISABLE_OTHER_EXTRUDERS) // Enable only the selected extruder
 
         // Count down all steppers that were recently moved
         LOOP_L_N(i, E_STEPPERS)
-          if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
+          if (extruder_last_move[i]) extruder_last_move[i]--;
 
         // Switching Extruder uses one E stepper motor per two nozzles
-        #define E_STEPPER_INDEX(E) TERN(SWITCHING_EXTRUDER, (E) / 2, E)
+        #define E_STEPPER_INDEX(E) TERN(HAS_SWITCHING_EXTRUDER, (E) / 2, E)
 
         // Enable all (i.e., both) E steppers for IDEX-style duplication, but only active E steppers for multi-nozzle (i.e., single wide X carriage) duplication
         #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (extruder_duplication_enabled && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))))
 
         #define ENABLE_ONE_E(N) do{ \
-          if (N == E_STEPPER_INDEX(extruder) || _IS_DUPE(N)) {    /* N is 'extruder', or N is duplicating */ \
-            stepper.ENABLE_EXTRUDER(N);                           /* Enable the relevant E stepper... */ \
-            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; /* ...and reset its counter */ \
+          if (N == E_STEPPER_INDEX(extruder) || _IS_DUPE(N)) {  /* N is 'extruder', or N is duplicating */ \
+            stepper.ENABLE_EXTRUDER(N);                         /* Enable the relevant E stepper... */ \
+            extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2;    /* ...and reset its counter */ \
           } \
-          else if (!g_uc_extruder_last_move[N])                   /* Counter expired since last E stepper enable */ \
-            stepper.DISABLE_EXTRUDER(N);                          /* Disable the E stepper */ \
+          else if (!extruder_last_move[N])                      /* Counter expired since last E stepper enable */ \
+            stepper.DISABLE_EXTRUDER(N);                        /* Disable the E stepper */ \
         }while(0);
 
       #else
@@ -2355,12 +2333,13 @@ bool Planner::_populate_block(
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
-  float inverse_secs;
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-    inverse_secs = inverse_millimeters * (cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s));
-  #else
-    inverse_secs = fr_mm_s * inverse_millimeters;
-  #endif
+  float inverse_secs = inverse_millimeters * (
+    #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+      cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
+    #else
+      fr_mm_s
+    #endif
+  );
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
@@ -2460,11 +2439,11 @@ bool Planner::_populate_block(
 
   #ifdef XY_FREQUENCY_LIMIT
 
-    static axis_bits_t old_direction_bits; // = 0
+    static AxisBits old_direction_bits; // = 0
 
     if (xy_freq_limit_hz) {
       // Check and limit the xy direction change frequency
-      const axis_bits_t direction_change = block->direction_bits ^ old_direction_bits;
+      const AxisBits direction_change = block->direction_bits ^ old_direction_bits;
       old_direction_bits = block->direction_bits;
       segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
@@ -2503,8 +2482,8 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
-  if (NUM_AXIS_GANG(
-         !block->steps.a, && !block->steps.b, && !block->steps.c,
+  if (true NUM_AXIS_GANG(
+      && !block->steps.a, && !block->steps.b, && !block->steps.c,
       && !block->steps.i, && !block->steps.j, && !block->steps.k,
       && !block->steps.u, && !block->steps.v, && !block->steps.w)
   ) {                                                             // Is this a retract / recover move?
@@ -2980,7 +2959,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   block_buffer_head = next_buffer_head;
@@ -3158,28 +3137,77 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
-        ? xyz_pos_t(cart_dist_mm).magnitude()
-        : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+      ph.millimeters = get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
+    #if DISABLED(FEEDRATE_SCALING)
+
+      const feedRate_t feedrate = fr_mm_s;
+
+    #elif IS_SCARA
+
       // For SCARA scale the feedrate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
       const xyz_pos_t diff = delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
-    #else
-      const feedRate_t feedrate = fr_mm_s;
-    #endif
+
+    #elif ENABLED(POLAR)
+
+      /**
+       * Motion problem for Polar axis near center / origin:
+       *
+       * 3D printing:
+       * Movements very close to the center of the polar axis take more time than others.
+       * This brief delay results in more material deposition due to the pressure in the nozzle.
+       *
+       * Current Kinematics and feedrate scaling deals with this by making the movement as fast
+       * as possible. It works for slow movements but doesn't work well with fast ones. A more
+       * complicated extrusion compensation must be implemented.
+       *
+       * Ideally, it should estimate that a long rotation near the center is ahead and will cause
+       * unwanted deposition. Therefore it can compensate the extrusion beforehand.
+       *
+       * Laser cutting:
+       * Same thing would be a problem for laser engraving too. As it spends time rotating at the
+       * center point, more likely it will burn more material than it should. Therefore similar
+       * compensation would be implemented for laser-cutting operations.
+       *
+       * Milling:
+       * This shouldn't be a problem for cutting/milling operations.
+       */
+      feedRate_t calculated_feedrate = fr_mm_s;
+      const xyz_pos_t diff = delta - position_float;
+      if (!NEAR_ZERO(diff.b)) {
+        if (delta.a <= POLAR_FAST_RADIUS )
+          calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
+        else {
+          // Normalized vector of movement
+          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
+                      diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
+                      normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
+
+          // Normalized position along the radius
+          const float radiusRatio = (PRINTABLE_RADIUS) / delta.a;
+          calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
+        }
+      }
+      const feedRate_t feedrate = calculated_feedrate;
+
+    #endif // POLAR && FEEDRATE_SCALING
+
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
     if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
       position_cart = cart;
       return true;
     }
     return false;
-  #else
+
+  #else // !IS_KINEMATIC
+
     return buffer_segment(machine, fr_mm_s, extruder, hints);
+
   #endif
+
 } // buffer_line()
 
 #if ENABLED(DIRECT_STEPPING)
@@ -3229,7 +3257,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       // As there are no queued movements, the Stepper ISR will not touch this
       // variable, so there is no risk setting this here (but it MUST be done
       // before the following line!!)
-      delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+      delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
     }
 
     // Move buffer head
@@ -3441,8 +3469,7 @@ void Planner::set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS) {
     // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
     bbru >>= 10;
     // limit to about a minute.
-    NOMORE(bbru, 0x0000FFFFUL);
-    return bbru;
+    return _MIN(bbru, 0x0000FFFFUL);
   }
 
   void Planner::clear_block_buffer_runtime() {

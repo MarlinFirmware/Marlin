@@ -28,17 +28,19 @@
 
 class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE> {
   private:
+    static void _format_time(char *outstr, uint32_t time);
+
     static float increment;
     static bool  jog_xy;
     static bool  fine_motion;
 
+    static void draw_time(draw_mode_t what);
     static void draw_progress(draw_mode_t what);
     static void draw_temperature(draw_mode_t what);
-    static void draw_syringe(draw_mode_t what);
-    static void draw_arrows(draw_mode_t what);
-    static void draw_overlay_icons(draw_mode_t what);
-    static void draw_fine_motion(draw_mode_t what);
     static void draw_buttons(draw_mode_t what);
+    static void draw_file(draw_mode_t what);
+
+    static bool isFileSelected();
   public:
     static void loadBitmaps();
     static void unlockMotors();

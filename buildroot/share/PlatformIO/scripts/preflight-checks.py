@@ -124,4 +124,15 @@ if pioutil.is_pio_build():
             err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
 
+        #
+        # Check FILAMENT_RUNOUT_SCRIPT has a %c parammeter when required
+        #
+        if 'FILAMENT_RUNOUT_SENSOR' in env['MARLIN_FEATURES'] and 'NUM_RUNOUT_SENSORS' in env['MARLIN_FEATURES']:
+            if env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS'].isdigit() and int(env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS']) > 1:
+                if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
+                    frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
+                    if "M600" in frs and "%c" not in frs:
+                        err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
+                        raise SystemExit(err)
+
     sanity_check_target()

@@ -123,7 +123,7 @@
 #else
   #define HEATER_1_PIN                         8
 #endif
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN1_PIN                               7
 #define FAN2_PIN                              12
 
@@ -164,18 +164,16 @@
 #endif
 
 //
-// TMC software SPI
+// TMC SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       58  // Mega/Due:66 - AGCM4:58
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        56  // Mega/Due:64 - AGCM4:56
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                        58  // Mega/Due:66 - AGCM4:58
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                        44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                         56  // Mega/Due:64 - AGCM4:56
 #endif
 
 #if HAS_TMC_UART
@@ -275,14 +273,14 @@
 
     // TO TEST
     //#define LCD_PINS_RS                     49  // CS chip select /SS chip slave select
-    //#define LCD_PINS_ENABLE                 51  // SID (MOSI)
+    //#define LCD_PINS_EN                     51  // SID (MOSI)
     //#define LCD_PINS_D4                     52  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS                     40
-    //#define LCD_PINS_ENABLE                 42
+    //#define LCD_PINS_EN                     42
     //#define LCD_PINS_D4                     57  // Mega/Due:65 - AGCM4:57
     //#define LCD_PINS_D5                     58  // Mega/Due:66 - AGCM4:58
     //#define LCD_PINS_D6                     44
@@ -294,7 +292,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   27
-      //#define LCD_PINS_ENABLE               29
+      //#define LCD_PINS_EN                   29
       //#define LCD_PINS_D4                   25
 
       #if !IS_NEWPANEL
@@ -306,7 +304,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   56  // Mega/Due:64 - AGCM4:56
-      //#define LCD_PINS_ENABLE               44
+      //#define LCD_PINS_EN                   44
       //#define LCD_PINS_D4                   55  // Mega/Due:63 - AGCM4:55
       //#define LCD_PINS_D5                   40
       //#define LCD_PINS_D6                   42
@@ -325,7 +323,7 @@
         //#define DOGLCD_A0          LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27
@@ -452,7 +450,7 @@
       //#define SD_DETECT_PIN                 49
 
       //#ifndef KILL_PIN
-      //  #define KILL_PIN         41
+      //  #define KILL_PIN                    41
       //#endif
 
       #if ENABLED(MKS_MINI_12864)

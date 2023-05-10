@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUS_ScreenAddrList.h"
 
@@ -36,7 +36,7 @@ constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
   (DGUS_Addr)0
 };
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   constexpr DGUS_Addr LIST_PRINT[] PROGMEM = {
     DGUS_Addr::SD_Type,
     DGUS_Addr::SD_FileName0,
@@ -56,7 +56,7 @@ constexpr DGUS_Addr LIST_PRINT_STATUS[] PROGMEM = {
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::STATUS_PositionZ,
-  DGUS_Addr::STATUS_Ellapsed,
+  DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent,
   DGUS_Addr::STATUS_Icons,
   (DGUS_Addr)0
@@ -78,7 +78,7 @@ constexpr DGUS_Addr LIST_PRINT_FINISHED[] PROGMEM = {
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::STATUS_PositionZ,
-  DGUS_Addr::STATUS_Ellapsed,
+  DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent_Complete,
   (DGUS_Addr)0
 };
@@ -210,7 +210,7 @@ constexpr DGUS_Addr LIST_WAIT[] PROGMEM = {
 
 const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
   MAP_HELPER(DGUS_Screen::HOME,                 LIST_HOME),
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     MAP_HELPER(DGUS_Screen::PRINT,              LIST_PRINT),
   #endif
   MAP_HELPER(DGUS_Screen::PRINT_STATUS,         LIST_PRINT_STATUS),

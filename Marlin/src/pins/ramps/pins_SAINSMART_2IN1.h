@@ -23,13 +23,14 @@
 
 /**
  * Sainsmart 2-in-1 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Sainsmart 2-in-1 supports up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_INFO_NAME "Sainsmart"
+#define BOARD_INFO_NAME "Sainsmart 2-in-1"
 
 //
 // Heaters / Fans

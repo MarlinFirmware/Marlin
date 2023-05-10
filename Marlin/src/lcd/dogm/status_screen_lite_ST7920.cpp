@@ -73,7 +73,6 @@
 #if ENABLED(LIGHTWEIGHT_UI)
 
 #include "../marlinui.h"
-#include "../fontutils.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"
 #include "../../module/motion.h"
@@ -81,7 +80,7 @@
 #include "../../module/temperature.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../sd/cardreader.h"
 #endif
 
@@ -629,14 +628,14 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
     #endif
   }
   else {
-    write_byte(alt_label ? alt_label : 'X');
+    write_byte(alt_label ?: 'X');
     write_str(dtostrf(pos.x, -4, 0, str), 4);
 
-    write_byte(alt_label ? alt_label : 'Y');
+    write_byte(alt_label ?: 'Y');
     write_str(dtostrf(pos.y, -4, 0, str), 4);
   }
 
-  write_byte(alt_label ? alt_label : 'Z');
+  write_byte(alt_label ?: 'Z');
   write_str(dtostrf(pos.z, -5, 1, str), 5);
 }
 
@@ -705,7 +704,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void ST7920_Lite_Status_Screen::drawRemain() {
       const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
       if (printJobOngoing() && remaint.value) {
-        draw_progress_string( PPOS, prepare_time_string(remaint, 'R'));
+        draw_progress_string(PPOS, prepare_time_string(remaint, 'R'));
       }
     }
   #endif
@@ -714,7 +713,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void ST7920_Lite_Status_Screen::drawInter() {
       const duration_t interactt = ui.interaction_time;
       if (printingIsActive() && interactt.value) {
-        draw_progress_string( PPOS, prepare_time_string(interactt, 'C'));
+        draw_progress_string(PPOS, prepare_time_string(interactt, 'C'));
       }
     }
   #endif
@@ -723,7 +722,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void ST7920_Lite_Status_Screen::drawElapsed() {
       if (printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
-        draw_progress_string( PPOS, prepare_time_string(elapsedt, 'E'));
+        draw_progress_string(PPOS, prepare_time_string(elapsedt, 'E'));
       }
     }
   #endif

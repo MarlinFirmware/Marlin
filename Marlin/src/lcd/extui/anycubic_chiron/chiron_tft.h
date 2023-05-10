@@ -76,7 +76,6 @@ class ChironTFT {
     static void CheckHeaters();
     static void SendFileList(int8_t);
     static void SelectFile();
-    static void InjectCommandandWait(PGM_P);
     static void ProcessPanelRequest();
     static void PanelInfo(uint8_t);
     static void PanelAction(uint8_t);

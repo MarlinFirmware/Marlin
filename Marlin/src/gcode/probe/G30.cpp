@@ -28,6 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#include "../../lcd/marlinui.h"
 
 #if HAS_PTC
   #include "../../feature/probe_temp_comp.h"
@@ -37,12 +38,8 @@
   #include "../../module/tool_change.h"
 #endif
 
-#if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
-  #include "../../lcd/marlinui.h"
-#endif
-
 /**
- * G30: Do a single Z probe at the current XY
+ * G30: Do a single Z probe at the given XY (default: current)
  *
  * Parameters:
  *
@@ -53,39 +50,40 @@
  */
 void GcodeSuite::G30() {
 
-  #if HAS_MULTI_HOTEND
-    const uint8_t old_tool_index = active_extruder;
-    tool_change(0);
-  #endif
+  xy_pos_t old_pos = current_position,
+           probepos = current_position;
 
-  // Convert the given logical position to native position
-  const xy_pos_t pos = {
-    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
-    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
-  };
+  const bool seenX = parser.seenval('X');
+  if (seenX) probepos.x = RAW_X_POSITION(parser.value_linear_units());
+  const bool seenY = parser.seenval('Y');
+  if (seenY) probepos.y = RAW_Y_POSITION(parser.value_linear_units());
 
-  if (probe.can_reach(pos)) {
+  probe.use_probing_tool();
+
+  if (probe.can_reach(probepos)) {
+
+    if (seenX) old_pos.x = probepos.x;
+    if (seenY) old_pos.y = probepos.y;
+
     // Disable leveling so the planner won't mess with us
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
     remember_feedrate_scaling_off();
 
-    #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
-      process_subcommands_now(F("G28O"));
-    #endif
+    TERN_(DWIN_CREALITY_LCD_JYERSUI, process_subcommands_now(F("G28O")));
 
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-    const float measured_z = probe.probe_at_point(pos, raise_after, 1);
+    const float measured_z = probe.probe_at_point(probepos, raise_after);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
-      SERIAL_ECHOLNPGM("Bed X: ", pos.asLogical().x, " Y: ", pos.asLogical().y, " Z: ", measured_z);
+      SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
       #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
         char msg[31], str_1[6], str_2[6], str_3[6];
         sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
-          dtostrf(pos.x, 1, 1, str_1),
-          dtostrf(pos.y, 1, 1, str_2),
+          dtostrf(probepos.x, 1, 1, str_1),
+          dtostrf(probepos.y, 1, 1, str_2),
           dtostrf(measured_z, 1, 2, str_3)
         );
         ui.set_status(msg);
@@ -94,20 +92,19 @@ void GcodeSuite::G30() {
 
     restore_feedrate_and_scaling();
 
+    do_blocking_move_to(old_pos);
+
     if (raise_after == PROBE_PT_STOW)
       probe.move_z_after_probing();
 
     report_current_position();
   }
   else {
-    #if ENABLED(DWIN_LCD_PROUI)
-      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
-      LCD_MESSAGE(MSG_ZPROBE_OUT);
-    #endif
+    SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
+    LCD_MESSAGE(MSG_ZPROBE_OUT);
   }
 
-  // Restore the active tool
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
+  probe.use_probing_tool(false);
 }
 
 #endif // HAS_BED_PROBE
