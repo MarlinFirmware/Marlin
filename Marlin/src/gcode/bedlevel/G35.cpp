@@ -98,7 +98,7 @@ void GcodeSuite::G35() {
 
   // Probe all positions
   LOOP_L_N(i, G35_PROBE_COUNT) {
-    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
+    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));

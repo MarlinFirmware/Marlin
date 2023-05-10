@@ -69,6 +69,7 @@
  *       IIC : 12V GND D21 D20 GND 5V
  *                    (SCL SDA)
  *
+ *             TX2 RX2 RX3 TX3
  * END STOPS : D19 D18 D15 D14 D2  D3
  *             GND GND GND GND GND GND
  *             5V  5V  5V  5V  5V  5V

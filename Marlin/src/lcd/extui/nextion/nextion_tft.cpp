@@ -445,9 +445,9 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #elif Z_HOME_TO_MAX
       SEND_VALasTXT("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
-    #if HAS_Z2_MIN
+    #if USE_Z2_MIN
       SEND_VALasTXT("z2", READ(Z2_MIN_PIN) == Z2_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
-    #elif HAS_Z2_MAX
+    #elif USE_Z2_MAX
       SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE

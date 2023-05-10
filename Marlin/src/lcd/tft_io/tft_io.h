@@ -37,8 +37,6 @@
   #error "DMA_MAX_SIZE is not configured for this platform."
 #endif
 
-#include "tft_orientation.h"
-
 #ifndef TFT_DRIVER
   #define TFT_DRIVER    AUTO
 #endif

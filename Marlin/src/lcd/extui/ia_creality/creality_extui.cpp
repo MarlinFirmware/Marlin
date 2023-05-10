@@ -1066,7 +1066,7 @@ namespace ExtUI {
           TPShowStatus    = false;
           ZERO(ChangeMaterialbuf);
           ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
-          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
+          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show, instead of current_position.e in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
           RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
           RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
@@ -1381,7 +1381,7 @@ namespace ExtUI {
             case 0xF0: // not to cancel heating
               break;
           }
-          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
+          RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show, instead of current_position.e in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
         }
         else if (recdat.addr == FilamentUnit1) {

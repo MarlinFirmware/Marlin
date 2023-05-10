@@ -24,7 +24,6 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "string.h"
 #include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
@@ -33,6 +32,8 @@
 #include "../../../libs/W25Qxx.h"
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
+
+#include <string.h>
 
 extern uint16_t DeviceCode;
 

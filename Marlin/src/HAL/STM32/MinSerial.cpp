@@ -135,18 +135,18 @@ void install_min_serial() {
 }
 
 #if NONE(DYNAMIC_VECTORTABLE, STM32F0xx, STM32G0xx) // Cortex M0 can't jump to a symbol that's too far from the current function, so we work around this in exception_arm.cpp
-extern "C" {
-  __attribute__((naked)) void JumpHandler_ASM() {
-    __asm__ __volatile__ (
-      "b CommonHandler_ASM\n"
-    );
+  extern "C" {
+    __attribute__((naked)) void JumpHandler_ASM() {
+      __asm__ __volatile__ (
+        "b CommonHandler_ASM\n"
+      );
+    }
+    void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) HardFault_Handler();
+    void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) BusFault_Handler();
+    void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) UsageFault_Handler();
+    void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) MemManage_Handler();
+    void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) NMI_Handler();
   }
-  void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) HardFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) BusFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) UsageFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) MemManage_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"), nothrow)) NMI_Handler();
-}
 #endif
 
 #endif // POSTMORTEM_DEBUGGING
