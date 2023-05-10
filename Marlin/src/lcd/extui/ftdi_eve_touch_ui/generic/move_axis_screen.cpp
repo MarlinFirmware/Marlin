@@ -72,13 +72,15 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
   w.increments();
 }
 
-bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
+bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT_AXIS(X); break;
-    case  3: UI_INCREMENT_AXIS(X); break;
+    #if HAS_X_AXIS
+      case  2: UI_DECREMENT_AXIS(X); break;
+      case  3: UI_INCREMENT_AXIS(X); break;
+    #endif
     #if HAS_EXTRUDERS
       // For extruders, also update relative distances.
       case  8: UI_DECREMENT_AXIS(E0); mydata.e_rel[0] -= increment; break;
@@ -120,20 +122,20 @@ void BaseMoveAxisScreen::raiseZtoTop() {
   setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate.z);
 }
 
-float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
+float BaseMoveAxisScreen::getManualFeedrate(const uint8_t axis, const_float_t increment_mm) {
   // Compute feedrate so that the tool lags the adjuster when it is
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
   constexpr xyze_feedrate_t max_manual_feedrate = MANUAL_FEEDRATE;
-  return min(max_manual_feedrate[axis] / 60.0f, ABS(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
+  return min(MMM_TO_MMS(max_manual_feedrate[axis]), ABS(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
 }
 
-void BaseMoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {
+void BaseMoveAxisScreen::setManualFeedrate(const ExtUI::axis_t axis, const_float_t increment_mm) {
   ExtUI::setFeedrate_mm_s(getManualFeedrate(X_AXIS + (axis - ExtUI::X), increment_mm));
 }
 
 #if HAS_EXTRUDERS
-  void BaseMoveAxisScreen::setManualFeedrate(ExtUI::extruder_t, float increment_mm) {
+  void BaseMoveAxisScreen::setManualFeedrate(const ExtUI::extruder_t, const_float_t increment_mm) {
     ExtUI::setFeedrate_mm_s(getManualFeedrate(E_AXIS, increment_mm));
   }
 #endif

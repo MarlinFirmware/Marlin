@@ -23,6 +23,8 @@
 
 /**
  * FLYmaker FLY-CDY pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/FLYmaker%20FLY-CDY%20V1/FLY_CDY%20SCH.pdf
+ * Origin: https://github.com/Mellow-3D/FLY-CDY/blob/master/Motherboard%20information/FLY_CDY%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -92,18 +94,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P0_20
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_19
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_21
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P0_20
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_19
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_21
 #endif
 
 #if HAS_TMC_UART
@@ -126,8 +126,11 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -144,8 +147,8 @@
 #define HEATER_0_PIN                       P3_25
 #define HEATER_1_PIN                       P1_20
 #define HEATER_2_PIN                       P1_23
-#ifndef FAN_PIN
-  #define FAN_PIN                          P1_18
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P1_18
 #endif
 #define FAN1_PIN                           P1_21
 #define FAN2_PIN                           P1_24
@@ -155,7 +158,7 @@
 //
 #define BEEPER_PIN                         P2_07
 #define LCD_PINS_RS                        P2_10
-#define LCD_PINS_ENABLE                    P0_22
+#define LCD_PINS_EN                        P0_22
 #define LCD_PINS_D4                        P1_19
 #define LCD_PINS_D5                        P2_08
 #define LCD_PINS_D6                        P1_30

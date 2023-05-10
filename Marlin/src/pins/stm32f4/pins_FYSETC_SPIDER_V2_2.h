@@ -28,7 +28,7 @@
 #define TEMP_4_PIN                          PB1
 #define TEMP_BED_PIN                        PB0
 
-#define FAN_PIN                             PA13
+#define FAN0_PIN                            PA13
 #define FAN1_PIN                            PA14
 
 #include "pins_FYSETC_SPIDER.h"

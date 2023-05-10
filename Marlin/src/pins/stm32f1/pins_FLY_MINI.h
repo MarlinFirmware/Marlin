@@ -83,16 +83,14 @@
   #define E0_CS_PIN                         PC2
 #endif
 
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI              EXP2_06_PIN
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO              EXP2_01_PIN
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK               EXP2_02_PIN
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI               EXP2_06_PIN
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO               EXP2_01_PIN
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                EXP2_02_PIN
 #endif
 
 #if HAS_TMC_UART
@@ -111,8 +109,8 @@
 //
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC8
 #endif
 #define FAN1_PIN                            PC9
 
@@ -131,23 +129,23 @@
  *                ------                                        ------
  *                 EXP1                                          EXP2
  */
-#define EXP1_01_PIN                        PC14
-#define EXP1_02_PIN                        PC13
-#define EXP1_03_PIN                        PB9
-#define EXP1_04_PIN                        PB8
-#define EXP1_05_PIN                        PB7
-#define EXP1_06_PIN                        PB6
-#define EXP1_07_PIN                        PB5
-#define EXP1_08_PIN                        PB4
+#define EXP1_01_PIN                         PC14
+#define EXP1_02_PIN                         PC13
+#define EXP1_03_PIN                         PB9
+#define EXP1_04_PIN                         PB8
+#define EXP1_05_PIN                         PB7
+#define EXP1_06_PIN                         PB6
+#define EXP1_07_PIN                         PB5
+#define EXP1_08_PIN                         PB4
 
-#define EXP2_01_PIN                        PB14
-#define EXP2_02_PIN                        PB13
-#define EXP2_03_PIN                        PB3
-#define EXP2_04_PIN                        PB12
-#define EXP2_05_PIN                        PD2
-#define EXP2_06_PIN                        PB15
-#define EXP2_07_PIN                        PB11
-#define EXP2_08_PIN                        -1     // RESET
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PB3
+#define EXP2_04_PIN                         PB12
+#define EXP2_05_PIN                         PD2
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PB11
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // LCD / Controller
@@ -166,7 +164,7 @@
   #define BEEPER_PIN                 EXP1_01_PIN
 
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #define LCD_PINS_D5                EXP1_06_PIN
   #define LCD_PINS_D6                EXP1_07_PIN

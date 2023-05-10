@@ -30,9 +30,6 @@
  * Written by Insanity Automation
  * ***************************************/
 
-#include "creality_extui.h"
-#include "../ui_api.h"
-
 #define MAX_FOLDER_DEPTH   4    // Limit folder depth TFT has a limit for the file path
 #define MAX_CMND_LEN      16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command
 #define MAX_PATH_LEN      16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path

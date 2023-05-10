@@ -23,6 +23,9 @@
 
 /**
  * Geeetech GT2560 Rev B Pins
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Rev%20B/GT2560_REVB.pdf
+ * Origin: https://www.geeetech.com/wiki/images/7/72/GT2560_REVB.pdf
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "GT2560 Rev B"

@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4Plus, also known as 3DYMY version, pin assignments
+ * ATmega2560, ATmega1280
  *
  * Applies to the following boards:
  *
