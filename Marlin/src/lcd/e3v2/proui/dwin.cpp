@@ -480,7 +480,7 @@ void DWIN_DrawStatusLine(FSTR_P fstr) { DWIN_DrawStatusLine(FTOP(fstr)); }
 
 // Clear & reset status line
 void DWIN_ResetStatusLine() {
-  ui.status_message[0] = 0;
+  ui.status_message.clear();
   DWIN_CheckStatusMessage();
 }
 
@@ -492,18 +492,19 @@ uint32_t GetHash(char * str) {
   return hash;
 }
 
+// Check for a change in the status message
 void DWIN_CheckStatusMessage() {
-  static uint32_t old_hash = 0;
-  uint32_t hash = GetHash(&ui.status_message[0]);
+  static MString<>::hash_t old_hash = 0x0000;
+  const MString<>::hash_t hash = ui.status_message.hash();
   hash_changed = hash != old_hash;
   old_hash = hash;
-};
+}
 
 void DWIN_DrawStatusMessage() {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(ui.status_message);
+    uint8_t slen = ui.status_message.glyphs();
 
     // If the string fits the status line do not scroll it
     if (slen <= LCD_WIDTH) {
@@ -539,7 +540,7 @@ void DWIN_DrawStatusMessage() {
   #else
 
     if (hash_changed) {
-      ui.status_message[LCD_WIDTH] = 0;
+      ui.status_message.trunc(LCD_WIDTH);
       DWIN_DrawStatusLine(ui.status_message);
       hash_changed = false;
     }

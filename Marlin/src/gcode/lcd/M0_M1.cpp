@@ -58,7 +58,7 @@ void GcodeSuite::M0_M1() {
   #if HAS_MARLINUI_MENU
 
     if (parser.string_arg)
-      ui.set_status(parser.string_arg, true);
+      ui.set_status_no_expire(parser.string_arg);
     else {
       LCD_MESSAGE(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0

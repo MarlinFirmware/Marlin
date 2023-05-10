@@ -731,7 +731,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     static bool last_blink = false;
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(status_message);
+    uint8_t slen = status_message.glyphs();
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
@@ -773,7 +773,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     UNUSED(blink);
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(status_message);
+    uint8_t slen = status_message.glyphs();
 
     // Just print the string to the LCD
     lcd_put_u8str_max(status_message, LCD_WIDTH);
