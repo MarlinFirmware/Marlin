@@ -77,7 +77,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-bool HAL_pwm_status(int8_t pin) {
+bool HAL_pwm_status(const int8_t pin) {
   char buffer[20];   // for the sprintf statements
   switch (pin) {
     FTM_CASE(0,0);

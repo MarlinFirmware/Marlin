@@ -136,7 +136,7 @@
 #define TEMP_BED_PIN                           2  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -408,7 +408,7 @@
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #ifndef TOUCH_SCREEN_CALIBRATION
+  #if DISABLED(TOUCH_SCREEN_CALIBRATION)
     #if ENABLED(TFT_RES_320x240)
       #ifndef TOUCH_CALIBRATION_X
         #define TOUCH_CALIBRATION_X        20525

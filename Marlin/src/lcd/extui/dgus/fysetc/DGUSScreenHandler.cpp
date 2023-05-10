@@ -40,7 +40,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   extern ExtUI::FileList filelist;
 
@@ -124,7 +124,7 @@
     ) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   uint8_t *tmp = (uint8_t*)val_ptr;
@@ -162,10 +162,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   switch (var.VP) {
     default: return;
 
-    case VP_MOVE_X:
-      axiscode = 'X';
-      if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
-      break;
+    #if HAS_X_AXIS
+      case VP_MOVE_X:
+        axiscode = 'X';
+        if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_MOVE_Y:

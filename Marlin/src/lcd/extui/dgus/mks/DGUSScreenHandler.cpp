@@ -47,7 +47,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   extern ExtUI::FileList filelist;
 #endif
 
@@ -140,7 +140,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #endif
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)BE16_P(val_ptr) + top_file;
@@ -262,7 +262,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     const uint16_t value = BE16_P(val_ptr);
     if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   uint8_t *tmp = (uint8_t*)val_ptr;
@@ -743,10 +743,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
-    case VP_MOVE_X:
-      axiscode = 'X';
-      if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
-      break;
+    #if HAS_X_AXIS
+      case VP_MOVE_X:
+        axiscode = 'X';
+        if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_MOVE_Y:
@@ -773,10 +775,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       movevalue = 0; // ignore value sent from display, this VP is _ONLY_ for homing.
       break;
 
-    case VP_X_HOME:
-      axiscode = 'X';
-      movevalue = 0;
-      break;
+    #if HAS_X_AXIS
+      case VP_X_HOME:
+        axiscode = 'X';
+        movevalue = 0;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_Y_HOME:

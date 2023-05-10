@@ -90,7 +90,6 @@ void PRINT_ARRAY_NAME(uint8_t x) {
 
 #define GET_ARRAY_IS_DIGITAL(x)   pgm_read_byte(&pin_array[x].is_digital)
 
-
 #if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
   #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it
   #define NUM_DIGITAL_PINS 32     // set to digital only + digital/analog

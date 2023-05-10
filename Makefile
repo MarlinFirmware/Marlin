@@ -27,7 +27,7 @@ help:
 
 tests-single-ci:
 	export GIT_RESET_HARD=true
-	$(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET)
+	$(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) PLATFORMIO_BUILD_FLAGS=-DGITHUB_ACTION
 .PHONY: tests-single-ci
 
 tests-single-local:

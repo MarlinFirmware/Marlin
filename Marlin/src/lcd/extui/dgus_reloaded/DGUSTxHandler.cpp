@@ -36,7 +36,7 @@
   #include "../../../feature/pause.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void DGUSTxHandler::SetFileControlState(int16_t file, bool state) {
     DGUS_Control control;
 
@@ -177,7 +177,7 @@
 
     dgus_display.WriteString((uint16_t)vp.addr, dgus_screen_handler.filelist.filename(), vp.size);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSTxHandler::PositionZ(DGUS_VP &vp) {
   const float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ? planner.get_axis_position_mm(Z_AXIS) : 0;

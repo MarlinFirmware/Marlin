@@ -41,8 +41,8 @@
   #error "EMERGENCY_PARSER is not yet implemented for SAMD21. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(SDIO_SUPPORT)
-  #error "SDIO_SUPPORT is not supported on SAMD21."
+#if ENABLED(ONBOARD_SDIO)
+  #error "ONBOARD_SDIO is not supported on SAMD21."
 #endif
 
 #if ENABLED(FAST_PWM_FAN)

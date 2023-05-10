@@ -73,7 +73,6 @@
 #if ENABLED(LIGHTWEIGHT_UI)
 
 #include "../marlinui.h"
-#include "../fontutils.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"
 #include "../../module/motion.h"
@@ -81,7 +80,7 @@
 #include "../../module/temperature.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../sd/cardreader.h"
 #endif
 

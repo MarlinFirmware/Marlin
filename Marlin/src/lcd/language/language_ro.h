@@ -348,7 +348,7 @@ namespace Language_ro {
   LSTR MSG_STOP_PRINT                     = _UxGT("Stop Print");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Printing Object");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Object");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Object =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Object {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Outage Recovery");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Print from Media");
   LSTR MSG_NO_MEDIA                       = _UxGT("No Media");
@@ -532,7 +532,7 @@ namespace Language_ro {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Remove, click");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");
