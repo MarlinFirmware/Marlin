@@ -23,6 +23,9 @@
 
 /**
  * MegaTronics v2.0 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Megatronics%20v2.0/megatronics%20-%20Project.pdf
+ * Origin: https://reprap.org/wiki/File:Megatronicsv2PDF.zip
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -100,8 +103,8 @@
 #define HEATER_1_PIN                           8
 #define HEATER_BED_PIN                        10
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 #define FAN1_PIN                               6
 
@@ -131,7 +134,7 @@
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         14
-  #define LCD_PINS_ENABLE                     15
+  #define LCD_PINS_EN                         15
   #define LCD_PINS_D4                         30
   #define LCD_PINS_D5                         31
   #define LCD_PINS_D6                         32

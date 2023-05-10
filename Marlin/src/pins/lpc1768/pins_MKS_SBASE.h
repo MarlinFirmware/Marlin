@@ -23,6 +23,8 @@
 
 /**
  * Makerbase MKS SBASE pin assignments
+ * Schematic (V1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
+ * Origin (V1.3): http://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -99,8 +101,8 @@
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
 #define HEATER_1_PIN                       P2_06
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_04
 #endif
 
 //
@@ -184,7 +186,7 @@
   #define SD_MISO_PIN                      P1_23  // J8-3 (moved from EXP2 P0.8)
   #define SD_MOSI_PIN                      P2_12  // J8-4 (moved from EXP2 P0.9)
   #define SD_SS_PIN                        P0_28
-  #define LPC_SOFTWARE_SPI                        // With a custom cable we need software SPI because the
+  #define SOFTWARE_SPI                            // With a custom cable we need software SPI because the
                                                   // selected pins are not on a hardware SPI controller
 #elif SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_SCK_PIN                       P0_07
@@ -236,7 +238,7 @@
   #define BTN_EN2                          P3_25  // EXP2.3
   #define LCD_PINS_RS                      P0_16  // EXP1.4
   #define LCD_SDSS                         P0_28  // EXP2.4
-  #define LCD_PINS_ENABLE                  P0_18  // EXP1.3
+  #define LCD_PINS_EN                      P0_18  // EXP1.3
   #define LCD_PINS_D4                      P0_15  // EXP1.5
   #if EITHER(VIKI2, miniVIKI)
     #define DOGLCD_SCK                SD_SCK_PIN
@@ -255,8 +257,8 @@
      * Pins 6, 7 & 8 on EXP2 are no connects. That means a second special
      * cable will be needed if the RGB LEDs are to be active.
      */
-    #define DOGLCD_CS            LCD_PINS_ENABLE  // EXP1.3  (LCD_EN on FYSETC schematic)
-    #define DOGLCD_A0                LCD_PINS_RS  // EXP1.4  (LCD_A0 on FYSETC schematic)
+    #define DOGLCD_CS                      P0_18  // EXP1.3  (LCD_EN on FYSETC schematic)
+    #define DOGLCD_A0                      P0_16  // EXP1.4  (LCD_A0 on FYSETC schematic)
     #define DOGLCD_SCK                     P2_11  // J8-5  (SCK on FYSETC schematic)
     #define DOGLCD_MOSI                    P4_28  // J8-6  (MOSI on FYSETC schematic)
 
@@ -300,16 +302,14 @@
   // Hardware SPI is on EXP2. See if you can make it work:
   // https://github.com/makerbase-mks/MKS-SBASE/issues/25
   #define TMC_USE_SW_SPI
-  #if ENABLED(TMC_USE_SW_SPI)
-    #ifndef TMC_SW_MOSI
-      #define TMC_SW_MOSI                  P0_03  // AUX1
-    #endif
-    #ifndef TMC_SW_MISO
-      #define TMC_SW_MISO                  P0_02  // AUX1
-    #endif
-    #ifndef TMC_SW_SCK
-      #define TMC_SW_SCK                   P0_26  // TH4
-    #endif
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                   P0_03  // AUX1
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                   P0_02  // AUX1
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                    P0_26  // TH4
   #endif
 
 #endif
@@ -336,8 +336,11 @@
   #define E0_SERIAL_RX_PIN                 P0_26  // TH4
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 // UNUSED
 //#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)

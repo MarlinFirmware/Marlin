@@ -52,7 +52,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -299,7 +299,7 @@ uint8_t MarlinUI::read_slow_buttons() {
 }
 
 // Duration in ms, freq in Hz
-void MarlinUI::buzz(const long duration, const uint16_t freq) {
+void MarlinUI::buzz(const long duration, const uint16_t freq/*=0*/) {
   if (!PanelDetected) return;
   if (!sound_on) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -672,7 +672,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 void MarlinUI::draw_status_message(const bool blink) {
   if (!PanelDetected) return;
   lcd_moveto(0, 3);
-  #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+  #if BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
@@ -689,7 +689,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       return;
     }
 
-  #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
+  #endif // FILAMENT_LCD_DISPLAY && HAS_MEDIA
 
   // Get the UTF8 character count of the string
   uint8_t slen = utf8_strlen(status_message);
@@ -820,11 +820,17 @@ void MarlinUI::draw_status_screen() {
   // Line 1 - XYZ coordinates
   //
 
-  lcd_moveto(0, 0);
-  const xyz_pos_t lpos = current_position.asLogical();
-  _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
+  #if NUM_AXES
+    lcd_moveto(0, 0);
+    const xyz_pos_t lpos = current_position.asLogical();
+    _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+    #if HAS_Y_AXIS
+      lcd.write(' '); _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+    #endif
+    #if HAS_Z_AXIS
+      lcd.write(' '); _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
+    #endif
+  #endif
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -962,17 +968,41 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     if (!PanelDetected) return;
-    uint8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if ((style & SS_CENTER) && !valstr) {
-      int8_t pad = (LCD_WIDTH - utf8_strlen(fstr)) / 2;
-      while (--pad >= 0) { lcd.write(' '); n--; }
+
+    uint8_t n = LCD_WIDTH;
+    const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+    const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
+                 vlen = vstr ? utf8_strlen(vstr) : 0;
+    int8_t pad = (center || full) ? n - plen - vlen : 0;
+
+    // SS_CENTER: Pad with half of the unused space first
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
+
+    // Draw as much of the label as fits
+    if (plen) {
+      const int8_t expl = n;
+      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+      pad -= (expl - n - plen); // Reduce the padding
     }
-    n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-    if (valstr) n -= lcd_put_u8str_max(valstr, n);
-    for (; n; --n) lcd.write(' ');
+
+    if (vlen && n > 0) {
+      // SS_FULL: Pad with enough space to justify the value
+      if (full && !center) {
+        // Move the leading colon from the value to the label
+        if (*vstr == ':') { lcd.write(':'); vstr++; n--; }
+        // Move spaces to the padding
+        while (*vstr == ' ') { vstr++; pad++; }
+        // Pad in-between
+        for (; pad > 0; --pad) { lcd.write(' '); n--; }
+      }
+      n -= lcd_put_u8str_max(vstr, n);
+    }
+
+    for (; n > 0; --n) lcd.write(' ');
+
     lcd.print_line();
   }
 
@@ -1037,7 +1067,7 @@ void MarlinUI::draw_status_screen() {
     lcd.print_line();
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (!PanelDetected) return;
@@ -1050,7 +1080,7 @@ void MarlinUI::draw_status_screen() {
       lcd.print_line();
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 

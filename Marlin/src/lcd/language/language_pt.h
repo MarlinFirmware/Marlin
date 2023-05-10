@@ -29,7 +29,7 @@
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
- #define DISPLAY_CHARSET_ISO10646_1
+#define DISPLAY_CHARSET_ISO10646_1
 
 namespace Language_pt {
   using namespace Language_en; // Inherit undefined strings from English
@@ -40,7 +40,7 @@ namespace Language_pt {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactivar motores");
   LSTR MSG_AUTO_HOME                      = _UxGT("Ir para origem");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Ir para origem X");
@@ -87,7 +87,7 @@ namespace Language_pt {
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Base Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" Bico");
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Bico ~");
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Base");

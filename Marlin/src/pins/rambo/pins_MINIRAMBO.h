@@ -23,6 +23,10 @@
 
 /**
  * Mini-RAMBo pin assignments
+ * Schematic (1.3a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo/Mini-Rambo.PDF
+ * Origin (1.3a): https://github.com/ultimachine/Mini-Rambo/blob/1.3a/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
+ * Schematic (1.0a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo%201.0a/Mini-Rambo.PDF
+ * Origin (1.0a): https://github.com/ultimachine/Mini-Rambo/blob/v1.1b/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
  */
 
 #include "env_validate.h"
@@ -105,8 +109,8 @@
 #endif
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             8
 #endif
 #define FAN1_PIN                               6
 
@@ -158,7 +162,7 @@
       #define BTN_ENC                         21
 
       #define LCD_PINS_RS                     38
-      #define LCD_PINS_ENABLE                  5
+      #define LCD_PINS_EN                      5
       #define LCD_PINS_D4                     14
       #define LCD_PINS_D5                     15
       #define LCD_PINS_D6                     32
@@ -177,7 +181,7 @@
       #define BTN_ENC                          9
 
       #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 18
+      #define LCD_PINS_EN                     18
       #define LCD_PINS_D4                     19
       #define LCD_PINS_D5                     70
       #define LCD_PINS_D6                     85

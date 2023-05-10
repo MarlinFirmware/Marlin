@@ -31,10 +31,11 @@
 #endif
 
 #define DATASIZE_8BIT    8
-#define DATASIZE_16BIT   16
-#define TFT_IO_DRIVER TFT_SPI
+#define DATASIZE_16BIT  16
+#define TFT_IO_DRIVER   TFT_SPI
+#define DMA_MAX_SIZE    0xFFFF
 
-#define DMA_MINC_ENABLE 1
+#define DMA_MINC_ENABLE  1
 #define DMA_MINC_DISABLE 0
 
 class TFT_SPI {
@@ -51,14 +52,16 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
+  static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT);
   static void DataTransferEnd();
   static void DataTransferAbort();
 
   static void WriteData(uint16_t Data);
   static void WriteReg(uint16_t Reg);
 
+  static void WriteSequence_DMA(uint16_t *Data, uint16_t Count) { WriteSequence(Data, Count); }
+  static void WriteMultiple_DMA(uint16_t Color, uint16_t Count) { WriteMultiple(Color, Count); }
+
   static void WriteSequence(uint16_t *Data, uint16_t Count);
-  // static void WriteMultiple(uint16_t Color, uint16_t Count);
   static void WriteMultiple(uint16_t Color, uint32_t Count);
 };

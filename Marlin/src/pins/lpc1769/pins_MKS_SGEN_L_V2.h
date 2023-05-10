@@ -23,6 +23,8 @@
 
 /**
  * MKS SGen-L V2 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SGEN_L%20V2/MKS%20SGEN_L%20V2.0_003%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-SGEN_L-V2/blob/master/Hardware/MKS%20SGEN_L%20V2.0_003/MKS%20SGEN_L%20V2.0_003%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -146,18 +148,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P1_16
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_05
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_04
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P1_16
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_05
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_04
 #endif
 
 #if HAS_TMC_UART
@@ -195,7 +195,10 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -229,8 +232,8 @@
     #define FAN2_PIN                       P2_06  // HE1 for FAN3
   #endif
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_04  // FAN1
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_04  // FAN1
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                         P1_04  // FAN2
@@ -316,7 +319,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #else
@@ -342,7 +345,7 @@
 
       #define TFT_CS_PIN             EXP1_07_PIN
       #define TFT_DC_PIN             EXP1_08_PIN
-      #define TFT_A0_PIN             TFT_DC_PIN
+      #define TFT_A0_PIN              TFT_DC_PIN
       #define TFT_MISO_PIN           EXP2_01_PIN
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
       #define TFT_RESET_PIN          EXP1_04_PIN
@@ -355,7 +358,7 @@
       #define TOUCH_BUTTONS_HW_SPI_DEVICE      2
 
       // Disable any LCD related PINs config
-      #define LCD_PINS_ENABLE              -1
+      #define LCD_PINS_EN                  -1
       #define LCD_PINS_RS                  -1
 
       #ifndef TFT_BUFFER_SIZE
@@ -369,7 +372,7 @@
 
       #define LCD_PINS_RS            EXP1_04_PIN
 
-      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN
       #define LCD_PINS_D4            EXP1_05_PIN
 
       #if ENABLED(FYSETC_MINI_12864)
