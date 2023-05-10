@@ -37,7 +37,7 @@
   #undef NO_EEPROM_SELECTED
 #endif
 
-#define FAN_PIN                             PC6
+#define FAN0_PIN                            PC6
 
 //
 // USB connect control

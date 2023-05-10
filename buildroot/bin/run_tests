@@ -67,7 +67,7 @@ else
       printf "\033[0;32mMatching test \033[0m#$3\033[0;32m: '\033[0m$test_name\033[0;32m'\n"
     fi
   fi
-  $TESTS/$2 $1 $2 "$test_name"
+  "$TESTS/$2" $1 $2 "$test_name"
   if [[ $GIT_RESET_HARD == "true" ]]; then
     git reset --hard HEAD
   else

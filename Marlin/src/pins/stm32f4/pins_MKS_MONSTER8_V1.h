@@ -39,7 +39,7 @@
 //
 // Misc. Functions
 //
-#define PW_DET                               PC5  // Y+
+#define PW_DET                              PC5   // Y+
 #define PW_OFF                              PB12  // Z+
 #define MT_DET_1_PIN                      PW_DET
 #define MT_DET_2_PIN                      PW_OFF

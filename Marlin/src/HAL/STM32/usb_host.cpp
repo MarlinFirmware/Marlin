@@ -44,7 +44,7 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
       break;
     case HOST_USER_DISCONNECTION:
       //SERIAL_ECHOLNPGM("APPLICATION_DISCONNECT");
-      //usb.setUsbTaskState(USB_STATE_RUNNING);
+      usb.setUsbTaskState(USB_STATE_INIT);
       break;
     case HOST_USER_CLASS_ACTIVE:
       //SERIAL_ECHOLNPGM("APPLICATION_READY");

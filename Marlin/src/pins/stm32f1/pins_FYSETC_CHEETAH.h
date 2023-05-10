@@ -104,8 +104,8 @@
 //
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC8
 #endif
 
 //
@@ -172,7 +172,7 @@
 
   #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT                190
 

@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Tenlog pin assignments
+ * Tenlog MB1 V2.3 pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -94,7 +95,7 @@
 #define HEATER_1_PIN                          10
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN2_PIN                               5  // Normally this would be a servo pin
 
 //#define NUM_RUNOUT_SENSORS                   0
@@ -138,7 +139,7 @@
 //#endif
 
 #define LCD_PINS_RS                           -1
-#define LCD_PINS_ENABLE                       -1
+#define LCD_PINS_EN                           -1
 #define LCD_PINS_D4                           -1
 #define LCD_PINS_D5                           -1
 #define LCD_PINS_D6                           -1

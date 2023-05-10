@@ -47,7 +47,7 @@ void GcodeSuite::M122() {
       if (sflag && !sval)
         tmc_set_report_interval(0);
       else if (parser.seenval('P'))
-        tmc_set_report_interval(_MAX(250, parser.value_ushort()));
+        tmc_set_report_interval(_MAX(uint16_t(250), parser.value_ushort()));
       else if (sval)
         tmc_set_report_interval(MONITOR_DRIVER_STATUS_INTERVAL_MS);
     #endif

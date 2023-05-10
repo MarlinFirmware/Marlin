@@ -76,7 +76,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATA_SIZE_16BIT);
+  static void DataTransferBegin(uint16_t DataWidth=DATA_SIZE_16BIT);
   static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); SPIx.end(); };
   static void DataTransferAbort();
 
