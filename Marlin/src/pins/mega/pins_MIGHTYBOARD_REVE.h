@@ -192,7 +192,7 @@
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
-    #define LCD_PINS_ENABLE                   72  // J2: LEFT
+    #define LCD_PINS_EN                       72  // J2: LEFT
     #define LCD_PINS_D4                       35  // C2: LCD-CLK
     #define LCD_PINS_D5                       32  // C5: RLED
     #define LCD_PINS_D6                       34  // C3: LCD-DATA

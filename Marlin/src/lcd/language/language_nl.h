@@ -42,7 +42,7 @@ namespace Language_nl {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kaart ingestoken");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Hoofdmenu");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hoofdmenu");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren uit");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu"); // accepted English terms

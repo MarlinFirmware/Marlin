@@ -160,7 +160,7 @@ A stepper for E0 extruder
   //
   // LCD / Controller
   //
-  #define LCD_PINS_ENABLE                     14
+  #define LCD_PINS_EN                         14
   #define LCD_PINS_RS                         15
   #define LCD_PINS_D4                         16
   #define LCD_PINS_D5                         17

@@ -120,7 +120,7 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SDIO_READ_RETRIES                     16
 

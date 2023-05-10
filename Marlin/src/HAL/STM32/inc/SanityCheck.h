@@ -29,7 +29,7 @@
 //#endif
 
 
-#if ENABLED(SDCARD_EEPROM_EMULATION) && DISABLED(SDSUPPORT)
+#if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
   #if USE_FALLBACK_EEPROM
     #warning "EEPROM type not specified. Fallback is SDCARD_EEPROM_EMULATION."
@@ -49,6 +49,10 @@
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32H7xx, STM32F4xx, STM32F1xx)
   #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32H7, STM32F4 and STM32F1 hardware."
+#endif
+
+#if TEMP_SENSOR_SOC && defined(ATEMP) && TEMP_SOC_PIN != ATEMP
+  #error "TEMP_SENSOR_SOC requires 'TEMP_SOC_PIN ATEMP' on STM32."
 #endif
 
 /**

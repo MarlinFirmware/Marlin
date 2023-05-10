@@ -368,19 +368,29 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                               \
 }while(0)
 
-// PSTRING_ITEM is like STATIC_ITEM but it takes
-// two PSTRs with the style as the last parameter.
+// PSTRING_ITEM is like STATIC_ITEM
+// but also takes a PSTR and style.
 
-#define PSTRING_ITEM_F(FLABEL, PVAL, STYL) do{ \
-  constexpr int m = 20;                        \
-  char msg[m+1];                               \
-  msg[0] = ':'; msg[1] = ' ';                  \
-  strncpy_P(msg+2, PSTR(PVAL), m-2);           \
-  if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
-  STATIC_ITEM_F(FLABEL, STYL, msg);            \
+#define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
+  constexpr int m = 20;                          \
+  char msg[m+1];                                 \
+  if (_menuLineNr == _thisItemNr) {              \
+    msg[0] = ':'; msg[1] = ' ';                  \
+    strncpy_P(msg+2, PVAL, m-2);                 \
+    if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
+  }                                              \
+  STATIC_ITEM_F(FLABEL, STYL, msg);              \
 }while(0)
 
-#define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM_N_F_P(N, V...) do{ \
+  if (_menuLineNr == _thisItemNr)       \
+    MenuItemBase::init(N);              \
+  PSTRING_ITEM_F_P(V);                  \
+}while(0)
+
+#define PSTRING_ITEM_N_P(N, LABEL, V...)          PSTRING_ITEM_N_F_P(N, GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM_P(LABEL, V...)                 PSTRING_ITEM_F_P(GET_TEXT_F(LABEL), ##V)
+#define PSTRING_ITEM(LABEL, S, V...)                  PSTRING_ITEM_P(LABEL, PSTR(S), ##V)
 
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
 #define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)

@@ -46,7 +46,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
   const DGUS_Screen screen = (DGUS_Screen)((uint8_t*)data_ptr)[1];
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_SD) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       IF_DISABLED(HAS_SD_DETECT, card.mount());
 
       if (!ExtUI::isMediaInserted()) {
@@ -76,7 +76,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
   dgus_screen_handler.TriggerScreenChange(screen);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void DGUSRxHandler::Scroll(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
@@ -154,7 +154,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
     ExtUI::printFile(dgus_screen_handler.filelist.shortFilename());
     dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PRINT_STATUS);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSRxHandler::PrintAbort(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
