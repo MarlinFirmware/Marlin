@@ -40,5 +40,3 @@ uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
 #define U8G_COM_T6963 u8g_com_null_fn
 #define U8G_COM_FAST_PARALLEL u8g_com_null_fn
 #define U8G_COM_UC_I2C u8g_com_null_fn
-
-

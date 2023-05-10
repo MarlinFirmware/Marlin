@@ -23,13 +23,14 @@
 
 /**
  * Melzi (Malyan M150) pin assignments
+ * ATmega644P, ATmega1284P
  */
 
 #define BOARD_INFO_NAME "Melzi (Malyan)"
 
 #if ENABLED(CR10_STOCKDISPLAY)
   #define LCD_PINS_RS                         17  // ST9720 CS
-  #define LCD_PINS_ENABLE                     16  // ST9720 DAT
+  #define LCD_PINS_EN                         16  // ST9720 DAT
   #define LCD_PINS_D4                         11  // ST9720 CLK
   #define BTN_EN1                             30
   #define BTN_EN2                             29

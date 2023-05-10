@@ -80,11 +80,12 @@
 
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
-  constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
-           manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(_mf.e / 60.0f,
-                                                     _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f,
-                                                     _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f,
-                                                     _mf.u / 60.0f, _mf.v / 60.0f, _mf.w / 60.0f);
+  constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE,
+                            manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(
+                              MMM_TO_MMS(manual_feedrate_mm_m.e),
+                              MMM_TO_MMS(manual_feedrate_mm_m.x), MMM_TO_MMS(manual_feedrate_mm_m.y), MMM_TO_MMS(manual_feedrate_mm_m.z),
+                              MMM_TO_MMS(manual_feedrate_mm_m.i), MMM_TO_MMS(manual_feedrate_mm_m.j), MMM_TO_MMS(manual_feedrate_mm_m.k),
+                              MMM_TO_MMS(manual_feedrate_mm_m.u), MMM_TO_MMS(manual_feedrate_mm_m.v), MMM_TO_MMS(manual_feedrate_mm_m.w));
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -245,7 +246,7 @@ typedef struct PlannerBlock {
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
-  axis_bits_t direction_bits;               // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -358,7 +359,7 @@ typedef struct {
   } skew_factor_t;
 #endif
 
-#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+#if ENABLED(DISABLE_OTHER_EXTRUDERS)
   typedef uvalue_t(BLOCK_BUFFER_SIZE * 2) last_move_t;
 #endif
 
@@ -518,6 +519,10 @@ class Planner {
       }
     #endif
 
+    #if ENABLED(FT_MOTION)
+      static bool fxdTiCtrl_busy;
+    #endif
+
   private:
 
     /**
@@ -539,7 +544,7 @@ class Planner {
       static float last_fade_z;
     #endif
 
-    #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+    #if ENABLED(DISABLE_OTHER_EXTRUDERS)
       // Counters to manage disabling inactive extruder steppers
       static last_move_t extruder_last_move[E_STEPPERS];
     #endif

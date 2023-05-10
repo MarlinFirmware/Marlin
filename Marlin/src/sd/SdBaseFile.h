@@ -89,7 +89,7 @@ uint8_t const FAT_FILE_TYPE_CLOSED = 0,                           // This file h
  *
  * \return Packed date for dir_t entry.
  */
-static inline uint16_t FAT_DATE(uint16_t year, uint8_t month, uint8_t day) { return (year - 1980) << 9 | month << 5 | day; }
+static inline uint16_t FAT_DATE(const uint16_t year, const uint8_t month, const uint8_t day) { return (year - 1980) << 9 | month << 5 | day; }
 
 /**
  * year part of FAT directory date field
@@ -97,7 +97,7 @@ static inline uint16_t FAT_DATE(uint16_t year, uint8_t month, uint8_t day) { ret
  *
  * \return Extracted year [1980,2107]
  */
-static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9); }
+static inline uint16_t FAT_YEAR(const uint16_t fatDate) { return 1980 + (fatDate >> 9); }
 
 /**
  * month part of FAT directory date field
@@ -105,7 +105,7 @@ static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9)
  *
  * \return Extracted month [1,12]
  */
-static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0xF; }
+static inline uint8_t FAT_MONTH(const uint16_t fatDate) { return (fatDate >> 5) & 0xF; }
 
 /**
  * day part of FAT directory date field
@@ -113,7 +113,7 @@ static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0xF;
  *
  * \return Extracted day [1,31]
  */
-static inline uint8_t FAT_DAY(uint16_t fatDate) { return fatDate & 0x1F; }
+static inline uint8_t FAT_DAY(const uint16_t fatDate) { return fatDate & 0x1F; }
 
 /**
  * time field for FAT directory entry
@@ -123,7 +123,7 @@ static inline uint8_t FAT_DAY(uint16_t fatDate) { return fatDate & 0x1F; }
  *
  * \return Packed time for dir_t entry.
  */
-static inline uint16_t FAT_TIME(uint8_t hour, uint8_t minute, uint8_t second) { return hour << 11 | minute << 5 | second >> 1; }
+static inline uint16_t FAT_TIME(const uint8_t hour, const uint8_t minute, const uint8_t second) { return hour << 11 | minute << 5 | second >> 1; }
 
 /**
  * hour part of FAT directory time field
@@ -131,7 +131,7 @@ static inline uint16_t FAT_TIME(uint8_t hour, uint8_t minute, uint8_t second) { 
  *
  * \return Extracted hour [0,23]
  */
-static inline uint8_t FAT_HOUR(uint16_t fatTime) { return fatTime >> 11; }
+static inline uint8_t FAT_HOUR(const uint16_t fatTime) { return fatTime >> 11; }
 
 /**
  * minute part of FAT directory time field
@@ -139,7 +139,7 @@ static inline uint8_t FAT_HOUR(uint16_t fatTime) { return fatTime >> 11; }
  *
  * \return Extracted minute [0,59]
  */
-static inline uint8_t FAT_MINUTE(uint16_t fatTime) { return (fatTime >> 5) & 0x3F; }
+static inline uint8_t FAT_MINUTE(const uint16_t fatTime) { return (fatTime >> 5) & 0x3F; }
 
 /**
  * second part of FAT directory time field
@@ -149,7 +149,7 @@ static inline uint8_t FAT_MINUTE(uint16_t fatTime) { return (fatTime >> 5) & 0x3
  *
  * \return Extracted second [0,58]
  */
-static inline uint8_t FAT_SECOND(uint16_t fatTime) { return 2 * (fatTime & 0x1F); }
+static inline uint8_t FAT_SECOND(const uint16_t fatTime) { return 2 * (fatTime & 0x1F); }
 
 // Default date for file timestamps is 1 Jan 2000
 uint16_t const FAT_DEFAULT_DATE = ((2000 - 1980) << 9) | (1 << 5) | 1;
@@ -163,7 +163,7 @@ uint16_t const FAT_DEFAULT_TIME = (1 << 11);
 class SdBaseFile {
  public:
   SdBaseFile() : writeError(false), type_(FAT_FILE_TYPE_CLOSED) {}
-  SdBaseFile(const char *path, uint8_t oflag);
+  SdBaseFile(const char * const path, const uint8_t oflag);
   ~SdBaseFile() { if (isOpen()) close(); }
 
   /**
@@ -179,18 +179,17 @@ class SdBaseFile {
    * get position for streams
    * \param[out] pos struct to receive position
    */
-  void getpos(filepos_t *pos);
+  void getpos(filepos_t * const pos);
 
   /**
    * set position for streams
    * \param[out] pos struct with value for new position
    */
-  void setpos(filepos_t *pos);
+  void setpos(filepos_t * const pos);
 
   bool close();
-  bool contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock);
-  bool createContiguous(SdBaseFile *dirFile,
-                        const char *path, uint32_t size);
+  bool contiguousRange(uint32_t * const bgnBlock, uint32_t * const endBlock);
+  bool createContiguous(SdBaseFile * const dirFile, const char * const path, const uint32_t size);
   /**
    * \return The current cluster number for a file or directory.
    */
@@ -235,7 +234,7 @@ class SdBaseFile {
    * See the timestamp() function.
    */
   static void dateTimeCallback(
-    void (*dateTime)(uint16_t *date, uint16_t *time)) {
+    void (*dateTime)(uint16_t * const date, uint16_t * const time)) {
     dateTime_ = dateTime;
   }
 
@@ -246,7 +245,7 @@ class SdBaseFile {
   bool dirEntry(dir_t *dir);
   static void dirName(const dir_t& dir, char *name);
   bool exists(const char *name);
-  int16_t fgets(char *str, int16_t num, char *delim = 0);
+  int16_t fgets(char *str, int16_t num, char *delim=0);
 
   /**
    * \return The total number of bytes in a file or directory.
@@ -284,29 +283,29 @@ class SdBaseFile {
   bool isRoot() const { return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32; }
 
   bool getDosName(char * const name);
-  void ls(uint8_t flags = 0, uint8_t indent = 0);
+  void ls(uint8_t flags=0, uint8_t indent=0);
 
-  bool mkdir(SdBaseFile *dir, const char *path, bool pFlag = true);
-  bool open(SdBaseFile *dirFile, uint16_t index, uint8_t oflag);
-  bool open(SdBaseFile *dirFile, const char *path, uint8_t oflag);
-  bool open(const char *path, uint8_t oflag = O_READ);
-  bool openNext(SdBaseFile *dirFile, uint8_t oflag);
-  bool openRoot(SdVolume *vol);
+  bool mkdir(SdBaseFile *parent, const char *path, const bool pFlag=true);
+  bool open(SdBaseFile * const dirFile, uint16_t index, const uint8_t oflag);
+  bool open(SdBaseFile * const dirFile, const char *path, const uint8_t oflag);
+  bool open(const char * const path, const uint8_t oflag=O_READ);
+  bool openNext(SdBaseFile * const dirFile, const uint8_t oflag);
+  bool openRoot(SdVolume * const vol);
   int peek();
-  static void printFatDate(uint16_t fatDate);
-  static void printFatTime(uint16_t fatTime);
+  static void printFatDate(const uint16_t fatDate);
+  static void printFatTime(const uint16_t fatTime);
   bool printName();
   int16_t read();
-  int16_t read(void *buf, uint16_t nbyte);
-  int8_t readDir(dir_t *dir, char *longFilename);
-  static bool remove(SdBaseFile *dirFile, const char *path);
+  int16_t read(void * const buf, uint16_t nbyte);
+  int8_t readDir(dir_t * const dir, char * const longFilename);
+  static bool remove(SdBaseFile * const dirFile, const char * const path);
   bool remove();
 
   /**
    * Set the file's current position to zero.
    */
   void rewind() { seekSet(0); }
-  bool rename(SdBaseFile *dirFile, const char *newPath);
+  bool rename(SdBaseFile * const dirFile, const char * const newPath);
   bool rmdir();
   bool rmRfStar();
 
@@ -327,12 +326,12 @@ class SdBaseFile {
    * \param[in] offset The new position in bytes from end-of-file.
    * \return true for success or false for failure.
    */
-  bool seekEnd(const int32_t offset = 0) { return seekSet(fileSize_ + offset); }
+  bool seekEnd(const int32_t offset=0) { return seekSet(fileSize_ + offset); }
   bool seekSet(const uint32_t pos);
   bool sync();
-  bool timestamp(SdBaseFile *file);
-  bool timestamp(uint8_t flag, uint16_t year, uint8_t month, uint8_t day,
-                 uint8_t hour, uint8_t minute, uint8_t second);
+  bool timestamp(SdBaseFile * const file);
+  bool timestamp(const uint8_t flag, const uint16_t year, const uint8_t month, const uint8_t day,
+                 const uint8_t hour, const uint8_t minute, const uint8_t second);
 
   /**
    * Type of file. Use isFile() or isDir() instead of type() if possible.
@@ -346,7 +345,7 @@ class SdBaseFile {
    * \return SdVolume that contains this file.
    */
   SdVolume* volume() const { return vol_; }
-  int16_t write(const void *buf, uint16_t nbyte);
+  int16_t write(const void *buf, const uint16_t nbyte);
 
  private:
   friend class SdFat;           // allow SdFat to set cwd_
@@ -379,29 +378,31 @@ class SdBaseFile {
   // private functions
   bool addCluster();
   bool addDirCluster();
-  dir_t* cacheDirEntry(uint8_t action);
-  int8_t lsPrintNext(uint8_t flags, uint8_t indent);
-  static bool make83Name(const char *str, uint8_t *name, const char **ptr);
-  bool mkdir(SdBaseFile *parent, const uint8_t dname[11]
+  dir_t* cacheDirEntry(const uint8_t action);
+  int8_t lsPrintNext(const uint8_t flags, const uint8_t indent);
+  static bool make83Name(const char *str, uint8_t * const name, const char **ptr);
+  bool mkdir(SdBaseFile * const parent, const uint8_t dname[11]
     OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
   );
   bool open(SdBaseFile *dirFile, const uint8_t dname[11]
       OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
-    , uint8_t oflag
+    , const uint8_t oflag
   );
-  bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
+  bool openCachedEntry(const uint8_t dirIndex, const uint8_t oflags);
   dir_t* readDirCache();
+
+  #if ENABLED(UTF_FILENAME_SUPPORT)
+    uint8_t convertUtf16ToUtf8(char * const longFilename);
+  #endif
 
   // Long Filename create/write support
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
     static bool isDirLFN(const dir_t* dir);
-    static bool isDirNameLFN(const char *dirname);
-    static bool parsePath(const char *str, uint8_t *name, uint8_t *lname, const char **ptr);
-    /**
-     * Return the number of entries needed in the FAT for this LFN
-     */
-    static inline uint8_t getLFNEntriesNum(const char *lname) { return (strlen(lname) + 12) / 13; }
-    static void getLFNName(vfat_t *vFatDir, char *lname, uint8_t startOffset);
-    static void setLFNName(vfat_t *vFatDir, char *lname, uint8_t lfnSequenceNumber);
+    static bool isDirNameLFN(const char * const dirname);
+    static bool parsePath(const char *str, uint8_t * const name, uint8_t * const lname, const char **ptr);
+    // Return the number of entries needed in the FAT for this LFN
+    static uint8_t getLFNEntriesNum(const char * const lname) { return (strlen(lname) + 12) / 13; }
+    static void getLFNName(vfat_t *vFatDir, char *lname, const uint8_t sequenceNumber);
+    static void setLFNName(vfat_t *vFatDir, char *lname, const uint8_t sequenceNumber);
   #endif
 };

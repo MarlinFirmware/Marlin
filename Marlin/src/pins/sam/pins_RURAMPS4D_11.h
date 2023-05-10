@@ -122,8 +122,8 @@
 #define HEATER_2_PIN                          11
 #define HEATER_BED_PIN                         7  // BED H1
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 #define FAN1_PIN                               8
 #define CONTROLLER_FAN_PIN                    -1
@@ -145,7 +145,7 @@
 
 // SPI for MAX Thermocouple
 /*
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN              EXP1_08_PIN
 #else
   #define TEMP_0_CS_PIN                       49
@@ -163,11 +163,13 @@
 #define TFT_LCD_MODULE_COM                     1
 #define TFT_LCD_MODULE_BAUDRATE              115600
 
-// ESP WiFi Use internal USART-2
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE             115600
-#define ESP_WIFI_MODULE_RESET_PIN             -1
-#define PIGGY_GPIO_PIN                        -1
+#if ENABLED(WIFISUPPORT)
+  // ESP WiFi Use internal USART-2
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE           115600
+  #define ESP_WIFI_MODULE_RESET_PIN           -1
+  #define PIGGY_GPIO_PIN                      -1
+#endif
 
 //
 // EEPROM
@@ -228,12 +230,12 @@
   #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
 
   #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
   #elif HAS_U8GLIB_I2C_OLED
 
@@ -271,7 +273,7 @@
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
     #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
     //#define LCD_PINS_D4                     29  //?
-    //#define LCD_PINS_ENABLE                 27  //?
+    //#define LCD_PINS_EN                     27  //?
     //#define LCD_PINS_RS                     25  //?
     //#define BTN_EN1                         35  //?
     //#define BTN_EN2                         33  //?

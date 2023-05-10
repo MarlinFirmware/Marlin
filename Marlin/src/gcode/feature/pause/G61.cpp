@@ -71,11 +71,11 @@ void GcodeSuite::G61() {
   if (!TEST(saved_slots[slot >> 3], slot & 0x07)) return;
 
   // Apply any given feedrate over 0.0
-  feedRate_t saved_feedrate = feedrate_mm_s;
+  REMEMBER(saved_fr, feedrate_mm_s);
   #if HAS_ROTATIONAL_AXES
-    const feedRate_t saved_angular_feedrate = feedrate_deg_s;
+    REMEMBER(saved_afr, feedrate_deg_s);
   #endif
-  const float fr = parser.feedrateval('F');
+  const float fr = parser.linearval('F');
   if (fr > 0.0f) {
     feedrate_mm_s = fr;
     TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = LINEAR_UNIT(fr));
@@ -107,9 +107,6 @@ void GcodeSuite::G61() {
       }
     #endif
   }
-
-  feedrate_mm_s = saved_feedrate;
-  TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = saved_angular_feedrate);
 }
 
 #endif // SAVED_POSITIONS

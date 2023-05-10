@@ -370,6 +370,7 @@ void menu_backlash();
     #if ENABLED(MPC_EDIT_MENU)
 
       #define _MPC_EDIT_ITEMS(N) \
+        MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
         EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
         EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0, 40); \
         EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0, 1); \
@@ -377,7 +378,6 @@ void menu_backlash();
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define MPC_EDIT_ITEMS(N) \
-          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
             thermalManager.temp_hotend[MenuItemBase::itemIndex].applyFanAdjustment(editable.decimal); \
@@ -475,9 +475,23 @@ void menu_backlash();
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
-    float max_accel = planner.settings.max_acceleration_mm_per_s2[A_AXIS];
-    TERN_(HAS_Y_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[B_AXIS]));
-    TERN_(HAS_Z_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[C_AXIS]));
+    float max_accel = (
+      #if NUM_AXES
+        _MAX(NUM_AXIS_LIST(
+          planner.settings.max_acceleration_mm_per_s2[A_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[B_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[C_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[I_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[J_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[K_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[U_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[V_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[W_AXIS]
+        ))
+      #else
+        0
+      #endif
+    );
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =

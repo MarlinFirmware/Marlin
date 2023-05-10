@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef __STM32F1__
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_FSMC_TFT
@@ -245,6 +247,8 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
   dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
   dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+
+  TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
@@ -260,3 +264,5 @@ void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count)
 }
 
 #endif // HAS_FSMC_TFT
+
+#endif // __STM32F1__

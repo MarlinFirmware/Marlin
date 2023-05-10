@@ -23,10 +23,12 @@
 
 /**
  * Azteeg X1 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X1/Azteeg_X1_schematics.pdf
+ * Origin: https://reprap.org/mediawiki/images/0/07/Azteeg_X1_schematics.pdf
  */
 
 #define BOARD_INFO_NAME "Azteeg X1"
 
-#define FAN_PIN 4
+#define FAN0_PIN 4
 
 #include "pins_SANGUINOLOLU_12.h" // ... SANGUINOLOLU_11

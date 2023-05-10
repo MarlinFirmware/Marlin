@@ -34,7 +34,7 @@
 
 uint8_t DGUSScreenHandler::debug_count = 0;
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   ExtUI::FileList DGUSScreenHandler::filelist;
   uint16_t DGUSScreenHandler::filelist_offset = 0;
   int16_t DGUSScreenHandler::filelist_selected = -1;
@@ -281,7 +281,7 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
   dgus_display.PlaySound(3);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void DGUSScreenHandler::SDCardInserted() {
     if (current_screen == DGUS_Screen::HOME)
@@ -299,7 +299,7 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       TriggerScreenChange(DGUS_Screen::HOME);
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
