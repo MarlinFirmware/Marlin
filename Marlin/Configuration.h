@@ -686,7 +686,8 @@
  * @section mpctemp
  */
 #if ENABLED(MPCTEMP)
-  //#define MPC_AUTOTUNE                              // Include a method to do MPC auto-tuning (~7120 bytes of flash)
+  //#define MPC_AUTOTUNE                              // Include a method to do MPC auto-tuning (~5664-5882 bytes of flash)
+  //#define MPC_AUTOTUNE_FANCY                        // Include a fancier method to do MPC auto-tuning (~7120 bytes of flash)
   //#define MPC_EDIT_MENU                             // Add MPC editing to the "Advanced Settings" menu. (~1300 bytes of flash)
   //#define MPC_AUTOTUNE_MENU                         // Add MPC auto-tuning to the "Advanced Settings" menu. (~350 bytes of flash)
 

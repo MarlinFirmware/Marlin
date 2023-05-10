@@ -976,8 +976,13 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "Only enable PIDTEMP or MPCTEMP, but not both."
   #undef MPCTEMP
   #undef MPC_AUTOTUNE
+  #undef MPC_AUTOTUNE_FANCY
   #undef MPC_EDIT_MENU
   #undef MPC_AUTOTUNE_MENU
+#endif
+#if BOTH(MPC_AUTOTUNE, MPC_AUTOTUNE_FANCY)
+  #error "Only enable MPC_AUTOTUNE or MPC_AUTOTUNE_FANCY, but not both."
+  #undef MPC_AUTOTUNE_FANCY
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
