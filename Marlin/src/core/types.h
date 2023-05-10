@@ -962,11 +962,11 @@ public:
   #endif
   #undef MSET
 
-  FI const bool toggle(const AxisEnum n) { return TBI(bits, n); }
+  FI bool toggle(const AxisEnum n) { TBI(bits, n); return TEST(bits, n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
-  FI const bool operator[](const int n) const { return TEST(bits, n); }
-  FI const bool operator[](const AxisEnum n) const { return TEST(bits, n); }
+  FI bool operator[](const int n) const { return TEST(bits, n); }
+  FI bool operator[](const AxisEnum n) const { return TEST(bits, n); }
 
   FI AxisBits& operator|=(const el &p) { bits |= el(p); return *this; }
   FI AxisBits& operator&=(const el &p) { bits &= el(p); return *this; }
