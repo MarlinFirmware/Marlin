@@ -43,7 +43,7 @@ class FxdTiCtrl {
       static float cfg_dynFreqK[1 + ENABLED(HAS_Y_AXIS)];   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
     #endif
 
-    static uint8_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];                    // Buffer of stepper commands.
+    static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];               // Buffer of stepper commands.
     static hal_timer_t stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of the stepper command timing.
     static uint8_t stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE];            // Buffer of whether DIR needs to be updated.
     static uint32_t stepperCmdBuff_produceIdx,              // Index of next stepper command write to the buffer.
@@ -53,6 +53,7 @@ class FxdTiCtrl {
 
 
     // Public methods
+    static void init();
     static void startBlockProc(block_t * const current_block); // Set controller states to begin processing a block.
     static bool getBlockProcDn() { return blockProcDn; }    // Return true if the controller no longer needs the current block.
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
@@ -160,7 +161,6 @@ class FxdTiCtrl {
 
     // Private methods
     static uint32_t stepperCmdBuffItems();
-    static void init();
     static void loadBlockData(block_t * const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);

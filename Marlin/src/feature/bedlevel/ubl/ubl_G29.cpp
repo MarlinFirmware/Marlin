@@ -112,7 +112,7 @@
  *                    If omitted, the nozzle will raise by Z_CLEARANCE_BETWEEN_PROBES.
  *
  *   H #   Offset     With P4, 'H' specifies the Offset above the mesh height to place the nozzle.
- *                    If omitted, Z_CLEARANCE_BETWEEN_PROBES will be used.
+ *                    If omitted, Z_TWEEN_SAFE_CLEARANCE will be used.
  *
  *   I #   Invalidate Invalidate the specified number of Mesh Points near the given 'X' 'Y'. If X or Y are omitted,
  *                    the nozzle location is used. If no 'I' value is given, only the point nearest to the location
@@ -790,10 +790,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
-        const float measured_z = probe.probe_at_point(
-                      best.meshpos(),
-                      stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity
-                    );
+        const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
         z_values[best.pos.x][best.pos.y] = measured_z;
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
@@ -883,7 +880,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
     do_blocking_move_to(
-      NUM_AXIS_LIST(
+      xyz_pos_t({
         0.5f * ((MESH_MAX_X) - (MESH_MIN_X)),
         0.5f * ((MESH_MAX_Y) - (MESH_MIN_Y)),
         MANUAL_PROBE_START_Z
@@ -905,7 +902,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
         #ifdef SAFE_BED_LEVELING_START_W
           , SAFE_BED_LEVELING_START_W
         #endif
-      )
+      })
       //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f
     );
     planner.synchronize();
@@ -916,15 +913,14 @@ void set_message_with_feedback(FSTR_P const fstr) {
     echo_and_take_a_measurement();
 
     const float z1 = measure_point_with_encoder();
-    do_blocking_move_to_z(current_position.z + SIZE_OF_LITTLE_RAISE);
-    planner.synchronize();
+    do_z_clearance_by(SIZE_OF_LITTLE_RAISE);
 
     SERIAL_ECHOPGM("Remove shim");
     LCD_MESSAGE(MSG_UBL_BC_REMOVE);
     echo_and_take_a_measurement();
 
     const float z2 = measure_point_with_encoder();
-    do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
+    do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
 
     const float thickness = ABS(z1 - z2);
 
@@ -1035,9 +1031,9 @@ void set_message_with_feedback(FSTR_P const fstr) {
     save_ubl_active_state_and_disable();
 
     LCD_MESSAGE(MSG_UBL_FINE_TUNE_MESH);
-    ui.capture();                                               // Take over control of the LCD encoder
+    ui.capture();                                         // Take over control of the LCD encoder
 
-    do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
+    do_blocking_move_to_xy_z(pos, Z_TWEEN_SAFE_CLEARANCE);  // Move to the given XY with probe clearance
 
     MeshFlags done_flags{0};
     const xy_int8_t &lpos = location.pos;
@@ -1054,7 +1050,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
       done_flags.mark(lpos);                              // Mark this location as 'adjusted' so a new
                                                           // location is used on the next loop
-      const xyz_pos_t raw = { get_mesh_x(lpos.x), get_mesh_y(lpos.y), Z_CLEARANCE_BETWEEN_PROBES };
+      const xyz_pos_t raw = { get_mesh_x(lpos.x), get_mesh_y(lpos.y), Z_TWEEN_SAFE_CLEARANCE };
 
       if (!position_is_reachable(raw)) break;             // SHOULD NOT OCCUR (find_closest_mesh_point_of_type only returns reachable)
 
@@ -1064,7 +1060,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
 
-      if (do_ubl_mesh_map) display_map(param.T_map_type);     // Display the current point
+      if (do_ubl_mesh_map) display_map(param.T_map_type); // Display the current point
 
       #if IS_TFTGLCD_PANEL
         ui.ubl_plot(lpos.x, lpos.y);   // update plot screen
@@ -1094,7 +1090,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       // Button held down? Abort editing
       if (_click_and_hold([]{
         ui.return_to_status();
-        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+        do_z_clearance(Z_TWEEN_SAFE_CLEARANCE);
         set_message_with_feedback(GET_TEXT_F(MSG_EDITING_STOPPED));
       })) break;
 
@@ -1114,7 +1110,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     if (do_ubl_mesh_map) display_map(param.T_map_type);
     restore_ubl_active_state_and_leave();
 
-    do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);
+    do_blocking_move_to_xy_z(pos, Z_TWEEN_SAFE_CLEARANCE);
 
     LCD_MESSAGE(MSG_UBL_DONE_EDITING_MESH);
     SERIAL_ECHOLNPGM("Done Editing Mesh");
@@ -1500,7 +1496,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       LOOP_L_N(i, 3) {
         SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), i + 1, GET_TEXT(MSG_LCD_TILTING_MESH)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_LCD_TILTING_MESH), i + 1));
 
         measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
         if ((abort_flag = isnan(measured_z))) break;

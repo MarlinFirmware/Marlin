@@ -112,7 +112,7 @@
 
   #define LCD_SDSS                   EXP2_04_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP2_06_PIN
+  #define LCD_PINS_EN                EXP2_06_PIN
   #define LCD_PINS_D4                EXP2_02_PIN
 
   #if ENABLED(MKS_MINI_12864)

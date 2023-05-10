@@ -100,7 +100,7 @@ body:
   - type: input
     attributes:
       label: Printer model
-      description: Creality Ender 3, Prusa mini, or Kossel Delta?
+      description: Creality Ender-3, Prusa mini, or Kossel Delta?
 
   - type: input
     attributes:

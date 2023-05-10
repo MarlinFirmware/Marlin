@@ -80,7 +80,7 @@ float BDS_Leveling::read() {
   else if((tmp & 0x3FF) >= 1015)
     SERIAL_ECHOLNPGM("Invalid data,please calibrate.");
   else if((tmp & 0x3FF) >= (MAX_BD_HEIGHT*100-10))
-    SERIAL_ECHOLNPGM("Out of Range.");  
+    SERIAL_ECHOLNPGM("Out of Range.");
   BD_z = (tmp & 0x3FF) / 100.0f;
   return BD_z;
 }
@@ -103,28 +103,29 @@ void BDS_Leveling::process() {
       if (cur_z < -0.5f) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
       #if ENABLED(BABYSTEPPING)
-        if (cur_z < config_state * 0.1f
-          && config_state > 0
-          && old_cur_z == cur_z
-          && old_buf_z == current_position.z
-          && z_sensor < (MAX_BD_HEIGHT) - 0.1f
-        ) {
-          babystep.set_mm(Z_AXIS, cur_z - z_sensor);
-          #if ENABLED(DEBUG_OUT_BD)
-            SERIAL_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
-          #endif
-        }
-        else {
-          if(config_state>0){
-            babystep.set_mm(Z_AXIS, 0);
+        if (config_state > 0) {
+          if (cur_z < config_state * 0.1f
+            && old_cur_z == cur_z
+            && old_buf_z == current_position.z
+            && z_sensor < (MAX_BD_HEIGHT) - 0.1f
+          ) {
+            babystep.set_mm(Z_AXIS, cur_z - z_sensor);
+            #if ENABLED(DEBUG_OUT_BD)
+              SERIAL_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
+            #endif
+          }
+          else {
+            babystep.set_mm(Z_AXIS, 0);   //if (old_cur_z <= cur_z) Z_DIR_WRITE(HIGH);
             stepper.set_directions();
           }
         }
       #endif
+
       old_cur_z = cur_z;
       old_buf_z = current_position.z;
       endstops.bdp_state_update(z_sensor <= 0.01f);
       //endstops.update();
+
       #if HAS_STATUS_MESSAGE
         static float old_z_sensor = 0;
         if (old_z_sensor != z_sensor) {
@@ -137,7 +138,7 @@ void BDS_Leveling::process() {
       #endif
     }
     else
-      stepper.set_directions();
+      stepper.apply_directions();
 
     #if ENABLED(DEBUG_OUT_BD)
       SERIAL_ECHOLNPGM("BD:", tmp & 0x3FF, ", Z:", cur_z, "|", current_position.z);
@@ -191,17 +192,17 @@ void BDS_Leveling::process() {
         gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS),"-",pos_zero_offset);
         //gcode.process_subcommands_now(F("M17 Z"));
-        ////////////move the z axis instead of enable the z axis with M17 
-        current_position.z = 0; 
+        ////////////move the z axis instead of enable the z axis with M17
+        current_position.z = 0;
         sync_plan_position();
         gcode.process_subcommands_now(F("G90\nG1Z0.05"));
         safe_delay(1000);
         gcode.process_subcommands_now(F("G1Z0.00"));
         safe_delay(1000);
-        //current_position.z = 0.05; 
+        //current_position.z = 0.05;
         //sync_plan_position();
        // gcode.process_subcommands_now(F("G92Z0\nG1Z0.05\nG92Z0"));
-        current_position.z = 0; 
+        current_position.z = 0;
         sync_plan_position();
         ////////////////
         //safe_delay(1000);

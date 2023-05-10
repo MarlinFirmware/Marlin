@@ -209,7 +209,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
         break;
       case PROMPT_PAUSE_RESUME:
-        #if BOTH(ADVANCED_PAUSE_FEATURE, SDSUPPORT)
+        #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_MEDIA)
           extern const char M24_STR[];
           queue.inject_P(M24_STR);
         #endif

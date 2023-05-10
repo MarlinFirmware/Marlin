@@ -178,7 +178,7 @@
 #endif
 
 // SPI for MAX Thermocouple
-//#if DISABLED(SDSUPPORT)
+//#if !HAS_MEDIA
 //  #define TEMP_0_CS_PIN    66   // Don't use 53 if using Display/SD card
 //#else
 //  #define TEMP_0_CS_PIN    66   // Don't use 49 (SD_DETECT_PIN)
@@ -276,13 +276,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
+    #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
+    #define LCD_PINS_EN                       42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -291,7 +291,7 @@
   #elif ENABLED(ZONESTAR_LCD)
 
     #define LCD_PINS_RS                       64
-    #define LCD_PINS_ENABLE                   44
+    #define LCD_PINS_EN                       44
     #define LCD_PINS_D4                       63
     #define LCD_PINS_D5                       40
     #define LCD_PINS_D6                       42
@@ -303,7 +303,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 29
+      #define LCD_PINS_EN                     29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -322,7 +322,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27

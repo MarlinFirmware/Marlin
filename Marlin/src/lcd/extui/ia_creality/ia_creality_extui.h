@@ -31,8 +31,9 @@
  *
  * ***************************************/
 
-#include "string.h"
 #include "../ui_api.h"
+
+#include <string.h>
 
 /*********************************/
 #define FHONE   (0x5A)

@@ -126,8 +126,11 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -155,7 +158,7 @@
 //
 #define BEEPER_PIN                         P2_07
 #define LCD_PINS_RS                        P2_10
-#define LCD_PINS_ENABLE                    P0_22
+#define LCD_PINS_EN                        P0_22
 #define LCD_PINS_D4                        P1_19
 #define LCD_PINS_D5                        P2_08
 #define LCD_PINS_D6                        P1_30

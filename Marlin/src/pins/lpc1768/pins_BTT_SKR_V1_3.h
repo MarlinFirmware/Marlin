@@ -186,8 +186,11 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**
  *                 ------                                     ------
@@ -254,7 +257,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_03_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_06_PIN
+    #define LCD_PINS_EN              EXP1_06_PIN
     #define LCD_PINS_D4              EXP1_04_PIN
 
   #elif ENABLED(WYH_L12864)
@@ -299,7 +302,7 @@
     #define BTN_EN2                  EXP1_05_PIN
     #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif HAS_ADC_BUTTONS
@@ -385,7 +388,7 @@
     #define BTN_EN2                  EXP2_05_PIN  // (33) J3-4 & AUX-4
     #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #define LCD_SDSS                 EXP2_04_PIN  // (16) J3-7 & AUX-4

@@ -128,7 +128,9 @@
   #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
   #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
@@ -169,7 +171,6 @@
 #if AXIS_DRIVER_TYPE_E0(TMC2208) || AXIS_DRIVER_TYPE_E0(TMC2209)
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
-  #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_E_PIN           PB0   // VREF1 CONTROL E
@@ -256,7 +257,7 @@
   #define SD_SS_PIN                         -1
   #define SD_DETECT_PIN                     PD12  // SD_CD (if -1 no detection)
 #else
-  #define SDIO_SUPPORT
+  #define ONBOARD_SDIO
   #define SDIO_CLOCK                     4500000  // 4.5 MHz
   #define SDIO_READ_RETRIES                   16
   #define ONBOARD_SPI_DEVICE                   1  // SPI1

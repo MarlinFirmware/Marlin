@@ -135,7 +135,7 @@
 
 // SPI for MAX Thermocouple
 /*
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49
@@ -220,12 +220,12 @@
   #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
 
   #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
   #elif HAS_U8GLIB_I2C_OLED
 
