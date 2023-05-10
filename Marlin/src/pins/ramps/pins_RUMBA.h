@@ -23,6 +23,9 @@
 
 /**
  * RUMBA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
+ * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -47,9 +50,6 @@
 //
 // Limit Switches
 //
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN                           37
-#endif
 #ifndef X_MIN_PIN
   #define X_MIN_PIN                           37
 #endif
@@ -156,8 +156,8 @@
 #define HEATER_3_PIN                           8
 #define HEATER_BED_PIN                         9
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             8
@@ -225,7 +225,7 @@
 
 #else
   #define LCD_PINS_RS                         19
-  #define LCD_PINS_ENABLE                     42
+  #define LCD_PINS_EN                         42
   #define LCD_PINS_D4                         18
   #define LCD_PINS_D5                         38
   #define LCD_PINS_D6                         41
@@ -238,7 +238,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

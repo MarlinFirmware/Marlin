@@ -23,6 +23,7 @@
 
 /**
  * Ultimaker pin assignments
+ * ATmega2560, ATmega1280
  */
 
 /**
@@ -98,8 +99,8 @@
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 
 //
@@ -124,7 +125,7 @@
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       16
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                        5
@@ -146,7 +147,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20

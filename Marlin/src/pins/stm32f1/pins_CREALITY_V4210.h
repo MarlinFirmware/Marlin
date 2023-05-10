@@ -130,7 +130,7 @@
 #define HEATER_0_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA1   // HOT BED
 
-#define FAN_PIN                             PA2   // FAN
+#define FAN0_PIN                            PA2   // FAN
 #define FAN_SOFT_PWM_REQUIRED
 
 //
@@ -140,7 +140,7 @@
 #define SDCARD_CONNECTION                ONBOARD
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
@@ -193,7 +193,7 @@
   #endif
 
   #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
   #define LCD_PINS_D4                EXP3_06_PIN
 
   #define BTN_ENC                    EXP3_02_PIN

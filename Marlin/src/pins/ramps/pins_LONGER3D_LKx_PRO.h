@@ -23,6 +23,7 @@
 
 /**
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -127,19 +128,19 @@
 //          ------------------        ----------------        ---------------        -------------
 
 #if BOTH(CR10_STOCKDISPLAY, LONGER_LK5)
-  /**           CR-10 Stock Display
-   *                  ------
-   *             GND | 9 10 | 5V
-   * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_ENABLE
-   *     BTN_EN2 D19 | 5  6   D6  LCD_PINS_D4
-   *     BTN_EN1 D18 | 3  4 | GND
-   *  BEEPER_PIN D11 | 1  2 | D15 BTN_ENC
-   *                  ------
+  /**       CR-10 Stock Display
+   *             ------
+   * BEEPER D11 | 1  2 | D15 ENC
+   *    EN1 D18 | 3  4 | GND
+   *    EN2 D19   5  6 | D6  LCD_D4
+   * LCD_RS D5  | 7  8 | D4  LCD_ENABLE
+   *        GND | 9 10 | 5V
+   *             ------
    *      Connected via provided custom cable to:
    *      Aux-1, J21, J17 and Y-Max.
    */
   #define LCD_PINS_RS                          5
-  #define LCD_PINS_ENABLE                      4
+  #define LCD_PINS_EN                          4
   #define LCD_PINS_D4                          6
   #define BTN_EN1                             18
   #define BTN_EN2                             19

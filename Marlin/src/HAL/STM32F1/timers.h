@@ -81,7 +81,7 @@ typedef uint16_t hal_timer_t;
 #endif
 
 #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3)
-  // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
+  // SKR Mini E3 boards use PA8 as FAN0_PIN, so TIMER 1 is used for Fan PWM.
   #ifdef STM32_HIGH_DENSITY
     #define MF_TIMER_SERVO0  8  // tone.cpp uses Timer 4
   #else

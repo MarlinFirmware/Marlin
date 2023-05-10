@@ -24,11 +24,11 @@
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+  #include HAL_PATH(../.., tft/tft_spi.h)
 #elif HAS_FSMC_TFT
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+  #include HAL_PATH(../.., tft/tft_fsmc.h)
 #elif HAS_LTDC_TFT
-  #include HAL_PATH(../../HAL, tft/tft_ltdc.h)
+  #include HAL_PATH(../.., tft/tft_ltdc.h)
 #else
   #error "TFT IO only supports SPI, FSMC or LTDC interface."
 #endif
@@ -36,8 +36,6 @@
 #ifndef DMA_MAX_SIZE
   #error "DMA_MAX_SIZE is not configured for this platform."
 #endif
-
-#include "tft_orientation.h"
 
 #ifndef TFT_DRIVER
   #define TFT_DRIVER    AUTO
@@ -62,7 +60,7 @@ public:
   inline static void Abort() { io.Abort(); }
   inline static uint32_t GetID() { return io.GetID(); }
 
-  inline static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
+  inline static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
   inline static void DataTransferEnd() { io.DataTransferEnd(); }
 
   inline static void WriteData(uint16_t Data) { io.WriteData(Data); }

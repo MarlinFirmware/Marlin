@@ -23,9 +23,13 @@
 
 /**
  * Brainwave 1.0 pin assignments (AT90USB646)
+ * https://www.reprap.org/wiki/Brainwave
  *
  * Requires hardware bundle for Arduino:
  * https://github.com/unrepentantgeek/brainwave-arduino
+ *
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Brainwave/schematic.pdf
+ * Origin: https://github.com/unrepentantgeek/Brainwave/blob/master/brainwave/brainwave.sch
  */
 
 /**
@@ -116,8 +120,8 @@
 #define HEATER_0_PIN                          32  // A4 Extruder
 #define HEATER_BED_PIN                        18  // E6 Bed
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             31  // A3 Fan
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            31  // A3 Fan
 #endif
 
 //
