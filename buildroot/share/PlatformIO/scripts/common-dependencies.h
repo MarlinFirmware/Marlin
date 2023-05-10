@@ -68,7 +68,7 @@
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #define HAS_MENU_FILAMENT
   #endif
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define HAS_MENU_MEDIA
   #endif
   #if ENABLED(MIXING_EXTRUDER)
@@ -103,5 +103,18 @@
   #endif
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     #define HAS_MENU_UBL
+  #endif
+#endif
+
+#if HAS_GRAPHICAL_TFT
+  #define NOTOSANS 1
+  #define UNIFONT 2
+  #define HELVETICA 3
+  #if TFT_FONT == NOTOSANS
+    #define TFT_FONT_NOTOSANS
+  #elif TFT_FONT == UNIFONT
+    #define TFT_FONT_UNIFONT
+  #elif TFT_FONT == HELVETICA
+    #define TFT_FONT_HELVETICA
   #endif
 #endif

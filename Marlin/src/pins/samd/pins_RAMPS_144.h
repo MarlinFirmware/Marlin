@@ -273,14 +273,14 @@
 
     // TO TEST
     //#define LCD_PINS_RS                     49  // CS chip select /SS chip slave select
-    //#define LCD_PINS_ENABLE                 51  // SID (MOSI)
+    //#define LCD_PINS_EN                     51  // SID (MOSI)
     //#define LCD_PINS_D4                     52  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS                     40
-    //#define LCD_PINS_ENABLE                 42
+    //#define LCD_PINS_EN                     42
     //#define LCD_PINS_D4                     57  // Mega/Due:65 - AGCM4:57
     //#define LCD_PINS_D5                     58  // Mega/Due:66 - AGCM4:58
     //#define LCD_PINS_D6                     44
@@ -292,7 +292,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   27
-      //#define LCD_PINS_ENABLE               29
+      //#define LCD_PINS_EN                   29
       //#define LCD_PINS_D4                   25
 
       #if !IS_NEWPANEL
@@ -304,7 +304,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   56  // Mega/Due:64 - AGCM4:56
-      //#define LCD_PINS_ENABLE               44
+      //#define LCD_PINS_EN                   44
       //#define LCD_PINS_D4                   55  // Mega/Due:63 - AGCM4:55
       //#define LCD_PINS_D5                   40
       //#define LCD_PINS_D6                   42
@@ -323,7 +323,7 @@
         //#define DOGLCD_A0          LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27

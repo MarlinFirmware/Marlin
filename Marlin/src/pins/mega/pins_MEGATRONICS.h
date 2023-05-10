@@ -112,7 +112,7 @@
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
+  #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         23
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27

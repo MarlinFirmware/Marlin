@@ -88,7 +88,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PA0   // FAN
+#define FAN0_PIN                            PA0   // FAN
 #define FAN1_PIN                            PA14  // Connected to +24V
 #define FAN2_PIN                            -1    // PB1, auto fan for E0
 #define CONTROLLER_FAN_PIN              FAN1_PIN
@@ -115,10 +115,10 @@
 //
 #define SD_DETECT_PIN                       PC7
 
-#ifndef SDIO_SUPPORT
-  #define SDIO_SUPPORT
+#ifndef ONBOARD_SDIO
+  #define ONBOARD_SDIO
 #endif
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   //
   // SPI
   //

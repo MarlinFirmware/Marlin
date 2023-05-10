@@ -149,7 +149,7 @@
   #define BTN_ENC                           PE7
 
   #define LCD_PINS_RS                       PE10
-  #define LCD_PINS_ENABLE                   PE9
+  #define LCD_PINS_EN                       PE9
   #define LCD_PINS_D4                       PE12
 
   #if ENABLED(MKS_MINI_12864)

@@ -41,7 +41,7 @@
 
 #define R61505_DRVCTRL_GS         0x8000 // Gate Scan direction
 
-// MKS Robin TFT v1.1 - 320x240 ; Cable on the left side
+// MKS Robin TFT v1.1 - 320x240 ; FPC cable on the left side
 
 #if TFT_ROTATION == TFT_ROTATE_180
   #define R61505_DRVCTL_DATA      0x0000

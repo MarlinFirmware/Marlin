@@ -99,7 +99,7 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
-void GCodeQueue::RingBuffer::commit_command(bool skip_ok
+void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
@@ -113,7 +113,7 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return true if the command was successfully added.
  * Return false for a full buffer, or if the 'command' is a comment.
  */
-bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
+bool GCodeQueue::RingBuffer::enqueue(const char *cmd, const bool skip_ok/*=true*/
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
@@ -512,7 +512,7 @@ void GCodeQueue::get_serial_commands() {
 
           serial.last_N = gcode_N;
         }
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           // Pronterface "M29" and "M29 " has no line number
           else if (card.flag.saving && !is_M29(command)) {
             gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
@@ -562,7 +562,7 @@ void GCodeQueue::get_serial_commands() {
   } // queue has space, serial has data
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   /**
    * Get lines from the SD Card until the command buffer is full
@@ -615,7 +615,7 @@ void GCodeQueue::get_serial_commands() {
     }
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 /**
  * Add to the circular command queue the next command from:
@@ -628,7 +628,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  TERN_(SDSUPPORT, get_sdcard_commands());
+  TERN_(HAS_MEDIA, get_sdcard_commands());
 }
 
 /**
@@ -667,7 +667,7 @@ void GCodeQueue::advance() {
     }
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     if (card.flag.saving) {
       char * const cmd = ring_buffer.peek_next_command_string();
@@ -703,7 +703,7 @@ void GCodeQueue::advance() {
 
     gcode.process_next_command();
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
   ring_buffer.advance_pos(ring_buffer.index_r, -1);

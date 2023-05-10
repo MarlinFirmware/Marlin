@@ -40,7 +40,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   extern ExtUI::FileList filelist;
 
@@ -124,7 +124,7 @@
     ) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   uint8_t *tmp = (uint8_t*)val_ptr;
@@ -157,20 +157,22 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   #endif
   char axiscode;
-  uint16_t speed = _mf[X_AXIS]; // Default feedrate for manual moves
+  uint16_t speed = manual_feedrate_mm_m[X_AXIS]; // Default feedrate for manual moves
 
   switch (var.VP) {
     default: return;
 
-    case VP_MOVE_X:
-      axiscode = 'X';
-      if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
-      break;
+    #if HAS_X_AXIS
+      case VP_MOVE_X:
+        axiscode = 'X';
+        if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_MOVE_Y:
         axiscode = 'Y';
-        speed = _mf[Y_AXIS];
+        speed = manual_feedrate_mm_m[Y_AXIS];
         if (!ExtUI::canMove(ExtUI::axis_t::Y)) goto cannotmove;
         break;
     #endif
@@ -178,7 +180,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     #if HAS_Z_AXIS
       case VP_MOVE_Z:
         axiscode = 'Z';
-        speed = _mf[Z_AXIS];
+        speed = manual_feedrate_mm_m[Z_AXIS];
         if (!ExtUI::canMove(ExtUI::axis_t::Z)) goto cannotmove;
         break;
     #endif

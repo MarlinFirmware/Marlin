@@ -127,21 +127,20 @@
           case DXC_MIRRORED_MODE:     DEBUG_ECHOPGM("MIRRORED");     break;
         }
         DEBUG_ECHOPGM("\nActive Ext: ", active_extruder);
-        if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
-        DEBUG_ECHOPGM(" parked.");
-        DEBUG_ECHOPGM("\nactive_extruder_x_pos: ", current_position.x);
-        DEBUG_ECHOPGM("\ninactive_extruder_x: ", inactive_extruder_x);
-        DEBUG_ECHOPGM("\nextruder_duplication_enabled: ", extruder_duplication_enabled);
-        DEBUG_ECHOPGM("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
-        DEBUG_ECHOPGM("\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset);
-        DEBUG_ECHOPGM("\ndelayed_move_time: ", delayed_move_time);
-        DEBUG_ECHOPGM("\nX1 Home X: ", x_home_pos(0), "\nX1_MIN_POS=", X1_MIN_POS, "\nX1_MAX_POS=", X1_MAX_POS);
-        DEBUG_ECHOPGM("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", X2_MIN_POS, "\nX2_MAX_POS=", X2_MAX_POS);
-        DEBUG_ECHOPGM("\nX2_HOME_DIR=", X2_HOME_DIR, "\nX2_HOME_POS=", X2_HOME_POS);
-        DEBUG_ECHOPGM("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
-        DEBUG_ECHOPGM("\toolchange_settings.z_raise=", toolchange_settings.z_raise);
-        DEBUG_ECHOPGM("\nDEFAULT_DUPLICATION_X_OFFSET=", DEFAULT_DUPLICATION_X_OFFSET);
-        DEBUG_EOL();
+        if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ", F(" parked."));
+        DEBUG_ECHOLNPGM(
+          "\nactive_extruder_x_pos: ", current_position.x,
+          "\ninactive_extruder_x: ", inactive_extruder_x,
+          "\nextruder_duplication_enabled: ", extruder_duplication_enabled,
+          "\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset,
+          "\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset,
+          "\ndelayed_move_time: ", delayed_move_time,
+          "\nX1 Home: ", x_home_pos(0), " X1_MIN_POS=", X1_MIN_POS, " X1_MAX_POS=", X1_MAX_POS,
+          "\nX2 Home: ", x_home_pos(1), " X2_MIN_POS=", X2_MIN_POS, " X2_MAX_POS=", X2_MAX_POS,
+          "\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE),
+          "\toolchange_settings.z_raise=", toolchange_settings.z_raise,
+          "\nDEFAULT_DUPLICATION_X_OFFSET=", DEFAULT_DUPLICATION_X_OFFSET
+        );
 
         HOTEND_LOOP() {
           DEBUG_ECHOPGM_P(SP_T_STR, e);
