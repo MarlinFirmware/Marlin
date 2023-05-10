@@ -65,7 +65,7 @@ void TouchButtons::init() {
 }
 
 uint8_t TouchButtons::read_buttons() {
-  #ifdef HAS_WIRED_LCD
+  #if HAS_WIRED_LCD
     int16_t x, y;
 
     #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)

@@ -162,10 +162,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   switch (var.VP) {
     default: return;
 
-    case VP_MOVE_X:
-      axiscode = 'X';
-      if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
-      break;
+    #if HAS_X_AXIS
+      case VP_MOVE_X:
+        axiscode = 'X';
+        if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_MOVE_Y:

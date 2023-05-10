@@ -676,28 +676,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
-      #if HAS_SWITCHING_EXTRUDER
-        bool oldstatus;
-        switch (active_extruder) {
-          default: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, 0); stepper.ENABLE_EXTRUDER(0); break;
-          #if E_STEPPERS > 1
-            case 2: case 3: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, 1); stepper.ENABLE_EXTRUDER(1); break;
-            #if E_STEPPERS > 2
-              case 4: case 5: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, 2); stepper.ENABLE_EXTRUDER(2); break;
-              #if E_STEPPERS > 3
-                case 6: case 7: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, 3); stepper.ENABLE_EXTRUDER(3); break;
-              #endif // E_STEPPERS > 3
-            #endif // E_STEPPERS > 2
-          #endif // E_STEPPERS > 1
-        }
-      #else // !HAS_SWITCHING_EXTRUDER
-        bool oldstatus;
-        switch (active_extruder) {
-          default:
-          #define _CASE_EN(N) case N: oldstatus = stepper.AXIS_IS_ENABLED(E_AXIS, N); stepper.ENABLE_EXTRUDER(N); break;
-          REPEAT(E_STEPPERS, _CASE_EN);
-        }
-      #endif
+      const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, active_extruder >> 1, active_extruder);
+      const bool e_off = !stepper.AXIS_IS_ENABLED(E_AXIS, e_stepper);
+      if (e_off) stepper.ENABLE_EXTRUDER(e_stepper);
 
       const float olde = current_position.e;
       current_position.e += EXTRUDER_RUNOUT_EXTRUDE;
@@ -706,22 +687,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
-      #if HAS_SWITCHING_EXTRUDER
-        switch (active_extruder) {
-          default: if (oldstatus) stepper.ENABLE_EXTRUDER(0); else stepper.DISABLE_EXTRUDER(0); break;
-          #if E_STEPPERS > 1
-            case 2: case 3: if (oldstatus) stepper.ENABLE_EXTRUDER(1); else stepper.DISABLE_EXTRUDER(1); break;
-            #if E_STEPPERS > 2
-              case 4: case 5: if (oldstatus) stepper.ENABLE_EXTRUDER(2); else stepper.DISABLE_EXTRUDER(2); break;
-            #endif // E_STEPPERS > 2
-          #endif // E_STEPPERS > 1
-        }
-      #else // !HAS_SWITCHING_EXTRUDER
-        switch (active_extruder) {
-          #define _CASE_RESTORE(N) case N: if (oldstatus) stepper.ENABLE_EXTRUDER(N); else stepper.DISABLE_EXTRUDER(N); break;
-          REPEAT(E_STEPPERS, _CASE_RESTORE);
-        }
-      #endif // !HAS_SWITCHING_EXTRUDER
+      if (e_off) stepper.DISABLE_EXTRUDER(e_stepper);
 
       gcode.reset_stepper_timeout(ms);
     }
@@ -1656,6 +1622,10 @@ void setup() {
 
   #if ENABLED(BD_SENSOR)
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
+  #endif
+
+  #if ENABLED(FT_MOTION)
+    SETUP_RUN(fxdTiCtrl.init());
   #endif
 
   marlin_state = MF_RUNNING;

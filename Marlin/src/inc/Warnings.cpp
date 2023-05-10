@@ -668,6 +668,10 @@
   #endif
 #endif
 
+#if ENABLED(QUICK_HOME) && (X_SPI_SENSORLESS || Y_SPI_SENSORLESS)
+  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
+#endif
+
 #if CANNOT_EMBED_CONFIGURATION
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
@@ -748,4 +752,11 @@
 #endif
 #if SDSORT_CACHE_LPC1768_WARNING
   #warning "SDCARD_SORT_ALPHA sub-options overridden for LPC1768 with DOGM LCD SCK overlap."
+#endif
+
+/**
+ * Ender-5 S1 bootloader
+ */
+#ifdef STM32F4_UPDATE_FOLDER
+  #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
 #endif

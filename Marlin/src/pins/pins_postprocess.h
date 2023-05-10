@@ -497,7 +497,7 @@
 #undef NEEDS_Z_MINMAX
 
 //
-// Assign endstop pins for boards with only 3 connectors
+// Assign endstop pins, with handling for boards that have only 3 connectors
 //
 #if HAS_X_AXIS
   #ifdef X_STOP_PIN
@@ -794,14 +794,14 @@
 #endif
 
 // Y2 auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_DUAL_Y_STEPPERS && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS_PIN)
+#if HAS_Y2_STEPPER && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS_PIN)
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
 #endif
 
 // The Y2 axis, if any, should be the next open extruder port
-#if HAS_DUAL_Y_STEPPERS
+#if HAS_Y2_STEPPER
   #ifndef Y2_STEP_PIN
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
@@ -1639,10 +1639,10 @@
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
  */
-#if ENABLED(X_DUAL_ENDSTOPS)
-  #if X_HOME_TO_MAX && !defined(X2_MAX_PIN) && PIN_EXISTS(X2_STOP)
+#if ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X2_STOP)
+  #if X_HOME_TO_MAX && !defined(X2_MAX_PIN)
     #define X2_MAX_PIN X2_STOP_PIN
-  #elif X_HOME_TO_MIN && !defined(X2_MIN_PIN) && PIN_EXISTS(X2_STOP)
+  #elif X_HOME_TO_MIN && !defined(X2_MIN_PIN)
     #define X2_MIN_PIN X2_STOP_PIN
   #endif
 #endif
@@ -1650,10 +1650,10 @@
 /**
  * Y_DUAL_ENDSTOPS endstop reassignment
  */
-#if ENABLED(Y_DUAL_ENDSTOPS)
-  #if Y_HOME_TO_MAX && !defined(Y2_MAX_PIN) && PIN_EXISTS(Y2_STOP)
+#if ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y2_STOP)
+  #if Y_HOME_TO_MAX && !defined(Y2_MAX_PIN)
     #define Y2_MAX_PIN Y2_STOP_PIN
-  #elif Y_HOME_TO_MIN && !defined(Y2_MIN_PIN) && PIN_EXISTS(Y2_STOP)
+  #elif Y_HOME_TO_MIN && !defined(Y2_MIN_PIN)
     #define Y2_MIN_PIN Y2_STOP_PIN
   #endif
 #endif
@@ -1662,22 +1662,24 @@
  * Z_MULTI_ENDSTOPS endstop reassignment
  */
 #if ENABLED(Z_MULTI_ENDSTOPS)
-  #if Z_HOME_TO_MAX && !defined(Z2_MAX_PIN) && PIN_EXISTS(Z2_STOP)
-    #define Z2_MAX_PIN Z2_STOP_PIN
-  #elif Z_HOME_TO_MIN && !defined(Z2_MIN_PIN) && PIN_EXISTS(Z2_STOP)
-    #define Z2_MIN_PIN Z2_STOP_PIN
+  #if PIN_EXISTS(Z2_STOP)
+    #if Z_HOME_TO_MAX && !defined(Z2_MAX_PIN)
+      #define Z2_MAX_PIN Z2_STOP_PIN
+    #elif Z_HOME_TO_MIN && !defined(Z2_MIN_PIN)
+      #define Z2_MIN_PIN Z2_STOP_PIN
+    #endif
   #endif
-  #if NUM_Z_STEPPERS >= 3
-    #if Z_HOME_TO_MAX && !defined(Z3_MAX_PIN) && PIN_EXISTS(Z3_STOP)
+  #if NUM_Z_STEPPERS >= 3 && PIN_EXISTS(Z3_STOP)
+    #if Z_HOME_TO_MAX && !defined(Z3_MAX_PIN)
       #define Z3_MAX_PIN Z3_STOP_PIN
-    #elif Z_HOME_TO_MIN && !defined(Z3_MIN_PIN) && PIN_EXISTS(Z3_STOP)
+    #elif Z_HOME_TO_MIN && !defined(Z3_MIN_PIN)
       #define Z3_MIN_PIN Z3_STOP_PIN
     #endif
   #endif
-  #if NUM_Z_STEPPERS >= 4
-    #if Z_HOME_TO_MAX && !defined(Z4_MAX_PIN) && PIN_EXISTS(Z4_STOP)
+  #if NUM_Z_STEPPERS >= 4 && PIN_EXISTS(Z4_STOP)
+    #if Z_HOME_TO_MAX && !defined(Z4_MAX_PIN)
       #define Z4_MAX_PIN Z4_STOP_PIN
-    #elif Z_HOME_TO_MIN && !defined(Z4_MIN_PIN) && PIN_EXISTS(Z4_STOP)
+    #elif Z_HOME_TO_MIN && !defined(Z4_MIN_PIN)
       #define Z4_MIN_PIN Z4_STOP_PIN
     #endif
   #endif
