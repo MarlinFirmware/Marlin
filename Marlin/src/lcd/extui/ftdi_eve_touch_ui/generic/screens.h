@@ -83,7 +83,7 @@ enum {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     FILAMENT_RUNOUT_SCREEN_CACHE,
   #endif
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     FILES_SCREEN_CACHE,
   #endif
   #if ENABLED(CUSTOM_MENU_MAIN)
@@ -204,7 +204,7 @@ enum {
   #include "linear_advance_screen.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "files_screen.h"
 #endif
 

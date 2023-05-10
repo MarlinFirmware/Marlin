@@ -251,8 +251,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PD7   // Hotbed
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB7   // Fan0
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB7   // Fan0
 #endif
 
 #if HAS_CUTTER
@@ -272,18 +272,16 @@
 #endif // SPINDLE_FEATURE || LASER_FEATURE
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PE14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA14
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PE15
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PE14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PA14
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PE15
 #endif
 
 #if HAS_TMC_UART
@@ -324,8 +322,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // SD Connection
@@ -374,7 +375,7 @@
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -458,7 +459,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -475,7 +476,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -556,25 +557,27 @@
   #define NEOPIXEL_PIN                      PE6
 #endif
 
-//
-// WIFI
-//
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
 
-/**
- *                      -------
- *            GND | 9  |       | 8 | 3.3V
- *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
- *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
- * (ESP-IO0) PB10 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PB11 | 13 |       | 4 | --
- *             -- | 14 |       | 3 | 3.3V (ESP-EN)
- *  (ESP-RX)  PD8 | 15 |       | 2 | --
- *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
- *                      -------
- *                       WIFI
- */
-#define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PC14
-#define ESP_WIFI_MODULE_GPIO0_PIN           PB10
-#define ESP_WIFI_MODULE_GPIO4_PIN           PB11
+  /**
+   *                      -------
+   *            GND | 9  |       | 8 | 3.3V
+   *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
+   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
+   * (ESP-IO0) PB10 | 12 |       | 5 | PB13 (ESP-CLK)
+   * (ESP-IO4) PB11 | 13 |       | 4 | --
+   *             -- | 14 |       | 3 | 3.3V (ESP-EN)
+   *  (ESP-RX)  PD8 | 15 |       | 2 | --
+   *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
+   *                      -------
+   *                       WIFI
+   */
+  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PC14
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PB10
+  #define ESP_WIFI_MODULE_GPIO4_PIN         PB11
+#endif

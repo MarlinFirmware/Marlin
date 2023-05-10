@@ -23,6 +23,7 @@
 
 /**
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME
@@ -71,7 +72,7 @@
 
 // SPI for MAX Thermocouple
 #undef TEMP_0_CS_PIN
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53  // Don't use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       49  // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
@@ -83,8 +84,8 @@
 #undef HEATER_BED_PIN
 #define HEATER_BED_PIN                        10
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              8  // Same as RAMPS_13_EEF
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             8  // Same as RAMPS_13_EEF
 #endif
 
 //

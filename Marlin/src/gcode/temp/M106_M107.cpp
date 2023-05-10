@@ -85,7 +85,7 @@ void GcodeSuite::M106() {
   if (!got_preset && parser.seenval('S'))
     speed = parser.value_ushort();
 
-  TERN_(FOAMCUTTER_XYUV, speed *= 2.55); // Get command in % of max heat
+  TERN_(FOAMCUTTER_XYUV, speed *= 2.55f); // Get command in % of max heat
 
   // Set speed, with constraint
   thermalManager.set_fan_speed(pfan, speed);
