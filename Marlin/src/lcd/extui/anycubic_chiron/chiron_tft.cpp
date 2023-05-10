@@ -33,7 +33,7 @@
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
 
 #include "chiron_tft.h"
-#include "Tunes.h"
+#include "../anycubic/Tunes.h"
 #include "FileNavigator.h"
 
 #include "../../../gcode/queue.h"
@@ -72,14 +72,6 @@ void ChironTFT::Startup() {
   live_Zoffset      = 0.0;
   file_menu         = AC_menu_file;
 
-  // Setup pins for powerloss detection
-  // Two IO pins are connected on the Trigorilla Board
-  // On a power interruption the OUTAGECON_PIN goes low.
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    OUT_WRITE(OUTAGECON_PIN, HIGH);
-  #endif
-
   // Filament runout is handled by Marlin settings in Configuration.h
   // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
   // opt_enable FIL_RUNOUT_PULLUP
@@ -112,7 +104,7 @@ void ChironTFT::Startup() {
   injectCommands(AC_cmnd_enable_leveling);
 
   // Startup tunes are defined in Tunes.h
-  PlayTune(BEEPER_PIN, TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn), 1);
+  PlayTune(TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn));
 
   #if ACDEBUGLEVEL
     SERIAL_ECHOLNPGM("AC Debug Level ", ACDEBUGLEVEL);
@@ -200,7 +192,7 @@ void ChironTFT::FilamentRunout()  {
   // 1 Signal filament out
   last_error = AC_error_filament_runout;
   SendtoTFTLN(isPrintingFromMedia() ? AC_msg_filament_out_alert : AC_msg_filament_out_block);
-  PlayTune(BEEPER_PIN, FilamentOut, 1);
+  PlayTune(FilamentOut);
 }
 
 void ChironTFT::ConfirmationRequest(const char * const msg)  {
@@ -223,7 +215,7 @@ void ChironTFT::ConfirmationRequest(const char * const msg)  {
       if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
         pause_state = AC_paused_heater_timed_out;
         SendtoTFTLN(AC_msg_paused); // enable continue button
-        PlayTune(BEEPER_PIN,Heater_Timedout,1);
+        PlayTune(HeaterTimeout);
       }
       // Reheat finished, send acknowledgement
       else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
@@ -261,7 +253,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
       }
       // If probing fails don't save the mesh raise the probe above the bad point
       if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
-        PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
+        PlayTune(BeepBeepBeeep);
         injectCommands(F("G1 Z50 F500"));
         SendtoTFTLN(AC_msg_probing_complete);
         printer_state = AC_printer_idle;
@@ -315,7 +307,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
 void ChironTFT::PowerLossRecovery()  {
   printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
   last_error = AC_error_powerloss;
-  PlayTune(BEEPER_PIN, SOS, 1);
+  PlayTune(SOS);
   SERIAL_ECHOLNF(AC_msg_powerloss_recovery);
 }
 

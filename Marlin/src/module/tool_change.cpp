@@ -435,7 +435,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
   }
 
-
 #endif // TOOL_SENSOR
 
 #if ENABLED(SWITCHING_TOOLHEAD)
@@ -881,7 +880,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
 
     // Ensure X axis DIR pertains to the correct carriage
-    stepper.set_directions();
+    stepper.apply_directions();
 
     DEBUG_ECHOLNPGM("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", current_position);
@@ -958,13 +957,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * If cooling fan is enabled, calls filament_swap_cooling();
    */
   void extruder_prime() {
-
     if (too_cold(active_extruder)) {
       FS_DEBUG("Priming Aborted -  Nozzle Too Cold!");
       return; // Extruder too cold to prime
     }
 
-    float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
+    feedRate_t fr_mm_s = MMM_TO_MMS(toolchange_settings.unretract_speed); // Set default speed for unretract
 
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
       /**
@@ -974,18 +972,19 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (!extruder_did_first_prime[active_extruder]) {
         extruder_did_first_prime.set(active_extruder);   // Log first prime complete
         // new nozzle - prime at user-specified speed.
-        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
-        fr = toolchange_settings.prime_speed;
-        unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
+        const feedRate_t prime_mm_s = MMM_TO_MMS(toolchange_settings.prime_speed);
+        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", fr_mm_s, " to ",  prime_mm_s, "mm/s");
+        fr_mm_s = prime_mm_s;
+        unscaled_e_move(0, fr_mm_s);      // Init planner with 0 length move
       }
     #endif
 
     // Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
-      // - Return filament at speed (fr) then extra_prime at prime speed
-      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-      unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
+      // - Return filament at speed (fr_mm_s) then extra_prime at prime speed
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", fr_mm_s, "mm/s");
+      unscaled_e_move(toolchange_settings.swap_length, fr_mm_s); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
 
       if (toolchange_settings.extra_prime > 0) {
         FS_DEBUG("Performing Extra Priming for T", active_extruder, " | Distance: ", toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
@@ -997,8 +996,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // - Unretract distance (swap length) is reduced by the value of extra_prime
       const float eswap = toolchange_settings.swap_length + toolchange_settings.extra_prime;
       FS_DEBUG("Negative ExtraPrime value - Swap Return Length has been reduced from ", toolchange_settings.swap_length, " to ", eswap);
-      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", eswap, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-      unscaled_e_move(eswap, MMM_TO_MMS(fr));
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", eswap, " | Speed: ", fr_mm_s, "mm/s");
+      unscaled_e_move(eswap, fr_mm_s);
     }
 
     extruder_was_primed.set(active_extruder); // Log that this extruder has been primed
@@ -1011,7 +1010,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // Cool down with fan
     filament_swap_cooling();
-
   }
 
   /**

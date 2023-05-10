@@ -201,8 +201,6 @@ public:
         apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
         break;
       case CUTTER_MODE_CONTINUOUS:
-        TERN_(LASER_FEATURE, set_inline_enabled(enable));
-        break;
       case CUTTER_MODE_DYNAMIC:
         TERN_(LASER_FEATURE, set_inline_enabled(enable));
         break;
@@ -210,7 +208,7 @@ public:
         enable = false;
         apply_power(0);
     }
-    #if SPINDLE_LASER_ENA_PIN
+    #if PIN_EXISTS(SPINDLE_LASER_ENA)
       WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     #endif
     enable_state = enable;
@@ -281,7 +279,7 @@ public:
         set_enabled(state);
         if (state) {
           if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
-          power = upower_to_ocr(menuPower);
+          power = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
           apply_power(power);
         } else
           apply_power(0);

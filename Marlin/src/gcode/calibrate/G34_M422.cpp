@@ -108,6 +108,7 @@ void GcodeSuite::G34() {
   }
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+
     do { // break out on error
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
@@ -142,18 +143,9 @@ void GcodeSuite::G34() {
 
       TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
-      // Always home with tool 0 active
-      #if HAS_MULTI_HOTEND
-        const uint8_t old_tool_index = active_extruder;
-        tool_change(0, true);
-      #endif
+      probe.use_probing_tool();
 
       TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
-
-      // In BLTOUCH HS mode, the probe travels in a deployed state.
-      // Users of G34 might have a badly misaligned bed, so raise Z by the
-      // length of the deployed pin (BLTOUCH stroke < 7mm)
-      #define Z_BASIC_CLEARANCE (Z_CLEARANCE_BETWEEN_PROBES + TERN0(BLTOUCH, bltouch.z_extra_clearance()))
 
       // Compute a worst-case clearance height to probe from. After the first
       // iteration this will be re-calculated based on the actual bed position
@@ -161,7 +153,8 @@ void GcodeSuite::G34() {
         const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
         return HYPOT2(diff.x, diff.y);
       };
-      float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
+      const float zoffs = (probe.offset.z < 0) ? -probe.offset.z : 0.0f;
+      float z_probe = (Z_TWEEN_SAFE_CLEARANCE + zoffs) + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
         #if TRIPLE_Z
           , magnitude2(2, 1), magnitude2(2, 0)
           #if QUAD_Z
@@ -172,12 +165,6 @@ void GcodeSuite::G34() {
 
       // Home before the alignment procedure
       home_if_needed();
-
-      // Move the Z coordinate realm towards the positive - dirty trick
-      current_position.z += z_probe * 0.5f;
-      sync_plan_position();
-      // Now, the Z origin lies below the build plate. That allows to probe deeper, before run_z_probe throws an error.
-      // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
 
       #if !HAS_Z_STEPPER_ALIGN_STEPPER_XY
         float last_z_align_move[NUM_Z_STEPPERS] = ARRAY_N_1(NUM_Z_STEPPERS, 10000.0f);
@@ -221,20 +208,16 @@ void GcodeSuite::G34() {
           // iteration odd/even --> downward / upward stepper sequence
           const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPERS - 1 - i : i;
 
-          // Safe clearance even on an incline
-          if ((iteration == 0 || i > 0) && z_probe > current_position.z) do_blocking_move_to_z(z_probe);
-
           xy_pos_t &ppos = z_stepper_align.xy[iprobe];
 
-          if (DEBUGGING(LEVELING))
-            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
 
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
-          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false);
+          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false, (Z_PROBE_LOW_POINT) - z_probe * 0.5f, z_probe * 0.5f);
           if (isnan(z_probed_height)) {
-            SERIAL_ECHOLNPGM("Probing failed");
+            SERIAL_ECHOLNPGM(STR_ERR_PROBING_FAILED);
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
             err_break = true;
             break;
@@ -242,7 +225,7 @@ void GcodeSuite::G34() {
 
           // Add height to each value, to provide a more useful target height for
           // the next iteration of probing. This allows adjustments to be made away from the bed.
-          z_measured[iprobe] = z_probed_height + Z_CLEARANCE_BETWEEN_PROBES;
+          z_measured[iprobe] = z_probed_height + (Z_TWEEN_SAFE_CLEARANCE + zoffs); //do we need to add the clearance to this?
 
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", iprobe + 1, " measured position is ", z_measured[iprobe]);
 
@@ -256,7 +239,7 @@ void GcodeSuite::G34() {
         // Adapt the next probe clearance height based on the new measurements.
         // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
         z_maxdiff = z_measured_max - z_measured_min;
-        z_probe = Z_BASIC_CLEARANCE + z_measured_max + z_maxdiff;
+        z_probe = (Z_TWEEN_SAFE_CLEARANCE + zoffs) + z_measured_max + z_maxdiff; //Not sure we need z_maxdiff, but leaving it in for safety.
 
         #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           // Replace the initial values in z_measured with calculated heights at
@@ -436,26 +419,26 @@ void GcodeSuite::G34() {
       IF_DISABLED(TOUCH_MI_PROBE, probe.stow());
 
       #if ENABLED(HOME_AFTER_G34)
-        // After this operation the z position needs correction
-        set_axis_never_homed(Z_AXIS);
         // Home Z after the alignment procedure
         process_subcommands_now(F("G28Z"));
       #else
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z -= z_measured_min - (Z_TWEEN_SAFE_CLEARANCE + zoffs); //we shouldn't want to subtract the clearance from here right? (Depends if we added it further up)
         sync_plan_position();
       #endif
 
-      // Restore the active tool after homing
-      TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER))); // Fetch previous tool for parking extruder
+      probe.use_probing_tool(false);
 
       #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
         set_bed_leveling_enabled(leveling_was_active);
       #endif
 
     }while(0);
+
+    probe.use_probing_tool(false);
+
   #endif // Z_STEPPER_AUTO_ALIGN
 }
 

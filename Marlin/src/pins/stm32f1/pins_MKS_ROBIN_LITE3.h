@@ -82,7 +82,7 @@
 //
 #define HEATER_0_PIN                        PC9
 #define HEATER_1_PIN                        PC7
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //
@@ -101,7 +101,7 @@
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
-  #define LCD_PINS_ENABLE                   PA4
+  #define LCD_PINS_EN                       PA4
   #define LCD_PINS_RS                       PA5
   #define BTN_EN1                           PB11
   #define BTN_EN2                           PB0

@@ -41,19 +41,16 @@
   #include "../feature/fancheck.h"
 #endif
 
-#ifndef SOFT_PWM_SCALE
-  #define SOFT_PWM_SCALE 0
-#endif
-
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
-typedef enum : int8_t {
+typedef enum : int_fast8_t {
   H_REDUNDANT = HID_REDUNDANT,
   H_COOLER = HID_COOLER,
   H_PROBE = HID_PROBE,
   H_BOARD = HID_BOARD,
+  H_SOC = HID_SOC,
   H_CHAMBER = HID_CHAMBER,
   H_BED = HID_BED,
   H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7,
@@ -82,6 +79,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_BOARD
     PrepareTemp_BOARD, MeasureTemp_BOARD,
+  #endif
+  #if HAS_TEMP_ADC_SOC
+    PrepareTemp_SOC, MeasureTemp_SOC,
   #endif
   #if HAS_TEMP_ADC_REDUNDANT
     PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
@@ -480,6 +480,9 @@ struct PIDHeaterInfo : public HeaterInfo {
 #if HAS_TEMP_BOARD
   typedef temp_info_t board_info_t;
 #endif
+#if HAS_TEMP_SOC
+  typedef temp_info_t soc_info_t;
+#endif
 
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
@@ -606,6 +609,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_BOARD
       static board_info_t temp_board;
+    #endif
+    #if HAS_TEMP_SOC
+      static soc_info_t temp_soc;
     #endif
     #if HAS_TEMP_REDUNDANT
       static redundant_info_t temp_redundant;
@@ -754,6 +760,10 @@ class Temperature {
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 
+    #if BOTH(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
+      static raw_adc_t maxtemp_raw_SOC;
+    #endif
+
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
@@ -845,6 +855,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_BOARD
       static celsius_float_t analog_to_celsius_board(const raw_adc_t raw);
+    #endif
+    #if HAS_TEMP_SOC
+      static celsius_float_t analog_to_celsius_soc(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_REDUNDANT
       static celsius_float_t analog_to_celsius_redundant(const raw_adc_t raw);
@@ -1119,6 +1132,14 @@ class Temperature {
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
+    #if HAS_TEMP_SOC
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
+      #endif
+      static celsius_float_t degSoc()    { return temp_soc.celsius; }
+      static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
+    #endif
+
     #if HAS_TEMP_REDUNDANT
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
@@ -1319,12 +1340,12 @@ class Temperature {
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
-        float running_temp;
+        celsius_float_t running_temp;
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
-        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

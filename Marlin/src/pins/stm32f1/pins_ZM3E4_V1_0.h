@@ -190,6 +190,7 @@
   #define Z2_DIR_PIN                        PD0
 #endif
 
+// TODO: Use different pin names for auto-remapping
 #ifdef OPTION_Z2_ENDSTOP
   #define Z2_MIN_PIN                        PD1
   #define Z2_MAX_PIN                        PB12
@@ -249,7 +250,7 @@
   #define HEATER_1_PIN                      PB0   // HEATER1
 #endif
 
-#define FAN_PIN                             PB1   // FAN1
+#define FAN0_PIN                            PB1   // FAN1
 #define FAN1_PIN                            PB8   // FAN2
 
 //
@@ -280,7 +281,7 @@
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_ENABLE            EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_04_PIN  // 8 SCK make sure for zonestar zm3e4!
   #define BEEPER_PIN                 EXP1_02_PIN
   #define KILL_PIN                          -1    // EXP1_01_PIN
@@ -290,7 +291,7 @@
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_ENABLE            EXP1_04_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_EN                EXP1_04_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_06_PIN  // 8 SCK make sure for zonestar zm3e4!
   #define BEEPER_PIN                 EXP1_02_PIN
   #define KILL_PIN                   EXP2_07_PIN
@@ -310,7 +311,7 @@
 #if ENABLED(ZONESTAR_LCD2004_KNOB)
   #define LCDSCREEN_NAME "LCD2004 KNOB"
   #define LCD_PINS_RS                EXP1_03_PIN
-  #define LCD_PINS_ENABLE            EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_04_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   #define LCD_PINS_D5                EXP1_05_PIN
   #define LCD_PINS_D6                EXP1_08_PIN
@@ -323,7 +324,7 @@
 #elif ENABLED(ZONESTAR_LCD2004_ADCKEY)
   #define LCDSCREEN_NAME "LCD2004 5KEY"
   #define LCD_PINS_RS                EXP1_03_PIN
-  #define LCD_PINS_ENABLE            EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_04_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   #define LCD_PINS_D5                EXP1_05_PIN
   #define LCD_PINS_D6                EXP1_08_PIN

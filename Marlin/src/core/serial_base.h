@@ -23,6 +23,8 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#include <stddef.h> // for size_t
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
 #endif
