@@ -48,7 +48,7 @@ namespace Language_zh_CN {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
-  LSTR MSG_MAIN                           = _UxGT("主菜单");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主菜单");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始");     // "Autostart"
@@ -198,27 +198,27 @@ namespace Language_zh_CN {
   LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6. 细调所有的");
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. 保存热床网格");
 
-  LSTR MSG_LED_CONTROL                    = _UxGT("LED控制");     // "LED Control")
-  LSTR MSG_LEDS                           = _UxGT("灯");     // "Lights")
-  LSTR MSG_LED_PRESETS                    = _UxGT("灯预置");     // "Light Presets")
-  LSTR MSG_SET_LEDS_RED                   = _UxGT("红");     // "Red")
-  LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙");     // "Orange")
-  LSTR MSG_SET_LEDS_YELLOW                = _UxGT("黄");     // "Yellow")
-  LSTR MSG_SET_LEDS_GREEN                 = _UxGT("绿");     // "Green")
-  LSTR MSG_SET_LEDS_BLUE                  = _UxGT("蓝");     // "Blue")
-  LSTR MSG_SET_LEDS_INDIGO                = _UxGT("青");     // "Indigo")
-  LSTR MSG_SET_LEDS_VIOLET                = _UxGT("紫");     // "Violet")
-  LSTR MSG_SET_LEDS_WHITE                 = _UxGT("白");     // "White")
-  LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("缺省");     // "Default")
-  LSTR MSG_CUSTOM_LEDS                    = _UxGT("定制灯");     // "Custom Lights")
-  LSTR MSG_INTENSITY_R                    = _UxGT("红饱和度");     // "Red Intensity")
-  LSTR MSG_INTENSITY_G                    = _UxGT("绿饱和度");     // "Green Intensity")
-  LSTR MSG_INTENSITY_B                    = _UxGT("蓝饱和度");     // "Blue Intensity")
-  LSTR MSG_INTENSITY_W                    = _UxGT("白饱和度");     // "White Intensity")
-  LSTR MSG_LED_BRIGHTNESS                 = _UxGT("亮度");     // "Brightness")
+  LSTR MSG_LED_CONTROL                    = _UxGT("LED控制");     // "LED Control"
+  LSTR MSG_LEDS                           = _UxGT("灯");     // "Lights"
+  LSTR MSG_LED_PRESETS                    = _UxGT("灯预置");     // "Light Presets"
+  LSTR MSG_SET_LEDS_RED                   = _UxGT("红");     // "Red"
+  LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙");     // "Orange"
+  LSTR MSG_SET_LEDS_YELLOW                = _UxGT("黄");     // "Yellow"
+  LSTR MSG_SET_LEDS_GREEN                 = _UxGT("绿");     // "Green"
+  LSTR MSG_SET_LEDS_BLUE                  = _UxGT("蓝");     // "Blue"
+  LSTR MSG_SET_LEDS_INDIGO                = _UxGT("青");     // "Indigo"
+  LSTR MSG_SET_LEDS_VIOLET                = _UxGT("紫");     // "Violet"
+  LSTR MSG_SET_LEDS_WHITE                 = _UxGT("白");     // "White"
+  LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("缺省");     // "Default"
+  LSTR MSG_CUSTOM_LEDS                    = _UxGT("定制灯");     // "Custom Lights"
+  LSTR MSG_INTENSITY_R                    = _UxGT("红饱和度");     // "Red Intensity"
+  LSTR MSG_INTENSITY_G                    = _UxGT("绿饱和度");     // "Green Intensity"
+  LSTR MSG_INTENSITY_B                    = _UxGT("蓝饱和度");     // "Blue Intensity"
+  LSTR MSG_INTENSITY_W                    = _UxGT("白饱和度");     // "White Intensity"
+  LSTR MSG_LED_BRIGHTNESS                 = _UxGT("亮度");     // "Brightness"
 
-  LSTR MSG_MOVING                         = _UxGT("移动...");     // "Moving...")
-  LSTR MSG_FREE_XY                        = _UxGT("释放 XY");     // "Free XY")
+  LSTR MSG_MOVING                         = _UxGT("移动...");     // "Moving..."
+  LSTR MSG_FREE_XY                        = _UxGT("释放 XY");     // "Free XY"
   LSTR MSG_MOVE_X                         = _UxGT("移动X");     // "Move X"
   LSTR MSG_MOVE_Y                         = _UxGT("移动Y");     // "Move Y"
   LSTR MSG_MOVE_Z                         = _UxGT("移动Z");     // "Move Z"
@@ -232,7 +232,7 @@ namespace Language_zh_CN {
   LSTR MSG_MOVE_10MM                      = _UxGT("移动 10 mm");     // "Move 10mm"
   LSTR MSG_MOVE_100MM                     = _UxGT("移动 100 mm");     // "Move 100mm"
   LSTR MSG_SPEED                          = _UxGT("速率");     // "Speed"
-  LSTR MSG_BED_Z                          = _UxGT("热床Z");     // "Bed Z"
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("热床Z");     // "Bed Z"
   LSTR MSG_NOZZLE                         = _UxGT("喷嘴");     // "Nozzle" 噴嘴
   LSTR MSG_NOZZLE_N                       = _UxGT("喷嘴 ~");     // "Nozzle" 噴嘴
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("喷嘴已停靠");
@@ -261,10 +261,9 @@ namespace Language_zh_CN {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("自动PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("自动PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID调整完成");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败! 坏的挤出机");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("自动调失败! 坏的挤出机");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败! 温度太高");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("自动调失败! 超时");
-  LSTR MSG_SELECT                         = _UxGT("选择");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("选择 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration
   LSTR MSG_JERK                           = _UxGT("抖动速率");     // "Jerk"
@@ -349,7 +348,7 @@ namespace Language_zh_CN {
   LSTR MSG_STOP_PRINT                     = _UxGT("停止打印");     // "Stop print"
   LSTR MSG_PRINTING_OBJECT                = _UxGT("打印物体");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("取消物体");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("中断恢复");
   LSTR MSG_MEDIA_MENU                     = _UxGT("从存储卡上打印");     // "Print from SD"
   LSTR MSG_NO_MEDIA                       = _UxGT("无存储卡");     // "No SD card"
@@ -420,7 +419,7 @@ namespace Language_zh_CN {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("部署TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("部署Z探针");
   LSTR MSG_MANUAL_STOW                    = _UxGT("收好Z探针");
-  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s%s%s 先");     // "Home ... first"
+  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s 先");     // "Home ... first"
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探针偏移量");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
@@ -439,9 +438,6 @@ namespace Language_zh_CN {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("错误：最低温度");     // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("打印停机");     // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("请重置");     // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
   LSTR MSG_HEATING                        = _UxGT("加热中 ...");     // "Heating..."
   LSTR MSG_COOLING                        = _UxGT("冷却中 ...");
   LSTR MSG_BED_HEATING                    = _UxGT("加热热床中 ...");     // "Bed Heating..."
@@ -536,7 +532,7 @@ namespace Language_zh_CN {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("移出, 按下");
 
   LSTR MSG_MIX                            = _UxGT("混合");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  {");
   LSTR MSG_MIXER                          = _UxGT("混合器");
   LSTR MSG_GRADIENT                       = _UxGT("梯度");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("全梯度");
@@ -609,12 +605,8 @@ namespace Language_zh_CN {
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("加热器超时");
   LSTR MSG_REHEAT                         = _UxGT("重新加热");
   LSTR MSG_REHEATING                      = _UxGT("重新加热中...");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
+}

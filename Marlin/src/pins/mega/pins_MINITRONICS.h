@@ -23,6 +23,11 @@
 
 /**
  * Minitronics v1.0/1.1 pin assignments
+ * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Minitronics%20v1.0/minitronics%20-%20Project.pdf
+ * Origin (1.0): https://reprap.org/wiki/File:MinitronicsPDF.zip
+ * Datasheet (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Minitronics%20v1.1/datasheet%20minitronics%20v1.1.pdf
+ * Origin (1.1): https://reprapworld.nl/documentation/datasheet%20minitronics%20v1.1.pdf
+ * ATmega1281
  */
 
 /**
@@ -85,8 +90,8 @@
 #define HEATER_1_PIN                           8  // EXTRUDER 2
 #define HEATER_BED_PIN                         3  // BED
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 
 //
@@ -103,7 +108,7 @@
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define LCD_PINS_RS                         15  // CS chip select /SS chip slave select
-  #define LCD_PINS_ENABLE                     11  // SID (MOSI)
+  #define LCD_PINS_EN                         11  // SID (MOSI)
   #define LCD_PINS_D4                         10  // SCK (CLK) clock
 
   #define BTN_EN1                             18
@@ -115,7 +120,7 @@
 #else
 
   #define LCD_PINS_RS                         -1
-  #define LCD_PINS_ENABLE                     -1
+  #define LCD_PINS_EN                         -1
 
   // Buttons are directly attached using keypad
   #define BTN_EN1                             -1

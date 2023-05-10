@@ -54,7 +54,7 @@ namespace Language_cz {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");
-  LSTR MSG_MAIN                           = _UxGT("Hlavní nabídka");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hlavní nabídka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Další nastavení");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurace");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
@@ -243,7 +243,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_50MM                      = _UxGT("Posunout o 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_BED                            = _UxGT("Podložka");
@@ -264,7 +264,6 @@ namespace Language_cz {
   LSTR MSG_LCD_OFF                        = _UxGT("Vyp");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID automatika");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID automatika *");
-  LSTR MSG_SELECT                         = _UxGT("Vybrat");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrat *");
   LSTR MSG_ACC                            = _UxGT("Zrychl");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -335,7 +334,7 @@ namespace Language_cz {
   LSTR MSG_STOP_PRINT                     = _UxGT("Zastavit tisk");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Tisk objektu");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Zrušit objekt");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Zrušit objekt =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Zrušit objekt {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Obnova výpadku");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Tisknout z SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Žádná SD karta");
@@ -396,7 +395,7 @@ namespace Language_cz {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("vysunout TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s%s%s první");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
@@ -513,7 +512,7 @@ namespace Language_cz {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Vytáhněte, klikněte");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponenta =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponenta {");
   LSTR MSG_MIXER                          = _UxGT("Mixér");
   LSTR MSG_GRADIENT                       = _UxGT("Přechod");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Celý přechod");

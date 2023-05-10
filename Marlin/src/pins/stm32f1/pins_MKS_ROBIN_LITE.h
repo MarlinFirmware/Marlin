@@ -68,7 +68,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PC9
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //
@@ -110,7 +110,7 @@
   #define BTN_EN1                    EXP3_03_PIN
   #define BTN_EN2                    EXP3_05_PIN
 
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
 
   #if ENABLED(MKS_MINI_12864)
 

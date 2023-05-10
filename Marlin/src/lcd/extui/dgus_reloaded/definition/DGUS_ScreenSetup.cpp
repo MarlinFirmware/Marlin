@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUS_ScreenSetup.h"
 
@@ -35,7 +35,7 @@
   .setup_fn = SETUP }
 
 const struct DGUS_ScreenSetup screen_setup_list[] PROGMEM = {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     SETUP_HELPER(DGUS_Screen::PRINT,            &DGUSSetupHandler::Print),
   #endif
   SETUP_HELPER(DGUS_Screen::PRINT_STATUS,       &DGUSSetupHandler::PrintStatus),

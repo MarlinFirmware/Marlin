@@ -54,7 +54,7 @@
     #define HAS_MENU_BACKLASH
   #endif
   #if ENABLED(LCD_BED_TRAMMING)
-    #define HAS_MENU_BED_CORNERS
+    #define HAS_MENU_BED_TRAMMING
   #endif
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
@@ -68,7 +68,7 @@
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #define HAS_MENU_FILAMENT
   #endif
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define HAS_MENU_MEDIA
   #endif
   #if ENABLED(MIXING_EXTRUDER)
@@ -99,9 +99,22 @@
     #define HAS_MENU_TOUCH_SCREEN
   #endif
   #if ENABLED(ASSISTED_TRAMMING_WIZARD)
-    #define HAS_MENU_TRAMMING
+    #define HAS_MENU_TRAMMING_WIZARD
   #endif
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     #define HAS_MENU_UBL
+  #endif
+#endif
+
+#if HAS_GRAPHICAL_TFT
+  #define NOTOSANS 1
+  #define UNIFONT 2
+  #define HELVETICA 3
+  #if TFT_FONT == NOTOSANS
+    #define TFT_FONT_NOTOSANS
+  #elif TFT_FONT == UNIFONT
+    #define TFT_FONT_UNIFONT
+  #elif TFT_FONT == HELVETICA
+    #define TFT_FONT_HELVETICA
   #endif
 #endif

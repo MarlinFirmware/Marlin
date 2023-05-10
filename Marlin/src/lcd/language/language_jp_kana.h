@@ -46,7 +46,7 @@ namespace Language_jp_kana {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("メディアガアリマセン");               // "Card removed"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("メディアノトリダシ");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("メイン");                       // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("メイン");                       // "Main"
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("ジドウカイシ");                   // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("モーターデンゲン オフ");            // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("デバッグメニュー");                // "Debug Menu"
@@ -102,7 +102,7 @@ namespace Language_jp_kana {
   LSTR MSG_MOVE_50MM                      = _UxGT(" 50mm イドウ");                 // "Move 50mm"
   LSTR MSG_MOVE_100MM                     = _UxGT(" 100mm イドウ");                 // "Move 100mm"
   LSTR MSG_SPEED                          = _UxGT("ソクド");                       // "Speed"
-  LSTR MSG_BED_Z                          = _UxGT("Zオフセット");                   // "Bed Z"
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Zオフセット");                   // "Bed Z"
   LSTR MSG_NOZZLE                         = _UxGT("ノズル");                       // "Nozzle"
   LSTR MSG_BED                            = _UxGT("ベッド");                       // "Bed"
   LSTR MSG_FAN_SPEED                      = _UxGT("ファンソクド");                    // "Fan speed"
@@ -114,7 +114,6 @@ namespace Language_jp_kana {
   LSTR MSG_AUTOTEMP                       = _UxGT("ジドウオンドセイギョ");               // "Autotemp"
   LSTR MSG_LCD_ON                         = _UxGT("オン");                         // "On"
   LSTR MSG_LCD_OFF                        = _UxGT("オフ");                         // "Off"
-  LSTR MSG_SELECT                         = _UxGT("センタク");                     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("センタク *");
   LSTR MSG_ACC                            = _UxGT("カソクド mm/s") SUPERSCRIPT_TWO;               // "Accel"
   LSTR MSG_JERK                           = _UxGT("ヤクドウ mm/s");                  // "Jerk"
@@ -176,7 +175,7 @@ namespace Language_jp_kana {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Zプローブ ベッドガイ");            // "Z probe out. bed"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch ジコシンダン");          // "BLTouch Self-Test"
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch リセット");             // "Reset BLTouch"
-  LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s%s%s ヲフッキサセテクダサイ"); // "Home ... first"
+  LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s ヲフッキサセテクダサイ"); // "Home ... first"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Zオフセット");                   // "Z Offset"
   LSTR MSG_BABYSTEP_X                     = _UxGT("Xジク ビドウ");                  // "Babystep X"
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Yジク ビドウ");                  // "Babystep Y"

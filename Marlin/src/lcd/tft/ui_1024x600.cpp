@@ -36,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -228,25 +228,25 @@ void MarlinUI::draw_status_screen() {
   for (i = 0 ; i < ITEMS_COUNT; i++) {
     x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
     switch (i) {
-      #ifdef ITEM_E0
+      #if HAS_EXTRUDERS
         case ITEM_E0: draw_heater_status(x, y, H_E0); break;
       #endif
-      #ifdef ITEM_E1
+      #if HAS_MULTI_HOTEND
         case ITEM_E1: draw_heater_status(x, y, H_E1); break;
       #endif
-      #ifdef ITEM_E2
+      #if HOTENDS > 2
         case ITEM_E2: draw_heater_status(x, y, H_E2); break;
       #endif
-      #ifdef ITEM_BED
+      #if HAS_HEATED_BED
         case ITEM_BED: draw_heater_status(x, y, H_BED); break;
       #endif
-      #ifdef ITEM_CHAMBER
+      #if HAS_TEMP_CHAMBER
         case ITEM_CHAMBER: draw_heater_status(x, y, H_CHAMBER); break;
       #endif
-      #ifdef ITEM_COOLER
+      #if HAS_TEMP_COOLER
         case ITEM_COOLER: draw_heater_status(x, y, H_COOLER); break;
       #endif
-      #ifdef ITEM_FAN
+      #if HAS_FAN
         case ITEM_FAN: draw_fan_status(x, y, blink); break;
       #endif
     }
@@ -305,30 +305,33 @@ void MarlinUI::draw_status_screen() {
 
   y += 100;
   // feed rate
-  tft.canvas(274, y, 100, 32);
+  tft.canvas(274, y, 128, 32);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 100, 32));
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 128, 32));
 
   // flow rate
-  tft.canvas(650, y, 100, 32);
+  tft.canvas(650, y, 128, 32);
   tft.set_background(COLOR_BACKGROUND);
   color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFlowRate, color);
   tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 100, 32, active_extruder));
+  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 128, 32, active_extruder));
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(900, y, menu_main, imgSettings);
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
-      add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+      if (cm && pa)
+        add_control(12, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   #endif
 
@@ -354,7 +357,7 @@ void MarlinUI::draw_status_screen() {
 
   y += 50;
   // status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT - 5);
+  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
@@ -592,11 +595,6 @@ struct MotionAxisState {
 
 MotionAxisState motionAxisState;
 
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
-
 #define BTN_WIDTH 64
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
@@ -675,12 +673,10 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
-      drawMessage(F("Too cold"));
-      return;
-    }
-  #endif
+  if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
+    drawMessage(F("Too cold"));
+    return;
+  }
 
   const float diff = motionAxisState.currentStepSize * direction;
 
@@ -700,12 +696,12 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
           probe.offset.z = new_offs;
         else
           TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
-        drawMessage(""); // clear the error
+        drawMessage(F("")); // clear the error
         drawAxisValue(axis);
       }
-      else {
+      else
         drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
-      }
+
     #elif HAS_BED_PROBE
       // only change probe.offset.z
       probe.offset.z += diff;
@@ -717,9 +713,9 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
         drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
-      else {
-        drawMessage(""); // clear the error
-      }
+      else
+        drawMessage(F("")); // clear the error
+
       drawAxisValue(axis);
     #endif
     return;
@@ -734,7 +730,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS && axis != E_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -765,10 +761,8 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
 #if ENABLED(TOUCH_SCREEN)
   static void e_select() {
-    motionAxisState.e_selection++;
-    if (motionAxisState.e_selection >= EXTRUDERS) {
+    if (++motionAxisState.e_selection >= EXTRUDERS)
       motionAxisState.e_selection = 0;
-    }
 
     quick_feedback();
     drawCurESelection();
@@ -810,8 +804,8 @@ static void disable_steppers() {
 }
 
 static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
-  uint16_t width = Images[imgBtn52Rounded].width;
-  uint16_t height = Images[imgBtn52Rounded].height;
+  uint16_t width = Images[imgBtn52Rounded].width,
+           height = Images[imgBtn52Rounded].height;
 
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 

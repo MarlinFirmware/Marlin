@@ -116,7 +116,7 @@
 //
 // Fan
 //
-#define FAN_PIN                             PA7   // FAN
+#define FAN0_PIN                            PA7   // FAN
 
 //
 // Thermocouples
@@ -176,8 +176,6 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF0   // A0
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
@@ -199,10 +197,10 @@
 // SPI1(PA7) & SPI3(PB5) not available
 #define SPI_DEVICE                             2
 
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   #define SD_SCK_PIN                        PB13  // SPI2
   #define SD_MISO_PIN                       PB14  // SPI2
   #define SD_MOSI_PIN                       PB15  // SPI2
