@@ -45,14 +45,14 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       sound.play(media_inserted, PLAY_ASYNCHRONOUS);
       StatusScreen::onMediaInserted();
     #endif
   }
 
   void onMediaRemoved() {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (isPrintingFromMedia()) {
         stopPrint();
         InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
@@ -97,7 +97,7 @@ namespace ExtUI {
   void onLoadSettings(const char *buff) { InterfaceSettingsScreen::loadSettings(buff); }
   void onPostprocessSettings() {} // Called after loading or resetting stored settings
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {
         SERIAL_ECHOLNPGM("EEPROM backed up to SPI Flash");
@@ -106,7 +106,7 @@ namespace ExtUI {
       UNUSED(success);
     #endif
   }
-  void onSettingsLoaded(bool) {}
+  void onSettingsLoaded(const bool) {}
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) { sound.play_tone(frequency, duration); }
 
@@ -125,6 +125,9 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
     void onPowerLoss() {
       // Called when power-loss state is detected
     }

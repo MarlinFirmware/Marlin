@@ -86,11 +86,7 @@ void GcodeSuite::G35() {
     workspace_plane = PLANE_XY;
   #endif
 
-  // Always home with tool 0 active
-  #if HAS_MULTI_HOTEND
-    const uint8_t old_tool_index = active_extruder;
-    tool_change(0, true);
-  #endif
+  probe.use_probing_tool();
 
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
@@ -102,14 +98,7 @@ void GcodeSuite::G35() {
 
   // Probe all positions
   LOOP_L_N(i, G35_PROBE_COUNT) {
-
-    // In BLTOUCH HS mode, the probe travels in a deployed state.
-    // Users of G35 might have a badly misaligned bed, so raise Z by the
-    // length of the deployed pin (BLTOUCH stroke < 7mm)
-
-    // Unsure if this is even required. The probe seems to lift correctly after probe done.
-    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
-
+    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
@@ -153,9 +142,7 @@ void GcodeSuite::G35() {
     SERIAL_ECHOLNPGM("G35 aborted.");
 
   // Restore the active tool after homing
-  #if HAS_MULTI_HOTEND
-    if (old_tool_index != 0) tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
-  #endif
+  probe.use_probing_tool(false);
 
   #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);

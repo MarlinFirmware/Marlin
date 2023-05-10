@@ -105,15 +105,15 @@
   #endif
 #endif
 
-#ifndef FAN_PIN
+#ifndef FAN0_PIN
   #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                         PB5
+    #define FAN0_PIN                        PB5
   #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                         PD12
+    #define FAN0_PIN                        PD12
   #elif ENABLED(FET_ORDER_EEB)                    // Hotend, Hotend, Bed
-    #define FAN_PIN                         -1    // IO pin. Buffer needed
+    #define FAN0_PIN                        -1    // IO pin. Buffer needed
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-    #define FAN_PIN                         PB5
+    #define FAN0_PIN                        PB5
   #endif
 #endif
 
@@ -148,17 +148,21 @@
     #define E0_SLAVE_ADDRESS                   0
   #endif
 #endif
+
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PC2   //TB
-#define TEMP_0_PIN                          PC1   //TH1
-//#define TEMP_1_PIN                        PC3   //TH2
-#define TEMP_BOARD_PIN                      PC3
-#ifndef TEMP_SENSOR_BOARD
-  #define TEMP_SENSOR_BOARD                   13
-#endif
+#define TEMP_BED_PIN                        PC2   // TB
+#define TEMP_0_PIN                          PC1   // TH1
+//#define TEMP_1_PIN                        PC3   // TH2
 #define FIL_RUNOUT_PIN                      PA10  // MT_DET
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                    PC3
+#endif
+#if TEMP_BOARD_PIN == PC3 && TEMP_SENSOR_BOARD != 13
+  #warning "The built-in TEMP_SENSOR_BOARD is 13 for ERYONE Ery32 mini."
+#endif
 
 //
 // LCD Pins
@@ -166,7 +170,7 @@
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                        PE12
   #define BTN_ENC                           PE11
-  #define LCD_PINS_ENABLE                   PE10
+  #define LCD_PINS_EN                       PE10
   #define LCD_PINS_RS                       PE9
   #define BTN_EN1                           PE4
   #define BTN_EN2                           PE3

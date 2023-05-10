@@ -27,10 +27,6 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality v4.2.5 only supports 1 hotend / E stepper."
-#endif
-
 #define BOARD_INFO_NAME "Creality V4.2.5"
 #define DEFAULT_MACHINE_NAME "CR200B"
 
@@ -72,6 +68,6 @@
 //
 #define HEATER_0_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA1   // HOT BED
-#define FAN_PIN                             PA2   // FAN
+#define FAN0_PIN                            PA2   // FAN
 
 #include "pins_CREALITY_V4.h"

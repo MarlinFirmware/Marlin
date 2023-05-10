@@ -183,7 +183,7 @@ void BedLevelToolsClass::MoveToZ() {
 }
 void BedLevelToolsClass::ProbeXY() {
   const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
-  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
+  sprintf_P(cmd, PSTR("G28O\nG0Z%i\nG30X%sY%s"),
     Clear,
     dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
     dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)

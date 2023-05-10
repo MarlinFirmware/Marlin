@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Creality RAMPS supports up to 2 hotends / E steppers."
 #endif
@@ -30,8 +32,8 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
-#define FAN_PIN                                9
+#define MOSFET_B_PIN                           7
+#define FAN0_PIN                               9
 
 #define FIL_RUNOUT_PIN                         2
 #if NUM_RUNOUT_SENSORS >= 2

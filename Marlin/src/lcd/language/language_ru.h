@@ -57,7 +57,7 @@ namespace Language_ru {
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр. концевики");
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters
-  LSTR MSG_MAIN                             = _UxGT("Главное меню");
+  LSTR MSG_MAIN_MENU                        = _UxGT("Главное меню");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфигурация");
   LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS                 = _UxGT("Выключить двигатели");
@@ -310,7 +310,7 @@ namespace Language_ru {
   LSTR MSG_SET_LEDS_VIOLET                  = _UxGT("Фиолетовый");
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Белый");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("Свет по умолчанию");
-  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал =");
+  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
   LSTR MSG_LEDS2                            = _UxGT("Свет #2");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_NEO2_PRESETS                   = _UxGT("Свет #2 предустановки");
@@ -485,7 +485,7 @@ namespace Language_ru {
   LSTR MSG_STOP_PRINT                       = _UxGT("Остановить печать");
   LSTR MSG_PRINTING_OBJECT                  = _UxGT("Печать объекта");
   LSTR MSG_CANCEL_OBJECT                    = _UxGT("Завершить объект");
-  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершить объект =");
+  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершить объект {");
   LSTR MSG_OUTAGE_RECOVERY                  = _UxGT("Восстановение сбоя");
   LSTR MSG_MEDIA_MENU                       = _UxGT("Печать с SD карты");
   LSTR MSG_NO_MEDIA                         = _UxGT("Нет SD карты");
@@ -734,7 +734,7 @@ namespace Language_ru {
   #else
     LSTR MSG_MIX                            = _UxGT("Смешив.");
   #endif
-  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент =");
+  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент {");
   LSTR MSG_MIXER                            = _UxGT("Смеситель");
   LSTR MSG_GRADIENT                         = _UxGT("Градиент");
   LSTR MSG_FULL_GRADIENT                    = _UxGT("Полный градиент");

@@ -29,35 +29,30 @@
 
 #include "motion.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
 
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
     PROBE_PT_STOW,      // Do a complete stow after run_z_probe
     PROBE_PT_LAST_STOW, // Stow for sure, even in BLTouch HS mode
-    PROBE_PT_RAISE,     // Raise to "between" clearance after run_z_probe
-    PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
+    PROBE_PT_RAISE      // Raise to "between" clearance after run_z_probe
   };
 #endif
 
-#if USES_Z_MIN_PROBE_PIN
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+#if USE_Z_MIN_PROBE
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE)
 #else
-  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE)
 #endif
 
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #define Z_POST_CLEARANCE HMI_data.z_after_homing
-#elif defined(Z_AFTER_HOMING)
-  #define Z_POST_CLEARANCE Z_AFTER_HOMING
-#elif defined(Z_HOMING_HEIGHT)
-  #define Z_POST_CLEARANCE Z_HOMING_HEIGHT
-#else
-  #define Z_POST_CLEARANCE 10
-#endif
+// In BLTOUCH HS mode, the probe travels in a deployed state.
+#define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
 
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
   #ifndef LEVELING_NOZZLE_TEMP
@@ -85,7 +80,7 @@ public:
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp, const bool early=false);
     #endif
 
     static void probe_error_stop();
@@ -168,14 +163,17 @@ public:
 
     #endif // !IS_KINEMATIC
 
-    static void move_z_after_probing() {
-      #ifdef Z_AFTER_PROBING
-        do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
-      #endif
-    }
-    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
-    static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
-      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
+    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE,
+      const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
+      const_float_t z_min_point=Z_PROBE_LOW_POINT, const_float_t z_clearance=Z_TWEEN_SAFE_CLEARANCE,
+      const bool raise_after_is_relative=false);
+
+    static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE,
+      const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true,
+      const_float_t z_min_point=Z_PROBE_LOW_POINT, float z_clearance=Z_TWEEN_SAFE_CLEARANCE,
+      const bool raise_after_is_relative=false
+    ) {
+      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance, raise_after_is_relative);
     }
 
   #else // !HAS_BED_PROBE
@@ -184,15 +182,16 @@ public:
 
     static bool set_deployed(const bool, const bool=false) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
+    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
 
   #endif // !HAS_BED_PROBE
 
-  static void move_z_after_homing() {
-    #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
-      do_z_clearance(Z_POST_CLEARANCE, true);
-    #elif HAS_BED_PROBE
-      move_z_after_probing();
+  static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
+
+  static void move_z_after_probing() {
+    DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
+    #ifdef Z_AFTER_PROBING
+      do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
     #endif
   }
 
@@ -308,9 +307,9 @@ public:
             points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
             points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
-            points[0] = xy_float_t({ _MAX(MESH_MIN_X, min_x()), _MAX(MESH_MIN_Y, min_y()) });
-            points[1] = xy_float_t({ _MIN(MESH_MAX_X, max_x()), _MAX(MESH_MIN_Y, min_y()) });
-            points[2] = xy_float_t({ (_MAX(MESH_MIN_X, min_x()) + _MIN(MESH_MAX_X, max_x())) / 2, _MIN(MESH_MAX_Y, max_y()) });
+            points[0] = xy_float_t({ _MAX(float(MESH_MIN_X), min_x()), _MAX(float(MESH_MIN_Y), min_y()) });
+            points[1] = xy_float_t({ _MIN(float(MESH_MAX_X), max_x()), _MAX(float(MESH_MIN_Y), min_y()) });
+            points[2] = xy_float_t({ (_MAX(float(MESH_MIN_X), min_x()) + _MIN(float(MESH_MAX_X), max_x())) / 2, _MIN(float(MESH_MAX_Y), max_y()) });
           #else
             points[0] = xy_float_t({ min_x(), min_y() });
             points[1] = xy_float_t({ max_x(), min_y() });
@@ -343,8 +342,7 @@ public:
 
 private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
-  static void do_z_raise(const float z_raise);
-  static float run_z_probe(const bool sanity_check=true);
+  static float run_z_probe(const bool sanity_check=true, const_float_t z_min_point=Z_PROBE_LOW_POINT, const_float_t z_clearance=Z_TWEEN_SAFE_CLEARANCE);
 };
 
 extern Probe probe;
