@@ -498,9 +498,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     const float placexpos = toolheadposx[active_extruder],
                 grabxpos = toolheadposx[new_tool];
     #if HAS_HOTEND_OFFSET
-      const float offset_x = hotend_offset[active_extruder].x;
-      const float offset_y = hotend_offset[active_extruder].y;
-      // const float offset_z = hotend_offset[active_extruder].z;
+      const float offset_x = hotend_offset[active_extruder].x,
+                  offset_y = hotend_offset[active_extruder].y;
     #endif
 
     (void)check_tool_sensor_stats(active_extruder, true);
@@ -523,7 +522,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY), offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) - (SWITCHING_TOOLHEAD_Y_SECURITY), offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -538,7 +537,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(false);
     safe_delay(500);
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS , offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, offset_y);
     DEBUG_POS("Move Y SwitchPos", current_position);
     slow_line_to_current(Y_AXIS);
 
@@ -562,7 +561,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY),  offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) - (SWITCHING_TOOLHEAD_Y_SECURITY), offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -571,7 +570,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 4. Grab and lock the new toolhead
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS , offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead");
@@ -612,9 +611,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
                 grabxclear = toolheadclearx[new_tool];
 
     #if HAS_HOTEND_OFFSET
-      const float offset_x = hotend_offset[active_extruder].x;
-      const float offset_y = hotend_offset[active_extruder].y;
-      // const float offset_z = hotend_offset[active_extruder].z;
+      const float offset_x = hotend_offset[active_extruder].x,
+                  offset_y = hotend_offset[active_extruder].y;
     #endif
 
     /**
@@ -628,7 +626,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Move to switch position current toolhead
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR, offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_CLEAR), offset_y);
 
     SERIAL_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -661,11 +659,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE, offset_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_RELEASE), offset_y);
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY, offse_y);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_SECURITY), offse_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -686,7 +684,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE, offset_x);
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_RELEASE), offset_x);
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -766,7 +764,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Moving ParkPos", current_position);
 
     current_position.set(hotend_offsets.x + placexpos,
-                         hotend_offsets.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                         hotend_offsets.y + (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 3. Move gently to park position of active extruder
@@ -792,7 +790,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     current_position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
     slow_line_to_current(Y_AXIS);
     current_position.set(hotend_offsets.x + grabxpos,
-                         hotend_offsets.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                         hotend_offsets.y + (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 6. Move gently to park position of new extruder
@@ -1258,8 +1256,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if HAS_HOTEND_OFFSET
         xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
-      #else
-        constexpr xyz_pos_t diff{0};
       #endif
 
       #if ENABLED(DUAL_X_CARRIAGE)
@@ -1333,7 +1329,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Prevent a move outside physical bounds
         #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
           // If the original position is within tool store area, go to X origin at once
-          if (destination.y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
+          if (destination.y < (SWITCHING_TOOLHEAD_Y_POS) + (SWITCHING_TOOLHEAD_Y_CLEAR)) {
             current_position.x = X_MIN_POS;
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
@@ -1486,15 +1482,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);
-        #else
-          constexpr xyz_pos_t diff{0};
         #endif
 
         if (!no_move) {
           // Move to new hotend Z offset and reverse Z_RAISE
           do_blocking_move_to_z(
             _MIN(
-              _MAX((destination.z - diff.z) - toolchange_settings.z_raise,
+              _MAX(DIFF_TERN(HAS_HOTEND_OFFSET, destination.z, diff.z) - toolchange_settings.z_raise,
               _MAX(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.min.z, Z_MIN_POS), Z_MIN_POS)
             ),
             _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS)),
