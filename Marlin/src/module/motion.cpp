@@ -639,9 +639,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
   #if ENABLED(DELTA)
 
     REMEMBER(fr, feedrate_mm_s, xy_feedrate);
-    #if HAS_ROTATIONAL_AXES
-      REMEMBER(angular_fr, feedrate_deg_s, i_feedrate);
-    #endif
+    TERN_(HAS_ROTATIONAL_AXES, REMEMBER(angular_fr, feedrate_deg_s));
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("destination = current_position", destination);
 
