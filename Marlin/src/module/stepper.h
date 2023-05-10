@@ -73,7 +73,7 @@ typedef struct {
   union {
     ena_mask_t bits;
     struct {
-      #if HAS_X_AXIS
+      #if NUM_AXES
         bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
       #endif
       #if E_STATES
