@@ -113,8 +113,8 @@
 #define HEATER_3_PIN                          97  // PC20 on piggy
 #define HEATER_BED_PIN                        69  // PA0
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             92  // PA5
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            92  // PA5
 #endif
 #define FAN1_PIN                              31  // PA7
 
@@ -150,7 +150,7 @@
 //
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                         18
-  #define LCD_PINS_ENABLE                     15
+  #define LCD_PINS_EN                         15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
   #undef UI_VOLTAGE_LEVEL

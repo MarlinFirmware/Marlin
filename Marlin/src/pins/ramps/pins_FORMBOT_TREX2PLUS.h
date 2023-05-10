@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Formbot pin assignments
+ * Formbot T-Rex 2+ pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -112,7 +113,7 @@
 #define TEMP_BED_PIN                           3  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -125,7 +126,7 @@
 #define HEATER_1_PIN                           7
 #define HEATER_BED_PIN                        58
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 #if HAS_FILAMENT_SENSOR
   #define FIL_RUNOUT_PIN                       4
@@ -174,7 +175,7 @@
   #endif
 
   #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
+  #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         23
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27

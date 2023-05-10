@@ -85,12 +85,12 @@ def apply_opt(name, val, conf=None):
 # Return True if any files were fetched.
 def fetch_example(url):
     if url.endswith("/"): url = url[:-1]
-    if url.startswith('http'):
-        url = url.replace("%", "%25").replace(" ", "%20")
-    else:
+    if not url.startswith('http'):
         brch = "bugfix-2.1.x"
-        if '@' in path: path, brch = map(str.strip, path.split('@'))
+        if '@' in url: url, brch = map(str.strip, url.split('@'))
+        if url == 'examples/default': url = 'default'
         url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
+    url = url.replace("%", "%25").replace(" ", "%20")
 
     # Find a suitable fetch command
     if shutil.which("curl") is not None:
@@ -104,7 +104,7 @@ def fetch_example(url):
     import os
 
     # Reset configurations to default
-    os.system("git reset --hard HEAD")
+    os.system("git checkout HEAD Marlin/*.h")
 
     # Try to fetch the remote files
     gotfile = False
@@ -192,7 +192,7 @@ def apply_config_ini(cp):
 
         # For 'examples/<path>' fetch an example set from GitHub.
         # For https?:// do a direct fetch of the URL.
-        if ckey.startswith('examples/') or ckey.startswith('http:'):
+        if ckey.startswith('examples/') or ckey.startswith('http'):
             fetch_example(ckey)
             ckey = 'base'
 

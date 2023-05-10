@@ -39,7 +39,7 @@
 #define ILI9328_ETMOD_ID0         0x0010 // 0 - Horizontal Decrement / 1 - Horizontal Increment
 #define ILI9328_ETMOD_AM          0x0008 // 0 - Horizontal / 1 - Vertical
 
-// MKS Robin TFT v1.1 - 320x240 ; Cable on the left side
+// MKS Robin TFT v1.1 - 320x240 ; FPC cable on the left side
 
 #if TFT_ROTATION == TFT_ROTATE_180
   #define ILI9328_DRVCTL_DATA        0x0000

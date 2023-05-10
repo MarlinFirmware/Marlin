@@ -98,8 +98,8 @@
 #define HEATER_1_PIN                        -1
 #define HEATER_BED_PIN                      PA2
 
-//#ifndef FAN_PIN
-//  #define FAN_PIN                         PC15
+//#ifndef FAN0_PIN
+//  #define FAN0_PIN                        PC15
 //#endif
 #define FAN1_PIN                            PC15
 #define FAN2_PIN                            PA0
@@ -118,10 +118,10 @@
 //
 // SD support (On board)
 //
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SD_DETECT_PIN                       PA8
 #define SDIO_CLOCK                       4800000
-#if DISABLED(SDIO_SUPPORT)
+#if DISABLED(ONBOARD_SDIO)
   #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8

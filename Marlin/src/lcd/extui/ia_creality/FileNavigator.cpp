@@ -33,12 +33,10 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
+#include "ia_creality_extui.h"
 #include "FileNavigator.h"
 
 using namespace ExtUI;
-
-#define DEBUG_OUT ENABLED(DEBUG_DWIN)
-#include "../../../core/debug_out.h"
 
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
 char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
@@ -111,8 +109,6 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData(10, FilenameIcon1 + j);
   }
 
-  DEBUG_ECHOLNPGM("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
-
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
     files--;
     rtscheck.RTS_SndData("Up Directory", SDFILE_ADDR);
@@ -126,8 +122,6 @@ void FileNavigator::getFiles(uint16_t index) {
       const int filelen = strlen(filelist.filename());
       if (filelen > 20) {
         char *buf = (char *)filelist.filename();
-        //char buf[filelen];
-        //strcpy(&buf[filelen], filelist.filename());
         buf[18] = '\0'; // cutoff at screen edge
         rtscheck.RTS_SndData(buf, (SDFILE_ADDR + (fcnt * 20)));
       }
@@ -149,7 +143,6 @@ void FileNavigator::getFiles(uint16_t index) {
 }
 
 void FileNavigator::changeDIR(char *folder) {
-  DEBUG_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
   strcat(currentfoldername, folder);
   strcat(currentfoldername, "/");
@@ -175,7 +168,6 @@ void FileNavigator::upDIR() {
       pos = strchr(currentfoldername, '/');
     pos[1] = '\0';
   }
-  DEBUG_ECHOLNPGM("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
 }
 
 char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
