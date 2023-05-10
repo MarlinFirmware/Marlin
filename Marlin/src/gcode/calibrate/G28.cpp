@@ -529,6 +529,10 @@ void GcodeSuite::G28() {
                 finalRaiseZ = true;
               #endif
             }
+            else {
+              LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
+              SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
+            }
           }
         #endif
 
