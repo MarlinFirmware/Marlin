@@ -90,7 +90,6 @@ enum {
 #include "../generic/spinner_dialog_box.h"
 #include "../generic/restore_failsafe_dialog_box.h"
 #include "../generic/save_settings_dialog_box.h"
-#include "../generic/confirm_start_print_dialog_box.h"
 #include "../generic/confirm_abort_print_dialog_box.h"
 #include "../generic/confirm_user_request_alert_box.h"
 #include "../generic/touch_calibration_screen.h"
@@ -114,7 +113,6 @@ enum {
 #include "../generic/bed_mesh_edit_screen.h"
 #include "../generic/case_light_screen.h"
 #include "../generic/linear_advance_screen.h"
-#include "../generic/files_screen.h"
 #include "../generic/move_axis_screen.h"
 #include "../generic/flow_percent_screen.h"
 #if HAS_JUNCTION_DEVIATION
@@ -132,3 +130,5 @@ enum {
 #include "leveling_menu.h"
 #include "move_xyz_screen.h"
 #include "move_e_screen.h"
+#include "files_screen.h"
+#include "confirm_start_print_dialog_box.h"

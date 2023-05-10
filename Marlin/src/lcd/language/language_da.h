@@ -39,7 +39,7 @@ namespace Language_da {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" er klar");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kort isat");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kort fjernet");
-  LSTR MSG_MAIN                           = _UxGT("Menu");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Slå alle steppere fra");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home"); // G28
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Klik når du er klar");
@@ -84,7 +84,7 @@ namespace Language_da {
   LSTR MSG_MOVE_50MM                      = _UxGT("Flyt 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Flyt 100mm");
   LSTR MSG_SPEED                          = _UxGT("Hastighed");
-  LSTR MSG_BED_Z                          = _UxGT("Plade Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Plade Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dyse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dyse ~");
 

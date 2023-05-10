@@ -23,6 +23,9 @@
 
 /**
  * Ultimaker pin assignments (Old electronics)
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
+ * Origin: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
+ * ATmega2560, ATmega1280
  */
 
 /**
@@ -166,7 +169,7 @@
 #if EITHER(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
 
   #define LCD_PINS_RS                         24
-  #define LCD_PINS_ENABLE                     22
+  #define LCD_PINS_EN                         22
   #define LCD_PINS_D4                         36
   #define LCD_PINS_D5                         34
   #define LCD_PINS_D6                         32
@@ -179,7 +182,7 @@
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       16
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                        5
@@ -201,7 +204,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20

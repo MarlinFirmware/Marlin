@@ -44,6 +44,7 @@
 #include "max7219.h"
 
 #include "../module/planner.h"
+#include "../module/stepper.h"
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
@@ -471,7 +472,7 @@ void Max7219::register_setup() {
     constexpr millis_t pattern_delay = 4;
 
     int8_t spiralx, spiraly, spiral_dir;
-    IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type spiral_count;
+    uvalue_t(MAX7219_LEDS) spiral_count;
 
     void Max7219::test_pattern() {
       constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
@@ -720,6 +721,19 @@ void Max7219::idle_tasks() {
     if (current_time_fraction != last_time_fraction) {
       quantity(MAX7219_DEBUG_PROFILE, last_time_fraction, current_time_fraction, &row_change_mask);
       last_time_fraction = current_time_fraction;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_MULTISTEPPING
+    static uint8_t last_multistepping = 0;
+    const uint8_t multistepping = Stepper::steps_per_isr;
+    if (multistepping != last_multistepping) {
+      static uint8_t log2_old = 0;
+      uint8_t log2_new = 0;
+      for (uint8_t val = multistepping; val > 1; val >>= 1) log2_new++;
+      mark16(MAX7219_DEBUG_MULTISTEPPING, log2_old, log2_new, &row_change_mask);
+      last_multistepping = multistepping;
+      log2_old = log2_new;
     }
   #endif
 

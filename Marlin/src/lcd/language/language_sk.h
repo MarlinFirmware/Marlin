@@ -34,7 +34,7 @@
  * Substitutions are applied for the following characters when used in menu items titles:
  *
  *   $ displays an inserted string
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -65,7 +65,7 @@ namespace Language_sk {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Preteč. podprogramu");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znakov
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft. endstopy");
-  LSTR MSG_MAIN                           = _UxGT("Hlavná ponuka");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hlavná ponuka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Pokročilé nastav.");
   LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Panel nástrojov");
   LSTR MSG_OPTION_DISABLED                = _UxGT("Možnosť vypnutá");
@@ -294,7 +294,7 @@ namespace Language_sk {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Fialová");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Biela");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Obnoviť nastavenie");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanál =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanál {");
   LSTR MSG_LEDS2                          = _UxGT("Svetlo #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Predvolby svetla #2");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Jas");
@@ -327,7 +327,7 @@ namespace Language_sk {
   LSTR MSG_MOVE_1IN                       = _UxGT("Posunúť o 1,0in");
   LSTR MSG_LIVE_MOVE                      = _UxGT("Živý pohyb");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Tryska zaparkovaná");
@@ -500,7 +500,7 @@ namespace Language_sk {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Spustiť z hosta");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Tlačím objekt");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Zrušiť objekt");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť objekt =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť objekt {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Pokračovať v úlohe");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Vytlačiť z karty");
     LSTR MSG_TURN_OFF                     = _UxGT("Vypnite tlačiareň");
@@ -509,7 +509,7 @@ namespace Language_sk {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Spustiť z hosta");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Tlačím obj.");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Zrušiť obj.");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť obj. =");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť obj. {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Pokrač. v úlohe");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Tlač z karty");
     LSTR MSG_TURN_OFF                     = _UxGT("Vypnit. teraz");

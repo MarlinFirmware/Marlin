@@ -40,7 +40,7 @@ namespace Language_el_gr {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Εισαγωγή κάρτας");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Αφαίρεση κάρτας");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Βασική Οθόνη");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Βασική Οθόνη");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Αυτόματη εκκίνηση");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση βηματιστή");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο");
@@ -91,7 +91,7 @@ namespace Language_el_gr {
   LSTR MSG_MOVE_50MM                      = _UxGT("Μετακίνηση 50 μμ");
   LSTR MSG_MOVE_100MM                     = _UxGT("Μετακίνηση 100 μμ");
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
-  LSTR MSG_BED_Z                          = _UxGT("Κλίνη Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Κλίνη Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ακροφύσιο");
   LSTR MSG_NOZZLE_N                       = _UxGT("Ακροφύσιο ~");
   LSTR MSG_BED                            = _UxGT("Κλίνη");
