@@ -150,7 +150,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #if HAS_PID_HEATING
 
-  #define PID_K2 (1-float(PID_K1))
+  #define PID_K2 (1.0f - float(PID_K1))
   #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
 
   // Apply the scale factors to the PID values
@@ -231,7 +231,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   };
 
-#endif
+#endif // HAS_PID_HEATING
 
 #if ENABLED(PIDTEMP)
 

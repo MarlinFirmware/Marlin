@@ -2081,9 +2081,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             // Check if temperature is within the correct band
             if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
               #if ENABLED(BED_LIMIT_SWITCHING)
-                if (temp_bed.is_above_target((BED_HYSTERESIS) - 1))
+                if (temp_bed.is_above_target(BED_HYSTERESIS))
                   temp_bed.soft_pwm_amount = 0;
-                else if (temp_bed.is_below_target((BED_HYSTERESIS) - 1))
+                else if (temp_bed.is_below_target(BED_HYSTERESIS))
                   temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
               #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
                 temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
@@ -2157,7 +2157,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
           #endif
-          if (!flag_chamber_excess_heat && temp_chamber.is_above_target((HIGH_EXCESS_HEAT_LIMIT) - 1)) {
+          if (!flag_chamber_excess_heat && temp_chamber.is_above_target(HIGH_EXCESS_HEAT_LIMIT)) {
             // Open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds if the
             // temperature didn't drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             if (next_cool_check_ms == 0 || ELAPSED(ms, next_cool_check_ms)) {
@@ -2171,7 +2171,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             next_cool_check_ms = 0;
             old_temp = 9999;
           }
-          if (flag_chamber_excess_heat && temp_chamber.is_above_target((LOW_EXCESS_HEAT_LIMIT) - 1))
+          if (flag_chamber_excess_heat && temp_chamber.is_above_target(LOW_EXCESS_HEAT_LIMIT))
             flag_chamber_excess_heat = false;
         #endif
       }
@@ -2203,9 +2203,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           }
           else {
             #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-              if (temp_chamber.is_above_target((TEMP_CHAMBER_HYSTERESIS) - 1))
+              if (temp_chamber.is_above_target(TEMP_CHAMBER_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = 0;
-              else if (temp_chamber.is_below_target((TEMP_CHAMBER_HYSTERESIS) - 1))
+              else if (temp_chamber.is_below_target(TEMP_CHAMBER_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
             #else
               temp_chamber.soft_pwm_amount = temp_chamber.is_below_target() ? (MAX_CHAMBER_POWER) >> 1 : 0;
