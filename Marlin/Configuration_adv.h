@@ -660,9 +660,12 @@
 #endif
 
 /**
- * Use one of the PWM fans as a redundant part-cooling fan
+ * Use of the PWM fans for multi part cooling fans 2-4 total
  */
-//#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
+//#define REDUNDANT_PART_COOLING_FAN 1  // Index of the fan to sync with FAN 0.
+#if ENABLED (REDUNDANT_PART_COOLING_FAN)
+//#define EXTRA_PART_COOLING 2  // add 1-2 additional part cooling fans
+#endif
 
 // @section extruder
 
