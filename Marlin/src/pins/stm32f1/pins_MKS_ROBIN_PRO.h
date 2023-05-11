@@ -210,7 +210,7 @@
   #define SD_MOSI_PIN                       PB15
   #define SD_SS_PIN                         PG6
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT
+  #define ONBOARD_SDIO
   #define SD_DETECT_PIN                     PD12
   #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
@@ -264,7 +264,7 @@
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PG2
-  #define LCD_PINS_ENABLE                   PG0
+  #define LCD_PINS_EN                       PG0
   #define LCD_PINS_RS                       PG1
   #define BTN_EN1                           PG5
   #define BTN_EN2                           PG4

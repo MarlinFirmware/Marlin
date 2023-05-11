@@ -159,7 +159,7 @@
 //
 // SD card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
@@ -194,7 +194,7 @@
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS                 EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_03_PIN  // ST7920_CS_PIN  (LCD module pin 4)
-  #define LCD_PINS_ENABLE            EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
+  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
   #define LCD_PINS_D4                EXP1_04_PIN  // ST7920_CLK_PIN (LCD module pin 6)
 
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP

@@ -98,7 +98,7 @@
 
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                      P0_16
-  #define LCD_PINS_ENABLE                  P0_18
+  #define LCD_PINS_EN                      P0_18
   #define LCD_PINS_D4                      P0_15
   #define LCD_PINS_D5                      P1_00
   #define LCD_PINS_D6                      P1_01

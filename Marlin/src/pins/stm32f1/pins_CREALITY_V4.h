@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+#if !E_ERROR && (HAS_MULTI_HOTEND || E_STEPPERS > 1)
   #error "Creality v4 only supports 1 hotend / E stepper."
 #endif
 
@@ -35,7 +35,7 @@
   #define BOARD_INFO_NAME      "Creality V4"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 V2"
+  #define DEFAULT_MACHINE_NAME "Ender-3 V2"
 #endif
 
 #define BOARD_NO_NATIVE_USB
@@ -159,7 +159,7 @@
 //
 #define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION ONBOARD
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
@@ -211,7 +211,7 @@
 #if ENABLED(CR10_STOCKDISPLAY)
 
   #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
   #define LCD_PINS_D4                EXP3_06_PIN
 
   #define BTN_ENC                    EXP3_02_PIN
@@ -299,11 +299,3 @@
 #define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
 #define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
 #define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
-
-// SDIO pins
-#define SDIO_D0_PIN                         PC8
-#define SDIO_D1_PIN                         PC9
-#define SDIO_D2_PIN                         PC10
-#define SDIO_D3_PIN                         PC11
-#define SDIO_CK_PIN                         PC12
-#define SDIO_CMD_PIN                        PD2

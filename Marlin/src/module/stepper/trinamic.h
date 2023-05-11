@@ -77,7 +77,7 @@
   #define TMC_CLASS_E(N) TMC_CLASS(E##N, E)
 #endif
 
-#ifndef CHOPPER_TIMING_X
+#if HAS_X_AXIS && !defined(CHOPPER_TIMING_X)
   #define CHOPPER_TIMING_X CHOPPER_TIMING
 #endif
 #if HAS_Y_AXIS && !defined(CHOPPER_TIMING_Y)
@@ -114,8 +114,6 @@
 
 void restore_trinamic_drivers();
 void reset_trinamic_drivers();
-
-#define AXIS_HAS_DEDGE(A) (AXIS_IS_TMC(A) && ENABLED(EDGE_STEPPING))
 
 // X Stepper
 #if AXIS_IS_TMC(X)

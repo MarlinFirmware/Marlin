@@ -9,7 +9,7 @@
 #pragma once
 
 #include <U8glib-HAL.h>
-#include "../fontutils.h"
+#include "../utf8.h"
 
 // the macro to indicate a UTF-8 string
 // You should to save the C/C++ source in UTF-8 encoding!
