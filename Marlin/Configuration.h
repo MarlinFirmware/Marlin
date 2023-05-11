@@ -3384,8 +3384,9 @@
 //#define SOFT_PWM_DITHER
 
 //Use Additional Pwn fan headers for partcooling allowing up to 3 total part cooling fans that are controlled thru M106 & M107
-//#define EXTRA_PARTCOOLER_FAN1 //Also use Fan1 for part cooling 
-//#define EXTRA_PARTCOOLER_FAN2 //Also use Fan2 for part cooling
+//#define EXTRA_PARTCOOLER_FAN1 //Also use Fan1 for part cooling (Dual)
+//#define EXTRA_PARTCOOLER_FAN2 //Also use Fan2 for part cooling (Tri)
+//#define EXTRA_PARTCOOLER_FAN3 //Also use Fan3 for part cooling (Quad)
 
 // @section extras
 
