@@ -580,10 +580,10 @@ class MenuItem_bool : public MenuEditItemBase {
   }while(0)
 
   #if FAN_COUNT > 1
-    #define FAN_EDIT_ITEMS(F) _FAN_EDIT_ITEMS(F,FAN_SPEED_N)
+    #define FAN_EDIT_ITEMS(F) _FAN_EDIT_ITEMS(F, FAN_SPEED_N)
   #endif
 
-  #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
+  #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && (N) < EXTRUDERS)
 
   #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
     #define DEFINE_SINGLENOZZLE_ITEM() \
