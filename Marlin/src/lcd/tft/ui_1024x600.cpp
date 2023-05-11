@@ -326,7 +326,7 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(36, 1, color , tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 128, 32));
 
-  // flow rate
+  // Flow rate
   #if HAS_EXTRUDERS
     tft.canvas(650, y, 128, 32);
     tft.set_background(COLOR_BACKGROUND);
