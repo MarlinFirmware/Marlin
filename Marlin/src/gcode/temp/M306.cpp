@@ -43,8 +43,6 @@
  *
  *  With MPC_AUTOTUNE:
  *  T                         Autotune the extruder specified with 'E' or the active extruder.
- *
- *  With MPC_AUTOTUNE_FANCY:
  *                            S0 : Autotuning method AUTO (default)
  *                            S1 : Autotuning method DIFFERENTIAL
  *                            S2 : Autotuning method ASYMPTOTIC
@@ -57,22 +55,17 @@ void GcodeSuite::M306() {
     return;
   }
 
-  #if EITHER(MPC_AUTOTUNE, MPC_AUTOTUNE_FANCY)
+  #if ENABLED(MPC_AUTOTUNE)
     if (parser.seen_test('T')) {
-      #if ENABLED(MPC_AUTOTUNE_FANCY)
-        Temperature::MPCTuningType tuning_type;
-        const uint8_t type = parser.byteval('S', 0);
-        switch (type) {
-          case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
-          case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
-          default: tuning_type = Temperature::MPCTuningType::AUTO; break;
-        }
-        LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-        thermalManager.MPC_autotune(e, tuning_type);
-      #else
-        LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-        thermalManager.MPC_autotune(e);
-      #endif
+      Temperature::MPCTuningType tuning_type;
+      const uint8_t type = parser.byteval('S', 0);
+      switch (type) {
+        case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
+        case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
+        default: tuning_type = Temperature::MPCTuningType::AUTO; break;
+      }
+      LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+      thermalManager.MPC_autotune(e, tuning_type);
       ui.reset_status();
       return;
     }
