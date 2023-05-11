@@ -1234,41 +1234,42 @@ class Temperature {
 
           float get_elapsed_heating_time() { return elapsed_heating_time; }
           float get_sample_1_time() { return t1_time; }
-          float get_sample_1_temp() { return temp_samples[0]; }
-          float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
-          float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
-          float get_sample_interval() { return sample_distance * (sample_count >> 1); }
+          static float get_sample_1_temp() { return temp_samples[0]; }
+          static float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
+          static float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
+          static float get_sample_interval() { return sample_distance * (sample_count >> 1); }
 
-          celsius_float_t get_temp_fastest() { return temp_fastest; }
+          static celsius_float_t get_temp_fastest() { return temp_fastest; }
           float get_time_fastest() { return time_fastest; }
           float get_rate_fastest() { return rate_fastest; }
 
           float get_power_fan0() { return power_fan0; }
           #if HAS_FAN
-            float get_power_fan255() { return power_fan255; }
+            static float get_power_fan255() { return power_fan255; }
           #endif
 
         protected:
-          void init_timers() { curr_time_ms = next_report_ms = millis(); }
+          static void init_timers() { curr_time_ms = next_report_ms = millis(); }
           MeasurementState housekeeping();
 
-          millis_t curr_time_ms, next_report_ms;
           uint8_t e;
 
           float elapsed_heating_time;
           celsius_float_t ambient_temp, current_temp;
-          celsius_float_t temp_samples[16];
-          uint8_t sample_count;
-          uint16_t sample_distance;
           float t1_time;
 
+          static millis_t curr_time_ms, next_report_ms;
+          static celsius_float_t temp_samples[16];
+          static uint8_t sample_count;
+          static uint16_t sample_distance;
+
           // Parameters from differential analysis
-          celsius_float_t temp_fastest;
+          static celsius_float_t temp_fastest;
           float time_fastest, rate_fastest;
 
           float power_fan0;
           #if HAS_FAN
-            float power_fan255;
+            static float power_fan255;
           #endif
       };
 

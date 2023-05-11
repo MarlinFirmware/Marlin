@@ -946,6 +946,19 @@ volatile bool Temperature::raw_temps_ready = false;
 
   #define DEBUG_MPC_AUTOTUNE 1
 
+  millis_t Temperature::MPC_autotuner::curr_time_ms, Temperature::MPC_autotuner::next_report_ms;
+
+  celsius_float_t Temperature::MPC_autotuner::temp_samples[16];
+  uint8_t Temperature::MPC_autotuner::sample_count;
+  uint16_t Temperature::MPC_autotuner::sample_distance;
+
+  // Parameters from differential analysis
+  celsius_float_t Temperature::MPC_autotuner::temp_fastest;
+
+  #if HAS_FAN
+    float Temperature::MPC_autotuner::power_fan255;
+  #endif
+
   Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx) {
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
   }
@@ -973,7 +986,7 @@ volatile bool Temperature::raw_temps_ready = false;
     millis_t next_test_ms = curr_time_ms + test_interval_ms;
     ambient_temp = current_temp = degHotend(e);
     wait_for_heatup = true;
-    
+
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
