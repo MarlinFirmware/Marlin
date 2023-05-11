@@ -28,11 +28,11 @@ public:
   static int8_t config_state;
   static uint8_t homing;
   static float pos_zero_offset;
-  static void echo_name();
   static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
   static void process();
   static float read();
   static float interpret(const uint16_t data);
+  static float good_data(const uint16_t data) { return (data & 0x3FF) < 1016; }
   static bool check(const uint16_t data, const bool hicheck=false);
 };
 

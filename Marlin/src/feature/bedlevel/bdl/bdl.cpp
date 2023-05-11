@@ -52,19 +52,17 @@ BDS_Leveling bdl;
 // M102 S-1   Read sensor information
 
 #define MAX_BD_HEIGHT                 4.0f
+#define CMD_READ_VERSION              1016
 #define CMD_START_READ_CALIBRATE_DATA 1017
 #define CMD_END_READ_CALIBRATE_DATA   1018
 #define CMD_START_CALIBRATE           1019
 #define CMD_END_CALIBRATE             1021
-#define CMD_READ_VERSION  1016
 #define BD_SENSOR_I2C_ADDR            0x3C
 
 I2C_SegmentBED BD_I2C_SENSOR;
 float BDS_Leveling::pos_zero_offset;
 int8_t BDS_Leveling::config_state;
 uint8_t BDS_Leveling::homing;
-
-void BDS_Leveling::echo_name() { SERIAL_ECHOPGM("BD Sensor Leveling"); }
 
 void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
   const int ret = BD_I2C_SENSOR.i2c_init(_sda, _scl, BD_SENSOR_I2C_ADDR, delay_s);
@@ -78,7 +76,7 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
 bool BDS_Leveling::check(const uint16_t data, const bool hicheck/*=false*/) {
   if (BD_I2C_SENSOR.BD_Check_OddEven(data) == 0)
     SERIAL_ECHOLNPGM("Read Error.");
-  else if ((data & 0x3FF) >= 1015)
+  else if (!good_data(data))
     SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
   else if (hicheck && (data & 0x3FF) > 550)
     SERIAL_ECHOLNPGM("BD Sensor mounted too high!");
@@ -110,7 +108,7 @@ void BDS_Leveling::process() {
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
     static float old_cur_z = cur_z, old_buf_z = current_position.z;
     tmp = BD_I2C_SENSOR.BD_i2c_read();
-    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1016) {
+    if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && good_data(tmp)) {
       const float z_sensor = interpret(tmp);
       if (cur_z < -0.5f) config_state = 0;
       //const float abs_z = ABS(current_position.z - cur_z);
@@ -152,7 +150,7 @@ void BDS_Leveling::process() {
     DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);
     if (TERN0(DEBUG_OUT_BD, BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)) DEBUG_ECHOLNPGM("CRC error");
 
-    if ((tmp & 0x3FF) >= 1015) {
+    if (!good_data(tmp)) {
       BD_I2C_SENSOR.BD_i2c_stop();
       safe_delay(10);
     }
