@@ -290,7 +290,7 @@ void MarlinUI::draw_status_screen() {
       tft_string.set(ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(600 - tft_string.width(), 3, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   }
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   tft.add_text(800, 3, COLOR_AXIS_HOMED , "Z");
   uint16_t offset = 32;
   const bool nhz = axis_should_home(Z_AXIS);
@@ -628,7 +628,7 @@ static void drawCurStepValue() {
   tft.add_text(tft_string.center(CUR_STEP_VALUE_WIDTH), 0, COLOR_AXIS_HOMED, tft_string);
 }
 
-#if defined(Z_AXIS)
+#if HAS_Z_AXIS
 static void drawCurZSelection() {
   tft_string.set('Z');
   tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 34);
@@ -644,7 +644,7 @@ static void drawCurZSelection() {
 }
 #endif
 
-#if defined(E_AXIS)
+#if HAS_EXTRUDERS
 static void drawCurESelection() {
   tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
@@ -664,7 +664,7 @@ static void drawMessage(FSTR_P const fmsg) { drawMessage(FTOP(fmsg)); }
 
 static void drawAxisValue(const AxisEnum axis) {
   const float value = (
-    #if defined(Z_AXIS)
+    #if HAS_Z_AXIS
     TERN_(HAS_BED_PROBE, axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ? probe.offset.z :)
     #endif
     ui.manual_move.axis_value(axis)
@@ -674,10 +674,10 @@ static void drawAxisValue(const AxisEnum axis) {
   switch (axis) {
     case X_AXIS: pos = motionAxisState.xValuePos; color = X_BTN_COLOR; break;
     case Y_AXIS: pos = motionAxisState.yValuePos; color = Y_BTN_COLOR; break;
-    #if defined(Z_AXIS)
+    #if HAS_Z_AXIS
     case Z_AXIS: pos = motionAxisState.zValuePos; color = Z_BTN_COLOR; break;
     #endif
-    #if defined(E_AXIS)
+    #if HAS_EXTRUDERS
     case E_AXIS: pos = motionAxisState.eValuePos; color = E_BTN_COLOR; break;
     #endif
     default: return;
@@ -691,7 +691,7 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
     drawMessage(F("Too cold"));
     return;
@@ -700,7 +700,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
 
   const float diff = motionAxisState.currentStepSize * direction;
 
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
@@ -751,12 +751,12 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
-      #if defined(E_AXIS) && defined(Z_AXIS)
+      #if HAS_EXTRUDERS && HAS_Z_AXIS
       if (axis != Z_AXIS && axis != E_AXIS) {
       #endif
         max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
-      #if defined(E_AXIS) && defined(Z_AXIS)
+      #if HAS_EXTRUDERS && HAS_Z_AXIS
       }
       #endif
     #endif
@@ -776,7 +776,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
   drawAxisValue(axis);
 }
 
-#if defined(E_AXIS)
+#if HAS_EXTRUDERS
 static void e_plus()  { moveAxis(E_AXIS, 1);  }
 static void e_minus() { moveAxis(E_AXIS, -1); }
 #endif
@@ -784,13 +784,13 @@ static void x_minus() { moveAxis(X_AXIS, -1); }
 static void x_plus()  { moveAxis(X_AXIS, 1);  }
 static void y_plus()  { moveAxis(Y_AXIS, 1);  }
 static void y_minus() { moveAxis(Y_AXIS, -1); }
-#if defined(Z_AXIS)
+#if HAS_Z_AXIS
 static void z_plus()  { moveAxis(Z_AXIS, 1);  }
 static void z_minus() { moveAxis(Z_AXIS, -1); }
 #endif
 
 #if ENABLED(TOUCH_SCREEN)
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   static void e_select() {
     if (++motionAxisState.e_selection >= EXTRUDERS)
       motionAxisState.e_selection = 0;
@@ -807,12 +807,12 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
     queue.inject_P(G28_STR);
     // Disable touch until home is done
     TERN_(TOUCH_SCREEN, touch.disable());
-    #if defined(E_AXIS)
+    #if HAS_EXTRUDERS
     drawAxisValue(E_AXIS);
     #endif
     drawAxisValue(X_AXIS);
     drawAxisValue(Y_AXIS);
-    #if defined(Z_AXIS)
+    #if HAS_Z_AXIS
     drawAxisValue(Z_AXIS);
     #endif
   }
@@ -826,7 +826,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 #endif
 
 #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   static void z_select() {
     motionAxisState.z_selection *= -1;
     quick_feedback();
@@ -883,7 +883,7 @@ void MarlinUI::move_axis_screen() {
   // ROW 1 -> E- Y- CurY Z+
   int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   drawBtn(x, y, "E+", (intptr_t)e_plus, imgUp, E_BTN_COLOR, !busy);
   #endif
 
@@ -898,7 +898,7 @@ void MarlinUI::move_axis_screen() {
   drawAxisValue(Y_AXIS);
 
   x += spacing;
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
   #endif
 
@@ -909,7 +909,7 @@ void MarlinUI::move_axis_screen() {
 
   motionAxisState.eNamePos.x = x;
   motionAxisState.eNamePos.y = y;
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   drawCurESelection();
   TERN_(TOUCH_SCREEN, if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (intptr_t)e_select));
   #endif
@@ -927,11 +927,11 @@ void MarlinUI::move_axis_screen() {
   x += BTN_WIDTH + spacing;
   motionAxisState.zTypePos.x = x;
   motionAxisState.zTypePos.y = y;
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   drawCurZSelection();
   #endif
   #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
-    #if defined(Z_AXIS)
+    #if HAS_Z_AXIS
     if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
     #endif
   #endif
@@ -941,14 +941,14 @@ void MarlinUI::move_axis_screen() {
   x = X_MARGIN;
   spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
 
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   drawBtn(x, y, "E-", (intptr_t)e_minus, imgDown, E_BTN_COLOR, !busy);
   #endif
 
   // Cur E
   motionAxisState.eValuePos.x = x;
   motionAxisState.eValuePos.y = y + BTN_HEIGHT + 2;
-  #if defined(E_AXIS)
+  #if HAS_EXTRUDERS
   drawAxisValue(E_AXIS);
   #endif
 
@@ -961,14 +961,14 @@ void MarlinUI::move_axis_screen() {
   drawBtn(x, y, "Y-", (intptr_t)y_minus, imgDown, Y_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing;
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
   #endif
 
   // Cur Z
   motionAxisState.zValuePos.x = x;
   motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
-  #if defined(Z_AXIS)
+  #if HAS_Z_AXIS
   drawAxisValue(Z_AXIS);
   #endif
 
