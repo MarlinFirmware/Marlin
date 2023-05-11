@@ -32,6 +32,8 @@ public:
   static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
   static void process();
   static float read();
+  static float interpret(const uint16_t data);
+  static bool check(const uint16_t data, const bool hicheck=false);
 };
 
 extern BDS_Leveling bdl;
