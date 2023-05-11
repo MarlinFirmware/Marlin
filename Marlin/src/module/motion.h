@@ -372,7 +372,7 @@ inline void prepare_internal_move_to_destination(
  * Blocking movement and shorthand functions
  */
 void do_blocking_move_to(
-  NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s=0.0f
+  NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f
   OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
 );
 void do_blocking_move_to(
