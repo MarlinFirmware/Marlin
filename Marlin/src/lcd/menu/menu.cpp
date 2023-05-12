@@ -138,7 +138,7 @@ void MenuEditItemBase::goto_edit_screen(
   void * const ev,        // Edit value pointer
   const int32_t minv,     // Encoder minimum
   const int32_t maxv,     // Encoder maximum
-  const uint16_t ep,      // Initial encoder value
+  const uint32_t ep,      // Initial encoder value
   const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
