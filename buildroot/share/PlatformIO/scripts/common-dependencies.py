@@ -62,7 +62,7 @@ if pioutil.is_pio_build():
         for line in atoms:
             parts = line.split('=')
             name = parts.pop(0)
-            if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
+            if name in ['build_flags', 'extra_scripts', 'build_src_filter', 'lib_ignore']:
                 feat[name] = '='.join(parts)
                 blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
             else:
@@ -130,7 +130,7 @@ if pioutil.is_pio_build():
     def apply_features_config():
         load_features()
         blab("========== Apply enabled features...")
-        build_filters = ' '.join(env.GetProjectOption('src_filter'))
+        build_filters = ' '.join(env.GetProjectOption('build_src_filter'))
         for feature in FEATURE_CONFIG:
             if not env.MarlinHas(feature):
                 continue
@@ -175,9 +175,9 @@ if pioutil.is_pio_build():
                 blab("Running extra_scripts for %s... " % feature, 2)
                 env.SConscript(feat['extra_scripts'], exports="env")
 
-            if 'src_filter' in feat:
+            if 'build_src_filter' in feat:
                 blab("========== Adding build_src_filter for %s... " % feature, 2)
-                build_filters = build_filters + ' ' + feat['src_filter']
+                build_filters = build_filters + ' ' + feat['build_src_filter']
                 # Just append the filter in the order that the build environment specifies.
                 # Important here is the order of entries in the "features.ini" file.
 
@@ -186,7 +186,7 @@ if pioutil.is_pio_build():
                 lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
                 set_env_field('lib_ignore', lib_ignore)
 
-        src_filter = ""
+        build_src_filter = ""
         if True:
             # Build the actual equivalent build_src_filter list based on the inclusions by the features.
             # PlatformIO doesn't do it this way, but maybe in the future....
@@ -247,16 +247,16 @@ if pioutil.is_pio_build():
                         cur_srcs = set(filter(filt, cur_srcs))
             # Transform the resulting set into a string.
             for x in cur_srcs:
-                if len(src_filter) > 0: src_filter += ' '
-                src_filter += "+<" + x + ">"
+                if len(build_src_filter) > 0: build_src_filter += ' '
+                build_src_filter += "+<" + x + ">"
 
-            #blab("Final src_filter: " + src_filter)
+            #blab("Final build_src_filter: " + build_src_filter)
         else:
-            src_filter = build_filters
+            build_src_filter = build_filters
 
         # Update in PlatformIO
-        set_env_field('build_src_filter', [src_filter])
-        env.Replace(SRC_FILTER=src_filter)
+        set_env_field('build_src_filter', [build_src_filter])
+        env.Replace(SRC_FILTER=build_src_filter)
 
     #
     # Use the compiler to get a list of all enabled features
