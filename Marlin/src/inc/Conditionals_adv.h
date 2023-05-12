@@ -94,8 +94,26 @@
 #endif
 
 // Some options are disallowed without required axes
+#if !HAS_X_AXIS
+  //#define LCD_SHOW_E_TOTAL
+  #define NO_WORKSPACE_OFFSETS
+  #undef AUTOTEMP
+  #undef CALIBRATION_MEASURE_LEFT
+  #undef CALIBRATION_MEASURE_RIGHT
+  #undef CALIBRATION_MEASURE_XMAX
+  #undef CALIBRATION_MEASURE_XMIN
+  #undef DISABLE_IDLE_X
+  #undef INPUT_SHAPING_X
+  #undef SAFE_BED_LEVELING_START_X
+  #undef SHAPING_BUFFER_X
+  #undef SHAPING_FREQ_X
+  #undef STEALTHCHOP_X
+#endif
+
 #if !HAS_Y_AXIS
   #undef ARC_SUPPORT
+  #undef CALIBRATION_MEASURE_BACK
+  #undef CALIBRATION_MEASURE_FRONT
   #undef CALIBRATION_MEASURE_YMAX
   #undef CALIBRATION_MEASURE_YMIN
   #undef DISABLE_IDLE_Y
@@ -288,7 +306,8 @@
  */
 
 // Temperature sensor IDs
-#define HID_REDUNDANT -6
+#define HID_REDUNDANT -7
+#define HID_SOC       -6
 #define HID_BOARD     -5
 #define HID_COOLER    -4
 #define HID_PROBE     -3
@@ -306,9 +325,8 @@
 #define _SENSOR_IS(I,N) || (TEMP_SENSOR(N) == I)
 #define _E_SENSOR_IS(I,N) _SENSOR_IS(N,I)
 #define ANY_E_SENSOR_IS(N) (0 REPEAT2(HOTENDS, _E_SENSOR_IS, N))
-#define ANY_THERMISTOR_IS(N) ( ANY_E_SENSOR_IS(N) \
-  _SENSOR_IS(N,BED) _SENSOR_IS(N,PROBE) _SENSOR_IS(N,CHAMBER) \
-  _SENSOR_IS(N,COOLER) _SENSOR_IS(N,BOARD) _SENSOR_IS(N,REDUNDANT) )
+#define ANY_THERMISTOR_IS(N) ( ANY_E_SENSOR_IS(N) _SENSOR_IS(N,REDUNDANT) \
+  _SENSOR_IS(N,BED) _SENSOR_IS(N,PROBE) _SENSOR_IS(N,CHAMBER) _SENSOR_IS(N,COOLER) _SENSOR_IS(N,BOARD) )
 
 #if ANY_THERMISTOR_IS(1000)
   #define HAS_USER_THERMISTORS 1
@@ -864,17 +882,28 @@
   #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
-#if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  #ifdef Z_STEPPER_ALIGN_STEPPER_XY
-    #define HAS_Z_STEPPER_ALIGN_STEPPER_XY 1
-    #undef Z_STEPPER_ALIGN_AMP
-  #endif
-  #ifndef Z_STEPPER_ALIGN_AMP
-    #define Z_STEPPER_ALIGN_AMP 1.0
-  #endif
+// X2 but not IDEX => Dual Synchronized X Steppers
+#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
+  #define HAS_SYNCED_X_STEPPERS 1
+#endif
+
+// Y2 Stepper => Dual Synchronized Y Steppers
+#ifdef Y2_DRIVER_TYPE
+  #define HAS_SYNCED_Y_STEPPERS 1
 #endif
 
 // Multiple Z steppers
+#ifdef INVERT_Z_DIR
+  #if NUM_Z_STEPPERS >= 2 && !defined(INVERT_Z2_DIR)
+    #define INVERT_Z2_DIR INVERT_Z_DIR
+    #if NUM_Z_STEPPERS >= 3 && !defined(INVERT_Z3_DIR)
+      #define INVERT_Z3_DIR INVERT_Z_DIR
+      #if NUM_Z_STEPPERS >= 4 && !defined(INVERT_Z4_DIR)
+        #define INVERT_Z4_DIR INVERT_Z_DIR
+      #endif
+    #endif
+  #endif
+#endif
 #if NUM_Z_STEPPERS < 4
   #undef INVERT_Z4_VS_Z_DIR
   #if NUM_Z_STEPPERS < 3
@@ -885,8 +914,15 @@
   #endif
 #endif
 
-#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
-  #define HAS_DUAL_X_STEPPERS 1
+// Z Stepper Auto-align
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #ifdef Z_STEPPER_ALIGN_STEPPER_XY
+    #define HAS_Z_STEPPER_ALIGN_STEPPER_XY 1
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
 #endif
 
 //
@@ -1044,12 +1080,6 @@
   #define POLL_JOG
 #endif
 
-#if X2_HOME_DIR > 0
-  #define X2_HOME_TO_MAX 1
-#elif X2_HOME_DIR < 0
-  #define X2_HOME_TO_MIN 1
-#endif
-
 #ifndef HOMING_BUMP_MM
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
@@ -1156,6 +1186,7 @@
   #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
 #else
   #define SD_CONNECTION_IS(...) 0
+  #undef SD_ABORT_ON_ENDSTOP_HIT
 #endif
 
 // Power Monitor sensors
@@ -1203,17 +1234,16 @@
 #endif
 
 /**
- * LCD_SERIAL_PORT must be defined ahead of HAL.h
+ * LCD_SERIAL_PORT must be defined ahead of HAL.h and
+ * currently HAL.h must be included ahead of pins.h.
  */
-#ifndef LCD_SERIAL_PORT
-  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI || HAS_DGUS_LCD
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1)
-      #define LCD_SERIAL_PORT 1
-    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN)
-      #define LCD_SERIAL_PORT 2 // Creality Ender3S1, MKS Robin
-    #else
-      #define LCD_SERIAL_PORT 3 // Other boards
-    #endif
+#if LCD_IS_SERIAL_HOST && !defined(LCD_SERIAL_PORT)
+  #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1)
+    #define LCD_SERIAL_PORT 1
+  #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN, PANOWIN_CUTLASS, KODAMA_BARDO)
+    #define LCD_SERIAL_PORT 2
+  #else
+    #define LCD_SERIAL_PORT 3
   #endif
   #ifdef LCD_SERIAL_PORT
     #define AUTO_ASSIGNED_LCD_SERIAL 1

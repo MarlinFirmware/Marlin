@@ -45,7 +45,7 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include "../../../sd/cardreader.h"

@@ -30,7 +30,9 @@
 /**
  * Warnings for old configurations
  */
-#if WATCH_TEMP_PERIOD > 500
+#ifdef GITHUB_ACTION
+  // Skip change alerts during CI Test
+#elif WATCH_TEMP_PERIOD > 500
   #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
 #elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
   #error "Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS."
@@ -63,7 +65,7 @@
 #elif defined(ENDSTOPPULLUP_FIL_RUNOUT)
   #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULLUP."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
-  #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
+  #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Endstops are automatically determined."
 #elif defined(LANGUAGE_INCLUDE)
   #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE."
 #elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
@@ -643,6 +645,20 @@
   #error "TFT_SHARED_SPI is now TFT_SHARED_IO."
 #elif defined(LCD_PINS_ENABLE)
   #error "LCD_PINS_ENABLE is now LCD_PINS_EN."
+#elif ANY(USE_XMIN_PLUG, USE_XMAX_PLUG, USE_YMIN_PLUG, USE_YMAX_PLUG, USE_ZMIN_PLUG, USE_ZMAX_PLUG, \
+          USE_IMIN_PLUG, USE_IMAX_PLUG, USE_JMIN_PLUG, USE_JMAX_PLUG, USE_KMIN_PLUG, USE_KMAX_PLUG, \
+          USE_UMIN_PLUG, USE_UMAX_PLUG, USE_VMIN_PLUG, USE_VMAX_PLUG, USE_WMIN_PLUG, USE_WMAX_PLUG)
+  #error "USE_*_PLUG settings are no longer needed and should be removed."
+#elif defined(X2_USE_ENDSTOP)
+  #error "X2_USE_ENDSTOP is obsolete. Instead set X2_STOP_PIN directly. (e.g., 'X2_USE_ENDSTOP _XMAX_' becomes 'X2_STOP_PIN X_MAX_PIN')"
+#elif defined(Y2_USE_ENDSTOP)
+  #error "Y2_USE_ENDSTOP is obsolete. Instead set Y2_STOP_PIN directly. (e.g., 'Y2_USE_ENDSTOP _YMAX_' becomes 'Y2_STOP_PIN Y_MAX_PIN')"
+#elif defined(Z2_USE_ENDSTOP)
+  #error "Z2_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z2_USE_ENDSTOP _ZMAX_' becomes 'Z2_STOP_PIN Z_MAX_PIN')"
+#elif defined(Z3_USE_ENDSTOP)
+  #error "Z3_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
+#elif defined(Z4_USE_ENDSTOP)
+  #error "Z4_USE_ENDSTOP is obsolete. Instead set Z4_STOP_PIN directly. (e.g., 'Z4_USE_ENDSTOP _ZMAX_' becomes 'Z4_STOP_PIN Z_MAX_PIN')"
 #endif
 
 // L64xx stepper drivers have been removed

@@ -1903,7 +1903,9 @@ bool Planner::_populate_block(
   /* <-- add a slash to enable
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
-      " A:", target.a, " (", da, " steps)"
+      #if HAS_X_AXIS
+        " A:", target.a, " (", da, " steps)"
+      #endif
       #if HAS_Y_AXIS
         " B:", target.b, " (", db, " steps)"
       #endif
@@ -1968,54 +1970,50 @@ bool Planner::_populate_block(
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
-  axis_bits_t dm = 0;
+  AxisBits dm;
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    if (da < 0) SBI(dm, X_HEAD);                  // Save the toolhead's true direction in X
-    if (db < 0) SBI(dm, Y_HEAD);                  // ...and Y
-    TERN_(HAS_Z_AXIS, if (dc < 0) SBI(dm, Z_AXIS));
+    dm.hx = (da < 0);                 // Save the toolhead's true direction in X
+    dm.hy = (db < 0);                 // ...and Y
+    TERN_(HAS_Z_AXIS, dm.z = (dc < 0));
   #endif
   #if IS_CORE
     #if CORE_IS_XY
-      if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
+      dm.a = (da + db < 0);           // Motor A direction
+      dm.b = (CORESIGN(da - db) < 0); // Motor B direction
     #elif CORE_IS_XZ
-      if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
-      if (db < 0) SBI(dm, Y_AXIS);
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (da + dc < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
+      dm.hx = (da < 0);               // Save the toolhead's true direction in X
+      dm.y = (db < 0);
+      dm.hz = (dc < 0);               // ...and Z
+      dm.a = (da + dc < 0);           // Motor A direction
+      dm.c = (CORESIGN(da - dc) < 0); // Motor C direction
     #elif CORE_IS_YZ
-      if (da < 0) SBI(dm, X_AXIS);
-      if (db < 0) SBI(dm, Y_HEAD);                // Save the toolhead's true direction in Y
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (db + dc < 0) SBI(dm, B_AXIS);           // Motor B direction
-      if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
+      dm.x = (da < 0);
+      dm.hy = (db < 0);               // Save the toolhead's true direction in Y
+      dm.hz = (dc < 0);               // ...and Z
+      dm.b = (db + dc < 0);           // Motor B direction
+      dm.c = (CORESIGN(db - dc) < 0); // Motor C direction
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    if (da + db < 0) SBI(dm, A_AXIS);              // Motor A direction
-    if (db < 0) SBI(dm, B_AXIS);                   // Motor B direction
+    dm.a = (da + db < 0);             // Motor A direction
+    dm.b = (db < 0);                  // Motor B direction
   #elif ENABLED(MARKFORGED_YX)
-    if (da < 0) SBI(dm, A_AXIS);                   // Motor A direction
-    if (db + da < 0) SBI(dm, B_AXIS);              // Motor B direction
+    dm.a = (da < 0);                  // Motor A direction
+    dm.b = (db + da < 0);             // Motor B direction
   #else
     XYZ_CODE(
-      if (da < 0) SBI(dm, X_AXIS),
-      if (db < 0) SBI(dm, Y_AXIS),
-      if (dc < 0) SBI(dm, Z_AXIS)
+      dm.x = (da < 0),
+      dm.y = (db < 0),
+      dm.z = (dc < 0)
     );
   #endif
 
   SECONDARY_AXIS_CODE(
-    if (di < 0) SBI(dm, I_AXIS),
-    if (dj < 0) SBI(dm, J_AXIS),
-    if (dk < 0) SBI(dm, K_AXIS),
-    if (du < 0) SBI(dm, U_AXIS),
-    if (dv < 0) SBI(dm, V_AXIS),
-    if (dw < 0) SBI(dm, W_AXIS)
+    dm.i = (di < 0), dm.j = (dj < 0), dm.k = (dk < 0),
+    dm.u = (du < 0), dm.v = (dv < 0), dm.w = (dw < 0)
   );
 
   #if HAS_EXTRUDERS
-    if (de < 0) SBI(dm, E_AXIS);
+    dm.e = (de < 0);
     const float esteps_float = de * e_factor[extruder];
     const uint32_t esteps = ABS(esteps_float) + 0.5f;
   #else
@@ -2208,11 +2206,17 @@ bool Planner::_populate_block(
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
 
-  block->step_event_count = _MAX(LOGICAL_AXIS_LIST(esteps,
-    block->steps.a, block->steps.b, block->steps.c,
-    block->steps.i, block->steps.j, block->steps.k,
-    block->steps.u, block->steps.v, block->steps.w
-  ));
+  block->step_event_count = (
+    #if NUM_AXES
+      _MAX(LOGICAL_AXIS_LIST(esteps,
+        block->steps.a, block->steps.b, block->steps.c,
+        block->steps.i, block->steps.j, block->steps.k,
+        block->steps.u, block->steps.v, block->steps.w
+      ))
+    #elif HAS_EXTRUDERS
+      esteps
+    #endif
+  );
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
@@ -2435,11 +2439,11 @@ bool Planner::_populate_block(
 
   #ifdef XY_FREQUENCY_LIMIT
 
-    static axis_bits_t old_direction_bits; // = 0
+    static AxisBits old_direction_bits; // = 0
 
     if (xy_freq_limit_hz) {
       // Check and limit the xy direction change frequency
-      const axis_bits_t direction_change = block->direction_bits ^ old_direction_bits;
+      const AxisBits direction_change = block->direction_bits ^ old_direction_bits;
       old_direction_bits = block->direction_bits;
       segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
@@ -2478,8 +2482,8 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
-  if (NUM_AXIS_GANG(
-         !block->steps.a, && !block->steps.b, && !block->steps.c,
+  if (true NUM_AXIS_GANG(
+      && !block->steps.a, && !block->steps.b, && !block->steps.c,
       && !block->steps.i, && !block->steps.j, && !block->steps.k,
       && !block->steps.u, && !block->steps.v, && !block->steps.w)
   ) {                                                             // Is this a retract / recover move?
@@ -3177,14 +3181,14 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
         if (delta.a <= POLAR_FAST_RADIUS )
           calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
-            // Normalized vector of movement
-            const float diffBLength = ABS((2.0f * PI * diff.a) * (diff.b / 360.0f)),
-                        diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
-                        normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
+          // Normalized vector of movement
+          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
+                      diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
+                      normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
-            // Normalized position along the radius
-            const float radiusRatio = PRINTABLE_RADIUS/delta.a;
-            calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
+          // Normalized position along the radius
+          const float radiusRatio = (PRINTABLE_RADIUS) / delta.a;
+          calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
         }
       }
       const feedRate_t feedrate = calculated_feedrate;

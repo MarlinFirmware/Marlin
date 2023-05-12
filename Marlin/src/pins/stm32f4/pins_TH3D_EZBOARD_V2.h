@@ -132,9 +132,6 @@
   #define E0_SERIAL_TX_PIN                  PC10
   #define E0_SERIAL_RX_PIN                  PC11
 
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
@@ -148,7 +145,13 @@
   #ifndef E0_SLAVE_ADDRESS
     #define E0_SLAVE_ADDRESS 3
   #endif
-#endif
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temp Sensors
