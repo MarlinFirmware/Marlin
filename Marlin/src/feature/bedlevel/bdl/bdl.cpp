@@ -124,7 +124,7 @@ void BDS_Leveling::process() {
           }
           else {
             babystep.set_mm(Z_AXIS, 0);   //if (old_cur_z <= cur_z) Z_DIR_WRITE(HIGH);
-            stepper.set_directions();
+            stepper.apply_directions();   // TODO: Remove this line as probably not needed
           }
         }
       #endif
