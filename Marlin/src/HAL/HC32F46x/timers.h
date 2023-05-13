@@ -21,7 +21,7 @@
  */
 #pragma once
 #include <stdint.h>
-#include "hc32f46x_timer0.h"
+#include "hc32f460_timer0.h"
 
 //
 // Misc.
@@ -67,10 +67,6 @@ hal_timer_t HAL_timer_get_count(const timer_channel_t timer_num);
 void HAL_timer_isr_prologue(const timer_channel_t timer_num);
 void HAL_timer_isr_epilogue(const timer_channel_t timer_num);
 
-// ISR callbacks
-extern void HAL_STEP_TIMER_ISR();
-extern void HAL_TEMP_TIMER_ISR();
-
 //
 // HAL function aliases
 //
@@ -80,3 +76,16 @@ extern void HAL_TEMP_TIMER_ISR();
 
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM);
+
+//
+// HAL ISR callbacks
+//
+void Step_Handler();
+void Temp_Handler();
+
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR() void Step_Handler()
+#endif
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
+#endif

@@ -28,7 +28,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if defined(ARDUINO_ARCH_STM32F1) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
+#if defined(TARGET_HC32F46x) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
 #warning "'u8g_com_stm32duino_fsmc' has not been tested to work as expected. Proceed at your own risk"
 
 #if HAS_GRAPHICAL_LCD
@@ -425,4 +425,4 @@ void LCD_IO_WaitSequence_Async()
 #endif // LCD_USE_DMA_FSMC
 
 #endif // HAS_GRAPHICAL_LCD
-#endif // ARDUINO_ARCH_STM32F1 && FSMC_CS_PIN
+#endif // TARGET_HC32F46x && FSMC_CS_PIN
