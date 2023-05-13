@@ -53,6 +53,7 @@ class FxdTiCtrl {
 
 
     // Public methods
+    static void init();
     static void startBlockProc(block_t * const current_block); // Set controller states to begin processing a block.
     static bool getBlockProcDn() { return blockProcDn; }    // Return true if the controller no longer needs the current block.
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
@@ -160,7 +161,6 @@ class FxdTiCtrl {
 
     // Private methods
     static uint32_t stepperCmdBuffItems();
-    static void init();
     static void loadBlockData(block_t * const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);

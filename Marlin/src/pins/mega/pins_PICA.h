@@ -35,6 +35,10 @@
 
 #include "env_validate.h"
 
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "PICA supports up to 2 hotends / E steppers."
+#endif
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
 #endif
@@ -123,7 +127,7 @@
 #define SSR_PIN                                6
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)

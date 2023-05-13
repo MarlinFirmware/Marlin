@@ -35,7 +35,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "SdBaseFile.h"
 
@@ -2169,7 +2169,7 @@ bool SdBaseFile::truncate(uint32_t length) {
  * include write() is called before a file has been opened, write is called
  * for a read-only file, device is full, a corrupt file system or an I/O error.
  */
-int16_t SdBaseFile::write(const void *buf, uint16_t nbyte) {
+int16_t SdBaseFile::write(const void *buf, const uint16_t nbyte) {
   #if ENABLED(SDCARD_READONLY)
     writeError = true; return -1;
   #endif
@@ -2269,4 +2269,4 @@ int16_t SdBaseFile::write(const void *buf, uint16_t nbyte) {
   return -1;
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

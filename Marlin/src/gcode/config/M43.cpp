@@ -362,7 +362,7 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("M43 Waiting..."), FPSTR(CONTINUE_STR)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(F("M43 Waiting..."));
       #else

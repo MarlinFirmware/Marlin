@@ -345,7 +345,7 @@ class SdBaseFile {
    * \return SdVolume that contains this file.
    */
   SdVolume* volume() const { return vol_; }
-  int16_t write(const void *buf, uint16_t nbyte);
+  int16_t write(const void *buf, const uint16_t nbyte);
 
  private:
   friend class SdFat;           // allow SdFat to set cwd_

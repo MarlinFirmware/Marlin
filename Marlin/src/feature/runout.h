@@ -191,13 +191,13 @@ class FilamentSensorBase {
   public:
     static void setup() {
       #define _INIT_RUNOUT_PIN(P,S,U,D) do{ if (ENABLED(U)) SET_INPUT_PULLUP(P); else if (ENABLED(D)) SET_INPUT_PULLDOWN(P); else SET_INPUT(P); }while(0);
-      #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN)
-      REPEAT_1(NUM_RUNOUT_SENSORS, INIT_RUNOUT_PIN);
+      #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN);
+      REPEAT_1(NUM_RUNOUT_SENSORS, INIT_RUNOUT_PIN)
       #undef INIT_RUNOUT_PIN
 
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        #define INIT_MOTION_PIN(N) _INIT_RUNOUT_PIN(FIL_MOTION##N##_PIN, FIL_MOTION##N##_STATE, FIL_MOTION##N##_PULLUP, FIL_MOTION##N##_PULLDOWN)
-        REPEAT_1(NUM_MOTION_SENSORS, INIT_MOTION_PIN);
+        #define INIT_MOTION_PIN(N) _INIT_RUNOUT_PIN(FIL_MOTION##N##_PIN, FIL_MOTION##N##_STATE, FIL_MOTION##N##_PULLUP, FIL_MOTION##N##_PULLDOWN);
+        REPEAT_1(NUM_MOTION_SENSORS, INIT_MOTION_PIN)
         #undef  INIT_MOTION_PIN
       #endif
       #undef _INIT_RUNOUT_PIN
@@ -212,9 +212,9 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static uint8_t poll_runout_states() {
-      #define _OR_RUNOUT(N) | (FIL_RUNOUT##N##_STATE ? 0 : _BV(N - 1))
-      return poll_runout_pins() ^ uint8_t(0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
-      #undef _OR_RUNOUT
+      #define _INVERT_BIT(N) | (FIL_RUNOUT##N##_STATE ? 0 : _BV(N - 1))
+      return poll_runout_pins() ^ uint8_t(0 REPEAT_1(NUM_RUNOUT_SENSORS, _INVERT_BIT));
+      #undef _INVERT_BIT
     }
 
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
@@ -411,7 +411,7 @@ class FilamentSensorBase {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;
-          const float mm = (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.mm_per_step[E_AXIS_N(e)];
+          const float mm = (b->direction_bits.e ? -steps : steps) * planner.mm_per_step[E_AXIS_N(e)];
           if (e < NUM_RUNOUT_SENSORS) mm_countdown.runout[e] -= mm;
           #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
             if (e < NUM_MOTION_SENSORS) mm_countdown.motion[e] -= mm;

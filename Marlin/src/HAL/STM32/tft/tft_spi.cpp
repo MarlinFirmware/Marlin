@@ -245,7 +245,6 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
-
 void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DMAtx.Init.MemInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);

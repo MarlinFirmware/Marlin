@@ -51,11 +51,7 @@
 #define Z_STOP_PIN                          PC2   // Z-STOP
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
-  #if X2_USE_ENDSTOP == _XMAX_
-    #define X_MAX_PIN                   FPC2_PIN  // X2-STOP
-  #elif X2_USE_ENDSTOP == _XMIN_
-    #define X_MIN_PIN                   FPC2_PIN  // X2-STOP
-  #endif
+  #define X2_STOP_PIN                   FPC2_PIN  // X2-STOP
 #endif
 
 //
@@ -135,8 +131,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -383,7 +382,7 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
