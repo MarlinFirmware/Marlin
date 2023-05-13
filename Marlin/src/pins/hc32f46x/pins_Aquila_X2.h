@@ -28,10 +28,6 @@
 #error "Oops! the aquila X2 is a HC32F46x board and requires TARGET_HC32F46x to be defined"
 #endif
 
-#ifndef TARGET_STM32F1
-#error "Oops! HC32F46x boards require that TARGET_STM32F1 is defined aswell!"
-#endif
-
 #if HOTENDS > 1 || E_STEPPERS > 1
 #error "the aquila X2 only supports one hotend and E-stepper"
 #endif
