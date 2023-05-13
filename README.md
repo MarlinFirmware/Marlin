@@ -8,6 +8,7 @@ this project is based on the following projects and wouldn't have been possible 
 
 - [shadow578/platform-hc32f46x](https://github.com/shadow578/platform-hc32f46x) (platformio platform for HC32F46x)
 - [shadow578/framework-arduino-hc32f46x](https://github.com/shadow578/framework-arduino-hc32f46x) (Arduino framework for HC32F46x)
+- [shadow578/framework-hc32f46x-ddl](https://github.com/shadow578/framework-hc32f46x-ddl) (HC32F46x DDL framework)
 - [MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin) (base Marlin firmware)
 - [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2) (platform, framework and HAL)
 - [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32) (optimizations to framework and `HAL`)
