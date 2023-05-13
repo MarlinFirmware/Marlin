@@ -392,6 +392,7 @@
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RET6)
 #define BOARD_TRIGORILLA_V006         5068  // Trigorilla V0.0.6 (GD32F103RE)
 #define BOARD_KEDI_CONTROLLER_V1_2    5069  // EDUTRONICS Kedi Controller V1.2 (STM32F103RC)
+#define BOARD_AQUILA_V101             5099  // Voxlab Aquila V1.0.1 (HC32F46x) as found in the Voxelab Aquila X2
 
 //
 // ARM Cortex-M4F
