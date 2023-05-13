@@ -2,11 +2,6 @@
 #include "../../module/endstops.h"
 #include "interrupts.h"
 
-// Z_MIN_PROBE does not follow the same naming as all other pins...
-#if HAS_Z_MIN_PROBE_PIN && !defined(HAS_Z_MIN_PROBE)
-#define HAS_Z_MIN_PROBE
-#endif
-
 //
 // IRQ handler
 //
@@ -15,7 +10,7 @@ void endstopIRQHandler()
     bool flag = false;
 
 // check all irq flags
-#define CHECK(name) TERN_(HAS_##name, flag |= checkAndClearExtIRQFlag(name##_PIN))
+#define CHECK(name) TERN_(USE_##name, flag |= checkAndClearExtIRQFlag(name##_PIN))
 
     CHECK(X_MAX);
     CHECK(X_MIN);
@@ -46,7 +41,7 @@ void endstopIRQHandler()
 //
 void setup_endstop_interrupts()
 {
-#define SETUP(name) TERN_(HAS_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE))
+#define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE))
 
     SETUP(X_MAX);
     SETUP(X_MIN);
@@ -68,6 +63,10 @@ void setup_endstop_interrupts()
 
 // ensure max. 10 irqs are registered
 // if you encounter this error, you'll have to disable some endstops
-#if HAS_X_MAX && HAS_X_MIN && HAS_Y_MAX && HAS_Y_MIN && HAS_Z_MAX && HAS_Z_MIN && HAS_Z2_MAX && HAS_Z2_MIN && HAS_Z3_MAX && HAS_Z3_MIN && HAS_MIN_Z_PROBE
-#error "too many endstop interrupts! HC32F46x only supports 10 endstop interrupts."
+#define ENDSTOPS_INTERRUPTS_COUNT COUNT_ENABLED(USE_X_MAX, USE_X_MIN, USE_Y_MAX, USE_Y_MIN, USE_Z_MAX, USE_Z_MIN, USE_Z2_MAX, USE_Z2_MIN, USE_Z3_MAX, USE_Z3_MIN, USE_Z_MIN_PROBE)
+#if ENDSTOPS_INTERRUPTS_COUNT > 10
+  #error "too many endstop interrupts! HC32F46x only supports 10 endstop interrupts."
+#endif
+#if ENDSTOPS_INTERRUPTS_COUNT == 0
+  #error "no endstop interrupts are enabled! If you wish to ignore this error, please comment out this line."
 #endif

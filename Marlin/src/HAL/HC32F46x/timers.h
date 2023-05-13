@@ -49,7 +49,10 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_PRESCALE 16ul
 
 #define STEPPER_TIMER_PRESCALE 16ul
-#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+
+//TODO: derive this from the timer rate and prescale
+// since F_CPU is not constant, it cannot be used here... 
+#define STEPPER_TIMER_RATE 2000000 // (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
 
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE

@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <stdint.h>
@@ -74,5 +73,7 @@ public:
 
 // M997: trigger firmware update from sd card (after upload)
 // on HC32F46x, a reboot is enough to do this
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
