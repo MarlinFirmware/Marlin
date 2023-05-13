@@ -62,12 +62,11 @@ BDS_Leveling bdl;
 I2C_SegmentBED BD_I2C_SENSOR;
 float BDS_Leveling::pos_zero_offset;
 int8_t BDS_Leveling::config_state;
-uint8_t BDS_Leveling::homing;
 
 void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
+  config_state = BDS_IDLE;
   const int ret = BD_I2C_SENSOR.i2c_init(_sda, _scl, BD_SENSOR_I2C_ADDR, delay_s);
   if (ret != 1) SERIAL_ECHOLNPGM("BD Sensor Init Fail (", ret, ")");
-  config_state = 0;
   sync_plan_position();
   pos_zero_offset = planner.get_axis_position_mm(Z_AXIS) - current_position.z;
   SERIAL_ECHOLNPGM("BD Sensor Zero Offset:", pos_zero_offset);
@@ -97,12 +96,12 @@ float BDS_Leveling::read() {
 }
 
 void BDS_Leveling::process() {
-  //if (config_state == 0) return;
+  //if (config_state == BDS_IDLE) return;
   static millis_t next_check_ms = 0; // starting at T=0
   static float zpos = 0.0f;
   const millis_t ms = millis();
   if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
-    next_check_ms = ms + (config_state < 0 ? 200 : 50);   // check at 5Hz or 20Hz
+    next_check_ms = ms + (config_state < BDS_IDLE ? 200 : 50);   // check at 5Hz or 20Hz
 
     uint16_t tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
@@ -110,7 +109,7 @@ void BDS_Leveling::process() {
     tmp = BD_I2C_SENSOR.BD_i2c_read();
     if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && good_data(tmp)) {
       const float z_sensor = interpret(tmp);
-      if (cur_z < -0.5f) config_state = 0;
+      if (cur_z < -0.5f) config_state = BDS_IDLE;
       //const float abs_z = ABS(current_position.z - cur_z);
       #if ENABLED(BABYSTEPPING)
         if (config_state > 0) {
@@ -156,7 +155,8 @@ void BDS_Leveling::process() {
     }
 
     // Read version. Usually used as a connection check
-    if (config_state == -1) {
+    if (config_state == BDS_VERSION) {
+      config_state = BDS_IDLE;
       BD_I2C_SENSOR.BD_i2c_write(CMD_READ_VERSION);
       safe_delay(100);
       char tmp_1[21];
@@ -164,14 +164,14 @@ void BDS_Leveling::process() {
         tmp_1[i] = BD_I2C_SENSOR.BD_i2c_read() & 0xFF;
         safe_delay(50);
       }
-      config_state = 0;
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
       SERIAL_ECHOLNPGM("BD Sensor version:", tmp_1);
       if (tmp_1[0] != 'V') SERIAL_ECHOLNPGM("Read Error. Check connection and delay.");
       safe_delay(50);
     }
     // read raw calibrate data
-    else if (config_state == -5) {
+    else if (config_state == BDS_READ_RAW) {
+      config_state = BDS_IDLE;
       BD_I2C_SENSOR.BD_i2c_write(CMD_START_READ_CALIBRATE_DATA);
       safe_delay(100);
 
@@ -181,13 +181,13 @@ void BDS_Leveling::process() {
         (void)check(tmp, i == 0);
         safe_delay(50);
       }
-      config_state = 0;
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
       safe_delay(50);
     }
-    else if (config_state <= -6) {   // Start Calibrate
+    else if (config_state <= BDS_CALIBRATE_START) {   // Start Calibrate
       safe_delay(10);
-      if (config_state == -6) {
+      if (config_state == BDS_CALIBRATE_START) {
+        config_state = BDS_CALIBRATING;
         REMEMBER(gsit, gcode.stepper_inactive_time, SEC_TO_MS(60 * 5));
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
@@ -212,14 +212,13 @@ void BDS_Leveling::process() {
         BD_I2C_SENSOR.BD_i2c_write(CMD_START_CALIBRATE); // Begin calibrate
         SERIAL_ECHOLNPGM("BD Sensor Calibrating...");
         safe_delay(200);
-        config_state = -7;
       }
       else if ((planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset) < 10.0f) {
         if (zpos >= MAX_BD_HEIGHT) {
+          config_state = BDS_IDLE;
           BD_I2C_SENSOR.BD_i2c_write(CMD_END_CALIBRATE); // End calibrate
           SERIAL_ECHOLNPGM("BD Sensor calibrated.");
           zpos = 7.0f;
-          config_state = 0;
           safe_delay(1000);
         }
         else {

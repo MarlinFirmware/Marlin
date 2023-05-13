@@ -23,10 +23,18 @@
 
 #include <stdint.h>
 
+enum BDS_State : int8_t {
+  BDS_IDLE,
+  BDS_VERSION         = -1,
+  BDS_READ_MM         = -2,
+  BDS_READ_RAW        = -5,
+  BDS_CALIBRATE_START = -6,
+  BDS_CALIBRATING     = -7
+};
+
 class BDS_Leveling {
 public:
   static int8_t config_state;
-  static uint8_t homing;
   static float pos_zero_offset;
   static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
   static void process();

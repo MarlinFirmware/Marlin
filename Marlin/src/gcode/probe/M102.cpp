@@ -45,18 +45,12 @@
  */
 void GcodeSuite::M102() {
   if (parser.seenval('S')) {
-    if (parser.value_int() == -2)
+    const int8_t command = parser.value_int();
+    if (command == BDS_READ_MM)
       SERIAL_ECHOLNPGM("Bed Distance:", bdl.read(), "mm");
     else
-      bdl.config_state = parser.value_int();
+      bdl.config_state = command;
   }
-  else
-    M102_report();
-}
-
-void GcodeSuite::M102_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, F("Bed Distance Sensor"));
-  SERIAL_ECHOLNPGM("  M102 S", bdl.config_state);
 }
 
 #endif // BD_SENSOR
