@@ -1064,8 +1064,6 @@ volatile bool Temperature::raw_temps_ready = false;
           if (sample_count == 0) t1_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
           temp_samples[sample_count++] = current_temp;
 
-          if (current_temp >= 200.0f) break;
-
           next_test_time_ms += test_interval_ms * sample_distance;
 
         }
