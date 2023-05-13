@@ -381,9 +381,9 @@
 #define BOARD_ZONESTAR_ZM3E4V2        5064  // Zonestar ZM3E4 V2 (STM32F103VC)
 #define BOARD_ERYONE_ERY32_MINI       5065  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_PANDA_PI_V29            5066  // Panda Pi V2.9 - Standalone (STM32F103RC)
-#define BOARD_AQUILA_X2_H32           5099  // Voxlab Aquila X2 H32 (HC32F46x)
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RET6)
 #define BOARD_TRIGORILLA_V006         5068  // Trigorilla V0.0.6 (GD32F103RE)
+#define BOARD_AQUILA_V101             5099  // Voxlab Aquila V1.0.1 (HC32F46x) as found in the Voxelab Aquila X2
 
 //
 // ARM Cortex-M4F
