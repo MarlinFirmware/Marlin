@@ -1280,3 +1280,8 @@
   #define MULTISTEPPING_LIMIT 128
   #define MULTISTEPPING_LIMIT_WARNING 1
 #endif
+
+// One redundant cooling fan by default
+#if defined(REDUNDANT_PART_COOLING_FAN) && !defined(NUM_REDUNDANT_FANS)
+  #define NUM_REDUNDANT_FANS 1
+#endif
