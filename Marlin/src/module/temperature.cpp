@@ -3392,8 +3392,7 @@ void Temperature::readings_ready() {
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  *  - Call planner.isr to count down its "ignore" time
  */
-//HC32F46x: gcc requires the ISR function to have a return type
-TERN_(TARGET_HC32F46x, void) HAL_TEMP_TIMER_ISR() {
+HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(MF_TIMER_TEMP);
 
   Temperature::isr();
