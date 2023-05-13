@@ -471,7 +471,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if NUM_REDUNDANT_FANS
       if (fan == 0) {
         for (uint8_t f = REDUNDANT_PART_COOLING_FAN; f < REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS; ++f)
-          thermalManager.set_fan_speed(f, 0);
+          thermalManager.set_fan_speed(f, speed);
       }
     #endif
 
