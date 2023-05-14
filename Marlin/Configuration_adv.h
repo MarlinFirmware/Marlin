@@ -1687,8 +1687,9 @@
 
   //#define ONE_CLICK_PRINT                  // Prompt to print newest file on sdcard
   #if ENABLED(ONE_CLICK_PRINT)
-    #define OCP_SD_PATH_LENGTH 128         // Max length of stored file path
+    #define OCP_SD_PATH_LENGTH 128           // Max length of stored file path
   #endif
+
   /**
    * Continue after Power-Loss (Creality3D)
    *

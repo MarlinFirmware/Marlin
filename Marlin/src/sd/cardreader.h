@@ -129,9 +129,8 @@ public:
   #endif
 
   #if ENABLED(ONE_CLICK_PRINT)
-    static void oneclickstart_begin();   // Begin check. Called automatically after boot-up.
-    static bool oneclickstart_check();   // Check for the newest file and promt to run it.
-    static void findnewestfile(MediaFile parent, const char * const prepend, char * fullfilename);
+    static bool one_click_check();  // Check for the newest file and prompt to run it.
+    static void findNewestFile(MediaFile parent, const char * const prepend, char * const fullpath, uint32_t &compareDateTime);
   #endif
 
   // Basic file ops

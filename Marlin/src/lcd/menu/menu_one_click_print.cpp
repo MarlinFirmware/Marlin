@@ -44,7 +44,7 @@ void one_click_print() {
 
   START_MENU();
 
-  STATIC_ITEM_F(GET_TEXT_F(MSG_ONE_CLICK_PRINT), SS_CENTER|SS_INVERT);
+  STATIC_ITEM(MSG_ONE_CLICK_PRINT, SS_CENTER|SS_INVERT);
   STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, card.longFilename[0] ? card.longFilename : card.filename);
 
   #if HAS_MARLINUI_U8GLIB

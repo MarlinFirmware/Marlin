@@ -76,7 +76,7 @@ card_flags_t CardReader::flag;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 
 #if ENABLED(ONE_CLICK_PRINT)
-  char ocp_newest_file[OCP_SD_PATH_LENGTH+FILENAME_LENGTH+2]; 
+  char ocp_newest_file[OCP_SD_PATH_LENGTH + FILENAME_LENGTH + 2];
 #endif
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
@@ -298,7 +298,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
 
-      size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
+      const size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
       // Allocate enough stack space for the full path including / separator
       char path[lenPrepend + FILENAME_LENGTH];
       if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
@@ -544,11 +544,6 @@ void CardReader::manage_media() {
     if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
-
-    // Look for newest file and prompt to print it
-    #if ENABLED(ONE_CLICK_PRINT)
-      oneclickstart_begin();
-    #endif
   }
   else {
     TERN_(HAS_SD_DETECT, release()); // Card is released
@@ -569,6 +564,12 @@ void CardReader::manage_media() {
 
   // Check for PLR file.
   TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
+
+  // Look for newest file and prompt to print it
+  // Skip auto.g if this gets invoked.
+  #if ENABLED(ONE_CLICK_PRINT)
+    if (do_auto && one_click_check()) do_auto = false;
+  #endif
 
   // Look for auto0.g on the next idle()
   IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
@@ -901,11 +902,8 @@ void CardReader::write_command(char * const buf) {
 #endif
 
 #if ENABLED(ONE_CLICK_PRINT)
-  void CardReader::oneclickstart_begin() {
-    (void)oneclickstart_check();
-  }
 
-  bool CardReader::oneclickstart_check() {
+  bool CardReader::one_click_check(char * const outpath) {
     if (!isMounted())
       mount();
     else if (ENABLED(SDCARD_EEPROM_EMULATION))
@@ -914,33 +912,35 @@ void CardReader::write_command(char * const buf) {
     // Don't run auto#.g when a PLR file exists
     if (isMounted() && TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {
       root.rewind();
-      CardReader::findnewestfile(root,nullptr, ocp_newest_file);
-      SERIAL_ECHO_MSG(" OCP File: ",ocp_newest_file,"\n");
-
-      ui.init();
+      uint32_t dateTimeStorage = 0;
+      findNewestFile(root, nullptr, ocp_newest_file, dateTimeStorage);
+      SERIAL_ECHO_MSG(" OCP File: ", ocp_newest_file, "\n");
+      //ui.init();
       ui.goto_screen(one_click_print);
+      return true;
     }
     return false;
   }
 
-  uint16_t highest_crmodTime, highest_crmodDate = 0;
-  void  CardReader::findnewestfile(MediaFile parent, const char * const prepend, char * filenameandpath ) {
+  void CardReader::findNewestFile(MediaFile parent, const char * const prepend, char * const fullpath, uint32_t &compareDateTime) {
     dir_t p;
+    // Iterate the given parent dir
     while (parent.readDir(&p, longFilename) > 0) {
+
+      // If the item is a dir, recurse into it
       if (DIR_IS_SUBDIR(&p)) {
 
-        size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
         // Allocate enough stack space for the full path including / separator
+        const size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
         char path[lenPrepend + FILENAME_LENGTH];
         if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
-        char* dosFilename = path + lenPrepend;
+        char *dosFilename = path + lenPrepend;
         createFilename(dosFilename, p);
 
-        // Get a new directory object using the full path
-        // and dive recursively into it.
+        // Get a new directory object using the full path and dive recursively into it.
         MediaFile child; // child.close() in destructor
         if (child.open(&parent, dosFilename, O_READ)) {
-          findnewestfile(child, path, filenameandpath);
+          findNewestFile(child, path, fullpath, compareDateTime);
         }
         else {
           SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
@@ -948,23 +948,22 @@ void CardReader::write_command(char * const buf) {
         }
       }
       else if (is_visible_entity(p)) {
-        uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
-        if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
-          crmodDate = p.creationDate;
-          crmodTime = p.creationTime;
-        }
-
-        if (crmodDate > highest_crmodDate || (crmodDate == highest_crmodDate && crmodTime > highest_crmodTime)) {
-          highest_crmodDate = crmodDate;
-          highest_crmodTime = crmodTime;
-          strcpy(filenameandpath,prepend);
-          strcat(filenameandpath,"/");
-          strcat(filenameandpath,createFilename(filename, p));
+        // Get the newer of the modified/created date and time
+        const uint32_t modDateTime = uint32_t(p.lastWriteDate) << 16 | p.lastWriteTime,
+                    createDateTime = uint32_t(p.creationDate) << 16 | p.creationTime,
+                     newerDateTime = _MAX(modDateTime, createDateTime);
+        // For each newest item found so far, write out the full path
+        if (newerDateTime > compareDateTime) {
+          compareDateTime = newerDateTime;
+          strcpy(fullpath, prepend);
+          strcat_P(fullpath, PSTR("/"));
+          strcat(fullpath, createFilename(filename, p));
         }
       }
     }
   }
-#endif
+
+#endif // ONE_CLICK_PRINT
 
 void CardReader::closefile(const bool store_location/*=false*/) {
   file.sync();
