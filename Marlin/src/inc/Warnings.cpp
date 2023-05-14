@@ -760,3 +760,7 @@
 #ifdef STM32F4_UPDATE_FOLDER
   #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
 #endif
+
+#if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
+  #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+#endif

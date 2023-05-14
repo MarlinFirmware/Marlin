@@ -1235,7 +1235,7 @@ void HMI_Init() {
       DWINUI::Draw_Icon(ICON_Bar, 15, 260);
       DWIN_Draw_Rectangle(1, HMI_data.Background_Color, t, 260, 257, 280);
       DWIN_UpdateLCD();
-      delay((BOOTSCREEN_TIMEOUT) / 22);
+      safe_delay((BOOTSCREEN_TIMEOUT) / 22);
     }
   #endif
   HMI_SetLanguage();
