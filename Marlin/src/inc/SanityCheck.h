@@ -4048,6 +4048,8 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
 #if ENABLED(ONE_CLICK_PRINT)
   #if !HAS_MEDIA
     #error "SD Card or Flash Drive is required for ONE_CLICK_PRINT."
+  #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
+    #error "ONE_CLICK_PRINT is incompatible with BROWSE_MEDIA_ON_INSERT."
   #elif DISABLED(NO_SD_AUTOSTART)
     #error "NO_SD_AUTOSTART must be enabled for ONE_CLICK_PRINT."
   #elif !defined(HAS_MARLINUI_MENU)

@@ -24,37 +24,24 @@
 
 #if ENABLED(ONE_CLICK_PRINT)
 
-#include "menu_item.h"
-#include "../marlinui.h"
-
-extern char ocp_newest_file[];
-
-inline void one_click_print_start_selected_file() {
-  card.openAndPrintFile(ocp_newest_file);
-  ui.return_to_status();
-  ui.reset_status();
-}
+#include "menu.h"
 
 void one_click_print() {
-  ui.defer_status_screen();
-
-  MediaFile *diveDir;
-  const char * const fname = card.diveToFile(true, diveDir, ocp_newest_file);
-  card.selectFileByName(fname);
-
-  START_MENU();
-
-  STATIC_ITEM(MSG_ONE_CLICK_PRINT, SS_CENTER|SS_INVERT);
-  STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, card.longFilename[0] ? card.longFilename : card.filename);
-
-  #if HAS_MARLINUI_U8GLIB
-    STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, "");
-  #endif
-
-  ACTION_ITEM(MSG_BUTTON_CONFIRM, one_click_print_start_selected_file);
-  BACK_ITEM(MSG_BUTTON_CANCEL);
-
-  END_MENU();
+  ui.goto_screen([]{
+    char * const longest = card.longest_filename();
+    char sp_and_name[strlen(longest) + 2];
+    sp_and_name[0] = ' ';
+    strcpy(sp_and_name + 1, longest);
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
+      []{
+        card.openAndPrintFile(card.filename);
+        ui.return_to_status();
+        ui.reset_status();
+      }, nullptr,
+      GET_TEXT_F(MSG_START_PRINT), sp_and_name, F("?")
+    );
+  });
 }
 
 #endif // ONE_CLICK_PRINT
