@@ -32,8 +32,6 @@
 
 #include <lvgl.h>
 
-//#define TFT_ROTATION TFT_ROTATE_180
-
 extern uint8_t bmp_public_buf[14 * 1024];
 extern uint8_t public_buf[513];
 

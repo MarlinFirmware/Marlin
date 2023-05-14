@@ -132,7 +132,7 @@
 #if ENABLED(RET6_12864_LCD)
 
   #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_ENABLE                   PB15
+  #define LCD_PINS_EN                       PB15
   #define LCD_PINS_D4                       PB13
   #define BTN_EN2                           PB14
 #endif

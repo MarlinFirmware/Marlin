@@ -41,12 +41,19 @@
   #include "../feature/fancheck.h"
 #endif
 
-#ifndef SOFT_PWM_SCALE
-  #define SOFT_PWM_SCALE 0
-#endif
-
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
+
+#if HAS_FAN
+  #if NUM_REDUNDANT_FANS
+    #define FAN_IS_REDUNDANT(Q) WITHIN(Q, REDUNDANT_PART_COOLING_FAN, REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS - 1)
+  #else
+    #define FAN_IS_REDUNDANT(Q) false
+  #endif
+  #define FAN_IS_M106ABLE(Q) (HAS_FAN##Q && !FAN_IS_REDUNDANT(Q))
+#else
+  #define FAN_IS_M106ABLE(Q) false
+#endif
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int_fast8_t {
@@ -154,7 +161,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #if HAS_PID_HEATING
 
-  #define PID_K2 (1-float(PID_K1))
+  #define PID_K2 (1.0f - float(PID_K1))
   #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
 
   // Apply the scale factors to the PID values
@@ -235,7 +242,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   };
 
-#endif
+#endif // HAS_PID_HEATING
 
 #if ENABLED(PIDTEMP)
 
@@ -1219,11 +1226,68 @@ class Temperature {
         }
       #endif
 
-    #endif
+    #endif // HAS_PID_HEATING
 
     #if ENABLED(MPC_AUTOTUNE)
-      void MPC_autotune(const uint8_t e);
-    #endif
+
+      // Utility class to perform MPCTEMP auto tuning measurements
+      class MPC_autotuner {
+        public:
+          enum MeasurementState { CANCELLED, FAILED, SUCCESS };
+          MPC_autotuner(const uint8_t extruderIdx);
+          ~MPC_autotuner();
+          MeasurementState measure_ambient_temp();
+          MeasurementState measure_heatup();
+          MeasurementState measure_transfer();
+
+          celsius_float_t get_ambient_temp() { return ambient_temp; }
+          celsius_float_t get_last_measured_temp() { return current_temp; }
+
+          float get_elapsed_heating_time() { return elapsed_heating_time; }
+          float get_sample_1_time() { return t1_time; }
+          static float get_sample_1_temp() { return temp_samples[0]; }
+          static float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
+          static float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
+          static float get_sample_interval() { return sample_distance * (sample_count >> 1); }
+
+          static celsius_float_t get_temp_fastest() { return temp_fastest; }
+          float get_time_fastest() { return time_fastest; }
+          float get_rate_fastest() { return rate_fastest; }
+
+          float get_power_fan0() { return power_fan0; }
+          #if HAS_FAN
+            static float get_power_fan255() { return power_fan255; }
+          #endif
+
+        protected:
+          static void init_timers() { curr_time_ms = next_report_ms = millis(); }
+          MeasurementState housekeeping();
+
+          uint8_t e;
+
+          float elapsed_heating_time;
+          celsius_float_t ambient_temp, current_temp;
+          float t1_time;
+
+          static millis_t curr_time_ms, next_report_ms;
+          static celsius_float_t temp_samples[16];
+          static uint8_t sample_count;
+          static uint16_t sample_distance;
+
+          // Parameters from differential analysis
+          static celsius_float_t temp_fastest;
+          float time_fastest, rate_fastest;
+
+          float power_fan0;
+          #if HAS_FAN
+            static float power_fan255;
+          #endif
+      };
+
+      enum MPCTuningType { AUTO, FORCE_ASYMPTOTIC, FORCE_DIFFERENTIAL };
+      static void MPC_autotune(const uint8_t e, MPCTuningType tuning_type);
+
+    #endif // MPC_AUTOTUNE
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);

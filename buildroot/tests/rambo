@@ -74,6 +74,14 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER FIX_MOUNTED_PROBE Z_SAF
 exec_test $1 $2 "Rambo heated bed only" "$3"
 
 #
+# Rambo with MMU2
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMBO EXTRUDERS 5 MMU_MODEL PRUSA_MMU2
+opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE EMERGENCY_PARSER MMU2_DEBUG
+exec_test $1 $2 "Rambo with PRUSA_MMU2 " "$3"
+
+#
 # Build with the default configurations
 #
 restore_configs
