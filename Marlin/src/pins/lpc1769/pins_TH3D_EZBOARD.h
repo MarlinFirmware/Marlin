@@ -138,7 +138,7 @@
 
 #define SDCARD_CONNECTION                ONBOARD
 
-//#define SD_DETECT_PIN                    P0_25  // SD_CD
+#define SD_DETECT_PIN                      P0_27  // SD_CD
 #define SD_SCK_PIN                         P0_07
 #define SD_MISO_PIN                        P0_08
 #define SD_MOSI_PIN                        P0_09
