@@ -28,10 +28,7 @@
 
 void one_click_print() {
   ui.goto_screen([]{
-    char * const longest = card.longest_filename();
-    char sp_and_name[strlen(longest) + 2];
-    sp_and_name[0] = ' ';
-    strcpy(sp_and_name + 1, longest);
+    char * const filename = card.longest_filename();
     MenuItem_confirm::select_screen(
       GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
       []{
@@ -39,7 +36,7 @@ void one_click_print() {
         ui.return_to_status();
         ui.reset_status();
       }, nullptr,
-      GET_TEXT_F(MSG_START_PRINT), sp_and_name, F("?")
+      GET_TEXT_F(MSG_START_PRINT), filename, F("?")
     );
   });
 }
