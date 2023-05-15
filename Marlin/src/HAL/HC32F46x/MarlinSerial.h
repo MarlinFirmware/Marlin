@@ -28,7 +28,7 @@
 
 struct MarlinSerial : public HardwareSerial
 {
-  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) : HardwareSerial(usart_device, tx_pin, rx_pin) {}
+  MarlinSerial(struct usart_dev *usart_device, uint8_t tx_pin, uint8_t rx_pin) : HardwareSerial(usart_device, tx_pin, rx_pin) {}
 
 #ifdef UART_IRQ_PRIO
   void setPriority()
@@ -37,13 +37,13 @@ struct MarlinSerial : public HardwareSerial
     NVIC_SetPriority(c_dev()->TX_IRQ, UART_IRQ_PRIO);
   }
 
-  void begin(uint32 baud)
+  void begin(uint32_t baud)
   {
     HardwareSerial::begin(baud);
     setPriority();
   }
 
-  void begin(uint32 baud, uint8_t config)
+  void begin(uint32_t baud, uint8_t config)
   {
     HardwareSerial::begin(baud, config);
     setPriority();

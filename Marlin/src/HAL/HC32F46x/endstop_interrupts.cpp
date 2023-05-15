@@ -1,6 +1,6 @@
 #include "endstop_interrupts.h"
 #include "../../module/endstops.h"
-#include "interrupts.h"
+#include <Arduino.h>
 
 //
 // IRQ handler

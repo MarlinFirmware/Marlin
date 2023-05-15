@@ -5,6 +5,7 @@
 
 #include "HAL.h"
 #include "hc32f460_wdt.h"
+#include <adc/adc.h>
 #include "../../inc/MarlinConfig.h"
 #include "soctemp.h"
 
