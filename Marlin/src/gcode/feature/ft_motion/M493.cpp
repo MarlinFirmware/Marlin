@@ -172,6 +172,7 @@ void GcodeSuite::M493() {
                          newmm = (ftMotionMode_t)parser.value_byte();
     switch (newmm) {
       #if HAS_X_AXIS
+        case ftMotionMode_ZV:
         case ftMotionMode_ZVD:
         case ftMotionMode_2HEI:
         case ftMotionMode_3HEI:
