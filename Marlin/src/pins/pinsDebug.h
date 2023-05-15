@@ -169,11 +169,12 @@ const PinInfo pin_array[] PROGMEM = {
 };
 
 #include HAL_PATH(.., pinsDebug.h)  // get the correct support file for this CPU
-#include "../MarlinCore.h"
 
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Q) false
 #endif
+
+bool pin_is_protected(const pin_t pin);
 
 static void print_input_or_output(const bool isout) {
   SERIAL_ECHOF(isout ? F("Output ") : F("Input  "));
