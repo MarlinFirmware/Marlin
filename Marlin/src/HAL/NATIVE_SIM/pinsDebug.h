@@ -38,7 +38,7 @@
 // Active ADC function/mode/code values for PINSEL registers
 constexpr int8_t ADC_pin_mode(pin_t pin) { return -1; }
 
-int8_t get_pin_mode(const pin_t pin) { return VALID_PIN(pin) 0 : -1; }
+int8_t get_pin_mode(const pin_t pin) { return VALID_PIN(pin) ? 0 : -1; }
 
 bool GET_PINMODE(const pin_t pin) {
   const int8_t pin_mode = get_pin_mode(pin);
