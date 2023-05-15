@@ -86,9 +86,8 @@
 // @section machine
 
 // Choose the name from boards.h that matches your setup
-#ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
-#endif
+// I've bought RAMPS 1.6. Hopefully it is compatible with 1.4
+#define MOTHERBOARD BOARD_RAMPS_14_EFB
 
 /**
  * Select the serial port on the board to use for communication with the host.
@@ -134,7 +133,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "AnyCubic Mega Zero custom printer"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
