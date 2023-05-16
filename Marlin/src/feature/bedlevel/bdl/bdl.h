@@ -41,7 +41,7 @@ public:
   static float read();
   static float interpret(const uint16_t data);
   static float good_data(const uint16_t data) { return (data & 0x3FF) < 1016; }
-  static bool check(const uint16_t data, const bool hicheck=false);
+  static bool check(const uint16_t data, const bool raw_data=false, const bool hicheck=false);
 };
 
 extern BDS_Leveling bdl;

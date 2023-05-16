@@ -72,17 +72,25 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
   SERIAL_ECHOLNPGM("BD Sensor Zero Offset:", pos_zero_offset);
 }
 
-bool BDS_Leveling::check(const uint16_t data, const bool hicheck/*=false*/) {
-  if (BD_I2C_SENSOR.BD_Check_OddEven(data) == 0)
+bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, const bool hicheck/*=false*/) {
+  if (BD_I2C_SENSOR.BD_Check_OddEven(data) == 0) {
     SERIAL_ECHOLNPGM("Read Error.");
-  else if (!good_data(data))
-    SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
-  else if (hicheck && (data & 0x3FF) > 550)
-    SERIAL_ECHOLNPGM("BD Sensor mounted too high!");
-  else if ((data & 0x3FF) >= (MAX_BD_HEIGHT) * 100 - 10)
-    SERIAL_ECHOLNPGM("Out of Range.");
-  else
-    return false;
+    return true; // error
+  }
+  if (raw_data == true) {
+    if (hicheck && (data & 0x3FF) > 550)
+      SERIAL_ECHOLNPGM("BD Sensor mounted too high!");
+    else if (!good_data(data))
+      SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
+    else
+      return false;
+  }
+  else {
+    if ((data & 0x3FF) >= (MAX_BD_HEIGHT) * 100 - 10)
+      SERIAL_ECHOLNPGM("Out of Range.");
+    else
+      return false;
+  } 
   return true; // error
 }
 
@@ -177,8 +185,8 @@ void BDS_Leveling::process() {
 
       for (int i = 0; i < MAX_BD_HEIGHT * 10; i++) {
         tmp = BD_I2C_SENSOR.BD_i2c_read();
-        SERIAL_ECHOLNPGM("Calibrate data (", i, ") = ", tmp & 0x3FF);
-        (void)check(tmp, i == 0);
+        SERIAL_ECHOLNPGM("Calibrate data:", i, ",", tmp & 0x3FF);
+        (void)check(tmp, true, i == 0);
         safe_delay(50);
       }
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
@@ -232,7 +240,7 @@ void BDS_Leveling::process() {
             safe_delay(10);
           }
           safe_delay(zpos <= 0.4f ? 600 : 100);
-          tmp = uint16_t(zpos + 0.00001f) * 10;
+          tmp = uint16_t((zpos + 0.00001f) * 10);
           BD_I2C_SENSOR.BD_i2c_write(tmp);
           SERIAL_ECHOLNPGM("w:", tmp, ", Z:", zpos);
           zpos += 0.1001f;

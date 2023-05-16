@@ -699,10 +699,9 @@ G29_TYPE GcodeSuite::G29() {
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
               char tmp_1[32];
-
-              // Take a measurement that will be ignored ??
-              //abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
-
+ 
+              // move to the start point of new line
+              abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
               // Go to the end of the row/column ... and back up by one
               // TODO: Why not just use... PR_INNER_VAR = inStop - inInc
               for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc);
@@ -724,7 +723,7 @@ G29_TYPE GcodeSuite::G29() {
               sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"),
                 int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
                 int(abl.probePos.y), int(abl.probePos.y * 10) % 10,
-                int(feedRate_t(XY_PROBE_FEEDRATE_MM_S))
+                XY_PROBE_FEEDRATE
               );
               gcode.process_subcommands_now(tmp_1);
 
@@ -747,7 +746,7 @@ G29_TYPE GcodeSuite::G29() {
               if (inInc > 0 ? (pos >= cmp) : (pos <= cmp)) break;
               idle_no_sleep();
             }
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(axis == Y_AXIS ? PSTR("Y=") : PSTR("X=", pos);
+            //if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(axis == Y_AXIS ? PSTR("Y=") : PSTR("X=", pos);
 
             abl.measured_z = current_position.z - bdl.read();
 
