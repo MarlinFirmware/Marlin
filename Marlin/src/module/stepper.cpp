@@ -1497,7 +1497,7 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       // NOTE STEPPER_TIMER_RATE is equal to 2000000, not what VSCode shows
-      const bool using_fxtictrl = fxdTiCtrl.cfg_mode;
+      const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
           if (abort_current_block) {
