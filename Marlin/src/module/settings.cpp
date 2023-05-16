@@ -901,7 +901,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(MESH_BED_LEVELING)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "MBL Z array is the wrong size."
         );
       #else
@@ -955,7 +955,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
       #endif
