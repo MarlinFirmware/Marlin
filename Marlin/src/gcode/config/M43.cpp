@@ -149,7 +149,7 @@ inline void servo_probe_test() {
     #endif
 
     SERIAL_ECHOLNPGM(". Probe " _PROBE_PREF "_PIN: ", PROBE_TEST_PIN);
-    serial_ternary(probe_hit_state, F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), F("HIGH"), F("LOW"));
+    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), probe_hit_state, F("HIGH"), F("LOW"));
     SERIAL_EOL();
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
