@@ -422,9 +422,9 @@ void FxdTiCtrl::reset() {
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   for (uint32_t i = 0U; i < (FTM_BATCH_SIZE); i++) { // Reset trajectory history
-    TERN_(HAS_X_AXIS, xd[i] = 0.0f);
-    TERN_(HAS_Y_AXIS, yd[i] = 0.0f);
-    TERN_(HAS_Z_AXIS, zd[i] = 0.0f);
+    TERN_(HAS_X_AXIS,    xd[i] = 0.0f);
+    TERN_(HAS_Y_AXIS,    yd[i] = 0.0f);
+    TERN_(HAS_Z_AXIS,    zd[i] = 0.0f);
     TERN_(HAS_EXTRUDERS, ed[i] = 0.0f);
   }
 
@@ -432,23 +432,26 @@ void FxdTiCtrl::reset() {
   batchRdy = batchRdyForInterp = false;
   runoutEna = false;
 
-  TERN_(HAS_X_AXIS, x_endPosn_prevBlock = 0.0f);
-  TERN_(HAS_Y_AXIS, y_endPosn_prevBlock = 0.0f);
-  TERN_(HAS_Z_AXIS, z_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_X_AXIS,    x_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_Y_AXIS,    y_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_Z_AXIS,    z_endPosn_prevBlock = 0.0f);
   TERN_(HAS_EXTRUDERS, e_endPosn_prevBlock = 0.0f);
 
   makeVector_idx = makeVector_idx_z1 = 0;
   makeVector_batchIdx = FTM_BATCH_SIZE;
 
-  TERN_(HAS_X_AXIS, x_steps = 0);
-  TERN_(HAS_Y_AXIS, y_steps = 0);
-  TERN_(HAS_Z_AXIS, z_steps = 0);
+  TERN_(HAS_X_AXIS,    x_steps = 0);
+  TERN_(HAS_Y_AXIS,    y_steps = 0);
+  TERN_(HAS_Z_AXIS,    z_steps = 0);
   TERN_(HAS_EXTRUDERS, e_steps = 0);
+
   interpIdx = interpIdx_z1 = 0;
-  TERN_(HAS_X_AXIS, x_dirState = stepDirState_NOT_SET);
-  TERN_(HAS_Y_AXIS, y_dirState = stepDirState_NOT_SET);
-  TERN_(HAS_Z_AXIS, z_dirState = stepDirState_NOT_SET);
+
+  TERN_(HAS_X_AXIS,    x_dirState = stepDirState_NOT_SET);
+  TERN_(HAS_Y_AXIS,    y_dirState = stepDirState_NOT_SET);
+  TERN_(HAS_Z_AXIS,    z_dirState = stepDirState_NOT_SET);
   TERN_(HAS_EXTRUDERS, e_dirState = stepDirState_NOT_SET);
+
   nextStepTicks = FTM_MIN_TICKS;
 
   #if HAS_X_AXIS
@@ -486,28 +489,28 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   #if HAS_X_AXIS
     x_startPosn = x_endPosn_prevBlock;
     float x_moveDist = current_block->steps.a / planner.settings.axis_steps_per_mm[X_AXIS];
-    if (direction.x) x_moveDist *= -1.0f;
+    if (!direction.x) x_moveDist *= -1.0f;
     x_Ratio = x_moveDist * oneOverLength;
   #endif
 
   #if HAS_Y_AXIS
     y_startPosn = y_endPosn_prevBlock;
     float y_moveDist = current_block->steps.b / planner.settings.axis_steps_per_mm[Y_AXIS];
-    if (direction.y) y_moveDist *= -1.0f;
+    if (!direction.y) y_moveDist *= -1.0f;
     y_Ratio = y_moveDist * oneOverLength;
   #endif
 
   #if HAS_Z_AXIS
     z_startPosn = z_endPosn_prevBlock;
     float z_moveDist = current_block->steps.c / planner.settings.axis_steps_per_mm[Z_AXIS];
-    if (direction.z) z_moveDist *= -1.0f;
+    if (!direction.z) z_moveDist *= -1.0f;
     z_Ratio = z_moveDist * oneOverLength;
   #endif
 
   #if HAS_EXTRUDERS
     e_startPosn = e_endPosn_prevBlock;
     float extrusion = current_block->steps.e / planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)];
-    if (direction.e) extrusion *= -1.0f;
+    if (!direction.e) extrusion *= -1.0f;
     e_Ratio = extrusion * oneOverLength;
   #endif
 
@@ -568,31 +571,31 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   // One less than (Accel + Coasting + Decel) datapoints
   max_intervals = N1 + N2 + N3 - 1U;
 
-  TERN_(HAS_X_AXIS, x_endPosn_prevBlock += x_moveDist);
-  TERN_(HAS_Y_AXIS, y_endPosn_prevBlock += y_moveDist);
-  TERN_(HAS_Z_AXIS, z_endPosn_prevBlock += z_moveDist);
+  TERN_(HAS_X_AXIS,    x_endPosn_prevBlock += x_moveDist);
+  TERN_(HAS_Y_AXIS,    y_endPosn_prevBlock += y_moveDist);
+  TERN_(HAS_Z_AXIS,    z_endPosn_prevBlock += z_moveDist);
   TERN_(HAS_EXTRUDERS, e_endPosn_prevBlock += extrusion);
 }
 
 // Generate data points of the trajectory.
 void FxdTiCtrl::makeVector() {
-  float accel_k = 0.0f;                              // (mm/s^2) Acceleration K factor
-  float tau = (makeVector_idx + 1) * (FTM_TS); // (s) Time since start of block
-  float dist = 0.0f;                                 // (mm) Distance traveled
+  float accel_k = 0.0f;                                   // (mm/s^2) Acceleration K factor
+  float tau = (makeVector_idx + 1) * (FTM_TS);            // (s) Time since start of block
+  float dist = 0.0f;                                      // (mm) Distance traveled
 
   if (makeVector_idx < N1) {
     // Acceleration phase
-    dist = (f_s * tau) + (0.5f * accel_P * sq(tau)); // (mm) Distance traveled for acceleration phase
-    accel_k = accel_P;                               // (mm/s^2) Acceleration K factor from Accel phase
+    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));      // (mm) Distance traveled for acceleration phase
+    accel_k = accel_P;                                    // (mm/s^2) Acceleration K factor from Accel phase
   }
   else if (makeVector_idx >= N1 && makeVector_idx < (N1 + N2)) {
     // Coasting phase
-    dist = s_1e + F_P * (tau - N1 * (FTM_TS)); // (mm) Distance traveled for coasting phase
+    dist = s_1e + F_P * (tau - N1 * (FTM_TS));            // (mm) Distance traveled for coasting phase
     //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
-    const float tau_ = tau - (N1 + N2) * (FTM_TS);  // (s) Time since start of decel phase
+    const float tau_ = tau - (N1 + N2) * (FTM_TS);        // (s) Time since start of decel phase
     dist = s_2e + F_P * tau_ + 0.5f * decel_P * sq(tau_); // (mm) Distance traveled for deceleration phase
     accel_k = decel_P;                                    // (mm/s^2) Acceleration K factor from Decel phase
   }
@@ -614,7 +617,7 @@ void FxdTiCtrl::makeVector() {
     }
     else {
       ed[makeVector_batchIdx] = new_raw_z1;
-      // Alternatively: coordArray_e[makeVector_batchIdx] = e_startDist + extrusion / (N1 + N2 + N3);
+      // Alternatively: ed[makeVector_batchIdx] = e_startPosn + (e_Ratio * dist) / (N1 + N2 + N3);
     }
   #endif
 

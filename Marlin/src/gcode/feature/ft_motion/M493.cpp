@@ -102,8 +102,10 @@ void GcodeSuite::M493() {
     }
 
     switch (val) {
-      case ftMotionMode_ENABLED: fxdTiCtrl.reset(); break;
       #if HAS_X_AXIS
+        //case ftMotionMode_ULENDO_FBS:
+        //case ftMotionMode_DISCTF:
+        //  break;
         case ftMotionMode_ZV:
         case ftMotionMode_ZVD:
         case ftMotionMode_EI:
@@ -114,9 +116,10 @@ void GcodeSuite::M493() {
           fxdTiCtrl.updateShapingA();
           fxdTiCtrl.reset();
           break;
-        //case ftMotionMode_ULENDO_FBS:
-        //case ftMotionMode_DISCTF:
       #endif
+      case ftMotionMode_ENABLED:
+        fxdTiCtrl.reset();
+        break;
       default: break;
     }
   }
@@ -195,7 +198,7 @@ void GcodeSuite::M493() {
           fxdTiCtrl.reset();
           if (fxdTiCtrl.cfg_dynFreqMode) { SERIAL_ECHOPGM("Compensator base dynamic frequency (X/A axis) set to:"); }
           else { SERIAL_ECHOPGM("Compensator static frequency (X/A axis) set to: "); }
-          SERIAL_ECHO_F( fxdTiCtrl.cfg_baseFreq[0], 2 );
+          SERIAL_ECHO_F(fxdTiCtrl.cfg_baseFreq[0], 2);
           SERIAL_ECHOLNPGM(".");
         }
         else { // Frequency out of range.
@@ -243,7 +246,7 @@ void GcodeSuite::M493() {
           fxdTiCtrl.reset();
           if (fxdTiCtrl.cfg_dynFreqMode) { SERIAL_ECHOPGM("Compensator base dynamic frequency (Y/B axis) set to:"); }
           else { SERIAL_ECHOPGM("Compensator static frequency (Y/B axis) set to: "); }
-          SERIAL_ECHO_F( fxdTiCtrl.cfg_baseFreq[1], 2 );
+          SERIAL_ECHO_F(fxdTiCtrl.cfg_baseFreq[1], 2);
           SERIAL_ECHOLNPGM(".");
         }
         else { // Frequency out of range.
