@@ -549,7 +549,7 @@ namespace Anycubic {
     bool msg_matched = false;
 
     #if HAS_LEVELING
-      static uint8_t probe_cnt = 0;
+      static grid_count_t probe_cnt = 0;
     #endif
 
     // The only way to get printer status is to parse messages
@@ -564,7 +564,7 @@ namespace Anycubic {
           // If probing completes ok save the mesh and park
           // Ignore the custom machine name
           if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
-            if (probe_cnt == GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) {
+            if (probe_cnt == GRID_MAX_POINTS) {
               probe_cnt = 0;
               injectCommands(F("M500"));    // G27 park nozzle
               //ChangePageOfTFT(PAGE_PreLEVEL);
