@@ -111,6 +111,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../module/ft_motion.h"
+#endif
+
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
   #ifndef FIL_RUNOUT_ENABLED_DEFAULT
@@ -595,15 +599,22 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Fixed-Time Motion
+  //
+  #if ENABLED(FT_MOTION)
+    ft_config_t fxdTiCtrl_cfg;                          // M493
+  #endif
+
+  //
   // Input Shaping
   //
   #if ENABLED(INPUT_SHAPING_X)
-    float shaping_x_frequency, // M593 X F
-          shaping_x_zeta;      // M593 X D
+    float shaping_x_frequency,                          // M593 X F
+          shaping_x_zeta;                               // M593 X D
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    float shaping_y_frequency, // M593 Y F
-          shaping_y_zeta;      // M593 Y D
+    float shaping_y_frequency,                          // M593 Y F
+          shaping_y_zeta;                               // M593 Y D
   #endif
 
 } SettingsData;
@@ -890,7 +901,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(MESH_BED_LEVELING)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "MBL Z array is the wrong size."
         );
       #else
@@ -944,7 +955,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
       #endif
@@ -1646,6 +1657,14 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(MPCTEMP)
       HOTEND_LOOP() EEPROM_WRITE(thermalManager.temp_hotend[e].mpc);
+    #endif
+
+    //
+    // Fixed-Time Motion
+    //
+    #if ENABLED(FT_MOTION)
+      _FIELD_TEST(fxdTiCtrl_cfg);
+      EEPROM_WRITE(fxdTiCtrl.cfg);
     #endif
 
     //
@@ -2646,9 +2665,15 @@ void MarlinSettings::postprocess() {
       // Model predictive control
       //
       #if ENABLED(MPCTEMP)
-      {
         HOTEND_LOOP() EEPROM_READ(thermalManager.temp_hotend[e].mpc);
-      }
+      #endif
+
+      //
+      // Fixed-Time Motion
+      //
+      #if ENABLED(FT_MOTION)
+        _FIELD_TEST(fxdTiCtrl_cfg);
+        EEPROM_READ(fxdTiCtrl.cfg);
       #endif
 
       //
@@ -3446,6 +3471,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Fixed-Time Motion
+  //
+  TERN_(FT_MOTION, fxdTiCtrl.set_defaults());
+
+  //
   // Input Shaping
   //
   #if HAS_ZV_SHAPING
@@ -3705,6 +3735,11 @@ void MarlinSettings::reset() {
     // TMC stepping mode
     //
     TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
+
+    //
+    // Fixed-Time Motion
+    //
+    TERN_(FT_MOTION, gcode.M493_report(forReplay));
 
     //
     // Input Shaping

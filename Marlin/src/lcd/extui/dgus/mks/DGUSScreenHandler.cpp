@@ -415,7 +415,7 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 #if ENABLED(MESH_BED_LEVELING)
-  uint8_t mesh_point_count = GRID_MAX_POINTS;
+  grid_count_t mesh_point_count = GRID_MAX_POINTS;
 #endif
 
 void DGUSScreenHandlerMKS::Level_Ctrl(DGUS_VP_Variable &var, void *val_ptr) {
