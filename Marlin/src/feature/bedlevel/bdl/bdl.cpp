@@ -179,7 +179,6 @@ void BDS_Leveling::process() {
     }
     // read raw calibrate data
     else if (config_state == BDS_READ_RAW) {
-      config_state = BDS_IDLE;
       BD_I2C_SENSOR.BD_i2c_write(CMD_START_READ_CALIBRATE_DATA);
       safe_delay(100);
 
@@ -191,6 +190,7 @@ void BDS_Leveling::process() {
       }
       BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
       safe_delay(50);
+      config_state = BDS_IDLE;
     }
     else if (config_state <= BDS_CALIBRATE_START) {   // Start Calibrate
       safe_delay(10);
@@ -204,16 +204,16 @@ void BDS_Leveling::process() {
         current_position.z = 0;
         sync_plan_position();
         gcode.process_subcommands_now(F("G1Z0.05"));
-        safe_delay(1000);
+        safe_delay(300);
         gcode.process_subcommands_now(F("G1Z0.00"));
-        safe_delay(1000);
+        safe_delay(300);
         current_position.z = 0;
         sync_plan_position();
         //safe_delay(1000);
 
         while ((planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset) > 0.00001f) {
           safe_delay(200);
-          SERIAL_ECHOLNPGM("c_z6:", planner.get_axis_position_mm(Z_AXIS));
+          SERIAL_ECHOLNPGM("waiting cur_z:", planner.get_axis_position_mm(Z_AXIS));
         }
         zpos = 0.00001f;
         safe_delay(100);
@@ -227,7 +227,7 @@ void BDS_Leveling::process() {
           BD_I2C_SENSOR.BD_i2c_write(CMD_END_CALIBRATE); // End calibrate
           SERIAL_ECHOLNPGM("BD Sensor calibrated.");
           zpos = 7.0f;
-          safe_delay(1000);
+          safe_delay(500);
         }
         else {
           char tmp_1[32];

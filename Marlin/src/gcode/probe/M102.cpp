@@ -39,11 +39,12 @@
  *
  * Negative S values are commands:
  *   M102 S-1       : Read BDsensor version
- *   M102 S-2       : Read BDsensor information
+ *   M102 S-2       : Read BDsensor distance value
  *   M102 S-5       : Read raw Calibration data
  *   M102 S-6       : Start Calibration
  */
 void GcodeSuite::M102() {
+  if(bdl.config_state < BDS_IDLE) return;//
   if (parser.seenval('S')) {
     const int8_t command = parser.value_int();
     if (command == BDS_READ_MM)
