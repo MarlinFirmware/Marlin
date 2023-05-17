@@ -222,19 +222,15 @@ void Touch::touch(touch_control_t *control) {
       ui.clear_lcd();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, 10, 999);
       break;
-
-    #if HAS_EXTRUDERS
-      case FLOWRATE:
-        ui.clear_lcd();
-        MenuItemBase::itemIndex = control->data;
-        #if EXTRUDERS == 1
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #else
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #endif
-        break;
-    #endif
-
+    case FLOWRATE:
+      ui.clear_lcd();
+      MenuItemBase::itemIndex = control->data;
+      #if EXTRUDERS == 1
+        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+      #else
+        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+      #endif
+      break;
     case STOP:
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
