@@ -99,15 +99,15 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
   LOOP_NUM_AXES(axis) {
     if (distance_mm[axis]) {
-      const bool reverse = dm[axis];
+      const bool forward = dm[axis];
 
       // When an axis changes direction, add axis backlash to the residual error
       if (changed_dir[axis])
-        residual_error[axis] += (reverse ? -f_corr : f_corr) * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+        residual_error[axis] += (forward ? f_corr : -f_corr) * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
       // Decide how much of the residual error to correct in this segment
       int32_t error_correction = residual_error[axis];
-      if (reverse != (error_correction < 0))
+      if (forward == (error_correction < 0))
         error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
 
       #ifdef BACKLASH_SMOOTHING_MM
@@ -147,14 +147,14 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
   if (axis >= NUM_AXES) return 0;
 
-  const bool reverse = last_direction_bits[axis];
+  const bool forward = last_direction_bits[axis];
 
   const int32_t residual_error_axis = residual_error[axis];
 
   // At startup it is assumed the last move was forwards. So the applied
   // steps will always be a non-positive number.
 
-  if (!reverse) return -residual_error_axis;
+  if (forward) return -residual_error_axis;
 
   const float f_corr = float(correction) / all_on;
   const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];

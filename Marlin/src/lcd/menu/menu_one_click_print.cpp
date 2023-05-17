@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,25 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-/**
- * MKS Robin nano V1.3 (STM32F407VET6) board pin assignments
- * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
- */
+#include "../../inc/MarlinConfigPre.h"
 
-#define ALLOW_STM32DUINO
-#include "env_validate.h"
+#if ENABLED(ONE_CLICK_PRINT)
 
-#define BOARD_INFO_NAME "MKS Robin Nano V1.3"
+#include "menu.h"
 
-//
-// EEPROM
-// Use one of these or SDCard-based Emulation will be used
-//
-#if NO_EEPROM_SELECTED
-  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
-  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
-#endif
+void one_click_print() {
+  ui.goto_screen([]{
+    char * const filename = card.longest_filename();
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
+      []{
+        card.openAndPrintFile(card.filename);
+        ui.return_to_status();
+        ui.reset_status();
+      }, nullptr,
+      GET_TEXT_F(MSG_START_PRINT), filename, F("?")
+    );
+  });
+}
 
-#include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"
+#endif // ONE_CLICK_PRINT
