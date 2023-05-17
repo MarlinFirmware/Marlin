@@ -35,6 +35,7 @@ for WORD in $(awk '/LSTR/{print $2}' language_en.h); do
   LANG_LIST=""
   for LANG in $TEST_LANGS; do
     if [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${LANG}.h) -eq 0 ]]; then
+      STRING="$(grep -m 1 -E "$WORD\b" language_en.h)"
       INHERIT=$(awk '/using namespace/{print $3}' language_${LANG}.h | sed -E 's/Language_([a-zA-Z_]+)\s*;/\1/')
       if [[ -z $INHERIT || $INHERIT == "en" ]]; then
         LANG_LIST+=" $LANG"
@@ -43,5 +44,6 @@ for WORD in $(awk '/LSTR/{print $2}' language_en.h); do
       fi
     fi
   done
-  [[ -n $LANG_LIST ]] && printf "%-38s :%s\n" "$WORD" "$LANG_LIST"
+  # [[ -n $LANG_LIST ]] && printf "%-38s :%s\n" "$WORD" "$LANG_LIST"
+  [[ -n $LANG_LIST ]] && printf "%-100s :%s\n" "$STRING" "$LANG_LIST"
 done
