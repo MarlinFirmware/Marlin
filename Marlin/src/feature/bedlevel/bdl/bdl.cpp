@@ -104,7 +104,7 @@ float BDS_Leveling::read() {
 }
 
 void BDS_Leveling::process() {
-  //if (config_state == BDS_IDLE) return;
+  if (config_state == BDS_IDLE && printingIsActive()) return;
   static millis_t next_check_ms = 0; // starting at T=0
   static float zpos = 0.0f;
   const millis_t ms = millis();
