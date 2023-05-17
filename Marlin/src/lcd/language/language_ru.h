@@ -1033,7 +1033,7 @@ namespace Language_ru {
   LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
   LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode:")
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode:");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
