@@ -446,6 +446,7 @@ namespace Language_en {
   LSTR MSG_DRAW_MIN_Y                     = _UxGT("Draw Min Y");
   LSTR MSG_DRAW_MAX_Y                     = _UxGT("Draw Max Y");
   LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max Belt Len");
+  LSTR MSG_LINEAR_ADVANCE                 = _UxGT("Linear Advance");
   LSTR MSG_ADVANCE_K                      = _UxGT("Advance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
@@ -835,6 +836,22 @@ namespace Language_en {
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Smoothing");
+
+  LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Fixed-Time Motion");
+  LSTR MSG_FTM_MODE                       = _UxGT("Motion Mode:");
+  LSTR MSG_FTM_ZV                         = _UxGT("ZV");
+  LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
+  LSTR MSG_FTM_EI                         = _UxGT("EI");
+  LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
+  LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
+  LSTR MSG_FTM_MZV                        = _UxGT("MZV");
+  //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
+  //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode:");
+  LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
+  LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
+  LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
+  LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Dyn. Freq.");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");

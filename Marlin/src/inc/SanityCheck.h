@@ -1498,8 +1498,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
   #elif DISABLED(EEPROM_SETTINGS)
     #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
-  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
-    #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif HAS_ABL_NOT_UBL
@@ -1513,6 +1513,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
    */
   #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
     #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
+  #elif ABL_USES_GRID && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif ENABLED(MESH_BED_LEVELING)
@@ -4037,8 +4039,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_SYNCED_X_STEPPERS, HAS_SYNCED_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
-  #error "FT_MOTION is currently limited to machines with 3 linear axes and a single extruder."
+#if ENABLED(FT_MOTION)
+  #if NUM_AXES > 3
+    #error "FT_MOTION is currently limited to machines with 3 linear axes."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
+  #endif
 #endif
 
 // Multi-Stepping Limit
