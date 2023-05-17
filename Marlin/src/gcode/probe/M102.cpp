@@ -30,7 +30,7 @@
 
 #include "../gcode.h"
 #include "../../feature/bedlevel/bdl/bdl.h"
-
+#include "../../MarlinCore.h"
 /**
  * M102: Configure the Bed Distance Sensor
  *
@@ -48,6 +48,8 @@ void GcodeSuite::M102() {
     const int8_t command = parser.value_int();
     if (command == BDS_READ_MM)
       SERIAL_ECHOLNPGM("Bed Distance:", bdl.read(), "mm");
+    else if((command < BDS_IDLE) && printingIsActive())
+      return;
     else
       bdl.config_state = command;
   }
