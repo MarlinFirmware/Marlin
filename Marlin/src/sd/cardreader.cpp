@@ -56,6 +56,10 @@
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(ONE_CLICK_PRINT)
+  #include "../../src/lcd/menu/menu.h"
+#endif
+
 #define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
@@ -290,7 +294,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
 
-      size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
+      const size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
       // Allocate enough stack space for the full path including / separator
       char path[lenPrepend + FILENAME_LENGTH];
       if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
@@ -545,20 +549,28 @@ void CardReader::manage_media() {
 
   if (!stat) return;                // Exit if no media is present
 
-  if (old_stat != 2) return;        // First mount?
-
-  DEBUG_ECHOLNPGM("First mount.");
-
-  // Load settings the first time media is inserted (not just during init)
-  TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
-
   bool do_auto = true; UNUSED(do_auto);
 
-  // Check for PLR file.
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
+  // First mount on boot? Load emulated EEPROM and look for PLR file.
+  if (old_stat == 2) {
+    DEBUG_ECHOLNPGM("First mount.");
 
-  // Look for auto0.g on the next idle()
-  IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
+    // Load settings the first time media is inserted (not just during init)
+    TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
+
+    // Check for PLR file. Skip One-Click and auto#.g if found
+    TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
+  }
+
+  // Find the newest file and prompt to print it.
+  TERN_(ONE_CLICK_PRINT, if (do_auto && one_click_check()) do_auto = false);
+
+  // Also for the first mount run auto#.g for machine init.
+  // (Skip if PLR or One-Click Print was invoked.)
+  if (old_stat == 2) {
+    // Look for auto0.g on the next idle()
+    IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
+  }
 }
 
 /**
@@ -886,6 +898,81 @@ void CardReader::write_command(char * const buf) {
     return false;
   }
 #endif
+
+#if ENABLED(ONE_CLICK_PRINT)
+
+  /**
+   * Select the newest file and ask the user if they want to print it.
+   */
+  bool CardReader::one_click_check() {
+    const bool found = selectNewestFile();
+    if (found) {
+      //SERIAL_ECHO_MSG(" OCP File: ", longest_filename(), "\n");
+      //ui.init();
+      one_click_print();
+    }
+    return found;
+  }
+
+  /**
+   * Recurse the entire directory to find the newest file.
+   * This may take a very long time so watch out for watchdog reset.
+   * It may be best to only look at root for reasonable boot and mount times.
+   */
+  void CardReader::diveToNewestFile(MediaFile parent, uint32_t &compareDateTime, MediaFile &outdir, char * const outname) {
+    // Iterate the given parent dir
+    parent.rewind();
+    for (dir_t p; parent.readDir(&p, longFilename) > 0;) {
+
+      // If the item is a dir, recurse into it
+      if (DIR_IS_SUBDIR(&p)) {
+        // Get the name of the dir for opening
+        char dirname[FILENAME_LENGTH];
+        createFilename(dirname, p);
+
+        // Open the item in a new MediaFile
+        MediaFile child; // child.close() in destructor
+        if (child.open(&parent, dirname, O_READ))
+          diveToNewestFile(child, compareDateTime, outdir, outname);
+      }
+      else if (is_visible_entity(p)) {
+        // Get the newer of the modified/created date and time
+        const uint32_t modDateTime = uint32_t(p.lastWriteDate) << 16 | p.lastWriteTime,
+                    createDateTime = uint32_t(p.creationDate) << 16 | p.creationTime,
+                     newerDateTime = _MAX(modDateTime, createDateTime);
+        // If a newer item is found overwrite the outdir and outname
+        if (newerDateTime > compareDateTime) {
+          compareDateTime = newerDateTime;
+          outdir = parent;
+          createFilename(outname, p);
+        }
+      }
+    }
+  }
+
+  /**
+   * Recurse the entire directory to find the newest file.
+   * Make the found file the current selection.
+   */
+  bool CardReader::selectNewestFile() {
+    uint32_t dateTimeStorage = 0;
+    MediaFile foundDir;
+    char foundName[FILENAME_LENGTH];
+    foundName[0] = '\0';
+
+    diveToNewestFile(root, dateTimeStorage, foundDir, foundName);
+
+    if (foundName[0]) {
+      workDir = foundDir;
+      workDir.rewind();
+      selectByName(workDir, foundName);
+      //workDir.close(); // Not needed?
+      return true;
+    }
+    return false;
+  }
+
+#endif // ONE_CLICK_PRINT
 
 void CardReader::closefile(const bool store_location/*=false*/) {
   file.sync();
