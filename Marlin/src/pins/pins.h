@@ -794,6 +794,8 @@
   #include "stm32f4/pins_CREALITY_F401.h"       // STM32F4                                env:STM32F401RE_creality
 #elif MB(BLACKPILL_CUSTOM)
   #include "stm32f4/pins_BLACKPILL_CUSTOM.h"    // STM32F4                                env:STM32F401CD_blackpill_stlink
+#elif MB(I3DBEEZ9_V1)
+  #include "stm32f4/pins_I3DBEEZ9.h"            // STM32F4                                env:I3DBEEZ9_V1 
 
 //
 // ARM Cortex M7

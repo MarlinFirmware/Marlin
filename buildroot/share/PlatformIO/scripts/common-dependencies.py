@@ -55,10 +55,11 @@ if pioutil.is_pio_build():
         # Get a reference to the FEATURE_CONFIG under construction
         feat = FEATURE_CONFIG[feature]
 
-        # Split up passed lines on commas or newlines and iterate
-        # Add common options to the features config under construction
-        # For lib_deps replace a previous instance of the same library
-        atoms = re.sub(r',\s*', '\n', flines).strip().split('\n')
+        # Split up passed lines on commas or newlines and iterate.
+        # Take care to convert Windows '\' paths to Unix-style '/'.
+        # Add common options to the features config under construction.
+        # For lib_deps replace a previous instance of the same library.
+        atoms = re.sub(r',\s*', '\n', flines.replace('\\', '/')).strip().split('\n')
         for line in atoms:
             parts = line.split('=')
             name = parts.pop(0)
