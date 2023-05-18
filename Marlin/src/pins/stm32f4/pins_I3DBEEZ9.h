@@ -21,13 +21,13 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 #if HOTENDS > 3 || E_STEPPERS > 3
   #error "I3DBEEZ9 supports up to 3 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "3DBEE_Z9 V1.0"
-
-#include "env_validate.h"
 
 #define USES_DIAG_JUMPERS
 
@@ -365,7 +365,7 @@
 //
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                  ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 /**               ------                                      ------
