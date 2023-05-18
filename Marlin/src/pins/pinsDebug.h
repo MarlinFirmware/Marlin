@@ -168,18 +168,24 @@ const PinInfo pin_array[] PROGMEM = {
 
 };
 
-#include HAL_PATH(../HAL, pinsDebug.h)  // get the correct support file for this CPU
+#include HAL_PATH(.., pinsDebug.h)  // get the correct support file for this CPU
 
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Q) false
 #endif
 
+bool pin_is_protected(const pin_t pin);
+
 static void print_input_or_output(const bool isout) {
-  SERIAL_ECHOPGM_P(isout ? PSTR("Output = ") : PSTR("Input  = "));
+  SERIAL_ECHOF(isout ? F("Output ") : F("Input  "));
+}
+
+static void print_pin_state(const bool state) {
+  SERIAL_ECHOF(state ? F("HIGH") : F("LOW"));
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
+inline void report_pin_state_extended(const pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
   char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
@@ -188,12 +194,12 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
       // Use FastIO for pins Teensy doesn't expose
       if (pin == 46) {
         print_input_or_output(IS_OUTPUT(46));
-        SERIAL_CHAR('0' + READ(46));
+        print_pin_state(READ(46));
         return false;
       }
       else if (pin == 47) {
         print_input_or_output(IS_OUTPUT(47));
-        SERIAL_CHAR('0' + READ(47));
+        print_pin_state(READ(47));
         return false;
       }
     #endif
@@ -206,7 +212,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
         if (start_string) SERIAL_ECHOF(start_string);
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
-        PRINT_PORT(pin);
+        print_port(pin);
         if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
         else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
       }
@@ -230,14 +236,14 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
                                                // because this could interfere with inductive/capacitive
                                                // sensors (high impedance voltage divider) and with Pt100 amplifier
                 print_input_or_output(false);
-                SERIAL_ECHO(digitalRead_mod(pin));
+                print_pin_state(digitalRead_mod(pin));
               }
               else if (pwm_status(pin)) {
                 // do nothing
               }
               else {
                 print_input_or_output(true);
-                SERIAL_ECHO(digitalRead_mod(pin));
+                print_pin_state(digitalRead_mod(pin));
               }
             }
             if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
@@ -254,7 +260,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
     if (start_string) SERIAL_ECHOF(start_string);
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
-    PRINT_PORT(pin);
+    print_port(pin);
     if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
     else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
@@ -267,7 +273,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
         else if (GET_PINMODE(pin)) {
           SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
           print_input_or_output(true);
-          SERIAL_ECHO(digitalRead_mod(pin));
+          print_pin_state(digitalRead_mod(pin));
         }
         else {
           if (IS_ANALOG(pin)) {
@@ -279,7 +285,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
           SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);   // add padding if not an analog pin
 
           print_input_or_output(false);
-          SERIAL_ECHO(digitalRead_mod(pin));
+          print_pin_state(digitalRead_mod(pin));
         }
         //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
         if (extended) {

@@ -300,6 +300,7 @@
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
  * M919 - Get or Set motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc. If no parameters are given, report. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
@@ -344,14 +345,20 @@ enum AxisRelative : uint8_t {
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
+  , NUM_REL_MODES
 };
+typedef bits_t(NUM_REL_MODES) relative_t;
 
 extern const char G28_STR[];
 
 class GcodeSuite {
 public:
 
-  static axis_bits_t axis_relative;
+  static relative_t axis_relative;
+
+  GcodeSuite() { // Relative motion mode for each logical axis
+    axis_relative = AxisBits(AXIS_RELATIVE_MODES).bits;
+  }
 
   static bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
@@ -403,7 +410,7 @@ public:
   }
   FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
 
-  #if HAS_DISABLE_INACTIVE_AXIS
+  #if HAS_DISABLE_IDLE_AXES
     static millis_t stepper_inactive_time;
     FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
       return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
@@ -476,6 +483,9 @@ public:
 private:
 
   friend class MarlinSettings;
+  #if ENABLED(ARC_SUPPORT)
+    friend void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);
@@ -639,7 +649,7 @@ private:
 
   static void M18_M84();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M20();
     static void M21();
     static void M22();
@@ -655,7 +665,7 @@ private:
 
   static void M31();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #if HAS_MEDIA_SUBCALLS
       static void M32();
     #endif
@@ -713,7 +723,7 @@ private:
     static void M102_report(const bool forReplay=true);
   #endif
 
-  #if HAS_EXTRUDERS
+  #if HAS_HOTEND
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }
@@ -1035,6 +1045,11 @@ private:
     static void M486();
   #endif
 
+  #if ENABLED(FT_MOTION)
+    static void M493();
+    static void M493_report(const bool forReplay=true);
+  #endif
+
   static void M500();
   static void M501();
   static void M502();
@@ -1055,7 +1070,7 @@ private:
     #endif
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M524();
   #endif
 
@@ -1081,7 +1096,7 @@ private:
     static void M575();
   #endif
 
-  #if HAS_SHAPING
+  #if HAS_ZV_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
   #endif
@@ -1188,8 +1203,12 @@ private:
     static void M910();
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M928();
+  #endif
+
+  #if ENABLED(OTA_FIRMWARE_UPDATE)
+    static void M936();
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
@@ -1200,7 +1219,7 @@ private:
     static void M995();
   #endif
 
-  #if BOTH(SPI_FLASH, SDSUPPORT)
+  #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
   #endif
@@ -1222,7 +1241,7 @@ private:
     static void M423_report(const bool forReplay=true);
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M1001();
   #endif
 

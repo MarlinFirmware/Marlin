@@ -123,7 +123,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PE3   // Layer fan
+#define FAN0_PIN                            PE3   // Layer fan
 #define FAN1_PIN                            PE1   // Hotend fan
 
 #ifndef E0_AUTO_FAN_PIN
@@ -195,17 +195,18 @@
 //
 // SD Card
 //
-//#define SDIO_SUPPORT
+//#define ONBOARD_SDIO
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION         CUSTOM_CABLE
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
-  #if DISABLED(SDIO_SUPPORT)
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI
     #define SDSS                            PC11
+    #define SD_SS_PIN                       SDSS
     #define SD_SCK_PIN                      PC12
     #define SD_MISO_PIN                     PC8
     #define SD_MOSI_PIN                     PD2

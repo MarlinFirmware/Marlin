@@ -30,6 +30,7 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../core/types.h"
 #include "../../core/serial_hook.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
@@ -52,10 +53,6 @@
 //  #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
 //#endif
 
-// Templated type selector
-template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;
-template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F type; };
-
 // Templated structure wrapper
 template<typename S, unsigned int addr> struct StructWrapper {
   constexpr StructWrapper(int) {}
@@ -76,7 +73,7 @@ protected:
   static constexpr int HWUART_IRQ_ID = IRQ_IDS[Cfg::PORT];
 
   // Base size of type on buffer size
-  typedef typename TypeSelector<(Cfg::RX_SIZE>256), uint16_t, uint8_t>::type ring_buffer_pos_t;
+  typedef uvalue_t(Cfg::RX_SIZE - 1) ring_buffer_pos_t;
 
   struct ring_buffer_r {
     volatile ring_buffer_pos_t head, tail;

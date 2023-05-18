@@ -41,7 +41,7 @@ namespace FTDI {
     #endif
 
     // Play the note
-    CLCD::mem_write_16(REG::SOUND, (note == REST) ? 0 : (((note ? note : NOTE_C4) << 8) | effect));
+    CLCD::mem_write_16(REG::SOUND, (note == REST) ? 0 : (((note ?: NOTE_C4) << 8) | effect));
     CLCD::mem_write_8(REG::PLAY, 1);
   }
 
