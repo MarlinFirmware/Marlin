@@ -720,7 +720,6 @@ private:
 
   #if ENABLED(BD_SENSOR)
     static void M102();
-    static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_HOTEND
@@ -1047,7 +1046,6 @@ private:
 
   #if ENABLED(FT_MOTION)
     static void M493();
-    static void M493_report(const bool forReplay=true);
   #endif
 
   static void M500();

@@ -200,7 +200,7 @@ bool livemove = false;
 bool liveadjust = false;
 uint8_t preheatmode = 0;
 float zoffsetvalue = 0;
-grid_count_t gridpoint;
+uint8_t gridpoint;
 float corner_avg;
 float corner_pos;
 

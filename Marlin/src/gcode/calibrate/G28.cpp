@@ -229,7 +229,7 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(BD_SENSOR, bdl.config_state = 0);
+  TERN_(BD_SENSOR, bdl.config_state = BDS_IDLE);
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
