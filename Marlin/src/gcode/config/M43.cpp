@@ -139,9 +139,11 @@ inline void servo_probe_test() {
     bool deploy_state = false, stow_state;
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      constexpr bool probe_hit_state = Z_MIN_ENDSTOP_HIT_STATE;
       #define PROBE_TEST_PIN Z_MIN_PIN
       #define _PROBE_PREF "Z_MIN"
     #else
+      constexpr bool probe_hit_state = Z_MIN_PROBE_ENDSTOP_HIT_STATE;
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       #define _PROBE_PREF "Z_MIN_PROBE"
     #endif
@@ -164,11 +166,11 @@ inline void servo_probe_test() {
       SERIAL_ECHOLNPGM(". Check for BLTOUCH");
       bltouch._reset();
       bltouch._stow();
-      if (!PROBE_TRIGGERED()) {
+      if (READ(PROBE_TEST_PIN) != probe_hit_state) {
         bltouch._set_SW_mode();
-        if (PROBE_TRIGGERED()) {
+        if (READ(PROBE_TEST_PIN) == probe_hit_state) {
           bltouch._deploy();
-          if (!PROBE_TRIGGERED()) {
+          if (READ(PROBE_TEST_PIN) != probe_hit_state) {
             bltouch._stow();
             SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
             // Check for a 3.1 by letting the user trigger it, later
@@ -196,7 +198,7 @@ inline void servo_probe_test() {
         stow_state = READ(PROBE_TEST_PIN);
       }
 
-      if (PROBE_HIT_STATE == deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_HIT_STATE is probably wrong.");
+      if (probe_hit_state == deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_HIT_STATE is probably wrong.");
 
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
