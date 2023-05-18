@@ -452,6 +452,7 @@
 #define BOARD_TRONXY_V10              5245  // TRONXY V10 (STM32F446ZE)
 #define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
 #define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
+#define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
 
 //
 // ARM Cortex-M7
