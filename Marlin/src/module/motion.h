@@ -358,7 +358,7 @@ void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 
 #if HAS_X_AXIS
-    void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
