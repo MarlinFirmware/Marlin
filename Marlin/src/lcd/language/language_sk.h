@@ -452,7 +452,7 @@ namespace Language_sk {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Obnoviť nastavenie");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inicializ. EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Chyba: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Chyba: EEPROM Index");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Chyba: Veľkosť EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Chyba: Verzia EEPROM");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Nastavenie uložené");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aktualiz. z karty");

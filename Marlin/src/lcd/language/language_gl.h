@@ -317,7 +317,7 @@ namespace Language_gl {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Rest. Defecto");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inicializar EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Erro: CRC EEPROM");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Erro: Índice EEPROM");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Erro: Tamaño EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Erro: Versión EEPROM");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Config Gardada");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
