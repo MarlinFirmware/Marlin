@@ -317,9 +317,9 @@ namespace Language_zh_CN {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("装载设置");     // "Load memory"
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("恢复安全值");     // "Restore Defaults"
   LSTR MSG_INIT_EEPROM                    = _UxGT("初始化设置");     // "Initialize EEPROM"
-  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC 错误");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index 错误");
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version 错误");
+  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM 校验和 错误");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM 尺寸 错误");
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM 版本 错误");
   LSTR MSG_SETTINGS_STORED                = _UxGT("设置已保存");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("存储器更新");
   LSTR MSG_RESET_PRINTER                  = _UxGT("复位打印机");

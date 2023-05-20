@@ -299,8 +299,8 @@ namespace Language_zh_TW {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("恢復安全值");     // "Restore failsafe"
   LSTR MSG_INIT_EEPROM                    = _UxGT("初始化設置");     // "Initialize EEPROM"
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("錯誤: EEPROM CRC");    // "Err: EEPROM CRC"
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("錯誤: EEPROM Index");    // "Err: EEPROM Index"
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("錯誤: EEPROM Version");    // "EEPROM Version"
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("錯誤: EEPROM 尺寸");    // "Err: EEPROM Index"
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("錯誤: EEPROM 版本");    // "EEPROM Version"
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("媒體更新");    // "Media Update"
   LSTR MSG_RESET_PRINTER                  = _UxGT("重置打印機");    // "Reset Printer
   LSTR MSG_REFRESH                        = _UxGT("刷新");     // "Refresh"

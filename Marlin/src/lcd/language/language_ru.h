@@ -454,7 +454,7 @@ namespace Language_ru {
     LSTR MSG_INIT_EEPROM                    = _UxGT("Инициализ. EEPROM");
   #endif
   LSTR MSG_ERR_EEPROM_CRC                   = _UxGT("Сбой EEPROM: CRC");
-  LSTR MSG_ERR_EEPROM_INDEX                 = _UxGT("Сбой EEPROM: индекс");
+  LSTR MSG_ERR_EEPROM_SIZE                  = _UxGT("Сбой EEPROM: размер");
   LSTR MSG_ERR_EEPROM_VERSION               = _UxGT("Сбой EEPROM: версия");
   LSTR MSG_SETTINGS_STORED                  = _UxGT("Параметры сохранены");
   LSTR MSG_MEDIA_UPDATE                     = _UxGT("Обновление прошивки");

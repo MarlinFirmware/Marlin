@@ -1899,18 +1899,22 @@ void MarlinUI::init() {
 
   #if DISABLED(EEPROM_AUTO_INIT)
 
-    static inline FSTR_P eeprom_err(const uint8_t msgid) {
-      switch (msgid) {
-        default:
-        case 0: return GET_TEXT_F(MSG_ERR_EEPROM_CRC);
-        case 1: return GET_TEXT_F(MSG_ERR_EEPROM_INDEX);
-        case 2: return GET_TEXT_F(MSG_ERR_EEPROM_VERSION);
+    static inline FSTR_P eeprom_err(const EEPROM_Error err) {
+      switch (err) {
+        case ERR_EEPROM_VERSION:  return GET_TEXT_F(MSG_ERR_EEPROM_VERSION);
+        case ERR_EEPROM_SIZE:     return GET_TEXT_F(MSG_ERR_EEPROM_SIZE);
+        case ERR_EEPROM_CRC:      return GET_TEXT_F(MSG_ERR_EEPROM_CRC);
+        case ERR_EEPROM_CORRUPT:  return GET_TEXT_F(MSG_ERR_EEPROM_CORRUPT);
+        default: return nullptr;
       }
     }
 
-    void MarlinUI::eeprom_alert(const uint8_t msgid) {
+    void MarlinUI::eeprom_alert(const EEPROM_Error err) {
+      FSTR_P const err_msg = eeprom_err(err);
+      set_status(err_msg);
+      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(err_msg));
       #if HAS_MARLINUI_MENU
-        editable.uint8 = msgid;
+        editable.uint8 = err;
         goto_screen([]{
           FSTR_P const restore_msg = GET_TEXT_F(MSG_INIT_EEPROM);
           char msg[utf8_strlen(restore_msg) + 1];
@@ -1918,11 +1922,9 @@ void MarlinUI::init() {
           MenuItem_confirm::select_screen(
             GET_TEXT_F(MSG_BUTTON_RESET), GET_TEXT_F(MSG_BUTTON_IGNORE),
             init_eeprom, return_to_status,
-            eeprom_err(editable.uint8), msg, F("?")
+            eeprom_err((EEPROM_Error)editable.uint8), msg, F("?")
           );
         });
-      #else
-        set_status(eeprom_err(msgid));
       #endif
     }
 
