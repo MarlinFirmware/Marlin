@@ -381,8 +381,8 @@
   #define TFT_CS_PIN                          49
   #define TFT_DC_PIN                          43
   #define TFT_SCK_PIN                 SD_SCK_PIN
-  #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define TFT_MISO_PIN               SD_MISO_PIN
+  #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define LCD_USE_DMA_SPI
 
   #define BTN_EN1                             40
@@ -396,12 +396,12 @@
 
   #define SPI_FLASH
   #if ENABLED(SPI_FLASH)
-    #define SPI_DEVICE                         1
+    #define SPI_DEVICE                         1  // Maple
     #define SPI_FLASH_SIZE             0x1000000  // 16MB
     #define SPI_FLASH_CS_PIN                  31
-    #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
-    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
     #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
+    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
+    #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
   #endif
 
   #define TFT_BUFFER_SIZE                 0xFFFF
