@@ -137,7 +137,10 @@ void tft_lvgl_init() {
     uint16_t usb_flash_loop = 1000;
     #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
       SET_INPUT_PULLUP(SD_DETECT_PIN);
-      card.changeMedia(IS_SD_INSERTED() ? &card.media_driver_sdcard : &card.media_driver_usbFlash);
+      if (IS_SD_INSERTED())
+        card.changeMedia(&card.media_driver_sdcard);
+      else
+        card.changeMedia(&card.media_driver_usbFlash);
     #endif
     do {
       card.media_driver_usbFlash.idle();
