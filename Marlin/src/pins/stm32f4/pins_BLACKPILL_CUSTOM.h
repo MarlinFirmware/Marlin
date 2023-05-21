@@ -117,7 +117,7 @@
 //#define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if SD_CONNECTION_IS(ONBOARD)                      
+#if SD_CONNECTION_IS(ONBOARD)
   #define SDSS                              PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
