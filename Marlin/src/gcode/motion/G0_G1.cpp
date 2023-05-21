@@ -35,6 +35,10 @@
   #include "../../module/planner.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../../lcd/sv06p/LCD_RTS.h"
+#endif
+
 extern xyze_pos_t destination;
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
@@ -115,5 +119,8 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   #else
     TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+  #endif
+  #if ENABLED(RTS_AVAILABLE)
+    RTS_PauseMoveAxisPage();
   #endif
 }

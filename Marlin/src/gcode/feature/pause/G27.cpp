@@ -27,6 +27,9 @@
 #include "../../gcode.h"
 #include "../../../libs/nozzle.h"
 #include "../../../module/motion.h"
+#if ENABLED(RTS_AVAILABLE)
+  #include "../../../lcd/sv06p/LCD_RTS.h"
+#endif
 
 /**
  * G27: Park the nozzle
@@ -35,6 +38,7 @@ void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
   if (homing_needed_error()) return;
   nozzle.park(parser.ushortval('P'));
+  TERN_(RTS_AVAILABLE, RTS_MoveAxisHoming());
 }
 
 #endif // NOZZLE_PARK_FEATURE

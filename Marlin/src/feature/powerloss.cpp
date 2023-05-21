@@ -62,6 +62,10 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
   #include "../module/probe.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../lcd/sv06p/LCD_RTS.h"
+#endif
+
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
 #endif
@@ -608,6 +612,20 @@ void PrintJobRecovery::resume() {
   PROCESS_SUBCOMMANDS_NOW(cmd);
   sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
   PROCESS_SUBCOMMANDS_NOW(cmd);
+
+  #if ENABLED(RTS_AVAILABLE)
+    if(Mode_flag && PrintFlag != 0)
+    {
+      rtscheck.RTS_SndData(1, Time_VP);
+      rtscheck.RTS_SndData(ExchangePageBase + 11, ExchangepageAddr);
+    }
+    else if(!Mode_flag && PrintFlag != 0)
+    {
+      rtscheck.RTS_SndData(1, Time1_VP);
+      rtscheck.RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
+    }
+    StartPrintFlag = 0;
+  #endif
 }
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)

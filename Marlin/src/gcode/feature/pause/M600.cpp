@@ -48,6 +48,9 @@
 #if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"
 #endif
+#if ENABLED(RTS_AVAILABLE)
+  #include "../../../lcd/sv06p/LCD_RTS.h"
+#endif
 
 /**
  * M600: Pause for filament change
@@ -106,6 +109,16 @@ void GcodeSuite::M600() {
   // Show initial "wait for start" message
   if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
+  #if ENABLED(RTS_AVAILABLE)
+    if(Mode_flag)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 6, ExchangepageAddr);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
+    }
+  #endif
 
   // If needed, home before parking for filament change
   TERN_(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));

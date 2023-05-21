@@ -33,6 +33,8 @@
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 #include "../../../module/probe.h"
+//#include "../../../module/settings.h"
+#include "../../../module/temperature.h"
 #include "../../queue.h"
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -50,6 +52,8 @@
   #include "../../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
+#elif ENABLED(RTS_AVAILABLE)
+  #include "../../../lcd/sv06p/LCD_RTS.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -435,6 +439,26 @@ G29_TYPE GcodeSuite::G29() {
       remember_feedrate_scaling_off();
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
+        #if ENABLED(RTS_AVAILABLE)
+          if(Mode_flag)
+          {
+            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+            rtscheck.RTS_SndData(1, Wait_VP);
+            rtscheck.RTS_SndData(ExchangePageBase + 123, ExchangepageAddr);
+          }
+          else
+          {
+            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+            rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+            rtscheck.RTS_SndData(1, Wait_VP);
+            rtscheck.RTS_SndData(ExchangePageBase + 124, ExchangepageAddr);
+          }
+        #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
             HMI_data.BedLevT
@@ -715,6 +739,21 @@ G29_TYPE GcodeSuite::G29() {
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
+            #if ENABLED(RTS_AVAILABLE)
+              if((pt_index) <= GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y)
+              {
+                rtscheck.RTS_SndData(pt_index, AUTO_BED_LEVEL_ICON_VP);
+              }
+              rtscheck.RTS_SndData(z*100, AUTO_BED_LEVEL_1POINT_VP + (pt_index - 1) * 2);
+              if(Mode_flag)
+              {
+                rtscheck.RTS_SndData(ExchangePageBase + 38, ExchangepageAddr);
+              }
+              else
+              {
+                rtscheck.RTS_SndData(ExchangePageBase + 93, ExchangepageAddr);
+              }
+            #endif
 
           #endif
 
@@ -931,6 +970,10 @@ G29_TYPE GcodeSuite::G29() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     planner.synchronize();
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+  #endif
+
+  #if ENABLED(RTS_AVAILABLE)
+    RTS_AutoBedLevelPage();
   #endif
 
   probe.use_probing_tool(false);

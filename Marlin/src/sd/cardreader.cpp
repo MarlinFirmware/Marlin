@@ -36,6 +36,8 @@
   #include "../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
+#elif ENABLED(RTS_AVAILABLE)
+  #include "../lcd/sv06p/LCD_RTS.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -1446,6 +1448,9 @@ void CardReader::fileHasFinished() {
     if (jobRecoverFileExists()) {
       recovery.init();
       removeFile(recovery.filename);
+      #if ENABLED(RTS_AVAILABLE)
+        PoweroffContinue = false;
+      #endif
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");
         SERIAL_ECHOF(jobRecoverFileExists() ? F(" failed.\n") : F("d.\n"));

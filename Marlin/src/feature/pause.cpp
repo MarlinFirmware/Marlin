@@ -62,6 +62,8 @@
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
+#elif ENABLED(RTS_AVAILABLE)
+  #include "../lcd/sv06p/LCD_RTS.h"
 #endif
 
 #include "../lcd/marlinui.h"
@@ -147,7 +149,18 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
-
+  #if ENABLED(RTS_AVAILABLE)
+    if(Mode_flag)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
+    }
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+  #endif
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
   // Allow interruption by Emergency Parser M108
@@ -275,6 +288,19 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         // "Wait for filament purge"
         if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
+        #if ENABLED(RTS_AVAILABLE)
+          rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+          rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+          if(Mode_flag)
+          {
+            rtscheck.RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
+          }
+          else
+          {
+            rtscheck.RTS_SndData(ExchangePageBase + 98, ExchangepageAddr);
+          }
+        #endif
+
         // Extrude filament to get into hotend
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
@@ -290,6 +316,16 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+            #if ENABLED(RTS_AVAILABLE)
+              if(Mode_flag)
+              {
+                rtscheck.RTS_SndData(ExchangePageBase + 44, ExchangepageAddr);
+              }
+              else
+              {
+                rtscheck.RTS_SndData(ExchangePageBase + 100, ExchangepageAddr);
+              }
+            #endif
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
@@ -352,6 +388,19 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
   }
 
   if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
+  
+  #if ENABLED(RTS_AVAILABLE)
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+    if(Mode_flag)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 16, ExchangepageAddr);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
+    }
+  #endif
 
   // Retract filament
   unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
@@ -503,6 +552,19 @@ void show_continue_prompt(const bool is_reload) {
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
+  #if ENABLED(RTS_AVAILABLE)
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+    if(Mode_flag)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 17, ExchangepageAddr);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 72, ExchangepageAddr);
+    }
+    rtscheck.RTS_SndData(Beep, SoundAddr);
+  #endif
   SERIAL_ECHO_START();
   SERIAL_ECHOF(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
@@ -544,6 +606,18 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     // re-heat the nozzle, re-show the continue prompt, restart idle timers, start over
     if (nozzle_timed_out) {
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
+      #if ENABLED(RTS_AVAILABLE)
+        rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+        rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        if(Mode_flag)
+        {
+          rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
+        }
+        else
+        {
+          rtscheck.RTS_SndData(ExchangePageBase + 99, ExchangepageAddr);
+        }
+      #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_HEATER_TIMEOUT), GET_TEXT_F(MSG_REHEAT)));
@@ -687,6 +761,26 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
+  #if ENABLED(RTS_AVAILABLE)
+    if(Mode_flag && pause_flag == 0)
+    {
+      rtscheck.RTS_SndData(1, Time_VP);
+      rtscheck.RTS_SndData(ExchangePageBase + 11, ExchangepageAddr);
+    }
+    else if(!Mode_flag && !pause_flag == 0)
+    {
+      rtscheck.RTS_SndData(1, Time1_VP);
+      rtscheck.RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
+    }
+    else if(Mode_flag && pause_flag == 1)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 12, ExchangepageAddr);
+    }
+    else if(!Mode_flag && pause_flag == 1)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 67, ExchangepageAddr);
+    }
+  #endif
 
   #ifdef ACTION_ON_RESUMED
     hostui.resumed();
