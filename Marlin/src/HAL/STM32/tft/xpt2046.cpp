@@ -78,7 +78,6 @@ void XPT2046::Init() {
       SPIx.Init.IOSwap                  = SPI_IO_SWAP_DISABLE;
     #endif
 
-
     pinmap_pinout(digitalPinToPinName(TOUCH_SCK_PIN), PinMap_SPI_SCLK);
     pinmap_pinout(digitalPinToPinName(TOUCH_MOSI_PIN), PinMap_SPI_MOSI);
     pinmap_pinout(digitalPinToPinName(TOUCH_MISO_PIN), PinMap_SPI_MISO);

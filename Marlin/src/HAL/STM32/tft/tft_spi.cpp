@@ -192,7 +192,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
         Data = (Data << 8) | SPIx.Instance->RXDR;
         __HAL_SPI_DISABLE(&SPIx);
         __HAL_SPI_CLEAR_EOTFLAG(&SPIx);
-        __HAL_SPI_CLEAR_TXTFFLAG(&SPIx);   
+        __HAL_SPI_CLEAR_TXTFFLAG(&SPIx);
       }
     #else
       __HAL_SPI_ENABLE(&SPIx);
