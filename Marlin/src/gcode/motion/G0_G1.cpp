@@ -35,7 +35,7 @@
   #include "../../module/planner.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sv06p/LCD_RTS.h"
 #endif
 
@@ -120,7 +120,5 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #else
     TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   #endif
-  #if ENABLED(RTS_AVAILABLE)
-    RTS_PauseMoveAxisPage();
-  #endif
+  TERN_(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
 }

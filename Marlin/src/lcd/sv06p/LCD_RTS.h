@@ -1,7 +1,28 @@
-#include <string.h>
-//#include <arduino.h>
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include <string.h>
+
 /*********************************/
 #define FHONE   (0x5A)
 #define FHTWO   (0xA5)
@@ -14,7 +35,7 @@
 #define RTS_UPDATE_INTERVAL 2000
 #define RTS_UPDATE_VALUE    (2 * RTS_UPDATE_INTERVAL)
 
-#define SizeofDatabuf       26
+#define DATA_BUF_SIZE       26
 
 /*************Register and Variable addr*****************/
 #define	RegAddr_W	0x80
@@ -119,41 +140,41 @@
 #define PRINT_MODE_ICON_VP                 0x21BD
 #define PRINT_FILE_TEXT_VP                 0x21C0
 
-#define Nozzle_P_VP                        0X2200
-#define Nozzle_I_VP                        0X2204
-#define Nozzle_D_VP                        0X2208
-#define Hot_Bed_P_VP                       0X220C
-#define Hot_Bed_I_VP                       0X2240
-#define Hot_Bed_D_VP                       0X2244
+#define Nozzle_P_VP                        0x2200
+#define Nozzle_I_VP                        0x2204
+#define Nozzle_D_VP                        0x2208
+#define Hot_Bed_P_VP                       0x220C
+#define Hot_Bed_I_VP                       0x2240
+#define Hot_Bed_D_VP                       0x2244
 
-#define Vmax_X_VP                          0X2210
-#define Vmax_Y_VP                          0X2212
-#define Vmax_Z_VP                          0X2214
-#define Vmax_E_VP                          0X2216
+#define Vmax_X_VP                          0x2210
+#define Vmax_Y_VP                          0x2212
+#define Vmax_Z_VP                          0x2214
+#define Vmax_E_VP                          0x2216
 
-#define Accel_VP                           0X2220
-#define A_Retract_VP                       0X2222
-#define A_Travel_VP                        0X2224
-#define Amax_X_VP                          0X2226
-#define Amax_Y_VP                          0X2228
-#define Amax_Z_VP                          0X222A
-#define Amax_E_VP                          0X222C
+#define Accel_VP                           0x2220
+#define A_Retract_VP                       0x2222
+#define A_Travel_VP                        0x2224
+#define Amax_X_VP                          0x2226
+#define Amax_Y_VP                          0x2228
+#define Amax_Z_VP                          0x222A
+#define Amax_E_VP                          0x222C
 
-#define Jerk_X_VP                          0X2230
-#define Jerk_Y_VP                          0X2232
-#define Jerk_Z_VP                          0X2234
-#define Jerk_E_VP                          0X2236
+#define Jerk_X_VP                          0x2230
+#define Jerk_Y_VP                          0x2232
+#define Jerk_Z_VP                          0x2234
+#define Jerk_E_VP                          0x2236
 
-#define Steps_X_VP                         0X1130
-#define Steps_Y_VP                         0X1132
-#define Steps_Z_VP                         0X1134
-#define Steps_E_VP                         0X1136
+#define Steps_X_VP                         0x1130
+#define Steps_Y_VP                         0x1132
+#define Steps_Z_VP                         0x1134
+#define Steps_E_VP                         0x1136
 
-#define Advance_K_VP                       0X1138
-#define Time_VP                            0X2450
-#define Time1_VP                           0X2455
-#define Fan_speed_VP                       0X2460
-#define Wait_VP                            0X2480
+#define Advance_K_VP                       0x1138
+#define Time_VP                            0x2450
+#define Time1_VP                           0x2455
+#define Fan_speed_VP                       0x2460
+#define Wait_VP                            0x2480
 #define Zoffset_UNIT_VP                    0x2500
 #define Current_X_VP                       0x2468
 #define Current_Y_VP                       0x246A
@@ -168,10 +189,8 @@
 
 #define FilenameNature                     0x6003
 
-
 /************struct**************/
-typedef struct DataBuf
-{
+typedef struct DataBuf {
   unsigned char len;
   unsigned char head[2];
   unsigned char command;
@@ -181,47 +200,44 @@ typedef struct DataBuf
   unsigned char reserv[4];
 } DB;
 
-typedef struct CardRecord
-{
+typedef struct CardRecord {
   int recordcount;
   int Filesum;
   unsigned long addr[FileNum];
   char Cardshowfilename[FileNum][FileNameLen];
   char Cardfilename[FileNum][FileNameLen];
-}CRec;
+} CRec;
 
-class RTSSHOW
-{
+class RTS {
   public:
-    RTSSHOW();
-    int RTS_RecData();
-    void RTS_SDCardInit(void);
-    bool RTS_SD_Detected(void);
-    void RTS_SDCardUpate(void);
-    void RTS_SndData(void);
-    void RTS_SndData(const String &, unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(const char[], unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(char, unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(unsigned char*, unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(int, unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(float, unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(unsigned int,unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(long,unsigned long, unsigned char = VarAddr_W);
-    void RTS_SndData(unsigned long,unsigned long, unsigned char = VarAddr_W);
-    void RTS_SDcard_Stop();
-    void RTS_HandleData();
-    void RTS_Init();
+    RTS();
+    static int receiveData();
+    static void sdCardInit();
+    static bool sdDetected();
+    static void sdCardUpdate();
+    static void sendData();
+    static void sendData(const String&, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(const char[], unsigned long, unsigned char=VarAddr_W);
+    static void sendData(char, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(unsigned char*, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(int, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(float, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(unsigned int,unsigned long, unsigned char=VarAddr_W);
+    static void sendData(long,unsigned long, unsigned char=VarAddr_W);
+    static void sendData(unsigned long,unsigned long, unsigned char=VarAddr_W);
+    static void sdCardStop();
+    static void handleData();
+    static void init();
 
-    DB recdat;
-    DB snddat;
+    static DB recdat;
+    static DB snddat;
   private:
-    unsigned char databuf[SizeofDatabuf];
+    static uint8_t databuf[DATA_BUF_SIZE];
 };
 
-extern RTSSHOW rtscheck;
+extern RTS rts;
 
-enum PROC_COM
-{
+enum PROC_COM {
   MainPageKey = 0,
   AdjustmentKey,
   PrintSpeedKey,
@@ -231,16 +247,13 @@ enum PROC_COM
   ZOffsetKey,
   TempScreenKey,
   CoolScreenKey,
-  Heater0TempEnterKey,
-  Heater1TempEnterKey,
+  Heater0TempEnterKey, Heater1TempEnterKey,
   HotBedTempEnterKey,
   SettingScreenKey,
   SettingBackKey,
   BedLevelFunKey,
   AxisPageSelectKey,
-  XaxismoveKey,
-  YaxismoveKey,
-  ZaxismoveKey,
+  XaxismoveKey, YaxismoveKey, ZaxismoveKey,
   SelectExtruderKey,
   Heater0LoadEnterKey,
   FilamentLoadKey,
@@ -249,150 +262,54 @@ enum PROC_COM
   FilamentCheckKey,
   PowerContinuePrintKey,
   PrintSelectModeKey,
-  XhotendOffsetKey,
-  YhotendOffsetKey,
-  ZhotendOffsetKey,
+  XhotendOffsetKey, YhotendOffsetKey, ZhotendOffsetKey,
   StoreMemoryKey,
   PrintFileKey,
   SelectFileKey,
   AdvancedKey,
-  Nozzle_P,
-  Nozzle_I,
-  Nozzle_D,
-  Hot_Bed_P,
-  Hot_Bed_I,
-  Hot_Bed_D,
-  Vmax_X,
-  Vmax_Y,
-  Vmax_Z,
-  Vmax_E,
+  Nozzle_P, Nozzle_I, Nozzle_D,
+  Hot_Bed_P, Hot_Bed_I, Hot_Bed_D,
+  Vmax_X, Vmax_Y, Vmax_Z, Vmax_E,
   Accel,
   A_Retract,
   A_Travel,
-  Amax_X,
-  Amax_Y,
-  Amax_Z,
-  Amax_E,
-  Jerk_X,
-  Jerk_Y,
-  Jerk_Z,
-  Jerk_E,
-  Steps_X,
-  Steps_Y,
-  Steps_Z,
-  Steps_E,
+  Amax_X, Amax_Y, Amax_Z, Amax_E,
+  Jerk_X, Jerk_Y, Jerk_Z, Jerk_E,
+  Steps_X, Steps_Y, Steps_Z, Steps_E,
   Advance_K,
   AdvancedBackKey,
   FilamentChange,
   Fan_speed,
   ZoffsetUnitKey,
   TMCDriver,
-  Current_X,
-  Current_Y,
-  Current_Z,
-  Current_E,
-  Threshold_X,
-  Threshold_Y,
-  Threshold_Z,
-  Threshold_E,
-  Sensorless_X,
-  Sensorless_Y,
+  Current_X, Current_Y, Current_Z, Current_E,
+  Threshold_X, Threshold_Y, Threshold_Z, Threshold_E,
+  Sensorless_X, Sensorless_Y,
   ChangePageKey
 };
 
-const unsigned long Addrbuf[] =
-{
-  0x1002,
-  0x1004,
-  0x1006,
-  0x1008,
-  0x100A,
-  0x100C,
-  0x1026,
-  0x1030,
-  0x1032,
-  0x1034,
-  0x1038,
-  0x103A,
-  0x103E,
-  0x1040,
-  0x1044,
-  0x1046,
-  0x1048,
-  0x104A,
-  0x104C,
-  0x104E,
-  0x1054,
-  0x1056,
-  0x1058,
-  0x105C,
-  0x105E,
-  0x105F,
-  0x1090,
-  0x1092,
-  0x1094,
-  0x1096,
-  0x1098,
-  0x2198,
-  0x2199,
-  0X21E0,
-  0X2200,
-  0X2204,
-  0X2208,
-  0X220C,
-  0X2240,
-  0X2244,
-  0X2210,
-  0X2212,
-  0X2214,
-  0X2216,
-  0X2220,
-  0X2222,
-  0X2224,
-  0X2226,
-  0X2228,
-  0X222A,
-  0X222C,
-  0X2230,
-  0X2232,
-  0X2234,
-  0X2236,
-  0X1130,
-  0X1132,
-  0X1134,
-  0X1136,
-  0X1138,
-  0x2250,
-  0x2300,
-  0x2460,
-  0x2464,
-  0x2466,
-  0x2468,
-  0x246A,
-  0x246C,
-  0x246F,
-  0x2471,
-  0x2473,
-  0x2475,
-  0x2477,
-  0x2479,
-  0x247B,
-  0x110E,
-  0
+const unsigned long Addrbuf[] = {
+  0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C, 0x1026, 0x1030, 0x1032, 0x1034,
+  0x1038, 0x103A, 0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x104E,
+  0x1054, 0x1056, 0x1058, 0x105C, 0x105E, 0x105F, 0x1090, 0x1092, 0x1094, 0x1096,
+  0x1098, 0x2198, 0x2199, 0x21E0, 0x2200, 0x2204, 0x2208, 0x220C, 0x2240, 0x2244,
+  0x2210, 0x2212, 0x2214, 0x2216, 0x2220, 0x2222, 0x2224, 0x2226, 0x2228, 0x222A,
+  0x222C, 0x2230, 0x2232, 0x2234, 0x2236, 0x1130, 0x1132, 0x1134, 0x1136, 0x1138,
+  0x2250, 0x2300, 0x2460, 0x2464, 0x2466, 0x2468, 0x246A, 0x246C, 0x246F, 0x2471,
+  0x2473, 0x2475, 0x2477, 0x2479, 0x247B, 0x110E, 0
 };
 
-extern void RTSUpdate();
-extern void RTSInit();
+extern void RTS_Update();
+extern void RTS_Init();
 
 extern int Update_Time_Value;
-extern bool PoweroffContinue;
+extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
-extern int StartPrintFlag;
-extern bool Mode_flag;
+extern int start_print_flag;
+extern bool mode_flag;
 extern bool pause_flag;
-extern int PrintFlag;
-
+extern int print_flag;
 
 void RTS_AutoBedLevelPage();
 void RTS_MoveAxisHoming();

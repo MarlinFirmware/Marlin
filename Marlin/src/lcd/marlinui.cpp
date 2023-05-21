@@ -51,7 +51,7 @@ MarlinUI ui;
   #include "e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
-#elif ENABLED(RTS_AVAILABLE)
+#elif ENABLED(SOVOL_SV06_RTS)
   #include "sv06p/LCD_RTS.h"
 #endif
 
@@ -120,7 +120,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_brightness(const uint8_t value) {
     backlight = !!value;
     if (backlight) brightness = constrain(value, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX);
-    #if DISABLED(RTS_AVAILABLE)
+    #if DISABLED(SOVOL_SV06_RTS)
       _set_brightness();
     #endif
   }

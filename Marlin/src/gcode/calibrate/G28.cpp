@@ -58,7 +58,7 @@
   #include "../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(RTS_AVAILABLE)
+#elif ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sv06p/LCD_RTS.h"
 #endif
 
@@ -652,7 +652,7 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingDone());
-  TERN_(RTS_AVAILABLE, RTS_MoveAxisHoming());
+  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();

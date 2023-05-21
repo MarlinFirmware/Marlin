@@ -81,7 +81,7 @@
     #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
-  #elif ENABLED(RTS_AVAILABLE)
+  #elif ENABLED(SOVOL_SV06_RTS)
     #include "lcd/sv06p/LCD_RTS.h"
   #endif
 #endif
@@ -819,8 +819,8 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Handle UI input / draw events
   #if ENABLED(DWIN_CREALITY_LCD)
     DWIN_Update();
-  #elif ENABLED(RTS_AVAILABLE)
-    RTSUpdate();
+  #elif ENABLED(SOVOL_SV06_RTS)
+    RTS_Update();
   #else
     ui.update();
   #endif
@@ -1151,7 +1151,7 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
-  #if ENABLED(RTS_AVAILABLE)
+  #if ENABLED(SOVOL_SV06_RTS)
     LCD_SERIAL.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
@@ -1308,8 +1308,8 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-  #if ENABLED(RTS_AVAILABLE)
-    SETUP_RUN(RTSUpdate());
+  #if ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(RTS_Update());
   #else
     SETUP_RUN(ui.init());
   #endif
@@ -1592,8 +1592,8 @@ void setup() {
 
   #if HAS_DWIN_E3V2_BASIC
     SETUP_RUN(DWIN_InitScreen());
-  #elif ENABLED(RTS_AVAILABLE)
-    SETUP_RUN(rtscheck.RTS_Init());
+  #elif ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC

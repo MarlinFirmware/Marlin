@@ -36,7 +36,7 @@
   #include "../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(RTS_AVAILABLE)
+#elif ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sv06p/LCD_RTS.h"
 #endif
 
@@ -1448,9 +1448,7 @@ void CardReader::fileHasFinished() {
     if (jobRecoverFileExists()) {
       recovery.init();
       removeFile(recovery.filename);
-      #if ENABLED(RTS_AVAILABLE)
-        PoweroffContinue = false;
-      #endif
+      TERN_(SOVOL_SV06_RTS, poweroff_continue = false);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");
         SERIAL_ECHOF(jobRecoverFileExists() ? F(" failed.\n") : F("d.\n"));

@@ -57,7 +57,7 @@ GCodeQueue queue;
   #include "../feature/repeat.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sv06p/LCD_RTS.h"
 #endif
 
@@ -617,27 +617,14 @@ void GCodeQueue::get_serial_commands() {
       else
         process_stream_char(sd_char, sd_input_state, command.buffer, sd_count);
 
-      #if ENABLED(RTS_AVAILABLE)
+      #if ENABLED(SOVOL_SV06_RTS)
         // the printing results
-        if (card_eof)
-        {
-          rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
-          delay(1);
-          rtscheck.RTS_SndData(100, PRINT_PROCESS_ICON_VP);
-          delay(1);
-          rtscheck.RTS_SndData(0, PRINT_SURPLUS_TIME_HOUR_VP);
-          delay(1);
-          rtscheck.RTS_SndData(0, PRINT_SURPLUS_TIME_MIN_VP);
-          delay(1);
-
-          if(Mode_flag)
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr);
-          }
-          else
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
-          }
+        if (card_eof) {
+          rts.sendData(100, PRINT_PROCESS_VP); delay(1);
+          rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
+          rts.sendData(0, PRINT_SURPLUS_TIME_HOUR_VP); delay(1);
+          rts.sendData(0, PRINT_SURPLUS_TIME_MIN_VP); delay(1);
+          rts.sendData(ExchangePageBase + (mode_flag ? 9 : 64), ExchangepageAddr);
           card.fileHasFinished();         // Handle end of file reached
         }
       #endif

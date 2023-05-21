@@ -52,7 +52,7 @@
   #include "../../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(RTS_AVAILABLE)
+#elif ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sv06p/LCD_RTS.h"
 #endif
 
@@ -439,25 +439,13 @@ G29_TYPE GcodeSuite::G29() {
       remember_feedrate_scaling_off();
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
-        #if ENABLED(RTS_AVAILABLE)
-          if(Mode_flag)
-          {
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
-            rtscheck.RTS_SndData(1, Wait_VP);
-            rtscheck.RTS_SndData(ExchangePageBase + 123, ExchangepageAddr);
-          }
-          else
-          {
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
-            rtscheck.RTS_SndData(1, Wait_VP);
-            rtscheck.RTS_SndData(ExchangePageBase + 124, ExchangepageAddr);
-          }
+        #if ENABLED(SOVOL_SV06_RTS)
+          rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+          rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+          rts.sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+          rts.sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+          rts.sendData(1, Wait_VP);
+          rts.sendData(ExchangePageBase + (mode_flag ? 123 : 124), ExchangepageAddr);
         #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
@@ -739,20 +727,11 @@ G29_TYPE GcodeSuite::G29() {
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
-            #if ENABLED(RTS_AVAILABLE)
-              if((pt_index) <= GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y)
-              {
-                rtscheck.RTS_SndData(pt_index, AUTO_BED_LEVEL_ICON_VP);
-              }
-              rtscheck.RTS_SndData(z*100, AUTO_BED_LEVEL_1POINT_VP + (pt_index - 1) * 2);
-              if(Mode_flag)
-              {
-                rtscheck.RTS_SndData(ExchangePageBase + 38, ExchangepageAddr);
-              }
-              else
-              {
-                rtscheck.RTS_SndData(ExchangePageBase + 93, ExchangepageAddr);
-              }
+
+            #if ENABLED(SOVOL_SV06_RTS)
+              if (pt_index <= GRID_MAX_POINTS) rts.sendData(pt_index, AUTO_BED_LEVEL_ICON_VP);
+              rts.sendData(z * 100.0f, AUTO_BED_LEVEL_1POINT_VP + (pt_index - 1) * 2);
+              rts.sendData(ExchangePageBase + (mode_flag ? 38 : 93), ExchangepageAddr);
             #endif
 
           #endif
@@ -972,7 +951,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
-  #if ENABLED(RTS_AVAILABLE)
+  #if ENABLED(SOVOL_SV06_RTS)
     RTS_AutoBedLevelPage();
   #endif
 
