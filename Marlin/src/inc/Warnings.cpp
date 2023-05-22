@@ -730,6 +730,13 @@
 #endif
 
 /**
+ * EP Babystepping works best with EMERGENCY_PARSER
+ */
+#if ENABLED(EP_BABYSTEPPING) && DISABLED(EMERGENCY_PARSER)
+  #warning "EMERGENCY_PARSER is recommended for EP_BABYSTEPPING."
+#endif
+
+/**
  * POLAR warnings
  */
 #if BOTH(POLAR, S_CURVE_ACCELERATION)
