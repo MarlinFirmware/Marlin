@@ -356,17 +356,17 @@ namespace Anycubic {
       static lcd_info_t lcd_info, lcd_info_back;
       static uint16_t page_index_now;
 
-      static void Startup();
+      static void startup();
       static void ParamInit();
-      static void IdleLoop();
-      static void PrinterKilled(FSTR_P,FSTR_P);
-      static void MediaEvent(media_event_t);
-      static void TimerEvent(timer_event_t);
-      static void FilamentRunout();
-      static void ConfirmationRequest(const char * const);
-      static void StatusChange(const char * const);
+      static void idleLoop();
+      static void printerKilled(FSTR_P,FSTR_P);
+      static void mediaEvent(media_event_t);
+      static void timerEvent(timer_event_t);
+      static void filamentRunout();
+      static void confirmationRequest(const char * const);
+      static void statusChange(const char * const);
       static void PowerLoss();
-      static void PowerLossRecovery();
+      static void powerLossRecovery();
       static void HomingStart();
       static void HomingComplete();
 
@@ -450,17 +450,17 @@ namespace Anycubic {
 
       static void pop_up_manager();
 
-      static void SendtoTFT(FSTR_P const=nullptr);
-      static void SendtoTFTLN(FSTR_P const=nullptr);
-      static bool ReadTFTCommand();
+      static void tftSend(FSTR_P const=nullptr);
+      static void tftSendLn(FSTR_P const=nullptr);
+      static bool readTFTCommand();
       static int8_t Findcmndpos(const char *, const char);
-      static void CheckHeaters();
-      static void SendFileList(int8_t);
-      static void SelectFile();
-      static void ProcessPanelRequest();
-      static void PanelInfo(uint8_t);
-      static void PanelAction(uint8_t);
-      static void PanelProcess(uint8_t);
+      static void checkHeaters();
+      static void sendFileList(int8_t);
+      static void selectFile();
+      static void processPanelRequest();
+      static void panelInfo(uint8_t);
+      static void panelAction(uint8_t);
+      static void panelProcess(uint8_t);
 
       static void SendValueToTFT(const uint16_t value, const uint16_t address);
       static void RequestValueFromTFT(const uint16_t address);

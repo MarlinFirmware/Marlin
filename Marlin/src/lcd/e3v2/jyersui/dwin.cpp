@@ -2536,7 +2536,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Menu_Item(row, ICON_Back, F("Back"));
           else
             Draw_Menu(Motion, MOTION_STEPS);
-            break;
+          break;
         #if HAS_X_AXIS
           case STEPS_X:
             if (draw) {
