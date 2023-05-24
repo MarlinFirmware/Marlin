@@ -173,7 +173,7 @@
 #define Advance_K_VP                       0x1138
 #define Time_VP                            0x2450
 #define Time1_VP                           0x2455
-#define Fan_speed_VP                       0x2460
+#define FAN_SPEED_VP                       0x2460
 #define Wait_VP                            0x2480
 #define Zoffset_UNIT_VP                    0x2500
 #define Current_X_VP                       0x2468
@@ -222,9 +222,9 @@ class RTS {
     static void sendData(unsigned char*, unsigned long, unsigned char=VarAddr_W);
     static void sendData(int, unsigned long, unsigned char=VarAddr_W);
     static void sendData(float, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(unsigned int,unsigned long, unsigned char=VarAddr_W);
-    static void sendData(long,unsigned long, unsigned char=VarAddr_W);
-    static void sendData(unsigned long,unsigned long, unsigned char=VarAddr_W);
+    static void sendData(unsigned int, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(long, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(unsigned long, unsigned long, unsigned char=VarAddr_W);
     static void sdCardStop();
     static void handleData();
     static void init();
@@ -235,6 +235,9 @@ class RTS {
 
     static void updateTempE0();
     static void updateTempBed();
+    static void updateFan0();
+
+    static void refreshTime() { sendData(1, dark_mode ? Time_VP : Time1_VP); gotoPage(11, 66); }
 
     static DB recdat;
     static DB snddat;
@@ -311,7 +314,7 @@ extern int Update_Time_Value;
 extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
-extern int start_print_flag;
+extern bool start_print_flag;
 extern bool pause_flag;
 extern int print_flag;
 

@@ -614,11 +614,8 @@ void PrintJobRecovery::resume() {
   PROCESS_SUBCOMMANDS_NOW(cmd);
 
   #if ENABLED(SOVOL_SV06_RTS)
-    if (print_flag) {
-      rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
-      rts.gotoPage(11, 66);
-    }
-    start_print_flag = 0;
+    if (print_flag) rts.refreshTime();
+    start_print_flag = false;
   #endif
 }
 

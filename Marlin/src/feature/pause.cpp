@@ -717,10 +717,8 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   #if ENABLED(SOVOL_SV06_RTS)
     if (pause_flag)
       rts.gotoPage(12, 67);
-    else {
-      rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
-      rts.gotoPage(11, 66);
-    }
+    else
+      rts.refreshTime();
   #endif
 
   #ifdef ACTION_ON_RESUMED

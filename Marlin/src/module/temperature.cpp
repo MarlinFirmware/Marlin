@@ -4454,11 +4454,8 @@ void Temperature::isr() {
           dwin_heat_time = elapsed.value;
         #elif ENABLED(SOVOL_SV06_RTS)
           Update_Time_Value = RTS_UPDATE_VALUE;
-          if (IS_SD_PRINTING()) {
-            rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
-            rts.gotoPage(11, 66);
-          }
-          start_print_flag = 0;
+          if (IS_SD_PRINTING()) rts.refreshTime();
+          start_print_flag = false;
         #else
           ui.reset_status();
         #endif

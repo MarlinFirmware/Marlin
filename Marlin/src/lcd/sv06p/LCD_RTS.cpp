@@ -51,11 +51,10 @@ RTS rts;
 #include "../../feature/powerloss.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../feature/tmc_util.h"
-#include "../../gcode/parser.h"
 #include "../../gcode/queue.h"
 #include "../../gcode/gcode.h"
-#include "../marlinui.h"
-#include "../utf8.h"
+//#include "../marlinui.h"
+//#include "../utf8.h"
 #include "../../libs/BL24CXX.h"
 
 #if ENABLED(FIX_MOUNTED_PROBE)
@@ -64,25 +63,21 @@ RTS rts;
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
-#define CHECKFILAMENT false
+
+//#define CHECKFILAMENT
 
 float zprobe_zoffset;
 float last_zoffset = 0.0;
 
-const float custom_feedrate_mm_m[] = { 50*60, 50*60, 4*60, 60 };
-
 int startprogress = 0;
 CRec CardRecbuf;
-float pause_z = 0;
-float pause_e = 0;
 bool sdcard_pause_check = true;
-bool print_preheat_check = false;
 
 float ChangeFilament0Temp = 200;
 
 int StartFlag = 0;
 int print_flag = 0;
-int start_print_flag = 0;
+bool start_print_flag = false;
 
 int heatway = 0;
 millis_t next_rts_update_ms = 0;
@@ -128,7 +123,7 @@ char cmd[MAX_CMD_SIZE + 16];
 
 inline void RTS_line_to_current(const AxisEnum axis) {
   if (!planner.is_full())
-    planner.buffer_line(current_position, MMM_TO_MMS(custom_feedrate_mm_m[axis]), active_extruder);
+    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
 }
 
 RTS::RTS() {
@@ -275,7 +270,7 @@ void RTS::init() {
         showcount++;
       }
     }
-    queue.enqueue_now_P(PSTR("M420 S1"));
+    queue.enqueue_now(F("M420 S1"));
   #endif
   last_zoffset = zprobe_zoffset = probe.offset.z;
   sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
@@ -290,16 +285,15 @@ void RTS::init() {
   sendData(1, MOTOR_FREE_ICON_VP);
 
   /***************transmit temperature to screen*****************/
-  sendData(0, HEAD0_SET_TEMP_VP);
-  sendData(0, BED_SET_TEMP_VP);
   updateTempE0();
+  updateTempBed();
 
   /***************transmit Fan speed to screen*****************/
   // turn off fans
   thermalManager.zero_fan_speeds();
-  // queue.enqueue_now_P(PSTR("M107"));
-  // sendData(1, HEAD0_FAN_ICON_VP);
-  sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+  //queue.enqueue_now(F("M107"));
+  //sendData(1, HEAD0_FAN_ICON_VP);
+  updateFan0();
 
   delay(5);
 
@@ -444,7 +438,7 @@ void RTS::sendData(void) {
   }
 }
 
-void RTS::sendData(const String &s, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+void RTS::sendData(const String &s, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
   if (s.length() < 1) return;
   sendData(s.c_str(), addr, cmd);
 }
@@ -468,7 +462,7 @@ void RTS::sendData(const char *str, unsigned long addr, unsigned char cmd/*= Var
   }
 }
 
-void RTS::sendData(char c, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+void RTS::sendData(char c, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
   snddat.command = cmd;
   snddat.addr = addr;
   snddat.data[0] = (unsigned long)c;
@@ -479,7 +473,7 @@ void RTS::sendData(char c, unsigned long addr, unsigned char cmd /*= VarAddr_W*/
 
 void RTS::sendData(unsigned char *str, unsigned long addr, unsigned char cmd) { sendData((char *)str, addr, cmd); }
 
-void RTS::sendData(int n, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+void RTS::sendData(int n, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -510,7 +504,7 @@ void RTS::sendData(float n, unsigned long addr, unsigned char cmd) { sendData((i
 
 void RTS::sendData(long n, unsigned long addr, unsigned char cmd) { sendData((unsigned long)n, addr, cmd); }
 
-void RTS::sendData(unsigned long n, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+void RTS::sendData(unsigned long n, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -540,9 +534,9 @@ void RTS::sdCardStop() {
   print_job_timer.reset();
 
   thermalManager.setTargetHotend(0, 0);
-  sendData(0, HEAD0_SET_TEMP_VP);
   thermalManager.setTargetBed(0);
-  sendData(0, BED_SET_TEMP_VP);
+  updateTempE0();
+  updateTempBed();
   thermalManager.zero_fan_speeds();
   wait_for_heatup = wait_for_user = false;
   poweroff_continue = false;
@@ -550,11 +544,11 @@ void RTS::sdCardStop() {
     if (CardReader::flag.mounted) card.removeJobRecoveryFile();
   #endif
   #ifdef EVENT_GCODE_SD_STOP
-    queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+    queue.inject(F(EVENT_GCODE_SD_STOP));
   #endif
 
   // shut down the stepper motor.
-  // queue.enqueue_now_P(PSTR("M84"));
+  //queue.enqueue_now(F("M84"));
   sendData(0, MOTOR_FREE_ICON_VP);
 
   sendData(0, PRINT_PROCESS_ICON_VP);
@@ -620,8 +614,8 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 3) { //进入调平界面
         waitway = 6;
-        queue.enqueue_now_P(PSTR("G28\nG1 F200 Z0.0"));
-        sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+        queue.enqueue_now(F("G28\nG1 F200 Z0.0"));
+        updateFan0();
         sendData(1, Wait_VP);
         gotoPage(32, 87);
       }
@@ -629,7 +623,7 @@ void RTS::handleData() {
         gotoPage(21, 76);
       }
       else if (recdat.data[0] == 5) { //进入温度界面
-        sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+        updateFan0();
         gotoPage(15, 70);
       }
       else if (recdat.data[0] == 6) { // Light mode
@@ -650,21 +644,20 @@ void RTS::handleData() {
 
     case AdjustmentKey:  //调整界面
       if (recdat.data[0] == 1) { //进入调整界面
-        sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+        updateFan0();
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
         gotoPage(28, 83);
       }
       else if (recdat.data[0] == 2) { //返回打印界面
-        if (start_print_flag == 1) {
+        if (start_print_flag) {
           gotoPage(10, 65);
         }
-        else if (sdcard_pause_check == false) {
+        else if (!sdcard_pause_check) {
           gotoPage(12, 67);
         }
         else {
-          sendData(1, dark_mode ? Time_VP : Time1_VP);
-          gotoPage(11, 66);
-          start_print_flag = 0;
+          refreshTime();
+          start_print_flag = false;
         }
       }
       else if (recdat.data[0] == 4) {
@@ -676,7 +669,7 @@ void RTS::handleData() {
     case Fan_speed: // 设置风扇速度
       fan_speed = recdat.data[0];
       thermalManager.set_fan_speed(0, fan_speed);
-      sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+      updateFan0();
       break;
 
     case PrintSpeedKey: // 设置打印速度
@@ -697,16 +690,15 @@ void RTS::handleData() {
         Update_Time_Value = 0;
       }
       else if (recdat.data[0] == 0xF0) {
-        if (start_print_flag == 1) {
+        if (start_print_flag) {
           gotoPage(10, 65);
         }
-        else if (sdcard_pause_check == false) {
+        else if (!sdcard_pause_check) {
           gotoPage(12, 67);
         }
         else {
-          sendData(1, dark_mode ? Time_VP : Time1_VP);
-          gotoPage(11, 66);
-          start_print_flag = 0;
+          refreshTime();
+          start_print_flag = false;
         }
       }
       break;
@@ -720,7 +712,6 @@ void RTS::handleData() {
         // reject to receive cmd
         change_page_number = 12;
         waitway = 1;
-        pause_z = current_position.z;
         card.pauseSDPrint();
         pause_action_flag = true;
         pause_flag = true;
@@ -732,11 +723,7 @@ void RTS::handleData() {
 
     case ResumePrintKey: // 恢复打印
       if (recdat.data[0] == 1) { // 暂停恢复打印
-        #if ENABLED(CHECKFILAMENT)
-          if (runout.filament_ran_out) {
-            gotoPage(39, 94);
-          }
-        #endif
+        if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(39, 94);
         //sendData(1, Wait_VP);
         //gotoPage(40, 95);
         card.startOrResumeFilePrinting();
@@ -744,8 +731,7 @@ void RTS::handleData() {
         sdcard_pause_check = true;
         pause_action_flag = false;
         pause_flag = false;
-        sendData(1, dark_mode ? Time_VP : Time1_VP);
-        gotoPage(11, 66);
+        refreshTime();
         print_flag = 2;
       }
       else if (recdat.data[0] == 2) {
@@ -762,8 +748,7 @@ void RTS::handleData() {
             Update_Time_Value = 0;
             pause_action_flag = false;
             sdcard_pause_check = true;
-            sendData(1, dark_mode ? Time_VP : Time1_VP);
-            gotoPage(11, 66);
+            refreshTime();
             print_flag = 2;
           }
         #endif
@@ -771,32 +756,21 @@ void RTS::handleData() {
       else if (recdat.data[0] == 3) { // 断电续打恢复打印
         if (poweroff_continue) {
           #if ENABLED(CHECKFILAMENT)
-            if (runout.filament_ran_out) {
-              sendData(0, CHANGE_FILAMENT_ICON_VP);
-            }
-            else {
-              sendData(1, CHANGE_FILAMENT_ICON_VP);
-            }
+            sendData(runout.filament_ran_out ? 0 : 1, CHANGE_FILAMENT_ICON_VP);
             gotoPage(8, 63);
           #endif
         }
         else if (poweroff_continue == false) {
-          #if ENABLED(CHECKFILAMENT)
-            if (runout.filament_ran_out) {
-              gotoPage(39, 94);
-              break;
-            }
-          #endif
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) { gotoPage(39, 94); break; }
 
           char cmd[30];
           char *c;
           sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[FilenamesCount]);
-          for (c = &cmd[4]; *c; c++)
-            *c = tolower(*c);
-
+          for (c = &cmd[4]; *c; c++) *c = tolower(*c);
           queue.enqueue_one_now(cmd);
           delay(20);
-          queue.enqueue_now_P(PSTR("M24"));
+          queue.enqueue_now(F("M24"));
+
           // clean screen.
           for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
@@ -819,10 +793,7 @@ void RTS::handleData() {
           gotoPage(46, 101);
         }
         else {
-          #if ENABLED(CHECKFILAMENT)
-            if (runout.filament_ran_out)
-              gotoPage(39, 94);
-          #endif
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(39, 94);
           sendData(1, Wait_VP);
           gotoPage(40, 95);
           card.startOrResumeFilePrinting();
@@ -834,8 +805,7 @@ void RTS::handleData() {
             if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
               rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
 
-          sendData(1, dark_mode ? Time_VP : Time1_VP);
-          gotoPage(11, 66);
+          refreshTime();
         }
       }
       break;
@@ -864,13 +834,13 @@ void RTS::handleData() {
         #if FAN_COUNT > 0
           FANS_LOOP(i) thermalManager.set_fan_speed(i, 255);
         #endif
-        sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+        updateFan0();
         thermalManager.setTargetHotend(0, 0);
-        sendData(0, HEAD0_SET_TEMP_VP); delay(1);
+        updateTempE0(); delay(1);
 
         #if HAS_HEATED_BED
           thermalManager.setTargetBed(0);
-          sendData(0, BED_SET_TEMP_VP); delay(1);
+          updateTempBed(); delay(1);
         #endif
 
         gotoPage(15, 70);
@@ -914,14 +884,14 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 4) {
         waitway = 4;
-        queue.enqueue_now_P(PSTR("G28"));
+        queue.enqueue_now(F("G28"));
         Update_Time_Value = 0;
         sendData(1, Wait_VP);
         gotoPage(32, 87);
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 5) { // 解锁电机
-        queue.enqueue_now_P(PSTR("M84"));
+        queue.enqueue_now(F("M84"));
         sendData(1, MOTOR_FREE_ICON_VP);
       }
       break;
@@ -938,10 +908,9 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 3) { // 进入移动界面
         AxisUnitMode = 1;
-        sendData(10 * current_position.x, AXIS_X_COORD_VP);
-        sendData(10 * current_position.y, AXIS_Y_COORD_VP);
-        sendData(10 * current_position.z, AXIS_Z_COORD_VP);
-
+        TERN_(HAS_X_AXIS, sendData(10 * current_position.x, AXIS_X_COORD_VP));
+        TERN_(HAS_Y_AXIS, sendData(10 * current_position.y, AXIS_Y_COORD_VP));
+        TERN_(HAS_Z_AXIS, sendData(10 * current_position.z, AXIS_Z_COORD_VP));
         gotoPage(29, 84);
       }
       else if (recdat.data[0] == 4) { // 进入高级设置界面
@@ -980,18 +949,18 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // 保存按钮
         settings.save();
         waitway = 6;
-        queue.enqueue_now_P(PSTR("G28 Z"));
-        queue.enqueue_now_P(PSTR("G1 F200 Z0.0"));
+        queue.enqueue_now(F("G28 Z"));
+        queue.enqueue_now(F("G1 F200 Z0.0"));
       }
       else if (recdat.data[0] == 4) {
-        queue.enqueue_now_P(PSTR("G34"));
-        queue.enqueue_now_P(PSTR("G1 F200 Z0.0"));
+        queue.enqueue_now(F("G34"));
+        queue.enqueue_now(F("G1 F200 Z0.0"));
       }
       else if (recdat.data[0] == 5) {
         #if ENABLED(FIX_MOUNTED_PROBE)
           waitway = 3;
           sendData(1, AUTO_BED_LEVEL_ICON_VP);
-          queue.enqueue_now_P(PSTR("G29"));
+          queue.enqueue_now(F("G29"));
         #endif
       }
 
@@ -1000,52 +969,54 @@ void RTS::handleData() {
       sendData(0, MOTOR_FREE_ICON_VP);
       break;
 
-    case XaxismoveKey: {
-      waitway = 4;
-      constexpr float x_min = X_MIN_POS, x_max = X_MAX_POS;
-      current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) / 10.0f;
-      LIMIT(current_position.x, x_min, x_max);
-      RTS_line_to_current(X_AXIS);
-      sendData(10 * current_position.x, AXIS_X_COORD_VP);
-      sendData(0, MOTOR_FREE_ICON_VP);
-      waitway = 0;
-    } break;
+    #if HAS_X_AXIS
+      case XaxismoveKey: {
+        waitway = 4;
+        constexpr float x_min = X_MIN_POS, x_max = X_MAX_POS;
+        current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) / 10.0f;
+        LIMIT(current_position.x, x_min, x_max);
+        RTS_line_to_current(X_AXIS);
+        sendData(10 * current_position.x, AXIS_X_COORD_VP);
+        sendData(0, MOTOR_FREE_ICON_VP);
+        waitway = 0;
+      } break;
+    #endif
 
-    case YaxismoveKey: {
-      waitway = 4;
-      constexpr float y_min = Y_MIN_POS, y_max = Y_MAX_POS;
-      current_position.y = float(recdat.data[0]) / 10.0f;
-      LIMIT(current_position.y, y_min, y_max);
-      RTS_line_to_current(Y_AXIS);
-      sendData(10 * current_position.y, AXIS_Y_COORD_VP);
-      sendData(0, MOTOR_FREE_ICON_VP);
-      waitway = 0;
-    } break;
+    #if HAS_Y_AXIS
+      case YaxismoveKey: {
+        waitway = 4;
+        constexpr float y_min = Y_MIN_POS, y_max = Y_MAX_POS;
+        current_position.y = float(recdat.data[0]) / 10.0f;
+        LIMIT(current_position.y, y_min, y_max);
+        RTS_line_to_current(Y_AXIS);
+        sendData(10 * current_position.y, AXIS_Y_COORD_VP);
+        sendData(0, MOTOR_FREE_ICON_VP);
+        waitway = 0;
+      } break;
+    #endif
 
-    case ZaxismoveKey: {
-      waitway = 4;
-      constexpr float z_min = Z_MIN_POS, z_max = Z_MAX_POS;
-      current_position.z = ((float)recdat.data[0]) / 10;
-      if (current_position.z < z_min) {
-        current_position.z = z_min;
-      }
-      else if (current_position.z > z_max) {
-        current_position.z = z_max;
-      }
-      RTS_line_to_current(Z_AXIS);
-      sendData(10 * current_position.z, AXIS_Z_COORD_VP);
-      sendData(0, MOTOR_FREE_ICON_VP);
-      waitway = 0;
-    } break;
+    #if HAS_Z_AXIS
+      case ZaxismoveKey: {
+        waitway = 4;
+        constexpr float z_min = Z_MIN_POS, z_max = Z_MAX_POS;
+        current_position.z = ((float)recdat.data[0]) / 10;
+        if (current_position.z < z_min) {
+          current_position.z = z_min;
+        }
+        else if (current_position.z > z_max) {
+          current_position.z = z_max;
+        }
+        RTS_line_to_current(Z_AXIS);
+        sendData(10 * current_position.z, AXIS_Z_COORD_VP);
+        sendData(0, MOTOR_FREE_ICON_VP);
+        waitway = 0;
+      } break;
+    #endif
 
     case FilamentLoadKey: // 换料
       if (recdat.data[0] == 1) {
         if (!planner.has_blocks_queued()) {
-          #if ENABLED(CHECKFILAMENT)
-            if (runout.filament_ran_out) {
-              gotoPage(20, 75);
-            }
-          #endif
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
           current_position[E_AXIS] -= Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
@@ -1060,11 +1031,7 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 2) {
         if (!planner.has_blocks_queued()) {
-          #if ENABLED(CHECKFILAMENT)
-            if (runout.filament_ran_out) {
-              gotoPage(20, 75);
-            }
-          #endif
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
           current_position[E_AXIS] += Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
@@ -1085,7 +1052,6 @@ void RTS::handleData() {
       else if (recdat.data[0] == 5) {
         if (!planner.has_blocks_queued()) {
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
-          sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
           updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
@@ -1111,7 +1077,6 @@ void RTS::handleData() {
       else if (recdat.data[0] == 8) {
         if (!planner.has_blocks_queued()) {
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
-          sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
           updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
@@ -1122,14 +1087,7 @@ void RTS::handleData() {
 
     case FilamentCheckKey:
       if (recdat.data[0] == 1) {
-        #if ENABLED(CHECKFILAMENT)
-          if (runout.filament_ran_out) {
-            gotoPage(20, 75);
-          }
-          else {
-            gotoPage(23, 78);
-          }
-        #endif
+        TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? 20 : 23, runout.filament_ran_out ? 75 : 78));
       }
       else if (recdat.data[0] == 2) {
         gotoPage(21, 76);
@@ -1143,7 +1101,7 @@ void RTS::handleData() {
           power_off_type_yes = true;
           Update_Time_Value = 0;
           gotoPage(10, 65);
-          queue.enqueue_now_P(PSTR("M1000"));
+          queue.enqueue_now(F("M1000"));
 
           poweroff_continue = true;
           sdcard_pause_check = true;
@@ -1218,7 +1176,7 @@ void RTS::handleData() {
         #endif
         queue.enqueue_one_now(cmd);
         delay(20);
-        queue.enqueue_now_P(PSTR("M24"));
+        queue.enqueue_now(F("M24"));
         // clean screen.
         for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
@@ -1236,7 +1194,7 @@ void RTS::handleData() {
         gotoPage(10, 65);
         change_page_number = 11;
         Update_Time_Value = 0;
-        start_print_flag = 1;
+        start_print_flag = true;
         print_flag = 2;
       }
       else if (recdat.data[0] == 2)
@@ -1507,52 +1465,51 @@ void RTS::handleData() {
       break;
     case Current_X:
       sprintf_P(cmd, PSTR("M906 X%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Current_Y:
       sprintf_P(cmd, PSTR("M906 Y%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Current_Z:
       sprintf_P(cmd, PSTR("M906 Z%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Current_E:
       sprintf_P(cmd, PSTR("M906 E0%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Threshold_X:
       sprintf_P(cmd, PSTR("M913 X%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Threshold_Y:
       sprintf_P(cmd, PSTR("M913 Y%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Threshold_Z:
       sprintf_P(cmd, PSTR("M913 Z%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Threshold_E:
       sprintf_P(cmd, PSTR("M913 E0%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Sensorless_X:
       sprintf_P(cmd, PSTR("M914 X%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
     case Sensorless_Y:
       sprintf_P(cmd, PSTR("M914 Y%i"), recdat.data[0]);
-      queue.enqueue_now_P(cmd);
+      queue.enqueue_now(cmd);
       break;
 
     case ChangePageKey:
       if (change_page_number == 36 || change_page_number == 76) break;
 
       if (change_page_number == 11) {
-        sendData(1, dark_mode ? Time_VP : Time1_VP);
-        gotoPage(11, 66);
-        start_print_flag = 0;
+        refreshTime();
+        start_print_flag = false;
       }
       else if (change_page_number == 12) {
         gotoPage(12, 67);
@@ -1562,8 +1519,7 @@ void RTS::handleData() {
           if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
             rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
 
-        sendData(1, Time1_VP);
-        gotoPage(11, 66);
+        refreshTime();
       }
       else
         sendData(change_page_number + ExchangePageBase, ExchangepageAddr);
@@ -1608,7 +1564,7 @@ void RTS::handleData() {
 
       sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
 
-      sendData(thermalManager.fan_speed[0], Fan_speed_VP);
+      updateFan0();
       Percentrecord = card.percentDone() + 1;
       if (Percentrecord <= 100)
         rts.sendData((unsigned char)Percentrecord, PRINT_PROCESS_ICON_VP);
@@ -1642,6 +1598,10 @@ void RTS::updateTempBed() {
     sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
     sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
   #endif
+}
+
+void RTS::updateFan0() {
+  TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
 }
 
 void EachMomentUpdate() {
@@ -1679,7 +1639,7 @@ void EachMomentUpdate() {
         power_off_type_yes = true;
         Update_Time_Value = RTS_UPDATE_VALUE;
         change_page_number = dark_mode ? 1 : 56;
-        rts.sendData(ExchangePageBase + change_page_number, ExchangepageAddr);
+        rts.gotoPage(change_page_number);
       }
       return;
     }
@@ -1717,10 +1677,10 @@ void EachMomentUpdate() {
         }
       }
 
-      if (pause_action_flag && (false == sdcard_pause_check) && printingIsPaused() && !planner.has_blocks_queued()) {
+      if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
         pause_action_flag = false;
-        queue.enqueue_now_P(PSTR("G0 F3000 X0 Y0"));
-        queue.enqueue_now_P(PSTR("M18 S0"));
+        queue.enqueue_now(F("G0 F3000 X0 Y0"));
+        queue.enqueue_now(F("M18 S0"));
       }
 
       rts.sendData(10 * current_position.z, AXIS_Z_COORD_VP);
@@ -1741,9 +1701,7 @@ void EachMomentUpdate() {
         rts.sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
       }
 
-      #if ENABLED(CHECKFILAMENT)
-        rts.sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP);
-      #endif
+      TERN_(CHECKFILAMENT, rts.sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP));
     }
     next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
   }
@@ -1806,7 +1764,6 @@ void RTS_Update() {
           Checkfilenum = 0;
           Update_Time_Value = 0;
           sdcard_pause_check = false;
-          print_preheat_check = true;
           print_flag = 1;
         }
         else {
