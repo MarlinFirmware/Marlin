@@ -117,8 +117,6 @@ void BDS_Leveling::process() {
     tmp = BD_I2C_SENSOR.BD_i2c_read();
     if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && good_data(tmp)) {
       const float z_sensor = interpret(tmp);
-      //if (cur_z < -0.5f) config_state = BDS_IDLE;
-      //const float abs_z = ABS(current_position.z - cur_z);
       #if ENABLED(BABYSTEPPING)
         if (config_state > 0) {
           if (cur_z < config_state * 0.1f

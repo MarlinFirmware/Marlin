@@ -2140,9 +2140,10 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) {
         if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
         if (TERN0(PROBE_TARE, probe.tare())) return;
+        TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
-    TERN_(BD_SENSOR, if (axis == Z_AXIS) bdl.config_state = BDS_HOMING_Z);
+
     //
     // Back away to prevent an early sensorless trigger
     //
@@ -2390,6 +2391,10 @@ void prepare_line_to_destination() {
 
     #endif
 
+    #if BOTH(BD_SENSOR, HOMING_Z_WITH_PROBE)
+      if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
+    #endif
+
     // Put away the Z probe
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
@@ -2414,7 +2419,7 @@ void prepare_line_to_destination() {
     #if ENABLED(FWRETRACT)
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
-    TERN_(BD_SENSOR, if (axis == Z_AXIS) bdl.config_state = BDS_IDLE);
+
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
   } // homeaxis()
