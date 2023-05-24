@@ -170,7 +170,7 @@ void RTS::sdCardInit(void) {
       sendData(0, CardRecbuf.addr[j]);
     }
     for (int j = 0; j < 20; j++) {
-      // clean print file 清除打印界面中显示的文件名
+      // Clean print file 清除打印界面中显示的文件名
       sendData(0, PRINT_FILE_TEXT_VP + j);
     }
     lcd_sd_status = IS_SD_INSERTED();
@@ -555,8 +555,8 @@ void RTS::sdCardStop() {
   sendData(0, PRINT_PROCESS_VP);
   delay(2);
   for (int j = 0; j < 20; j++) {
-    sendData(0, PRINT_FILE_TEXT_VP + j);  // clean screen.
-    sendData(0, SELECT_FILE_TEXT_VP + j); // clean filename
+    sendData(0, PRINT_FILE_TEXT_VP + j);  // Clean screen
+    sendData(0, SELECT_FILE_TEXT_VP + j); // Clean filename
   }
 }
 
@@ -771,7 +771,7 @@ void RTS::handleData() {
           delay(20);
           queue.enqueue_now(F("M24"));
 
-          // clean screen.
+          // Clean screen
           for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
           sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
@@ -949,12 +949,10 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // 保存按钮
         settings.save();
         waitway = 6;
-        queue.enqueue_now(F("G28 Z"));
-        queue.enqueue_now(F("G1 F200 Z0.0"));
+        queue.enqueue_now(F("G28Z\nG1 F200 Z0.0"));
       }
       else if (recdat.data[0] == 4) {
-        queue.enqueue_now(F("G34"));
-        queue.enqueue_now(F("G1 F200 Z0.0"));
+        queue.enqueue_now(F("G34\nG1 F200 Z0.0"));
       }
       else if (recdat.data[0] == 5) {
         #if ENABLED(FIX_MOUNTED_PROBE)
@@ -972,9 +970,8 @@ void RTS::handleData() {
     #if HAS_X_AXIS
       case XaxismoveKey: {
         waitway = 4;
-        constexpr float x_min = X_MIN_POS, x_max = X_MAX_POS;
         current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) / 10.0f;
-        LIMIT(current_position.x, x_min, x_max);
+        LIMIT(current_position.x, X_MIN_POS, X_MAX_POS);
         RTS_line_to_current(X_AXIS);
         sendData(10 * current_position.x, AXIS_X_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
@@ -985,9 +982,8 @@ void RTS::handleData() {
     #if HAS_Y_AXIS
       case YaxismoveKey: {
         waitway = 4;
-        constexpr float y_min = Y_MIN_POS, y_max = Y_MAX_POS;
         current_position.y = float(recdat.data[0]) / 10.0f;
-        LIMIT(current_position.y, y_min, y_max);
+        LIMIT(current_position.y, Y_MIN_POS, Y_MAX_POS);
         RTS_line_to_current(Y_AXIS);
         sendData(10 * current_position.y, AXIS_Y_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
@@ -998,14 +994,8 @@ void RTS::handleData() {
     #if HAS_Z_AXIS
       case ZaxismoveKey: {
         waitway = 4;
-        constexpr float z_min = Z_MIN_POS, z_max = Z_MAX_POS;
-        current_position.z = ((float)recdat.data[0]) / 10;
-        if (current_position.z < z_min) {
-          current_position.z = z_min;
-        }
-        else if (current_position.z > z_max) {
-          current_position.z = z_max;
-        }
+        current_position.z = float(recdat.data[0]) / 10.0f;
+        LIMIT(current_position.z, Z_MIN_POS, Z_MAX_POS);
         RTS_line_to_current(Z_AXIS);
         sendData(10 * current_position.z, AXIS_Z_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
@@ -1014,10 +1004,11 @@ void RTS::handleData() {
     #endif
 
     case FilamentLoadKey: // 换料
-      if (recdat.data[0] == 1) {
-        if (!planner.has_blocks_queued()) {
+      switch (recdat.data[0]) {
+        case 1:
+          if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
-          current_position[E_AXIS] -= Filament0LOAD;
+          current_position.e -= Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
             sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
@@ -1027,12 +1018,12 @@ void RTS::handleData() {
             RTS_line_to_current(E_AXIS);
             sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
           }
-        }
-      }
-      else if (recdat.data[0] == 2) {
-        if (!planner.has_blocks_queued()) {
+          break;
+
+        case 2:
+          if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
-          current_position[E_AXIS] += Filament0LOAD;
+          current_position.e += Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
             sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
@@ -1042,48 +1033,47 @@ void RTS::handleData() {
             RTS_line_to_current(E_AXIS);
             sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
           }
-        }
-      }
-      else if (recdat.data[0] == 3) {
-        updateTempE0();
-        sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-        gotoPage(27, 82);
-      }
-      else if (recdat.data[0] == 5) {
-        if (!planner.has_blocks_queued()) {
-          thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
+          break;
+
+        case 3:
           updateTempE0();
-          gotoPage(26, 81);
-          heatway = 1;
-        }
-      }
-      else if (recdat.data[0] == 6) {
-        if (!planner.has_blocks_queued()) {
-          Filament0LOAD = 10;
           sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-          gotoPage(23, 78);
-        }
-      }
-      else if (recdat.data[0] == 4) {
-        if (!planner.has_blocks_queued()) {
+          gotoPage(27, 82);
+          break;
+
+        case 4:
+          if (planner.has_blocks_queued()) break;
           thermalManager.temp_hotend[0].target = 0;
           updateTempE0();
           gotoPage(23, 78);
           Filament0LOAD = 10;
           sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
           break;
-        }
-      }
-      else if (recdat.data[0] == 8) {
-        if (!planner.has_blocks_queued()) {
+
+        case 5: {
+          if (planner.has_blocks_queued()) break;
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
           updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
-        }
-        break;
+          break;
+
+        case 6:
+          if (planner.has_blocks_queued()) break;
+          Filament0LOAD = 10;
+          sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+          gotoPage(23, 78);
+          break;
+
+        case 8:
+          if (planner.has_blocks_queued()) break;
+          thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
+          updateTempE0();
+          gotoPage(26, 81);
+          heatway = 1;
+          break;
       }
-    break;
+      break;
 
     case FilamentCheckKey:
       if (recdat.data[0] == 1) {
@@ -1093,23 +1083,22 @@ void RTS::handleData() {
         gotoPage(21, 76);
         Filament0LOAD = 10;
       }
-    break;
+      break;
 
     case PowerContinuePrintKey: // 断电续打
       if (recdat.data[0] == 1) {
-        if (poweroff_continue) {
-          power_off_type_yes = true;
-          Update_Time_Value = 0;
-          gotoPage(10, 65);
-          queue.enqueue_now(F("M1000"));
+        if (!poweroff_continue) break;
+        power_off_type_yes = true;
+        Update_Time_Value = 0;
+        gotoPage(10, 65);
+        queue.enqueue_now(F("M1000"));
 
-          poweroff_continue = true;
-          sdcard_pause_check = true;
-          zprobe_zoffset = probe.offset.z;
-          sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
-          print_flag = 2;
-        }
+        poweroff_continue = true;
+        sdcard_pause_check = true;
+        zprobe_zoffset = probe.offset.z;
+        sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+        print_flag = 2;
       }
       else if (recdat.data[0] == 2) {
         Update_Time_Value = RTS_UPDATE_VALUE;
@@ -1134,83 +1123,84 @@ void RTS::handleData() {
         wait_for_heatup = wait_for_user = false;
         print_flag = 0;
       }
-    break;
+      break;
 
     case SelectFileKey:
-      if (sdDetected()) {
-        if (recdat.data[0] > CardRecbuf.Filesum) break;
+      if (!sdDetected()) break;
+      if (recdat.data[0] > CardRecbuf.Filesum) break;
 
-        CardRecbuf.recordcount = recdat.data[0] - 1;
-        for (int j = 0; j < 10; j ++) {
-          sendData(0, SELECT_FILE_TEXT_VP + j);
-          sendData(0, PRINT_FILE_TEXT_VP + j);
-        }
-        sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], SELECT_FILE_TEXT_VP);
-        sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
-        delay(2);
-        for (int j = 1;j <= CardRecbuf.Filesum;j ++) {
-          sendData((unsigned long)0x738E, FilenameNature + j * 16);
-        }
-        sendData((unsigned long)0x041F, FilenameNature + recdat.data[0] * 16);
-        sendData(1, FILE1_SELECT_ICON_VP + (recdat.data[0] - 1));
+      CardRecbuf.recordcount = recdat.data[0] - 1;
+      for (int j = 0; j < 10; j ++) {
+        sendData(0, SELECT_FILE_TEXT_VP + j);
+        sendData(0, PRINT_FILE_TEXT_VP + j);
       }
+      sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], SELECT_FILE_TEXT_VP);
+      sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+      delay(2);
+
+      for (int j = 1;j <= CardRecbuf.Filesum;j ++)
+        sendData((unsigned long)0x738E, FilenameNature + j * 16);
+
+      sendData((unsigned long)0x041F, FilenameNature + recdat.data[0] * 16);
+      sendData(1, FILE1_SELECT_ICON_VP + (recdat.data[0] - 1));
       break;
 
     case PrintFileKey: // 打印文件列表
-      if (recdat.data[0] == 1 && sdDetected()) {
-        if (CardRecbuf.recordcount < 0) break;
-        char cmd[30];
-        char *c;
-        sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
-        for (c = &cmd[4]; *c; c++) *c = tolower(*c);
+      switch (recdat.data[0]) {
+        case 1: {
+          if (!sdDetected()) break;
+          if (CardRecbuf.recordcount < 0) break;
+          char cmd[30];
+          char *c;
+          sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
+          for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
-        ZERO(cmdbuf);
-        strcpy(cmdbuf, cmd);
-        FilenamesCount = CardRecbuf.recordcount;
-        #if ENABLED(CHECKFILAMENT)
-          if (runout.filament_ran_out) {
-            gotoPage(39, 94);
-            sdcard_pause_check = false;
-            break;
-          }
-        #endif
-        queue.enqueue_one_now(cmd);
-        delay(20);
-        queue.enqueue_now(F("M24"));
-        // clean screen.
-        for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
+          ZERO(cmdbuf);
+          strncpy(cmdbuf, cmd, 29);
+          FilenamesCount = CardRecbuf.recordcount;
 
-        sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+          #if ENABLED(CHECKFILAMENT)
+            if (runout.filament_ran_out) {
+              gotoPage(39, 94);
+              sdcard_pause_check = false;
+              break;
+            }
+          #endif
 
-        delay(2);
+          queue.enqueue_one_now(cmd); delay(20);
+          queue.enqueue_now(F("M24"));
 
-        TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
+          // Clean screen
+          for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
-        feedrate_percentage = 100;
-        sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
-        zprobe_zoffset = last_zoffset;
-        sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        poweroff_continue = true;
-        gotoPage(10, 65);
-        change_page_number = 11;
-        Update_Time_Value = 0;
-        start_print_flag = true;
-        print_flag = 2;
+          sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+          delay(2);
+
+          TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
+
+          feedrate_percentage = 100;
+          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+          #if HAS_BED_PROBE
+            zprobe_zoffset = last_zoffset;
+            sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+          #endif
+
+          poweroff_continue = true;
+          gotoPage(10, 65);
+          change_page_number = 11;
+          Update_Time_Value = 0;
+          start_print_flag = true;
+          print_flag = 2;
+        } break;
+
+        case 2: gotoPage(3, 58); break;
+        case 3: gotoPage(2, 57); break;
+        case 4: gotoPage(4, 59); break;
+        case 5: gotoPage(3, 58); break;
+        case 6: gotoPage(5, 60); break;
+        case 7: gotoPage(4, 59); break;
+        case 8: gotoPage(1, 56); break;
       }
-      else if (recdat.data[0] == 2)
-        gotoPage(3, 58);
-      else if (recdat.data[0] == 3)
-        gotoPage(2, 57);
-      else if (recdat.data[0] == 4)
-        gotoPage(4, 59);
-      else if (recdat.data[0] == 5)
-        gotoPage(3, 58);
-      else if (recdat.data[0] == 6)
-        gotoPage(5, 60);
-      else if (recdat.data[0] == 7)
-        gotoPage(4, 59);
-      else if (recdat.data[0] == 8)
-        gotoPage(1, 56);
       break;
 
     case StoreMemoryKey: // 初始化
@@ -1252,277 +1242,271 @@ void RTS::handleData() {
       break;
 
     case AdvancedKey: // 高级设置界面
-      if (recdat.data[0] == 1) { //PID
-        float hot_p,hot_i,hot_d,bed_p,bed_i,bed_d;
-        hot_p = thermalManager.temp_hotend[0].pid.p() * 100.0f;
-        hot_i = (thermalManager.temp_hotend[0].pid.i() / 8.0f * 10000.0f) + 0.00001f;
-        hot_d = thermalManager.temp_hotend[0].pid.d() * 8.0f;
+      switch (recdat.data[0]) {
+        case 1: { // PID
+          #if ENABLED(PIDTEMP)
+            const float hot_p = thermalManager.temp_hotend[0].pid.p() * 100.0f,
+                        hot_i = (thermalManager.temp_hotend[0].pid.i() / 8.0f * 10000.0f) + 0.00001f,
+                        hot_d = thermalManager.temp_hotend[0].pid.d() * 8.0f,
+            sendData(hot_p, Nozzle_P_VP);
+            sendData(hot_i, Nozzle_I_VP);
+            sendData(hot_d, Nozzle_D_VP);
+          #endif
 
-        bed_p = thermalManager.temp_bed.pid.Kp * 100.0f;
-        bed_i = (thermalManager.temp_bed.pid.Ki / 8.0f * 10000.0f) + 0.0001f;
-        bed_d = thermalManager.temp_bed.pid.Kd * 0.8f;
+          #if ENABLED(PIDTEMPBED)
+            const float bed_p = thermalManager.temp_bed.pid.Kp * 100.0f,
+                        bed_i = (thermalManager.temp_bed.pid.Ki / 8.0f * 10000.0f) + 0.0001f,
+                        bed_d = thermalManager.temp_bed.pid.Kd * 0.8f;
 
-        sendData(hot_p, Nozzle_P_VP);
-        sendData(hot_i, Nozzle_I_VP);
-        sendData(hot_d, Nozzle_D_VP);
-        sendData(bed_p, Hot_Bed_P_VP);
-        sendData(bed_i, Hot_Bed_I_VP);
-        sendData(bed_d, Hot_Bed_D_VP);
-        gotoPage(41, 96);
-      }
-      else if (recdat.data[0] == 2) { // 速度
-        sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP);
-        sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP);
-        sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP);
-        sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP);
-        gotoPage(25, 80);
-      }
-      else if (recdat.data[0] == 3) { // 加速度
-        sendData(planner.settings.acceleration, Accel_VP);
-        sendData(planner.settings.retract_acceleration, A_Retract_VP);
-        sendData(planner.settings.travel_acceleration, A_Travel_VP);
-        sendData(planner.settings.max_acceleration_mm_per_s2[X_AXIS], Amax_X_VP);
-        sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP);
-        sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP);
-        sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
-        gotoPage(34, 89);
-      }
-      else if (recdat.data[0] == 4) { // Jrek
-        sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP);
-        sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP);
-        sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP);
-        sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP);
-        gotoPage(35, 90);
-      }
-      else if (recdat.data[0] == 5) { // Steps
-        sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP);
-        sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP);
-        sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP);
-        sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP);
-        gotoPage(37, 92);
-      }
-      else if (recdat.data[0] == 6) { // 返回
-        gotoPage(21, 76);
-      }
-      else if (recdat.data[0] == 7) { // 确认
-        sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
-        gotoPage(18, 73);
-      }
-      else if (recdat.data[0] == 8) { // TMC
-        gotoPage(113, 119);
-      }
-      else if (recdat.data[0] == 9) { // 保存
-        settings.save();
-      }
-      break;
-    case Nozzle_P:
-      SET_HOTEND_PID(Kp, 0, float(recdat.data[0]) / 100.0f);
-      thermalManager.updatePID();
-      break;
-    case Nozzle_I:
-      SET_HOTEND_PID(Ki, 0, float(recdat.data[0]) * 8.0f / 10000.0f);
-      thermalManager.updatePID();
-      break;
-    case Nozzle_D:
-      SET_HOTEND_PID(Kd, 0, float(recdat.data[0]) / 8.0f);
-      thermalManager.updatePID();
-      break;
-    case Hot_Bed_P:
-      thermalManager.temp_bed.pid.Kp = float(recdat.data[0]) / 100.0f;
-      thermalManager.updatePID();
-      break;
-    case Hot_Bed_I:
-      thermalManager.temp_bed.pid.Ki = float(recdat.data[0]) * 8.0f / 10000.0f;
-      thermalManager.updatePID();
-      break;
-    case Hot_Bed_D:
-      thermalManager.temp_bed.pid.Kd = float(recdat.data[0]) / 0.8f;
-      thermalManager.updatePID();
-      break;
-    case Vmax_X:
-      planner.settings.max_feedrate_mm_s[X_AXIS] = recdat.data[0];
-      break;
-    case Vmax_Y:
-      planner.settings.max_feedrate_mm_s[Y_AXIS] = recdat.data[0];
-      break;
-    case Vmax_Z:
-      planner.settings.max_feedrate_mm_s[Z_AXIS] = recdat.data[0];
-      break;
-    case Vmax_E:
-      planner.settings.max_feedrate_mm_s[E_AXIS] = recdat.data[0];
-      break;
-    case Accel:
-      planner.settings.acceleration = recdat.data[0];
-      break;
-    case A_Retract:
-      planner.settings.retract_acceleration = recdat.data[0];
-      break;
-    case A_Travel:
-      planner.settings.travel_acceleration = recdat.data[0];
-      break;
-    case Amax_X:
-      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = recdat.data[0];
-      break;
-    case Amax_Y:
-      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = recdat.data[0];
-      break;
-    case Amax_Z:
-      planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = recdat.data[0];
-      break;
-    case Amax_E:
-      planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0];
-      break;
-    case Jerk_X:
-      planner.max_jerk[X_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Jerk_Y:
-      planner.max_jerk[Y_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Jerk_Z:
-      planner.max_jerk[Z_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Jerk_E:
-      planner.max_jerk[E_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Steps_X:
-      planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Steps_Y:
-      planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Steps_Z:
-      planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case Steps_E:
-      planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f;
-      break;
-    case AdvancedBackKey:
-      gotoPage(18, 73);
-      break;
-    case Advance_K:
-      planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f;
+            sendData(bed_p, Hot_Bed_P_VP);
+            sendData(bed_i, Hot_Bed_I_VP);
+            sendData(bed_d, Hot_Bed_D_VP);
+          #endif
+          gotoPage(41, 96);
+        } break;
+
+        case 2: // 速度
+          TERN_(HAS_X_AXIS,    sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
+          TERN_(HAS_Y_AXIS,    sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
+          TERN_(HAS_Z_AXIS,    sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
+          TERN_(HAS_EXTRUDERS, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
+          gotoPage(25, 80);
+          break;
+
+        case 3: // 加速度
+          sendData(planner.settings.acceleration, Accel_VP);
+          sendData(planner.settings.travel_acceleration, A_Travel_VP);
+
+          TERN_(HAS_X_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[X_AXIS], Amax_X_VP));
+          TERN_(HAS_Y_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP));
+          TERN_(HAS_Z_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP));
+          #if HAS_EXTRUDERS
+            sendData(planner.settings.retract_acceleration, A_Retract_VP);
+            sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
+          #endif
+          gotoPage(34, 89);
+          break;
+
+        #if HAS_CLASSIC_JERK
+          case 4: // Jerk
+            TERN_(HAS_X_AXIS,    sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
+            TERN_(HAS_Y_AXIS,    sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
+            TERN_(HAS_Z_AXIS,    sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
+            TERN_(HAS_EXTRUDERS, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
+            gotoPage(35, 90);
+            break;
+        #endif
+
+        case 5: // Steps
+          TERN_(HAS_X_AXIS,    sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP));
+          TERN_(HAS_Y_AXIS,    sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
+          TERN_(HAS_Z_AXIS,    sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
+          TERN_(HAS_EXTRUDERS, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
+          gotoPage(37, 92);
+          break;
+
+        case 6: gotoPage(21, 76); break;  // 返回
+
+        #if ENABLED(LIN_ADVANCE)
+          case 7: // 确认
+            sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
+            gotoPage(18, 73);
+            break;
+        #endif
+
+        case 8: gotoPage(113, 119); break;  // TMC
+
+        #if ENABLED(EEPROM_SETTINGS)
+          case 9: settings.save(); break;     // 保存
+        #endif
       break;
 
-    case FilamentChange: // 自动换料
-      if ((recdat.data[0] == 1 && !runout.filament_ran_out) || recdat.data[0] == 2) {
-        updateTempE0();
-        wait_for_heatup = wait_for_user = false;
-      }
-      else if (recdat.data[0] == 3) {
-        pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
-      }
-      else if (recdat.data[0] == 4) {
-        pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-      }
-      break;
+    #if ENABLED(PIDTEMP)
+      case Nozzle_P: SET_HOTEND_PID(Kp, 0, float(recdat.data[0]) / 100.0f); thermalManager.updatePID(); break;
+      case Nozzle_I: SET_HOTEND_PID(Ki, 0, float(recdat.data[0]) * 8.0f / 10000.0f); thermalManager.updatePID(); break;
+      case Nozzle_D: SET_HOTEND_PID(Kd, 0, float(recdat.data[0]) / 8.0f); thermalManager.updatePID(); break;
+    #endif
 
-    case ZoffsetUnitKey: // Zoffset unit
-      if (recdat.data[0] == 1)
-        gotoPage(28, 83);
-      else if (recdat.data[0] == 2)
-        gotoPage(14, 69);
-      if (recdat.data[0] == 3)
-        gotoPage(111, 117);
-      else if (recdat.data[0] == 4)
-        gotoPage(22, 77);
-      break;
+    #if ENABLED(PIDTEMPBED)
+      case Hot_Bed_P: thermalManager.temp_bed.pid.Kp = float(recdat.data[0]) / 100.0f; break;
+      case Hot_Bed_I: thermalManager.temp_bed.pid.Ki = float(recdat.data[0]) * 8.0f / 10000.0f; break;
+      case Hot_Bed_D: thermalManager.temp_bed.pid.Kd = float(recdat.data[0]) / 0.8f; break;
+    #endif
 
-    case ZOffsetKey:
-        last_zoffset = zprobe_zoffset;
-        zprobe_zoffset = float(recdat.data[0] >= 32767 ? recdat.data[0] - 65537 : recdat.data[0]) / 100.0f + 0.0001f;
-        if (WITHIN(zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-          babystep.add_mm(Z_AXIS, zprobe_zoffset - last_zoffset);
-        probe.offset.z = zprobe_zoffset;
-        sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-      break;
+    #if HAS_X_AXIS
+      case Vmax_X: planner.settings.max_feedrate_mm_s[X_AXIS] = recdat.data[0]; break;
+      case Amax_X: planner.settings.max_acceleration_mm_per_s2[X_AXIS] = recdat.data[0]; break;
+      case Steps_X: planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      #if ENABLED(CLASSIC_JERK)
+        case Jerk_X: planner.max_jerk.x = float(recdat.data[0]) / 10.0f; break;
+      #endif
+    #endif
+    #if HAS_Y_AXIS
+      case Vmax_Y: planner.settings.max_feedrate_mm_s[Y_AXIS] = recdat.data[0]; break;
+      case Amax_Y: planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = recdat.data[0]; break;
+      case Steps_Y: planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      #if ENABLED(CLASSIC_JERK)
+        case Jerk_Y: planner.max_jerk.y = float(recdat.data[0]) / 10.0f; break;
+      #endif
+    #endif
+    #if HAS_Z_AXIS
+      case Vmax_Z: planner.settings.max_feedrate_mm_s[Z_AXIS] = recdat.data[0]; break;
+      case Amax_Z: planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = recdat.data[0]; break;
+      case Steps_Z: planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      #if ENABLED(CLASSIC_JERK)
+        case Jerk_Z: planner.max_jerk.z = float(recdat.data[0]) / 10.0f; break;
+      #endif
+    #endif
+    #if HAS_EXTRUDERS
+      case Vmax_E: planner.settings.max_feedrate_mm_s[E_AXIS] = recdat.data[0]; break;
+      case Amax_E: planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0]; break;
+      case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      #if ENABLED(CLASSIC_JERK)
+        case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) / 10.0f; break;
+      #endif
+      case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
+      #if ENABLED(LIN_ADVANCE)
+        case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
+      #endif
+    #endif
+    case Accel: planner.settings.acceleration = recdat.data[0]; break;
+    case A_Travel: planner.settings.travel_acceleration = recdat.data[0]; break;
 
-    case TMCDriver:
-      if (recdat.data[0] == 1) { // current
-        sendData(stepperX.getMilliamps(), Current_X_VP);
-        sendData(stepperY.getMilliamps(), Current_Y_VP);
-        sendData(stepperZ.getMilliamps(), Current_Z_VP);
-        sendData(stepperE0.getMilliamps(), Current_E_VP);
-        gotoPage(114, 120);
-      }
-      else if (recdat.data[0] == 2) { // threshold
-        sendData(stepperX.get_pwm_thrs(), Threshold_X_VP);
-        sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP);
-        sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP);
-        sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP);
-        gotoPage(115, 121);
-      }
-      else if (recdat.data[0] == 3) { // Sensorless
-        sendData(stepperX.homing_threshold(), Sensorless_X_VP);
-        sendData(stepperY.homing_threshold(), Sensorless_Y_VP);
-        gotoPage(116, 122);
-      }
-      else if (recdat.data[0] == 4) {
-        gotoPage(18, 73);
-      }
-      else if (recdat.data[0] == 5) {
-        gotoPage(113, 119);
-      }
-      break;
-    case Current_X:
-      sprintf_P(cmd, PSTR("M906 X%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Current_Y:
-      sprintf_P(cmd, PSTR("M906 Y%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Current_Z:
-      sprintf_P(cmd, PSTR("M906 Z%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Current_E:
-      sprintf_P(cmd, PSTR("M906 E0%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Threshold_X:
-      sprintf_P(cmd, PSTR("M913 X%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Threshold_Y:
-      sprintf_P(cmd, PSTR("M913 Y%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Threshold_Z:
-      sprintf_P(cmd, PSTR("M913 Z%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Threshold_E:
-      sprintf_P(cmd, PSTR("M913 E0%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Sensorless_X:
-      sprintf_P(cmd, PSTR("M914 X%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
-    case Sensorless_Y:
-      sprintf_P(cmd, PSTR("M914 Y%i"), recdat.data[0]);
-      queue.enqueue_now(cmd);
-      break;
+    case AdvancedBackKey: gotoPage(18, 73); break;
+
+    #if HAS_FILAMENT_SENSOR
+      case FilamentChange: // 自动换料
+        switch (recdat.data[0]) {
+          case 1: if (runout.filament_ran_out) break;
+          case 2:
+            updateTempE0();
+            wait_for_heatup = wait_for_user = false;
+            break;
+          case 3: pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; break;
+          case 4: pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; break;
+        }
+        break;
+    #endif
+
+    #if HAS_BED_PROBE
+      case ZoffsetUnitKey: // Zoffset unit
+        switch (recdat.data[0]) {
+          case 1: gotoPage(28, 83); break;
+          case 2: gotoPage(14, 69); break;
+          case 3: gotoPage(111, 117); break;
+          case 4: gotoPage(22, 77); break;
+        }
+        break;
+
+      case ZOffsetKey:
+          last_zoffset = zprobe_zoffset;
+          zprobe_zoffset = float(recdat.data[0] >= 32767 ? recdat.data[0] - 65537 : recdat.data[0]) / 100.0f + 0.0001f;
+          if (WITHIN(zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+            babystep.add_mm(Z_AXIS, zprobe_zoffset - last_zoffset);
+          probe.offset.z = zprobe_zoffset;
+          sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        break;
+    #endif
+
+    #if HAS_TRINAMIC_CONFIG
+
+      case TMCDriver:
+        switch (recdat.data[0]) {
+          case 1:  // Current
+            #if AXIS_IS_TMC(X)
+              sendData(stepperX.getMilliamps(), Current_X_VP);
+            #endif
+            #if AXIS_IS_TMC(Y)
+              sendData(stepperY.getMilliamps(), Current_Y_VP);
+            #endif
+            #if AXIS_IS_TMC(Z)
+              sendData(stepperZ.getMilliamps(), Current_Z_VP);
+            #endif
+            #if AXIS_IS_TMC(E0)
+              sendData(stepperE0.getMilliamps(), Current_E_VP);
+            #endif
+            gotoPage(114, 120);
+            break;
+
+          case 2:  // Threshold
+            TERN_(X_HAS_STEALTHCHOP,  sendData(stepperX.get_pwm_thrs(), Threshold_X_VP));
+            TERN_(Y_HAS_STEALTHCHOP,  sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP));
+            TERN_(Z_HAS_STEALTHCHOP,  sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP));
+            TERN_(E0_HAS_STEALTHCHOP, sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP));
+            gotoPage(115, 121);
+            break;
+
+          #if ENABLED(SENSORLESS_HOMING)
+            case 3:  // Sensorless
+              TERN_(X_SENSORLESS, sendData(stepperX.homing_threshold(), Sensorless_X_VP));
+              TERN_(Y_SENSORLESS, sendData(stepperY.homing_threshold(), Sensorless_Y_VP));
+              gotoPage(116, 122);
+              break;
+          #endif
+
+          case 4: gotoPage(18, 73); break;
+          case 5: gotoPage(113, 119); break;
+        }
+        break;
+
+      #if AXIS_IS_TMC(X)
+        case Current_X:    sprintf_P(cmd, PSTR("M906 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if X_HAS_STEALTHCHOP
+        case Threshold_X:  sprintf_P(cmd, PSTR("M913 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if X_SENSORLESS
+        case Sensorless_X: sprintf_P(cmd, PSTR("M914 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+
+      #if AXIS_IS_TMC(Y)
+        case Current_Y:    sprintf_P(cmd, PSTR("M906 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Y_HAS_STEALTHCHOP
+        case Threshold_Y:  sprintf_P(cmd, PSTR("M913 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Y_SENSORLESS
+        case Sensorless_Y: sprintf_P(cmd, PSTR("M914 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+
+      #if AXIS_IS_TMC(Z)
+        case Current_Z:    sprintf_P(cmd, PSTR("M906 Z%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Z_HAS_STEALTHCHOP
+        case Threshold_Z:  sprintf_P(cmd, PSTR("M913 Z%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+
+      #if AXIS_IS_TMC(E0)
+        case Current_E0:   sprintf_P(cmd, PSTR("M906 E%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if E0_HAS_STEALTHCHOP
+        case Threshold_E0: sprintf_P(cmd, PSTR("M913 E%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+
+    #endif // HAS_TRINAMIC_CONFIG
 
     case ChangePageKey:
-      if (change_page_number == 36 || change_page_number == 76) break;
+      switch (change_page_number) {
+        case 36: case 76: break;
 
-      if (change_page_number == 11) {
-        refreshTime();
-        start_print_flag = false;
-      }
-      else if (change_page_number == 12) {
-        gotoPage(12, 67);
-      }
-      else if ((change_page_number != 12) && (change_page_number != 11) && card.isPrinting()) {
-        for (uint16_t i = 0;i < CardRecbuf.Filesum; i++)
-          if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
-            rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
+        case 11:
+          refreshTime();
+          start_print_flag = false;
+          break;
 
-        refreshTime();
+        case 12: gotoPage(12, 67); break;
+
+        default:
+          if (card.isPrinting()) {
+            for (uint16_t i = 0;i < CardRecbuf.Filesum; i++)
+              if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
+                rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
+            refreshTime();
+          }
+          else
+            sendData(change_page_number + ExchangePageBase, ExchangepageAddr);
+          break;
       }
-      else
-        sendData(change_page_number + ExchangePageBase, ExchangepageAddr);
 
       for (int i = 0; i < MaxFileNumber; i ++)
         for (int j = 0; j < 20; j ++)
@@ -1534,13 +1518,11 @@ void RTS::handleData() {
       }
 
       for (int j = 0; j < 20; j ++) {
-        // clean screen.
-        sendData(0, PRINT_FILE_TEXT_VP + j);
-        // clean filename
-        sendData(0, SELECT_FILE_TEXT_VP + j);
+        sendData(0, PRINT_FILE_TEXT_VP + j);  // Clean screen
+        sendData(0, SELECT_FILE_TEXT_VP + j); // Clean filename
       }
 
-      // clean filename Icon
+      // Clean filename Icon
       for (int j = 0; j < 20; j ++)
         sendData(10, FILE1_SELECT_ICON_VP + j);
 
@@ -1679,8 +1661,7 @@ void EachMomentUpdate() {
 
       if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
         pause_action_flag = false;
-        queue.enqueue_now(F("G0 F3000 X0 Y0"));
-        queue.enqueue_now(F("M18 S0"));
+        queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
       }
 
       rts.sendData(10 * current_position.z, AXIS_Z_COORD_VP);
