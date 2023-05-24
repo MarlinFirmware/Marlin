@@ -148,7 +148,7 @@ void DGUSScreenHandler::Loop() {
   dgus_display.Loop();
 }
 
-void DGUSScreenHandler::PrinterKilled(FSTR_P const error, FSTR_P const component) {
+void DGUSScreenHandler::printerKilled(FSTR_P const error, FSTR_P const component) {
   SetMessageLine(error, 1);
   SetMessageLine(component, 2);
   SetMessageLinePGM(NUL_STR, 3);
@@ -271,7 +271,7 @@ void DGUSScreenHandler::PrintTimerStopped() {
   TriggerScreenChange(DGUS_Screen::PRINT_FINISHED);
 }
 
-void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
+void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
   char buffer[21];
 
   snprintf_P(buffer, sizeof(buffer), GET_TEXT(DGUS_MSG_FILAMENT_RUNOUT), extruder);

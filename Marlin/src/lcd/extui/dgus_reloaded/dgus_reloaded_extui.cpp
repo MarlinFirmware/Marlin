@@ -47,7 +47,7 @@ namespace ExtUI {
   }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    dgus_screen_handler.PrinterKilled(error, component);
+    dgus_screen_handler.printerKilled(error, component);
   }
 
   void onMediaInserted() { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardInserted()); }
@@ -71,7 +71,7 @@ namespace ExtUI {
   }
 
   void onFilamentRunout(const extruder_t extruder) {
-    dgus_screen_handler.FilamentRunout(extruder);
+    dgus_screen_handler.filamentRunout(extruder);
   }
 
   void onUserConfirmRequired(const char * const msg) {

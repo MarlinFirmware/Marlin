@@ -748,9 +748,9 @@ namespace Language_en {
   LSTR MSG_MMU2_EJECT_FILAMENT            = _UxGT("MMU Eject");
   LSTR MSG_MMU2_EJECT_FILAMENT_N          = _UxGT("MMU Eject ~");
   LSTR MSG_MMU2_UNLOAD_FILAMENT           = _UxGT("MMU Unload");
-  LSTR MSG_MMU2_LOADING_FILAMENT          = _UxGT("Loading Fil. %i...");
-  LSTR MSG_MMU2_EJECTING_FILAMENT         = _UxGT("Ejecting Fil. ...");
-  LSTR MSG_MMU2_UNLOADING_FILAMENT        = _UxGT("Unloading Fil....");
+  LSTR MSG_MMU2_LOADING_FILAMENT          = _UxGT("Filament %i Load...");
+  LSTR MSG_MMU2_EJECTING_FILAMENT         = _UxGT("Filament Eject...");
+  LSTR MSG_MMU2_UNLOADING_FILAMENT        = _UxGT("Filament Unload...");
   LSTR MSG_MMU2_ALL                       = _UxGT("All");
   LSTR MSG_MMU2_FILAMENT_N                = _UxGT("Filament ~");
   LSTR MSG_MMU2_RESET                     = _UxGT("Reset MMU");

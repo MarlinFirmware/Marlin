@@ -37,17 +37,17 @@ using namespace Anycubic;
 
 namespace ExtUI {
 
-  void onStartup() { Dgus.Startup(); }
+  void onStartup() { Dgus.startup(); }
 
-  void onIdle() { Dgus.IdleLoop(); }
+  void onIdle() { Dgus.idleLoop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    Dgus.PrinterKilled(error, component);
+    Dgus.printerKilled(error, component);
   }
 
-  void onMediaInserted() { Dgus.MediaEvent(AC_media_inserted); }
-  void onMediaError()    { Dgus.MediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { Dgus.MediaEvent(AC_media_removed);  }
+  void onMediaInserted() { Dgus.mediaEvent(AC_media_inserted); }
+  void onMediaError()    { Dgus.mediaEvent(AC_media_error);    }
+  void onMediaRemoved()  { Dgus.mediaEvent(AC_media_removed);  }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     #if ENABLED(SPEAKER)
@@ -55,15 +55,15 @@ namespace ExtUI {
     #endif
   }
 
-  void onPrintTimerStarted() { Dgus.TimerEvent(AC_timer_started); }
-  void onPrintTimerPaused()  { Dgus.TimerEvent(AC_timer_paused);  }
-  void onPrintTimerStopped() { Dgus.TimerEvent(AC_timer_stopped); }
+  void onPrintTimerStarted() { Dgus.timerEvent(AC_timer_started); }
+  void onPrintTimerPaused()  { Dgus.timerEvent(AC_timer_paused);  }
+  void onPrintTimerStopped() { Dgus.timerEvent(AC_timer_stopped); }
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { Dgus.FilamentRunout();             }
+  void onFilamentRunout(const extruder_t)            { Dgus.filamentRunout();             }
 
-  void onUserConfirmRequired(const char * const msg) { Dgus.ConfirmationRequest(msg);     }
-  void onStatusChanged(const char * const msg)       { Dgus.StatusChange(msg);            }
+  void onUserConfirmRequired(const char * const msg) { Dgus.confirmationRequest(msg);     }
+  void onStatusChanged(const char * const msg)       { Dgus.statusChange(msg);            }
 
   void onHomingStart()    { Dgus.HomingStart(); }
   void onHomingDone()     { Dgus.HomingComplete(); }
@@ -129,7 +129,7 @@ namespace ExtUI {
     // Called when power-loss state is detected
     void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss
-    void onPowerLossResume() { Dgus.PowerLossRecovery(); }
+    void onPowerLossResume() { Dgus.powerLossRecovery(); }
   #endif
 
   #if HAS_PID_HEATING
