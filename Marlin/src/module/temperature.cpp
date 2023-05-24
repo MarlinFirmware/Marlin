@@ -4455,7 +4455,7 @@ void Temperature::isr() {
         #elif ENABLED(SOVOL_SV06_RTS)
           Update_Time_Value = RTS_UPDATE_VALUE;
           if (IS_SD_PRINTING()) rts.refreshTime();
-          start_print_flag = false;
+          rts.start_print_flag = false;
         #else
           ui.reset_status();
         #endif

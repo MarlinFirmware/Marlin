@@ -33,7 +33,6 @@
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 #include "../../../module/probe.h"
-//#include "../../../module/settings.h"
 #include "../../../module/temperature.h"
 #include "../../queue.h"
 
@@ -949,9 +948,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
-  #if ENABLED(SOVOL_SV06_RTS)
-    RTS_AutoBedLevelPage();
-  #endif
+  TERN_(SOVOL_SV06_RTS, RTS_AutoBedLevelPage());
 
   probe.use_probing_tool(false);
 

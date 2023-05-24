@@ -21,175 +21,174 @@
  */
 #pragma once
 
-#include <string.h>
+#include <stdint.h>
 
 /*********************************/
 #define FHONE   (0x5A)
 #define FHTWO   (0xA5)
 #define FHLENG  (0x06)
-#define TEXTBYTELEN     20
-#define MaxFileNumber   20
 
-#define FileNum             MaxFileNumber
-#define FileNameLen         TEXTBYTELEN
+#define MAX_NUM_FILES       20
+#define FILENAME_LEN        20
 #define RTS_UPDATE_INTERVAL 2000
 #define RTS_UPDATE_VALUE    (2 * RTS_UPDATE_INTERVAL)
 
 #define DATA_BUF_SIZE       26
 
 /*************Register and Variable addr*****************/
-#define	RegAddr_W	0x80
-#define	RegAddr_R	0x81
-#define	VarAddr_W	0x82
-#define	VarAddr_R	0x83
-#define	ExchangePageBase    ((unsigned long)0x5A010000)     // the first page ID. other page = first page ID + relevant num;
-#define	StartSoundSet       ((unsigned long)0x060480A0)     // 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
-#define	Beep       					((unsigned long)0x02AF0100)
-#define	Beep1       				((unsigned long)0xFFFF0101)
-#define	FONT_EEPROM      90
+#define RegAddr_W 0x80
+#define RegAddr_R 0x81
+#define VarAddr_W 0x82
+#define VarAddr_R 0x83
+#define ExchangePageBase    0x5A010000UL  // the first page ID. other page = first page ID + relevant num;
+#define StartSoundSet       0x060480A0UL  // 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
+#define Beep                0x02AF0100UL
+#define Beep1               0xFFFF0101UL
+#define FONT_EEPROM 90
 
 /*variable addr*/
-#define	ExchangepageAddr	       0x0084
-#define	SoundAddr			           0x00A0
+#define ExchangepageAddr  0x0084
+#define SoundAddr         0x00A0
 
-#define START1_PROCESS_ICON_VP             0x1000
-#define PRINT_SPEED_RATE_VP                0x1006
-#define PRINT_PROCESS_ICON_VP              0x100E
-#define PRINT_TIME_HOUR_VP                 0x1010
-#define PRINT_TIME_MIN_VP                  0x1012
-#define PRINT_PROCESS_VP                   0x1016
-#define HEAD0_FAN_ICON_VP                  0x101E
-#define CHANGE_FILAMENT0_TEMP_VP           0x1020
-#define AUTO_BED_LEVEL_ZOFFSET_VP          0x1026
+#define START1_PROCESS_ICON_VP          0x1000
+#define PRINT_SPEED_RATE_VP             0x1006
+#define PRINT_PROCESS_ICON_VP           0x100E
+#define PRINT_TIME_HOUR_VP              0x1010
+#define PRINT_TIME_MIN_VP               0x1012
+#define PRINT_PROCESS_VP                0x1016
+#define HEAD0_FAN_ICON_VP               0x101E
+#define CHANGE_FILAMENT0_TEMP_VP        0x1020
+#define AUTO_BED_LEVEL_ZOFFSET_VP       0x1026
 
-#define HEAD0_SET_TEMP_VP                  0x1034
-#define HEAD0_CURRENT_TEMP_VP              0x1036
-#define BED_SET_TEMP_VP                    0x103A
-#define BED_CURRENT_TEMP_VP                0x103C
-#define AUTO_HOME_DISPLAY_ICON_VP          0x1042
-#define AXIS_X_COORD_VP                    0x1048
-#define AXIS_Y_COORD_VP                    0x104A
-#define AXIS_Z_COORD_VP                    0x104C
-#define HEAD0_FILAMENT_LOAD_DATA_VP        0x1054
-#define PRINTER_MACHINE_TEXT_VP            0x1060
-#define PRINTER_VERSION_TEXT_VP            0x106A
-#define PRINTER_PRINTSIZE_TEXT_VP          0x1074
-#define PRINTER_WEBSITE_TEXT_VP            0x107E
-#define MARLIN_VERSION_TEXT_VP             0x1088
-#define AUTO_BED_LEVEL_ICON_VP             0x108D
-#define CHANGE_FILAMENT_ICON_VP            0x108E
-#define TWO_EXTRUDER_HOTEND_XOFFSET_VP     0x1092
-#define TWO_EXTRUDER_HOTEND_YOFFSET_VP     0x1094
-#define TWO_EXTRUDER_HOTEND_ZOFFSET_VP     0x1096
-#define AUTO_BED_LEVEL_1POINT_VP           0x1100
+#define HEAD0_SET_TEMP_VP               0x1034
+#define HEAD0_CURRENT_TEMP_VP           0x1036
+#define BED_SET_TEMP_VP                 0x103A
+#define BED_CURRENT_TEMP_VP             0x103C
+#define AUTO_HOME_DISPLAY_ICON_VP       0x1042
+#define AXIS_X_COORD_VP                 0x1048
+#define AXIS_Y_COORD_VP                 0x104A
+#define AXIS_Z_COORD_VP                 0x104C
+#define HEAD0_FILAMENT_LOAD_DATA_VP     0x1054
+#define PRINTER_MACHINE_TEXT_VP         0x1060
+#define PRINTER_VERSION_TEXT_VP         0x106A
+#define PRINTER_PRINTSIZE_TEXT_VP       0x1074
+#define PRINTER_WEBSITE_TEXT_VP         0x107E
+#define MARLIN_VERSION_TEXT_VP          0x1088
+#define AUTO_BED_LEVEL_ICON_VP          0x108D
+#define CHANGE_FILAMENT_ICON_VP         0x108E
+#define TWO_EXTRUDER_HOTEND_XOFFSET_VP  0x1092
+#define TWO_EXTRUDER_HOTEND_YOFFSET_VP  0x1094
+#define TWO_EXTRUDER_HOTEND_ZOFFSET_VP  0x1096
+#define AUTO_BED_LEVEL_1POINT_VP        0x1100
 
-#define PRINT_SURPLUS_TIME_HOUR_VP         0x1162
-#define PRINT_SURPLUS_TIME_MIN_VP          0x1164
-#define SELECT_MODE_ICON_VP                0x1166
-#define CHANGE_SDCARD_ICON_VP              0x1168
+#define PRINT_SURPLUS_TIME_HOUR_VP      0x1162
+#define PRINT_SURPLUS_TIME_MIN_VP       0x1164
+#define SELECT_MODE_ICON_VP             0x1166
+#define CHANGE_SDCARD_ICON_VP           0x1168
 
-#define MOTOR_FREE_ICON_VP                 0x1200
-#define FILE1_SELECT_ICON_VP               0x1221
-#define FILE2_SELECT_ICON_VP               0x1222
-#define FILE3_SELECT_ICON_VP               0x1223
-#define FILE4_SELECT_ICON_VP               0x1224
-#define FILE5_SELECT_ICON_VP               0x1225
-#define FILE6_SELECT_ICON_VP               0x1226
-#define FILE7_SELECT_ICON_VP               0x1227
-#define FILE8_SELECT_ICON_VP               0x1228
-#define FILE9_SELECT_ICON_VP               0x1229
-#define FILE10_SELECT_ICON_VP              0x122A
-#define FILE11_SELECT_ICON_VP              0x122B
-#define FILE12_SELECT_ICON_VP              0x122C
-#define FILE13_SELECT_ICON_VP              0x122D
-#define FILE14_SELECT_ICON_VP              0x122E
-#define FILE15_SELECT_ICON_VP              0x122F
-#define FILE16_SELECT_ICON_VP              0x1230
-#define FILE17_SELECT_ICON_VP              0x1231
-#define FILE18_SELECT_ICON_VP              0x1232
-#define FILE19_SELECT_ICON_VP              0x1233
-#define FILE20_SELECT_ICON_VP              0x1234
+#define MOTOR_FREE_ICON_VP              0x1200
+#define FILE1_SELECT_ICON_VP            0x1221
+#define FILE2_SELECT_ICON_VP            0x1222
+#define FILE3_SELECT_ICON_VP            0x1223
+#define FILE4_SELECT_ICON_VP            0x1224
+#define FILE5_SELECT_ICON_VP            0x1225
+#define FILE6_SELECT_ICON_VP            0x1226
+#define FILE7_SELECT_ICON_VP            0x1227
+#define FILE8_SELECT_ICON_VP            0x1228
+#define FILE9_SELECT_ICON_VP            0x1229
+#define FILE10_SELECT_ICON_VP           0x122A
+#define FILE11_SELECT_ICON_VP           0x122B
+#define FILE12_SELECT_ICON_VP           0x122C
+#define FILE13_SELECT_ICON_VP           0x122D
+#define FILE14_SELECT_ICON_VP           0x122E
+#define FILE15_SELECT_ICON_VP           0x122F
+#define FILE16_SELECT_ICON_VP           0x1230
+#define FILE17_SELECT_ICON_VP           0x1231
+#define FILE18_SELECT_ICON_VP           0x1232
+#define FILE19_SELECT_ICON_VP           0x1233
+#define FILE20_SELECT_ICON_VP           0x1234
 
-#define FILE1_TEXT_VP                      0x200A
-#define FILE2_TEXT_VP                      0x201E
-#define FILE3_TEXT_VP                      0x2032
-#define FILE4_TEXT_VP                      0x2046
-#define FILE5_TEXT_VP                      0x205A
-#define FILE6_TEXT_VP                      0x206E
-#define FILE7_TEXT_VP                      0x2082
-#define FILE8_TEXT_VP                      0x2096
-#define FILE9_TEXT_VP                      0x20AA
-#define FILE10_TEXT_VP                     0x20BE
-#define FILE11_TEXT_VP                     0x20D2
-#define FILE12_TEXT_VP                     0x20E6
-#define FILE13_TEXT_VP                     0x20FA
-#define FILE14_TEXT_VP                     0x210E
-#define FILE15_TEXT_VP                     0x2122
-#define FILE16_TEXT_VP                     0x2136
-#define FILE17_TEXT_VP                     0x214A
-#define FILE18_TEXT_VP                     0x215E
-#define FILE19_TEXT_VP                     0x2172
-#define FILE20_TEXT_VP                     0x2186
+#define FILE1_TEXT_VP                   0x200A
+#define FILE2_TEXT_VP                   0x201E
+#define FILE3_TEXT_VP                   0x2032
+#define FILE4_TEXT_VP                   0x2046
+#define FILE5_TEXT_VP                   0x205A
+#define FILE6_TEXT_VP                   0x206E
+#define FILE7_TEXT_VP                   0x2082
+#define FILE8_TEXT_VP                   0x2096
+#define FILE9_TEXT_VP                   0x20AA
+#define FILE10_TEXT_VP                  0x20BE
+#define FILE11_TEXT_VP                  0x20D2
+#define FILE12_TEXT_VP                  0x20E6
+#define FILE13_TEXT_VP                  0x20FA
+#define FILE14_TEXT_VP                  0x210E
+#define FILE15_TEXT_VP                  0x2122
+#define FILE16_TEXT_VP                  0x2136
+#define FILE17_TEXT_VP                  0x214A
+#define FILE18_TEXT_VP                  0x215E
+#define FILE19_TEXT_VP                  0x2172
+#define FILE20_TEXT_VP                  0x2186
 
-#define SELECT_FILE_TEXT_VP                0x219A
-#define TWO_COLOR_MODE_ICON_VP             0x21B8
-#define COPY_MODE_ICON_VP                  0x21B9
-#define MIRROR_MODE_ICON_VP                0x21BA
-#define SINGLE_MODE_ICON_VP                0x21BB
-#define EXCHANGE_NOZZLE_ICON_VP            0x21BC
-#define PRINT_MODE_ICON_VP                 0x21BD
-#define PRINT_FILE_TEXT_VP                 0x21C0
+#define SELECT_FILE_TEXT_VP             0x219A
+#define TWO_COLOR_MODE_ICON_VP          0x21B8
+#define COPY_MODE_ICON_VP               0x21B9
+#define MIRROR_MODE_ICON_VP             0x21BA
+#define SINGLE_MODE_ICON_VP             0x21BB
+#define EXCHANGE_NOZZLE_ICON_VP         0x21BC
+#define PRINT_MODE_ICON_VP              0x21BD
+#define PRINT_FILE_TEXT_VP              0x21C0
 
-#define Nozzle_P_VP                        0x2200
-#define Nozzle_I_VP                        0x2204
-#define Nozzle_D_VP                        0x2208
-#define Hot_Bed_P_VP                       0x220C
-#define Hot_Bed_I_VP                       0x2240
-#define Hot_Bed_D_VP                       0x2244
+#define Nozzle_P_VP                     0x2200
+#define Nozzle_I_VP                     0x2204
+#define Nozzle_D_VP                     0x2208
+#define Hot_Bed_P_VP                    0x220C
+#define Hot_Bed_I_VP                    0x2240
+#define Hot_Bed_D_VP                    0x2244
 
-#define Vmax_X_VP                          0x2210
-#define Vmax_Y_VP                          0x2212
-#define Vmax_Z_VP                          0x2214
-#define Vmax_E_VP                          0x2216
+#define Vmax_X_VP                       0x2210
+#define Vmax_Y_VP                       0x2212
+#define Vmax_Z_VP                       0x2214
+#define Vmax_E_VP                       0x2216
 
-#define Accel_VP                           0x2220
-#define A_Retract_VP                       0x2222
-#define A_Travel_VP                        0x2224
-#define Amax_X_VP                          0x2226
-#define Amax_Y_VP                          0x2228
-#define Amax_Z_VP                          0x222A
-#define Amax_E_VP                          0x222C
+#define Accel_VP                        0x2220
+#define A_Retract_VP                    0x2222
+#define A_Travel_VP                     0x2224
+#define Amax_X_VP                       0x2226
+#define Amax_Y_VP                       0x2228
+#define Amax_Z_VP                       0x222A
+#define Amax_E_VP                       0x222C
 
-#define Jerk_X_VP                          0x2230
-#define Jerk_Y_VP                          0x2232
-#define Jerk_Z_VP                          0x2234
-#define Jerk_E_VP                          0x2236
+#define Jerk_X_VP                       0x2230
+#define Jerk_Y_VP                       0x2232
+#define Jerk_Z_VP                       0x2234
+#define Jerk_E_VP                       0x2236
 
-#define Steps_X_VP                         0x1130
-#define Steps_Y_VP                         0x1132
-#define Steps_Z_VP                         0x1134
-#define Steps_E_VP                         0x1136
+#define Steps_X_VP                      0x1130
+#define Steps_Y_VP                      0x1132
+#define Steps_Z_VP                      0x1134
+#define Steps_E_VP                      0x1136
 
-#define Advance_K_VP                       0x1138
-#define Time_VP                            0x2450
-#define Time1_VP                           0x2455
-#define FAN_SPEED_VP                       0x2460
-#define Wait_VP                            0x2480
-#define Zoffset_UNIT_VP                    0x2500
-#define Current_X_VP                       0x2468
-#define Current_Y_VP                       0x246A
-#define Current_Z_VP                       0x246C
-#define Current_E_VP                       0x246F
-#define Threshold_X_VP                     0x2471
-#define Threshold_Y_VP                     0x2473
-#define Threshold_Z_VP                     0x2475
-#define Threshold_E_VP                     0x2477
-#define Sensorless_X_VP                    0x2479
-#define Sensorless_Y_VP                    0x247B
+#define Advance_K_VP                    0x1138
+#define Time_VP                         0x2450
+#define Time1_VP                        0x2455
+#define FAN_SPEED_VP                    0x2460
+#define Wait_VP                         0x2480
+#define Zoffset_UNIT_VP                 0x2500
+#define Current_X_VP                    0x2468
+#define Current_Y_VP                    0x246A
+#define Current_Z_VP                    0x246C
+#define Current_E_VP                    0x246F
+#define Threshold_X_VP                  0x2471
+#define Threshold_Y_VP                  0x2473
+#define Threshold_Z_VP                  0x2475
+#define Threshold_E_VP                  0x2477
+#define Sensorless_X_VP                 0x2479
+#define Sensorless_Y_VP                 0x247B
 
-#define FilenameNature                     0x6003
+#define FilenameNature                  0x6003
 
 /************struct**************/
+
 typedef struct DataBuf {
   unsigned char len;
   unsigned char head[2];
@@ -203,9 +202,9 @@ typedef struct DataBuf {
 typedef struct CardRecord {
   int recordcount;
   int Filesum;
-  unsigned long addr[FileNum];
-  char Cardshowfilename[FileNum][FileNameLen];
-  char Cardfilename[FileNum][FileNameLen];
+  unsigned long addr[MAX_NUM_FILES];
+  char display_filename[MAX_NUM_FILES][FILENAME_LEN];
+  char filename[MAX_NUM_FILES][FILENAME_LEN];
 } CRec;
 
 class RTS {
@@ -229,13 +228,19 @@ class RTS {
     static void handleData();
     static void init();
 
+    static uint8_t print_state;
+    static bool start_print_flag;
+
     static bool dark_mode;
     FORCE_INLINE static void gotoPage(unsigned int page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
     FORCE_INLINE static void gotoPage(unsigned int p1, unsigned int p2) { gotoPage(dark_mode ? p1 : p2); }
 
+    static void sendPrinterInfo();
     static void updateTempE0();
     static void updateTempBed();
     static void updateFan0();
+
+    static void onIdle();
 
     static void refreshTime() { sendData(1, dark_mode ? Time_VP : Time1_VP); gotoPage(11, 66); }
 
@@ -314,9 +319,7 @@ extern int Update_Time_Value;
 extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
-extern bool start_print_flag;
 extern bool pause_flag;
-extern int print_flag;
 
 void RTS_AutoBedLevelPage();
 void RTS_MoveAxisHoming();

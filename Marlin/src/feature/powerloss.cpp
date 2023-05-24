@@ -614,8 +614,8 @@ void PrintJobRecovery::resume() {
   PROCESS_SUBCOMMANDS_NOW(cmd);
 
   #if ENABLED(SOVOL_SV06_RTS)
-    if (print_flag) rts.refreshTime();
-    start_print_flag = false;
+    if (rts.print_state) rts.refreshTime();
+    rts.start_print_flag = false;
   #endif
 }
 

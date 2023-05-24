@@ -29,6 +29,8 @@ DB RTS::recdat;
 DB RTS::snddat;
 uint8_t RTS::databuf[DATA_BUF_SIZE];
 
+uint8_t RTS::print_state = 0;
+bool RTS::start_print_flag = false;
 bool RTS::dark_mode = false;
 
 RTS rts;
@@ -64,48 +66,51 @@ RTS rts;
   #include "../../module/probe.h"
 #endif
 
-//#define CHECKFILAMENT
+#if HAS_FILAMENT_SENSOR
+  //#define CHECKFILAMENT
+#endif
 
 float zprobe_zoffset;
 float last_zoffset = 0.0;
 
 int startprogress = 0;
-CRec CardRecbuf;
+CRec cardRec;
 bool sdcard_pause_check = true;
 
-float ChangeFilament0Temp = 200;
-
-int StartFlag = 0;
-int print_flag = 0;
-bool start_print_flag = false;
+float change_filament_temp_0 = 200;
 
 int heatway = 0;
 millis_t next_rts_update_ms = 0;
-int last_target_temperature[4] = { 0 };
-int last_target_temperature_bed;
+
 char waitway = 0;
 int recnum = 0;
-unsigned char Percentrecord = 0;
+
+unsigned char job_percent = 0;
 
 bool pause_action_flag = false;
 bool pause_flag = false;
 bool power_off_type_yes = false;
-// represents to update file list
-bool CardUpdate = false;
 
-// represents SD-card status, true means SD is available, false means opposite.
-bool lcd_sd_status;
+bool update_sd = false;  // flag to update the file list
 
-char Checkfilenum = 0;
+#if HAS_HOTEND
+  int last_target_temperature[1] = { 0 };
+#endif
+#if HAS_HEATED_BED
+  int last_target_temperature_bed;
+#endif
+
+bool lcd_sd_status;   // SD-card status. true = SD available
+
 int FilenamesCount = 0;
 char cmdbuf[20] = { 0 };
-float Filament0LOAD = 10;
+float filament_load_0 = 10.0f;
 float XoffsetValue;
 
 // 0 for 10mm, 1 for 1mm, 2 for 0.1mm
 unsigned char AxisUnitMode;
 float axis_unit = 10;
-int Update_Time_Value = 0;
+int update_time_value = 0;
 
 bool poweroff_continue = false;
 char commandbuf[30];
@@ -132,42 +137,38 @@ RTS::RTS() {
   ZERO(databuf);
 }
 
-void RTS::sdCardInit(void) {
+void RTS::sdCardInit() {
   if (sdDetected()) card.mount();
-  if (CardReader::flag.mounted) {
-    int16_t fileCnt = card.get_num_items();
+  if (card.flag.mounted) {
+    const int16_t fileCnt = card.get_num_items();
     card.getWorkDirName();
     if (card.filename[0] != '/') card.cdup();
 
-    int addrnum = 0;
-    int num = 0;
-    for (int16_t i = 0; (i < fileCnt) && (i < (MaxFileNumber + addrnum)); i++) {
+    int addrnum = 0, num = 0;
+    for (int16_t i = 0; i < fileCnt && i < (MAX_NUM_FILES) + addrnum; i++) {
       card.selectFileByIndex(fileCnt - 1 - i);
-      char *pointFilename = card.longFilename;
-      int filenamelen = strlen(card.longFilename);
+      char * const pFilename = card.longest_filename();
+      const int filenamelen = strlen(pFilename);
       int j = 1;
-      while ((strncmp(&pointFilename[j], ".gcode", 6) && strncmp(&pointFilename[j], ".GCODE", 6)) && ((j ++) < filenamelen));
-      if (j >= filenamelen) {
-        addrnum++;
-        continue;
+      while (strncmp(&pFilename[j], ".gco", 4) && strncmp(&pFilename[j], ".GCO", 4) && j++ < filenamelen);
+      if (j >= filenamelen) { addrnum++; continue; }
+
+      if (j >= FILENAME_LEN) {
+        strncpy(&pFilename[FILENAME_LEN - 3], "..", 2);
+        pFilename[FILENAME_LEN - 1] = '\0';
+        j = FILENAME_LEN - 1;
       }
 
-      if (j >= TEXTBYTELEN) {
-        strncpy(&card.longFilename[TEXTBYTELEN - 3], "..", 2);
-        card.longFilename[TEXTBYTELEN - 1] = '\0';
-        j = TEXTBYTELEN - 1;
-      }
+      strncpy(cardRec.display_filename[num], pFilename, j);
 
-      strncpy(CardRecbuf.Cardshowfilename[num], card.longFilename, j);
-
-      strcpy(CardRecbuf.Cardfilename[num], card.filename);
-      CardRecbuf.addr[num] = FILE1_TEXT_VP + (num * 20);
-      sendData(CardRecbuf.Cardshowfilename[num], CardRecbuf.addr[num]);
-      CardRecbuf.Filesum = (++num);
+      strcpy(cardRec.filename[num], card.filename);
+      cardRec.addr[num] = FILE1_TEXT_VP + (num * 20);
+      sendData(cardRec.display_filename[num], cardRec.addr[num]);
+      cardRec.Filesum = (++num);
     }
-    for (int j = CardRecbuf.Filesum;j < MaxFileNumber;j ++) {
-      CardRecbuf.addr[j] = FILE1_TEXT_VP + (j * 20);
-      sendData(0, CardRecbuf.addr[j]);
+    for (int j = cardRec.Filesum; j < MAX_NUM_FILES; j++) {
+      cardRec.addr[j] = FILE1_TEXT_VP + (j * 20);
+      sendData(0, cardRec.addr[j]);
     }
     for (int j = 0; j < 20; j++) {
       // Clean print file 清除打印界面中显示的文件名
@@ -177,37 +178,33 @@ void RTS::sdCardInit(void) {
   }
   else {
     // Clean all filename Icons
-    for (int j = 0; j < MaxFileNumber; j++)
-      for (int i = 0; i < TEXTBYTELEN; i++)
-        sendData(0, CardRecbuf.addr[j] + i);
-    ZERO(CardRecbuf);
+    for (int j = 0; j < MAX_NUM_FILES; j++)
+      for (int i = 0; i < FILENAME_LEN; i++)
+        sendData(0, cardRec.addr[j] + i);
+    ZERO(cardRec);
   }
 }
 
-bool RTS::sdDetected(void) {
-  static bool last;
-  static bool state;
-  static bool flag_stable;
-  static uint32_t stable_point_time;
+bool RTS::sdDetected() {
+  static bool state = false, stable = false, was_present = false;
+  static millis_t stable_ms = 0;
 
-  bool tmp = IS_SD_INSERTED();
-
-  if (tmp != last)
-    flag_stable = false;
-  else if (!flag_stable) {
-    flag_stable = true;
-    stable_point_time = millis();
+  const bool present = IS_SD_INSERTED();
+  if (present != was_present)
+    stable = false;
+  else if (!stable) {
+    stable = true;
+    stable_ms = millis() + 30;
   }
 
-  if (flag_stable && millis() - stable_point_time > 30)
-    state = tmp;
+  if (stable && ELAPSED(millis(), stable_ms))
+    state = present;
 
-  last = tmp;
-
+  was_present = present;
   return state;
 }
 
-void RTS::sdCardUpdate(void) {
+void RTS::sdCardUpdate() {
   const bool sd_status = sdDetected();
   if (sd_status != lcd_sd_status) {
     if (sd_status) {
@@ -218,29 +215,29 @@ void RTS::sdCardUpdate(void) {
     else {
       card.release();
 
-      for (int i = 0; i < CardRecbuf.Filesum; i++) {
-        for (int j = 0; j < 20; j++) sendData(0, CardRecbuf.addr[i] + j);
+      for (int i = 0; i < cardRec.Filesum; i++) {
+        for (int j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
         sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
       }
 
       // Clean screen
-      for (int j = 0;j < 20;j ++) {
+      for (int j = 0; j < 20; j++) {
         sendData(0, PRINT_FILE_TEXT_VP + j);
         sendData(0, SELECT_FILE_TEXT_VP + j);
       }
-      ZERO(CardRecbuf);
+      ZERO(cardRec);
     }
     lcd_sd_status = sd_status;
   }
 
   // represents to update file list
-  if (CardUpdate && lcd_sd_status && sdDetected()) {
-    for (uint16_t i = 0; i < CardRecbuf.Filesum; i++) {
+  if (update_sd && lcd_sd_status && sdDetected()) {
+    for (uint16_t i = 0; i < cardRec.Filesum; i++) {
       delay(1);
-      sendData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
+      sendData(cardRec.display_filename[i], cardRec.addr[i]);
       sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
     }
-    CardUpdate = false;
+    update_sd = false;
   }
 }
 
@@ -275,8 +272,8 @@ void RTS::init() {
   last_zoffset = zprobe_zoffset = probe.offset.z;
   sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
-  last_target_temperature_bed = thermalManager.temp_bed.target;
-  last_target_temperature[0] = thermalManager.temp_hotend[0].target;
+  TERN_(HAS_HOTEND, last_target_temperature[0] = thermalManager.degTargetHotend(0));
+  TERN_(HAS_HEATED_BED, last_target_temperature_bed = thermalManager.degTargetBed());
 
   feedrate_percentage = 100;
   sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
@@ -302,7 +299,7 @@ void RTS::init() {
 
   /**************************some info init*******************************/
   sendData(0, PRINT_PROCESS_ICON_VP);
-  change_page_number = CardReader::flag.mounted ? (dark_mode ? 1 : 56) : 0;
+  change_page_number = card.flag.mounted ? (dark_mode ? 1 : 56) : 0;
 }
 
 int RTS::receiveData() {
@@ -379,9 +376,9 @@ int RTS::receiveData() {
     // response for reading the page from the register
     recdat.addr = databuf[4];
     recdat.bytelen = databuf[5];
-    for (unsigned int i = 0; i < recdat.bytelen; i ++) {
+    for (unsigned int i = 0; i < recdat.bytelen; i++) {
       recdat.data[i] = databuf[6 + i];
-      // recdat.data[i] = (recdat.data[i] << 8 )| databuf[7 + i];
+      //recdat.data[i] = (recdat.data[i] << 8 )| databuf[7 + i];
     }
   }
   else {
@@ -396,7 +393,7 @@ int RTS::receiveData() {
   return 2;
 }
 
-void RTS::sendData(void) {
+void RTS::sendData() {
   if (snddat.head[0] == FHONE && snddat.head[1] == FHTWO && snddat.len >= 3) {
     databuf[0] = snddat.head[0];
     databuf[1] = snddat.head[1];
@@ -405,7 +402,7 @@ void RTS::sendData(void) {
     // to write data to the register
     if (snddat.command == 0x80) {
       databuf[4] = snddat.addr;
-      for (int i = 0;i < (snddat.len - 2); i++)
+      for (int i = 0; i < (snddat.len - 2); i++)
         databuf[5 + i] = snddat.data[i];
     }
     else if (snddat.len == 3 && snddat.command == 0x81) {
@@ -428,7 +425,7 @@ void RTS::sendData(void) {
       databuf[5] = snddat.addr & 0xFF;
       databuf[6] = snddat.bytelen;
     }
-    for (int i = 0; i < (snddat.len + 3); i++)
+    for (int i = 0; i < snddat.len + 3; i++)
       LCD_SERIAL.write(databuf[i]);
 
     ZERO(snddat);
@@ -452,12 +449,8 @@ void RTS::sendData(const char *str, unsigned long addr, unsigned char cmd/*= Var
     databuf[3] = cmd;
     databuf[4] = addr >> 8;
     databuf[5] = addr & 0x00FF;
-    for (int i = 0; i < len; i++)
-      databuf[6 + i] = str[i];
-
-    for (int i = 0;i < (len + 6); i++)
-      LCD_SERIAL.write(databuf[i]);
-
+    for (int i = 0; i < len; i++) databuf[6 + i] = str[i];
+    for (int i = 0; i < len + 6; i++) LCD_SERIAL.write(databuf[i]);
     ZERO(databuf);
   }
 }
@@ -541,7 +534,7 @@ void RTS::sdCardStop() {
   wait_for_heatup = wait_for_user = false;
   poweroff_continue = false;
   #if BOTH(SDSUPPORT, POWER_LOSS_RECOVERY)
-    if (CardReader::flag.mounted) card.removeJobRecoveryFile();
+    if (card.flag.mounted) card.removeJobRecoveryFile();
   #endif
   #ifdef EVENT_GCODE_SD_STOP
     queue.inject(F(EVENT_GCODE_SD_STOP));
@@ -586,10 +579,10 @@ void RTS::handleData() {
   switch (Checkkey) {
     case MainPageKey: //首页
       if (recdat.data[0] == 1) { //选择打印文件
-        CardUpdate = true;
-        CardRecbuf.recordcount = -1;
-        if (CardReader::flag.mounted) {
-          for (int j = 0; j < 20; j ++) sendData(0, SELECT_FILE_TEXT_VP + j);
+        update_sd = true;
+        cardRec.recordcount = -1;
+        if (card.flag.mounted) {
+          for (int j = 0; j < 20; j++) sendData(0, SELECT_FILE_TEXT_VP + j);
           gotoPage(2, 57);
         }
         else
@@ -686,16 +679,14 @@ void RTS::handleData() {
         sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
         sendData(0, PRINT_SURPLUS_TIME_MIN_VP);
         sdCardStop();
-        print_flag = 0;
-        Update_Time_Value = 0;
+        print_state = 0;
+        update_time_value = 0;
       }
       else if (recdat.data[0] == 0xF0) {
-        if (start_print_flag) {
+        if (start_print_flag)
           gotoPage(10, 65);
-        }
-        else if (!sdcard_pause_check) {
+        else if (!sdcard_pause_check)
           gotoPage(12, 67);
-        }
         else {
           refreshTime();
           start_print_flag = false;
@@ -715,9 +706,9 @@ void RTS::handleData() {
         card.pauseSDPrint();
         pause_action_flag = true;
         pause_flag = true;
-        Update_Time_Value = 0;
+        update_time_value = 0;
         sdcard_pause_check = false;
-        print_flag = 1;
+        print_state = 1;
       }
       break;
 
@@ -727,12 +718,12 @@ void RTS::handleData() {
         //sendData(1, Wait_VP);
         //gotoPage(40, 95);
         card.startOrResumeFilePrinting();
-        Update_Time_Value = 0;
+        update_time_value = 0;
         sdcard_pause_check = true;
         pause_action_flag = false;
         pause_flag = false;
         refreshTime();
-        print_flag = 2;
+        print_state = 2;
       }
       else if (recdat.data[0] == 2) {
         #if ENABLED(CHECKFILAMENT)
@@ -745,11 +736,11 @@ void RTS::handleData() {
             card.startOrResumeFilePrinting();
             print_job_timer.start();
 
-            Update_Time_Value = 0;
+            update_time_value = 0;
             pause_action_flag = false;
             sdcard_pause_check = true;
             refreshTime();
-            print_flag = 2;
+            print_state = 2;
           }
         #endif
       }
@@ -765,16 +756,16 @@ void RTS::handleData() {
 
           char cmd[30];
           char *c;
-          sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[FilenamesCount]);
+          sprintf_P(cmd, PSTR("M23 %s"), cardRec.filename[FilenamesCount]);
           for (c = &cmd[4]; *c; c++) *c = tolower(*c);
           queue.enqueue_one_now(cmd);
           delay(20);
           queue.enqueue_now(F("M24"));
 
           // Clean screen
-          for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
+          for (int j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
-          sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+          sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
           TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
           feedrate_percentage = 100;
@@ -787,8 +778,8 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 4) { //拔卡恢复打印
-        if (!CardReader::flag.mounted) {
-          CardUpdate = true;
+        if (!card.flag.mounted) {
+          update_sd = true;
           sdCardUpdate();
           gotoPage(46, 101);
         }
@@ -797,13 +788,13 @@ void RTS::handleData() {
           sendData(1, Wait_VP);
           gotoPage(40, 95);
           card.startOrResumeFilePrinting();
-          Update_Time_Value = 0;
+          update_time_value = 0;
           sdcard_pause_check = true;
           pause_action_flag = false;
-          print_flag = 2;
-          for (uint16_t i = 0;i < CardRecbuf.Filesum; i++)
-            if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
-              rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
+          print_state = 2;
+          for (uint16_t i = 0;i < cardRec.Filesum; i++)
+            if (!strcmp(cardRec.filename[i], &recovery.info.sd_filename[1]))
+              sendData(cardRec.display_filename[i], PRINT_FILE_TEXT_VP);
 
           refreshTime();
         }
@@ -812,19 +803,15 @@ void RTS::handleData() {
 
     case CoolScreenKey: // 温度界面
       if (recdat.data[0] == 1) { // PLA 预热
-        thermalManager.temp_hotend[0].target = PREHEAT_1_TEMP_HOTEND;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
+        thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
         updateTempE0();
-        thermalManager.temp_bed.target = PREHEAT_1_TEMP_BED;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
+        thermalManager.setTargetBed(PREHEAT_1_TEMP_BED);
         updateTempBed();
       }
       else if (recdat.data[0] == 2) { // ABS预热
-        thermalManager.temp_hotend[0].target = PREHEAT_2_TEMP_HOTEND;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
+        thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
         updateTempE0();
-        thermalManager.temp_bed.target = PREHEAT_2_TEMP_BED;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
+        thermalManager.setTargetBed(PREHEAT_2_TEMP_BED);
         updateTempBed();
       }
       else if (recdat.data[0] == 3) { // 返回主界面
@@ -850,91 +837,96 @@ void RTS::handleData() {
       }
       break;
 
-    case Heater0TempEnterKey:
-      thermalManager.temp_hotend[0].target = recdat.data[0];
-      thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-      updateTempE0();
-      break;
+    #if HAS_HOTEND
+      case Heater0TempEnterKey:
+        thermalManager.setTargetHotend(recdat.data[0], 0);
+        updateTempE0();
+        break;
+    #endif
 
-    case HotBedTempEnterKey:
-      thermalManager.temp_bed.target = recdat.data[0];
-      thermalManager.setTargetBed(thermalManager.temp_bed.target);
-      updateTempBed();
-      break;
+    #if HAS_HEATED_BED
+      case HotBedTempEnterKey:
+        thermalManager.setTargetBed(recdat.data[0]);
+        updateTempBed();
+        break;
+    #endif
 
     case Heater0LoadEnterKey:
-      Filament0LOAD = ((float)recdat.data[0]) / 10;
+      filament_load_0 = float(recdat.data[0]) / 10.0f;
       break;
 
     case AxisPageSelectKey: // 移动轴界面
-      if (recdat.data[0] == 1) {
-        AxisUnitMode = 1;
-        axis_unit = 10.0;
-        gotoPage(29, 84);
-      }
-      else if (recdat.data[0] == 2) {
-        AxisUnitMode = 2;
-        axis_unit = 1.0;
-        gotoPage(30, 85);
-      }
-      else if (recdat.data[0] == 3) {
-        AxisUnitMode = 3;
-        axis_unit = 0.1;
-        gotoPage(31, 86);
-      }
-      else if (recdat.data[0] == 4) {
-        waitway = 4;
-        queue.enqueue_now(F("G28"));
-        Update_Time_Value = 0;
-        sendData(1, Wait_VP);
-        gotoPage(32, 87);
-        sendData(0, MOTOR_FREE_ICON_VP);
-      }
-      else if (recdat.data[0] == 5) { // 解锁电机
-        queue.enqueue_now(F("M84"));
-        sendData(1, MOTOR_FREE_ICON_VP);
+      switch (recdat.data[0]) {
+        case 1:
+          AxisUnitMode = 1;
+          axis_unit = 10.0;
+          gotoPage(29, 84);
+          break;
+        case 2:
+          AxisUnitMode = 2;
+          axis_unit = 1.0;
+          gotoPage(30, 85);
+          break;
+        case 3:
+          AxisUnitMode = 3;
+          axis_unit = 0.1;
+          gotoPage(31, 86);
+          break;
+        case 4:
+          waitway = 4;
+          queue.enqueue_now(F("G28"));
+          update_time_value = 0;
+          sendData(1, Wait_VP);
+          gotoPage(32, 87);
+          sendData(0, MOTOR_FREE_ICON_VP);
+          break;
+        case 5: // Unlock motor
+          queue.enqueue_now(F("M84"));
+          sendData(1, MOTOR_FREE_ICON_VP);
+          break;
       }
       break;
 
     case SettingScreenKey: // 设置界面
-      if (recdat.data[0] == 2) { // 进入换料界面
-        Filament0LOAD = 10;
-        sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        updateTempE0();
+      switch (recdat.data[0]) {
+        #if HAS_HOTEND
+          case 2: // Go to Reload Filament
+            filament_load_0 = 10.0f;
+            sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
+            updateTempE0();
+            delay(2);
+            gotoPage(23, 78);
+            break;
+        #endif
 
-        delay(2);
-        gotoPage(23, 78);
-      }
-      else if (recdat.data[0] == 3) { // 进入移动界面
-        AxisUnitMode = 1;
-        TERN_(HAS_X_AXIS, sendData(10 * current_position.x, AXIS_X_COORD_VP));
-        TERN_(HAS_Y_AXIS, sendData(10 * current_position.y, AXIS_Y_COORD_VP));
-        TERN_(HAS_Z_AXIS, sendData(10 * current_position.z, AXIS_Z_COORD_VP));
-        gotoPage(29, 84);
-      }
-      else if (recdat.data[0] == 4) { // 进入高级设置界面
-        sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
-        gotoPage(49, 104);
-      }
-      else if (recdat.data[0] == 5) { // 信息
-        char sizebuf[20] = {0};
-        sprintf(sizebuf, "%d X %d X %d", X_MAX_POS, Y_MAX_POS, Z_MAX_POS);
-        sendData(MACVERSION, PRINTER_MACHINE_TEXT_VP);
-        sendData(sizebuf, PRINTER_PRINTSIZE_TEXT_VP);
-        sendData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
-        sendData(MARLINVERSION, MARLIN_VERSION_TEXT_VP);
-        sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
-        gotoPage(33, 88);
-      }
-      else if (recdat.data[0] == 7) { // 返回
-        gotoPage(1, 56);
+        case 3: // Go to Move Axis
+          AxisUnitMode = 1;
+          TERN_(HAS_X_AXIS, sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
+          TERN_(HAS_Y_AXIS, sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
+          TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+          gotoPage(29, 84);
+          break;
+
+        case 4: // Go to Advanced Settings
+          TERN_(LIN_ADVANCE, sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP));
+          gotoPage(49, 104);
+          break;
+
+        case 5: // information
+          sendPrinterInfo();
+          sendData(MARLINVERSION, MARLIN_VERSION_TEXT_VP);
+          gotoPage(33, 88);
+          break;
+
+        case 7: // return
+          gotoPage(1, 56);
+          break;
       }
       break;
 
     case SettingBackKey: // 调节界面返回按键
       if (recdat.data[0] == 1) {
-        Update_Time_Value = RTS_UPDATE_VALUE;
+        update_time_value = RTS_UPDATE_VALUE;
         //settings.save();
         gotoPage(1, 56);
       }
@@ -973,7 +965,7 @@ void RTS::handleData() {
         current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) / 10.0f;
         LIMIT(current_position.x, X_MIN_POS, X_MAX_POS);
         RTS_line_to_current(X_AXIS);
-        sendData(10 * current_position.x, AXIS_X_COORD_VP);
+        sendData(current_position.x * 10.0f, AXIS_X_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -985,7 +977,7 @@ void RTS::handleData() {
         current_position.y = float(recdat.data[0]) / 10.0f;
         LIMIT(current_position.y, Y_MIN_POS, Y_MAX_POS);
         RTS_line_to_current(Y_AXIS);
-        sendData(10 * current_position.y, AXIS_Y_COORD_VP);
+        sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -997,7 +989,7 @@ void RTS::handleData() {
         current_position.z = float(recdat.data[0]) / 10.0f;
         LIMIT(current_position.z, Z_MIN_POS, Z_MAX_POS);
         RTS_line_to_current(Z_AXIS);
-        sendData(10 * current_position.z, AXIS_Z_COORD_VP);
+        sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -1008,51 +1000,51 @@ void RTS::handleData() {
         case 1:
           if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
-          current_position.e -= Filament0LOAD;
+          current_position.e -= filament_load_0;
 
-          if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
-            sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
+          if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
+            sendData(int(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
             gotoPage(24, 79);
           }
           else {
             RTS_line_to_current(E_AXIS);
-            sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+            sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           }
           break;
 
         case 2:
           if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
-          current_position.e += Filament0LOAD;
+          current_position.e += filament_load_0;
 
-          if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
-            sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
+          if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
+            sendData(int(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
             gotoPage(24, 79);
           }
           else {
             RTS_line_to_current(E_AXIS);
-            sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+            sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           }
           break;
 
         case 3:
           updateTempE0();
-          sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+          sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           gotoPage(27, 82);
           break;
 
         case 4:
           if (planner.has_blocks_queued()) break;
-          thermalManager.temp_hotend[0].target = 0;
+          thermalManager.setTargetHotend(0, 0);
           updateTempE0();
           gotoPage(23, 78);
-          Filament0LOAD = 10;
-          sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+          filament_load_0 = 10.0f;
+          sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           break;
 
         case 5: {
           if (planner.has_blocks_queued()) break;
-          thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
+          thermalManager.setTargetHotend(change_filament_temp_0, 0);
           updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
@@ -1060,14 +1052,14 @@ void RTS::handleData() {
 
         case 6:
           if (planner.has_blocks_queued()) break;
-          Filament0LOAD = 10;
-          sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
+          filament_load_0 = 10.0f;
+          sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           gotoPage(23, 78);
           break;
 
         case 8:
           if (planner.has_blocks_queued()) break;
-          thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
+          thermalManager.setTargetHotend(change_filament_temp_0, 0);
           updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
@@ -1076,69 +1068,74 @@ void RTS::handleData() {
       break;
 
     case FilamentCheckKey:
-      if (recdat.data[0] == 1) {
-        TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? 20 : 23, runout.filament_ran_out ? 75 : 78));
-      }
-      else if (recdat.data[0] == 2) {
-        gotoPage(21, 76);
-        Filament0LOAD = 10;
+      switch (recdat.data[0]) {
+        case 1:
+          TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? 20 : 23, runout.filament_ran_out ? 75 : 78));
+          break;
+        case 2:
+          gotoPage(21, 76);
+          filament_load_0 = 10.0f;
+          break;
       }
       break;
 
     case PowerContinuePrintKey: // 断电续打
-      if (recdat.data[0] == 1) {
-        if (!poweroff_continue) break;
-        power_off_type_yes = true;
-        Update_Time_Value = 0;
-        gotoPage(10, 65);
-        queue.enqueue_now(F("M1000"));
+      switch (recdat.data[0]) {
+        case 1:
+          if (!poweroff_continue) break;
+          power_off_type_yes = true;
+          update_time_value = 0;
+          gotoPage(10, 65);
+          queue.enqueue_now(F("M1000"));
 
-        poweroff_continue = true;
-        sdcard_pause_check = true;
-        zprobe_zoffset = probe.offset.z;
-        sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
-        print_flag = 2;
-      }
-      else if (recdat.data[0] == 2) {
-        Update_Time_Value = RTS_UPDATE_VALUE;
-        gotoPage(1, 56);
-        poweroff_continue = false;
-        sdcard_pause_check = true;
-        queue.clear();
-        quickstop_stepper();
-        print_job_timer.abort();
-        thermalManager.disable_all_heaters();
-        print_job_timer.reset();
+          poweroff_continue = true;
+          sdcard_pause_check = true;
+          zprobe_zoffset = probe.offset.z;
+          sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+          print_state = 2;
+          break;
 
-        if (CardReader::flag.mounted) {
+        case 2:
+          update_time_value = RTS_UPDATE_VALUE;
+          gotoPage(1, 56);
+          poweroff_continue = false;
+          sdcard_pause_check = true;
+          queue.clear();
+          quickstop_stepper();
+          print_job_timer.abort();
+          thermalManager.disable_all_heaters();
+          print_job_timer.reset();
+
           #if BOTH(SDSUPPORT, POWER_LOSS_RECOVERY)
-            card.removeJobRecoveryFile();
-            recovery.info.valid_head = 0;
-            recovery.info.valid_foot = 0;
-            recovery.close();
+            if (card.flag.mounted) {
+              card.removeJobRecoveryFile();
+              recovery.info.valid_head = 0;
+              recovery.info.valid_foot = 0;
+              recovery.close();
+            }
           #endif
-        }
 
-        wait_for_heatup = wait_for_user = false;
-        print_flag = 0;
+          wait_for_heatup = wait_for_user = false;
+          print_state = 0;
+          break;
       }
       break;
 
     case SelectFileKey:
       if (!sdDetected()) break;
-      if (recdat.data[0] > CardRecbuf.Filesum) break;
+      if (recdat.data[0] > cardRec.Filesum) break;
 
-      CardRecbuf.recordcount = recdat.data[0] - 1;
-      for (int j = 0; j < 10; j ++) {
+      cardRec.recordcount = recdat.data[0] - 1;
+      for (int j = 0; j < 10; j++) {
         sendData(0, SELECT_FILE_TEXT_VP + j);
         sendData(0, PRINT_FILE_TEXT_VP + j);
       }
-      sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], SELECT_FILE_TEXT_VP);
-      sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+      sendData(cardRec.display_filename[cardRec.recordcount], SELECT_FILE_TEXT_VP);
+      sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
       delay(2);
 
-      for (int j = 1;j <= CardRecbuf.Filesum;j ++)
+      for (int j = 1; j <= cardRec.Filesum; j++)
         sendData((unsigned long)0x738E, FilenameNature + j * 16);
 
       sendData((unsigned long)0x041F, FilenameNature + recdat.data[0] * 16);
@@ -1149,15 +1146,15 @@ void RTS::handleData() {
       switch (recdat.data[0]) {
         case 1: {
           if (!sdDetected()) break;
-          if (CardRecbuf.recordcount < 0) break;
+          if (cardRec.recordcount < 0) break;
           char cmd[30];
           char *c;
-          sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
+          sprintf_P(cmd, PSTR("M23 %s"), cardRec.filename[cardRec.recordcount]);
           for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
           ZERO(cmdbuf);
           strncpy(cmdbuf, cmd, 29);
-          FilenamesCount = CardRecbuf.recordcount;
+          FilenamesCount = cardRec.recordcount;
 
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out) {
@@ -1171,9 +1168,9 @@ void RTS::handleData() {
           queue.enqueue_now(F("M24"));
 
           // Clean screen
-          for (int j = 0; j < 20; j ++) sendData(0, PRINT_FILE_TEXT_VP + j);
+          for (int j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
-          sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+          sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
 
           TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
@@ -1188,9 +1185,9 @@ void RTS::handleData() {
           poweroff_continue = true;
           gotoPage(10, 65);
           change_page_number = 11;
-          Update_Time_Value = 0;
+          update_time_value = 0;
           start_print_flag = true;
-          print_flag = 2;
+          print_state = 2;
         } break;
 
         case 2: gotoPage(3, 58); break;
@@ -1230,7 +1227,7 @@ void RTS::handleData() {
             }
           }
         #endif
-        rts.sendData(Beep, SoundAddr);
+        sendData(Beep, SoundAddr);
         zprobe_zoffset = 0;
         last_zoffset = 0;
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
@@ -1254,9 +1251,9 @@ void RTS::handleData() {
           #endif
 
           #if ENABLED(PIDTEMPBED)
-            const float bed_p = thermalManager.temp_bed.pid.Kp * 100.0f,
-                        bed_i = (thermalManager.temp_bed.pid.Ki / 8.0f * 10000.0f) + 0.0001f,
-                        bed_d = thermalManager.temp_bed.pid.Kd * 0.8f;
+            const float bed_p = thermalManager.temp_bed.pid.p() * 100.0f,
+                        bed_i = (thermalManager.temp_bed.pid.i() / 8.0f * 10000.0f) + 0.0001f,
+                        bed_d = thermalManager.temp_bed.pid.d() * 0.8f;
 
             sendData(bed_p, Hot_Bed_P_VP);
             sendData(bed_i, Hot_Bed_I_VP);
@@ -1266,10 +1263,10 @@ void RTS::handleData() {
         } break;
 
         case 2: // 速度
-          TERN_(HAS_X_AXIS,    sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
-          TERN_(HAS_Y_AXIS,    sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
-          TERN_(HAS_Z_AXIS,    sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
-          TERN_(HAS_EXTRUDERS, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
+          TERN_(HAS_X_AXIS, sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
+          TERN_(HAS_Y_AXIS, sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
+          TERN_(HAS_Z_AXIS, sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
+          TERN_(HAS_HOTEND, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
           gotoPage(25, 80);
           break;
 
@@ -1280,7 +1277,7 @@ void RTS::handleData() {
           TERN_(HAS_X_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[X_AXIS], Amax_X_VP));
           TERN_(HAS_Y_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP));
           TERN_(HAS_Z_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP));
-          #if HAS_EXTRUDERS
+          #if HAS_HOTEND
             sendData(planner.settings.retract_acceleration, A_Retract_VP);
             sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
           #endif
@@ -1289,19 +1286,19 @@ void RTS::handleData() {
 
         #if HAS_CLASSIC_JERK
           case 4: // Jerk
-            TERN_(HAS_X_AXIS,    sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
-            TERN_(HAS_Y_AXIS,    sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
-            TERN_(HAS_Z_AXIS,    sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
-            TERN_(HAS_EXTRUDERS, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
+            TERN_(HAS_X_AXIS, sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
+            TERN_(HAS_Y_AXIS, sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
+            TERN_(HAS_Z_AXIS, sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
+            TERN_(HAS_HOTEND, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
             gotoPage(35, 90);
             break;
         #endif
 
         case 5: // Steps
-          TERN_(HAS_X_AXIS,    sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP));
-          TERN_(HAS_Y_AXIS,    sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
-          TERN_(HAS_Z_AXIS,    sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
-          TERN_(HAS_EXTRUDERS, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
+          TERN_(HAS_X_AXIS, sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP));
+          TERN_(HAS_Y_AXIS, sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
+          TERN_(HAS_Z_AXIS, sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
+          TERN_(HAS_HOTEND, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
           gotoPage(37, 92);
           break;
 
@@ -1357,7 +1354,7 @@ void RTS::handleData() {
         case Jerk_Z: planner.max_jerk.z = float(recdat.data[0]) / 10.0f; break;
       #endif
     #endif
-    #if HAS_EXTRUDERS
+    #if HAS_HOTEND
       case Vmax_E: planner.settings.max_feedrate_mm_s[E_AXIS] = recdat.data[0]; break;
       case Amax_E: planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0]; break;
       case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f; break;
@@ -1498,9 +1495,9 @@ void RTS::handleData() {
 
         default:
           if (card.isPrinting()) {
-            for (uint16_t i = 0;i < CardRecbuf.Filesum; i++)
-              if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
-                rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
+            for (uint16_t i = 0;i < cardRec.Filesum; i++)
+              if (!strcmp(cardRec.filename[i], &recovery.info.sd_filename[1]))
+                sendData(cardRec.display_filename[i], PRINT_FILE_TEXT_VP);
             refreshTime();
           }
           else
@@ -1508,52 +1505,46 @@ void RTS::handleData() {
           break;
       }
 
-      for (int i = 0; i < MaxFileNumber; i ++)
-        for (int j = 0; j < 20; j ++)
+      for (int i = 0; i < MAX_NUM_FILES; i++)
+        for (int j = 0; j < 20; j++)
           sendData(0, FILE1_TEXT_VP + i * 20 + j);
 
-      for (int i = 0; i < CardRecbuf.Filesum; i++) {
-        for (int j = 0; j < 20; j++) sendData(0, CardRecbuf.addr[i] + j);
+      for (int i = 0; i < cardRec.Filesum; i++) {
+        for (int j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
         sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
       }
 
-      for (int j = 0; j < 20; j ++) {
+      for (int j = 0; j < 20; j++) {
         sendData(0, PRINT_FILE_TEXT_VP + j);  // Clean screen
         sendData(0, SELECT_FILE_TEXT_VP + j); // Clean filename
       }
 
       // Clean filename Icon
-      for (int j = 0; j < 20; j ++)
+      for (int j = 0; j < 20; j++)
         sendData(10, FILE1_SELECT_ICON_VP + j);
 
-      sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], PRINT_FILE_TEXT_VP);
+      sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
 
       // represents to update file list
-      if (CardUpdate && lcd_sd_status && IS_SD_INSERTED()) {
-        for (uint16_t i = 0; i < CardRecbuf.Filesum; i++) {
+      if (update_sd && lcd_sd_status && IS_SD_INSERTED()) {
+        for (uint16_t i = 0; i < cardRec.Filesum; i++) {
           delay(3);
-          sendData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
+          sendData(cardRec.display_filename[i], cardRec.addr[i]);
           sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
           sendData(0, FILE1_SELECT_ICON_VP + i);
         }
       }
 
-      char sizeBuf[20];
-      sprintf(sizeBuf, "%d X %d X %d", X_BED_SIZE-10, Y_BED_SIZE, Z_MAX_POS);
-      sendData(MACVERSION, PRINTER_MACHINE_TEXT_VP);
-      sendData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
-      sendData(sizeBuf, PRINTER_PRINTSIZE_TEXT_VP);
-
-      sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
+      sendPrinterInfo();
 
       updateFan0();
-      Percentrecord = card.percentDone() + 1;
-      if (Percentrecord <= 100)
-        rts.sendData((unsigned char)Percentrecord, PRINT_PROCESS_ICON_VP);
 
-      rts.sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
+      job_percent = card.percentDone() + 1;
+      if (job_percent <= 100) sendData((unsigned char)job_percent, PRINT_PROCESS_ICON_VP);
 
-      sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
+
+      TERN_(HAS_BED_PROBE, sendData(probe.offset.z * 100.0f, AUTO_BED_LEVEL_ZOFFSET_VP));
 
       sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
       updateTempE0();
@@ -1568,17 +1559,29 @@ void RTS::handleData() {
   recdat.head[1] = FHTWO;
 }
 
+void RTS::sendPrinterInfo() {
+  sendData(MACVERSION, PRINTER_MACHINE_TEXT_VP);
+  sendData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
+  sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
+  char printarea[20] = { '\0' };
+  sprintf_P(printarea,
+    PSTR(TERN_(HAS_X_AXIS, "%d x") TERN_(HAS_Y_AXIS, " %d x") TERN_(HAS_Z_AXIS, " %d"))
+    OPTARG(HAS_X_AXIS, X_BED_SIZE) OPTARG(HAS_Y_AXIS, Y_BED_SIZE) OPTARG(HAS_Z_AXIS, Z_MAX_POS)
+  );
+  sendData(printarea, PRINTER_PRINTSIZE_TEXT_VP);
+}
+
 void RTS::updateTempE0() {
-  #if HAS_EXTRUDERS
-    sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-    sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+  #if HAS_HOTEND
+    sendData(thermalManager.degHotend(0), HEAD0_CURRENT_TEMP_VP);
+    sendData(thermalManager.degTargetHotend(0), HEAD0_SET_TEMP_VP);
   #endif
 }
 
 void RTS::updateTempBed() {
   #if HAS_HEATED_BED
-    sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-    sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+    sendData(thermalManager.degBed(), BED_CURRENT_TEMP_VP);
+    sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
   #endif
 }
 
@@ -1586,106 +1589,105 @@ void RTS::updateFan0() {
   TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
 }
 
-void EachMomentUpdate() {
-  millis_t ms = millis();
-  if (ms > next_rts_update_ms) {
-    // print the file before the power is off.
-    if (!power_off_type_yes && lcd_sd_status && poweroff_continue) {
-      rts.sendData(ExchangePageBase, ExchangepageAddr);
+void RTS::onIdle() {
+  const millis_t ms = millis();
+  if (PENDING(ms, next_rts_update_ms)) break;
+
+  // print the file before the power is off.
+  if (!power_off_type_yes) {
+    if (!poweroff_continue || (lcd_sd_status && poweroff_continue)) {
+      sendData(ExchangePageBase, ExchangepageAddr);
       if (startprogress < 0) startprogress = 0;
-      if (startprogress < 56) rts.sendData(startprogress, START1_PROCESS_ICON_VP);
+      if (startprogress < 56) sendData(startprogress, START1_PROCESS_ICON_VP);
       delay(80);
       if (++startprogress > 56) {
-        rts.sendData(StartSoundSet, SoundAddr);
+        sendData(StartSoundSet, SoundAddr);
         power_off_type_yes = true;
-        for (uint16_t i = 0; i < CardRecbuf.Filesum; i++) {
-          if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1])) {
-            rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
-            rts.gotoPage(36, 91);
-            break;
-          }
-        }
-        StartFlag = 1;
       }
-      return;
     }
-    else if (!power_off_type_yes && !poweroff_continue) {
-      rts.sendData(ExchangePageBase, ExchangepageAddr);
-      if (startprogress < 0)
-        startprogress = 0;
-      else if (startprogress < 56)
-        rts.sendData(startprogress, START1_PROCESS_ICON_VP);
-      delay(80);
-      if (++startprogress > 56) {
-        rts.sendData(StartSoundSet, SoundAddr);
-        power_off_type_yes = true;
-        Update_Time_Value = RTS_UPDATE_VALUE;
-        change_page_number = dark_mode ? 1 : 56;
-        rts.gotoPage(change_page_number);
-      }
-      return;
-    }
-    else {
-      // need to optimize
-      if (print_job_timer.duration() != 0) {
-        duration_t elapsed = print_job_timer.duration();
-        static unsigned char last_cardpercentValue = 100;
-        rts.sendData(elapsed.value / 3600, PRINT_TIME_HOUR_VP);
-        rts.sendData((elapsed.value % 3600) / 60, PRINT_TIME_MIN_VP);
 
-        if (card.isPrinting() && (last_cardpercentValue != card.percentDone())) {
-          if ((unsigned char)card.percentDone() > 0) {
-            Percentrecord = card.percentDone();
-            if (Percentrecord <= 100)
-              rts.sendData((unsigned char)Percentrecord, PRINT_PROCESS_ICON_VP);
-            // Estimate remaining time every 20 seconds
-            static millis_t next_remain_time_update = 0;
-            if (ELAPSED(ms, next_remain_time_update)) {
-              if ((thermalManager.temp_hotend[0].celsius >= (thermalManager.temp_hotend[0].target - 5))) {
-                remain_time = elapsed.value / (Percentrecord * 0.01f) - elapsed.value;
-                next_remain_time_update += 20 * 1000UL;
-                rts.sendData(remain_time / 3600, PRINT_SURPLUS_TIME_HOUR_VP);
-                rts.sendData((remain_time % 3600) / 60, PRINT_SURPLUS_TIME_MIN_VP);
-              }
-            }
-          }
-          else {
-            rts.sendData(0, PRINT_PROCESS_ICON_VP);
-            rts.sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
-            rts.sendData(0, PRINT_SURPLUS_TIME_MIN_VP);
-          }
-          rts.sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
-          last_cardpercentValue = card.percentDone();
+    if (lcd_sd_status && poweroff_continue && power_off_type_yes) {
+      for (uint16_t i = 0; i < cardRec.Filesum; i++) {
+        if (!strcmp(cardRec.filename[i], &recovery.info.sd_filename[1])) {
+          sendData(cardRec.display_filename[i], PRINT_FILE_TEXT_VP);
+          gotoPage(36, 91);
+          break;
         }
       }
-
-      if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
-        pause_action_flag = false;
-        queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
-      }
-
-      rts.sendData(10 * current_position.z, AXIS_Z_COORD_VP);
-
-      if ((last_target_temperature[0] != thermalManager.temp_hotend[0].target) || (last_target_temperature_bed != thermalManager.temp_bed.target)) {
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        last_target_temperature[0] = thermalManager.temp_hotend[0].target;
-        last_target_temperature_bed = thermalManager.temp_bed.target;
-      }
-
-      rts.updateTempBed();
-      rts.updateTempE0();
-
-      if ((thermalManager.temp_hotend[0].celsius >= thermalManager.temp_hotend[0].target) && (heatway == 1)) {
-        rts.gotoPage(23, 78);
-        heatway = 0;
-        rts.sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-      }
-
-      TERN_(CHECKFILAMENT, rts.sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP));
     }
-    next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + Update_Time_Value;
+
+    if (!poweroff_continue && power_off_type_yes) {
+      update_time_value = RTS_UPDATE_VALUE;
+      change_page_number = dark_mode ? 1 : 56;
+      gotoPage(change_page_number);
+    }
+    return;
   }
+
+  next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + update_time_value;
+
+  // TODO: optimize the following
+  if (print_job_timer.duration() != 0) {
+    duration_t elapsed = print_job_timer.duration();
+    static unsigned char last_cardpercentValue = 100;
+    sendData(elapsed.value / 3600, PRINT_TIME_HOUR_VP);
+    sendData((elapsed.value % 3600) / 60, PRINT_TIME_MIN_VP);
+
+    if (card.isPrinting() && (last_cardpercentValue != card.percentDone())) {
+      if ((unsigned char)card.percentDone() > 0) {
+        job_percent = card.percentDone();
+        if (job_percent <= 100) sendData((unsigned char)job_percent, PRINT_PROCESS_ICON_VP);
+        // Estimate remaining time every 20 seconds
+        static millis_t next_remain_time_update = 0;
+        if (ELAPSED(ms, next_remain_time_update)) {
+          if (thermalManager.degHotend(0) >= thermalManager.degTargetHotend(0) - 5) {
+            remain_time = elapsed.value / (job_percent * 0.01f) - elapsed.value;
+            next_remain_time_update += 20 * 1000UL;
+            sendData(remain_time / 3600, PRINT_SURPLUS_TIME_HOUR_VP);
+            sendData((remain_time % 3600) / 60, PRINT_SURPLUS_TIME_MIN_VP);
+          }
+        }
+      }
+      else {
+        sendData(0, PRINT_PROCESS_ICON_VP);
+        sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
+        sendData(0, PRINT_SURPLUS_TIME_MIN_VP);
+      }
+      sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
+      last_cardpercentValue = card.percentDone();
+    }
+  }
+
+  if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
+    pause_action_flag = false;
+    queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
+  }
+
+  TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+
+  #if HAS_HOTEND
+    if (last_target_temperature[0] != thermalManager.degTargetHotend(0))
+      last_target_temperature[0] = thermalManager.degTargetHotend(0);
+    updateTempE0();
+  #endif
+
+  #if HAS_HEATED_BED
+    if (last_target_temperature_bed != thermalManager.degTargetBed())
+      last_target_temperature_bed = thermalManager.degTargetBed();
+    updateTempBed();
+  #endif
+
+  #if HAS_HOTEND
+    if (heatway == 1 && !thermalManager.isHeatingHotend(0)) {
+      heatway = 0;
+      gotoPage(23, 78);
+      sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
+    }
+  #endif
+
+  #if HAS_FILAMENT_SENSOR
+    TERN_(CHECKFILAMENT, sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP));
+  #endif
 }
 
 // looping at the loop function
@@ -1713,59 +1715,29 @@ void RTS_Update() {
   }
 
   #if ENABLED(CHECKFILAMENT)
-    // Checking filament status during printing
-    if (card.isPrinting() && poweroff_continue) {
-      if (runout.filament_ran_out) {
-        Checkfilenum++;
-        delay(5);
+    // Check filament status during printing
+    // The runout class handles the runout threshold
+    if (card.isPrinting() && poweroff_continue && runout.filament_ran_out) {
+      rts.sendData(Beep, SoundAddr);
+      if (TERN0(HAS_HOTEND, thermalManager.still_heating(0)) || TERN0(HAS_HEATED_BED, !thermalManager.isCoolingBed())) {
+        rts.gotoPage(39, 94);
       }
       else {
-        delay(5);
-        if (runout.filament_ran_out)
-          Checkfilenum++;
-        else
-          Checkfilenum = 0;
+        rts.sendData(1, Wait_VP);
+        rts.gotoPage(40, 95);
+        waitway = 5;
+        TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
       }
-      if (Checkfilenum > 10) {
-        rts.sendData(Beep, SoundAddr);
-        if ((thermalManager.temp_hotend[0].celsius <= (thermalManager.temp_hotend[0].target - 5))) {
-          rts.gotoPage(39, 94);
-          card.pauseSDPrint();
-          print_job_timer.pause();
-          pause_action_flag = true;
-          Update_Time_Value = 0;
-          sdcard_pause_check = false;
-          print_flag = 1;
-        }
-        else if (thermalManager.temp_bed.celsius <= thermalManager.temp_bed.target) {
-          rts.gotoPage(39, 94);
-          card.pauseSDPrint();
-          print_job_timer.pause();
-          pause_action_flag = true;
-          Checkfilenum = 0;
-          Update_Time_Value = 0;
-          sdcard_pause_check = false;
-          print_flag = 1;
-        }
-        else {
-          rts.sendData(1, Wait_VP);
-          rts.gotoPage(40, 95);
-          waitway = 5;
-
-          TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
-          card.pauseSDPrint();
-          print_job_timer.pause();
-          pause_action_flag = true;
-          Checkfilenum = 0;
-          Update_Time_Value = 0;
-          sdcard_pause_check = false;
-          print_flag = 1;
-        }
-      }
+      card.pauseSDPrint();
+      print_job_timer.pause();
+      pause_action_flag = true;
+      update_time_value = 0;
+      sdcard_pause_check = false;
+      rts.print_state = 1;
     }
   #endif // CHECKFILAMENT
 
-  EachMomentUpdate();
+  rts.onIdle();
 
   // wait to receive massage and response
   while (rts.receiveData() > 0) rts.handleData();
@@ -1804,9 +1776,9 @@ void RTS_MoveAxisHoming() {
     waitway = 0;
   }
 
-  TERN_(HAS_X_AXIS, rts.sendData(10.0f * current_position.x, AXIS_X_COORD_VP));
-  TERN_(HAS_Y_AXIS, rts.sendData(10.0f * current_position.y, AXIS_Y_COORD_VP));
-  TERN_(HAS_Z_AXIS, rts.sendData(10.0f * current_position.z, AXIS_Z_COORD_VP));
+  TERN_(HAS_X_AXIS, rts.sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
+  TERN_(HAS_Y_AXIS, rts.sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
+  TERN_(HAS_Z_AXIS, rts.sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
 }
 
 #endif // SOVOL_SV06_RTS
