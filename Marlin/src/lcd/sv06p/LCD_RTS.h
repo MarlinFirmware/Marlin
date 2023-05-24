@@ -233,6 +233,9 @@ class RTS {
     FORCE_INLINE static void gotoPage(unsigned int page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
     FORCE_INLINE static void gotoPage(unsigned int p1, unsigned int p2) { gotoPage(dark_mode ? p1 : p2); }
 
+    static void updateTempE0();
+    static void updateTempBed();
+
     static DB recdat;
     static DB snddat;
   private:

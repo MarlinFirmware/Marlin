@@ -292,8 +292,7 @@ void RTS::init() {
   /***************transmit temperature to screen*****************/
   sendData(0, HEAD0_SET_TEMP_VP);
   sendData(0, BED_SET_TEMP_VP);
-  sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-  sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+  updateTempE0();
 
   /***************transmit Fan speed to screen*****************/
   // turn off fans
@@ -669,8 +668,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 4) {
-        sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        updateTempE0();
         gcode.process_subcommands_now(F("M600"));
       }
       break;
@@ -846,18 +844,18 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // PLA 预热
         thermalManager.temp_hotend[0].target = PREHEAT_1_TEMP_HOTEND;
         thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        updateTempE0();
         thermalManager.temp_bed.target = PREHEAT_1_TEMP_BED;
         thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        updateTempBed();
       }
       else if (recdat.data[0] == 2) { // ABS预热
         thermalManager.temp_hotend[0].target = PREHEAT_2_TEMP_HOTEND;
         thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        updateTempE0();
         thermalManager.temp_bed.target = PREHEAT_2_TEMP_BED;
         thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        updateTempBed();
       }
       else if (recdat.data[0] == 3) { // 返回主界面
         gotoPage(1, 56);
@@ -885,13 +883,13 @@ void RTS::handleData() {
     case Heater0TempEnterKey:
       thermalManager.temp_hotend[0].target = recdat.data[0];
       thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-      sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+      updateTempE0();
       break;
 
     case HotBedTempEnterKey:
       thermalManager.temp_bed.target = recdat.data[0];
       thermalManager.setTargetBed(thermalManager.temp_bed.target);
-      sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+      updateTempBed();
       break;
 
     case Heater0LoadEnterKey:
@@ -932,9 +930,8 @@ void RTS::handleData() {
       if (recdat.data[0] == 2) { // 进入换料界面
         Filament0LOAD = 10;
         sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-        sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
         thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        updateTempE0();
 
         delay(2);
         gotoPage(23, 78);
@@ -1081,15 +1078,15 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 3) {
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        updateTempE0();
         sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
         gotoPage(27, 82);
       }
       else if (recdat.data[0] == 5) {
         if (!planner.has_blocks_queued()) {
-          sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
           sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
+          updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
         }
@@ -1104,7 +1101,7 @@ void RTS::handleData() {
       else if (recdat.data[0] == 4) {
         if (!planner.has_blocks_queued()) {
           thermalManager.temp_hotend[0].target = 0;
-          sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+          updateTempE0();
           gotoPage(23, 78);
           Filament0LOAD = 10;
           sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
@@ -1113,9 +1110,9 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 8) {
         if (!planner.has_blocks_queued()) {
-          sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
           sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
+          updateTempE0();
           gotoPage(26, 81);
           heatway = 1;
         }
@@ -1449,14 +1446,8 @@ void RTS::handleData() {
       break;
 
     case FilamentChange: // 自动换料
-      if (recdat.data[0] == 1 && !runout.filament_ran_out) {
-        sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-        wait_for_heatup = wait_for_user = false;
-      }
-      else if (recdat.data[0] == 2) {
-        sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-        sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+      if ((recdat.data[0] == 1 && !runout.filament_ran_out) || recdat.data[0] == 2) {
+        updateTempE0();
         wait_for_heatup = wait_for_user = false;
       }
       else if (recdat.data[0] == 3) {
@@ -1627,8 +1618,8 @@ void RTS::handleData() {
       sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
       sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
-      sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-      sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+      updateTempE0();
+      updateTempBed();
 
       break;
 
@@ -1637,6 +1628,20 @@ void RTS::handleData() {
   ZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
+}
+
+void RTS::updateTempE0() {
+  #if HAS_EXTRUDERS
+    sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
+    sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+  #endif
+}
+
+void RTS::updateTempBed() {
+  #if HAS_HEATED_BED
+    sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+    sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+  #endif
 }
 
 void EachMomentUpdate() {
@@ -1718,18 +1723,17 @@ void EachMomentUpdate() {
         queue.enqueue_now_P(PSTR("M18 S0"));
       }
 
-      rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-      rts.sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
       rts.sendData(10 * current_position.z, AXIS_Z_COORD_VP);
 
       if ((last_target_temperature[0] != thermalManager.temp_hotend[0].target) || (last_target_temperature_bed != thermalManager.temp_bed.target)) {
         thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
         thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-        rts.sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
         last_target_temperature[0] = thermalManager.temp_hotend[0].target;
         last_target_temperature_bed = thermalManager.temp_bed.target;
       }
+
+      rts.updateTempBed();
+      rts.updateTempE0();
 
       if ((thermalManager.temp_hotend[0].celsius >= thermalManager.temp_hotend[0].target) && (heatway == 1)) {
         rts.gotoPage(23, 78);
@@ -1862,9 +1866,9 @@ void RTS_MoveAxisHoming() {
     waitway = 0;
   }
 
-  rts.sendData(10.0f * current_position.x, AXIS_X_COORD_VP);
-  rts.sendData(10.0f * current_position.y, AXIS_Y_COORD_VP);
-  rts.sendData(10.0f * current_position.z, AXIS_Z_COORD_VP);
+  TERN_(HAS_X_AXIS, rts.sendData(10.0f * current_position.x, AXIS_X_COORD_VP));
+  TERN_(HAS_Y_AXIS, rts.sendData(10.0f * current_position.y, AXIS_Y_COORD_VP));
+  TERN_(HAS_Z_AXIS, rts.sendData(10.0f * current_position.z, AXIS_Z_COORD_VP));
 }
 
 #endif // SOVOL_SV06_RTS

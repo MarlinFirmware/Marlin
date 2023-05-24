@@ -152,8 +152,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
 
   #if ENABLED(SOVOL_SV06_RTS)
     rts.gotoPage(7, 62);
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+    rts.updateTempE0();
   #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
@@ -284,8 +283,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
         #if ENABLED(SOVOL_SV06_RTS)
-          rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-          rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+          rts.updateTempE0();
           rts.gotoPage(43, 98);
         #endif
 
@@ -369,8 +367,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
   if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
 
   #if ENABLED(SOVOL_SV06_RTS)
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+    rts.updateTempE0();
     rts.gotoPage(16, 71);
   #endif
 
@@ -525,8 +522,7 @@ void show_continue_prompt(const bool is_reload) {
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
   #if ENABLED(SOVOL_SV06_RTS)
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+    rts.updateTempE0();
     rts.gotoPage(17, 72);
     rts.sendData(Beep, SoundAddr);
   #endif
@@ -572,8 +568,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     if (nozzle_timed_out) {
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
       #if ENABLED(SOVOL_SV06_RTS)
-        rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-        rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
+        rts.updateTempE0();
         rts.gotoPage(45, 99);
       #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));

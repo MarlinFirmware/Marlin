@@ -440,10 +440,8 @@ G29_TYPE GcodeSuite::G29() {
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         #if ENABLED(SOVOL_SV06_RTS)
-          rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
-          rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-          rts.sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-          rts.sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+          rts.updateTempE0();
+          rts.updateTempBed();
           rts.sendData(1, Wait_VP);
           rts.gotoPage(123, 124);
         #endif
