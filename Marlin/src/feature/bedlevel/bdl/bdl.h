@@ -27,6 +27,7 @@ enum BDS_State : int8_t {
   BDS_IDLE,
   BDS_VERSION         = -1,
   BDS_READ_MM         = -2,
+  BDS_HOMING_Z        = -3,
   BDS_READ_RAW        = -5,
   BDS_CALIBRATE_START = -6,
   BDS_CALIBRATING     = -7

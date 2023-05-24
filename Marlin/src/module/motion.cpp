@@ -77,6 +77,11 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+
+#if ENABLED(BD_SENSOR)
+  #include "../feature/bedlevel/bdl/bdl.h"
+#endif
+
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
@@ -2137,7 +2142,7 @@ void prepare_line_to_destination() {
         if (TERN0(PROBE_TARE, probe.tare())) return;
       }
     #endif
-
+    TERN_(BD_SENSOR, if (axis == Z_AXIS) bdl.config_state = BDS_HOMING_Z);
     //
     // Back away to prevent an early sensorless trigger
     //
@@ -2409,7 +2414,7 @@ void prepare_line_to_destination() {
     #if ENABLED(FWRETRACT)
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
-
+    TERN_(BD_SENSOR, if (axis == Z_AXIS) bdl.config_state = BDS_IDLE);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
   } // homeaxis()
