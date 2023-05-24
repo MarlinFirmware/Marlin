@@ -846,7 +846,7 @@ volatile bool Temperature::raw_temps_ready = false;
               }
               else if (ELAPSED(ms, temp_change_ms)) {                 // Watch timer expired
                 #if ENABLED(SOVOL_SV06_RTS)
-                  rts.sendData(ExchangePageBase + (mode_flag ? 53 : 108), ExchangepageAddr);
+                  rts.gotoPage(53, 108);
                   rts.sendData(Beep1, SoundAddr);
                 #endif
                 _temp_error(heater_id, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
@@ -854,7 +854,7 @@ volatile bool Temperature::raw_temps_ready = false;
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
               #if ENABLED(SOVOL_SV06_RTS)
-                rts.sendData(ExchangePageBase + (mode_flag ? 52 : 107), ExchangepageAddr);
+                rts.gotoPage(52, 107);
                 rts.sendData(Beep1, SoundAddr);
               #endif
               _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
@@ -873,7 +873,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
         #if ENABLED(SOVOL_SV06_RTS)
-          rts.sendData(ExchangePageBase + (mode_flag ? 53 : 108), ExchangepageAddr);
+          rts.gotoPage(53, 108);
           rts.sendData(Beep1, SoundAddr);
         #endif
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
@@ -1556,7 +1556,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id) {
     #if HAS_DWIN_E3V2_BASIC
       DWIN_Popup_Temperature(1);
     #elif ENABLED(SOVOL_SV06_RTS)
-      rts.sendData(ExchangePageBase + (mode_flag ? 54 : 109), ExchangepageAddr);
+      rts.gotoPage(54, 109);
       rts.sendData(Beep1, SoundAddr);
     #endif
   #endif
@@ -1568,7 +1568,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
     #if HAS_DWIN_E3V2_BASIC
       DWIN_Popup_Temperature(0);
     #elif ENABLED(SOVOL_SV06_RTS)
-      rts.sendData(ExchangePageBase + (mode_flag ? 54 : 109), ExchangepageAddr);
+      rts.gotoPage(54, 109);
       rts.sendData(Beep1, SoundAddr);
     #endif
   #endif
@@ -1774,7 +1774,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         if (degHotend(e) > temp_range[e].maxtemp) {
           #if ENABLED(SOVOL_SV06_RTS)
-            rts.sendData(ExchangePageBase + (mode_flag ? 54 : 109), ExchangepageAddr);
+            rts.gotoPage(54, 109);
             rts.sendData(Beep1, SoundAddr);
           #endif
           maxtemp_error((heater_id_t)e);
@@ -1798,7 +1798,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
             #if ENABLED(SOVOL_SV06_RTS)
-              rts.sendData(ExchangePageBase + (mode_flag ? 53 : 108), ExchangepageAddr);
+              rts.gotoPage(53, 108);
               rts.sendData(Beep1, SoundAddr);
             #endif
             _temp_error((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
@@ -1818,7 +1818,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
     #if ENABLED(THERMAL_PROTECTION_BED)
       if (degBed() > BED_MAXTEMP) {
         #if ENABLED(SOVOL_SV06_RTS)
-          rts.sendData(ExchangePageBase + (mode_flag ? 54 : 109), ExchangepageAddr);
+          rts.gotoPage(54, 109);
           rts.sendData(Beep1, SoundAddr);
         #endif
         maxtemp_error(H_BED);
@@ -1833,7 +1833,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
         else {
           TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
           #if ENABLED(SOVOL_SV06_RTS)
-            rts.sendData(ExchangePageBase + (mode_flag ? 53 : 108), ExchangepageAddr);
+            rts.gotoPage(53, 108);
             rts.sendData(Beep1, SoundAddr);
           #endif
           _temp_error(H_BED, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
@@ -3234,7 +3234,7 @@ void Temperature::init() {
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
         #if ENABLED(SOVOL_SV06_RTS)
-          rts.sendData(ExchangePageBase + (mode_flag ? 52 : 107), ExchangepageAddr);
+          rts.gotoPage(52, 107);
           rts.sendData(Beep1, SoundAddr);
         #endif
         _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
@@ -4455,8 +4455,8 @@ void Temperature::isr() {
         #elif ENABLED(SOVOL_SV06_RTS)
           Update_Time_Value = RTS_UPDATE_VALUE;
           if (IS_SD_PRINTING()) {
-            rts.sendData(1, mode_flag ? Time_VP : Time1_VP);
-            rts.sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+            rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
+            rts.gotoPage(11, 66);
           }
           start_print_flag = 0;
         #else

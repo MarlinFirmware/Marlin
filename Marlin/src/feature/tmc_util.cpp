@@ -211,7 +211,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
-      TERN_(SOVOL_SV06_RTS, rts.sendData(ExchangePageBase + (mode_flag ? 112 : 118), ExchangepageAddr));
+      TERN_(SOVOL_SV06_RTS, rts.gotoPage(112, 118));
       kill(F("Driver error"));
     }
   #endif

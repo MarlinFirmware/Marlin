@@ -445,7 +445,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
           rts.sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
           rts.sendData(1, Wait_VP);
-          rts.sendData(ExchangePageBase + (mode_flag ? 123 : 124), ExchangepageAddr);
+          rts.gotoPage(123, 124);
         #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
@@ -731,7 +731,7 @@ G29_TYPE GcodeSuite::G29() {
             #if ENABLED(SOVOL_SV06_RTS)
               if (pt_index <= GRID_MAX_POINTS) rts.sendData(pt_index, AUTO_BED_LEVEL_ICON_VP);
               rts.sendData(z * 100.0f, AUTO_BED_LEVEL_1POINT_VP + (pt_index - 1) * 2);
-              rts.sendData(ExchangePageBase + (mode_flag ? 38 : 93), ExchangepageAddr);
+              rts.gotoPage(38, 93);
             #endif
 
           #endif

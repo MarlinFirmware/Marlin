@@ -266,7 +266,7 @@ void Endstops::not_homing() {
       hit_on_purpose();
     else {
       #if ENABLED(SOVOL_SV06_RTS)
-        rts.sendData(ExchangePageBase + (mode_flag ? 55 : 110), ExchangepageAddr);
+        rts.gotoPage(55, 110);
         rts.sendData(Beep1, SoundAddr);
       #endif
       kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));

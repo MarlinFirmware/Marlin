@@ -615,8 +615,8 @@ void PrintJobRecovery::resume() {
 
   #if ENABLED(SOVOL_SV06_RTS)
     if (print_flag) {
-      rts.sendData(1, mode_flag ? Time_VP : Time1_VP);
-      rts.sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+      rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
+      rts.gotoPage(11, 66);
     }
     start_print_flag = 0;
   #endif

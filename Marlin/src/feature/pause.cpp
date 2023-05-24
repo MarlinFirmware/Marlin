@@ -149,11 +149,13 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
+
   #if ENABLED(SOVOL_SV06_RTS)
-    rts.sendData(ExchangePageBase + (mode_flag ? 7 : 62), ExchangepageAddr);
+    rts.gotoPage(7, 62);
     rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
     rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
   #endif
+
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
   // Allow interruption by Emergency Parser M108
@@ -284,7 +286,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         #if ENABLED(SOVOL_SV06_RTS)
           rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
           rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-          rts.sendData(ExchangePageBase + (mode_flag ? 43 : 98), ExchangepageAddr);
+          rts.gotoPage(43, 98);
         #endif
 
         // Extrude filament to get into hotend
@@ -302,7 +304,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-            TERN_(SOVOL_SV06_RTS, rts.sendData(ExchangePageBase + (mode_flag ? 44 : 100), ExchangepageAddr));
+            TERN_(SOVOL_SV06_RTS, rts.gotoPage(44, 100));
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
@@ -369,7 +371,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
   #if ENABLED(SOVOL_SV06_RTS)
     rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
     rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-    rts.sendData(ExchangePageBase + (mode_flag ? 16 : 71), ExchangepageAddr);
+    rts.gotoPage(16, 71);
   #endif
 
   // Retract filament
@@ -525,7 +527,7 @@ void show_continue_prompt(const bool is_reload) {
   #if ENABLED(SOVOL_SV06_RTS)
     rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
     rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-    rts.sendData(ExchangePageBase + (mode_flag ? 17 : 72), ExchangepageAddr);
+    rts.gotoPage(17, 72);
     rts.sendData(Beep, SoundAddr);
   #endif
   SERIAL_ECHO_START();
@@ -572,7 +574,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #if ENABLED(SOVOL_SV06_RTS)
         rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
         rts.sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-        rts.sendData(ExchangePageBase + (mode_flag ? 45 : 99), ExchangepageAddr);
+        rts.gotoPage(45, 99);
       #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
@@ -719,10 +721,10 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)
     if (pause_flag)
-      rts.sendData(ExchangePageBase + (mode_flag ? 12 : 67), ExchangepageAddr);
+      rts.gotoPage(12, 67);
     else {
-      rts.sendData(1, mode_flag ? Time_VP : Time1_VP);
-      rts.sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+      rts.sendData(1, dark_mode ? Time_VP : Time1_VP);
+      rts.gotoPage(11, 66);
     }
   #endif
 

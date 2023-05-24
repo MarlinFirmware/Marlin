@@ -229,6 +229,10 @@ class RTS {
     static void handleData();
     static void init();
 
+    static bool dark_mode;
+    FORCE_INLINE static void gotoPage(unsigned int page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
+    FORCE_INLINE static void gotoPage(unsigned int p1, unsigned int p2) { gotoPage(dark_mode ? p1 : p2); }
+
     static DB recdat;
     static DB snddat;
   private:
@@ -270,9 +274,7 @@ enum PROC_COM {
   Nozzle_P, Nozzle_I, Nozzle_D,
   Hot_Bed_P, Hot_Bed_I, Hot_Bed_D,
   Vmax_X, Vmax_Y, Vmax_Z, Vmax_E,
-  Accel,
-  A_Retract,
-  A_Travel,
+  Accel, A_Retract, A_Travel,
   Amax_X, Amax_Y, Amax_Z, Amax_E,
   Jerk_X, Jerk_Y, Jerk_Z, Jerk_E,
   Steps_X, Steps_Y, Steps_Z, Steps_E,
@@ -307,7 +309,6 @@ extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
 extern int start_print_flag;
-extern bool mode_flag;
 extern bool pause_flag;
 extern int print_flag;
 

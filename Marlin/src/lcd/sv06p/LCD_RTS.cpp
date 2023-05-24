@@ -28,6 +28,9 @@
 DB RTS::recdat;
 DB RTS::snddat;
 uint8_t RTS::databuf[DATA_BUF_SIZE];
+
+bool RTS::dark_mode = false;
+
 RTS rts;
 
 #include <WString.h>
@@ -120,7 +123,6 @@ static bool last_card_insert_st;
 bool card_insert_st;
 bool sd_printing;
 
-bool mode_flag = false;
 int fan_speed;
 char cmd[MAX_CMD_SIZE + 16];
 
@@ -248,7 +250,7 @@ void RTS::sdCardUpdate(void) {
 }
 
 void RTS::init() {
-  mode_flag = BL24CXX::readOneByte(FONT_EEPROM);
+  dark_mode = BL24CXX::readOneByte(FONT_EEPROM);
   AxisUnitMode = 1;
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bool zig = false;
@@ -307,7 +309,7 @@ void RTS::init() {
 
   /**************************some info init*******************************/
   sendData(0, PRINT_PROCESS_ICON_VP);
-  change_page_number = CardReader::flag.mounted ? (mode_flag ? 1 : 56) : 0;
+  change_page_number = CardReader::flag.mounted ? (dark_mode ? 1 : 56) : 0;
 }
 
 int RTS::receiveData() {
@@ -595,10 +597,10 @@ void RTS::handleData() {
         CardRecbuf.recordcount = -1;
         if (CardReader::flag.mounted) {
           for (int j = 0; j < 20; j ++) sendData(0, SELECT_FILE_TEXT_VP + j);
-          sendData(ExchangePageBase + (mode_flag ? 2 : 57), ExchangepageAddr);
+          gotoPage(2, 57);
         }
         else
-          sendData(ExchangePageBase + (mode_flag ? 47 : 102), ExchangepageAddr);
+          gotoPage(47, 102);
       }
       else if (recdat.data[0] == 2) { //完成打印
         waitway = 7;
@@ -622,26 +624,26 @@ void RTS::handleData() {
         queue.enqueue_now_P(PSTR("G28\nG1 F200 Z0.0"));
         sendData(thermalManager.fan_speed[0], Fan_speed_VP);
         sendData(1, Wait_VP);
-        sendData(ExchangePageBase + (mode_flag ? 32 : 87), ExchangepageAddr);
+        gotoPage(32, 87);
       }
       else if (recdat.data[0] == 4) { //进入设置界面
-        sendData(ExchangePageBase + (mode_flag ? 21 : 76), ExchangepageAddr);
+        gotoPage(21, 76);
       }
       else if (recdat.data[0] == 5) { //进入温度界面
         sendData(thermalManager.fan_speed[0], Fan_speed_VP);
-        sendData(ExchangePageBase + (mode_flag ? 15 : 70), ExchangepageAddr);
+        gotoPage(15, 70);
       }
-      else if (recdat.data[0] == 6) { //换白色模式
-        mode_flag = false;
-        BL24CXX::writeOneByte(FONT_EEPROM, mode_flag);
-        sendData(ExchangePageBase + 56, ExchangepageAddr);
+      else if (recdat.data[0] == 6) { // Light mode
+        dark_mode = false;
+        BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
+        gotoPage(56);
         change_page_number = 56;
         settings.save();
       }
-      else if (recdat.data[0] == 7) { //换黑色模式
-        mode_flag = true;
-        BL24CXX::writeOneByte(FONT_EEPROM, mode_flag);
-        sendData(ExchangePageBase + 1, ExchangepageAddr);
+      else if (recdat.data[0] == 7) { // Dark mode
+        dark_mode = true;
+        BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
+        gotoPage(1);
         change_page_number = 1;
         settings.save();
       }
@@ -651,18 +653,18 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { //进入调整界面
         sendData(thermalManager.fan_speed[0], Fan_speed_VP);
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        sendData(ExchangePageBase + (mode_flag ? 28 : 83), ExchangepageAddr);
+        gotoPage(28, 83);
       }
       else if (recdat.data[0] == 2) { //返回打印界面
         if (start_print_flag == 1) {
-          sendData(ExchangePageBase + (mode_flag ? 10 : 65), ExchangepageAddr);
+          gotoPage(10, 65);
         }
         else if (sdcard_pause_check == false) {
-          sendData(ExchangePageBase + (mode_flag ? 12 : 67), ExchangepageAddr);
+          gotoPage(12, 67);
         }
         else {
-          sendData(1, mode_flag ? Time_VP : Time1_VP);
-          sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+          sendData(1, dark_mode ? Time_VP : Time1_VP);
+          gotoPage(11, 66);
           start_print_flag = 0;
         }
       }
@@ -687,7 +689,7 @@ void RTS::handleData() {
     case StopPrintKey: // 停止打印
       if ((recdat.data[0] == 1) || (recdat.data[0] == 0xF1)) {
         sendData(1, Wait_VP);
-        sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+        gotoPage(40, 95);
         sendData(0, PRINT_TIME_HOUR_VP);
         sendData(0, PRINT_TIME_MIN_VP);
         sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
@@ -698,14 +700,14 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 0xF0) {
         if (start_print_flag == 1) {
-          sendData(ExchangePageBase + (mode_flag ? 10 : 65), ExchangepageAddr);
+          gotoPage(10, 65);
         }
         else if (sdcard_pause_check == false) {
-          sendData(ExchangePageBase + (mode_flag ? 12 : 67), ExchangepageAddr);
+          gotoPage(12, 67);
         }
         else {
-          sendData(1, mode_flag ? Time_VP : Time1_VP);
-          sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+          sendData(1, dark_mode ? Time_VP : Time1_VP);
+          gotoPage(11, 66);
           start_print_flag = 0;
         }
       }
@@ -716,7 +718,7 @@ void RTS::handleData() {
 
       if (recdat.data[0] == 0xF1) {
         sendData(1, Wait_VP);
-        sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+        gotoPage(40, 95);
         // reject to receive cmd
         change_page_number = 12;
         waitway = 1;
@@ -734,36 +736,36 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // 暂停恢复打印
         #if ENABLED(CHECKFILAMENT)
           if (runout.filament_ran_out) {
-            sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+            gotoPage(39, 94);
           }
         #endif
         //sendData(1, Wait_VP);
-        //sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+        //gotoPage(40, 95);
         card.startOrResumeFilePrinting();
         Update_Time_Value = 0;
         sdcard_pause_check = true;
         pause_action_flag = false;
         pause_flag = false;
-        sendData(1, mode_flag ? Time_VP : Time1_VP);
-        sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+        sendData(1, dark_mode ? Time_VP : Time1_VP);
+        gotoPage(11, 66);
         print_flag = 2;
       }
       else if (recdat.data[0] == 2) {
         #if ENABLED(CHECKFILAMENT)
           if (runout.filament_ran_out) {
-            sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+            gotoPage(39, 94);
           }
           else {
             sendData(1, Wait_VP);
-            sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+            gotoPage(40, 95);
             card.startOrResumeFilePrinting();
             print_job_timer.start();
 
             Update_Time_Value = 0;
             pause_action_flag = false;
             sdcard_pause_check = true;
-            sendData(1, mode_flag ? Time_VP : Time1_VP);
-            sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+            sendData(1, dark_mode ? Time_VP : Time1_VP);
+            gotoPage(11, 66);
             print_flag = 2;
           }
         #endif
@@ -777,13 +779,13 @@ void RTS::handleData() {
             else {
               sendData(1, CHANGE_FILAMENT_ICON_VP);
             }
-            sendData(ExchangePageBase + (mode_flag ? 8 : 63), ExchangepageAddr);
+            gotoPage(8, 63);
           #endif
         }
         else if (poweroff_continue == false) {
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out) {
-              sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+              gotoPage(39, 94);
               break;
             }
           #endif
@@ -808,7 +810,7 @@ void RTS::handleData() {
           zprobe_zoffset = last_zoffset;
           sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
           poweroff_continue = true;
-          sendData(ExchangePageBase + (mode_flag ? 10 : 65), ExchangepageAddr);
+          gotoPage(10, 65);
           sdcard_pause_check = true;
         }
       }
@@ -816,15 +818,15 @@ void RTS::handleData() {
         if (!CardReader::flag.mounted) {
           CardUpdate = true;
           sdCardUpdate();
-          sendData(ExchangePageBase + (mode_flag ? 46 : 101), ExchangepageAddr);
+          gotoPage(46, 101);
         }
         else {
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out)
-              sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+              gotoPage(39, 94);
           #endif
           sendData(1, Wait_VP);
-          sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+          gotoPage(40, 95);
           card.startOrResumeFilePrinting();
           Update_Time_Value = 0;
           sdcard_pause_check = true;
@@ -834,8 +836,8 @@ void RTS::handleData() {
             if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
               rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
 
-          sendData(1, mode_flag ? Time_VP : Time1_VP);
-          sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+          sendData(1, dark_mode ? Time_VP : Time1_VP);
+          gotoPage(11, 66);
         }
       }
       break;
@@ -858,7 +860,7 @@ void RTS::handleData() {
         sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
       }
       else if (recdat.data[0] == 3) { // 返回主界面
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
       }
       else if (recdat.data[0] == 0xF1) { // 冷却
         #if FAN_COUNT > 0
@@ -873,10 +875,10 @@ void RTS::handleData() {
           sendData(0, BED_SET_TEMP_VP); delay(1);
         #endif
 
-        sendData(ExchangePageBase + (mode_flag ? 15 : 70), ExchangepageAddr);
+        gotoPage(15, 70);
       }
       else if (recdat.data[0] == 0xF0) {
-        sendData(ExchangePageBase + (mode_flag ? 15 : 70), ExchangepageAddr);
+        gotoPage(15, 70);
       }
       break;
 
@@ -900,24 +902,24 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         AxisUnitMode = 1;
         axis_unit = 10.0;
-        sendData(ExchangePageBase + (mode_flag ? 29 : 84), ExchangepageAddr);
+        gotoPage(29, 84);
       }
       else if (recdat.data[0] == 2) {
         AxisUnitMode = 2;
         axis_unit = 1.0;
-        sendData(ExchangePageBase + (mode_flag ? 30 : 85), ExchangepageAddr);
+        gotoPage(30, 85);
       }
       else if (recdat.data[0] == 3) {
         AxisUnitMode = 3;
         axis_unit = 0.1;
-        sendData(ExchangePageBase + (mode_flag ? 31 : 86), ExchangepageAddr);
+        gotoPage(31, 86);
       }
       else if (recdat.data[0] == 4) {
         waitway = 4;
         queue.enqueue_now_P(PSTR("G28"));
         Update_Time_Value = 0;
         sendData(1, Wait_VP);
-        sendData(ExchangePageBase + (mode_flag ? 32 : 87), ExchangepageAddr);
+        gotoPage(32, 87);
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 5) { // 解锁电机
@@ -935,7 +937,7 @@ void RTS::handleData() {
         sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
 
         delay(2);
-        sendData(ExchangePageBase + (mode_flag ? 23 : 78), ExchangepageAddr);
+        gotoPage(23, 78);
       }
       else if (recdat.data[0] == 3) { // 进入移动界面
         AxisUnitMode = 1;
@@ -943,11 +945,11 @@ void RTS::handleData() {
         sendData(10 * current_position.y, AXIS_Y_COORD_VP);
         sendData(10 * current_position.z, AXIS_Z_COORD_VP);
 
-        sendData(ExchangePageBase + (mode_flag ? 29 : 84), ExchangepageAddr);
+        gotoPage(29, 84);
       }
       else if (recdat.data[0] == 4) { // 进入高级设置界面
         sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
-        sendData(ExchangePageBase + (mode_flag ? 49 : 104), ExchangepageAddr);
+        gotoPage(49, 104);
       }
       else if (recdat.data[0] == 5) { // 信息
         char sizebuf[20] = {0};
@@ -957,10 +959,10 @@ void RTS::handleData() {
         sendData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
         sendData(MARLINVERSION, MARLIN_VERSION_TEXT_VP);
         sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
-        sendData(ExchangePageBase + (mode_flag ? 33 : 88), ExchangepageAddr);
+        gotoPage(33, 88);
       }
       else if (recdat.data[0] == 7) { // 返回
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
       }
       break;
 
@@ -968,11 +970,11 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         Update_Time_Value = RTS_UPDATE_VALUE;
         //settings.save();
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
       }
       else if (recdat.data[0] == 2) {
         if (!planner.has_blocks_queued()) {
-          sendData(ExchangePageBase + (mode_flag ? 111 : 117), ExchangepageAddr);
+          gotoPage(111, 117);
         }
       }
       break;
@@ -1044,14 +1046,14 @@ void RTS::handleData() {
         if (!planner.has_blocks_queued()) {
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out) {
-              sendData(ExchangePageBase + (mode_flag ? 20 : 75), ExchangepageAddr);
+              gotoPage(20, 75);
             }
           #endif
           current_position[E_AXIS] -= Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
             sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
-            sendData(ExchangePageBase + (mode_flag ? 24 : 79), ExchangepageAddr);
+            gotoPage(24, 79);
           }
           else {
             RTS_line_to_current(E_AXIS);
@@ -1063,14 +1065,14 @@ void RTS::handleData() {
         if (!planner.has_blocks_queued()) {
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out) {
-              sendData(ExchangePageBase + (mode_flag ? 20 : 75), ExchangepageAddr);
+              gotoPage(20, 75);
             }
           #endif
           current_position[E_AXIS] += Filament0LOAD;
 
           if (thermalManager.temp_hotend[0].celsius < (ChangeFilament0Temp - 5)) {
             sendData((int)ChangeFilament0Temp, CHANGE_FILAMENT0_TEMP_VP);
-            sendData(ExchangePageBase + (mode_flag ? 24 : 79), ExchangepageAddr);
+            gotoPage(24, 79);
           }
           else {
             RTS_line_to_current(E_AXIS);
@@ -1081,14 +1083,14 @@ void RTS::handleData() {
       else if (recdat.data[0] == 3) {
         sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
         sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-        sendData(ExchangePageBase + (mode_flag ? 27 : 82), ExchangepageAddr);
+        gotoPage(27, 82);
       }
       else if (recdat.data[0] == 5) {
         if (!planner.has_blocks_queued()) {
           sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
           sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
-          sendData(ExchangePageBase + (mode_flag ? 26 : 81), ExchangepageAddr);
+          gotoPage(26, 81);
           heatway = 1;
         }
       }
@@ -1096,14 +1098,14 @@ void RTS::handleData() {
         if (!planner.has_blocks_queued()) {
           Filament0LOAD = 10;
           sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
-          sendData(ExchangePageBase + (mode_flag ? 23 : 78), ExchangepageAddr);
+          gotoPage(23, 78);
         }
       }
       else if (recdat.data[0] == 4) {
         if (!planner.has_blocks_queued()) {
           thermalManager.temp_hotend[0].target = 0;
           sendData(thermalManager.temp_hotend[0].target, HEAD0_SET_TEMP_VP);
-          sendData(ExchangePageBase + (mode_flag ? 23 : 78), ExchangepageAddr);
+          gotoPage(23, 78);
           Filament0LOAD = 10;
           sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
           break;
@@ -1114,7 +1116,7 @@ void RTS::handleData() {
           sendData(thermalManager.temp_hotend[0].celsius, HEAD0_CURRENT_TEMP_VP);
           thermalManager.setTargetHotend(ChangeFilament0Temp, 0);
           sendData(ChangeFilament0Temp, HEAD0_SET_TEMP_VP);
-          sendData(ExchangePageBase + (mode_flag ? 26 : 81), ExchangepageAddr);
+          gotoPage(26, 81);
           heatway = 1;
         }
         break;
@@ -1125,15 +1127,15 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         #if ENABLED(CHECKFILAMENT)
           if (runout.filament_ran_out) {
-            sendData(ExchangePageBase + (mode_flag ? 20 : 75), ExchangepageAddr);
+            gotoPage(20, 75);
           }
           else {
-            sendData(ExchangePageBase + (mode_flag ? 23 : 78), ExchangepageAddr);
+            gotoPage(23, 78);
           }
         #endif
       }
       else if (recdat.data[0] == 2) {
-        sendData(ExchangePageBase + (mode_flag ? 21 : 76), ExchangepageAddr);
+        gotoPage(21, 76);
         Filament0LOAD = 10;
       }
     break;
@@ -1143,7 +1145,7 @@ void RTS::handleData() {
         if (poweroff_continue) {
           power_off_type_yes = true;
           Update_Time_Value = 0;
-          sendData(ExchangePageBase + (mode_flag ? 10 : 65), ExchangepageAddr);
+          gotoPage(10, 65);
           queue.enqueue_now_P(PSTR("M1000"));
 
           poweroff_continue = true;
@@ -1156,7 +1158,7 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 2) {
         Update_Time_Value = RTS_UPDATE_VALUE;
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
         poweroff_continue = false;
         sdcard_pause_check = true;
         queue.clear();
@@ -1212,7 +1214,7 @@ void RTS::handleData() {
         FilenamesCount = CardRecbuf.recordcount;
         #if ENABLED(CHECKFILAMENT)
           if (runout.filament_ran_out) {
-            sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+            gotoPage(39, 94);
             sdcard_pause_check = false;
             break;
           }
@@ -1234,26 +1236,26 @@ void RTS::handleData() {
         zprobe_zoffset = last_zoffset;
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
         poweroff_continue = true;
-        sendData(ExchangePageBase + (mode_flag ? 10 : 65), ExchangepageAddr);
+        gotoPage(10, 65);
         change_page_number = 11;
         Update_Time_Value = 0;
         start_print_flag = 1;
         print_flag = 2;
       }
       else if (recdat.data[0] == 2)
-        sendData(ExchangePageBase + (mode_flag ? 3 : 58), ExchangepageAddr);
+        gotoPage(3, 58);
       else if (recdat.data[0] == 3)
-        sendData(ExchangePageBase + (mode_flag ? 2 : 57), ExchangepageAddr);
+        gotoPage(2, 57);
       else if (recdat.data[0] == 4)
-        sendData(ExchangePageBase + (mode_flag ? 4 : 59), ExchangepageAddr);
+        gotoPage(4, 59);
       else if (recdat.data[0] == 5)
-        sendData(ExchangePageBase + (mode_flag ? 3 : 58), ExchangepageAddr);
+        gotoPage(3, 58);
       else if (recdat.data[0] == 6)
-        sendData(ExchangePageBase + (mode_flag ? 5 : 60), ExchangepageAddr);
+        gotoPage(5, 60);
       else if (recdat.data[0] == 7)
-        sendData(ExchangePageBase + (mode_flag ? 4 : 59), ExchangepageAddr);
+        gotoPage(4, 59);
       else if (recdat.data[0] == 8)
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
       break;
 
     case StoreMemoryKey: // 初始化
@@ -1287,10 +1289,10 @@ void RTS::handleData() {
         zprobe_zoffset = 0;
         last_zoffset = 0;
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+        gotoPage(1, 56);
       }
       else if (recdat.data[0] == 0xF0) {
-        sendData(ExchangePageBase + (mode_flag ? 21 : 76), ExchangepageAddr);
+        gotoPage(21, 76);
       }
       break;
 
@@ -1311,14 +1313,14 @@ void RTS::handleData() {
         sendData(bed_p, Hot_Bed_P_VP);
         sendData(bed_i, Hot_Bed_I_VP);
         sendData(bed_d, Hot_Bed_D_VP);
-        sendData(ExchangePageBase + (mode_flag ? 41 : 96), ExchangepageAddr);
+        gotoPage(41, 96);
       }
       else if (recdat.data[0] == 2) { // 速度
         sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP);
         sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP);
         sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP);
         sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 25 : 80), ExchangepageAddr);
+        gotoPage(25, 80);
       }
       else if (recdat.data[0] == 3) { // 加速度
         sendData(planner.settings.acceleration, Accel_VP);
@@ -1328,31 +1330,31 @@ void RTS::handleData() {
         sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP);
         sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP);
         sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 34 : 89), ExchangepageAddr);
+        gotoPage(34, 89);
       }
       else if (recdat.data[0] == 4) { // Jrek
         sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP);
         sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP);
         sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP);
         sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 35 : 90), ExchangepageAddr);
+        gotoPage(35, 90);
       }
       else if (recdat.data[0] == 5) { // Steps
         sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP);
         sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP);
         sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP);
         sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 37 : 92), ExchangepageAddr);
+        gotoPage(37, 92);
       }
       else if (recdat.data[0] == 6) { // 返回
-        sendData(ExchangePageBase + (mode_flag ? 21 : 76), ExchangepageAddr);
+        gotoPage(21, 76);
       }
       else if (recdat.data[0] == 7) { // 确认
         sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
-        sendData(ExchangePageBase + (mode_flag ? 18 : 73), ExchangepageAddr);
+        gotoPage(18, 73);
       }
       else if (recdat.data[0] == 8) { // TMC
-        sendData(ExchangePageBase + (mode_flag ? 113 : 119), ExchangepageAddr);
+        gotoPage(113, 119);
       }
       else if (recdat.data[0] == 9) { // 保存
         settings.save();
@@ -1440,7 +1442,7 @@ void RTS::handleData() {
       planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f;
       break;
     case AdvancedBackKey:
-      sendData(ExchangePageBase + (mode_flag ? 18 : 73), ExchangepageAddr);
+      gotoPage(18, 73);
       break;
     case Advance_K:
       planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f;
@@ -1467,13 +1469,13 @@ void RTS::handleData() {
 
     case ZoffsetUnitKey: // Zoffset unit
       if (recdat.data[0] == 1)
-        sendData(ExchangePageBase + (mode_flag ? 28 : 83), ExchangepageAddr);
+        gotoPage(28, 83);
       else if (recdat.data[0] == 2)
-        sendData(ExchangePageBase + (mode_flag ? 14 : 69), ExchangepageAddr);
+        gotoPage(14, 69);
       if (recdat.data[0] == 3)
-        sendData(ExchangePageBase + (mode_flag ? 111 : 117), ExchangepageAddr);
+        gotoPage(111, 117);
       else if (recdat.data[0] == 4)
-        sendData(ExchangePageBase + (mode_flag ? 22 : 77), ExchangepageAddr);
+        gotoPage(22, 77);
       break;
 
     case ZOffsetKey:
@@ -1491,25 +1493,25 @@ void RTS::handleData() {
         sendData(stepperY.getMilliamps(), Current_Y_VP);
         sendData(stepperZ.getMilliamps(), Current_Z_VP);
         sendData(stepperE0.getMilliamps(), Current_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 114 : 120), ExchangepageAddr);
+        gotoPage(114, 120);
       }
       else if (recdat.data[0] == 2) { // threshold
         sendData(stepperX.get_pwm_thrs(), Threshold_X_VP);
         sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP);
         sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP);
         sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP);
-        sendData(ExchangePageBase + (mode_flag ? 115 : 121), ExchangepageAddr);
+        gotoPage(115, 121);
       }
       else if (recdat.data[0] == 3) { // Sensorless
         sendData(stepperX.homing_threshold(), Sensorless_X_VP);
         sendData(stepperY.homing_threshold(), Sensorless_Y_VP);
-        sendData(ExchangePageBase + (mode_flag ? 116 : 122), ExchangepageAddr);
+        gotoPage(116, 122);
       }
       else if (recdat.data[0] == 4) {
-        sendData(ExchangePageBase + (mode_flag ? 18 : 73), ExchangepageAddr);
+        gotoPage(18, 73);
       }
       else if (recdat.data[0] == 5) {
-        sendData(ExchangePageBase + (mode_flag ? 113 : 119), ExchangepageAddr);
+        gotoPage(113, 119);
       }
       break;
     case Current_X:
@@ -1557,12 +1559,12 @@ void RTS::handleData() {
       if (change_page_number == 36 || change_page_number == 76) break;
 
       if (change_page_number == 11) {
-        sendData(1, mode_flag ? Time_VP : Time1_VP);
-        sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+        sendData(1, dark_mode ? Time_VP : Time1_VP);
+        gotoPage(11, 66);
         start_print_flag = 0;
       }
       else if (change_page_number == 12) {
-        sendData(ExchangePageBase + (mode_flag ? 12 : 67), ExchangepageAddr);
+        gotoPage(12, 67);
       }
       else if ((change_page_number != 12) && (change_page_number != 11) && card.isPrinting()) {
         for (uint16_t i = 0;i < CardRecbuf.Filesum; i++)
@@ -1570,7 +1572,7 @@ void RTS::handleData() {
             rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
 
         sendData(1, Time1_VP);
-        sendData(ExchangePageBase + (mode_flag ? 11 : 66), ExchangepageAddr);
+        gotoPage(11, 66);
       }
       else
         sendData(change_page_number + ExchangePageBase, ExchangepageAddr);
@@ -1652,7 +1654,7 @@ void EachMomentUpdate() {
         for (uint16_t i = 0; i < CardRecbuf.Filesum; i++) {
           if (!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1])) {
             rts.sendData(CardRecbuf.Cardshowfilename[i], PRINT_FILE_TEXT_VP);
-            rts.sendData(ExchangePageBase + (mode_flag ? 36 : 91), ExchangepageAddr);
+            rts.gotoPage(36, 91);
             break;
           }
         }
@@ -1671,7 +1673,7 @@ void EachMomentUpdate() {
         rts.sendData(StartSoundSet, SoundAddr);
         power_off_type_yes = true;
         Update_Time_Value = RTS_UPDATE_VALUE;
-        change_page_number = mode_flag ? 1 : 56;
+        change_page_number = dark_mode ? 1 : 56;
         rts.sendData(ExchangePageBase + change_page_number, ExchangepageAddr);
       }
       return;
@@ -1730,7 +1732,7 @@ void EachMomentUpdate() {
       }
 
       if ((thermalManager.temp_hotend[0].celsius >= thermalManager.temp_hotend[0].target) && (heatway == 1)) {
-        rts.sendData(ExchangePageBase + (mode_flag ? 23 : 78), ExchangepageAddr);
+        rts.gotoPage(23, 78);
         heatway = 0;
         rts.sendData(10 * Filament0LOAD, HEAD0_FILAMENT_LOAD_DATA_VP);
       }
@@ -1752,7 +1754,7 @@ void RTS_Update() {
   card_insert_st = IS_SD_INSERTED() ;
 
   if (!card_insert_st && sd_printing) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 46 : 101), ExchangepageAddr);
+    rts.gotoPage(46, 101);
     rts.sendData(0, CHANGE_SDCARD_ICON_VP);
     // 暂停打印，使得喷头可以回到零点
     card.pauseSDPrint();
@@ -1784,7 +1786,7 @@ void RTS_Update() {
       if (Checkfilenum > 10) {
         rts.sendData(Beep, SoundAddr);
         if ((thermalManager.temp_hotend[0].celsius <= (thermalManager.temp_hotend[0].target - 5))) {
-          rts.sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+          rts.gotoPage(39, 94);
           card.pauseSDPrint();
           print_job_timer.pause();
           pause_action_flag = true;
@@ -1793,7 +1795,7 @@ void RTS_Update() {
           print_flag = 1;
         }
         else if (thermalManager.temp_bed.celsius <= thermalManager.temp_bed.target) {
-          rts.sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+          rts.gotoPage(39, 94);
           card.pauseSDPrint();
           print_job_timer.pause();
           pause_action_flag = true;
@@ -1805,7 +1807,7 @@ void RTS_Update() {
         }
         else {
           rts.sendData(1, Wait_VP);
-          rts.sendData(ExchangePageBase + (mode_flag ? 40 : 95), ExchangepageAddr);
+          rts.gotoPage(40, 95);
           waitway = 5;
 
           TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
@@ -1829,34 +1831,34 @@ void RTS_Update() {
 
 void RTS_PauseMoveAxisPage() {
   if (waitway == 1) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 12 : 67), ExchangepageAddr);
+    rts.gotoPage(12, 67);
     waitway = 0;
   }
   else if (waitway == 5) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 39 : 94), ExchangepageAddr);
+    rts.gotoPage(39, 94);
     waitway = 0;
   }
 }
 
 void RTS_AutoBedLevelPage() {
   if (waitway == 3) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 111 : 117), ExchangepageAddr);
+    rts.gotoPage(111, 117);
     waitway = 0;
   }
 }
 
 void RTS_MoveAxisHoming() {
   if (waitway == 4) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 29 : 84) + (AxisUnitMode - 1), ExchangepageAddr);
+    rts.gotoPage(29 + AxisUnitMode - 1, 84 + AxisUnitMode - 1);
     waitway = 0;
   }
   else if (waitway == 6) {
-    rts.sendData(ExchangePageBase + (mode_flag ? 111 : 117), ExchangepageAddr);
+    rts.gotoPage(111, 117);
     waitway = 0;
   }
   else if (waitway == 7) {
     // Click Print finish
-    rts.sendData(ExchangePageBase + (mode_flag ? 1 : 56), ExchangepageAddr);
+    rts.gotoPage(1, 56);
     waitway = 0;
   }
 
