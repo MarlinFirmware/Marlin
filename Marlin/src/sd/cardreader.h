@@ -209,7 +209,7 @@ public:
     }
   #endif
 
-  static void ls(const uint8_t lsflags);
+  static void ls(const uint8_t lsflags=0);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
