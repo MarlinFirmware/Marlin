@@ -580,7 +580,7 @@ void RTS::sendData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=Var
   sendData();
 }
 
-void RTS::sendData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const int16_t n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if ((unsigned int)n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -605,7 +605,7 @@ void RTS::sendData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr
   sendData();
 }
 
-void RTS::sendData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const uint32_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;

@@ -73,19 +73,19 @@ RTS rts;
 float zprobe_zoffset;
 float last_zoffset = 0.0;
 
-int startprogress = 0;
+int16_t startprogress = 0;
 CRec cardRec;
 bool sdcard_pause_check = true;
 
 float change_filament_temp_0 = 200;
 
-int heatway = 0;
+int16_t heatway = 0;
 millis_t next_rts_update_ms = 0;
 
-char waitway = 0;
-int recnum = 0;
+int8_t waitway = 0;
+int16_t recnum = 0;
 
-unsigned char job_percent = 0;
+uint8_t job_percent = 0;
 
 bool pause_action_flag = false;
 bool pause_flag = false;
@@ -94,28 +94,28 @@ bool power_off_type_yes = false;
 bool update_sd = false;  // flag to update the file list
 
 #if HAS_HOTEND
-  int last_target_temperature[1] = { 0 };
+  int16_t last_target_temperature[1] = { 0 };
 #endif
 #if HAS_HEATED_BED
-  int last_target_temperature_bed;
+  int16_t last_target_temperature_bed;
 #endif
 
 bool lcd_sd_status;   // SD-card status. true = SD available
 
-int FilenamesCount = 0;
+int16_t FilenamesCount = 0;
 char cmdbuf[20] = { 0 };
 float filament_load_0 = 10.0f;
 float XoffsetValue;
 
 // 0 for 10mm, 1 for 1mm, 2 for 0.1mm
-unsigned char AxisUnitMode;
+uint8_t AxisUnitMode;
 float axis_unit = 10;
-int update_time_value = 0;
+int16_t update_time_value = 0;
 
 bool poweroff_continue = false;
 char commandbuf[30];
 
-static int change_page_number = 0;
+static int16_t change_page_number = 0;
 
 uint16_t remain_time = 0;
 
@@ -123,7 +123,7 @@ static bool last_card_insert_st;
 bool card_insert_st;
 bool sd_printing;
 
-int fan_speed;
+int16_t fan_speed;
 char cmd[MAX_CMD_SIZE + 16];
 
 inline void RTS_line_to_current(const AxisEnum axis) {
@@ -144,12 +144,12 @@ void RTS::sdCardInit() {
     card.getWorkDirName();
     if (card.filename[0] != '/') card.cdup();
 
-    int addrnum = 0, num = 0;
-    for (int16_t i = 0; i < fileCnt && i < (MAX_NUM_FILES) + addrnum; i++) {
+    int16_t addrnum = 0, num = 0;
+    for (uint16_t i = 0; i < fileCnt && i < (MAX_NUM_FILES) + addrnum; i++) {
       card.selectFileByIndex(fileCnt - 1 - i);
       char * const pFilename = card.longest_filename();
-      const int filenamelen = strlen(pFilename);
-      int j = 1;
+      const int16_t filenamelen = strlen(pFilename);
+      int16_t j = 1;
       while (strncmp(&pFilename[j], ".gco", 4) && strncmp(&pFilename[j], ".GCO", 4) && j++ < filenamelen);
       if (j >= filenamelen) { addrnum++; continue; }
 
@@ -166,11 +166,11 @@ void RTS::sdCardInit() {
       sendData(cardRec.display_filename[num], cardRec.addr[num]);
       cardRec.Filesum = (++num);
     }
-    for (int j = cardRec.Filesum; j < MAX_NUM_FILES; j++) {
+    for (uint16_t j = cardRec.Filesum; j < MAX_NUM_FILES; j++) {
       cardRec.addr[j] = FILE1_TEXT_VP + (j * 20);
       sendData(0, cardRec.addr[j]);
     }
-    for (int j = 0; j < 20; j++) {
+    for (uint8_t j = 0; j < 20; j++) {
       // Clean print file 清除打印界面中显示的文件名
       sendData(0, PRINT_FILE_TEXT_VP + j);
     }
@@ -178,8 +178,8 @@ void RTS::sdCardInit() {
   }
   else {
     // Clean all filename Icons
-    for (int j = 0; j < MAX_NUM_FILES; j++)
-      for (int i = 0; i < FILENAME_LEN; i++)
+    for (uint8_t j = 0; j < MAX_NUM_FILES; j++)
+      for (uint8_t i = 0; i < FILENAME_LEN; i++)
         sendData(0, cardRec.addr[j] + i);
     ZERO(cardRec);
   }
@@ -215,13 +215,13 @@ void RTS::sdCardUpdate() {
     else {
       card.release();
 
-      for (int i = 0; i < cardRec.Filesum; i++) {
-        for (int j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
-        sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
+      for (uint8_t i = 0; i < cardRec.Filesum; i++) {
+        for (uint8_t j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
+        sendData(uint32_t(0x738E), FilenameNature + (i + 1) * 16);
       }
 
       // Clean screen
-      for (int j = 0; j < 20; j++) {
+      for (uint8_t j = 0; j < 20; j++) {
         sendData(0, PRINT_FILE_TEXT_VP + j);
         sendData(0, SELECT_FILE_TEXT_VP + j);
       }
@@ -235,7 +235,7 @@ void RTS::sdCardUpdate() {
     for (uint16_t i = 0; i < cardRec.Filesum; i++) {
       delay(1);
       sendData(cardRec.display_filename[i], cardRec.addr[i]);
-      sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
+      sendData(uint32_t(0x738E), FilenameNature + (i + 1) * 16);
     }
     update_sd = false;
   }
@@ -248,7 +248,7 @@ void RTS::init() {
     bool zig = false;
     int8_t inStart, inStop, inInc, showcount;
     showcount = 0;
-    for (int y = 0; y < GRID_MAX_POINTS_Y; y++) {
+    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
       // away from origin
       if (zig) {
         inStart = 0;
@@ -262,7 +262,7 @@ void RTS::init() {
         inInc = -1;
       }
       zig ^= true;
-      for (int x = inStart; x != inStop; x += inInc) {
+      for (uint8_t x = inStart; x != inStop; x += inInc) {
         sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
         showcount++;
       }
@@ -302,10 +302,8 @@ void RTS::init() {
   change_page_number = card.flag.mounted ? (dark_mode ? 1 : 56) : 0;
 }
 
-int RTS::receiveData() {
-  int frame_index = 0;
-  int timeout = 0;
-  int framelen = 0;
+int16_t RTS::receiveData() {
+  int16_t frame_index = 0, timeout = 0, framelen = 0;
   bool frame_flag = false;
   if (LCD_SERIAL.available() <= 0) return -1;
   do {
@@ -348,7 +346,7 @@ int RTS::receiveData() {
     recdat.head[1] = databuf[1];
     recdat.len = databuf[2];
     recdat.command = databuf[3];
-    for (int idx = 0; idx < frame_index; idx++) { }
+    for (uint8_t idx = 0; idx < frame_index; idx++) { }
   }
   else
     return -1;
@@ -367,7 +365,7 @@ int RTS::receiveData() {
     recdat.addr = databuf[4];
     recdat.addr = (recdat.addr << 8) | databuf[5];
     recdat.bytelen = databuf[6];
-    for (unsigned int i = 0; i < recdat.bytelen; i += 2) {
+    for (uint16_t i = 0; i < recdat.bytelen; i += 2) {
       recdat.data[i / 2] = databuf[7 + i];
       recdat.data[i / 2] = (recdat.data[i / 2] << 8) | databuf[8 + i];
     }
@@ -376,7 +374,7 @@ int RTS::receiveData() {
     // response for reading the page from the register
     recdat.addr = databuf[4];
     recdat.bytelen = databuf[5];
-    for (unsigned int i = 0; i < recdat.bytelen; i++) {
+    for (uint16_t i = 0; i < recdat.bytelen; i++) {
       recdat.data[i] = databuf[6 + i];
       //recdat.data[i] = (recdat.data[i] << 8 )| databuf[7 + i];
     }
@@ -402,7 +400,7 @@ void RTS::sendData() {
     // to write data to the register
     if (snddat.command == 0x80) {
       databuf[4] = snddat.addr;
-      for (int i = 0; i < (snddat.len - 2); i++)
+      for (uint16_t i = 0; i < snddat.len - 2; i++)
         databuf[5 + i] = snddat.data[i];
     }
     else if (snddat.len == 3 && snddat.command == 0x81) {
@@ -414,7 +412,7 @@ void RTS::sendData() {
       // to write data to the variate
       databuf[4] = snddat.addr >> 8;
       databuf[5] = snddat.addr & 0xFF;
-      for (int i =0; i < (snddat.len - 3); i += 2) {
+      for (uint16_t i = 0; i < snddat.len - 3; i += 2) {
         databuf[6 + i] = snddat.data[i/2] >> 8;
         databuf[7 + i] = snddat.data[i/2] & 0xFF;
       }
@@ -425,7 +423,7 @@ void RTS::sendData() {
       databuf[5] = snddat.addr & 0xFF;
       databuf[6] = snddat.bytelen;
     }
-    for (int i = 0; i < snddat.len + 3; i++)
+    for (uint16_t i = 0; i < snddat.len + 3; i++)
       LCD_SERIAL.write(databuf[i]);
 
     ZERO(snddat);
@@ -435,13 +433,13 @@ void RTS::sendData() {
   }
 }
 
-void RTS::sendData(const String &s, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
+void RTS::sendData(const String &s, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   if (s.length() < 1) return;
   sendData(s.c_str(), addr, cmd);
 }
 
-void RTS::sendData(const char *str, unsigned long addr, unsigned char cmd/*= VarAddr_W*/) {
-  int len = strlen(str);
+void RTS::sendData(const char str[], const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+  int16_t len = strlen(str);
   if (len > 0) {
     databuf[0] = FHONE;
     databuf[1] = FHTWO;
@@ -449,24 +447,22 @@ void RTS::sendData(const char *str, unsigned long addr, unsigned char cmd/*= Var
     databuf[3] = cmd;
     databuf[4] = addr >> 8;
     databuf[5] = addr & 0x00FF;
-    for (int i = 0; i < len; i++) databuf[6 + i] = str[i];
-    for (int i = 0; i < len + 6; i++) LCD_SERIAL.write(databuf[i]);
+    for (int16_t i = 0; i < len; i++) databuf[6 + i] = str[i];
+    for (int16_t i = 0; i < len + 6; i++) LCD_SERIAL.write(databuf[i]);
     ZERO(databuf);
   }
 }
 
-void RTS::sendData(char c, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
+void RTS::sendData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   snddat.command = cmd;
   snddat.addr = addr;
-  snddat.data[0] = (unsigned long)c;
+  snddat.data[0] = uint32_t(c);
   snddat.data[0] = snddat.data[0] << 8;
   snddat.len = 5;
   sendData();
 }
 
-void RTS::sendData(unsigned char *str, unsigned long addr, unsigned char cmd) { sendData((char *)str, addr, cmd); }
-
-void RTS::sendData(int n, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
+void RTS::sendData(const int16_t n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -491,13 +487,7 @@ void RTS::sendData(int n, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
   sendData();
 }
 
-void RTS::sendData(unsigned int n, unsigned long addr, unsigned char cmd) { sendData((int)n, addr, cmd); }
-
-void RTS::sendData(float n, unsigned long addr, unsigned char cmd) { sendData((int)n, addr, cmd); }
-
-void RTS::sendData(long n, unsigned long addr, unsigned char cmd) { sendData((unsigned long)n, addr, cmd); }
-
-void RTS::sendData(unsigned long n, unsigned long addr, unsigned char cmd/*=VarAddr_W*/) {
+void RTS::sendData(const uint32_t n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -547,14 +537,14 @@ void RTS::sdCardStop() {
   sendData(0, PRINT_PROCESS_ICON_VP);
   sendData(0, PRINT_PROCESS_VP);
   delay(2);
-  for (int j = 0; j < 20; j++) {
+  for (uint8_t j = 0; j < 20; j++) {
     sendData(0, PRINT_FILE_TEXT_VP + j);  // Clean screen
     sendData(0, SELECT_FILE_TEXT_VP + j); // Clean filename
   }
 }
 
 void RTS::handleData() {
-  int Checkkey = -1;
+  int16_t Checkkey = -1;
   // for waiting
   if (waitway > 0) {
     memset(&recdat, 0, sizeof(recdat));
@@ -562,7 +552,7 @@ void RTS::handleData() {
     recdat.head[1] = FHTWO;
     return;
   }
-  for (int i = 0; Addrbuf[i] != 0; i++) {
+  for (uint16_t i = 0; Addrbuf[i] != 0; i++) {
     if (recdat.addr == Addrbuf[i]) {
       if (Addrbuf[i] >= ChangePageKey) Checkkey = i;
       break;
@@ -582,7 +572,7 @@ void RTS::handleData() {
         update_sd = true;
         cardRec.recordcount = -1;
         if (card.flag.mounted) {
-          for (int j = 0; j < 20; j++) sendData(0, SELECT_FILE_TEXT_VP + j);
+          for (uint8_t j = 0; j < 20; j++) sendData(0, SELECT_FILE_TEXT_VP + j);
           gotoPage(2, 57);
         }
         else
@@ -755,15 +745,14 @@ void RTS::handleData() {
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) { gotoPage(39, 94); break; }
 
           char cmd[30];
-          char *c;
-          sprintf_P(cmd, PSTR("M23 %s"), cardRec.filename[FilenamesCount]);
-          for (c = &cmd[4]; *c; c++) *c = tolower(*c);
+          sprintf_P(cmd, M23_STR, cardRec.filename[FilenamesCount]);
+          for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
           queue.enqueue_one_now(cmd);
           delay(20);
-          queue.enqueue_now(F("M24"));
+          queue.enqueue_now_P(M24_STR);
 
           // Clean screen
-          for (int j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
+          for (uint8_t j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
           sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
@@ -1003,7 +992,7 @@ void RTS::handleData() {
           current_position.e -= filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
-            sendData(int(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
+            sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
             gotoPage(24, 79);
           }
           else {
@@ -1018,7 +1007,7 @@ void RTS::handleData() {
           current_position.e += filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
-            sendData(int(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
+            sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
             gotoPage(24, 79);
           }
           else {
@@ -1127,7 +1116,7 @@ void RTS::handleData() {
       if (recdat.data[0] > cardRec.Filesum) break;
 
       cardRec.recordcount = recdat.data[0] - 1;
-      for (int j = 0; j < 10; j++) {
+      for (uint8_t j = 0; j < 10; j++) {
         sendData(0, SELECT_FILE_TEXT_VP + j);
         sendData(0, PRINT_FILE_TEXT_VP + j);
       }
@@ -1135,10 +1124,10 @@ void RTS::handleData() {
       sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
       delay(2);
 
-      for (int j = 1; j <= cardRec.Filesum; j++)
-        sendData((unsigned long)0x738E, FilenameNature + j * 16);
+      for (uint16_t j = 1; j <= cardRec.Filesum; j++)
+        sendData(uint32_t(0x738E), FilenameNature + j * 16);
 
-      sendData((unsigned long)0x041F, FilenameNature + recdat.data[0] * 16);
+      sendData(uint32_t(0x041F), FilenameNature + recdat.data[0] * 16);
       sendData(1, FILE1_SELECT_ICON_VP + (recdat.data[0] - 1));
       break;
 
@@ -1149,7 +1138,7 @@ void RTS::handleData() {
           if (cardRec.recordcount < 0) break;
           char cmd[30];
           char *c;
-          sprintf_P(cmd, PSTR("M23 %s"), cardRec.filename[cardRec.recordcount]);
+          sprintf_P(cmd, M23_STR, cardRec.filename[cardRec.recordcount]);
           for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
           ZERO(cmdbuf);
@@ -1165,10 +1154,10 @@ void RTS::handleData() {
           #endif
 
           queue.enqueue_one_now(cmd); delay(20);
-          queue.enqueue_now(F("M24"));
+          queue.enqueue_now_P(M24_STR);
 
           // Clean screen
-          for (int j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
+          for (uint8_t j = 0; j < 20; j++) sendData(0, PRINT_FILE_TEXT_VP + j);
 
           sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
@@ -1207,7 +1196,7 @@ void RTS::handleData() {
           bool zig = true;
           int8_t inStart, inStop, inInc, showcount;
           showcount = 0;
-          for (int y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
             // away from origin
             if (zig) {
               inStart = 0;
@@ -1221,7 +1210,7 @@ void RTS::handleData() {
               inInc = -1;
             }
             zig ^= true;
-            for (int x = inStart; x != inStop; x += inInc) {
+            for (uint8_t x = inStart; x != inStop; x += inInc) {
               sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
               showcount++;
             }
@@ -1505,22 +1494,22 @@ void RTS::handleData() {
           break;
       }
 
-      for (int i = 0; i < MAX_NUM_FILES; i++)
-        for (int j = 0; j < 20; j++)
+      for (uint8_t i = 0; i < MAX_NUM_FILES; i++)
+        for (uint8_t j = 0; j < 20; j++)
           sendData(0, FILE1_TEXT_VP + i * 20 + j);
 
-      for (int i = 0; i < cardRec.Filesum; i++) {
-        for (int j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
-        sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
+      for (uint16_t i = 0; i < cardRec.Filesum; i++) {
+        for (uint8_t j = 0; j < 20; j++) sendData(0, cardRec.addr[i] + j);
+        sendData(uint32_t(0x738E), FilenameNature + (i + 1) * 16);
       }
 
-      for (int j = 0; j < 20; j++) {
+      for (uint8_t j = 0; j < 20; j++) {
         sendData(0, PRINT_FILE_TEXT_VP + j);  // Clean screen
         sendData(0, SELECT_FILE_TEXT_VP + j); // Clean filename
       }
 
       // Clean filename Icon
-      for (int j = 0; j < 20; j++)
+      for (uint8_t j = 0; j < 20; j++)
         sendData(10, FILE1_SELECT_ICON_VP + j);
 
       sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
@@ -1530,7 +1519,7 @@ void RTS::handleData() {
         for (uint16_t i = 0; i < cardRec.Filesum; i++) {
           delay(3);
           sendData(cardRec.display_filename[i], cardRec.addr[i]);
-          sendData((unsigned long)0x738E, FilenameNature + (i + 1) * 16);
+          sendData(uint32_t(0x738E), FilenameNature + (i + 1) * 16);
           sendData(0, FILE1_SELECT_ICON_VP + i);
         }
       }
@@ -1540,9 +1529,9 @@ void RTS::handleData() {
       updateFan0();
 
       job_percent = card.percentDone() + 1;
-      if (job_percent <= 100) sendData((unsigned char)job_percent, PRINT_PROCESS_ICON_VP);
+      if (job_percent <= 100) sendData(uint8_t(job_percent), PRINT_PROCESS_ICON_VP);
 
-      sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
+      sendData(uint8_t(card.percentDone()), PRINT_PROCESS_VP);
 
       TERN_(HAS_BED_PROBE, sendData(probe.offset.z * 100.0f, AUTO_BED_LEVEL_ZOFFSET_VP));
 
@@ -1629,14 +1618,14 @@ void RTS::onIdle() {
   // TODO: optimize the following
   if (print_job_timer.duration() != 0) {
     duration_t elapsed = print_job_timer.duration();
-    static unsigned char last_cardpercentValue = 100;
+    static uint8_t last_cardpercentValue = 100;
     sendData(elapsed.value / 3600, PRINT_TIME_HOUR_VP);
     sendData((elapsed.value % 3600) / 60, PRINT_TIME_MIN_VP);
 
     if (card.isPrinting() && (last_cardpercentValue != card.percentDone())) {
-      if ((unsigned char)card.percentDone() > 0) {
+      if (card.percentDone() > 0) {
         job_percent = card.percentDone();
-        if (job_percent <= 100) sendData((unsigned char)job_percent, PRINT_PROCESS_ICON_VP);
+        if (job_percent <= 100) sendData(uint8_t(job_percent), PRINT_PROCESS_ICON_VP);
         // Estimate remaining time every 20 seconds
         static millis_t next_remain_time_update = 0;
         if (ELAPSED(ms, next_remain_time_update)) {
@@ -1653,7 +1642,7 @@ void RTS::onIdle() {
         sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
         sendData(0, PRINT_SURPLUS_TIME_MIN_VP);
       }
-      sendData((unsigned char)card.percentDone(), PRINT_PROCESS_VP);
+      sendData(uint8_t(card.percentDone()), PRINT_PROCESS_VP);
       last_cardpercentValue = card.percentDone();
     }
   }
@@ -1696,7 +1685,7 @@ void RTS_Update() {
   rts.sdCardUpdate();
 
   sd_printing = IS_SD_PRINTING();
-  card_insert_st = IS_SD_INSERTED() ;
+  card_insert_st = IS_SD_INSERTED();
 
   if (!card_insert_st && sd_printing) {
     rts.gotoPage(46, 101);
@@ -1710,7 +1699,7 @@ void RTS_Update() {
   // 更新拔卡和插卡提示图标
   if (last_card_insert_st != card_insert_st) {
     // 当前页面显示为拔卡提示页面，但卡已经插入了，更新插卡图标
-    rts.sendData((int)card_insert_st, CHANGE_SDCARD_ICON_VP);
+    rts.sendData(int16_t(card_insert_st), CHANGE_SDCARD_ICON_VP);
     last_card_insert_st = card_insert_st;
   }
 

@@ -40,10 +40,10 @@
 #define RegAddr_R 0x81
 #define VarAddr_W 0x82
 #define VarAddr_R 0x83
-#define ExchangePageBase    0x5A010000UL  // the first page ID. other page = first page ID + relevant num;
-#define StartSoundSet       0x060480A0UL  // 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
-#define Beep                0x02AF0100UL
-#define Beep1               0xFFFF0101UL
+#define ExchangePageBase  0x5A010000UL  // the first page ID. other page = first page ID + relevant num;
+#define StartSoundSet     0x060480A0UL  // 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
+#define Beep              0x02AF0100UL
+#define Beep1             0xFFFF0101UL
 #define FONT_EEPROM 90
 
 /*variable addr*/
@@ -190,19 +190,19 @@
 /************struct**************/
 
 typedef struct DataBuf {
-  unsigned char len;
-  unsigned char head[2];
-  unsigned char command;
-  unsigned long addr;
-  unsigned long bytelen;
-  unsigned short data[32];
-  unsigned char reserv[4];
+  uint8_t len;
+  uint8_t head[2];
+  uint8_t command;
+  uint32_t addr;
+  uint32_t bytelen;
+  uint16_t data[32];
+  uint8_t reserv[4];
 } DB;
 
 typedef struct CardRecord {
-  int recordcount;
-  int Filesum;
-  unsigned long addr[MAX_NUM_FILES];
+  int16_t recordcount;
+  int16_t Filesum;
+  uint32_t addr[MAX_NUM_FILES];
   char display_filename[MAX_NUM_FILES][FILENAME_LEN];
   char filename[MAX_NUM_FILES][FILENAME_LEN];
 } CRec;
@@ -210,20 +210,22 @@ typedef struct CardRecord {
 class RTS {
   public:
     RTS();
-    static int receiveData();
+    static int16_t receiveData();
     static void sdCardInit();
     static bool sdDetected();
     static void sdCardUpdate();
     static void sendData();
-    static void sendData(const String&, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(const char[], unsigned long, unsigned char=VarAddr_W);
-    static void sendData(char, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(unsigned char*, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(int, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(float, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(unsigned int, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(long, unsigned long, unsigned char=VarAddr_W);
-    static void sendData(unsigned long, unsigned long, unsigned char=VarAddr_W);
+    static void sendData(const String&,  const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const char[],   const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const char,     const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const int16_t,  const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const uint32_t, const uint32_t, const uint8_t=VarAddr_W);
+
+    static void sendData(const uint8_t str[], const uint32_t addr, const uint8_t cmd) { sendData((char *)str, addr, cmd); }
+    static void sendData(const uint16_t n,    const uint32_t addr, const uint8_t cmd) { sendData(int16_t(n), addr, cmd); }
+    static void sendData(const_float_t n,     const uint32_t addr, const uint8_t cmd) { sendData(int32_t(n), addr, cmd); }
+    static void sendData(const int32_t n,     const uint32_t addr, const uint8_t cmd) { sendData(uint32_t(n), addr, cmd); }
+
     static void sdCardStop();
     static void handleData();
     static void init();
@@ -232,8 +234,8 @@ class RTS {
     static bool start_print_flag;
 
     static bool dark_mode;
-    FORCE_INLINE static void gotoPage(unsigned int page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
-    FORCE_INLINE static void gotoPage(unsigned int p1, unsigned int p2) { gotoPage(dark_mode ? p1 : p2); }
+    FORCE_INLINE static void gotoPage(uint8_t page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
+    FORCE_INLINE static void gotoPage(uint8_t p1, uint8_t p2) { gotoPage(dark_mode ? p1 : p2); }
 
     static void sendPrinterInfo();
     static void updateTempE0();
@@ -301,7 +303,7 @@ enum PROC_COM {
   ChangePageKey
 };
 
-const unsigned long Addrbuf[] = {
+const uint32_t Addrbuf[] = {
   0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C, 0x1026, 0x1030, 0x1032, 0x1034,
   0x1038, 0x103A, 0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x104E,
   0x1054, 0x1056, 0x1058, 0x105C, 0x105E, 0x105F, 0x1090, 0x1092, 0x1094, 0x1096,
@@ -315,7 +317,7 @@ const unsigned long Addrbuf[] = {
 extern void RTS_Update();
 extern void RTS_Init();
 
-extern int Update_Time_Value;
+extern int16_t Update_Time_Value;
 extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
