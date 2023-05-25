@@ -52,7 +52,7 @@ MarlinUI ui;
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
-  #include "sv06p/LCD_RTS.h"
+  #include "sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL

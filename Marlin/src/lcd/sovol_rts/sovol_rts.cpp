@@ -23,7 +23,7 @@
 
 #if ENABLED(SOVOL_SV06_RTS)
 
-#include "LCD_RTS.h"
+#include "sovol_rts.h"
 
 DB RTS::recdat;
 DB RTS::snddat;

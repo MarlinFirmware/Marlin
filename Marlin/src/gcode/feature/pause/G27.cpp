@@ -28,7 +28,7 @@
 #include "../../../libs/nozzle.h"
 #include "../../../module/motion.h"
 #if ENABLED(SOVOL_SV06_RTS)
-  #include "../../../lcd/sv06p/LCD_RTS.h"
+  #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 /**

@@ -63,7 +63,7 @@
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
-  #include "../lcd/sv06p/LCD_RTS.h"
+  #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #include "../lcd/marlinui.h"

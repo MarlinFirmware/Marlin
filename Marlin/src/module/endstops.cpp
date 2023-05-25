@@ -31,7 +31,7 @@
 #include "temperature.h"
 #include "../lcd/marlinui.h"
 #if ENABLED(SOVOL_SV06_RTS)
-  #include "../lcd/sv06p/LCD_RTS.h"
+  #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #define DEBUG_OUT BOTH(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)

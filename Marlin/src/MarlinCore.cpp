@@ -82,7 +82,7 @@
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #elif ENABLED(SOVOL_SV06_RTS)
-    #include "lcd/sv06p/LCD_RTS.h"
+    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
 #endif
 
