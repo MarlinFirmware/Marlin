@@ -46,6 +46,27 @@ void MarlinHAL::init()
 {
     NVIC_SetPriorityGrouping(0x3);
     SOCTemp::init();
+
+    // print clock frequencies to host serial
+    SERIAL_LEAF_1.print("-- clocks dump -- \n");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.system);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.hclk);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk0);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk1);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk2);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk3);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk4);
+    SERIAL_LEAF_1.print(" ; ");
+    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.exclk);
+    SERIAL_LEAF_1.print(" ; F_CPU=");
+    SERIAL_LEAF_1.print(F_CPU);
+    SERIAL_LEAF_1.print("\n");
 }
 
 void MarlinHAL::init_board() {}
@@ -80,7 +101,7 @@ void MarlinHAL::idletask()
     MarlinHAL::watchdog_refresh();
 
     // monitor SOC temperature
-    if(SOCTemp::criticalTemperatureReached())
+    if (SOCTemp::criticalTemperatureReached())
     {
         printf("SoC reached critical temperature, rebooting\n");
         MarlinHAL::reboot();

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef int8_t pin_t;
+typedef int16_t pin_t;
 
 class MarlinHAL
 {

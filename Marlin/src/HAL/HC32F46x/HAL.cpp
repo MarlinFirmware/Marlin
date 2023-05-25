@@ -1,10 +1,11 @@
 #include "HAL.h"
+#include <core_hooks.h>
 
 //
 // Emergency Parser
 //
 #if ENABLED(EMERGENCY_PARSER)
-extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart)
+extern "C" void core_hook_usart_rx_irq(uint8_t ch, uint8_t usart)
 {
     // only handle receive on host serial ports
     if (false
