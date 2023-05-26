@@ -243,7 +243,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_X2_STEPPER && !GOOD_AXIS_PINS(X2)
   #error "If X2_DRIVER_TYPE is defined, then X2 ENABLE/STEP/DIR pins are also needed."
 #endif
-#if HAS_DUAL_Y_STEPPERS && !GOOD_AXIS_PINS(Y2)
+#if HAS_Y2_STEPPER && !GOOD_AXIS_PINS(Y2)
   #error "If Y2_DRIVER_TYPE is defined, then Y2 ENABLE/STEP/DIR pins are also needed."
 #endif
 #if HAS_Z_AXIS
@@ -260,7 +260,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Validate bed size
  */
 #if !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
-  #error "X_BED_SIZE and Y_BED_SIZE are now required!"
+  #error "X_BED_SIZE and Y_BED_SIZE are required!"
 #else
   #if HAS_X_AXIS
     static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS) are too narrow to contain X_BED_SIZE.");
@@ -1498,8 +1498,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
   #elif DISABLED(EEPROM_SETTINGS)
     #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
-  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
-    #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif HAS_ABL_NOT_UBL
@@ -1513,6 +1513,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
    */
   #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
     #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
+  #elif ABL_USES_GRID && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif ENABLED(MESH_BED_LEVELING)
@@ -1843,8 +1845,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #ifdef REDUNDANT_PART_COOLING_FAN
   #if FAN_COUNT < 2
     #error "REDUNDANT_PART_COOLING_FAN requires a board with at least two PWM fans."
-  #else
-    static_assert(WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
+  #elif !WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1)
+    static_assert(false, "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
+  #elif !WITHIN(REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS - 1, 1, FAN_COUNT - 1)
+    #error "Not enough fans available for NUM_REDUNDANT_FANS."
   #endif
 #endif
 
@@ -2625,10 +2629,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(TFT_GENERIC) && NONE(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
   #error "TFT_GENERIC requires either TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI interface."
-#endif
-
-#if BOTH(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
-  #error "Please enable only one of TFT_INTERFACE_SPI or TFT_INTERFACE_SPI."
+#elif BOTH(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
+  #error "Please enable only one of TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI."
 #endif
 
 #if defined(LCD_SCREEN_ROTATE) && LCD_SCREEN_ROTATE != 0 && LCD_SCREEN_ROTATE != 90 && LCD_SCREEN_ROTATE != 180 && LCD_SCREEN_ROTATE != 270
@@ -3372,9 +3374,11 @@ static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION re
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
-constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
-static_assert(COUNT(sanity_arr_4) == NUM_AXES,  "HOMING_FEEDRATE_MM_M requires " _NUM_AXES_STR "elements (and no others).");
-static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
+#if NUM_AXES
+  constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
+  static_assert(COUNT(sanity_arr_4) == NUM_AXES,  "HOMING_FEEDRATE_MM_M requires " _NUM_AXES_STR "elements (and no others).");
+  static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
+#endif
 
 #ifdef MAX_ACCEL_EDIT_VALUES
   constexpr float sanity_arr_5[] = MAX_ACCEL_EDIT_VALUES;
@@ -3571,7 +3575,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
   #elif HAS_HOTEND_OFFSET
-    #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
+    #error "Multi-hotends with offset requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
   #endif
 #endif
 
@@ -4006,13 +4010,13 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #endif
   #endif
 
+  #ifdef SHAPING_MIN_FREQ
+    static_assert((SHAPING_MIN_FREQ) > 0, "SHAPING_MIN_FREQ must be > 0.");
+  #else
+    TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
+    TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
+  #endif
   #ifdef __AVR__
-    #ifdef SHAPING_MIN_FREQ
-      static_assert((SHAPING_MIN_FREQ) > 0, "SHAPING_MIN_FREQ must be > 0.");
-    #else
-      TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
-      TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
-    #endif
     #if ENABLED(INPUT_SHAPING_X)
       #if F_CPU > 16000000
         static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (20) for AVR 20MHz.");
@@ -4033,12 +4037,29 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_DUAL_X_STEPPERS, HAS_DUAL_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
-  #error "FT_MOTION is currently limited to machines with 3 linear axes and a single extruder."
+#if ENABLED(FT_MOTION)
+  #if NUM_AXES > 3
+    #error "FT_MOTION is currently limited to machines with 3 linear axes."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
+  #endif
 #endif
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
+
+// One Click Print
+#if ENABLED(ONE_CLICK_PRINT)
+  #if !HAS_MEDIA
+    #error "SD Card or Flash Drive is required for ONE_CLICK_PRINT."
+  #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
+    #error "ONE_CLICK_PRINT is incompatible with BROWSE_MEDIA_ON_INSERT."
+  #elif DISABLED(NO_SD_AUTOSTART)
+    #error "NO_SD_AUTOSTART must be enabled for ONE_CLICK_PRINT."
+  #elif !defined(HAS_MARLINUI_MENU)
+    #error "ONE_CLICK_PRINT needs a display that has Marlin UI menus."
+  #endif
+#endif
 
 // Misc. Cleanup
 #undef _TEST_PWM

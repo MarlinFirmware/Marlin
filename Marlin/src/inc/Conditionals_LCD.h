@@ -681,8 +681,8 @@
 
 #endif
 
-// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
-#if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
+#if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1 || E_STEPPERS < 2
   #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
@@ -796,33 +796,55 @@
   #define NUM_AXES 3
 #elif defined(Y_DRIVER_TYPE)
   #define NUM_AXES 2
-#else
+#elif defined(X_DRIVER_TYPE)
   #define NUM_AXES 1
+#else
+  #define NUM_AXES 0
 #endif
-#define HAS_X_AXIS 1
-#if NUM_AXES >= XY
-  #define HAS_Y_AXIS 1
+#if NUM_AXES >= 1
+  #define HAS_X_AXIS 1
+  #if NUM_AXES >= XY
+    #define HAS_Y_AXIS 1
+    #if NUM_AXES >= XYZ
+      #define HAS_Z_AXIS 1
+      #if NUM_AXES >= 4
+        #define HAS_I_AXIS 1
+        #if NUM_AXES >= 5
+          #define HAS_J_AXIS 1
+          #if NUM_AXES >= 6
+            #define HAS_K_AXIS 1
+            #if NUM_AXES >= 7
+              #define HAS_U_AXIS 1
+              #if NUM_AXES >= 8
+                #define HAS_V_AXIS 1
+                #if NUM_AXES >= 9
+                  #define HAS_W_AXIS 1
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
-#if NUM_AXES >= XYZ
-  #define HAS_Z_AXIS 1
-#endif
-#if NUM_AXES >= 4
-  #define HAS_I_AXIS 1
-#endif
-#if NUM_AXES >= 5
-  #define HAS_J_AXIS 1
-#endif
-#if NUM_AXES >= 6
-  #define HAS_K_AXIS 1
-#endif
-#if NUM_AXES >= 7
-  #define HAS_U_AXIS 1
-#endif
-#if NUM_AXES >= 8
-  #define HAS_V_AXIS 1
-#endif
-#if NUM_AXES >= 9
-  #define HAS_W_AXIS 1
+
+#if !HAS_X_AXIS
+  #undef AVOID_OBSTACLES
+  #undef ENDSTOPPULLUP_XMIN
+  #undef ENDSTOPPULLUP_XMAX
+  #undef X_MIN_ENDSTOP_INVERTING
+  #undef X_MAX_ENDSTOP_INVERTING
+  #undef X2_DRIVER_TYPE
+  #undef X_ENABLE_ON
+  #undef DISABLE_X
+  #undef INVERT_X_DIR
+  #undef X_HOME_DIR
+  #undef X_MIN_POS
+  #undef X_MAX_POS
+  #undef MANUAL_X_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOPS
+  #undef MAX_SOFTWARE_ENDSTOPS
 #endif
 
 #if !HAS_Y_AXIS
@@ -980,11 +1002,9 @@
 
 #ifdef X2_DRIVER_TYPE
   #define HAS_X2_STEPPER 1
-  // Dual X Carriage isn't known yet. TODO: Consider moving it to Configuration.h.
 #endif
 #ifdef Y2_DRIVER_TYPE
   #define HAS_Y2_STEPPER 1
-  #define HAS_DUAL_Y_STEPPERS 1
 #endif
 
 /**
@@ -1318,10 +1338,12 @@
 #endif // FILAMENT_SWITCH_AND_MOTION
 
 // Homing to Min or Max
-#if X_HOME_DIR > 0
-  #define X_HOME_TO_MAX 1
-#elif X_HOME_DIR < 0
-  #define X_HOME_TO_MIN 1
+#if HAS_X_AXIS
+  #if X_HOME_DIR > 0
+    #define X_HOME_TO_MAX 1
+  #elif X_HOME_DIR < 0
+    #define X_HOME_TO_MIN 1
+  #endif
 #endif
 #if HAS_Y_AXIS
   #if Y_HOME_DIR > 0

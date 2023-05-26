@@ -351,7 +351,7 @@ void unified_bed_leveling::G29() {
 
   // Invalidate one or more nearby mesh points, possibly all.
   if (parser.seen('I')) {
-    uint8_t count = parser.has_value() ? parser.value_byte() : 1;
+    grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
     bool invalidate_all = count >= GRID_MAX_POINTS;
     if (!invalidate_all) {
       while (count--) {
@@ -760,14 +760,14 @@ void unified_bed_leveling::shift_mesh_height() {
     TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-    uint8_t count = GRID_MAX_POINTS;
+    grid_count_t count = GRID_MAX_POINTS;
 
     mesh_index_pair best;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
-      const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
+      const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
@@ -1135,7 +1135,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
   param.R_repetition = 0;
 
   if (parser.seen('R')) {
-    param.R_repetition = parser.has_value() ? parser.value_byte() : GRID_MAX_POINTS;
+    param.R_repetition = parser.has_value() ? parser.value_ushort() : GRID_MAX_POINTS;
     NOMORE(param.R_repetition, GRID_MAX_POINTS);
     if (param.R_repetition < 1) {
       SERIAL_ECHOLNPGM("?(R)epetition count invalid (1+).\n");

@@ -30,7 +30,7 @@ namespace DGUSRxHandler {
 
   #if HAS_MEDIA
     void Scroll(DGUS_VP &, void *);
-    void SelectFile(DGUS_VP &, void *);
+    void selectFile(DGUS_VP &, void *);
     void PrintFile(DGUS_VP &, void *);
   #endif
 

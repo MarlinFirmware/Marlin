@@ -300,7 +300,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char NUM_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' '),
+      char NUM_AXIS_LIST_(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' ')
            chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -348,7 +348,7 @@ void Endstops::event_handler() {
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
-        NUM_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW), chrP
+        NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
 
@@ -367,18 +367,22 @@ void Endstops::event_handler() {
   }
 }
 
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
+#if NUM_AXES
+
+  #pragma GCC diagnostic push
+  #if GCC_VERSION <= 50000
+    #pragma GCC diagnostic ignored "-Wunused-function"
+  #endif
+
+  static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
+    if (flabel) SERIAL_ECHOF(flabel);
+    SERIAL_ECHOPGM(": ");
+    SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
+  }
+
+  #pragma GCC diagnostic pop
+
 #endif
-
-static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-  if (flabel) SERIAL_ECHOF(flabel);
-  SERIAL_ECHOPGM(": ");
-  SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
-}
-
-#pragma GCC diagnostic pop
 
 void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
@@ -868,7 +872,7 @@ void Endstops::update() {
 
   #if HAS_X_AXIS
     if (stepper.axis_is_moving(X_AXIS)) {
-      if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(X_AXIS_HEAD)) { // -direction
         #if USE_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -901,7 +905,7 @@ void Endstops::update() {
 
   #if HAS_Y_AXIS
     if (stepper.axis_is_moving(Y_AXIS)) {
-      if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
         #if USE_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_TO_MIN)
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -934,7 +938,7 @@ void Endstops::update() {
 
   #if HAS_Z_AXIS
     if (stepper.axis_is_moving(Z_AXIS)) {
-      if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
+      if (!stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
 
         #if USE_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_TO_MIN)
           if ( TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, z_probe_enabled)
@@ -979,7 +983,7 @@ void Endstops::update() {
 
   #if HAS_I_AXIS
     if (stepper.axis_is_moving(I_AXIS)) {
-      if (stepper.motor_direction(I_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
         #if USE_I_MIN || (I_SPI_SENSORLESS && I_HOME_TO_MIN)
           PROCESS_ENDSTOP(I, MIN);
         #endif
@@ -994,7 +998,7 @@ void Endstops::update() {
 
   #if HAS_J_AXIS
     if (stepper.axis_is_moving(J_AXIS)) {
-      if (stepper.motor_direction(J_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(J_AXIS_HEAD)) { // -direction
         #if USE_J_MIN || (J_SPI_SENSORLESS && J_HOME_TO_MIN)
           PROCESS_ENDSTOP(J, MIN);
         #endif
@@ -1009,7 +1013,7 @@ void Endstops::update() {
 
   #if HAS_K_AXIS
     if (stepper.axis_is_moving(K_AXIS)) {
-      if (stepper.motor_direction(K_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(K_AXIS_HEAD)) { // -direction
         #if USE_K_MIN || (K_SPI_SENSORLESS && K_HOME_TO_MIN)
           PROCESS_ENDSTOP(K, MIN);
         #endif
@@ -1024,7 +1028,7 @@ void Endstops::update() {
 
   #if HAS_U_AXIS
     if (stepper.axis_is_moving(U_AXIS)) {
-      if (stepper.motor_direction(U_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(U_AXIS_HEAD)) { // -direction
         #if USE_U_MIN || (U_SPI_SENSORLESS && U_HOME_TO_MIN)
           PROCESS_ENDSTOP(U, MIN);
         #endif
@@ -1039,7 +1043,7 @@ void Endstops::update() {
 
   #if HAS_V_AXIS
     if (stepper.axis_is_moving(V_AXIS)) {
-      if (stepper.motor_direction(V_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(V_AXIS_HEAD)) { // -direction
         #if USE_V_MIN || (V_SPI_SENSORLESS && V_HOME_TO_MIN)
           PROCESS_ENDSTOP(V, MIN);
         #endif
@@ -1054,7 +1058,7 @@ void Endstops::update() {
 
   #if HAS_W_AXIS
     if (stepper.axis_is_moving(W_AXIS)) {
-      if (stepper.motor_direction(W_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(W_AXIS_HEAD)) { // -direction
         #if USE_W_MIN || (W_SPI_SENSORLESS && W_HOME_TO_MIN)
           PROCESS_ENDSTOP(W, MIN);
         #endif

@@ -415,7 +415,7 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 #if ENABLED(MESH_BED_LEVELING)
-  uint8_t mesh_point_count = GRID_MAX_POINTS;
+  grid_count_t mesh_point_count = GRID_MAX_POINTS;
 #endif
 
 void DGUSScreenHandlerMKS::Level_Ctrl(DGUS_VP_Variable &var, void *val_ptr) {
@@ -739,19 +739,21 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     return;
 
   char axiscode;
-  uint16_t speed = manual_feedrate_mm_m[X_AXIS]; // Default feedrate for manual moves
+  uint16_t speed = manual_feedrate_mm_m.x; // Default feedrate for manual moves
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
-    case VP_MOVE_X:
-      axiscode = 'X';
-      if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
-      break;
+    #if HAS_X_AXIS
+      case VP_MOVE_X:
+        axiscode = 'X';
+        if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_MOVE_Y:
         axiscode = 'Y';
-        speed = manual_feedrate_mm_m[Y_AXIS];
+        speed = manual_feedrate_mm_m.y;
         if (!ExtUI::canMove(ExtUI::axis_t::Y)) goto cannotmove;
         break;
     #endif
@@ -759,7 +761,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     #if HAS_Z_AXIS
       case VP_MOVE_Z:
         axiscode = 'Z';
-        speed = manual_feedrate_mm_m[Z_AXIS];
+        speed = manual_feedrate_mm_m.z;
         if (!ExtUI::canMove(ExtUI::axis_t::Z)) goto cannotmove;
         break;
     #endif
@@ -773,10 +775,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       movevalue = 0; // ignore value sent from display, this VP is _ONLY_ for homing.
       break;
 
-    case VP_X_HOME:
-      axiscode = 'X';
-      movevalue = 0;
-      break;
+    #if HAS_X_AXIS
+      case VP_X_HOME:
+        axiscode = 'X';
+        movevalue = 0;
+        break;
+    #endif
 
     #if HAS_Y_AXIS
       case VP_Y_HOME:

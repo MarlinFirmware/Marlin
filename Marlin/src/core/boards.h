@@ -391,6 +391,7 @@
 #define BOARD_PANDA_PI_V29            5066  // Panda Pi V2.9 - Standalone (STM32F103RC)
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RET6)
 #define BOARD_TRIGORILLA_V006         5068  // Trigorilla V0.0.6 (GD32F103RE)
+#define BOARD_KEDI_CONTROLLER_V1_2    5069  // EDUTRONICS Kedi Controller V1.2 (STM32F103RC)
 
 //
 // ARM Cortex-M4F
@@ -429,7 +430,7 @@
 #define BOARD_FYSETC_S6_V2_0          5223  // FYSETC S6 v2.0 (STM32F446VE)
 #define BOARD_FYSETC_SPIDER           5224  // FYSETC Spider (STM32F446VE)
 #define BOARD_FLYF407ZG               5225  // FLYmaker FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              5226  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_ROBIN2              5226  // MKS Robin2 V1.0 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        5227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       5228  // MKS Robin Nano V3 (STM32F407VG)
 #define BOARD_MKS_ROBIN_NANO_V3_1     5229  // MKS Robin Nano V3.1 (STM32F407VE)
@@ -450,6 +451,8 @@
 #define BOARD_MKS_SKIPR_V1            5244  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
 #define BOARD_TRONXY_V10              5245  // TRONXY V10 (STM32F446ZE)
 #define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
+#define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
+#define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
 
 //
 // ARM Cortex-M7
@@ -479,6 +482,7 @@
 #define BOARD_PANDA_M4                7007  // Panda_M4
 #define BOARD_MKS_TINYBEE             7008  // MKS TinyBee based on ESP32 (with I2S stepper stream)
 #define BOARD_ENWI_ESPNP              7009  // enwi ESPNP based on ESP32 (with I2S stepper stream)
+#define BOARD_GODI_CONTROLLER_V1_0    7010  // Godi Controller based on ESP32 32-Bit V1.0
 
 //
 // SAMD51 ARM Cortex-M4
