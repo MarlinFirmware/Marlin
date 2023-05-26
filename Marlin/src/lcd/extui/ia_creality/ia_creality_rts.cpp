@@ -61,7 +61,8 @@ char waitway                = 0;
 int16_t recnum              = 0;
 float changeMaterialBuf[2]  = { 0 };
 char nozzleTempStatus[3]    = { 0 };
-char printerStatusKey[2]    = { 0 };
+char printerStatusKey[2]    = { 0 }; // printerStatusKey[1]  0:keep temperature, 1:heating, 2:cooling, 3:printing
+                                     // printerStatusKey[0]  0:ready
 
 uint8_t axisPageNum         = 0; // 0 for 10mm, 1 for 1mm, 2 for 0.1mm
 bool show_status            = true;
@@ -579,7 +580,7 @@ void RTS::sendData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=Var
   sendData();
 }
 
-void RTS::sendData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const int16_t n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if ((unsigned int)n > 0xFFFF) {
       snddat.data[0] = n >> 16;
@@ -604,7 +605,7 @@ void RTS::sendData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr
   sendData();
 }
 
-void RTS::sendData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const uint32_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
   if (cmd == VarAddr_W) {
     if (n > 0xFFFF) {
       snddat.data[0] = n >> 16;
