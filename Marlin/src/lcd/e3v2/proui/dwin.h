@@ -33,6 +33,7 @@
 #include "dwin_defines.h"
 #include "dwinui.h"
 #include "../common/encoder.h"
+#include "../common/limits.h"
 #include "../../../libs/BL24CXX.h"
 
 #if EITHER(BABYSTEPPING, HAS_BED_PROBE)

@@ -431,7 +431,7 @@ namespace Language_tr {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Fabrika Ayarları");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM'u başlat");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hata: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hata: EEPROM Indeks");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hata: EEPROM Boyutu");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hata: EEPROM Sürümü");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Ayarlar Kaydedildi");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("SD Güncellemesi");

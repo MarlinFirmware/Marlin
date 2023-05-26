@@ -353,7 +353,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
 //
 // List all files on the SD card
 //
-void CardReader::ls(const uint8_t lsflags) {
+void CardReader::ls(const uint8_t lsflags/*=0*/) {
   if (flag.mounted) {
     root.rewind();
     printListing(root, nullptr, lsflags);

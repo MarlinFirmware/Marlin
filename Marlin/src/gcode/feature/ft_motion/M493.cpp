@@ -103,7 +103,8 @@ void say_shaping() {
 
   #if HAS_EXTRUDERS
     SERIAL_ECHO_TERNARY(fxdTiCtrl.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-    SERIAL_ECHOLNPGM(". Gain: "); SERIAL_ECHO_F(fxdTiCtrl.cfg.linearAdvK, 5);
+    SERIAL_ECHOPGM(". Gain: "); SERIAL_ECHO_F(fxdTiCtrl.cfg.linearAdvK, 5);
+    SERIAL_EOL();
   #endif
 
 }

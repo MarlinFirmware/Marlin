@@ -363,7 +363,7 @@ namespace Language_hu {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Alapértelmezett");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM inicializálás");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hiba: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hiba: EEPROM index");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hiba: EEPROM mérete");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hiba: EEPROM verzió");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Beállítások mentve");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Tároló frissítés");
