@@ -105,6 +105,7 @@ jobs:
         - FYSETC_S6
         - LERDGEK
         - LERDGEX
+        - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32
         - STM32F401RC_creality
