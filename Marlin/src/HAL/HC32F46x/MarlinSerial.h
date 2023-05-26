@@ -20,32 +20,34 @@
  *
  */
 #pragma once
-#include "HardwareSerial.h"
+#include <drivers/usart/Usart.h>
 #include "../../core/serial_hook.h"
 
 // optionally set uart IRQ priority to reduce overflow errors
-// #define UART_IRQ_PRIO 1
+//#define UART_IRQ_PRIO 1
 
-struct MarlinSerial : public HardwareSerial
+struct MarlinSerial : public Usart
 {
-  MarlinSerial(struct usart_dev *usart_device, uint8_t tx_pin, uint8_t rx_pin) : HardwareSerial(usart_device, tx_pin, rx_pin) {}
+  MarlinSerial(struct usart_config_t *usart_device) : Usart(usart_device) {}
 
 #ifdef UART_IRQ_PRIO
   void setPriority()
   {
-    NVIC_SetPriority(c_dev()->RX_IRQ, UART_IRQ_PRIO);
-    NVIC_SetPriority(c_dev()->TX_IRQ, UART_IRQ_PRIO);
+    NVIC_SetPriority(c_dev()->interrupts.rx_data_available.interrupt_number, UART_IRQ_PRIO);
+    NVIC_SetPriority(c_dev()->interrupts.rx_error.interrupt_number, UART_IRQ_PRIO);
+    NVIC_SetPriority(c_dev()->interrupts.tx_buffer_empty.interrupt_number, UART_IRQ_PRIO);
+    NVIC_SetPriority(c_dev()->interrupts.tx_complete.interrupt_number, UART_IRQ_PRIO);
   }
 
   void begin(uint32_t baud)
   {
-    HardwareSerial::begin(baud);
+    Usart::begin(baud);
     setPriority();
   }
 
   void begin(uint32_t baud, uint8_t config)
   {
-    HardwareSerial::begin(baud, config);
+    Usart::begin(baud, config);
     setPriority();
   }
 #endif
