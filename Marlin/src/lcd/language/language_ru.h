@@ -52,6 +52,8 @@ namespace Language_ru {
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расшир. настройки");
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполн. вызова");
   #endif
+  LSTR MSG_TOOLBAR_SETUP                    = _UxGT("Настр. инструменты");
+  LSTR MSG_OPTION_DISABLED                  = _UxGT("Опция отключена");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
@@ -346,6 +348,11 @@ namespace Language_ru {
   LSTR MSG_MOVE_1MM                         = _UxGT("Движение 1мм");
   LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
   LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
+  LSTR MSG_MOVE_0001IN                      = _UxGT("Движение 0.001in");
+  LSTR MSG_MOVE_001IN                       = _UxGT("Движение 0.01in");
+  LSTR MSG_MOVE_01IN                        = _UxGT("Движение 0.1in");
+  LSTR MSG_MOVE_05IN                        = _UxGT("Движение 0.5in");
+  LSTR MSG_MOVE_1IN                         = _UxGT("Движение 1.0in");
   LSTR MSG_SPEED                            = _UxGT("Скорость");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
@@ -461,6 +468,7 @@ namespace Language_ru {
   LSTR MSG_ERR_EEPROM_CRC                   = _UxGT("Сбой EEPROM: CRC");
   LSTR MSG_ERR_EEPROM_SIZE                  = _UxGT("Сбой EEPROM: размер");
   LSTR MSG_ERR_EEPROM_VERSION               = _UxGT("Сбой EEPROM: версия");
+  LSTR MSG_ERR_EEPROM_CORRUPT               = _UxGT("Сбой EEPROM: данные");
   LSTR MSG_SETTINGS_STORED                  = _UxGT("Параметры сохранены");
   LSTR MSG_MEDIA_UPDATE                     = _UxGT("Обновление прошивки");
   LSTR MSG_RESET_PRINTER                    = _UxGT("Сброс принтера");
@@ -1011,6 +1019,7 @@ namespace Language_ru {
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Ждите перезагрузки.");
   LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Нет носителя.");
   LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Нагрейте сопло.");
+  LSTR MSG_INFO_PRINT_COUNT_RESET         = _UxGT("Сбросить счетчик");
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Прочистить или продолжить?");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Включить датч.филамента");
   LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Датч.филам. активен");
@@ -1033,6 +1042,8 @@ namespace Language_ru {
   LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
   LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
+  //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo ФBС");
+  //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode:");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
