@@ -514,6 +514,61 @@
 
 #endif // HAS_WIRED_LCD
 
+#if HAS_SPI_TFT
+
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+
+  #if ENABLED(BTT_TFT35_SPI_V1_0)
+    // 480x320, 3.5", SPI Display with Rotary Encoder.
+    // Stock Display for the BIQU B1 SE.
+    #define TFT_CS_PIN               EXP2_04_PIN
+    #define TFT_A0_PIN               EXP2_07_PIN
+
+    #define TOUCH_CS_PIN             EXP1_04_PIN
+    #define TOUCH_SCK_PIN            EXP1_05_PIN
+    #define TOUCH_MISO_PIN           EXP1_06_PIN
+    #define TOUCH_MOSI_PIN           EXP1_03_PIN
+    #define TOUCH_INT_PIN            EXP1_07_PIN
+
+  #elif ENABLED(MKS_TS35_V2_0)
+
+    /**                      ------                                   ------
+     *               BEEPER | 1  2 | BTN_ENC               SPI1_MISO | 1  2 | SPI1_SCK
+     *     TFT_BKL / LCD_EN | 3  4 | TFT_RESET / LCD_RS      BTN_EN1 | 3  4 | SPI1_CS
+     *    TOUCH_CS / LCD_D4 | 5  6   TOUCH_INT / LCD_D5      BTN_EN2 | 5  6   SPI1_MOSI
+     *     SPI1_CS / LCD_D6 | 7  8 | SPI1_RS / LCD_D7       SPI1_RS  | 7  8 | RESET
+     *                  GND | 9 10 | VCC                         GND | 9 10 | VCC
+     *                       ------                                   ------
+     *                        EXP1                                     EXP2
+     */
+    #define TFT_CS_PIN               EXP1_07_PIN  // SPI1_CS
+    #define TFT_A0_PIN               EXP1_08_PIN  // SPI1_RS
+    #define TFT_DC_PIN                TFT_DC_PIN
+
+    #define TFT_RESET_PIN            EXP1_04_PIN
+
+    #define LCD_BACKLIGHT_PIN        EXP1_03_PIN
+    #define TFT_BACKLIGHT_PIN  LCD_BACKLIGHT_PIN
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+
+    #define TOUCH_CS_PIN             EXP1_05_PIN  // SPI1_NSS
+    #define TOUCH_SCK_PIN            EXP2_02_PIN  // SPI1_SCK
+    #define TOUCH_MISO_PIN           EXP2_01_PIN  // SPI1_MISO
+    #define TOUCH_MOSI_PIN           EXP2_06_PIN  // SPI1_MOSI
+
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
+
+    #define TFT_BUFFER_SIZE                14400
+
+  #endif
+
+#endif // HAS_SPI_TFT
+
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
@@ -525,29 +580,6 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             580
   #endif
-#endif
-
-#if HAS_SPI_TFT
-
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-
-  //
-  // e.g., BTT_TFT35_SPI_V1_0 (480x320, 3.5", SPI Stock Display with Rotary Encoder in BIQU B1 SE)
-  //
-  #define TFT_CS_PIN                 EXP2_04_PIN
-  #define TFT_A0_PIN                 EXP2_07_PIN
-  #define TFT_SCK_PIN                EXP2_02_PIN
-  #define TFT_MISO_PIN               EXP2_01_PIN
-  #define TFT_MOSI_PIN               EXP2_06_PIN
-
-  #define TOUCH_INT_PIN              EXP1_07_PIN
-  #define TOUCH_MISO_PIN             EXP1_06_PIN
-  #define TOUCH_MOSI_PIN             EXP1_03_PIN
-  #define TOUCH_SCK_PIN              EXP1_05_PIN
-  #define TOUCH_CS_PIN               EXP1_04_PIN
-
 #endif
 
 //
