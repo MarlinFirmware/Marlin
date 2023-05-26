@@ -460,12 +460,10 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
-    #define TFT_SCK_PIN              EXP2_02_PIN
-    #define TFT_MISO_PIN             EXP2_01_PIN
-    #define TFT_MOSI_PIN             EXP2_06_PIN
-
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
+
+    #define TFT_DC_PIN                TFT_A0_PIN
 
     #ifndef TFT_WIDTH
       #define TFT_WIDTH                      480
@@ -475,16 +473,16 @@
     #endif
 
     #if ENABLED(BTT_TFT35_SPI_V1_0)
-
+      // 480x320, 3.5", SPI Display with Rotary Encoder.
+      // Stock Display for the BIQU B1 SE.
       #define TFT_CS_PIN             EXP2_04_PIN
-      #define TFT_DC_PIN             EXP2_07_PIN
-      #define TFT_A0_PIN              TFT_DC_PIN
+      #define TFT_A0_PIN             EXP2_07_PIN
 
-      #define TOUCH_INT_PIN          EXP1_07_PIN
+      #define TOUCH_CS_PIN           EXP1_04_PIN
+      #define TOUCH_SCK_PIN          EXP1_05_PIN
       #define TOUCH_MISO_PIN         EXP1_06_PIN
       #define TOUCH_MOSI_PIN         EXP1_03_PIN
-      #define TOUCH_SCK_PIN          EXP1_05_PIN
-      #define TOUCH_CS_PIN           EXP1_04_PIN
+      #define TOUCH_INT_PIN          EXP1_07_PIN
 
       #ifndef TOUCH_CALIBRATION_X
         #define TOUCH_CALIBRATION_X        17540
@@ -513,10 +511,8 @@
        *                       ------                                   ------
        *                        EXP1                                     EXP2
        */
-
       #define TFT_CS_PIN             EXP1_07_PIN  // SPI1_CS
-      #define TFT_DC_PIN             EXP1_08_PIN  // SPI1_RS
-      #define TFT_A0_PIN              TFT_DC_PIN
+      #define TFT_A0_PIN             EXP1_08_PIN  // SPI1_RS
 
       #define TFT_RESET_PIN          EXP1_04_PIN
 
@@ -524,7 +520,7 @@
       #define TFT_BACKLIGHT_PIN LCD_BACKLIGHT_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE      1
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
 
       #define TOUCH_CS_PIN           EXP1_05_PIN  // SPI1_NSS
       #define TOUCH_SCK_PIN          EXP2_02_PIN  // SPI1_SCK
