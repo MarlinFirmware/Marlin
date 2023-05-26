@@ -323,7 +323,7 @@ namespace Language_ro {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Settings Stored");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Media Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Imprimanta");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Refresh");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Refresh");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info Screen");
   LSTR MSG_PREPARE                        = _UxGT("Prepare");
   LSTR MSG_TUNE                           = _UxGT("Tune");

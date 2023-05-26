@@ -338,11 +338,11 @@ namespace Language_it {
   LSTR MSG_FLOWMETER_SAFETY               = _UxGT("Sicurezza flusso");
   LSTR MSG_CUTTER                         = _UxGT("Taglio");
   LSTR MSG_LASER                          = _UxGT("Laser");
-  LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventola");     // Max 15 characters
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventola ~");   // Max 15 characters
-  LSTR MSG_STORED_FAN_N                   = _UxGT("Ventola mem. ~");   // Max 15 characters
-  LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra vel.vent.");  // Max 15 characters
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra v.vent. ~");  // Max 15 characters
+  LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventola"); // Max 15 characters
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventola ~"); // Max 15 characters
+  LSTR MSG_STORED_FAN_N                   = _UxGT("Ventola mem. ~"); // Max 15 characters
+  LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra vel.vent."); // Max 15 characters
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra v.vent. ~"); // Max 15 characters
   LSTR MSG_CONTROLLER_FAN                 = _UxGT("Controller vent.");
   LSTR MSG_CONTROLLER_FAN_IDLE_SPEED      = _UxGT("Vel. inattivo");
   LSTR MSG_CONTROLLER_FAN_AUTO_ON         = _UxGT("Modo autom.");
@@ -597,7 +597,7 @@ namespace Language_it {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Totali");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Interrompi se FC");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Risc.Fallito");   // Max 12 characters
+  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Risc.Fallito"); // Max 12 characters
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP RIDONDANTE");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TEMP FUORI CONTROLLO");
   LSTR MSG_TEMP_MALFUNCTION               = _UxGT("MALFUNZIONAMENTO TEMP");
@@ -702,13 +702,13 @@ namespace Language_it {
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Riprendi stampa");
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Spurga o continua?");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Ugello: ");
-  LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin.");  // Max 17 characters
+  LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin."); // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");
   LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Filo termin. attivo");
   LSTR MSG_INVERT_EXTRUDER                = _UxGT("Inverti estrusore");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");
-  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent.");  // Max 17 characters
+  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent."); // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondaggio fallito");
 

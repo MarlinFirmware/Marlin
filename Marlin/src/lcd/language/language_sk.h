@@ -457,7 +457,7 @@ namespace Language_sk {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Nastavenie uložené");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aktualiz. z karty");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reštart. tlačiar.");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Obnoviť");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Obnoviť");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info. obrazovka");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Názov stroja");
   LSTR MSG_INFO_SIZE                      = _UxGT("Rozmer");

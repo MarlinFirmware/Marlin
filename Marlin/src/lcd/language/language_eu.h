@@ -194,7 +194,7 @@ namespace Language_eu {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Kargatu memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Larri. berriz.");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM-a hasieratu");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Berriz kargatu");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantaila info");
   LSTR MSG_PREPARE                        = _UxGT("Prestatu");
   LSTR MSG_TUNE                           = _UxGT("Doitu");

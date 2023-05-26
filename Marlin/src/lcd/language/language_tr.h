@@ -436,7 +436,7 @@ namespace Language_tr {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Ayarlar Kaydedildi");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("SD Güncellemesi");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Yazıcıyı Resetle");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Yenile");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Yenile");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Bilgi Ekranı");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Makine Adı");
   LSTR MSG_INFO_SIZE                      = _UxGT("Boyut");
