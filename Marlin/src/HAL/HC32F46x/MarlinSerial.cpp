@@ -64,6 +64,7 @@ DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
 template <typename T>
 constexpr bool IsSerialClassAllowed(const T &) { return true; }
 constexpr bool IsSerialClassAllowed(const HardwareSerial &) { return false; }
+constexpr bool IsSerialClassAllowed(const Usart &) { return false; }
 
 // If you encounter this error, replace SerialX with MSerialX, for example MSerial3.
 #define CHECK_CFG_SERIAL(A) static_assert(IsSerialClassAllowed(A), STRINGIFY(A) " is defined incorrectly");
