@@ -23,9 +23,9 @@ langname() {
      it   ) echo "Italian" ;;              jp_kana) echo "Japanese (Kana)" ;;
      ko_KR) echo "Korean" ;;               nl     ) echo "Dutch" ;;
      pl   ) echo "Polish" ;;               pt     ) echo "Portuguese" ;;
-     pt_br) echo "Portuguese (Brazil)" ;;  ru     ) echo "Russian" ;;
-     sk   ) echo "Slovak" ;;               sv     ) echo "Swedish" ;;
-     test ) echo "TEST" ;;                 tr     ) echo "Turkish" ;;
+     pt_br) echo "Portuguese (Brazil)" ;;  ro     ) echo "Romanian" ;;
+     ru   ) echo "Russian" ;;              sk     ) echo "Slovak" ;;
+     sv   ) echo "Swedish" ;;              tr     ) echo "Turkish" ;;
      uk   ) echo "Ukrainian" ;;            vi     ) echo "Vietnamese" ;;
      zh_CN) echo "Simplified Chinese" ;;   zh_TW  ) echo "Traditional Chinese" ;;
      *    ) echo "<unknown>" ;;
