@@ -47,14 +47,12 @@
 #define Y_MAX_PIN                             28
 #define Z_MIN_PIN                             30
 
-#if ENABLED(BLTOUCH)
-  #if MB(GT2560_REV_A_PLUS)
-    #define SERVO0_PIN                        11
-    #define Z_MAX_PIN                         32
-  #else
-    #define SERVO0_PIN                        32
-    #define Z_MAX_PIN                         -1
-  #endif
+#if ENABLED(BLTOUCH) && !defined(SERVO0_PIN)
+  #define SERVO0_PIN                          32
+#endif
+
+#if SERVO0_PIN == 32
+  #define Z_MAX_PIN                           -1
 #else
   #define Z_MAX_PIN                           32
 #endif
@@ -102,11 +100,35 @@
 //
 // Misc. Functions
 //
+
+/**           LCD Header
+ *              ------
+ *          5V | 1  2 | GND
+ *           6 | 3  4 | 5
+ *    (SCL) 21   5  6 | 16 (TX2)
+ *    (SDA) 20 | 7  8 | 17 (RX2)
+ *    (RX1) 19 | 9 10 | 18 (TX1)
+ *              ------
+ *               SV1
+ *
+ *          SDCARD Header
+ *              ------
+ *      5V/3V3 | 1  2 | GND
+ *       RESET | 3  4 | 38
+ *   (MOSI) 51   5  6 | 40
+ *     (SS) 53 | 7  8 | 42
+ *    (SCK) 52 | 9 10 | 50 (MISO)
+ *              ------
+ *               SV3
+ *
+ * GT2560 LCD & SD headers follow typical EXP1 & EXP2 format.
+ * SD header voltage pin set by link pads beneath the header; R25 for 5V, R44 for 3.3V (default)
+ * Pins 20 (SDA) and 21 (SCL) have external 10K pull-ups on the board.
+ */
+
 #define SDSS                                  53
 #define LED_PIN                               13
-#define PS_ON_PIN                             12
-#define SUICIDE_PIN                           54  // Must be enabled at startup to keep power flowing
-#define KILL_PIN                              -1
+#define POWER_MONITOR_VOLTAGE_PIN             0 // 0 for main, 1 for dedicated bed supply
 
 #if HAS_WIRED_LCD
 
