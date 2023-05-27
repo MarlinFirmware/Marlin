@@ -53,23 +53,23 @@ namespace Language_ca {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Anivellament fet!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajusta decalatge");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Decalatge aplicat");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Tot");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Llit");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Conf.");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Preescalfa $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Preescalfa $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Preescalfa $ End");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Preescalfa $ End ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Preescalfa $ Tot");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preescalfa $ Llit");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preescalfa $ Conf.");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Tot");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Llit");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Conf.");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Preescalfa $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Preescalfa $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Preescalfa $ End");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Preescalfa $ End ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Preescalfa $ Tot");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Preescalfa $ Llit");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Preescalfa $ Conf.");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Refreda");
 
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudeix");

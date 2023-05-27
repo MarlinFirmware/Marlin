@@ -76,23 +76,23 @@ namespace Language_fr_na {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ecart origine ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Prechauffage ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Prechauffage ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" buse");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" buse ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" Tout");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" lit");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Regler prech. ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Prechauffage $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Prechauffage $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Prech. $ buse");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Prech. $ buse ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Prech. $ Tout");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Prech. $ lit");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Regler prech. $");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Prechauffage ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Prechauffage ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" buse");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" buse ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" Tout");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Prech. ") PREHEAT_1_LABEL _UxGT(" lit");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Regler prech. ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Prechauffage $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Prechauffage $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Prech. $ buse");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Prech. $ buse ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Prech. $ Tout");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Prech. $ lit");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Regler prech. $");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Prechauf. perso");
   LSTR MSG_COOLDOWN                       = _UxGT("Refroidir");
   LSTR MSG_LASER_MENU                     = _UxGT("Controle Laser");
@@ -156,10 +156,8 @@ namespace Language_fr_na {
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Reglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Creer la grille");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Creer grille $");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Impr. grille $");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Creer grille $");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Impr. grille $");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Creer grille ...");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Mesure a froid");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Ajuster haut. couche");
@@ -608,11 +606,8 @@ namespace Language_fr_na {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Niveau axe X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Etalon. auto.");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("En protection, temp. reduite. Ok pour rechauffer et continuer.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("En protection");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("En protection, temp. reduite. Ok pour rechauffer et continuer.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("En protection");
   LSTR MSG_REHEAT                         = _UxGT("Chauffer");
   LSTR MSG_REHEATING                      = _UxGT("Rechauffe...");
 

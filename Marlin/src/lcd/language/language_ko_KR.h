@@ -54,17 +54,17 @@ namespace Language_ko_KR {
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("누르면 시작합니다");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("다음 Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("레벨링 완료!");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("예열하기 - $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("예열하기 - $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("예열하기 - $ 노즐");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("예열하기 - $ 노즐 ~");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("예열하기 - $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("예열하기 - $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("예열하기 - $ 노즐");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("예열하기 - $ 노즐 ~");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Custom 예열");
   LSTR MSG_COOLDOWN                       = _UxGT("식히기");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("스위치 전원 켜기");

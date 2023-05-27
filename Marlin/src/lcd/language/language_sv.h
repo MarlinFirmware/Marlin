@@ -77,23 +77,21 @@ namespace Language_sv {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");
 
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Alla");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Bädd");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Konf");
+  LSTR MSG_PREHEAT_1                      = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Alla");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Bädd");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Konf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Förvärmning $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Förvärmning $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Förvärmning $ Stoppa");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Förvärmning $ Stoppa ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Förvärmning $ Alla");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Förvärmning $ Bädd");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Förvärmning $ Donf");
-  #endif
+  LSTR MSG_PREHEAT_M                      = _UxGT("Förvärmning $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Förvärmning $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Förvärmning $ Stoppa");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Förvärmning $ Stoppa ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Förvärmning $ Alla");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Förvärmning $ Bädd");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Förvärmning $ Donf");
 
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Förvärmning Anpassad");
   LSTR MSG_COOLDOWN                       = _UxGT("Nedkylning");
@@ -650,11 +648,8 @@ namespace Language_sv {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Nivå X Axel");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Kalibrera");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Overksam tidsgräns, temperatur minskning. Tryck ok för att återvärma och igen för att fortsätta.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Värmare Tidsgräns");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Overksam tidsgräns, temperatur minskning. Tryck ok för att återvärma och igen för att fortsätta.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Värmare Tidsgräns");
   LSTR MSG_REHEAT                         = _UxGT("Återvärm");
   LSTR MSG_REHEATING                      = _UxGT("Återvärmning...");
 

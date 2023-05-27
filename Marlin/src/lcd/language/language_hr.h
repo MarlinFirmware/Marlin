@@ -53,23 +53,23 @@ namespace Language_hr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Niveliranje gotovo!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Postavi home offsete");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets postavljeni");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Predgrij ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Predgrij $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Predgrij $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Predgrij $ Dizna");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Predgrij $ Dizna ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Predgrij $ Sve");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Predgrij $ Bed");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Predgrij $ conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Predgrij ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Predgrij $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Predgrij $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Predgrij $ Dizna");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Predgrij $ Dizna ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Predgrij $ Sve");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Predgrij $ Bed");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Predgrij $ conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Hlađenje");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Uključi napajanje");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Isključi napajanje");

@@ -61,23 +61,23 @@ namespace Language_jp_kana {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("レベリングカンリョウ"); // "Leveling Done!"
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("キジュンオフセットセッテイ"); // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("オフセットガテキヨウサレマシタ"); // "Offsets applied"
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" ヨネツ"); // "Preheat " PREHEAT_1_LABEL
-    LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" ヨネツ ~"); // "Preheat " PREHEAT_1_LABEL
-    LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" ヨネツノズル"); // " Nozzle"
-    LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" ヨネツノズル ~"); // " Nozzle"
-    LSTR MSG_PREHEAT_1_ALL                = PREHEAT_1_LABEL _UxGT(" スベテヨネツ"); // " All"
-    LSTR MSG_PREHEAT_1_BEDONLY            = PREHEAT_1_LABEL _UxGT(" ベッドヨネツ"); // " Bed"
-    LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" ヨネツセッテイ"); // " conf"
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("$ ヨネツ"); // "Preheat " PREHEAT_1_LABEL
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("$ ヨネツ ~"); // "Preheat " PREHEAT_1_LABEL
-    LSTR MSG_PREHEAT_M_END                = _UxGT("$ ヨネツノズル"); // " Nozzle"
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("$ ヨネツノズル ~"); // " Nozzle"
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("$ スベテヨネツ"); // " All"
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("$ ベッドヨネツ"); // " Bed"
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("$ ヨネツセッテイ"); // " conf"
-  #endif
+  LSTR MSG_PREHEAT_1                      = PREHEAT_1_LABEL _UxGT(" ヨネツ"); // "Preheat " PREHEAT_1_LABEL
+  LSTR MSG_PREHEAT_1_H                    = PREHEAT_1_LABEL _UxGT(" ヨネツ ~"); // "Preheat " PREHEAT_1_LABEL
+  LSTR MSG_PREHEAT_1_END                  = PREHEAT_1_LABEL _UxGT(" ヨネツノズル"); // " Nozzle"
+  LSTR MSG_PREHEAT_1_END_E                = PREHEAT_1_LABEL _UxGT(" ヨネツノズル ~"); // " Nozzle"
+  LSTR MSG_PREHEAT_1_ALL                  = PREHEAT_1_LABEL _UxGT(" スベテヨネツ"); // " All"
+  LSTR MSG_PREHEAT_1_BEDONLY              = PREHEAT_1_LABEL _UxGT(" ベッドヨネツ"); // " Bed"
+  LSTR MSG_PREHEAT_1_SETTINGS             = PREHEAT_1_LABEL _UxGT(" ヨネツセッテイ"); // " conf"
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("$ ヨネツ"); // "Preheat " PREHEAT_1_LABEL
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("$ ヨネツ ~"); // "Preheat " PREHEAT_1_LABEL
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("$ ヨネツノズル"); // " Nozzle"
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("$ ヨネツノズル ~"); // " Nozzle"
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("$ スベテヨネツ"); // " All"
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("$ ベッドヨネツ"); // " Bed"
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("$ ヨネツセッテイ"); // " conf"
+
   LSTR MSG_COOLDOWN                       = _UxGT("カネツテイシ"); // "Cooldown"
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("デンゲン オン"); // "Switch power on"
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("デンゲン オフ"); // "Switch power off"

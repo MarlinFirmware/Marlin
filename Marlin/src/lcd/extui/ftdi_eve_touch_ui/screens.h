@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "ftdi_eve_lib/ftdi_eve_lib.h"
 #include "language/language.h"
 #include "theme/theme.h"
@@ -46,5 +44,3 @@ extern tiny_timer_t refresh_timer;
 #else
   #include "generic/screens.h"
 #endif
-
-#endif // TOUCH_UI_FTDI_EVE

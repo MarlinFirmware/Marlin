@@ -56,23 +56,23 @@ namespace Language_eu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Berdintzea eginda");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Etxe. offset eza.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsetak ezarrita");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Berotu ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Berotu $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Berotu $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Berotu $ Amaia");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Berotu $ Amaia ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Berotu $ Guztia");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Berotu $ Ohea");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Berotu $ Ezarp.");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Berotu ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Berotu $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Berotu $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Berotu $ Amaia");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Berotu $ Amaia ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Berotu $ Guztia");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Berotu $ Ohea");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Berotu $ Ezarp.");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Hoztu");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Energia piztu");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Energia itzali");
@@ -99,10 +99,8 @@ namespace Language_eu {
   LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Sarea editatu");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Sarea editatzea eginda");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Sarea sortu");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("$ sarea sortu");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("$ sarea balioetsi");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("$ sarea sortu");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("$ sarea balioetsi");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Sare hotza sortu");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Sarearen altuera doitu");
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Sarea balioetsi");

@@ -53,23 +53,23 @@ namespace Language_nl {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Bed level kompl.");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Zet home offsets");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("H offset toegep.");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
-    LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
-    LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
-    LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
-    LSTR MSG_PREHEAT_1_ALL                = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
-    LSTR MSG_PREHEAT_1_BEDONLY            = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
-    LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" verw. conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("$ voorverwarmen");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("$ voorverw. ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("$ voorverw. Einde");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("$ voorverw. Einde ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("$ voorverw. aan");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("$ voorverw. Bed");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("$ verw. conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
+  LSTR MSG_PREHEAT_1_H                    = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
+  LSTR MSG_PREHEAT_1_END                  = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
+  LSTR MSG_PREHEAT_1_END_E                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
+  LSTR MSG_PREHEAT_1_ALL                  = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
+  LSTR MSG_PREHEAT_1_BEDONLY              = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
+  LSTR MSG_PREHEAT_1_SETTINGS             = PREHEAT_1_LABEL _UxGT(" verw. conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("$ voorverwarmen");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("$ voorverw. ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("$ voorverw. Einde");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("$ voorverw. Einde ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("$ voorverw. aan");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("$ voorverw. Bed");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("$ verw. conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Afkoelen");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Stroom aan");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Stroom uit");

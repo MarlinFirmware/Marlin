@@ -147,6 +147,8 @@ namespace Language_en {
   LSTR MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
   LSTR MSG_MAX_SPEED_NO_UNITS       = u8"Max Speed";
 
+  //LSTR MSG_FTDI_HEATER_TIMEOUT    = u8"Idle timeout, temperature decreased. Press Okay to reheat and again to resume.";
+
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     LSTR MSG_MOVE_TO_HOME           = u8"Move to Home";
     LSTR MSG_RAISE_PLUNGER          = u8"Raise Plunger";

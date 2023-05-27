@@ -47,23 +47,23 @@ namespace Language_da {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Bed level er færdig!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Sæt forsk. af home");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Forsk. er nu aktiv");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Forvarm ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Forvarm $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Forvarm $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Forvarm $ end");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Forvarm $ end ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Forvarm $ Alle");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Forvarm $ Bed");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Forvarm $ conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Forvarm ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Forvarm $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Forvarm $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Forvarm $ end");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Forvarm $ end ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Forvarm $ Alle");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Forvarm $ Bed");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Forvarm $ conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Afkøl");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Slå strøm til");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Slå strøm fra");

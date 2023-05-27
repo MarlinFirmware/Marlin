@@ -44,23 +44,23 @@ namespace Language_bg {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Изкл. двигатели");
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Задай Начало");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Подгряване ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Настройки ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Подгряване $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Подгряване $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Подгряване $ Дюза");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Подгряване $ Дюза ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Подгр. $ Всички");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Подгр. $ Легло");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Настройки $");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Подгряване ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Настройки ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Подгряване $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Подгряване $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Подгряване $ Дюза");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Подгряване $ Дюза ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Подгр. $ Всички");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Подгр. $ Легло");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Настройки $");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Охлаждане");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Вкл. захранване");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Изкл. захранване");

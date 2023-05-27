@@ -27,6 +27,7 @@ marlin_config.json
 mczip.h
 language*.csv
 csv-out/
+language-out/
 *.gen
 *.sublime-workspace
 

@@ -68,23 +68,23 @@ namespace Language_ro {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Inaltime");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Seteaza Offseturile Acasa");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offseturi Aplicate");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Tot");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Patul");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Preincalzeste $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Preincalzeste $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Preincalzeste $ Capatul");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Preincalzeste $ Capatul ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Preincalzeste $ Tot");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preincalzeste $ Patul");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preincalzeste $ Conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Tot");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Patul");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Preincalzeste $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Preincalzeste $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Preincalzeste $ Capatul");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Preincalzeste $ Capatul ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Preincalzeste $ Tot");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Preincalzeste $ Patul");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Preincalzeste $ Conf");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Preincalzeste Personalizat");
   LSTR MSG_COOLDOWN                       = _UxGT("Racire");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frecventa");
@@ -142,10 +142,8 @@ namespace Language_ro {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Done Editing Mesh");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Build Custom Mesh");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Build Mesh");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Build Mesh ($)");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Validate Mesh ($)");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Build Mesh ($)");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Validate Mesh ($)");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Build Cold Mesh");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Adjust Mesh Height");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Height Amount");

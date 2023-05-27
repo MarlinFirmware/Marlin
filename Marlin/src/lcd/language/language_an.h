@@ -55,23 +55,23 @@ namespace Language_an {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Nivelacion feita!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Achustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicau");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Precalentar ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Precalentar $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Precalentar $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Precal. $ Boquilla");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Precal. $ Boquilla ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Precalentar $ Tot");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Precalentar $ Base");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Precalentar $ Conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Precalentar ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Precalentar $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Precalentar $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Precal. $ Boquilla");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Precal. $ Boquilla ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Precalentar $ Tot");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Precalentar $ Base");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Precalentar $ Conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Enfriar");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Enchegar Fuent");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Amortar Fuent");

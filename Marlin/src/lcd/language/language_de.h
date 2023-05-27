@@ -94,30 +94,23 @@ namespace Language_de {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wählen Sie Ursprung");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Letzter Wert ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
-    LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
-    LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
-    LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
-    LSTR MSG_PREHEAT_1_ALL                = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
-    LSTR MSG_PREHEAT_1_BEDONLY            = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
-    LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" Einstellungen");
-    #ifdef PREHEAT_2_LABEL
-      LSTR MSG_PREHEAT_2                  = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
-      LSTR MSG_PREHEAT_2_SETTINGS         = PREHEAT_2_LABEL _UxGT(" Vorwärmen Konf");
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      LSTR MSG_PREHEAT_3                  = PREHEAT_3_LABEL _UxGT(" Vorwärmen");
-      LSTR MSG_PREHEAT_3_SETTINGS         = PREHEAT_3_LABEL _UxGT(" Vorwärmen Konf");
-    #endif
-    LSTR MSG_PREHEAT_M                    = _UxGT("$ Vorwärmen");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("$ Vorwärmen") " ~";
-    LSTR MSG_PREHEAT_M_END                = _UxGT("$ Extr. Vorwärmen");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("$ Extr. Vorwärm. ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("$ Alles Vorwärmen");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("$ Bett Vorwärmen");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("$ Einstellungen");
-  #endif
+
+  LSTR MSG_PREHEAT_1                      = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
+  LSTR MSG_PREHEAT_1_H                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
+  LSTR MSG_PREHEAT_1_END                  = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
+  LSTR MSG_PREHEAT_1_END_E                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
+  LSTR MSG_PREHEAT_1_ALL                  = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
+  LSTR MSG_PREHEAT_1_BEDONLY              = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
+  LSTR MSG_PREHEAT_1_SETTINGS             = PREHEAT_1_LABEL _UxGT(" Einstellungen");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("$ Vorwärmen");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("$ Vorwärmen") " ~";
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("$ Extr. Vorwärmen");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("$ Extr. Vorwärm. ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("$ Alles Vorwärmen");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("$ Bett Vorwärmen");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("$ Einstellungen");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("benutzerdef. Heizen");
   LSTR MSG_COOLDOWN                       = _UxGT("Abkühlen");
 
@@ -774,11 +767,8 @@ namespace Language_de {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("X Achse leveln");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto. Kalibiren");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Idle Timeout, Temperatur gefallen. Drücke Okay, um erneut aufzuheizen und fortzufahren.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Heizungs Timeout");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Idle Timeout, Temperatur gefallen. Drücke Okay, um erneut aufzuheizen und fortzufahren.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Heizungs Timeout");
   LSTR MSG_REHEAT                         = _UxGT("Erneut aufheizen");
   LSTR MSG_REHEATING                      = _UxGT("Erneut aufhei. ...");
   LSTR MSG_REHEATDONE                     = _UxGT("Aufwärmen fertig");
