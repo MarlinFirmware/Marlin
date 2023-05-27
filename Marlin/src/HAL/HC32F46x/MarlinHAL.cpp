@@ -4,8 +4,8 @@
 #ifdef TARGET_HC32F46x
 
 #include "HAL.h"
-#include "hc32f460_wdt.h"
 #include <adc/adc.h>
+#include <IWatchdog.h>
 #include "../../inc/MarlinConfig.h"
 #include "soctemp.h"
 
@@ -30,15 +30,14 @@ void MarlinHAL::watchdog_init()
         .enRefreshRange = WdtRefresh100Pct,
         .enSleepModeCountEn = Disable,
         .enRequestType = WdtTriggerResetRequest};
-    WDT_Init(&wdtConf);
-    WDT_RefreshCounter();
+    WDT.begin(&wdtConf);
 #endif
 }
 
 void MarlinHAL::watchdog_refresh()
 {
 #if ENABLED(USE_WATCHDOG)
-    WDT_RefreshCounter();
+    WDT.reload();
 #endif
 }
 
