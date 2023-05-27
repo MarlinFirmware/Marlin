@@ -29,9 +29,9 @@
 #include <wiring_digital.h>
 #include <gpio/gpio.h>
 
-#define READ(IO) (PORT_GetBitGPIO(IO) ? HIGH : LOW)
-#define WRITE(IO, V) (((V) > 0) ? PORT_SetBitsGPIO(IO) : PORT_ResetBitsGPIO(IO))
-#define TOGGLE(IO) (PORT_ToggleGPIO(IO))
+#define READ(IO) (GPIO_GetBit(IO) ? HIGH : LOW)
+#define WRITE(IO, V) (((V) > 0) ? GPIO_SetBits(IO) : GPIO_ResetBits(IO))
+#define TOGGLE(IO) (GPIO_Toggle(IO))
 
 #define _GET_MODE(IO) getPinMode(IO)
 #define _SET_MODE(IO, M) pinMode(IO, M)
