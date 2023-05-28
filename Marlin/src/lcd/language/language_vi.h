@@ -438,5 +438,4 @@ namespace Language_vi {
   LSTR MSG_SHORT_DAY                      = _UxGT("n");                                   // d - ngày - One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("g");                                   // h - giờ  - One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("p");                                   // m - phút - One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("p");                                   // M - phút - One character only
 }
