@@ -28,11 +28,6 @@
   #error "Mellow only supports 2 hotend / E stepper."
 #endif
 
-#if Z2_DRIVER_TYPE && E1_DRIVER_TYPE
- #error "You can't have both z2 and e1 enabled choose only one. Whatever your choise is the wire for the spepper motoer is connected on the e1 port"
-#define BOARD_NO_NATIVE_USB
-#endif
-//
 // Servos
 //
 #define SERVO0_PIN                          PB0
