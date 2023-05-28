@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,6 +35,7 @@
 #define BOARD_INFO_NAME "FLY RRF E3 V3 Pro"
 #define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
 
+//
 // Servos
 //
 #define SERVO0_PIN                          PB0
@@ -55,48 +56,6 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PC5   // BLTouch IN
 #endif
-#define LASER                               PB1   // For a laser ???
-
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN                          PA4   // E0
-#define TEMP_1_PIN                          PA1   // E1
-#define TEMP_2_PIN                          PC1   // Board Temp
-#define TEMP_BED_PIN                        PA3   // Bed
-
-//
-// Heaters
-//
-#define HEATER_0_PIN                        PA5   // Heater0
-#define HEATER_1_PIN                        PC6   // Heater1
-#define HEATER_BED_PIN                      PA0   // Hotbed
-
-//Fan
-#define FAN_PIN                             PA7   // Fan0 for part cooling
-#define FAN1_PIN                            PA6   // Fan1 for extruder
-#ifndef USE_CONTROLLER_FAN
- #define FAN2_PIN                           PB6   // Fan2 for the board
-#endif
-#define FAN3_PIN                            PB7
-//
-// Power Supply Control
-//
-#ifndef PS_ON_PIN
-  #define PS_ON_PIN                         PD11  // PS-ON
-#endif
-//
-// Power Loss Detection
-//
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PD10  // PWRDET
-#endif
-
-//
-// Filament Runout Sensor
-//
-#define FIL_RUNOUT_PIN                      PD0   // E0DET
-#define FIL_RUNOUT2_PIN                     PD1   // E1DET
 
 //
 // Steppers
@@ -129,22 +88,55 @@
   #define E0_CS_PIN                         PD5
 #endif
 
-#ifdef E1_DRIVER_TYPE
- #define E1_STEP_PIN                        PC13  // MOTOR 5
- #define E1_DIR_PIN                         PC0
- #define E1_ENABLE_PIN                      PC15
- #ifndef E1_CS_PIN
-   #define E1_CS_PIN                        PC14
- #endif
+#define E1_STEP_PIN                         PC13  // MOTOR 5
+#define E1_DIR_PIN                          PC0
+#define E1_ENABLE_PIN                       PC15
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                         PC14
 #endif
 
-#ifdef Z2_DRIVER_TYPE
- #define Z2_STEP_PIN                        PC13  // MOTOR 3
- #define Z2_DIR_PIN                         PC0
- #define Z2_ENABLE_PIN                      PC15
- #ifndef Z2_CS_PIN
-   #define Z2_CS_PIN                        PC14
- #endif
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN                          PA4   // E0
+#define TEMP_1_PIN                          PA1   // E1
+#define TEMP_2_PIN                          PC1   // Board Temp
+#define TEMP_BED_PIN                        PA3   // Bed
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN                        PA5   // Heater0
+#define HEATER_1_PIN                        PC6   // Heater1
+#define HEATER_BED_PIN                      PA0   // Hotbed
+
+#define FAN0_PIN                            PA7   // Fan0 for part cooling
+#define FAN1_PIN                            PA6   // Fan1 for extruder
+#define FAN2_PIN                            PB6   // Fan2 for the board
+#define FAN3_PIN                            PB7
+
+//
+// Power Supply Control
+//
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN                         PD11  // PS-ON
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PD10  // PWRDET
+#endif
+
+//
+// Filament Runout Sensor
+//
+#define FIL_RUNOUT_PIN                      PD0   // E0DET
+#define FIL_RUNOUT2_PIN                     PD1   // E1DET
+
+#if HAS_CUTTER
+  #define SPINDLE_LASER_ENA_PIN             PB1
 #endif
 
 //
@@ -199,12 +191,12 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/**                 ------                                      ------
- * (BEEPER) PE11  | 1  2 | PE12 (BTN_ENC)         (MISO) PB4   | 1  2 | PB3  (SCK)
- * (LCD_EN) PA14  | 3  4 | PE6  (LCD_RS)       (BTN_EN1) PA10  | 3  4 | PB2  (SD_SS)
- * (LCD_D4) PE9     5  6 | PE10 (LCD_D5)       (BTN_EN2) PA9     5  6 | PB5  (MOSI)
- * (LCD_D6) PE7   | 7  8 | PE8  (LCD_D7)     (SD_DETECT) PA13  | 7  8 | RESET
- *           GND  | 9 10 | 5V                             GND  | 9 10 | --
+/**               ------                                      ------
+ * (BEEPER) PE11 | 1  2 | PE12 (BTN_ENC)         (MISO) PB4  | 1  2 | PB3  (SCK)
+ * (LCD_EN) PA14 | 3  4 | PE6  (LCD_RS)       (BTN_EN1) PA10 | 3  4 | PB2  (SD_SS)
+ * (LCD_D4) PE9    5  6 | PE10 (LCD_D5)       (BTN_EN2) PA9    5  6 | PB5  (MOSI)
+ * (LCD_D6) PE7  | 7  8 | PE8  (LCD_D7)     (SD_DETECT) PA13 | 7  8 | RESET
+ *           GND | 9 10 | 5V                             GND | 9 10 | --
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
@@ -227,7 +219,6 @@
 #define EXP2_08_PIN                         -1
 
 //
-//
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
@@ -239,18 +230,19 @@
     #error "BOARD_MELLOW_FLY_E3_PRO_V3 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
   #define SD_DETECT_PIN                     PC14
-#elif SD_CONNECTION_IS(LCD)
 
-  #define SDSS                              PB2
+#elif SD_CONNECTION_IS(LCD)
+  #define SDSS                       EXP2_04_PIN
   #define SD_SS_PIN                         SDSS
-  #define SD_SCK_PIN                        PB3
-  #define SD_MISO_PIN                       PB4
-  #define SD_MOSI_PIN                       PB5
-  #define SD_DETECT_PIN                     PA13
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif
+
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**
    *         ------                  ------
@@ -259,8 +251,8 @@
    * M1DIAG   5  6 | M1RX     M1DIR   5  6 | M1STP
    *   M3EN | 7  8 | M2EN      M1EN | 7  8 | --
    *    GND | 9 10 | --         GND | 9 10 | --
-   *        ------                   ------
-   *         EXP1                     EXP2
+   *         ------                  ------
+   *          EXP1                    EXP2
    */
 
   // M1 on Driver Expansion Module
@@ -334,26 +326,21 @@
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define LCD_PINS_RS              EXP1_07_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #else
 
     #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -389,6 +376,7 @@
 
   #endif
 #endif  // HAS_WIRED_LCD
+
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1               120
