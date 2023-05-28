@@ -256,36 +256,36 @@
    */
 
   // M1 on Driver Expansion Module
-  #define E4_STEP_PIN                EXP2_06_PIN
-  #define E4_DIR_PIN                 EXP2_05_PIN
-  #define E4_ENABLE_PIN              EXP2_07_PIN
-  #define E4_DIAG_PIN                EXP1_05_PIN
-  #define E4_CS_PIN                  EXP1_06_PIN
+  #define E2_STEP_PIN                EXP2_06_PIN
+  #define E2_DIR_PIN                 EXP2_05_PIN
+  #define E2_ENABLE_PIN              EXP2_07_PIN
+  #define E2_DIAG_PIN                EXP1_05_PIN
+  #define E2_CS_PIN                  EXP1_06_PIN
   #if HAS_TMC_UART
-    #define E4_SERIAL_TX_PIN         EXP1_06_PIN
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
+    #define E2_SERIAL_TX_PIN         EXP1_06_PIN
+    #define E2_SERIAL_RX_PIN    E2_SERIAL_TX_PIN
   #endif
 
   // M2 on Driver Expansion Module
-  #define E5_STEP_PIN                EXP2_03_PIN
-  #define E5_DIR_PIN                 EXP2_04_PIN
-  #define E5_ENABLE_PIN              EXP1_08_PIN
-  #define E5_DIAG_PIN                EXP1_03_PIN
-  #define E5_CS_PIN                  EXP1_04_PIN
+  #define E3_STEP_PIN                EXP2_03_PIN
+  #define E3_DIR_PIN                 EXP2_04_PIN
+  #define E3_ENABLE_PIN              EXP1_08_PIN
+  #define E3_DIAG_PIN                EXP1_03_PIN
+  #define E3_CS_PIN                  EXP1_04_PIN
   #if HAS_TMC_UART
-    #define E5_SERIAL_TX_PIN         EXP1_04_PIN
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
+    #define E3_SERIAL_TX_PIN         EXP1_04_PIN
+    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
   #endif
 
   // M3 on Driver Expansion Module
-  #define E6_STEP_PIN                EXP2_01_PIN
-  #define E6_DIR_PIN                 EXP2_02_PIN
-  #define E6_ENABLE_PIN              EXP1_07_PIN
-  #define E6_DIAG_PIN                EXP1_01_PIN
-  #define E6_CS_PIN                  EXP1_02_PIN
+  #define E4_STEP_PIN                EXP2_01_PIN
+  #define E4_DIR_PIN                 EXP2_02_PIN
+  #define E4_ENABLE_PIN              EXP1_07_PIN
+  #define E4_DIAG_PIN                EXP1_01_PIN
+  #define E4_CS_PIN                  EXP1_02_PIN
   #if HAS_TMC_UART
-    #define E6_SERIAL_TX_PIN         EXP1_02_PIN
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
+    #define E4_SERIAL_TX_PIN         EXP1_02_PIN
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
