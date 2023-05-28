@@ -48,17 +48,15 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PC5   // BLTouch IN
 #endif
-#define LASER                               PB1  // For a laser ???
-
-
+#define LASER                               PB1   // For a laser ???
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA4	   // E0
-#define TEMP_1_PIN                          PA1     // E1
-#define TEMP_2_PIN                          PC1     // Board Temp
-#define TEMP_BED_PIN                        PA3     // Bed
+#define TEMP_0_PIN                          PA4   // E0
+#define TEMP_1_PIN                          PA1   // E1
+#define TEMP_2_PIN                          PC1   // Board Temp
+#define TEMP_BED_PIN                        PA3   // Bed
 
 //
 // Heaters
@@ -71,7 +69,7 @@
 #define FAN_PIN                             PA7   // Fan0 for part cooling
 #define FAN1_PIN                            PA6   // Fan1 for extruder
 #ifndef USE_CONTROLLER_FAN
- #define FAN2_PIN                           PB6  // Fan2 for the board
+ #define FAN2_PIN                           PB6   // Fan2 for the board
 #endif
 #define FAN3_PIN                            PB7
 //
@@ -84,20 +82,19 @@
 // Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PD10   // PWRDET
+  #define POWER_LOSS_PIN                    PD10  // PWRDET
 #endif
-
 
 //
 // Filament Runout Sensor
 //
-#define FIL_RUNOUT_PIN                      PD0  // E0DET
-#define FIL_RUNOUT2_PIN                     PD1  // E1DET
+#define FIL_RUNOUT_PIN                      PD0   // E0DET
+#define FIL_RUNOUT2_PIN                     PD1   // E1DET
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PE3  // MOTOR 0
+#define X_STEP_PIN                          PE3   // MOTOR 0
 #define X_DIR_PIN                           PE2
 #define X_ENABLE_PIN                        PE5
 #ifndef X_CS_PIN
@@ -126,20 +123,20 @@
 #endif
 
 #ifdef E1_DRIVER_TYPE
- #define E1_STEP_PIN                         PC13  // MOTOR 5
- #define E1_DIR_PIN                          PC0
- #define E1_ENABLE_PIN                       PC15
+ #define E1_STEP_PIN                        PC13  // MOTOR 5
+ #define E1_DIR_PIN                         PC0
+ #define E1_ENABLE_PIN                      PC15
  #ifndef E1_CS_PIN
-   #define E1_CS_PIN                         PC14
+   #define E1_CS_PIN                        PC14
  #endif
 #endif
 
 #ifdef Z2_DRIVER_TYPE
- #define Z2_STEP_PIN                         PC13   // MOTOR 3
- #define Z2_DIR_PIN                          PC0
- #define Z2_ENABLE_PIN                       PC15
+ #define Z2_STEP_PIN                        PC13  // MOTOR 3
+ #define Z2_DIR_PIN                         PC0
+ #define Z2_ENABLE_PIN                      PC15
  #ifndef Z2_CS_PIN
-   #define Z2_CS_PIN                         PC14
+   #define Z2_CS_PIN                        PC14
  #endif
 #endif
 
@@ -194,7 +191,6 @@
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
-
 
 /**                 ------                                      ------
  * (BEEPER) PE11  | 1  2 | PE12 (BTN_ENC)         (MISO) PB4   | 1  2 | PB3  (SCK)
@@ -417,4 +413,3 @@
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PB11
 #endif
-
