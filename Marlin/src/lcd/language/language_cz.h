@@ -77,23 +77,23 @@ namespace Language_cz {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Výška srovnávání");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastavit ofsety");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastaveny");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Zahřát ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Zahřát $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Zahřát $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Zahřát $ end");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Zahřát $ end ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Zahřát $ vše");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Zahřát $ podlož");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Zahřát $ nast");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Zahřát ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Zahřát $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Zahřát $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Zahřát $ end");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Zahřát $ end ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Zahřát $ vše");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Zahřát $ podlož");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Zahřát $ nast");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Zahřát vlastní");
   LSTR MSG_COOLDOWN                       = _UxGT("Zchladit");
   LSTR MSG_LASER_MENU                     = _UxGT("Ovládání laseru");
@@ -152,10 +152,8 @@ namespace Language_cz {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Konec úprav sítě");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Vlastní síť");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Vytvořit síť");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Síť bodů $");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Kontrola sítě $");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Síť bodů $");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Kontrola sítě $");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Studená síť bodů");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Upravit výšku sítě");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Výška");

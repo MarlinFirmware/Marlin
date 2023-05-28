@@ -53,23 +53,23 @@ namespace Language_el_gr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Ολοκλήρωση επιπεδοποίησης!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ορισμός βασικών μετατοπίσεων");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Εφαρμόστηκαν οι μετατοπίσεις");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" κλίνη");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Προθέρμανση $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Προθέρμανση $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Προθέρμανση $ End");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Προθέρμανση $ End ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Προθέρμανση $ όλα");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Προθέρμανση $ κλίνη");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Προθέρμανση $ επιβεβαίωση");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" κλίνη");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Προθέρμανση $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Προθέρμανση $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Προθέρμανση $ End");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Προθέρμανση $ End ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Προθέρμανση $ όλα");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Προθέρμανση $ κλίνη");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Προθέρμανση $ επιβεβαίωση");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Μειωση θερμοκρασιας");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Ενεργοποίηση");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Απενεργοποίηση");
@@ -147,7 +147,7 @@ namespace Language_el_gr {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Αποθήκευση");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Φόρτωση");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Ανανέωση");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Ανανέωση");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Οθόνη πληροφόρησης");
   LSTR MSG_PREPARE                        = _UxGT("Προετοιμασία");
   LSTR MSG_TUNE                           = _UxGT("Συντονισμός");

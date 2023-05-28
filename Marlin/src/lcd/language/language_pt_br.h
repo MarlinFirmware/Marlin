@@ -67,23 +67,23 @@ namespace Language_pt_br {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Suavizar altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Compensar origem");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Alteração aplicada");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Extrusora ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Ajustar ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Pre-aquecer $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Pre-aquecer $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Extrusora $");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Extrusora $ ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Pre-aq.Todo $");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Pre-aq.Mesa $");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Ajustar $");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Extrusora ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Ajustar ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Pre-aquecer $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Pre-aquecer $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Extrusora $");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Extrusora $ ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Pre-aq.Todo $");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Pre-aq.Mesa $");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Ajustar $");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Customizar Pre-aq.");
   LSTR MSG_COOLDOWN                       = _UxGT("Esfriar");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Ligar");
@@ -132,10 +132,8 @@ namespace Language_pt_br {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Fim da Edição");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Montar Malha Custom");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Montar ");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Montar $");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Checar $");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Montar $");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Checar $");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Montar Malha fria");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Ajustar Altura");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Quant. de Altura");
@@ -274,7 +272,7 @@ namespace Language_pt_br {
   LSTR MSG_INIT_EEPROM                    = _UxGT("Iniciar EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Atualiz. SD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetar Impressora");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Atualização");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Atualização");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Informações");
   LSTR MSG_PREPARE                        = _UxGT("Preparar");
   LSTR MSG_TUNE                           = _UxGT("Ajustar");

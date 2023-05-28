@@ -97,30 +97,23 @@ namespace Language_tr {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Hizalama Sihirbazı");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
-    #ifdef PREHEAT_2_LABEL
-      LSTR MSG_PREHEAT_2                  = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
-      LSTR MSG_PREHEAT_2_SETTINGS         = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Conf");
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      LSTR MSG_PREHEAT_3                  = _UxGT("Ön Isınma ") PREHEAT_3_LABEL;
-      LSTR MSG_PREHEAT_3_SETTINGS         = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Conf");
-    #endif
-    LSTR MSG_PREHEAT_M                    = _UxGT("Ön Isınma $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Ön Isınma $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Ön Isınma $ Nozul");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Ön Isınma $ Nozul ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Ön Isınma $ Tüm");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Ön Isınma $ Tabla");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Ön Isınma $ Ayarlar");
-  #endif
+
+  LSTR MSG_PREHEAT_1                      = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Ön Isınma $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Ön Isınma $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Ön Isınma $ Nozul");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Ön Isınma $ Nozul ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Ön Isınma $ Tüm");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Ön Isınma $ Tabla");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Ön Isınma $ Ayarlar");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isınma");
   LSTR MSG_COOLDOWN                       = _UxGT("Soğut/(Durdur)");
 
@@ -436,7 +429,7 @@ namespace Language_tr {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Ayarlar Kaydedildi");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("SD Güncellemesi");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Yazıcıyı Resetle");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Yenile");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Yenile");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Bilgi Ekranı");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Makine Adı");
   LSTR MSG_INFO_SIZE                      = _UxGT("Boyut");
@@ -802,11 +795,8 @@ namespace Language_tr {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Seviye X Ekseni");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Otomatik Kalibre Et");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Boşta kalma zaman aşımı, sıcaklık düştü. Yeniden ısıtmak ve tekrar devam etmek için için Tamam'a basın.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Isıtıcı Zaman Aşımı");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Boşta kalma zaman aşımı, sıcaklık düştü. Yeniden ısıtmak ve tekrar devam etmek için için Tamam'a basın.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Isıtıcı Zaman Aşımı");
   LSTR MSG_REHEAT                         = _UxGT("Yeniden ısıt");
   LSTR MSG_REHEATING                      = _UxGT("Yeniden ısıtılıyor...");
   LSTR MSG_REHEATDONE                     = _UxGT("Y. Isıtma Tamam");

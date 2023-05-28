@@ -3068,7 +3068,7 @@ void Draw_Tramming_Menu() {
     MENU_ITEM(ICON_Axis, MSG_LEVBED_FR, onDrawMenuItem, TramFR);
     MENU_ITEM(ICON_Axis, MSG_LEVBED_BR, onDrawMenuItem, TramBR);
     MENU_ITEM(ICON_Axis, MSG_LEVBED_BL, onDrawMenuItem, TramBL);
-    MENU_ITEM(ICON_Axis, MSG_LEVBED_C, onDrawMenuItem, TramC );
+    MENU_ITEM(ICON_Axis, MSG_LEVBED_C,  onDrawMenuItem, TramC );
   }
   UpdateMenu(TrammingMenu);
 }

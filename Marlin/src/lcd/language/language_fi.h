@@ -43,23 +43,23 @@ namespace Language_fi {
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Esilämmitä $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Esilämmitä $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Esilä. $Suutin");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Esilä. $Suutin ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Esilä. $ Kaikki");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Esilä. $ Alusta");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Esilämm. $ konf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Esilämmitä $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Esilämmitä $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Esilä. $Suutin");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Esilä. $Suutin ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Esilä. $ Kaikki");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Esilä. $ Alusta");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Esilämm. $ konf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Jäähdytä");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Virta päälle");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Virta pois");
@@ -102,7 +102,7 @@ namespace Language_fi {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Tallenna muistiin");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Lataa muistista");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Palauta oletus");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Päivitä");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Päivitä");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Seuraa");
   LSTR MSG_PREPARE                        = _UxGT("Valmistele");
   LSTR MSG_TUNE                           = _UxGT("Säädä");

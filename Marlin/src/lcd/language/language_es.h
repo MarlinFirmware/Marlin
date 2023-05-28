@@ -72,23 +72,23 @@ namespace Language_es {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Compen. Altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Precal. ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
 
-    LSTR MSG_PREHEAT_M                   = _UxGT("Precal. $");
-    LSTR MSG_PREHEAT_M_H                 = _UxGT("Precal. $ ~");
-    LSTR MSG_PREHEAT_M_END               = _UxGT("Precal. $ Fusor");
-    LSTR MSG_PREHEAT_M_END_E             = _UxGT("Precal. $ Fusor ~");
-    LSTR MSG_PREHEAT_M_ALL               = _UxGT("Precal. $ Todo");
-    LSTR MSG_PREHEAT_M_BEDONLY           = _UxGT("Precal. $ Cama");
-    LSTR MSG_PREHEAT_M_SETTINGS          = _UxGT("Precal. $ Ajuste");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Precal. ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Precal. $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Precal. $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Precal. $ Fusor");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Precal. $ Fusor ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Precal. $ Todo");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Precal. $ Cama");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Precal. $ Ajuste");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Precal. manual");
   LSTR MSG_COOLDOWN                       = _UxGT("Enfriar");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frecuencia");
@@ -146,10 +146,8 @@ namespace Language_es {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Term. edici. Mallado");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crear Mallado Pers.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crear Mallado");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crear Mallado ($)");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valid. Mall. ($)");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Crear Mallado ($)");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Valid. Mall. ($)");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Crear Mallado Frío");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Ajustar alt. Mallado");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Cantidad de altura");
@@ -319,7 +317,7 @@ namespace Language_es {
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versión EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetear Impresora");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Recargar");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Recargar");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla de Inf.");
   LSTR MSG_PREPARE                        = _UxGT("Preparar");
   LSTR MSG_TUNE                           = _UxGT("Ajustar");

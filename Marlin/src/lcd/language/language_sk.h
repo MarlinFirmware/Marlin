@@ -109,30 +109,23 @@ namespace Language_sk {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Vyberte začiatok");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Posl. hodnota ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Zahriať ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" všetko");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" podlož");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nast.");
-    #ifdef PREHEAT_2_LABEL
-      LSTR MSG_PREHEAT_2                  = _UxGT("Zahriať ") PREHEAT_2_LABEL;
-      LSTR MSG_PREHEAT_2_SETTINGS         = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" nast.");
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      LSTR MSG_PREHEAT_3                  = _UxGT("Zahriať ") PREHEAT_3_LABEL;
-      LSTR MSG_PREHEAT_3_SETTINGS         = _UxGT("Zahriať ") PREHEAT_3_LABEL _UxGT(" nast.");
-    #endif
-    LSTR MSG_PREHEAT_M                    = _UxGT("Zahriať $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Zahriať $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Zahriať $ hotend");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Zahriať $ hotend ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Zahriať $ všetko");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Zahriať $ podlož");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Zahriať $ nast.");
-  #endif
+
+  LSTR MSG_PREHEAT_1                      = _UxGT("Zahriať ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" všetko");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" podlož");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nast.");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Zahriať $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Zahriať $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Zahriať $ hotend");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Zahriať $ hotend ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Zahriať $ všetko");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Zahriať $ podlož");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Zahriať $ nast.");
+
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Zahriať hotend");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Vlastná teplota");
   LSTR MSG_COOLDOWN                       = _UxGT("Schladiť");
@@ -457,7 +450,7 @@ namespace Language_sk {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Nastavenie uložené");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aktualiz. z karty");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reštart. tlačiar.");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Obnoviť");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Obnoviť");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info. obrazovka");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Názov stroja");
   LSTR MSG_INFO_SIZE                      = _UxGT("Rozmer");
@@ -564,12 +557,9 @@ namespace Language_sk {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Vysunúť filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunúť filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunúť všetko");
-  #if ENABLED(MULTI_VOLUME)
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Načítať SD kartu");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Načítať USB disk");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Načítať kartu");
-  #endif
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načítať kartu");
+  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Načítať SD kartu");
+  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Načítať USB disk");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vymeniť kartu");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Odpojiť kartu");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl.");
@@ -829,11 +819,8 @@ namespace Language_sk {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Vyrovnať os X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto-kalibrovať");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Vypršal čas ohrevu, znížená teplota. Stlačte OK pre ohrev a ešte raz pre obnovu.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Vypršal čas ohrevu");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Vypršal čas ohrevu, znížená teplota. Stlačte OK pre ohrev a ešte raz pre obnovu.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Vypršal čas ohrevu");
   LSTR MSG_REHEAT                         = _UxGT("Zohriať");
   LSTR MSG_REHEATING                      = _UxGT("Zohrievanie...");
   LSTR MSG_REHEATDONE                     = _UxGT("Zohrievanie dokonč.");

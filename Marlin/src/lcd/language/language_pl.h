@@ -81,23 +81,23 @@ namespace Language_pl {
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Poz. zerowa ust.");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wybierz punkt zero");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Poprzednia wartość ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Rozgrzej ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Rozgrzej ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" wsz.");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" stół");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustaw.");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Rozgrzej $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Rozgrzej $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Rozgrzej $ Dysza");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Rozgrzej $ Dysza ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Rozgrzej $ wsz.");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Rozgrzej $ stół");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Rozgrzej $ ustaw.");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Rozgrzej ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Rozgrzej ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" wsz.");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" stół");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustaw.");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Rozgrzej $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Rozgrzej $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Rozgrzej $ Dysza");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Rozgrzej $ Dysza ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Rozgrzej $ wsz.");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Rozgrzej $ stół");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Rozgrzej $ ustaw.");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Rozgrzej własne ust.");
   LSTR MSG_COOLDOWN                       = _UxGT("Chłodzenie");
 
@@ -306,7 +306,7 @@ namespace Language_pl {
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initializuj EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Uaktualnij kartę");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetuj drukarkę");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Odswież");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Odswież");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Ekran główny");
   LSTR MSG_PREPARE                        = _UxGT("Przygotuj");
   LSTR MSG_TUNE                           = _UxGT("Strojenie");

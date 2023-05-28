@@ -95,23 +95,23 @@ namespace Language_ru {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Послед. знач. ");
   #endif
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                      = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагреть ~ ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагреть сопло ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_END_E                = _UxGT("Нагреть сопло ~") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Нагреть всё ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Нагреть стол ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Правка предн. ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                      = _UxGT("Преднагрев $");
-    LSTR MSG_PREHEAT_M_H                    = _UxGT("Нагреть ~ $");
-    LSTR MSG_PREHEAT_M_END                  = _UxGT("Нагреть сопло $");
-    LSTR MSG_PREHEAT_M_END_E                = _UxGT("Нагреть сопло ~ $");
-    LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Нагреть всё $");
-    LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Нагреть стол $");
-    LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Правка преднаг. $");
-  #endif
+  LSTR MSG_PREHEAT_1                        = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                      = _UxGT("Нагреть ~ ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_END                    = _UxGT("Нагреть сопло ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_END_E                  = _UxGT("Нагреть сопло ~") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_ALL                    = _UxGT("Нагреть всё ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_BEDONLY                = _UxGT("Нагреть стол ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_SETTINGS               = _UxGT("Правка предн. ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                        = _UxGT("Преднагрев $");
+  LSTR MSG_PREHEAT_M_H                      = _UxGT("Нагреть ~ $");
+  LSTR MSG_PREHEAT_M_END                    = _UxGT("Нагреть сопло $");
+  LSTR MSG_PREHEAT_M_END_E                  = _UxGT("Нагреть сопло ~ $");
+  LSTR MSG_PREHEAT_M_ALL                    = _UxGT("Нагреть всё $");
+  LSTR MSG_PREHEAT_M_BEDONLY                = _UxGT("Нагреть стол $");
+  LSTR MSG_PREHEAT_M_SETTINGS               = _UxGT("Правка преднаг. $");
+
   LSTR MSG_PREHEAT_CUSTOM                   = _UxGT("Нагрев Свой");
   LSTR MSG_COOLDOWN                         = _UxGT("Охлаждение");
   LSTR MSG_CUTTER_FREQUENCY                 = _UxGT("Частота");

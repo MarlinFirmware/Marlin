@@ -99,23 +99,23 @@ namespace Language_uk {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє знач. ");
   #endif
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                      = _UxGT("Нагрів ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
-    LSTR MSG_PREHEAT_1_END_E                = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло ~");
-    LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" все");
-    LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" стіл");
-    LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" налашт");
 
-    LSTR MSG_PREHEAT_M                      = _UxGT("Нагрів $");
-    LSTR MSG_PREHEAT_M_H                    = _UxGT("Нагрів $ ~");
-    LSTR MSG_PREHEAT_M_END                  = _UxGT("Нагрів $ сопло");
-    LSTR MSG_PREHEAT_M_END_E                = _UxGT("Нагрів $ сопло ~");
-    LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Нагрів $ все");
-    LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Нагрів $ стіл");
-    LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Нагрів $ налашт");
-  #endif
+  LSTR MSG_PREHEAT_1                        = _UxGT("Нагрів ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                      = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                    = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
+  LSTR MSG_PREHEAT_1_END_E                  = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло ~");
+  LSTR MSG_PREHEAT_1_ALL                    = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" все");
+  LSTR MSG_PREHEAT_1_BEDONLY                = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" стіл");
+  LSTR MSG_PREHEAT_1_SETTINGS               = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" налашт");
+
+  LSTR MSG_PREHEAT_M                        = _UxGT("Нагрів $");
+  LSTR MSG_PREHEAT_M_H                      = _UxGT("Нагрів $ ~");
+  LSTR MSG_PREHEAT_M_END                    = _UxGT("Нагрів $ сопло");
+  LSTR MSG_PREHEAT_M_END_E                  = _UxGT("Нагрів $ сопло ~");
+  LSTR MSG_PREHEAT_M_ALL                    = _UxGT("Нагрів $ все");
+  LSTR MSG_PREHEAT_M_BEDONLY                = _UxGT("Нагрів $ стіл");
+  LSTR MSG_PREHEAT_M_SETTINGS               = _UxGT("Нагрів $ налашт");
+
   LSTR MSG_PREHEAT_CUSTOM                   = _UxGT("Нагрів свого");
   LSTR MSG_COOLDOWN                         = _UxGT("Вимкнути нагрів");
 
@@ -480,7 +480,7 @@ namespace Language_uk {
   LSTR MSG_POWER                            = _UxGT("Потужність");
   LSTR MSG_START_PRINT                      = _UxGT("Почати друк");
 
-  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі");  //short text for buttons
+  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі"); //short text for buttons
   LSTR MSG_BUTTON_INIT                      = _UxGT("Ініц-я");
   LSTR MSG_BUTTON_STOP                      = _UxGT("Зупинка");
   LSTR MSG_BUTTON_PRINT                     = _UxGT("Друк");
@@ -880,11 +880,8 @@ namespace Language_uk {
   LSTR MSG_LEVEL_X_AXIS                     = _UxGT("Рівень вісі X");
   LSTR MSG_AUTO_CALIBRATE                   = _UxGT("Авто калібрування");
 
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Час простою збіг, температура впала. Натисніть ОК, щоби знову нагріти та продовжити");
-  #else
-    LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Час нагрівача збіг");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT              = _UxGT("Час простою збіг, температура впала. Натисніть ОК, щоби знову нагріти та продовжити");
+  LSTR MSG_HEATER_TIMEOUT                   = _UxGT("Час нагрівача збіг");
   LSTR MSG_REHEAT                           = _UxGT("Поновити нагрів");
   LSTR MSG_REHEATING                        = _UxGT("Нагрівання...");
 

@@ -83,23 +83,23 @@ namespace Language_hu {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Utolsó érték ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Fütés ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Mind");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Ágy");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Beáll");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Fütés $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Fütés $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Fütés $ Fej");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Fütés $ Fej ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Fütés $ Mind");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Fütés $ Ágy");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Fütés $ Beáll");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Fütés ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Mind");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Ágy");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Beáll");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Fütés $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Fütés $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Fütés $ Fej");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Fütés $ Fej ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Fütés $ Mind");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Fütés $ Ágy");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Fütés $ Beáll");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Egyedi elömelegítés");
   LSTR MSG_COOLDOWN                       = _UxGT("Visszahütés");
 
@@ -368,7 +368,7 @@ namespace Language_hu {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Beállítások mentve");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Tároló frissítés");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Nyomtató újraindítása");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Frissítés");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Frissítés");
   LSTR MSG_INFO_SCREEN                    = _UxGT("<Infó képernyö>");
   LSTR MSG_PREPARE                        = _UxGT("Vezérlés");
   LSTR MSG_TUNE                           = _UxGT("Hangolás");
@@ -668,11 +668,8 @@ namespace Language_hu {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("X tengely szint");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Önkalibrálás");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Tétlenségi idökorlát, a hömérséklet csökkent. Nyomd meg az OK gombot az ismételt felfütéshez, és újra a folytatáshoz.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Fütés idökorlátja");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Tétlenségi idökorlát, a hömérséklet csökkent. Nyomd meg az OK gombot az ismételt felfütéshez, és újra a folytatáshoz.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Fütés idökorlátja");
   LSTR MSG_REHEAT                         = _UxGT("Újrafüt");
   LSTR MSG_REHEATING                      = _UxGT("Újrafütés...");
 
