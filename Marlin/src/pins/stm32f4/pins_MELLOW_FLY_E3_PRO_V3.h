@@ -20,13 +20,20 @@
  *
  */
 #pragma once
-#define BOARD_INFO_NAME "FLY RRF E3 V3 Pro"
+
+/**
+ * Mellow Fly E3 Pro V3 pin assignments
+ * https://github.com/Mellow-3D/Fly-E3-Pro-v3
+ */
 
 #include "env_validate.h"
 
 #if E_STEPPERS > 2
-  #error "Mellow only supports 2 hotend / E stepper."
+  #error "FLY RRF E3 V3 Pro only supports 2 hotends / E steppers."
 #endif
+
+#define BOARD_INFO_NAME "FLY RRF E3 V3 Pro"
+#define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
 
 // Servos
 //
@@ -229,7 +236,7 @@
   #ifndef SD_DETECT_STATE
     #define SD_DETECT_STATE HIGH
   #elif SD_DETECT_STATE == LOW
-    #error "BOARD_BTT_OCTOPUS_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
+    #error "BOARD_MELLOW_FLY_E3_PRO_V3 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
@@ -242,7 +249,7 @@
   #define SD_DETECT_PIN                     PA13
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**
@@ -316,7 +323,7 @@
    */
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_OCTOPUS_V1_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_MELLOW_FLY_E3_PRO_V3.h for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
 
   #define BEEPER_PIN                 EXP1_06_PIN
