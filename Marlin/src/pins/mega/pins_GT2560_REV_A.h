@@ -128,7 +128,10 @@
 
 #define SDSS                                  53
 #define LED_PIN                               13
-#define POWER_MONITOR_VOLTAGE_PIN             0 // 0 for main, 1 for dedicated bed supply
+
+//Power monitoring pins - set to 0 for main VIN, 1 for dedicated bed supply rail.
+//Don't forget to enable POWER_MONITOR_VOLTAGE in Configuration_adv.h set POWER_MONITOR_VOLTS_PER_VOLT to 0.090909
+#define POWER_MONITOR_VOLTAGE_PIN             0
 
 #if HAS_WIRED_LCD
 
