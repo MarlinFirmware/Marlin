@@ -796,8 +796,9 @@
   #include "stm32f4/pins_BLACKPILL_CUSTOM.h"    // STM32F4                                env:STM32F401CD_blackpill_stlink
 #elif MB(I3DBEEZ9_V1)
   #include "stm32f4/pins_I3DBEEZ9.h"            // STM32F4                                env:I3DBEEZ9_V1
-#elif MB(FLY_RRF_E3_PRO_V3)
- #include "stm32f4/pins_FLY_RRF_E3_PRO_V3.h"
+#elif MB(MELLOW_FLY_E3_PRO_V3)
+  #include "stm32f4/pins_MELLOW_FLY_E3_PRO_V3.h"
+
 //
 // ARM Cortex M7
 //

@@ -453,7 +453,8 @@
 #define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
 #define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
-#define BOARD_FLY_RRF_E3_PRO_V3       5249  // FLY RRF E3 Pro V3
+#define BOARD_MELLOW_FLY_E3_PRO_V3    5249  // Mellow FLY E3 Pro V3 (STM32F407VG)
+
 //
 // ARM Cortex-M7
 //
