@@ -688,8 +688,6 @@
     #define TEMP_SENSOR_BED_IS_CUSTOM 1
   #endif
 #else
-  #undef THERMAL_PROTECTION_BED
-  #undef THERMAL_PROTECTION_BED_PERIOD
   #undef BED_MINTEMP
   #undef BED_MAXTEMP
 #endif
