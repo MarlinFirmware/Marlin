@@ -166,6 +166,13 @@
 //Configuration.h里929行取消注释//#define Z_MIN_PROBE_PIN 35 // Pin 35 is the RAMPS default
 
 //
+// M3/M4/M5 - Spindle/Laser Control激光
+//
+#define SPINDLE_LASER_ENA_PIN              -1// FET 1
+#define SPINDLE_LASER_PWM_PIN              33// Bed FET
+//#define SPINDLE_DIR_PIN                    -1// FET 3
+
+//
 //拓展板
 //
 //+2只有2个MAX限位，+5的限位和热敏只能6选3，开启需注释掉46行Limit Switches
