@@ -36,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -49,15 +49,16 @@ void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
     if (draw_menu_navigation) {
-      add_control(104, TFT_HEIGHT - 34, PAGE_UP, imgPageUp, encoderTopLine > 0);
-      add_control(344, TFT_HEIGHT - 34, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
-      add_control(224, TFT_HEIGHT - 34, BACK, imgBack);
+      add_control(TFT_WIDTH / 6 - 16, TFT_HEIGHT - 34, PAGE_UP, imgPageUp, encoderTopLine > 0);
+      add_control(TFT_WIDTH / 2 - 16, TFT_HEIGHT - 34, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
+      add_control(5 * TFT_WIDTH / 6 - 16, TFT_HEIGHT - 34, BACK, imgBack);
       draw_menu_navigation = false;
     }
   #endif
 
   tft.queue.async();
-  TERN_(TOUCH_SCREEN, touch.idle());
+
+  TERN_(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -123,8 +124,12 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   celsius_t currentTemperature, targetTemperature;
 
   if (Heater >= 0) { // HotEnd
-    currentTemperature = thermalManager.wholeDegHotend(Heater);
-    targetTemperature = thermalManager.degTargetHotend(Heater);
+    #if HAS_EXTRUDERS
+      currentTemperature = thermalManager.wholeDegHotend(Heater);
+      targetTemperature = thermalManager.degTargetHotend(Heater);
+    #else
+      return;
+    #endif
   }
   #if HAS_HEATED_BED
     else if (Heater == H_BED) {
@@ -184,13 +189,13 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   tft_string.set(i16tostr3rj(currentTemperature));
   tft_string.add(LCD_STR_DEGREE);
   tft_string.trim();
-  tft.add_text(tft_string.center(80) + 2, 82, Color, tft_string);
+  tft.add_text(tft_string.center(80) + 2, 80 + tft_string.vcenter(FONT_LINE_HEIGHT), Color, tft_string);
 
   if (targetTemperature >= 0) {
     tft_string.set(i16tostr3rj(targetTemperature));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
-    tft.add_text(tft_string.center(80) + 2, 8, Color, tft_string);
+    tft.add_text(tft_string.center(80) + 2, 6 + tft_string.vcenter(FONT_LINE_HEIGHT) , Color, tft_string);
   }
 }
 
@@ -213,7 +218,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 
   tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
   tft_string.trim();
-  tft.add_text(tft_string.center(80) + 6, 82, COLOR_FAN, tft_string);
+  tft.add_text(tft_string.center(80) + 6, 80 + tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_FAN, tft_string);
 }
 
 void MarlinUI::draw_status_screen() {
@@ -221,109 +226,142 @@ void MarlinUI::draw_status_screen() {
 
   TERN_(TOUCH_SCREEN, touch.clear());
 
-  // heaters and fan
-  uint16_t i, x, y = TFT_STATUS_TOP_Y;
-
-  for (i = 0 ; i < ITEMS_COUNT; i++) {
-    x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
+  // Statuses of heaters and fans
+  uint16_t y = STATUS_MARGIN_SIZE;
+  for (uint16_t i = 0; i < ITEMS_COUNT; i++) {
+    uint16_t x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
     switch (i) {
-      #ifdef ITEM_E0
+      #if HAS_EXTRUDERS
         case ITEM_E0: draw_heater_status(x, y, H_E0); break;
       #endif
-      #ifdef ITEM_E1
+      #if HAS_MULTI_HOTEND
         case ITEM_E1: draw_heater_status(x, y, H_E1); break;
       #endif
-      #ifdef ITEM_E2
+      #if HOTENDS > 2
         case ITEM_E2: draw_heater_status(x, y, H_E2); break;
       #endif
-      #ifdef ITEM_BED
+      #if HAS_HEATED_BED
         case ITEM_BED: draw_heater_status(x, y, H_BED); break;
       #endif
-      #ifdef ITEM_CHAMBER
+      #if HAS_TEMP_CHAMBER
         case ITEM_CHAMBER: draw_heater_status(x, y, H_CHAMBER); break;
       #endif
-      #ifdef ITEM_COOLER
+      #if HAS_TEMP_COOLER
         case ITEM_COOLER: draw_heater_status(x, y, H_COOLER); break;
       #endif
-      #ifdef ITEM_FAN
+      #if HAS_FAN
         case ITEM_FAN: draw_fan_status(x, y, blink); break;
       #endif
     }
   }
 
-  y += TERN(HAS_UI_480x272, 118, 128);
+  y += STATUS_MARGIN_SIZE + 114;
 
-  // coordinates
-  tft.canvas(4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT);
+  // Coordinates
+  constexpr uint16_t coords_width = TFT_WIDTH - 8;
+  tft.canvas((TFT_WIDTH - coords_width) / 2, y, coords_width, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_rectangle(0, 0, TFT_WIDTH - 8, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
+  tft.add_rectangle(0, 0, coords_width, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
 
   if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
-      tft.add_text( 16, 3, COLOR_AXIS_HOMED , "E");
+      tft.add_text( 16, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "E");
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       tft_string.add(escale == 10 ? 'c' : 'm');
       tft_string.add('m');
-      tft.add_text(192 - tft_string.width(), 3, COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(192 - tft_string.width(), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
     #endif
   }
   else {
-    tft.add_text( 16, 3, COLOR_AXIS_HOMED , "X");
-    const bool nhx = axis_should_home(X_AXIS);
-    tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
-    tft.add_text(102 - tft_string.width(), 3, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+    // Coords in mask "X____Y____Z____"
+    #if HAS_X_AXIS
+      tft_string.set("X");
+      tft.add_text(coords_width / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
 
-    tft.add_text(192, 3, COLOR_AXIS_HOMED , "Y");
-    const bool nhy = axis_should_home(Y_AXIS);
-    tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
-    tft.add_text(280 - tft_string.width(), 3, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+      const bool nhx = axis_should_home(X_AXIS);
+      tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
+      tft_string.ltrim();
+      tft.add_text(coords_width / 5 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+    #endif
+
+    #if HAS_Y_AXIS
+      tft_string.set("Y");
+      tft.add_text(11 * coords_width / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
+
+      const bool nhy = axis_should_home(Y_AXIS);
+      tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
+      tft_string.ltrim();
+      tft.add_text(8 * coords_width / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+    #endif
   }
-  tft.add_text(330, 3, COLOR_AXIS_HOMED , "Z");
-  uint16_t offset = 32;
-  const bool nhz = axis_should_home(Z_AXIS);
-  if (blink && nhz)
-    tft_string.set('?');
-  else {
-    const float z = LOGICAL_Z_POSITION(current_position.z);
-    tft_string.set(ftostr52sp((int16_t)z));
+
+  #if HAS_Z_AXIS
+    tft_string.set("Z");
+    tft.add_text(7 * coords_width / 10 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
+
+    const bool nhz = axis_should_home(Z_AXIS);
+    tft_string.set(blink && nhz ? "?" : ftostr52sp(LOGICAL_Z_POSITION(current_position.z)));
+    tft_string.ltrim();
     tft_string.rtrim();
-    offset += tft_string.width();
-
-    tft_string.set(ftostr52sp(z));
-    offset -= tft_string.width();
-  }
-  tft.add_text(455 - tft_string.width() - offset, 3, nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
-
-  y += TERN(HAS_UI_480x272, 38, 48);
-  // feed rate
-  tft.canvas(96, y, 100, 32);
-  tft.set_background(COLOR_BACKGROUND);
-  uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  tft.add_image(0, 0, imgFeedRate, color);
-  tft_string.set(i16tostr3rj(feedrate_percentage));
-  tft_string.add('%');
-  tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 96, 176, 100, 32));
-
-  // flow rate
-  tft.canvas(284, y, 100, 32);
-  tft.set_background(COLOR_BACKGROUND);
-  color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  tft.add_image(0, 0, imgFlowRate, color);
-  tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
-  tft_string.add('%');
-  tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 284, 176, 100, 32, active_extruder));
-
-  #if ENABLED(TOUCH_SCREEN)
-    add_control(404, y, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(12, y, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    tft.add_text(13 * coords_width / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-  y += TERN(HAS_UI_480x272, 36, 44);
-  // print duration
+  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
+
+  y += STATUS_MARGIN_SIZE + 34;
+
+  // Feed rate (preparing)
+  tft_string.set(i16tostr3rj(feedrate_percentage));
+  tft_string.add("%");
+  uint16_t component_width = 36 + tft_string.width(); // 32px icon size + 4px margin before text
+  uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+  uint16_t x = FEEDRATE_X(component_width);
+
+  // Feed rate (drawing)
+  tft.canvas(x, y, component_width, 32);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_image(0, 0, imgFeedRate, color);
+  tft.add_text(36, tft_string.vcenter(30), color , tft_string);
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, x, y, component_width, 32));
+
+  #if HAS_EXTRUDERS
+    // Flow rate (preparing)
+    tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
+    tft_string.add('%');
+    component_width = 36 + tft_string.width();
+    color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+    x = FLOWRATE_X(component_width);
+
+    // Flow rate (drawing)
+    tft.canvas(x, y, component_width, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgFlowRate, color);
+    tft.add_text(36, tft_string.vcenter(30), color , tft_string);
+    TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, x, y, component_width, 32, active_extruder));
+  #endif
+
+  #if TFT_COLOR_UI_PORTRAIT || DISABLED(TOUCH_SCREEN)
+    y += STATUS_MARGIN_SIZE + 32;
+  #endif
+
+  #if ENABLED(TOUCH_SCREEN)
+    // Settings button
+    add_control(SETTINGS_X, y, menu_main, imgSettings);
+
+    // SD-card button / Cancel button
+    #if HAS_MEDIA
+      const bool cm = card.isMounted(), pa = printingIsActive();
+      if (cm && pa)
+        add_control(SDCARD_X, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(SDCARD_X, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED); // 64px icon size
+    #endif
+
+    y += STATUS_MARGIN_SIZE + TERN(TFT_COLOR_UI_PORTRAIT, 64, 44);
+  #endif
+
+  // Print duration
   char buffer[14];
   duration_t elapsed = print_job_timer.duration();
   elapsed.toDigital(buffer);
@@ -331,10 +369,11 @@ void MarlinUI::draw_status_screen() {
   tft.canvas((TFT_WIDTH - 128) / 2, y, 128, 29);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(buffer);
-  tft.add_text(tft_string.center(128), 0, COLOR_PRINT_TIME, tft_string);
+  tft.add_text(tft_string.center(128), tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
 
-  y += TERN(HAS_UI_480x272, 28, 36);
-  // progress bar
+  y += STATUS_MARGIN_SIZE + 29;
+
+  // Progress bar
   const uint8_t progress = ui.get_progress_percent();
   tft.canvas(4, y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
@@ -342,13 +381,14 @@ void MarlinUI::draw_status_screen() {
   if (progress)
     tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
 
-  y += 20;
-  // status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT - 5);
+  y += STATUS_MARGIN_SIZE + 7;
+
+  // Status message
+  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_STATUS_MESSAGE, tft_string);
+  tft.add_text(tft_string.center(TFT_WIDTH), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_STATUS_MESSAGE, tft_string);
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
@@ -390,7 +430,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
 
   if (ui.can_show_slider()) {
 
-    #define SLIDER_LENGTH 336
+    #define SLIDER_LENGTH TFT_WIDTH * 0.7
     #define SLIDER_Y_POSITION 186
 
     tft.canvas((TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION, SLIDER_LENGTH, 16);
@@ -413,9 +453,9 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
 
 void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
-    add_control(64, TFT_HEIGHT - 64, DECREASE, imgDecrease);
-    add_control(352, TFT_HEIGHT - 64, INCREASE, imgIncrease);
-    add_control(208, TFT_HEIGHT - 64, CLICK, imgConfirm);
+    add_control((TFT_WIDTH - 3 * 64) / 6, TFT_HEIGHT - 64, DECREASE, imgDecrease);
+    add_control((TFT_WIDTH - 64) / 2, TFT_HEIGHT - 64, INCREASE, imgIncrease);
+    add_control((TFT_WIDTH * 5 - 3 * 64) / 6, TFT_HEIGHT - 64, CLICK, imgConfirm);
   #endif
 }
 
@@ -444,8 +484,8 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
   }
   #if ENABLED(TOUCH_SCREEN)
-    if (no)  add_control( 88, TFT_HEIGHT - 64, CANCEL,  imgCancel,  true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
-    if (yes) add_control(328, TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
+    if (no)  add_control(TFT_WIDTH / 4 - 32, TFT_HEIGHT - 64, CANCEL,  imgCancel,  true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
+    if (yes) add_control(TFT_WIDTH * 3 / 4 - 32, TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
   #endif
 }
 
@@ -558,21 +598,26 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
 #define Z_SELECTION_Z 1
 #define Z_SELECTION_Z_PROBE -1
 
-struct MotionAxisState {
-  xy_int_t xValuePos, yValuePos, zValuePos, eValuePos, stepValuePos, zTypePos, eNamePos;
+struct {
+  #if HAS_X_AXIS
+    xy_int_t xValuePos;
+  #endif
+  #if HAS_Y_AXIS
+    xy_int_t yValuePos;
+  #endif
+  #if HAS_Z_AXIS
+    xy_int_t zValuePos, zTypePos;
+    int z_selection = Z_SELECTION_Z;
+  #endif
+  #if HAS_EXTRUDERS
+    xy_int_t eValuePos, eNamePos;
+    uint8_t e_selection = 0;
+  #endif
+  xy_int_t stepValuePos;
   float currentStepSize = 10.0;
-  int z_selection = Z_SELECTION_Z;
-  uint8_t e_selection = 0;
   bool blocked = false;
   char message[32];
-};
-
-MotionAxisState motionAxisState;
-
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
+} motionAxisState;
 
 #define BTN_WIDTH 64
 #define BTN_HEIGHT 52
@@ -599,27 +644,30 @@ static void drawCurStepValue() {
   tft.add_text(tft_string.center(CUR_STEP_VALUE_WIDTH), 0, COLOR_AXIS_HOMED, tft_string);
 }
 
-static void drawCurZSelection() {
-  tft_string.set('Z');
-  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 34);
-  tft.set_background(COLOR_BACKGROUND);
-  tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
-  tft.queue.sync();
-  tft_string.set(F("Offset"));
-  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 34);
-  tft.set_background(COLOR_BACKGROUND);
-  if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+#if HAS_Z_AXIS
+  static void drawCurZSelection() {
+    tft_string.set('Z');
+    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 34);
+    tft.set_background(COLOR_BACKGROUND);
     tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+    tft.queue.sync();
+    tft_string.set(F("Offset"));
+    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 34);
+    tft.set_background(COLOR_BACKGROUND);
+    if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE)
+      tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
   }
-}
+#endif
 
-static void drawCurESelection() {
-  tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-  tft_string.set('E');
-  tft.add_text(0, 0, E_BTN_COLOR , tft_string);
-  tft.add_text(tft_string.width(), 0, E_BTN_COLOR, ui8tostr3rj(motionAxisState.e_selection));
-}
+#if HAS_EXTRUDERS
+  static void drawCurESelection() {
+    tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set('E');
+    tft.add_text(0, 0, E_BTN_COLOR , tft_string);
+    tft.add_text(tft_string.width(), 0, E_BTN_COLOR, ui8tostr3rj(motionAxisState.e_selection));
+  }
+#endif
 
 static void drawMessage(PGM_P const msg) {
   tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, TFT_HEIGHT / 2, 34);
@@ -637,10 +685,18 @@ static void drawAxisValue(const AxisEnum axis) {
   xy_int_t pos;
   uint16_t color;
   switch (axis) {
-    case X_AXIS: pos = motionAxisState.xValuePos; color = X_BTN_COLOR; break;
-    case Y_AXIS: pos = motionAxisState.yValuePos; color = Y_BTN_COLOR; break;
-    case Z_AXIS: pos = motionAxisState.zValuePos; color = Z_BTN_COLOR; break;
-    case E_AXIS: pos = motionAxisState.eValuePos; color = E_BTN_COLOR; break;
+    #if HAS_X_AXIS
+      case X_AXIS: pos = motionAxisState.xValuePos; color = X_BTN_COLOR; break;
+    #endif
+    #if HAS_Y_AXIS
+      case Y_AXIS: pos = motionAxisState.yValuePos; color = Y_BTN_COLOR; break;
+    #endif
+    #if HAS_Z_AXIS
+      case Z_AXIS: pos = motionAxisState.zValuePos; color = Z_BTN_COLOR; break;
+    #endif
+    #if HAS_EXTRUDERS
+      case E_AXIS: pos = motionAxisState.eValuePos; color = E_BTN_COLOR; break;
+    #endif
     default: return;
   }
   tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
@@ -652,7 +708,7 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
+  #if HAS_EXTRUDERS
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
       drawMessage(F("Too cold"));
       return;
@@ -661,46 +717,48 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
 
   const float diff = motionAxisState.currentStepSize * direction;
 
-  if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
-      const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
-      const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
-                  new_probe_offset = probe.offset.z + bsDiff,
-                  new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
-                    , new_probe_offset
-                  );
-      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        babystep.add_steps(Z_AXIS, babystep_increment);
-        if (do_probe)
-          probe.offset.z = new_offs;
-        else
-          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
-        drawMessage(NUL_STR); // clear the error
+  #if HAS_Z_AXIS
+    if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
+        const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
+        const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
+                    new_probe_offset = probe.offset.z + bsDiff,
+                    new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
+                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
+                      , new_probe_offset
+                    );
+        if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+          babystep.add_steps(Z_AXIS, babystep_increment);
+          if (do_probe)
+            probe.offset.z = new_offs;
+          else
+            TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+          drawMessage(NUL_STR); // clear the error
+          drawAxisValue(axis);
+        }
+        else {
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+        }
+      #elif HAS_BED_PROBE
+        // only change probe.offset.z
+        probe.offset.z += diff;
+        if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
+          current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+        }
+        else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
+          current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+        }
+        else {
+          drawMessage(NUL_STR); // clear the error
+        }
         drawAxisValue(axis);
-      }
-      else {
-        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
-      }
-    #elif HAS_BED_PROBE
-      // only change probe.offset.z
-      probe.offset.z += diff;
-      if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
-        current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
-        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
-      }
-      else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
-        current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
-        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
-      }
-      else {
-        drawMessage(NUL_STR); // clear the error
-      }
-      drawAxisValue(axis);
-    #endif
-    return;
-  }
+      #endif
+      return;
+    }
+  #endif // HAS_Z_AXIS
 
   if (!ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
@@ -710,8 +768,8 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
-      if (axis != Z_AXIS && axis != E_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+      if (axis != Z_AXIS && TERN1(HAS_EXTRUDERS, axis != E_AXIS)) {
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -731,37 +789,44 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
   drawAxisValue(axis);
 }
 
-static void e_plus()  { moveAxis(E_AXIS, 1);  }
-static void e_minus() { moveAxis(E_AXIS, -1); }
-static void x_minus() { moveAxis(X_AXIS, -1); }
-static void x_plus()  { moveAxis(X_AXIS, 1);  }
-static void y_plus()  { moveAxis(Y_AXIS, 1);  }
-static void y_minus() { moveAxis(Y_AXIS, -1); }
-static void z_plus()  { moveAxis(Z_AXIS, 1);  }
-static void z_minus() { moveAxis(Z_AXIS, -1); }
+#if HAS_EXTRUDERS
+  static void e_plus()  { moveAxis(E_AXIS, 1);  }
+  static void e_minus() { moveAxis(E_AXIS, -1); }
+#endif
+#if HAS_X_AXIS
+  static void x_minus() { moveAxis(X_AXIS, -1); }
+  static void x_plus()  { moveAxis(X_AXIS, 1);  }
+#endif
+#if HAS_Y_AXIS
+  static void y_plus()  { moveAxis(Y_AXIS, 1);  }
+  static void y_minus() { moveAxis(Y_AXIS, -1); }
+#endif
+#if HAS_Z_AXIS
+  static void z_plus()  { moveAxis(Z_AXIS, 1);  }
+  static void z_minus() { moveAxis(Z_AXIS, -1); }
+#endif
 
 #if ENABLED(TOUCH_SCREEN)
-  static void e_select() {
-    motionAxisState.e_selection++;
-    if (motionAxisState.e_selection >= EXTRUDERS) {
-      motionAxisState.e_selection = 0;
+  #if HAS_EXTRUDERS
+    static void e_select() {
+      if (++motionAxisState.e_selection >= EXTRUDERS)
+        motionAxisState.e_selection = 0;
+      quick_feedback();
+      drawCurESelection();
+      drawAxisValue(E_AXIS);
     }
-
-    quick_feedback();
-    drawCurESelection();
-    drawAxisValue(E_AXIS);
-  }
+  #endif
 
   static void do_home() {
     quick_feedback();
     drawMessage(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
     queue.inject_P(G28_STR);
     // Disable touch until home is done
-    TERN_(HAS_TFT_XPT2046, touch.disable());
-    drawAxisValue(E_AXIS);
-    drawAxisValue(X_AXIS);
-    drawAxisValue(Y_AXIS);
-    drawAxisValue(Z_AXIS);
+    touch.disable();
+    TERN_(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
+    TERN_(HAS_X_AXIS, drawAxisValue(X_AXIS));
+    TERN_(HAS_Y_AXIS, drawAxisValue(Y_AXIS));
+    TERN_(HAS_Z_AXIS, drawAxisValue(Z_AXIS));
   }
 
   static void step_size() {
@@ -770,7 +835,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
     quick_feedback();
     drawCurStepValue();
   }
-#endif
+#endif // TOUCH_SCREEN
 
 #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
   static void z_select() {
@@ -787,8 +852,8 @@ static void disable_steppers() {
 }
 
 static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
-  uint16_t width = Images[imgBtn52Rounded].width;
-  uint16_t height = Images[imgBtn52Rounded].height;
+  uint16_t width = Images[imgBtn52Rounded].width,
+           height = Images[imgBtn52Rounded].height;
 
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
@@ -806,14 +871,14 @@ static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage 
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
   }
 
-  TERN_(HAS_TFT_XPT2046, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
+  TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
 
 void MarlinUI::move_axis_screen() {
   // Reset
   defer_status_screen(true);
   motionAxisState.blocked = false;
-  TERN_(HAS_TFT_XPT2046, touch.enable());
+  TERN_(TOUCH_SCREEN, touch.enable());
 
   ui.clear_lcd();
 
@@ -823,25 +888,31 @@ void MarlinUI::move_axis_screen() {
 
   // Babysteps during printing? Select babystep for Z probe offset
   if (busy && ENABLED(BABYSTEP_ZPROBE_OFFSET))
-    motionAxisState.z_selection = Z_SELECTION_Z_PROBE;
+
+    TERN_(HAS_Z_AXIS, motionAxisState.z_selection = Z_SELECTION_Z_PROBE);
 
   // ROW 1 -> E- Y- CurY Z+
   int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
-  drawBtn(x, y, "E+", (intptr_t)e_plus, imgUp, E_BTN_COLOR, !busy);
+  TERN_(HAS_EXTRUDERS, drawBtn(x, y, "E+", (intptr_t)e_plus, imgUp, E_BTN_COLOR, !busy));
 
   spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "Y+", (intptr_t)y_plus, imgUp, Y_BTN_COLOR, !busy);
+
+  TERN_(HAS_Y_AXIS, drawBtn(x, y, "Y+", (intptr_t)y_plus, imgUp, Y_BTN_COLOR, !busy));
 
   // Cur Y
   x += BTN_WIDTH;
-  motionAxisState.yValuePos.x = x + 2;
-  motionAxisState.yValuePos.y = y;
-  drawAxisValue(Y_AXIS);
+  #if HAS_Y_AXIS
+    motionAxisState.yValuePos.x = x + 2;
+    motionAxisState.yValuePos.y = y;
+    drawAxisValue(Y_AXIS);
+  #endif
 
   x += spacing;
-  drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+  #if HAS_Z_AXIS
+    drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+  #endif
 
   // ROW 2 -> "Ex"  X-  HOME X+  "Z"
   y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
@@ -850,14 +921,16 @@ void MarlinUI::move_axis_screen() {
 
   motionAxisState.eNamePos.x = x;
   motionAxisState.eNamePos.y = y;
-  drawCurESelection();
-  TERN_(HAS_TFT_XPT2046, if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (intptr_t)e_select));
+  #if HAS_EXTRUDERS
+    drawCurESelection();
+    TERN_(TOUCH_SCREEN, if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (intptr_t)e_select));
+  #endif
 
   x += BTN_WIDTH + spacing;
   drawBtn(x, y, "X-", (intptr_t)x_minus, imgLeft, X_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing; //imgHome is 64x64
-  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy));
+  TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy));
 
   x += BTN_WIDTH + spacing;
   uint16_t xplus_x = x;
@@ -866,7 +939,7 @@ void MarlinUI::move_axis_screen() {
   x += BTN_WIDTH + spacing;
   motionAxisState.zTypePos.x = x;
   motionAxisState.zTypePos.y = y;
-  drawCurZSelection();
+  TERN_(HAS_Z_AXIS, drawCurZSelection());
   #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
     if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
   #endif
@@ -876,43 +949,45 @@ void MarlinUI::move_axis_screen() {
   x = X_MARGIN;
   spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
 
-  drawBtn(x, y, "E-", (intptr_t)e_minus, imgDown, E_BTN_COLOR, !busy);
+  TERN_(HAS_EXTRUDERS, drawBtn(x, y, "E-", (intptr_t)e_minus, imgDown, E_BTN_COLOR, !busy));
 
   // Cur E
   motionAxisState.eValuePos.x = x;
   motionAxisState.eValuePos.y = y + BTN_HEIGHT + 2;
-  drawAxisValue(E_AXIS);
+  TERN_(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
 
   // Cur X
   motionAxisState.xValuePos.x = BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4; //X- pos
   motionAxisState.xValuePos.y = y - 10;
-  drawAxisValue(X_AXIS);
+  TERN_(HAS_X_AXIS, drawAxisValue(X_AXIS));
 
   x += BTN_WIDTH + spacing;
   drawBtn(x, y, "Y-", (intptr_t)y_minus, imgDown, Y_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+  #if HAS_Z_AXIS
+    drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+  #endif
 
   // Cur Z
   motionAxisState.zValuePos.x = x;
   motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
-  drawAxisValue(Z_AXIS);
+  TERN_(HAS_Z_AXIS, drawAxisValue(Z_AXIS));
 
   // ROW 4 -> step_size  disable steppers back
-  y = TFT_HEIGHT - Y_MARGIN - 32; //
+  y = TFT_HEIGHT - Y_MARGIN - 32;
   x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
   motionAxisState.stepValuePos.x = x;
   motionAxisState.stepValuePos.y = y;
   if (!busy) {
     drawCurStepValue();
-    TERN_(HAS_TFT_XPT2046, touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (intptr_t)step_size));
+    TERN_(TOUCH_SCREEN, touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (intptr_t)step_size));
   }
 
   // aligned with x+
   drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
 
-  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
+  TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
 }
 
 #endif // HAS_UI_480x320

@@ -23,6 +23,8 @@
 
 /**
  * Melzi pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi/schematic.pdf
+ * Origin: https://github.com/mosfet/melzi/blob/master/melzi.sch
  */
 
 #ifndef BOARD_INFO_NAME
@@ -30,6 +32,10 @@
 #endif
 
 #define IS_MELZI 1
+
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             4
+#endif
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

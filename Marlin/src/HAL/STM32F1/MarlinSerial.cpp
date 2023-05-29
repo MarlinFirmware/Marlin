@@ -77,7 +77,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
 // Not every MarlinSerial port should handle emergency parsing.
 // It would not make sense to parse GCode from TMC responses, for example.
 constexpr bool serial_handles_emergency(int port) {
-  return false
+  return (false
     #ifdef SERIAL_PORT
       || (SERIAL_PORT) == port
     #endif
@@ -87,7 +87,7 @@ constexpr bool serial_handles_emergency(int port) {
     #ifdef LCD_SERIAL_PORT
       || (LCD_SERIAL_PORT) == port
     #endif
-  ;
+  );
 }
 
 #define DEFINE_HWSERIAL_MARLIN(name, n)     \

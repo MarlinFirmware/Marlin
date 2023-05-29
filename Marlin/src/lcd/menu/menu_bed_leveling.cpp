@@ -53,7 +53,7 @@
   //
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
+  constexpr grid_count_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -68,10 +68,12 @@
   //
   void _lcd_level_bed_done() {
     if (!ui.wait_for_move) {
-      #if Z_AFTER_PROBING > 0 && DISABLED(MESH_BED_LEVELING)
-        // Display "Done" screen and wait for moves to complete
-        line_to_z(Z_AFTER_PROBING);
-        ui.synchronize(GET_TEXT_F(MSG_LEVEL_BED_DONE));
+      #if DISABLED(MESH_BED_LEVELING) && defined(Z_AFTER_PROBING)
+        if (Z_AFTER_PROBING) {
+          // Display "Done" screen and wait for moves to complete
+          line_to_z(Z_AFTER_PROBING);
+          ui.synchronize(GET_TEXT_F(MSG_LEVEL_BED_DONE));
+        }
       #endif
       ui.goto_previous_screen_no_defer();
       ui.completion_feedback();
@@ -281,7 +283,7 @@ void menu_bed_leveling() {
     #else
       #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
     #endif
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &bedlevel.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -290,8 +292,12 @@ void menu_bed_leveling() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
+  #if ENABLED(PROBE_OFFSET_WIZARD)
+    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+  #endif
+
   #if ENABLED(LCD_BED_TRAMMING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

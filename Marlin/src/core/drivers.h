@@ -64,7 +64,7 @@
 #define AXIS_DRIVER_TYPE_W(T) _AXIS_DRIVER_TYPE(W,T)
 
 #define AXIS_DRIVER_TYPE_X2(T) (HAS_X2_STEPPER && _AXIS_DRIVER_TYPE(X2,T))
-#define AXIS_DRIVER_TYPE_Y2(T) (HAS_DUAL_Y_STEPPERS && _AXIS_DRIVER_TYPE(Y2,T))
+#define AXIS_DRIVER_TYPE_Y2(T) (HAS_Y2_STEPPER && _AXIS_DRIVER_TYPE(Y2,T))
 #define AXIS_DRIVER_TYPE_Z2(T) (NUM_Z_STEPPERS >= 2 && _AXIS_DRIVER_TYPE(Z2,T))
 #define AXIS_DRIVER_TYPE_Z3(T) (NUM_Z_STEPPERS >= 3 && _AXIS_DRIVER_TYPE(Z3,T))
 #define AXIS_DRIVER_TYPE_Z4(T) (NUM_Z_STEPPERS >= 4 && _AXIS_DRIVER_TYPE(Z4,T))
@@ -124,6 +124,8 @@
                            || AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) \
                            || AXIS_DRIVER_TYPE(A,TMC2660) \
                            || AXIS_DRIVER_TYPE(A,TMC5130) || AXIS_DRIVER_TYPE(A,TMC5160) )
+
+#define AXIS_IS_TMC_CONFIG(A)   ( AXIS_IS_TMC(A) || AXIS_DRIVER_TYPE(A,TMC26X) )
 
 // Test for a driver that uses SPI - this allows checking whether a _CS_ pin
 // is considered sensitive

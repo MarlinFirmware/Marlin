@@ -53,7 +53,7 @@ NextionTFT nextion;
 
 NextionTFT::NextionTFT() {}
 
-void NextionTFT::Startup() {
+void NextionTFT::startup() {
   selectedfile[0] = '\0';
   nextion_command[0] = '\0';
   command_len = 0;
@@ -76,15 +76,15 @@ void NextionTFT::Startup() {
   DEBUG_ECHOLNPGM("Nextion Debug Level ", NEXDEBUGLEVEL);
 }
 
-void NextionTFT::IdleLoop() {
-  if (ReadTFTCommand()) {
-    ProcessPanelRequest();
+void NextionTFT::idleLoop() {
+  if (readTFTCommand()) {
+    processPanelRequest();
     command_len = 0;
   }
   UpdateOnChange();
 }
 
-void NextionTFT::PrinterKilled(FSTR_P const error, FSTR_P const component) {
+void NextionTFT::printerKilled(FSTR_P const error, FSTR_P const component) {
   SEND_TXT_END("page error");
   SEND_TXT_F("t3", F("Error"));
   SEND_TXT_F("t4", component);
@@ -96,21 +96,21 @@ void NextionTFT::PrintFinished() {
   SEND_TXT_END("page printfinished");
 }
 
-void NextionTFT::ConfirmationRequest(const char * const msg) {
+void NextionTFT::confirmationRequest(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
   #if NEXDEBUG(N_MARLIN)
-    DEBUG_ECHOLNPGM("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+    DEBUG_ECHOLNPGM("confirmationRequest() ", msg, " printer_state:", printer_state);
   #endif
 }
 
-void NextionTFT::StatusChange(const char * const msg) {
+void NextionTFT::statusChange(const char * const msg) {
   #if NEXDEBUG(N_MARLIN)
-    DEBUG_ECHOLNPGM("StatusChange() ", msg, "\nprinter_state:", printer_state);
+    DEBUG_ECHOLNPGM("statusChange() ", msg, "\nprinter_state:", printer_state);
   #endif
   SEND_VALasTXT("tmppage.M117", msg);
 }
 
-void NextionTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
+void NextionTFT::tftSend(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
     DEBUG_ECHOF(fstr);
   #endif
@@ -118,7 +118,7 @@ void NextionTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) { // A helper to print
   while (const char c = pgm_read_byte(str++)) LCD_SERIAL.write(c);
 }
 
-bool NextionTFT::ReadTFTCommand() {
+bool NextionTFT::readTFTCommand() {
   bool command_ready = false;
   while ((LCD_SERIAL.available() > 0) && (command_len < MAX_CMND_LEN)) {
     nextion_command[command_len] = LCD_SERIAL.read();
@@ -149,15 +149,15 @@ bool NextionTFT::ReadTFTCommand() {
   return command_ready;
 }
 
-void NextionTFT::SendFileList(int8_t startindex) {
+void NextionTFT::sendFileList(int8_t startindex) {
   // respond to panel request for 7 files starting at index
   #if NEXDEBUG(N_INFO)
-    DEBUG_ECHOLNPGM("## SendFileList ## ", startindex);
+    DEBUG_ECHOLNPGM("## sendFileList ## ", startindex);
   #endif
   filenavigator.getFiles(startindex);
 }
 
-void NextionTFT::SelectFile() {
+void NextionTFT::selectFile() {
   strncpy(selectedfile, nextion_command + 4, command_len - 4);
   selectedfile[command_len - 5] = '\0';
   #if NEXDEBUG(N_FILE)
@@ -169,11 +169,11 @@ void NextionTFT::SelectFile() {
     break;
   case '<': // .. (go up folder level)
     filenavigator.upDIR();
-    SendFileList(0);
+    sendFileList(0);
     break;
   default: // enter sub folder
     filenavigator.changeDIR(selectedfile);
-    SendFileList(0);
+    sendFileList(0);
     break;
   }
 }
@@ -188,24 +188,24 @@ void NextionTFT::_format_time(char *outstr, uint32_t time) {
     sprintf_P(outstr, PSTR("%02d:%02ds"), min, sec);
 }
 
-void NextionTFT::ProcessPanelRequest() {
+void NextionTFT::processPanelRequest() {
   // Break these up into logical blocks as its easier to navigate than one huge switch case!
   if (nextion_command[0] == 'X') {
     int8_t req = atoi(&nextion_command[1]);
 
     // Information requests
     if (req <= 49)
-      PanelInfo(req);
+      panelInfo(req);
 
     // Simple Actions
     else if (req >= 50)
-      PanelAction(req);
+      panelAction(req);
   }
 }
 
 #define SEND_NA(A) SEND_TXT(A, "n/a")
 
-void NextionTFT::PanelInfo(uint8_t req) {
+void NextionTFT::panelInfo(uint8_t req) {
   switch (req) {
   case 0: break;
 
@@ -216,7 +216,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
         //SEND_TXT("tmppage.M117", msg_no_sd_card);
       }
       else if (nextion_command[3] == 'S')
-        SendFileList(atoi(&nextion_command[4]));
+        sendFileList(atoi(&nextion_command[4]));
     }
     break;
 
@@ -431,27 +431,27 @@ void NextionTFT::PanelInfo(uint8_t req) {
 
   case 36: // Endstop Info
     #if X_HOME_TO_MIN
-      SEND_VALasTXT("x1", READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("x1", READ(X_MIN_PIN) == X_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif X_HOME_TO_MAX
-      SEND_VALasTXT("x2", READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("x2", READ(X_MAX_PIN) == X_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if Y_HOME_TO_MIN
-      SEND_VALasTXT("y1", READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("y1", READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif Y_HOME_TO_MAX
-      SEND_VALasTXT("y2", READ(X_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("y2", READ(X_MAX_PIN) == Y_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if Z_HOME_TO_MIN
-      SEND_VALasTXT("z1", READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z1", READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #elif Z_HOME_TO_MAX
-      SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      SEND_VALasTXT("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
-    #if HAS_Z2_MIN
-      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-    #elif HAS_Z2_MAX
-      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+    #if USE_Z2_MIN
+      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) == Z2_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
+    #elif USE_Z2_MAX
+      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE
-      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING ? "triggered" : "open");
+      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #else
       SEND_NA("bltouch");
     #endif
@@ -488,7 +488,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
   }
 }
 
-void NextionTFT::PanelAction(uint8_t req) {
+void NextionTFT::panelAction(uint8_t req) {
   switch (req) {
 
     case 50: // Pause SD print
@@ -512,7 +512,7 @@ void NextionTFT::PanelAction(uint8_t req) {
       break;
 
     case 54: // A13 Select file
-      SelectFile();
+      selectFile();
       break;
 
     case 65: // Cool Down

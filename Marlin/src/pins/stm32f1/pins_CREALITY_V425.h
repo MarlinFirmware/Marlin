@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,6 @@
  */
 
 #include "env_validate.h"
-
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality v4.2.5 only supports 1 hotend / E stepper."
-#endif
 
 #define BOARD_INFO_NAME "Creality V4.2.5"
 #define DEFAULT_MACHINE_NAME "CR200B"
@@ -72,6 +68,6 @@
 //
 #define HEATER_0_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA1   // HOT BED
-#define FAN_PIN                             PA2   // FAN
+#define FAN0_PIN                            PA2   // FAN
 
 #include "pins_CREALITY_V4.h"

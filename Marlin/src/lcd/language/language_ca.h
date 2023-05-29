@@ -37,7 +37,7 @@ namespace Language_ca {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Targeta detectada.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Targeta extreta.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Menú principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inici automatic");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactiva motors");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu de depuracio");
@@ -90,9 +90,10 @@ namespace Language_ca {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mou 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mou 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mou 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mou 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mou 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocitat");
-  LSTR MSG_BED_Z                          = _UxGT("Llit Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Llit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
   LSTR MSG_BED                            = _UxGT("Llit");
@@ -121,7 +122,7 @@ namespace Language_ca {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Desa memoria");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Carrega memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restaura valors");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Actualitza");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Actualitza");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla Info.");
   LSTR MSG_PREPARE                        = _UxGT("Prepara");
   LSTR MSG_TUNE                           = _UxGT("Ajusta");
@@ -150,7 +151,7 @@ namespace Language_ca {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Canvia SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s primer");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s primer");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalatge Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");

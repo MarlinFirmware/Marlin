@@ -41,7 +41,7 @@ var WmButtonGroups = {
 var wmWebSoket = {
   WSObject: null,
   Connect: function() {
-	WsUrl=`ws://${location.host}/ws`;
+    WsUrl=`ws://${location.host}/ws`;
     try {
       if(wmWebSoket.WSObject === null) {
         jsLog.Debug("WebSocket: Trying connecting to " + WsUrl);

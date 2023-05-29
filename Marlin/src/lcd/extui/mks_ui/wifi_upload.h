@@ -59,8 +59,8 @@ typedef struct {
   UploadState state;
   uint32_t retriesPerBaudRate;
   uint32_t connectAttemptNumber;
-  uint32_t lastAttemptTime;
-  uint32_t lastResetTime;
+  millis_t lastAttemptTime;
+  millis_t lastResetTime;
   uint32_t uploadBlockNumber;
   uint32_t uploadNextPercentToReport;
   EspUploadResult uploadResult;

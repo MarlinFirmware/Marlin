@@ -39,7 +39,7 @@ namespace Language_ko_KR {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("엔드스탑");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("소프트 엔드스탑");
-  LSTR MSG_MAIN                           = _UxGT("뒤로");
+  LSTR MSG_MAIN_MENU                      = _UxGT("뒤로");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("고급 설정");
   LSTR MSG_CONFIGURATION                  = _UxGT("설정");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("자동 시작");
@@ -88,7 +88,7 @@ namespace Language_ko_KR {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("설정 읽어오기");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("설정 되돌리기");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM 초기화");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("새로고침");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("새로고침");
   LSTR MSG_INFO_SCREEN                    = _UxGT("처음으로");
   LSTR MSG_PREPARE                        = _UxGT("준비하기");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("일시정지");

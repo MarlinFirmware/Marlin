@@ -49,7 +49,7 @@ namespace Language_es {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Menú principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ajustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automático");
@@ -234,9 +234,10 @@ namespace Language_es {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidad");
-  LSTR MSG_BED_Z                          = _UxGT("Cama Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Cama Z");
   LSTR MSG_NOZZLE                         = _UxGT("Boquilla");
   LSTR MSG_NOZZLE_N                       = _UxGT("Boquilla ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Boquilla Aparcada");
@@ -264,7 +265,6 @@ namespace Language_es {
   LSTR MSG_LCD_OFF                        = _UxGT("Apg");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");
-  LSTR MSG_SELECT                         = _UxGT("Seleccionar");
   LSTR MSG_SELECT_E                       = _UxGT("Seleccionar *");
   LSTR MSG_ACC                            = _UxGT("Aceleración");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -315,11 +315,11 @@ namespace Language_es {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Rest. fábrica");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inicializar EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Err: Índice EEPROM");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Tamaño");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versión EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetear Impresora");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Recargar");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Recargar");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla de Inf.");
   LSTR MSG_PREPARE                        = _UxGT("Preparar");
   LSTR MSG_TUNE                           = _UxGT("Ajustar");
@@ -338,7 +338,7 @@ namespace Language_es {
   LSTR MSG_STOP_PRINT                     = _UxGT("Detener impresión");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Imprimiendo Objeto");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancelar Objeto");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Rec. Fallo electrico");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Imprim. desde SD/FD");
   LSTR MSG_NO_MEDIA                       = _UxGT("SD/FD no presente");
@@ -398,7 +398,7 @@ namespace Language_es {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Subir TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Subir Sonda Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Bajar Sonda Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Origen %s%s%s Prim.");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Origen %s Prim.");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desf. Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desf. Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desf. Sonda Y");
@@ -510,7 +510,7 @@ namespace Language_es {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retirar, y pulsar");
 
   LSTR MSG_MIX                            = _UxGT("Mezcla");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente {");
   LSTR MSG_MIXER                          = _UxGT("Miezclador");
   LSTR MSG_GRADIENT                       = _UxGT("Degradado");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Degradado Total");

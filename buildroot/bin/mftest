@@ -202,7 +202,7 @@ if ((AUTO_BUILD)); then
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
     pio run $SILENT_FLAG -e $TARGET
   fi
-  exit 0
+  exit $?
 fi
 
 #

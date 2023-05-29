@@ -100,7 +100,9 @@
 #endif
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -114,7 +116,7 @@
 #define HEATER_0_PIN                        PC8   // HEATER0
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
-#define FAN_PIN                             PA7   // FAN  (fan2 on board) model cool fan
+#define FAN0_PIN                            PA7   // FAN  (fan2 on board) model cool fan
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 
@@ -134,7 +136,7 @@
 #define EXP1_01_PIN                         PB5
 #define EXP1_02_PIN                         PB6
 #define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         -1   // RESET
+#define EXP1_04_PIN                         -1    // RESET
 #define EXP1_05_PIN                         PA3
 #define EXP1_06_PIN                         PB8
 #define EXP1_07_PIN                         PB7
@@ -151,7 +153,7 @@
 
   #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
 #endif
 
 // Alter timing for graphical display

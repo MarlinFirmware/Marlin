@@ -39,7 +39,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+#if ENABLED(SET_REMAINING_TIME)
   #include "../../marlinui.h"
 #endif
 
@@ -80,7 +80,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_PAUSE:
       if (uiCfg.print_state == WORKING) {
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           card.pauseSDPrint();
           stop_print_time();
           uiCfg.print_state = PAUSING;
@@ -244,7 +244,7 @@ void disp_fan_speed() {
 }
 
 void disp_print_time() {
-  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+  #if ENABLED(SET_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
   #else
@@ -274,13 +274,13 @@ void setProBarRate() {
   volatile long long rate_tmp_r;
 
   if (!gCfgItems.from_flash_pic) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       rate_tmp_r = (long long)card.getIndex() * 100;
     #endif
     rate = rate_tmp_r / gCfgItems.curFilesize;
   }
   else {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       rate_tmp_r = (long long)card.getIndex();
     #endif
     rate = (rate_tmp_r - (PREVIEW_SIZE + To_pre_view)) * 100 / (gCfgItems.curFilesize - (PREVIEW_SIZE + To_pre_view));

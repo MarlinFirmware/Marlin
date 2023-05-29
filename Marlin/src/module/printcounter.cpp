@@ -41,7 +41,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
   #include "../libs/buzzer.h"
 #endif
 
-#if PRINTCOUNTER_SYNC
+#if ENABLED(PRINTCOUNTER_SYNC)
   #include "../module/planner.h"
 #endif
 
@@ -314,13 +314,13 @@ void PrintCounter::reset() {
   void PrintCounter::resetServiceInterval(const int index) {
     switch (index) {
       #if SERVICE_INTERVAL_1 > 0
-        case 1: data.nextService1 = SERVICE_INTERVAL_SEC_1;
+        case 1: data.nextService1 = SERVICE_INTERVAL_SEC_1; break;
       #endif
       #if SERVICE_INTERVAL_2 > 0
-        case 2: data.nextService2 = SERVICE_INTERVAL_SEC_2;
+        case 2: data.nextService2 = SERVICE_INTERVAL_SEC_2; break;
       #endif
       #if SERVICE_INTERVAL_3 > 0
-        case 3: data.nextService3 = SERVICE_INTERVAL_SEC_3;
+        case 3: data.nextService3 = SERVICE_INTERVAL_SEC_3; break;
       #endif
     }
     saveStats();
