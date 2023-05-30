@@ -28,13 +28,13 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-// #include "fastio.h"
+#include "fastio.h"
 // #include "Servo.h"
 // #include "watchdog.h"
 // #include "MarlinSerial.h"
 
-#include "../../inc/MarlinConfigPre.h"
-#include "../../pins/lpc5528/pins_MKS_OWL.h"
+//#include "../../inc/MarlinConfigPre.h"
+// #include "../../pins/lpc5528/pins_MKS_OWL.h"
 #include "MarlinSerial.h"
 #include <stdint.h>
 
@@ -58,9 +58,9 @@
 
 // redefine for LPC5528 Library
 #ifndef byte
-typedef uint8_t byte;
+  typedef uint8_t byte;
 #endif
-// define for serial 
+// define for serial
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
@@ -68,7 +68,7 @@ typedef uint8_t byte;
     #define MYSERIAL1 MSerial0
 #elif WITHIN(SERIAL_PORT, 1, 8)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#else 
+#else
     // #error "SERIAL_PORT must be from 1 to 8. You can also use -1 if the board supports Native USB."
 #endif
 
@@ -119,17 +119,16 @@ typedef uint8_t byte;
 typedef int16_t pin_t;
 
 
+// Maple Compatibility
+typedef void (*systickCallback_t)(void);
+void systick_attach_callback(systickCallback_t cb);
+void SYSTICK_Callback();
+
+extern volatile uint32_t systick_uptime_millis;
 
 // #define HAL_SERVO_LIB libServo
 // #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
 // #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
-
-// ------------------------
-// Public Variables
-// ------------------------
-
-// result of last ADC conversion
-extern uint16_t HAL_adc_result;
 
 // ------------------------
 // Public functions
@@ -138,100 +137,137 @@ extern uint16_t HAL_adc_result;
 // Memory related
 #define __bss_end __bss_end__
 
-
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-
-
-// Enable hooks into  setup for HAL
-void HAL_init();
-#define HAL_IDLETASK 1
-void HAL_idletask();
-
-// Clear reset reason
-void HAL_clear_reset_source();
-
-// Reset reason
-uint8_t HAL_get_reset_source();
-
-void HAL_reboot();
-
-void _delay_ms(const int delay);
-
 extern "C" char* _sbrk(int incr);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 
-static inline int freeMemory() {
-  volatile char top;
-  return &top - reinterpret_cast<char*>(_sbrk(0));
-}
 
-#pragma GCC diagnostic pop
+// ------------------------
+// MarlinHAL Class
+// ------------------------
 
-//
-// ADC
-//
+class MarlinHAL {
+public:
 
-#ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
-#endif
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
 
-#define HAL_ANALOG_SELECT(pin) adc_init(pin)
+  // Enable hooks into  setup for HAL
+  static void init();
+  static void init_board() {}  // Called less early in setup()
 
-#ifdef ADC_RESOLUTION
-  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
-#else
-  #define HAL_ADC_RESOLUTION 12
-#endif
+  // Interrupts
+  //static bool isr_state() { return !__get_PRIMASK(); }
+  static void isr_on()  { __enable_irq(); }
+  static void isr_off() { __disable_irq(); }
 
-#define HAL_ADC_VREF         3.3
-#define HAL_ADC_FILTERED 
+  #define HAL_IDLETASK 1
+  void idletask();
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_ADC_READY()     true
-#define HAL_READ_ADC()      HAL_adc_get_result()
+  // Watchdog
+  //static void watchdog_init() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+  static bool watchdog_timed_out() IF_DISABLED(USE_WATCHDOG, { return false; });
+  static void watchdog_clear_timeout_flag() IF_DISABLED(USE_WATCHDOG, {});
 
-void HAL_adc_init();
+  // Clear reset reason
+  void clear_reset_source();
 
-void HAL_adc_start_conversion(const uint8_t adc_pin);
+  // Reset reason
+  uint8_t get_reset_source();
 
-uint16_t HAL_adc_get_result();
+  void reboot();
 
-#define GET_PIN_MAP_PIN(index) index
-#define GET_PIN_MAP_INDEX(pin) pin
-#define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+  void _delay_ms(const int delay);
+
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+
+  static inline int freeMemory() {
+    volatile char top;
+    return &top - reinterpret_cast<char*>(_sbrk(0));
+  }
+
+  #pragma GCC diagnostic pop
+
+  //
+  // ADC
+  //
+
+  #ifndef analogInputToDigitalPin
+    #define analogInputToDigitalPin(p) (p)
+  #endif
+
+  //#define HAL_ANALOG_SELECT(pin) adc_init(pin)
+
+  #ifdef ADC_RESOLUTION
+    #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+  #else
+    #define HAL_ADC_RESOLUTION 12
+  #endif
+
+  #define HAL_ADC_VREF         3.3
+  #define HAL_ADC_FILTERED
+
+  #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+  #define HAL_ADC_READY()     true
+  #define HAL_READ_ADC()      HAL_adc_get_result()
+
+  // ------------------------
+  // Public Variables
+  // ------------------------
+
+  // result of last ADC conversion
+  static uint16_t adc_result;
+
+  void adc_init();
+
+  void adc_start_conversion(const uint8_t adc_pin);
+
+  static pin_t adc_pin;
+
+  static void adc_start(const pin_t pin) { adc_pin = pin; }
+
+    // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value() { return adc_result; }
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const pin_t pin) {}
+
+  uint16_t adc_get_result();
+
+  #define GET_PIN_MAP_PIN(index) index
+  #define GET_PIN_MAP_INDEX(pin) pin
+  #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 
-// #define PLATFORM_M997_SUPPORT
+  // #define PLATFORM_M997_SUPPORT
 
-// void flashFirmware(const int16_t) {
+  // void flashFirmware(const int16_t) {
 
 
-// }
+  // }
 
-// Maple Compatibility
-typedef void (*systickCallback_t)(void);
-void systick_attach_callback(systickCallback_t cb);
-void HAL_SYSTICK_Callback();
+  //extern volatile uint32_t systick_uptime_millis;
 
-extern volatile uint32_t systick_uptime_millis;
+  #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 
-#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+  /**
+   * set_pwm_frequency
+   *  Set the frequency of the timer corresponding to the provided pin
+   *  All Timer PWM pins run at the same frequency
+   */
+  void set_pwm_frequency(const pin_t pin, int f_desired);
 
-/**
- * set_pwm_frequency
- *  Set the frequency of the timer corresponding to the provided pin
- *  All Timer PWM pins run at the same frequency
- */
-void set_pwm_frequency(const pin_t pin, int f_desired);
-
-/**
- * set_pwm_duty
- *  Set the PWM duty cycle of the provided pin to the provided value
- *  Optionally allows inverting the duty cycle [default = false]
- *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
- */
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+  /**
+   * set_pwm_duty
+   *  Set the PWM duty cycle of the provided pin to the provided value
+   *  Optionally allows inverting the duty cycle [default = false]
+   *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+   */
+  void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+};
