@@ -21,6 +21,8 @@
  *
  */
 
+#ifdef TARGET_LPC5528
+
 #include "../platforms.h"
 
 #include "../../inc/MarlinConfig.h"
@@ -85,3 +87,5 @@ void libServo::move(const int value) {
 int libServo::read() { return degrees; }
 
 #endif
+
+#endif // TARGET_LPC5528
