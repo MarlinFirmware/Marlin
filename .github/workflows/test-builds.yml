@@ -137,6 +137,9 @@ jobs:
         - LPC1768
         - LPC1769
 
+        # LPC5528
+        - LPC5528
+
     steps:
 
     - name: Check out the PR
