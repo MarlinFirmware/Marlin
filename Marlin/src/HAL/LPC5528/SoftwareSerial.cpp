@@ -31,6 +31,9 @@
  * http://arduiniana.org.
  */
 
+
+#ifdef TARGET_LPC5528
+
 //
 // Includes
 //
@@ -467,3 +470,5 @@ extern "C"{
     }
   }
 }
+
+#endif // TARGET_LPC5528
