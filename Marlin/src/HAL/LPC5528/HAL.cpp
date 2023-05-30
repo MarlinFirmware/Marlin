@@ -96,8 +96,6 @@ uint8_t MarlinHAL::get_reset_source() {
 
 #if ENABLED(USE_WATCHDOG)
 
-#error "USE_WATCHDOG is not iimplmented"
-
 // Todo:  add watchdog support.
 
   void MarlinHAL::watchdog_refresh() {
