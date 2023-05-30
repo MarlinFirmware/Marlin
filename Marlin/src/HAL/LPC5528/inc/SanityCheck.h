@@ -22,5 +22,5 @@
 #pragma once
 
 #if ENABLED(USE_WATCHDOG)
-  #error "USE_WATCHDOG is not implmented on LPC1768"
+  #error "USE_WATCHDOG is not implmented on LPC5528"
 #endif
