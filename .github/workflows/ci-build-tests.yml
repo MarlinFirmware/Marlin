@@ -166,7 +166,7 @@ jobs:
         - LPC1769
 
         # LPC5528
-        - LPC5528
+        - MKS_OWL
 
     steps:
 
