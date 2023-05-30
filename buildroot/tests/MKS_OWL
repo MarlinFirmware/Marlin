@@ -16,7 +16,7 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_MKS_OWL SERIAL_PORT -1
 opt_enable SDSUPPORT FAN_SOFT_PWM
-opt_disabe USE_WATCHDOG
+opt_disable USE_WATCHDOG
 
 exec_test $1 $2 "MKS_OWL" "$3"
 
