@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
+#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"

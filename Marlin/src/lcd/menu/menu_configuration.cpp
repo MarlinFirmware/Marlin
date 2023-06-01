@@ -59,7 +59,7 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+#if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
   #define HAS_DEBUG_MENU 1
 #endif
@@ -68,7 +68,7 @@
 #include "../../core/debug_out.h"
 
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
@@ -592,7 +592,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 

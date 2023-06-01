@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 #include "../../module/planner.h"
 
-#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+#if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
   #include "../../module/motion.h"
 #endif
 
@@ -120,7 +120,7 @@ void reset_bed_level() {
   TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
-#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
+#if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
   /**
    * Enable to produce output in JSON format suitable
@@ -188,7 +188,7 @@ void reset_bed_level() {
 
 #endif // AUTO_BED_LEVELING_BILINEAR || MESH_BED_LEVELING
 
-#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+#if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 

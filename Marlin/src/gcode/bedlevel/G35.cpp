@@ -144,7 +144,7 @@ void GcodeSuite::G35() {
   // Restore the active tool after homing
   probe.use_probing_tool(false);
 
-  #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
+  #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 

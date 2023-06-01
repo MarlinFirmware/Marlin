@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if EITHER(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
+#if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
 
 #include "nozzle.h"
 
@@ -170,7 +170,7 @@ Nozzle nozzle;
       xyz_pos_t middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
     #endif
 
-    const uint8_t arrPos = EITHER(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
+    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
     switch (pattern) {
       #if DISABLED(NOZZLE_CLEAN_PATTERN_LINE)
