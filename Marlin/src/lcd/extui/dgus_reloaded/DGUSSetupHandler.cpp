@@ -136,7 +136,7 @@ bool DGUSSetupHandler::LevelingOffset() {
 }
 
 bool DGUSSetupHandler::LevelingAutomatic() {
-  if (ExtUI::getMeshValid()) {
+  if (ExtUI::getLevelingIsValid()) {
     dgus_screen_handler.leveling_active = true;
 
     ExtUI::setLevelingActive(true);
