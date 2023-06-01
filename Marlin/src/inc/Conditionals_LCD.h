@@ -53,6 +53,8 @@
   #define DGUS_LCD_UI_RELOADED 1
 #elif DGUS_UI_IS(IA_CREALITY)
   #define DGUS_LCD_UI_IA_CREALITY 1
+#elif DGUS_UI_IS(E3S1PRO)
+  #define DGUS_LCD_UI_E3S1PRO 1
 #endif
 
 /**
