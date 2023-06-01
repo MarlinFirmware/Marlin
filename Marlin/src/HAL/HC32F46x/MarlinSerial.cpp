@@ -49,7 +49,7 @@ constexpr bool serial_handles_emergency(int port)
 //
 #define DEFINE_HWSERIAL_MARLIN(name, n)      \
   MSerialT name(serial_handles_emergency(n), \
-                &USART##n##_config);
+                &USART##n##_config, BOARD_USART##n##_TX_PIN, BOARD_USART##n##_RX_PIN);
 
 DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
 DEFINE_HWSERIAL_MARLIN(MSerial2, 2);

@@ -188,11 +188,8 @@
 #endif
 
 //
-// Pins for documentation and sanity checks
-// Changing these will NOT change the pin they are on
-//
-
 // SDIO Pins
+//
 #define BOARD_SDIO_D0 PC8
 #define BOARD_SDIO_D1 PC9
 #define BOARD_SDIO_D2 PC10
@@ -201,7 +198,9 @@
 #define BOARD_SDIO_CMD PD2
 #define BOARD_SDIO_DET PA10
 
-// USARTS
+//
+// USART Pins
+//
 #define BOARD_USART1_TX_PIN PC0
 #define BOARD_USART1_RX_PIN PC1
 

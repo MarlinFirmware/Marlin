@@ -28,7 +28,7 @@
 
 struct MarlinSerial : public Usart
 {
-  MarlinSerial(struct usart_config_t *usart_device) : Usart(usart_device) {}
+  MarlinSerial(struct usart_config_t *usart_device, uint16_t tx_pin, uint16_t rx_pin) : Usart(usart_device, tx_pin, rx_pin) {}
 
 #ifdef UART_IRQ_PRIO
   void setPriority()
