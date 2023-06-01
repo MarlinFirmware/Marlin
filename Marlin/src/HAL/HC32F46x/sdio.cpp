@@ -33,13 +33,13 @@ const stc_sdcard_init_t cardConf = {
 bool SDIO_Init()
 {
 	// configure SDIO pins
-	GPIO_SetFunc(BOARD_SDIO_D0, Disable);
-	GPIO_SetFunc(BOARD_SDIO_D1, Disable);
-	GPIO_SetFunc(BOARD_SDIO_D2, Disable);
-	GPIO_SetFunc(BOARD_SDIO_D3, Disable);
-	GPIO_SetFunc(BOARD_SDIO_CLK, Disable);
-	GPIO_SetFunc(BOARD_SDIO_CMD, Disable);
-	GPIO_SetFunc(BOARD_SDIO_DET, Disable);
+	GPIO_SetFunc(BOARD_SDIO_D0, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_D1, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_D2, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_D3, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_CLK, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_CMD, Func_Sdio);
+	GPIO_SetFunc(BOARD_SDIO_DET, Func_Sdio);
 
 	// create sdio handle
 	MEM_ZERO_STRUCT(cardHandle);

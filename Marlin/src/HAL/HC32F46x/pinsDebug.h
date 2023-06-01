@@ -61,21 +61,14 @@
 // pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
 //
 #ifndef M43_NEVER_TOUCH
-// do not touch any pin not defined as gpio or sdio function,
-// (explicitly) host serial pins, and
-// pins related to the oscillator
+// do not touch any of the following pins:
+// - host serial pins, and
+// - pins related to the oscillator
 #define IS_HOST_USART_PIN(Q) (Q == BOARD_USART2_TX_PIN || Q == BOARD_USART2_RX_PIN)
 #define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PH2)
-#define IS_PIN_FUNC(Q, FUNC) (PIN_MAP[Q].function == en_port_func_t::Func_##FUNC)
-
-#ifndef ALLOW_UNSAFE_FUNCTION_PINS
-#define IS_SAFE_PIN_FUNC(Q) (IS_PIN_FUNC(Q, Gpio) || IS_PIN_FUNC(Q, Sdio))
-#else
-#define IS_SAFE_PIN_FUNC(Q) (true)
-#endif
 
 #define M43_NEVER_TOUCH(Q) ( \
-    !IS_SAFE_PIN_FUNC(Q) || IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
+    IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
 #endif
 
 // static int8_t get_pin_mode(pin_t pin) {
@@ -121,7 +114,7 @@ static void pwm_details(const pin_t pin)
 static void print_port(pin_t pin)
 {
     const char port = 'A' + char(pin >> 4); // pin div 16
-    const int16_t gbit = PIN_MAP[pin].gpio_bit;
+    const int16_t gbit = PIN_MAP[pin].bit_pos;
     char buffer[8];
     sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
     if (gbit < 10)
