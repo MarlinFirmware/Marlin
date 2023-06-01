@@ -52,8 +52,6 @@ namespace Language_ru {
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расшир. настройки");
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполн. вызова");
   #endif
-  LSTR MSG_TOOLBAR_SETUP                    = _UxGT("Настр. инструменты");
-  LSTR MSG_OPTION_DISABLED                  = _UxGT("Опция отключена");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");

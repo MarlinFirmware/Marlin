@@ -57,8 +57,6 @@ namespace Language_tr {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Yazılımsal Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Araç Çubuğu Kurulumu");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Seçenek Devre Dışı");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");

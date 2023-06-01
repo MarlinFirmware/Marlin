@@ -64,8 +64,6 @@ namespace Language_it {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Finecorsa Soft");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principale");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Impostaz. avanzate");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Cnf barra strumenti");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Opzione disab.");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurazione");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Esegui files auto");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disabilita Motori");
