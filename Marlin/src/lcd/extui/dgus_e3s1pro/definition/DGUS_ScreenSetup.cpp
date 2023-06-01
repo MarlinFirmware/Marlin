@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "DGUS_ScreenSetup.h"
 #include "../DGUSSetupHandler.h"
@@ -34,10 +34,10 @@
   .setup_fn = SETUP }
 
 const struct DGUS_ScreenSetup screen_setup_list[] PROGMEM = {
-  SETUP_HELPER(DGUS_Screen::FILE1,            &DGUSSetupHandler::SDCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE2,            &DGUSSetupHandler::SDCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE3,            &DGUSSetupHandler::SDCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE4,            &DGUSSetupHandler::SDCardPrepare),
+  SETUP_HELPER(DGUS_Screen::FILE1, &DGUSSetupHandler::SDCardPrepare),
+  SETUP_HELPER(DGUS_Screen::FILE2, &DGUSSetupHandler::SDCardPrepare),
+  SETUP_HELPER(DGUS_Screen::FILE3, &DGUSSetupHandler::SDCardPrepare),
+  SETUP_HELPER(DGUS_Screen::FILE4, &DGUSSetupHandler::SDCardPrepare),
   SETUP_HELPER((DGUS_Screen)0, nullptr)
 };
 

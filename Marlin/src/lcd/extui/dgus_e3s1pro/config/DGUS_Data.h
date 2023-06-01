@@ -27,8 +27,7 @@ namespace DGUS_Data {
 
   // RX constants
 
-  enum class Language : uint16_t
-  {
+  enum class Language : uint16_t {
     Chinese_Simplified = 1,
     English,
     German,
@@ -52,16 +51,15 @@ namespace DGUS_Data {
     tr = Turkish,
 
     Default =
-#ifdef DGUS_E3S1PRO_LANGUAGE
-      DGUS_E3S1PRO_LANGUAGE
-#else
-      LCD_LANGUAGE
-#endif
+      #ifdef DGUS_E3S1PRO_LANGUAGE
+        DGUS_E3S1PRO_LANGUAGE
+      #else
+        LCD_LANGUAGE
+      #endif
   };
 
   // 1002
-  enum class MenuSelectCommand : uint16_t
-  {
+  enum class MenuSelectCommand : uint16_t {
     Print = 1,
     Ready = 2,
     Settings = 3,
@@ -73,8 +71,7 @@ namespace DGUS_Data {
   };
 
   // 1004
-  enum class AdjustCommand : uint16_t
-  {
+  enum class AdjustCommand : uint16_t {
     Show_Adjust = 1,
     Show_PrintStatus = 2,
     Show_Adjust_ZOffset = 5,
@@ -82,23 +79,20 @@ namespace DGUS_Data {
   };
 
   // 1008
-  enum class CheckKOCommand : uint16_t
-  {
+  enum class CheckKOCommand : uint16_t {
     KO = 2,
     SDCard_No = 4, // screen fw 1.0.3
   };
 
   // 100A
-  enum class StopPauseCommand : uint16_t
-  {
+  enum class StopPauseCommand : uint16_t {
     Pause_Laser = 1,
     Pause = 2,
     Stop_Confirm = 3
   };
 
   // 100C
-  enum class CheckOKCommand : uint16_t
-  {
+  enum class CheckOKCommand : uint16_t {
     ContinueStop_Continue = 1,
     FilamentRunout_Yes = 2,
     FilamentLoad_Yes = 3,
@@ -106,8 +100,7 @@ namespace DGUS_Data {
   };
 
   // 1030
-  enum class PresetControlCommand : uint16_t
-  {
+  enum class PresetControlCommand : uint16_t {
     Show_Settings_PLA_Settings = 3,
     Show_Settings_ABS_Settings = 4,
     Apply_PLA_Settings = 5,
@@ -116,15 +109,13 @@ namespace DGUS_Data {
   };
 
   // 1032
-  enum class TemperatureControlCommand : uint16_t
-  {
+  enum class TemperatureControlCommand : uint16_t {
     Cooldown = 1,
     Exit_Temperature_Preset_And_Discard_Temperature = 2
   };
 
   // 103E
-  enum class SettingsMenuCommand : uint16_t
-  {
+  enum class SettingsMenuCommand : uint16_t {
     Show_Settings_Device_Language = 1,
     Show_Settings_Advanced = 2,
     Show_Ready_Jog = 3,
@@ -140,8 +131,7 @@ namespace DGUS_Data {
   };
 
   // 1044
-  enum class LevelingCommand : uint16_t
-  {
+  enum class LevelingCommand : uint16_t {
     Show_Settings_Leveling = 1,
     Show_AuxLeveling = 4,
     Goto_Center = 5,
@@ -153,8 +143,7 @@ namespace DGUS_Data {
   };
 
   // 1046
-  enum class AxisControlCommand : uint16_t
-  {
+  enum class AxisControlCommand : uint16_t {
     Jog_10mm = 1,
     Jog_1mm = 2,
     Jog_0_1mm = 3,
@@ -163,16 +152,14 @@ namespace DGUS_Data {
   };
 
   // 1056
-  enum class AxisIoCommand : uint16_t
-  {
+  enum class AxisIoCommand : uint16_t {
     FilamentCheck_Yes = 1,
     FilamentCheck_No = 2,
     Show_Ready_IO = 3
   };
 
   // 1098
-  enum class AdvancedSettingsCommand : uint16_t
-  {
+  enum class AdvancedSettingsCommand : uint16_t {
     Show_AdvSettings_Movement = 4,
     Show_AdvSettings_PID = 5,
     Show_AdvSettings_Movement_StepsPerMm = 7,
@@ -184,8 +171,7 @@ namespace DGUS_Data {
   };
 
   // 2198
-  enum class FilelistControlCommand : uint16_t
-  {
+  enum class FilelistControlCommand : uint16_t {
     Start_Print = 1,
     F1_Down  = 2,
     F1_Up = 3,
@@ -200,8 +186,7 @@ namespace DGUS_Data {
   };
 
   // 2198
-  enum class LaserControlCommand : uint16_t
-  {
+  enum class LaserControlCommand : uint16_t {
     Mode_FDM = 1,
     Mode_Cutter = 2,
     Mode_FDM_Confirm = 3,

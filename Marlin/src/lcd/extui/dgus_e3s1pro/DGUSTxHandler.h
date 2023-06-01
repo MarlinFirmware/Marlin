@@ -40,46 +40,39 @@ namespace DGUSTxHandler {
 
 
   template <typename T, T axis>
-  void MaxFeedrate(DGUS_VP &vp)
-  {
+  void MaxFeedrate(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
     dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
   }
   template <typename T, T axis>
-  void MaxAcceleration(DGUS_VP &vp)
-  {
+  void MaxAcceleration(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
     dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
   }
   template <typename T, T axis>
-  void MaxJerk(DGUS_VP &vp)
-  {
+  void MaxJerk(DGUS_VP &vp) {
     uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
     dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
   }
   template <typename T, T axis>
-  void StepsPerMm(DGUS_VP &vp)
-  {
+  void StepsPerMm(DGUS_VP &vp) {
     uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
     dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
   }
 
   #if ENABLED(PIDTEMP)
     template<ExtUI::extruder_t extruder>
-    void PID_P(DGUS_VP &vp)
-    {
+    void PID_P(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
       dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
     }
     template<ExtUI::extruder_t extruder>
-    void PID_I(DGUS_VP &vp)
-    {
+    void PID_I(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
       dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
     }
     template<ExtUI::extruder_t extruder>
-    void PID_D(DGUS_VP &vp)
-    {
+    void PID_D(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
       dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
     }

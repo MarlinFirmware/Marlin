@@ -37,35 +37,29 @@ namespace DGUSRxHandler {
   void Language_SetLanguage(DGUS_VP &vp, void *data);
 
   template <typename T, T axis>
-  void MaxFeedrate(DGUS_VP &vp, void *data)
-  {
+  void MaxFeedrate(DGUS_VP &vp, void *data) {
     feedRate_t maxSpeed = (float)BE16_P(data);
     ExtUI::setAxisMaxFeedrate_mm_s(maxSpeed, axis);
   }
   template <typename T, T axis>
-  void MaxAcceleration(DGUS_VP &vp, void *data)
-  {
+  void MaxAcceleration(DGUS_VP &vp, void *data) {
     float maxAcceleration = (float)BE16_P(data);
     ExtUI::setAxisMaxAcceleration_mm_s2(maxAcceleration, axis);
   }
   template <typename T, T axis>
-  void MaxJerk(DGUS_VP &vp, void *data)
-  {
+  void MaxJerk(DGUS_VP &vp, void *data) {
     float maxJerk = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setAxisMaxJerk_mm_s(maxJerk, axis);
   }
   template <typename T, T axis>
-  void StepsPerMm(DGUS_VP &vp, void *data)
-  {
+  void StepsPerMm(DGUS_VP &vp, void *data) {
     float stepsPerMm = dgus_display.FromFixedPoint<uint16_t, float, 1>(BE16_P(data));
     ExtUI::setAxisSteps_per_mm(stepsPerMm, axis);
   }
 
-
   #if ENABLED(PIDTEMP)
-      template <ExtUI::extruder_t extruder>
-    void PID_P(DGUS_VP &vp, void *data)
-    {
+    template <ExtUI::extruder_t extruder>
+    void PID_P(DGUS_VP &vp, void *data) {
       float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
       ExtUI::setPID(
         pidValue,
@@ -75,8 +69,7 @@ namespace DGUSRxHandler {
       );
     }
     template <ExtUI::extruder_t extruder>
-    void PID_I(DGUS_VP &vp, void *data)
-    {
+    void PID_I(DGUS_VP &vp, void *data) {
       float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
       ExtUI::setPID(
         ExtUI::getPID_Kp(extruder),
@@ -86,8 +79,7 @@ namespace DGUSRxHandler {
       );
     }
     template <ExtUI::extruder_t extruder>
-    void PID_D(DGUS_VP &vp, void *data)
-    {
+    void PID_D(DGUS_VP &vp, void *data) {
       float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
       ExtUI::setPID(
         ExtUI::getPID_Kp(extruder),
@@ -102,7 +94,7 @@ namespace DGUSRxHandler {
     void Bed_PID_P(DGUS_VP &vp, void *data);
     void Bed_PID_I(DGUS_VP &vp, void *data);
     void Bed_PID_D(DGUS_VP &vp, void *data);
-  #endif // PIDTEMPBED
+  #endif
 
   void Control_SetFanSpeed(DGUS_VP &vp, void *data);
   void SDCard_FileSelection(DGUS_VP &vp, void *data);

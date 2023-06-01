@@ -22,10 +22,10 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#define DGUS_E3S1PRO_BASIC_SDCARD_MAX_FILES	20
-#define DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE	5
+#define DGUS_E3S1PRO_BASIC_SDCARD_MAX_FILES      20
+#define DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE  5
 
-#if DGUS_LCD_UI_E3S1PRO && !defined(DGUS_ADVANCED_SDCARD)
+#if ENABLED(DGUS_LCD_UI_E3S1PRO) && DISABLED(DGUS_ADVANCED_SDCARD)
 
 #include "DGUSSDCardHandler.h"
 #include "DGUSScreenHandler.h"
@@ -35,119 +35,109 @@ static DGUS_SDCardHandler::page_t currentPage = DGUS_SDCardHandler::page_t::PAGE
 static size_t fileCount = 0;
 static ExtUI::FileList fileList = ExtUI::FileList();
 
-void DGUS_SDCardHandler::Reset()
-{
-	currentPage = DGUS_SDCardHandler::page_t::PAGE_1;
+void DGUS_SDCardHandler::Reset() {
+  currentPage = DGUS_SDCardHandler::page_t::PAGE_1;
 
-	while (!fileList.isAtRootDir())
-		fileList.upDir();
+  while (!fileList.isAtRootDir())
+    fileList.upDir();
 
-	fileCount = 0;
-	uint16_t currentSeekPos = 0;
-	uint16_t entriesCount = fileList.count();
-	while (currentSeekPos < entriesCount
-		&& fileCount < DGUS_E3S1PRO_BASIC_SDCARD_MAX_FILES
-		&& fileList.seek(currentSeekPos, true))
-	{
-		if (!fileList.isDir())
-			fileCount++;
-		currentSeekPos++;
-	}
+  fileCount = 0;
+  uint16_t currentSeekPos = 0;
+  uint16_t entriesCount = fileList.count();
+  while (currentSeekPos < entriesCount
+    && fileCount < DGUS_E3S1PRO_BASIC_SDCARD_MAX_FILES
+    && fileList.seek(currentSeekPos, true)
+  ) {
+    if (!fileList.isDir()) fileCount++;
+    currentSeekPos++;
+  }
 
   #ifdef DEBUG_DGUSLCD
-	DEBUG_ECHO("Reset() :");
-	DEBUG_DECIMAL(fileCount);
-	DEBUG_ECHO("/");
-	DEBUG_DECIMAL(currentSeekPos);
-	DEBUG_EOL();
-	#endif
-}
-
-void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page)
-{
-	SetFilename(file_t::FILE_1, NULL);
-	SetFilename(file_t::FILE_2, NULL);
-	SetFilename(file_t::FILE_3, NULL);
-	SetFilename(file_t::FILE_4, NULL);
-	SetFilename(file_t::FILE_5, NULL);
-
-	uint8_t pageIndex = DGUS_PAGE_TO_INDEX(page);
-	uint16_t currentFilePos = 0;
-	uint16_t currentSeekPos = 0;
-	uint16_t entriesCount = fileList.count();
-
-  #ifdef DEBUG_DGUSLCD
-  DEBUG_ECHO("onPageLoad(): seek page ");
-	DEBUG_DECIMAL(pageIndex);
-  DEBUG_EOL();
+    DEBUG_ECHOPGM("Reset() :");
+    DEBUG_DECIMAL(fileCount);
+    DEBUG_ECHOPGM("/");
+    DEBUG_DECIMAL(currentSeekPos);
+    DEBUG_EOL();
   #endif
-	while (currentFilePos < pageIndex * DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE
-		&& fileList.seek(currentSeekPos, true)
-		&& currentSeekPos < entriesCount)
-	{
-		++currentSeekPos;
-		if (!fileList.isDir())
-			currentFilePos++;
-	}
+}
 
+void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page) {
+  SetFilename(file_t::FILE_1, NULL);
+  SetFilename(file_t::FILE_2, NULL);
+  SetFilename(file_t::FILE_3, NULL);
+  SetFilename(file_t::FILE_4, NULL);
+  SetFilename(file_t::FILE_5, NULL);
+
+  uint8_t pageIndex = DGUS_PAGE_TO_INDEX(page);
+  uint16_t currentFilePos = 0;
+  uint16_t currentSeekPos = 0;
+  uint16_t entriesCount = fileList.count();
 
   #ifdef DEBUG_DGUSLCD
-	DEBUG_ECHO("onPageLoad() :");
-	DEBUG_DECIMAL(currentFilePos);
-	DEBUG_ECHO("/");
-	DEBUG_DECIMAL(currentSeekPos-1);
-	DEBUG_EOL();
-	#endif
+    DEBUG_ECHOPGM("onPageLoad(): seek page ");
+    DEBUG_DECIMAL(pageIndex);
+    DEBUG_EOL();
+  #endif
+  while (currentFilePos < pageIndex * DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE
+    && fileList.seek(currentSeekPos, true)
+    && currentSeekPos < entriesCount
+  ) {
+    ++currentSeekPos;
+    if (!fileList.isDir())
+      currentFilePos++;
+  }
 
-	file_t currentFile = file_t::FILE_1;
-	while (currentFilePos < (pageIndex+1) * DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE
-		&& fileList.seek(currentSeekPos, true)
-		&& currentSeekPos < entriesCount)
-	{
-		++currentSeekPos;
-		if (!fileList.isDir())
-		{
-			++currentFilePos;
-			SetFilename(currentFile, fileList.longFilename());
-			currentFile = DGUS_FILE_FROM_INDEX(DGUS_FILE_TO_INDEX(currentFile) + 1);
-		}
-	}
+  #ifdef DEBUG_DGUSLCD
+    DEBUG_ECHOPGM("onPageLoad() :");
+    DEBUG_DECIMAL(currentFilePos);
+    DEBUG_ECHOPGM("/");
+    DEBUG_DECIMAL(currentSeekPos-1);
+    DEBUG_EOL();
+  #endif
+
+  file_t currentFile = file_t::FILE_1;
+  while (currentFilePos < (pageIndex+1) * DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE
+    && fileList.seek(currentSeekPos, true)
+    && currentSeekPos < entriesCount
+  ) {
+    ++currentSeekPos;
+    if (!fileList.isDir()) {
+      ++currentFilePos;
+      SetFilename(currentFile, fileList.longFilename());
+      currentFile = DGUS_FILE_FROM_INDEX(DGUS_FILE_TO_INDEX(currentFile) + 1);
+    }
+  }
 }
 
-bool DGUS_SDCardHandler::onFileSelect(DGUS_SDCardHandler::file_t file)
-{
-	uint8_t fileIndex = DGUS_FILE_TO_INDEX(file);
-	if (!filenames[fileIndex][0])
-		return false;
+bool DGUS_SDCardHandler::onFileSelect(DGUS_SDCardHandler::file_t file) {
+  uint8_t fileIndex = DGUS_FILE_TO_INDEX(file);
+  if (!filenames[fileIndex][0])
+    return false;
 
-	dgus_screen_handler.StartPrintFromSD(filenames[fileIndex]);
-	return true;
+  dgus_screen_handler.StartPrintFromSD(filenames[fileIndex]);
+  return true;
 }
 
-DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onFirstPage()
-{
-	currentPage = DGUS_SDCardHandler::page_t::PAGE_1;
-	return currentPage;
+DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onFirstPage() {
+  currentPage = DGUS_SDCardHandler::page_t::PAGE_1;
+  return currentPage;
 }
 
-DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onLastPage()
-{
-	currentPage = DGUS_PAGE_FROM_INDEX(fileCount / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE);
-	return currentPage;
+DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onLastPage() {
+  currentPage = DGUS_PAGE_FROM_INDEX(fileCount / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE);
+  return currentPage;
 }
 
-DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onPreviousPage()
-{
-	if (currentPage > page_t::PAGE_1)
-		currentPage = DGUS_PAGE_FROM_INDEX(DGUS_PAGE_TO_INDEX(currentPage) - 1);
-	return currentPage;
+DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onPreviousPage() {
+  if (currentPage > page_t::PAGE_1)
+    currentPage = DGUS_PAGE_FROM_INDEX(DGUS_PAGE_TO_INDEX(currentPage) - 1);
+  return currentPage;
 }
 
-DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onNextPage()
-{
-	if (DGUS_PAGE_TO_INDEX(currentPage) < (fileCount / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE) - 1)
-		currentPage = DGUS_PAGE_FROM_INDEX(DGUS_PAGE_TO_INDEX(currentPage) + 1);
-	return currentPage;
+DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onNextPage() {
+  if (DGUS_PAGE_TO_INDEX(currentPage) < (fileCount / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE) - 1)
+    currentPage = DGUS_PAGE_FROM_INDEX(DGUS_PAGE_TO_INDEX(currentPage) + 1);
+  return currentPage;
 }
 
 #endif // DGUS_LCD_UI_E3S1PRO && !DGUS_ADVANCED_SDCARD

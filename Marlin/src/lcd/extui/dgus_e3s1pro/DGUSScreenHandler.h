@@ -67,7 +67,7 @@ private:
 
   static const char* sdPrintFilename;
 
-  #ifdef DGUS_SOFTWARE_AUTOSCROLL
+  #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
     static ssize_t currentScrollIndex;
     static size_t pageMaxStringLen;
     static size_t pageMaxControlLen;
@@ -105,7 +105,7 @@ public:
   static void PrintTimerStopped();
   static void filamentRunout(const ExtUI::extruder_t extruder);
 
-  #ifdef DGUS_SOFTWARE_AUTOSCROLL
+  #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
     static ssize_t GetScrollIndex();
     static void AddCurrentPageStringLength(size_t stringLength, size_t textControlLength);
   #endif

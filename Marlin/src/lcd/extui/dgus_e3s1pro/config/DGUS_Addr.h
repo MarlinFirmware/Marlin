@@ -26,6 +26,7 @@
 #define DGUS_INFOSTRING_LEN         16 // 20 in the firmware, but really only shows 16 characters
 
 enum class DGUS_Addr : uint16_t {
+  END                       = 0,
   BOOT_Logo                 = 0x1000,
   CMD_MenuSelect            = 0x1002, // r, int, DGUS_Data::MenuSelectCommand
   CMD_Adjust                = 0x1004, // r, int, DGUS_Data::AdjustCommand

@@ -22,18 +22,16 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "DGUSSetupHandler.h"
 
 #include "DGUSDisplay.h"
 #include "DGUSScreenHandler.h"
 
-bool DGUSSetupHandler::SDCardPrepare()
-{
+bool DGUSSetupHandler::SDCardPrepare() {
   #if ENABLED(DGUS_USERCONFIRM)
-    if (dgus_screen_handler.IsOnUserConfirmationScreen())
-    {
+    if (dgus_screen_handler.IsOnUserConfirmationScreen()) {
       // Only allow the fifth line used as the confirm button to be clicked
       dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
       dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
@@ -50,8 +48,7 @@ bool DGUSSetupHandler::SDCardPrepare()
 
       return true; // skip the file update
     }
-    else
-    {
+    else {
       dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
       dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
       dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);

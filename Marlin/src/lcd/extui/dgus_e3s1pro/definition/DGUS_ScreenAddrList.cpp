@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "DGUS_ScreenAddrList.h"
 
@@ -30,7 +30,7 @@
 
 constexpr DGUS_Addr LIST_BOOT[] PROGMEM = {
   DGUS_Addr::BOOT_Logo,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
@@ -52,35 +52,35 @@ constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
   DGUS_Addr::MENU_Icon_Ready,
   DGUS_Addr::MENU_Icon_Settings,
   DGUS_Addr::FINISH_Icon_Finished,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_RUNOUT[] PROGMEM = {
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RUNOUT_Icon_Stop,
   DGUS_Addr::RUNOUT_Icon_Message,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_FILAMENTLOAD[] PROGMEM = {
   DGUS_Addr::LOAD_Icon_Continue,
   DGUS_Addr::RESET_Icon_No,
   DGUS_Addr::LOAD_Icon_Message,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PAUSE_STOP[] PROGMEM = {
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
   DGUS_Addr::PAUSE_Icon_Message,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_CONTINUE_STOP[] PROGMEM = {
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
   DGUS_Addr::RESUME_Icon_Message,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_MOVEAXIS[] PROGMEM = {
@@ -95,7 +95,7 @@ constexpr DGUS_Addr LIST_MOVEAXIS[] PROGMEM = {
   DGUS_Addr::AXIS_Icon_MoveAxis,
   DGUS_Addr::AXIS_Icon_IO,
   DGUS_Addr::AXIS_Icon_Manual,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_IO[] PROGMEM = {
@@ -108,7 +108,7 @@ constexpr DGUS_Addr LIST_IO[] PROGMEM = {
   DGUS_Addr::MENU_Icon_Print_S,
   DGUS_Addr::MENU_Icon_Ready_S,
   DGUS_Addr::MENU_Icon_Settings,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_CONTROL[] PROGMEM = {
@@ -128,7 +128,7 @@ constexpr DGUS_Addr LIST_CONTROL[] PROGMEM = {
   DGUS_Addr::MENU_Icon_Print_S,
   DGUS_Addr::MENU_Icon_Ready_S,
   DGUS_Addr::MENU_Icon_Settings,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 
@@ -143,22 +143,22 @@ constexpr DGUS_Addr LIST_ADJUST[] PROGMEM = {
   DGUS_Addr::MAIN_BedTargetTemp,
   DGUS_Addr::MAIN_PrintSpeedPercentage,
   DGUS_Addr::CONTROL_FanSpeed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_ADJUST_ZOFFSET[] PROGMEM = {
   DGUS_Addr::MAIN_ZOffset,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_AUTOHOME[] PROGMEM = {
   DGUS_Addr::AUTOHOME_Icon_WaitMessage,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_ABNORMAL[] PROGMEM = {
   DGUS_Addr::ABNORMAL_StatusMessage,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_SETTINGS[] PROGMEM = {
@@ -173,7 +173,7 @@ constexpr DGUS_Addr LIST_SETTINGS[] PROGMEM = {
   DGUS_Addr::SETTINGS_Icon_About,
   DGUS_Addr::SETTINGS_Icon_PLA,
   DGUS_Addr::SETTINGS_Icon_ABS,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_TEMPERATURE_PRESETS[] PROGMEM = {
@@ -185,7 +185,7 @@ constexpr DGUS_Addr LIST_TEMPERATURE_PRESETS[] PROGMEM = {
   DGUS_Addr::TEMP_PLA_BedTemp,
   DGUS_Addr::TEMP_ABS_ExtruderTemp,
   DGUS_Addr::TEMP_ABS_BedTemp,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_TRAMMING[] PROGMEM = {
@@ -193,7 +193,7 @@ constexpr DGUS_Addr LIST_TRAMMING[] PROGMEM = {
   DGUS_Addr::LEVELING_Icon_AutoLevel,
   DGUS_Addr::LEVELING_Icon_AuxLevel_S,
   DGUS_Addr::MAIN_ZOffset,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_AUTOLEVEL[] PROGMEM = {
@@ -203,7 +203,7 @@ constexpr DGUS_Addr LIST_AUTOLEVEL[] PROGMEM = {
   DGUS_Addr::LEVELING_Icon_AuxLevel,
   DGUS_Addr::LEVELING_Progress_Icon,
   DGUS_Addr::LEVELING_Progress,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_LANGUAGE[] PROGMEM = {
@@ -217,7 +217,7 @@ constexpr DGUS_Addr LIST_LANGUAGE[] PROGMEM = {
   DGUS_Addr::LANGUAGE_Icon_Portuguese,
   DGUS_Addr::LANGUAGE_Icon_Russian,
   DGUS_Addr::LANGUAGE_Icon_Turkish,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_INFO[] PROGMEM = {
@@ -240,7 +240,7 @@ constexpr DGUS_Addr LIST_INFO[] PROGMEM = {
   DGUS_Addr::INFO_HW_Version,
   DGUS_Addr::INFO_Print_Size,
   DGUS_Addr::INFO_Website,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_ADV_SETTINGS[] PROGMEM = {
@@ -255,7 +255,7 @@ constexpr DGUS_Addr LIST_ADV_SETTINGS[] PROGMEM = {
   DGUS_Addr::ADV_Icon_ResetSettings,
   DGUS_Addr::ADV_Icon_PID,
   DGUS_Addr::ADV_Icon_SwitchToLaser,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_MOTION[] PROGMEM = {
@@ -264,7 +264,7 @@ constexpr DGUS_Addr LIST_MOTION[] PROGMEM = {
   DGUS_Addr::ADV_Icon_Acceleration,
   DGUS_Addr::ADV_Icon_Jerk,
   DGUS_Addr::ADV_Icon_StepsPerMm,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_MAX_FEEDRATE[] PROGMEM = {
@@ -277,7 +277,7 @@ constexpr DGUS_Addr LIST_MAX_FEEDRATE[] PROGMEM = {
   DGUS_Addr::MOTION_MaxSpeed_Y,
   DGUS_Addr::MOTION_MaxSpeed_Z,
   DGUS_Addr::MOTION_MaxSpeed_E,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_ACCELERATION[] PROGMEM = {
@@ -291,7 +291,7 @@ constexpr DGUS_Addr LIST_ACCELERATION[] PROGMEM = {
   DGUS_Addr::MOTION_Acceleration_Z,
   DGUS_Addr::MOTION_Acceleration_E,
 
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_JERK[] PROGMEM = {
@@ -304,7 +304,7 @@ constexpr DGUS_Addr LIST_JERK[] PROGMEM = {
   DGUS_Addr::MOTION_MaxJerk_Y,
   DGUS_Addr::MOTION_MaxJerk_Z,
   DGUS_Addr::MOTION_MaxJerk_E,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_STEPSMM[] PROGMEM = {
@@ -317,7 +317,7 @@ constexpr DGUS_Addr LIST_STEPSMM[] PROGMEM = {
   DGUS_Addr::MOTION_StepsPerMm_Y,
   DGUS_Addr::MOTION_StepsPerMm_Z,
   DGUS_Addr::MOTION_StepsPerMm_E,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PIDCONTROL[] PROGMEM = {
@@ -334,35 +334,35 @@ constexpr DGUS_Addr LIST_PIDCONTROL[] PROGMEM = {
   DGUS_Addr::PID_Bed_P,
   DGUS_Addr::PID_Bed_I,
   DGUS_Addr::PID_Bed_D,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_RESET_CONFIRM[] PROGMEM = {
   DGUS_Addr::RESET_Icon_InfoMessage,
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_FILAMENTCHECK[] PROGMEM = {
   DGUS_Addr::FILAMENT_Icon_Inserted,
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_SDCARDCHECK[] PROGMEM = {
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
   DGUS_Addr::SDCard_InsertionStatus,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PRINTMODE[] PROGMEM = {
   DGUS_Addr::PRTMODE_Icon_Message,
   DGUS_Addr::PRTMODE_Icon_FDM,
   DGUS_Addr::PRTMODE_Icon_Cutter,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PRINTMODE_CONFIRM[] PROGMEM = {
@@ -370,7 +370,7 @@ constexpr DGUS_Addr LIST_PRINTMODE_CONFIRM[] PROGMEM = {
   DGUS_Addr::FDM_Icon_Message,
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RESET_Icon_No,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_SDCARD[] PROGMEM = {
@@ -418,7 +418,7 @@ constexpr DGUS_Addr LIST_SDCARD[] PROGMEM = {
   DGUS_Addr::SDCARD_Selection_File18,
   DGUS_Addr::SDCARD_Selection_File19,
   DGUS_Addr::SDCARD_Selection_File20,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 #define MAP_HELPER(SCREEN, LIST) \

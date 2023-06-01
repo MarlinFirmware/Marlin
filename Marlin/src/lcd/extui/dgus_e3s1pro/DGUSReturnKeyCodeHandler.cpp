@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "DGUSReturnKeyCodeHandler.h"
 
@@ -48,11 +48,9 @@ static uint16_t plaBedTempSave = 0;
 static uint16_t absExtruderTempSave = 0;
 static uint16_t absBedTempSave = 0;
 
-static DGUS_Screen GetJogScreenForSavedJogLength()
-{
+static DGUS_Screen GetJogScreenForSavedJogLength() {
   DGUS_Screen jogscreen = DGUS_Screen::MOVEAXIS_10;
-  switch (dgus_screen_handler.config.jogLength)
-  {
+  switch (dgus_screen_handler.config.jogLength) {
     case DGUS_Data::AxisControlCommand::Jog_10mm:
       jogscreen = DGUS_Screen::MOVEAXIS_10;
       break;
@@ -70,19 +68,16 @@ static DGUS_Screen GetJogScreenForSavedJogLength()
 }
 
 // 1002
-void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
   DGUS_Data::MenuSelectCommand submenu = (DGUS_Data::MenuSelectCommand)BE16_P(data);
 
-  switch (submenu)
-  {
+  switch (submenu) {
     case DGUS_Data::MenuSelectCommand::Main:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MAIN);
       break;
 
     case DGUS_Data::MenuSelectCommand::Print:
-      if (ExtUI::isMediaInserted())
-      {
+      if (ExtUI::isMediaInserted()) {
         dgus_sdcard_handler.Reset();
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILE1);
       }
@@ -90,15 +85,13 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
         dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::SDCARDCHECK, dgus_screen_handler.GetCurrentScreen());
       break;
 
-    case DGUS_Data::MenuSelectCommand::Ready:
-      {
-        DGUS_Screen jogscreen = GetJogScreenForSavedJogLength();
-        if (ExtUI::isPositionKnown())
-          dgus_screen_handler.TriggerScreenChange(jogscreen);
-        else
-          dgus_screen_handler.HomeThenChangeScreen(jogscreen);
-      }
-      break;
+    case DGUS_Data::MenuSelectCommand::Ready: {
+      DGUS_Screen jogscreen = GetJogScreenForSavedJogLength();
+      if (ExtUI::isPositionKnown())
+        dgus_screen_handler.TriggerScreenChange(jogscreen);
+      else
+        dgus_screen_handler.HomeThenChangeScreen(jogscreen);
+    } break;
 
     case DGUS_Data::MenuSelectCommand::Settings:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
@@ -106,17 +99,9 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
 
     case DGUS_Data::MenuSelectCommand::StartAutoLevel:
       if (!ExtUI::isPositionKnown())
-      {
         dgus_screen_handler.HomeThenChangeScreen(dgus_screen_handler.GetCurrentScreen());
-      }
 
-      ExtUI::injectCommands(F("M420 S0"));
-
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ExtUI::injectCommands(F("G29 P1"));
-      #else
-        ExtUI::injectCommands(F("G29"));
-      #endif
+      ExtUI::injectCommands(F("M420 S0\n" TERN(AUTO_BED_LEVELING_UBL, "G29 P1", "G29")));
       break;
 
     case DGUS_Data::MenuSelectCommand::PrintFinished:
@@ -133,20 +118,18 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_MenuSelect: unknown id "); DEBUG_DECIMAL((uint16_t)submenu);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_MenuSelect: unknown id "); DEBUG_DECIMAL((uint16_t)submenu);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1004
-void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
   DGUS_Data::AdjustCommand command = (DGUS_Data::AdjustCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::AdjustCommand::Show_Adjust:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ADJUST);
       break;
@@ -165,30 +148,28 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_Adjust: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_Adjust: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1008
-void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
   DGUS_Data::CheckKOCommand command = (DGUS_Data::CheckKOCommand)BE16_P(data);
 
   if (command != DGUS_Data::CheckKOCommand::KO
-    && command != DGUS_Data::CheckKOCommand::SDCard_No)
-  {
+    && command != DGUS_Data::CheckKOCommand::SDCard_No
+  ) {
     #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHO("Command_CheckKO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-    DEBUG_EOL();
+      DEBUG_ECHOPGM("Command_CheckKO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+      DEBUG_EOL();
     #endif
     return;
   }
 
-  switch (dgus_screen_handler.GetCurrentScreen())
-  {
+  switch (dgus_screen_handler.GetCurrentScreen()) {
     case DGUS_Screen::CONTINUE_STOP:
     case DGUS_Screen::STOP_CONFIRM:
     case DGUS_Screen::PAUSE_STOP:
@@ -204,8 +185,8 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_CheckKO: unknown src screen "); DEBUG_DECIMAL((uint8_t)dgus_screen_handler.GetCurrentScreen());
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_CheckKO: unknown src screen "); DEBUG_DECIMAL((uint8_t)dgus_screen_handler.GetCurrentScreen());
+        DEBUG_EOL();
       #endif
       return;
   }
@@ -214,12 +195,10 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data)
 }
 
 // 100A
-void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
   DGUS_Data::StopPauseCommand command = (DGUS_Data::StopPauseCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::StopPauseCommand::Pause:
       ExtUI::pausePrint();
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::RESUME);
@@ -227,20 +206,18 @@ void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_StopPause: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_StopPause: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 100C
-void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
   DGUS_Data::CheckOKCommand command = (DGUS_Data::CheckOKCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::CheckOKCommand::ContinueStop_Continue:
       ExtUI::resumePrint();
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PAUSE);
@@ -260,16 +237,14 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data)
       case DGUS_Data::CheckOKCommand::FilamentLoad_Yes:
         if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
           dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILAMENTLOAD);
-        else
-        {
+        else {
           ExtUI::resumePrint();
         }
         break;
     #endif // HAS_FILAMENT_SENSOR
 
     case DGUS_Data::CheckOKCommand::SDCardCheck_Yes:
-      if (ExtUI::isMediaInserted())
-      {
+      if (ExtUI::isMediaInserted()) {
         dgus_sdcard_handler.Reset();
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILE1);
       }
@@ -277,66 +252,62 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_CheckOK: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_CheckOK: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1030
-void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data)
-{
-	DGUS_Data::PresetControlCommand command = (DGUS_Data::PresetControlCommand)BE16_P(data);
+void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
+  DGUS_Data::PresetControlCommand command = (DGUS_Data::PresetControlCommand)BE16_P(data);
 
-	switch (command)
-	{
-		case DGUS_Data::PresetControlCommand::Show_Ready_Manual:
-			dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL);
-			break;
+  switch (command) {
+    case DGUS_Data::PresetControlCommand::Show_Ready_Manual:
+      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL);
+      break;
 
-		case DGUS_Data::PresetControlCommand::Show_Settings_PLA_Settings:
-			plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
-			plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
-			absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
-			absBedTempSave = dgus_screen_handler.config.absBedTemp;
-			dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PLA_TEMP);
-			break;
+    case DGUS_Data::PresetControlCommand::Show_Settings_PLA_Settings:
+      plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
+      plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
+      absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
+      absBedTempSave = dgus_screen_handler.config.absBedTemp;
+      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PLA_TEMP);
+      break;
 
-		case DGUS_Data::PresetControlCommand::Show_Settings_ABS_Settings:
-			plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
-			plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
-			absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
-			absBedTempSave = dgus_screen_handler.config.absBedTemp;
-			dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ABS_TEMP);
-			break;
+    case DGUS_Data::PresetControlCommand::Show_Settings_ABS_Settings:
+      plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
+      plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
+      absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
+      absBedTempSave = dgus_screen_handler.config.absBedTemp;
+      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ABS_TEMP);
+      break;
 
-		case DGUS_Data::PresetControlCommand::Apply_PLA_Settings:
-			ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaExtruderTemp, ExtUI::E0);
-			ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaBedTemp, ExtUI::BED);
-			break;
+    case DGUS_Data::PresetControlCommand::Apply_PLA_Settings:
+      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaExtruderTemp, ExtUI::E0);
+      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaBedTemp, ExtUI::BED);
+      break;
 
-		case DGUS_Data::PresetControlCommand::Apply_ABS_Settings:
-			ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absExtruderTemp, ExtUI::E0);
-			ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absBedTemp, ExtUI::BED);
-			break;
+    case DGUS_Data::PresetControlCommand::Apply_ABS_Settings:
+      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absExtruderTemp, ExtUI::E0);
+      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absBedTemp, ExtUI::BED);
+      break;
 
-		default:
-			#ifdef DEBUG_DGUSLCD
-			DEBUG_ECHO("Settings_Submenu: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-			DEBUG_EOL();
-			#endif
-			break;
-	}
+    default:
+      #ifdef DEBUG_DGUSLCD
+        DEBUG_ECHOPGM("Settings_Submenu: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
+      #endif
+      break;
+  }
 }
 
 // 1032
-void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *data) {
   DGUS_Data::TemperatureControlCommand command = (DGUS_Data::TemperatureControlCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::TemperatureControlCommand::Cooldown:
       ExtUI::coolDown();
       break;
@@ -351,29 +322,25 @@ void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *dat
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Control_TemperatureCommand: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Control_TemperatureCommand: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 103E
-void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
   DGUS_Data::SettingsMenuCommand command = (DGUS_Data::SettingsMenuCommand)BE16_P(data);
 
-  switch (command)
-  {
-    case DGUS_Data::SettingsMenuCommand::DisableStepperMotors:
-      {
-        const bool areSteppersEnabled = stepper.axis_enabled.bits & (_BV(NUM_AXES) - 1);
-        if (areSteppersEnabled)
-          stepper.disable_all_steppers();
-        else
-          stepper.enable_all_steppers();
-      }
-      break;
+  switch (command) {
+    case DGUS_Data::SettingsMenuCommand::DisableStepperMotors: {
+      const bool areSteppersEnabled = stepper.axis_enabled.bits & (_BV(NUM_AXES) - 1);
+      if (areSteppersEnabled)
+        stepper.disable_all_steppers();
+      else
+        stepper.enable_all_steppers();
+    } break;
 
     case DGUS_Data::SettingsMenuCommand::Reset_All_Settings:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FACTORYRESET_CONFIRM);
@@ -416,26 +383,25 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data)
       break;
 
     case DGUS_Data::SettingsMenuCommand::Exit_Settings_Tramming:
-			dgus_screen_handler.TriggerEEPROMSave();
+      dgus_screen_handler.TriggerEEPROMSave();
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Exit_Settings_Leveling:
-			dgus_screen_handler.TriggerEEPROMSave();
+      dgus_screen_handler.TriggerEEPROMSave();
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_SettingsMenu: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_SettingsMenu: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
-static void _GotoTrammingPoint(unsigned char point)
-{
+static void _GotoTrammingPoint(unsigned char point) {
   constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   float x, y;
 
@@ -473,12 +439,10 @@ static void _GotoTrammingPoint(unsigned char point)
 }
 
 // 1044
-void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
   DGUS_Data::LevelingCommand command = (DGUS_Data::LevelingCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::LevelingCommand::Show_AuxLeveling:
       if (ExtUI::isPositionKnown())
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LEVELINGMODE);
@@ -512,20 +476,18 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_Leveling: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_Leveling: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1046
-void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
   DGUS_Data::AxisControlCommand control = (DGUS_Data::AxisControlCommand)BE16_P(data);
 
-  switch (control)
-  {
+  switch (control) {
     case DGUS_Data::AxisControlCommand::Jog_10mm:
     case DGUS_Data::AxisControlCommand::Jog_1mm:
     case DGUS_Data::AxisControlCommand::Jog_0_1mm:
@@ -542,40 +504,36 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_AxisControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_AxisControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1056
-void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
   DGUS_Data::AxisIoCommand command = (DGUS_Data::AxisIoCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::AxisIoCommand::Show_Ready_IO:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FEEDRETURN);
       break;
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_AxisIO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_AxisIO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 1098
-void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data) {
   DGUS_Data::AdvancedSettingsCommand command = (DGUS_Data::AdvancedSettingsCommand)BE16_P(data);
 
-  switch (command)
-  {
+  switch (command) {
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MOTION);
     break;
@@ -614,24 +572,21 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_AdvancedSettings: unknown id "); DEBUG_DECIMAL((uint16_t)command);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_AdvancedSettings: unknown id "); DEBUG_DECIMAL((uint16_t)command);
+        DEBUG_EOL();
       #endif
       break;
   }
 }
 
 // 2198
-void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) {
   DGUS_Data::FilelistControlCommand control = (DGUS_Data::FilelistControlCommand)BE16_P(data);
   DGUS_SDCardHandler::page_t newPage;
 
-  switch (control)
-  {
+  switch (control) {
     case DGUS_Data::FilelistControlCommand::Start_Print:
-      if (!dgus_screen_handler.GetSDCardPrintFilename()[0])
-      {
+      if (!dgus_screen_handler.GetSDCardPrintFilename()[0]) {
         dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
       }
 
@@ -663,8 +618,8 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_FilelistControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_FilelistControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
+        DEBUG_EOL();
       #endif
       return;
   }
@@ -673,12 +628,10 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data)
 }
 
 // 2201
-void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data)
-{
+void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data) {
   DGUS_Data::LaserControlCommand control = (DGUS_Data::LaserControlCommand)BE16_P(data);
 
-  switch (control)
-  {
+  switch (control) {
     case DGUS_Data::LaserControlCommand::Mode_FDM:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_FDM_TIPS);
       break;
@@ -705,8 +658,8 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHO("Command_LaserControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
-      DEBUG_EOL();
+        DEBUG_ECHOPGM("Command_LaserControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
+        DEBUG_EOL();
       #endif
       return;
   }

@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "DGUSDisplay.h"
 
@@ -73,9 +73,7 @@ void DGUSDisplay::Write(uint16_t addr, const void* data_ptr, uint8_t size) {
 
   const char* data = static_cast<const char*>(data_ptr);
 
-  while (size--) {
-    LCD_SERIAL.write(*data++);
-  }
+  while (size--) LCD_SERIAL.write(*data++);
 }
 
 void DGUSDisplay::WriteString(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
@@ -92,30 +90,25 @@ void DGUSDisplay::WriteString(uint16_t addr, const void* data_ptr, uint8_t size,
     if (!len) {
       right_spaces = size;
     }
-    else if ((left && right) || (!left && !right)) {
-      left_spaces = (size - len) / 2;
-      right_spaces = size - len - left_spaces;
-    }
-    else if (left) {
-      right_spaces = size - len;
-    }
     else {
-      left_spaces = size - len;
+      const uint8_t rem = size - len;
+      if ((left && right) || (!left && !right)) {
+        left_spaces = rem / 2;
+        right_spaces = rem - left_spaces;
+      }
+      else if (left)
+        right_spaces = rem;
+      else
+        left_spaces = rem;
     }
   }
   else {
     len = size;
   }
 
-  while (left_spaces--) {
-    LCD_SERIAL.write(' ');
-  }
-  while (len--) {
-    LCD_SERIAL.write(*data++);
-  }
-  while (right_spaces--) {
-    LCD_SERIAL.write(use_space ? ' ' : '\0');
-  }
+  while (left_spaces--)  LCD_SERIAL.write(' ');
+  while (len--)          LCD_SERIAL.write(*data++);
+  while (right_spaces--) LCD_SERIAL.write(use_space ? ' ' : '\0');
 }
 
 void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
@@ -257,13 +250,15 @@ void DGUSDisplay::ProcessRx() {
           break;
         }
 
-        /* AutoUpload, (and answer to) Command 0x83 :
-        |      tmp[0  1  2  3  4 ... ]
-        | Example 5A A5 06 83 20 01 01 78 01 ……
-        |          / /  |  |   \ /   |  \     \
-        |        Header |  |    |    |   \_____\_ DATA (Words!)
-        |     DatagramLen  /  VPAdr  |
-        |           Command          DataLen (in Words) */
+        /**
+         * AutoUpload, (and answer to) Command 0x83 :
+         *      tmp[0  1  2  3  4 ... ]
+         * Example 5A A5 06 83 20 01 01 78 01 ……
+         *          / /  |  |   \ /   |  \     \
+         *        Header |  |    |    |   \_____\_ DATA (Words!)
+         *     DatagramLen  /  VPAdr  |
+         *           Command          DataLen (in Words)
+         */
         if (command == DGUS_READVAR) {
           const uint16_t addr = tmp[0] << 8 | tmp[1];
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
@@ -272,17 +267,17 @@ void DGUSDisplay::ProcessRx() {
             os_version = tmp[4];
 
             #ifdef DEBUG_DGUSLCD
-            DEBUG_ECHO("DGUS version: GUI "); DEBUG_DECIMAL(gui_version);
-            DEBUG_ECHO("OS "); DEBUG_DECIMAL(os_version);
-            DEBUG_EOL();
+              DEBUG_ECHOPGM("DGUS version: GUI "); DEBUG_DECIMAL(gui_version);
+              DEBUG_ECHOPGM("OS "); DEBUG_DECIMAL(os_version);
+              DEBUG_EOL();
             #endif
             rx_datagram_state = DGUS_IDLE;
             break;
           }
 
           #ifdef DEBUG_DGUSLCD
-          DEBUG_ECHO("DGUS RX VP "); DEBUG_DECIMAL(addr);
-          DEBUG_EOL();
+            DEBUG_ECHOPGM("DGUS RX VP "); DEBUG_DECIMAL(addr);
+            DEBUG_EOL();
           #endif
 
           DGUS_VP vp;
@@ -339,8 +334,8 @@ void DGUSDisplay::ProcessRx() {
         }
 
         #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHO("DGUS unknown command "); DEBUG_DECIMAL(command);
-        DEBUG_EOL();
+          DEBUG_ECHOPGM("DGUS unknown command "); DEBUG_DECIMAL(command);
+          DEBUG_EOL();
         #endif
 
         rx_datagram_state = DGUS_IDLE;

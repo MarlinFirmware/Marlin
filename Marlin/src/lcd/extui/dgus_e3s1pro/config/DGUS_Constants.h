@@ -23,7 +23,7 @@
 
 #define DGUS_BED_SIZE_STR STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "mm"
 
-#ifdef DGUS_SOFTWARE_AUTOSCROLL
+#if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
   #ifndef DGUS_AUTOSCROLL_START_CYCLES
     // Additional refresh cycles where strings beginnings are shown
     #define DGUS_AUTOSCROLL_START_CYCLES 1

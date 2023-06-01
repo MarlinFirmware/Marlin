@@ -21,25 +21,19 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
+
 #include "../../../sd/cardreader.h"
-
-#if DGUS_LCD_UI_E3S1PRO
-
 #include "DGUSSDCardHandler.h"
 
-char DGUS_SDCardHandler::filenames[5][LONG_FILENAME_LENGTH] = {0,};
+char DGUS_SDCardHandler::filenames[5][LONG_FILENAME_LENGTH] = {0};
 
-void DGUS_SDCardHandler::SetFilename(file_t file, const char* filename, bool isDir)
-{
-	uint8_t fileIndex = DGUS_FILE_TO_INDEX(file);
-
-	filenames[fileIndex][0] = '\0';
-
-	if (filename)
-		strcat(filenames[fileIndex], filename);
-
-	if (isDir)
-		strcat(filenames[fileIndex], "/");
+void DGUS_SDCardHandler::SetFilename(file_t file, const char* filename, bool isDir) {
+  const uint8_t fileIndex = DGUS_FILE_TO_INDEX(file);
+  filenames[fileIndex][0] = '\0';
+  if (filename) strcat(filenames[fileIndex], filename);
+  if (isDir) strcat(filenames[fileIndex], "/");
 }
 
-#endif // HAS_MEDIA
+#endif // DGUS_LCD_UI_E3S1PRO

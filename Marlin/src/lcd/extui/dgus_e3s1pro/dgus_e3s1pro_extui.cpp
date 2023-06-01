@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_E3S1PRO
+#if ENABLED(DGUS_LCD_UI_E3S1PRO)
 
 #include "../ui_api.h"
 #include "DGUSScreenHandler.h"
