@@ -1043,7 +1043,7 @@ void RTS::handleData() {
         #if HAS_MESH
           sendData(getLevelingActive() ? 3 : 2, AutoLevelIcon);
 
-          if (ExtUI::getMeshValid()) {
+          if (ExtUI::getLevelingIsValid()) {
             uint8_t abl_probe_index = 0;
             for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
               for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
