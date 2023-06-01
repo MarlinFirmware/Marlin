@@ -29,6 +29,7 @@
 uint8_t ServoCount = 0;
 
 #include "Servo.h"
+#include <drivers/irqn/irqn.h>
 
 /* TIMERA unit and clock definition */
 #define TIMERA_UNIT1 M4_TMRA1
@@ -199,7 +200,9 @@ bool H32Servo::attach(const int32_t inPin, const int32_t inMinAngle, const int32
   TIMERA_IrqCmd(TIMERA_UNIT1, TimeraIrqOverflow, Enable);
   /* Interrupt of timera unit 1 */
   stcIrqRegiConf.enIntSrc = TIMERA_UNIT1_OVERFLOW_INT;
-  stcIrqRegiConf.enIRQn = Int006_IRQn;
+  IRQn_Type irqn;
+  irqn_aa_get(irqn, "servo irq");
+  stcIrqRegiConf.enIRQn = irqn;
   stcIrqRegiConf.pfnCallback = &TimeraUnit1_IrqCallback;
   enIrqRegistration(&stcIrqRegiConf);
   NVIC_ClearPendingIRQ(stcIrqRegiConf.enIRQn);

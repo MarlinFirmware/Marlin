@@ -1,8 +1,6 @@
 #include "timers.h"
-#include "hc32f460_clk.h"
-#include "hc32f460_pwc.h"
-#include "hc32f460_timer0.h"
-#include "hc32f460_interrupts.h"
+#include <hc32_ddl.h>
+#include <drivers/irqn/irqn.h>
 
 #define TMR_UNIT M4_TMR02
 
@@ -61,15 +59,18 @@ inline void setupTimerIRQ(const en_tim0_channel_t channel, const IRQn irq, const
 
 void HAL_timer_start(const timer_channel_t timer_num, const uint32_t frequency)
 {
+  IRQn_Type irqn;
   switch (timer_num)
   {
   case STEP_TIMER_NUM:
     setupTimer(STEP_TIMER_NUM, frequency, STEPPER_TIMER_PRESCALE);
-    setupTimerIRQ(STEP_TIMER_NUM, IRQn::Int000_IRQn, en_int_src_t::INT_TMR02_GCMB, DDL_IRQ_PRIORITY_01, &Step_Handler);
+    irqn_aa_get(irqn, "step timer interrupt");
+    setupTimerIRQ(STEP_TIMER_NUM, irqn, en_int_src_t::INT_TMR02_GCMB, DDL_IRQ_PRIORITY_01, &Step_Handler);
     break;
   case TEMP_TIMER_NUM:
     setupTimer(TEMP_TIMER_NUM, frequency, TEMP_TIMER_PRESCALE);
-    setupTimerIRQ(TEMP_TIMER_NUM, IRQn::Int001_IRQn, en_int_src_t::INT_TMR02_GCMA, DDL_IRQ_PRIORITY_02, &Temp_Handler);
+    irqn_aa_get(irqn, "temp timer interrupt");
+    setupTimerIRQ(TEMP_TIMER_NUM, irqn, en_int_src_t::INT_TMR02_GCMA, DDL_IRQ_PRIORITY_02, &Temp_Handler);
     break;
   }
 }
