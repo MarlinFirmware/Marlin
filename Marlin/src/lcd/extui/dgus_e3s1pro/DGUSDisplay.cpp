@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -164,7 +164,7 @@ void DGUSDisplay::SwitchScreen(DGUS_Screen screen) {
 void DGUSDisplay::PlaySound(uint8_t start, uint8_t len, uint8_t volume) {
   if (volume == 0) volume = DGUSDisplay::volume;
   else volume = map_precise(constrain(volume, 0, 100), 0, 100, 0, 0x40);
-  
+
   if (volume == 0) return;
   const uint8_t command[] = { start, len, volume, 0x00 };
   Write(0xA0, command, sizeof(command));
@@ -222,7 +222,6 @@ void DGUSDisplay::ProcessRx() {
   uint8_t receivedbyte;
   while (LCD_SERIAL.available()) {
     switch (rx_datagram_state) {
-
       case DGUS_IDLE: // Waiting for the first header byte
         receivedbyte = LCD_SERIAL.read();
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
@@ -271,7 +270,7 @@ void DGUSDisplay::ProcessRx() {
           if (addr == DGUS_VERSION && dlen == 2) {
             gui_version = tmp[3];
             os_version = tmp[4];
-            
+
             #ifdef DEBUG_DGUSLCD
             DEBUG_ECHO("DGUS version: GUI "); DEBUG_DECIMAL(gui_version);
             DEBUG_ECHO("OS "); DEBUG_DECIMAL(os_version);
@@ -343,7 +342,7 @@ void DGUSDisplay::ProcessRx() {
         DEBUG_ECHO("DGUS unknown command "); DEBUG_DECIMAL(command);
         DEBUG_EOL();
         #endif
-        
+
         rx_datagram_state = DGUS_IDLE;
         break;
     }
@@ -361,11 +360,7 @@ size_t DGUSDisplay::GetFreeTxBuffer() {
 }
 
 void DGUSDisplay::FlushTx() {
-  #ifdef ARDUINO_ARCH_STM32
-    LCD_SERIAL.flush();
-  #else
-    LCD_SERIAL.flushTX();
-  #endif
+  TERN(ARDUINO_ARCH_STM32, LCD_SERIAL.flush(), LCD_SERIAL.flushTX());
 }
 
 void DGUSDisplay::WriteHeader(uint16_t addr, uint8_t command, uint8_t len) {

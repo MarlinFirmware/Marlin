@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,7 +66,7 @@ bool DGUSSetupHandler::SDCardPrepare()
       dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
     }
   #endif
-  
+
   dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(dgus_screen_handler.GetCurrentScreen()));
   return true;
 }

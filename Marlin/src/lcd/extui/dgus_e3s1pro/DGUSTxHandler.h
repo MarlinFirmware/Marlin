@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -89,8 +89,8 @@ namespace DGUSTxHandler {
     void Bed_PID_P(DGUS_VP &vp);
     void Bed_PID_I(DGUS_VP &vp);
     void Bed_PID_D(DGUS_VP &vp);
-  #endif // PIDTEMPBED 
-  
+  #endif // PIDTEMPBED
+
   void PrintRemainingHours(DGUS_VP &);
   void PrintRemainingMinutes(DGUS_VP &);
   void PrintPercentage(DGUS_VP &);

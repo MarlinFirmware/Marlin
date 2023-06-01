@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -231,8 +231,8 @@ void DGUSTxHandler::ExtraToString(DGUS_VP &vp) {
     else
       stringStart += dgus_screen_handler.GetScrollIndex();
 
-    dgus_display.WriteString((uint16_t)vp.addr, 
-      stringStart, 
+    dgus_display.WriteString((uint16_t)vp.addr,
+      stringStart,
       vp.size, true, false, false);
   }
   else

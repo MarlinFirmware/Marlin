@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -85,23 +85,23 @@ const uint16_t DGUS_ZERO = 0;
   nullptr, DGUSTxHandler::ExtraToString)
 
 const struct DGUS_VP vp_list[] PROGMEM = {
-  VP_HELPER_TX_AUTO(  DGUS_Addr::BOOT_Logo, 
-                        nullptr, 
+  VP_HELPER_TX_AUTO(  DGUS_Addr::BOOT_Logo,
+                        nullptr,
                         &DGUSTxHandler::BootAnimation),
-  VP_HELPER_RX(       DGUS_Addr::CMD_MenuSelect, 
+  VP_HELPER_RX(       DGUS_Addr::CMD_MenuSelect,
                         &DGUSReturnKeyCodeHandler::Command_MenuSelect),
-  VP_HELPER_RX(       DGUS_Addr::CMD_Adjust, 
+  VP_HELPER_RX(       DGUS_Addr::CMD_Adjust,
                         &DGUSReturnKeyCodeHandler::Command_Adjust),
   VP_HELPER_WORD(     DGUS_Addr::MAIN_PrintSpeedPercentage,
                         VPFLAG_AUTOUPLOAD,
                         nullptr,
                         &DGUSRxHandler::PrintSpeedPercentage,
                         &DGUSTxHandler::PrintSpeedPercentage),
-  VP_HELPER_RX(       DGUS_Addr::CMD_CheckKO, 
+  VP_HELPER_RX(       DGUS_Addr::CMD_CheckKO,
                         &DGUSReturnKeyCodeHandler::Command_CheckKO),
-  VP_HELPER_RX(       DGUS_Addr::CMD_StopPause, 
+  VP_HELPER_RX(       DGUS_Addr::CMD_StopPause,
                         &DGUSReturnKeyCodeHandler::Command_StopPause),
-  VP_HELPER_RX(       DGUS_Addr::CMD_CheckOK, 
+  VP_HELPER_RX(       DGUS_Addr::CMD_CheckOK,
                         &DGUSReturnKeyCodeHandler::Command_CheckOK),
   VP_HELPER_TX_AUTO(  DGUS_Addr::MAIN_Icon_Percentage, nullptr,
                         &DGUSTxHandler::PrintPercentage),
@@ -475,7 +475,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_TX_AUTO(  DGUS_Addr::LANGUAGE_Icon_Turkish,
                         (void*)DGUS_Data::Language::Turkish,
                         &DGUSTxHandler::EnableIfLanguageMatchesExtra),
-  
+
   VP_HELPER(          DGUS_Addr::INFO_Model,
                         DGUS_INFOSTRING_LEN,
                         VPFLAG_TXSTRING_AUTOSCROLL,
@@ -488,7 +488,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                         VP_EXTRA_TO_STR(DGUS_MARLINVERSION),
                         nullptr,
                         DGUSTxHandler::ExtraToString),
-  //already set in the screen memory: 
+  //already set in the screen memory:
   /*
   VP_HELPER(DGUS_Addr::INFO_Screen_Version,
                         DGUS_INFOSTRING_LEN,

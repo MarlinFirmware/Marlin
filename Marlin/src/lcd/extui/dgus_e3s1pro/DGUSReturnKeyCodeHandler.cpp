@@ -49,7 +49,7 @@ static uint16_t absExtruderTempSave = 0;
 static uint16_t absBedTempSave = 0;
 
 static DGUS_Screen GetJogScreenForSavedJogLength()
-{  
+{
   DGUS_Screen jogscreen = DGUS_Screen::MOVEAXIS_10;
   switch (dgus_screen_handler.config.jogLength)
   {
@@ -73,7 +73,7 @@ static DGUS_Screen GetJogScreenForSavedJogLength()
 void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
 {
   DGUS_Data::MenuSelectCommand submenu = (DGUS_Data::MenuSelectCommand)BE16_P(data);
-  
+
   switch (submenu)
   {
     case DGUS_Data::MenuSelectCommand::Main:
@@ -109,7 +109,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data)
       {
         dgus_screen_handler.HomeThenChangeScreen(dgus_screen_handler.GetCurrentScreen());
       }
-      
+
       ExtUI::injectCommands(F("M420 S0"));
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -179,7 +179,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data)
 
   if (command != DGUS_Data::CheckKOCommand::KO
     && command != DGUS_Data::CheckKOCommand::SDCard_No)
-  {    
+  {
     #ifdef DEBUG_DGUSLCD
     DEBUG_ECHO("Command_CheckKO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
     DEBUG_EOL();
@@ -374,14 +374,14 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data)
           stepper.enable_all_steppers();
       }
       break;
-    
+
     case DGUS_Data::SettingsMenuCommand::Reset_All_Settings:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FACTORYRESET_CONFIRM);
       break;
-    
+
     case DGUS_Data::SettingsMenuCommand::FactoryReset_Validate:
       ExtUI::injectCommands(F("M502"));
-    
+
     case DGUS_Data::SettingsMenuCommand::FactoryReset_Cancel:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
       break;
@@ -391,7 +391,7 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data)
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
       break;
 
-    case DGUS_Data::SettingsMenuCommand::Show_Settings_Device_and_Discard_Temperatures:    
+    case DGUS_Data::SettingsMenuCommand::Show_Settings_Device_and_Discard_Temperatures:
       dgus_screen_handler.config.plaExtruderTemp = plaExtruderTempSave;
       dgus_screen_handler.config.plaBedTemp = plaBedTempSave;
       dgus_screen_handler.config.absExtruderTemp = absExtruderTempSave;
@@ -559,7 +559,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data)
     case DGUS_Data::AxisIoCommand::Show_Ready_IO:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FEEDRETURN);
       break;
-      
+
     default:
       #ifdef DEBUG_DGUSLCD
       DEBUG_ECHO("Command_AxisIO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
@@ -611,7 +611,7 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings:
       dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
     break;
-      
+
     default:
       #ifdef DEBUG_DGUSLCD
       DEBUG_ECHO("Command_AdvancedSettings: unknown id "); DEBUG_DECIMAL((uint16_t)command);
@@ -660,7 +660,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data)
     case DGUS_Data::FilelistControlCommand::End:
       newPage = dgus_sdcard_handler.onLastPage();
     break;
-      
+
     default:
       #ifdef DEBUG_DGUSLCD
       DEBUG_ECHO("Command_FilelistControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);
@@ -689,11 +689,11 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data)
     #if HAS_CUTTER
       case DGUS_Data::LaserControlCommand::Mode_Cutter:
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
-      break;      
+      break;
 
       case DGUS_Data::LaserControlCommand::Mode_Cutter_Confirm:
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
-      break;   
+      break;
     #endif
 
     case DGUS_Data::LaserControlCommand::Mode_Change:
@@ -702,7 +702,7 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data)
       #else
         dgus_screen_handler.AngryBeeps(2);
       #endif
-      
+
     default:
       #ifdef DEBUG_DGUSLCD
       DEBUG_ECHO("Command_LaserControl: unknown id "); DEBUG_DECIMAL((uint16_t)control);

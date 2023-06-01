@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@ namespace DGUS_Data {
 
   // RX constants
 
-  enum class Language : uint16_t 
+  enum class Language : uint16_t
   {
     Chinese_Simplified = 1,
     English,
@@ -38,7 +38,7 @@ namespace DGUS_Data {
     Portuguese,
     Russian,
     Turkish,
-    
+
     // Compatibility with LCD_LANGUAGE
     zh_CN = Chinese_Simplified,
     en = English,
@@ -51,7 +51,7 @@ namespace DGUS_Data {
     ru = Russian,
     tr = Turkish,
 
-    Default = 
+    Default =
 #ifdef DGUS_E3S1PRO_LANGUAGE
       DGUS_E3S1PRO_LANGUAGE
 #else

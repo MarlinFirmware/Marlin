@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,7 +40,7 @@ void DGUS_SDCardHandler::Reset()
 	currentPage = DGUS_SDCardHandler::page_t::PAGE_1;
 
 	while (!fileList.isAtRootDir())
-		fileList.upDir();	
+		fileList.upDir();
 
 	fileCount = 0;
 	uint16_t currentSeekPos = 0;
@@ -53,7 +53,7 @@ void DGUS_SDCardHandler::Reset()
 			fileCount++;
 		currentSeekPos++;
 	}
-	
+
   #ifdef DEBUG_DGUSLCD
 	DEBUG_ECHO("Reset() :");
 	DEBUG_DECIMAL(fileCount);
@@ -90,7 +90,7 @@ void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page)
 			currentFilePos++;
 	}
 
-	
+
   #ifdef DEBUG_DGUSLCD
 	DEBUG_ECHO("onPageLoad() :");
 	DEBUG_DECIMAL(currentFilePos);

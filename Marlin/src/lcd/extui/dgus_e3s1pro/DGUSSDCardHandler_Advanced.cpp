@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,7 +39,7 @@ void DGUS_SDCardHandler::Reset()
 	currentVirtualPage = 0;
 
 	while (!fileList.isAtRootDir())
-		fileList.upDir();	
+		fileList.upDir();
 
 	fileList.refresh();
 	fileCount = fileList.count();

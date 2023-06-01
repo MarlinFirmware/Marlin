@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -51,7 +51,7 @@ public:
   static eeprom_data_t config;
   static uint16_t currentMeshPointIndex;
   static bool isLeveling;
-  
+
   static char homeStatusMessage[128];
 
 private:
@@ -135,7 +135,7 @@ public:
   static void StartPrintFromSD(const char* const filename);
   static void SetStatusMessage(FSTR_P msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void SetStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
-  
+
   static DGUS_Screen GetCurrentScreen();
   static void HomeThenChangeScreen(DGUS_Screen screen);
   static void TriggerScreenChange(DGUS_Screen screen);

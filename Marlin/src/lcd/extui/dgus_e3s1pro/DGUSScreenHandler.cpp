@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -118,7 +118,7 @@ void DGUSScreenHandler::Loop() {
     return;
   }
 
-  if (ELAPSED(ms, next_beep_ms)) 
+  if (ELAPSED(ms, next_beep_ms))
   {
     next_beep_ms = ms + 300;
 
@@ -261,7 +261,7 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
     DEBUG_ECHOLNPGM("invalid DGUS settings, resetting");
     SettingsReset();
   }
-  
+
   ExtUI::setLevelingActive(config.levelingEnabled);
   dgus_display.SetVolume(config.volume);
   dgus_display.SetBrightness(config.brightness);
@@ -326,7 +326,7 @@ void DGUSScreenHandler::LevelingEnd() {
 void DGUSScreenHandler::MeshUpdate(const int8_t xpos, const int8_t ypos) {
   if (!isLeveling)
     return;
-    
+
   currentMeshPointIndex++;
   TriggerFullUpdate();
 }
@@ -544,12 +544,12 @@ bool DGUSScreenHandler::SendScreenVPData(DGUS_Screen screen, bool complete_updat
     DGUS_VP vp;
     if (!DGUS_PopulateVP((DGUS_Addr)addr, &vp)) continue; // Invalid VP
     if (!vp.tx_handler) continue; // Nothing to send
-    if (!complete_update 
-      && !(vp.flags & VPFLAG_AUTOUPLOAD) 
+    if (!complete_update
+      && !(vp.flags & VPFLAG_AUTOUPLOAD)
       #ifdef DGUS_SOFTWARE_AUTOSCROLL
       && !(vp.flags & VPFLAG_TXSTRING_AUTOSCROLL)
       #endif
-    ) 
+    )
       continue; // Unnecessary VP
 
     uint8_t expected_tx = 6 + vp.size; // 6 bytes header + payload.
@@ -575,7 +575,7 @@ bool DGUSScreenHandler::RefreshVP(DGUS_Addr vpAddr)
     if (*list == vpAddr)
     {
       DGUS_VP vp;
-      if (!DGUS_PopulateVP((DGUS_Addr)vpAddr, &vp) || !vp.tx_handler) 
+      if (!DGUS_PopulateVP((DGUS_Addr)vpAddr, &vp) || !vp.tx_handler)
         return false;
 
       vp.tx_handler(vp);

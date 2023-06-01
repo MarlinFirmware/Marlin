@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,7 +41,7 @@ namespace DGUSRxHandler {
   {
     feedRate_t maxSpeed = (float)BE16_P(data);
     ExtUI::setAxisMaxFeedrate_mm_s(maxSpeed, axis);
-  }  
+  }
   template <typename T, T axis>
   void MaxAcceleration(DGUS_VP &vp, void *data)
   {
@@ -53,7 +53,7 @@ namespace DGUSRxHandler {
   {
     float maxJerk = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setAxisMaxJerk_mm_s(maxJerk, axis);
-  }  
+  }
   template <typename T, T axis>
   void StepsPerMm(DGUS_VP &vp, void *data)
   {
@@ -103,7 +103,7 @@ namespace DGUSRxHandler {
     void Bed_PID_I(DGUS_VP &vp, void *data);
     void Bed_PID_D(DGUS_VP &vp, void *data);
   #endif // PIDTEMPBED
-  
+
   void Control_SetFanSpeed(DGUS_VP &vp, void *data);
   void SDCard_FileSelection(DGUS_VP &vp, void *data);
 
