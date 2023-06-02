@@ -65,7 +65,9 @@ private:
   static bool full_update;
   static uint8_t angry_beeps;
 
-  static const char* sdPrintFilename;
+  #if HAS_MEDIA
+    static const char* sdPrintFilename;
+  #endif
 
   #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
     static ssize_t currentScrollIndex;

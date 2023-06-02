@@ -585,14 +585,18 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
   DGUS_SDCardHandler::page_t newPage;
 
   switch (control) {
-    case DGUS_Data::FilelistControlCommand::Start_Print:
-      if (!screen.getSDCardPrintFilename()[0]) {
-        screen.triggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
-      }
+    #if HAS_MEDIA
+      case DGUS_Data::FilelistControlCommand::Start_Print:
+        if (!screen.getSDCardPrintFilename()[0])
+        {
+          screen.angryBeeps(2);
+          return;
+        }
 
-      ExtUI::printFile(screen.getSDCardPrintFilename());
-      screen.triggerScreenChange(DGUS_Screen::PAUSE);
-      return;
+        ExtUI::printFile(screen.getSDCardPrintFilename());
+        screen.triggerScreenChange(DGUS_Screen::PAUSE);
+        return;
+    #endif
 
     case DGUS_Data::FilelistControlCommand::F1_Up:
     //case DGUS_Data::FilelistControlCommand::F2_Up:

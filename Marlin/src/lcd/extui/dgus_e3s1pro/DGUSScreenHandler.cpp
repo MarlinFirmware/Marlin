@@ -33,6 +33,12 @@
 
 #include "../../../gcode/queue.h"
 
+
+DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
+uint16_t DGUSScreenHandler::currentMeshPointIndex = 0;
+bool DGUSScreenHandler::isLeveling = false;
+char DGUSScreenHandler::homeStatusMessage[128];
+
 bool DGUSScreenHandler::settings_ready = false;
 bool DGUSScreenHandler::booted = false;
 
@@ -43,19 +49,16 @@ DGUS_Screen DGUSScreenHandler::confirm_return_screen = DGUS_Screen::BOOT;
 bool DGUSScreenHandler::full_update = false;
 uint8_t DGUSScreenHandler::angry_beeps = 0;
 
-const char* DGUSScreenHandler::sdPrintFilename = nullptr;
-char DGUSScreenHandler::homeStatusMessage[128];
+#if HAS_MEDIA
+  static const char* const noFileSelected = "";
+  const char* DGUSScreenHandler::sdPrintFilename = noFileSelected;
+#endif
 
 #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
   ssize_t DGUSScreenHandler::currentScrollIndex = 0;
   size_t DGUSScreenHandler::pageMaxStringLen = 0;
   size_t DGUSScreenHandler::pageMaxControlLen = 0;
 #endif
-
-DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
-
-uint16_t DGUSScreenHandler::currentMeshPointIndex = 0;
-bool DGUSScreenHandler::isLeveling = false;
 
 millis_t DGUSScreenHandler::status_expire = 0;
 millis_t DGUSScreenHandler::eeprom_save = 0;
@@ -355,6 +358,8 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
   }
 
   void DGUSScreenHandler::sdCardRemoved() {
+    sdPrintFilename = noFileSelected;
+    
     if (getCurrentScreen() >= DGUS_Screen::FILE1
       && getCurrentScreen() <= DGUS_Screen::FILE4) {
       triggerTempScreenChange(DGUS_Screen::SDCARDCHECK, DGUS_Screen::HOME);
