@@ -885,7 +885,7 @@ void AnycubicTFTClass::getCommandFromTFT() {
 }
 
 void AnycubicTFTClass::doSDCardStateCheck() {
-  #if BOTH(HAS_MEDIA, HAS_SD_DETECT)
+  #if ALL(HAS_MEDIA, HAS_SD_DETECT)
     bool isInserted = isMediaInserted();
     if (isInserted)
       SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isInserted");

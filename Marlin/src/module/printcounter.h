@@ -54,7 +54,7 @@ struct printStatistics {    // 16 bytes
 class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
-    typedef IF<EITHER(USE_WIRED_EEPROM, CPU_32_BIT), uint32_t, uint16_t>::type eeprom_address_t;
+    typedef IF<ANY(USE_WIRED_EEPROM, CPU_32_BIT), uint32_t, uint16_t>::type eeprom_address_t;
 
     static printStatistics data;
 

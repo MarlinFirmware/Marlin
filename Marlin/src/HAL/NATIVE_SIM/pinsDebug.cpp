@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,29 +17,29 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
+#ifdef __PLAT_NATIVE_SIM__
 
-#if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+#include "../../inc/MarlinConfig.h"
+#include "pinsDebug.h"
 
-#include "cooler.h"
-Cooler cooler;
+int8_t ADC_pin_mode(pin_t pin) { return -1; }
 
-#if HAS_COOLER
-  uint8_t Cooler::mode = 0;
-  uint16_t Cooler::capacity;
-  uint16_t Cooler::load;
-  bool Cooler::enabled = false;
+int8_t get_pin_mode(const pin_t pin) { return VALID_PIN(pin) ? 0 : -1; }
+
+bool GET_PINMODE(const pin_t pin) {
+  const int8_t pin_mode = get_pin_mode(pin);
+  if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // Invalid pin or active analog pin
+    return false;
+
+  return (Gpio::getMode(pin) != 0); // Input/output state
+}
+
+bool GET_ARRAY_IS_DIGITAL(const pin_t pin) {
+  return !IS_ANALOG(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
+}
+
+void print_port(const pin_t) {}
+void pwm_details(const pin_t) {}
+bool pwm_status(const pin_t) { return false; }
+
 #endif
-
-#if ENABLED(LASER_COOLANT_FLOW_METER)
-  bool Cooler::flowmeter = false;
-  millis_t Cooler::flowmeter_next_ms; // = 0
-  volatile uint16_t Cooler::flowpulses;
-  float Cooler::flowrate;
-  #if ENABLED(FLOWMETER_SAFETY)
-    bool Cooler::flowsafety_enabled = true;
-    bool Cooler::flowfault = false;
-  #endif
-#endif
-
-#endif // HAS_COOLER || LASER_COOLANT_FLOW_METER

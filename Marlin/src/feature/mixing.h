@@ -122,7 +122,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
