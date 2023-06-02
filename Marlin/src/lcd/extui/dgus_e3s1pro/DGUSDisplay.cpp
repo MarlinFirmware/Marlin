@@ -33,7 +33,6 @@
 #include "definition/DGUS_VPList.h"
 
 #include "../ui_api.h"
-#include "../../../gcode/gcode.h"
 
 long map_precise(float x, long in_min, long in_max, long out_min, long out_max) {
   return LROUND((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
@@ -260,7 +259,7 @@ void DGUSDisplay::processRx() {
          *           Command          DataLen (in Words)
          */
         if (command == DGUS_READVAR) {
-          const uint16_t addr = tmp[0] << 8 | tmp[1];
+          const uint16_t addr = Endianness::fromBE_P<uint16_t>(tmp);
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
           if (addr == DGUS_VERSION && dlen == 2) {
             gui_version = tmp[3];
@@ -363,8 +362,14 @@ void DGUSDisplay::writeHeader(uint16_t addr, uint8_t command, uint8_t len) {
   LCD_SERIAL.write(DGUS_HEADER2);
   LCD_SERIAL.write(len + 3);
   LCD_SERIAL.write(command);
-  LCD_SERIAL.write(addr >> 8);
-  LCD_SERIAL.write(addr & 0xFF);
+
+  union
+  {
+    uint16_t u16;
+    uint8_t u8[2];
+  } data = { Endianness::toBE(addr) };
+
+  LOOP_L_N(i, sizeof(data.u8)) LCD_SERIAL.write(data.u8[i]);
 }
 
 bool DGUS_PopulateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
@@ -382,4 +387,4 @@ bool DGUS_PopulateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
   return false;
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

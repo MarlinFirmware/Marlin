@@ -69,7 +69,7 @@ static DGUS_Screen GetJogScreenForSavedJogLength() {
 
 // 1002
 void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
-  DGUS_Data::MenuSelectCommand submenu = (DGUS_Data::MenuSelectCommand)BE16_P(data);
+  DGUS_Data::MenuSelectCommand submenu = Endianness::fromBE_P<DGUS_Data::MenuSelectCommand>(data);
 
   switch (submenu) {
     case DGUS_Data::MenuSelectCommand::Main:
@@ -127,7 +127,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
 
 // 1004
 void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
-  DGUS_Data::AdjustCommand command = (DGUS_Data::AdjustCommand)BE16_P(data);
+  DGUS_Data::AdjustCommand command = Endianness::fromBE_P<DGUS_Data::AdjustCommand>(data);
 
   switch (command) {
     case DGUS_Data::AdjustCommand::Show_Adjust:
@@ -157,7 +157,7 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
 
 // 1008
 void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
-  DGUS_Data::CheckKOCommand command = (DGUS_Data::CheckKOCommand)BE16_P(data);
+  DGUS_Data::CheckKOCommand command = Endianness::fromBE_P<DGUS_Data::CheckKOCommand>(data);
 
   if (command != DGUS_Data::CheckKOCommand::KO
     && command != DGUS_Data::CheckKOCommand::SDCard_No
@@ -196,7 +196,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
 
 // 100A
 void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
-  DGUS_Data::StopPauseCommand command = (DGUS_Data::StopPauseCommand)BE16_P(data);
+  DGUS_Data::StopPauseCommand command = Endianness::fromBE_P<DGUS_Data::StopPauseCommand>(data);
 
   switch (command) {
     case DGUS_Data::StopPauseCommand::Pause:
@@ -215,7 +215,7 @@ void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
 
 // 100C
 void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
-  DGUS_Data::CheckOKCommand command = (DGUS_Data::CheckOKCommand)BE16_P(data);
+  DGUS_Data::CheckOKCommand command = Endianness::fromBE_P<DGUS_Data::CheckOKCommand>(data);
 
   switch (command) {
     case DGUS_Data::CheckOKCommand::ContinueStop_Continue:
@@ -261,7 +261,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
 
 // 1030
 void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
-  DGUS_Data::PresetControlCommand command = (DGUS_Data::PresetControlCommand)BE16_P(data);
+  DGUS_Data::PresetControlCommand command = Endianness::fromBE_P<DGUS_Data::PresetControlCommand>(data);
 
   switch (command) {
     case DGUS_Data::PresetControlCommand::Show_Ready_Manual:
@@ -305,7 +305,7 @@ void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
 
 // 1032
 void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *data) {
-  DGUS_Data::TemperatureControlCommand command = (DGUS_Data::TemperatureControlCommand)BE16_P(data);
+  DGUS_Data::TemperatureControlCommand command = Endianness::fromBE_P<DGUS_Data::TemperatureControlCommand>(data);
 
   switch (command) {
     case DGUS_Data::TemperatureControlCommand::Cooldown:
@@ -331,7 +331,7 @@ void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *dat
 
 // 103E
 void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
-  DGUS_Data::SettingsMenuCommand command = (DGUS_Data::SettingsMenuCommand)BE16_P(data);
+  DGUS_Data::SettingsMenuCommand command = Endianness::fromBE_P<DGUS_Data::SettingsMenuCommand>(data);
 
   switch (command) {
     case DGUS_Data::SettingsMenuCommand::DisableStepperMotors: {
@@ -440,7 +440,7 @@ static void _GotoTrammingPoint(unsigned char point) {
 
 // 1044
 void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
-  DGUS_Data::LevelingCommand command = (DGUS_Data::LevelingCommand)BE16_P(data);
+  DGUS_Data::LevelingCommand command = Endianness::fromBE_P<DGUS_Data::LevelingCommand>(data);
 
   switch (command) {
     case DGUS_Data::LevelingCommand::Show_AuxLeveling:
@@ -485,7 +485,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
 
 // 1046
 void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
-  DGUS_Data::AxisControlCommand control = (DGUS_Data::AxisControlCommand)BE16_P(data);
+  DGUS_Data::AxisControlCommand control = Endianness::fromBE_P<DGUS_Data::AxisControlCommand>(data);
 
   switch (control) {
     case DGUS_Data::AxisControlCommand::Jog_10mm:
@@ -513,7 +513,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
 
 // 1056
 void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
-  DGUS_Data::AxisIoCommand command = (DGUS_Data::AxisIoCommand)BE16_P(data);
+  DGUS_Data::AxisIoCommand command = Endianness::fromBE_P<DGUS_Data::AxisIoCommand>(data);
 
   switch (command) {
     case DGUS_Data::AxisIoCommand::Show_Ready_IO:
@@ -531,7 +531,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
 
 // 1098
 void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data) {
-  DGUS_Data::AdvancedSettingsCommand command = (DGUS_Data::AdvancedSettingsCommand)BE16_P(data);
+  DGUS_Data::AdvancedSettingsCommand command = Endianness::fromBE_P<DGUS_Data::AdvancedSettingsCommand>(data);
 
   switch (command) {
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement:
@@ -581,7 +581,7 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
 
 // 2198
 void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) {
-  DGUS_Data::FilelistControlCommand control = (DGUS_Data::FilelistControlCommand)BE16_P(data);
+  DGUS_Data::FilelistControlCommand control = Endianness::fromBE_P<DGUS_Data::FilelistControlCommand>(data);
   DGUS_SDCardHandler::page_t newPage;
 
   switch (control) {
@@ -633,7 +633,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
 
 // 2201
 void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data) {
-  DGUS_Data::LaserControlCommand control = (DGUS_Data::LaserControlCommand)BE16_P(data);
+  DGUS_Data::LaserControlCommand control = Endianness::fromBE_P<DGUS_Data::LaserControlCommand>(data);
 
   switch (control) {
     case DGUS_Data::LaserControlCommand::Mode_FDM:

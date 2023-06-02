@@ -38,29 +38,29 @@ namespace DGUSRxHandler {
 
   template <typename T, T axis>
   void maxFeedrate(DGUS_VP &vp, void *data) {
-    feedRate_t maxSpeed = (float)BE16_P(data);
+    feedRate_t maxSpeed = (float)Endianness::fromBE_P<uint16_t>(data);
     ExtUI::setAxisMaxFeedrate_mm_s(maxSpeed, axis);
   }
   template <typename T, T axis>
   void maxAcceleration(DGUS_VP &vp, void *data) {
-    float maxAcceleration = (float)BE16_P(data);
+    float maxAcceleration = (float)Endianness::fromBE_P<uint16_t>(data);
     ExtUI::setAxisMaxAcceleration_mm_s2(maxAcceleration, axis);
   }
   template <typename T, T axis>
   void maxJerk(DGUS_VP &vp, void *data) {
-    float maxJerk = dgus_display.fromFixedPoint<uint16_t, float, 2>(BE16_P(data));
+    float maxJerk = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setAxisMaxJerk_mm_s(maxJerk, axis);
   }
   template <typename T, T axis>
   void stepsPerMM(DGUS_VP &vp, void *data) {
-    float stepsPerMm = dgus_display.fromFixedPoint<uint16_t, float, 1>(BE16_P(data));
+    float stepsPerMm = dgus_display.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setAxisSteps_per_mm(stepsPerMm, axis);
   }
 
   #if ENABLED(PIDTEMP)
     template <ExtUI::extruder_t extruder>
     void PID_P(DGUS_VP &vp, void *data) {
-      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(BE16_P(data));
+      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
       ExtUI::setPID(
         pidValue,
         ExtUI::getPID_Ki(extruder),
@@ -70,7 +70,7 @@ namespace DGUSRxHandler {
     }
     template <ExtUI::extruder_t extruder>
     void PID_I(DGUS_VP &vp, void *data) {
-      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(BE16_P(data));
+      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
       ExtUI::setPID(
         ExtUI::getPID_Kp(extruder),
         pidValue,
@@ -80,7 +80,7 @@ namespace DGUSRxHandler {
     }
     template <ExtUI::extruder_t extruder>
     void PID_D(DGUS_VP &vp, void *data) {
-      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(BE16_P(data));
+      float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
       ExtUI::setPID(
         ExtUI::getPID_Kp(extruder),
         ExtUI::getPID_Ki(extruder),
@@ -113,12 +113,12 @@ namespace DGUSRxHandler {
         break;
       }
       case 2: {
-        const uint16_t data = BE16_P(data_ptr);
+        const uint16_t data = Endianness::fromBE_P<uint16_t>(data_ptr);
         *(T*)vp.extra = (T)data;
         break;
       }
       case 4: {
-        const uint32_t data = dgus_display.swapBytes(*(uint32_t*)data_ptr);
+        const uint32_t data = Endianness::fromBE_P<uint32_t>(data_ptr);
         *(T*)vp.extra = (T)data;
         break;
       }

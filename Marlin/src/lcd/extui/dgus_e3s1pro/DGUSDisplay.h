@@ -40,10 +40,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../core/debug_out.h"
 
-// New endianness swap for 32bit mcu (tested with STM32G0B1RE)
-#define BE16_P(V) ( ((uint8_t*)(V))[0] << 8U | ((uint8_t*)(V))[1] )
-#define BE32_P(V) ( ((uint8_t*)(V))[0] << 24U | ((uint8_t*)(V))[1] << 16U | ((uint8_t*)(V))[2] << 8U | ((uint8_t*)(V))[3] )
-
 // Low-Level access to the display.
 class DGUSDisplay {
 public:
@@ -119,18 +115,6 @@ public:
   static uint8_t gui_version;
   static uint8_t os_version;
 
-  template<typename T>
-  static T swapBytes(const T value) {
-    union {
-      T val;
-      char byte[sizeof(T)];
-    } src, dst;
-
-    src.val = value;
-    LOOP_L_N(i, sizeof(T)) dst.byte[i] = src.byte[sizeof(T) - i - 1];
-    return dst.val;
-  }
-
   template<typename T_in, typename T_out, uint8_t decimals>
   T_out fromFixedPoint(const T_in value) {
     return (T_out)((float)value / POW(10, decimals));
@@ -174,10 +158,6 @@ private:
 
   static bool initialized;
 };
-
-template<> inline uint16_t DGUSDisplay::swapBytes(const uint16_t value) {
-  return ((value << 8) | (value >> 8));
-}
 
 extern DGUSDisplay dgus_display;
 

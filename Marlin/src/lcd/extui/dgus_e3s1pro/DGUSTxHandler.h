@@ -41,39 +41,39 @@ namespace DGUSTxHandler {
   template <typename T, T axis>
   void maxFeedrate(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
-    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxAcceleration(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
-    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxJerk(DGUS_VP &vp) {
     uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
-    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void stepsPerMM(DGUS_VP &vp) {
     uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
-    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 
   #if ENABLED(PIDTEMP)
     template<ExtUI::extruder_t extruder>
     void PID_P(DGUS_VP &vp) {
       uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
-      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_I(DGUS_VP &vp) {
       uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
-      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_D(DGUS_VP &vp) {
       uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
-      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
   #endif // PIDTEMP
 
@@ -112,12 +112,12 @@ namespace DGUSTxHandler {
       }
       case 2: {
         const uint16_t data = uint16_t(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Swap16(data));
+        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
       case 4: {
         const uint32_t data = uint32_t(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), dgus_display.swapBytes(data));
+        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
     }
@@ -135,12 +135,12 @@ namespace DGUSTxHandler {
       }
       case 2: {
         const uint16_t data = dgus_display.toFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Swap16(data));
+        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
       case 4: {
         const uint32_t data = dgus_display.toFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), dgus_display.swapBytes(data));
+        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
     }
