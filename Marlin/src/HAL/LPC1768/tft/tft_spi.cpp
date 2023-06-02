@@ -74,7 +74,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     WRITE(TFT_CS_PIN, LOW);
     WriteReg(Reg);
 
-    LOOP_L_N(i, 4) {
+    for (uint8_t i = 0; i < 4; ++i) {
       SPIx.read((uint8_t*)&d, 1);
       data = (data << 8) | d;
     }

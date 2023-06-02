@@ -630,7 +630,7 @@ void PrintJobRecovery::resume() {
 
         #if ENABLED(GCODE_REPEAT_MARKERS)
           DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.index);
-          LOOP_L_N(i, info.stored_repeat.index)
+          for (uint8_t i = 0; i < info.stored_repeat.index; ++i)
             DEBUG_ECHOLNPGM("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
         #endif
 
@@ -699,7 +699,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         // Mixing extruder and gradient
-        #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
+        #if ALL(MIXING_EXTRUDER, GRADIENT_MIX)
           DEBUG_ECHOLNPGM("gradient: ", info.gradient.enabled ? "ON" : "OFF");
         #endif
 
