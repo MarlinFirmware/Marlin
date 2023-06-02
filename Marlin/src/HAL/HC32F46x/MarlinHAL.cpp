@@ -4,7 +4,6 @@
 #ifdef TARGET_HC32F46x
 
 #include "HAL.h"
-#include <adc/adc.h>
 #include <IWatchdog.h>
 #include <OnChipTemperature.h>
 #include <AsyncAnalogRead.h>
@@ -117,7 +116,8 @@ void MarlinHAL::idletask()
         // panic after reaching 80C
         if (temp > 80)
         {
-            panic("SoC overheat! temperature is > 80C");
+            printf("SoC overheat! temperature is > 80C");
+            MarlinHAL::reboot();
         }
     }
 }
