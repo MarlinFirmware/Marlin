@@ -55,7 +55,7 @@
   #endif
 #endif
 
-#if EITHER(HAS_MARLINUI_MENU, TOOL_SENSOR)
+#if ANY(HAS_MARLINUI_MENU, TOOL_SENSOR)
   #include "../lcd/marlinui.h"
 #endif
 
@@ -63,7 +63,7 @@
   #include "settings.h"
 #endif
 
-#if EITHER(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
+#if ANY(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
   #include "stepper.h"
 #endif
 
@@ -1166,7 +1166,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   DEBUG_ECHOLNPGM("tool change, new_tool: ", new_tool);
 
-  #if EITHER(MANUAL_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
+  #if ANY(MANUAL_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
     if (new_tool == active_extruder) return;
   #endif
 

@@ -264,7 +264,7 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if HAS_HOTEND_OFFSET
-      LOOP_S_L_N(o, 1, TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOL_OFFSET, 1)) {
+      for (uint8_t o = 1; o < TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOL_OFFSET, 1); ++o) {
         #if ENABLED(DUAL_X_CARRIAGE)
           EDIT_ITEM_FAST_N(float42_52, o, MSG_TOOL_N_OFFSET_X, &hotend_offset[o].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
         #else

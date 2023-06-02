@@ -27,7 +27,7 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "../../MarlinCore.h"
 
-#if BOTH(HAS_LCD_MENU, MANUAL_SWITCHING_TOOLHEAD)
+#if ALL(HAS_LCD_MENU, MANUAL_SWITCHING_TOOLHEAD)
 
 #include "menu.h"
 #include "menu_item.h"
@@ -60,7 +60,7 @@ void menu_tool_change_hotend() {
   BACK_ITEM(MSG_TOOL_CHANGE);
 
   // Display Hotend 1 .. Hotend n, or hotend names.
-  LOOP_L_N(e, MAN_ST_NUM_TOOLS) {
+  for (uint8_t e = 0, e < MAN_ST_NUM_TOOLS; ++e) {
     if (e >= HOTENDS) break;
     if (e == active_extruder) continue;
 
@@ -105,7 +105,7 @@ void menu_tool_change_unpowered() {
   BACK_ITEM(MSG_TOOL_CHANGE);
 
   // Display Tool 1 .. Tool n, or tool names.
-  LOOP_S_L_N(e, HOTENDS, MAN_ST_NUM_TOOLS) {
+  for (uint8_t e = HOTENDS; e < MAN_ST_NUM_TOOLS; ++e) {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
