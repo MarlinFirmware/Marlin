@@ -50,7 +50,7 @@ static uint16_t absBedTempSave = 0;
 
 static DGUS_Screen GetJogScreenForSavedJogLength() {
   DGUS_Screen jogscreen = DGUS_Screen::MOVEAXIS_10;
-  switch (dgus_screen_handler.config.jogLength) {
+  switch (screen.config.jogLength) {
     case DGUS_Data::AxisControlCommand::Jog_10mm:
       jogscreen = DGUS_Screen::MOVEAXIS_10;
       break;
@@ -73,47 +73,47 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
 
   switch (submenu) {
     case DGUS_Data::MenuSelectCommand::Main:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MAIN);
+      screen.triggerScreenChange(DGUS_Screen::MAIN);
       break;
 
     case DGUS_Data::MenuSelectCommand::Print:
       if (ExtUI::isMediaInserted()) {
         dgus_sdcard_handler.Reset();
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILE1);
+        screen.triggerScreenChange(DGUS_Screen::FILE1);
       }
       else
-        dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::SDCARDCHECK, dgus_screen_handler.GetCurrentScreen());
+        screen.triggerTempScreenChange(DGUS_Screen::SDCARDCHECK, screen.getCurrentScreen());
       break;
 
     case DGUS_Data::MenuSelectCommand::Ready: {
       DGUS_Screen jogscreen = GetJogScreenForSavedJogLength();
       if (ExtUI::isPositionKnown())
-        dgus_screen_handler.TriggerScreenChange(jogscreen);
+        screen.triggerScreenChange(jogscreen);
       else
-        dgus_screen_handler.HomeThenChangeScreen(jogscreen);
+        screen.homeThenChangeScreen(jogscreen);
     } break;
 
     case DGUS_Data::MenuSelectCommand::Settings:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     case DGUS_Data::MenuSelectCommand::StartAutoLevel:
       if (!ExtUI::isPositionKnown())
-        dgus_screen_handler.HomeThenChangeScreen(dgus_screen_handler.GetCurrentScreen());
+        screen.homeThenChangeScreen(screen.getCurrentScreen());
 
       ExtUI::injectCommands(F("M420 S0\n" TERN(AUTO_BED_LEVELING_UBL, "G29 P1", "G29")));
       break;
 
     case DGUS_Data::MenuSelectCommand::PrintFinished:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::HOME);
+      screen.triggerScreenChange(DGUS_Screen::HOME);
       break;
 
     case DGUS_Data::MenuSelectCommand::PausePrint:
-      dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
+      screen.triggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
       break;
 
     case DGUS_Data::MenuSelectCommand::PauseStopPrint:
-      dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::CONTINUE_STOP, DGUS_Screen::RESUME);
+      screen.triggerTempScreenChange(DGUS_Screen::CONTINUE_STOP, DGUS_Screen::RESUME);
       break;
 
     default:
@@ -131,19 +131,19 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
 
   switch (command) {
     case DGUS_Data::AdjustCommand::Show_Adjust:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ADJUST);
+      screen.triggerScreenChange(DGUS_Screen::ADJUST);
       break;
 
     case DGUS_Data::AdjustCommand::Show_PrintStatus:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PAUSE);
+      screen.triggerScreenChange(DGUS_Screen::PAUSE);
       break;
 
     case DGUS_Data::AdjustCommand::Show_Adjust_ZOffset:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PREPARE);
+      screen.triggerScreenChange(DGUS_Screen::PREPARE);
       break;
 
     case DGUS_Data::AdjustCommand::Validate_ZOffset:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ADJUST);
+      screen.triggerScreenChange(DGUS_Screen::ADJUST);
       break;
 
     default:
@@ -169,12 +169,12 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
     return;
   }
 
-  switch (dgus_screen_handler.GetCurrentScreen()) {
+  switch (screen.getCurrentScreen()) {
     case DGUS_Screen::CONTINUE_STOP:
     case DGUS_Screen::STOP_CONFIRM:
     case DGUS_Screen::PAUSE_STOP:
       ExtUI::stopPrint();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FINISH);
+      screen.triggerScreenChange(DGUS_Screen::FINISH);
       break;
 
     case DGUS_Screen::FILAMENTUSEUP:
@@ -185,13 +185,13 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOPGM("Command_CheckKO: unknown src screen "); DEBUG_DECIMAL((uint8_t)dgus_screen_handler.GetCurrentScreen());
+        DEBUG_ECHOPGM("Command_CheckKO: unknown src screen "); DEBUG_DECIMAL((uint8_t)screen.getCurrentScreen());
         DEBUG_EOL();
       #endif
       return;
   }
 
-  dgus_screen_handler.TriggerScreenChange(DGUS_Screen::HOME);
+  screen.triggerScreenChange(DGUS_Screen::HOME);
 }
 
 // 100A
@@ -201,7 +201,7 @@ void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
   switch (command) {
     case DGUS_Data::StopPauseCommand::Pause:
       ExtUI::pausePrint();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::RESUME);
+      screen.triggerScreenChange(DGUS_Screen::RESUME);
       break;
 
     default:
@@ -220,7 +220,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
   switch (command) {
     case DGUS_Data::CheckOKCommand::ContinueStop_Continue:
       ExtUI::resumePrint();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PAUSE);
+      screen.triggerScreenChange(DGUS_Screen::PAUSE);
       break;
 
     #if HAS_FILAMENT_SENSOR
@@ -229,14 +229,14 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
           ExtUI::setTargetTemp_celsius(EXTRUDE_MINTEMP, ExtUI::E0);
 
         if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
-          dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
+          screen.triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
         else
-          dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILAMENTLOAD);
+          screen.triggerScreenChange(DGUS_Screen::FILAMENTLOAD);
         break;
 
       case DGUS_Data::CheckOKCommand::FilamentLoad_Yes:
         if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
-          dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILAMENTLOAD);
+          screen.triggerScreenChange(DGUS_Screen::FILAMENTLOAD);
         else {
           ExtUI::resumePrint();
         }
@@ -246,7 +246,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
     case DGUS_Data::CheckOKCommand::SDCardCheck_Yes:
       if (ExtUI::isMediaInserted()) {
         dgus_sdcard_handler.Reset();
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILE1);
+        screen.triggerScreenChange(DGUS_Screen::FILE1);
       }
       break;
 
@@ -265,33 +265,33 @@ void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
 
   switch (command) {
     case DGUS_Data::PresetControlCommand::Show_Ready_Manual:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL);
+      screen.triggerScreenChange(DGUS_Screen::CONTROL);
       break;
 
     case DGUS_Data::PresetControlCommand::Show_Settings_PLA_Settings:
-      plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
-      plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
-      absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
-      absBedTempSave = dgus_screen_handler.config.absBedTemp;
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PLA_TEMP);
+      plaExtruderTempSave = screen.config.plaExtruderTemp;
+      plaBedTempSave = screen.config.plaBedTemp;
+      absExtruderTempSave = screen.config.absExtruderTemp;
+      absBedTempSave = screen.config.absBedTemp;
+      screen.triggerScreenChange(DGUS_Screen::PLA_TEMP);
       break;
 
     case DGUS_Data::PresetControlCommand::Show_Settings_ABS_Settings:
-      plaExtruderTempSave = dgus_screen_handler.config.plaExtruderTemp;
-      plaBedTempSave = dgus_screen_handler.config.plaBedTemp;
-      absExtruderTempSave = dgus_screen_handler.config.absExtruderTemp;
-      absBedTempSave = dgus_screen_handler.config.absBedTemp;
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ABS_TEMP);
+      plaExtruderTempSave = screen.config.plaExtruderTemp;
+      plaBedTempSave = screen.config.plaBedTemp;
+      absExtruderTempSave = screen.config.absExtruderTemp;
+      absBedTempSave = screen.config.absBedTemp;
+      screen.triggerScreenChange(DGUS_Screen::ABS_TEMP);
       break;
 
     case DGUS_Data::PresetControlCommand::Apply_PLA_Settings:
-      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaExtruderTemp, ExtUI::E0);
-      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.plaBedTemp, ExtUI::BED);
+      ExtUI::setTargetTemp_celsius(screen.config.plaExtruderTemp, ExtUI::E0);
+      ExtUI::setTargetTemp_celsius(screen.config.plaBedTemp, ExtUI::BED);
       break;
 
     case DGUS_Data::PresetControlCommand::Apply_ABS_Settings:
-      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absExtruderTemp, ExtUI::E0);
-      ExtUI::setTargetTemp_celsius(dgus_screen_handler.config.absBedTemp, ExtUI::BED);
+      ExtUI::setTargetTemp_celsius(screen.config.absExtruderTemp, ExtUI::E0);
+      ExtUI::setTargetTemp_celsius(screen.config.absBedTemp, ExtUI::BED);
       break;
 
     default:
@@ -313,11 +313,11 @@ void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *dat
       break;
 
     case DGUS_Data::TemperatureControlCommand::Exit_Temperature_Preset_And_Discard_Temperature:
-      dgus_screen_handler.config.plaExtruderTemp = plaExtruderTempSave;
-      dgus_screen_handler.config.plaBedTemp = plaBedTempSave;
-      dgus_screen_handler.config.absExtruderTemp = absExtruderTempSave;
-      dgus_screen_handler.config.absBedTemp = absBedTempSave;
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.config.plaExtruderTemp = plaExtruderTempSave;
+      screen.config.plaBedTemp = plaBedTempSave;
+      screen.config.absExtruderTemp = absExtruderTempSave;
+      screen.config.absBedTemp = absBedTempSave;
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     default:
@@ -343,53 +343,53 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
     } break;
 
     case DGUS_Data::SettingsMenuCommand::Reset_All_Settings:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FACTORYRESET_CONFIRM);
+      screen.triggerScreenChange(DGUS_Screen::FACTORYRESET_CONFIRM);
       break;
 
     case DGUS_Data::SettingsMenuCommand::FactoryReset_Validate:
       ExtUI::injectCommands(F("M502"));
 
     case DGUS_Data::SettingsMenuCommand::FactoryReset_Cancel:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
+      screen.triggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Settings_Device_and_Save_Temperatures:
-      dgus_screen_handler.TriggerEEPROMSave();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.triggerEEPROMSave();
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Settings_Device_and_Discard_Temperatures:
-      dgus_screen_handler.config.plaExtruderTemp = plaExtruderTempSave;
-      dgus_screen_handler.config.plaBedTemp = plaBedTempSave;
-      dgus_screen_handler.config.absExtruderTemp = absExtruderTempSave;
-      dgus_screen_handler.config.absBedTemp = absBedTempSave;
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.config.plaExtruderTemp = plaExtruderTempSave;
+      screen.config.plaBedTemp = plaBedTempSave;
+      screen.config.absExtruderTemp = absExtruderTempSave;
+      screen.config.absBedTemp = absBedTempSave;
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Settings_Device_Language:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LANGUAGE);
+      screen.triggerScreenChange(DGUS_Screen::LANGUAGE);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Settings_About:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::INFORMATION);
+      screen.triggerScreenChange(DGUS_Screen::INFORMATION);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Settings_Advanced:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
+      screen.triggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Show_Ready_Jog:
-      dgus_screen_handler.TriggerScreenChange(GetJogScreenForSavedJogLength());
+      screen.triggerScreenChange(GetJogScreenForSavedJogLength());
       break;
 
     case DGUS_Data::SettingsMenuCommand::Exit_Settings_Tramming:
-      dgus_screen_handler.TriggerEEPROMSave();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.triggerEEPROMSave();
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     case DGUS_Data::SettingsMenuCommand::Exit_Settings_Leveling:
-      dgus_screen_handler.TriggerEEPROMSave();
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::TEMP);
+      screen.triggerEEPROMSave();
+      screen.triggerScreenChange(DGUS_Screen::TEMP);
       break;
 
     default:
@@ -445,13 +445,13 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
   switch (command) {
     case DGUS_Data::LevelingCommand::Show_AuxLeveling:
       if (ExtUI::isPositionKnown())
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LEVELINGMODE);
+        screen.triggerScreenChange(DGUS_Screen::LEVELINGMODE);
       _GotoTrammingPoint(1);
       break;
 
     case DGUS_Data::LevelingCommand::Show_Settings_Leveling:
     case DGUS_Data::LevelingCommand::Show_AutoLeveling:
-        dgus_screen_handler.HomeThenChangeScreen(DGUS_Screen::LEVELING);
+        screen.homeThenChangeScreen(DGUS_Screen::LEVELING);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_Center:
@@ -491,7 +491,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
     case DGUS_Data::AxisControlCommand::Jog_10mm:
     case DGUS_Data::AxisControlCommand::Jog_1mm:
     case DGUS_Data::AxisControlCommand::Jog_0_1mm:
-      dgus_screen_handler.config.jogLength = control;
+      screen.config.jogLength = control;
     break;
 
     case DGUS_Data::AxisControlCommand::Home_XY:
@@ -517,7 +517,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
 
   switch (command) {
     case DGUS_Data::AxisIoCommand::Show_Ready_IO:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FEEDRETURN);
+      screen.triggerScreenChange(DGUS_Screen::FEEDRETURN);
       break;
 
     default:
@@ -535,39 +535,39 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
 
   switch (command) {
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MOTION);
+      screen.triggerScreenChange(DGUS_Screen::MOTION);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_PID:
       #if !ENABLED(PIDTEMP) && !ENABLED(PIDBEDTEMP)
-        dgus_screen_handler.AngryBeeps(2);
+        screen.angryBeeps(2);
       #else
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PIDCONTROL);
+        screen.triggerScreenChange(DGUS_Screen::PIDCONTROL);
       #endif
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement_MaxFeedrate:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MAX_FEEDRATE);
+      screen.triggerScreenChange(DGUS_Screen::MAX_FEEDRATE);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement_Acceleration:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::ACCELERATION);
+      screen.triggerScreenChange(DGUS_Screen::ACCELERATION);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement_Jerk:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::JERK);
+      screen.triggerScreenChange(DGUS_Screen::JERK);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_Movement_StepsPerMm:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::STEPSMM);
+      screen.triggerScreenChange(DGUS_Screen::STEPSMM);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Exit_AdvSettings_Movement_Submenu:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::MOTION);
+      screen.triggerScreenChange(DGUS_Screen::MOTION);
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
+      screen.triggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
     break;
 
     default:
@@ -586,12 +586,12 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
 
   switch (control) {
     case DGUS_Data::FilelistControlCommand::Start_Print:
-      if (!dgus_screen_handler.GetSDCardPrintFilename()[0]) {
-        dgus_screen_handler.TriggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
+      if (!screen.getSDCardPrintFilename()[0]) {
+        screen.triggerTempScreenChange(DGUS_Screen::PAUSE_STOP, DGUS_Screen::PAUSE);
       }
 
-      ExtUI::printFile(dgus_screen_handler.GetSDCardPrintFilename());
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PAUSE);
+      ExtUI::printFile(screen.getSDCardPrintFilename());
+      screen.triggerScreenChange(DGUS_Screen::PAUSE);
       return;
 
     case DGUS_Data::FilelistControlCommand::F1_Up:
@@ -624,7 +624,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
       return;
   }
 
-  dgus_screen_handler.TriggerScreenChange(DGUS_PAGE_TO_SCREEN(newPage));
+  screen.triggerScreenChange(DGUS_PAGE_TO_SCREEN(newPage));
 }
 
 // 2201
@@ -633,27 +633,27 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data) {
 
   switch (control) {
     case DGUS_Data::LaserControlCommand::Mode_FDM:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_FDM_TIPS);
+      screen.triggerScreenChange(DGUS_Screen::SW_FDM_TIPS);
       break;
     case DGUS_Data::LaserControlCommand::Mode_FDM_Confirm:
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_FDM_TIPS);
+      screen.triggerScreenChange(DGUS_Screen::SW_FDM_TIPS);
       break;
 
     #if HAS_CUTTER
       case DGUS_Data::LaserControlCommand::Mode_Cutter:
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
+        screen.triggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
       break;
 
       case DGUS_Data::LaserControlCommand::Mode_Cutter_Confirm:
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
+        screen.triggerScreenChange(DGUS_Screen::SW_LASER_TIPS);
       break;
     #endif
 
     case DGUS_Data::LaserControlCommand::Mode_Change:
       #if HAS_CUTTER
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LASER_FDM);
+        screen.triggerScreenChange(DGUS_Screen::LASER_FDM);
       #else
-        dgus_screen_handler.AngryBeeps(2);
+        screen.angryBeeps(2);
       #endif
 
     default:

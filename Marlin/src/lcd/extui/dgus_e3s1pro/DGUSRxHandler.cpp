@@ -33,12 +33,12 @@
 #include "../../../core/language.h"
 #include "../../../module/stepper.h"
 
-void DGUSRxHandler::PrintSpeedPercentage(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::printSpeedPercentage(DGUS_VP &vp, void *data) {
   const_float_t feedratePercentage = dgus_display.FromFixedPoint<int16_t, const_float_t, 0>(BE16_P(data));
   ExtUI::setFeedrate_percent(feedratePercentage);
 }
 
-void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data) {
   const_float_t zoffset = dgus_display.FromFixedPoint<int16_t, const_float_t, 2>(BE16_P(data));
   const_float_t currentzOffset = ExtUI::getZOffset_mm();
   const_float_t zStepsPerMm = ExtUI::getAxisSteps_per_mm(ExtUI::Z);
@@ -48,27 +48,27 @@ void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data) {
   ExtUI::setZOffset_mm(zoffset);
 }
 
-void DGUSRxHandler::ExtruderTargetTemp(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::extruderTargetTemp(DGUS_VP &vp, void *data) {
   const_float_t temperature = BE16_P(data);
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::H0);
 }
 
-void DGUSRxHandler::BedTargetTemp(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::bedTargetTemp(DGUS_VP &vp, void *data) {
   const_float_t temperature = BE16_P(data);
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::BED);
 }
 
-void DGUSRxHandler::Axis_X(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::axis_X(DGUS_VP &vp, void *data) {
   const_float_t axisValue = dgus_display.FromFixedPoint<int16_t, float, 1>(BE16_P(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::X);
 }
 
-void DGUSRxHandler::Axis_Y(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::axis_Y(DGUS_VP &vp, void *data) {
   const_float_t axisValue = dgus_display.FromFixedPoint<int16_t, float, 1>(BE16_P(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Y);
 }
 
-void DGUSRxHandler::Axis_Z(DGUS_VP &vp, void *data) {
+void DGUSRxHandler::axis_Z(DGUS_VP &vp, void *data) {
   const_float_t axisValue = dgus_display.FromFixedPoint<int16_t, float, 1>(BE16_P(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Z);
 }
@@ -87,13 +87,13 @@ void DGUSRxHandler::RetractLength(DGUS_VP &vp, void *data) {
 
 void DGUSRxHandler::Language_SetLanguage(DGUS_VP &vp, void *data) {
   DGUS_Data::Language language = (DGUS_Data::Language)BE16_P(data);
-  dgus_screen_handler.config.language = language;
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.config.language = language;
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
 #if ENABLED(PIDTEMPBED)
-  void DGUSRxHandler::Bed_PID_P(DGUS_VP &vp, void *data) {
+  void DGUSRxHandler::bed_PID_P(DGUS_VP &vp, void *data) {
     float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setBedPID(
       pidValue,
@@ -102,7 +102,7 @@ void DGUSRxHandler::Language_SetLanguage(DGUS_VP &vp, void *data) {
     );
   }
 
-  void DGUSRxHandler::Bed_PID_I(DGUS_VP &vp, void *data) {
+  void DGUSRxHandler::bed_PID_I(DGUS_VP &vp, void *data) {
     float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
@@ -111,7 +111,7 @@ void DGUSRxHandler::Language_SetLanguage(DGUS_VP &vp, void *data) {
     );
   }
 
-  void DGUSRxHandler::Bed_PID_D(DGUS_VP &vp, void *data) {
+  void DGUSRxHandler::bed_PID_D(DGUS_VP &vp, void *data) {
     float pidValue = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
@@ -130,8 +130,8 @@ void DGUSRxHandler::SDCard_FileSelection(DGUS_VP &vp, void *data) {
   uint8_t sdFileIndex = BE16_P(data) - 1;
 
   #if ENABLED(DGUS_USERCONFIRM)
-    if (dgus_screen_handler.IsOnUserConfirmationScreen()) {
-      dgus_screen_handler.UserConfirmation();
+    if (screen.isOnUserConfirmationScreen()) {
+      screen.userConfirmation();
       return;
     }
   #endif
@@ -146,7 +146,7 @@ void DGUSRxHandler::StringToExtra(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::Disabled(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
-  dgus_screen_handler.AngryBeeps(2);
+  screen.angryBeeps(2);
 }
 
 #endif // DGUS_LCD_UI_RELOADED

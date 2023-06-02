@@ -114,7 +114,7 @@ bool DGUS_SDCardHandler::onFileSelect(DGUS_SDCardHandler::file_t file) {
   if (!filenames[fileIndex][0])
     return false;
 
-  dgus_screen_handler.StartPrintFromSD(filenames[fileIndex]);
+  screen.startPrintFromSD(filenames[fileIndex]);
   return true;
 }
 

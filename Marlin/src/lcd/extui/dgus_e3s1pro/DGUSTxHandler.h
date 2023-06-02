@@ -27,121 +27,120 @@
 #define Swap16(val) (uint16_t((uint16_t(val) >> 8) | (uint16_t(val) << 8)))
 
 namespace DGUSTxHandler {
-  void BootAnimation(DGUS_VP &);
+  void bootAnimation(DGUS_VP &);
 
-  void ZOffset(DGUS_VP &);
-  void ElapsedHours(DGUS_VP &);
-  void ElapsedMinutes(DGUS_VP &);
-  void Leveling_Progress(DGUS_VP &vp);
-  void FanSpeed(DGUS_VP &vp);
-  void Leveling_ProgressIcon(DGUS_VP &vp);
-  void Filament_InsertionStatus(DGUS_VP &vp);
-  void SDCard_InsertionStatus(DGUS_VP &vp);
-
+  void zOffset(DGUS_VP &);
+  void elapsedHours(DGUS_VP &);
+  void elapsedMinutes(DGUS_VP &);
+  void levelingProgress(DGUS_VP &vp);
+  void fanSpeed(DGUS_VP &vp);
+  void levelingProgressIcon(DGUS_VP &vp);
+  void filamentInsertionStatus(DGUS_VP &vp);
+  void sdCardInsertionStatus(DGUS_VP &vp);
 
   template <typename T, T axis>
-  void MaxFeedrate(DGUS_VP &vp) {
+  void maxFeedrate(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
-    dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
   template <typename T, T axis>
-  void MaxAcceleration(DGUS_VP &vp) {
+  void maxAcceleration(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
-    dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
   template <typename T, T axis>
-  void MaxJerk(DGUS_VP &vp) {
+  void maxJerk(DGUS_VP &vp) {
     uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
-    dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
   template <typename T, T axis>
-  void StepsPerMm(DGUS_VP &vp) {
+  void stepsPerMM(DGUS_VP &vp) {
     uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
-    dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+    dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
 
   #if ENABLED(PIDTEMP)
     template<ExtUI::extruder_t extruder>
     void PID_P(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
-      dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_I(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
-      dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_D(DGUS_VP &vp) {
       uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
-      dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+      dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
     }
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    void Bed_PID_P(DGUS_VP &vp);
-    void Bed_PID_I(DGUS_VP &vp);
-    void Bed_PID_D(DGUS_VP &vp);
-  #endif // PIDTEMPBED
+    void bed_PID_P(DGUS_VP &vp);
+    void bed_PID_I(DGUS_VP &vp);
+    void bed_PID_D(DGUS_VP &vp);
+  #endif
 
-  void PrintRemainingHours(DGUS_VP &);
-  void PrintRemainingMinutes(DGUS_VP &);
-  void PrintPercentage(DGUS_VP &);
-  void PrintSpeedPercentage(DGUS_VP &);
-  void ExtruderTargetTemp(DGUS_VP &);
-  void ExtruderCurrentTemp(DGUS_VP &);
-  void BedTargetTemp(DGUS_VP &);
-  void BedCurrentTemp(DGUS_VP &);
-  void Axis_X(DGUS_VP &);
-  void Axis_Y(DGUS_VP &);
-  void Axis_Z(DGUS_VP &);
-  void StepperStatus(DGUS_VP &);
-  void EnableIfLanguageMatchesExtra(DGUS_VP &);
+  void printRemainingHours(DGUS_VP &);
+  void printRemainingMinutes(DGUS_VP &);
+  void printPercentage(DGUS_VP &);
+  void printSpeedPercentage(DGUS_VP &);
+  void extruderTargetTemp(DGUS_VP &);
+  void extruderCurrentTemp(DGUS_VP &);
+  void bedTargetTemp(DGUS_VP &);
+  void bedCurrentTemp(DGUS_VP &);
+  void axis_X(DGUS_VP &);
+  void axis_Y(DGUS_VP &);
+  void axis_Z(DGUS_VP &);
+  void stepperStatus(DGUS_VP &);
+  void enableIfLanguageMatchesExtra(DGUS_VP &);
 
-  void ExtraToString(DGUS_VP &);
-  void ExtraPGMToString(DGUS_VP &);
+  void extraToString(DGUS_VP &);
+  void extraPGMToString(DGUS_VP &);
 
   template<typename T>
-  void ExtraToInteger(DGUS_VP &vp) {
+  void extraToInteger(DGUS_VP &vp) {
     if (!vp.size || !vp.extra) return;
     switch (vp.size) {
       default: return;
       case 1: {
         const uint8_t data = uint8_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), data);
+        dgus_display.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
         const uint16_t data = uint16_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
+        dgus_display.write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
         const uint32_t data = uint32_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
+        dgus_display.write(uint16_t(vp.addr), dgus_display.swapBytes(data));
         break;
       }
     }
   }
 
   template<typename T, uint8_t decimals>
-  void ExtraToFixedPoint(DGUS_VP &vp) {
+  void extraToFixedPoint(DGUS_VP &vp) {
     if (!vp.size || !vp.extra) return;
     switch (vp.size) {
       default: return;
       case 1: {
         const uint8_t data = dgus_display.ToFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), data);
+        dgus_display.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
         const uint16_t data = dgus_display.ToFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
+        dgus_display.write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
         const uint32_t data = dgus_display.ToFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
+        dgus_display.write(uint16_t(vp.addr), dgus_display.swapBytes(data));
         break;
       }
     }

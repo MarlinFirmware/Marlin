@@ -77,7 +77,7 @@ const uint16_t DGUS_ZERO = 0;
   VP_HELPER_WORD(ADDR, VPFLAG_AUTOUPLOAD, EXTRA, nullptr, TXHANDLER)
 
 #define VP_HELPER_LANG_ICON(ADDR) \
-  VP_HELPER_TX_EXTRA(ADDR, &dgus_screen_handler.config.language, (&DGUSTxHandler::ExtraToInteger<uint16_t>))
+  VP_HELPER_TX_EXTRA(ADDR, &screen.config.language, (&DGUSTxHandler::ExtraToInteger<uint16_t>))
 
 #define VP_HELPER_FILENAME(ADDR, filenameIndex) \
   VP_HELPER(ADDR, DGUS_FILENAME_LEN, VPFLAG_TXSTRING_AUTOSCROLL, \
@@ -171,22 +171,22 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                         &DGUSTxHandler::Filament_InsertionStatus),
   VP_HELPER_WORD(     DGUS_Addr::TEMP_PLA_ExtruderTemp,
                         VPFLAG_NONE,
-                        &dgus_screen_handler.config.plaExtruderTemp,
+                        &screen.config.plaExtruderTemp,
                         &DGUSRxHandler::IntegerToExtra<uint16_t>,
                         &DGUSTxHandler::ExtraToInteger<uint16_t>),
   VP_HELPER_WORD(     DGUS_Addr::TEMP_PLA_BedTemp,
                         VPFLAG_NONE,
-                        &dgus_screen_handler.config.plaBedTemp,
+                        &screen.config.plaBedTemp,
                         &DGUSRxHandler::IntegerToExtra<uint16_t>,
                         &DGUSTxHandler::ExtraToInteger<uint16_t>),
   VP_HELPER_WORD(     DGUS_Addr::TEMP_ABS_ExtruderTemp,
                         VPFLAG_NONE,
-                        &dgus_screen_handler.config.absExtruderTemp,
+                        &screen.config.absExtruderTemp,
                         &DGUSRxHandler::IntegerToExtra<uint16_t>,
                         &DGUSTxHandler::ExtraToInteger<uint16_t>),
   VP_HELPER_WORD(     DGUS_Addr::TEMP_ABS_BedTemp,
                         VPFLAG_NONE,
-                        &dgus_screen_handler.config.absBedTemp,
+                        &screen.config.absBedTemp,
                         &DGUSRxHandler::IntegerToExtra<uint16_t>,
                         &DGUSTxHandler::ExtraToInteger<uint16_t>),
   VP_HELPER_RX(       DGUS_Addr::CMD_AdvancedSettings,
@@ -562,13 +562,13 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER(          DGUS_Addr::MAIN_StatusMessage,
                         DGUS_INFOSTRING_LEN,
                         VPFLAG_TXSTRING_AUTOSCROLL,
-                        VP_EXTRA_TO_STR(dgus_screen_handler.homeStatusMessage),
+                        VP_EXTRA_TO_STR(screen.homeStatusMessage),
                         nullptr,
                         DGUSTxHandler::ExtraToString),
   VP_HELPER(          DGUS_Addr::ABNORMAL_StatusMessage,
                         DGUS_INFOSTRING_LEN,
                         VPFLAG_TXSTRING_AUTOSCROLL,
-                        VP_EXTRA_TO_STR(dgus_screen_handler.homeStatusMessage),
+                        VP_EXTRA_TO_STR(screen.homeStatusMessage),
                         nullptr,
                         DGUSTxHandler::ExtraToString),
   VP_HELPER_RX(       DGUS_Addr::CMD_LaserControl,

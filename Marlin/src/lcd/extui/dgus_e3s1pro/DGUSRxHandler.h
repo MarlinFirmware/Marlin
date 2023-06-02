@@ -25,34 +25,34 @@
 #include "definition/DGUS_VP.h"
 
 namespace DGUSRxHandler {
-  void PrintSpeedPercentage(DGUS_VP &vp, void *data);
-  void ZOffset(DGUS_VP &vp, void *data);
-  void ExtruderTargetTemp(DGUS_VP &vp, void *data);
-  void BedTargetTemp(DGUS_VP &vp, void *data);
-  void Axis_X(DGUS_VP &vp, void *data);
-  void Axis_Y(DGUS_VP &vp, void *data);
-  void Axis_Z(DGUS_VP &vp, void *data);
+  void printSpeedPercentage(DGUS_VP &vp, void *data);
+  void zOffset(DGUS_VP &vp, void *data);
+  void extruderTargetTemp(DGUS_VP &vp, void *data);
+  void bedTargetTemp(DGUS_VP &vp, void *data);
+  void axis_X(DGUS_VP &vp, void *data);
+  void axis_Y(DGUS_VP &vp, void *data);
+  void axis_Z(DGUS_VP &vp, void *data);
   void ExtrudeLength(DGUS_VP &vp, void *data);
   void RetractLength(DGUS_VP &vp, void *data);
   void Language_SetLanguage(DGUS_VP &vp, void *data);
 
   template <typename T, T axis>
-  void MaxFeedrate(DGUS_VP &vp, void *data) {
+  void maxFeedrate(DGUS_VP &vp, void *data) {
     feedRate_t maxSpeed = (float)BE16_P(data);
     ExtUI::setAxisMaxFeedrate_mm_s(maxSpeed, axis);
   }
   template <typename T, T axis>
-  void MaxAcceleration(DGUS_VP &vp, void *data) {
+  void maxAcceleration(DGUS_VP &vp, void *data) {
     float maxAcceleration = (float)BE16_P(data);
     ExtUI::setAxisMaxAcceleration_mm_s2(maxAcceleration, axis);
   }
   template <typename T, T axis>
-  void MaxJerk(DGUS_VP &vp, void *data) {
+  void maxJerk(DGUS_VP &vp, void *data) {
     float maxJerk = dgus_display.FromFixedPoint<uint16_t, float, 2>(BE16_P(data));
     ExtUI::setAxisMaxJerk_mm_s(maxJerk, axis);
   }
   template <typename T, T axis>
-  void StepsPerMm(DGUS_VP &vp, void *data) {
+  void stepsPerMM(DGUS_VP &vp, void *data) {
     float stepsPerMm = dgus_display.FromFixedPoint<uint16_t, float, 1>(BE16_P(data));
     ExtUI::setAxisSteps_per_mm(stepsPerMm, axis);
   }
@@ -91,9 +91,9 @@ namespace DGUSRxHandler {
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    void Bed_PID_P(DGUS_VP &vp, void *data);
-    void Bed_PID_I(DGUS_VP &vp, void *data);
-    void Bed_PID_D(DGUS_VP &vp, void *data);
+    void bed_PID_P(DGUS_VP &vp, void *data);
+    void bed_PID_I(DGUS_VP &vp, void *data);
+    void bed_PID_D(DGUS_VP &vp, void *data);
   #endif
 
   void Control_SetFanSpeed(DGUS_VP &vp, void *data);
@@ -118,7 +118,7 @@ namespace DGUSRxHandler {
         break;
       }
       case 4: {
-        const uint32_t data = dgus_display.SwapBytes(*(uint32_t*)data_ptr);
+        const uint32_t data = dgus_display.swapBytes(*(uint32_t*)data_ptr);
         *(T*)vp.extra = (T)data;
         break;
       }

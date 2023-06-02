@@ -79,82 +79,82 @@ private:
 public:
   DGUSScreenHandler() = default;
 
-  static void Init();
-  static void Ready();
-  static void Loop();
+  static void init();
+  static void ready();
+  static void loop();
 
   static void printerKilled(FSTR_P const error, FSTR_P const component);
-  static bool IsOnUserConfirmationScreen() { return confirm_return_screen != DGUS_Screen::BOOT; }
-  static void UserConfirmRequired(const char * const msg);
-  static void UserConfirmation();
-  static void SettingsReset();
-  static void StoreSettings(char *buff);
-  static void LoadSettings(const char *buff);
-  static void ConfigurationStoreWritten(bool success);
-  static void ConfigurationStoreRead(bool success);
+  static bool isOnUserConfirmationScreen() { return confirm_return_screen != DGUS_Screen::BOOT; }
+  static void userConfirmRequired(const char * const msg);
+  static void userConfirmation();
+  static void settingsReset();
+  static void storeSettings(char *buff);
+  static void loadSettings(const char *buff);
+  static void configurationStoreWritten(bool success);
+  static void configurationStoreRead(bool success);
 
-  static void PlayTone(const uint16_t frequency, const uint16_t duration);
-  static void AngryBeeps(const uint8_t beepCount);
+  static void playTone(const uint16_t frequency, const uint16_t duration);
+  static void angryBeeps(const uint8_t beepCount);
 
-  static void LevelingStart();
-  static void LevelingEnd();
-  static void MeshUpdate(const int8_t xpos, const int8_t ypos);
+  static void levelingStart();
+  static void levelingEnd();
+  static void meshUpdate(const int8_t xpos, const int8_t ypos);
 
-  static void PrintTimerStarted();
-  static void PrintTimerPaused();
-  static void PrintTimerStopped();
+  static void printTimerStarted();
+  static void printTimerPaused();
+  static void printTimerStopped();
   static void filamentRunout(const ExtUI::extruder_t extruder);
 
   #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
-    static ssize_t GetScrollIndex();
-    static void AddCurrentPageStringLength(size_t stringLength, size_t textControlLength);
+    static ssize_t getScrollIndex();
+    static void addCurrentPageStringLength(size_t stringLength, size_t textControlLength);
   #endif
 
   #if HAS_MEDIA
     /// Marlin informed us that a new SD has been inserted.
-    static void SDCardInserted();
+    static void sdCardInserted();
     /// Marlin informed us that the SD Card has been removed().
-    static void SDCardRemoved();
+    static void sdCardRemoved();
     /// Marlin informed us about a bad SD Card.
-    static void SDCardError();
+    static void sdCardError();
 
-    static const char* GetSDCardPrintFilename() { return sdPrintFilename; }
+    static const char* getSDCardPrintFilename() { return sdPrintFilename; }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    static void PowerLossResume();
+    static void powerLossResume();
   #endif
 
   #if HAS_PID_HEATING
-    static void PidTuning(const ExtUI::result_t rst);
+    static void pidTuning(const ExtUI::result_t rst);
   #endif
 
-  static void SteppersStatusChanged(bool steppersEnabled);
-  static void HomingDone();
+  static void steppersStatusChanged(bool steppersEnabled);
+  static void homingDone();
 
-  static void StartPrintFromSD(const char* const filename);
-  static void SetStatusMessage(FSTR_P msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
-  static void SetStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
+  static void startPrintFromSD(const char* const filename);
+  static void setStatusMessage(FSTR_P msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
+  static void setStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
 
-  static DGUS_Screen GetCurrentScreen();
-  static void HomeThenChangeScreen(DGUS_Screen screen);
-  static void TriggerScreenChange(DGUS_Screen screen);
-  static void TriggerTempScreenChange(DGUS_Screen screen, DGUS_Screen returnScreen);
-  static void TriggerReturnScreen();
-  static bool IsOnTempScreen(DGUS_Screen screen = DGUS_Screen::BOOT);
-  static void TriggerFullUpdate();
+  static DGUS_Screen getCurrentScreen();
+  static void homeThenChangeScreen(DGUS_Screen screen);
+  static void triggerScreenChange(DGUS_Screen screen);
+  static void triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen returnScreen);
+  static void triggerReturnScreen();
+  static bool isOnTempScreen(DGUS_Screen screen = DGUS_Screen::BOOT);
+  static void triggerFullUpdate();
 
-  static void TriggerEEPROMSave();
+  static void triggerEEPROMSave();
 
-  static bool IsPrinterIdle();
+  static bool isPrinterIdle();
 
 private:
-  static const DGUS_Addr* FindScreenAddrList(DGUS_Screen screen);
-  static bool CallScreenSetup(DGUS_Screen screen);
+  static const DGUS_Addr* findScreenAddrList(DGUS_Screen screen);
+  static bool callScreenSetup(DGUS_Screen screen);
 
-  static void MoveToScreen(DGUS_Screen screen, bool abort_wait=false);
-  static bool SendScreenVPData(DGUS_Screen screen, bool complete_update);
-  static bool RefreshVP(DGUS_Addr vpAddr);
+  static void moveToScreen(DGUS_Screen screen, bool abort_wait=false);
+  static bool sendScreenVPData(DGUS_Screen screen, bool complete_update);
+  static bool refreshVP(DGUS_Addr vpAddr);
 };
 
-extern DGUSScreenHandler dgus_screen_handler;
+extern DGUSScreenHandler screen;

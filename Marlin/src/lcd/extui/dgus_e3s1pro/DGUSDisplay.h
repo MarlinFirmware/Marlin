@@ -61,58 +61,58 @@ public:
 
   DGUSDisplay() = default;
 
-  static void Init();
+  static void init();
 
-  static void Read(uint16_t addr, uint8_t size);
-  static void Write(uint16_t addr, const void* data_ptr, uint8_t size);
+  static void read(uint16_t addr, uint8_t size);
+  static void write(uint16_t addr, const void* data_ptr, uint8_t size);
 
-  static void WriteString(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
-  static void WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
-  static void WriteString(uint16_t addr, FSTR_P const fstr, uint8_t size, bool left=true, bool right=false, bool use_space=true) {
-    WriteStringPGM(addr, FTOP(fstr), size, left, right, use_space);
+  static void writeString(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
+  static void writeStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
+  static void writeString(uint16_t addr, FSTR_P const fstr, uint8_t size, bool left=true, bool right=false, bool use_space=true) {
+    writeStringPGM(addr, FTOP(fstr), size, left, right, use_space);
   }
 
   template<typename T>
-  static void Write(uint16_t addr, T data) {
-    Write(addr, static_cast<const void*>(&data), sizeof(T));
+  static void write(uint16_t addr, T data) {
+    write(addr, static_cast<const void*>(&data), sizeof(T));
   }
 
   // Until now I did not need to actively read from the display. That's why there is no ReadVariable
   // (I extensively use the auto upload of the display)
 
   // Read GUI and OS version from screen
-  static void ReadVersions();
+  static void readVersions();
 
   // Force display into another screen.
-  static void SwitchScreen(DGUS_Screen screen);
+  static void switchScreen(DGUS_Screen screen);
   // Play sounds using the display speaker.
   //   start: position at which the sound was stored on the display.
   //   len: how many sounds to play. Sounds will play consecutively from start to start+len-1.
   //   volume: playback volume. 0 keeps the current volume.
-  static void PlaySound(uint8_t start, uint8_t len=1, uint8_t volume=0);
+  static void playSound(uint8_t start, uint8_t len=1, uint8_t volume=0);
   // Enable/disable a specific touch control.
   //   type: control type.
   //   control: index of the control on the page (set during screen development).
-  static void EnableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
-  static void DisableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
+  static void enableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
+  static void disableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
 
-  static uint8_t GetBrightness();
-  static uint8_t GetVolume();
+  static uint8_t getBrightness();
+  static uint8_t getVolume();
 
   // Set the display brightness/volume, ranging 0 - 100
-  static void SetBrightness(uint8_t brightness);
-  static void SetVolume(uint8_t volume);
+  static void setBrightness(uint8_t brightness);
+  static void setVolume(uint8_t volume);
 
   // Periodic tasks, eg. Rx-Queue handling.
-  static void Loop();
+  static void loop();
 
   // Helper for users of this class to estimate if an interaction would be blocking.
-  static size_t GetFreeTxBuffer();
-  static void FlushTx();
+  static size_t getFreeTxBuffer();
+  static void flushTx();
 
   // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
-  static bool IsInitialized() {
+  static bool isInitialized() {
     return initialized;
   }
 
@@ -120,7 +120,7 @@ public:
   static uint8_t os_version;
 
   template<typename T>
-  static T SwapBytes(const T value) {
+  static T swapBytes(const T value) {
     union {
       T val;
       char byte[sizeof(T)];
@@ -132,12 +132,12 @@ public:
   }
 
   template<typename T_in, typename T_out, uint8_t decimals>
-  T_out FromFixedPoint(const T_in value) {
+  T_out fromFixedPoint(const T_in value) {
     return (T_out)((float)value / POW(10, decimals));
   }
 
   template<typename T_in, typename T_out, uint8_t decimals>
-  T_out ToFixedPoint(const T_in value) {
+  T_out toFixedPoint(const T_in value) {
     return (T_out)LROUND((float)value * POW(10, decimals));
   }
 
@@ -163,8 +163,8 @@ private:
     DGUS_VERSION = 0x000F // OS/GUI version
   };
 
-  static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);
-  static void ProcessRx();
+  static void writeHeader(uint16_t addr, uint8_t command, uint8_t len);
+  static void processRx();
 
   static uint8_t volume;
   static uint8_t brightness;
@@ -175,7 +175,7 @@ private:
   static bool initialized;
 };
 
-template<> inline uint16_t DGUSDisplay::SwapBytes(const uint16_t value) {
+template<> inline uint16_t DGUSDisplay::swapBytes(const uint16_t value) {
   return ((value << 8) | (value >> 8));
 }
 

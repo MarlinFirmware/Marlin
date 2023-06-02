@@ -31,40 +31,40 @@
 
 bool DGUSSetupHandler::SDCardPrepare() {
   #if ENABLED(DGUS_USERCONFIRM)
-    if (dgus_screen_handler.IsOnUserConfirmationScreen()) {
+    if (screen.isOnUserConfirmationScreen()) {
       // Only allow the fifth line used as the confirm button to be clicked
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
-      dgus_display.DisableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
+      dgus_display.disableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
 
       return true; // skip the file update
     }
     else {
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
-      dgus_display.EnableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
+      dgus_display.enableControl(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
     }
   #endif
 
-  dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(dgus_screen_handler.GetCurrentScreen()));
+  dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(screen.getCurrentScreen()));
   return true;
 }
 

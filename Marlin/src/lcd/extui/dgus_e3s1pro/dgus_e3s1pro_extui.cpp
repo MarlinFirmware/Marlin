@@ -37,7 +37,7 @@
 namespace ExtUI {
 
   void onStartup() {
-    dgus_screen_handler.Init();
+    screen.init();
   }
 
   void onIdle() {
@@ -46,88 +46,88 @@ namespace ExtUI {
     // Prevent recursion
     if (!processing) {
       processing = true;
-      dgus_screen_handler.Loop();
+      screen.loop();
       processing = false;
     }
   }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    dgus_screen_handler.printerKilled(error, component);
+    screen.printerKilled(error, component);
   }
 
-  void onMediaInserted() { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardInserted()); }
-  void onMediaError()    { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardError()); }
-  void onMediaRemoved()  { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardRemoved()); }
+  void onMediaInserted() { TERN_(HAS_MEDIA, screen.sdCardInserted()); }
+  void onMediaError()    { TERN_(HAS_MEDIA, screen.sdCardError()); }
+  void onMediaRemoved()  { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
-    dgus_screen_handler.PlayTone(frequency, duration);
+    screen.playTone(frequency, duration);
   }
 
   void onPrintTimerStarted() {
-    dgus_screen_handler.PrintTimerStarted();
+    screen.printTimerStarted();
   }
 
   void onPrintTimerPaused() {
-    dgus_screen_handler.PrintTimerPaused();
+    screen.printTimerPaused();
   }
 
   void onPrintTimerStopped() {
-    dgus_screen_handler.PrintTimerStopped();
+    screen.printTimerStopped();
   }
 
   void onFilamentRunout(const extruder_t extruder) {
-    dgus_screen_handler.filamentRunout(extruder);
+    screen.filamentRunout(extruder);
   }
 
   void onUserConfirmRequired(const char * const msg) {
-    dgus_screen_handler.UserConfirmRequired(msg);
+    screen.userConfirmRequired(msg);
   }
 
   void onStatusChanged(const char * const msg) {
-    dgus_screen_handler.SetStatusMessage(msg);
+    screen.setStatusMessage(msg);
   }
 
   void onHomingStart() {}
 
   void onHomingDone() {
-    dgus_screen_handler.HomingDone();
+    screen.homingDone();
   }
 
   void onPrintDone() {}
 
   void onFactoryReset() {
-    dgus_screen_handler.SettingsReset();
+    screen.settingsReset();
   }
 
   void onStoreSettings(char *buff) {
-    dgus_screen_handler.StoreSettings(buff);
+    screen.storeSettings(buff);
   }
 
   void onLoadSettings(const char *buff) {
-    dgus_screen_handler.LoadSettings(buff);
+    screen.loadSettings(buff);
   }
 
   void onPostprocessSettings() {}
 
   void onSettingsStored(const bool success) {
-    dgus_screen_handler.ConfigurationStoreWritten(success);
+    screen.configurationStoreWritten(success);
   }
 
   void onSettingsLoaded(const bool success) {
-    dgus_screen_handler.ConfigurationStoreRead(success);
+    screen.configurationStoreRead(success);
   }
 
   #if HAS_MESH
     void onLevelingStart() {
-      dgus_screen_handler.LevelingStart();
+      screen.levelingStart();
     }
 
     void onLevelingDone() {
-      dgus_screen_handler.LevelingEnd();
+      screen.levelingEnd();
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
-      dgus_screen_handler.MeshUpdate(xpos, ypos);
+      screen.meshUpdate(xpos, ypos);
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) { }
@@ -142,23 +142,23 @@ namespace ExtUI {
     }
     void onPowerLossResume() {
       // Called on resume from power-loss
-      dgus_screen_handler.PowerLossResume();
+      screen.powerLossResume();
     }
   #endif
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      dgus_screen_handler.PidTuning(rst);
+      screen.pidTuning(rst);
     }
   #endif
 
   void onSteppersDisabled() {
-    dgus_screen_handler.SteppersStatusChanged(false);
+    screen.steppersStatusChanged(false);
   }
 
   void onSteppersEnabled() {
-    dgus_screen_handler.SteppersStatusChanged(true);
+    screen.steppersStatusChanged(true);
   }
 }
 

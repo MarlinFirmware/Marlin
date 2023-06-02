@@ -102,11 +102,11 @@ bool DGUS_SDCardHandler::onFileSelect(DGUS_SDCardHandler::file_t file) {
     if (currentPage == page_t::PAGE_1)
       onPageLoad(page_t::PAGE_1);
     else
-      dgus_screen_handler.TriggerScreenChange(DGUS_Screen::FILE1);
+      screen.triggerScreenChange(DGUS_Screen::FILE1);
     return true;
   }
 
-  dgus_screen_handler.StartPrintFromSD(filenames[fileIndex]);
+  screen.startPrintFromSD(filenames[fileIndex]);
   return true;
 }
 
