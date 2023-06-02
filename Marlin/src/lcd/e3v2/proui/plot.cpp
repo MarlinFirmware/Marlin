@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(DWIN_LCD_PROUI, SHOW_TUNING_GRAPH)
+#if ALL(DWIN_LCD_PROUI, SHOW_TUNING_GRAPH)
 
 #include "plot.h"
 #include "../../../core/types.h"

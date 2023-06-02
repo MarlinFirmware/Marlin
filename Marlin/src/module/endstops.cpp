@@ -31,7 +31,7 @@
 #include "temperature.h"
 #include "../lcd/marlinui.h"
 
-#define DEBUG_OUT BOTH(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
+#define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -1136,11 +1136,11 @@ void Endstops::update() {
 
   void Endstops::clear_endstop_state() {
     TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
-    #if BOTH(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
+    #if ALL(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
       CBI(live_state, X2_ENDSTOP);
     #endif
     TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
-    #if BOTH(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
+    #if ALL(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
       CBI(live_state, Y2_ENDSTOP);
     #endif
     TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));

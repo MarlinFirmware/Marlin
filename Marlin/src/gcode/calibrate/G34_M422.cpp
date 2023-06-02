@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
 
 #include "../../feature/z_stepper_align.h"
 
@@ -431,7 +431,7 @@ void GcodeSuite::G34() {
 
       probe.use_probing_tool(false);
 
-      #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
+      #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
         set_bed_leveling_enabled(leveling_was_active);
       #endif
 
