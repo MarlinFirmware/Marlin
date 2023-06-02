@@ -152,7 +152,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #define SPI_DEVICE                           2
+  #define SPI_DEVICE                           2  // Maple
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
