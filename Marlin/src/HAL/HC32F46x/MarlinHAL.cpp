@@ -7,17 +7,12 @@
 #include <adc/adc.h>
 #include <IWatchdog.h>
 #include <OnChipTemperature.h>
+#include <AsyncAnalogRead.h>
 #include "../../inc/MarlinConfig.h"
 
 extern "C" char *_sbrk(int incr);
 
-enum TEMP_PINS
-{
-    TEMP_BED = 14,
-    TEMP_0 = 15,
-};
-
-uint16_t MarlinHAL::adc_result;
+pin_t MarlinHAL::last_adc_pin;
 
 MarlinHAL::MarlinHAL() {}
 
@@ -186,34 +181,31 @@ void MarlinHAL::adc_init() {}
 
 void MarlinHAL::adc_enable(const pin_t pin)
 {
+    // just set pin mode to analog
     pinMode(pin, INPUT_ANALOG);
 }
 
 void MarlinHAL::adc_start(const pin_t pin)
 {
-    TEMP_PINS pin_index;
-    switch (pin)
-    {
-    default:
-    case TEMP_0_PIN:
-        pin_index = TEMP_0;
-        break;
-    case TEMP_BED_PIN:
-        pin_index = TEMP_BED;
-        break;
-    }
+    CORE_ASSERT(IS_GPIO_PIN(pin), "adc_start: invalid pin")
+    MarlinHAL::last_adc_pin = pin;
 
-    MarlinHAL::adc_result = adc_read(ADC1, (uint8_t)pin_index);
+    analogReadAsync(pin);
 }
 
 bool MarlinHAL::adc_ready()
 {
-    return true;
+    CORE_ASSERT(IS_GPIO_PIN(MarlinHAL::last_adc_pin), "adc_ready: invalid pin")
+
+    return getAnalogReadComplete(MarlinHAL::last_adc_pin);
 }
 
 uint16_t MarlinHAL::adc_value()
 {
-    return MarlinHAL::adc_result;
+    // read conversion result
+    CORE_ASSERT(IS_GPIO_PIN(MarlinHAL::last_adc_pin), "adc_value: invalid pin")
+
+    return getAnalogReadValue(MarlinHAL::last_adc_pin);
 }
 
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t a, const bool b)
