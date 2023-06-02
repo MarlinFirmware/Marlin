@@ -411,7 +411,7 @@ class FilamentSensorBase {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;
-          const float mm = (b->direction_bits.e ? -steps : steps) * planner.mm_per_step[E_AXIS_N(e)];
+          const float mm = (b->direction_bits.e ? steps : -steps) * planner.mm_per_step[E_AXIS_N(e)];
           if (e < NUM_RUNOUT_SENSORS) mm_countdown.runout[e] -= mm;
           #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
             if (e < NUM_MOTION_SENSORS) mm_countdown.motion[e] -= mm;

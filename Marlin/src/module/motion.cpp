@@ -38,10 +38,6 @@
   #include "../lcd/marlinui.h"
 #endif
 
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #include "../lcd/e3v2/proui/dwin.h"
-#endif
-
 #if ENABLED(POLAR)
   #include "polar.h"
 #endif

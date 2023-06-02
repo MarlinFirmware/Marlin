@@ -114,15 +114,15 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2
- *                ------
+ *         SKR Mini E3 V1.0, V1.2
+ *                 ------
  * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
  * (BTN_EN1) PA9  | 3  4 | RESET
  * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
  * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
  *            GND | 9 10 | 5V
- *                ------
- *                 EXP1
+ *                 ------
+ *                  EXP1
  */
 #ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6

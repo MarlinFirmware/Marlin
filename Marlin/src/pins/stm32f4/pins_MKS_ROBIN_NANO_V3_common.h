@@ -213,8 +213,8 @@
 
 //
 // Onboard SD card
+// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
-// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
@@ -227,13 +227,12 @@
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  #define SPI_FLASH
-  #define SPI_DEVICE                           2
-  #define SPI_FLASH_SIZE               0x1000000
+  #define SPI_DEVICE                           2  // Maple
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PC3
-  #define SPI_FLASH_MISO_PIN                PC2
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PC2
+  #define SPI_FLASH_MOSI_PIN                PC3
 #endif
 
 /**

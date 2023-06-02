@@ -43,13 +43,13 @@ namespace Anycubic {
       static void changeDIR(char *);
       static void sendFile();
       static void refresh();
-      static char* getCurrentFolderName();
+      static char* getCurrentDirPath();
       static uint16_t getFileNum();
     private:
       static uint16_t lastindex;
       static uint16_t currentindex;
       static uint8_t  folderdepth;
-      static char     currentfoldername[MAX_PATH_LEN + 1];
+      static char     currentDirPath[MAX_PATH_LEN + 1];
   };
 
   extern FileNavigator filenavigator;

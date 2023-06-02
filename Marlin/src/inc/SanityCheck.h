@@ -128,6 +128,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef _ISSNS_1
 
 /**
+ * Heated Bed requirements
+ */
+#if HAS_HEATED_BED
+  #if !HAS_TEMP_BED
+    #error "The Heated Bed requires a TEMP_BED_PIN or Thermocouple."
+  #elif !HAS_HEATER_BED
+    #error "The Heated Bed requires HEATER_BED_PIN."
+  #endif
+#endif
+
+/**
  * Hephestos 2 Heated Bed Kit requirements
  */
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -1498,8 +1509,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
   #elif DISABLED(EEPROM_SETTINGS)
     #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
-  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 15) || !WITHIN(GRID_MAX_POINTS_Y, 3, 15)
-    #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
+  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif HAS_ABL_NOT_UBL
@@ -1513,6 +1524,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
    */
   #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
     #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
+  #elif ABL_USES_GRID && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
 
 #elif ENABLED(MESH_BED_LEVELING)
@@ -1843,8 +1856,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #ifdef REDUNDANT_PART_COOLING_FAN
   #if FAN_COUNT < 2
     #error "REDUNDANT_PART_COOLING_FAN requires a board with at least two PWM fans."
-  #else
-    static_assert(WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
+  #elif !WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1)
+    static_assert(false, "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
+  #elif !WITHIN(REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS - 1, 1, FAN_COUNT - 1)
+    #error "Not enough fans available for NUM_REDUNDANT_FANS."
   #endif
 #endif
 
@@ -2625,10 +2640,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(TFT_GENERIC) && NONE(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
   #error "TFT_GENERIC requires either TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI interface."
-#endif
-
-#if BOTH(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
-  #error "Please enable only one of TFT_INTERFACE_SPI or TFT_INTERFACE_SPI."
+#elif BOTH(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
+  #error "Please enable only one of TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI."
 #endif
 
 #if defined(LCD_SCREEN_ROTATE) && LCD_SCREEN_ROTATE != 0 && LCD_SCREEN_ROTATE != 90 && LCD_SCREEN_ROTATE != 180 && LCD_SCREEN_ROTATE != 270
@@ -4035,12 +4048,29 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION) && (NUM_AXES > 3 || E_STEPPERS > 1 || NUM_Z_STEPPERS > 1 || ANY(DUAL_X_CARRIAGE, HAS_SYNCED_X_STEPPERS, HAS_SYNCED_Y_STEPPERS, HAS_MULTI_EXTRUDER, MIXING_EXTRUDER))
-  #error "FT_MOTION is currently limited to machines with 3 linear axes and a single extruder."
+#if ENABLED(FT_MOTION)
+  #if NUM_AXES > 3
+    #error "FT_MOTION is currently limited to machines with 3 linear axes."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
+  #endif
 #endif
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
+
+// One Click Print
+#if ENABLED(ONE_CLICK_PRINT)
+  #if !HAS_MEDIA
+    #error "SD Card or Flash Drive is required for ONE_CLICK_PRINT."
+  #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
+    #error "ONE_CLICK_PRINT is incompatible with BROWSE_MEDIA_ON_INSERT."
+  #elif DISABLED(NO_SD_AUTOSTART)
+    #error "NO_SD_AUTOSTART must be enabled for ONE_CLICK_PRINT."
+  #elif !defined(HAS_MARLINUI_MENU)
+    #error "ONE_CLICK_PRINT needs a display that has Marlin UI menus."
+  #endif
+#endif
 
 // Misc. Cleanup
 #undef _TEST_PWM

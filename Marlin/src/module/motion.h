@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 #if IS_SCARA
   #include "scara.h"
 #elif ENABLED(POLAR)

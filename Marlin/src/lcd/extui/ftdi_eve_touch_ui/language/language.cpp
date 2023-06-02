@@ -23,5 +23,5 @@
 #include "../../../../MarlinCore.h"
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   #include "language.h"
-  uint8_t lang = 0;
+  uint8_t ftdi_language = 0;
 #endif

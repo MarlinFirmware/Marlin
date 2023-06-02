@@ -468,8 +468,8 @@
 #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 195
-#elif EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
-  #define _LCD_CONTRAST_MIN  255
+#elif ENABLED(FYSETC_MINI_12864_2_1)
+  #define _LCD_CONTRAST_MIN  230
   #define _LCD_CONTRAST_INIT 255
 #elif ENABLED(FYSETC_MINI_12864)
   #define _LCD_CONTRAST_MIN  180
@@ -522,7 +522,7 @@
  */
 #if HAS_MEDIA
 
-  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
+  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -2236,8 +2236,11 @@
 #if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
-#if HAS_ADC_TEST(BED)
-  #define HAS_TEMP_ADC_BED 1
+#if TEMP_SENSOR_BED
+  #define HAS_HEATED_BED 1
+  #if HAS_ADC_TEST(BED)
+    #define HAS_TEMP_ADC_BED 1
+  #endif
 #endif
 #if HAS_ADC_TEST(PROBE)
   #define HAS_TEMP_ADC_PROBE 1
@@ -2258,7 +2261,7 @@
   #define HAS_TEMP_ADC_REDUNDANT 1
 #endif
 
-#define HAS_TEMP(N) (TEMP_SENSOR_IS_MAX_TC(N) || EITHER(HAS_TEMP_ADC_##N, TEMP_SENSOR_##N##_IS_DUMMY))
+#define HAS_TEMP(N) (TEMP_SENSOR_IS_MAX_TC(N) || HAS_TEMP_ADC_##N || TEMP_SENSOR_##N##_IS_DUMMY)
 #if HAS_HOTEND && HAS_TEMP(0)
   #define HAS_TEMP_HOTEND 1
 #endif
@@ -2327,10 +2330,12 @@
 #if PIN_EXISTS(HEATER_BED)
   #define HAS_HEATER_BED 1
 #endif
+#if PIN_EXISTS(HEATER_CHAMBER)
+  #define HAS_HEATER_CHAMBER 1
+#endif
 
 // Shorthand for common combinations
-#if HAS_TEMP_BED && HAS_HEATER_BED
-  #define HAS_HEATED_BED 1
+#if HAS_HEATED_BED
   #ifndef BED_OVERSHOOT
     #define BED_OVERSHOOT 10
   #endif
@@ -2357,7 +2362,7 @@
   #define HAS_TEMP_SENSOR 1
 #endif
 
-#if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
+#if HAS_TEMP_CHAMBER && HAS_HEATER_CHAMBER
   #define HAS_HEATED_CHAMBER 1
   #ifndef CHAMBER_OVERSHOOT
     #define CHAMBER_OVERSHOOT 10
@@ -2384,6 +2389,7 @@
 // Thermal protection
 #if !HAS_HEATED_BED
   #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
 #endif
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #define WATCH_HOTENDS 1

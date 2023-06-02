@@ -128,9 +128,7 @@ void GcodeSuite::M114() {
 
   #if ENABLED(M114_DETAIL)
     if (parser.seen_test('D')) {
-      #if DISABLED(M114_LEGACY)
-        planner.synchronize();
-      #endif
+      IF_DISABLED(M114_LEGACY, planner.synchronize());
       report_current_position();
       report_current_position_detail();
       return;
@@ -143,9 +141,7 @@ void GcodeSuite::M114() {
     #endif
   #endif
 
-  #if ENABLED(M114_REALTIME)
-    if (parser.seen_test('R')) { report_real_position(); return; }
-  #endif
+  TERN_(M114_REALTIME, if (parser.seen_test('R')) return report_real_position());
 
   TERN_(M114_LEGACY, planner.synchronize());
   report_current_position_projected();

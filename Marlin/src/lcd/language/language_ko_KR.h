@@ -88,7 +88,7 @@ namespace Language_ko_KR {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("설정 읽어오기");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("설정 되돌리기");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM 초기화");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("새로고침");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("새로고침");
   LSTR MSG_INFO_SCREEN                    = _UxGT("처음으로");
   LSTR MSG_PREPARE                        = _UxGT("준비하기");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("일시정지");

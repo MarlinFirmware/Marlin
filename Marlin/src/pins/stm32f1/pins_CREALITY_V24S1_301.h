@@ -86,8 +86,8 @@
   //#define HEATER_0_PIN                    -1
   //#define HEATER_BED_PIN                  -1
   #define FAN0_PIN                          -1
-  #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
   #define SPINDLE_LASER_PWM_PIN             PC0   // Bed FET
+  #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
   #define SPINDLE_DIR_PIN                   PC0   // FET 4
   #define LASER_SOFT_PWM_PIN                PC0
 #endif

@@ -681,8 +681,8 @@
 
 #endif
 
-// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
-#if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
+#if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1 || E_STEPPERS < 2
   #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
