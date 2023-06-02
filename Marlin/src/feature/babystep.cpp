@@ -42,7 +42,7 @@ volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
 #endif
 int16_t Babystep::accum;
 
-#if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+#if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
   int16_t Babystep::ep_babysteps;
 #endif
 
