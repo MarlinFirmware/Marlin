@@ -28,6 +28,7 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
+#include "temp_soc.h"
 #include "fastio.h"
 #include "Servo.h"
 #include "MarlinSerial.h"
@@ -113,7 +114,7 @@
     #error "LCD_SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif
 
@@ -138,7 +139,7 @@
 
 typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 
-#ifdef STM32G0B1xx
+#if defined(STM32G0B1xx) || defined(STM32H7xx)
   typedef int32_t pin_t;
 #else
   typedef int16_t pin_t;
@@ -174,7 +175,9 @@ typedef libServo hal_servo_t;
   #define JTAGSWD_RESET() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_RESET); // Reset: FULL SWD+JTAG
 #endif
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 // Maple Compatibility

@@ -23,6 +23,9 @@
 
 /**
  * Mega controller pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mega%20Controller/Mega_controller.pdf
+ * Origin: https://reprap.org/mediawiki/images/b/ba/Mega_controller.pdf
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -111,8 +114,8 @@
 #define HEATER_1_PIN                          34
 #define HEATER_BED_PIN                        28
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             39
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            39
 #endif
 #define FAN1_PIN                              35
 #define FAN2_PIN                              36
@@ -159,6 +162,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                  6  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                  7  // Pullup!
-#define SPINDLE_DIR_PIN                        8
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN                7  // Pullup!
+  #define SPINDLE_DIR_PIN                      8
+#endif

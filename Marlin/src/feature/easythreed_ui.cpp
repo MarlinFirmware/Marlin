@@ -190,31 +190,28 @@ void EasythreedUI::printButton() {
             print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
             card.mount();                                           // Force SD card to mount - now!
             if (!card.isMounted) {                                  // Failed to mount?
-                blink_interval_ms = LED_OFF;                        // Turn off LED
-                print_key_flag = PF_START;
-                return;                                             // Bail out
+              blink_interval_ms = LED_OFF;                          // Turn off LED
+              print_key_flag = PF_START;
+              return;                                               // Bail out
             }
             card.ls();                                              // List all files to serial output
-            const uint16_t filecnt = card.countFilesInWorkDir();    // Count printable files in cwd
+            const int16_t filecnt = card.get_num_items();           // Count printable files in cwd
             if (filecnt == 0) return;                               // None are printable?
             card.selectFileByIndex(filecnt);                        // Select the last file according to current sort options
             card.openAndPrintFile(card.filename);                   // Start printing it
-            break;
-          }
+          } break;
           case PF_PAUSE: {                                          // Pause printing (not currently firing)
             if (!printingIsActive()) break;
             blink_interval_ms = LED_ON;                             // Set indicator to steady ON
             queue.inject(F("M25"));                                 // Queue Pause
             print_key_flag = PF_RESUME;                             // The "Print" button now resumes the print
-            break;
-            }
+          } break;
           case PF_RESUME: {                                         // Resume printing
             if (printingIsActive()) break;
             blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
             queue.inject(F("M24"));                                 // Queue resume
             print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
-            break;
-          }
+          } break;
         }
       }
       else {                                                        // Register a longer press

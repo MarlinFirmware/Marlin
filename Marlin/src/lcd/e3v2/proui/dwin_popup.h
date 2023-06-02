@@ -44,7 +44,7 @@ void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nul
 void HMI_Popup();
 
 inline void Draw_Popup_Bkgd() {
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color, 14, 60, 258, 330);
+  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_Color, 14, 60, 258, 330);
   DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 14, 60, 258, 330);
 }
 

@@ -41,7 +41,7 @@ namespace Language_an {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Menu prencipal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu prencipal");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automatico");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Amortar motors");
   LSTR MSG_HOMING                         = _UxGT("Orichen");
@@ -93,7 +93,7 @@ namespace Language_an {
   LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidat");
-  LSTR MSG_BED_Z                          = _UxGT("Base Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = _UxGT("Boquilla");
   LSTR MSG_NOZZLE_N                       = _UxGT("Boquilla ~");
   LSTR MSG_BED                            = _UxGT("Base");
@@ -103,7 +103,6 @@ namespace Language_an {
   LSTR MSG_FLOW_N                         = _UxGT("Fluxo ~");
   LSTR MSG_CONTROL                        = _UxGT("Control");
   LSTR MSG_AUTOTEMP                       = _UxGT("Temperatura Auto.");
-  LSTR MSG_SELECT                         = _UxGT("Trigar");
   LSTR MSG_SELECT_E                       = _UxGT("Trigar *");
   LSTR MSG_ACC                            = _UxGT("Aceleracion");
   LSTR MSG_VTRAV_MIN                      = _UxGT("Vel. viache min");

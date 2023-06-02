@@ -79,11 +79,11 @@ public:
 
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
-    void commit_command(bool skip_ok
+    void commit_command(const bool skip_ok
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
-    bool enqueue(const char *cmd, bool skip_ok = true
+    bool enqueue(const char *cmd, const bool skip_ok=true
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
@@ -201,6 +201,12 @@ public:
    */
   static void flush_and_request_resend(const serial_index_t serial_ind);
 
+  #if (defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON)
+    static void flush_rx();
+  #else
+    static void flush_rx() {}
+  #endif
+
   /**
    * (Re)Set the current line number for the last received command
    */
@@ -250,7 +256,7 @@ private:
 
   static void get_serial_commands();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void get_sdcard_commands();
   #endif
 

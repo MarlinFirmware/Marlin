@@ -63,10 +63,10 @@
 #define TEMP_BED_PIN                          36  // Analog Input
 
 #if ENABLED(MAX31856_PANDAPI)
-  #define MAX31856_CLK_PIN                    29
-  #define MAX31856_MISO_PIN                   24
-  #define MAX31856_MOSI_PIN                   28
-  #define MAX31856_CS_PIN                     27
+  #define TEMP_0_CLK_PIN                      29
+  #define TEMP_0_MISO_PIN                     24
+  #define TEMP_0_MOSI_PIN                     28
+  #define TEMP_0_CS_PIN                       27
 #endif
 
 //
@@ -74,7 +74,7 @@
 //
 #define HEATER_0_PIN                         108
 #define HEATER_BED_PIN                       109
-#define FAN_PIN                              118  // FAN0
+#define FAN0_PIN                             118  // FAN0
 #define FAN1_PIN                             119  // FAN1
 
 #ifndef E0_AUTO_FAN_PIN
@@ -107,7 +107,7 @@
 //
 // SD Card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
@@ -123,6 +123,6 @@
   #define BTN_EN2                    EXP2_05_PIN
 
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
 #endif

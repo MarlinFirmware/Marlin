@@ -23,6 +23,9 @@
 
 /**
  * MegaTronics pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MegaTronics/Megatronics_1_0_sch.pdf
+ * Origin: https://reprap.org/mediawiki/images/a/a3/Megatronics_1_0_sch.pdf
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -86,8 +89,8 @@
 #define HEATER_1_PIN                           8
 #define HEATER_BED_PIN                        10
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7  // IO pin. Buffer needed
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7  // IO pin. Buffer needed
 #endif
 
 //
@@ -109,7 +112,7 @@
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
+  #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         23
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27
@@ -127,6 +130,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                  3  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                  4  // Pullup!
-#define SPINDLE_DIR_PIN                       11
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN                3  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN                4  // Pullup!
+  #define SPINDLE_DIR_PIN                     11
+#endif
