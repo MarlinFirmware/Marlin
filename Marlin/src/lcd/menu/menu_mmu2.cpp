@@ -47,7 +47,7 @@ void _mmu2_load_to_feeder(const uint8_t index) {
 }
 
 void action_mmu2_load_all() {
-  EXTRUDER_LOOP() _mmu2_load_filament(e);
+  EXTRUDER_LOOP() _mmu2_load_to_feeder(e);
   ui.return_to_status();
 }
 

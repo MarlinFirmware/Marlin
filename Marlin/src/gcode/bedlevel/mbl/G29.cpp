@@ -173,7 +173,7 @@ void GcodeSuite::G29() {
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < (GRID_MAX_POINTS)) {
+      if (mbl_probe_index < GRID_MAX_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);

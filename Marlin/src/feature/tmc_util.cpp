@@ -1236,7 +1236,7 @@ static bool test_connection(TMC &st) {
 void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   uint8_t axis_connection = 0;
 
-    if (TERN0(HAS_X_AXIS, x)) {
+  if (TERN0(HAS_X_AXIS, x)) {
     #if AXIS_IS_TMC(X)
       axis_connection += test_connection(stepperX);
     #endif

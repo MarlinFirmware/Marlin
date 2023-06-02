@@ -104,6 +104,9 @@
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     #define HAS_MENU_UBL
   #endif
+  #if ENABLED(ONE_CLICK_PRINT)
+    #define HAS_MENU_ONE_CLICK_PRINT
+  #endif
 #endif
 
 #if HAS_GRAPHICAL_TFT

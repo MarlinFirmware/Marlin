@@ -48,8 +48,8 @@ struct mesh_index_pair;
 typedef struct {
   bool      C_seen;
   int8_t    KLS_storage_slot;
-  uint8_t   R_repetition,
-            V_verbosity,
+  grid_count_t R_repetition;
+  uint8_t   V_verbosity,
             P_phase,
             T_map_type;
   float     B_shim_thickness,

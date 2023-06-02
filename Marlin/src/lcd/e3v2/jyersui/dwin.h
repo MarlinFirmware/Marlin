@@ -30,6 +30,7 @@
 #include "../common/dwin_font.h"
 #include "../common/dwin_color.h"
 #include "../common/encoder.h"
+#include "../common/limits.h"
 #include "../../../libs/BL24CXX.h"
 
 #include "../../../inc/MarlinConfigPre.h"

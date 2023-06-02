@@ -102,11 +102,11 @@ public:
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    int abl_points;
+    grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-    static constexpr int abl_points = 3;
+    static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr int abl_points = GRID_MAX_POINTS;
+    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
   #if ABL_USES_GRID
@@ -132,8 +132,8 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-      float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
-            eqnBVector[GRID_MAX_POINTS],       // "B" vector of Z points
+      float eqnAMatrix[GRID_MAX_POINTS * 3],  // "A" matrix of the linear system of equations
+            eqnBVector[GRID_MAX_POINTS],      // "B" vector of Z points
             mean;
     #endif
   #endif
@@ -141,7 +141,7 @@ public:
 
 #if ABL_USES_GRID && EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
   constexpr xy_uint8_t G29_State::grid_points;
-  constexpr int G29_State::abl_points;
+  constexpr grid_count_t G29_State::abl_points;
 #endif
 
 /**
@@ -677,7 +677,7 @@ G29_TYPE GcodeSuite::G29() {
         zig ^= true; // zag
 
         // An index to print current state
-        uint8_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
+        grid_count_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
 
         // Inner loop is Y with PROBE_Y_FIRST enabled
         // Inner loop is X with PROBE_Y_FIRST disabled

@@ -25,7 +25,7 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
+#include "../../MarlinCore.h" // for pin_is_protected, wait_for_user
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
@@ -149,7 +149,7 @@ inline void servo_probe_test() {
     #endif
 
     SERIAL_ECHOLNPGM(". Probe " _PROBE_PREF "_PIN: ", PROBE_TEST_PIN);
-    serial_ternary(probe_hit_state, F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), F("HIGH"), F("LOW"));
+    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), probe_hit_state, F("HIGH"), F("LOW"));
     SERIAL_EOL();
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
@@ -372,7 +372,7 @@ void GcodeSuite::M43() {
 
     for (;;) {
       LOOP_S_LE_N(i, first_pin, last_pin) {
-        pin_t pin = GET_PIN_MAP_PIN_M43(i);
+        const pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
         const byte val =
@@ -383,7 +383,7 @@ void GcodeSuite::M43() {
           //*/
             extDigitalRead(pin);
         if (val != pin_state[i - first_pin]) {
-          report_pin_state_extended(pin, ignore_protection, false);
+          report_pin_state_extended(pin, ignore_protection, true);
           pin_state[i - first_pin] = val;
         }
       }
@@ -401,7 +401,7 @@ void GcodeSuite::M43() {
   else {
     // Report current state of selected pin(s)
     LOOP_S_LE_N(i, first_pin, last_pin) {
-      pin_t pin = GET_PIN_MAP_PIN_M43(i);
+      const pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }
   }
