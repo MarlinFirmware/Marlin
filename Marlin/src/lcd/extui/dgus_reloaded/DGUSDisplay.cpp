@@ -50,26 +50,26 @@ uint8_t DGUSDisplay::rx_datagram_len = 0;
 
 bool DGUSDisplay::initialized = false;
 
-void DGUSDisplay::Loop() {
-  ProcessRx();
+void DGUSDisplay::loop() {
+  processRx();
 }
 
-void DGUSDisplay::Init() {
+void DGUSDisplay::init() {
   LCD_SERIAL.begin(LCD_BAUDRATE);
 
-  ReadVersions();
+  readVersions();
 }
 
-void DGUSDisplay::Read(uint16_t addr, uint8_t size) {
-  WriteHeader(addr, DGUS_READVAR, size);
+void DGUSDisplay::read(uint16_t addr, uint8_t size) {
+  writeHeader(addr, DGUS_READVAR, size);
 
   LCD_SERIAL.write(size);
 }
 
-void DGUSDisplay::Write(uint16_t addr, const void* data_ptr, uint8_t size) {
+void DGUSDisplay::write(uint16_t addr, const void* data_ptr, uint8_t size) {
   if (!data_ptr) return;
 
-  WriteHeader(addr, DGUS_WRITEVAR, size);
+  writeHeader(addr, DGUS_WRITEVAR, size);
 
   const char* data = static_cast<const char*>(data_ptr);
 
@@ -78,10 +78,10 @@ void DGUSDisplay::Write(uint16_t addr, const void* data_ptr, uint8_t size) {
   }
 }
 
-void DGUSDisplay::WriteString(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
+void DGUSDisplay::writeString(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
   if (!data_ptr) return;
 
-  WriteHeader(addr, DGUS_WRITEVAR, size);
+  writeHeader(addr, DGUS_WRITEVAR, size);
 
   const char* data = static_cast<const char*>(data_ptr);
   size_t len = strlen(data);
@@ -118,10 +118,10 @@ void DGUSDisplay::WriteString(uint16_t addr, const void* data_ptr, uint8_t size,
   }
 }
 
-void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
+void DGUSDisplay::writeStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left, bool right, bool use_space) {
   if (!data_ptr) return;
 
-  WriteHeader(addr, DGUS_WRITEVAR, size);
+  writeHeader(addr, DGUS_WRITEVAR, size);
 
   const char* data = static_cast<const char*>(data_ptr);
   size_t len = strlen_P(data);
@@ -151,61 +151,61 @@ void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t si
   while (right_spaces--) LCD_SERIAL.write(use_space ? ' ' : '\0');
 }
 
-void DGUSDisplay::ReadVersions() {
+void DGUSDisplay::readVersions() {
   if (gui_version != 0 && os_version != 0) return;
-  Read(DGUS_VERSION, 1);
+  read(DGUS_VERSION, 1);
 }
 
-void DGUSDisplay::SwitchScreen(DGUS_Screen screen) {
-  const uint8_t command[] = { 0x5A, 0x01, 0x00, (uint8_t)screen };
-  Write(0x84, command, sizeof(command));
+void DGUSDisplay::switchScreen(const DGUS_ScreenID screenID) {
+  const uint8_t command[] = { 0x5A, 0x01, 0x00, (uint8_t)screenID };
+  write(0x84, command, sizeof(command));
 }
 
-void DGUSDisplay::PlaySound(uint8_t start, uint8_t len, uint8_t volume) {
+void DGUSDisplay::playSound(uint8_t start, uint8_t len, uint8_t volume) {
   if (volume == 0) volume = DGUSDisplay::volume;
   if (volume == 0) return;
   const uint8_t command[] = { start, len, volume, 0x00 };
-  Write(0xA0, command, sizeof(command));
+  write(0xA0, command, sizeof(command));
 }
 
-void DGUSDisplay::EnableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control) {
-  const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screen, (uint8_t)control, type, 0x00, 0x01 };
-  Write(0xB0, command, sizeof(command));
+void DGUSDisplay::enableControl(const DGUS_ScreenID screenID, DGUS_ControlType type, DGUS_Control control) {
+  const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screenID, (uint8_t)control, type, 0x00, 0x01 };
+  write(0xB0, command, sizeof(command));
 
-  FlushTx();
+  flushTx();
   delay(50);
 }
 
-void DGUSDisplay::DisableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control) {
-  const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screen, (uint8_t)control, type, 0x00, 0x00 };
-  Write(0xB0, command, sizeof(command));
+void DGUSDisplay::disableControl(const DGUS_ScreenID screenID, DGUS_ControlType type, DGUS_Control control) {
+  const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screenID, (uint8_t)control, type, 0x00, 0x00 };
+  write(0xB0, command, sizeof(command));
 
-  FlushTx();
+  flushTx();
   delay(50);
 }
 
-uint8_t DGUSDisplay::GetBrightness() {
+uint8_t DGUSDisplay::getBrightness() {
   return brightness;
 }
 
-uint8_t DGUSDisplay::GetVolume() {
+uint8_t DGUSDisplay::getVolume() {
   return map_precise(volume, 0, 255, 0, 100);
 }
 
-void DGUSDisplay::SetBrightness(uint8_t new_brightness) {
+void DGUSDisplay::setBrightness(uint8_t new_brightness) {
   brightness = constrain(new_brightness, 0, 100);
   new_brightness = map_precise(brightness, 0, 100, 5, 100);
   const uint8_t command[] = { new_brightness, new_brightness };
-  Write(0x82, command, sizeof(command));
+  write(0x82, command, sizeof(command));
 }
 
-void DGUSDisplay::SetVolume(uint8_t new_volume) {
+void DGUSDisplay::setVolume(uint8_t new_volume) {
   volume = map_precise(constrain(new_volume, 0, 100), 0, 100, 0, 255);
   const uint8_t command[] = { volume, 0x00 };
-  Write(0xA1, command, sizeof(command));
+  write(0xA1, command, sizeof(command));
 }
 
-void DGUSDisplay::ProcessRx() {
+void DGUSDisplay::processRx() {
 
   #if ENABLED(LCD_SERIAL_STATS_RX_BUFFER_OVERRUNS)
     if (!LCD_SERIAL.available() && LCD_SERIAL.buffer_overruns()) {
@@ -274,7 +274,7 @@ void DGUSDisplay::ProcessRx() {
           }
 
           DGUS_VP vp;
-          if (!DGUS_PopulateVP((DGUS_Addr)addr, &vp)) {
+          if (!populateVP((DGUS_Addr)addr, &vp)) {
             rx_datagram_state = DGUS_IDLE;
             break;
           }
@@ -332,7 +332,7 @@ void DGUSDisplay::ProcessRx() {
   }
 }
 
-size_t DGUSDisplay::GetFreeTxBuffer() {
+size_t DGUSDisplay::getFreeTxBuffer() {
   return (
     #ifdef LCD_SERIAL_GET_TX_BUFFER_FREE
       LCD_SERIAL_GET_TX_BUFFER_FREE()
@@ -342,7 +342,7 @@ size_t DGUSDisplay::GetFreeTxBuffer() {
   );
 }
 
-void DGUSDisplay::FlushTx() {
+void DGUSDisplay::flushTx() {
   #ifdef ARDUINO_ARCH_STM32
     LCD_SERIAL.flush();
   #else
@@ -350,7 +350,7 @@ void DGUSDisplay::FlushTx() {
   #endif
 }
 
-void DGUSDisplay::WriteHeader(uint16_t addr, uint8_t command, uint8_t len) {
+void DGUSDisplay::writeHeader(uint16_t addr, uint8_t command, uint8_t len) {
   LCD_SERIAL.write(DGUS_HEADER1);
   LCD_SERIAL.write(DGUS_HEADER2);
   LCD_SERIAL.write(len + 3);
@@ -359,7 +359,7 @@ void DGUSDisplay::WriteHeader(uint16_t addr, uint8_t command, uint8_t len) {
   LCD_SERIAL.write(addr & 0xFF);
 }
 
-bool DGUS_PopulateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
+bool populateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
   const DGUS_VP *ret = vp_list;
 
   do {
