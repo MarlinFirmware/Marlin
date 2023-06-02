@@ -294,7 +294,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 26: // TMC Hybrid Threshold Speed
-    #if 0 && BOTH(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
+    #if 0 && ALL(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
       #define SEND_TRINAMIC_THRS(A, B) SEND_VALasTXT(A, getAxisPWMthrs(B))
     #else
       #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
@@ -463,7 +463,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     #else
       #define SEND_PID_INFO_0(A, B) SEND_NA(A)
     #endif
-    #if BOTH(PIDTEMP, HAS_MULTI_EXTRUDER)
+    #if ALL(PIDTEMP, HAS_MULTI_EXTRUDER)
       #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
       #define SEND_PID_INFO_1(A, B) SEND_NA(A)

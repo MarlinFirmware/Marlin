@@ -115,7 +115,7 @@
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43  // AUX (2)
   #define Y_STOP_PIN                          19  // Z+
-#elif EITHER(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
+#elif ANY(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
   // Chiron uses AUX header for Y and Z endstops
   #define Y_STOP_PIN                          42  // AUX (1)
   #define Z_STOP_PIN                          43  // AUX (2)
@@ -145,7 +145,7 @@
     #define FIL_RUNOUT_PIN                    19  // Z+
   #endif
 
-  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
+  #if ANY(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
     // Chiron and some Anycubic i3 MEGAs swap Z steppers
     #define Z_STEP_PIN                        36
     #define Z_DIR_PIN                         34
@@ -159,7 +159,7 @@
   #endif
 #endif
 
-#if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
+#if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #ifndef BEEPER_PIN
     #define BEEPER_PIN               EXP2_03_PIN  // Chiron Standard Adapter
   #endif
