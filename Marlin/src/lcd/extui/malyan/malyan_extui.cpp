@@ -150,11 +150,14 @@ namespace ExtUI {
   void onSettingsStored(const bool) {}
   void onSettingsLoaded(const bool) {}
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
+  #endif
+
+  #if HAS_MESH
+    void onMeshUpdate(const int8_t, const int8_t, const_float_t) {}
+    void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

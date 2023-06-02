@@ -946,6 +946,10 @@ private:
 
   #if ENABLED(BABYSTEPPING)
     static void M290();
+    #if ENABLED(EP_BABYSTEPPING)
+      static void M293();
+      static void M294();
+    #endif
   #endif
 
   #if HAS_SOUND
@@ -1063,6 +1067,7 @@ private:
 
   #if ENABLED(FT_MOTION)
     static void M493();
+    static void M493_report(const bool forReplay=true);
   #endif
 
   static void M500();
