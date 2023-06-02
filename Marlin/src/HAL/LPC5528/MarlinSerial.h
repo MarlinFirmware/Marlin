@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,7 +41,7 @@ public:
 
   void end() {}
 
-  uint8_t availableForWrite(void) { /* flushTX(); */ return TX_BUFFER_SIZE; }
+  uint8_t availableForWrite() { /* flushTX(); */ return TX_BUFFER_SIZE; }
 
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override;

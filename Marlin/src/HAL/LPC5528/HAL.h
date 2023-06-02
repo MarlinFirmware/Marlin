@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2017 Victor Perez
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +28,12 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-// #include "Servo.h"
-// #include "watchdog.h"
-// #include "MarlinSerial.h"
+//#include "Servo.h"
+//#include "watchdog.h"
+//#include "MarlinSerial.h"
 
 //#include "../../inc/MarlinConfigPre.h"
-// #include "../../pins/lpc5528/pins_MKS_OWL.h"
+//#include "../../pins/lpc5528/pins_MKS_OWL.h"
 #include "MarlinSerial.h"
 #include <stdint.h>
 
@@ -46,11 +45,12 @@
 #define CPU_ST7920_DELAY_3 340
 
 #define F_CPU 150000000L
-// //
-// // Serial Ports --- if use USB CDC
-// //
+
+//
+// Serial Ports --- if use USB CDC
+//
 #ifdef USBCON
-  // #include <USBSerial.h>
+  //#include <USBSerial.h>
   #include "../../core/serial_hook.h"
   typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
@@ -60,16 +60,17 @@
 #ifndef byte
   typedef uint8_t byte;
 #endif
+
 // define for serial
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-    #define MYSERIAL1 MSerial0
+  #define MYSERIAL1 MSerial0
 #elif WITHIN(SERIAL_PORT, 1, 8)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-    // #error "SERIAL_PORT must be from 1 to 8. You can also use -1 if the board supports Native USB."
+  //#error "SERIAL_PORT must be from 1 to 8. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -118,7 +119,6 @@
 
 typedef int16_t pin_t;
 
-
 // Maple Compatibility
 typedef void (*systickCallback_t)(void);
 void systick_attach_callback(systickCallback_t cb);
@@ -141,7 +141,6 @@ extern "C" char* _sbrk(int incr);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-
 
 // ------------------------
 // MarlinHAL Class
@@ -245,12 +244,11 @@ public:
   #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 
-  // #define PLATFORM_M997_SUPPORT
+  //#ifndef PLATFORM_M997_SUPPORT
+  //  #define PLATFORM_M997_SUPPORT
+  //#endif
 
-  // void flashFirmware(const int16_t) {
-
-
-  // }
+  //void flashFirmware(const int16_t) {}
 
   //extern volatile uint32_t systick_uptime_millis;
 

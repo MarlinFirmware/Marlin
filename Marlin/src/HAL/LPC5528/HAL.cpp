@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2017 Victor Perez
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +47,7 @@ pin_t MarlinHAL::adc_pin = 0;
 
 TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
-void MarlinHAL::init(void) {
+void MarlinHAL::init() {
   constexpr int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
   // SetTimerInterruptPriorities();
@@ -83,7 +82,7 @@ uint16_t MarlinHAL::adc_get_result() {
 // HAL idle task
 void MarlinHAL::idletask() { }
 
-void MarlinHAL::clear_reset_source(void) {
+void MarlinHAL::clear_reset_source() {
   TERN_(USE_WATCHDOG, MarlinHAL::watchdog_clear_timeout_flag());
 }
 
