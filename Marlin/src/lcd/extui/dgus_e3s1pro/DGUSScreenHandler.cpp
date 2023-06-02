@@ -46,9 +46,11 @@ uint8_t DGUSScreenHandler::angry_beeps = 0;
 const char* DGUSScreenHandler::sdPrintFilename = nullptr;
 char DGUSScreenHandler::homeStatusMessage[128];
 
-ssize_t DGUSScreenHandler::currentScrollIndex = 0;
-size_t DGUSScreenHandler::pageMaxStringLen = 0;
-size_t DGUSScreenHandler::pageMaxControlLen = 0;
+#if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
+  ssize_t DGUSScreenHandler::currentScrollIndex = 0;
+  size_t DGUSScreenHandler::pageMaxStringLen = 0;
+  size_t DGUSScreenHandler::pageMaxControlLen = 0;
+#endif
 
 DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
 

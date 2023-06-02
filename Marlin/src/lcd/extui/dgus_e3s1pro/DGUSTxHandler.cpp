@@ -44,7 +44,7 @@ void DGUSTxHandler::bootAnimation(DGUS_VP &vp) {
 
 void DGUSTxHandler::zOffset(DGUS_VP &vp) {
   const float position = ExtUI::getZOffset_mm();
-  const int16_t data = dgus_display.ToFixedPoint<float, int16_t, 2>(position); // Round to 0.01
+  const int16_t data = dgus_display.toFixedPoint<float, int16_t, 2>(position); // Round to 0.01
   dgus_display.write((int16_t)vp.addr, dgus_display.swapBytes(data));
 }
 
@@ -87,17 +87,17 @@ void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
 
 #if ENABLED(PIDTEMPBED)
   void DGUSTxHandler::bed_PID_P(DGUS_VP &vp) {
-    uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kp());
+    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kp());
     dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
 
   void DGUSTxHandler::bed_PID_I(DGUS_VP &vp) {
-    uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Ki());
+    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Ki());
     dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
 
   void DGUSTxHandler::bed_PID_D(DGUS_VP &vp) {
-    uint16_t data = dgus_display.ToFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kd());
+    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kd());
     dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
   }
 #endif // PIDTEMPBED
@@ -157,17 +157,17 @@ void DGUSTxHandler::bedCurrentTemp(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::axis_X(DGUS_VP &vp) {
-  int16_t data = dgus_display.ToFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::X));
+  int16_t data = dgus_display.toFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::X));
   dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
 }
 
 void DGUSTxHandler::axis_Y(DGUS_VP &vp) {
-  int16_t data = dgus_display.ToFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::Y));
+  int16_t data = dgus_display.toFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::Y));
   dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
 }
 
 void DGUSTxHandler::axis_Z(DGUS_VP &vp) {
-  int16_t data = dgus_display.ToFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::Z));
+  int16_t data = dgus_display.toFixedPoint<float, int16_t, 1>(ExtUI::getAxisPosition_mm(ExtUI::Z));
   dgus_display.write((uint16_t)vp.addr, dgus_display.swapBytes(data));
 }
 
