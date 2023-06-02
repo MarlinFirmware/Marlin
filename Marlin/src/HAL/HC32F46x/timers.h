@@ -21,42 +21,45 @@
  */
 #pragma once
 #include <stdint.h>
-#include "hc32f460_timer0.h"
+#include <Timer0.h>
 
 //
-// Misc.
+// Timer Types
 //
-typedef en_tim0_channel_t timer_channel_t;
+typedef Timer0Channel timer_channel_t;
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
-// frequency of the timer peripheral
-#define HAL_TIMER_RATE uint32_t(F_CPU)
+//
+// Timer Configurations
+//
+#define HAL_TIMER_RATE uint32_t(SYSTEM_CLOCK_FREQUENCIES.pclk1)
 
-//
-// Timer Channels and Configuration
-//
-#define STEP_TIMER_NUM Tim0_ChannelB
-#define TEMP_TIMER_NUM Tim0_ChannelA
+// temperature timer (Timer0 Unit1 Channel A)
+#define TEMP_TIMER_NUM Timer0Channel::A
+#define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
+#define TEMP_TIMER_RATE 1000 // 1kHz
+#define TEMP_TIMER_PRESCALE 16
+#define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // alias for Marlin
+
+// stepper timer (Timer0 Unit1 Channel B)
+#define STEP_TIMER_NUM Timer0Channel::B
+#define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
+#define STEPPER_TIMER_RATE 2000000 // 2MHz
+#define STEPPER_TIMER_PRESCALE 16
+#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
+
+// pulse timer (== stepper timer)
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
-
-// channel aliases
-#define MF_TIMER_STEP STEP_TIMER_NUM
-#define MF_TIMER_TEMP TEMP_TIMER_NUM
-#define MF_TIMER_PULSE PULSE_TIMER_NUM
-
-#define TEMP_TIMER_FREQUENCY 1000
-#define TEMP_TIMER_PRESCALE 16ul
-
-#define STEPPER_TIMER_PRESCALE 16ul
-
-//TODO: derive this from the timer rate and prescale
-// since F_CPU is not constant, it cannot be used here... 
-#define STEPPER_TIMER_RATE 2000000 // (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
-
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
+
+//
+// channel aliases
+//
+#define MF_TIMER_TEMP TEMP_TIMER_NUM
+#define MF_TIMER_STEP STEP_TIMER_NUM
+#define MF_TIMER_PULSE PULSE_TIMER_NUM
 
 //
 // HAL functions
@@ -87,8 +90,12 @@ void Step_Handler();
 void Temp_Handler();
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR() void Step_Handler()
+#define HAL_STEP_TIMER_ISR() void Step_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
+#define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 #endif
+
+// do not need prologue/epilogue 
+#define HAL_timer_isr_prologue(timer_num)
+#define HAL_timer_isr_epilogue(timer_num)
