@@ -539,8 +539,9 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
     break;
 
     case DGUS_Data::AdvancedSettingsCommand::Show_AdvSettings_PID:
-      #if !ENABLED(PIDTEMP) && !ENABLED(PIDBEDTEMP)
+      #if NONE(PIDTEMP, PIDTEMPBED)
         screen.angryBeeps(2);
+        screen.triggerScreenChange(DGUS_Screen::CONTROL_DEVICE);
       #else
         screen.triggerScreenChange(DGUS_Screen::PIDCONTROL);
       #endif
