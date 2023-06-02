@@ -31,10 +31,10 @@
 #endif
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
-  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #include HAL_PATH(../.., tft/gt911.h)
   #define TOUCH_DRIVER_CLASS GT911
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #include HAL_PATH(../.., tft/xpt2046.h)
   #define TOUCH_DRIVER_CLASS XPT2046
 #else
   #error "Unknown Touch Screen Type."
@@ -65,6 +65,7 @@ enum TouchControlType : uint16_t {
   FLOWRATE,
   UBL,
   MOVE_AXIS,
+  STOP,
   BUTTON,
 };
 
@@ -103,7 +104,7 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t last_touch_ms, time_to_hold, repeat_delay, touch_time;
+    static millis_t next_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
     static bool get_point(int16_t *x, int16_t *y);

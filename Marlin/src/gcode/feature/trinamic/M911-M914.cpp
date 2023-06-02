@@ -35,7 +35,7 @@
   #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
-  #if M91x_USE(X) || M91x_USE(X2)
+  #if HAS_X_AXIS && (M91x_USE(X) || M91x_USE(X2))
     #define M91x_SOME_X 1
   #endif
   #if HAS_Y_AXIS && (M91x_USE(Y) || M91x_USE(Y2))
@@ -294,14 +294,14 @@
         #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
           case X_AXIS:
             TERN_(X_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(X,X));
-            TERN_(X2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(X,X2));
+            TERN_(X2_HAS_STEALTHCHOP, if (!index || index == 2) TMC_SET_PWMTHRS(X,X2));
             break;
         #endif
 
         #if Y_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP
           case Y_AXIS:
             TERN_(Y_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(Y,Y));
-            TERN_(Y2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2));
+            TERN_(Y2_HAS_STEALTHCHOP, if (!index || index == 2) TMC_SET_PWMTHRS(Y,Y2));
             break;
         #endif
 
@@ -499,7 +499,6 @@
    * M914: Set StallGuard sensitivity.
    */
   void GcodeSuite::M914() {
-
     bool report = true;
     const uint8_t index = parser.byteval('I');
     LOOP_NUM_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
@@ -509,13 +508,13 @@
         #if X_SENSORLESS
           case X_AXIS:
             if (index < 2) stepperX.homing_threshold(value);
-            TERN_(X2_SENSORLESS, if (!(index & 1)) stepperX2.homing_threshold(value));
+            TERN_(X2_SENSORLESS, if (!index || index == 2) stepperX2.homing_threshold(value));
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             if (index < 2) stepperY.homing_threshold(value);
-            TERN_(Y2_SENSORLESS, if (!(index & 1)) stepperY2.homing_threshold(value));
+            TERN_(Y2_SENSORLESS, if (!index || index == 2) stepperY2.homing_threshold(value));
             break;
         #endif
         #if Z_SENSORLESS

@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Artillery Ruby only supports 1 hotend / E stepper."
 #endif
 
@@ -100,8 +100,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA8   // Hotbed
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC8   // Fan0
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC8   // Fan0
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                          PC7   // Fan1
@@ -160,7 +160,7 @@
     #define LCD_CONTRAST_INIT                255
   #else
     #define LCD_PINS_RS                     PC15
-    #define LCD_PINS_ENABLE                 PB6
+    #define LCD_PINS_EN                     PB6
     #define LCD_PINS_D4                     PB5
     #define LCD_PINS_D5                     PB9
     #define LCD_PINS_D6                     PB8
@@ -173,7 +173,7 @@
   //
   #define BEEPER_PIN                        PC13
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define SDSS                            PA15
     #define SD_DETECT_PIN                   PD2
   #endif

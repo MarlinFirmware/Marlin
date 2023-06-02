@@ -7,17 +7,6 @@ import serial
 
 Import("env")
 
-# Needed (only) for compression, but there are problems with pip install heatshrink
-#try:
-#    import heatshrink
-#except ImportError:
-#    # Install heatshrink
-#    print("Installing 'heatshrink' python module...")
-#    env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
-#
-# Not tested: If it's safe to install python libraries in PIO python try:
-#    env.Execute(env.subst("$PYTHONEXE -m pip install https://github.com/p3p/pyheatshrink/releases/download/0.3.3/pyheatshrink-pip.zip"))
-
 import MarlinBinaryProtocol
 
 #-----------------#
@@ -189,9 +178,22 @@ def Upload(source, target, env):
                                                     'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431',  'BOARD_CREALITY_V452', 'BOARD_CREALITY_V453',
                                                     'BOARD_CREALITY_V24S1']
     # "upload_random_name": generate a random 8.3 firmware filename to upload
-    upload_random_filename = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V422', 'BOARD_CREALITY_V423',
-                                                    'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431',  'BOARD_CREALITY_V452', 'BOARD_CREALITY_V453',
-                                                    'BOARD_CREALITY_V24S1'] and not marlin_long_filename_host_support
+    upload_random_filename = upload_delete_old_bins and not marlin_long_filename_host_support
+
+    # Heatshrink module is needed (only) for compression
+    if upload_compression:
+        if sys.version_info[0] > 2:
+            try:
+               import heatshrink2
+            except ImportError:
+               print("Installing 'heatshrink2' python module...")
+               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
+        else:
+            try:
+               import heatshrink
+            except ImportError:
+               print("Installing 'heatshrink' python module...")
+               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
 
     try:
 
@@ -304,7 +306,7 @@ def Upload(source, target, env):
     except KeyboardInterrupt:
         print('Aborted by user')
         if filetransfer: filetransfer.abort()
-        if protocol: 
+        if protocol:
             protocol.disconnect()
             protocol.shutdown()
         _RollbackUpload(upload_firmware_target_name)
@@ -314,7 +316,7 @@ def Upload(source, target, env):
     except serial.SerialException as se:
         # This exception is raised only for send_ascii data (not for binary transfer)
         print(f'Serial excepion: {se}, transfer aborted')
-        if protocol: 
+        if protocol:
             protocol.disconnect()
             protocol.shutdown()
         _RollbackUpload(upload_firmware_target_name)
@@ -323,7 +325,7 @@ def Upload(source, target, env):
 
     except MarlinBinaryProtocol.FatalError:
         print('Too many retries, transfer aborted')
-        if protocol: 
+        if protocol:
             protocol.disconnect()
             protocol.shutdown()
         _RollbackUpload(upload_firmware_target_name)
@@ -332,7 +334,7 @@ def Upload(source, target, env):
 
     except Exception as ex:
         print(f"\nException: {ex}, transfer aborted")
-        if protocol: 
+        if protocol:
             protocol.disconnect()
             protocol.shutdown()
         _RollbackUpload(upload_firmware_target_name)

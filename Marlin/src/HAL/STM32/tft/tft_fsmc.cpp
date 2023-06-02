@@ -71,7 +71,7 @@ void TFT_FSMC::Init() {
   Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
-  // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
+  // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
   ExtTiming.AddressSetupTime = 8;
   ExtTiming.AddressHoldTime = 15;
   ExtTiming.DataSetupTime = 8;
@@ -100,11 +100,11 @@ void TFT_FSMC::Init() {
 
   HAL_SRAM_Init(&SRAMx, &Timing, &ExtTiming);
 
-  __HAL_RCC_DMA2_CLK_ENABLE();
-
   #ifdef STM32F1xx
-    DMAtx.Instance = DMA2_Channel1;
+    __HAL_RCC_DMA1_CLK_ENABLE();
+    DMAtx.Instance = DMA1_Channel1;
   #elif defined(STM32F4xx)
+    __HAL_RCC_DMA2_CLK_ENABLE();
     DMAtx.Instance = DMA2_Stream0;
     DMAtx.Init.Channel = DMA_CHANNEL_0;
     DMAtx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
@@ -147,21 +147,38 @@ uint32_t TFT_FSMC::ReadID(tft_data_t Reg) {
 }
 
 bool TFT_FSMC::isBusy() {
-  #if defined(STM32F1xx)
-    volatile bool dmaEnabled = (DMAtx.Instance->CCR & DMA_CCR_EN) != RESET;
+  #ifdef STM32F1xx
+    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
+    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->CPAR != 0)
   #elif defined(STM32F4xx)
-    volatile bool dmaEnabled = DMAtx.Instance->CR & DMA_SxCR_EN;
+    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
+    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->PAR != 0)
   #endif
-  if (dmaEnabled) {
-    if (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) != 0 || __HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) != 0)
-      Abort();
-  }
-  else
-    Abort();
-  return dmaEnabled;
+
+  if (!__IS_DMA_CONFIGURED(&DMAtx)) return false;
+
+  // Check if DMA transfer error or transfer complete flags are set
+  if ((__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) == 0) && (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) == 0)) return true;
+
+  __DSB();
+  Abort();
+  return false;
+}
+
+void TFT_FSMC::Abort() {
+  HAL_DMA_Abort(&DMAtx);  // Abort DMA transfer if any
+  HAL_DMA_DeInit(&DMAtx); // Deconfigure DMA
 }
 
 void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  DMAtx.Init.PeriphInc = MemoryIncrease;
+  HAL_DMA_Init(&DMAtx);
+  HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(LCD->RAM), Count);
+
+  TERN_(TFT_SHARED_IO, while (isBusy()));
+}
+
+void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DMAtx.Init.PeriphInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
   DataTransferBegin();

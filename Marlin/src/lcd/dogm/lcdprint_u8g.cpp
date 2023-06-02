@@ -16,7 +16,6 @@
 #include "../marlinui.h"
 #include "../../MarlinCore.h"
 
-#include "../fontutils.h"
 #include "u8g_fontutf8.h"
 #include "../lcdprint.h"
 
@@ -34,7 +33,7 @@ int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
     return u8g_GetFontBBXWidth(u8g.getU8g());
   }
   u8g_uint_t x = u8g.getPrintCol(), y = u8g.getPrintRow(),
-           ret = uxg_DrawWchar(u8g.getU8g(), x, y, c, max_length);
+           ret = uxg_DrawLchar(u8g.getU8g(), x, y, c, max_length);
   u8g.setPrintPos(x + ret, y);
   return ret;
 }

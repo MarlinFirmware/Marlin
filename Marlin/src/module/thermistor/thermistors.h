@@ -109,6 +109,9 @@ typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(13) // beta25 = 4100 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Hisens"
   #include "thermistor_13.h"
 #endif
+#if ANY_THERMISTOR_IS(14) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "EPCOS" for hot bed
+  #include "thermistor_14.h"
+#endif
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
 #endif
@@ -192,6 +195,9 @@ typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 #endif
 #if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
   #include "thermistor_1010.h"
+#endif
+#if ANY_THERMISTOR_IS(1022) // Pt1000 with 2k2 pullup
+  #include "thermistor_1022.h"
 #endif
 #if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
   #include "thermistor_1047.h"
@@ -335,7 +341,7 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
 // For thermocouples the highest temperature results in the highest ADC value
 
 #define _TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
-#define TT_REV(N)     TERN0(TEMP_SENSOR_##N##_IS_THERMISTOR, DEFER4(_TT_REV)(TEMP_SENSOR_##N))
+#define TT_REV(N)     TERN0(TEMP_SENSOR_##N##_IS_THERMISTOR, DEFER4(_TT_REV)(TEMP_SENSOR(N)))
 #define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
 #define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
 
@@ -528,6 +534,10 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
     #define TEMP_SENSOR_BOARD_RAW_HI_TEMP 0
     #define TEMP_SENSOR_BOARD_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
+#endif
+#ifndef TEMP_SENSOR_SOC_RAW_HI_TEMP
+  #define TEMP_SENSOR_SOC_RAW_LO_TEMP 0
+  #define TEMP_SENSOR_SOC_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
 #endif
 #ifndef TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP
   #if TT_REVRAW(REDUNDANT)

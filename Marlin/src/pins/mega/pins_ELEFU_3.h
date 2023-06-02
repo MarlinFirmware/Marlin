@@ -23,6 +23,9 @@
 
 /**
  * Elefu RA Board Pin Assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Elefu%20Ra%20v3/schematic.pdf
+ * Origin: https://github.com/kiyoshigawa/Elefu-RAv3/blob/master/RA_Circuits.zip
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -89,8 +92,8 @@
 #define HEATER_2_PIN                          17  // 12V PWM3
 #define HEATER_BED_PIN                        44  // DOUBLE 12V PWM
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             16  // 5V PWM
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            16  // 5V PWM
 #endif
 
 //

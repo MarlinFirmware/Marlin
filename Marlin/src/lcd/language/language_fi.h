@@ -39,7 +39,7 @@ namespace Language_fi {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" valmis.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kortti asetettu");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kortti poistettu");
-  LSTR MSG_MAIN                           = _UxGT("Palaa");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Palaa");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
@@ -69,12 +69,14 @@ namespace Language_fi {
   LSTR MSG_MOVE_X                         = _UxGT("Liikuta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Liikuta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Liikuta Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Liikuta @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Liikuta 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Liikuta 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Liikuta 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Liikuta 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Liikuta 100mm");
   LSTR MSG_SPEED                          = _UxGT("Nopeus");
   LSTR MSG_NOZZLE                         = _UxGT("Suutin");
@@ -100,7 +102,7 @@ namespace Language_fi {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Tallenna muistiin");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Lataa muistista");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Palauta oletus");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Päivitä");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Päivitä");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Seuraa");
   LSTR MSG_PREPARE                        = _UxGT("Valmistele");
   LSTR MSG_TUNE                           = _UxGT("Säädä");

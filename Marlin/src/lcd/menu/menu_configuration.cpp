@@ -32,6 +32,10 @@
 
 #include "../../MarlinCore.h"
 
+#if ENABLED(LCD_ENDSTOP_TEST)
+  #include "../../module/endstops.h"
+#endif
+
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -55,9 +59,13 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#include "../../core/debug_out.h"
+#if EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+  #include "../lcdprint.h"
+  #define HAS_DEBUG_MENU 1
+#endif
 
-#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
 
 void menu_advanced_settings();
 #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
@@ -65,8 +73,6 @@ void menu_advanced_settings();
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
-
-  #include "../lcdprint.h"
 
   static void progress_bar_test() {
     static int8_t bar_percent = 0;
@@ -79,7 +85,7 @@ void menu_advanced_settings();
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
     MenuItem_static::draw(0, GET_TEXT_F(MSG_PROGRESS_BAR_TEST), SS_DEFAULT|SS_INVERT);
-    lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_lchar('%');
+    lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_u8str(F("%"));
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
@@ -90,6 +96,81 @@ void menu_advanced_settings();
 
 #endif // LCD_PROGRESS_BAR_TEST
 
+#if ENABLED(LCD_ENDSTOP_TEST)
+
+  #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL)
+  #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
+  #define STOP_ITEM(A,I) _STOP_ITEM(STRINGIFY(A) STRINGIFY(I) " " TERN(A##_HOME_TO_MAX, "Max", "Min"), A##I##_ENDSTOP)
+  #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
+
+  static void endstop_test() {
+    if (ui.use_click()) {
+      ui.goto_previous_screen();
+      //endstops.enable_globally(false);
+      return;
+    }
+    TemporaryGlobalEndstopsState temp(true);
+    ui.defer_status_screen(true);
+    const Endstops::endstop_mask_t stops = endstops.state();
+
+    START_SCREEN();
+    STATIC_ITEM_F(GET_TEXT_F(MSG_ENDSTOP_TEST), SS_DEFAULT|SS_INVERT);
+
+    #if HAS_X_ENDSTOP
+      STOP_ITEM(X,);
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        STOP_ITEM(X,2);
+      #endif
+    #endif
+    #if HAS_Y_ENDSTOP
+      STOP_ITEM(Y,);
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        STOP_ITEM(Y,2);
+      #endif
+    #endif
+    #if HAS_Z_ENDSTOP
+      STOP_ITEM(Z,);
+      #if ENABLED(Z_MULTI_ENDSTOPS)
+        STOP_ITEM(Z,2);
+        #if NUM_Z_STEPPERS >= 3
+          STOP_ITEM(Z,3);
+          #if NUM_Z_STEPPERS >= 4
+            STOP_ITEM(Z,4);
+          #endif
+        #endif
+      #endif
+    #endif
+    #if HAS_I_ENDSTOP
+      STOP_ITEM(I,);
+    #endif
+    #if HAS_J_ENDSTOP
+      STOP_ITEM(J,);
+    #endif
+    #if HAS_K_ENDSTOP
+      STOP_ITEM(K,);
+    #endif
+    #if HAS_U_ENDSTOP
+      STOP_ITEM(U,);
+    #endif
+    #if HAS_V_ENDSTOP
+      STOP_ITEM(V,);
+    #endif
+    #if HAS_W_ENDSTOP
+      STOP_ITEM(W,);
+    #endif
+    #if HAS_BED_PROBE && !HAS_DELTA_SENSORLESS_PROBING
+      __STOP_ITEM(GET_TEXT_F(MSG_Z_PROBE), Z_MIN_PROBE);
+    #endif
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      REPEAT_1(NUM_RUNOUT_SENSORS, FIL_ITEM)
+    #endif
+
+    END_SCREEN();
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+  }
+
+#endif // LCD_ENDSTOP_TEST
+
 #if HAS_DEBUG_MENU
 
   void menu_debug() {
@@ -99,6 +180,10 @@ void menu_advanced_settings();
 
     #if ENABLED(LCD_PROGRESS_BAR_TEST)
       SUBMENU(MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+    #endif
+
+    #if ENABLED(LCD_ENDSTOP_TEST)
+      SUBMENU(MSG_ENDSTOP_TEST, endstop_test);
     #endif
 
     END_MENU();
@@ -124,6 +209,7 @@ void menu_advanced_settings();
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_UNRETRACT_SPEED, &toolchange_settings.unretract_speed, 10, 5400);
       EDIT_ITEM(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPEED, &toolchange_settings.prime_speed, 10, 5400);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_WIPE_RETRACT, &toolchange_settings.wipe_retract, 0, 100);
       EDIT_ITEM_FAST(uint8, MSG_SINGLENOZZLE_FAN_SPEED, &toolchange_settings.fan_speed, 0, 255);
       EDIT_ITEM_FAST(uint8, MSG_SINGLENOZZLE_FAN_TIME, &toolchange_settings.fan_time, 1, 30);
     #endif
@@ -160,7 +246,7 @@ void menu_advanced_settings();
     }
   #endif
 
-#endif
+#endif // HAS_MULTI_EXTRUDER
 
 #if HAS_HOTEND_OFFSET
   #include "../../module/motion.h"
@@ -242,7 +328,7 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    #ifdef BLTOUCH_HS_MODE
+    #if HAS_BLTOUCH_HS_MODE
       EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
     #endif
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
@@ -359,7 +445,7 @@ void menu_advanced_settings();
 
   void custom_menus_configuration() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
@@ -471,7 +557,7 @@ void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Debug Menu when certain options are enabled
@@ -547,10 +633,10 @@ void menu_configuration() {
   //
   // Set display backlight / sleep timeout
   //
-  #if LCD_BACKLIGHT_TIMEOUT && LCD_BKL_TIMEOUT_MIN < LCD_BKL_TIMEOUT_MAX
-    EDIT_ITEM(uint16_4, MSG_LCD_TIMEOUT_SEC, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.backlight_timeout_minutes, ui.backlight_timeout_min, ui.backlight_timeout_max, ui.refresh_backlight_timeout);
   #elif HAS_DISPLAY_SLEEP
-    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, SLEEP_TIMEOUT_MIN, SLEEP_TIMEOUT_MAX, ui.refresh_screen_timeout);
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
   #endif
 
   #if ENABLED(FWRETRACT)

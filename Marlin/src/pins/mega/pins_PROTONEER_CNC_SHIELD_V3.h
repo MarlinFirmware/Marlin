@@ -23,6 +23,9 @@
 
 /**
  * Protoneer v3.00 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Protoneer%20CNC%20Shield%20v3.00/Arduino-CNC-Shield-Scematics-V3.XX_.webp
+ * Origin: https://i0.wp.com/blog.protoneer.co.nz/wp-content/uploads/2013/07/Arduino-CNC-Shield-Scematics-V3.XX_.jpg
+ * ATmega2560
  *
  * This CNC shield has an UNO pinout and fits all Arduino-compatibles.
  *
@@ -51,16 +54,16 @@
 
 #define Y_STEP_PIN                             3
 #define Y_DIR_PIN                              6
-#define Y_ENABLE_PIN                 X_ENABLE_PIN
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 
 #define Z_STEP_PIN                             4
 #define Z_DIR_PIN                              7
-#define Z_ENABLE_PIN                 X_ENABLE_PIN
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 
 // Designated with letter "A" on BOARD
 #define E0_STEP_PIN                           12
 #define E0_DIR_PIN                            13
-#define E0_ENABLE_PIN                X_ENABLE_PIN
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Temperature sensors - These could be any analog output not hidden by board

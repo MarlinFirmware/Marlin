@@ -23,6 +23,7 @@
 
 /**
  * Geeetech HJC2560-C Rev 2.x board pin assignments
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -91,8 +92,8 @@
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7  //默认不使用PWM_FAN冷却喷嘴，如果需要，则取消注释
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7  //默认不使用PWM_FAN冷却喷嘴，如果需要，则取消注释
 #endif
 
 //
@@ -113,9 +114,9 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #define SPINDLE_DIR_PIN                     16
-  #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
   #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
+  #define SPINDLE_DIR_PIN                     16
 #endif
 
 //
@@ -128,7 +129,7 @@
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20  // LCD_CS
-    #define LCD_PINS_ENABLE                   15  // LCD_SDA
+    #define LCD_PINS_EN                       15  // LCD_SDA
     #define LCD_PINS_D4                       14  // LCD_SCK
 
     #if ENABLED(HJC_LCD_SMART_CONTROLLER)
@@ -160,7 +161,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20

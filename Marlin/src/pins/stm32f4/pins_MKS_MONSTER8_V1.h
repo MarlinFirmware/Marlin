@@ -26,7 +26,9 @@
 //
 // Limit Switches
 //
+#define X_MIN_PIN                           PA14
 #define X_MAX_PIN                           PA13
+#define Y_MIN_PIN                           PA15
 #define Y_MAX_PIN                           PC5
 
 //
@@ -37,7 +39,7 @@
 //
 // Misc. Functions
 //
-#define PW_DET                               PC5  // Y+
+#define PW_DET                              PC5   // Y+
 #define PW_OFF                              PB12  // Z+
 #define MT_DET_1_PIN                      PW_DET
 #define MT_DET_2_PIN                      PW_OFF

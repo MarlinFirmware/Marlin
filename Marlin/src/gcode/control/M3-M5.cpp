@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 #include "../../feature/spindle_laser.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 
 /**
  * Laser:

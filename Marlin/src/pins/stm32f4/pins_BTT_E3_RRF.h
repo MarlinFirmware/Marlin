@@ -51,11 +51,7 @@
 #define Z_STOP_PIN                          PC2   // Z-STOP
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
-  #if X2_USE_ENDSTOP == _XMAX_
-    #define X_MAX_PIN                   FPC2_PIN  // X2-STOP
-  #elif X2_USE_ENDSTOP == _XMIN_
-    #define X_MIN_PIN                   FPC2_PIN  // X2-STOP
-  #endif
+  #define X2_STOP_PIN                   FPC2_PIN  // X2-STOP
 #endif
 
 //
@@ -135,8 +131,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -159,7 +158,7 @@
   #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
 #endif
 
-#define FAN_PIN                             PB5   // "FAN0"
+#define FAN0_PIN                            PB5   // "FAN0"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"
@@ -186,11 +185,11 @@
 /**
  *              BTT E3 RRF
  *                ------
- * (BEEPER)  PE8 |10  9 | PE9  (BTN_ENC)
- * (BTN_EN1) PE7 | 8  7 | RESET
- * (BTN_EN2) PB2   6  5 | PE10 (LCD_D4)
- * (LCD_RS)  PB1 | 4  3 | PE11 (LCD_EN)
- *           GND | 2  1 | 5V
+ * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)
+ * (BTN_EN1) PE7 | 3  4 | RESET
+ * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)
+ * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)
+ *           GND | 9 10 | 5V
  *                ------
  *                 EXP1
  */
@@ -206,7 +205,7 @@
     #define BTN_EN2                         PB2
 
     #define LCD_PINS_RS                     PB1
-    #define LCD_PINS_ENABLE                 PE11
+    #define LCD_PINS_EN                     PE11
     #define LCD_PINS_D4                     PE10
 
     #if ENABLED(LCD_FOR_MELZI)
@@ -219,28 +218,28 @@
       *
       *               BTT E3 RRF                                   Display Ribbon
       *                ------                                         ------
-      * (BEEPER)  PE8 |10  9 | PE9  (BTN_ENC)                    GND |10  9 | 5V
-      * (BTN_EN1) PE7 | 8  7 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
-      * (BTN_EN2) PB2   6  5 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
-      * (LCD_RS)  PB1 | 4  3 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
-      *           GND | 2  1 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
+      * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)                    GND |10  9 | 5V
+      * (BTN_EN1) PE7 | 3  4 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
+      * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
+      * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
+      *           GND | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
       *                ------                                         ------
-      *                 EXP1                                          Ribbon
+      *                 EXP1                                           LCD
       *
       * Needs custom cable:
       *
       *    Board   Adapter   Display Ribbon (coming from display)
-      *
-      *   EXP1-1 ----------- EXP1-9
-      *   EXP1-2 ----------- EXP1-10
-      *   EXP1-3 ----------- EXP1-3
-      *   EXP1-4 ----------- EXP1-1
-      *   EXP1-5 ----------- EXP1-5
-      *   EXP1-6 ----------- EXP1-4
-      *   EXP1-7 ----------- EXP1-7
-      *   EXP1-8 ----------- EXP1-8
-      *   EXP1-9 ----------- EXP1-6
-      *  EXP1-10 ----------- EXP1-8
+      *  ----------------------------------
+      *  EXP1-10 ---------- LCD-9   5V
+      *  EXP1-9 ----------- LCD-10  GND
+      *  EXP1-8 ----------- LCD-3   LCD_EN
+      *  EXP1-7 ----------- LCD-1   LCD_RS
+      *  EXP1-6 ----------- LCD-5   LCD_D4
+      *  EXP1-5 ----------- LCD-4   EN2
+      *  EXP1-4 ----------- LCD-7   RESET
+      *  EXP1-3 ----------- LCD-2   EN1
+      *  EXP1-2 ----------- LCD-6   BTN
+      *  EXP1-1 ----------- LCD-8   BEEPER
       */
 
     #endif
@@ -252,7 +251,7 @@
     #endif
 
     #define LCD_PINS_RS                     PE10
-    #define LCD_PINS_ENABLE                 PE9
+    #define LCD_PINS_EN                     PE9
     #define LCD_PINS_D4                     PB1
     #define LCD_PINS_D5                     PB2
     #define LCD_PINS_D6                     PE7
@@ -286,28 +285,28 @@
        *
        *                  Board                       Display
        *                  ------                       ------
-       * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)     5V |10  9 | GND
-       * (MOD_RESET) PE7 | 8  7 | RESET            -- | 8  7 | (SD_DET)
-       * (SD_CS)     PB2   6  5 | PE10        (MOSI)    6  5 | --
-       * (LCD_CS)    PB1 | 4  3 | PE11        (SD_CS) | 4  3 | (LCD_CS)
-       *             GND | 2  1 | 5V          (SCK)   | 2  1 | (MISO)
+       * (SD_DET)    PE8 | 1  2 | PE9 (BEEPER)     5V |10  9 | GND
+       * (MOD_RESET) PE7 | 3  4 | RESET            -- | 8  7 | (SD_DET)
+       * (SD_CS)     PB2   5  6 | PE10        (MOSI)    6  5 | --
+       * (LCD_CS)    PB1 | 7  8 | PE11        (SD_CS) | 4  3 | (LCD_CS)
+       *             GND | 9 10 | 5V          (SCK)   | 2  1 | (MISO)
        *                  ------                       ------
        *                   EXP1                         EXP1
        *
        * Needs custom cable:
        *
        *    Board   Adapter   Display
-       *           _________
-       *   EXP1-1 ----------- EXP1-10
-       *   EXP1-2 ----------- EXP1-9
-       *   SPI1-4 ----------- EXP1-6
-       *   EXP1-4 ----------- FREE
-       *   SPI1-3 ----------- EXP1-2
-       *   EXP1-6 ----------- EXP1-4
-       *   EXP1-7 ----------- FREE
-       *   EXP1-8 ----------- EXP1-3
-       *   SPI1-1 ----------- EXP1-1
-       *  EXP1-10 ----------- EXP1-7
+       *   ----------------------------------
+       *   EXP1-10 ---------- EXP1-10  5V
+       *   EXP1-9 ----------- EXP1-9   GND
+       *   SPI1-4 ----------- EXP1-6   MOSI
+       *   EXP1-7 ----------- n/c
+       *   SPI1-3 ----------- EXP1-2   SCK
+       *   EXP1-5 ----------- EXP1-4   SD_CS
+       *   EXP1-4 ----------- n/c
+       *   EXP1-3 ----------- EXP1-3   LCD_CS
+       *   SPI1-1 ----------- EXP1-1   MISO
+       *   EXP1-1 ----------- EXP1-7   SD_DET
        */
 
       #define TFTGLCD_CS                    PE7
@@ -341,28 +340,28 @@
    *
    *                  Board                          Display
    *                  ------                          ------
-   * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)        5V |10  9 | GND
-   * (MOD_RESET) PE7 | 8  7 | RESET            RESET | 8  7 | (SD_DET)
-   * (SD_CS)     PB2   6  5 | PE10           (MOSI)  | 6  5 | (LCD_CS)
-   * (LCD_CS)    PB1 | 4  3 | PE11           (SD_CS) | 4  3 | (MOD_RESET)
-   *             GND | 2  1 | 5V             (SCK)   | 2  1 | (MISO)
+   * (SD_DET)    PE8 | 1  2 | PE9 (BEEPER)        5V |10  9 | GND
+   * (MOD_RESET) PE7 | 3  4 | RESET            RESET | 8  7 | (SD_DET)
+   * (SD_CS)     PB2   5  6 | PE10           (MOSI)  | 6  5 | (LCD_CS)
+   * (LCD_CS)    PB1 | 7  8 | PE11           (SD_CS) | 4  3 | (MOD_RESET)
+   *             GND | 9 10 | 5V             (SCK)   | 2  1 | (MISO)
    *                  ------                          ------
    *                   EXP1                            EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SPI1-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ---------- EXP1-10  5V
+   *   EXP1-9 ----------- EXP1-9   GND
+   *   SPI1-4 ----------- EXP1-6   MOSI
+   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   SPI1-3 ----------- EXP1-2   SCK
+   *   EXP1-5 ----------- EXP1-4   SD_CS
+   *   EXP1-4 ----------- EXP1-8   RESET
+   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   SPI1-1 ----------- EXP1-1   MISO
+   *   EXP1-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
@@ -383,22 +382,23 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
 #endif
 
-//
-// WIFI
-//
-
-#define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PA4
-#define ESP_WIFI_MODULE_ENABLE_PIN          PA5
-#define ESP_WIFI_MODULE_GPIO0_PIN           PA6
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
+  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PA4
+  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
+#endif
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
   #define FPC2_PIN                          PB11
