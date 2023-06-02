@@ -24,8 +24,6 @@
 
 #if ENABLED(MIXING_EXTRUDER)
 
-//#define MIXER_NORMALIZER_DEBUG
-
 #include "mixing.h"
 
 Mixer mixer;
@@ -44,7 +42,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
@@ -96,13 +94,13 @@ void Mixer::normalize(const uint8_t tool_index) {
 void Mixer::reset_vtools() {
   // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
   // Every virtual tool gets a pure filament
-  LOOP_L_N(t, _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS))
+  for (uint8_t t = 0; t < _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS); ++t)
     MIXER_STEPPER_LOOP(i)
       color[t][i] = (t == i) ? COLOR_A_MASK : 0;
 
   // Remaining virtual tools are 100% filament 1
   #if MIXING_VIRTUAL_TOOLS > MIXING_STEPPERS
-    LOOP_S_L_N(t, MIXING_STEPPERS, MIXING_VIRTUAL_TOOLS)
+    for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; ++t)
       MIXER_STEPPER_LOOP(i)
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
@@ -140,7 +138,7 @@ void Mixer::init() {
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
     update_mix_from_vtool();
   #endif
 

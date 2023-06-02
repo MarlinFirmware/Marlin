@@ -23,6 +23,16 @@
 
 /**
  * Sanguinololu board pin assignments
+ * Schematic (0.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.1/schematic.png
+ * Origin (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
+ * Schematic (0.6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.6/schematic.jpg
+ * Origin (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
+ * Schematic (0.7): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.7/schematic.jpg
+ * Origin (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
+ * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.0/Sanguinololu-schematic.jpg
+ * Origin (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
+ * Schematic (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.1/schematic.png
+ * Origin (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
  */
 
 /**
@@ -90,8 +100,8 @@
 //
 #define HEATER_0_PIN                          13  // (extruder)
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              4  // Works for Panelolu2 too
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             4  // Works for Panelolu2 too
 #endif
 
 #if DISABLED(SANGUINOLOLU_V_1_2)
@@ -123,7 +133,7 @@
   #define LCD_BACKLIGHT_PIN                   17  // LCD backlight LED
 #endif
 
-#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
+#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
   #define CASE_LIGHT_PIN                       4  // Hardware PWM  - see if IO Header is available
 #endif
 
@@ -148,16 +158,16 @@
     #if ENABLED(LCD_FOR_MELZI)
 
       #define LCD_PINS_RS                     17
-      #define LCD_PINS_ENABLE                 16
+      #define LCD_PINS_EN                     16
       #define LCD_PINS_D4                     11
       #define KILL_PIN                        10
       #define BEEPER_PIN                      27
 
-    #elif IS_U8GLIB_ST7920                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+    #elif IS_U8GLIB_ST7920                        // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
       #if IS_MELZI
         #define LCD_PINS_RS                   30  // CS chip select /SS chip slave select
-        #define LCD_PINS_ENABLE               29  // SID (MOSI)
+        #define LCD_PINS_EN                   29  // SID (MOSI)
         #define LCD_PINS_D4                   17  // SCK (CLK) clock
         // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
@@ -165,7 +175,7 @@
         #define BEEPER_PIN                    27
       #else                                       // Sanguinololu >=1.3
         #define LCD_PINS_RS                    4
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   30
         #define LCD_PINS_D5                   29
         #define LCD_PINS_D6                   28
@@ -200,7 +210,7 @@
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
     #define LCD_PINS_RS                       28
-    #define LCD_PINS_ENABLE                   29
+    #define LCD_PINS_EN                       29
     #define LCD_PINS_D4                       10
     #define LCD_PINS_D5                       11
     #define LCD_PINS_D6                       16
@@ -209,7 +219,7 @@
   #else
 
     #define LCD_PINS_RS                        4
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       30
     #define LCD_PINS_D5                       29
     #define LCD_PINS_D6                       28
@@ -260,10 +270,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
 
-    #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   11
 
   #elif !MB(MELZI)                                // use X stepper motor socket

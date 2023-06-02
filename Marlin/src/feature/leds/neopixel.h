@@ -58,7 +58,7 @@
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
 
-#if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
+#if ANY(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
   #define CONJOINED_NEOPIXEL 1
 #endif
 
@@ -66,7 +66,7 @@
 // Types
 // ------------------------
 
-typedef IF<(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS > 127)), int16_t, int8_t>::type pixel_index_t;
+typedef value_t(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS)) pixel_index_t;
 
 // ------------------------
 // Classes
@@ -91,6 +91,7 @@ public:
     static void set_background_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w);
     static void set_background_color(const uint8_t (&rgbw)[4]) { set_background_color(rgbw[0], rgbw[1], rgbw[2], rgbw[3]); }
     static void reset_background_color();
+    static void set_background_off();
   #endif
 
   static void begin() {

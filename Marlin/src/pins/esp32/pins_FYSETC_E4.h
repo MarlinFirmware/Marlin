@@ -30,9 +30,7 @@
 
 #include "env_validate.h"
 
-#if EXTRUDERS > 1 || E_STEPPERS > 1
-  #error "FYSETC E4 only supports 1 E stepper."
-#elif HAS_MULTI_HOTEND
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "FYSETC E4 only supports 1 hotend / E stepper."
 #endif
 

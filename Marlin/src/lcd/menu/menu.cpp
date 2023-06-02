@@ -48,7 +48,7 @@
 ////////////////////////////////////////////
 
 #if HAS_LEVELING && ANY(LCD_BED_TRAMMING, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
-  bool leveling_was_active; // = false
+  bool menu_leveling_was_active; // = false
 #endif
 #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
   uint8_t manual_probe_index; // = 0
@@ -117,8 +117,7 @@ void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
   // Reset repeat_delay for Touch Buttons
   TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
   // Constrain ui.encoderPosition to 0 ... maxEditValue (calculated in encoder steps)
-  if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
-  if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
+  ui.encoderPosition = constrain(int32_t(ui.encoderPosition), 0, maxEditValue);
   // If drawing is flagged then redraw the (whole) edit screen
   if (ui.should_draw())
     draw_edit_screen(strfunc(ui.encoderPosition + minEditValue));
@@ -139,7 +138,7 @@ void MenuEditItemBase::goto_edit_screen(
   void * const ev,        // Edit value pointer
   const int32_t minv,     // Encoder minimum
   const int32_t maxv,     // Encoder maximum
-  const uint16_t ep,      // Initial encoder value
+  const uint32_t ep,      // Initial encoder value
   const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
@@ -177,7 +176,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
-    #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
+    #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
       // Going to menu_main from status screen? Remember first click time.
       // Going back to status screen within a very short time? Go to Z babystepping.
@@ -272,13 +271,6 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     encoderTopLine = encoderLine;
 }
 
-#if HAS_SOUND
-  void MarlinUI::completion_feedback(const bool good/*=true*/) {
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
-    if (good) OKAY_BUZZ(); else ERR_BUZZ();
-  }
-#endif
-
 #if HAS_LINE_TO_Z
 
   void line_to_z(const_float_t z) {
@@ -321,7 +313,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
-        TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
+        TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)

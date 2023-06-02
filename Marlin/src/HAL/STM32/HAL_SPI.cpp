@@ -78,7 +78,6 @@ static SPISettings spiConfig;
       case SPI_SPEED_6:      delaySPIFunc = &delaySPI_2000; break;  // desired:   250,000  actual: ~210K
       default:               delaySPIFunc = &delaySPI_4000; break;  // desired:   125,000  actual: ~123K
     }
-    SPI.begin();
   }
 
   // Begin SPI transaction, set clock, bit order, data mode

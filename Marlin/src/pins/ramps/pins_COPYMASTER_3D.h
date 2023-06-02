@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #define BOARD_INFO_NAME "Copymaster 3D RAMPS"
 
 #define Z_STEP_PIN                            47

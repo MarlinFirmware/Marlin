@@ -71,7 +71,7 @@ void TFT_FSMC::Init() {
   Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
-  // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
+  // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
   ExtTiming.AddressSetupTime = 8;
   ExtTiming.AddressHoldTime = 15;
   ExtTiming.DataSetupTime = 8;
@@ -100,11 +100,11 @@ void TFT_FSMC::Init() {
 
   HAL_SRAM_Init(&SRAMx, &Timing, &ExtTiming);
 
-  __HAL_RCC_DMA2_CLK_ENABLE();
-
   #ifdef STM32F1xx
-    DMAtx.Instance = DMA2_Channel1;
+    __HAL_RCC_DMA1_CLK_ENABLE();
+    DMAtx.Instance = DMA1_Channel1;
   #elif defined(STM32F4xx)
+    __HAL_RCC_DMA2_CLK_ENABLE();
     DMAtx.Instance = DMA2_Stream0;
     DMAtx.Init.Channel = DMA_CHANNEL_0;
     DMAtx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
@@ -174,6 +174,8 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   DMAtx.Init.PeriphInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
   HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(LCD->RAM), Count);
+
+  TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {

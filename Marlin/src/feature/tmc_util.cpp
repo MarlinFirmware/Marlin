@@ -601,8 +601,8 @@
         case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
         case TMC_GLOBAL_SCALER:
           {
-            uint16_t value = st.GLOBAL_SCALER();
-            SERIAL_ECHO(value ? value : 256);
+            const uint16_t value = st.GLOBAL_SCALER();
+            SERIAL_ECHO(value ?: 256);
             SERIAL_ECHOPGM("/256");
           }
           break;
@@ -773,8 +773,8 @@
     }
   }
 
-  static void tmc_debug_loop(const TMC_debug_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+  static void tmc_debug_loop(const TMC_debug_enum n OPTARGS_LOGICAL(const bool)) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_status(stepperX, n);
       #endif
@@ -856,8 +856,8 @@
     SERIAL_EOL();
   }
 
-  static void drv_status_loop(const TMC_drv_status_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+  static void drv_status_loop(const TMC_drv_status_enum n OPTARGS_LOGICAL(const bool)) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_parse_drv_status(stepperX, n);
       #endif
@@ -944,8 +944,8 @@
    */
 
   void tmc_report_all(LOGICAL_AXIS_ARGS(const bool)) {
-    #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_debug_loop(ITEM, LOGICAL_AXIS_ARGS()); }while(0)
-    #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM, LOGICAL_AXIS_ARGS()); }while(0)
+    #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_debug_loop(ITEM OPTARGS_LOGICAL()); }while(0)
+    #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM OPTARGS_LOGICAL()); }while(0)
 
     TMC_REPORT("\t",                 TMC_CODES);
     #if HAS_DRIVER(TMC2209)
@@ -1070,8 +1070,8 @@
     }
   #endif
 
-  static void tmc_get_registers(TMC_get_registers_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+  static void tmc_get_registers(TMC_get_registers_enum n OPTARGS_LOGICAL(const bool)) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_get_registers(stepperX, n);
       #endif
@@ -1154,7 +1154,7 @@
   }
 
   void tmc_get_registers(LOGICAL_AXIS_ARGS(bool)) {
-    #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM, LOGICAL_AXIS_ARGS()); }while(0)
+    #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM OPTARGS_LOGICAL()); }while(0)
     #define TMC_GET_REG(NAME, TABS) _TMC_GET_REG(STRINGIFY(NAME) TABS, TMC_GET_##NAME)
     _TMC_GET_REG("\t", TMC_AXIS_CODES);
     TMC_GET_REG(GCONF, "\t\t");
@@ -1236,7 +1236,7 @@ static bool test_connection(TMC &st) {
 void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   uint8_t axis_connection = 0;
 
-  if (x) {
+  if (TERN0(HAS_X_AXIS, x)) {
     #if AXIS_IS_TMC(X)
       axis_connection += test_connection(stepperX);
     #endif

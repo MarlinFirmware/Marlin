@@ -38,10 +38,13 @@ void GcodeSuite::G6() {
     planner.last_page_step_rate = parser.value_ulong();
 
   if (!DirectStepping::Config::DIRECTIONAL) {
-    if (parser.seen('X')) planner.last_page_dir.x = !!parser.value_byte();
-    if (parser.seen('Y')) planner.last_page_dir.y = !!parser.value_byte();
-    if (parser.seen('Z')) planner.last_page_dir.z = !!parser.value_byte();
-    if (parser.seen('E')) planner.last_page_dir.e = !!parser.value_byte();
+    #define PAGE_DIR_SET(N,A) do{ if (parser.seen(N)) planner.last_page_dir.A = !!parser.value_byte(); } while(0)
+    LOGICAL_AXIS_CODE(
+      PAGE_DIR_SET('E',E),
+      PAGE_DIR_SET('X',X), PAGE_DIR_SET('Y',Y), PAGE_DIR_SET('Z',Z),
+      PAGE_DIR_SET(AXIS4_NAME,I), PAGE_DIR_SET(AXIS5_NAME,J), PAGE_DIR_SET(AXIS6_NAME,K),
+      PAGE_DIR_SET(AXIS5_NAME,U), PAGE_DIR_SET(AXIS6_NAME,V), PAGE_DIR_SET(AXIS7_NAME,W)
+    );
   }
 
   // No index means we just set the state

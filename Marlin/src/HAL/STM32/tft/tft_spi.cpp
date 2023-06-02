@@ -242,9 +242,8 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
 
   SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
 
-  TERN_(TFT_SHARED_SPI, while (isBusy()));
+  TERN_(TFT_SHARED_IO, while (isBusy()));
 }
-
 
 void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DMAtx.Init.MemInc = MemoryIncrease;
@@ -261,6 +260,7 @@ void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) 
   SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
 
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
+  while ( __HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
   Abort();
 }
 
