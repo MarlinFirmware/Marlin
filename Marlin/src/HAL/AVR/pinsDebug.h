@@ -109,7 +109,7 @@ void PRINT_ARRAY_NAME(uint8_t x) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-static bool pwm_status(uint8_t pin) {
+bool pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
 
   switch (digitalPinToTimer_DEBUG(pin)) {
@@ -232,12 +232,12 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
 #define OCR_VAL(T, L)   pgm_read_word(&PWM_OCR[T][L])
 
-static void err_is_counter()     { SERIAL_ECHOPGM("   non-standard PWM mode"); }
-static void err_is_interrupt()   { SERIAL_ECHOPGM("   compare interrupt enabled"); }
-static void err_prob_interrupt() { SERIAL_ECHOPGM("   overflow interrupt enabled"); }
-static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); SERIAL_ECHO_SP(14); }
+void err_is_counter()     { SERIAL_ECHOPGM("   non-standard PWM mode"); }
+void err_is_interrupt()   { SERIAL_ECHOPGM("   compare interrupt enabled"); }
+void err_prob_interrupt() { SERIAL_ECHOPGM("   overflow interrupt enabled"); }
+void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); SERIAL_ECHO_SP(14); }
 
-inline void com_print(const uint8_t N, const uint8_t Z) {
+void com_print(const uint8_t N, const uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_ECHOPGM("    COM", AS_DIGIT(N));
   SERIAL_CHAR(Z);
@@ -279,7 +279,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
-static void pwm_details(uint8_t pin) {
+void pwm_details(uint8_t pin) {
   switch (digitalPinToTimer_DEBUG(pin)) {
 
     #if ABTEST(0)
@@ -353,47 +353,41 @@ static void pwm_details(uint8_t pin) {
 } // pwm_details
 
 #ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
-  int digitalRead_mod(const int8_t pin) { // same as digitalRead except the PWM stop section has been removed
+  int digitalRead_mod(const pin_t pin) {  // same as digitalRead except the PWM stop section has been removed
     const uint8_t port = digitalPinToPort_DEBUG(pin);
     return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask_DEBUG(pin)) ? HIGH : LOW;
   }
 #endif
 
-#ifndef PRINT_PORT
+void print_port(const pin_t pin) {   // print port number
+  #ifdef digitalPinToPort_DEBUG
+    uint8_t x;
+    SERIAL_ECHOPGM("  Port: ");
+    #if AVR_AT90USB1286_FAMILY
+      x = (pin == 46 || pin == 47) ? 'E' : digitalPinToPort_DEBUG(pin) + 64;
+    #else
+      x = digitalPinToPort_DEBUG(pin) + 64;
+    #endif
+    SERIAL_CHAR(x);
 
-  void print_port(int8_t pin) {   // print port number
-    #ifdef digitalPinToPort_DEBUG
-      uint8_t x;
-      SERIAL_ECHOPGM("  Port: ");
-      #if AVR_AT90USB1286_FAMILY
-        x = (pin == 46 || pin == 47) ? 'E' : digitalPinToPort_DEBUG(pin) + 64;
-      #else
-        x = digitalPinToPort_DEBUG(pin) + 64;
-      #endif
-      SERIAL_CHAR(x);
-
-      #if AVR_AT90USB1286_FAMILY
-        if (pin == 46)
-          x = '2';
-        else if (pin == 47)
-          x = '3';
-        else {
-          uint8_t temp = digitalPinToBitMask_DEBUG(pin);
-          for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
-        }
-      #else
+    #if AVR_AT90USB1286_FAMILY
+      if (pin == 46)
+        x = '2';
+      else if (pin == 47)
+        x = '3';
+      else {
         uint8_t temp = digitalPinToBitMask_DEBUG(pin);
         for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
-      #endif
-      SERIAL_CHAR(x);
+      }
     #else
-      SERIAL_ECHO_SP(10);
+      uint8_t temp = digitalPinToBitMask_DEBUG(pin);
+      for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
     #endif
-  }
-
-  #define PRINT_PORT(p) print_port(p)
-
-#endif
+    SERIAL_CHAR(x);
+  #else
+    SERIAL_ECHO_SP(10);
+  #endif
+}
 
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)

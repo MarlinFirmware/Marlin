@@ -101,12 +101,6 @@
 #define MIN_PRINT_SPEED  10
 #define MAX_PRINT_SPEED 999
 
-// Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
-#define MIN_MAXFEEDSPEED      1
-#define MIN_MAXACCELERATION   1
-#define MIN_MAXJERK           0.1
-#define MIN_STEP              1
-
 #define FEEDRATE_E      (60)
 
 // Minimum unit (0.1) : multiple (10)
@@ -180,13 +174,6 @@ uint8_t index_file     = MROWS,
         index_advset   = MROWS;
 
 bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
-
-constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
-constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
-
-#if HAS_CLASSIC_JERK
-  constexpr float default_max_jerk[]          = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
-#endif
 
 static uint8_t _card_percent = 0;
 static uint16_t _remain_time = 0;
@@ -1568,8 +1555,7 @@ void HMI_MaxFeedspeedXYZE() {
   }
   // MaxFeedspeed limit
   if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, LAST_AXIS))
-    NOMORE(HMI_ValueStruct.Max_Feedspeed, default_max_feedrate[HMI_flag.feedspeed_axis] * 2);
-  if (HMI_ValueStruct.Max_Feedspeed < MIN_MAXFEEDSPEED) HMI_ValueStruct.Max_Feedspeed = MIN_MAXFEEDSPEED;
+    LIMIT(HMI_ValueStruct.Max_Feedspeed, min_feedrate_edit_values[HMI_flag.feedspeed_axis], max_feedrate_edit_values[HMI_flag.feedspeed_axis]);
   // MaxFeedspeed value
   Draw_Edit_Integer4(select_speed.now, HMI_ValueStruct.Max_Feedspeed, true);
 }
@@ -1587,8 +1573,7 @@ void HMI_MaxAccelerationXYZE() {
   }
   // MaxAcceleration limit
   if (WITHIN(HMI_flag.acc_axis, X_AXIS, LAST_AXIS))
-    NOMORE(HMI_ValueStruct.Max_Acceleration, default_max_acceleration[HMI_flag.acc_axis] * 2);
-  if (HMI_ValueStruct.Max_Acceleration < MIN_MAXACCELERATION) HMI_ValueStruct.Max_Acceleration = MIN_MAXACCELERATION;
+    LIMIT(HMI_ValueStruct.Max_Acceleration, min_acceleration_edit_values[HMI_flag.acc_axis], max_acceleration_edit_values[HMI_flag.acc_axis]);
   // MaxAcceleration value
   Draw_Edit_Integer4(select_acc.now, HMI_ValueStruct.Max_Acceleration, true);
 }
@@ -1602,14 +1587,13 @@ void HMI_MaxAccelerationXYZE() {
       checkkey = MaxJerk;
       EncoderRate.enabled = false;
       if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
-        planner.set_max_jerk(HMI_flag.jerk_axis, HMI_ValueStruct.Max_Jerk_scaled / 10);
+        planner.set_max_jerk(HMI_flag.jerk_axis, HMI_ValueStruct.Max_Jerk_scaled / MINUNITMULT);
       Draw_Edit_Float3(select_jerk.now, HMI_ValueStruct.Max_Jerk_scaled);
       return;
     }
     // MaxJerk limit
     if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
-      NOMORE(HMI_ValueStruct.Max_Jerk_scaled, default_max_jerk[HMI_flag.jerk_axis] * 2 * MINUNITMULT);
-    NOLESS(HMI_ValueStruct.Max_Jerk_scaled, (MIN_MAXJERK) * MINUNITMULT);
+      LIMIT(HMI_ValueStruct.Max_Jerk_scaled, min_jerk_edit_values[HMI_flag.jerk_axis] * MINUNITMULT, max_jerk_edit_values[HMI_flag.jerk_axis] * MINUNITMULT);
     // MaxJerk value
     Draw_Edit_Float3(select_jerk.now, HMI_ValueStruct.Max_Jerk_scaled, true);
   }
@@ -1623,14 +1607,13 @@ void HMI_StepXYZE() {
     checkkey = Step;
     EncoderRate.enabled = false;
     if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
-      planner.settings.axis_steps_per_mm[HMI_flag.step_axis] = HMI_ValueStruct.Max_Step_scaled / 10;
+      planner.settings.axis_steps_per_mm[HMI_flag.step_axis] = HMI_ValueStruct.Max_Step_scaled / MINUNITMULT;
     Draw_Edit_Float3(select_step.now, HMI_ValueStruct.Max_Step_scaled);
     return;
   }
   // Step limit
   if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
-    NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9 * MINUNITMULT);
-  NOLESS(HMI_ValueStruct.Max_Step_scaled, MIN_STEP);
+    LIMIT(HMI_ValueStruct.Max_Step_scaled, min_steps_edit_values[HMI_flag.step_axis] * MINUNITMULT, max_steps_edit_values[HMI_flag.step_axis] * MINUNITMULT);
   // Step value
   Draw_Edit_Float3(select_step.now, HMI_ValueStruct.Max_Step_scaled, true);
 }

@@ -122,7 +122,7 @@ namespace Language_ca {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Desa memoria");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Carrega memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restaura valors");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Actualitza");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Actualitza");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla Info.");
   LSTR MSG_PREPARE                        = _UxGT("Prepara");
   LSTR MSG_TUNE                           = _UxGT("Ajusta");

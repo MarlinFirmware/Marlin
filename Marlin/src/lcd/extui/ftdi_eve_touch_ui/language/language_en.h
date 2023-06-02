@@ -91,7 +91,6 @@ namespace Language_en {
   LSTR MSG_IDLE                     = u8"idle";
   LSTR MSG_SET_MAXIMUM              = u8"Set Maximum";
   LSTR MSG_PRINT_SPEED              = u8"Print Speed";
-  LSTR MSG_LINEAR_ADVANCE           = u8"Linear Advance";
   LSTR MSG_LINEAR_ADVANCE_K         = u8"K";
   LSTR MSG_LINEAR_ADVANCE_K1        = u8"K E1";
   LSTR MSG_LINEAR_ADVANCE_K2        = u8"K E2";
