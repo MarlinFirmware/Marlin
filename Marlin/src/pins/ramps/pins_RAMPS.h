@@ -250,7 +250,7 @@
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
-  #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
+  #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
     #define HEATER_1_PIN            MOSFET_D_PIN
   #else
     #define FAN1_PIN                MOSFET_D_PIN
@@ -258,9 +258,9 @@
 #endif
 
 #ifndef FAN0_PIN
-  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if ANY(FET_ORDER_EFB, FET_ORDER_EFF)           // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN0_PIN                MOSFET_B_PIN
-  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+  #elif ANY(FET_ORDER_EEF, FET_ORDER_SF)          // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN0_PIN                MOSFET_C_PIN
   #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
     #define FAN0_PIN                           4  // IO pin. Buffer needed
@@ -567,7 +567,7 @@
     #define EXP1_01_PIN              AUX4_09_PIN
     #define EXP1_02_PIN              AUX4_10_PIN
 
-    #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+    #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
       #define EXP2_03_PIN            AUX4_11_PIN
       #define EXP2_05_PIN            AUX4_12_PIN
       #define EXP2_08_PIN                     -1  // RESET
@@ -598,7 +598,7 @@
     #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
     #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
 
-  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
+  #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS              AUX2_06_PIN
     #define LCD_PINS_EN              AUX2_08_PIN
@@ -642,7 +642,7 @@
 
     #else
 
-      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC          EXP1_06_PIN  // Set as output on init
         #define LCD_PINS_RS          EXP1_07_PIN  // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -736,7 +736,7 @@
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
 
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       #define DOGLCD_CS              AUX4_05_PIN
       #define DOGLCD_A0              AUX2_07_PIN
@@ -777,7 +777,7 @@
       #endif
       #define KILL_PIN               EXP2_08_PIN
 
-    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
+    #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
       #define BTN_ENC                EXP1_02_PIN
       #ifndef SD_DETECT_PIN
@@ -814,7 +814,7 @@
 
         #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             #define RGB_LED_R_PIN    EXP1_06_PIN
           #endif
@@ -914,7 +914,7 @@
   #endif
 #endif
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"

@@ -183,7 +183,7 @@
   #define EXP3_07_PIN                       PB12
   #define EXP3_08_PIN                       PB15
 
-#elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
+#elif ANY(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
 
   /**
    *    VET6 12864 LCD
@@ -204,7 +204,7 @@
   #define EXP3_07_PIN                       PA4
   #define EXP3_08_PIN                       PA7
 
-#elif EITHER(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
+#elif ANY(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
 #endif
 

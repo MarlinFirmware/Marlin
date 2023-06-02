@@ -234,7 +234,7 @@ struct SerialBase {
 
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    LOOP_L_N(i, digits) rounding *= 0.1;
+    for (uint8_t i = 0; i < digits; ++i) rounding *= 0.1;
     number += rounding;
 
     // Extract the integer part of the number and print it
