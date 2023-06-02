@@ -6,8 +6,8 @@
 #include "HAL.h"
 #include <adc/adc.h>
 #include <IWatchdog.h>
+#include <OnChipTemperature.h>
 #include "../../inc/MarlinConfig.h"
-#include "soctemp.h"
 
 extern "C" char *_sbrk(int incr);
 
@@ -44,7 +44,6 @@ void MarlinHAL::watchdog_refresh()
 void MarlinHAL::init()
 {
     NVIC_SetPriorityGrouping(0x3);
-    SOCTemp::init();
 
     // print clock frequencies to host serial
     SERIAL_LEAF_1.print("-- clocks dump -- \n");
@@ -66,6 +65,10 @@ void MarlinHAL::init()
     SERIAL_LEAF_1.print(" ; F_CPU=");
     SERIAL_LEAF_1.print(F_CPU);
     SERIAL_LEAF_1.print("\n");
+
+    // start OTS, min. 1s between reads
+    ChipTemperature.begin();
+    ChipTemperature.setMinimumReadDeltaMillis(1000);
 }
 
 void MarlinHAL::init_board() {}
@@ -100,10 +103,27 @@ void MarlinHAL::idletask()
     MarlinHAL::watchdog_refresh();
 
     // monitor SOC temperature
-    if (SOCTemp::criticalTemperatureReached())
+    float temp;
+    if (ChipTemperature.read(temp))
     {
-        printf("SoC reached critical temperature, rebooting\n");
-        MarlinHAL::reboot();
+        // print SoC temperature on every read
+        // char tempStr[10];
+        // dtostrf(temp, 8, 1, tempStr);
+        // printf("SoC temperature is %sC\n", tempStr);
+
+        // warn after reaching 60C
+        if (temp > 60)
+        {
+            char tempStr[10];
+            dtostrf(temp, 8, 1, tempStr);
+            printf("SoC temperature %s is above 60C", tempStr);
+        }
+
+        // panic after reaching 80C
+        if (temp > 80)
+        {
+            panic("SoC overheat! temperature is > 80C");
+        }
     }
 }
 
