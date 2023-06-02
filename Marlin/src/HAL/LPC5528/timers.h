@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +49,7 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
-#define HAL_TIMER_RATE          160000000 //((F_CPU) / 1) // GetStepperTimerClkFreq()   // 150MHz 
+#define HAL_TIMER_RATE          160000000 //((F_CPU) / 1) // GetStepperTimerClkFreq()   // 150MHz
 
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
@@ -153,7 +155,6 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: SBI(STEP_TIMER_PTR->IR, SBIT_CNTEN); break;
     case 1: SBI(TEMP_TIMER_PTR->IR, SBIT_CNTEN); break;
-
   }
 }
 

@@ -24,7 +24,7 @@
 #ifdef TARGET_LPC5528
 
 //#include "HAL.h"
-// #include "usb_serial.h"
+//#include "usb_serial.h"
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
@@ -33,6 +33,11 @@
 #ifdef USBCON
   DefaultSerial1 MSerial0(false, UsbSerial);
 #endif
+
+int freeMemory() {
+  volatile char top;
+  return &top - reinterpret_cast<char*>(_sbrk(0));
+}
 
 // ------------------------
 // Public Variables
@@ -50,10 +55,10 @@ TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 void MarlinHAL::init() {
   constexpr int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
-  // SetTimerInterruptPriorities();
-  // i2s_init(12);
+  //SetTimerInterruptPriorities();
+  //i2s_init(12);
   HAL_timer_init();
-  // MarlinHAL::timer_start(STEP_TIMER_NUM,2000000);
+  //timer_start(STEP_TIMER_NUM,2000000);
 }
 
 // ------------------------
@@ -71,19 +76,15 @@ void MarlinHAL::adc_init() {
   TERN_(HAS_HEATED_BED, set_adc_init(TEMP_BED_PIN));
 }
 
-void MarlinHAL::adc_start_conversion(const uint8_t adc_pin) {
-  MarlinHAL::adc_result = analogRead(adc_pin);
-}
-
-uint16_t MarlinHAL::adc_get_result() {
-  return MarlinHAL::adc_result;
+void MarlinHAL::adc_start(const pin_t adc_pin) {
+  adc_result = analogRead(adc_pin);
 }
 
 // HAL idle task
 void MarlinHAL::idletask() { }
 
 void MarlinHAL::clear_reset_source() {
-  TERN_(USE_WATCHDOG, MarlinHAL::watchdog_clear_timeout_flag());
+  TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
 }
 
 uint8_t MarlinHAL::get_reset_source() {
@@ -95,7 +96,10 @@ uint8_t MarlinHAL::get_reset_source() {
 
 #if ENABLED(USE_WATCHDOG)
 
-// Todo:  add watchdog support.
+  // TODO: Add watchdog support.
+
+  //#include <lpc55xx_wdt.h>
+  //#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
 
   void MarlinHAL::watchdog_refresh() {
     WWDT_Refresh(WWDT);
@@ -104,7 +108,7 @@ uint8_t MarlinHAL::get_reset_source() {
     #endif
   }
 
-#endif
+#endif // USE_WATCHDOG
 
 void MarlinHAL::reboot() { NVIC_SystemReset(); }
 

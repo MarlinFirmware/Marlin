@@ -21,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * HAL_LPC5528/HAL.h
+ * Hardware Abstraction Layer for NXP LPC5528
+ */
+
 #define CPU_32_BIT
 
 #include "../../core/macros.h"
@@ -55,6 +60,10 @@
   typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
 #endif
+
+// ------------------------
+// Serial ports
+// ------------------------
 
 // redefine for LPC5528 Library
 #ifndef byte
@@ -106,16 +115,17 @@
   #endif
 #endif
 
-#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
+//
+// Interrupts
+//
+
+#define CRITICAL_SECTION_START()  uint32_t irqon = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (!irqon) __enable_irq()
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 #define cli() __disable_irq()
 #define sei() __enable_irq()
-
-// On AVR this is in math.h?
-#define square(x) ((x)*(x))
 
 typedef int16_t pin_t;
 
@@ -126,9 +136,33 @@ void SYSTICK_Callback();
 
 extern volatile uint32_t systick_uptime_millis;
 
-// #define HAL_SERVO_LIB libServo
-// #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
-// #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
+//
+// ADC
+//
+
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION   12   // 15 bit maximum, raw temperature is stored as int16_t
+#endif
+
+#define HAL_ADC_VREF            3.3 // ADC voltage reference
+#define HAL_ADC_FILTERED
+
+// ------------------------
+// Defines
+// ------------------------
+
+//#ifndef PLATFORM_M997_SUPPORT
+//  #define PLATFORM_M997_SUPPORT
+//#endif
+//void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+//#define HAL_SERVO_LIB libServo
+//#define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+//#define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // ------------------------
 // Public functions
@@ -140,7 +174,13 @@ extern volatile uint32_t systick_uptime_millis;
 extern "C" char* _sbrk(int incr);
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+int freeMemory();
+
+#pragma GCC diagnostic pop
 
 // ------------------------
 // MarlinHAL Class
@@ -152,46 +192,35 @@ public:
   // Earliest possible init, before setup()
   MarlinHAL() {}
 
-  // Enable hooks into  setup for HAL
-  static void init();
+  static void init();          // Called early in setup()
   static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Restart the firmware from 0x0
 
   // Interrupts
   //static bool isr_state() { return !__get_PRIMASK(); }
   static void isr_on()  { __enable_irq(); }
   static void isr_off() { __disable_irq(); }
 
-  #define HAL_IDLETASK 1
-  void idletask();
+  static void delay_ms(const int ms) { delay(ms); }
 
   // Watchdog
-  //static void watchdog_init() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_init() {}
   static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
   static bool watchdog_timed_out() IF_DISABLED(USE_WATCHDOG, { return false; });
   static void watchdog_clear_timeout_flag() IF_DISABLED(USE_WATCHDOG, {});
 
-  // Clear reset reason
-  void clear_reset_source();
+  // Tasks, called from idle()
+  static void idletask();
 
-  // Reset reason
-  uint8_t get_reset_source();
+  // Reset
+  static uint8_t get_reset_source();
+  static void clear_reset_source();
 
-  void reboot();
-
-  void _delay_ms(const int delay);
-
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wunused-function"
-
-  static inline int freeMemory() {
-    volatile char top;
-    return &top - reinterpret_cast<char*>(_sbrk(0));
-  }
-
-  #pragma GCC diagnostic pop
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
 
   //
-  // ADC
+  // ADC Methods
   //
 
   #ifndef analogInputToDigitalPin
@@ -200,19 +229,6 @@ public:
 
   //#define HAL_ANALOG_SELECT(pin) adc_init(pin)
 
-  #ifdef ADC_RESOLUTION
-    #define HAL_ADC_RESOLUTION ADC_RESOLUTION
-  #else
-    #define HAL_ADC_RESOLUTION 12
-  #endif
-
-  #define HAL_ADC_VREF         3.3
-  #define HAL_ADC_FILTERED
-
-  #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-  #define HAL_ADC_READY()     true
-  #define HAL_READ_ADC()      HAL_adc_get_result()
-
   // ------------------------
   // Public Variables
   // ------------------------
@@ -220,15 +236,17 @@ public:
   // result of last ADC conversion
   static uint16_t adc_result;
 
-  void adc_init();
-
-  void adc_start_conversion(const uint8_t adc_pin);
-
   static pin_t adc_pin;
 
-  static void adc_start(const pin_t pin) { adc_pin = pin; }
+  //
+  // ADC Methods
+  //
 
-    // Is the ADC ready for reading?
+  static void adc_init();
+
+  static void adc_start(const pin_t pin);
+
+  // Is the ADC ready for reading?
   static bool adc_ready() { return true; }
 
   // The current value of the ADC register
@@ -237,35 +255,23 @@ public:
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const pin_t pin) {}
 
-  uint16_t adc_get_result();
-
   #define GET_PIN_MAP_PIN(index) index
   #define GET_PIN_MAP_INDEX(pin) pin
   #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-
-  //#ifndef PLATFORM_M997_SUPPORT
-  //  #define PLATFORM_M997_SUPPORT
-  //#endif
-
-  //void flashFirmware(const int16_t) {}
-
   //extern volatile uint32_t systick_uptime_millis;
 
-  #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
 
   /**
-   * set_pwm_frequency
-   *  Set the frequency of the timer corresponding to the provided pin
-   *  All Timer PWM pins run at the same frequency
+   * Set the frequency of the timer corresponding to the provided pin
+   * All Hardware PWM pins will run at the same frequency and
+   * All Software PWM pins will run at the same frequency
    */
-  void set_pwm_frequency(const pin_t pin, int f_desired);
-
-  /**
-   * set_pwm_duty
-   *  Set the PWM duty cycle of the provided pin to the provided value
-   *  Optionally allows inverting the duty cycle [default = false]
-   *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
-   */
-  void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+  static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 };

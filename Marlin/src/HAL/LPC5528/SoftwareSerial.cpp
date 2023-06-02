@@ -86,7 +86,8 @@ void SoftwareSerial::setSpeed(uint32_t speed) {
       timer.setCount(0);
       timer.attachInterrupt(&handleInterrupt);
       timer.resume();
-    } else {
+    }
+    else {
       timer.detachInterrupt();
     }
     cur_speed = speed;
@@ -134,7 +135,8 @@ inline void SoftwareSerial::setTX() {
   if (_inverse_logic) {
     // LL_GPIO_ResetOutputPin(_transmitPinPort, _transmitPinNumber);
     digitalWrite(_transmitPin, LOW);
-  } else {
+  }
+  else {
     //LL_GPIO_SetOutputPin(_transmitPinPort, _transmitPinNumber);
     digitalWrite(_transmitPin, HIGH);
   }
@@ -153,7 +155,8 @@ inline void SoftwareSerial::setRXTX(bool input) {
         rx_tick_cnt = 2; //2 : next interrupt will be discarded. 2 interrupts required to consider RX pin level
         active_in = this;
       }
-    } else {
+    }
+    else {
       if (active_in == this) {
         setTX();
         active_in = nullptr;
@@ -169,13 +172,15 @@ inline void SoftwareSerial::send() {
       if (tx_buffer & 1) {
         //LL_GPIO_SetOutputPin(_transmitPinPort, _transmitPinNumber);
         digitalWrite(_transmitPin, HIGH);
-      } else {
+      }
+      else {
         //L_GPIO_ResetOutputPin(_transmitPinPort, _transmitPinNumber);
         digitalWrite(_transmitPin, LOW);
       }
       tx_buffer >>= 1;
       tx_tick_cnt = OVERSAMPLE; // Wait OVERSAMPLE tick to send next bit
-    } else { // Transmission finished
+    }
+    else { // Transmission finished
       tx_tick_cnt = 1;
       if (_output_pending) {
         active_out = nullptr;
@@ -205,7 +210,8 @@ inline void SoftwareSerial::recv() {
         rx_bit_cnt = 0; // rx_bit_cnt == 0 : start bit received
         rx_tick_cnt = OVERSAMPLE + 1; // Wait 1 bit (OVERSAMPLE ticks) + 1 tick in order to sample RX pin in the middle of the edge (and not too close to the edge)
         rx_buffer = 0;
-      } else {
+      }
+      else {
         rx_tick_cnt = 1; // Waiting for start bit, but we don't get right level. Wait for next Interrupt to ckech RX pin level
       }
     } else if (rx_bit_cnt >= 8) { // rx_bit_cnt >= 8 : waiting for stop bit
@@ -216,14 +222,16 @@ inline void SoftwareSerial::recv() {
           // save new data in buffer: tail points to where byte goes
           _receive_buffer[_receive_buffer_tail] = rx_buffer; // save new byte
           _receive_buffer_tail = next;
-        } else { // rx_bit_cnt = x  with x = [0..7] correspond to new bit x received
+        }
+        else { // rx_bit_cnt = x  with x = [0..7] correspond to new bit x received
           _buffer_overflow = true;
         }
       }
       // Full trame received. Resart wainting for sart bit at next interrupt
       rx_tick_cnt = 1;
       rx_bit_cnt = -1;
-    } else {
+    }
+    else {
       // data bits
       rx_buffer >>= 1;
       if (inbit) {
@@ -241,33 +249,28 @@ inline void SoftwareSerial::recv() {
 __IO uint8_t change_flag;
 /* static */
 inline void SoftwareSerial::handleInterrupt() {
-    // if(change_flag)
-    // {
-    //     change_flag = 0;
-    //     digitalWrite(0x24, HIGH);
-    // }
-    // else
-    // {
-    //     change_flag = 1;
-    //     digitalWrite(0x24, LOW);
-    // }
-  if (active_in) {
-    active_in->recv();
-  }
-  if (active_out) {
-    active_out->send();
-  }
+  //if (change_flag) {
+  //  change_flag = 0;
+  //  WRITE(0x24, HIGH);
+  //}
+  //else {
+  //  change_flag = 1;
+  //  WRITE(0x24, LOW);
+  //}
+  if (active_in) active_in->recv();
+  if (active_out) active_out->send();
 }
+
 //
 // Constructor
 //
 SoftwareSerial::SoftwareSerial(uint16_t receivePin, uint16_t transmitPin, bool inverse_logic /* = false */) :
   _receivePin(receivePin),
   _transmitPin(transmitPin),
-//   _receivePinPort(digitalPinToPort(receivePin)),
-//   _receivePinNumber(STM_LL_GPIO_PIN(digitalPinToPinName(receivePin))),
-//   _transmitPinPort(digitalPinToPort(transmitPin)),
-//   _transmitPinNumber(STM_LL_GPIO_PIN(digitalPinToPinName(transmitPin))),
+  //_receivePinPort(digitalPinToPort(receivePin)),
+  //_receivePinNumber(STM_LL_GPIO_PIN(digitalPinToPinName(receivePin))),
+  //_transmitPinPort(digitalPinToPort(transmitPin)),
+  //_transmitPinNumber(STM_LL_GPIO_PIN(digitalPinToPinName(transmitPin))),
   _speed(0),
   _buffer_overflow(false),
   _inverse_logic(inverse_logic),
@@ -276,44 +279,41 @@ SoftwareSerial::SoftwareSerial(uint16_t receivePin, uint16_t transmitPin, bool i
   _receive_buffer_tail(0),
   _receive_buffer_head(0)
 {
-    timer.init();
+  timer.init();
   /* Enable GPIO clock for tx and rx pin*/
-//   if (set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(transmitPin))) == 0) {
-//     _Error_Handler("ERROR: invalid transmit pin number\n", -1);
-//   }
-//   if ((!_half_duplex) && (set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(receivePin))) == 0)) {
-//     _Error_Handler("ERROR: invalid receive pin number\n", -1);
-//   }
+  //if (set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(transmitPin))) == 0) {
+  //  _Error_Handler("ERROR: invalid transmit pin number\n", -1);
+  //}
+  //if ((!_half_duplex) && (set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(receivePin))) == 0)) {
+  //  _Error_Handler("ERROR: invalid receive pin number\n", -1);
+  //}
 }
 
 //
 // Destructor
 //
-SoftwareSerial::~SoftwareSerial() {
-  end();
-}
+SoftwareSerial::~SoftwareSerial() { end(); }
 
 //
 // Public methods
 //
 
 void SoftwareSerial::begin(long speed) {
-#ifdef FORCE_BAUD_RATE
-  speed = FORCE_BAUD_RATE;
-#endif
+  #ifdef FORCE_BAUD_RATE
+    speed = FORCE_BAUD_RATE;
+  #endif
   _speed = speed;
   if (!_half_duplex) {
     setTX();
     setRX();
     listen();
-  } else {
+  }
+  else {
     setTX();
   }
 }
 
-void SoftwareSerial::end() {
-  stopListening();
-}
+void SoftwareSerial::end() { stopListening(); }
 
 // Read data from buffer
 int SoftwareSerial::read() {
@@ -393,7 +393,7 @@ void HardwareTimer::init() {
   ctimer_match_config_t matchConfig4;
   matchConfig4.enableCounterReset = true;
   matchConfig4.enableCounterStop  = false;
-  matchConfig4.matchValue         = 1000000;//give a default value 
+  matchConfig4.matchValue         = 1000000;//give a default value
   matchConfig4.outControl         = kCTIMER_Output_NoAction;
   matchConfig4.outPinInitState    = true;
   matchConfig4.enableInterrupt    = false; // disable interrupt first
@@ -403,7 +403,6 @@ void HardwareTimer::init() {
   NVIC_SetPriority(CTIMER4_IRQn,2);
   CTIMER_StartTimer(TIMER_SERIAL);
 }
-
 
 // Pause counter and all output channels
 void HardwareTimer::pause(void) {
