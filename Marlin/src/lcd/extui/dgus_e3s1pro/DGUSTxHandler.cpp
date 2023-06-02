@@ -97,7 +97,7 @@ void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
   }
 
   void DGUSTxHandler::bed_PID_D(DGUS_VP &vp) {
-    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kd());
+    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 1>(ExtUI::getBedPID_Kd());
     dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 #endif // PIDTEMPBED

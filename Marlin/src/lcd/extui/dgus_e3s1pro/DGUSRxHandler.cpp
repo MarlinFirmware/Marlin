@@ -112,7 +112,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   }
 
   void DGUSRxHandler::bed_PID_D(DGUS_VP &vp, void *data) {
-    float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
       ExtUI::getBedPID_Ki(),
