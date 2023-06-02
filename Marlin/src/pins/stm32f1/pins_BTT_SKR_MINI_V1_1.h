@@ -273,7 +273,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SPI_DEVICE                           3
+  #define SPI_DEVICE                           3  // Maple
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN

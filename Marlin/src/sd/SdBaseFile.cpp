@@ -322,12 +322,12 @@ void SdBaseFile::getpos(filepos_t * const pos) {
  * \param[in] indent Amount of space before file name. Used for recursive
  * list to indicate subdirectory level.
  */
-void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
+void SdBaseFile::ls(const uint8_t flags/*=0*/, const uint8_t indent/*=0*/) {
   rewind();
   int8_t status;
   while ((status = lsPrintNext(flags, indent))) {
     if (status > 1 && (flags & LS_R)) {
-      uint16_t index = curPosition() / 32 - 1;
+      const uint16_t index = curPosition() / 32 - 1;
       SdBaseFile s;
       if (s.open(this, index, O_READ)) s.ls(flags, indent + 2);
       seekSet(32 * (index + 1));

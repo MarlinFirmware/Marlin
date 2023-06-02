@@ -111,7 +111,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
     dgus_screen_handler.TriggerFullUpdate();
   }
 
-  void DGUSRxHandler::SelectFile(DGUS_VP &vp, void *data_ptr) {
+  void DGUSRxHandler::selectFile(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
     const uint8_t index = ((uint8_t*)data_ptr)[1];

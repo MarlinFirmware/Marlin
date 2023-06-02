@@ -313,7 +313,136 @@ void menu_move() {
   void goto_tramming_wizard();
 #endif
 
+#if ENABLED(FT_MOTION_MENU)
+
+  #include "../../module/ft_motion.h"
+  #include "../../gcode/gcode.h"
+
+  void _M493_S(const ftMotionMode_t s) {
+    char cmd[10];
+    sprintf_P(cmd, PSTR("M493S%i"), int(s));
+    gcode.process_subcommands_now(cmd);
+    ui.go_back();
+  }
+
+  inline void menu_ftm_mode() {
+    const ftMotionMode_t mode = fxdTiCtrl.cfg.mode;
+
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+    if (mode != ftMotionMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF,  []{ _M493_S(ftMotionMode_DISABLED); });
+    if (mode != ftMotionMode_ENABLED)  ACTION_ITEM(MSG_LCD_ON,   []{ _M493_S(ftMotionMode_ENABLED); });
+    #if HAS_X_AXIS
+      if (mode != ftMotionMode_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ _M493_S(ftMotionMode_ZV); });
+      if (mode != ftMotionMode_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ _M493_S(ftMotionMode_ZVD); });
+      if (mode != ftMotionMode_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ _M493_S(ftMotionMode_EI); });
+      if (mode != ftMotionMode_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ _M493_S(ftMotionMode_2HEI); });
+      if (mode != ftMotionMode_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ _M493_S(ftMotionMode_3HEI); });
+      if (mode != ftMotionMode_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ _M493_S(ftMotionMode_MZV); });
+      //if (mode != ftMotionMode_ULENDO_FBS) ACTION_ITEM(MSG_FTM_ULENDO_FBS, []{ _M493_S(ftMotionMode_ULENDO_FBS); });
+      //if (mode != ftMotionMode_DISCTF)     ACTION_ITEM(MSG_FTM_DISCTF,     []{ _M493_S(ftMotionMode_DISCTF); });
+    #endif
+
+    END_MENU();
+  }
+
+  #if HAS_DYNAMIC_FREQ
+
+    void _M493_D(const dynFreqMode_t d) {
+      char cmd[10];
+      sprintf_P(cmd, PSTR("M493D%i"), int(d));
+      gcode.process_subcommands_now(cmd);
+      ui.go_back();
+    }
+
+    inline void menu_ftm_dyn_mode() {
+      const dynFreqMode_t dmode = fxdTiCtrl.cfg.dynFreqMode;
+
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ _M493_D(dynFreqMode_DISABLED); });
+      #if HAS_DYNAMIC_FREQ_MM
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ _M493_D(dynFreqMode_Z_BASED); });
+      #endif
+      #if HAS_DYNAMIC_FREQ_G
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ _M493_D(dynFreqMode_MASS_BASED); });
+      #endif
+
+      END_MENU();
+    }
+
+  #endif // HAS_DYNAMIC_FREQ
+
+  void menu_ft_motion() {
+    ft_config_t &c = fxdTiCtrl.cfg;
+
+    FSTR_P ftmode;
+    switch (c.mode) {
+      default:
+      case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
+      case ftMotionMode_ENABLED:  ftmode = GET_TEXT_F(MSG_LCD_ON);   break;
+      case ftMotionMode_ZV:       ftmode = GET_TEXT_F(MSG_FTM_ZV);   break;
+      case ftMotionMode_ZVD:      ftmode = GET_TEXT_F(MSG_FTM_ZVD);  break;
+      case ftMotionMode_EI:       ftmode = GET_TEXT_F(MSG_FTM_EI);   break;
+      case ftMotionMode_2HEI:     ftmode = GET_TEXT_F(MSG_FTM_2HEI); break;
+      case ftMotionMode_3HEI:     ftmode = GET_TEXT_F(MSG_FTM_3HEI); break;
+      case ftMotionMode_MZV:      ftmode = GET_TEXT_F(MSG_FTM_MZV);  break;
+      //case ftMotionMode_ULENDO_FBS: ftmode = GET_TEXT_F(MSG_FTM_ULENDO_FBS); break;
+      //case ftMotionMode_DISCTF:     ftmode = GET_TEXT_F(MSG_FTM_DISCTF);     break;
+    }
+
+    #if HAS_DYNAMIC_FREQ
+      FSTR_P dmode;
+      switch (c.dynFreqMode) {
+        default:
+        case dynFreqMode_DISABLED:   dmode = GET_TEXT_F(MSG_LCD_OFF);        break;
+        case dynFreqMode_Z_BASED:    dmode = GET_TEXT_F(MSG_FTM_Z_BASED);    break;
+        case dynFreqMode_MASS_BASED: dmode = GET_TEXT_F(MSG_FTM_MASS_BASED); break;
+      }
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
+    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+
+    #if HAS_X_AXIS
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+    #endif
+    #if HAS_Y_AXIS
+      EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+    #endif
+
+    #if HAS_DYNAMIC_FREQ
+      if (c.modeHasShaper()) {
+        SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+        #if HAS_X_AXIS
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
+        #endif
+        #if HAS_Y_AXIS
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
+        #endif
+      }
+    #endif
+    #if HAS_EXTRUDERS
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+    #endif
+
+    END_MENU();
+  }
+
+#endif // FT_MOTION_MENU
+
 void menu_motion() {
+  #if ENABLED(FT_MOTION_MENU)
+    const bool is_busy = printer_busy();
+  #endif
+
   START_MENU();
 
   //
@@ -337,6 +466,13 @@ void menu_motion() {
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
       MAIN_AXIS_MAP(_HOME_ITEM);
     #endif
+  #endif
+
+  //
+  // M493 - Fixed-Time Motion
+  //
+  #if ENABLED(FT_MOTION_MENU)
+    if (!is_busy) SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
   #endif
 
   //

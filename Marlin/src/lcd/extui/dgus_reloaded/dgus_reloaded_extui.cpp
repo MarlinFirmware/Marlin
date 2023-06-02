@@ -47,7 +47,7 @@ namespace ExtUI {
   }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    dgus_screen_handler.PrinterKilled(error, component);
+    dgus_screen_handler.printerKilled(error, component);
   }
 
   void onMediaInserted() { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardInserted()); }
@@ -71,7 +71,7 @@ namespace ExtUI {
   }
 
   void onFilamentRunout(const extruder_t extruder) {
-    dgus_screen_handler.FilamentRunout(extruder);
+    dgus_screen_handler.filamentRunout(extruder);
   }
 
   void onUserConfirmRequired(const char * const msg) {
@@ -108,10 +108,12 @@ namespace ExtUI {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);
     }
