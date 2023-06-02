@@ -69,7 +69,7 @@ public:
   static page_t onNextPage();
 
 private:
-  static void SetFilename(file_t file, const char* filename, bool isDir = false) PROGMEM;
+  static void setFilename(file_t file, const char* filename, bool isDir = false) PROGMEM;
 };
 
 extern DGUS_SDCardHandler dgus_sdcard_handler;

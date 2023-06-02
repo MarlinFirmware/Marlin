@@ -29,7 +29,7 @@
 #include "DGUSDisplay.h"
 #include "DGUSScreenHandler.h"
 
-bool DGUSSetupHandler::SDCardPrepare() {
+bool DGUSSetupHandler::sdCardPrepare() {
   #if ENABLED(DGUS_USERCONFIRM)
     if (screen.isOnUserConfirmationScreen()) {
       // Only allow the fifth line used as the confirm button to be clicked

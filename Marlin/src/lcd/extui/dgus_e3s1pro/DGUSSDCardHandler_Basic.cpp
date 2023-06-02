@@ -62,11 +62,11 @@ void DGUS_SDCardHandler::Reset() {
 }
 
 void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page) {
-  SetFilename(file_t::FILE_1, NULL);
-  SetFilename(file_t::FILE_2, NULL);
-  SetFilename(file_t::FILE_3, NULL);
-  SetFilename(file_t::FILE_4, NULL);
-  SetFilename(file_t::FILE_5, NULL);
+  setFilename(file_t::FILE_1, NULL);
+  setFilename(file_t::FILE_2, NULL);
+  setFilename(file_t::FILE_3, NULL);
+  setFilename(file_t::FILE_4, NULL);
+  setFilename(file_t::FILE_5, NULL);
 
   uint8_t pageIndex = DGUS_PAGE_TO_INDEX(page);
   uint16_t currentFilePos = 0;
@@ -103,7 +103,7 @@ void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page) {
     ++currentSeekPos;
     if (!fileList.isDir()) {
       ++currentFilePos;
-      SetFilename(currentFile, fileList.longFilename());
+      setFilename(currentFile, fileList.longFilename());
       currentFile = DGUS_FILE_FROM_INDEX(DGUS_FILE_TO_INDEX(currentFile) + 1);
     }
   }

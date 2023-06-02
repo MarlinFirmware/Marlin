@@ -22,6 +22,5 @@
 #pragma once
 
 namespace DGUSSetupHandler {
-  bool SDCardReset();
-  bool SDCardPrepare();
+  bool sdCardPrepare();
 }
