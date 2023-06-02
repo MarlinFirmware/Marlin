@@ -77,12 +77,12 @@
 
 void PRINT_ARRAY_NAME(uint8_t x) {
   PGM_P const name_mem_pointer = (PGM_P)pgm_read_ptr(&pin_array[x].name);
-  LOOP_L_N(y, MAX_NAME_LENGTH) {
+  for (uint8_t y = 0; y < MAX_NAME_LENGTH; ++y) {
     char temp_char = pgm_read_byte(name_mem_pointer + y);
     if (temp_char != 0)
       SERIAL_CHAR(temp_char);
     else {
-      LOOP_L_N(i, MAX_NAME_LENGTH - y) SERIAL_CHAR(' ');
+      for (uint8_t i = 0; i < MAX_NAME_LENGTH - y; ++i) SERIAL_CHAR(' ');
       break;
     }
   }

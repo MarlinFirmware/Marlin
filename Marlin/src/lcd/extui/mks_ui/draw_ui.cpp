@@ -1377,7 +1377,7 @@ void LV_TASK_HANDLER() {
   if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
     lv_task_handler();
 
-  #if BOTH(MKS_TEST, HAS_MEDIA)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

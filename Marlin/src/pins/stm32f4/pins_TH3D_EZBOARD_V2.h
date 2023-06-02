@@ -61,7 +61,7 @@
 //
 // Limit Switches
 //
-#if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+#if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Sensorless homing pins
   #if ENABLED(X_AXIS_SENSORLESS_HOMING)
     #define X_STOP_PIN                      PB4
@@ -269,7 +269,7 @@
 
 #endif
 
-#if EITHER(CR10_STOCKDISPLAY, MKS_MINI_12864)
+#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_05_PIN
   #define BTN_ENC                    EXP1_02_PIN
