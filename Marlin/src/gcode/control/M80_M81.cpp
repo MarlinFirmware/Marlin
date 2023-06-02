@@ -79,7 +79,7 @@ void GcodeSuite::M81() {
 
   print_job_timer.stop();
 
-  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+  #if ALL(HAS_FAN, PROBING_FANS_OFF)
     thermalManager.fans_paused = false;
     ZERO(thermalManager.saved_fan_speed);
   #endif

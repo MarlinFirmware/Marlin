@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
+#if ANY(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 #include "power.h"
 #include "../module/planner.h"
@@ -49,7 +49,7 @@ bool Power::psu_on;
   #include "../module/stepper.h"
   #include "../module/temperature.h"
 
-  #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+  #if ALL(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
     #include "controllerfan.h"
   #endif
 
@@ -78,7 +78,7 @@ void Power::power_on() {
 
   if (psu_on) return;
 
-  #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+  #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
     cancelAutoPowerOff();
   #endif
 
@@ -115,12 +115,12 @@ void Power::power_off() {
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
   psu_on = false;
 
-  #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+  #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
     cancelAutoPowerOff();
   #endif
 }
 
-#if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+#if ANY(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
 
   bool Power::is_cooling_needed() {
     #if HAS_HOTEND && AUTO_POWER_E_TEMP
@@ -140,7 +140,7 @@ void Power::power_off() {
 
 #endif
 
-#if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+#if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
 
   #if ENABLED(POWER_OFF_TIMER)
     millis_t Power::power_off_time = 0;
@@ -192,7 +192,7 @@ void Power::power_off() {
       HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
     #endif
 
-    #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+    #if ALL(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
       if (controllerFan.state()) return true;
     #endif
 

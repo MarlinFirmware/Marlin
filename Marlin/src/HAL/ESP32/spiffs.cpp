@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(WIFISUPPORT, WEBSUPPORT)
+#if ALL(WIFISUPPORT, WEBSUPPORT)
 
 #include "../../core/serial.h"
 

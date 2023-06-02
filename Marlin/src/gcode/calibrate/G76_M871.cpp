@@ -81,7 +81,7 @@
  *  - `P` - Run probe temperature calibration.
  */
 
-#if BOTH(PTC_PROBE, PTC_BED)
+#if ALL(PTC_PROBE, PTC_BED)
 
   static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
   static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }

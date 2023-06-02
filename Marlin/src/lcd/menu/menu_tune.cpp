@@ -119,7 +119,7 @@ void menu_tune() {
   //
   // Manual bed leveling, Bed Z:
   //
-  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
+  #if ALL(MESH_BED_LEVELING, LCD_BED_LEVELING)
     EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, -1, 1);
   #endif
 
@@ -135,7 +135,7 @@ void menu_tune() {
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-    LOOP_S_L_N(e, 1, EXTRUDERS)
+    for (uint8_t e = 1; e < EXTRUDERS; ++e)
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 

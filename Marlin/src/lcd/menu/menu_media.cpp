@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, HAS_MEDIA)
+#if ALL(HAS_MARLINUI_MENU, HAS_MEDIA)
 
 #include "menu_item.h"
 #include "../../sd/cardreader.h"

@@ -196,7 +196,7 @@
 
 #if HAS_WIRED_LCD
 
-  #if EITHER(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+  #if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
 
     #define BEEPER_PIN                      PE8
 
@@ -258,7 +258,7 @@
     #define LCD_PINS_D7                     PE8
     #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_ENC                         PE9
     #define BTN_EN1                         PE7
@@ -330,7 +330,7 @@
 
 #endif // HAS_WIRED_LCD
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_E3_RRF.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
