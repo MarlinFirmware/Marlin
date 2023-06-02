@@ -58,6 +58,7 @@
 // ------------------------
 // Public functions
 // ------------------------
+
 #if ENABLED(LPC_SOFTWARE_SPI)
 
   // Software SPI
@@ -112,35 +113,18 @@
     class SPISettings spiConfig;
     uint32_t baudrate;
 
-    switch(spiRate){
-      case SPI_FULL_SPEED:
-      baudrate = 12000000;
-      break;
-      case SPI_HALF_SPEED:
-      baudrate = 12000000;
-      break;
-      case SPI_QUARTER_SPEED:
-      baudrate = 12000000;
-      break;
-      case SPI_EIGHTH_SPEED:
-      baudrate = 12000000;
-      break;
-      case SPI_SIXTEENTH_SPEED:
-      baudrate = 12000000;
-      break;
-      case SPI_SPEED_5:
-      baudrate = 12000000;
-      break;
-      case SPI_SPEED_6:
-      baudrate = 12000000;
-      break;
-      default:
-      baudrate = 12000000;
-      break;
+    switch (spiRate) {
+      case SPI_FULL_SPEED:      baudrate = 12000000; break;
+      case SPI_HALF_SPEED:      baudrate = 12000000; break;
+      case SPI_QUARTER_SPEED:   baudrate = 12000000; break;
+      case SPI_EIGHTH_SPEED:    baudrate = 12000000; break;
+      case SPI_SIXTEENTH_SPEED: baudrate = 12000000; break;
+      case SPI_SPEED_5:         baudrate = 12000000; break;
+      case SPI_SPEED_6:         baudrate = 12000000; break;
+      default:                  baudrate = 12000000; break;
     }
     spiConfig = SPISettings(baudrate,kSPI_MsbFirst,SPI_MODE0,kSPI_Data8Bits,false);
     SPI_4.beginTransaction(spiConfig);
-
   }
 
   static uint8_t doio(uint8_t b) {

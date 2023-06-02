@@ -65,9 +65,9 @@
 #define IS_INPUT(IO)
 #define IS_OUTPUT(IO)
 
-#define PWM_PIN(P)              10// digitalPinHasPWM(P)
+#define PWM_PIN(P)              10 //digitalPinHasPWM(P)
 #define NO_COMPILE_TIME_PWM
 
 // digitalRead/Write wrappers
-#define extDigitalRead(IO)      // digitalRead(IO)
-#define extDigitalWrite(IO,V)   // digitalWrite(IO,V)
+#define extDigitalRead(IO)      //digitalRead(IO)
+#define extDigitalWrite(IO,V)   //digitalWrite(IO,V)
