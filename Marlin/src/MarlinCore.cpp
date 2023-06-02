@@ -726,6 +726,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 }
 
+#if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+  #include "feature/babystep.h"
+#endif
+
 /**
  * Standard idle routine keeps the machine alive:
  *  - Core Marlin activities
@@ -847,6 +851,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
+
+  // Async Babystepping via the Emergency Parser
+  #if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+    babystep.do_ep_steps();
+  #endif
 
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());

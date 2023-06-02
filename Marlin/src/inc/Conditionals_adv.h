@@ -688,8 +688,6 @@
     #define TEMP_SENSOR_BED_IS_CUSTOM 1
   #endif
 #else
-  #undef THERMAL_PROTECTION_BED
-  #undef THERMAL_PROTECTION_BED_PERIOD
   #undef BED_MINTEMP
   #undef BED_MAXTEMP
 #endif
@@ -1279,4 +1277,9 @@
 #ifndef MULTISTEPPING_LIMIT
   #define MULTISTEPPING_LIMIT 128
   #define MULTISTEPPING_LIMIT_WARNING 1
+#endif
+
+// One redundant cooling fan by default
+#if defined(REDUNDANT_PART_COOLING_FAN) && !defined(NUM_REDUNDANT_FANS)
+  #define NUM_REDUNDANT_FANS 1
 #endif

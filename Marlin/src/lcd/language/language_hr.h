@@ -105,7 +105,7 @@ namespace Language_hr {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Pohrani u memoriju");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Učitaj memoriju");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Učitaj Defaults");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Osvježi");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Osvježi");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info screen");
   LSTR MSG_PREPARE                        = _UxGT("Pripremi");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pauziraj print");

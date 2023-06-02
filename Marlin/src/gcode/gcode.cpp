@@ -757,6 +757,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(BABYSTEPPING)
         case 290: M290(); break;                                  // M290: Babystepping
+        #if ENABLED(EP_BABYSTEPPING)
+          case 293: IF_DISABLED(EMERGENCY_PARSER, M293()); break; // M293: Babystep up
+          case 294: IF_DISABLED(EMERGENCY_PARSER, M294()); break; // M294: Babystep down
+        #endif
       #endif
 
       #if HAS_SOUND

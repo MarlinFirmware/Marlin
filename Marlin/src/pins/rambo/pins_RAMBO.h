@@ -168,9 +168,11 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                 45  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 31  // Pullup!
-#define SPINDLE_DIR_PIN                       32
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN               45  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               31  // Pullup!
+  #define SPINDLE_DIR_PIN                     32
+#endif
 
 //
 // SPI for MAX Thermocouple
