@@ -36,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+#if DISABLED(LCD_PROGRESS_BAR) && ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
@@ -627,7 +627,7 @@ struct {
 static void quick_feedback() {
   #if HAS_CHIRP
     ui.chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
-    #if BOTH(HAS_MARLINUI_MENU, HAS_BEEPER)
+    #if ALL(HAS_MARLINUI_MENU, HAS_BEEPER)
       for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
     #elif HAS_MARLINUI_MENU
       delay(10);
@@ -837,7 +837,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
   }
 #endif // TOUCH_SCREEN
 
-#if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
+#if ALL(HAS_BED_PROBE, TOUCH_SCREEN)
   static void z_select() {
     motionAxisState.z_selection *= -1;
     quick_feedback();
@@ -940,7 +940,7 @@ void MarlinUI::move_axis_screen() {
   motionAxisState.zTypePos.x = x;
   motionAxisState.zTypePos.y = y;
   TERN_(HAS_Z_AXIS, drawCurZSelection());
-  #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
+  #if ALL(HAS_BED_PROBE, TOUCH_SCREEN)
     if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
   #endif
 

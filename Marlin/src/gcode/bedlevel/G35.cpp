@@ -97,7 +97,7 @@ void GcodeSuite::G35() {
   bool err_break = false;
 
   // Probe all positions
-  LOOP_L_N(i, G35_PROBE_COUNT) {
+  for (uint8_t i = 0; i < G35_PROBE_COUNT; ++i) {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
@@ -122,7 +122,7 @@ void GcodeSuite::G35() {
     const float threads_factor[] = { 0.5, 0.7, 0.8 };
 
     // Calculate adjusts
-    LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
+    for (uint8_t i = 1; i < G35_PROBE_COUNT; ++i) {
       const float diff = z_measured[0] - z_measured[i],
                   adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
 
@@ -144,7 +144,7 @@ void GcodeSuite::G35() {
   // Restore the active tool after homing
   probe.use_probing_tool(false);
 
-  #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
+  #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 

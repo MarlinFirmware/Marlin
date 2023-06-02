@@ -101,7 +101,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     DataTransferBegin(DATASIZE_8BIT);
     WriteReg(Reg);
 
-    LOOP_L_N(i, 4) {
+    for (uint8_t i = 0; i < 4; ++i) {
       uint8_t d;
       SPIx.read(&d, 1);
       data = (data << 8) | d;
