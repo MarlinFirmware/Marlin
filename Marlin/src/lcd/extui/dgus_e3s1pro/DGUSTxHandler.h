@@ -40,39 +40,39 @@ namespace DGUSTxHandler {
 
   template <typename T, T axis>
   void maxFeedrate(DGUS_VP &vp) {
-    uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
+    const uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxAcceleration(DGUS_VP &vp) {
-    uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
+    const uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxJerk(DGUS_VP &vp) {
-    uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
+    const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void stepsPerMM(DGUS_VP &vp) {
-    uint16_t data = dgus.toFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
+    const uint16_t data = dgus.toFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 
   #if ENABLED(PIDTEMP)
     template<ExtUI::extruder_t extruder>
     void PID_P(DGUS_VP &vp) {
-      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
+      const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
       dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_I(DGUS_VP &vp) {
-      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
+      const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
       dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_D(DGUS_VP &vp) {
-      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
+      const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
       dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
   #endif // PIDTEMP

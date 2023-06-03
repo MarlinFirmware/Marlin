@@ -33,7 +33,6 @@
 
 #include "../../../gcode/queue.h"
 
-
 DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
 uint16_t DGUSScreenHandler::currentMeshPointIndex = 0;
 bool DGUSScreenHandler::isLeveling = false;
@@ -132,10 +131,7 @@ void DGUSScreenHandler::loop() {
 
   if (wasLeveling && !isLeveling) {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      if (!ExtUI::getMeshValid())
-        ExtUI::injectCommands(F("G29 S1\nG29 P3\nG29 S0"));
-      else
-        ExtUI::injectCommands(F("G29 S0"));
+      ExtUI::injectCommands(ExtUI::getMeshValid() ? F("G29 S0") : F("G29 S1\nG29 P3\nG29 S0"));
     #endif
 
     config.levelingEnabled = ExtUI::getMeshValid();
@@ -172,9 +168,9 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
       confirm_return_screen = getCurrentScreen();
 
     strcpy(dgus_sdcard_handler.filenames[0], msg);
-    strcpy(dgus_sdcard_handler.filenames[1], "");
-    strcpy(dgus_sdcard_handler.filenames[2], "");
-    strcpy(dgus_sdcard_handler.filenames[3], "");
+    dgus_sdcard_handler.filenames[1][0] = "\0";
+    dgus_sdcard_handler.filenames[2][0] = "\0";
+    dgus_sdcard_handler.filenames[3][0] = "\0";
 
     strcpy(dgus_sdcard_handler.filenames[4], "[");
     strcat(dgus_sdcard_handler.filenames[4], GET_TEXT(MSG_BUTTON_CONFIRM));
@@ -182,11 +178,7 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
 
     new_screen = DGUS_Screen::FILE1;
     #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHOPGM("trig confirm: ");
-      DEBUG_ECHO(msg);
-      DEBUG_ECHOPGM(", ret: ");
-      DEBUG_DECIMAL((uint8_t)confirm_return_screen);
-      DEBUG_EOL();
+      DEBUG_ECHOLNPGM("trig confirm: ", msg, ", ret: ", confirm_return_screen);
     #endif
   #else
     UNUSED(msg);
@@ -204,9 +196,7 @@ void DGUSScreenHandler::userConfirmation() {
       dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(confirm_return_screen));
 
     #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHOPGM("trig confirmed, ret:");
-      DEBUG_DECIMAL((uint8_t)confirm_return_screen);
-      DEBUG_EOL();
+      DEBUG_ECHOLNPGM("trig confirmed, ret:", confirm_return_screen);
     #endif
 
     new_screen = confirm_return_screen;
@@ -306,9 +296,7 @@ void DGUSScreenHandler::levelingEnd() {
   if (!isLeveling) return;
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOPGM("levelingEnd(), valid=");
-    DEBUG_DECIMAL(ExtUI::getMeshValid());
-    DEBUG_EOL();
+    DEBUG_ECHOLNPGM("levelingEnd(), valid=", ExtUI::getMeshValid());
   #endif
 
   isLeveling = false;
@@ -347,27 +335,25 @@ ssize_t DGUSScreenHandler::getScrollIndex() {
 }
 
 void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t textControlLength) {
-  if (stringLength > pageMaxStringLen)
-    pageMaxStringLen = stringLength;
-  if (textControlLength > pageMaxControlLen)
-    pageMaxControlLen = textControlLength;
+  NOLESS(pageMaxStringLen, stringLength);
+  NOLESS(pageMaxControlLen, textControlLength);
 }
 
 #if HAS_MEDIA
-  void DGUSScreenHandler::sdCardInserted() {
-  }
+
+  void DGUSScreenHandler::sdCardInserted() {}
 
   void DGUSScreenHandler::sdCardRemoved() {
     sdPrintFilename = noFileSelected;
-    
+
     if (getCurrentScreen() >= DGUS_Screen::FILE1
       && getCurrentScreen() <= DGUS_Screen::FILE4) {
       triggerTempScreenChange(DGUS_Screen::SDCARDCHECK, DGUS_Screen::HOME);
     }
   }
 
-  void DGUSScreenHandler::sdCardError() {
-  }
+  void DGUSScreenHandler::sdCardError() {}
+
 #endif // HAS_MEDIA
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -403,17 +389,11 @@ void DGUSScreenHandler::setStatusMessage(FSTR_P msg, const millis_t duration) {
 
 void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duration) {
   homeStatusMessage[0] = '\0';
-  strncat(homeStatusMessage, msg, sizeof(homeStatusMessage)/sizeof(char)-1);
-
-  if (duration)
-    status_expire = ExtUI::safe_millis() + duration;
-  else
-    status_expire = 0;
+  strncat(homeStatusMessage, msg, sizeof(homeStatusMessage) / sizeof(char) - 1);
+  status_expire = duration ? ExtUI::safe_millis() + duration : 0;
 }
 
-DGUS_Screen DGUSScreenHandler::getCurrentScreen() {
-  return current_screen;
-}
+DGUS_Screen DGUSScreenHandler::getCurrentScreen() { return current_screen; }
 
 void DGUSScreenHandler::homeThenChangeScreen(DGUS_Screen screen) {
   triggerTempScreenChange(DGUS_Screen::AUTOHOME, screen);
@@ -428,9 +408,7 @@ void DGUSScreenHandler::triggerScreenChange(DGUS_Screen screen) {
   wait_return_screen = DGUS_Screen::BOOT; // cancel temp screen
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOPGM("trig scr: ");
-    DEBUG_DECIMAL((uint8_t)screen);
-    DEBUG_EOL();
+    DEBUG_ECHOLNPGM("trig scr: ", screen);
   #endif
 }
 
@@ -442,11 +420,7 @@ void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen 
   wait_return_screen = returnScreen;
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOPGM("trig tmp: ");
-    DEBUG_DECIMAL((uint8_t)screen);
-    DEBUG_ECHOPGM(" ret: ");
-    DEBUG_DECIMAL((uint8_t)returnScreen);
-    DEBUG_EOL();
+    DEBUG_ECHOLNPGM("trig tmp: ", screen, " ret: ", returnScreen);
   #endif
 }
 
@@ -454,8 +428,7 @@ void DGUSScreenHandler::triggerReturnScreen() {
   new_screen = wait_return_screen;
   wait_return_screen = DGUS_Screen::BOOT;
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOPGM("trig ret scr");
-    DEBUG_EOL();
+    DEBUG_ECHOLNPGM("trig ret scr");
   #endif
 }
 

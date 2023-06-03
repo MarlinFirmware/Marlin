@@ -266,17 +266,14 @@ void DGUSDisplay::processRx() {
             os_version = tmp[4];
 
             #ifdef DEBUG_DGUSLCD
-              DEBUG_ECHOPGM("DGUS version: GUI "); DEBUG_DECIMAL(gui_version);
-              DEBUG_ECHOPGM("OS "); DEBUG_DECIMAL(os_version);
-              DEBUG_EOL();
+              DEBUG_ECHOLNPGM("DGUS version: GUI ", gui_version, "OS ", os_version);
             #endif
             rx_datagram_state = DGUS_IDLE;
             break;
           }
 
           #ifdef DEBUG_DGUSLCD
-            DEBUG_ECHOPGM("DGUS RX VP "); DEBUG_DECIMAL(addr);
-            DEBUG_EOL();
+            DEBUG_ECHOLNPGM("DGUS RX VP ", addr);
           #endif
 
           DGUS_VP vp;
@@ -333,8 +330,7 @@ void DGUSDisplay::processRx() {
         }
 
         #ifdef DEBUG_DGUSLCD
-          DEBUG_ECHOPGM("DGUS unknown command "); DEBUG_DECIMAL(command);
-          DEBUG_EOL();
+          DEBUG_ECHOLNPGM("DGUS unknown command ", command);
         #endif
 
         rx_datagram_state = DGUS_IDLE;
@@ -363,13 +359,12 @@ void DGUSDisplay::writeHeader(uint16_t addr, uint8_t command, uint8_t len) {
   LCD_SERIAL.write(len + 3);
   LCD_SERIAL.write(command);
 
-  union
-  {
+  union {
     uint16_t u16;
     uint8_t u8[2];
   } data = { Endianness::toBE(addr) };
 
-  LOOP_L_N(i, sizeof(data.u8)) LCD_SERIAL.write(data.u8[i]);
+  for (uint8_t i = 0, i < sizeof(data.u8); ++i) LCD_SERIAL.write(data.u8[i]);
 }
 
 bool DGUS_PopulateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
