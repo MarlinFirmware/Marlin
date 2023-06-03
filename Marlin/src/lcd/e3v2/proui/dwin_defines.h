@@ -65,7 +65,7 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
 #define Def_Button_Color      RGB( 0, 23, 16)
-#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+#if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
 #endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)

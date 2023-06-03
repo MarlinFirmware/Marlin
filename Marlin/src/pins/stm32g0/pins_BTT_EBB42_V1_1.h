@@ -38,7 +38,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #undef NO_EEPROM_SELECTED
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
@@ -125,7 +125,8 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA2   // "HE"
+#define HEATER_0_PIN                        PA2   // "HE" V1.1
+#define HEATER_1_PIN                        PB13  // "HE" V1.2
 #define FAN0_PIN                            PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
 

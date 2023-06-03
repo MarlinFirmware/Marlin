@@ -209,7 +209,7 @@ public:
     }
   #endif
 
-  static void ls(const uint8_t lsflags);
+  static void ls(const uint8_t lsflags=0);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -284,7 +284,7 @@ private:
       static uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
-    #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)
       #define SORTED_LONGNAME_STORAGE (SORTED_LONGNAME_MAXLEN + 1)
     #else

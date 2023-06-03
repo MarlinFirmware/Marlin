@@ -88,28 +88,28 @@ void GcodeSuite::G92() {
     case 0:
       LOOP_LOGICAL_AXES(i) {
         if (parser.seenval(AXIS_CHAR(i))) {
-          const float l = parser.value_axis_units((AxisEnum)i),       // Given axis coordinate value, converted to millimeters
+          const float l = parser.value_axis_units((AxisEnum)i),   // Given axis coordinate value, converted to millimeters
                       v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : LOGICAL_TO_NATIVE(l, i),  // Axis position in NATIVE space (applying the existing offset)
-                      d = v - current_position[i];                    // How much is the current axis position altered by?
+                      d = v - current_position[i];                // How much is the current axis position altered by?
           if (!NEAR_ZERO(d)) {
-            #if HAS_POSITION_SHIFT && NONE(IS_SCARA, POLARGRAPH)      // When using workspaces...
+            #if HAS_POSITION_SHIFT && NONE(IS_SCARA, POLARGRAPH)  // When using workspaces...
               if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                position_shift[i] += d;                               // ...most axes offset the workspace...
+                position_shift[i] += d;                           // ...most axes offset the workspace...
                 update_workspace_offset((AxisEnum)i);
               }
               else {
                 #if HAS_EXTRUDERS
                   sync_E = true;
-                  current_position.e = v;                             // ...but E is set directly
+                  current_position.e = v;                         // ...but E is set directly
                 #endif
               }
-            #else                                                     // Without workspaces...
+            #else                                                 // Without workspaces...
               if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
                 sync_XYZE = true;
               else {
                 TERN_(HAS_EXTRUDERS, sync_E = true);
               }
-              current_position[i] = v;                                // ...set Current Position directly (like Marlin 1.0)
+              current_position[i] = v;                            // ...set Current Position directly (like Marlin 1.0)
             #endif
           }
         }

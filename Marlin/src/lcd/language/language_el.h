@@ -70,16 +70,16 @@ namespace Language_el {
     LSTR MSG_PREHEAT_1_END                = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
     LSTR MSG_PREHEAT_1_ALL                = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" bed"); //SHORTEN
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση"); //SHORTEN
+    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" bed"); // SHORTEN
+    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση"); // SHORTEN
 
     LSTR MSG_PREHEAT_M                    = _UxGT("Προθέρμανση $");
     LSTR MSG_PREHEAT_M_H                  = _UxGT("Προθέρμανση $ ~");
     LSTR MSG_PREHEAT_M_END                = _UxGT("Προθέρμανση $ End");
     LSTR MSG_PREHEAT_M_END_E              = _UxGT("Προθέρμανση $ End ~");
     LSTR MSG_PREHEAT_M_ALL                = _UxGT("Προθέρμανση $ όλα");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Προθέρμανση $ bed"); //SHORTEN
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Προθέρμανση $ επιβεβαίωση"); //SHORTEN
+    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Προθέρμανση $ bed"); // SHORTEN
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Προθέρμανση $ επιβεβαίωση"); // SHORTEN
   #endif
   LSTR MSG_COOLDOWN                       = _UxGT("Αποθέρμανση");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Ενεργοποίηση");
@@ -157,7 +157,7 @@ namespace Language_el {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Αποθήκευση σε EEPROM");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Φόρτωση από EEPROM");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Επαναφορά προεπιλογών");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Ανανέωση");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Ανανέωση");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Οθόνη πληροφόρησης");
   LSTR MSG_PREPARE                        = _UxGT("Προετοιμασία");
   LSTR MSG_TUNE                           = _UxGT("Συντονισμός");
@@ -173,7 +173,7 @@ namespace Language_el {
   LSTR MSG_KILLED                         = _UxGT("ΤΕΡΜΑΤΙΣΜΟΣ. ");
   LSTR MSG_STOPPED                        = _UxGT("ΔΙΑΚΟΠΗ. ");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Ανάσυρση μμ");
-  LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Εναλλαγή ανάσυρσης mm");  //SHORTEN
+  LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Εναλλαγή ανάσυρσης mm"); // SHORTEN
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Ανάσυρση V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Μεταπήδηση mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
@@ -184,7 +184,7 @@ namespace Language_el {
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Αλλαγή νήματος *");
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Προετοιμασία SD");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Αλλαγή κάρτας SD");
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης"); //SHORTEN
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης"); // SHORTEN
   LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πρώτα");
   LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥΖ πρώτα");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Μετατόπιση Ζ");

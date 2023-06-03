@@ -59,7 +59,7 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+#if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
   #define HAS_DEBUG_MENU 1
 #endif
@@ -68,7 +68,7 @@
 #include "../../core/debug_out.h"
 
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
@@ -592,7 +592,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -657,7 +657,7 @@ void menu_configuration() {
 
   // Preheat configurations
   #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
       SUBMENU_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 
