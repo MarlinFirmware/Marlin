@@ -433,8 +433,6 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
     current_block->steps.w / planner.settings.axis_steps_per_mm[W_AXIS]
   );
 
-  ratio = moveDist * oneOverLength;
-
   LOGICAL_AXIS_CODE(
     if (!direction.e) moveDist.e *= -1.0f,
     if (!direction.x) moveDist.x *= -1.0f,
@@ -447,6 +445,8 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
     if (!direction.v) moveDist.v *= -1.0f,
     if (!direction.w) moveDist.w *= -1.0f
   );
+
+  ratio = moveDist * oneOverLength;
 
   const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
               f_s = spm * current_block->initial_rate;  // (steps/s) Start feedrate
