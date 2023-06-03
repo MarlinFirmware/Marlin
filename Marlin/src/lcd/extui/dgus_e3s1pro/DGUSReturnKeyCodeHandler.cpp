@@ -51,17 +51,10 @@ static uint16_t absBedTempSave = 0;
 static DGUS_Screen GetJogScreenForSavedJogLength() {
   DGUS_Screen jogscreen = DGUS_Screen::MOVEAXIS_10;
   switch (screen.config.jogLength) {
-    case DGUS_Data::AxisControlCommand::Jog_10mm:
-      jogscreen = DGUS_Screen::MOVEAXIS_10;
-      break;
-    case DGUS_Data::AxisControlCommand::Jog_1mm:
-      jogscreen = DGUS_Screen::MOVEAXIS_1;
-      break;
-    case DGUS_Data::AxisControlCommand::Jog_0_1mm:
-      jogscreen = DGUS_Screen::MOVEAXIS_01;
-      break;
-    default:
-      break;
+    case DGUS_Data::AxisControlCommand::Jog_10mm:  jogscreen = DGUS_Screen::MOVEAXIS_10; break;
+    case DGUS_Data::AxisControlCommand::Jog_1mm:   jogscreen = DGUS_Screen::MOVEAXIS_1; break;
+    case DGUS_Data::AxisControlCommand::Jog_0_1mm: jogscreen = DGUS_Screen::MOVEAXIS_01; break;
+    default: break;
   }
 
   return jogscreen;
@@ -159,9 +152,7 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
 void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
   DGUS_Data::CheckKOCommand command = Endianness::fromBE_P<DGUS_Data::CheckKOCommand>(data);
 
-  if (command != DGUS_Data::CheckKOCommand::KO
-    && command != DGUS_Data::CheckKOCommand::SDCard_No
-  ) {
+  if (command != DGUS_Data::CheckKOCommand::KO && command != DGUS_Data::CheckKOCommand::SDCard_No) {
     #ifdef DEBUG_DGUSLCD
       DEBUG_ECHOPGM("Command_CheckKO: unknown id "); DEBUG_DECIMAL((uint16_t)command);
       DEBUG_EOL();
@@ -181,7 +172,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
     case DGUS_Screen::FILAMENTLOAD:
     case DGUS_Screen::SDCARDCHECK:
     case DGUS_Screen::PAUSE_LASER:
-    break;
+      break;
 
     default:
       #ifdef DEBUG_DGUSLCD
@@ -401,41 +392,25 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
   }
 }
 
-static void _GotoTrammingPoint(unsigned char point) {
+static void _gotoTrammingPoint(unsigned char point) {
   constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   float x, y;
 
   switch (point) {
     default: return;
-    case 1:
-      x = (X_BED_SIZE/2);
-      y = (X_BED_SIZE/2);
-      break;
-    case 2:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MIN_POS + lfrb[1];
-      break;
-    case 3:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MIN_POS + lfrb[1];
-      break;
-    case 4:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MAX_POS - lfrb[3];
-      break;
-    case 5:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MAX_POS - lfrb[3];
-      break;
+    case 1: x = X_CENTER; y = Y_CENTER; break;
+    case 2: x = X_MIN_POS + lfrb[0]; y = Y_MIN_POS + lfrb[1]; break;
+    case 3: x = X_MAX_POS - lfrb[2]; y = Y_MIN_POS + lfrb[1]; break;
+    case 4: x = X_MAX_POS - lfrb[2]; y = Y_MAX_POS - lfrb[3]; break;
+    case 5: x = X_MIN_POS + lfrb[0]; y = Y_MAX_POS - lfrb[3]; break;
   }
 
-  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < Z_MIN_POS + BED_TRAMMING_Z_HOP) {
-    ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_Z_HOP, ExtUI::Z);
-  }
+  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < (Z_MIN_POS) + (BED_TRAMMING_Z_HOP))
+    ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
 
   ExtUI::setAxisPosition_mm(x, ExtUI::X);
   ExtUI::setAxisPosition_mm(y, ExtUI::Y);
-  ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_HEIGHT, ExtUI::Z);
+  ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
 // 1044
@@ -446,7 +421,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
     case DGUS_Data::LevelingCommand::Show_AuxLeveling:
       if (ExtUI::isPositionKnown())
         screen.triggerScreenChange(DGUS_Screen::LEVELINGMODE);
-      _GotoTrammingPoint(1);
+      _gotoTrammingPoint(1);
       break;
 
     case DGUS_Data::LevelingCommand::Show_Settings_Leveling:
@@ -455,23 +430,23 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
       break;
 
     case DGUS_Data::LevelingCommand::Goto_Center:
-      _GotoTrammingPoint(1);
+      _gotoTrammingPoint(1);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_LF:
-      _GotoTrammingPoint(2);
+      _gotoTrammingPoint(2);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_RF:
-      _GotoTrammingPoint(3);
+      _gotoTrammingPoint(3);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_RB:
-      _GotoTrammingPoint(4);
+      _gotoTrammingPoint(4);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_LB:
-      _GotoTrammingPoint(5);
+      _gotoTrammingPoint(5);
       break;
 
     default:
@@ -588,8 +563,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
   switch (control) {
     #if HAS_MEDIA
       case DGUS_Data::FilelistControlCommand::Start_Print:
-        if (!screen.getSDCardPrintFilename()[0])
-        {
+        if (!screen.getSDCardPrintFilename()[0]) {
           screen.angryBeeps(2);
           return;
         }
@@ -604,22 +578,22 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
     case DGUS_Data::FilelistControlCommand::F3_Up:
     case DGUS_Data::FilelistControlCommand::F4_Up:
       newPage = dgus_sdcard_handler.onPreviousPage();
-    break;
+      break;
 
     case DGUS_Data::FilelistControlCommand::F1_Down:
     case DGUS_Data::FilelistControlCommand::F2_Down:
     case DGUS_Data::FilelistControlCommand::F3_Down:
     case DGUS_Data::FilelistControlCommand::F4_Down:
       newPage = dgus_sdcard_handler.onNextPage();
-    break;
+      break;
 
     case DGUS_Data::FilelistControlCommand::Begin:
       newPage = dgus_sdcard_handler.onFirstPage();
-    break;
+      break;
 
     case DGUS_Data::FilelistControlCommand::End:
       newPage = dgus_sdcard_handler.onLastPage();
-    break;
+      break;
 
     default:
       #ifdef DEBUG_DGUSLCD

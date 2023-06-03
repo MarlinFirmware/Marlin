@@ -64,12 +64,12 @@ millis_t DGUSScreenHandler::status_expire = 0;
 millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
-  dgus_display.init();
+  dgus.init();
   moveToScreen(DGUS_Screen::BOOT, true);
 }
 
 void DGUSScreenHandler::ready() {
-  dgus_display.playSound(1);
+  dgus.playSound(1);
 }
 
 void DGUSScreenHandler::loop() {
@@ -97,7 +97,7 @@ void DGUSScreenHandler::loop() {
   if (!booted && current_screen == DGUS_Screen::HOME) {
     // Boot complete
     booted = true;
-    dgus_display.readVersions();
+    dgus.readVersions();
     return;
   }
 
@@ -112,7 +112,7 @@ void DGUSScreenHandler::loop() {
 
     if (angry_beeps) {
       --angry_beeps;
-      dgus_display.playSound(3);
+      dgus.playSound(3);
     }
 
     if (!sendScreenVPData(current_screen, full_update))
@@ -126,7 +126,7 @@ void DGUSScreenHandler::loop() {
 
     if (angry_beeps) {
       --angry_beeps;
-      dgus_display.playSound(0, 500/8, 100);
+      dgus.playSound(0, 500/8, 100);
     }
   }
 
@@ -157,11 +157,11 @@ void DGUSScreenHandler::loop() {
     return;
   }
 
-  dgus_display.loop();
+  dgus.loop();
 }
 
 void DGUSScreenHandler::printerKilled(FSTR_P const error, FSTR_P const component) {
-  dgus_display.playSound(0, (uint8_t)(3000/8), 100);
+  dgus.playSound(0, (uint8_t)(3000/8), 100);
   setStatusMessage(error);
   moveToScreen(DGUS_Screen::ABNORMAL);
 }
@@ -239,8 +239,8 @@ void DGUSScreenHandler::storeSettings(char *buff) {
   static_assert(sizeof(config) <= ExtUI::eeprom_data_size, "sizeof(eeprom_data_t) > eeprom_data_size.");
 
   config.initialized = true;
-  config.volume = dgus_display.getVolume();
-  config.brightness = dgus_display.getBrightness();
+  config.volume = dgus.getVolume();
+  config.brightness = dgus.getBrightness();
 
   memcpy(buff, &config, sizeof(config));
 }
@@ -259,8 +259,8 @@ void DGUSScreenHandler::loadSettings(const char *buff) {
   }
 
   ExtUI::setLevelingActive(config.levelingEnabled);
-  dgus_display.setVolume(config.volume);
-  dgus_display.setBrightness(config.brightness);
+  dgus.setVolume(config.volume);
+  dgus.setBrightness(config.brightness);
 }
 
 void DGUSScreenHandler::configurationStoreWritten(bool success) {
@@ -283,9 +283,9 @@ void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t durati
 
   if (frequency >= 1 && frequency <= 255) {
     if (duration >= 1 && duration <= 255)
-      dgus_display.playSound((uint8_t)frequency, (uint8_t)duration);
+      dgus.playSound((uint8_t)frequency, (uint8_t)duration);
     else
-      dgus_display.playSound((uint8_t)frequency);
+      dgus.playSound((uint8_t)frequency);
   }
 }
 
@@ -328,18 +328,18 @@ void DGUSScreenHandler::printTimerStarted() {
 }
 
 void DGUSScreenHandler::printTimerPaused() {
-  dgus_display.playSound(3);
+  dgus.playSound(3);
   triggerScreenChange(DGUS_Screen::RESUME);
 }
 
 void DGUSScreenHandler::printTimerStopped() {
-  dgus_display.playSound(3);
+  dgus.playSound(3);
   triggerScreenChange(DGUS_Screen::FINISH);
 }
 
 void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
   triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
-  dgus_display.playSound(3);
+  dgus.playSound(3);
 }
 
 ssize_t DGUSScreenHandler::getScrollIndex() {
@@ -378,7 +378,7 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::pidTuning(const ExtUI::result_t rst) {
-    dgus_display.playSound(3);
+    dgus.playSound(3);
   }
 #endif
 
@@ -510,7 +510,7 @@ void DGUSScreenHandler::moveToScreen(DGUS_Screen screen, bool abort_wait) {
   if (!callScreenSetup(screen)) return;
   if (!sendScreenVPData(screen, true)) return;
 
-  dgus_display.switchScreen(current_screen);
+  dgus.switchScreen(current_screen);
 }
 
 bool DGUSScreenHandler::sendScreenVPData(DGUS_Screen screen, bool complete_update) {
@@ -535,10 +535,10 @@ bool DGUSScreenHandler::sendScreenVPData(DGUS_Screen screen, bool complete_updat
     uint8_t expected_tx = 6 + vp.size; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    while (expected_tx > dgus_display.getFreeTxBuffer()) {
+    while (expected_tx > dgus.getFreeTxBuffer()) {
       if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
 
-      dgus_display.flushTx(); // Flush the TX buffer
+      dgus.flushTx(); // Flush the TX buffer
       delay(50);
     }
 

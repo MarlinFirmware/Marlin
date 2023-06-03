@@ -41,39 +41,39 @@ namespace DGUSTxHandler {
   template <typename T, T axis>
   void maxFeedrate(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxFeedrate_mm_s(axis);
-    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+    dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxAcceleration(DGUS_VP &vp) {
     uint16_t data = (uint16_t)ExtUI::getAxisMaxAcceleration_mm_s2(axis);
-    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+    dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void maxJerk(DGUS_VP &vp) {
-    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
-    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+    uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getAxisMaxJerk_mm_s(axis));
+    dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
   template <typename T, T axis>
   void stepsPerMM(DGUS_VP &vp) {
-    uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
-    dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+    uint16_t data = dgus.toFixedPoint<float, uint16_t, 1>(ExtUI::getAxisSteps_per_mm(axis));
+    dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 
   #if ENABLED(PIDTEMP)
     template<ExtUI::extruder_t extruder>
     void PID_P(DGUS_VP &vp) {
-      uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
-      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kp(extruder));
+      dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_I(DGUS_VP &vp) {
-      uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
-      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Ki(extruder));
+      dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
     template<ExtUI::extruder_t extruder>
     void PID_D(DGUS_VP &vp) {
-      uint16_t data = dgus_display.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
-      dgus_display.write((uint16_t)vp.addr, Endianness::toBE(data));
+      uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getPID_Kd(extruder));
+      dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
     }
   #endif // PIDTEMP
 
@@ -107,17 +107,17 @@ namespace DGUSTxHandler {
       default: return;
       case 1: {
         const uint8_t data = uint8_t(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), data);
+        dgus.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
         const uint16_t data = uint16_t(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
+        dgus.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
       case 4: {
         const uint32_t data = uint32_t(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
+        dgus.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
     }
@@ -129,18 +129,18 @@ namespace DGUSTxHandler {
     switch (vp.size) {
       default: return;
       case 1: {
-        const uint8_t data = dgus_display.toFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), data);
+        const uint8_t data = dgus.toFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
-        const uint16_t data = dgus_display.toFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
+        const uint16_t data = dgus.toFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
       case 4: {
-        const uint32_t data = dgus_display.toFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
-        dgus_display.write(uint16_t(vp.addr), Endianness::toBE(data));
+        const uint32_t data = dgus.toFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), Endianness::toBE(data));
         break;
       }
     }

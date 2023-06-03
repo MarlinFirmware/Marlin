@@ -34,12 +34,12 @@
 #include "../../../module/stepper.h"
 
 void DGUSRxHandler::printSpeedPercentage(DGUS_VP &vp, void *data) {
-  const_float_t feedratePercentage = dgus_display.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t feedratePercentage = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setFeedrate_percent(feedratePercentage);
 }
 
 void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data) {
-  const_float_t zoffset = dgus_display.fromFixedPoint<int16_t, const_float_t, 2>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t zoffset = dgus.fromFixedPoint<int16_t, const_float_t, 2>(Endianness::fromBE_P<int16_t>(data));
   const_float_t currentzOffset = ExtUI::getZOffset_mm();
   const_float_t zStepsPerMm = ExtUI::getAxisSteps_per_mm(ExtUI::Z);
   int16_t zStepsDiff = zStepsPerMm * (zoffset - currentzOffset);
@@ -59,28 +59,28 @@ void DGUSRxHandler::bedTargetTemp(DGUS_VP &vp, void *data) {
 }
 
 void DGUSRxHandler::axis_X(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus_display.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::X);
 }
 
 void DGUSRxHandler::axis_Y(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus_display.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Y);
 }
 
 void DGUSRxHandler::axis_Z(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus_display.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Z);
 }
 
 void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
-  const_float_t length = dgus_display.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
   ExtUI::setAxisPosition_mm(currentPosition+length, ExtUI::E0);
 }
 
 void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
-  const_float_t length = dgus_display.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
+  const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
   ExtUI::setAxisPosition_mm(currentPosition-length, ExtUI::E0);
 }
@@ -94,7 +94,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
 
 #if ENABLED(PIDTEMPBED)
   void DGUSRxHandler::bed_PID_P(DGUS_VP &vp, void *data) {
-    float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setBedPID(
       pidValue,
       ExtUI::getBedPID_Ki(),
@@ -103,7 +103,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   }
 
   void DGUSRxHandler::bed_PID_I(DGUS_VP &vp, void *data) {
-    float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
       pidValue,
@@ -112,7 +112,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   }
 
   void DGUSRxHandler::bed_PID_D(DGUS_VP &vp, void *data) {
-    float pidValue = dgus_display.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
       ExtUI::getBedPID_Ki(),
