@@ -37,127 +37,77 @@
 
 #define BOARD_INFO_NAME "GT2560 4.1b"
 
-// LIMIT SWITCHES CONNECTORS
-
-/*
+/**   Limit Switches Connectors
+ *    All have external 10k pull-up resistors
+ *
  * X-Y-Z AXIS MAX LIMIT SWITCHES CONNECTOR (H6)
  *        ---------
- *       | 1  4  7 |  V5 32 Z0_MAX GND
- *       | 2  5  8 |  V5 26 Y_MAX  GND
- *       | 3  6  9 |  V5 22 X_MAX  GND
+ *       | 1  4  7 |  5V 32 Z0_MAX GND
+ *       | 2  5  8 |  5V 26 Y_MAX  GND
+ *       | 3  6  9 |  5V 22 X_MAX  GND
  *        ---------
  *           H6
  *
- * X AXIS MIN LIMIT SWITCH CONN
- *         ---
- *        | 1 | V5
- *        | 2 | 24 X_MIN
- *        | 3 | GND
- *         ---
- *          J3
+ *  X AXIS              Y AXIS               Z1 AXIS            Z0 AXIS
+ *    ---                 ---                 ---                 ---
+ *   | 1 | 5V            | 1 | 5V            | 1 | 5V            | 1 | 5V
+ *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | PE7 Z1_MIN    | 2 | 30 Z0_MIN
+ *   | 3 | GND           | 3 | GND           | 3 | GND           | 3 | GND
+ *    ---                 ---                 ---                 ---
+ *     J3                  J4                  J5                  J6
  *
- * Y AXIS MIN LIMIT SWITCH CONN
- *         ---
- *        | 1 | V5
- *        | 2 | 28 Y_MIN
- *        | 3 | GND
- *         ---
- *          J4
- *
- * Z AXIS MIN LIMIT SWITCHES CONN
- *
- *         ---
- *        | 1 | V5
- *        | 2 | PE7 Z1_MIN
- *        | 3 | GND
- *         ---
- *          J5
- *
- *
- *         ---
- *        | 1 | V5
- *        | 2 | 30 Z0_MIN
- *        | 3 | GND
- *         ---
- *         J6
- *
- *  All limit switches signals have external 10k pull-up resistors
 */
 
-#define X_MIN                                 24
-#define X_MAX                                 22
-#define Y_MIN                                 28
-#define Y_MAX                                 26
-#define Z0_MIN                                30
-#define Z_MIN1                            Z0_MIN
-#define Z1_MIN                               PE7
-#define Z0_MAX                                32
+//#define Z1_MIN                             PE7  // Number??
 
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
-    #define X_MIN_PIN                      X_MIN
+    #define X_MIN_PIN                         24
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                      X_MAX
+    #define X_MAX_PIN                         22
   #endif
 #endif
 #ifndef Y_STOP_PIN
   #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                      Y_MIN
+    #define Y_MIN_PIN                         28
   #endif
   #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                      Y_MAX
+    #define Y_MAX_PIN                         26
   #endif
 #endif
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                     Z0_MIN
+    #define Z_MIN_PIN                         30
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                     Z0_MAX
+    #define Z_MAX_PIN                         32
   #endif
 #endif
 
-/*
- * filament runout sensors connections
+/**                   Filament Runout Sensors
  *
- * filament 1
- *         ---
- *        | 1 | V5
- *        | 2 | 66 F_DET0
- *        | 3 | GND
- *         ---
- *         J12
- *
- * filament 2
- *         ---
- *        | 1 | V5
- *        | 2 | 67 F_DET1
- *        | 3 | GND
- *         ---
- *         J13
- *
- * filament 3
- *         ---
- *        | 1 | V5
- *        | 2 | 54 F_DET2
- *        | 3 | GND
- *         ---
- *         J14
+ *      Filament 1           Filament 2           Filament 3
+ *         ---                  ---                  ---
+ *        | 1 | 5V             | 1 | 5V             | 1 | 5V
+ *        | 2 | 66 F_DET0      | 2 | 67 F_DET1      | 2 | 54 F_DET2
+ *        | 3 | GND            | 3 | GND            | 3 | GND
+ *         ---                  ---                  ---
+ *         J12                  J13                  J14
  */
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                  F_DET0
+  #define FIL_RUNOUT_PIN                      66
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                 F_DET1
+  #define FIL_RUNOUT2_PIN                     67
 #endif
 #ifndef FIL_RUNOUT3_PIN
-  #define FIL_RUNOUT3_PIN                 F_DET2
+  #define FIL_RUNOUT3_PIN                     54
 #endif
 
 //
-// Power Recovery
+// Power Loss Detection
 //
 #define POWER_LOSS_PIN                        69  // Pin to detect power loss
 #define POWER_LOSS_STATE                     LOW
@@ -189,25 +139,21 @@
 #define E2_DIR_PIN                            45
 #define E2_ENABLE_PIN                         41
 
-/**           PRINT HEAD CONNECTOR
+/**                  Printhead Connector
  *                         ------
- *   (PWM8_FAN0) FAN_E0 9 | 1  2 | 9 FAN_E0 24V PWM FROM (PWM8_FAN0)
- *               (T0) A11 | 3  4 | A11 (T0) Extruder Temp Sensor
- *                    GND | 5  6 | 30 Z_MIN1 same of (Z0_MIN)
- *                     V5 | 7  8 | 11 (PB5) servo for BL_TOUCH/3D_TOUCH
- *       (PB4_HE2) HE2 19 | 9 10 | GND
- *       (PB4_HE2) HE2 19 |11 12 | 19 HE2 24V PWM OUT FOR FIRST EXTRUDER (PB4_HE2)
+ * (PWM8_FAN0) FAN_E0   9 | 1  2 | 9    FAN_E0 24V PWM FROM (PWM8_FAN0)
+ *               (T0) A11 | 3  4 | A11  (T0) E0 Temp
+ *                    GND | 5  6 | 30   Z_MIN1 same as (Z0_MIN)
+ *                     5V | 7  8 | 11   (PB5) servo for BL_TOUCH/3D_TOUCH
+ *      (PB4_HE2) HE2  19 | 9 10 | GND
+ *      (PB4_HE2) HE2  19 |11 12 | 19   HE2 24V PWM out for E0 (PB4_HE2)
  *                    V24 |13 14 | V24
  *                    V24 |15 16 | V24
  *                         ------
  *                           H3
  */
 
-#define PWM8_FAN0                              9
-#define T0                                    11  // Analog input
-#define PB5                                   11  // digital out to servo BL_TOUCH/3D_TOUCH
-#define SERVO0_PIN                           PB5  // BL_TOUCH/3D_TOUCH
-#define PB4_HE2                               10  // analog PWM out to the first Extruder
+#define SERVO0_PIN                            11  // BLTouch / 3DTouch
 
 //
 // Z Probe PIN6 HEADER H3 (PRINT HEAD HEADER CONN)
@@ -219,7 +165,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            T0  // Analog Input
+#define TEMP_0_PIN                            11  // Analog Input
 #define TEMP_1_PIN                             9  // Analog Input
 #define TEMP_2_PIN                             8  // Analog Input
 #define TEMP_BED_PIN                          10  // Analog Input
@@ -227,11 +173,11 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                     PB4_HE2
+#define HEATER_0_PIN                          10  // PWM out to E0
 #define HEATER_1_PIN                           3
 #define HEATER_2_PIN                           2
 #define HEATER_BED_PIN                         4
-#define FAN0_PIN                       PWM8_FAN0
+#define FAN0_PIN                               9
 #define FAN1_PIN                               8
 #define FAN2_PIN                               7
 
@@ -251,9 +197,9 @@
   #define CASE_LIGHT_PIN                       6  // 21
 #endif
 
-/**           LCD CONNECTOR
+/**            LCD Connector
  *                ------
- *            V5 | 1  2 | GND
+ *            5V | 1  2 | GND
  *   (LCM_D7) 36 | 3  4 |  5 (LCM_D6)
  *   (LCM_D5) 21 | 5  6 | GND
  *   (LCM_D4) 16 | 7  8 | 17 (LCM_EN)
@@ -261,10 +207,9 @@
  *       (RESET) |11 12 | 19 (BEEP)
  *                ------
  *                  H2
- *
  */
 
-#define LCM_D4                                16  // used as BTN_EN1 for YHCB2004 LCD Module
+#define LCM_D4                                16  // Used as BTN_EN1 for YHCB2004 LCD Module
 #define LCM_D5                                21  // YHCB2004_SCK_PIN
 #define LCM_D6                                 5  // YHCB2004_SS_PIN
 #define LCM_D7                                36  // YHCB2004_MOSI_PIN
@@ -273,55 +218,36 @@
 #define BEEP                                  18
 
 #define BEEPER_PIN                          BEEP
-#define LCM_RS                                20  // pin named and connected to 10k pull-up resistor but unused
-#if ENABLED(YHCB2004)
- #define YHCB2004_SS_PIN                  LCM_D6
- #define YHCB2004_SCK_PIN                 LCM_D5
- #define YHCB2004_MOSI_PIN                LCM_D7
- #define YHCB2004_MISO_PIN                   LCM_RS      // unused pin on V4.1b board
-#endif
+#define LCM_RS                                20  // Pin named and connected to 10k pull-up resistor but unused
 
-/*  Cannot use HAS_WIRED_LCD because V4.1b board has not LCD_PINS_RS wired to display connector
+#if ENABLED(YHCB2004)
+
+  #define YHCB2004_SS_PIN                 LCM_D6
+  #define YHCB2004_SCK_PIN                LCM_D5
+  #define YHCB2004_MOSI_PIN               LCM_D7
+  #define YHCB2004_MISO_PIN               LCM_RS  // Unused on V4.1b board
+
 #elif HAS_WIRED_LCD
-  #ifndef LCD_PINS_RS
-    #define LCD_PINS_RS                       20
-  #endif
-  #ifndef LCD_PINS_EN
-    #define LCD_PINS_EN                       17
-  #endif
-  #ifndef LCD_PINS_D4
-    #define LCD_PINS_D4                       16
-  #endif
-  #ifndef LCD_PINS_D5
-    #define LCD_PINS_D5                       21
-  #endif
-  #ifndef LCD_PINS_D6
-    #define LCD_PINS_D6                        5
-  #endif
-  #ifndef LCD_PINS_D7
-    #define LCD_PINS_D7                       36
-  #endif
+
+  #error "GT2560 V4.1b requires an adapter for common LCDs."
+
+  /*  Cannot use because V4.1b board has no LCD_PINS_RS wired to display connector
+  #define LCD_PINS_RS                         20
+  #define LCD_PINS_EN                         17
+  #define LCD_PINS_D4                         16
+  #define LCD_PINS_D5                         21
+  #define LCD_PINS_D6                          5
+  #define LCD_PINS_D7                         36
+  //*/
+
 #endif
-*/
 
 #if ENABLED(YHCB2004)
-  #ifndef BTN_EN1
-    #define BTN_EN1                       LCM_D4
-  #endif
-  #ifndef BTN_EN2
-    #define BTN_EN2                       LCM_EN
-  #endif
-  #ifndef BTN_ENC
-    #define BTN_ENC                     EC_PRESS
-  #endif
+  #define BTN_EN1                         LCM_D4
+  #define BTN_EN2                         LCM_EN
+  #define BTN_ENC                       EC_PRESS
 #elif IS_NEWPANEL
-  #ifndef BTN_EN1
-    #define BTN_EN1                           42
-  #endif
-  #ifndef BTN_EN2
-    #define BTN_EN2                           40
-  #endif
-  #ifndef BTN_ENC
-    #define BTN_ENC                           19
-  #endif
+  #define BTN_EN1                             42
+  #define BTN_EN2                             40
+  #define BTN_ENC                             19
 #endif
