@@ -24,8 +24,8 @@
 /**
  * Print Stats page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.0
- * Date: 2022/02/24
+ * Version: 1.4.2
+ * Date: 2022/12/03
  */
 
 class PrintStatsClass {
@@ -37,3 +37,4 @@ public:
 extern PrintStatsClass PrintStats;
 
 void Goto_PrintStats();
+void PrintStatsReset();

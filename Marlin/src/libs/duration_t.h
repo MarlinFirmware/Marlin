@@ -67,7 +67,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as years
+   * @brief Format the duration as years
    * @return The number of years
    */
   inline uint8_t year() const {
@@ -75,7 +75,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as days
+   * @brief Format the duration as days
    * @return The number of days
    */
   inline uint16_t day() const {
@@ -83,7 +83,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as hours
+   * @brief Format the duration as hours
    * @return The number of hours
    */
   inline uint32_t hour() const {
@@ -91,7 +91,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as minutes
+   * @brief Format the duration as minutes
    * @return The number of minutes
    */
   inline uint32_t minute() const {
@@ -99,7 +99,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as seconds
+   * @brief Format the duration as seconds
    * @return The number of seconds
    */
   inline uint32_t second() const {
@@ -112,7 +112,7 @@ struct duration_t {
   #endif
 
   /**
-   * @brief Formats the duration as a string
+   * @brief Format the duration as a string
    * @details String will be formatted using a "full" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 22 bytes
@@ -142,7 +142,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as a string
+   * @brief Format the duration as a string
    * @details String will be formatted using a "digital" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 10 bytes
@@ -151,7 +151,9 @@ struct duration_t {
    *  123456789 (strlen)
    *  12'34
    *  99:59
-   *  11d 12:33
+   *  123:45
+   *  1d 12:33
+   *  9999d 12:33
    */
   uint8_t toDigital(char *buffer, bool with_days=false) const {
     const uint16_t h = uint16_t(this->hour()),
@@ -159,7 +161,7 @@ struct duration_t {
     if (with_days) {
       const uint16_t d = this->day();
       sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
-      return d >= 10 ? 9 : 8;
+      return strlen_P(buffer);
     }
     else if (!h) {
       const uint16_t s = uint16_t(this->second() % 60UL);

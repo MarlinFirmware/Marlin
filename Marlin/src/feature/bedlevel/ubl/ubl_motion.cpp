@@ -61,7 +61,7 @@
       const xyze_pos_t &start = current_position, &end = destination;
     #endif
 
-    const xy_int8_t istart = cell_indexes(start), iend = cell_indexes(end);
+    const xy_uint8_t istart = cell_indexes(start), iend = cell_indexes(end);
 
     // A move within the same cell needs no splitting
     if (istart == iend) {
@@ -108,7 +108,7 @@
 
     const xy_float_t dist = end - start;
     const xy_bool_t neg { dist.x < 0, dist.y < 0 };
-    const xy_int8_t ineg { int8_t(neg.x), int8_t(neg.y) };
+    const xy_uint8_t ineg { uint8_t(neg.x), uint8_t(neg.y) };
     const xy_float_t sign { neg.x ? -1.0f : 1.0f, neg.y ? -1.0f : 1.0f };
     const xy_int8_t iadd { int8_t(iend.x == istart.x ? 0 : sign.x), int8_t(iend.y == istart.y ? 0 : sign.y) };
 
@@ -131,7 +131,7 @@
       const bool inf_normalized_flag = isinf(e_normalized_dist);
     #endif
 
-    xy_int8_t icell = istart;
+    xy_uint8_t icell = istart;
 
     const float ratio = dist.y / dist.x,        // Allow divide by zero
                 c = start.y - ratio * start.x;
@@ -252,7 +252,7 @@
      * Generic case of a line crossing both X and Y Mesh lines.
      */
 
-    xy_int8_t cnt = (istart - iend).ABS();
+    xy_uint8_t cnt = istart.diff(iend);
 
     icell += ineg;
 
@@ -334,16 +334,14 @@
 #else // UBL_SEGMENTED
 
   #if IS_SCARA
-    #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-  #elif ENABLED(DELTA)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
-  #elif ENABLED(POLARGRAPH)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
+    #define SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+  #elif IS_KINEMATIC
+    #define SEGMENT_MIN_LENGTH 0.10 // (mm) Still subject to DEFAULT_SEGMENTS_PER_SECOND
   #else // CARTESIAN
     #ifdef LEVELED_SEGMENT_LENGTH
-      #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
+      #define SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
     #else
-      #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #define SEGMENT_MIN_LENGTH 1.00 // (mm) Similar to G2/G3 arc segmentation
     #endif
   #endif
 
@@ -361,23 +359,23 @@
     const xyze_pos_t total = destination - current_position;
 
     const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
-                cart_xy_mm = SQRT(cart_xy_mm_2);                                     // Total XY distance
+                cart_xy_mm = SQRT(cart_xy_mm_2);                               // Total XY distance
 
     #if IS_KINEMATIC
-      const float seconds = cart_xy_mm / scaled_fr_mm_s;                             // Duration of XY move at requested rate
-      uint16_t segments = LROUND(segments_per_second * seconds),                     // Preferred number of segments for distance @ feedrate
-               seglimit = LROUND(cart_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
-      NOMORE(segments, seglimit);                                                    // Limit to minimum segment length (fewer segments)
+      const float seconds = cart_xy_mm / scaled_fr_mm_s;                       // Duration of XY move at requested rate
+      uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
+               seglimit = LROUND(cart_xy_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+      NOMORE(segments, seglimit);                                              // Limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = LROUND(cart_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
+      uint16_t segments = LROUND(cart_xy_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
     #endif
 
-    NOLESS(segments, 1U);                                                            // Must have at least one segment
-    const float inv_segments = 1.0f / segments;                                      // Reciprocal to save calculation
+    NOLESS(segments, 1U);                                                      // Must have at least one segment
+    const float inv_segments = 1.0f / segments;                                // Reciprocal to save calculation
 
     // Add hints to help optimize the move
-    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);             // Length of each segment
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
+    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);       // Length of each segment
+    #if ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 

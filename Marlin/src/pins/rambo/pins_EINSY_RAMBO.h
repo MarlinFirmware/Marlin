@@ -23,6 +23,8 @@
 
 /**
  * Einsy-Rambo pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Rambo/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
+ * Origin: https://github.com/ultimachine/Einsy-Rambo/blob/1.1a/board/Project%20Outputs/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
  */
 
 #include "env_validate.h"
@@ -35,8 +37,8 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if !AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130) || !AXIS_DRIVER_TYPE_E0(TMC2130)
-  #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRambo."
+#if (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(TMC2130)) || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(TMC2130)) || (HAS_Z_AXIS && !AXIS_DRIVER_TYPE_Z(TMC2130)) || (HAS_EXTRUDERS && !AXIS_DRIVER_TYPE_E0(TMC2130))
+  #error "For EinsyRambo you must set all *_DRIVER_TYPE to TMC2130 in Configuration.h."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
@@ -116,9 +118,12 @@
 //
 #define TEMP_0_PIN                             0  // Analog Input, Header J2
 #define TEMP_1_PIN                             1  // Analog Input, Header J3
-#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
 #define TEMP_BED_PIN                           2  // Analog Input, Header J6
 #define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                      91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
+#endif
 
 //
 // Heaters / Fans
@@ -126,11 +131,11 @@
 #define HEATER_0_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
+#ifndef FAN0_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN_PIN                            6
+    #define FAN0_PIN                           6
   #else
-    #define FAN_PIN                            8
+    #define FAN0_PIN                           8
   #endif
 #endif
 
@@ -184,10 +189,12 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-// use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN        EXP1_02_PIN  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#if HAS_CUTTER
+  // Use P1 connector for spindle pins
+  #define SPINDLE_LASER_PWM_PIN      EXP1_02_PIN  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
+  #define SPINDLE_DIR_PIN                     19
+#endif
 
 //
 // Průša i3 MK2 Multiplexer Support
@@ -209,13 +216,13 @@
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_ENABLE        EXP1_08_PIN
+      #define LCD_PINS_EN            EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
       #define BTN_EN1                EXP1_03_PIN
       #define BTN_EN2                EXP1_05_PIN
     #else
       #define LCD_PINS_RS            EXP1_04_PIN
-      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN
       #define LCD_PINS_D4            EXP1_05_PIN
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN

@@ -35,9 +35,9 @@
 
 namespace ExtUI {
 
-  void onStartup() { nextion.Startup();  }
-  void onIdle() { nextion.IdleLoop(); }
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.PrinterKilled(error, component); }
+  void onStartup() { nextion.startup();  }
+  void onIdle() { nextion.idleLoop(); }
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.printerKilled(error, component); }
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
@@ -46,8 +46,8 @@ namespace ExtUI {
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
   void onFilamentRunout(const extruder_t) {}
-  void onUserConfirmRequired(const char * const msg) { nextion.ConfirmationRequest(msg); }
-  void onStatusChanged(const char * const msg) { nextion.StatusChange(msg); }
+  void onUserConfirmRequired(const char * const msg) { nextion.confirmationRequest(msg); }
+  void onStatusChanged(const char * const msg) { nextion.statusChange(msg); }
 
   void onHomingStart() {}
   void onHomingDone() {}
@@ -79,20 +79,22 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
     }
@@ -103,6 +105,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
     }
@@ -111,7 +119,7 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      nextion.PanelInfo(37);
+      nextion.panelInfo(37);
     }
   #endif
 

@@ -54,15 +54,15 @@
 //#define FLASH_EEPROM_EMULATION
 //#define SDCARD_EEPROM_EMULATION
 
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
-// Note: MKS Robin board is using SPI2 interface.
+// SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -122,18 +122,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PD14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PD1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PD0
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PD14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PD1
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PD0
 #endif
 
 #if HAS_TMC_UART
@@ -165,7 +163,10 @@
   #define E1_SERIAL_RX_PIN                  PD8
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -182,7 +183,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
+#define FAN0_PIN                            PB1   // FAN
 
 //
 // Thermocouples
@@ -241,7 +242,7 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT
+  #define ONBOARD_SDIO
   #define SDIO_CLOCK                     4500000  // 4.5 MHz
   #define SD_DETECT_PIN                     PD12
   #define ONBOARD_SD_CS_PIN                 PC11
@@ -298,7 +299,7 @@
 
 #if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_EN                       PD13
   #define LCD_PINS_RS                       PC6
   #define BTN_ENC                           PE13
   #define BTN_EN1                           PE8
@@ -310,7 +311,7 @@
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
-  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_EN                       PD13
   #define LCD_PINS_RS                       PC6
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
@@ -383,9 +384,9 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
 #ifndef BEEPER_PIN

@@ -47,7 +47,7 @@ enum CanvasSubtype : uint8_t {
   CANVAS_ADD_TEXT,
   CANVAS_ADD_IMAGE,
   CANVAS_ADD_BAR,
-  CANVAS_ADD_RECTANGLE,
+  CANVAS_ADD_RECT,
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -135,10 +135,12 @@ class TFT_Queue {
     static void reset();
     static void async();
     static void sync() { while (current_task != nullptr) async(); }
+    static bool is_empty() { return current_task == nullptr; }
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
     static void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
     static void set_background(uint16_t color);
+    static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint16_t *string, uint16_t maxWidth);
     static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth);
     static void add_text(uint16_t x, uint16_t y, uint16_t color, const char *string, uint16_t maxWidth) {
       add_text(x, y, color, (uint8_t *)string, maxWidth);

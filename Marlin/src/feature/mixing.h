@@ -122,7 +122,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
@@ -148,8 +148,7 @@ class Mixer {
     static void update_mix_from_vtool(const uint8_t j=selected_vtool) {
       float ctot = 0;
       MIXER_STEPPER_LOOP(i) ctot += color[j][i];
-      //MIXER_STEPPER_LOOP(i) mix[i] = 100.0f * color[j][i] / ctot;
-      MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot);
+      MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot + 0.5f);
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("V-tool ", j, " [ ");

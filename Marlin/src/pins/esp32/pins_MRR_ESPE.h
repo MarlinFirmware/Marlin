@@ -102,7 +102,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                         145  // 2
-#define FAN_PIN                              146  // 15
+#define FAN0_PIN                             146  // 15
 #define HEATER_BED_PIN                       144  // 4
 
 #define CONTROLLER_FAN_PIN                   147
@@ -126,7 +126,7 @@
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         13
-  #define LCD_PINS_ENABLE                     17
+  #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         16
 
   #if ENABLED(CR10_STOCKDISPLAY)

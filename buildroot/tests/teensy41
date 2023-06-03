@@ -71,7 +71,7 @@ exec_test $1 $2 "Ethernet, EEPROM, Magnetic Parking Extruder, No LCD" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41 MIXING_STEPPERS 2
 opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1 GRADIENT_MIX GRADIENT_VTOOL
-opt_disable DISABLE_INACTIVE_EXTRUDER
+opt_disable DISABLE_OTHER_EXTRUDERS
 exec_test $1 $2 "Mixing Extruder" "$3"
 
 #
@@ -88,9 +88,9 @@ exec_test $1 $2 "Mixing Extruder" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41 \
         X_DRIVER_TYPE TMC5160 Y_DRIVER_TYPE TMC5160 \
-        X_MIN_ENDSTOP_INVERTING true Y_MIN_ENDSTOP_INVERTING true \
+        X_MIN_ENDSTOP_HIT_STATE LOW Y_MIN_ENDSTOP_HIT_STATE LOW \
         X_CS_PIN 46 Y_CS_PIN 47
-opt_enable COREXY USE_ZMIN_PLUG MONITOR_DRIVER_STATUS SENSORLESS_HOMING
+opt_enable COREXY MONITOR_DRIVER_STATUS SENSORLESS_HOMING
 exec_test $1 $2 "Teensy 4.0/4.1 COREXY" "$3"
 
 #
@@ -106,7 +106,7 @@ exec_test $1 $2 "Teensy 4.0/4.1 COREXZ" "$3"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41 Z_DRIVER_TYPE A4988 Z2_DRIVER_TYPE A4988 Z2_MIN_PIN 2
-opt_enable Z_MULTI_ENDSTOPS USE_XMAX_PLUG
+opt_enable Z_MULTI_ENDSTOPS
 pins_set ramps/RAMPS X_MAX_PIN -1
 exec_test $1 $2 "Dual Z with Dual Z endstops" "$3"
 

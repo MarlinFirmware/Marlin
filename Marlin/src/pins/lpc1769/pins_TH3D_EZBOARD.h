@@ -99,8 +99,11 @@
   #define E0_SERIAL_RX_PIN                 P0_21
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temp Sensors
@@ -119,8 +122,8 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_06
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_06
 #endif
 #define FAN1_PIN                           P1_22
 
@@ -131,12 +134,6 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
 
 //
 // SD Card
@@ -144,7 +141,7 @@
 
 #define SDCARD_CONNECTION                ONBOARD
 
-//#define SD_DETECT_PIN                    P0_25  // SD_CD
+#define SD_DETECT_PIN                      P0_27  // SD_CD
 #define SD_SCK_PIN                         P0_07
 #define SD_MISO_PIN                        P0_08
 #define SD_MOSI_PIN                        P0_09
@@ -191,7 +188,7 @@
    */
   #define BEEPER_PIN                 EXP1_01_PIN
   #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   #define KILL_PIN                   EXP1_04_PIN
 
@@ -220,7 +217,7 @@
 
 #endif
 
-#if EITHER(CR10_STOCKDISPLAY, MKS_MINI_12864)
+#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_05_PIN
   #define BTN_ENC                    EXP1_02_PIN

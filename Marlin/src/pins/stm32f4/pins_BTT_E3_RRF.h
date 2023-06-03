@@ -51,11 +51,7 @@
 #define Z_STOP_PIN                          PC2   // Z-STOP
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
-  #if X2_USE_ENDSTOP == _XMAX_
-    #define X_MAX_PIN                   FPC2_PIN  // X2-STOP
-  #elif X2_USE_ENDSTOP == _XMIN_
-    #define X_MIN_PIN                   FPC2_PIN  // X2-STOP
-  #endif
+  #define X2_STOP_PIN                   FPC2_PIN  // X2-STOP
 #endif
 
 //
@@ -135,8 +131,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -159,7 +158,7 @@
   #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
 #endif
 
-#define FAN_PIN                             PB5   // "FAN0"
+#define FAN0_PIN                            PB5   // "FAN0"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"
@@ -197,7 +196,7 @@
 
 #if HAS_WIRED_LCD
 
-  #if EITHER(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+  #if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
 
     #define BEEPER_PIN                      PE8
 
@@ -206,7 +205,7 @@
     #define BTN_EN2                         PB2
 
     #define LCD_PINS_RS                     PB1
-    #define LCD_PINS_ENABLE                 PE11
+    #define LCD_PINS_EN                     PE11
     #define LCD_PINS_D4                     PE10
 
     #if ENABLED(LCD_FOR_MELZI)
@@ -252,14 +251,14 @@
     #endif
 
     #define LCD_PINS_RS                     PE10
-    #define LCD_PINS_ENABLE                 PE9
+    #define LCD_PINS_EN                     PE9
     #define LCD_PINS_D4                     PB1
     #define LCD_PINS_D5                     PB2
     #define LCD_PINS_D6                     PE7
     #define LCD_PINS_D7                     PE8
     #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_ENC                         PE9
     #define BTN_EN1                         PE7
@@ -331,7 +330,7 @@
 
 #endif // HAS_WIRED_LCD
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_E3_RRF.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -383,22 +382,23 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
 #endif
 
-//
-// WIFI
-//
-
-#define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PA4
-#define ESP_WIFI_MODULE_ENABLE_PIN          PA5
-#define ESP_WIFI_MODULE_GPIO0_PIN           PA6
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
+  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PA4
+  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
+#endif
 
 #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
   #define FPC2_PIN                          PB11

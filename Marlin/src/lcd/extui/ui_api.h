@@ -45,6 +45,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
+
 #if M600_PURGE_MORE_RESUMABLE
   #include "../../feature/pause.h"
 #endif
@@ -61,7 +62,7 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t { PID_STARTED, PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  enum result_t   : uint8_t { PID_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -171,14 +172,14 @@ namespace ExtUI {
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);
-    bool getMeshValid();
+    bool getLevelingIsValid();
+    void onLevelingStart();
+    void onLevelingDone();
     #if HAS_MESH
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zval);
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z);
-      void onLevelingStart();
-      void onLevelingDone();
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const_float_t zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
@@ -375,9 +376,6 @@ namespace ExtUI {
   void resumePrint();
 
   class FileList {
-    private:
-      uint16_t num_files;
-
     public:
       FileList();
       void refresh();
@@ -406,6 +404,7 @@ namespace ExtUI {
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
+  void onSurviveInKilled();
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
@@ -423,9 +422,11 @@ namespace ExtUI {
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
   void onPostprocessSettings();
-  void onSettingsStored(bool success);
-  void onSettingsLoaded(bool success);
+  void onSettingsStored(const bool success);
+  void onSettingsLoaded(const bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff);
+    void onPowerLoss();
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING

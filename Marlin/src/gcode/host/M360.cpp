@@ -70,7 +70,7 @@ void GcodeSuite::M360() {
   config_line(F("InputBuffer"),                 MAX_CMD_SIZE);
   config_line(F("PrintlineCache"),              BUFSIZE);
   config_line(F("MixingExtruder"),              ENABLED(MIXING_EXTRUDER));
-  config_line(F("SDCard"),                      ENABLED(SDSUPPORT));
+  config_line(F("SDCard"),                      ENABLED(HAS_MEDIA));
   config_line(F("Fan"),                         ENABLED(HAS_FAN));
   config_line(F("LCD"),                         ENABLED(HAS_DISPLAY));
   config_line(F("SoftwarePowerSwitch"),         1);
@@ -161,6 +161,7 @@ void GcodeSuite::M360() {
   SERIAL_ECHOLNPGM(
     TERN_(DELTA,         "Delta")
     TERN_(IS_SCARA,      "SCARA")
+    TERN_(POLAR,         "Polar")
     TERN_(IS_CORE,       "Core")
     TERN_(MARKFORGED_XY, "MarkForgedXY")
     TERN_(MARKFORGED_YX, "MarkForgedYX")
