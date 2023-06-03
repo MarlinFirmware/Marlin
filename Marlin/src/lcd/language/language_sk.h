@@ -67,8 +67,6 @@ namespace Language_sk {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft. endstopy");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hlavná ponuka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Pokročilé nastav.");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Panel nástrojov");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Možnosť vypnutá");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurácia");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto-štart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolniť motory");

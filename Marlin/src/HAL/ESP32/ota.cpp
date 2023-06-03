@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(WIFISUPPORT, OTASUPPORT)
+#if ALL(WIFISUPPORT, OTASUPPORT)
 
 #include <WiFi.h>
 #include <ESPmDNS.h>

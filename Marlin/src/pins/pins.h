@@ -61,7 +61,7 @@
   #endif
 #endif
 
-#if !(BOTH(HAS_WIRED_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
+#if !(ALL(HAS_WIRED_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
@@ -93,7 +93,7 @@
 #if _ENDSTOP_IS_ANY(Y_MIN_PIN) || _ENDSTOP_IS_ANY(Y_MAX_PIN)
   #define NEEDS_Y_MINMAX 1
 #endif
-#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || BOTH(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || ALL(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define NEEDS_Z_MINMAX 1
 #endif
 #undef _ENDSTOP_IS_ANY
@@ -810,11 +810,11 @@
 #elif MB(BTT_SKR_SE_BX_V3)
   #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"    // STM32H7                                env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_V3_0)
-  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H743Vx/STM32H723VG                env:STM32H743Vx_btt env:STM32H723VG_btt
 #elif MB(BTT_SKR_V3_0_EZ)
-  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H743Vx/STM32H723VG                env:STM32H743Vx_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
-  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"  // STM32H7                                env:STM32H723Vx_btt env:STM32H723Zx_btt
+  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"  // STM32H723Zx/STM32H723VE                env:STM32H723Zx_btt env:STM32H723VE_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)

@@ -51,7 +51,7 @@ XPT2046 touch;
   #include "../../../module/servo.h"
 #endif
 
-#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+#if ANY(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "../../../module/probe.h"
 #endif
 
@@ -249,7 +249,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if BOTH(MKS_TEST, HAS_MEDIA)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }

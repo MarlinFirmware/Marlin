@@ -192,7 +192,11 @@
 #define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define ANY(V...)          !DISABLED(V)
+#define ALL                 ENABLED
+#define NONE                DISABLED
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
@@ -216,15 +220,7 @@
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
-#define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
-
-#define ANY(V...)          !DISABLED(V)
-#define NONE(V...)          DISABLED(V)
-#define ALL(V...)           ENABLED(V)
-#define BOTH(V1,V2)         ALL(V1,V2)
-#define EITHER(V1,V2)       ANY(V1,V2)
-#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
@@ -329,11 +325,6 @@
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
-
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
-#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
-#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
 
 #define NOOP (void(0))
 

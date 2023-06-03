@@ -155,7 +155,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
+            for (uint8_t i = 0; i < 8; ++i) SERIAL_ECHO('0' + TEST(runout_flags, i));
             SERIAL_ECHOPGM(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
@@ -255,7 +255,7 @@ class FilamentSensorBase {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
-            LOOP_L_N(e, TERN(FILAMENT_SWITCH_AND_MOTION, NUM_MOTION_SENSORS, NUM_RUNOUT_SENSORS))
+            for (uint8_t e = 0; e < TERN(FILAMENT_SWITCH_AND_MOTION, NUM_MOTION_SENSORS, NUM_RUNOUT_SENSORS); ++e)
               if (TEST(change, e)) SERIAL_CHAR(' ', '0' + e);
             SERIAL_EOL();
           }
@@ -304,7 +304,7 @@ class FilamentSensorBase {
       static void block_completed(const block_t * const) {}
 
       static void run() {
-        LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
+        for (uint8_t s = 0; s < NUM_RUNOUT_SENSORS; ++s) {
           const bool out = poll_runout_state(s);
           if (!out) filament_present(s);
           #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
@@ -364,9 +364,9 @@ class FilamentSensorBase {
       static float runout_distance_mm;
 
       static void reset() {
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) filament_present(i);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          LOOP_L_N(i, NUM_MOTION_SENSORS) filament_motion_present(i);
+          for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) filament_motion_present(i);
         #endif
       }
 
@@ -376,10 +376,10 @@ class FilamentSensorBase {
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
-            LOOP_L_N(i, NUM_RUNOUT_SENSORS)
+            for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i)
               SERIAL_ECHOF(i ? F(", ") : F("Runout remaining mm: "), mm_countdown.runout[i]);
             #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-              LOOP_L_N(i, NUM_MOTION_SENSORS)
+              for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i)
                 SERIAL_ECHOF(i ? F(", ") : F("Motion remaining mm: "), mm_countdown.motion[i]);
             #endif
             SERIAL_EOL();
@@ -389,9 +389,9 @@ class FilamentSensorBase {
 
       static uint8_t has_run_out() {
         uint8_t runout_flags = 0;
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (mm_countdown.runout[i] < 0) SBI(runout_flags, i);
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (mm_countdown.runout[i] < 0) SBI(runout_flags, i);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          LOOP_L_N(i, NUM_MOTION_SENSORS) if (mm_countdown.motion[i] < 0) SBI(runout_flags, i);
+          for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) if (mm_countdown.motion[i] < 0) SBI(runout_flags, i);
         #endif
         return runout_flags;
       }
@@ -432,16 +432,16 @@ class FilamentSensorBase {
 
     public:
       static void reset() {
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) filament_present(i);
       }
 
       static void run() {
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] >= 0) runout_count[i]--;
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (runout_count[i] >= 0) runout_count[i]--;
       }
 
       static uint8_t has_run_out() {
         uint8_t runout_flags = 0;
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] < 0) SBI(runout_flags, i);
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (runout_count[i] < 0) SBI(runout_flags, i);
         return runout_flags;
       }
 

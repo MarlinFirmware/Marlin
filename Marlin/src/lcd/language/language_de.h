@@ -54,8 +54,6 @@ namespace Language_de {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Toolbar Einstellung");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Option Deaktiviert");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
