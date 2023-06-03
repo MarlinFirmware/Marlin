@@ -3440,11 +3440,11 @@ void Stepper::report_positions() {
     // Start a step pulse
     LOGICAL_AXIS_CODE(
       if (axis_step.e) E0_STEP_WRITE(STEP_STATE_E),
-      if (axis_step.x) X_STEP_WRITE(STEP_STATE_X), if (axis_step.y) Y_STEP_WRITE(STEP_STATE_Y),
-      if (axis_step.z) Z_STEP_WRITE(STEP_STATE_Z), if (axis_step.i) X_STEP_WRITE(STEP_STATE_I),
-      if (axis_step.j) Y_STEP_WRITE(STEP_STATE_J), if (axis_step.k) Z_STEP_WRITE(STEP_STATE_K),
-      if (axis_step.u) X_STEP_WRITE(STEP_STATE_U), if (axis_step.v) Y_STEP_WRITE(STEP_STATE_V),
-      if (axis_step.w) Z_STEP_WRITE(STEP_STATE_W)
+      if (axis_step.x) X_APPLY_STEP(STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(STEP_STATE_Y, false),
+      if (axis_step.z) Z_APPLY_STEP(STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(STEP_STATE_I, false),
+      if (axis_step.j) J_APPLY_STEP(STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(STEP_STATE_K, false),
+      if (axis_step.u) U_APPLY_STEP(STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(STEP_STATE_V, false),
+      if (axis_step.w) W_APPLY_STEP(STEP_STATE_W, false)
     );
 
     // Begin waiting for the minimum pulse duration
@@ -3482,11 +3482,11 @@ void Stepper::report_positions() {
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     LOGICAL_AXIS_CODE(
       if (axis_step.e) E0_STEP_WRITE(!STEP_STATE_E),
-      if (axis_step.x) X_STEP_WRITE(!STEP_STATE_X), if (axis_step.y) Y_STEP_WRITE(!STEP_STATE_Y),
-      if (axis_step.z) Z_STEP_WRITE(!STEP_STATE_Z), if (axis_step.i) I_STEP_WRITE(!STEP_STATE_I),
-      if (axis_step.j) J_STEP_WRITE(!STEP_STATE_J), if (axis_step.k) K_STEP_WRITE(!STEP_STATE_K),
-      if (axis_step.u) U_STEP_WRITE(!STEP_STATE_U), if (axis_step.v) V_STEP_WRITE(!STEP_STATE_V),
-      if (axis_step.w) W_STEP_WRITE(!STEP_STATE_W)
+      if (axis_step.x) X_APPLY_STEP(!STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(!STEP_STATE_Y, false),
+      if (axis_step.z) Z_APPLY_STEP(!STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(!STEP_STATE_I, false),
+      if (axis_step.j) J_APPLY_STEP(!STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(!STEP_STATE_K, false),
+      if (axis_step.u) U_APPLY_STEP(!STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(!STEP_STATE_V, false),
+      if (axis_step.w) W_APPLY_STEP(!STEP_STATE_W, false)
     );
 
   } // Stepper::fxdTiCtrl_stepper
