@@ -3428,7 +3428,7 @@ void Stepper::report_positions() {
         TEST(command, FT_BIT_DIR_U), TEST(command, FT_BIT_DIR_V), TEST(command, FT_BIT_DIR_W)
       );
       LOGICAL_AXIS_CODE(
-        E0_DIR_WRITE(axis_dir.e),
+        E_APPLY_DIR(axis_dir.e, false),
         X_APPLY_DIR(axis_dir.x, false), Y_APPLY_DIR(axis_dir.y, false), Z_APPLY_DIR(axis_dir.z, false),
         I_APPLY_DIR(axis_dir.i, false), J_APPLY_DIR(axis_dir.j, false), K_APPLY_DIR(axis_dir.k, false),
         U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
@@ -3439,7 +3439,7 @@ void Stepper::report_positions() {
 
     // Start a step pulse
     LOGICAL_AXIS_CODE(
-      if (axis_step.e) E0_STEP_WRITE(STEP_STATE_E),
+      if (axis_step.e) E_APPLY_STEP(STEP_STATE_E, false),
       if (axis_step.x) X_APPLY_STEP(STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(STEP_STATE_Y, false),
       if (axis_step.z) Z_APPLY_STEP(STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(STEP_STATE_I, false),
       if (axis_step.j) J_APPLY_STEP(STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(STEP_STATE_K, false),
@@ -3468,9 +3468,15 @@ void Stepper::report_positions() {
       if (axis_step.w) count_position.w += count_direction.w
     );
 
+    #if HAS_EXTRUDERS
+      bool e_axis_has_dedge;
+      #define _EDGE_CASE(N) case N: e_axis_has_dedge = AXIS_HAS_DEDGE(E##N); break;
+      switch (stepper_extruder) { REPEAT(EXTRUDERS, _EDGE_CASE) }
+    #endif
+
     // Only wait for axes without edge stepping
     const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!AXIS_HAS_DEDGE(E0) && axis_step.e),
+      || (!e_axis_has_dedge && axis_step.e),
       || (!AXIS_HAS_DEDGE(X) && axis_step.x), || (!AXIS_HAS_DEDGE(Y) && axis_step.y), || (!AXIS_HAS_DEDGE(Z) && axis_step.z),
       || (!AXIS_HAS_DEDGE(I) && axis_step.i), || (!AXIS_HAS_DEDGE(J) && axis_step.j), || (!AXIS_HAS_DEDGE(K) && axis_step.k),
       || (!AXIS_HAS_DEDGE(U) && axis_step.u), || (!AXIS_HAS_DEDGE(V) && axis_step.v), || (!AXIS_HAS_DEDGE(W) && axis_step.w)
@@ -3481,7 +3487,7 @@ void Stepper::report_positions() {
 
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     LOGICAL_AXIS_CODE(
-      if (axis_step.e) E0_STEP_WRITE(!STEP_STATE_E),
+      if (axis_step.e) E_APPLY_STEP(!STEP_STATE_E, false),
       if (axis_step.x) X_APPLY_STEP(!STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(!STEP_STATE_Y, false),
       if (axis_step.z) Z_APPLY_STEP(!STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(!STEP_STATE_I, false),
       if (axis_step.j) J_APPLY_STEP(!STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(!STEP_STATE_K, false),
