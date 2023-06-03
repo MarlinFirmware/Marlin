@@ -171,44 +171,32 @@ void GcodeSuite::M493() {
   if (parser.seenval('S')) {
     const ftMotionMode_t oldmm = fxdTiCtrl.cfg.mode,
                          newmm = (ftMotionMode_t)parser.value_byte();
-    switch (newmm) {
-      #if HAS_X_AXIS
-        case ftMotionMode_ZV:
-        case ftMotionMode_ZVD:
-        case ftMotionMode_2HEI:
-        case ftMotionMode_3HEI:
-        case ftMotionMode_MZV:
-        //case ftMotionMode_ULENDO_FBS:
-        //case ftMotionMode_DISCTF:
-      #endif
-      case ftMotionMode_DISABLED:
-      case ftMotionMode_ENABLED:
-        fxdTiCtrl.cfg.mode = newmm;
-        flag.report_h = true;
-        break;
-      default:
-        SERIAL_ECHOLNPGM("?Invalid control mode [M] value.");
-        return;
+     if (newmm != oldmm) {
+      flag.report_h = true;
+      switch (newmm) {
+        default: SERIAL_ECHOLNPGM("?Invalid control mode [M] value.");
+          return;
+        #if HAS_X_AXIS
+          //case ftMotionMode_ULENDO_FBS:
+          //case ftMotionMode_DISCTF:
+          //  break;
+          case ftMotionMode_ZV:
+          case ftMotionMode_ZVD:
+          case ftMotionMode_EI:
+          case ftMotionMode_2HEI:
+          case ftMotionMode_3HEI:
+          case ftMotionMode_MZV:
+            fxdTiCtrl.cfg.mode = newmm;
+            flag.update_n = flag.update_a = true;
+        #endif
+        case ftMotionMode_DISABLED:
+        case ftMotionMode_ENABLED:
+          fxdTiCtrl.cfg.mode = newmm;
+          break;
+      }
     }
-
-    if (fxdTiCtrl.cfg.mode != oldmm) switch (newmm) {
-      default: break;
-      #if HAS_X_AXIS
-        //case ftMotionMode_ULENDO_FBS:
-        //case ftMotionMode_DISCTF:
-        //  break;
-        case ftMotionMode_ZV:
-        case ftMotionMode_ZVD:
-        case ftMotionMode_EI:
-        case ftMotionMode_2HEI:
-        case ftMotionMode_3HEI:
-        case ftMotionMode_MZV:
-          flag.update_n = flag.update_a = true;
-      #endif
-      case ftMotionMode_ENABLED:
-        flag.reset_ft = true;
-        break;
-    }
+    else
+      flag.report_h = true;
   }
 
   #if HAS_EXTRUDERS
@@ -340,7 +328,6 @@ void GcodeSuite::M493() {
     if (flag.update_n) fxdTiCtrl.refreshShapingN();
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
-  if (flag.reset_ft) fxdTiCtrl.reset();
   if (flag.report_h) say_shaping();
 
 }
