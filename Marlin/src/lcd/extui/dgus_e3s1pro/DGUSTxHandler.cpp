@@ -103,7 +103,7 @@ void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
 #endif // PIDTEMPBED
 
 static duration_t _PrintRemainingDurationEstimate() {
-  const duration_t remainingDuration = 0;
+  duration_t remainingDuration = 0;
 
   if (ExtUI::isPrinting()) {
     const uint8_t progressPercentage = ExtUI::getProgress_percent();

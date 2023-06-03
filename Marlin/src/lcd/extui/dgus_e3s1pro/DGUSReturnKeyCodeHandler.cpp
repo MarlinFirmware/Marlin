@@ -111,7 +111,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_MenuSelect: unknown id ", submenu);
+        DEBUG_ECHOLNPGM("Command_MenuSelect: unknown id ", (uint16_t)submenu);
       #endif
       break;
   }
@@ -140,7 +140,7 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_Adjust: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_Adjust: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -152,7 +152,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
 
   if (command != DGUS_Data::CheckKOCommand::KO && command != DGUS_Data::CheckKOCommand::SDCard_No) {
     #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHOLNPGM("Command_CheckKO: unknown id ", command);
+      DEBUG_ECHOLNPGM("Command_CheckKO: unknown id ", (uint16_t)command);
     #endif
     return;
   }
@@ -173,7 +173,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_CheckKO: unknown src screen ", screen.getCurrentScreen());
+        DEBUG_ECHOLNPGM("Command_CheckKO: unknown src screen ", (uint16_t)screen.getCurrentScreen());
       #endif
       return;
   }
@@ -193,7 +193,7 @@ void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_StopPause: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_StopPause: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -238,7 +238,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_CheckOK: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_CheckOK: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -281,7 +281,7 @@ void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Settings_Submenu: unknown id ", command);
+        DEBUG_ECHOLNPGM("Settings_Submenu: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -306,7 +306,7 @@ void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *dat
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Control_TemperatureCommand: unknown id ", command);
+        DEBUG_ECHOLNPGM("Control_TemperatureCommand: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -377,7 +377,7 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_SettingsMenu: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_SettingsMenu: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -442,7 +442,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_Leveling: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_Leveling: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -469,7 +469,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_AxisControl: unknown id ", control);
+        DEBUG_ECHOLNPGM("Command_AxisControl: unknown id ", (uint16_t)control);
       #endif
       break;
   }
@@ -486,7 +486,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_AxisIO: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_AxisIO: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -536,7 +536,7 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_AdvancedSettings: unknown id ", command);
+        DEBUG_ECHOLNPGM("Command_AdvancedSettings: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -584,7 +584,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_FilelistControl: unknown id ", control);
+        DEBUG_ECHOLNPGM("Command_FilelistControl: unknown id ", (uint16_t)control);
       #endif
       return;
   }
@@ -623,7 +623,7 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data) {
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_LaserControl: unknown id ", control);
+        DEBUG_ECHOLNPGM("Command_LaserControl: unknown id ", (uint16_t)control);
       #endif
       return;
   }

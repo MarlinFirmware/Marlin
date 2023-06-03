@@ -131,10 +131,10 @@ void DGUSScreenHandler::loop() {
 
   if (wasLeveling && !isLeveling) {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      ExtUI::injectCommands(ExtUI::getMeshValid() ? F("G29 S0") : F("G29 S1\nG29 P3\nG29 S0"));
+      ExtUI::injectCommands(ExtUI::getLevelingIsValid() ? F("G29 S0") : F("G29 S1\nG29 P3\nG29 S0"));
     #endif
 
-    config.levelingEnabled = ExtUI::getMeshValid();
+    config.levelingEnabled = ExtUI::getLevelingIsValid();
     ExtUI::setLevelingActive(config.levelingEnabled);
     triggerEEPROMSave();
   }
@@ -168,9 +168,9 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
       confirm_return_screen = getCurrentScreen();
 
     strcpy(dgus_sdcard_handler.filenames[0], msg);
-    dgus_sdcard_handler.filenames[1][0] = "\0";
-    dgus_sdcard_handler.filenames[2][0] = "\0";
-    dgus_sdcard_handler.filenames[3][0] = "\0";
+    dgus_sdcard_handler.filenames[1][0] = '\0';
+    dgus_sdcard_handler.filenames[2][0] = '\0';
+    dgus_sdcard_handler.filenames[3][0] = '\0';
 
     strcpy(dgus_sdcard_handler.filenames[4], "[");
     strcat(dgus_sdcard_handler.filenames[4], GET_TEXT(MSG_BUTTON_CONFIRM));
@@ -178,7 +178,7 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
 
     new_screen = DGUS_Screen::FILE1;
     #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHOLNPGM("trig confirm: ", msg, ", ret: ", confirm_return_screen);
+      DEBUG_ECHOLNPGM("trig confirm: ", msg, ", ret: ", (uint16_t)confirm_return_screen);
     #endif
   #else
     UNUSED(msg);
@@ -196,7 +196,7 @@ void DGUSScreenHandler::userConfirmation() {
       dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(confirm_return_screen));
 
     #ifdef DEBUG_DGUSLCD
-      DEBUG_ECHOLNPGM("trig confirmed, ret:", confirm_return_screen);
+      DEBUG_ECHOLNPGM("trig confirmed, ret:", (uint16_t)confirm_return_screen);
     #endif
 
     new_screen = confirm_return_screen;
@@ -296,7 +296,7 @@ void DGUSScreenHandler::levelingEnd() {
   if (!isLeveling) return;
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOLNPGM("levelingEnd(), valid=", ExtUI::getMeshValid());
+    DEBUG_ECHOLNPGM("levelingEnd(), valid=", ExtUI::getLevelingIsValid());
   #endif
 
   isLeveling = false;
@@ -408,7 +408,7 @@ void DGUSScreenHandler::triggerScreenChange(DGUS_Screen screen) {
   wait_return_screen = DGUS_Screen::BOOT; // cancel temp screen
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOLNPGM("trig scr: ", screen);
+    DEBUG_ECHOLNPGM("trig scr: ", (uint16_t)screen);
   #endif
 }
 
@@ -420,7 +420,7 @@ void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen 
   wait_return_screen = returnScreen;
 
   #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOLNPGM("trig tmp: ", screen, " ret: ", returnScreen);
+    DEBUG_ECHOLNPGM("trig tmp: ", (uint16_t)screen, " ret: ", (uint16_t)returnScreen);
   #endif
 }
 

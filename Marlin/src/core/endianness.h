@@ -44,11 +44,13 @@
       return dst.val;
     }
 
+    // Convert to / from known endianness, depending on the host endianness
     template<typename T> static constexpr T toBE(T V) { return cpuIsLittleEndian ? swap(V) : V; }
     template<typename T> static constexpr T toLE(T V) { return cpuIsLittleEndian ? V : swap(V); }
     template<typename T> static constexpr T fromBE(T V) { return cpuIsLittleEndian ? swap(V) : V; }
     template<typename T> static constexpr T fromLE(T V) { return cpuIsLittleEndian ? V : swap(V); }
 
+    // Reads a big/little endian from a pointer and converts it to the host endianness
     template<typename T> static constexpr T fromBE_P(void* V) { return fromBE(*(T*)V); }
     template<typename T> static constexpr T fromLE_P(void* V) { return fromLE(*(T*)V); }
   };
