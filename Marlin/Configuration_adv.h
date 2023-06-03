@@ -3788,7 +3788,7 @@
      * A non-zero value activates Volume-based Extrusion Limiting.
      */
     #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT  0.00     // (mm^3/sec)
-    #define VOLUMETRIC_EXTRUDER_MAXLIMIT      20        // (mm^3/sec)
+    #define VOLUMETRIC_EXTRUDER_LIMIT_MAX     20        // (mm^3/sec)
   #endif
 #endif
 
