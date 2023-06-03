@@ -35,7 +35,7 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
   #include "../../feature/babystep.h"
 #endif
 

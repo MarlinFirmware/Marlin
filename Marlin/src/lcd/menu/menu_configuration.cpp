@@ -55,7 +55,7 @@
   #endif
 #endif
 
-#if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
   #include "../../feature/babystep.h"
 #endif
 
@@ -567,7 +567,7 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
-  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+  #if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
     const bool can_babystep = babystep.can_babystep(Z_AXIS);
   #endif
 
