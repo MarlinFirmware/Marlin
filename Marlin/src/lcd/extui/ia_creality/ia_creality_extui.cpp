@@ -311,7 +311,7 @@ void onSettingsStored(const bool success) {
 
 void onSettingsLoaded(const bool success) {
   #if HAS_MESH
-    if (ExtUI::getMeshValid()) {
+    if (ExtUI::getLevelingIsValid()) {
       uint8_t abl_probe_index = 0;
       for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
         for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
@@ -371,7 +371,7 @@ void onLevelingStart() {}
 
 void onLevelingDone() {
   #if HAS_MESH
-    if (ExtUI::getMeshValid()) {
+    if (ExtUI::getLevelingIsValid()) {
       uint8_t abl_probe_index = 0;
       for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
         for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
