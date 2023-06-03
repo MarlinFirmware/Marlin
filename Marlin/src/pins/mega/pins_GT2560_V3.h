@@ -169,16 +169,16 @@
 
 #if ENABLED(YHCB2004)
   #ifndef YHCB2004_MOSI_PIN
-    #define YHCB2004_MOSI_PIN                   21
+    #define YHCB2004_MOSI_PIN                 21
   #endif
   #ifndef YHCB2004_MISO_PIN
-    #define YHCB2004_MISO_PIN                   36
+    #define YHCB2004_MISO_PIN                 36
   #endif
   #ifndef YHCB2004_SCK_PIN
-    #define YHCB2004_SCK_PIN                     5
+    #define YHCB2004_SCK_PIN                   5
   #endif
   #ifndef YHCB2004_SS_PIN
-    #define YHCB2004_SS_PIN                     SS
+    #define YHCB2004_SS_PIN                   SS
   #endif
 #elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS
