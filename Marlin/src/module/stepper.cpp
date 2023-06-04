@@ -3469,9 +3469,13 @@ void Stepper::report_positions() {
     );
 
     #if HAS_EXTRUDERS
-      bool e_axis_has_dedge;
-      #define _EDGE_CASE(N) case N: e_axis_has_dedge = AXIS_HAS_DEDGE(E##N); break;
-      switch (stepper_extruder) { REPEAT(EXTRUDERS, _EDGE_CASE) }
+      #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+        constexpr bool e_axis_has_dedge = AXIS_HAS_DEDGE(E0) && AXIS_HAS_DEDGE(E1);
+      #else
+        #define _EDGE_BIT(N) | (AXIS_HAS_DEDGE(E##N) << TOOL_ESTEPPER(N))
+        constexpr Flags<E_STEPPERS> e_stepper_dedge { 0 REPEAT(EXTRUDERS, _EDGE_BIT) };
+        const bool e_axis_has_dedge = e_stepper_dedge[stepper_extruder];
+      #endif
     #endif
 
     // Only wait for axes without edge stepping
