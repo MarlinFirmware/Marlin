@@ -79,7 +79,7 @@ void GcodeSuite::G30() {
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
       SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
-      #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
         char msg[31], str_1[6], str_2[6], str_3[6];
         sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
           dtostrf(probepos.x, 1, 1, str_1),

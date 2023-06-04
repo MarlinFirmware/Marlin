@@ -132,7 +132,7 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
 
     DEBUG_ECHOLNPGM("f=", f);
     DEBUG_ECHOLNPGM("(prescaler loop)");
-    LOOP_L_N(i, COUNT(prescaler)) {                           // Loop through all prescaler values
+    for (uint8_t i = 0; i < COUNT(prescaler); ++i) {          // Loop through all prescaler values
       const uint32_t p = prescaler[i];                        // Extend to 32 bits for calculations
       DEBUG_ECHOLNPGM("prescaler[", i, "]=", p);
       uint16_t res_fast_temp, res_pc_temp;
@@ -232,7 +232,7 @@ void MarlinHAL::init_pwm_timers() {
     #endif
   };
 
-  LOOP_L_N(i, COUNT(pwm_pin))
+  for (uint8_t i = 0; i < COUNT(pwm_pin); ++i)
     set_pwm_frequency(pwm_pin[i], 1000);
 }
 
