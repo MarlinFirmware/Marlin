@@ -717,7 +717,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #elif E_STEPPERS == 1
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define    FWD_E_DIR(E)   E0_DIR_WRITE(HIGH)
-  #define    REV_E_DIR(E)   E0_DIR_WRITE(LOW )
+  #define    REV_E_DIR(E)   E0_DIR_WRITE(LOW)
 
 #else
   #define E_STEP_WRITE(E,V) NOOP
