@@ -51,8 +51,7 @@ void unified_bed_leveling::report_current_mesh() {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("  M421 I", x, " J", y);
-      SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
+      SERIAL_ECHOLN(F("  M421 I"), x, F(" J"), y, FPSTR(SP_Z_STR), p_float_t(z_values[x][y], 4));
       serial_delay(75); // Prevent Printrun from exploding
     }
 }
@@ -211,10 +210,10 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         // TODO: Display on Graphical LCD
       }
       else if (isnan(f))
-        SERIAL_ECHOF(human ? F("  .   ") : F("NAN"));
+        SERIAL_ECHO(human ? F("  .   ") : F("NAN"));
       else if (human || csv) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
-        SERIAL_DECIMAL(f);                                    // Positive: 5 digits, Negative: 6 digits
+        SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
       if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 

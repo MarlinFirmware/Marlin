@@ -701,7 +701,7 @@ namespace Anycubic {
 
   void DgusTFT::tftSend(FSTR_P const fstr/*=nullptr*/) {  // A helper to print PROGMEM string to the panel
     #if ACDEBUG(AC_SOME)
-      DEBUG_ECHOF(fstr);
+      DEBUG_ECHO(fstr);
     #endif
     PGM_P str = FTOP(fstr);
     while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
@@ -3214,7 +3214,7 @@ namespace Anycubic {
   }
 
   void DEBUG_PRINT_PAUSED_STATE(const paused_state_t state, FSTR_P const msg/*=nullptr*/) {
-    if (msg) DEBUG_ECHOF(msg);
+    if (msg) DEBUG_ECHO(msg);
     DEBUG_ECHOPGM("Paused state: ", state, "  ");
     switch (state) {
       case AC_paused_heater_timed_out: DEBUG_ECHOPGM("AC_paused_heater_timed_out"); break;
@@ -3228,7 +3228,7 @@ namespace Anycubic {
   // Human-readable debugging
 
   void DEBUG_PRINT_PRINTER_STATE(const printer_state_t state, FSTR_P const msg/*=nullptr*/) {
-    if (msg) DEBUG_ECHOF(msg);
+    if (msg) DEBUG_ECHO(msg);
     DEBUG_ECHOPGM("Printer State: ", state, "  ");
     switch (state) {
       case AC_printer_idle: DEBUG_ECHOPGM("AC_printer_idle"); break;

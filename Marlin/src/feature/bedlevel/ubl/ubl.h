@@ -279,10 +279,8 @@ public:
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
 
-    if (DEBUGGING(MESH_ADJUST)) {
-      DEBUG_ECHOPGM("get_z_correction(", rx0, ", ", ry0);
-      DEBUG_ECHOLNPAIR_F(") => ", z0, 6);
-    }
+    if (DEBUGGING(MESH_ADJUST))
+      DEBUG_ECHOLN(F("get_z_correction("), rx0, F(", "), ry0, F(") => "), p_float_t(z0, 6));
 
     return z0;
   }
