@@ -25,6 +25,10 @@
 #include "../MarlinCore.h"
 #include "../module/temperature.h"
 
+#if ENABLED(MARLIN_DEV_MODE)
+  MarlinError marlin_error_number;    // Error Number - Marlin can beep X times periodically, display, and emit...
+#endif
+
 void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
