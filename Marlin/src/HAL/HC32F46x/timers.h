@@ -33,20 +33,25 @@ typedef uint16_t hal_timer_t;
 //
 // Timer Configurations
 //
-#define HAL_TIMER_RATE uint32_t(SYSTEM_CLOCK_FREQUENCIES.pclk1)
+
+// TODO: some calculations (step irq min_step_rate) require the timer rate to be known at compile time
+//       this is not possible with the HC32F46x, as the timer rate depends on PCLK1
+//       as a workaround, PCLK1 = 50MHz is assumed (check with clock dump in MarlinHAL::init())
+#define HAL_TIMER_RATE 50000000 // 50MHz
+//#define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
 
 // temperature timer (Timer0 Unit1 Channel A)
 #define TEMP_TIMER_NUM Timer0Channel::A
 #define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
-#define TEMP_TIMER_RATE 1000 // 1kHz
 #define TEMP_TIMER_PRESCALE 16
+#define TEMP_TIMER_RATE 1000 // 1kHz
 #define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // alias for Marlin
 
 // stepper timer (Timer0 Unit1 Channel B)
 #define STEP_TIMER_NUM Timer0Channel::B
 #define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
-#define STEPPER_TIMER_RATE 2000000 // 2MHz
-#define STEPPER_TIMER_PRESCALE 16
+#define STEPPER_TIMER_PRESCALE 8 
+#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
 #define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
 
 // pulse timer (== stepper timer)
