@@ -165,38 +165,37 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M493() {
   struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
 
-  if (!parser.seen_any()) flag.report_h = true;
+  if (!parser.seen_any())
+    flag.report_h = true;
+  else
+    planner.synchronize();
 
   // Parse 'S' mode parameter.
   if (parser.seenval('S')) {
     const ftMotionMode_t oldmm = fxdTiCtrl.cfg.mode,
                          newmm = (ftMotionMode_t)parser.value_byte();
-     if (newmm != oldmm) {
-      flag.report_h = true;
+
+    if (newmm != oldmm) {
       switch (newmm) {
-        default: SERIAL_ECHOLNPGM("?Invalid control mode [M] value.");
-          return;
+        default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
         #if HAS_X_AXIS
-          //case ftMotionMode_ULENDO_FBS:
-          //case ftMotionMode_DISCTF:
-          //  break;
           case ftMotionMode_ZV:
           case ftMotionMode_ZVD:
-          case ftMotionMode_EI:
           case ftMotionMode_2HEI:
           case ftMotionMode_3HEI:
           case ftMotionMode_MZV:
-            fxdTiCtrl.cfg.mode = newmm;
+          //case ftMotionMode_ULENDO_FBS:
+          //case ftMotionMode_DISCTF:
             flag.update_n = flag.update_a = true;
         #endif
         case ftMotionMode_DISABLED:
         case ftMotionMode_ENABLED:
           fxdTiCtrl.cfg.mode = newmm;
+          flag.report_h = true;
+          if (oldmm == ftMotionMode_DISABLED) flag.reset_ft = true;
           break;
       }
     }
-    else
-      flag.report_h = true;
   }
 
   #if HAS_EXTRUDERS
@@ -328,6 +327,7 @@ void GcodeSuite::M493() {
     if (flag.update_n) fxdTiCtrl.refreshShapingN();
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
+  if (flag.reset_ft) fxdTiCtrl.reset();
   if (flag.report_h) say_shaping();
 
 }
