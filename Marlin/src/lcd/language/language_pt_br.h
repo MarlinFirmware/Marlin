@@ -274,7 +274,7 @@ namespace Language_pt_br {
   LSTR MSG_INIT_EEPROM                    = _UxGT("Iniciar EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Atualiz. SD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetar Impressora");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Atualização");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Atualização");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Informações");
   LSTR MSG_PREPARE                        = _UxGT("Preparar");
   LSTR MSG_TUNE                           = _UxGT("Ajustar");

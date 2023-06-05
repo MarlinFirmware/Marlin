@@ -249,7 +249,7 @@
     #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
                                   // Seems to work best if left open.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN                 25
       #endif

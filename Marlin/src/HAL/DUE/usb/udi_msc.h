@@ -77,9 +77,9 @@ extern UDC_DESC_STORAGE udi_api_t udi_api_msc;
 
 //! Interface descriptor structure for MSC
 typedef struct {
-	usb_iface_desc_t iface;
-	usb_ep_desc_t ep_in;
-	usb_ep_desc_t ep_out;
+  usb_iface_desc_t iface;
+  usb_ep_desc_t ep_in;
+  usb_ep_desc_t ep_out;
 } udi_msc_desc_t;
 
 //! By default no string associated to this interface
@@ -94,32 +94,32 @@ typedef struct {
 
 //! Content of MSC interface descriptor for all speeds
 #define UDI_MSC_DESC      \
-   .iface.bLength             = sizeof(usb_iface_desc_t),\
-   .iface.bDescriptorType     = USB_DT_INTERFACE,\
-   .iface.bInterfaceNumber    = UDI_MSC_IFACE_NUMBER,\
-   .iface.bAlternateSetting   = 0,\
-   .iface.bNumEndpoints       = 2,\
-   .iface.bInterfaceClass     = MSC_CLASS,\
-   .iface.bInterfaceSubClass  = MSC_SUBCLASS_TRANSPARENT,\
-   .iface.bInterfaceProtocol  = MSC_PROTOCOL_BULK,\
-   .iface.iInterface          = UDI_MSC_STRING_ID,\
-   .ep_in.bLength             = sizeof(usb_ep_desc_t),\
-   .ep_in.bDescriptorType     = USB_DT_ENDPOINT,\
-   .ep_in.bEndpointAddress    = UDI_MSC_EP_IN,\
-   .ep_in.bmAttributes        = USB_EP_TYPE_BULK,\
-   .ep_in.bInterval           = 0,\
-   .ep_out.bLength            = sizeof(usb_ep_desc_t),\
-   .ep_out.bDescriptorType    = USB_DT_ENDPOINT,\
-   .ep_out.bEndpointAddress   = UDI_MSC_EP_OUT,\
-   .ep_out.bmAttributes       = USB_EP_TYPE_BULK,\
-   .ep_out.bInterval          = 0,
+  .iface.bLength             = sizeof(usb_iface_desc_t),\
+  .iface.bDescriptorType     = USB_DT_INTERFACE,\
+  .iface.bInterfaceNumber    = UDI_MSC_IFACE_NUMBER,\
+  .iface.bAlternateSetting   = 0,\
+  .iface.bNumEndpoints       = 2,\
+  .iface.bInterfaceClass     = MSC_CLASS,\
+  .iface.bInterfaceSubClass  = MSC_SUBCLASS_TRANSPARENT,\
+  .iface.bInterfaceProtocol  = MSC_PROTOCOL_BULK,\
+  .iface.iInterface          = UDI_MSC_STRING_ID,\
+  .ep_in.bLength             = sizeof(usb_ep_desc_t),\
+  .ep_in.bDescriptorType     = USB_DT_ENDPOINT,\
+  .ep_in.bEndpointAddress    = UDI_MSC_EP_IN,\
+  .ep_in.bmAttributes        = USB_EP_TYPE_BULK,\
+  .ep_in.bInterval           = 0,\
+  .ep_out.bLength            = sizeof(usb_ep_desc_t),\
+  .ep_out.bDescriptorType    = USB_DT_ENDPOINT,\
+  .ep_out.bEndpointAddress   = UDI_MSC_EP_OUT,\
+  .ep_out.bmAttributes       = USB_EP_TYPE_BULK,\
+  .ep_out.bInterval          = 0,
 
 //! Content of MSC interface descriptor for full speed only
 #define UDI_MSC_DESC_FS   {\
-   UDI_MSC_DESC \
-   .ep_in.wMaxPacketSize      = LE16(UDI_MSC_EPS_SIZE_FS),\
-   .ep_out.wMaxPacketSize     = LE16(UDI_MSC_EPS_SIZE_FS),\
-   }
+  UDI_MSC_DESC \
+  .ep_in.wMaxPacketSize      = LE16(UDI_MSC_EPS_SIZE_FS),\
+  .ep_out.wMaxPacketSize     = LE16(UDI_MSC_EPS_SIZE_FS),\
+  }
 
 //! Content of MSC interface descriptor for high speed only
 #define UDI_MSC_DESC_HS   {\
@@ -128,7 +128,6 @@ typedef struct {
    .ep_out.wMaxPacketSize     = LE16(UDI_MSC_EPS_SIZE_HS),\
    }
 //@}
-
 
 /**
  * \ingroup udi_group
@@ -163,13 +162,12 @@ bool udi_msc_process_trans(void);
  * \return \c 1 if function was successfully done, otherwise \c 0.
  */
 bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
-		void (*callback) (udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep));
+    void (*callback) (udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep));
 //@}
 
 #ifdef __cplusplus
 }
 #endif
-
 
 /**
  * \page udi_msc_quickstart Quick start guide for USB device Mass Storage module (UDI MSC)
@@ -200,35 +198,32 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * \subsection udi_msc_basic_use_case_usage_code Example code
  * Content of conf_usb.h:
  * \code
-	#define  USB_DEVICE_SERIAL_NAME  "12...EF" // Disk SN for MSC
-	#define UDI_MSC_GLOBAL_VENDOR_ID \
-	   'A', 'T', 'M', 'E', 'L', ' ', ' ', ' '
-	#define UDI_MSC_GLOBAL_PRODUCT_VERSION \
-	   '1', '.', '0', '0'
-	#define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
-	extern bool my_callback_msc_enable(void);
-	#define UDI_MSC_DISABLE_EXT() my_callback_msc_disable()
-	extern void my_callback_msc_disable(void);
-	#include "udi_msc_conf.h" // At the end of conf_usb.h file
+  #define  USB_DEVICE_SERIAL_NAME  "12...EF" // Disk SN for MSC
+  #define UDI_MSC_GLOBAL_VENDOR_ID \
+     'A', 'T', 'M', 'E', 'L', ' ', ' ', ' '
+  #define UDI_MSC_GLOBAL_PRODUCT_VERSION \
+     '1', '.', '0', '0'
+  #define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
+  extern bool my_callback_msc_enable(void);
+  #define UDI_MSC_DISABLE_EXT() my_callback_msc_disable()
+  extern void my_callback_msc_disable(void);
+  #include "udi_msc_conf.h" // At the end of conf_usb.h file
 \endcode
  *
  * Add to application C-file:
  * \code
-	 static bool my_flag_autorize_msc_transfert = false;
-	 bool my_callback_msc_enable(void)
-	 {
-	    my_flag_autorize_msc_transfert = true;
-	    return true;
-	 }
-	 void my_callback_msc_disable(void)
-	 {
-	    my_flag_autorize_msc_transfert = false;
-	 }
+  static bool my_flag_autorize_msc_transfert = false;
+  bool my_callback_msc_enable(void) {
+    my_flag_autorize_msc_transfert = true;
+    return true;
+  }
+  void my_callback_msc_disable(void) {
+    my_flag_autorize_msc_transfert = false;
+  }
 
-	 void task(void)
-	 {
-	    udi_msc_process_trans();
-	 }
+  void task(void) {
+    udi_msc_process_trans();
+  }
 \endcode
  *
  * \subsection udi_msc_basic_use_case_setup_flow Workflow
@@ -237,14 +232,14 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *   - \code #define USB_DEVICE_SERIAL_NAME  "12...EF" // Disk SN for MSC \endcode
  *     \note The USB serial number is mandatory when a MSC interface is used.
  *   - \code //! Vendor name and Product version of MSC interface
-	#define UDI_MSC_GLOBAL_VENDOR_ID \
-	   'A', 'T', 'M', 'E', 'L', ' ', ' ', ' '
-	#define UDI_MSC_GLOBAL_PRODUCT_VERSION \
-	   '1', '.', '0', '0' \endcode
+  #define UDI_MSC_GLOBAL_VENDOR_ID \
+     'A', 'T', 'M', 'E', 'L', ' ', ' ', ' '
+  #define UDI_MSC_GLOBAL_PRODUCT_VERSION \
+     '1', '.', '0', '0' \endcode
  *     \note The USB MSC interface requires a vendor ID (8 ASCII characters)
  *     and a product version (4 ASCII characters).
  *   - \code #define UDI_MSC_ENABLE_EXT() my_callback_msc_enable()
-	extern bool my_callback_msc_enable(void); \endcode
+  extern bool my_callback_msc_enable(void); \endcode
  *     \note After the device enumeration (detecting and identifying USB devices),
  *     the USB host starts the device configuration. When the USB MSC interface
  *     from the device is accepted by the host, the USB host enables this interface and the
@@ -252,7 +247,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  *     Thus, when this event is received, the tasks which call
  *     udi_msc_process_trans() must be enabled.
  *   - \code #define UDI_MSC_DISABLE_EXT() my_callback_msc_disable()
-	extern void my_callback_msc_disable(void); \endcode
+  extern void my_callback_msc_disable(void); \endcode
  *     \note When the USB device is unplugged or is reset by the USB host, the USB
  *     interface is disabled and the UDI_MSC_DISABLE_EXT() callback function
  *     is called. Thus, it is recommended to disable the task which is called udi_msc_process_trans().
@@ -261,15 +256,15 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * must be done outside USB interrupt routine. This is done in the MSC process
  * ("udi_msc_process_trans()") called by main loop:
  *   - \code  * void task(void) {
-	udi_msc_process_trans();
-	} \endcode
+  udi_msc_process_trans();
+  } \endcode
  * -# The MSC speed depends on task periodicity. To get the best speed
  * the notification callback "UDI_MSC_NOTIFY_TRANS_EXT" can be used to wakeup
  * this task (Example, through a mutex):
  *   - \code #define  UDI_MSC_NOTIFY_TRANS_EXT()    msc_notify_trans()
-	void msc_notify_trans(void) {
-	wakeup_my_task();
-	} \endcode
+  void msc_notify_trans(void) {
+  wakeup_my_task();
+  } \endcode
  *
  * \section udi_msc_use_cases Advanced use cases
  * For more advanced use of the UDI MSC module, see the following use cases:
@@ -302,72 +297,72 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * \subsection udi_msc_use_case_composite_usage_code Example code
  * Content of conf_usb.h:
  * \code
-	 #define USB_DEVICE_EP_CTRL_SIZE  64
-	 #define USB_DEVICE_NB_INTERFACE (X+1)
-	 #define USB_DEVICE_MAX_EP (X+2)
+   #define USB_DEVICE_EP_CTRL_SIZE  64
+   #define USB_DEVICE_NB_INTERFACE (X+1)
+   #define USB_DEVICE_MAX_EP (X+2)
 
-	 #define UDI_MSC_EP_IN  (X | USB_EP_DIR_IN)
-	 #define UDI_MSC_EP_OUT (Y | USB_EP_DIR_OUT)
-	 #define UDI_MSC_IFACE_NUMBER  X
+   #define UDI_MSC_EP_IN  (X | USB_EP_DIR_IN)
+   #define UDI_MSC_EP_OUT (Y | USB_EP_DIR_OUT)
+   #define UDI_MSC_IFACE_NUMBER  X
 
-	 #define UDI_COMPOSITE_DESC_T \
-	    udi_msc_desc_t udi_msc; \
-	    ...
-	 #define UDI_COMPOSITE_DESC_FS \
-	    .udi_msc = UDI_MSC_DESC, \
-	    ...
-	 #define UDI_COMPOSITE_DESC_HS \
-	    .udi_msc = UDI_MSC_DESC, \
-	    ...
-	 #define UDI_COMPOSITE_API \
-	    &udi_api_msc, \
-	    ...
+   #define UDI_COMPOSITE_DESC_T \
+      udi_msc_desc_t udi_msc; \
+      ...
+   #define UDI_COMPOSITE_DESC_FS \
+      .udi_msc = UDI_MSC_DESC, \
+      ...
+   #define UDI_COMPOSITE_DESC_HS \
+      .udi_msc = UDI_MSC_DESC, \
+      ...
+   #define UDI_COMPOSITE_API \
+      &udi_api_msc, \
+      ...
 \endcode
  *
  * \subsection udi_msc_use_case_composite_usage_flow Workflow
  * -# Ensure that conf_usb.h is available and contains the following parameters
  * required for a USB composite device configuration:
  *   - \code // Endpoint control size, This must be:
-	// - 8, 16, 32 or 64 for full speed device (8 is recommended to save RAM)
-	// - 64 for a high speed device
-	#define USB_DEVICE_EP_CTRL_SIZE  64
-	// Total Number of interfaces on this USB device.
-	// Add 1 for MSC.
-	#define USB_DEVICE_NB_INTERFACE (X+1)
-	// Total number of endpoints on this USB device.
-	// This must include each endpoint for each interface.
-	// Add 2 for MSC.
-	#define USB_DEVICE_MAX_EP (X+2) \endcode
+  // - 8, 16, 32 or 64 for full speed device (8 is recommended to save RAM)
+  // - 64 for a high speed device
+  #define USB_DEVICE_EP_CTRL_SIZE  64
+  // Total Number of interfaces on this USB device.
+  // Add 1 for MSC.
+  #define USB_DEVICE_NB_INTERFACE (X+1)
+  // Total number of endpoints on this USB device.
+  // This must include each endpoint for each interface.
+  // Add 2 for MSC.
+  #define USB_DEVICE_MAX_EP (X+2) \endcode
  * -# Ensure that conf_usb.h contains the description of
  * composite device:
  *   - \code // The endpoint numbers chosen by you for the MSC.
-	// The endpoint numbers starting from 1.
-	#define UDI_MSC_EP_IN  (X | USB_EP_DIR_IN)
-	#define UDI_MSC_EP_OUT (Y | USB_EP_DIR_OUT)
-	// The interface index of an interface starting from 0
-	#define UDI_MSC_IFACE_NUMBER  X \endcode
+  // The endpoint numbers starting from 1.
+  #define UDI_MSC_EP_IN  (X | USB_EP_DIR_IN)
+  #define UDI_MSC_EP_OUT (Y | USB_EP_DIR_OUT)
+  // The interface index of an interface starting from 0
+  #define UDI_MSC_IFACE_NUMBER  X \endcode
  * -# Ensure that conf_usb.h contains the following parameters
  * required for a USB composite device configuration:
  *   - \code // USB Interfaces descriptor structure
-	#define UDI_COMPOSITE_DESC_T \
-	   ...
-	   udi_msc_desc_t udi_msc; \
-	   ...
-	// USB Interfaces descriptor value for Full Speed
-	#define UDI_COMPOSITE_DESC_FS \
-	   ...
-	   .udi_msc = UDI_MSC_DESC_FS, \
-	   ...
-	// USB Interfaces descriptor value for High Speed
-	#define UDI_COMPOSITE_DESC_HS \
-	   ...
-	   .udi_msc = UDI_MSC_DESC_HS, \
-	   ...
-	// USB Interface APIs
-	#define UDI_COMPOSITE_API \
-	   ...
-	   &udi_api_msc, \
-	   ... \endcode
+  #define UDI_COMPOSITE_DESC_T \
+     ...
+     udi_msc_desc_t udi_msc; \
+     ...
+  // USB Interfaces descriptor value for Full Speed
+  #define UDI_COMPOSITE_DESC_FS \
+     ...
+     .udi_msc = UDI_MSC_DESC_FS, \
+     ...
+  // USB Interfaces descriptor value for High Speed
+  #define UDI_COMPOSITE_DESC_HS \
+     ...
+     .udi_msc = UDI_MSC_DESC_HS, \
+     ...
+  // USB Interface APIs
+  #define UDI_COMPOSITE_API \
+     ...
+     &udi_api_msc, \
+     ... \endcode
  *   - \note The descriptors order given in the four lists above must be the
  *     same as the order defined by all interface indexes. The interface index
  *     orders are defined through UDI_X_IFACE_NUMBER defines.

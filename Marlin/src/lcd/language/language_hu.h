@@ -363,12 +363,12 @@ namespace Language_hu {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Alapértelmezett");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM inicializálás");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hiba: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hiba: EEPROM index");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hiba: EEPROM mérete");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hiba: EEPROM verzió");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Beállítások mentve");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Tároló frissítés");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Nyomtató újraindítása");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Frissítés");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Frissítés");
   LSTR MSG_INFO_SCREEN                    = _UxGT("<Infó képernyö>");
   LSTR MSG_PREPARE                        = _UxGT("Vezérlés");
   LSTR MSG_TUNE                           = _UxGT("Hangolás");

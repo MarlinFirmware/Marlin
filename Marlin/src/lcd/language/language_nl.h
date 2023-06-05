@@ -113,7 +113,7 @@ namespace Language_nl {
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatuur");
   LSTR MSG_MOTION                         = _UxGT("Beweging");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
-  LSTR MSG_ADVANCE_K                      = _UxGT("Advance K");        // accepted english dutch
+  LSTR MSG_ADVANCE_K                      = _UxGT("Advance K"); // accepted english dutch
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *"); // accepted english dutch
   LSTR MSG_VOLUMETRIC_ENABLED             = _UxGT("E in mm") SUPERSCRIPT_THREE;
   LSTR MSG_FILAMENT_DIAM                  = _UxGT("Fil. Dia.");
@@ -122,7 +122,7 @@ namespace Language_nl {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Geheugen opslaan");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Geheugen laden");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Noodstop reset");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Ververs");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Ververs");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info scherm");
   LSTR MSG_PREPARE                        = _UxGT("Voorbereiden");
   LSTR MSG_TUNE                           = _UxGT("Afstellen");
@@ -137,7 +137,7 @@ namespace Language_nl {
   LSTR MSG_NO_MOVE                        = _UxGT("Geen beweging.");
   LSTR MSG_KILLED                         = _UxGT("Afgebroken. ");
   LSTR MSG_STOPPED                        = _UxGT("Gestopt. ");
-  LSTR MSG_CONTROL_RETRACT                = _UxGT("Retract mm");  // accepted English term in Dutch
+  LSTR MSG_CONTROL_RETRACT                = _UxGT("Retract mm"); // accepted English term in Dutch
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ruil Retract mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retract  F");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Hop mm");
@@ -153,7 +153,7 @@ namespace Language_nl {
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset");  // accepted English term in Dutch
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset"); // accepted English term in Dutch
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");
@@ -196,7 +196,7 @@ namespace Language_nl {
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
-  LSTR MSG_INFO_PSU                       = _UxGT("PSU");  // accepted English term in Dutch
+  LSTR MSG_INFO_PSU                       = _UxGT("PSU"); // accepted English term in Dutch
 
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Motorstroom");
 
