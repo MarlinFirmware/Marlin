@@ -36,7 +36,7 @@
 #include "../../../MarlinCore.h"
 
 
-#define DEBUG_DGUSLCD // Uncomment for debug messages
+//#define DEBUG_DGUSLCD // Uncomment for debug messages
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../core/debug_out.h"
 
