@@ -41,4 +41,4 @@ const struct DGUS_ScreenSetup screen_setup_list[] PROGMEM = {
   SETUP_HELPER((DGUS_Screen)0, nullptr)
 };
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

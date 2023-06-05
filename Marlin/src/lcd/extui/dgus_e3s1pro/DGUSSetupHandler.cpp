@@ -68,4 +68,4 @@ bool DGUSSetupHandler::sdCardPrepare() {
   return true;
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

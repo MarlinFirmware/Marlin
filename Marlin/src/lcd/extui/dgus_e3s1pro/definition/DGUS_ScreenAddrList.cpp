@@ -472,4 +472,4 @@ const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
   MAP_HELPER((DGUS_Screen)0, nullptr)
 };
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

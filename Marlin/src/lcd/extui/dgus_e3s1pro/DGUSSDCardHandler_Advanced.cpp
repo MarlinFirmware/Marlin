@@ -156,4 +156,4 @@ DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onNextPage() {
   return currentPage;
 }
 
-#endif // DGUS_LCD_UI_E3S1PRO && defined(DGUS_ADVANCED_SDCARD)
+#endif // DGUS_LCD_UI_E3S1PRO && DGUS_ADVANCED_SDCARD

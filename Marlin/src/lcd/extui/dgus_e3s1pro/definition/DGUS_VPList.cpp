@@ -582,4 +582,4 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER((DGUS_Addr)0, 0, VPFLAG_NONE, nullptr, nullptr, nullptr)
 };
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

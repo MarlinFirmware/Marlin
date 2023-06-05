@@ -165,4 +165,4 @@ void DGUSRxHandler::disabled(DGUS_VP &vp, void *data_ptr) {
   screen.angryBeeps(2);
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

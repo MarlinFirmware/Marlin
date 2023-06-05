@@ -219,4 +219,4 @@ void DGUSTxHandler::extraPGMToString(DGUS_VP &vp) {
   dgus.writeStringPGM((uint16_t)vp.addr, vp.extra, vp.size, true, false, false);
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

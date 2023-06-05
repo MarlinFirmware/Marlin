@@ -43,6 +43,8 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#define DGUS_UNKNOWN_COMMAND_DEBUG // uncomment to debug unknown commands
+
 static uint16_t plaExtruderTempSave = 0;
 static uint16_t plaBedTempSave = 0;
 static uint16_t absExtruderTempSave = 0;
@@ -110,7 +112,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_MenuSelect: unknown id ", (uint16_t)submenu);
       #endif
       break;
@@ -139,7 +141,7 @@ void DGUSReturnKeyCodeHandler::Command_Adjust(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_Adjust: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -151,7 +153,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
   DGUS_Data::CheckKOCommand command = Endianness::fromBE_P<DGUS_Data::CheckKOCommand>(data);
 
   if (command != DGUS_Data::CheckKOCommand::KO && command != DGUS_Data::CheckKOCommand::SDCard_No) {
-    #ifdef DEBUG_DGUSLCD
+    #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
       DEBUG_ECHOLNPGM("Command_CheckKO: unknown id ", (uint16_t)command);
     #endif
     return;
@@ -173,7 +175,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_CheckKO: unknown src screen ", (uint16_t)screen.getCurrentScreen());
       #endif
       return;
@@ -193,7 +195,7 @@ void DGUSReturnKeyCodeHandler::Command_StopPause(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_StopPause: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -248,7 +250,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_CheckOK: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -291,7 +293,7 @@ void DGUSReturnKeyCodeHandler::Command_PresetControl(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Settings_Submenu: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -316,7 +318,7 @@ void DGUSReturnKeyCodeHandler::Control_TemperatureCommand(DGUS_VP &vp, void *dat
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Control_TemperatureCommand: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -387,7 +389,7 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_SettingsMenu: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -452,7 +454,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_Leveling: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -479,7 +481,7 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_AxisControl: unknown id ", (uint16_t)control);
       #endif
       break;
@@ -501,7 +503,7 @@ void DGUSReturnKeyCodeHandler::Command_FilamentIO(DGUS_VP &vp, void *data) {
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_FilamentIO: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -551,7 +553,7 @@ void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data)
     break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_AdvancedSettings: unknown id ", (uint16_t)command);
       #endif
       break;
@@ -607,7 +609,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
       break;
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_FilelistControl: unknown id ", (uint16_t)control);
       #endif
       return;
@@ -646,11 +648,11 @@ void DGUSReturnKeyCodeHandler::Command_LaserControl(DGUS_VP &vp, void *data) {
       #endif
 
     default:
-      #ifdef DEBUG_DGUSLCD
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
         DEBUG_ECHOLNPGM("Command_LaserControl: unknown id ", (uint16_t)control);
       #endif
       return;
   }
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

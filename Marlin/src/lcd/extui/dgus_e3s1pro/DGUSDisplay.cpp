@@ -265,16 +265,12 @@ void DGUSDisplay::processRx() {
             gui_version = tmp[3];
             os_version = tmp[4];
 
-            #ifdef DEBUG_DGUSLCD
+            #if ENABLED(DEBUG_DGUSLCD)
               DEBUG_ECHOLNPGM("DGUS version: GUI ", gui_version, "OS ", os_version);
             #endif
             rx_datagram_state = DGUS_IDLE;
             break;
           }
-
-          #ifdef DEBUG_DGUSLCD
-            DEBUG_ECHOLNPGM("DGUS RX VP ", addr);
-          #endif
 
           DGUS_VP vp;
           if (!DGUS_PopulateVP((DGUS_Addr)addr, &vp)) {
@@ -329,7 +325,7 @@ void DGUSDisplay::processRx() {
           break;
         }
 
-        #ifdef DEBUG_DGUSLCD
+        #if ENABLED(DEBUG_DGUSLCD)
           DEBUG_ECHOLNPGM("DGUS unknown command ", command);
         #endif
 

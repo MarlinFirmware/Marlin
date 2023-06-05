@@ -33,6 +33,7 @@
 
 #include "../../../gcode/queue.h"
 
+#define DGUS_SCREEN_PAGE_DEBUG // uncomment to debug page changes
 
 DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
 uint16_t DGUSScreenHandler::currentMeshPointIndex = 0;
@@ -178,7 +179,7 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
     strcat(dgus_sdcard_handler.filenames[4], "]");
 
     new_screen = DGUS_Screen::FILE1;
-    #ifdef DEBUG_DGUSLCD
+    #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
       DEBUG_ECHOLNPGM("trig confirm: ", msg, ", ret: ", (uint16_t)confirm_return_screen);
     #endif
   #else
@@ -285,9 +286,6 @@ void DGUSScreenHandler::angryBeeps(const uint8_t beepCount) {
 }
 
 void DGUSScreenHandler::levelingStart() {
-  #ifdef DEBUG_DGUSLCD
-    DEBUG_ECHOLNPGM("levelingStart()");
-  #endif
   isLeveling = true;
   currentMeshPointIndex = 0;
   triggerFullUpdate();
@@ -296,7 +294,7 @@ void DGUSScreenHandler::levelingStart() {
 void DGUSScreenHandler::levelingEnd() {
   if (!isLeveling) return;
 
-  #ifdef DEBUG_DGUSLCD
+  #if ENABLED(DEBUG_DGUSLCD)
     DEBUG_ECHOLNPGM("levelingEnd(), valid=", ExtUI::getLevelingIsValid());
   #endif
 
@@ -409,7 +407,7 @@ void DGUSScreenHandler::triggerScreenChange(DGUS_Screen screen) {
     new_screen = screen;
   wait_return_screen = DGUS_Screen::BOOT; // cancel temp screen
 
-  #ifdef DEBUG_DGUSLCD
+  #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
     DEBUG_ECHOLNPGM("trig scr: ", (uint16_t)screen);
   #endif
 }
@@ -421,7 +419,7 @@ void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen 
     new_screen = screen;
   wait_return_screen = returnScreen;
 
-  #ifdef DEBUG_DGUSLCD
+  #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
     DEBUG_ECHOLNPGM("trig tmp: ", (uint16_t)screen, " ret: ", (uint16_t)returnScreen);
   #endif
 }
@@ -429,7 +427,7 @@ void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen 
 void DGUSScreenHandler::triggerReturnScreen() {
   new_screen = wait_return_screen;
   wait_return_screen = DGUS_Screen::BOOT;
-  #ifdef DEBUG_DGUSLCD
+  #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
     DEBUG_ECHOLNPGM("trig ret scr");
   #endif
 }
@@ -540,4 +538,4 @@ bool DGUSScreenHandler::refreshVP(DGUS_Addr vpAddr) {
   return false;
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO
