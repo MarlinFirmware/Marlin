@@ -225,10 +225,10 @@ void DGUSScreenHandler::settingsReset() {
   config.brightness = DGUS_DEFAULT_BRIGHTNESS;
   config.language = DGUS_Data::Language::Default;
   config.jogLength = DGUS_Data::AxisControlCommand::Jog_1mm;
-  config.plaExtruderTemp = 200;
-  config.plaBedTemp = 60;
-  config.absExtruderTemp = 210;
-  config.absBedTemp = 80;
+  config.plaExtruderTemp = PREHEAT_1_TEMP_HOTEND;
+  config.plaBedTemp = PREHEAT_1_TEMP_BED;
+  config.absExtruderTemp = PREHEAT_2_TEMP_HOTEND;
+  config.absBedTemp = PREHEAT_2_TEMP_BED;
   config.levelingEnabled = ExtUI::getLevelingActive();
 
   if (!settings_ready) {
