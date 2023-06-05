@@ -510,6 +510,36 @@ void DGUSReturnKeyCodeHandler::Command_FilamentIO(DGUS_VP &vp, void *data) {
   }
 }
 
+// 105F
+void DGUSReturnKeyCodeHandler::Command_PowerLoss(DGUS_VP &vp, void *data) {
+  DGUS_Data::PowerLossCommand command = Endianness::fromBE_P<DGUS_Data::PowerLossCommand>(data);
+
+  switch (command) {
+    case DGUS_Data::PowerLossCommand::PowerLoss_Continue:
+      if (!recovery.valid())
+      {
+        screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_INVALID_RECOVERY_DATA));
+        screen.triggerScreenChange(DGUS_Screen::HOME);
+        return;
+      }
+
+      screen.triggerScreenChange(DGUS_Screen::PAUSE);
+      ExtUI::injectCommands(F("M1000"));
+      break;
+
+    case DGUS_Data::PowerLossCommand::PowerLoss_No:
+      screen.triggerScreenChange(DGUS_Screen::HOME);
+      ExtUI::injectCommands(F("M1000 C"));
+      break;
+
+    default:
+      #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
+        DEBUG_ECHOLNPGM("Command_PowerLoss: unknown id ", (uint16_t)command);
+      #endif
+      break;
+  }
+}
+
 // 1098
 void DGUSReturnKeyCodeHandler::Command_AdvancedSettings(DGUS_VP &vp, void *data) {
   DGUS_Data::AdvancedSettingsCommand command = Endianness::fromBE_P<DGUS_Data::AdvancedSettingsCommand>(data);

@@ -55,6 +55,7 @@ enum class DGUS_Addr : uint16_t {
   IO_RetractLength          = 0x1054, // r, int, 3.1
   CMD_AxisIO                = 0x1056, // r, int, DGUS_Data::FilamentIoCommand
   LANGUAGE_SetLanguage      = 0x105C, // r, int, 1-9
+  CMD_PowerLoss             = 0x105F, // r, int, DGUS_Data::PowerLossCommand
   LEVELING_Progress_Icon    = 0x108D, // w, icon, progress 1-50
   FILAMENT_Icon_Inserted    = 0x108E, // w, icon, on-off 0-1
   TEMP_PLA_ExtruderTemp     = 0x1090, // rw, int, 3.0
@@ -151,6 +152,7 @@ enum class DGUS_Addr : uint16_t {
   LOAD_Icon_Continue        = 0x1343, // w, icon, translated 1-9
   PAUSE_Icon_Message        = 0x1344, // w, icon, translated 1-9
   RESUME_Icon_Message       = 0x1347, // w, icon, translated 1-9
+  POWERLOSS_Icon_Message    = 0x1348, // w, icon, translated 1-9
   AUTOHOME_Icon_WaitMessage = 0x1349, // w, icon, translated 1-9
   LEVELING_Icon_Leveling    = 0x134B, // w, icon, translated 1-9
   RESET_Icon_InfoMessage    = 0x134D, // w, icon, translated 1-9

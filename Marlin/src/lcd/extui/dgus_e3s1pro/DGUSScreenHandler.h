@@ -69,6 +69,10 @@ private:
     static const char* sdPrintFilename;
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static bool powerLossRecoveryAvailable;
+  #endif
+
   #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
     static ssize_t currentScrollIndex;
     static size_t pageMaxStringLen;

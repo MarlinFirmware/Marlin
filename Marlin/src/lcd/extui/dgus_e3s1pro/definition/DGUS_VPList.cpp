@@ -168,6 +168,8 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                         &DGUSReturnKeyCodeHandler::Command_FilamentIO),
   VP_HELPER_RX(       DGUS_Addr::LANGUAGE_SetLanguage,
                         &DGUSRxHandler::setLanguage),
+  VP_HELPER_RX(       DGUS_Addr::CMD_PowerLoss,
+                        &DGUSReturnKeyCodeHandler::Command_PowerLoss),
   VP_HELPER_TX(       DGUS_Addr::LEVELING_Progress_Icon,
                         &DGUSTxHandler::levelingProgressIcon),
   #if HAS_FILAMENT_SENSOR
@@ -400,6 +402,8 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_LANG_ICON(DGUS_Addr::LOAD_Icon_Message),
   VP_HELPER_LANG_ICON(DGUS_Addr::LOAD_Icon_Continue),
   VP_HELPER_LANG_ICON(DGUS_Addr::PAUSE_Icon_Message),
+  VP_HELPER_LANG_ICON(DGUS_Addr::RESUME_Icon_Message),
+  VP_HELPER_LANG_ICON(DGUS_Addr::POWERLOSS_Icon_Message),
   VP_HELPER_LANG_ICON(DGUS_Addr::AUTOHOME_Icon_WaitMessage),
   VP_HELPER_LANG_ICON(DGUS_Addr::LEVELING_Icon_Leveling),
   VP_HELPER_LANG_ICON(DGUS_Addr::LEVELING_Icon_Start),

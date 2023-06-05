@@ -55,6 +55,10 @@ uint8_t DGUSScreenHandler::angry_beeps = 0;
   const char* DGUSScreenHandler::sdPrintFilename = noFileSelected;
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  bool DGUSScreenHandler::powerLossRecoveryAvailable = false;
+#endif
+
 #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
   ssize_t DGUSScreenHandler::currentScrollIndex = 0;
   size_t DGUSScreenHandler::pageMaxStringLen = 0;
@@ -101,6 +105,14 @@ void DGUSScreenHandler::loop() {
     dgus.readVersions();
     return;
   }
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (booted && powerLossRecoveryAvailable)
+    {
+      triggerScreenChange(DGUS_Screen::POWERCONTINUE);
+      powerLossRecoveryAvailable = false;
+    }
+  #endif
 
   if (ELAPSED(ms, next_event_ms) || full_update) {
     next_event_ms = ms + (booted ? DGUS_UPDATE_INTERVAL_MS : 50);
@@ -358,7 +370,7 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   void DGUSScreenHandler::powerLossResume() {
-    //moveToScreen(DGUS_Screen::POWERLOSS, true);
+    powerLossRecoveryAvailable = true;
   }
 #endif
 

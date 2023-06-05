@@ -158,6 +158,12 @@ namespace DGUS_Data {
     Show_Ready_IO = 3
   };
 
+  // 105F
+  enum class PowerLossCommand : uint16_t {
+    PowerLoss_Continue = 1,
+    PowerLoss_No = 2
+  };
+
   // 1098
   enum class AdvancedSettingsCommand : uint16_t {
     Show_AdvSettings_Movement = 4,

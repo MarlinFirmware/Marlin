@@ -206,6 +206,13 @@ constexpr DGUS_Addr LIST_AUTOLEVEL[] PROGMEM = {
   DGUS_Addr::END
 };
 
+constexpr DGUS_Addr LIST_POWERLOSS[] PROGMEM = {
+  DGUS_Addr::POWERLOSS_Icon_Message,
+  DGUS_Addr::LOAD_Icon_Continue,
+  DGUS_Addr::RESET_Icon_No,
+  DGUS_Addr::END
+};
+
 constexpr DGUS_Addr LIST_LANGUAGE[] PROGMEM = {
   DGUS_Addr::LANGUAGE_Icon_Language,
   DGUS_Addr::LANGUAGE_Icon_Chinese,
@@ -453,6 +460,7 @@ const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
   MAP_HELPER(DGUS_Screen::ABNORMAL,             LIST_ABNORMAL),
   MAP_HELPER(DGUS_Screen::LEVELINGMODE,         LIST_TRAMMING),
   MAP_HELPER(DGUS_Screen::LEVELING,             LIST_AUTOLEVEL),
+  MAP_HELPER(DGUS_Screen::POWERCONTINUE,        LIST_POWERLOSS),
   MAP_HELPER(DGUS_Screen::LANGUAGE,             LIST_LANGUAGE),
   MAP_HELPER(DGUS_Screen::INFORMATION,          LIST_INFO),
   MAP_HELPER(DGUS_Screen::CONTROL_DEVICE,       LIST_ADV_SETTINGS),
