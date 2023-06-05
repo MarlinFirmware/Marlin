@@ -115,7 +115,7 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
   #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
+    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
       if (e >= 0 && i != e) continue;
       report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(

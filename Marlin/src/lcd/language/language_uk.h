@@ -465,7 +465,7 @@ namespace Language_uk {
     LSTR MSG_INIT_EEPROM                    = _UxGT("Ініціаліз. EEPROM");
   #endif
   LSTR MSG_ERR_EEPROM_CRC                   = _UxGT("Збій EEPROM: CRC");
-  LSTR MSG_ERR_EEPROM_INDEX                 = _UxGT("Збій EEPROM: індекс");
+  LSTR MSG_ERR_EEPROM_SIZE                  = _UxGT("Збій EEPROM: розмір");
   LSTR MSG_ERR_EEPROM_VERSION               = _UxGT("Збій EEPROM: версія");
   LSTR MSG_SETTINGS_STORED                  = _UxGT("Параметри збережені");
   LSTR MSG_MEDIA_UPDATE                     = _UxGT("Оновити SD-картку");
@@ -480,7 +480,7 @@ namespace Language_uk {
   LSTR MSG_POWER                            = _UxGT("Потужність");
   LSTR MSG_START_PRINT                      = _UxGT("Почати друк");
 
-  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі");  //short text for buttons
+  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі"); //short text for buttons
   LSTR MSG_BUTTON_INIT                      = _UxGT("Ініц-я");
   LSTR MSG_BUTTON_STOP                      = _UxGT("Зупинка");
   LSTR MSG_BUTTON_PRINT                     = _UxGT("Друк");

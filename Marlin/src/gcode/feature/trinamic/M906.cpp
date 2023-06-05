@@ -328,7 +328,6 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
     say_M906(forReplay);
     SERIAL_ECHOLNPGM(" T7 E", stepperE7.getMilliamps());
   #endif
-  SERIAL_EOL();
 }
 
 #endif // HAS_TRINAMIC_CONFIG

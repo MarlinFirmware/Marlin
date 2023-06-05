@@ -361,7 +361,7 @@
 // OLED 128x64
 //================================================================================
 
-#if EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
+#if ANY(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define LCD_SDSS                            16
   #define LCD_PINS_RS                         23  // RESET Pull low for 1s to init
@@ -372,7 +372,7 @@
   #define BTN_ENC                             29
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
-  #if EITHER(OLED_HW_IIC, OLED_HW_SPI)
+  #if ANY(OLED_HW_IIC, OLED_HW_SPI)
     #error "Oops! You must choose SW SPI for ZRIB V53 board and connect the OLED screen to EXP1 connector."
   #else                                           // SW_SPI
     #define DOGLCD_A0                LCD_PINS_DC
