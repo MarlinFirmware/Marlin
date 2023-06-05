@@ -351,7 +351,7 @@ void unified_bed_leveling::G29() {
 
   // Invalidate one or more nearby mesh points, possibly all.
   if (parser.seen('I')) {
-    uint8_t count = parser.has_value() ? parser.value_byte() : 1;
+    grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
     bool invalidate_all = count >= GRID_MAX_POINTS;
     if (!invalidate_all) {
       while (count--) {
@@ -396,7 +396,7 @@ void unified_bed_leveling::G29() {
         break;
 
       case 1:
-        LOOP_L_N(x, GRID_MAX_POINTS_X) {                     // Create a diagonal line several Mesh cells thick that is raised
+        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
           const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
           z_values[x][x] += 9.999f;
           z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
@@ -760,14 +760,14 @@ void unified_bed_leveling::shift_mesh_height() {
     TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-    uint8_t count = GRID_MAX_POINTS;
+    grid_count_t count = GRID_MAX_POINTS;
 
     mesh_index_pair best;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
-      const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
+      const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
@@ -1135,7 +1135,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
   param.R_repetition = 0;
 
   if (parser.seen('R')) {
-    param.R_repetition = parser.has_value() ? parser.value_byte() : GRID_MAX_POINTS;
+    param.R_repetition = parser.has_value() ? parser.value_ushort() : GRID_MAX_POINTS;
     NOMORE(param.R_repetition, GRID_MAX_POINTS);
     if (param.R_repetition < 1) {
       SERIAL_ECHOLNPGM("?(R)epetition count invalid (1+).\n");
@@ -1445,7 +1445,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     info3 PROGMEM = { (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,       true  };  // Right side of the mesh looking left
   static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
-  LOOP_L_N(i, COUNT(info)) {
+  for (uint8_t i = 0; i < COUNT(info); ++i) {
     const smart_fill_info *f = (smart_fill_info*)pgm_read_ptr(&info[i]);
     const int8_t sx = pgm_read_byte(&f->sx), sy = pgm_read_byte(&f->sy),
                  ex = pgm_read_byte(&f->ex), ey = pgm_read_byte(&f->ey);
@@ -1484,7 +1484,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       #if ENABLED(UBL_TILT_ON_MESH_POINTS_3POINT)
         mesh_index_pair cpos[3];
-        LOOP_L_N(ix, 3) { // Convert points to coordinates of mesh points
+        for (uint8_t ix = 0; ix < 3; ++ix) { // Convert points to coordinates of mesh points
           cpos[ix] = find_closest_mesh_point_of_type(REAL, points[ix], true);
           points[ix] = cpos[ix].meshpos();
         }
@@ -1494,7 +1494,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         float gotz[3];  // Used for algorithm validation below
       #endif
 
-      LOOP_L_N(i, 3) {
+      for (uint8_t i = 0; i < 3; ++i) {
         SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_LCD_TILTING_MESH), i + 1));
 
@@ -1534,10 +1534,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       const uint16_t total_points = sq(param.J_grid_size);
       uint16_t point_num = 1;
 
-      LOOP_L_N(ix, param.J_grid_size) {
+      for (uint8_t ix = 0; ix < param.J_grid_size; ++ix) {
         xy_pos_t rpos;
         rpos.x = x_min + ix * dx;
-        LOOP_L_N(iy, param.J_grid_size) {
+        for (uint8_t iy = 0; iy < param.J_grid_size; ++iy) {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_TILT_ON_MESH_POINTS)
@@ -1714,17 +1714,17 @@ void unified_bed_leveling::smart_fill_mesh() {
     GRID_LOOP(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
     xy_pos_t ppos;
-    LOOP_L_N(ix, GRID_MAX_POINTS_X) {
+    for (uint8_t ix = 0; ix < GRID_MAX_POINTS_X; ++ix) {
       ppos.x = get_mesh_x(ix);
-      LOOP_L_N(iy, GRID_MAX_POINTS_Y) {
+      for (uint8_t iy = 0; iy < GRID_MAX_POINTS_Y; ++iy) {
         ppos.y = get_mesh_y(iy);
         if (isnan(z_values[ix][iy])) {
           // undefined mesh point at (ppos.x,ppos.y), compute weighted LSF from original valid mesh points.
           incremental_LSF_reset(&lsf_results);
           xy_pos_t rpos;
-          LOOP_L_N(jx, GRID_MAX_POINTS_X) {
+          for (uint8_t jx = 0; jx < GRID_MAX_POINTS_X; ++jx) {
             rpos.x = get_mesh_x(jx);
-            LOOP_L_N(jy, GRID_MAX_POINTS_Y) {
+            for (uint8_t jy = 0; jy < GRID_MAX_POINTS_Y; ++jy) {
               if (TEST(bitmap[jx], jy)) {
                 rpos.y = get_mesh_y(jy);
                 const float rz = z_values[jx][jy],
@@ -1784,7 +1784,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
-    LOOP_L_N(i, GRID_MAX_POINTS_X) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {
       SERIAL_ECHO_F(LOGICAL_X_POSITION(get_mesh_x(i)), 3);
       SERIAL_ECHOPGM("  ");
       serial_delay(25);
@@ -1792,7 +1792,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     SERIAL_ECHOPGM("Y-Axis Mesh Points at: ");
-    LOOP_L_N(i, GRID_MAX_POINTS_Y) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i) {
       SERIAL_ECHO_F(LOGICAL_Y_POSITION(get_mesh_y(i)), 3);
       SERIAL_ECHOPGM("  ");
       serial_delay(25);
