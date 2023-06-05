@@ -434,9 +434,6 @@ void restore_feedrate_and_scaling();
 typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 
-typedef bits_t(NUM_AXES + EXTRUDERS) e_axis_bits_t;
-constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
-
 void set_axis_is_at_home(const AxisEnum axis);
 
 #if HAS_ENDSTOPS
