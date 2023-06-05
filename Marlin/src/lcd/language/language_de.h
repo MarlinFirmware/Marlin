@@ -52,10 +52,8 @@ namespace Language_de {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall überschritten");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopp"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
-  LSTR MSG_MAIN                           = _UxGT("Hauptmenü");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Toolbar Einstellung");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Option Deaktiviert");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
@@ -277,7 +275,7 @@ namespace Language_de {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Violett");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Weiß");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Lichter #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Licht #2 Voreinst.");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Helligkeit");
@@ -414,7 +412,7 @@ namespace Language_de {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Standardwerte laden");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Werkseinstellungen");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Fehler");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Fehler");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM Größe Fehler");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Fehler");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Einstell. gespei.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("FW Update vom Medium");
@@ -461,7 +459,7 @@ namespace Language_de {
   LSTR MSG_END_LOOPS                      = _UxGT("Wiederholung beenden");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Objekt drucken");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Objekt abbrechen");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objekt abbrechen =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objekt abbrechen {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Wiederh. n. Stroma.");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Druckauftrag fortset.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Druck vom Medium");
@@ -513,7 +511,7 @@ namespace Language_de {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filament entladen");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filament entladen *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Alles entladen");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medium initial.");  // Manually initialize the SD-card via user interface
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medium initial."); // Manually initialize the SD-card via user interface
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medium getauscht"); // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medium freigeben"); // if Marlin gets confused - M22
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Sonde außerhalb");
@@ -692,7 +690,7 @@ namespace Language_de {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Entfernen, klicken");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponente =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponente {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient"); // equal Farbverlauf
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Volle Gradient");

@@ -37,7 +37,7 @@ namespace Language_ca {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Targeta detectada.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Targeta extreta.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Menú principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inici automatic");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactiva motors");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu de depuracio");
@@ -122,7 +122,7 @@ namespace Language_ca {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Desa memoria");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Carrega memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restaura valors");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Actualitza");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Actualitza");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla Info.");
   LSTR MSG_PREPARE                        = _UxGT("Prepara");
   LSTR MSG_TUNE                           = _UxGT("Ajusta");

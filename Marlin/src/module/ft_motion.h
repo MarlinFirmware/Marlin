@@ -28,20 +28,69 @@
 
 #define FTM_STEPPERCMD_DIR_SIZE ((FTM_STEPPERCMD_BUFF_SIZE + 7) / 8)
 
+#if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
+  #define HAS_DYNAMIC_FREQ 1
+  #if HAS_Z_AXIS
+    #define HAS_DYNAMIC_FREQ_MM 1
+  #endif
+  #if HAS_EXTRUDERS
+    #define HAS_DYNAMIC_FREQ_G 1
+  #endif
+#endif
+
+typedef struct FTConfig {
+  ftMotionMode_t mode = FTM_DEFAULT_MODE;                   // Mode / active compensation mode configuration.
+
+  bool modeHasShaper() { return WITHIN(mode, 10U, 19U); }
+
+  #if HAS_X_AXIS
+    float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =               // Base frequency. [Hz]
+      { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
+  #endif
+
+  #if HAS_DYNAMIC_FREQ
+    dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
+    float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };     // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+  #else
+    static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
+  #endif
+
+  #if HAS_EXTRUDERS
+    bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;         // Linear advance enable configuration.
+    float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;            // Linear advance gain.
+  #endif
+} ft_config_t;
+
 class FxdTiCtrl {
 
   public:
 
     // Public variables
-    static ftMotionMode_t cfg_mode;                         // Mode / active compensation mode configuration.
-    static bool cfg_linearAdvEna;                           // Linear advance enable configuration.
-    static float cfg_linearAdvK;                            // Linear advance gain.
-    static dynFreqMode_t cfg_dynFreqMode;                   // Dynamic frequency mode configuration.
+    static ft_config_t cfg;
 
-    #if HAS_X_AXIS
-      static float cfg_baseFreq[1 + ENABLED(HAS_Y_AXIS)];   // Base frequency. [Hz]
-      static float cfg_dynFreqK[1 + ENABLED(HAS_Y_AXIS)];   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
-    #endif
+    static void set_defaults() {
+      cfg.mode = FTM_DEFAULT_MODE;
+
+      TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
+      TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
+
+      #if HAS_DYNAMIC_FREQ
+        cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
+        cfg.dynFreqK[X_AXIS] = TERN_(HAS_Y_AXIS, cfg.dynFreqK[Y_AXIS]) = 0.0f;
+      #endif
+
+      #if HAS_EXTRUDERS
+        cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
+        cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
+      #endif
+
+      #if HAS_X_AXIS
+        refreshShapingN();
+        updateShapingA();
+      #endif
+
+      reset();
+    }
 
     static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];               // Buffer of stepper commands.
     static hal_timer_t stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of the stepper command timing.
@@ -53,6 +102,7 @@ class FxdTiCtrl {
 
 
     // Public methods
+    static void init();
     static void startBlockProc(block_t * const current_block); // Set controller states to begin processing a block.
     static bool getBlockProcDn() { return blockProcDn; }    // Return true if the controller no longer needs the current block.
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
@@ -67,6 +117,9 @@ class FxdTiCtrl {
       // Refresh the indices used by shaping functions.
       // To be called when frequencies change.
       static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=FTM_SHAPING_ZETA);
+
+      static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
+
     #endif
 
     static void reset();                                    // Resets all states of the fixed time conversion to defaults.
@@ -160,7 +213,6 @@ class FxdTiCtrl {
 
     // Private methods
     static uint32_t stepperCmdBuffItems();
-    static void init();
     static void loadBlockData(block_t * const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);

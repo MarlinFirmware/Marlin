@@ -54,7 +54,7 @@ namespace Language_hu {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Túlfolyás");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Végállás"); // Maximum 8 karakter
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Szoft. végállás");
-  LSTR MSG_MAIN                           = _UxGT("<Fömenü>");
+  LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("További beállítások");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguráció");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Fájl auto. futtatás");
@@ -240,7 +240,7 @@ namespace Language_hu {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Viola");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Fehér");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Alapérték");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Csatorna =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Csatorna {");
   LSTR MSG_LEDS2                          = _UxGT("LED-ek #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Fény #2 megadott");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Fényerö");
@@ -284,10 +284,10 @@ namespace Language_hu {
   LSTR MSG_FLOWMETER_SAFETY               = _UxGT("Áramlásbiztonság");
   LSTR MSG_LASER                          = _UxGT("Lézer");
   LSTR MSG_FAN_SPEED                      = _UxGT("Hütés sebesség");
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Hütés sebesség =");
-  LSTR MSG_STORED_FAN_N                   = _UxGT("Tárolt hütés =");
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Hütés sebesség {");
+  LSTR MSG_STORED_FAN_N                   = _UxGT("Tárolt hütés {");
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra hütés sebesség");
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra hütés sebesség =");
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra hütés sebesség {");
   LSTR MSG_CONTROLLER_FAN                 = _UxGT("Hütésvezérlés");
   LSTR MSG_CONTROLLER_FAN_IDLE_SPEED      = _UxGT("Alapjárat");
   LSTR MSG_CONTROLLER_FAN_AUTO_ON         = _UxGT("Automatikus mód");
@@ -363,12 +363,12 @@ namespace Language_hu {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Alapértelmezett");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM inicializálás");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hiba: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hiba: EEPROM index");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hiba: EEPROM mérete");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hiba: EEPROM verzió");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Beállítások mentve");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Tároló frissítés");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Nyomtató újraindítása");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Frissítés");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Frissítés");
   LSTR MSG_INFO_SCREEN                    = _UxGT("<Infó képernyö>");
   LSTR MSG_PREPARE                        = _UxGT("Vezérlés");
   LSTR MSG_TUNE                           = _UxGT("Hangolás");
@@ -396,7 +396,7 @@ namespace Language_hu {
   LSTR MSG_END_LOOPS                      = _UxGT("Hurok ismétlés vége");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Objektum nyomtatása");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Objektum törlése");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objektum törlése =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objektum törlése {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Kiesés helyreáll.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Nyomtatás tárolóról");
   LSTR MSG_NO_MEDIA                       = _UxGT("Nincs tároló");
@@ -587,7 +587,7 @@ namespace Language_hu {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Kidob, kattint");
 
   LSTR MSG_MIX                            = _UxGT("Kever");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Összetevö =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Összetevö {");
   LSTR MSG_MIXER                          = _UxGT("Keverö");
   LSTR MSG_GRADIENT                       = _UxGT("Színátm.");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Teljes színátm.");

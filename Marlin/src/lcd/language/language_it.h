@@ -30,7 +30,7 @@
  * Substitutions are applied for the following characters when used in menu items titles:
  *
  *   $ displays an inserted string
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -62,10 +62,8 @@ namespace Language_it {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Overflow subchiamate");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Finecor."); // Max 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Finecorsa Soft");
-  LSTR MSG_MAIN                           = _UxGT("Menu principale");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principale");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Impostaz. avanzate");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Cnf barra strumenti");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Opzione disab.");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurazione");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Esegui files auto");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disabilita Motori");
@@ -293,7 +291,7 @@ namespace Language_it {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Viola");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Bianco");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Predefinito");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Canale =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Canale {");
   LSTR MSG_LEDS2                          = _UxGT("Luci #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Presets luce #2");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Luminosità");
@@ -338,11 +336,11 @@ namespace Language_it {
   LSTR MSG_FLOWMETER_SAFETY               = _UxGT("Sicurezza flusso");
   LSTR MSG_CUTTER                         = _UxGT("Taglio");
   LSTR MSG_LASER                          = _UxGT("Laser");
-  LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventola");     // Max 15 characters
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventola ~");   // Max 15 characters
-  LSTR MSG_STORED_FAN_N                   = _UxGT("Ventola mem. ~");   // Max 15 characters
-  LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra vel.vent.");  // Max 15 characters
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra v.vent. ~");  // Max 15 characters
+  LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventola"); // Max 15 characters
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventola ~"); // Max 15 characters
+  LSTR MSG_STORED_FAN_N                   = _UxGT("Ventola mem. ~"); // Max 15 characters
+  LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra vel.vent."); // Max 15 characters
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra v.vent. ~"); // Max 15 characters
   LSTR MSG_CONTROLLER_FAN                 = _UxGT("Controller vent.");
   LSTR MSG_CONTROLLER_FAN_IDLE_SPEED      = _UxGT("Vel. inattivo");
   LSTR MSG_CONTROLLER_FAN_AUTO_ON         = _UxGT("Modo autom.");
@@ -451,7 +449,7 @@ namespace Language_it {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Ripristina imp.");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inizializza EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: CRC EEPROM");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Err: Indice EEPROM");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: Taglia EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versione EEPROM");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Impostazioni mem.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aggiorna media");
@@ -498,7 +496,7 @@ namespace Language_it {
   LSTR MSG_END_LOOPS                      = _UxGT("Fine cicli di rip.");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Stampa Oggetto");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancella Oggetto");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Canc. Oggetto =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Canc. Oggetto {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Ripresa da PowerLoss");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Cont.proc.stampa");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Stampa da media");
@@ -597,7 +595,7 @@ namespace Language_it {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Totali");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Interrompi se FC");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Risc.Fallito");   // Max 12 characters
+  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Risc.Fallito"); // Max 12 characters
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP RIDONDANTE");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TEMP FUORI CONTROLLO");
   LSTR MSG_TEMP_MALFUNCTION               = _UxGT("MALFUNZIONAMENTO TEMP");
@@ -702,13 +700,13 @@ namespace Language_it {
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Riprendi stampa");
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Spurga o continua?");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Ugello: ");
-  LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin.");  // Max 17 characters
+  LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin."); // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");
   LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Filo termin. attivo");
   LSTR MSG_INVERT_EXTRUDER                = _UxGT("Inverti estrusore");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");
-  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent.");  // Max 17 characters
+  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent."); // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondaggio fallito");
 
@@ -734,7 +732,7 @@ namespace Language_it {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Rimuovi, click");
 
   LSTR MSG_MIX                            = _UxGT("Miscela");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente {");
   LSTR MSG_MIXER                          = _UxGT("Miscelatore");
   LSTR MSG_GRADIENT                       = _UxGT("Gradiente");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Gradiente pieno");
@@ -778,7 +776,7 @@ namespace Language_it {
   //
   #if LCD_HEIGHT >= 4
     LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_3_LINE("Premi per", "riprendere", "la stampa"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parcheggiando..."));
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Sto parcheggiando..."));
     LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Attendere avvio", "del cambio", "di filamento"));
     LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Inserisci il", "filamento e premi", "per continuare"));
     LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Premi per", "riscaldare ugello"));

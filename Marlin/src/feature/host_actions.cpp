@@ -187,13 +187,13 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR
@@ -209,7 +209,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
         break;
       case PROMPT_PAUSE_RESUME:
-        #if BOTH(ADVANCED_PAUSE_FEATURE, SDSUPPORT)
+        #if ALL(ADVANCED_PAUSE_FEATURE, HAS_MEDIA)
           extern const char M24_STR[];
           queue.inject_P(M24_STR);
         #endif

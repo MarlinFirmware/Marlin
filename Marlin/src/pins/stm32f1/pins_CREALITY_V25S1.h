@@ -52,7 +52,7 @@
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
   #define MARLIN_EEPROM_SIZE             0x800  // 2K (24C16)
-#elif EITHER(SDCARD_EEPROM_EMULATION, FLASH_EEPROM_EMULATION)
+#elif ANY(SDCARD_EEPROM_EMULATION, FLASH_EEPROM_EMULATION)
   #define MARLIN_EEPROM_SIZE             0x800  // 2K
 #endif
 
@@ -127,7 +127,7 @@
 #define SDCARD_CONNECTION                ONBOARD
 #define ON_BOARD_SPI_DEVICE                    1
 #define ONBOARD_SD_CS_PIN                   PC12  // SDSS
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 //

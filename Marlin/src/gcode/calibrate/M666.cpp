@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+#if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
 
 #include "../gcode.h"
 

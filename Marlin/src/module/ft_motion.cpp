@@ -29,32 +29,28 @@
 
 FxdTiCtrl fxdTiCtrl;
 
+#if !HAS_X_AXIS
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZV, "ftMotionMode_ZV requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVD, "ftMotionMode_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_EI, "ftMotionMode_EI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_2HEI, "ftMotionMode_2HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_3HEI, "ftMotionMode_3HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_MZV, "ftMotionMode_MZV requires at least one linear axis.");
+#endif
+#if !HAS_DYNAMIC_FREQ_MM
+  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
+#endif
+#if !HAS_DYNAMIC_FREQ_G
+  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
+#endif
+
 //-----------------------------------------------------------------//
 // Variables.
 //-----------------------------------------------------------------//
 
 // Public variables.
-ftMotionMode_t FxdTiCtrl::cfg_mode = FTM_DEFAULT_MODE;                // Mode / active compensation mode configuration.
 
-#if HAS_EXTRUDERS
-  bool FxdTiCtrl::cfg_linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;      // Linear advance enable configuration.
-  float FxdTiCtrl::cfg_linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;         // Linear advance gain.
-#endif
-
-dynFreqMode_t FxdTiCtrl::cfg_dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;  // Dynamic frequency mode configuration.
-#if !HAS_Z_AXIS
-  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
-#endif
-#if !(HAS_X_AXIS && HAS_EXTRUDERS)
-  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
-#endif
-
-#if HAS_X_AXIS
-  float FxdTiCtrl::cfg_baseFreq[] = {  FTM_SHAPING_DEFAULT_X_FREQ     // Base frequency. [Hz]
-                    OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-  float FxdTiCtrl::cfg_dynFreqK[] = { 0.0f OPTARG(HAS_Y_AXIS, 0.0f) };      // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
-#endif
-
+ft_config_t FxdTiCtrl::cfg;
 ft_command_t FxdTiCtrl::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U};                // Buffer of stepper commands.
 hal_timer_t FxdTiCtrl::stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE] = {0U};  // Buffer of the stepper command timing.
 uint8_t FxdTiCtrl::stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE] = {0U};             // Buffer of whether DIR needs to be updated.
@@ -209,10 +205,7 @@ void FxdTiCtrl::runoutBlock() {
 // Controller main, to be invoked from non-isr task.
 void FxdTiCtrl::loop() {
 
-  if (!cfg_mode) return;
-
-  static bool initd = false;
-  if (!initd) { init(); initd = true; }
+  if (!cfg.mode) return;
 
   // Handle block abort with the following sequence:
   // 1. Zero out commands in stepper ISR.
@@ -291,10 +284,10 @@ void FxdTiCtrl::loop() {
   // To be called on init or mode or zeta change.
   void FxdTiCtrl::updateShapingA(const_float_t zeta/*=FTM_SHAPING_ZETA*/, const_float_t vtol/*=FTM_SHAPING_V_TOL*/) {
 
-    const float K = exp( -zeta * PI / sqrt(1.0f - sq(zeta)) ),
+    const float K = exp( -zeta * M_PI / sqrt(1.0f - sq(zeta)) ),
                 K2 = sq(K);
 
-    switch (cfg_mode) {
+    switch (cfg.mode) {
 
       case ftMotionMode_ZV:
         xy_max_i = 1U;
@@ -366,7 +359,7 @@ void FxdTiCtrl::loop() {
 
     const float df = sqrt(1.0f - sq(zeta));
 
-    switch (cfg_mode) {
+    switch (cfg.mode) {
       case ftMotionMode_ZV:
         x_Ni[1] = round((0.5f / xf / df) * (FTM_FS));
         #if HAS_Y_AXIS
@@ -425,9 +418,9 @@ void FxdTiCtrl::reset() {
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   for (uint32_t i = 0U; i < (FTM_BATCH_SIZE); i++) { // Reset trajectory history
-    TERN_(HAS_X_AXIS, xd[i] = 0.0f);
-    TERN_(HAS_Y_AXIS, yd[i] = 0.0f);
-    TERN_(HAS_Z_AXIS, zd[i] = 0.0f);
+    TERN_(HAS_X_AXIS,    xd[i] = 0.0f);
+    TERN_(HAS_Y_AXIS,    yd[i] = 0.0f);
+    TERN_(HAS_Z_AXIS,    zd[i] = 0.0f);
     TERN_(HAS_EXTRUDERS, ed[i] = 0.0f);
   }
 
@@ -435,23 +428,26 @@ void FxdTiCtrl::reset() {
   batchRdy = batchRdyForInterp = false;
   runoutEna = false;
 
-  TERN_(HAS_X_AXIS, x_endPosn_prevBlock = 0.0f);
-  TERN_(HAS_Y_AXIS, y_endPosn_prevBlock = 0.0f);
-  TERN_(HAS_Z_AXIS, z_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_X_AXIS,    x_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_Y_AXIS,    y_endPosn_prevBlock = 0.0f);
+  TERN_(HAS_Z_AXIS,    z_endPosn_prevBlock = 0.0f);
   TERN_(HAS_EXTRUDERS, e_endPosn_prevBlock = 0.0f);
 
   makeVector_idx = makeVector_idx_z1 = 0;
   makeVector_batchIdx = FTM_BATCH_SIZE;
 
-  TERN_(HAS_X_AXIS, x_steps = 0);
-  TERN_(HAS_Y_AXIS, y_steps = 0);
-  TERN_(HAS_Z_AXIS, z_steps = 0);
+  TERN_(HAS_X_AXIS,    x_steps = 0);
+  TERN_(HAS_Y_AXIS,    y_steps = 0);
+  TERN_(HAS_Z_AXIS,    z_steps = 0);
   TERN_(HAS_EXTRUDERS, e_steps = 0);
+
   interpIdx = interpIdx_z1 = 0;
-  TERN_(HAS_X_AXIS, x_dirState = stepDirState_NOT_SET);
-  TERN_(HAS_Y_AXIS, y_dirState = stepDirState_NOT_SET);
-  TERN_(HAS_Z_AXIS, z_dirState = stepDirState_NOT_SET);
+
+  TERN_(HAS_X_AXIS,    x_dirState = stepDirState_NOT_SET);
+  TERN_(HAS_Y_AXIS,    y_dirState = stepDirState_NOT_SET);
+  TERN_(HAS_Z_AXIS,    z_dirState = stepDirState_NOT_SET);
   TERN_(HAS_EXTRUDERS, e_dirState = stepDirState_NOT_SET);
+
   nextStepTicks = FTM_MIN_TICKS;
 
   #if HAS_X_AXIS
@@ -472,8 +468,8 @@ uint32_t FxdTiCtrl::stepperCmdBuffItems() {
 // Initializes storage variables before startup.
 void FxdTiCtrl::init() {
   #if HAS_X_AXIS
-    updateShapingN(cfg_baseFreq[0] OPTARG(HAS_Y_AXIS, cfg_baseFreq[1]));
-    updateShapingA(FTM_SHAPING_ZETA, FTM_SHAPING_V_TOL);
+    refreshShapingN();
+    updateShapingA();
   #endif
   reset(); // Precautionary.
 }
@@ -484,33 +480,33 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
-  const axis_bits_t direction = current_block->direction_bits;
+  const AxisBits direction = current_block->direction_bits;
 
   #if HAS_X_AXIS
     x_startPosn = x_endPosn_prevBlock;
     float x_moveDist = current_block->steps.a / planner.settings.axis_steps_per_mm[X_AXIS];
-    if (TEST(direction, X_AXIS)) x_moveDist *= -1.0f;
+    if (!direction.x) x_moveDist *= -1.0f;
     x_Ratio = x_moveDist * oneOverLength;
   #endif
 
   #if HAS_Y_AXIS
     y_startPosn = y_endPosn_prevBlock;
     float y_moveDist = current_block->steps.b / planner.settings.axis_steps_per_mm[Y_AXIS];
-    if (TEST(direction, Y_AXIS)) y_moveDist *= -1.0f;
+    if (!direction.y) y_moveDist *= -1.0f;
     y_Ratio = y_moveDist * oneOverLength;
   #endif
 
   #if HAS_Z_AXIS
     z_startPosn = z_endPosn_prevBlock;
     float z_moveDist = current_block->steps.c / planner.settings.axis_steps_per_mm[Z_AXIS];
-    if (TEST(direction, Z_AXIS)) z_moveDist *= -1.0f;
+    if (!direction.z) z_moveDist *= -1.0f;
     z_Ratio = z_moveDist * oneOverLength;
   #endif
 
   #if HAS_EXTRUDERS
     e_startPosn = e_endPosn_prevBlock;
     float extrusion = current_block->steps.e / planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)];
-    if (TEST(direction, E_AXIS_N(current_block->extruder))) extrusion *= -1.0f;
+    if (!direction.e) extrusion *= -1.0f;
     e_Ratio = extrusion * oneOverLength;
   #endif
 
@@ -571,31 +567,31 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   // One less than (Accel + Coasting + Decel) datapoints
   max_intervals = N1 + N2 + N3 - 1U;
 
-  TERN_(HAS_X_AXIS, x_endPosn_prevBlock += x_moveDist);
-  TERN_(HAS_Y_AXIS, y_endPosn_prevBlock += y_moveDist);
-  TERN_(HAS_Z_AXIS, z_endPosn_prevBlock += z_moveDist);
+  TERN_(HAS_X_AXIS,    x_endPosn_prevBlock += x_moveDist);
+  TERN_(HAS_Y_AXIS,    y_endPosn_prevBlock += y_moveDist);
+  TERN_(HAS_Z_AXIS,    z_endPosn_prevBlock += z_moveDist);
   TERN_(HAS_EXTRUDERS, e_endPosn_prevBlock += extrusion);
 }
 
 // Generate data points of the trajectory.
 void FxdTiCtrl::makeVector() {
-  float accel_k = 0.0f;                              // (mm/s^2) Acceleration K factor
-  float tau = (makeVector_idx + 1) * (FTM_TS); // (s) Time since start of block
-  float dist = 0.0f;                                 // (mm) Distance traveled
+  float accel_k = 0.0f;                                   // (mm/s^2) Acceleration K factor
+  float tau = (makeVector_idx + 1) * (FTM_TS);            // (s) Time since start of block
+  float dist = 0.0f;                                      // (mm) Distance traveled
 
   if (makeVector_idx < N1) {
     // Acceleration phase
-    dist = (f_s * tau) + (0.5f * accel_P * sq(tau)); // (mm) Distance traveled for acceleration phase
-    accel_k = accel_P;                               // (mm/s^2) Acceleration K factor from Accel phase
+    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));      // (mm) Distance traveled for acceleration phase
+    accel_k = accel_P;                                    // (mm/s^2) Acceleration K factor from Accel phase
   }
   else if (makeVector_idx >= N1 && makeVector_idx < (N1 + N2)) {
     // Coasting phase
-    dist = s_1e + F_P * (tau - N1 * (FTM_TS)); // (mm) Distance traveled for coasting phase
+    dist = s_1e + F_P * (tau - N1 * (FTM_TS));            // (mm) Distance traveled for coasting phase
     //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
-    const float tau_ = tau - (N1 + N2) * (FTM_TS);  // (s) Time since start of decel phase
+    const float tau_ = tau - (N1 + N2) * (FTM_TS);        // (s) Time since start of decel phase
     dist = s_2e + F_P * tau_ + 0.5f * decel_P * sq(tau_); // (mm) Distance traveled for deceleration phase
     accel_k = decel_P;                                    // (mm/s^2) Acceleration K factor from Decel phase
   }
@@ -606,9 +602,9 @@ void FxdTiCtrl::makeVector() {
 
   #if HAS_EXTRUDERS
     const float new_raw_z1 = e_startPosn + e_Ratio * dist;
-    if (cfg_linearAdvEna) {
+    if (cfg.linearAdvEna) {
       float dedt_adj = (new_raw_z1 - e_raw_z1) * (FTM_FS);
-      if (e_Ratio > 0.0f) dedt_adj += accel_k * cfg_linearAdvK;
+      if (e_Ratio > 0.0f) dedt_adj += accel_k * cfg.linearAdvK;
 
       e_advanced_z1 += dedt_adj * (FTM_TS);
       ed[makeVector_batchIdx] = e_advanced_z1;
@@ -617,33 +613,33 @@ void FxdTiCtrl::makeVector() {
     }
     else {
       ed[makeVector_batchIdx] = new_raw_z1;
-      // Alternatively: coordArray_e[makeVector_batchIdx] = e_startDist + extrusion / (N1 + N2 + N3);
+      // Alternatively: ed[makeVector_batchIdx] = e_startPosn + (e_Ratio * dist) / (N1 + N2 + N3);
     }
   #endif
 
   // Update shaping parameters if needed.
-  #if HAS_Z_AXIS
+  #if HAS_DYNAMIC_FREQ_MM
     static float zd_z1 = 0.0f;
   #endif
-  switch (cfg_dynFreqMode) {
+  switch (cfg.dynFreqMode) {
 
-    #if HAS_Z_AXIS
+    #if HAS_DYNAMIC_FREQ_MM
       case dynFreqMode_Z_BASED:
         if (zd[makeVector_batchIdx] != zd_z1) { // Only update if Z changed.
-          const float xf = cfg_baseFreq[0] + cfg_dynFreqK[0] * zd[makeVector_batchIdx],
-                      yf = cfg_baseFreq[1] + cfg_dynFreqK[1] * zd[makeVector_batchIdx];
+          const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * zd[makeVector_batchIdx],
+                      yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * zd[makeVector_batchIdx];
           updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ), _MAX(yf, FTM_MIN_SHAPE_FREQ));
           zd_z1 = zd[makeVector_batchIdx];
         }
         break;
     #endif
 
-    #if HAS_X_AXIS && HAS_EXTRUDERS
+    #if HAS_DYNAMIC_FREQ_G
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
-        updateShapingN(      cfg_baseFreq[0] + cfg_dynFreqK[0] * ed[makeVector_batchIdx]
-          OPTARG(HAS_Y_AXIS, cfg_baseFreq[1] + cfg_dynFreqK[1] * ed[makeVector_batchIdx]) );
+        updateShapingN(      cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * ed[makeVector_batchIdx]
+          OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * ed[makeVector_batchIdx]) );
         break;
     #endif
 
@@ -652,7 +648,7 @@ void FxdTiCtrl::makeVector() {
 
   // Apply shaping if in mode.
   #if HAS_X_AXIS
-    if (WITHIN(cfg_mode, 10U, 19U)) {
+    if (WITHIN(cfg.mode, 10U, 19U)) {
       xd_zi[xy_zi_idx] = xd[makeVector_batchIdx];
       xd[makeVector_batchIdx] *= x_Ai[0];
       #if HAS_Y_AXIS

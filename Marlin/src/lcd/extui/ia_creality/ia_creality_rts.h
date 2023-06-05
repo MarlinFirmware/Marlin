@@ -22,17 +22,18 @@
 #pragma once
 
 /* ****************************************
- * lcd/extui/ia_creality/ia_creality_extui.h
+ * lcd/extui/ia_creality/ia_creality_rts.h
  * ****************************************
  * Extensible_UI implementation for Creality DWIN
  * 10SPro, Max, CRX, and others
- * Based original Creality release, ported to ExtUI for Marlin 2.0
+ * Based original Creality release
  * Written by Insanity Automation, sponsored by Tiny Machines 3D
  *
  * ***************************************/
 
-#include "string.h"
-#include "../ui_api.h"
+#include "../../../inc/MarlinConfig.h"
+
+#include <WString.h>
 
 /*********************************/
 #define FHONE   (0x5A)
@@ -46,7 +47,7 @@
 #define FileNum       MaxFileNumber
 #define FileNameLen   TEXTBYTELEN
 
-#define SizeofDatabuf 46
+#define DATA_BUF_SIZE 46
 
 //#define FONT_EEPROM      90
 //#define AutoLeve_EEPROM 100
@@ -176,122 +177,114 @@
 
 #define StatusMessageString 0x2064
 
+// TODO: Use LCD_SERIAL 1 or 3 (?) by configuration, not overriding here
 #ifdef TARGET_STM32F4
   #define DWIN_SERIAL Serial1
 #else
   #define DWIN_SERIAL LCD_SERIAL
 #endif
 
-namespace ExtUI {
+/************struct**************/
 
-  /************struct**************/
+typedef enum : uint8_t {
+  DGUS_IDLE,           //< waiting for DGUS_HEADER1.
+  DGUS_HEADER1_SEEN,   //< DGUS_HEADER1 received
+  DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
+  DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
+} rx_datagram_state_t;
 
-  typedef enum : uint8_t {
-    DGUS_IDLE,           //< waiting for DGUS_HEADER1.
-    DGUS_HEADER1_SEEN,   //< DGUS_HEADER1 received
-    DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
-    DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
-  } rx_datagram_state_t;
+typedef struct DataBuf {
+  uint8_t len;
+  uint8_t head[2];
+  uint8_t command;
+  uint32_t addr;
+  uint32_t bytelen;
+  uint16_t data[32];
+  uint8_t reserv[4];
+} DB;
 
-  typedef struct DataBuf {
-    uint8_t len;
-    uint8_t head[2];
-    uint8_t command;
-    uint32_t addr;
-    uint32_t bytelen;
-    uint16_t data[32];
-    uint8_t reserv[4];
-  } DB;
+struct creality_dwin_settings_t {
+  size_t settings_size;
+  uint8_t settings_version;
 
-  struct creality_dwin_settings_t {
-    size_t settings_size;
-    uint8_t settings_version;
+  bool display_standby;
+  bool display_sound;
+  int8_t screen_rotation;
+  int16_t display_volume;
+  uint8_t standby_brightness;
+  uint8_t screen_brightness;
+  int16_t standby_time_seconds;
+};
 
-    bool display_standby;
-    bool display_sound;
-    int8_t screen_rotation;
-    int16_t display_volume;
-    uint8_t standby_screen_brightness;
-    uint8_t screen_brightness;
-    int16_t standby_time_seconds;
-  };
+class RTS {
+  public:
+    RTS();
+    static void onStartup();
+    static void onIdle();
+    static int16_t receiveData();
+    static void sendData();
+    static void sendData(const String&, const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const char[],  const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(char,          const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(int,           const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const_float_t, const uint32_t, const uint8_t=VarAddr_W);
 
-  void SetTouchScreenConfiguration();
+    static void sendData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((char *)str, addr, cmd); }
+    static void sendData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int(n), addr, cmd); }
+    static void sendData(const long n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((unsigned long)n, addr, cmd); }
 
-  class RTSSHOW {
-    public:
-      RTSSHOW();
-      int16_t RTS_RecData();
-      void RTS_SDCardInit();
-      void RTS_SDCardUpate(bool, bool);
-      int16_t RTS_CheckFilament(int16_t);
-      void RTS_SndData();
-      void RTS_SndData(const String&, const uint32_t, const uint8_t=VarAddr_W);
-      void RTS_SndData(const char[],  const uint32_t, const uint8_t=VarAddr_W);
-      void RTS_SndData(char,          const uint32_t, const uint8_t=VarAddr_W);
-      void RTS_SndData(int,           const uint32_t, const uint8_t=VarAddr_W);
-      void RTS_SndData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
-      void RTS_SndData(const_float_t, const uint32_t, const uint8_t=VarAddr_W);
+    static void handleData();
 
-      void RTS_SndData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((char *)str, addr, cmd); }
-      void RTS_SndData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData(int(n), addr, cmd); }
-      void RTS_SndData(const long n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((unsigned long)n, addr, cmd); }
+    static void writeVariable(const uint16_t adr, const void * const values, uint8_t valueslen, const bool isstr=false, const char fillChar=' ');
+    static void setTouchScreenConfiguration();
 
-      void RTS_SDcard_Stop();
-      void RTS_HandleData();
-      void RTS_Init();
+    static DB recdat, snddat;
+    static uint8_t databuf[DATA_BUF_SIZE];
 
-      DB recdat;
-      DB snddat;
-      uint8_t databuf[SizeofDatabuf];
+    static rx_datagram_state_t rx_datagram_state;
+    static uint8_t rx_datagram_len;
+};
 
-      static rx_datagram_state_t rx_datagram_state;
-      static uint8_t rx_datagram_len;
-      static bool Initialized;
-  };
+extern RTS rts;
 
-  static RTSSHOW rtscheck;
+#define Addvalue           3
+#define PrintChoice_Value (0 + Addvalue)
+#define Zoffset_Value     (3 + Addvalue)
+#define Setting_Value     (8 + Addvalue)
+#define XYZEaxis_Value    (12 + Addvalue)
+#define Filament_Value    (15 + Addvalue)
+#define Language_Value    (18 + Addvalue)
+#define Filename_Value    (22 + Addvalue)
 
-  #define Addvalue           3
-  #define PrintChoice_Value (0 + Addvalue)
-  #define Zoffset_Value     (3 + Addvalue)
-  #define Setting_Value     (8 + Addvalue)
-  #define XYZEaxis_Value    (12 + Addvalue)
-  #define Filament_Value    (15 + Addvalue)
-  #define Language_Value    (18 + Addvalue)
-  #define Filename_Value    (22 + Addvalue)
+enum PROC_COM {
+  Printfile = 0,
+  Adjust,
+  Feedrate,
+  PrintChoice = PrintChoice_Value,
+  Zoffset = Zoffset_Value,
+  TempControl,
+  ManualSetTemp,
+  Setting = Setting_Value,
+  ReturnBack,
+  Bedlevel,
+  Autohome,
+  XYZEaxis = XYZEaxis_Value,
+  Filament = Filament_Value,
+  LanguageChoice = Language_Value,
+  No_Filament,
+  PwrOffNoF,
+  Volume,
+  Filename = Filename_Value
+};
 
-  enum PROC_COM {
-    Printfile = 0,
-    Adjust,
-    Feedrate,
-    PrintChoice = PrintChoice_Value,
-    Zoffset = Zoffset_Value,
-    TempControl,
-    ManualSetTemp,
-    Setting = Setting_Value,
-    ReturnBack,
-    Bedlevel,
-    Autohome,
-    XYZEaxis = XYZEaxis_Value,
-    Filament = Filament_Value,
-    LanguageChoice = Language_Value,
-    No_Filament,
-    PwrOffNoF,
-    Volume,
-    Filename = Filename_Value
-  };
+const uint16_t Addrbuf[] = {
+  0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
+  0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
+  0x105C, 0x105E, 0x105F, 0x1088, 0
+};
 
-  const uint16_t Addrbuf[] = {
-    0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
-    0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
-    0x105C, 0x105E, 0x105F, 0x1088, 0
-  };
-
-  void RTSUpdate();
-  void RTSInit();
-
-} // ExtUI
+void RTS_Update();
 
 #ifndef MAIN_MENU_ITEM_1_GCODE
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -303,4 +296,20 @@ namespace ExtUI {
   #endif
 #else
   #define MEASURING_GCODE MAIN_MENU_ITEM_1_GCODE
+#endif
+
+// Data shared by RTS and ExtUI
+extern uint16_t fileIndex;
+extern uint8_t recordcount;
+extern uint8_t startprogress;
+extern char waitway;
+extern char printerStatusKey[2];  // [0] = 0:ready  [1] = 0:keep temperature, 1:heating, 2:cooling, 3:printing
+extern bool show_status;
+extern bool tpShowStatus;         // true: opening time/percentage, false: closing time/percentage
+extern uint8_t lastPauseMsgState;
+extern creality_dwin_settings_t dwin_settings;
+extern bool no_reentry;
+#if HAS_PID_HEATING
+  extern uint16_t pid_hotendAutoTemp;
+  extern uint16_t pid_bedAutoTemp;
 #endif

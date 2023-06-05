@@ -109,7 +109,7 @@
 
 void menu_tune() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Speed:
@@ -119,7 +119,7 @@ void menu_tune() {
   //
   // Manual bed leveling, Bed Z:
   //
-  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
+  #if ALL(MESH_BED_LEVELING, LCD_BED_LEVELING)
     EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, -1, 1);
   #endif
 
@@ -135,7 +135,7 @@ void menu_tune() {
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-    LOOP_S_L_N(e, 1, EXTRUDERS)
+    for (uint8_t e = 1; e < EXTRUDERS; ++e)
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 
@@ -153,40 +153,40 @@ void menu_tune() {
 
     DEFINE_SINGLENOZZLE_ITEM();
 
-    #if HAS_FAN0
-      _FAN_EDIT_ITEMS(0,FIRST_FAN_SPEED);
+    #if FAN_IS_M106ABLE(0)
+      _FAN_EDIT_ITEMS(0, FIRST_FAN_SPEED);
     #endif
-    #if HAS_FAN1 && REDUNDANT_PART_COOLING_FAN != 1
+    #if FAN_IS_M106ABLE(1)
       FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
-    #if HAS_FAN2 && REDUNDANT_PART_COOLING_FAN != 2
+    #if FAN_IS_M106ABLE(2)
       FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
       singlenozzle_item(2);
     #endif
-    #if HAS_FAN3 && REDUNDANT_PART_COOLING_FAN != 3
+    #if FAN_IS_M106ABLE(3)
       FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
       singlenozzle_item(3);
     #endif
-    #if HAS_FAN4 && REDUNDANT_PART_COOLING_FAN != 4
+    #if FAN_IS_M106ABLE(4)
       FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
       singlenozzle_item(4);
     #endif
-    #if HAS_FAN5 && REDUNDANT_PART_COOLING_FAN != 5
+    #if FAN_IS_M106ABLE(5)
       FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
       singlenozzle_item(5);
     #endif
-    #if HAS_FAN6 && REDUNDANT_PART_COOLING_FAN != 6
+    #if FAN_IS_M106ABLE(6)
       FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
       singlenozzle_item(6);
     #endif
-    #if HAS_FAN7 && REDUNDANT_PART_COOLING_FAN != 7
+    #if FAN_IS_M106ABLE(7)
       FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
       singlenozzle_item(7);

@@ -63,10 +63,10 @@
 #define TEMP_BED_PIN                          36  // Analog Input
 
 #if ENABLED(MAX31856_PANDAPI)
-  #define MAX31856_CLK_PIN                    29
-  #define MAX31856_MISO_PIN                   24
-  #define MAX31856_MOSI_PIN                   28
-  #define MAX31856_CS_PIN                     27
+  #define TEMP_0_CLK_PIN                      29
+  #define TEMP_0_MISO_PIN                     24
+  #define TEMP_0_MOSI_PIN                     28
+  #define TEMP_0_CS_PIN                       27
 #endif
 
 //
@@ -107,7 +107,7 @@
 //
 // SD Card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN

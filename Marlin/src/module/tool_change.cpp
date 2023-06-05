@@ -250,7 +250,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    LOOP_LE_N(n, 1) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+    for (uint8_t n = 0; n <= 1; ++n) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
   }
 
   void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state) {
@@ -880,7 +880,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
 
     // Ensure X axis DIR pertains to the correct carriage
-    stepper.set_directions();
+    stepper.apply_directions();
 
     DEBUG_ECHOLNPGM("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", current_position);
@@ -957,13 +957,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * If cooling fan is enabled, calls filament_swap_cooling();
    */
   void extruder_prime() {
-
     if (too_cold(active_extruder)) {
       FS_DEBUG("Priming Aborted -  Nozzle Too Cold!");
       return; // Extruder too cold to prime
     }
 
-    float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
+    feedRate_t fr_mm_s = MMM_TO_MMS(toolchange_settings.unretract_speed); // Set default speed for unretract
 
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
       /**
@@ -973,18 +972,19 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (!extruder_did_first_prime[active_extruder]) {
         extruder_did_first_prime.set(active_extruder);   // Log first prime complete
         // new nozzle - prime at user-specified speed.
-        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
-        fr = toolchange_settings.prime_speed;
-        unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
+        const feedRate_t prime_mm_s = MMM_TO_MMS(toolchange_settings.prime_speed);
+        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", fr_mm_s, " to ",  prime_mm_s, "mm/s");
+        fr_mm_s = prime_mm_s;
+        unscaled_e_move(0, fr_mm_s);      // Init planner with 0 length move
       }
     #endif
 
     // Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
-      // - Return filament at speed (fr) then extra_prime at prime speed
-      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-      unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
+      // - Return filament at speed (fr_mm_s) then extra_prime at prime speed
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", fr_mm_s, "mm/s");
+      unscaled_e_move(toolchange_settings.swap_length, fr_mm_s); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
 
       if (toolchange_settings.extra_prime > 0) {
         FS_DEBUG("Performing Extra Priming for T", active_extruder, " | Distance: ", toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
@@ -996,8 +996,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // - Unretract distance (swap length) is reduced by the value of extra_prime
       const float eswap = toolchange_settings.swap_length + toolchange_settings.extra_prime;
       FS_DEBUG("Negative ExtraPrime value - Swap Return Length has been reduced from ", toolchange_settings.swap_length, " to ", eswap);
-      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", eswap, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-      unscaled_e_move(eswap, MMM_TO_MMS(fr));
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", eswap, " | Speed: ", fr_mm_s, "mm/s");
+      unscaled_e_move(eswap, fr_mm_s);
     }
 
     extruder_was_primed.set(active_extruder); // Log that this extruder has been primed
@@ -1010,7 +1010,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // Cool down with fan
     filament_swap_cooling();
-
   }
 
   /**
@@ -1166,7 +1165,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+      #if ALL(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
         // Store and stop fan. Restored on any exit.
         REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
       #endif
@@ -1278,7 +1277,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
-      #elif EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #elif ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         if (!no_move) {
           current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
           fast_line_to_current(Z_AXIS);
@@ -1309,7 +1308,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+        #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
           thermalManager.singlenozzle_change(old_tool, new_tool);
         #endif
 
@@ -1470,7 +1469,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
       // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
-      #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);

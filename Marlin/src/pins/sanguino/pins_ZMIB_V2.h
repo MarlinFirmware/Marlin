@@ -92,7 +92,7 @@
 #define X_MIN_PIN                             21
 #define Y_MIN_PIN                             18
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_MIN_PIN                           25
 #else
   #define Z_MIN_PIN                           13
@@ -109,7 +109,7 @@
 #define Y_DIR_PIN                             19
 #define Y_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_STEP_PIN                          27
   #define Z_DIR_PIN                           26
 #else
@@ -119,7 +119,7 @@
 
 #define Z_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define E0_STEP_PIN                         15
   #define E0_DIR_PIN                          14
 #else
@@ -150,7 +150,7 @@
 //
 // Filament Runout Sensor
 //
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define FIL_RUNOUT_PIN                      13
 #else
   #define FIL_RUNOUT_PIN                      25  // Z-MIN
@@ -159,7 +159,7 @@
 //
 // SD card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
@@ -201,7 +201,7 @@
   #define BOARD_ST7920_DELAY_2       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_3       DELAY_2_NOP
 
-#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
+#elif ANY(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   //
   // OLED 128x64
   //

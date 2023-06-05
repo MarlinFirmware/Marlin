@@ -32,7 +32,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x2000  // 8K
 #endif
@@ -180,7 +180,7 @@
 #define TEMP_BED_PIN                           4  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49

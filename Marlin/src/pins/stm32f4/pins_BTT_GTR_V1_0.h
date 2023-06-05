@@ -106,11 +106,21 @@
 // Pins on the extender
 //
 #if ENABLED(M5_EXTENDER)
-  #define X2_STOP_PIN                       PI4   // M5 M1_STOP
-  #define Y2_STOP_PIN                       PF12  // M5 M5_STOP
-  #define Z2_STOP_PIN                       PF4   // M5 M2_STOP
-  #define Z3_STOP_PIN                       PI7   // M5 M4_STOP
-  #define Z4_STOP_PIN                       PF6   // M5 M3_STOP
+  #ifndef X2_STOP_PIN
+    #define X2_STOP_PIN                     PI4   // M5 M1_STOP
+  #endif
+  #ifndef Y2_STOP_PIN
+    #define Y2_STOP_PIN                     PF12  // M5 M5_STOP
+  #endif
+  #ifndef Z2_STOP_PIN
+    #define Z2_STOP_PIN                     PF4   // M5 M2_STOP
+  #endif
+  #ifndef Z3_STOP_PIN
+    #define Z3_STOP_PIN                     PI7   // M5 M4_STOP
+  #endif
+  #ifndef Z4_STOP_PIN
+    #define Z4_STOP_PIN                     PF6   // M5 M3_STOP
+  #endif
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
@@ -272,8 +282,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -451,7 +464,7 @@
 
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

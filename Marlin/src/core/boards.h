@@ -21,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * Whenever changes are made to this file, please update Marlin/Makefile
+ * and _data/boards.yml in the MarlinDocumentation repo.
+ */
+
 #include "macros.h"
 
 #define BOARD_UNKNOWN -1
@@ -118,6 +123,8 @@
 #define BOARD_LONGER3D_LKx_PRO        1162  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
 #define BOARD_ZRIB_V53                1163  // Zonestar zrib V5.3 (Chinese RAMPS replica)
 #define BOARD_PXMALION_CORE_I3        1164  // Pxmalion Core I3
+#define BOARD_PANOWIN_CUTLASS         1165  // Panowin Cutlass (as found in the Panowin F1)
+#define BOARD_KODAMA_BARDO            1166  // Kodama Bardo V1.x (as found in the Kodama Trinus)
 
 //
 // RAMBo and derivatives
@@ -184,12 +191,13 @@
 #define BOARD_MELZI_V2                1503  // Melzi V2
 #define BOARD_MELZI_MAKR3D            1504  // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_MELZI_CREALITY          1505  // Melzi Creality3D (for CR-10 etc)
-#define BOARD_MELZI_MALYAN            1506  // Melzi Malyan M150
-#define BOARD_MELZI_TRONXY            1507  // Tronxy X5S
-#define BOARD_STB_11                  1508  // STB V1.1
-#define BOARD_AZTEEG_X1               1509  // Azteeg X1
-#define BOARD_ANET_10                 1510  // Anet 1.0 (Melzi clone)
-#define BOARD_ZMIB_V2                 1511  // ZoneStar ZMIB V2
+#define BOARD_MELZI_CREALITY_ENDER2   1506  // Melzi Creality3D (for Ender-2)
+#define BOARD_MELZI_MALYAN            1507  // Melzi Malyan M150
+#define BOARD_MELZI_TRONXY            1508  // Tronxy X5S
+#define BOARD_STB_11                  1509  // STB V1.1
+#define BOARD_AZTEEG_X1               1510  // Azteeg X1
+#define BOARD_ANET_10                 1511  // Anet 1.0 (Melzi clone)
+#define BOARD_ZMIB_V2                 1512  // ZoneStar ZMIB V2
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -383,6 +391,7 @@
 #define BOARD_PANDA_PI_V29            5066  // Panda Pi V2.9 - Standalone (STM32F103RC)
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RET6)
 #define BOARD_TRIGORILLA_V006         5068  // Trigorilla V0.0.6 (GD32F103RE)
+#define BOARD_KEDI_CONTROLLER_V1_2    5069  // EDUTRONICS Kedi Controller V1.2 (STM32F103RC)
 
 //
 // ARM Cortex-M4F
@@ -421,7 +430,7 @@
 #define BOARD_FYSETC_S6_V2_0          5223  // FYSETC S6 v2.0 (STM32F446VE)
 #define BOARD_FYSETC_SPIDER           5224  // FYSETC Spider (STM32F446VE)
 #define BOARD_FLYF407ZG               5225  // FLYmaker FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              5226  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_ROBIN2              5226  // MKS Robin2 V1.0 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        5227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       5228  // MKS Robin Nano V3 (STM32F407VG)
 #define BOARD_MKS_ROBIN_NANO_V3_1     5229  // MKS Robin Nano V3.1 (STM32F407VE)
@@ -441,6 +450,9 @@
 #define BOARD_FYSETC_SPIDER_KING407   5243  // FYSETC Spider King407 (STM32F407ZG)
 #define BOARD_MKS_SKIPR_V1            5244  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
 #define BOARD_TRONXY_V10              5245  // TRONXY V10 (STM32F446ZE)
+#define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
+#define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
+#define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
 
 //
 // ARM Cortex-M7
@@ -470,6 +482,7 @@
 #define BOARD_PANDA_M4                7007  // Panda_M4
 #define BOARD_MKS_TINYBEE             7008  // MKS TinyBee based on ESP32 (with I2S stepper stream)
 #define BOARD_ENWI_ESPNP              7009  // enwi ESPNP based on ESP32 (with I2S stepper stream)
+#define BOARD_GODI_CONTROLLER_V1_0    7010  // Godi Controller based on ESP32 32-Bit V1.0
 
 //
 // SAMD51 ARM Cortex-M4

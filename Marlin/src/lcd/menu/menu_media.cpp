@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, SDSUPPORT)
+#if ALL(HAS_MARLINUI_MENU, HAS_MEDIA)
 
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
@@ -73,14 +73,11 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
         MenuItem_submenu::action(fstr, []{
-          char * const longest = card.longest_filename();
-          char buffer[strlen(longest) + 2];
-          buffer[0] = ' ';
-          strcpy(buffer + 1, longest);
+          char * const filename = card.longest_filename();
           MenuItem_confirm::select_screen(
             GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
             sdcard_start_selected_file, nullptr,
-            GET_TEXT_F(MSG_START_PRINT), buffer, F("?")
+            GET_TEXT_F(MSG_START_PRINT), filename, F("?")
           );
         });
       #else
@@ -119,7 +116,7 @@ void menu_media_filelist() {
   #if ENABLED(MULTI_VOLUME)
     ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
   #else
-    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
   #endif
   if (card.flag.workDirIsRoot) {
     #if !HAS_SD_DETECT
@@ -146,7 +143,7 @@ void menu_media_filelist() {
 #if ENABLED(MULTI_VOLUME)
   void menu_media_select() {
     START_MENU();
-    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
     #if ENABLED(VOLUME_SD_ONBOARD)
       ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
     #endif
@@ -161,4 +158,4 @@ void menu_media() {
   TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
-#endif // HAS_MARLINUI_MENU && SDSUPPORT
+#endif // HAS_MARLINUI_MENU && HAS_MEDIA

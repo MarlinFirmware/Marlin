@@ -101,7 +101,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -165,7 +165,9 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // Defines
 // ------------------------
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
