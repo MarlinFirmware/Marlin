@@ -53,7 +53,7 @@ enum class DGUS_Addr : uint16_t {
   AXIS_Z                    = 0x104C, // rw, int, 3.1
   IO_ExtrudeLength          = 0x1052, // r, int, 3.1
   IO_RetractLength          = 0x1054, // r, int, 3.1
-  CMD_AxisIO                = 0x1056, // r, int, DGUS_Data::AxisIoCommand
+  CMD_AxisIO                = 0x1056, // r, int, DGUS_Data::FilamentIoCommand
   LANGUAGE_SetLanguage      = 0x105C, // r, int, 1-9
   LEVELING_Progress_Icon    = 0x108D, // w, icon, progress 1-50
   FILAMENT_Icon_Inserted    = 0x108E, // w, icon, on-off 0-1
@@ -84,7 +84,7 @@ enum class DGUS_Addr : uint16_t {
   PID_Extruder_D            = 0x10C2, // rw, int, 3.2
   PID_Bed_P                 = 0x10C4, // rw, int, 3.2
   PID_Bed_I                 = 0x10C6, // rw, int, 3.2
-  PID_Bed_D                 = 0x10C8, // rw, int, 3.2
+  PID_Bed_D                 = 0x10C8, // rw, int, 4.1
   CONTROL_FanSpeed          = 0x10CA, // rw, int, 3.0
   SDCard_InsertionStatus    = 0x1168, // w, icon, on off 0-1
   FINISH_Icon_Finished      = 0x1170, // w, icon, translated 1-9

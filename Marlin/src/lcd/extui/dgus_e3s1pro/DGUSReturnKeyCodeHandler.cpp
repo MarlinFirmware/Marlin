@@ -161,12 +161,13 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
     case DGUS_Screen::CONTINUE_STOP:
     case DGUS_Screen::STOP_CONFIRM:
     case DGUS_Screen::PAUSE_STOP:
+    case DGUS_Screen::FILAMENTUSEUP:
+    case DGUS_Screen::FILAMENTLOAD:
       ExtUI::stopPrint();
+      TERN_(HAS_FILAMENT_SENSOR,ExtUI::setFilamentRunoutState(false));
       screen.triggerScreenChange(DGUS_Screen::FINISH);
       break;
 
-    case DGUS_Screen::FILAMENTUSEUP:
-    case DGUS_Screen::FILAMENTLOAD:
     case DGUS_Screen::SDCARDCHECK:
     case DGUS_Screen::PAUSE_LASER:
       break;
@@ -205,6 +206,13 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
 
   switch (command) {
     case DGUS_Data::CheckOKCommand::ContinueStop_Continue:
+      #if HAS_FILAMENT_SENSOR
+        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
+        {
+          screen.triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
+          break;
+        }
+      #endif
       ExtUI::resumePrint();
       screen.triggerScreenChange(DGUS_Screen::PAUSE);
       break;
@@ -214,18 +222,21 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
         if (ExtUI::getTargetTemp_celsius(ExtUI::E0) < EXTRUDE_MINTEMP)
           ExtUI::setTargetTemp_celsius(EXTRUDE_MINTEMP, ExtUI::E0);
 
-        if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
+        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
           screen.triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
         else
           screen.triggerScreenChange(DGUS_Screen::FILAMENTLOAD);
         break;
 
       case DGUS_Data::CheckOKCommand::FilamentLoad_Yes:
-        if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
+        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
+        {
           screen.triggerScreenChange(DGUS_Screen::FILAMENTLOAD);
-        else {
-          ExtUI::resumePrint();
+          break;
         }
+
+        ExtUI::setFilamentRunoutState(false);
+        ExtUI::resumePrint();
         break;
     #endif // HAS_FILAMENT_SENSOR
 
@@ -476,17 +487,22 @@ void DGUSReturnKeyCodeHandler::Command_AxisControl(DGUS_VP &vp, void *data) {
 }
 
 // 1056
-void DGUSReturnKeyCodeHandler::Command_AxisIO(DGUS_VP &vp, void *data) {
-  DGUS_Data::AxisIoCommand command = Endianness::fromBE_P<DGUS_Data::AxisIoCommand>(data);
+void DGUSReturnKeyCodeHandler::Command_FilamentIO(DGUS_VP &vp, void *data) {
+  DGUS_Data::FilamentIoCommand command = Endianness::fromBE_P<DGUS_Data::FilamentIoCommand>(data);
 
   switch (command) {
-    case DGUS_Data::AxisIoCommand::Show_Ready_IO:
+    case DGUS_Data::FilamentIoCommand::FilamentCheck_Yes:
+    case DGUS_Data::FilamentIoCommand::FilamentCheck_No:
+      screen.triggerReturnScreen();
+      break;
+
+    case DGUS_Data::FilamentIoCommand::Show_Ready_IO:
       screen.triggerScreenChange(DGUS_Screen::FEEDRETURN);
       break;
 
     default:
       #ifdef DEBUG_DGUSLCD
-        DEBUG_ECHOLNPGM("Command_AxisIO: unknown id ", (uint16_t)command);
+        DEBUG_ECHOLNPGM("Command_FilamentIO: unknown id ", (uint16_t)command);
       #endif
       break;
   }
@@ -554,6 +570,14 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
           screen.angryBeeps(2);
           return;
         }
+
+        #if HAS_FILAMENT_SENSOR
+          if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
+          {
+            screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::HOME);
+            return;
+          }
+        #endif
 
         ExtUI::printFile(screen.getSDCardPrintFilename());
         screen.triggerScreenChange(DGUS_Screen::PAUSE);

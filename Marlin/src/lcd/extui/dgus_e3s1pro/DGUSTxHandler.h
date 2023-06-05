@@ -35,7 +35,9 @@ namespace DGUSTxHandler {
   void levelingProgress(DGUS_VP &vp);
   void fanSpeed(DGUS_VP &vp);
   void levelingProgressIcon(DGUS_VP &vp);
-  void filamentInsertionStatus(DGUS_VP &vp);
+  #if HAS_FILAMENT_SENSOR
+    void filamentInsertionStatus(DGUS_VP &vp);
+  #endif
   void sdCardInsertionStatus(DGUS_VP &vp);
 
   template <typename T, T axis>

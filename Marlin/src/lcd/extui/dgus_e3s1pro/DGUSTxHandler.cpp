@@ -66,7 +66,7 @@ void DGUSTxHandler::levelingProgress(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::fanSpeed(DGUS_VP &vp) {
-  const uint16_t data = (uint16_t)ExtUI::getActualFan_percent(ExtUI::FAN0);
+  const int16_t data = (int16_t)ExtUI::getActualFan_percent(ExtUI::FAN0);
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 
@@ -75,10 +75,12 @@ void DGUSTxHandler::levelingProgressIcon(DGUS_VP &vp) {
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 
-void DGUSTxHandler::filamentInsertionStatus(DGUS_VP &vp) {
-  const uint16_t data = ExtUI::getFilamentRunoutState() ? 1 : 0;
-  dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
-}
+#if HAS_FILAMENT_SENSOR
+  void DGUSTxHandler::filamentInsertionStatus(DGUS_VP &vp) {
+    const uint16_t data = ExtUI::getFilamentRunoutState() ? 1 : 0;
+    dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
+  }
+#endif
 
 void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
   const uint16_t data = ExtUI::isMediaInserted() ? 1 : 0;
@@ -87,17 +89,17 @@ void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
 
 #if ENABLED(PIDTEMPBED)
   void DGUSTxHandler::bed_PID_P(DGUS_VP &vp) {
-    const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Kp());
+    const int16_t data = dgus.toFixedPoint<float, int16_t, 2>(ExtUI::getBedPID_Kp());
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 
   void DGUSTxHandler::bed_PID_I(DGUS_VP &vp) {
-    const uint16_t data = dgus.toFixedPoint<float, uint16_t, 2>(ExtUI::getBedPID_Ki());
+    const int16_t data = dgus.toFixedPoint<float, int16_t, 2>(ExtUI::getBedPID_Ki());
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 
   void DGUSTxHandler::bed_PID_D(DGUS_VP &vp) {
-    const uint16_t data = dgus.toFixedPoint<float, uint16_t, 1>(ExtUI::getBedPID_Kd());
+    const int16_t data = dgus.toFixedPoint<float, int16_t, 1>(ExtUI::getBedPID_Kd());
     dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
   }
 #endif // PIDTEMPBED

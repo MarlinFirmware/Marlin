@@ -152,7 +152,7 @@ namespace DGUS_Data {
   };
 
   // 1056
-  enum class AxisIoCommand : uint16_t {
+  enum class FilamentIoCommand : uint16_t {
     FilamentCheck_Yes = 1,
     FilamentCheck_No = 2,
     Show_Ready_IO = 3

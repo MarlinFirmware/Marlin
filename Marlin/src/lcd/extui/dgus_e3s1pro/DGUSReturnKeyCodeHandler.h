@@ -34,7 +34,7 @@ namespace DGUSReturnKeyCodeHandler {
   void Command_SettingsMenu(DGUS_VP &vp, void *data);
   void Command_Leveling(DGUS_VP &vp, void *data);
   void Command_AxisControl(DGUS_VP &vp, void *data);
-  void Command_AxisIO(DGUS_VP &vp, void *data);
+  void Command_FilamentIO(DGUS_VP &vp, void *data);
   void Command_AdvancedSettings(DGUS_VP &vp, void *data);
   void Command_FilelistControl(DGUS_VP &vp, void *data);
   void Command_LaserControl(DGUS_VP &vp, void *data);

@@ -49,12 +49,12 @@ void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data) {
 }
 
 void DGUSRxHandler::extruderTargetTemp(DGUS_VP &vp, void *data) {
-  const_float_t temperature = Endianness::fromBE_P<float>(data);
+  const_float_t temperature = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::H0);
 }
 
 void DGUSRxHandler::bedTargetTemp(DGUS_VP &vp, void *data) {
-  const_float_t temperature = Endianness::fromBE_P<float>(data);
+  const_float_t temperature = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::BED);
 }
 
@@ -76,12 +76,28 @@ void DGUSRxHandler::axis_Z(DGUS_VP &vp, void *data) {
 void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
   const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
+
+  #if HAS_FILAMENT_SENSOR
+  if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
+  {
+    screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+    return;
+  }
+  #endif
   ExtUI::setAxisPosition_mm(currentPosition+length, ExtUI::E0);
 }
 
 void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
   const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
+
+  #if HAS_FILAMENT_SENSOR
+  if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
+  {
+    screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+    return;
+  }
+  #endif
   ExtUI::setAxisPosition_mm(currentPosition-length, ExtUI::E0);
 }
 
@@ -94,7 +110,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
 
 #if ENABLED(PIDTEMPBED)
   void DGUSRxHandler::bed_PID_P(DGUS_VP &vp, void *data) {
-    float pidValue = dgus.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<int16_t, float, 2>(Endianness::fromBE_P<int16_t>(data));
     ExtUI::setBedPID(
       pidValue,
       ExtUI::getBedPID_Ki(),
@@ -103,7 +119,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   }
 
   void DGUSRxHandler::bed_PID_I(DGUS_VP &vp, void *data) {
-    float pidValue = dgus.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<int16_t, float, 2>(Endianness::fromBE_P<int16_t>(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
       pidValue,
@@ -112,7 +128,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   }
 
   void DGUSRxHandler::bed_PID_D(DGUS_VP &vp, void *data) {
-    float pidValue = dgus.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
+    float pidValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
     ExtUI::setBedPID(
       ExtUI::getBedPID_Kp(),
       ExtUI::getBedPID_Ki(),
@@ -122,12 +138,12 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
 #endif // PIDTEMPBED
 
 void DGUSRxHandler::fanSpeed(DGUS_VP &vp, void *data) {
-  const_float_t percentage = Endianness::fromBE_P<uint16_t>(data);
+  const_float_t percentage = dgus.fromFixedPoint<int16_t, float, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetFan_percent(percentage, ExtUI::FAN0);
 }
 
 void DGUSRxHandler::sdCardFileSection(DGUS_VP &vp, void *data) {
-  uint8_t sdFileIndex = Endianness::fromBE_P<uint16_t>(data) - 1;
+  uint8_t sdFileIndex = Endianness::fromBE_P<int16_t>(data) - 1;
 
   #if ENABLED(DGUS_USERCONFIRM)
     if (screen.isOnUserConfirmationScreen()) {

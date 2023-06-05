@@ -33,6 +33,7 @@
 
 #include "../../../gcode/queue.h"
 
+
 DGUSScreenHandler::eeprom_data_t DGUSScreenHandler::config = {};
 uint16_t DGUSScreenHandler::currentMeshPointIndex = 0;
 bool DGUSScreenHandler::isLeveling = false;
@@ -312,6 +313,7 @@ void DGUSScreenHandler::meshUpdate(const int8_t xpos, const int8_t ypos) {
 }
 
 void DGUSScreenHandler::printTimerStarted() {
+  TERN_(HAS_FILAMENT_SENSOR, ExtUI::setFilamentRunoutState(false));
   triggerScreenChange(DGUS_Screen::PAUSE);
 }
 
