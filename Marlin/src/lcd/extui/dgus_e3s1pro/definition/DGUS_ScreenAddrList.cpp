@@ -55,6 +55,28 @@ constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
   DGUS_Addr::END
 };
 
+constexpr DGUS_Addr LIST_PRINTING[] PROGMEM = {
+  DGUS_Addr::MAIN_PrintSpeedPercentage,
+  DGUS_Addr::MAIN_Icon_Percentage,
+  DGUS_Addr::MAIN_ElapsedHours,
+  DGUS_Addr::MAIN_ElapsedMinutes,
+  DGUS_Addr::MAIN_PrintPercentage,
+  DGUS_Addr::MAIN_ZOffset,
+  DGUS_Addr::MAIN_ExtruderTargetTemp,
+  DGUS_Addr::MAIN_ExtruderCurrentTemp,
+  DGUS_Addr::MAIN_BedTargetTemp,
+  DGUS_Addr::MAIN_BedCurrentTemp,
+  DGUS_Addr::MAIN_RemainingHours,
+  DGUS_Addr::MAIN_RemainingMinutes,
+  DGUS_Addr::MAIN_StatusMessage,
+  DGUS_Addr::MENU_Icon_Home,
+  DGUS_Addr::MENU_Icon_Print_S,
+  DGUS_Addr::MENU_Icon_Ready,
+  DGUS_Addr::MENU_Icon_Settings,
+  DGUS_Addr::FINISH_Icon_Finished,
+  DGUS_Addr::END
+};
+
 constexpr DGUS_Addr LIST_RUNOUT[] PROGMEM = {
   DGUS_Addr::RESET_Icon_Yes,
   DGUS_Addr::RUNOUT_Icon_Stop,
@@ -441,10 +463,10 @@ const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
   MAP_HELPER(DGUS_Screen::FILE4,                LIST_SDCARD),
   MAP_HELPER(DGUS_Screen::FILAMENTUSEUP,        LIST_RUNOUT),
   MAP_HELPER(DGUS_Screen::FILAMENTLOAD,         LIST_FILAMENTLOAD),
-  MAP_HELPER(DGUS_Screen::FINISH,               LIST_HOME),
-  MAP_HELPER(DGUS_Screen::PAUSE,                LIST_HOME),
+  MAP_HELPER(DGUS_Screen::FINISH,               LIST_PRINTING),
+  MAP_HELPER(DGUS_Screen::PAUSE,                LIST_PRINTING),
   MAP_HELPER(DGUS_Screen::PAUSE_STOP,           LIST_PAUSE_STOP),
-  MAP_HELPER(DGUS_Screen::RESUME,               LIST_HOME),
+  MAP_HELPER(DGUS_Screen::RESUME,               LIST_PRINTING),
   MAP_HELPER(DGUS_Screen::CONTINUE_STOP,        LIST_CONTINUE_STOP),
   MAP_HELPER(DGUS_Screen::ADJUST,               LIST_ADJUST),
   MAP_HELPER(DGUS_Screen::PREPARE,              LIST_ADJUST_ZOFFSET),
