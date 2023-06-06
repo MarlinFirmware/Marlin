@@ -63,7 +63,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PB1   // BLTouch PWM-OUT PIN (TOUCH pins in the schematic have changed)
+#define SERVO0_PIN                          PB0   // BLTouch PWM-OUT PIN (TOUCH pins in the schematic have changed)
 
 //
 // Limit Switches
@@ -72,14 +72,14 @@
 #define Y_STOP_PIN                          PA6
 
 #if ENABLED(BLTOUCH)
-  #define Z_MIN_PIN                         PB0   // BLTouch IN PIN (TOUCH pins in the schematic have changed)
+  #define Z_MIN_PIN                         PB1   // BLTouch IN PIN (TOUCH pins in the schematic have changed)
   #define Z_MAX_PIN                         PA7
 #else
   #define Z_STOP_PIN                        PA7   // Z-axis limit switch
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB0   // BLTouch IN
+  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN
 #endif
 
 //
