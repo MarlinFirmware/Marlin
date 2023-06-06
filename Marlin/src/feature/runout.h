@@ -50,6 +50,8 @@
   #define HAS_FILAMENT_SWITCH 1
 #endif
 
+typedef Flags<8> runout_flags_t;
+
 void event_filament_runout(const uint8_t extruder);
 
 template<class RESPONSE_T, class SENSOR_T>
@@ -130,39 +132,29 @@ class TFilamentMonitor : public FilamentMonitorBase {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
-        const uint8_t runout_flags = response.has_run_out();
+        const runout_flags_t runout_flags = response.has_run_out();
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
         #if MULTI_FILAMENT_SENSOR
           #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
-            const bool ran_out = !!runout_flags;  // any sensor triggers
+            const bool ran_out = bool(runout_flags);  // any sensor triggers
             uint8_t extruder = 0;
-            if (ran_out) {
-              uint8_t bitmask = runout_flags;
-              while (!(bitmask & 1)) {
-                bitmask >>= 1;
-                extruder++;
-              }
-            }
+            if (ran_out) while (!runout_flags.test(extruder)) extruder++;
           #else
-            const bool ran_out = TEST(runout_flags, active_extruder);  // suppress non active extruders
+            const bool ran_out = runout_flags[active_extruder];  // suppress non active extruders
             uint8_t extruder = active_extruder;
           #endif
         #else
-          const bool ran_out = !!runout_flags;
+          const bool ran_out = bool(runout_flags);
           uint8_t extruder = active_extruder;
         #endif
 
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          if (runout_flags) {
-            SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i = 0; i < 8; ++i) SERIAL_ECHO('0' + TEST(runout_flags, i));
-            SERIAL_ECHOPGM(" -> ", extruder);
-            if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
-            SERIAL_EOL();
-          }
-        #endif
-
         if (ran_out) {
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+            SERIAL_ECHOPGM("Runout Sensors: ");
+            for (uint8_t i = 0; i < 8; ++i) SERIAL_ECHO('0' + char(runout_flags[i]));
+            SERIAL_ECHOLNPGM(" -> ", extruder, " RUN OUT");
+          #endif
+
           filament_ran_out = true;
           event_filament_runout(extruder);
           planner.synchronize();
@@ -387,11 +379,11 @@ class FilamentSensorBase {
         #endif
       }
 
-      static uint8_t has_run_out() {
-        uint8_t runout_flags = 0;
-        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (mm_countdown.runout[i] < 0) SBI(runout_flags, i);
+      static runout_flags_t has_run_out() {
+        runout_flags_t runout_flags{0};
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (mm_countdown.runout[i] < 0) runout_flags.set(i);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) if (mm_countdown.motion[i] < 0) SBI(runout_flags, i);
+          for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) if (mm_countdown.motion[i] < 0) runout_flags.set(i);
         #endif
         return runout_flags;
       }
@@ -439,9 +431,9 @@ class FilamentSensorBase {
         for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (runout_count[i] >= 0) runout_count[i]--;
       }
 
-      static uint8_t has_run_out() {
-        uint8_t runout_flags = 0;
-        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (runout_count[i] < 0) SBI(runout_flags, i);
+      static runout_flags_t has_run_out() {
+        runout_flags_t runout_flags{0};
+        for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (runout_count[i] < 0) runout_flags.set(i);
         return runout_flags;
       }
 
