@@ -1611,7 +1611,7 @@ void MarlinUI::init() {
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
     TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
+    TERN_(DWIN_CREALITY_LCD_JYERSUI, crealityDWIN.updateStatus(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
