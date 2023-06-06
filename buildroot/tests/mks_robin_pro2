@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Build tests for mks_robin_pro2 (STM32F407VE)
+#
+
+# exit on first failure
+set -e
+
+#
+# Robin Pro v2 with LVGL TFT
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_ROBIN_PRO_V2 SERIAL_PORT 1
+opt_enable SDSUPPORT USB_FLASH_DRIVE_SUPPORT USE_OTG_USB_HOST MULTI_VOLUME \
+           TFT_GENERIC TFT_INTERFACE_SPI TFT_RES_480x320 TFT_LVGL_UI TOUCH_SCREEN \
+           BLTOUCH Z_SAFE_HOMING LCD_BED_TRAMMING BED_TRAMMING_USE_PROBE
+exec_test $1 $2 "MKS Robin Pro v2 | TFT_LVGL_UI | SD/FD Multi-Volume" "$3"
+
+# cleanup
+restore_configs

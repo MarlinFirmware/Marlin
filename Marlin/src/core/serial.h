@@ -292,7 +292,7 @@ inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, di
 
 #define SERIAL_ECHO_SP(C)             serial_spaces(C)
 
-#define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, F(PRE), F(ON), F(OFF), F(POST))
+#define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(F(PRE), TF, F(ON), F(OFF), F(POST))
 
 #if SERIAL_FLOAT_PRECISION
   #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
@@ -327,7 +327,7 @@ inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP
 
 void serial_echo_start();
 void serial_error_start();
-inline void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
+inline void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
   if (pre) serial_print(pre);
   if (onoff && on) serial_print(on);
   if (!onoff && off) serial_print(off);

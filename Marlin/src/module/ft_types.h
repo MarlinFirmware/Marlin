@@ -26,14 +26,14 @@
 typedef enum FXDTICtrlMode : uint8_t {
   ftMotionMode_DISABLED   =  0U,
   ftMotionMode_ENABLED    =  1U,
-  ftMotionMode_ULENDO_FBS =  2U,
+  //ftMotionMode_ULENDO_FBS = 2U,
   ftMotionMode_ZV         = 10U,
   ftMotionMode_ZVD        = 11U,
   ftMotionMode_EI         = 12U,
   ftMotionMode_2HEI       = 13U,
   ftMotionMode_3HEI       = 14U,
   ftMotionMode_MZV        = 15U,
-  ftMotionMode_DISCTF     = 20U
+  //ftMotionMode_DISCTF   = 20U
 } ftMotionMode_t;
 
 enum dynFreqMode_t : uint8_t {

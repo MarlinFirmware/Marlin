@@ -125,7 +125,7 @@ void BedMeshViewScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI
       mydata.count = 0;
       break;
     case ExtUI::G29_FINISH:
-      if (mydata.count == GRID_MAX_POINTS && ExtUI::getMeshValid())
+      if (mydata.count == GRID_MAX_POINTS && ExtUI::getLevelingIsValid())
         mydata.message = GET_TEXT_F(MSG_BED_MAPPING_DONE);
       else
         mydata.message = GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE);

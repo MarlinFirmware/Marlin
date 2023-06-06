@@ -133,7 +133,7 @@
   #define LCD_BACKLIGHT_PIN                   17  // LCD backlight LED
 #endif
 
-#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
+#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
   #define CASE_LIGHT_PIN                       4  // Hardware PWM  - see if IO Header is available
 #endif
 
@@ -270,10 +270,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
 
-    #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   11
 
   #elif !MB(MELZI)                                // use X stepper motor socket

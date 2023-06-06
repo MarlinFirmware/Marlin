@@ -102,7 +102,7 @@ namespace Language_fi {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Tallenna muistiin");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Lataa muistista");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Palauta oletus");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Päivitä");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Päivitä");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Seuraa");
   LSTR MSG_PREPARE                        = _UxGT("Valmistele");
   LSTR MSG_TUNE                           = _UxGT("Säädä");
