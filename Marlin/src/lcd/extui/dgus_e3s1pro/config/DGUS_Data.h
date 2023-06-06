@@ -50,12 +50,7 @@ namespace DGUS_Data {
     ru = Russian,
     tr = Turkish,
 
-    Default =
-      #ifdef DGUS_E3S1PRO_LANGUAGE
-        DGUS_E3S1PRO_LANGUAGE
-      #else
-        LCD_LANGUAGE
-      #endif
+    Default = LCD_LANGUAGE
   };
 
   // 1002
