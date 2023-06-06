@@ -38,8 +38,8 @@ uint8_t databuf[26] = { 0 };
 // Send the data in the buffer plus the packet tail
 void DWIN_Send(size_t &i) {
   ++i;
-  LOOP_L_N(n, i) { LCD_SERIAL.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
-  LOOP_L_N(n, 4) { LCD_SERIAL.write(DWIN_BufTail[n]); delayMicroseconds(1); }
+  for (uint8_t n = 0; n < i; ++n) { LCD_SERIAL.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
+  for (uint8_t n = 0; n < 4; ++n) { LCD_SERIAL.write(DWIN_BufTail[n]); delayMicroseconds(1); }
 }
 
 /*-------------------------------------- System variable function --------------------------------------*/

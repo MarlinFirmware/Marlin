@@ -92,9 +92,9 @@ namespace Language_da {
   LSTR MSG_FAN_SPEED                      = _UxGT("Blæser hastighed");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser hastighed ~");
   LSTR MSG_CONTROL                        = _UxGT("Kontrol");
-  LSTR MSG_MIN                            = _UxGT(" \002 Min");
-  LSTR MSG_MAX                            = _UxGT(" \002 Max");
-  LSTR MSG_FACTOR                         = _UxGT(" \002 Fact");
+  LSTR MSG_MIN                            = " " LCD_STR_THERMOMETER _UxGT(" Min");
+  LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
+  LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fact");
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Til");
   LSTR MSG_LCD_OFF                        = _UxGT("Fra");
@@ -111,7 +111,7 @@ namespace Language_da {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Gem i EEPROM");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Hent fra EEPROM");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Gendan Defaults");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Genopfrisk");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Genopfrisk");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info skærm");
   LSTR MSG_PREPARE                        = _UxGT("Forbered");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pause printet");

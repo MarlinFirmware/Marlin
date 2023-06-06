@@ -298,10 +298,10 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
           v = color;
         else
           v = TFT_MARLINBG_COLOR;
-        LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = v;
+        for (uint8_t n = 0; n < GRAPHICAL_TFT_UPSCALE; ++n) buffer[k++] = v;
       }
       #if HAS_LCD_IO
-        LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
+        for (uint8_t n = 1; n < GRAPHICAL_TFT_UPSCALE; ++n)
           for (uint16_t l = 0; l < UPSCALE0(length); l++)
             buffer[l + n * UPSCALE0(length)] = buffer[l];
 
@@ -412,16 +412,16 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
-      LOOP_L_N(y, PAGE_HEIGHT) {
+      for (uint8_t y = 0; y < PAGE_HEIGHT; ++y) {
         uint32_t k = 0;
         TERN_(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
-          LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = c;
+          for (uint8_t n = 0; n < GRAPHICAL_TFT_UPSCALE; ++n) buffer[k++] = c;
         }
         #if HAS_LCD_IO
-          LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
+          for (uint8_t n = 1; n < GRAPHICAL_TFT_UPSCALE; ++n)
             for (uint16_t l = 0; l < UPSCALE0(WIDTH); l++)
               buffer[l + n * UPSCALE0(WIDTH)] = buffer[l];
 
@@ -429,7 +429,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         #else
           uint8_t *bufptr = (uint8_t*) buffer;
           for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
-            LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
+            for (uint8_t n = 0; n < GRAPHICAL_TFT_UPSCALE * 2; ++n) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);
             }
           }

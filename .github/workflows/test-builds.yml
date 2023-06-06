@@ -39,11 +39,11 @@ jobs:
 
         # AVR
         - mega2560
+        - mega1280
         - at90usb1286_dfu
 
         # AVR Extended
         - FYSETC_F6
-        - mega1280
         - melzi_optiboot
         - rambo
         - sanguino1284p
@@ -105,10 +105,12 @@ jobs:
         - FYSETC_S6
         - LERDGEK
         - LERDGEX
+        - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32
         - STM32F401RC_creality
         - STM32F407VE_black
+        - I3DBEEZ9_V1
 
         # STM32F7
         - NUCLEO_F767ZI

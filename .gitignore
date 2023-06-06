@@ -25,6 +25,8 @@ bdf2u8g.exe
 genpages.exe
 marlin_config.json
 mczip.h
+language*.csv
+csv-out/
 *.gen
 *.sublime-workspace
 

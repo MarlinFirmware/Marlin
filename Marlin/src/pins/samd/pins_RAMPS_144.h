@@ -155,8 +155,8 @@
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
   #if !NUM_SERVOS                                 // Use servo connector if possible
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                    5
   #else
     #error "No auto-assignable Spindle/Laser pins available."
@@ -276,7 +276,7 @@
     //#define LCD_PINS_EN                     51  // SID (MOSI)
     //#define LCD_PINS_D4                     52  // SCK (CLK) clock
 
-  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
+  #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS                     40
@@ -312,7 +312,7 @@
 
     #else
 
-      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         // TO TEST
         //#define LCD_PINS_DC                 25  // Set as output on init
         //#define LCD_PINS_RS                 27  // Pull low for 1s to init
@@ -406,7 +406,7 @@
       //#define LCD_SDSS                    SDSS
       //#define SD_DETECT_PIN                 49
 
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       // TO TEST
       //#define DOGLCD_CS                     45
@@ -442,7 +442,7 @@
       //#define SD_DETECT_PIN                 49
       //#define KILL_PIN                      41
 
-    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
+    #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
       // TO TEST
       //#define BEEPER_PIN                    37
@@ -483,7 +483,7 @@
 
         //#define LCD_RESET_PIN               23  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             // TO TEST
             //#define RGB_LED_R_PIN           25
