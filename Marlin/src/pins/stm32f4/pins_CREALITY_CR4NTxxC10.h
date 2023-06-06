@@ -189,6 +189,10 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                  // This board's SD is only seen by the printer
 
+#if !AXIS_DRIVER_TYPE_X(TMC2209) || !AXIS_DRIVER_TYPE_Y(TMC2209) || !AXIS_DRIVER_TYPE_Z(TMC2209) || !AXIS_DRIVER_TYPE_E0(TMC2209)
+  #error "This board have soldered TMC2209 drivers for X,Y,Z,E0"
+#endif
+
 #if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
 #endif
