@@ -3362,7 +3362,7 @@ void Draw_Tune_Menu() {
       FanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, SetFanSpeed, &thermalManager.fan_speed[0]);
     #endif
     #if HAS_ZOFFSET_ITEM
-      #if BOTH(MESH_BED_LEVELING, BABYSTEPPING)
+      #if ALL(MESH_BED_LEVELING, BABYSTEPPING)
         EDIT_ITEM(ICON_Zoffset, MSG_HOME_OFFSET_Z, onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
       #elif HAS_BABYSTEP
         EDIT_ITEM(ICON_Zoffset, MSG_ZPROBE_ZOFFSET, onDrawZOffset, SetZOffset, &BABY_Z_VAR);
