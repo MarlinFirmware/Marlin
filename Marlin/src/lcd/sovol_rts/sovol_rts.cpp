@@ -91,7 +91,7 @@ bool pause_action_flag = false;
 bool pause_flag = false;
 bool power_off_type_yes = false;
 
-bool update_sd = false;  // flag to update the file list
+bool update_sd = false;  // Flag to update the file list
 
 #if HAS_HOTEND
   int16_t last_target_temperature[1] = { 0 };
@@ -171,7 +171,7 @@ void RTS::sdCardInit() {
       sendData(0, cardRec.addr[j]);
     }
     for (uint8_t j = 0; j < 20; j++) {
-      // Clean print file 清除打印界面中显示的文件名
+      // Clear the file name displayed in the print interface
       sendData(0, PRINT_FILE_TEXT_VP + j);
     }
     lcd_sd_status = IS_SD_INSERTED();
@@ -230,7 +230,7 @@ void RTS::sdCardUpdate() {
     lcd_sd_status = sd_status;
   }
 
-  // represents to update file list
+  // Represents to update file list
   if (update_sd && lcd_sd_status && sdDetected()) {
     for (uint16_t i = 0; i < cardRec.Filesum; i++) {
       delay(1);
@@ -249,14 +249,14 @@ void RTS::init() {
     int8_t inStart, inStop, inInc, showcount;
     showcount = 0;
     for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-      // away from origin
+      // Away from origin
       if (zig) {
         inStart = 0;
         inStop = GRID_MAX_POINTS_X;
         inInc = 1;
       }
       else {
-        // towards origin
+        // Towards origin
         inStart = GRID_MAX_POINTS_X - 1;
         inStop = -1;
         inInc = -1;
@@ -286,7 +286,7 @@ void RTS::init() {
   updateTempBed();
 
   /***************transmit Fan speed to screen*****************/
-  // turn off fans
+  // Turn off fans
   thermalManager.zero_fan_speeds();
   //queue.enqueue_now(F("M107"));
   //sendData(1, HEAD0_FAN_ICON_VP);
@@ -328,7 +328,7 @@ int16_t RTS::receiveData() {
       }
       else if (frame_index != 0) {
         frame_index++;
-        // 一帧数据提取完毕，剩余的串口数据下次进入这个函数会在处理
+        // After a frame of data is extracted, the remaining serial data will be processed next time the function will be processed
         if (frame_index == (framelen + 3)) {
           frame_flag = true;
           break;
@@ -339,7 +339,7 @@ int16_t RTS::receiveData() {
       timeout++;
       delay(1);
     }
-  } while (timeout < 50); // 超时函数
+  } while (timeout < 50); // Timeout function
 
   if (frame_flag) {
     recdat.head[0] = databuf[0];
@@ -351,7 +351,7 @@ int16_t RTS::receiveData() {
   else
     return -1;
 
-  // response for writing byte
+  // Response for writing byte
   if (recdat.len == 0x03
     && (recdat.command == 0x82 || recdat.command == 0x80)
     && databuf[4] == 0x4F && databuf[5] == 0x4B
@@ -361,7 +361,7 @@ int16_t RTS::receiveData() {
     return -1;
   }
   else if (recdat.command == 0x83) {
-    // response for reading the data from the variate
+    // Response for reading the data from the variate
     recdat.addr = databuf[4];
     recdat.addr = (recdat.addr << 8) | databuf[5];
     recdat.bytelen = databuf[6];
@@ -371,7 +371,7 @@ int16_t RTS::receiveData() {
     }
   }
   else if (recdat.command == 0x81) {
-    // response for reading the page from the register
+    // Response for reading the page from the register
     recdat.addr = databuf[4];
     recdat.bytelen = databuf[5];
     for (uint16_t i = 0; i < recdat.bytelen; i++) {
@@ -382,7 +382,7 @@ int16_t RTS::receiveData() {
   else {
     ZERO(databuf);
     recnum = 0;
-    // receive the wrong data
+    // Receive the wrong data
     return -1;
   }
   ZERO(databuf);
@@ -397,19 +397,19 @@ void RTS::sendData() {
     databuf[1] = snddat.head[1];
     databuf[2] = snddat.len;
     databuf[3] = snddat.command;
-    // to write data to the register
+    // To write data to the register
     if (snddat.command == 0x80) {
       databuf[4] = snddat.addr;
       for (uint16_t i = 0; i < snddat.len - 2; i++)
         databuf[5 + i] = snddat.data[i];
     }
     else if (snddat.len == 3 && snddat.command == 0x81) {
-      // to read data from the register
+      // To read data from the register
       databuf[4] = snddat.addr;
       databuf[5] = snddat.bytelen;
     }
     else if (snddat.command == 0x82) {
-      // to write data to the variate
+      // To write data to the variate
       databuf[4] = snddat.addr >> 8;
       databuf[5] = snddat.addr & 0xFF;
       for (uint16_t i = 0; i < snddat.len - 3; i += 2) {
@@ -418,7 +418,7 @@ void RTS::sendData() {
       }
     }
     else if (snddat.len == 4 && snddat.command == 0x83) {
-      // to read data from the variate
+      // To read data from the variate
       databuf[4] = snddat.addr >> 8;
       databuf[5] = snddat.addr & 0xFF;
       databuf[6] = snddat.bytelen;
@@ -530,7 +530,7 @@ void RTS::sdCardStop() {
     queue.inject(F(EVENT_GCODE_SD_STOP));
   #endif
 
-  // shut down the stepper motor.
+  // Shut down the stepper motor.
   //queue.enqueue_now(F("M84"));
   sendData(0, MOTOR_FREE_ICON_VP);
 
@@ -545,7 +545,7 @@ void RTS::sdCardStop() {
 
 void RTS::handleData() {
   int16_t checkKey = -1;
-  // for waiting
+  // For waiting
   if (waitway > 0) {
     memset(&recdat, 0, sizeof(recdat));
     recdat.head[0] = FHONE;
@@ -567,8 +567,8 @@ void RTS::handleData() {
   }
 
   switch (checkKey) {
-    case MainPageKey: //首页
-      if (recdat.data[0] == 1) { //选择打印文件
+    case MainPageKey: // Front page
+      if (recdat.data[0] == 1) { // Select print file
         update_sd = true;
         cardRec.recordcount = -1;
         if (card.flag.mounted) {
@@ -578,7 +578,7 @@ void RTS::handleData() {
         else
           gotoPage(47, 102);
       }
-      else if (recdat.data[0] == 2) { //完成打印
+      else if (recdat.data[0] == 2) { // Complete printing
         waitway = 7;
         card.flag.abort_sd_printing = true;
         quickstop_stepper();
@@ -595,17 +595,17 @@ void RTS::handleData() {
 
         change_page_number = 1;
       }
-      else if (recdat.data[0] == 3) { //进入调平界面
+      else if (recdat.data[0] == 3) { // Enter the tone interface
         waitway = 6;
         queue.enqueue_now(F("G28\nG1 F200 Z0.0"));
         updateFan0();
         sendData(1, Wait_VP);
         gotoPage(32, 87);
       }
-      else if (recdat.data[0] == 4) { //进入设置界面
+      else if (recdat.data[0] == 4) { // Enter the settings interface
         gotoPage(21, 76);
       }
-      else if (recdat.data[0] == 5) { //进入温度界面
+      else if (recdat.data[0] == 5) { // Enter the temperature interface
         updateFan0();
         gotoPage(15, 70);
       }
@@ -625,13 +625,13 @@ void RTS::handleData() {
       }
       break;
 
-    case AdjustmentKey:  //调整界面
-      if (recdat.data[0] == 1) { //进入调整界面
+    case AdjustmentKey:  // Adjust the interface
+      if (recdat.data[0] == 1) { // Enter the adjustment interface
         updateFan0();
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
         gotoPage(28, 83);
       }
-      else if (recdat.data[0] == 2) { //返回打印界面
+      else if (recdat.data[0] == 2) { // Return to print interface
         if (start_print_flag) {
           gotoPage(10, 65);
         }
@@ -649,18 +649,18 @@ void RTS::handleData() {
       }
       break;
 
-    case FanSpeedKey: // 设置风扇速度
+    case FanSpeedKey: // Set fan speed
       fan_speed = recdat.data[0];
       thermalManager.set_fan_speed(0, fan_speed);
       updateFan0();
       break;
 
-    case PrintSpeedKey: // 设置打印速度
+    case PrintSpeedKey: // Set the print speed
       feedrate_percentage = recdat.data[0];
       sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
       break;
 
-    case StopPrintKey: // 停止打印
+    case StopPrintKey: // Stop printing
       if ((recdat.data[0] == 1) || (recdat.data[0] == 0xF1)) {
         sendData(1, Wait_VP);
         gotoPage(40, 95);
@@ -684,13 +684,13 @@ void RTS::handleData() {
       }
       break;
 
-    case PausePrintKey: // 暂停打印
+    case PausePrintKey: // Suspend printing
       if (recdat.data[0] == 0xF0) break;
 
       if (recdat.data[0] == 0xF1) {
         sendData(1, Wait_VP);
         gotoPage(40, 95);
-        // reject to receive cmd
+        // Reject to receive cmd
         change_page_number = 12;
         waitway = 1;
         card.pauseSDPrint();
@@ -702,8 +702,8 @@ void RTS::handleData() {
       }
       break;
 
-    case ResumePrintKey: // 恢复打印
-      if (recdat.data[0] == 1) { // 暂停恢复打印
+    case ResumePrintKey: // Restore printing
+      if (recdat.data[0] == 1) { // Portal restoration printing
         if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(39, 94);
         //sendData(1, Wait_VP);
         //gotoPage(40, 95);
@@ -734,7 +734,7 @@ void RTS::handleData() {
           }
         #endif
       }
-      else if (recdat.data[0] == 3) { // 断电续打恢复打印
+      else if (recdat.data[0] == 3) { // Electricity disconnection is restored to print
         if (poweroff_continue) {
           #if ENABLED(CHECKFILAMENT)
             sendData(runout.filament_ran_out ? 0 : 1, CHANGE_FILAMENT_ICON_VP);
@@ -766,7 +766,7 @@ void RTS::handleData() {
           sdcard_pause_check = true;
         }
       }
-      else if (recdat.data[0] == 4) { //拔卡恢复打印
+      else if (recdat.data[0] == 4) { // Card withdrawing to print
         if (!card.flag.mounted) {
           update_sd = true;
           sdCardUpdate();
@@ -790,23 +790,23 @@ void RTS::handleData() {
       }
       break;
 
-    case CoolScreenKey: // 温度界面
-      if (recdat.data[0] == 1) { // PLA 预热
+    case CoolScreenKey: // Temperature interface
+      if (recdat.data[0] == 1) { // PLA Preheat
         thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
         updateTempE0();
         thermalManager.setTargetBed(PREHEAT_1_TEMP_BED);
         updateTempBed();
       }
-      else if (recdat.data[0] == 2) { // ABS预热
+      else if (recdat.data[0] == 2) { // ABS Preheat
         thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
         updateTempE0();
         thermalManager.setTargetBed(PREHEAT_2_TEMP_BED);
         updateTempBed();
       }
-      else if (recdat.data[0] == 3) { // 返回主界面
+      else if (recdat.data[0] == 3) { // Back to Home page
         gotoPage(1, 56);
       }
-      else if (recdat.data[0] == 0xF1) { // 冷却
+      else if (recdat.data[0] == 0xF1) { // Cool down
         #if FAN_COUNT > 0
           FANS_LOOP(i) thermalManager.set_fan_speed(i, 255);
         #endif
@@ -844,7 +844,7 @@ void RTS::handleData() {
       filament_load_0 = float(recdat.data[0]) / 10.0f;
       break;
 
-    case AxisPageSelectKey: // 移动轴界面
+    case AxisPageSelectKey: // Mobile shaft interface
       switch (recdat.data[0]) {
         case 1:
           AxisUnitMode = 1;
@@ -876,7 +876,7 @@ void RTS::handleData() {
       }
       break;
 
-    case SettingScreenKey: // 设置界面
+    case SettingScreenKey: // Set interface
       switch (recdat.data[0]) {
         #if HAS_HOTEND
           case 2: // Go to Reload Filament
@@ -901,19 +901,19 @@ void RTS::handleData() {
           gotoPage(49, 104);
           break;
 
-        case 5: // information
+        case 5: // Information
           sendPrinterInfo();
           sendData(MARLINVERSION, MARLIN_VERSION_TEXT_VP);
           gotoPage(33, 88);
           break;
 
-        case 7: // return
+        case 7: // Return
           gotoPage(1, 56);
           break;
       }
       break;
 
-    case SettingBackKey: // 调节界面返回按键
+    case SettingBackKey: // Adjust interface Return button
       if (recdat.data[0] == 1) {
         update_time_value = RTS_UPDATE_VALUE;
         //settings.save();
@@ -926,8 +926,8 @@ void RTS::handleData() {
       }
       break;
 
-    case BedLevelFunKey: // 调平界面
-      if (recdat.data[0] == 1) { // 保存按钮
+    case BedLevelFunKey: // Leveling interface
+      if (recdat.data[0] == 1) { // Save the button
         settings.save();
         waitway = 6;
         queue.enqueue_now(F("G28Z\nG1 F200 Z0.0"));
@@ -943,7 +943,7 @@ void RTS::handleData() {
         #endif
       }
 
-      if (recdat.data[0] == 11) settings.save(); // 调整界面保存
+      if (recdat.data[0] == 11) settings.save(); // Adjust interface saving
 
       sendData(0, MOTOR_FREE_ICON_VP);
       break;
@@ -984,7 +984,7 @@ void RTS::handleData() {
       } break;
     #endif
 
-    case FilamentLoadKey: // 换料
+    case FilamentLoadKey: // Change
       switch (recdat.data[0]) {
         case 1:
           if (planner.has_blocks_queued()) break;
@@ -1068,7 +1068,7 @@ void RTS::handleData() {
       }
       break;
 
-    case PowerContinuePrintKey: // 断电续打
+    case PowerContinuePrintKey: // Power off
       switch (recdat.data[0]) {
         case 1:
           if (!poweroff_continue) break;
@@ -1131,7 +1131,7 @@ void RTS::handleData() {
       sendData(1, FILE1_SELECT_ICON_VP + (recdat.data[0] - 1));
       break;
 
-    case PrintFileKey: // 打印文件列表
+    case PrintFileKey: // List of print files
       switch (recdat.data[0]) {
         case 1: {
           if (!sdDetected()) break;
@@ -1189,7 +1189,7 @@ void RTS::handleData() {
       }
       break;
 
-    case StoreMemoryKey: // 初始化
+    case StoreMemoryKey: // Initialization
       if (recdat.data[0] == 0xF1) {
         settings.init_eeprom();
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1197,14 +1197,14 @@ void RTS::handleData() {
           int8_t inStart, inStop, inInc, showcount;
           showcount = 0;
           for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-            // away from origin
+            // Away from origin
             if (zig) {
               inStart = 0;
               inStop = GRID_MAX_POINTS_X;
               inInc = 1;
             }
             else {
-              // towards origin
+              // Towards origin
               inStart = GRID_MAX_POINTS_X - 1;
               inStop = -1;
               inInc = -1;
@@ -1227,7 +1227,7 @@ void RTS::handleData() {
       }
       break;
 
-    case AdvancedKey: // 高级设置界面
+    case AdvancedKey: // Advanced setting interface
       switch (recdat.data[0]) {
         case 1: { // PID
           #if ENABLED(PIDTEMP)
@@ -1251,7 +1251,7 @@ void RTS::handleData() {
           gotoPage(41, 96);
         } break;
 
-        case 2: // 速度
+        case 2: // Speed
           TERN_(HAS_X_AXIS, sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
           TERN_(HAS_Y_AXIS, sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
           TERN_(HAS_Z_AXIS, sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
@@ -1259,7 +1259,7 @@ void RTS::handleData() {
           gotoPage(25, 80);
           break;
 
-        case 3: // 加速度
+        case 3: // Acceleration
           sendData(planner.settings.acceleration, Accel_VP);
           sendData(planner.settings.travel_acceleration, A_Travel_VP);
 
@@ -1291,10 +1291,10 @@ void RTS::handleData() {
           gotoPage(37, 92);
           break;
 
-        case 6: gotoPage(21, 76); break;  // 返回
+        case 6: gotoPage(21, 76); break;  // Return
 
         #if ENABLED(LIN_ADVANCE)
-          case 7: // 确认
+          case 7: // Confirm
             sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
             gotoPage(18, 73);
             break;
@@ -1303,7 +1303,7 @@ void RTS::handleData() {
         case 8: gotoPage(113, 119); break;  // TMC
 
         #if ENABLED(EEPROM_SETTINGS)
-          case 9: settings.save(); break;     // 保存
+          case 9: settings.save(); break;   // Save Settings
         #endif
       break;
 
@@ -1361,7 +1361,7 @@ void RTS::handleData() {
     case AdvancedBackKey: gotoPage(18, 73); break;
 
     #if HAS_FILAMENT_SENSOR
-      case FilamentChange: // 自动换料
+      case FilamentChange: // Automatic material
         switch (recdat.data[0]) {
           case 1: if (runout.filament_ran_out) break;
           case 2:
@@ -1514,7 +1514,7 @@ void RTS::handleData() {
 
       sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
 
-      // represents to update file list
+      // Represents to update file list
       if (update_sd && lcd_sd_status && IS_SD_INSERTED()) {
         for (uint16_t i = 0; i < cardRec.Filesum; i++) {
           delay(3);
@@ -1582,7 +1582,7 @@ void RTS::onIdle() {
   const millis_t ms = millis();
   if (PENDING(ms, next_rts_update_ms)) break;
 
-  // print the file before the power is off.
+  // Print the file before the power is off.
   if (!power_off_type_yes) {
     if (!poweroff_continue || (lcd_sd_status && poweroff_continue)) {
       sendData(ExchangePageBase, ExchangepageAddr);
@@ -1679,7 +1679,7 @@ void RTS::onIdle() {
   #endif
 }
 
-// looping at the loop function
+// Looping at the loop function
 void RTS_Update() {
   // Check the status of card
   rts.sdCardUpdate();
@@ -1690,15 +1690,15 @@ void RTS_Update() {
   if (!card_insert_st && sd_printing) {
     rts.gotoPage(46, 101);
     rts.sendData(0, CHANGE_SDCARD_ICON_VP);
-    // 暂停打印，使得喷头可以回到零点
+    // Passenger printing so that the nozzle can return to zero
     card.pauseSDPrint();
     print_job_timer.pause();
     pause_action_flag = true;
     sdcard_pause_check = false;
   }
-  // 更新拔卡和插卡提示图标
+  // Update the card withdrawal and card tips icon
   if (last_card_insert_st != card_insert_st) {
-    // 当前页面显示为拔卡提示页面，但卡已经插入了，更新插卡图标
+    // The current page is displayed as a card removal page, but the card has been inserted, and the card icon is updated.
     rts.sendData(int16_t(card_insert_st), CHANGE_SDCARD_ICON_VP);
     last_card_insert_st = card_insert_st;
   }
@@ -1728,7 +1728,7 @@ void RTS_Update() {
 
   rts.onIdle();
 
-  // wait to receive massage and response
+  // Wait to receive massage and response
   while (rts.receiveData() > 0) rts.handleData();
 }
 
