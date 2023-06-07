@@ -2387,7 +2387,7 @@ void prepare_line_to_destination() {
 
     #endif
 
-    #if BOTH(BD_SENSOR, HOMING_Z_WITH_PROBE)
+    #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
       if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
