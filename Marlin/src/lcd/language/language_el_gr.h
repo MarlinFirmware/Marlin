@@ -147,7 +147,7 @@ namespace Language_el_gr {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Αποθήκευση");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Φόρτωση");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Ανανέωση");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Ανανέωση");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Οθόνη πληροφόρησης");
   LSTR MSG_PREPARE                        = _UxGT("Προετοιμασία");
   LSTR MSG_TUNE                           = _UxGT("Συντονισμός");

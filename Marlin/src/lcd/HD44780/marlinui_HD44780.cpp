@@ -41,12 +41,12 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+#if DISABLED(LCD_PROGRESS_BAR) && ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
 
-#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+#if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -70,7 +70,7 @@
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
 
-#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+#elif ANY(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
@@ -130,7 +130,7 @@
 
 static void createChar_P(const char c, const byte * const ptr) {
   byte temp[8];
-  LOOP_L_N(i, 8)
+  for (uint8_t i = 0; i < 8; ++i)
     temp[i] = pgm_read_byte(&ptr[i]);
   lcd.createChar(c, temp);
 }
@@ -305,7 +305,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if BOTH(HAS_MEDIA, HAS_MARLINUI_MENU)
+  #if ALL(HAS_MEDIA, HAS_MARLINUI_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -355,7 +355,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if BOTH(HAS_MEDIA, HAS_MARLINUI_MENU)
+          #if ALL(HAS_MEDIA, HAS_MARLINUI_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -440,7 +440,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     else {
       PGM_P p = FTOP(ftxt);
       int dly = time / _MAX(slen, 1);
-      LOOP_LE_N(i, slen) {
+      for (uint8_t i = 0; i <= slen; ++i) {
 
         // Print the text at the correct place
         lcd_put_u8str_max_P(col, line, p, len);
@@ -713,7 +713,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (progress > 2) return draw_progress_bar(progress);
     }
 
-  #elif BOTH(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+  #elif ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
@@ -973,20 +973,20 @@ void MarlinUI::draw_status_screen() {
 
             // Two-component mix / gradient instead of XY
 
-            char mixer_messages[12];
-            const char *mix_label;
+            char mixer_messages[15];
+            PGM_P mix_label;
             #if ENABLED(GRADIENT_MIX)
               if (mixer.gradient.enabled) {
                 mixer.update_mix_from_gradient();
-                mix_label = "Gr";
+                mix_label = PSTR("Gr");
               }
               else
             #endif
               {
                 mixer.update_mix_from_vtool();
-                mix_label = "Mx";
+                mix_label = PSTR("Mx");
               }
-            sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+            sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
             lcd_put_u8str(mixer_messages);
 
           #else // !HAS_DUAL_MIXING
@@ -1046,7 +1046,7 @@ void MarlinUI::draw_status_screen() {
           uint16_t per;
           #if HAS_FAN0
             if (true
-              #if BOTH(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
+              #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
                 && (blink || thermalManager.fan_speed_scaler[0] < 128)
               #endif
             ) {

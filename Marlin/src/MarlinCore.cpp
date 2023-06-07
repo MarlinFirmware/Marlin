@@ -201,7 +201,7 @@
   #include "feature/runout.h"
 #endif
 
-#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+#if ANY(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "module/probe.h"
 #endif
 
@@ -323,7 +323,7 @@ bool pin_is_protected(const pin_t pin) {
     static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
     static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
   #endif
-  LOOP_L_N(i, pincount) {
+  for (uint8_t i = 0; i < pincount; ++i) {
     const pin_t * const pptr = &sensitive_pins[i];
     if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
   }
@@ -395,7 +395,7 @@ void startOrResumeJob() {
     if (queue.enqueue_one(F("M1001"))) {  // Keep trying until it gets queued
       marlin_state = MF_RUNNING;          // Signal to stop trying
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
-      TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
+      TERN_(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
     }
   }
 
@@ -728,7 +728,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 }
 
-#if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+#if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
   #include "feature/babystep.h"
 #endif
 
@@ -802,7 +802,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
     if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
-      LOOP_L_N(i, 4) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
+      for (uint8_t i = 0; i < 4; ++i) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
   // Handle SD Card insert / remove
@@ -861,7 +861,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(POLL_JOG, joystick.inject_jog_moves());
 
   // Async Babystepping via the Emergency Parser
-  #if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+  #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
     babystep.do_ep_steps();
   #endif
 
@@ -932,7 +932,7 @@ void minkill(const bool steppers_off/*=false*/) {
 
   TERN_(HAS_SUICIDE, suicide());
 
-  #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
+  #if ANY(HAS_KILL, SOFT_RESET_ON_KILL)
 
     // Wait for both KILL and ENC to be released
     while (TERN0(HAS_KILL, kill_state()) || TERN0(SOFT_RESET_ON_KILL, ui.button_pressed()))
@@ -961,7 +961,7 @@ void stop() {
 
   print_job_timer.stop();
 
-  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+  #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
@@ -1332,14 +1332,14 @@ void setup() {
     #endif
   #endif
 
-  #if BOTH(HAS_MEDIA, SDCARD_EEPROM_EMULATION)
+  #if ALL(HAS_MEDIA, SDCARD_EEPROM_EMULATION)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+  #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
     const millis_t bootscreen_ms = millis();
   #endif
@@ -1414,7 +1414,7 @@ void setup() {
     SETUP_RUN(stepper_dac.init());
   #endif
 
-  #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
+  #if ANY(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
     OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
@@ -1624,7 +1624,7 @@ void setup() {
     SETUP_RUN(tft_lvgl_init());
   #endif
 
-  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+  #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     const millis_t elapsed = millis() - bootscreen_ms;
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPGM("elapsed=", elapsed);
@@ -1636,7 +1636,7 @@ void setup() {
     SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
-  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
+  #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION) && ANY(TFT_CLASSIC_UI, TFT_COLOR_UI)
     SETUP_RUN(ui.check_touch_calibration());
   #endif
 
@@ -1693,7 +1693,7 @@ void loop() {
 
     queue.advance();
 
-    #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+    #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
       powerManager.checkAutoPowerOff();
     #endif
 

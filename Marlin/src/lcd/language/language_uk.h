@@ -480,7 +480,7 @@ namespace Language_uk {
   LSTR MSG_POWER                            = _UxGT("Потужність");
   LSTR MSG_START_PRINT                      = _UxGT("Почати друк");
 
-  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі");  //short text for buttons
+  LSTR MSG_BUTTON_NEXT                      = _UxGT("Далі"); //short text for buttons
   LSTR MSG_BUTTON_INIT                      = _UxGT("Ініц-я");
   LSTR MSG_BUTTON_STOP                      = _UxGT("Зупинка");
   LSTR MSG_BUTTON_PRINT                     = _UxGT("Друк");

@@ -368,7 +368,7 @@ namespace Language_hu {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Beállítások mentve");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Tároló frissítés");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Nyomtató újraindítása");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Frissítés");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Frissítés");
   LSTR MSG_INFO_SCREEN                    = _UxGT("<Infó képernyö>");
   LSTR MSG_PREPARE                        = _UxGT("Vezérlés");
   LSTR MSG_TUNE                           = _UxGT("Hangolás");

@@ -319,7 +319,7 @@ namespace Language_es {
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versión EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetear Impresora");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Recargar");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Recargar");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla de Inf.");
   LSTR MSG_PREPARE                        = _UxGT("Preparar");
   LSTR MSG_TUNE                           = _UxGT("Ajustar");

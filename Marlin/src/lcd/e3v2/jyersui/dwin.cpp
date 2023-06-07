@@ -594,7 +594,7 @@ void CrealityDWINClass::Draw_Menu(const uint8_t menu, const uint8_t select/*=0*/
   active_menu = menu;
   Clear_Screen();
   Draw_Title(Get_Menu_Title(menu));
-  LOOP_L_N(i, TROWS) Menu_Item_Handler(menu, i + scrollpos);
+  for (uint8_t i = 0; i < TROWS; ++i) Menu_Item_Handler(menu, i + scrollpos);
   DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
 }
 
@@ -814,9 +814,9 @@ void CrealityDWINClass::Draw_SD_Item(const uint8_t item, const uint8_t row) {
     len = pos;
     if (len > max) len = max;
     char name[len + 1];
-    LOOP_L_N(i, len) name[i] = filename[i];
+    for (uint8_t i = 0; i < len; ++i) name[i] = filename[i];
     if (pos > max)
-      LOOP_S_L_N(i, len - 3, len) name[i] = '.';
+      for (uint8_t i = len - 3; i < len; ++i) name[i] = '.';
     name[len] = '\0';
     Draw_Menu_Item(row, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
   }
@@ -829,7 +829,7 @@ void CrealityDWINClass::Draw_SD_List(const bool removed/*=false*/) {
   scrollpos = 0;
   process = File;
   if (card.isMounted() && !removed) {
-    LOOP_L_N(i, _MIN(card.get_num_items() + 1, TROWS))
+    for (uint8_t i = 0; i < _MIN(card.get_num_items() + 1, TROWS); ++i)
       Draw_SD_Item(i, i);
   }
   else {
@@ -1104,7 +1104,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       #define PREPARE_MANUALLEVEL (PREPARE_HOME + 1)
       #define PREPARE_ZOFFSET (PREPARE_MANUALLEVEL + ENABLED(HAS_ZOFFSET_ITEM))
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
-      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + EITHER(HAS_HOTEND, HAS_HEATED_BED))
+      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ANY(HAS_HOTEND, HAS_HEATED_BED))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define PREPARE_CUSTOM_MENU (PREPARE_CHANGEFIL + ENABLED(HAS_CUSTOM_MENU))
       #define PREPARE_TOTAL PREPARE_CUSTOM_MENU
@@ -1392,7 +1392,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           break;
       }
       break;
-    case ManualLevel:
+    case ManualLevel: {
 
       #define MLEVEL_BACK 0
       #define MLEVEL_PROBE (MLEVEL_BACK + ENABLED(HAS_BED_PROBE))
@@ -1408,10 +1408,10 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       static bool use_probe = false;
 
       #if HAS_BED_PROBE
-        constexpr float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + PROBING_MARGIN) - probe.offset.x,
-                        probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - PROBING_MARGIN) - probe.offset.x,
-                        probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + PROBING_MARGIN) - probe.offset.y,
-                        probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - PROBING_MARGIN) - probe.offset.y;
+        const float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + PROBING_MARGIN) - probe.offset.x,
+                    probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - PROBING_MARGIN) - probe.offset.x,
+                    probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + PROBING_MARGIN) - probe.offset.y,
+                    probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - PROBING_MARGIN) - probe.offset.y;
       #endif
 
       switch (item) {
@@ -1423,6 +1423,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Menu(Prepare, PREPARE_MANUALLEVEL);
           }
           break;
+
         #if HAS_BED_PROBE
           case MLEVEL_PROBE:
             if (draw) {
@@ -1434,7 +1435,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Checkbox(row, use_probe);
               if (use_probe) {
                 Popup_Handler(Level);
-                constexpr struct { xy_pos_t p, ProbePtRaise r } points[] = {
+                const struct { xy_pos_t p; ProbePtRaise r; } points[] = {
                   { { probe_x_min, probe_y_min }, PROBE_PT_RAISE },
                   { { probe_x_min, probe_y_max }, PROBE_PT_RAISE },
                   { { probe_x_max, probe_y_max }, PROBE_PT_RAISE },
@@ -1452,6 +1453,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             }
             break;
         #endif
+
         case MLEVEL_BL:
           if (draw)
             Draw_Menu_Item(row, ICON_AxisBL, F("Bottom Left"));
@@ -1566,7 +1568,9 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Modify_Value(mlev_z_pos, 0, MAX_Z_OFFSET, 100);
           break;
       }
-      break;
+
+    } break;
+
     #if HAS_ZOFFSET_ITEM
       case ZOffset:
 
@@ -3081,7 +3085,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
         #define LEVELING_BACK 0
         #define LEVELING_ACTIVE (LEVELING_BACK + 1)
-        #define LEVELING_GET_TILT (LEVELING_ACTIVE + BOTH(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL))
+        #define LEVELING_GET_TILT (LEVELING_ACTIVE + ALL(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL))
         #define LEVELING_GET_MESH (LEVELING_GET_TILT + 1)
         #define LEVELING_MANUAL (LEVELING_GET_MESH + 1)
         #define LEVELING_VIEW (LEVELING_MANUAL + 1)
@@ -3116,7 +3120,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Checkbox(row, planner.leveling_active);
             }
             break;
-          #if BOTH(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL)
+          #if ALL(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL)
             case LEVELING_GET_TILT:
               if (draw)
                 Draw_Menu_Item(row, ICON_Tilt, F("Autotilt Current Mesh"));
@@ -4664,12 +4668,12 @@ void CrealityDWINClass::Modify_Option(const uint8_t value, const char * const * 
 
 void CrealityDWINClass::Update_Status(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
-    LOOP_L_N(i, _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text))) filename[i] = text[i + 3];
+    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
     Draw_Print_Filename(true);
   }
   else {
-    LOOP_L_N(i, _MIN((size_t)64, strlen(text))) statusmsg[i] = text[i];
+    for (uint8_t i = 0; i < _MIN((size_t)64, strlen(text)); ++i) statusmsg[i] = text[i];
     statusmsg[_MIN((size_t)64, strlen(text))] = '\0';
   }
 }

@@ -273,7 +273,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       base::reset();
       prev_e_pos = 0;
       lpq_ptr = 0;
-      LOOP_L_N(i, LPQ_ARR_SZ) lpq[i] = 0;
+      for (uint8_t i = 0; i < LPQ_ARR_SZ; ++i) lpq[i] = 0;
     }
 
     float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
@@ -369,7 +369,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   };
 
   typedef
-    #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
+    #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
       PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
       PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
@@ -409,7 +409,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #endif
 
-#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+#if ENABLED(G26_MESH_VALIDATION) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -485,7 +485,7 @@ struct PIDHeaterInfo : public HeaterInfo {
 #if HAS_TEMP_PROBE
   typedef temp_info_t probe_info_t;
 #endif
-#if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
+#if ANY(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
 #endif
 #if HAS_TEMP_BOARD
@@ -628,7 +628,7 @@ class Temperature {
       static redundant_info_t temp_redundant;
     #endif
 
-    #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
+    #if ANY(AUTO_POWER_E_FANS, HAS_FANCHECK)
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -643,11 +643,11 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
       static uint8_t soft_pwm_controller_speed;
     #endif
 
-    #if BOTH(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
+    #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
       static bool allow_cold_extrude_override;
       static void set_menu_cold_override(const bool allow) { allow_cold_extrude_override = allow; }
     #else
@@ -671,7 +671,7 @@ class Temperature {
     static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
-    #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+    #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
       #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
         static celsius_t singlenozzle_temp[EXTRUDERS];
       #endif
@@ -767,11 +767,11 @@ class Temperature {
       static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
+    #if ALL(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 
-    #if BOTH(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
+    #if ALL(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
       static raw_adc_t maxtemp_raw_SOC;
     #endif
 
@@ -877,7 +877,7 @@ class Temperature {
     #if HAS_FAN
 
       static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
+      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
 
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 
@@ -885,7 +885,7 @@ class Temperature {
         static void report_fan_speed(const uint8_t fan);
       #endif
 
-      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
         static uint8_t saved_fan_speed[FAN_COUNT];
       #endif
@@ -913,7 +913,7 @@ class Temperature {
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
 
-      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif
 
