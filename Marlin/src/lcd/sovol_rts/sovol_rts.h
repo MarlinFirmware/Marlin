@@ -234,8 +234,9 @@ class RTS {
     static bool start_print_flag;
 
     static bool dark_mode;
-    FORCE_INLINE static void gotoPage(uint8_t page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
-    FORCE_INLINE static void gotoPage(uint8_t p1, uint8_t p2) { gotoPage(dark_mode ? p1 : p2); }
+    static void gotoPage(uint8_t page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
+    static void gotoPage(uint8_t p1, uint8_t p2) { gotoPage(dark_mode ? p1 : p2); }
+    static void gotoPageBeep(uint8_t p1, uint8_t p2) { gotoPage(p1, p2); sendData(Beep1, SoundAddr); }
 
     static void sendPrinterInfo();
     static void updateTempE0();

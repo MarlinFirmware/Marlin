@@ -265,10 +265,7 @@ void Endstops::not_homing() {
     if (trigger_state())
       hit_on_purpose();
     else {
-      #if ENABLED(SOVOL_SV06_RTS)
-        rts.gotoPage(55, 110);
-        rts.sendData(Beep1, SoundAddr);
-      #endif
+      TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(55, 110));
       kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }
