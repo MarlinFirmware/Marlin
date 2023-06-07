@@ -422,10 +422,12 @@
     template<typename>  struct _is_integral { enum { value = false }; };
     template<>          struct _is_integral<unsigned char> { enum { value = true }; };
     template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
     template<>          struct _is_integral<unsigned long> { enum { value = true }; };
     template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
     template<>          struct _is_integral<char> { enum { value = true }; };
     template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
     template<>          struct _is_integral<long> { enum { value = true }; };
     template<>          struct _is_integral<long long> { enum { value = true }; };
     template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
