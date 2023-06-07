@@ -22,9 +22,9 @@
 #pragma once
 
 #include "../core/types.h"
+#include "../core/macros.h"
 
 #ifdef __cplusplus
-
   namespace Endianness {
     static constexpr uint32_t _dword = 0x01020304;
     static constexpr uint8_t _lsb = (const uint8_t&)_dword;
@@ -33,7 +33,24 @@
     static constexpr bool cpuIsBigEndian = _lsb == 0x01;
     static_assert(cpuIsLittleEndian ^ cpuIsBigEndian, "Unknown CPU endianness");
 
-    template<typename T> static constexpr T swap(T V) {
+    // constexpr byte swapping for integral types
+    template<typename T> static constexpr typename Private::enable_if<Private::is_integral<T>::value, T>::type swap(T V, T swappedV = (T)0, size_t byteIndex = 0) {
+        return byteIndex == sizeof(T) 
+            ? swappedV 
+            : swap<T>((T)(V >> 8), (swappedV << 8) | (V & (T)0xFF), byteIndex + 1);
+    }
+
+    // constexpr byte swapping for types derived from integral types (e.g. enums)
+    template<typename T> static constexpr typename Private::enable_if<
+        Private::is_same<uint16_t, typename Private::underlying_type<T>::type>::value, T>::type swap(T V) { return (T)swap<uint16_t>((uint16_t)V); }
+    template<typename T> static constexpr typename Private::enable_if<
+        Private::is_same<uint32_t, typename Private::underlying_type<T>::type>::value, T>::type swap(T V) { return (T)swap<uint32_t>((uint32_t)V); }
+    template<typename T> static constexpr typename Private::enable_if<
+        Private::is_same<uint64_t, typename Private::underlying_type<T>::type>::value, T>::type swap(T V) { return (T)swap<uint64_t>((uint64_t)V); }
+    
+    // generic byte swapping
+    // CANNOT be used to initialize constexpr declarations
+    template<typename T> static constexpr typename Private::enable_if<!Private::is_integral<T>::value && !Private::is_enum<T>::value, T>::type swap(T V) {
       union {
         T val;
         char byte[sizeof(T)];
