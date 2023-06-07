@@ -151,7 +151,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
 
   #if ENABLED(SOVOL_SV06_RTS)
-    rts.gotoPage(7, 62);
+    rts.gotoPage(ID_Cold_L, ID_Cold_D);
     rts.updateTempE0();
   #endif
 
@@ -368,7 +368,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
 
   #if ENABLED(SOVOL_SV06_RTS)
     rts.updateTempE0();
-    rts.gotoPage(16, 71);
+    rts.gotoPage(ID_Unload_L, ID_Unload_D);
   #endif
 
   // Retract filament

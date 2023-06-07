@@ -265,7 +265,7 @@ void Endstops::not_homing() {
     if (trigger_state())
       hit_on_purpose();
     else {
-      TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(55, 110));
+      TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
       kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }

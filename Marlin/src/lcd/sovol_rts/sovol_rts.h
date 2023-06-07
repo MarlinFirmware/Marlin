@@ -187,6 +187,16 @@
 
 #define FilenameNature                  0x6003
 
+enum SovolPage : uint8_t {
+  ID_Home_L         =   1,      ID_Home_D         =  55 + ID_Home_L,
+  ID_Cold_L         =   7,      ID_Cold_D         =  55 + ID_Cold_L,
+  ID_Unload_L       =  16,      ID_Unload_D       =  55 + ID_Unload_L,
+  ID_KillRunaway_L  =  52,      ID_KillRunaway_D  =  55 + ID_KillRunaway_L,
+  ID_KillHeat_L     =  53,      ID_KillHeat_D     =  55 + ID_KillHeat_L,
+  ID_KillBadTemp_L  =  54,      ID_KillBadTemp_D  =  55 + ID_KillBadTemp_L,
+  ID_KillHome_L     =  55,      ID_KillHome_D     =  55 + ID_KillHome_L
+};
+
 /************struct**************/
 
 typedef struct DataBuf {
@@ -234,9 +244,9 @@ class RTS {
     static bool start_print_flag;
 
     static bool dark_mode;
-    static void gotoPage(uint8_t page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
-    static void gotoPage(uint8_t p1, uint8_t p2) { gotoPage(dark_mode ? p1 : p2); }
-    static void gotoPageBeep(uint8_t p1, uint8_t p2) { gotoPage(p1, p2); sendData(Beep1, SoundAddr); }
+    static void gotoPage(SovolPage page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
+    static void gotoPage(SovolPage p1, SovolPage p2) { gotoPage(dark_mode ? p1 : p2); }
+    static void gotoPageBeep(SovolPage p1, SovolPage p2) { gotoPage(p1, p2); sendData(Beep1, SoundAddr); }
 
     static void sendPrinterInfo();
     static void updateTempE0();
@@ -295,7 +305,7 @@ enum PROC_COM {
   Advance_K,
   AdvancedBackKey,
   FilamentChange,
-  Fan_speed,
+  FanSpeedKey,
   ZoffsetUnitKey,
   TMCDriver,
   Current_X, Current_Y, Current_Z, Current_E,

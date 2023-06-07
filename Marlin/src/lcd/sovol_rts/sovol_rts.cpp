@@ -544,7 +544,7 @@ void RTS::sdCardStop() {
 }
 
 void RTS::handleData() {
-  int16_t Checkkey = -1;
+  int16_t checkKey = -1;
   // for waiting
   if (waitway > 0) {
     memset(&recdat, 0, sizeof(recdat));
@@ -554,19 +554,19 @@ void RTS::handleData() {
   }
   for (uint16_t i = 0; Addrbuf[i] != 0; i++) {
     if (recdat.addr == Addrbuf[i]) {
-      if (Addrbuf[i] >= ChangePageKey) Checkkey = i;
+      if (Addrbuf[i] >= ChangePageKey) checkKey = i;
       break;
     }
   }
 
-  if (Checkkey < 0) {
+  if (checkKey < 0) {
     ZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
   }
 
-  switch (Checkkey) {
+  switch (checkKey) {
     case MainPageKey: //首页
       if (recdat.data[0] == 1) { //选择打印文件
         update_sd = true;
@@ -649,7 +649,7 @@ void RTS::handleData() {
       }
       break;
 
-    case Fan_speed: // 设置风扇速度
+    case FanSpeedKey: // 设置风扇速度
       fan_speed = recdat.data[0];
       thermalManager.set_fan_speed(0, fan_speed);
       updateFan0();
