@@ -103,7 +103,7 @@
  * - Rows count: 6
  * - Margins count: 7
  */
-#ifdef TFT_COLOR_UI_PORTRAIT
+#if ENABLED(TFT_COLOR_UI_PORTRAIT)
   #if ENABLED(TOUCH_SCREEN)
     #define STATUS_TOTAL_ROWS_HEIGHT (2 * FONT_LINE_HEIGHT + 120 + 32 + 64 + 29 + 7)
     #define STATUS_MARGINS_REGIONS 8
