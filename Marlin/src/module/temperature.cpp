@@ -1552,7 +1552,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
 }
 
 void Temperature::maxtemp_error(const heater_id_t heater_id) {
-  #if (HAS_HOTEND || HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
     #if HAS_DWIN_E3V2_BASIC
       DWIN_Popup_Temperature(1);
     #elif ENABLED(SOVOL_SV06_RTS)
@@ -1564,7 +1564,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id) {
 }
 
 void Temperature::mintemp_error(const heater_id_t heater_id) {
-  #if (HAS_HOTEND || HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
     #if HAS_DWIN_E3V2_BASIC
       DWIN_Popup_Temperature(0);
     #elif ENABLED(SOVOL_SV06_RTS)
