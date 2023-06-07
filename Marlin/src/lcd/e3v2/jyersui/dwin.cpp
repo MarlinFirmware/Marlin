@@ -2224,7 +2224,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
             else {
-              Modify_Value(thermalManager.temp_bed.pid.Kp, 0, 5000, 100);
+              Modify_Value(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
             }
             break;
           case BEDPID_KI:
@@ -2233,7 +2233,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(thermalManager.temp_bed.pid.i(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_bed.pid.Ki, 0, 5000, 100);
+              Modify_Value(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
             break;
           case BEDPID_KD:
             if (draw) {
@@ -2241,7 +2241,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(thermalManager.temp_bed.pid.d(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_bed.pid.Kd, 0, 5000, 100);
+              Modify_Value(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
             break;
         }
         break;

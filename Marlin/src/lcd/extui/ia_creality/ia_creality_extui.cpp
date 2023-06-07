@@ -36,7 +36,6 @@
 
 #include "ia_creality_rts.h"
 #include "FileNavigator.h"
-
 #include "../ui_api.h"
 
 namespace ExtUI {

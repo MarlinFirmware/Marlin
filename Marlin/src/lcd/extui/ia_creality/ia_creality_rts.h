@@ -223,16 +223,16 @@ class RTS {
     static void onIdle();
     static int16_t receiveData();
     static void sendData();
-    static void sendData(const String&,       const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const char[],        const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const char,          const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const int16_t,       const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const uint32_t,      const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const_float_t,       const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const String&, const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const char[],  const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(char,          const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(int,           const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const_float_t, const uint32_t, const uint8_t=VarAddr_W);
 
     static void sendData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((char *)str, addr, cmd); }
-    static void sendData(const uint16_t n,    const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int(n), addr, cmd); }
-    static void sendData(const int32_t n,     const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(uint32_t(n), addr, cmd); }
+    static void sendData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int(n), addr, cmd); }
+    static void sendData(const long n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((unsigned long)n, addr, cmd); }
 
     static void handleData();
 
