@@ -37,21 +37,25 @@
 #include "../module/planner.h"
 #include "../lcd/marlinui.h"
 
-extern HotendIdleProtection hotend_idle;
+HotendIdleProtection hotend_idle;
 
 millis_t HotendIdleProtection::next_protect_ms = 0;
 hotend_idle_settings_t HotendIdleProtection::cfg; // Initialized by settings.load()
 
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
+  const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
   bool do_prot = false;
-  HOTEND_LOOP() {
-    const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
-    if (thermalManager.degHotend(e) >= cfg.trigger && !busy) {
-      do_prot = true; break;
+  if (!busy && cfg.timeout != 0) {
+    HOTEND_LOOP() {
+      if (thermalManager.degHotend(e) >= cfg.trigger) {
+        do_prot = true; break;
+      }
     }
   }
-  if (bool(next_protect_ms) != do_prot)
-    next_protect_ms = do_prot ? ms + cfg.timeout * 1000 : 0;
+  if (!do_prot)
+    next_protect_ms = 0;                          // No hotends are hot so cancel timeout
+  else if (!next_protect_ms)                      // Timeout is possible?
+    next_protect_ms = ms + cfg.timeout * 1000;    // Start timeout if not already set
 }
 
 void HotendIdleProtection::check_e_motion(const millis_t &ms) {

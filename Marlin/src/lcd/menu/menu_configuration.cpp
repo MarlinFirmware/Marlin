@@ -283,14 +283,16 @@ void menu_advanced_settings();
 
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
 
-  void menu_hotend_idle(){
+  void menu_hotend_idle() {
+    hotend_idle_settings_t &c = hotend_idle.cfg;
     START_MENU();
     BACK_ITEM(MSG_BACK);
 
-    EDIT_ITEM(uint16_3, MSG_TIMEOUT, &hotend_idle.cfg.timeout, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_TEMPERATURE, &hotend_idle.cfg.trigger, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &hotend_idle.cfg.nozzle_target, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_BED_TARGET, &hotend_idle.cfg.bed_target, 0, 999);
+    if (c.timeout) GCODES_ITEM(MSG_HOTEND_IDLE_DISABLE, F("M87"));
+    EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
+    EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAXTEMP);
 
     END_MENU();
   }

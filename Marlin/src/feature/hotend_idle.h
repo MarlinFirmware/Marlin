@@ -24,10 +24,9 @@
 #include "../inc/MarlinConfig.h"
 
 typedef struct {
-  uint16_t timeout;
-  uint16_t trigger, nozzle_target;
+  int16_t timeout, trigger, nozzle_target;
   #if HAS_HEATED_BED
-    uint16_t bed_target;
+    int16_t bed_target;
   #endif
   void set_defaults() {
     timeout       = HOTEND_IDLE_TIMEOUT_SEC;
