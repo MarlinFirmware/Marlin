@@ -36,10 +36,11 @@
 #include <lvgl.h>
 
 #include "../../../MarlinCore.h"
+#include "../../marlinui.h"
+
 #include "../../../inc/MarlinConfig.h"
 
 #include HAL_PATH(../../.., tft/xpt2046.h)
-#include "../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -50,7 +51,7 @@ XPT2046 touch;
   #include "../../../module/servo.h"
 #endif
 
-#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+#if ANY(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "../../../module/probe.h"
 #endif
 
@@ -136,8 +137,10 @@ void tft_lvgl_init() {
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     uint16_t usb_flash_loop = 1000;
     #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
-      card.changeMedia(IS_SD_INSERTED() ? &card.media_driver_sdcard : &card.media_driver_usbFlash);
+      if (IS_SD_INSERTED())
+        card.changeMedia(&card.media_driver_sdcard);
+      else
+        card.changeMedia(&card.media_driver_usbFlash);
     #endif
     do {
       card.media_driver_usbFlash.idle();
@@ -246,7 +249,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if BOTH(MKS_TEST, HAS_MEDIA)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }

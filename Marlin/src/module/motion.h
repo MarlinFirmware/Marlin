@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 #if IS_SCARA
   #include "scara.h"
 #elif ENABLED(POLAR)
@@ -153,9 +157,9 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern xyz_pos_t hotend_offset[HOTENDS];
   void reset_hotend_offsets();
 #elif HOTENDS
-  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { 0 } };
+  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
 #else
-  constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
+  constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
 #endif
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -169,10 +173,12 @@ inline float home_bump_mm(const AxisEnum axis) {
       amin = -100000; amax = 100000; // "No limits"
       #if HAS_SOFTWARE_ENDSTOPS
         if (enabled()) switch (axis) {
-          case X_AXIS:
-            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
-            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
-            break;
+          #if HAS_X_AXIS
+            case X_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+              TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+              break;
+          #endif
           #if HAS_Y_AXIS
             case Y_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
@@ -265,7 +271,7 @@ void report_current_position_projected();
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
    * Machine states for GRBL or TinyG
@@ -350,12 +356,14 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 
-void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
+#if HAS_X_AXIS
+  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
+#endif
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -425,9 +433,6 @@ void restore_feedrate_and_scaling();
  */
 typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
-
-typedef bits_t(NUM_AXES + EXTRUDERS) e_axis_bits_t;
-constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
 
@@ -515,8 +520,10 @@ void home_if_needed(const bool keeplev=false);
   FORCE_INLINE void toNative(xyz_pos_t&)   {}
   FORCE_INLINE void toNative(xyze_pos_t&)  {}
 #endif
-#define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
-#define RAW_X_POSITION(POS)     LOGICAL_TO_NATIVE(POS, X_AXIS)
+#if HAS_X_AXIS
+  #define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
+  #define RAW_X_POSITION(POS)     LOGICAL_TO_NATIVE(POS, X_AXIS)
+#endif
 #if HAS_Y_AXIS
   #define LOGICAL_Y_POSITION(POS) NATIVE_TO_LOGICAL(POS, Y_AXIS)
   #define RAW_Y_POSITION(POS)     LOGICAL_TO_NATIVE(POS, Y_AXIS)
@@ -569,9 +576,9 @@ void home_if_needed(const bool keeplev=false);
 #else
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(const_float_t rx, const_float_t ry);
+  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry));
   inline bool position_is_reachable(const xy_pos_t &pos) {
-    return position_is_reachable(pos.x, pos.y);
+    return position_is_reachable(TERN_(HAS_X_AXIS, pos.x) OPTARG(HAS_Y_AXIS, pos.y));
   }
 
 #endif
@@ -608,7 +615,7 @@ void home_if_needed(const bool keeplev=false);
 
   float x_home_pos(const uint8_t extruder);
 
-  #define TOOL_X_HOME_DIR(T) ((T) ? X2_HOME_DIR : X_HOME_DIR)
+  #define TOOL_X_HOME_DIR(T) ((T) ? 1 : -1)
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
   void idex_set_mirrored_mode(const bool mirr);

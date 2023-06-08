@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -1804,6 +1804,7 @@ void stopEspTransfer() {
 
   W25QXX.init(SPI_QUARTER_SPEED);
 
+  // ?? Workaround for SPI / Servo issues ??
   TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());

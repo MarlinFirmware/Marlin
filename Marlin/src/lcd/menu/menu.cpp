@@ -138,7 +138,7 @@ void MenuEditItemBase::goto_edit_screen(
   void * const ev,        // Edit value pointer
   const int32_t minv,     // Encoder minimum
   const int32_t maxv,     // Encoder maximum
-  const uint16_t ep,      // Initial encoder value
+  const uint32_t ep,      // Initial encoder value
   const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
@@ -176,7 +176,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
-    #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
+    #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
       // Going to menu_main from status screen? Remember first click time.
       // Going back to status screen within a very short time? Go to Z babystepping.

@@ -151,8 +151,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -204,9 +207,9 @@
 #endif
 
 #ifndef FAN0_PIN
-  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if ANY(FET_ORDER_EFB, FET_ORDER_EFF)           // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN0_PIN                MOSFET_B_PIN
-  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+  #elif ANY(FET_ORDER_EEF, FET_ORDER_SF)          // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN0_PIN                MOSFET_C_PIN
   #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
     #define FAN0_PIN                       P1_18  // (4) IO pin. Buffer needed
@@ -249,8 +252,8 @@
       #error "LASER_FEATURE requires 3 free servo pins."
     #endif
   #endif
-  #define SPINDLE_LASER_ENA_PIN       SERVO1_PIN  // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_LASER_PWM_PIN       SERVO3_PIN  // (4) MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENA_PIN       SERVO1_PIN  // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_DIR_PIN             SERVO2_PIN  // (5)
 #endif
 
@@ -350,7 +353,7 @@
     //#define SHIFT_EN_PIN                 P1_22  // (41)  J5-4 & AUX-4
   #endif
 
-  #if EITHER(VIKI2, miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
     #define DOGLCD_SCK                     P0_15  // (52) (SCK)  J3-9 & AUX-3
@@ -375,7 +378,7 @@
 
       #define LCD_RESET_PIN                P0_16  // Must be high or open for LCD to operate normally.
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN            P1_00
         #endif

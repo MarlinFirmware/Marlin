@@ -331,7 +331,7 @@ namespace Language_fr_na {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Config. enregistree");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("MaJ Firmware SD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("RaZ imprimante");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Actualiser");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Actualiser");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Surveiller");
   LSTR MSG_PREPARE                        = _UxGT("Preparer");
   LSTR MSG_TUNE                           = _UxGT("Regler");

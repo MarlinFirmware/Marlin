@@ -25,7 +25,7 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
+#include "../../MarlinCore.h" // for pin_is_protected, wait_for_user
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
@@ -61,7 +61,7 @@ inline void toggle_pins() {
             end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
-  LOOP_S_LE_N(i, start, end) {
+  for (uint8_t i = start; i <= end; ++i) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
@@ -149,7 +149,7 @@ inline void servo_probe_test() {
     #endif
 
     SERIAL_ECHOLNPGM(". Probe " _PROBE_PREF "_PIN: ", PROBE_TEST_PIN);
-    serial_ternary(probe_hit_state, F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), F("HIGH"), F("LOW"));
+    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), probe_hit_state, F("HIGH"), F("LOW"));
     SERIAL_EOL();
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
@@ -189,7 +189,7 @@ inline void servo_probe_test() {
       // DEPLOY and STOW 4 times and see if the signal follows
       // Then it is a mechanical switch
       SERIAL_ECHOLNPGM(". Deploy & stow 4 times");
-      LOOP_L_N(i, 4) {
+      for (uint8_t i = 0; i < 4; ++i) {
         servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
         safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
@@ -328,7 +328,7 @@ void GcodeSuite::M43() {
     const uint8_t pin_count = last_pin - first_pin + 1;
     uint8_t pin_state[pin_count];
     bool can_watch = false;
-    LOOP_S_LE_N(i, first_pin, last_pin) {
+    for (uint8_t i = first_pin; i <= last_pin; ++i) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -371,8 +371,8 @@ void GcodeSuite::M43() {
     #endif
 
     for (;;) {
-      LOOP_S_LE_N(i, first_pin, last_pin) {
-        pin_t pin = GET_PIN_MAP_PIN_M43(i);
+      for (uint8_t i = first_pin; i <= last_pin; ++i) {
+        const pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
         const byte val =
@@ -383,7 +383,7 @@ void GcodeSuite::M43() {
           //*/
             extDigitalRead(pin);
         if (val != pin_state[i - first_pin]) {
-          report_pin_state_extended(pin, ignore_protection, false);
+          report_pin_state_extended(pin, ignore_protection, true);
           pin_state[i - first_pin] = val;
         }
       }
@@ -400,8 +400,8 @@ void GcodeSuite::M43() {
   }
   else {
     // Report current state of selected pin(s)
-    LOOP_S_LE_N(i, first_pin, last_pin) {
-      pin_t pin = GET_PIN_MAP_PIN_M43(i);
+    for (uint8_t i = first_pin; i <= last_pin; ++i) {
+      const pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }
   }

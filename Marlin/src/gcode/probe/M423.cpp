@@ -88,7 +88,7 @@ void GcodeSuite::M423() {
 void GcodeSuite::M423_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F("X-Twist Correction"));
   SERIAL_ECHOLNPGM("  M423 A", xatc.start, " I", xatc.spacing);
-  LOOP_L_N(x, XATC_MAX_POINTS) {
+  for (uint8_t x = 0; x < XATC_MAX_POINTS; ++x) {
     const float z = xatc.z_offset[x];
     SERIAL_ECHOPGM("  M423 X", x, " Z");
     serial_offset(isnan(z) ? 0 : z);

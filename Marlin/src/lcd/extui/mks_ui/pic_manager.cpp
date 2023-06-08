@@ -24,7 +24,6 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "string.h"
 #include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
@@ -33,6 +32,8 @@
 #include "../../../libs/W25Qxx.h"
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
+
+#include <string.h>
 
 extern uint16_t DeviceCode;
 
@@ -378,7 +379,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
 
   static void dosName2LongName(const char dosName[11], char *longName) {
     uint8_t j = 0;
-    LOOP_L_N(i, 11) {
+    for (uint8_t i = 0; i < 11; ++i) {
       if (i == 8) longName[j++] = '.';
       if (dosName[i] == '\0' || dosName[i] == ' ') continue;
       longName[j++] = dosName[i];

@@ -61,7 +61,7 @@
   #endif
 #endif
 
-#if !(BOTH(HAS_WIRED_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
+#if !(ALL(HAS_WIRED_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
@@ -93,7 +93,7 @@
 #if _ENDSTOP_IS_ANY(Y_MIN_PIN) || _ENDSTOP_IS_ANY(Y_MAX_PIN)
   #define NEEDS_Y_MINMAX 1
 #endif
-#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || BOTH(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || ALL(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define NEEDS_Z_MINMAX 1
 #endif
 #undef _ENDSTOP_IS_ANY
@@ -372,6 +372,8 @@
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino1284p_optimized env:sanguino1284p env:sanguino644p
 #elif MB(MELZI_CREALITY)
   #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi_optiboot_optimized env:melzi_optiboot env:melzi_optimized env:melzi
+#elif MB(MELZI_CREALITY_ENDER2)
+  #include "sanguino/pins_MELZI_CREALITY_E2.h"  // ATmega1284P                            env:melzi_optiboot_optimized env:melzi_optiboot env:melzi_optimized env:melzi
 #elif MB(MELZI_MALYAN)
   #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino1284p_optimized env:sanguino1284p env:sanguino644p
 #elif MB(MELZI_TRONXY)
@@ -686,6 +688,8 @@
   #include "gd32f1/pins_SOVOL_V131.h"           // GD32F1                                 env:GD32F103RET6_sovol_maple
 #elif MB(TRIGORILLA_V006)
   #include "gd32f1/pins_TRIGORILLA_V006.h"      // GD32F103                               env:trigorilla_v006
+#elif MB(KEDI_CONTROLLER_V1_2)
+  #include "stm32f1/pins_KEDI_CONTROLLER_V1_2.h" // STM32F1                               env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
 
 //
 // ARM Cortex-M4F
@@ -749,7 +753,7 @@
 #elif MB(FLYF407ZG)
   #include "stm32f4/pins_FLYF407ZG.h"           // STM32F4                                env:FLYF407ZG
 #elif MB(MKS_ROBIN2)
-  #include "stm32f4/pins_MKS_ROBIN2.h"          // STM32F4                                env:MKS_ROBIN2
+  #include "stm32f4/pins_MKS_ROBIN2.h"          // STM32F4                                env:mks_robin2
 #elif MB(MKS_ROBIN_PRO_V2)
   #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"    // STM32F4                                env:mks_robin_pro2
 #elif MB(MKS_ROBIN_NANO_V3)
@@ -786,6 +790,12 @@
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 #elif MB(TRONXY_V10)
   #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
+#elif MB(CREALITY_F401RE)
+  #include "stm32f4/pins_CREALITY_F401.h"       // STM32F4                                env:STM32F401RE_creality
+#elif MB(BLACKPILL_CUSTOM)
+  #include "stm32f4/pins_BLACKPILL_CUSTOM.h"    // STM32F4                                env:STM32F401CD_blackpill_stlink
+#elif MB(I3DBEEZ9_V1)
+  #include "stm32f4/pins_I3DBEEZ9.h"            // STM32F4                                env:I3DBEEZ9_V1
 
 //
 // ARM Cortex M7
@@ -800,11 +810,11 @@
 #elif MB(BTT_SKR_SE_BX_V3)
   #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"    // STM32H7                                env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_V3_0)
-  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0.h"        // STM32H743Vx/STM32H723VG                env:STM32H743Vx_btt env:STM32H723VG_btt
 #elif MB(BTT_SKR_V3_0_EZ)
-  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H7                                env:STM32H723Vx_btt env:STM32H743Vx_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"     // STM32H743Vx/STM32H723VG                env:STM32H743Vx_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
-  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"  // STM32H7                                env:STM32H723Vx_btt env:STM32H723Zx_btt
+  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"  // STM32H723Zx/STM32H723VE                env:STM32H723Zx_btt env:STM32H723VE_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
@@ -834,6 +844,8 @@
   #include "esp32/pins_MKS_TINYBEE.h"           // ESP32                                  env:mks_tinybee
 #elif MB(ENWI_ESPNP)
   #include "esp32/pins_ENWI_ESPNP.h"            // ESP32                                  env:esp32
+#elif MB(GODI_CONTROLLER_V1_0)
+  #include "esp32/pins_GODI_CONTROLLER_V1_0.h"  // ESP32                                  env:godi_esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)

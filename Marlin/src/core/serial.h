@@ -292,7 +292,7 @@ inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, di
 
 #define SERIAL_ECHO_SP(C)             serial_spaces(C)
 
-#define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, F(PRE), F(ON), F(OFF), F(POST))
+#define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(F(PRE), TF, F(ON), F(OFF), F(POST))
 
 #if SERIAL_FLOAT_PRECISION
   #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
@@ -327,7 +327,7 @@ inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP
 
 void serial_echo_start();
 void serial_error_start();
-inline void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
+inline void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
   if (pre) serial_print(pre);
   if (onoff && on) serial_print(on);
   if (!onoff && off) serial_print(off);
@@ -340,10 +340,10 @@ void serial_spaces(uint8_t count);
 void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
 
 void print_bin(const uint16_t val);
-void print_pos(NUM_AXIS_ARGS(const_float_t), FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_pos(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 
 inline void print_pos(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
-  print_pos(NUM_AXIS_ELEM(xyze), prefix, suffix);
+  print_pos(NUM_AXIS_ELEM_(xyze) prefix, suffix);
 }
 
 #define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
