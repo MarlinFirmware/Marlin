@@ -623,6 +623,7 @@ struct {
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
 #define Y_MARGIN 15
+#define Y_OFFSET TERN(HAS_UI_480x272, 28, 34)
 
 static void quick_feedback() {
   #if HAS_CHIRP
@@ -708,7 +709,7 @@ static void drawAxisValue(const AxisEnum axis) {
     #endif
     default: return;
   }
-  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
+  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT TERN_(HAS_UI_480x272, / 2));
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(ftostr52sp(value));
   tft_string.trim();
@@ -1128,4 +1129,4 @@ void MarlinUI::move_axis_screen() {
   #endif // !TFT_COLOR_UI_PORTRAIT
 }
 
-#endif // HAS_UI_480x320
+#endif // HAS_UI_480x320 || HAS_UI_480x272
