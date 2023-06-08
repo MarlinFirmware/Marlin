@@ -64,6 +64,11 @@ public:
     }
   #endif
 
+  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    void add_mm_laser(const AxisEnum axis, const_float_t mm);
+    void add_steps_laser(const AxisEnum axis, const int16_t distance);
+  #endif
+
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const_float_t mm);
 

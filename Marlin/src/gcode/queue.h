@@ -155,6 +155,14 @@ public:
    */
   static bool enqueue_one(const char *cmd);
 
+#if ENABLED(E3S1PRO_RTS)
+/**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  static bool enqueue_one_P(PGM_P const pgcode);
+#endif 
+
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */

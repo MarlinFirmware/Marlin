@@ -162,6 +162,11 @@ public:
   static void getAbsFilenameInCWD(char *dst);
   static void printSelectedFilename();
   static void openAndPrintFile(const char *name);   // (working directory or full path)
+
+  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+      static void openAndPausePrintFile(const char *name);
+  #endif
+
   static void startOrResumeFilePrinting();
   static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
@@ -228,6 +233,11 @@ public:
   // Print File stats
   static uint32_t getFileSize()  { return filesize; }
   static uint32_t getIndex()     { return sdpos; }
+  
+  #if ENABLED(E3S1PRO_RTS)
+    static inline uint32_t getFileCurPosition()     { return file.curPosition(); }    
+  #endif
+
   static bool isFileOpen()       { return isMounted() && file.isOpen(); }
   static bool eof()              { return getIndex() >= getFileSize(); }
 

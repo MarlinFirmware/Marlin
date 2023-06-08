@@ -28,6 +28,11 @@
 #include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../gcode.h"
+  #include "../../../module/printcounter.h"
+#endif
+
 #include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -71,6 +76,8 @@ void GcodeSuite::M1000() {
         ui.goto_screen(menu_job_recovery);
       #elif HAS_DWIN_E3V2_BASIC
         recovery.dwin_flag = true;
+      #elif ENABLED(E3S1PRO_RTS)
+        recovery.info.print_job_elapsed = print_job_timer.duration() + recovery.info.print_job_elapsed;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
         CrealityDWIN.Popup_Handler(Resume);
       #elif ENABLED(EXTENSIBLE_UI)

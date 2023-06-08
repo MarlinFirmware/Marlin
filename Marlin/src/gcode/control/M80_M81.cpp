@@ -84,6 +84,15 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
+  #if ENABLED(E3S1PRO_RTS)
+    if (card.flag.mounted)
+    {
+      #if ALL(SDSUPPORT, POWER_LOSS_RECOVERY)
+        card.removeJobRecoveryFile();
+      #endif
+    }
+  #endif
+
   safe_delay(1000); // Wait 1 second before switching off
 
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");

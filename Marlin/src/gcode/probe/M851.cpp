@@ -28,6 +28,10 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M851: Set the nozzle-to-probe offsets in current units
  */
@@ -71,9 +75,16 @@ void GcodeSuite::M851() {
 
   if (parser.seenval('Z')) {
     const float z = parser.value_float();
-    if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+
+    if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+
+      #if ENABLED(E3S1PRO_RTS)
+        zprobe_zoffset = z;
+        rtscheck.RTS_SndData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      #endif
+      
       offs.z = z;
-    else {
+    } else {
       SERIAL_ECHOLNPGM("?Z out of range (", Z_PROBE_OFFSET_RANGE_MIN, " to ", Z_PROBE_OFFSET_RANGE_MAX, ")");
       ok = false;
     }
@@ -87,11 +98,11 @@ void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_Z_PROBE_OFFSET));
   SERIAL_ECHOPGM_P(
     #if HAS_PROBE_XY_OFFSET
-      PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),
+      PSTR("  M851 Probe Offset X"), LINEAR_UNIT(probe.offset_xy.x),
               SP_Y_STR, LINEAR_UNIT(probe.offset_xy.y),
               SP_Z_STR
     #else
-      PSTR("  M851 X0 Y0 Z")
+      PSTR("  M851 Probe Offset X0 Y0 Z")
     #endif
     , LINEAR_UNIT(probe.offset.z)
     , PSTR(" ;")

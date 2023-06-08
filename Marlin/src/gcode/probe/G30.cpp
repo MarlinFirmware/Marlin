@@ -30,6 +30,10 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"  
+#endif
+
 #if HAS_PTC
   #include "../../feature/probe_temp_comp.h"
 #endif
@@ -79,15 +83,41 @@ void GcodeSuite::G30() {
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
       SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
-      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
-        char msg[31], str_1[6], str_2[6], str_3[6];
+      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, E3S1PRO_RTS)
+        char msg[31], str_1[6], str_2[6], str_3[7];
         sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
           dtostrf(probepos.x, 1, 1, str_1),
           dtostrf(probepos.y, 1, 1, str_2),
-          dtostrf(measured_z, 1, 2, str_3)
+          dtostrf(measured_z, 1, 3, str_3)
         );
         ui.set_status(msg);
       #endif
+      #if ENABLED(E3S1PRO_RTS)
+        struct TrammingPoint {
+          float x;
+          float y;
+          int vp;
+        };
+  
+        TrammingPoint trammingPoints[] = {
+          {117.50, 117.50, CRTOUCH_TRAMMING_POINT_1_VP},
+          {155.00, 157.50, CRTOUCH_TRAMMING_POINT_1_VP},
+          {45.00, 45.00, CRTOUCH_TRAMMING_POINT_6_VP},
+          {190.00, 45.00, CRTOUCH_TRAMMING_POINT_7_VP},
+          {265.00, 45.00, CRTOUCH_TRAMMING_POINT_7_VP},
+          {45.00, 190.00, CRTOUCH_TRAMMING_POINT_8_VP},
+          {45.00, 270.00, CRTOUCH_TRAMMING_POINT_8_VP},
+          {190.00, 190.00, CRTOUCH_TRAMMING_POINT_9_VP},
+          {265.00, 270.00, CRTOUCH_TRAMMING_POINT_9_VP}
+        };
+
+        for (const auto& point : trammingPoints) {
+          if (probepos.x == point.x && probepos.y == point.y) {
+            rtscheck.RTS_SndData(measured_z * 1000, point.vp);
+          }
+        }             
+      #endif
+
     }
 
     restore_feedrate_and_scaling();

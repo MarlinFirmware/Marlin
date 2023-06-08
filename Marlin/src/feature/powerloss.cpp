@@ -26,6 +26,10 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #include "../module/stepper.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "powerloss.h"
@@ -68,6 +72,14 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../core/debug_out.h"
+
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #include "../feature/spindle_laser.h"
+#endif
 
 PrintJobRecovery recovery;
 
@@ -125,12 +137,26 @@ bool PrintJobRecovery::check() {
   //if (!card.isMounted()) card.mount();
   bool success = false;
   if (card.isMounted()) {
+
+    #ifdef EEPROM_PLR
+      BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
+    #else    
     load();
-    success = valid();
-    if (!success)
-      cancel();
-    else
-      queue.inject(F("M1000S"));
+    #endif
+
+		#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+			  if(laser_device.is_laser_device()) {
+			  purge();
+		    } else
+		#endif  
+        {  
+          success = valid();
+          if (!success)
+            cancel();
+          else
+            queue.inject(F("M1000S"));           
+        }
+    
   }
   return success;
 }
@@ -169,6 +195,10 @@ void PrintJobRecovery::prepare() {
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POWER_LOSS_ZRAISE*/, const bool raised/*=false*/) {
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
+
+  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    if(laser_device.is_laser_device()) return;
+  #endif
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -251,6 +281,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // Misc. Marlin flags
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
+
+    #if ENABLED(E3S1PRO_RTS)
+      info.recovery_flag = PoweroffContinue;
+    #endif
 
     write();
   }

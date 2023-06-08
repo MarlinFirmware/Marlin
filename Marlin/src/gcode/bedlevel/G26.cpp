@@ -322,7 +322,13 @@ typedef struct {
 
       if (bed_temp > 25) {
         LCD_MESSAGE_MAX(MSG_G26_HEATING_BED);
-        ui.quick_feedback();
+
+        #if ENABLED(E3S1PRO_RTS)
+          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
+        #else
+          ui.quick_feedback();
+        #endif
+        
         TERN_(HAS_MARLINUI_MENU, ui.capture());
         thermalManager.setTargetBed(bed_temp);
 
@@ -339,7 +345,11 @@ typedef struct {
 
     // Start heating the active nozzle
     LCD_MESSAGE_MAX(MSG_G26_HEATING_NOZZLE);
+    
+    #if DISABLED(E3S1PRO_RTS)
     ui.quick_feedback();
+    #endif
+    
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
     // Wait for the temperature to stabilize
@@ -347,7 +357,10 @@ typedef struct {
       return G26_ERR;
 
     ui.reset_status();
+
+    #if DISABLED(E3S1PRO_RTS)
     ui.completion_feedback();
+    #endif
 
     return G26_OK;
   }
@@ -400,7 +413,9 @@ typedef struct {
     #endif
     {
       LCD_MESSAGE_MAX(MSG_G26_FIXED_LENGTH);
-      ui.quick_feedback();
+      #if DISABLED(E3S1PRO_RTS)
+        ui.quick_feedback();
+      #endif
       destination = current_position;
       destination.e += prime_length;
       prepare_internal_move_to_destination(fr_slow_e);

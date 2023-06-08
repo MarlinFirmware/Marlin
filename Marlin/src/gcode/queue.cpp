@@ -37,6 +37,13 @@ GCodeQueue queue;
 #include "../MarlinCore.h"
 #include "../core/bug_on.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+  #if ENABLED(GCODE_PREVIEW_ENABLED)
+    #include "../lcd/e3v2/creality/preview.h"  
+  #endif
+#endif
+
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
 #endif
@@ -55,6 +62,10 @@ GCodeQueue queue;
 
 #if ENABLED(GCODE_REPEAT_MARKERS)
   #include "../feature/repeat.h"
+#endif
+
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #include "../feature/spindle_laser.h"
 #endif
 
 // Frequently used G-code strings
@@ -137,6 +148,23 @@ bool GCodeQueue::enqueue_one(const char * const cmd) {
   }
   return false;
 }
+
+#if ENABLED(E3S1PRO_RTS)
+/**
+ * Attempt to enqueue a single G-code command
+ * and return 'true' if successful.
+ */
+bool GCodeQueue::enqueue_one_P(PGM_P const pgcode) {
+  size_t i = 0;
+  PGM_P p = pgcode;
+  char c;
+  while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
+  char cmd[i + 1];
+  memcpy_P(cmd, p, i);
+  cmd[i] = '\0';
+  return ring_buffer.enqueue(cmd);
+}
+#endif
 
 /**
  * Process the next "immediate" command from PROGMEM.
@@ -334,6 +362,45 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
   const char * const m29 = strstr_P(cmd, PSTR("M29"));
   return m29 && !NUMERIC(m29[3]);
 }
+
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+
+void get_gcode_comment()
+{
+   char* p;
+   unsigned char i, inc=0, buf[30]={0};
+  while(1){
+      const int16_t n = card.get();
+      const bool card_eof = card.eof();
+
+      if( (card_eof) || (n=='\n'))
+      {
+        for(i=LASER_MIN_X; i<=LASER_MAX_Y; i++){
+          p = strstr((char*)&buf[0], laser_device.laser_cmp_info[i]);
+          if(p) {
+            p+=5;
+            while(*p==' ') p++;
+            laser_device.set_laser_range((laser_device_range)i, atof(p));// = atof(p+5);
+            break;
+            //SERIAL_ECHOLNPAIR(laser_device.laser_cmp_info[i], laser_device.get_laser_range((laser_device_range)i));
+          }else if((p = strstr((char*)&buf[0], "estimated_time")) != NULL) {
+            p += strlen("estimated_time(s):");
+            while(*p==' ') p++;
+            laser_device.remain_time = atof(p)+59;
+            //SERIAL_ECHOLNPAIR("laser_device.remain_time=", laser_device.remain_time);
+            break;
+          }
+        }
+		//SERIAL_ECHO_MSG(buf); //107011
+        return;
+      }
+
+      buf[inc] = n;
+	  if(inc<29) inc++;
+
+  }
+}
+#endif // #if HAS_CUTTER
 
 #define PS_NORMAL 0
 #define PS_EOL    1
@@ -577,7 +644,11 @@ void GCodeQueue::get_serial_commands() {
     if (!IS_SD_FETCHING()) return;
 
     int sd_count = 0;
+    #if ENABLED(E3S1PRO_RTS)
+    while (!ring_buffer.full() && !card.eof() && rtscheck.RTS_SD_Detected()) {
+    #else
     while (!ring_buffer.full() && !card.eof()) {
+    #endif
       const int16_t n = card.get();
       const bool card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
@@ -608,14 +679,72 @@ void GCodeQueue::get_serial_commands() {
           TERN_(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
         }
 
-        if (card.eof()) card.fileHasFinished();         // Handle end of file reached
+        if (card_eof) card.fileHasFinished();         // Handle end of file reached            
       }
       else
+      {
         process_stream_char(sd_char, sd_input_state, command.buffer, sd_count);
+      }        
+      #if ENABLED(E3S1PRO_RTS)
+        // the printing results
+        if (card_eof)
+        {
+          rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
+          delay(1);
+          rtscheck.RTS_SndData(100, PRINT_PROCESS_ICON_VP);
+          delay(1);
+
+          #if HAS_CUTTER
+            if(laser_device.is_laser_device()){ 
+              // rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
+              //  change_page_font = 60;
+            }else
+          #endif
+          {
+            rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr);
+             change_page_font = 9;
+          }
+
+          // if(flag_over_shutdown)
+          // {
+          //   // Start the automatic shutdown timer after printing
+          //   flag_counter_printover_to_shutdown = true;
+          // }
+        }
+      #endif
     }
   }
 
 #endif // HAS_MEDIA
+
+#if ENABLED(SDSUPPORT) && ALL(E3S1PRO_RTS, HAS_CUTTER)
+
+  void get_sdcard_laser_range() 
+  {
+    // Get commands if there are more in the file
+    if( !((laser_device.is_read_gcode_range_on()) && (laser_device.is_laser_device()) && (IS_SD_PAUSED()))) return;
+
+    while (!card.eof()) 
+    {
+      const int16_t n = card.get();
+      const bool card_eof = card.eof();
+
+      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
+
+      if(n==';'){
+        //SERIAL_ECHOLNPAIR("n=;", n);
+        get_gcode_comment();
+      }else{
+          //SERIAL_ECHOLNPAIR("n!=;", n);
+          card.setIndex(0);
+          laser_device.set_read_gcode_range_off();
+		  return;
+      }
+
+    }
+  }
+  
+#endif // SDSUPPORT
 
 /**
  * Add to the circular command queue the next command from:
@@ -628,7 +757,14 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  TERN_(HAS_MEDIA, get_sdcard_commands());
+  #if HAS_CUTTER
+    if(laser_device.is_laser_device()&&laser_device.is_read_gcode_range_on()&&IS_SD_PAUSED()){ // 解决FDM有时不打印的bug 107011 -20211110
+      get_sdcard_laser_range();
+    }else 
+  #endif
+    {
+    TERN_(HAS_MEDIA, get_sdcard_commands());
+    }
 }
 
 /**

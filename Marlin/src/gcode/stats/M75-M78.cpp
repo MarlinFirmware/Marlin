@@ -27,6 +27,15 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+  #if ENABLED(GCODE_PREVIEW_ENABLED)
+    #include "../../lcd/e3v2/creality/preview.h"
+  #endif
+  #include "../../module/temperature.h"
+  #include "../../module/planner.h"
+#endif
+
 #include "../../MarlinCore.h" // for startOrResumeJob
 
 #if ENABLED(DWIN_LCD_PROUI)

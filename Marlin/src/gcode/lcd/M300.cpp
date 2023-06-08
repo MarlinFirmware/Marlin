@@ -29,6 +29,10 @@
 #include "../../lcd/marlinui.h" // i2c-based BUZZ
 #include "../../libs/buzzer.h"  // Buzzer, if possible
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M300: Play a Tone / Add a tone to the queue
  *
@@ -36,13 +40,23 @@
  *  P<duration>  - (ms) The duration of the tone.
  */
 void GcodeSuite::M300() {
-  const uint16_t frequency = parser.ushortval('S', 260);
+
+  #if DISABLED(E3S1PRO_RTS)
+    const uint16_t frequency = parser.ushortval('S', 260);
+  #endif
+
   uint16_t duration = parser.ushortval('P', 1000);
 
   // Limits the tone duration to 0-5 seconds.
   NOMORE(duration, 5000U);
-
-  BUZZ(duration, frequency);
+  
+  #if ENABLED(E3S1PRO_RTS)
+    rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
+  #else
+    uint16_t const frequency = parser.ushortval('S', 260);
+    BUZZ(duration, frequency);
+  #endif
+  
 }
 
 #endif // HAS_SOUND

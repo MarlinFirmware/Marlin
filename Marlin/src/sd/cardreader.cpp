@@ -38,6 +38,10 @@
   #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -601,6 +605,15 @@ void CardReader::openAndPrintFile(const char *name) {
   strcat_P(cmd, PSTR("\nM24"));
   queue.inject(cmd);
 }
+
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    void CardReader::openAndPausePrintFile(const char *name) {
+      char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
+      sprintf_P(cmd, M23_STR, name);
+      for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
+      queue.inject(cmd);
+    }
+#endif
 
 /**
  * Start or resume a media print by setting the sdprinting flag.

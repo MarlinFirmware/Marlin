@@ -199,3 +199,18 @@ FORCE_INLINE static void timer_no_ARR_preload_ARPE(timer_dev *dev) {
 void HAL_timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority);
 
 #define TIMER_OC_NO_PRELOAD 0 // Need to disable preload also on compare registers.
+
+#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #define LASER_TIMER_NUM	               3
+  #define LASER_TIMER_DEV	               TIMER_DEV(LASER_TIMER_NUM)
+  #define LASER_TIMER_FREQUENCY          1000 // PWM freq:1000Hz
+  #define LASER_TIMER_PWM_MAX            255 // PWM value range: 0~255
+  #define LASER_TIMER_PRESCALE(freq)     (HAL_TIMER_RATE / (freq * (LASER_TIMER_PWM_MAX + 1))) // (72M/1000*256)=281
+  #define LASER_TIMER_CHAN		           1
+  #define LASER_TIMER_IRQ_PRIO	         1
+
+  void laser_timer_soft_pwm_init(const uint32_t frequency);
+  void laser_timer_soft_pwm_start(uint8_t pwm);
+  void laser_timer_soft_pwm_stop(void);
+  void laser_timer_soft_pwm_close();
+#endif
