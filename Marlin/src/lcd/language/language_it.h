@@ -69,6 +69,8 @@ namespace Language_it {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disabilita Motori");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu di debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barra avanzam.");
+  LSTR MSG_ENDSTOP_TEST                   = _UxGT("Test Finecorsa");
+  LSTR MSG_Z_PROBE                        = _UxGT("Sonda Z");
   LSTR MSG_HOMING                         = _UxGT("Azzeramento");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
@@ -425,6 +427,7 @@ namespace Language_it {
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
   LSTR MSG_MOTION                         = _UxGT("Movimento");
   LSTR MSG_FILAMENT                       = _UxGT("Filamento");
+  LSTR MSG_FILAMENT_EN                    = _UxGT("Filamento *");
   LSTR MSG_VOLUMETRIC_ENABLED             = _UxGT("E in mm") SUPERSCRIPT_THREE;
   LSTR MSG_VOLUMETRIC_LIMIT               = _UxGT("Limite E in mm") SUPERSCRIPT_THREE;
   LSTR MSG_VOLUMETRIC_LIMIT_E             = _UxGT("Limite E *");
@@ -438,6 +441,7 @@ namespace Language_it {
   LSTR MSG_DRAW_MIN_Y                     = _UxGT("Min Y area disegno");
   LSTR MSG_DRAW_MAX_Y                     = _UxGT("Max Y area disegno");
   LSTR MSG_MAX_BELT_LEN                   = _UxGT("Lungh.max cinghia");
+  LSTR MSG_LINEAR_ADVANCE                 = _UxGT("Avanzam.Lineare");
   LSTR MSG_ADVANCE_K                      = _UxGT("K Avanzamento");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K Avanzamento *");
   LSTR MSG_CONTRAST                       = _UxGT("Contrasto LCD");
@@ -449,8 +453,9 @@ namespace Language_it {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Ripristina imp.");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inizializza EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: CRC EEPROM");
-  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: Taglia EEPROM");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: Dimens.EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versione EEPROM");
+  LSTR MSG_ERR_EEPROM_CORRUPT             = _UxGT("Err: EEPROM corrotta");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Impostazioni mem.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aggiorna media");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetta stampante");
@@ -619,6 +624,7 @@ namespace Language_it {
   LSTR MSG_CHAMBER_COOLING                = _UxGT("Raffr. camera...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Raffr. laser...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Calibraz. Delta");
+  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Calibrazione Delta in corso");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Calibra X");
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Calibra Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Calibra Z");
@@ -729,7 +735,8 @@ namespace Language_it {
   LSTR MSG_MMU2_FILAMENT_N                = _UxGT("Filamento ~");
   LSTR MSG_MMU2_RESET                     = _UxGT("Azzera MMU");
   LSTR MSG_MMU2_RESETTING                 = _UxGT("Azzeramento MMU...");
-  LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Rimuovi, click");
+  LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Espelli, click");
+  LSTR MSG_MMU2_REMOVE_AND_CLICK          = _UxGT("Rimuovi e click...");
 
   LSTR MSG_MIX                            = _UxGT("Miscela");
   LSTR MSG_MIX_COMPONENT_N                = _UxGT("Componente {");
@@ -812,6 +819,22 @@ namespace Language_it {
   LSTR MSG_BACKLASH                       = _UxGT("Gioco");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correzione");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Appianamento");
+
+  LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Movimento a Tempo-Fisso");
+  LSTR MSG_FTM_MODE                       = _UxGT("Modo Movimento:");
+  LSTR MSG_FTM_ZV                         = _UxGT("ZV");
+  LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
+  LSTR MSG_FTM_EI                         = _UxGT("EI");
+  LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
+  LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
+  LSTR MSG_FTM_MZV                        = _UxGT("MZV");
+  //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
+  //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("Modo DF:");
+  LSTR MSG_FTM_Z_BASED                    = _UxGT("Base-Z");
+  LSTR MSG_FTM_MASS_BASED                 = _UxGT("Base-Massa");
+  LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Freq. Base");
+  LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Freq. Dinam.");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Livello asse X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibra");
