@@ -708,7 +708,7 @@ static void drawAxisValue(const AxisEnum axis) {
     #endif
     default: return;
   }
-  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT TERN_(HAS_UI_480x272, / 2));
+  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(ftostr52sp(value));
   tft_string.trim();
