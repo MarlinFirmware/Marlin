@@ -156,10 +156,10 @@
 #define SERVO0_PIN                            11  // BLTouch / 3DTouch
 
 //
-// Z Probe PIN6 HEADER H3 (PRINT HEAD HEADER CONN)
+// Z Probe PIN6 Header H3 (Print head connector)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                 Z_MIN1
+  #define Z_MIN_PROBE_PIN                     Z_MIN_PIN
 #endif
 
 //
@@ -221,17 +221,13 @@
 #define LCM_RS                                20  // Pin named and connected to 10k pull-up resistor but unused
 
 #if ENABLED(YHCB2004)
-
   #define YHCB2004_SS_PIN                 LCM_D6
   #define YHCB2004_SCK_PIN                LCM_D5
   #define YHCB2004_MOSI_PIN               LCM_D7
   #define YHCB2004_MISO_PIN               LCM_RS  // Unused on V4.1b board
-
 #elif HAS_WIRED_LCD
-
   #error "GT2560 V4.1b requires an adapter for common LCDs."
-
-  /*  Cannot use because V4.1b board has no LCD_PINS_RS wired to display connector
+  /*  Cannot use because V4.1b board has not LCD_PINS_RS wired to display connector
   #define LCD_PINS_RS                         20
   #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         16
@@ -239,7 +235,6 @@
   #define LCD_PINS_D6                          5
   #define LCD_PINS_D7                         36
   //*/
-
 #endif
 
 #if ENABLED(YHCB2004)
