@@ -40,21 +40,18 @@
 extern HotendIdleProtection hotend_idle;
 
 millis_t HotendIdleProtection::next_protect_ms = 0;
-uint16_t HotendIdleProtection::timeout       = HOTEND_IDLE_TIMEOUT_SEC,
-         HotendIdleProtection::trigger       = HOTEND_IDLE_MIN_TRIGGER,
-         HotendIdleProtection::nozzle_target = HOTEND_IDLE_NOZZLE_TARGET,
-         HotendIdleProtection::bed_target    = HOTEND_IDLE_BED_TARGET;
+hotend_idle_settings_t HotendIdleProtection::cfg; // Initialized by settings.load()
 
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
   bool do_prot = false;
   HOTEND_LOOP() {
     const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
-    if (thermalManager.degHotend(e) >= (trigger) && !busy) {
+    if (thermalManager.degHotend(e) >= cfg.trigger && !busy) {
       do_prot = true; break;
     }
   }
   if (bool(next_protect_ms) != do_prot)
-    next_protect_ms = do_prot ? ms + (timeout * 1000) : 0;
+    next_protect_ms = do_prot ? ms + cfg.timeout * 1000 : 0;
 }
 
 void HotendIdleProtection::check_e_motion(const millis_t &ms) {
@@ -62,7 +59,7 @@ void HotendIdleProtection::check_e_motion(const millis_t &ms) {
   if (old_e_position != current_position.e) {
     old_e_position = current_position.e;          // Track filament motion
     if (next_protect_ms)                          // If some heater is on then...
-      next_protect_ms = ms + (timeout * 1000);         // ...delay the timeout till later
+      next_protect_ms = ms + cfg.timeout * 1000;  // ...delay the timeout till later
   }
 }
 
@@ -83,12 +80,12 @@ void HotendIdleProtection::timed_out() {
   SERIAL_ECHOLNPGM("Hotend Idle Timeout");
   LCD_MESSAGE(MSG_HOTEND_IDLE_TIMEOUT);
   HOTEND_LOOP() {
-    if (nozzle_target < thermalManager.degTargetHotend(e))
-      thermalManager.setTargetHotend(nozzle_target, e);
+    if (cfg.nozzle_target < thermalManager.degTargetHotend(e))
+      thermalManager.setTargetHotend(cfg.nozzle_target, e);
   }
   #if HAS_HEATED_BED
-    if (bed_target < thermalManager.degTargetBed())
-      thermalManager.setTargetBed(bed_target);
+    if (cfg.bed_target < thermalManager.degTargetBed())
+      thermalManager.setTargetBed(cfg.bed_target);
   #endif
 }
 

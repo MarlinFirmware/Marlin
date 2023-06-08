@@ -287,10 +287,10 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_BACK);
 
-    EDIT_ITEM(uint16_3, MSG_TIMEOUT, &hotend_idle.timeout, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_TEMPERATURE, &hotend_idle.trigger, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &hotend_idle.nozzle_target, 0, 999);
-    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_BED_TARGET, &hotend_idle.bed_target, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_TIMEOUT, &hotend_idle.cfg.timeout, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_TEMPERATURE, &hotend_idle.cfg.trigger, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &hotend_idle.cfg.nozzle_target, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_BED_TARGET, &hotend_idle.cfg.bed_target, 0, 999);
 
     END_MENU();
   }

@@ -628,13 +628,10 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // HOTEND_IDLE_TIMEOUT Settings
+  // HOTEND_IDLE_TIMEOUT
   //
   #if ENABLED(HOTEND_IDLE_TIMEOUT)
-    uint16_t hotend_idle_timeout,
-             hotend_idle_trigger,
-             hotend_idle_nozzle_target,
-             hotend_idle_bed_target;
+    hotend_idle_settings_t hotend_idle_config;
   #endif
 
 } SettingsData;
@@ -1732,10 +1729,7 @@ void MarlinSettings::postprocess() {
     // HOTEND_IDLE_TIMEOUT
     //
     #if ENABLED(HOTEND_IDLE_TIMEOUT)
-      EEPROM_WRITE(hotend_idle.timeout);
-      EEPROM_WRITE(hotend_idle.trigger);
-      EEPROM_WRITE(hotend_idle.nozzle_target);
-      EEPROM_WRITE(hotend_idle.bed_target);
+      EEPROM_WRITE(hotend_idle.cfg);
     #endif
 
     //
@@ -2809,10 +2803,7 @@ void MarlinSettings::postprocess() {
       // HOTEND_IDLE_TIMEOUT
       //
       #if ENABLED(HOTEND_IDLE_TIMEOUT)
-        EEPROM_READ(hotend_idle.timeout);
-        EEPROM_READ(hotend_idle.trigger);
-        EEPROM_READ(hotend_idle.nozzle_target);
-        EEPROM_READ(hotend_idle.bed_target);
+        EEPROM_READ(hotend_idle.cfg);
       #endif
 
       //
@@ -3623,6 +3614,11 @@ void MarlinSettings::reset() {
       stepper.set_shaping_damping_ratio(Y_AXIS, SHAPING_ZETA_Y);
     #endif
   #endif
+
+  //
+  // Hotend Idle Timeout
+  //
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
 
   postprocess();
 
