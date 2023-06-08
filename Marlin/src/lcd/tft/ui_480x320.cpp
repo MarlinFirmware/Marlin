@@ -623,7 +623,6 @@ struct {
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
 #define Y_MARGIN 15
-#define Y_OFFSET TERN(HAS_UI_480x272, 28, 34)
 
 static void quick_feedback() {
   #if HAS_CHIRP
