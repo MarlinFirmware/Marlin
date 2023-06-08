@@ -631,7 +631,7 @@ typedef struct SettingsDataStruct {
   // HOTEND_IDLE_TIMEOUT
   //
   #if ENABLED(HOTEND_IDLE_TIMEOUT)
-    hotend_idle_settings_t hotend_idle_config;
+    hotend_idle_settings_t hotend_idle_config;          // M86 S T E B
   #endif
 
 } SettingsData;
@@ -3876,6 +3876,11 @@ void MarlinSettings::reset() {
     // Input Shaping
     //
     TERN_(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
+
+    //
+    // Hotend Idle Timeout
+    //
+    TERN_(HOTEND_IDLE_TIMEOUT, gcode.M86_report(forReplay));
 
     //
     // Linear Advance

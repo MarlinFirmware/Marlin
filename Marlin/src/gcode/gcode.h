@@ -711,6 +711,13 @@ private:
   #endif
 
   static void M85();
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    static void M86();
+    static void M86_report(const bool forReplay=true);
+    static void M87();
+  #endif
+
   static void M92();
   static void M92_report(const bool forReplay=true, const int8_t e=-1);
 
