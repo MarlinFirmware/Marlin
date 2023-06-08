@@ -244,9 +244,9 @@
 
  /**
   *            Ender-3 V2 display                        Manta E3 EZ V1.0               Ender-3 V2 display --> Manta E3 EZ V1.0
-  *                  ------                                   ------                                 RX  3 -->  5  P0_15
-  *             --  | 1  2 | --                (BEEPER)  PC1 | 1  2 | PC2  (BTN_ENC)                 TX  4 -->  9  P0_16
-  * (MANTA TX1) RX  | 3  4 | TX (MANTA RX1)    (BTN_EN1) PC3 | 3  4 | RESET                      BEEPER  6 --> 10  P2_08
+  *                  ------                                   ------                                 RX  3 --> 6  PA0
+  *             --  | 1  2 | --                (BEEPER)  PC1 | 1  2 | PC2  (BTN_ENC)                 TX  4 --> 2  PC2
+  * (MANTA TX1) RX  | 3  4 | TX (MANTA RX1)    (BTN_EN1) PC3 | 3  4 | RESET                      BEEPER  6 --> 1  PC1
   *   (BTN_ENC) ENT   5  6 | BEEPER            (BTN_EN2) PC0   5  6 | PA0  (LCD_D4)
   *   (BTN_E2)  B   | 7  8 | A  (BTN_E1)       (LCD_RS)  PA2 | 7  8 | PA1  (LCD_EN)
   *             GND | 9 10 | 5V                          GND | 9 10 | 5V
