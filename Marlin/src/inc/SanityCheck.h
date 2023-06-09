@@ -3666,8 +3666,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "SPINDLE_LASER_PWM_PIN conflicts with Z_STEP_PIN."
     #elif _PIN_CONFLICT(CASE_LIGHT)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CASE_LIGHT_PIN."
-    //#elif _PIN_CONFLICT(E0_AUTO_FAN)
-    //  #error "SPINDLE_LASER_PWM_PIN conflicts with E0_AUTO_FAN_PIN."
+    #elif _PIN_CONFLICT(E0_AUTO_FAN)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with E0_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(E1_AUTO_FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with E1_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(E2_AUTO_FAN)
@@ -3684,8 +3684,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "SPINDLE_LASER_PWM_PIN conflicts with E7_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN0_PIN."
-    //#elif _PIN_CONFLICT(FAN1)
-    //  #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
+    #elif _PIN_CONFLICT(FAN1)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
     #elif _PIN_CONFLICT(FAN2)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN2_PIN."
     #elif _PIN_CONFLICT(FAN3)
