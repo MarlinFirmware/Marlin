@@ -60,6 +60,8 @@
 
 #ifdef __SAMD21__
 
+#include "../../../inc/MarlinConfigPre.h"
+
 #if HAS_MARLINUI_U8GLIB
 
 #include <U8glib-HAL.h>
