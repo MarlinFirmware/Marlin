@@ -80,7 +80,7 @@ void GcodeSuite::M851() {
 
       #if ENABLED(E3S1PRO_RTS)
         zprobe_zoffset = z;
-        rtscheck.RTS_SndData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        rts.sendData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       #endif
 
       offs.z = z;

@@ -45,7 +45,7 @@ void GcodeSuite::M220() {
   if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 
   #if ENABLED(E3S1PRO_RTS)
-    rtscheck.RTS_SndData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+    rts.sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
     SERIAL_ECHOLNPGM("M220 S", feedrate_percentage);
   #endif
 

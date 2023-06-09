@@ -180,7 +180,7 @@ timer_dev* HAL_get_timer_dev(int number) {
   }
 }
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
 
   static unsigned int sw = 0, laser_h = 0, laser_l = 0;
 
@@ -246,6 +246,6 @@ timer_dev* HAL_get_timer_dev(int number) {
     // timer_resume(LASER_TIMER_DEV);
   }
 
-#endif // HAS_CUTTER
+#endif // HAS_LASER_E3S1PRO
 
 #endif // __STM32F1__

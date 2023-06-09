@@ -338,7 +338,7 @@ public:
 
 extern SpindleLaser cutter;
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
 
 enum device_header{
   DEVICE_UNKNOWN = 0xFF,  // unknown device

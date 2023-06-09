@@ -1,10 +1,28 @@
-#ifndef UTF8_UNICODE_H
-#define UTF8_UNICODE_H
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
 int enc_utf8_to_unicode(const char* pInput, unsigned short int *Unic);
 
 int enc_utf8_to_unicode_one(const unsigned char* pInput, unsigned short int *Unic);
 
 int enc_get_utf8_size(const unsigned char pInput);
-
-#endif /* BASE64_H */

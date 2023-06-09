@@ -111,7 +111,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   #if ENABLED(E3S1PRO_RTS)
     temphot = thermalManager.temp_hotend[0].target;
-    rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
+    rts.sendData(exchangePageBase + 7, exchangePageAddr);
     change_page_font = 7;
     sdcard_pause_check = true;
   #endif

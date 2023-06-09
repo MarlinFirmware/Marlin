@@ -53,7 +53,7 @@
   #include "../../module/tool_change.h"
 #endif
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -85,7 +85,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
 
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) return;
   #endif
 

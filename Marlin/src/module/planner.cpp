@@ -118,7 +118,7 @@
 #define BLOCK_DELAY_NONE         0U
 #define BLOCK_DELAY_FOR_1ST_MOVE 100U
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #define LASER_BLOCK_DELAY_FOR_1ST_MOVE  0
 #endif
 
@@ -1856,7 +1856,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
 
-    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    #if HAS_LASER_E3S1PRO
       if (laser_device.is_laser_device()) {
           delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
         } else
@@ -2937,7 +2937,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
 
-    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    #if HAS_LASER_E3S1PRO
       if (laser_device.is_laser_device()){
         delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
       }else

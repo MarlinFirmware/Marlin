@@ -41,7 +41,7 @@
   #include "../feature/cooler.h"
 #endif
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -692,9 +692,9 @@ volatile bool Temperature::raw_temps_ready = false;
       //char textRep_cur_cycle[25];
       //char textRep_cycles[25];
       //int repT = 1; // added for updating the running icon
-      rtscheck.RTS_SndData(0, PID_TUNING_RUNNING_VP);
+      rts.sendData(0, PID_TUNING_RUNNING_VP);
       if (heater_id == 0)
-        rtscheck.RTS_SndData(1, PID_ICON_MODE_VP);
+        rts.sendData(1, PID_ICON_MODE_VP);
       const bool isHeater_autopid = (heater_id == H_E0);
       const bool isBed_autopid = (heater_id == H_BED);
     #endif
@@ -751,12 +751,12 @@ volatile bool Temperature::raw_temps_ready = false;
 
     #if ENABLED(E3S1PRO_RTS)
             if (isBed_autopid){
-              rtscheck.RTS_SndData(0, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
+              rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
+              rts.sendData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
             }
             if (isHeater_autopid){
-              rtscheck.RTS_SndData(0, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
+              rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
+              rts.sendData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
             }
     #endif
 
@@ -853,12 +853,12 @@ volatile bool Temperature::raw_temps_ready = false;
 
           #if ENABLED(E3S1PRO_RTS)
             if (isBed_autopid){
-              rtscheck.RTS_SndData(cycles, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
+              rts.sendData(cycles, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
+              rts.sendData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
             }
             if (isHeater_autopid){
-              rtscheck.RTS_SndData(cycles, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
+              rts.sendData(cycles, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
+              rts.sendData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
             }
           #endif
 
@@ -884,13 +884,13 @@ volatile bool Temperature::raw_temps_ready = false;
         uint16_t uiTemp[1];
         if (g_uiAutoPIDRuningDiff == 1) {
           uiTemp[0] = thermalManager.temp_hotend[0].celsius;
-          rtscheck.RTS_SendCurveData(6, uiTemp, 1);
-          rtscheck.RTS_SndData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
+          rts.sendCurveData(6, uiTemp, 1);
+          rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
           SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
         } else if (g_uiAutoPIDRuningDiff == 2) {
           uiTemp[0] = thermalManager.temp_bed.celsius;
-          rtscheck.RTS_SendCurveData(5, uiTemp, 1);
-          rtscheck.RTS_SndData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
+          rts.sendCurveData(5, uiTemp, 1);
+          rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
           SERIAL_ECHOLNPGM("Autopid hotbed running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
         }
       }
@@ -916,7 +916,7 @@ volatile bool Temperature::raw_temps_ready = false;
               else if (ELAPSED(ms, temp_change_ms)) {                  // Watch timer expired
 
               #if ENABLED(E3S1PRO_RTS)
-                rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+                rts.sendData(exchangePageBase + 31, exchangePageAddr);
                 change_page_font = 31;
               #endif
 
@@ -926,7 +926,7 @@ volatile bool Temperature::raw_temps_ready = false;
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
 
                 #if ENABLED(E3S1PRO_RTS)
-                  rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+                  rts.sendData(exchangePageBase + 31, exchangePageAddr);
                   change_page_font = 31;
                 #endif
 
@@ -947,7 +947,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
 
         #if ENABLED(E3S1PRO_RTS)
-          rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+          rts.sendData(exchangePageBase + 31, exchangePageAddr);
           change_page_font = 31;
         #endif
 
@@ -1462,7 +1462,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
   void Temperature::update_autofans() {
 
-    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    #if HAS_LASER_E3S1PRO
         if (laser_device.is_laser_device()) return;
     #endif
 
@@ -1645,7 +1645,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id) {
   #endif
 
   #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
-    rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+    rts.sendData(exchangePageBase + 31, exchangePageAddr);
     change_page_font = 31;
   #endif
 
@@ -1658,7 +1658,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
   #endif
 
   #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
-    rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+    rts.sendData(exchangePageBase + 31, exchangePageAddr);
     change_page_font = 31;
   #endif
 
@@ -1866,7 +1866,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
         if (degHotend(e) > temp_range[e].maxtemp) {
 
           #if ENABLED(E3S1PRO_RTS)
-            rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+            rts.sendData(exchangePageBase + 31, exchangePageAddr);
             change_page_font = 31;
           #endif
 
@@ -1894,7 +1894,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
 
             #if ENABLED(E3S1PRO_RTS)
-              rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+              rts.sendData(exchangePageBase + 31, exchangePageAddr);
               change_page_font = 31;
             #endif
 
@@ -1916,7 +1916,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
       if (degBed() > BED_MAXTEMP) {
 
         #if ENABLED(E3S1PRO_RTS)
-          rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+          rts.sendData(exchangePageBase + 31, exchangePageAddr);
           change_page_font = 31;
         #endif
 
@@ -1933,7 +1933,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
 
          #if ENABLED(E3S1PRO_RTS)
-            rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+            rts.sendData(exchangePageBase + 31, exchangePageAddr);
             change_page_font = 31;
           #endif
 
@@ -3340,7 +3340,7 @@ void Temperature::init() {
       case TRRunaway:
 
         #if ENABLED(E3S1PRO_RTS)
-          rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+          rts.sendData(exchangePageBase + 31, exchangePageAddr);
           change_page_font = 31;
         #endif
 
@@ -3352,7 +3352,7 @@ void Temperature::init() {
           TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
 
           #if ENABLED(E3S1PRO_RTS)
-            rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
+            rts.sendData(exchangePageBase + 31, exchangePageAddr);
             change_page_font = 31;
           #endif
 
@@ -4567,7 +4567,7 @@ void Temperature::isr() {
           duration_t elapsed = print_job_timer.duration();  // Print timer
           dwin_heat_time = elapsed.value;
         #elif ENABLED(E3S1PRO_RTS)
-          Update_Time_Value = RTS_UPDATE_VALUE;
+          updateTimeValue = RTS_UPDATE_VALUE;
         #else
           ui.reset_status();
         #endif
@@ -4705,8 +4705,8 @@ void Temperature::isr() {
         wait_for_heatup = false;
 
         #if ENABLED(E3S1PRO_RTS)
-          Update_Time_Value = RTS_UPDATE_VALUE;
-          rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
+          updateTimeValue = RTS_UPDATE_VALUE;
+          rts.sendData(exchangePageBase + 10, exchangePageAddr);
         #else
         ui.reset_status();
         #endif

@@ -327,12 +327,12 @@ static constexpr bool verify_no_timer_conflicts() {
 // when hovering over it, making it easy to identify the conflicting timers.
 static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected. Examine \"timers_in_use\" to help identify conflict.");
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
 
-  #define LASER_TIMER_NUM	                          3
-  #define LASER_TIMER_DEV	                          _TIMER_DEV(LASER_TIMER_NUM)
-  #define LASER_TIMER_PRESCALE(timer_clk, freq)     ((timer_clk) / ((freq) * (LASER_TIMER_PWM_MAX + 1)))
-  #define LASER_TIMER_IRQ_PRIO                      1
+  #define LASER_TIMER_NUM 3
+  #define LASER_TIMER_DEV _TIMER_DEV(LASER_TIMER_NUM)
+  #define LASER_TIMER_PRESCALE(timer_clk, freq) ((timer_clk) / ((freq) * (LASER_TIMER_PWM_MAX + 1)))
+  #define LASER_TIMER_IRQ_PRIO 1
 
   typedef enum {
     LASER_PWM_STATE_L = 0,
@@ -352,7 +352,7 @@ static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected.
   }
 
   static void laser_timer_handler() {
-  	//SERIAL_ECHOLNPGM("laser_timer_handler");
+    //SERIAL_ECHOLNPGM("laser_timer_handler");
 
     switch (laser_pwm_state) {
       case LASER_PWM_STATE_L:
@@ -396,15 +396,15 @@ static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected.
   }
 
   void laser_timer_soft_pwm_stop() {
-  	//SERIAL_ECHOLNPGM("laser_timer_soft_pwm_stop()");
+    //SERIAL_ECHOLNPGM("laser_timer_soft_pwm_stop()");
     laser_timer_soft_pwm_start(1);
   }
 
   void laser_timer_soft_pwm_close() {
     //SERIAL_ECHOLNPGM("laser_timer_soft_pwm_close()");
     if (timer_laser == nullptr) return;
-  	timer_laser->pause();
-  	WRITE(LASER_SOFT_PWM_PIN, LOW);
+    timer_laser->pause();
+    WRITE(LASER_SOFT_PWM_PIN, LOW);
   }
 
   void laser_timer_soft_pwm_init(const uint32_t frequency) {

@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../module/stepper.h"
 #endif
 
@@ -77,7 +77,7 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
   #include "../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -144,7 +144,7 @@ bool PrintJobRecovery::check() {
       load();
     #endif
 
-    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    #if HAS_LASER_E3S1PRO
         if (laser_device.is_laser_device()) {
         purge();
         } else
@@ -196,7 +196,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) return;
   #endif
 
@@ -283,7 +283,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
 
     #if ENABLED(E3S1PRO_RTS)
-      info.recovery_flag = PoweroffContinue;
+      info.recovery_flag = poweroffContinue;
     #endif
 
     write();

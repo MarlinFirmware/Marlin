@@ -274,9 +274,9 @@ void Endstops::not_homing() {
         // jump2page_num(PG_ABNORMAL);
         // change_page_font = PG_ABNORMAL;
         // Failed to homing move
-        // rtscheck.RTS_SndData(Error_202, ABNORMAL_PAGE_TEXT_VP);
-        // rtscheck.RTS_SndData(0, Window_fault_probe_VP);
-        // rtscheck.RTS_SndData(0, Window_fault_home_VP);
+        // rts.sendData(Error_202, ABNORMAL_PAGE_TEXT_VP);
+        // rts.sendData(0, Window_fault_probe_VP);
+        // rts.sendData(0, Window_fault_home_VP);
         errorway = 2;
       #endif
 

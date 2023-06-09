@@ -163,7 +163,7 @@ public:
   static void printSelectedFilename();
   static void openAndPrintFile(const char *name);   // (working directory or full path)
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
       static void openAndPausePrintFile(const char *name);
   #endif
 

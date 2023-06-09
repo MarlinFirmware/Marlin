@@ -119,7 +119,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
 #define HAL_timer_isr_prologue(T) NOOP
 #define HAL_timer_isr_epilogue(T) NOOP
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #define LASER_TIMER_FREQUENCY          1000 // PWM freq:1000Hz
   #define LASER_TIMER_PWM_MAX            255 // PWM value range: 0~255
 

@@ -606,7 +606,7 @@ void CardReader::openAndPrintFile(const char *name) {
   queue.inject(cmd);
 }
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
     void CardReader::openAndPausePrintFile(const char *name) {
       char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
       sprintf_P(cmd, M23_STR, name);

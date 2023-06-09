@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../../feature/spindle_laser.h"
 #endif
 

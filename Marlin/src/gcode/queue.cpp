@@ -64,7 +64,7 @@ GCodeQueue queue;
   #include "../feature/repeat.h"
 #endif
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -363,43 +363,43 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
   return m29 && !NUMERIC(m29[3]);
 }
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
 
-void get_gcode_comment() {
-  char *p;
-  unsigned char i, inc = 0, buf[30] = {0};
-  for (;;) {
-    const int16_t n = card.get();
-    const bool card_eof = card.eof();
+  void get_gcode_comment() {
+    char *p;
+    unsigned char i, inc = 0, buf[30] = {0};
+    for (;;) {
+      const int16_t n = card.get();
+      const bool card_eof = card.eof();
 
-    if (card_eof || n == '\n') {
-      for (i = LASER_MIN_X; i <= LASER_MAX_Y; ++i) {
-        p = strstr((char*)&buf[0], laser_device.laser_cmp_info[i]);
-        if (p) {
-          p += 5;
-          while (*p == ' ') p++;
-          laser_device.set_laser_range((laser_device_range)i, atof(p)); // = atof(p+5);
-          break;
-          //SERIAL_ECHOLNPGM(laser_device.laser_cmp_info[i], laser_device.get_laser_range((laser_device_range)i));
+      if (card_eof || n == '\n') {
+        for (i = LASER_MIN_X; i <= LASER_MAX_Y; ++i) {
+          p = strstr((char*)&buf[0], laser_device.laser_cmp_info[i]);
+          if (p) {
+            p += 5;
+            while (*p == ' ') p++;
+            laser_device.set_laser_range((laser_device_range)i, atof(p)); // = atof(p+5);
+            break;
+            //SERIAL_ECHOLNPGM(laser_device.laser_cmp_info[i], laser_device.get_laser_range((laser_device_range)i));
+          }
+          else if ((p = strstr((char*)&buf[0], "estimated_time")) != NULL) {
+            p += strlen("estimated_time(s):");
+            while (*p==' ') p++;
+            laser_device.remain_time = atof(p)+59;
+            //SERIAL_ECHOLNPGM("laser_device.remain_time=", laser_device.remain_time);
+            break;
+          }
         }
-        else if ((p = strstr((char*)&buf[0], "estimated_time")) != NULL) {
-          p += strlen("estimated_time(s):");
-          while (*p==' ') p++;
-          laser_device.remain_time = atof(p)+59;
-          //SERIAL_ECHOLNPGM("laser_device.remain_time=", laser_device.remain_time);
-          break;
-        }
+        //SERIAL_ECHO_MSG(buf); // 107011
+        return;
       }
-      //SERIAL_ECHO_MSG(buf); // 107011
-      return;
+
+      buf[inc] = n;
+      if (inc < 29) inc++;
     }
-
-    buf[inc] = n;
-    if (inc<29) inc++;
-
   }
-}
-#endif // #if HAS_CUTTER
+
+#endif // HAS_LASER_E3S1PRO
 
 #define PS_NORMAL 0
 #define PS_EOL    1
@@ -643,7 +643,7 @@ void GCodeQueue::get_serial_commands() {
     if (!IS_SD_FETCHING()) return;
 
     int sd_count = 0;
-    while (!ring_buffer.full() && !card.eof() && TERN1(E3S1PRO_RTS, rtscheck.RTS_SD_Detected())) {
+    while (!ring_buffer.full() && !card.eof() && TERN1(E3S1PRO_RTS, rts.sdDetected())) {
       const int16_t n = card.get();
       const bool card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
@@ -683,20 +683,20 @@ void GCodeQueue::get_serial_commands() {
       #if ENABLED(E3S1PRO_RTS)
         // the printing results
         if (card_eof) {
-          rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
+          rts.sendData(100, PRINT_PROCESS_VP);
           delay(1);
-          rtscheck.RTS_SndData(100, PRINT_PROCESS_ICON_VP);
+          rts.sendData(100, PRINT_PROCESS_ICON_VP);
           delay(1);
 
           #if HAS_CUTTER
             if (laser_device.is_laser_device()){
-              // rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
+              // rts.sendData(exchangePageBase + 60, exchangePageAddr);
               //  change_page_font = 60;
             }
             else
           #endif
           {
-            rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr);
+            rts.sendData(exchangePageBase + 9, exchangePageAddr);
             change_page_font = 9;
           }
 
@@ -711,7 +711,7 @@ void GCodeQueue::get_serial_commands() {
 
 #endif // HAS_MEDIA
 
-#if ENABLED(SDSUPPORT) && ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if ALL(SDSUPPORT, HAS_LASER_E3S1PRO)
 
   void get_sdcard_laser_range() {
     // Get commands if there are more in the file

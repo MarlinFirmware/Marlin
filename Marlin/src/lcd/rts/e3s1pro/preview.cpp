@@ -43,18 +43,18 @@
 #include "../../../module/printcounter.h"
 #include "../../../module/probe.h"
 
-#define BRIGHTNESS_PRINT_HIGH    300      // 进度条的总高度
-#define BRIGHTNESS_PRINT_WIDTH   300      // 进度条的总宽度
-#define BRIGHTNESS_PRINT_LEFT_HIGH_X    186// 进度条的左上角-X
-#define BRIGHTNESS_PRINT_LEFT_HIGH_Y    70// 进度条的左上角-Y
-#define BRIGHTNESS_PRINT    120           // 亮度值（0最暗）
+#define BRIGHTNESS_PRINT_HIGH    300        // The total height of the progress bar
+#define BRIGHTNESS_PRINT_WIDTH   300        // The total width of the progress bar
+#define BRIGHTNESS_PRINT_LEFT_HIGH_X    186 // The upper left corner of the progress bar -x
+#define BRIGHTNESS_PRINT_LEFT_HIGH_Y    70  // The upper left corner of the progress bar-y
+#define BRIGHTNESS_PRINT    120             // Brightness value (0 is the darker)
 #define FORMAT_JPG_HEADER "jpg begin"
 #define FORMAT_PNG_HEADER "png begin"
 #define FORMAT_JPG "jpg"
 #define FORMAT_PNG "png"
-DwinBrightness_t printBri; // 预览图结构体
-#define JPG_BYTES_PER_FRAME 240 // 每一帧发送的字节数（图片数据）
-#define JPG_WORD_PER_FRAME  (JPG_BYTES_PER_FRAME / 2)// 每一帧发送的字数（图片数据）
+DwinBrightness_t printBri; // Preview graph structure
+#define JPG_BYTES_PER_FRAME 240 // The number of bytes sent each frame (picture data)
+#define JPG_WORD_PER_FRAME  (JPG_BYTES_PER_FRAME / 2)// The number of words sent each frame (picture data)
 #define SizeofDatabuf2    300
 #define USER_LOGIC_DEBUG 1
 
@@ -65,24 +65,24 @@ DwinBrightness_t printBri; // 预览图结构体
 #endif
 
 /**
- * 亮度调节
+ * Dimming
  * brightness addr
  * in range: 0x8800 ~ 0x8FFF
  */
 #define BRIGHTNESS_ADDR_PRINT               0x8800
 unsigned char databuf[SizeofDatabuf2];
 
-// 向指定地址空间写两个字节
-void DWIN_WriteOneWord(unsigned long addr, unsigned int data) {
-  rtscheck.RTS_SndData(data, addr, VarAddr_W);
+// Write two bytes to the specified address space
+void dwinWriteOneWord(unsigned long addr, unsigned int data) {
+  rts.sendData(data, addr, VarAddr_W);
 }
 
 void dwin_uart_write(unsigned char *buf, int len) {
   for (uint8_t n = 0; n < len; ++n) LCDSERIAL.write(buf[n]);
 }
 
-// 发送jpg图片的一帧数据
-void RTS_SendJpegDate(const char *str, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+// Send a frame of data for JPG pictures
+void RTS_SendJpegData(const char *str, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
   int len = JPG_BYTES_PER_FRAME;// strlen(str);
   if (len > 0) {
     databuf[0] = FHONE;
@@ -99,25 +99,25 @@ void RTS_SendJpegDate(const char *str, unsigned long addr, unsigned char cmd /*=
   }
 }
 
-// 显示jpg图片
-void DWIN_DisplayJpeg(unsigned long addr, unsigned long vp) {
+// Display jpg pictures
+void dwinDisplayJpeg(unsigned long addr, unsigned long vp) {
   unsigned char buf[10];
   buf[0] = 0x5A;
   buf[1] = 0xA5;
   buf[2] = 0x07;
   buf[3] = 0x82;
-  buf[4] = addr >> 8;   // 控件地址
+  buf[4] = addr >> 8;   // Control address
   buf[5] = addr & 0x00FF;
   buf[6] = 0x5A;
   buf[7] = 0xA5;
-  buf[8] = vp >> 8;     // 图片存储地址
+  buf[8] = vp >> 8;     // Image storage address
   buf[9] = vp & 0x00FF;
 
   dwin_uart_write(buf, 10);
 }
 
-// 发送jpg图片整包数据
-void DWIN_SendJpegDate(char *jpeg, unsigned long size, unsigned long jpgAddr) {
+// Send JPG pictures whole package data
+void dwinSendJpegData(char *jpeg, unsigned long size, unsigned long jpgAddr) {
   int jpgSize = size;
 
   char buf[JPG_BYTES_PER_FRAME];
@@ -129,43 +129,43 @@ void DWIN_SendJpegDate(char *jpeg, unsigned long size, unsigned long jpgAddr) {
     memcpy(buf, &jpeg[i * JPG_BYTES_PER_FRAME], JPG_BYTES_PER_FRAME);
     hal.watchdog_refresh();
 
-    // 向指定地址发送图片数据
-    RTS_SendJpegDate(buf, (jpgAddr + (JPG_WORD_PER_FRAME * i)), 0x82);
+    // Send picture data to the specified address
+    RTS_SendJpegData(buf, (jpgAddr + (JPG_WORD_PER_FRAME * i)), 0x82);
 
     #if ENABLED(DWIN_DEBUG)
       for (j = 0; j < JPG_BYTES_PER_FRAME; j++) {
         //SERIAL_ECHOPGM(" ", j,
         //               " = ", buf[j]);
-        //if ((j + 1) % 8 == 0) SERIAL_ECHO("\r\n");
+        //if ((j + 1) % 8 == 0) SERIAL_EOL();
       }
     #endif
 
-    // dwin转大彩、dwin的7寸屏，发送预览图一帧数据后，没有返回值
-    // 所以异常先不进行判断，
-    #define CMD_TAILA    0x03824F4B    // 帧尾(当前对4.3寸的dwin屏有效)
+    // Dwin to the 7 -inch screen of Dwin. After sending a preview diagram a frame of data, there is no return value
+    // So the abnormality will not be judged first,
+    #define CMD_TAILA    0x03824F4B    // Frame tail (currently valid for the 4.3 -inch DWin screen)
     uint8_t receivedbyte = 0;
-    uint8_t cmd_pos      = 0; // 当前指令指针状态
-    uint32_t cmd_state   = 0; // 队列帧尾检测状态
+    uint8_t cmd_pos      = 0; // Current instruction pointer status
+    uint32_t cmd_state   = 0; // Quest frame tail detection status
     char buffer[20]      = {0};
     const uint32_t ms = millis() + 25;
     while (1) {
       if (LCDSERIAL.available()) {
-        // 取一个数据
+        // Take a data
         receivedbyte = LCDSERIAL.read();
-        SERIAL_ECHO_MSG("receivedbyte = ", receivedbyte);
-        if (cmd_pos == 0 && receivedbyte != 0x5A)  // 指令的第一个字节必须是帧头
+        SERIAL_ECHOLNPGM("receivedbyte = ", receivedbyte);
+        if (cmd_pos == 0 && receivedbyte != 0x5A)  // The first byte of the instruction must be a frame header
           continue;
 
         if (cmd_pos >= 20) break;
 
-        buffer[cmd_pos++] = receivedbyte;   // 防止溢出
+        buffer[cmd_pos++] = receivedbyte;   // Prevents overflow
 
-        cmd_state = ((cmd_state << 8) | receivedbyte); // 拼接最后4字节，组成最后一个32位整数
+        cmd_state = ((cmd_state << 8) | receivedbyte); // Stitch the last 4 bytes, form the last 32 -bit integer
 
-        // 帧尾判断
+        // Frame judgment
         if (cmd_state == CMD_TAILA) break;
       }
-      if (ELAPSED(millis(), ms)) { // 根据数据手册，延时20ms，有概率出现刷不出预览图的现象!!!
+      if (ELAPSED(millis(), ms)) { // According to the data manual, the delay of 20ms, there is a phenomenon that there is a probability that it cannot be brushed out of the preview map !!!
         //PRINT_LOG("more than 25ms");
         break;
       }
@@ -178,39 +178,39 @@ void DWIN_SendJpegDate(char *jpeg, unsigned long size, unsigned long jpgAddr) {
     memcpy(buf, &jpeg[i * JPG_BYTES_PER_FRAME], (jpgSize - i * JPG_BYTES_PER_FRAME));
     hal.watchdog_refresh();
 
-    // 向指定地址发送图片数据
-    RTS_SendJpegDate(buf, (jpgAddr + (JPG_WORD_PER_FRAME * i)), 0x82);
+    // Send picture data to the specified address
+    RTS_SendJpegData(buf, (jpgAddr + (JPG_WORD_PER_FRAME * i)), 0x82);
 
     #if ENABLED(DWIN_DEBUG)
       for (j = 0; j < JPG_BYTES_PER_FRAME; j++) {
         //SERIAL_ECHOPGM(" ", j,
         //               " = ", buf[j]);
-        //if ((j + 1) % 8 == 0) SERIAL_ECHO("\r\n");
+        //if ((j + 1) % 8 == 0) SERIAL_EOL();
       }
     #endif
 
-    delay(25); // 根据数据手册，延时20ms，有概率出现刷不出预览图的现象!!!
+    delay(25); // According to the data manual, the delay of 20ms, there is a phenomenon that there is a probability that it cannot be brushed out of the preview map !!!
   }
 }
 
 /**
- * @功能   从U盘中读取预览图数据并解码
+ * @F function reads preview data from the U disk and decodes
  * @Author Creality
  * @Time   2022-04-13
- * buf          : 用于保存解码后的数据
- * picLen       : 需要的数据长度
- * resetFlag    : 重置数据标志 -- 由于Base64解码后是3的倍数（4个Base64字符解码后是4个字节数据），但是入参‘picLen’不一定是3的倍数。
- *                所以单次调用后，剩余的没有使用到的字节数据保存在“base64_out”，其长度为“deCodeBase64Cnt”
- *                当显示完第一张图片后，显示第二张图时，需要清除一下这两个数据，防止影响第二张图片的显示
- *                true -- 清除历史数据 （“base64_out”，“deCodeBase64Cnt”），
- *                false -- 不动作
+ * buf          : Used to save the decoding data
+ * picLen       : Data length required
+ * resetFlag    : Reset the data logo -Since the base64 decoding is the multiple of 3 (4 Base64 character decoding is 4 byte data), but the parameter ‘piclen’ is not necessarily a multiple of 3.
+ *                So after a single call, the remaining byte data is stored in "Base64_OUT", and its length is "DecodeBase64CNT"
+ *                When the first picture is displayed, the second picture is displayed, and you need to clear these two data to prevent the display of the display of the second picture.
+ *                true - Clear historical data ("Base64_out", "DecodeBase64cnt"),
+ *                false - No action
  */
 bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag) {
-  char base64_in[4];        // 保存base64编码的数组
-  static unsigned char base64_out[3] = {'0'}; // 保存base64解码的数组
-  int getBase64Cnt                   = 0;  // 从U盘获取的，base64编码的数据
-  static int deCodeBase64Cnt         = 0; // 已经解码得了数据
-  unsigned long deCodePicLenCnt      = 0;   // 保存已经获取的图片数据
+  char base64_in[4];                            // Save the base64 encoding array
+  static unsigned char base64_out[3] = {'0'};   // Save the base64 decoding array
+  int getBase64Cnt                   = 0;       // Data obtained from the USB flash drive, the data encoded by Base64
+  static int deCodeBase64Cnt         = 0;       // I have decoded the data
+  unsigned long deCodePicLenCnt      = 0;       // Save the picture data that has been obtained
   static char lCmdBuf[100];
   bool getPicEndFlag = false;
 
@@ -232,10 +232,10 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
 
   if ((deCodeBase64Cnt > 0) && (deCodePicLenCnt < picLen)) {
     #if ENABLED(USER_LOGIC_DEBUG)
-      SERIAL_ECHO("\r\n There are parameters left last time ");
+      SERIAL_ECHOLNPGM("\r\n There are parameters left last time ");
       ZERO(lCmdBuf);
       sprintf(lCmdBuf, "\r\n ------------------------------deCodeBase64Cnt = %d; base64_out[3 - deCodeBase64Cnt] = %x", deCodeBase64Cnt, base64_out[3 - deCodeBase64Cnt]);
-      SERIAL_ECHO(lCmdBuf);
+      SERIAL_ECHOLNPGM(lCmdBuf);
     #endif
 
     for (int deCode = deCodeBase64Cnt; deCode > 0; deCode--) {
@@ -252,7 +252,7 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
   while (deCodePicLenCnt < picLen) {
     char j, ret;
     for (j = 0; j < 20; j++) {
-      ret = card.get(); // 从U盘中获取一个字符
+      ret = card.get(); // Get a character from the USB flash drive
       if (ret == ';' || ret == ' ' || ret == '\r' || ret == '\n') continue;
       base64_in[getBase64Cnt++] = ret;
       if (getBase64Cnt >= 4) {
@@ -264,18 +264,18 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
     ZERO(base64_out);
     deCodeBase64Cnt = base64_decode(base64_in, 4, base64_out);
     for (int i = deCodeBase64Cnt; i < 3; i++) base64_out[i] = 0;
-    deCodeBase64Cnt = 3; // 这里强制给3，因为始终是4 --> 3 字符
+    deCodeBase64Cnt = 3; // Here forced 3, because it is always 4--> 3 characters
 
     //#if ENABLED(USER_LOGIC_DEBUG)
     //  ZERO(lCmdBuf);
     //  sprintf(lCmdBuf, "\r\n deCodePicLenCnt = %d ;in = %s; ", deCodePicLenCnt, base64_in);
-    //  SERIAL_ECHO(lCmdBuf);
+    //  SERIAL_ECHOLN(lCmdBuf);
     //#endif
     int test = deCodeBase64Cnt;
     for (int deCode = 0; deCode < test; deCode++) {
       if (deCodePicLenCnt >= picLen) break;
 
-      // 特殊处理一下末尾字符，找到了FF D9后退出
+      // Special processing the end characters, after finding the FF D9, exit
       buf[deCodePicLenCnt++] = getPicEndFlag ? 0 : base64_out[deCode];
 
       if (deCodePicLenCnt > 2 && \
@@ -299,12 +299,12 @@ bool gcodePicGetDataFormBase64(char * buf, unsigned long picLen, bool resetFlag)
 }
 
 /**
- * @功能   从gcode里面读取jpeg图片显示:1、发送到屏显示；2、让指针跳过这段图片，再去寻找下一张图片
+ *@Function read JPEG pictures from GCODE: 1. Send to the screen display; 2. Let the pointer be skipped this picture, and then find the next picture
  * @Author Creality
  * @Time   2021-12-01
- * picLenth     : 图片长度(base64编码的长度)
- * isDisplay    : 是否显示该图片
- * jpgAddr      : 显示图片的地址
+ * picLenth     : Picture length (base64 encoding length)
+ * isDisplay    : Whether to display the picture
+ * jpgAddr      : Display the address of the picture
  */
 bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgAddr) {
   //          96*96-耗时-Ms  200*200-耗时-Ms
@@ -317,67 +317,67 @@ bool gcodePicDataRead(unsigned long picLenth, char isDisplay, unsigned long jpgA
   #define PIN_BUG_LEN_DWIN    (JPG_BYTES_PER_FRAME * 12)
   #define PIN_DATA_LEN_DWIN   (PIN_BUG_LEN_DWIN / 2)
 
-  static char picBuf[PIN_BUG_LEN_DWIN + 1]; // 这个取 MXA(PIN_BUG_LEN_DACAI, PIN_BUG_LEN_DWIN)
+  static char picBuf[PIN_BUG_LEN_DWIN + 1]; // This take mxa (PIN_BUG_LEN_DACAI, PIN_BUG_LEN_DWIN))
 
-  unsigned long picLen;                 // 图片长度(解码后的长度)
+  unsigned long picLen;                 // Picture length (the length after decoding)
   unsigned long j;
 
   picLen = picLenth;// (picLenth / 4) * 3;
   #if ENABLED(USER_LOGIC_DEBUG)
     //SERIAL_ECHOLNPGM("\r\n gcodePicDataRead(...), picLenth = ", picLenth,
-    //                  "\r\n gcodePicDataRead(...), picLen = ", picLen);
+    //                 "\r\n gcodePicDataRead(...), picLen = ", picLen);
   #endif
 
   gcodePicGetDataFormBase64(picBuf, 0, true);
 
-  // 迪文
-  // 先给首地址写0，否则dwin会卡死
-  DWIN_WriteOneWord(jpgAddr, 0);
+  // Diwen
+  // Write 0 to the first address first, otherwise Dwin will be stuck to death
+  dwinWriteOneWord(jpgAddr, 0);
 
-  // 开始读取
+  // Start reading
   for (j = 0; j < (picLen / PIN_BUG_LEN_DWIN); j++) {
     ZERO(picBuf);
     //card.read(picBuf, PIN_BUG_LEN_DWIN);
     gcodePicGetDataFormBase64(picBuf, PIN_BUG_LEN_DWIN, false);
-    rtscheck.RTS_SndData((j % 8) + 1, DOWNLOAD_PREVIEW_VP); // 出现加载图片
-    // 发送图片数据到指定地址
-    if (isDisplay) DWIN_SendJpegDate(picBuf, PIN_BUG_LEN_DWIN, (2 + jpgAddr + PIN_DATA_LEN_DWIN * j));
+    rts.sendData((j % 8) + 1, DOWNLOAD_PREVIEW_VP); // Load pictures
+    // Send picture data to the specified address
+    if (isDisplay) dwinSendJpegData(picBuf, PIN_BUG_LEN_DWIN, (2 + jpgAddr + PIN_DATA_LEN_DWIN * j));
   }
-  rtscheck.RTS_SndData(0, DOWNLOAD_PREVIEW_VP);
+  rts.sendData(0, DOWNLOAD_PREVIEW_VP);
 
-  // 剩下的不足240字符的数据处理，根据迪文处理内容
+  // Data processing of less than 240 characters remaining, according to Diwen processing content
   //watchdog_refresh();
   if (picLen % PIN_BUG_LEN_DWIN != 0) {
     ZERO(picBuf);
     // card.read(picBuf, (picLen - PIN_BUG_LEN_DWIN * j));
     gcodePicGetDataFormBase64(picBuf, (picLen - PIN_BUG_LEN_DWIN * j), false);
-    // 发送图片数据到指定地址
+    // Send picture data to the specified address
     if (isDisplay)
-      DWIN_SendJpegDate(picBuf, (picLen - PIN_BUG_LEN_DWIN * j), (2 + jpgAddr + PIN_DATA_LEN_DWIN * j));
+      dwinSendJpegData(picBuf, (picLen - PIN_BUG_LEN_DWIN * j), (2 + jpgAddr + PIN_DATA_LEN_DWIN * j));
   }
   //delay(25);
 
-  // 用于显示jpg图片
-  if (isDisplay) DWIN_DisplayJpeg(jpgAddr, picLen);
+  // Used to display jpg pictures
+  if (isDisplay) dwinDisplayJpeg(jpgAddr, picLen);
 
   return true;
 }
 
 /**
- * @功能   gcode预览图存在判断
+ * @Function Gcode preview diagram There is judgment
  * @Author Creality
  * @Time   2021-12-01
- * fileName         gcode文件名
- * jpgAddr          显示地址
- * jpgFormat        图片类型（jpg、png）
- * jpgResolution    图片大小
+ * fileName         Gcode file name
+ * jpgAddr          Display address
+ * jpgFormat        Image type (JPG. PNG)
+ * jpgResolution    Image size
  */
 static uint32_t msTest;
 char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char targetPicFormat, const char targetPicResolution) {
   #define STRING_MAX_LEN      80
 
-  // unsigned char picFormat = PIC_FORMAT_MAX;    // 图片格式
-  unsigned char picResolution = PIC_RESOLUTION_MAX;// 图片分辨率
+  // unsigned char picFormat = PIC_FORMAT_MAX;      // Image Format
+  unsigned char picResolution = PIC_RESOLUTION_MAX; // Picture resolution
   unsigned char ret;
 
   unsigned char strBuf[STRING_MAX_LEN] = {0};
@@ -385,79 +385,79 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
   // char lCmdBuf[20];
   char *picMsgP;
 
-  char lPicFormar[20];
-  char lPicHeder[20];
+  char lPicFormat[20];
+  char lPicHeader[20];
   // char lPicResolution[20];
-  unsigned long picLen      = 0; // 图片数据长度
-  unsigned int picStartLine = 0; // 图片起始行
-  unsigned int picEndLine   = 0; // 图片结束行
-  unsigned int picHigh      = 0; // 图片模型高度
+  unsigned long picLen      = 0; // Image data length
+  unsigned int picStartLine = 0; // Starting line
+  unsigned int picEndLine   = 0; // Ending line
+  unsigned int picHigh      = 0; // High picture model
 
-  // 读取一个字符串，以空格隔开
+  // Read a string and separate it with a space
   #define GET_STRING_ON_GCODE() {                                                          \
-    /* 读取一行，以换行符隔开 */                                                               \
+    /* Read a line to separate the row symbol */                                           \
     ZERO(strBuf);                                                                          \
     int strLenMax;                                                                         \
     bool strStartFg = false;                                                               \
     uint8_t curBufLen = 0;                                                                 \
-    uint8_t inquireYimes = 0;   /* 查找次数 */                                              \
+    uint8_t inquireYimes = 0;   /* Number */                                               \
     do {                                                                                   \
       for (strLenMax = 0; strLenMax < STRING_MAX_LEN; strLenMax++) {                       \
-        ret = card.get();   /* 从U盘中获取一个字符 */                                         \
-        if (ret != ';' && strStartFg == false) { /* 读到';'为一行的开始 */                    \
-          SERIAL_ECHO("preview.cpp GET_STRING_ON_GCODE continue card.get");                \
+        ret = card.get();   /* Get a character from the USB flash drive */                 \
+        if (ret != ';' && strStartFg == false) { /* Read the beginning of ';'*/            \
+          SERIAL_ECHOLNPGM("preview.cpp GET_STRING_ON_GCODE continue card.get");           \
           continue;                                                                        \
         }                                                                                  \
         else {                                                                             \
-          SERIAL_ECHO("preview.cpp GET_STRING_ON_GCODE strStartFg = true;");               \
+          SERIAL_ECHOLNPGM("preview.cpp GET_STRING_ON_GCODE strStartFg = true;");          \
           strStartFg = true;                                                               \
         }                                                                                  \
-        if ((ret == '\r' || ret == '\n') && bufIndex != 0) break;   /* 读到换行符，退出 */    \
+        if ((ret == '\r' || ret == '\n') && bufIndex != 0) break; /* Read the change of lines, exit */ \
         strBuf[bufIndex++] = ret;                                                          \
       }                                                                                    \
       if (strLenMax >= STRING_MAX_LEN) {                                                   \
-        SERIAL_ECHO_MSG("strLenMax: ", strLenMax);                                         \
-        SERIAL_ECHO_MSG("STRING_MAX_LEN :", STRING_MAX_LEN);                               \
-        SERIAL_ECHO_MSG("current srting lenth more than STRING_MAX_LEN(60)");              \
-        SERIAL_ECHO("preview.cpp PIC_MISS_ERR STRING_MAX_LEN");                            \
+        SERIAL_ECHOLNPGM("strLenMax: ", strLenMax);                                        \
+        SERIAL_ECHOLNPGM("STRING_MAX_LEN :", STRING_MAX_LEN);                              \
+        SERIAL_ECHOLNPGM("current srting lenth more than STRING_MAX_LEN(60)");             \
+        SERIAL_ECHOLNPGM("preview.cpp PIC_MISS_ERR STRING_MAX_LEN");                       \
         return PIC_MISS_ERR;                                                               \
       }                                                                                    \
       curBufLen = sizeof(strBuf);                                                          \
       if (inquireYimes++ >= 5) {                                                           \
-        SERIAL_ECHO_MSG("inquireYimes more than5 times");                                  \
-        SERIAL_ECHO("preview.cpp PIC_MISS_ERR inquireYimes more than5 times");             \
+        SERIAL_ECHOLNPGM("inquireYimes more than5 times");                                 \
+        SERIAL_ECHOLNPGM("preview.cpp PIC_MISS_ERR inquireYimes more than5 times");        \
         return PIC_MISS_ERR;                                                               \
       }                                                                                    \
     } while (curBufLen < 20);                                                              \
                                                                                            \
-    /* SERIAL_ECHO_MSG("strBuf = ", strBuf); */                                            \
-    /* SERIAL_ECHO_MSG("curBufLen = ", curBufLen); */                                      \
+    /* SERIAL_ECHOLNPGM("strBuf = ", strBuf); */                                           \
+    /* SERIAL_ECHOLNPGM("curBufLen = ", curBufLen); */                                     \
   }
 
-  // 1、读出一行数据
+  // 1. Read a line of data
   GET_STRING_ON_GCODE();
 
-  // 2、进行图片的格式判断（jpg、png），如果不符合，直接退出
+  // 2. Determine the format of the picture (JPG. PNG), if it does not meet, exit directly
   if (targetPicFormat == PIC_FORMAT_JPG) {
     if (strstr((const char *)strBuf, FORMAT_JPG_HEADER ) == nullptr) {
-      SERIAL_ECHO_MSG("strbuf: ", (const char*)strBuf);
-      SERIAL_ECHO("preview.cpp PIC_MISS_ERR FORMAT_JPG_HEADER1 ");
+      SERIAL_ECHOLNPGM("strbuf: ", (const char*)strBuf);
+      SERIAL_ECHOLNPGM("preview.cpp PIC_MISS_ERR FORMAT_JPG_HEADER1 ");
       return PIC_MISS_ERR;
     }
   }
   else if (strstr((const char *)strBuf, FORMAT_JPG_HEADER ) == nullptr)   {
-    SERIAL_ECHO("preview.cpp PIC_MISS_ERR FORMAT_JPG_HEADER2 ");
+    SERIAL_ECHOLNPGM("preview.cpp PIC_MISS_ERR FORMAT_JPG_HEADER2 ");
     return PIC_MISS_ERR;
   }
 
-  // 3、获取字符串的图片格式内容
+  // 3. Get the picture format content of the string
   picMsgP = strtok((char *)strBuf, (const char *)" ");
   for (;;) {
-    if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("3.picMsgP = ", picMsgP);
+    if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("3.picMsgP = ", picMsgP);
 
     if (picMsgP == nullptr) {
-      SERIAL_ECHO_MSG("fine the lPicFormar err!");
-      SERIAL_ECHO("preview.cpp PIC_MISS_ERR ocMsgP NULL");
+      SERIAL_ECHOLNPGM("fine the lPicFormat err!");
+      SERIAL_ECHOLNPGM("preview.cpp PIC_MISS_ERR ocMsgP NULL");
       return PIC_MISS_ERR;
     }
 
@@ -467,17 +467,17 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
     picMsgP = strtok(nullptr, (const char *)" ");
   }
 
-  // 4、获取“start”字段
+  // 4. Get the "Start" field
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("4.picMsgP = ", picMsgP,  " strlen(picMsgP) = ", strlen(picMsgP));
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("4.picMsgP = ", picMsgP,  " strlen(picMsgP) = ", strlen(picMsgP));
   if (picMsgP != nullptr) {
-    ZERO(lPicHeder);
-    memcpy(lPicHeder, picMsgP, strlen(picMsgP));
+    ZERO(lPicHeader);
+    memcpy(lPicHeader, picMsgP, strlen(picMsgP));
   }
 
-  // 5、获取图片大小字段 200*200 300*300 ……
+  // 5. Get the picture size field 200*200 300*300 ...
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("5.picMsgP = ", picMsgP, " strlen(picMsgP) = ", strlen(picMsgP));
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("5.picMsgP = ", picMsgP, " strlen(picMsgP) = ", strlen(picMsgP));
   if (picMsgP != nullptr) {
     picResolution = PIC_RESOLUTION_MAX;
     if (strcmp(picMsgP, RESOLUTION_36_36) == 0)
@@ -498,34 +498,34 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
       picResolution = PIC_RESOLUTION_600_600;
   }
 
-  // 6、获取图片数据长度
+  // 6. Get picture data length
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("6.picMsgP = ", picMsgP);
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("6.picMsgP = ", picMsgP);
   if (picMsgP != nullptr) picLen = atoi(picMsgP);
 
-  // 7、获取图片的起始行
+  // 7. Get the beginning of the picture
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("7.picMsgP = ", picMsgP);
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("7.picMsgP = ", picMsgP);
   if (picMsgP != nullptr) picStartLine = atoi(picMsgP);
 
-  // 8、获取图片的结束行
+  // 8. Get the end of the picture
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("8.picMsgP = ", picMsgP);
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("8.picMsgP = ", picMsgP);
   if (picMsgP != nullptr) picEndLine = atoi(picMsgP);
 
-  // 9、获取模型的高度
+  // 9. Get the height of the model
   picMsgP = strtok(nullptr, (const char *)" ");
-  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHO_MSG("9.picMsgP = ", picMsgP);
+  if (ENABLED(USER_LOGIC_DEBUG)) SERIAL_ECHOLNPGM("9.picMsgP = ", picMsgP);
   if (picMsgP != nullptr) picHigh = atoi(picMsgP);
 
   #if ENABLED(USER_LOGIC_DEBUG)
-    SERIAL_ECHO_MSG("lPicFormar = ", lPicFormar);
-    SERIAL_ECHO_MSG("lPicHeder = ", lPicHeder);
-    SERIAL_ECHO_MSG("picResolution = ", picResolution);
-    SERIAL_ECHO_MSG("picLen = ", picLen);
-    SERIAL_ECHO_MSG("picStartLine = ", picStartLine);
-    SERIAL_ECHO_MSG("picEndLine = ", picEndLine);
-    SERIAL_ECHO_MSG("picHigh = ", picHigh);
+    SERIAL_ECHOLNPGM("lPicFormat = ", lPicFormat);
+    SERIAL_ECHOLNPGM("lPicHeader = ", lPicHeader);
+    SERIAL_ECHOLNPGM("picResolution = ", picResolution);
+    SERIAL_ECHOLNPGM("picLen = ", picLen);
+    SERIAL_ECHOLNPGM("picStartLine = ", picStartLine);
+    SERIAL_ECHOLNPGM("picEndLine = ", picEndLine);
+    SERIAL_ECHOLNPGM("picHigh = ", picHigh);
   #endif
 
   #if ENABLED(USER_LOGIC_DEBUG)
@@ -534,16 +534,17 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
 
   msTest = millis();
 
-  // 从gcode里面读出图片数据，根据选择的是不是预定格式或预定大小图片来判断是否需要发送到屏上
+  // Read the picture data from GCODE, determine whether you need to send it
+  // to the screen according to the selected format or the picture of the scheduled size.
 
-  // 判断是否是需要的 分辨率
+  // Determine whether it is a required resolution
   if (picResolution == targetPicResolution) {
     gcodePicDataRead(picLen, true, targetPicAddr);
   }
   else {
-    // 直接移动指针，跳过无效的图片
-    // 协议规定完整一行数据:';' + ' ' + "数据" + '\n'  1+1+76+1 = 79字节
-    // 最后一行为“; png end\r” 或 “; jpg end\r”,
+    // Move the pointer directly, skip the invalid picture
+    // The agreement stipulates a complete line of data: ' +' ' + "data" +' \ n '1 + 1 + 76 + 1 = 79 byte
+    // The last line is "; PNG END \ R" or "; JPG END \ R",
     uint32_t index1 = card.getFileCurPosition();// card.getIndex();
     uint32_t targetPicLen = (picLen / 3 + (picLen % 3 == 0)) * 4;
     uint32_t indexAdd = (targetPicLen / 76) * 3 + targetPicLen + 10;
@@ -553,7 +554,7 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
     card.setIndex((index1 + indexAdd));
     #if ENABLED(USER_LOGIC_DEBUG)
       //SERIAL_ECHOLNPGM("\r\n ...old_index1 = ", index1,
-      //                  "\r\n ...indexAdd = ", indexAdd);
+      //                 "\r\n ...indexAdd = ", indexAdd);
     #endif
 
     return picResolution != targetPicResolution ? PIC_RESOLUTION_ERR : PIC_FORMAT_ERR;
@@ -561,7 +562,7 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
 
   //card.closefile();
   #if ENABLED(USER_LOGIC_DEBUG)
-    //SERIAL_ECHOPGM("\r\n gcode pic time test 3 msTest = ", (millis() - msTest));
+    //SERIAL_ECHOLNPGM("\r\n gcode pic time test 3 msTest = ", (millis() - msTest));
   #endif
 
   msTest = millis();
@@ -569,13 +570,13 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
 }
 
 /**
- * @功能   gcode预览图发送到迪文
+ * @Function GCODE preview map Send to Diwen
  * @Author Creality
  * @Time   2021-12-01
- * fileName     gcode文件名
- * jpgAddr      显示地址
- * jpgFormat    图片类型（jpg、png）
- * jpgResolution     图片大小
+ * fileName      Gcode file name
+ * jpgAddr       Display address
+ * jpgFormat     Picture type (JPG, PNG)
+ * jpgResolution Image size
  *
  * #define RESOLUTION_48_48    "48*48"
  * #define RESOLUTION_200_200  "200*200"
@@ -591,15 +592,15 @@ char gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned char 
   msTest = millis();
   while (1) {
     ret = gcodePicExistjudge(fileName, jpgAddr, jpgFormat, jpgResolution);
-    if (ret == PIC_MISS_ERR) { // 当gcode中没有pic时，直接返回
+    if (ret == PIC_MISS_ERR) { // When there is no pic in GCODE, return directly
       card.closefile();
-      SERIAL_ECHO("preview.cpp file closed");
+      SERIAL_ECHOLNPGM("preview.cpp file closed");
       return PIC_MISS_ERR;
     }
-    else if ((ret == PIC_FORMAT_ERR) || (ret == PIC_RESOLUTION_ERR)) { // 当格式或大小错误，继续往下判断
+    else if (ret == PIC_FORMAT_ERR || (et == PIC_RESOLUTION_ERR) { // When the format or size is wrong, continue to judge
       if (++returyCnt >= 3) {
         card.closefile();
-        SERIAL_ECHO("preview.cpp file closed pic format error");
+        SERIAL_ECHOLNPGM("preview.cpp file closed pic format error");
         return PIC_MISS_ERR;
       }
       else {
@@ -608,7 +609,7 @@ char gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned char 
     }
     else {
       card.closefile();
-      SERIAL_ECHO("preview.cpp file pic ok");
+      SERIAL_ECHOLNPGM("preview.cpp file pic ok");
       return PIC_OK;
     }
   }
@@ -616,49 +617,49 @@ char gcodePicDataSendToDwin(char *fileName, unsigned int jpgAddr, unsigned char 
 }
 
 /**
- * @功能   gcode预览图显示、隐藏
+ * @Function GCode Preview Display and Hide
  * @Author Creality
  * @Time   2021-0-27
- * jpgAddr      地址
- * onoff        显示(onoff == true)，隐藏(onoff == false)
- * 显示地址
+ * jpgAddr      address
+ * onoff        Display (onoff == TRUE), hidden (onoff == false)
+ * Display address
  */
 void gcodePicDisplayOnOff(unsigned int jpgAddr, bool onoff) {
-  rtscheck.RTS_SndData(onoff ? 1 : 0, jpgAddr);
+  rts.sendData(onoff ? 1 : 0, jpgAddr);
 }
 
-// 亮度控制功能函
+// Brightness control function letter
 void DWIN_BrightnessCtrl(DwinBrightness_t brightness) {
   unsigned int buf[10];
 
-  buf[0] = brightness.LeftUp_X;   // 亮度
+  buf[0] = brightness.LeftUp_X;   // brightness
   buf[1] = brightness.LeftUp_Y;
-  buf[2] = brightness.RightDown_X;   // 亮度
+  buf[2] = brightness.RightDown_X;   // brightness
   buf[3] = brightness.RightDown_Y;
 
-  // 显示区域修改
-  DWIN_WriteOneWord(brightness.spAddr, buf[0]);
-  DWIN_WriteOneWord(brightness.spAddr + 1, buf[1]);
-  DWIN_WriteOneWord(brightness.spAddr + 2, buf[2]);
-  DWIN_WriteOneWord(brightness.spAddr + 3, buf[3]);
+  // Display area modification
+  dwinWriteOneWord(brightness.spAddr, buf[0]);
+  dwinWriteOneWord(brightness.spAddr + 1, buf[1]);
+  dwinWriteOneWord(brightness.spAddr + 2, buf[2]);
+  dwinWriteOneWord(brightness.spAddr + 3, buf[3]);
 
-  // 亮度调节
-  DWIN_WriteOneWord(brightness.addr, brightness.brightness);
+  // Dimming
+  dwinWriteOneWord(brightness.addr, brightness.brightness);
 }
 
 /**
- * [RefreshBrightnessAtPrint :刷新打印中，gcode预览图片的渐变显示]
+ * [refreshBrightnessAtPrint : Refresh the printing, the gradient display of the GCode preview picture]
  * @Author Creality
  * @Time   2021-06-19
  */
-void RefreshBrightnessAtPrint(uint16_t persent) {
+void refreshBrightnessAtPrint(uint16_t percent) {
   printBri.brightness  = BRIGHTNESS_PRINT;
   printBri.addr        = BRIGHTNESS_ADDR_PRINT;
   printBri.spAddr      = SP_ADDR_BRIGHTNESS_PRINT + 1;
   printBri.LeftUp_X    = BRIGHTNESS_PRINT_LEFT_HIGH_X;
   printBri.LeftUp_Y    = BRIGHTNESS_PRINT_LEFT_HIGH_Y;
   printBri.RightDown_X = BRIGHTNESS_PRINT_LEFT_HIGH_X + BRIGHTNESS_PRINT_WIDTH;
-  printBri.RightDown_Y = BRIGHTNESS_PRINT_LEFT_HIGH_Y + (100 - persent) * BRIGHTNESS_PRINT_HIGH / 100;
+  printBri.RightDown_Y = BRIGHTNESS_PRINT_LEFT_HIGH_Y + (100 - percent) * BRIGHTNESS_PRINT_HIGH / 100;
 
   DWIN_BrightnessCtrl(printBri);
 }

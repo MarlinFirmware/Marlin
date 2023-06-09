@@ -47,7 +47,7 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -73,7 +73,7 @@ void GcodeSuite::M24() {
     }
   #endif
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) {
       laser_device.remove_card_before_is_printing = true;
       cutter.apply_power(laser_device.power);
@@ -120,7 +120,7 @@ void GcodeSuite::M25() {
 
     print_job_timer.pause();
 
-    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+    #if HAS_LASER_E3S1PRO
       if (laser_device.is_laser_device()){
         laser_device.pause_before_position_x = current_position.x;
         laser_device.pause_before_position_y = current_position.y;

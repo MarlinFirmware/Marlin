@@ -1631,11 +1631,14 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(caselight.brightness);
     #endif
 
+    //
+    // Ender-3 S1 Pro RTS
+    //
     #if ENABLED(E3S1PRO_RTS)
-        EEPROM_WRITE(g_soundSetOffOn);
-        EEPROM_WRITE(language_change_font);
-        //EEPROM_WRITE(x_min_pos_eeprom);
-        //EEPROM_WRITE(y_min_pos_eeprom);
+      EEPROM_WRITE(g_soundSetOffOn);
+      EEPROM_WRITE(language_change_font);
+      //EEPROM_WRITE(x_min_pos_eeprom);
+      //EEPROM_WRITE(y_min_pos_eeprom);
     #endif
 
     //
@@ -2695,21 +2698,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(E3S1PRO_RTS)
-        if ((g_soundSetOffOn != 1) && (g_soundSetOffOn != 2)) {
-          g_soundSetOffOn = 1;
-        }
         EEPROM_READ(g_soundSetOffOn);
 
         if ((language_change_font != 1) &&
-          (language_change_font != 2) &&
-          (language_change_font != 3) &&
-          (language_change_font != 4) &&
-          (language_change_font != 5) &&
-          (language_change_font != 6) &&
-          (language_change_font != 7) &&
-          (language_change_font != 8) &&
-          (language_change_font != 9))
-        {
+            (language_change_font != 2) &&
+            (language_change_font != 3) &&
+            (language_change_font != 4) &&
+            (language_change_font != 5) &&
+            (language_change_font != 6) &&
+            (language_change_font != 7) &&
+            (language_change_font != 8) &&
+            (language_change_font != 9)
+        ) {
           language_change_font = 2;
         }
         EEPROM_READ(language_change_font);
@@ -3196,10 +3196,10 @@ void MarlinSettings::reset() {
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   #if ENABLED(E3S1PRO_RTS)
-      g_soundSetOffOn = g_soundSetOffOn;
-      language_change_font = 2;
-      //x_min_pos_eeprom = -2.00;
-      //y_min_pos_eeprom = -2.00;
+    g_soundSetOffOn = 1;
+    language_change_font = 2;
+    //x_min_pos_eeprom = -2.00;
+    //y_min_pos_eeprom = -2.00;
   #endif
 
   //

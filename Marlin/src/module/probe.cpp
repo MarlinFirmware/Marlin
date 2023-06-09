@@ -1007,9 +1007,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
       #if ENABLED(E3S1PRO_RTS)
         waitway = 0;
-        rtscheck.RTS_SndData(ExchangePageBase + 41, ExchangepageAddr);
+        rts.sendData(exchangePageBase + 41, exchangePageAddr);
         change_page_font = 41;
-        rtscheck.RTS_SndData(Error_203, ABNORMAL_PAGE_TEXT_VP);
+        rts.sendData(Error_203, ABNORMAL_PAGE_TEXT_VP);
         errorway = 3;
       #endif
 

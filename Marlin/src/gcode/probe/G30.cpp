@@ -113,7 +113,7 @@ void GcodeSuite::G30() {
 
         for (const auto& point : trammingPoints) {
           if (probepos.x == point.x && probepos.y == point.y) {
-            rtscheck.RTS_SndData(measured_z * 1000, point.vp);
+            rts.sendData(measured_z * 1000, point.vp);
           }
         }
       #endif

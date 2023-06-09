@@ -34,7 +34,7 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -63,7 +63,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) return;
   #endif
 

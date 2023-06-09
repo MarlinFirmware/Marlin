@@ -39,8 +39,8 @@ void GcodeSuite::M117() {
   #if ENABLED(E3S1PRO_RTS)
     // clear out our status areas
     for(int j = 0 ; j < TEXTBYTELEN ; j ++) {
-      rtscheck.RTS_SndData(0, PRINT_FILE_TEXT_VP + j);
-      rtscheck.RTS_SndData(0, SELECT_FILE_TEXT_VP + j);
+      rts.sendData(0, PRINT_FILE_TEXT_VP + j);
+      rts.sendData(0, SELECT_FILE_TEXT_VP + j);
     }
 
     if (parser.string_arg && parser.string_arg[0]) {
@@ -53,8 +53,8 @@ void GcodeSuite::M117() {
         strcpy(msg, parser.string_arg);
       }
 
-      rtscheck.RTS_SndData(msg, PRINT_FILE_TEXT_VP);
-      rtscheck.RTS_SndData(msg, SELECT_FILE_TEXT_VP);
+      rts.sendData(msg, PRINT_FILE_TEXT_VP);
+      rts.sendData(msg, SELECT_FILE_TEXT_VP);
     }
   #else
     if (parser.string_arg && parser.string_arg[0])

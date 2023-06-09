@@ -153,8 +153,8 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
 
   #if ENABLED(E3S1PRO_RTS)
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
   #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
@@ -286,8 +286,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
           #if ENABLED(E3S1PRO_RTS)
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+            rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+            rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
           #endif
         }
 
@@ -371,8 +371,8 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
     ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
 
     #if ENABLED(E3S1PRO_RTS)
-      rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-      rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+      rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+      rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
     #endif
 
   }
@@ -439,7 +439,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
 
   #if ENABLED(E3S1PRO_RTS)
-    rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
+    rts.sendData(exchangePageBase + 7, exchangePageAddr);
     change_page_font = 7;
     sdcard_pause_check = true;
   #endif
@@ -496,8 +496,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
 
   #if ENABLED(E3S1PRO_RTS)
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -538,9 +538,9 @@ void show_continue_prompt(const bool is_reload) {
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
 
   #if ENABLED(E3S1PRO_RTS)
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-    //rtscheck.RTS_SndData(Beep, SoundAddr);
+    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    //rts.sendData(beepSound, soundAddr);
   #endif
 
   SERIAL_ECHO_START();
@@ -587,21 +587,21 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     if (nozzle_timed_out) {
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
       #if ENABLED(E3S1PRO_RTS)
-        rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
-        rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-        rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+        rts.sendData(exchangePageBase + 7, exchangePageAddr);
+        rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
+        rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
       #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_HEATER_TIMEOUT), GET_TEXT_F(MSG_REHEAT)));
 
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_HEATER_TIMEOUT)));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_HEATER_TIMEOUT)));
 
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(0, true)); // Wait for LCD click or M108
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, GET_TEXT_F(MSG_REHEATING)));
 
-      TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged_P(GET_TEXT(MSG_REHEATING)));
+      TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(GET_TEXT_F(MSG_REHEATING)));
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -618,7 +618,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_REHEATDONE), FPSTR(CONTINUE_STR)));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished.")));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Reheat finished.")));
 
       IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
 

@@ -49,7 +49,7 @@ void GcodeSuite::G29() {
 
   #if ENABLED(E3S1PRO_RTS)
     #if GRID_MAX_POINTS_X == 7
-      rtscheck.RTS_SndData(100, AUTO_LEVELING_PERCENT_DATA_VP);
+      rts.sendData(100, AUTO_LEVELING_PERCENT_DATA_VP);
     #endif
   #endif
 

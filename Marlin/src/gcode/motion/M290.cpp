@@ -50,7 +50,7 @@
 
       #if ENABLED(E3S1PRO_RTS)
         zprobe_zoffset = probe.offset.z;
-        rtscheck.RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        rts.sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       #endif
 
     }
@@ -105,7 +105,7 @@ void GcodeSuite::M290() {
 
       #if ENABLED(E3S1PRO_RTS)
         zprobe_zoffset = probe.offset.z;
-        rtscheck.RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        rts.sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       #endif
 
     #endif

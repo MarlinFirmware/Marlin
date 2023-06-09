@@ -61,7 +61,7 @@
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -111,7 +111,7 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) {
       #ifdef SD_FINISHED_RELEASECOMMAND_LASER
         process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
@@ -132,9 +132,9 @@ void GcodeSuite::M1001() {
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
 
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) {
-      rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
+      rts.sendData(exchangePageBase + 60, exchangePageAddr);
       change_page_font = 60;
     }
   #endif

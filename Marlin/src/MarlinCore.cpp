@@ -278,7 +278,6 @@ bool wait_for_heatup = true;
 
 #if ENABLED(E3S1PRO_RTS)
   uint8_t language_change_font;
-  uint8_t g_soundSetOffOn;
   bool eeprom_save_flag = false;
 #endif
 
@@ -370,9 +369,7 @@ void startOrResumeJob() {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
-    #if ENABLED(SET_REMAINING_TIME)
-      ui.reset_remaining_time();
-    #endif
+    TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   }
   print_job_timer.start();
 }
@@ -383,18 +380,8 @@ void startOrResumeJob() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
-    #if ENABLED(E3S1PRO_RTS)
-      #if HAS_CUTTER
-        if (laser_device.is_laser_device()) {
-        }
-        else
-      #endif
-      {
-        thermalManager.setTargetHotend(0, 0);
-        thermalManager.setTargetBed(0);
-        thermalManager.zero_fan_speeds();
-      }
-    #endif
+    if (TERN1(HAS_LASER_E3S1PRO, !laser_device.is_laser_device()))
+      thermalManager.cooldown();
 
     queue.clear();
     quickstop_stepper();
@@ -426,7 +413,7 @@ void startOrResumeJob() {
 
 #endif // HAS_MEDIA
 
-#if ALL(E3S1PRO_RTS, HAS_CUTTER)
+#if HAS_LASER_E3S1PRO
   void get_sdcard_laser_range();
 #endif
 
@@ -463,9 +450,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
     #if ENABLED(E3S1PRO_RTS)
       waitway = 0;
-      rtscheck.RTS_SndData(ExchangePageBase + 41, ExchangepageAddr);
+      rts.sendData(exchangePageBase + 41, exchangePageAddr);
       change_page_font = 41;
-      rtscheck.RTS_SndData(Error_201, ABNORMAL_PAGE_TEXT_VP);
+      rts.sendData(Error_201, ABNORMAL_PAGE_TEXT_VP);
       errorway = 1;
     #else
       kill();
@@ -481,7 +468,11 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
       static bool already_shutdown_steppers; // = false
 
-      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()&&(!card.isPrinting())&&(!card.isPaused())) {
+      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()
+        #if ALL(HAS_MEDIA, E3S1PRO_RTS)
+          && !card.isPrinting() && !card.isPaused()
+        #endif
+      ) {
         if (!already_shutdown_steppers) {
           already_shutdown_steppers = true;
 
@@ -862,7 +853,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   #if ENABLED(E3S1PRO_RTS)
-    #if HAS_CUTTER
+    #if HAS_LASER_E3S1PRO
       if (laser_device.is_laser_device())
         RTSUpdateLaser();
       else
@@ -1658,7 +1649,7 @@ void setup() {
 
   #if ENABLED(E3S1PRO_RTS)
       delay(500);
-      SETUP_RUN(rtscheck.RTS_Init());
+      SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
@@ -1673,7 +1664,7 @@ void setup() {
     SETUP_RUN(page_manager.init());
   #endif
 
-  #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+  #if HAS_LASER_E3S1PRO
       laser_device.get_device_form_eeprom(); // 107011
       laser_device.get_z_axis_high_form_eeprom();
       if (laser_device.is_laser_device()) laser_device.laser_power_open();
