@@ -604,88 +604,86 @@ extern RTS rts;
 #endif
 
 enum PROC_COM : uint8_t {
-  MainEnterKey          = 0,
-  AdjustEnterKey        = 1,
-  PrintSpeedEnterKey    = 2,
-  StopPrintKey          = 3,
-  PausePrintKey         = 4,
-  ResumePrintKey        = 5,
-  ZoffsetEnterKey       = 6,
-  TempControlKey        = 7,
-  CoolDownKey           = 8,
-  HeaterTempEnterKey    = 9,
-  HotBedTempEnterKey    = 10,
-  PrepareEnterKey       = 11,
-  BedLevelKey           = 12,
-  AutoHomeKey           = 13,
-  XaxismoveKey          = 14,
-  YaxismoveKey          = 15,
-  ZaxismoveKey          = 16,
-  HeaterLoadEnterKey    = 17,
-  HeaterUnLoadEnterKey  = 18,
-  HeaterLoadStartKey    = 19,
-  SelectLanguageKey     = 20,
-  PowerContinuePrintKey = 21,
-  PLAHeadSetEnterKey    = 22,
-  PLABedSetEnterKey     = 23,
-  ABSHeadSetEnterKey    = 24,
-  ABSBedSetEnterKey     = 25,
-  StoreMemoryKey        = 26,
-  FanSpeedEnterKey      = 27,
-  VelocityXaxisEnterKey = 28,
-  VelocityYaxisEnterKey = 29,
-  VelocityZaxisEnterKey = 30,
-  VelocityEaxisEnterKey = 31,
-  AccelXaxisEnterKey    = 32,
-  AccelYaxisEnterKey    = 33,
-  AccelZaxisEnterKey    = 34,
-  AccelEaxisEnterKey    = 35,
-  JerkXaxisEnterKey     = 36,
-  JerkYaxisEnterKey     = 37,
-  JerkZaxisEnterKey     = 38,
-  JerkEaxisEnterKey     = 39,
-  StepsmmXaxisEnterKey  = 40,
-  StepsmmYaxisEnterKey  = 41,
-  StepsmmZaxisEnterKey  = 42,
-  StepsmmEaxisEnterKey  = 43,
-  NozzlePTempEnterKey   = 44,
-  NozzleITempEnterKey   = 45,
-  NozzleDTempEnterKey   = 46,
-  HotbedPTempEnterKey   = 47,
-  HotbedITempEnterKey   = 48,
-  HotbedDTempEnterKey   = 49,
-  PrintFanSpeedkey      = 50,
-  ChangePageKey         = 51,
-  ErrorKey              = 52,
-  StartFileKey          = 53,
-  SelectFileKey         = 54,
-  #if HAS_LASER_E3S1PRO
-    SwitchDeviceKey     = 55,
-    PauseEngraveingKey  = 56,
-    EngraveWarningKey   = 57,
-    AdjustFocusKey      = 58,
-    SwAdjustFocusKey    = 59,
-    LaserMoveAxis       = 60,
-    FocusZAxisKey       = 61,
-  #endif
-   AutopidSetNozzleTemp    = 62,
-   AutopidSetNozzleCycles  = 63,
-   AutopidSetHotbedTemp    = 64,
-   AutopidSetHotbedCycles  = 65,
-   Zoffset005EnterKey      = 66,
-   Advance_K_Key           = 67,
-   XoffsetEnterKey         = 68,
-   YoffsetEnterKey         = 69,
-   PETGHeadSetEnterKey     = 70,
-   PETGBedSetEnterKey      = 71,
-   CUSTHeadSetEnterKey     = 72,
-   CUSTBedSetEnterKey      = 73,
-   XShapingFreqsetEnterKey = 74,
-   YShapingFreqsetEnterKey = 75,
-   XShapingZetasetEnterKey = 76,
-   YShapingZetasetEnterKey = 77,
-   XMinPosEepromEnterKey   = 78,
-   YMinPosEepromEnterKey   = 79
+  MainEnterKey            = 0,
+  AdjustEnterKey          = 1,
+  PrintSpeedEnterKey      = 2,
+  StopPrintKey            = 3,
+  PausePrintKey           = 4,
+  ResumePrintKey          = 5,
+  ZoffsetEnterKey         = 6,
+  TempControlKey          = 7,
+  CoolDownKey             = 8,
+  HeaterTempEnterKey      = 9,
+  HotBedTempEnterKey      = 10,
+  PrepareEnterKey         = 11,
+  BedLevelKey             = 12,
+  AutoHomeKey             = 13,
+  XaxismoveKey            = 14,
+  YaxismoveKey            = 15,
+  ZaxismoveKey            = 16,
+  HeaterLoadEnterKey      = 17,
+  HeaterUnLoadEnterKey    = 18,
+  HeaterLoadStartKey      = 19,
+  SelectLanguageKey       = 20,
+  PowerContinuePrintKey   = 21,
+  PLAHeadSetEnterKey      = 22,
+  PLABedSetEnterKey       = 23,
+  ABSHeadSetEnterKey      = 24,
+  ABSBedSetEnterKey       = 25,
+  StoreMemoryKey          = 26,
+  FanSpeedEnterKey        = 27,
+  VelocityXaxisEnterKey   = 28,
+  VelocityYaxisEnterKey   = 29,
+  VelocityZaxisEnterKey   = 30,
+  VelocityEaxisEnterKey   = 31,
+  AccelXaxisEnterKey      = 32,
+  AccelYaxisEnterKey      = 33,
+  AccelZaxisEnterKey      = 34,
+  AccelEaxisEnterKey      = 35,
+  JerkXaxisEnterKey       = 36,
+  JerkYaxisEnterKey       = 37,
+  JerkZaxisEnterKey       = 38,
+  JerkEaxisEnterKey       = 39,
+  StepsmmXaxisEnterKey    = 40,
+  StepsmmYaxisEnterKey    = 41,
+  StepsmmZaxisEnterKey    = 42,
+  StepsmmEaxisEnterKey    = 43,
+  NozzlePTempEnterKey     = 44,
+  NozzleITempEnterKey     = 45,
+  NozzleDTempEnterKey     = 46,
+  HotbedPTempEnterKey     = 47,
+  HotbedITempEnterKey     = 48,
+  HotbedDTempEnterKey     = 49,
+  PrintFanSpeedkey        = 50,
+  ChangePageKey           = 51,
+  ErrorKey                = 52,
+  StartFileKey            = 53,
+  SelectFileKey           = 54,
+  SwitchDeviceKey         = 55,
+  PauseEngraveingKey      = 56,
+  EngraveWarningKey       = 57,
+  AdjustFocusKey          = 58,
+  SwAdjustFocusKey        = 59,
+  LaserMoveAxis           = 60,
+  FocusZAxisKey           = 61,
+  AutopidSetNozzleTemp    = 62,
+  AutopidSetNozzleCycles  = 63,
+  AutopidSetHotbedTemp    = 64,
+  AutopidSetHotbedCycles  = 65,
+  Zoffset005EnterKey      = 66,
+  Advance_K_Key           = 67,
+  XoffsetEnterKey         = 68,
+  YoffsetEnterKey         = 69,
+  PETGHeadSetEnterKey     = 70,
+  PETGBedSetEnterKey      = 71,
+  CUSTHeadSetEnterKey     = 72,
+  CUSTBedSetEnterKey      = 73,
+  XShapingFreqsetEnterKey = 74,
+  YShapingFreqsetEnterKey = 75,
+  XShapingZetasetEnterKey = 76,
+  YShapingZetasetEnterKey = 77,
+  XMinPosEepromEnterKey   = 78,
+  YMinPosEepromEnterKey   = 79
 };
 
 const uint32_t addrBuf[] = {
@@ -744,34 +742,32 @@ const uint32_t addrBuf[] = {
   0x111A,
   0x2198,
   0x2199,  // 54
-  #if HAS_LASER_E3S1PRO
-    0x2201, // SwitchDeviceKey
-    0x2202,
-    0x2203, // EngraveWarningKey
-    0x2204,
-    0x2205,
-    0x2206,
-    0x2207,
-  #endif
-   0x2209, // pidsetkey nozzle temp
-   0x2210, // pidsetkey nozzle cycles
-   0x2211, // pidsetkey bed temp
-   0x2212, // pidsetkey bed cycle
-   0x2213, // Zoffset005enterkey
-   0x2214, // Advance_K_set
-   0x163A, // XoffsetEnterKey
-   0x164A, // YoffsetEnterKey
-   0x175A, // PETG NozzleTemp
-   0x176A, // PETG BedTemp
-   0x177A, // CUST NozzleTemp
-   0x178A, // CUST BedTemp
-   0x173A, // X Frequency
-   0x174A, // Y Frequency
-   0x185A, // X Zeta
-   0x186A, // Y Zeta
-   0x189A, // x_min_pos
-   0x190A, // y_min_pos
-   0
+  0x2201, // SwitchDeviceKey
+  0x2202,
+  0x2203, // EngraveWarningKey
+  0x2204,
+  0x2205,
+  0x2206,
+  0x2207,
+  0x2209, // pidsetkey nozzle temp
+  0x2210, // pidsetkey nozzle cycles
+  0x2211, // pidsetkey bed temp
+  0x2212, // pidsetkey bed cycle
+  0x2213, // Zoffset005enterkey
+  0x2214, // Advance_K_set
+  0x163A, // XoffsetEnterKey
+  0x164A, // YoffsetEnterKey
+  0x175A, // PETG NozzleTemp
+  0x176A, // PETG BedTemp
+  0x177A, // CUST NozzleTemp
+  0x178A, // CUST BedTemp
+  0x173A, // X Frequency
+  0x174A, // Y Frequency
+  0x185A, // X Zeta
+  0x186A, // Y Zeta
+  0x189A, // x_min_pos
+  0x190A, // y_min_pos
+  0
 };
 
 extern int endsWith(const char*, const char*);
