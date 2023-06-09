@@ -161,7 +161,7 @@ public:
    * and return 'true' if successful.
    */
   static bool enqueue_one_P(PGM_P const pgcode);
-#endif 
+#endif
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued

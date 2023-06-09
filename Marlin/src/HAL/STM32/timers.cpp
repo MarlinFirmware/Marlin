@@ -329,113 +329,97 @@ static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected.
 
 #if ALL(E3S1PRO_RTS, HAS_CUTTER)
 
-#define LASER_TIMER_NUM	                          3
-#define LASER_TIMER_DEV	                          _TIMER_DEV(LASER_TIMER_NUM)
-#define LASER_TIMER_PRESCALE(timer_clk, freq)     ((timer_clk) / ((freq) * (LASER_TIMER_PWM_MAX + 1)))
-#define LASER_TIMER_IRQ_PRIO                      1
+  #define LASER_TIMER_NUM	                          3
+  #define LASER_TIMER_DEV	                          _TIMER_DEV(LASER_TIMER_NUM)
+  #define LASER_TIMER_PRESCALE(timer_clk, freq)     ((timer_clk) / ((freq) * (LASER_TIMER_PWM_MAX + 1)))
+  #define LASER_TIMER_IRQ_PRIO                      1
 
-typedef enum
-{
-  LASER_PWM_STATE_L = 0,
-  LASER_PWM_STATE_H
-}laser_pwm_state_t;
+  typedef enum {
+    LASER_PWM_STATE_L = 0,
+    LASER_PWM_STATE_H
+  } laser_pwm_state_t;
 
-static HardwareTimer *timer_laser = nullptr;
-static uint8_t laser_h = 0, laser_l = 0;
-static laser_pwm_state_t laser_pwm_state;
+  static HardwareTimer *timer_laser = nullptr;
+  static uint8_t laser_h = 0, laser_l = 0;
+  static laser_pwm_state_t laser_pwm_state;
 
-FORCE_INLINE static void laser_timer_set_compare(const hal_timer_t overflow)
-{
-  if (timer_laser)
-  {
-    timer_laser->setOverflow(overflow + 1, TICK_FORMAT);
-    if (overflow < timer_laser->getCount())
-      timer_laser->refresh();
+  FORCE_INLINE static void laser_timer_set_compare(const hal_timer_t overflow) {
+    if (timer_laser) {
+      timer_laser->setOverflow(overflow + 1, TICK_FORMAT);
+      if (overflow < timer_laser->getCount())
+        timer_laser->refresh();
+    }
   }
-}
 
-static void laser_timer_handler(void)
-{
-	// SERIAL_ECHO_MSG("laser_timer_handler");
+  static void laser_timer_handler() {
+  	//SERIAL_ECHOLNPGM("laser_timer_handler");
 
-  switch(laser_pwm_state)
-  {
-  case LASER_PWM_STATE_L:
-    laser_timer_set_compare(laser_h);
-    WRITE(LASER_SOFT_PWM_PIN, 1);
-    laser_pwm_state = LASER_PWM_STATE_H;
-    break;
-  case LASER_PWM_STATE_H:
-    laser_timer_set_compare(laser_l);
-    WRITE(LASER_SOFT_PWM_PIN, 0);
-    laser_pwm_state = LASER_PWM_STATE_L;
-    break;
+    switch (laser_pwm_state) {
+      case LASER_PWM_STATE_L:
+        laser_timer_set_compare(laser_h);
+        WRITE(LASER_SOFT_PWM_PIN, HIGH);
+        laser_pwm_state = LASER_PWM_STATE_H;
+        break;
+      case LASER_PWM_STATE_H:
+        laser_timer_set_compare(laser_l);
+        WRITE(LASER_SOFT_PWM_PIN, LOW);
+        laser_pwm_state = LASER_PWM_STATE_L;
+        break;
+    }
   }
-}
 
-void laser_timer_soft_pwm_start(uint8_t pwm)
-{
-  // SERIAL_ECHOLNPAIR("laser_timer_soft_pwm_start():", pwm);
+  void laser_timer_soft_pwm_start(const uint8_t pwm) {
+    //SERIAL_ECHOLNPGM("laser_timer_soft_pwm_start():", pwm);
 
-  if(timer_laser == nullptr) return;
+    if (timer_laser == nullptr) return;
 
-  if(pwm > LASER_TIMER_PWM_MAX) pwm = LASER_TIMER_PWM_MAX;
+    if (pwm > LASER_TIMER_PWM_MAX) pwm = LASER_TIMER_PWM_MAX;
 
-  if(pwm == 0x00)
-  {
-    laser_timer_soft_pwm_stop();
+    if (pwm == 0x00) {
+      laser_timer_soft_pwm_stop();
+    }
+    else if (pwm == 0xFF) {
+      timer_laser->pause();
+      OUT_WRITE(LASER_SOFT_PWM_PIN, HIGH);
+    }
+    else {
+      timer_laser->pause();
+      laser_pwm_state = LASER_PWM_STATE_H;
+      WRITE(LASER_SOFT_PWM_PIN, HIGH);
+      laser_l = LASER_TIMER_PWM_MAX - pwm;
+      laser_h = pwm;
+      laser_timer_set_compare(laser_h);
+      timer_laser->resume();
+      // 立即进入中断 -> 设置为0无法触发中断
+      //laser_timer_set_compare(0);
+    }
   }
-  else if(pwm == 0xFF)
-  {
-    timer_laser->pause();
-    OUT_WRITE(LASER_SOFT_PWM_PIN, 1);
+
+  void laser_timer_soft_pwm_stop() {
+  	//SERIAL_ECHOLNPGM("laser_timer_soft_pwm_stop()");
+    laser_timer_soft_pwm_start(1);
   }
-  else
-  {
-    timer_laser->pause();
-    laser_pwm_state = LASER_PWM_STATE_H;
-    WRITE(LASER_SOFT_PWM_PIN, 1);
-    laser_l = LASER_TIMER_PWM_MAX - pwm;
-    laser_h = pwm;
-    laser_timer_set_compare(laser_h);
-    timer_laser->resume();
-    // 立即进入中断 -> 设置为0无法触发中断
-    // laser_timer_set_compare(0);
+
+  void laser_timer_soft_pwm_close() {
+    //SERIAL_ECHOLNPGM("laser_timer_soft_pwm_close()");
+    if (timer_laser == nullptr) return;
+  	timer_laser->pause();
+  	WRITE(LASER_SOFT_PWM_PIN, LOW);
   }
-}
 
-
-void laser_timer_soft_pwm_stop(void)
-{
-	// SERIAL_ECHO_MSG("laser_timer_soft_pwm_stop()");
-
-  laser_timer_soft_pwm_start(1);
-}
-
-void laser_timer_soft_pwm_close()
-{
-  // SERIAL_ECHO_MSG("laser_timer_soft_pwm_close()");
-
-  if(timer_laser == nullptr) return;
-
-	timer_laser->pause();
-	WRITE(LASER_SOFT_PWM_PIN, 0);
-}
-
-void laser_timer_soft_pwm_init(const uint32_t frequency)
-{
-  if(timer_laser == nullptr)
-  {
-    timer_laser = new HardwareTimer(LASER_TIMER_DEV);
-    uint32_t prescale = LASER_TIMER_PRESCALE(timer_laser->getTimerClkFreq(), frequency);
-    timer_laser->setPrescaleFactor(prescale);
-    timer_laser->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (timer_laser->getTimerClkFreq()) / (prescale) /* /frequency */), TICK_FORMAT);
-    timer_laser->setPreloadEnable(false);
-    if(!timer_laser->hasInterrupt()) timer_laser->attachInterrupt(laser_timer_handler);
-    timer_laser->pause();
-    timer_laser->setInterruptPriority(LASER_TIMER_IRQ_PRIO, 0);
+  void laser_timer_soft_pwm_init(const uint32_t frequency) {
+    if (timer_laser == nullptr) {
+      timer_laser = new HardwareTimer(LASER_TIMER_DEV);
+      uint32_t prescale = LASER_TIMER_PRESCALE(timer_laser->getTimerClkFreq(), frequency);
+      timer_laser->setPrescaleFactor(prescale);
+      timer_laser->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (timer_laser->getTimerClkFreq()) / (prescale) /* /frequency */), TICK_FORMAT);
+      timer_laser->setPreloadEnable(false);
+      if (!timer_laser->hasInterrupt()) timer_laser->attachInterrupt(laser_timer_handler);
+      timer_laser->pause();
+      timer_laser->setInterruptPriority(LASER_TIMER_IRQ_PRIO, 0);
+    }
   }
-}
-#endif //#if HAS_CUTTER
+
+#endif // E3S1PRO_RTS && HAS_CUTTER
 
 #endif // HAL_STM32

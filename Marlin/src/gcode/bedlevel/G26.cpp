@@ -328,7 +328,7 @@ typedef struct {
         #else
           ui.quick_feedback();
         #endif
-        
+
         TERN_(HAS_MARLINUI_MENU, ui.capture());
         thermalManager.setTargetBed(bed_temp);
 
@@ -345,11 +345,11 @@ typedef struct {
 
     // Start heating the active nozzle
     LCD_MESSAGE_MAX(MSG_G26_HEATING_NOZZLE);
-    
+
     #if DISABLED(E3S1PRO_RTS)
     ui.quick_feedback();
     #endif
-    
+
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
     // Wait for the temperature to stabilize

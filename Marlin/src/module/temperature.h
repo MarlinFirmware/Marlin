@@ -1440,7 +1440,7 @@ class Temperature {
 #endif
 
 #if ENABLED(E3S1PRO_RTS)
-  extern raw_pid_t g_autoPID;     
+  extern raw_pid_t g_autoPID;
 #endif
 
 extern Temperature thermalManager;

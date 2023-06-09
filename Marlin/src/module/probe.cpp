@@ -1012,7 +1012,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         rtscheck.RTS_SndData(Error_203, ABNORMAL_PAGE_TEXT_VP);
         errorway = 3;
       #endif
-    
+
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)
@@ -1024,7 +1024,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
       if (verbose_level > 2 || DEBUGGING(LEVELING))
         SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
-    }    
+    }
 
     return measured_z;
 

@@ -152,7 +152,7 @@ uint16_t encode_base64(unsigned char input[], uint16_t input_length, unsigned ch
     output += 4;
   }
 
-  switch(input_length % 3) {
+  switch (input_length % 3) {
     case 0:
       output[0] = '\0';
       break;
@@ -192,7 +192,7 @@ uint16_t decode_base64(unsigned char input[], uint16_t input_length, unsigned ch
     output += 3;
   }
 
-  switch(output_length % 3) {
+  switch (output_length % 3) {
     case 1:
       output[0] = base64_to_binary(input[0]) << 2 | base64_to_binary(input[1]) >> 4;
       break;

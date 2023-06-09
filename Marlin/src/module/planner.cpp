@@ -1857,11 +1857,11 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // before the following line!!)
 
     #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-      if(laser_device.is_laser_device()) {
+      if (laser_device.is_laser_device()) {
           delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
         } else
     #endif
-    {    
+    {
     delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
     }
   }
@@ -2936,13 +2936,13 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-   
+
     #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-      if(laser_device.is_laser_device()){
+      if (laser_device.is_laser_device()){
         delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
       }else
     #endif
-    {    
+    {
     delay_before_delivering = TERN_(FT_MOTION, fxdTiCtrl.cfg_mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
     }
   }

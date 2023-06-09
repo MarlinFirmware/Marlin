@@ -43,13 +43,8 @@ void GcodeSuite::M23() {
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFileRead(parser.string_arg);
 
-  #if ENABLED(E3S1PRO_RTS)
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if(runout.enabled == true)
-      {
-        runout.filament_ran_out = false;
-      }
-    #endif
+  #if ALL(E3S1PRO_RTS, FILAMENT_RUNOUT_SENSOR)
+    if (runout.enabled == true) runout.filament_ran_out = false;
   #endif
 
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));

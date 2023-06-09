@@ -218,7 +218,7 @@
 Temperature thermalManager;
 
 #if ENABLED(E3S1PRO_RTS)
-  raw_pid_t g_autoPID = { 0, 0, 0 };   
+  raw_pid_t g_autoPID = { 0, 0, 0 };
 #endif
 
 PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
@@ -686,19 +686,17 @@ volatile bool Temperature::raw_temps_ready = false;
     bool heating = true;
 
     millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
-    
-    #if ENABLED(E3S1PRO_RTS)   
+
+    #if ENABLED(E3S1PRO_RTS)
       millis_t ui_next_temp_ms = next_temp_ms;
       //char textRep_cur_cycle[25];
       //char textRep_cycles[25];
       //int repT = 1; // added for updating the running icon
       rtscheck.RTS_SndData(0, PID_TUNING_RUNNING_VP);
       if (heater_id == 0)
-      {
         rtscheck.RTS_SndData(1, PID_ICON_MODE_VP);
-      }
       const bool isHeater_autopid = (heater_id == H_E0);
-      const bool isBed_autopid = (heater_id == H_BED);    
+      const bool isBed_autopid = (heater_id == H_BED);
     #endif
 
     long t_high = 0, t_low = 0;
@@ -754,12 +752,12 @@ volatile bool Temperature::raw_temps_ready = false;
     #if ENABLED(E3S1PRO_RTS)
             if (isBed_autopid){
               rtscheck.RTS_SndData(0, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);  
+              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
             }
             if (isHeater_autopid){
               rtscheck.RTS_SndData(0, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES); 
-            }                  
+              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
+            }
     #endif
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
@@ -836,12 +834,12 @@ volatile bool Temperature::raw_temps_ready = false;
               tune_pid.d = tune_pid.p * Tu * df;
 
               SERIAL_ECHOLNPGM(STR_KU, Ku, STR_TU, Tu);
-              
+
               #if ENABLED(E3S1PRO_RTS)
                 SERIAL_ECHOLNPGM("pf=", pf, ",df=", df);
                 SERIAL_ECHOLNPGM("d=", d, ",maxT=", maxT, ",t_low=", t_low, ",t_high=", t_high);
               #endif
-              
+
               if (ischamber || isbed)
                 SERIAL_ECHOLNPGM(" No overshoot");
               else
@@ -852,15 +850,15 @@ volatile bool Temperature::raw_temps_ready = false;
           SHV((bias + d) >> 1);
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PID_CYCLE), cycles, ncycles));
           cycles++;
-          
+
           #if ENABLED(E3S1PRO_RTS)
             if (isBed_autopid){
               rtscheck.RTS_SndData(cycles, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);  
+              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
             }
             if (isHeater_autopid){
               rtscheck.RTS_SndData(cycles, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
-              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES); 
+              rtscheck.RTS_SndData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
             }
           #endif
 
@@ -888,7 +886,7 @@ volatile bool Temperature::raw_temps_ready = false;
           uiTemp[0] = thermalManager.temp_hotend[0].celsius;
           rtscheck.RTS_SendCurveData(6, uiTemp, 1);
           rtscheck.RTS_SndData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
-          SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);         
+          SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
         } else if (g_uiAutoPIDRuningDiff == 2) {
           uiTemp[0] = thermalManager.temp_bed.celsius;
           rtscheck.RTS_SendCurveData(5, uiTemp, 1);
@@ -914,15 +912,15 @@ volatile bool Temperature::raw_temps_ready = false;
                 next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
                 temp_change_ms = ms + SEC_TO_MS(watch_temp_period);   // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
-              }                 
+              }
               else if (ELAPSED(ms, temp_change_ms)) {                  // Watch timer expired
-              
+
               #if ENABLED(E3S1PRO_RTS)
                 rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
                 change_page_font = 31;
               #endif
 
-              _temp_error(heater_id, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));            
+              _temp_error(heater_id, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
               }
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
@@ -930,7 +928,7 @@ volatile bool Temperature::raw_temps_ready = false;
                 #if ENABLED(E3S1PRO_RTS)
                   rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
                   change_page_font = 31;
-                #endif 
+                #endif
 
               _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
             }
@@ -947,11 +945,11 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(DWIN_PID_TUNE, DWIN_PidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
-        
+
         #if ENABLED(E3S1PRO_RTS)
           rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
           change_page_font = 31;
-        #endif            
+        #endif
 
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -1024,7 +1022,7 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
       #if ENABLED(E3S1PRO_RTS)
-        TERN(E3S1PRO_RTS, RTSUpdate(), ui.update());      
+        TERN(E3S1PRO_RTS, RTSUpdate(), ui.update());
       #endif
 
     }
@@ -1463,9 +1461,9 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   #endif
 
   void Temperature::update_autofans() {
-    
+
     #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-        if(laser_device.is_laser_device()) return;
+        if (laser_device.is_laser_device()) return;
     #endif
 
     #define _EFAN(I,N) _EFANOVERLAP(I,N) ? I :
@@ -1649,7 +1647,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id) {
   #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
     rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
     change_page_font = 31;
-  #endif  
+  #endif
 
   _temp_error(heater_id, F(STR_T_MAXTEMP), GET_TEXT_F(MSG_ERR_MAXTEMP));
 }
@@ -1662,7 +1660,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
   #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
     rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
     change_page_font = 31;
-  #endif  
+  #endif
 
   _temp_error(heater_id, F(STR_T_MINTEMP), GET_TEXT_F(MSG_ERR_MINTEMP));
 }
@@ -1898,7 +1896,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             #if ENABLED(E3S1PRO_RTS)
               rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
               change_page_font = 31;
-            #endif               
+            #endif
 
             _temp_error((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
           }
@@ -1937,7 +1935,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
          #if ENABLED(E3S1PRO_RTS)
             rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
             change_page_font = 31;
-          #endif     
+          #endif
 
           _temp_error(H_BED, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
         }
@@ -2774,7 +2772,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
       if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max)) {
-        
+
         #if ENABLED(E3S1PRO_RTS)
           SERIAL_ECHOLNPGM("HOTEND RAW MAXTEMP E:", e, " T:", r, " MAX:", temp_range[e].raw_max);
         #endif
@@ -3344,7 +3342,7 @@ void Temperature::init() {
         #if ENABLED(E3S1PRO_RTS)
           rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
           change_page_font = 31;
-        #endif      
+        #endif
 
         TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
         _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
@@ -3356,7 +3354,7 @@ void Temperature::init() {
           #if ENABLED(E3S1PRO_RTS)
             rtscheck.RTS_SndData(ExchangePageBase + 31, ExchangepageAddr);
             change_page_font = 31;
-          #endif          
+          #endif
 
           _temp_error(heater_id, FPSTR(str_t_temp_malfunction), GET_TEXT_F(MSG_TEMP_MALFUNCTION));
       #endif
@@ -4569,7 +4567,7 @@ void Temperature::isr() {
           duration_t elapsed = print_job_timer.duration();  // Print timer
           dwin_heat_time = elapsed.value;
         #elif ENABLED(E3S1PRO_RTS)
-          Update_Time_Value = RTS_UPDATE_VALUE;          
+          Update_Time_Value = RTS_UPDATE_VALUE;
         #else
           ui.reset_status();
         #endif
@@ -4708,7 +4706,7 @@ void Temperature::isr() {
 
         #if ENABLED(E3S1PRO_RTS)
           Update_Time_Value = RTS_UPDATE_VALUE;
-          rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);       
+          rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
         #else
         ui.reset_status();
         #endif

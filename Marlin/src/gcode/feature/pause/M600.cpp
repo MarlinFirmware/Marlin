@@ -175,13 +175,11 @@ void GcodeSuite::M600() {
         resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
       #else
         wait_for_confirmation(true, beep_count DXC_PASS);
-        if (card.flag.abort_sd_printing) 
-        {
-          // SERIAL_ECHOLNPAIR("\r\nbread....");
+        if (card.flag.abort_sd_printing) {
+          // SERIAL_ECHOLNPGM("\r\nbread....");
           // Re-enable the heaters if they timed out
           bool nozzle_timed_out = false;
-          HOTEND_LOOP()
-          {
+          HOTEND_LOOP() {
             nozzle_timed_out |= thermalManager.heater_idle[e].timed_out;
             thermalManager.reset_hotend_idle_timer(e);
           }
@@ -189,7 +187,7 @@ void GcodeSuite::M600() {
         }
         else
         {
-          // SERIAL_ECHOLNPAIR("\r\nresume_print....");
+          // SERIAL_ECHOLNPGM("\r\nresume_print....");
           resume_print(unload_length, unload_length, ADVANCED_PAUSE_PURGE_LENGTH,
                       beep_count, (parser.seenval('R') ? parser.value_celsius() : 0)DXC_PASS);
         }

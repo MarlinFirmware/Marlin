@@ -65,8 +65,8 @@ void GcodeSuite::M73() {
         #if ENABLED(E3S1PRO_RTS)
           if (parser.value_byte() == 0)
             last_start_time = HAL_GetTick();
-        #endif   
-             
+        #endif
+
         ui.set_progress((PROGRESS_SCALE) > 1
           ? parser.value_float() * (PROGRESS_SCALE)
           : parser.value_byte()

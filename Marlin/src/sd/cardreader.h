@@ -233,9 +233,9 @@ public:
   // Print File stats
   static uint32_t getFileSize()  { return filesize; }
   static uint32_t getIndex()     { return sdpos; }
-  
+
   #if ENABLED(E3S1PRO_RTS)
-    static inline uint32_t getFileCurPosition()     { return file.curPosition(); }    
+    static inline uint32_t getFileCurPosition()     { return file.curPosition(); }
   #endif
 
   static bool isFileOpen()       { return isMounted() && file.isOpen(); }

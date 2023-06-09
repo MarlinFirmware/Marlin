@@ -31,7 +31,7 @@
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(E3S1PRO_RTS)
-  #include "../../lcd/rts/e3s1pro/lcd_rts.h"  
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
 #if HAS_PTC
@@ -98,7 +98,7 @@ void GcodeSuite::G30() {
           float y;
           int vp;
         };
-  
+
         TrammingPoint trammingPoints[] = {
           {117.50, 117.50, CRTOUCH_TRAMMING_POINT_1_VP},
           {155.00, 157.50, CRTOUCH_TRAMMING_POINT_1_VP},
@@ -115,7 +115,7 @@ void GcodeSuite::G30() {
           if (probepos.x == point.x && probepos.y == point.y) {
             rtscheck.RTS_SndData(measured_z * 1000, point.vp);
           }
-        }             
+        }
       #endif
 
     }

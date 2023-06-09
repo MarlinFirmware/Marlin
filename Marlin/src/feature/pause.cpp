@@ -158,7 +158,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
-  
+
   // Allow interruption by Emergency Parser M108
   wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
   while (wait_for_heatup && ABS(thermalManager.wholeDegHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > (TEMP_WINDOW))
@@ -282,16 +282,14 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     do {
       if (purge_length > 0) {
         // "Wait for filament purge"
-        if (show_lcd)
-        {
+        if (show_lcd) {
           ui.pause_show_message(PAUSE_MESSAGE_PURGE);
-          
+
           #if ENABLED(E3S1PRO_RTS)
             rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);          
+            rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
           #endif
-
-        }          
+        }
 
         // Extrude filament to get into hotend
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -376,8 +374,8 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
       rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
       rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
     #endif
-    
-  }     
+
+  }
 
   // Retract filament
   unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
@@ -443,7 +441,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   #if ENABLED(E3S1PRO_RTS)
     rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
     change_page_font = 7;
-    sdcard_pause_check = true;    
+    sdcard_pause_check = true;
   #endif
 
   // Indicate that the printer is paused
@@ -538,7 +536,7 @@ void show_continue_prompt(const bool is_reload) {
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
-  
+
   #if ENABLED(E3S1PRO_RTS)
     rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
     rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
@@ -621,9 +619,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_REHEATDONE), FPSTR(CONTINUE_STR)));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished.")));
-      
+
       IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
-      
+
       nozzle_timed_out = false;
       first_impatient_beep(max_beep_count);
     }

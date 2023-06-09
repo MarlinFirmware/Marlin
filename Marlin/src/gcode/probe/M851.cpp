@@ -82,7 +82,7 @@ void GcodeSuite::M851() {
         zprobe_zoffset = z;
         rtscheck.RTS_SndData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       #endif
-      
+
       offs.z = z;
     } else {
       SERIAL_ECHOLNPGM("?Z out of range (", Z_PROBE_OFFSET_RANGE_MIN, " to ", Z_PROBE_OFFSET_RANGE_MAX, ")");

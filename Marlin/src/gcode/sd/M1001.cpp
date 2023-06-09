@@ -112,12 +112,12 @@ void GcodeSuite::M1001() {
   #endif
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-    if(laser_device.is_laser_device())
-    {
+    if (laser_device.is_laser_device()) {
       #ifdef SD_FINISHED_RELEASECOMMAND_LASER
         process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
       #endif
-    }else
+    }
+    else
   #endif
     {
       // Inject SD_FINISHED_RELEASECOMMAND, if any
@@ -125,6 +125,7 @@ void GcodeSuite::M1001() {
         process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
       #endif
     }
+
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintDone());
 
   // Re-select the last printed file in the UI
@@ -132,10 +133,10 @@ void GcodeSuite::M1001() {
 
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-  if(laser_device.is_laser_device()){ 
-    rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
-    change_page_font = 60;
-  }
+    if (laser_device.is_laser_device()) {
+      rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
+      change_page_font = 60;
+    }
   #endif
 
 }

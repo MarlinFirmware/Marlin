@@ -2272,10 +2272,8 @@ hal_timer_t Stepper::block_phase_isr() {
     if (step_events_completed >= step_event_count) {
 
       #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-          if(laser_device.is_laser_device())
-          {
-            cutter.apply_power(0);
-          }
+        if (laser_device.is_laser_device())
+          cutter.apply_power(0);
       #endif
 
       #if ENABLED(DIRECT_STEPPING)

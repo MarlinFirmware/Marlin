@@ -215,7 +215,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(LASER_FEATURE)
-    if(laser_device.is_laser_device()){
+    if (laser_device.is_laser_device()){
       if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
         // Set the cutter power in the planner to configure this move
         cutter.last_feedrate_mm_m = 0;
@@ -228,13 +228,13 @@ void GcodeSuite::get_destination_from_command() {
             cutter.menuPower = cutter.unitPower = u;
             cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
           }
-        }   
+        }
         else if (parser.codenum == 0) {
           // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
           if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
           cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
         }
-      } 
+      }
       else if (parser.codenum == 0)
         cutter.apply_power(0);
     }
@@ -1219,9 +1219,9 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
-        
+
         #if ENABLED(E3S1PRO_RTS)
-        if (change_page_font == 7) {        
+        if (change_page_font == 7) {
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
         }
         #else

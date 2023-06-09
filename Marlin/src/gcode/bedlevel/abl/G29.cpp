@@ -61,7 +61,7 @@
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(E3S1PRO_RTS)
-  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"  
+  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -676,7 +676,7 @@ G29_TYPE GcodeSuite::G29() {
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
       #if ENABLED(E3S1PRO_RTS)
-      for (PR_OUTER_VAR = 0, showcount = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {      
+      for (PR_OUTER_VAR = 0, showcount = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
       #else
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
       #endif
@@ -739,21 +739,21 @@ G29_TYPE GcodeSuite::G29() {
           #endif
 
           #if ENABLED(E3S1PRO_RTS)
-              if(!IS_SD_PRINTING())
-              {
-                  if(old_leveling == 1){
-                  rtscheck.RTS_SndData((uint16_t)((100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index) / 2) , AUTO_BED_LEVEL_TITLE_VP);
-                  rtscheck.RTS_SndData((uint16_t)(100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index), AUTO_LEVELING_PERCENT_DATA_VP);
-                  rtscheck.RTS_SndData(ExchangePageBase + 26, ExchangepageAddr);
-                  change_page_font = 26;
-                  }else{
-                  rtscheck.RTS_SndData(showcount + 1, AUTO_BED_LEVEL_CUR_POINT_VP);
-                  rtscheck.RTS_SndData(z*1000, AUTO_BED_LEVEL_1POINT_NEW_VP + showcount * 2);
-                  showcount ++;
-                  rtscheck.RTS_SndData(ExchangePageBase + 81, ExchangepageAddr);
-                  change_page_font = 81;
-                  }
+            if (!IS_SD_PRINTING()) {
+              if (old_leveling == 1) {
+                rtscheck.RTS_SndData((uint16_t)((100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index) / 2), AUTO_BED_LEVEL_TITLE_VP);
+                rtscheck.RTS_SndData((uint16_t)(100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index), AUTO_LEVELING_PERCENT_DATA_VP);
+                rtscheck.RTS_SndData(ExchangePageBase + 26, ExchangepageAddr);
+                change_page_font = 26;
               }
+              else {
+                rtscheck.RTS_SndData(showcount + 1, AUTO_BED_LEVEL_CUR_POINT_VP);
+                rtscheck.RTS_SndData(z*1000, AUTO_BED_LEVEL_1POINT_NEW_VP + showcount * 2);
+                showcount ++;
+                rtscheck.RTS_SndData(ExchangePageBase + 81, ExchangepageAddr);
+                change_page_font = 81;
+              }
+            }
             #endif
 
           abl.reenable = false; // Don't re-enable after modifying the mesh

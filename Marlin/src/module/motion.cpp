@@ -2128,15 +2128,15 @@ void prepare_line_to_destination() {
     // Deploy BLTouch or tare the probe just before probing
     //
     #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) {      
-        if (TERN0(BLTOUCH, bltouch.deploy())) { 
-          
+      if (axis == Z_AXIS) {
+        if (TERN0(BLTOUCH, bltouch.deploy())) {
+
           #if ENABLED(E3S1PRO_RTS)
             probe.stow();
           #endif
 
-          return; 
-        }   // BLTouch was deployed above, but get the alarm state.       
+          return;
+        }   // BLTouch was deployed above, but get the alarm state.
         if (TERN0(PROBE_TARE, probe.tare())) return;
       }
     #endif

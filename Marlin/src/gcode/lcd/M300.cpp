@@ -49,14 +49,14 @@ void GcodeSuite::M300() {
 
   // Limits the tone duration to 0-5 seconds.
   NOMORE(duration, 5000U);
-  
+
   #if ENABLED(E3S1PRO_RTS)
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   #else
     uint16_t const frequency = parser.ushortval('S', 260);
     BUZZ(duration, frequency);
   #endif
-  
+
 }
 
 #endif // HAS_SOUND

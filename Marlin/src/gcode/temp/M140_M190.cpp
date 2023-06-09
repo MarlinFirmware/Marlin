@@ -64,7 +64,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
   if (DEBUGGING(DRYRUN)) return;
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-    if(laser_device.is_laser_device()) return;
+    if (laser_device.is_laser_device()) return;
   #endif
 
   bool got_temp = false;

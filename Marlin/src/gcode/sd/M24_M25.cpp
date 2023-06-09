@@ -74,8 +74,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-    if(laser_device.is_laser_device())
-    {
+    if (laser_device.is_laser_device()) {
       laser_device.remove_card_before_is_printing = true;
       cutter.apply_power(laser_device.power);
     }
@@ -122,7 +121,7 @@ void GcodeSuite::M25() {
     print_job_timer.pause();
 
     #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-      if(laser_device.is_laser_device()){
+      if (laser_device.is_laser_device()){
         laser_device.pause_before_position_x = current_position.x;
         laser_device.pause_before_position_y = current_position.y;
         laser_device.power = cutter.power;

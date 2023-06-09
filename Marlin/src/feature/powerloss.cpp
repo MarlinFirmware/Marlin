@@ -140,23 +140,23 @@ bool PrintJobRecovery::check() {
 
     #ifdef EEPROM_PLR
       BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
-    #else    
-    load();
+    #else
+      load();
     #endif
 
-		#if ALL(E3S1PRO_RTS, HAS_CUTTER)
-			  if(laser_device.is_laser_device()) {
-			  purge();
-		    } else
-		#endif  
-        {  
+    #if ALL(E3S1PRO_RTS, HAS_CUTTER)
+        if (laser_device.is_laser_device()) {
+        purge();
+        } else
+    #endif
+        {
           success = valid();
           if (!success)
             cancel();
           else
-            queue.inject(F("M1000S"));           
+            queue.inject(F("M1000S"));
         }
-    
+
   }
   return success;
 }
@@ -197,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-    if(laser_device.is_laser_device()) return;
+    if (laser_device.is_laser_device()) return;
   #endif
 
   #if SAVE_INFO_INTERVAL_MS > 0

@@ -278,7 +278,7 @@ bool wait_for_heatup = true;
 
 #if ENABLED(E3S1PRO_RTS)
   uint8_t language_change_font;
-  uint8_t g_soundSetOffOn; 
+  uint8_t g_soundSetOffOn;
   bool eeprom_save_flag = false;
 #endif
 
@@ -385,15 +385,15 @@ void startOrResumeJob() {
 
     #if ENABLED(E3S1PRO_RTS)
       #if HAS_CUTTER
-        if(laser_device.is_laser_device())
-        {
-        }else
+        if (laser_device.is_laser_device()) {
+        }
+        else
       #endif
       {
-	      thermalManager.setTargetHotend(0, 0);
-	      thermalManager.setTargetBed(0);
-	      thermalManager.zero_fan_speeds();
-  	  }
+        thermalManager.setTargetHotend(0, 0);
+        thermalManager.setTargetBed(0);
+        thermalManager.zero_fan_speeds();
+      }
     #endif
 
     queue.clear();
@@ -469,7 +469,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       errorway = 1;
     #else
       kill();
-    #endif    
+    #endif
   }
 
   const bool has_blocks = planner.has_blocks_queued();  // Any moves in the planner?
@@ -863,14 +863,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   #if ENABLED(E3S1PRO_RTS)
     #if HAS_CUTTER
-      if(laser_device.is_laser_device())
-      {
-        TERN(E3S1PRO_RTS, RTSUpdateLaser(),ui.update());
-      }else
+      if (laser_device.is_laser_device())
+        RTSUpdateLaser();
+      else
     #endif
-    {
-      TERN(E3S1PRO_RTS, RTSUpdate(),ui.update());
-    }
+        RTSUpdate();
   #endif
 
   // Run i2c Position Encoders
@@ -1677,9 +1674,9 @@ void setup() {
   #endif
 
   #if ALL(E3S1PRO_RTS, HAS_CUTTER)
-      laser_device.get_device_form_eeprom(); // 107011   
+      laser_device.get_device_form_eeprom(); // 107011
       laser_device.get_z_axis_high_form_eeprom();
-      if(laser_device.is_laser_device()) laser_device.laser_power_open();  
+      if (laser_device.is_laser_device()) laser_device.laser_power_open();
   #endif
 
   #if HAS_TFT_LVGL_UI

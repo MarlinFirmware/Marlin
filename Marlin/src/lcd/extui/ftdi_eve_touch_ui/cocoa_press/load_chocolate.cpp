@@ -54,7 +54,7 @@ void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
   cmd.tag(3).colors(mydata.repeat_tag == 6 ? action_btn : normal_btn).button(x, y, h, v, GET_TEXT_F(MSG_LOAD));
 
   ui.bounds(POLY(load_screen_start_stop_btn), x, y, h, v);
-  if(mydata.repeat_tag == 0) {
+  if (mydata.repeat_tag == 0) {
       cmd.colors(normal_btn).enabled(false);
   } else {
       cmd.colors(mydata.repeating ? action_btn : normal_btn).enabled(true);
@@ -115,7 +115,7 @@ void LoadChocolateScreen::onRedraw(draw_mode_t what) {
 }
 
 bool LoadChocolateScreen::onTouchStart(uint8_t tag) {
-  if(tag != 4) {
+  if (tag != 4) {
     mydata.repeating = false;
   }
   return true;

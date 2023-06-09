@@ -1,5 +1,25 @@
-#ifndef LCD_RTS_H
-#define LCD_RTS_H
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
 #include "../../../sd/cardreader.h"
 #include "string.h"
@@ -7,7 +27,6 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-// #pragma once
 /*********************************/
 
 #define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
@@ -22,8 +41,8 @@
   #define _PID_Kf(H) 0
 #endif
 
-#if ENABLED(ENDER_3S1_PLUS) || ENABLED(ENDER_3S1_PRO)
-#define FHONE   (0x5A)
+#if ANY(ENDER_3S1_PLUS, ENDER_3S1_PRO)
+  #define FHONE (0x5A)
 #endif
 #define FHTWO   (0xA5)
 #define FHLENG  (0x06)
@@ -56,13 +75,13 @@
 #define WRITE_CURVE_DDR_CMD ((unsigned long)0x030B)
 
 
-/*Error value*/
-#define Error_201   "201 (Command Timeout)"   // The command too much inactive time
-#define Error_202   "202 (Homing Failed)"     // Homing Failed
-#define Error_203   "203 (Probing Failed)"    // Probing Failed
-#define Error_204   "204 (Click Reboot)"      // SD Read Error
+// Error value
+#define Error_201 "201 (Command Timeout)" // The command too much inactive time
+#define Error_202 "202 (Homing Failed)"   // Homing Failed
+#define Error_203 "203 (Probing Failed)"  // Probing Failed
+#define Error_204 "204 (Click Reboot)"    // SD Read Error
 
-/*variable addr*/
+// Variable addr
 #define ExchangepageAddr      0x0084
 #define SoundAddr             0x00A0
 
@@ -179,8 +198,8 @@
 #define POWERCONTINUE_CONTROL_ICON_VP      0x116E
 
 #define PRINT_FINISH_ICON_VP               0x1170
-//#define PRINT_FINISH_ICON_VP               0x1174
-//#define PRINT_MAIN_PAGE_TIME_VP            0x1175
+//#define PRINT_FINISH_ICON_VP             0x1174
+//#define PRINT_MAIN_PAGE_TIME_VP          0x1175
 
 #define MOTOR_FREE_ICON_VP                 0x1200
 #define FILE1_SELECT_ICON_VP               0x1221
@@ -395,12 +414,12 @@
 #define AUTO_PID_HOTBED_TIS_VP             0x1426
 #define AUTO_PID_RUN_HOTBED_TIS_VP         0x149A
 #define AUTO_PID_FINISH_HOTBED_TIS_VP      0x150A
-#define AUTO_PID_START_HOTBED_VP           0x151A 
+#define AUTO_PID_START_HOTBED_VP           0x151A
 #define AUTO_PID_SET_HOTBED_TEMP           0x2211
 #define AUTO_PID_SET_HOTBED_CYCLES         0x2212
-#define AUTO_PID_HOTBED_TEMP               0x154A 
+#define AUTO_PID_HOTBED_TEMP               0x154A
 #define AUTO_PID_HOTBED_CYCLES             0x155A
-#define PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP   0x158A 
+#define PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP   0x158A
 
 #define MESH_LEVELING_BLACK_TITLE_VP       0x156A
 #define ADVANCE_K_SET                      0x2214
@@ -414,7 +433,7 @@
 #define Y_MIN_POS_VP                       0x168A
 
 #define X_BEDSIZE_VP                       0x169A
-#define Y_BEDSIZE_VP                       0x170A 
+#define Y_BEDSIZE_VP                       0x170A
 
 #define HOME_X_OFFSET_NEW_VP               0x171A
 #define HOME_Y_OFFSET_NEW_VP               0x172A
@@ -471,11 +490,11 @@
 
 #define TIME_PRINT_OVER_SHUTDOWN           300
 
-#define ABNORMAL_PAGE_TEXT_VP_SIZE         30  
+#define ABNORMAL_PAGE_TEXT_VP_SIZE         30
 
 #if HAS_CUTTER
   #define SELECT_LASER_WARNING_TIPS_VP      0x1381
-  #define SELECT_FDM_WARNING_TIPS_VP        0x1382  
+  #define SELECT_FDM_WARNING_TIPS_VP        0x1382
   #define PRINT_MOVE_AXIS_VP                0x1383
   #define PRINT_DIRECT_ENGRAV_VP            0x1384
   #define PRINT_RUN_RANGE_VP                0x1385
@@ -488,13 +507,12 @@
   #define PREPARE_SWITCH_FDM_VP             0x138C
   #define  FIRST_DEVICE_FDM                 0x138D
   #define  FIRST_DEVICE_LASER               0x138E
-  #define  FOCUS_SET_FOCUS_TIPS             0x138F 
+  #define  FOCUS_SET_FOCUS_TIPS             0x138F
   #define SW_FOCUS_Z_VP                     0x2207
 #endif
 
 /************struct**************/
-typedef struct DataBuf
-{
+typedef struct DataBuf {
   unsigned char len;
   unsigned char head[2];
   unsigned char command;
@@ -504,15 +522,14 @@ typedef struct DataBuf
   unsigned char reserv[4];
 } DB;
 
-typedef struct CardRecord
-{
+typedef struct CardRecord {
   int recordcount;
   int Filesum;
   unsigned long addr[FileNum];
   char Cardshowfilename[FileNum][FileNameLen];
   char Cardfilename[FileNum][FileNameLen];
   bool selectFlag;
-}CRec;
+} CRec;
 
 extern CRec CardRecbuf;
 
@@ -531,19 +548,18 @@ typedef struct {
 #define RECEIVED_SHAKE_HAND_ACK  0x01
 
 extern HMI_LCD_Flag_t HMI_lcd_flag;
-class RTSSHOW
-{
+class RTSSHOW {
   public:
-    RTSSHOW(void);
-    static void EachMomentUpdate(void);
+    RTSSHOW();
+    static void EachMomentUpdate();
     static float isBedLevelingFlag;
-    int RTS_RecData(void);
-    int RTS_RecData2(void);
-    void RTS_SDCardInit(void);
-    bool RTS_SD_Detected(void);
-    void RTS_SDCardUpate(void);
-    void languagedisplayUpdate(void);
-    void RTS_SndData(void);
+    int RTS_RecData();
+    int RTS_RecData2();
+    void RTS_SDCardInit();
+    bool RTS_SD_Detected();
+    void RTS_SDCardUpate();
+    void languagedisplayUpdate();
+    void RTS_SndData();
     void RTS_SndData(const String &, unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(const char[], unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(char, unsigned long, unsigned char = VarAddr_W);
@@ -553,14 +569,14 @@ class RTSSHOW
     void RTS_SndData(unsigned int,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(long,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(unsigned long,unsigned long, unsigned char = VarAddr_W);
-    void RTS_SDcard_Stop(void);
-    void RTS_HandleData(void);
-    void RTS_Init(void);
+    void RTS_SDcard_Stop();
+    void RTS_HandleData();
+    void RTS_Init();
     void RTS_SendCurveData(uint8_t channel, uint16_t *vaule, uint8_t size);
     #if HAS_CUTTER
-      void RTS_HandleData_Laser(void);
-      void RTS_SDcard_Stop_laser(void);
-    #endif   
+      void RTS_HandleData_Laser();
+      void RTS_SDcard_Stop_laser();
+    #endif
     static void RTS_SndText(const char string[], unsigned long addr, uint8_t textSize = 30);
     static DB recdat;
     static DB snddat;
@@ -571,24 +587,23 @@ class RTSSHOW
 extern RTSSHOW rtscheck;
 
 #if ENABLED(HAS_MENU_RESET_WIFI)
-  enum sWIFI_STATE
-  {
+  enum sWIFI_STATE {
     INITIAL = 0,
     PRESSED,
     RECORDTIME,
   };
 #endif
 
-#define Z_MEASURE_PLANTFORM     10
-// #define Z_POINT_AUX_LEVEL       20
-#define Z_MEASURE_FEEDRATE_FAST Z_PROBE_FEEDRATE_FAST*4
+#define Z_MEASURE_PLANTFORM   10
+//#define Z_POINT_AUX_LEVEL   20
+#define Z_MEASURE_FEEDRATE_FAST (Z_PROBE_FEEDRATE_FAST * 4)
 #define Z_MEASURE_FEEDRATE_SLOW Z_PROBE_FEEDRATE_SLOW
 
 #if ENABLED(HAS_MENU_RESET_WIFI)
   extern unsigned char WIFI_STATE;
 #endif
 
-typedef enum PROC_COM : int8_t {  
+typedef enum PROC_COM : int8_t {
   MainEnterKey          = 0,
   AdjustEnterKey        = 1,
   PrintSpeedEnterKey    = 2,
@@ -644,37 +659,36 @@ typedef enum PROC_COM : int8_t {
   ErrorKey              = 52,
   StartFileKey          = 53,
   SelectFileKey         = 54,
-  #if HAS_CUTTER || ENABLED(E3S1PRO_RTS)
+  #if ANY(HAS_CUTTER, E3S1PRO_RTS)
     SwitchDeviceKey     = 55,
     PauseEngraveingKey  = 56,
     EngraveWarningKey   = 57,
-    AdjustFocusKey      = 58, 
+    AdjustFocusKey      = 58,
     SwAdjustFocusKey    = 59,
     LaserMoveAxis       = 60,
     FocusZAxisKey       = 61,
   #endif
    AutopidSetNozzleTemp    = 62,
-   AutopidSetNozzleCycles  = 63,   
+   AutopidSetNozzleCycles  = 63,
    AutopidSetHotbedTemp    = 64,
    AutopidSetHotbedCycles  = 65,
-   Zoffset005EnterKey      = 66,   
+   Zoffset005EnterKey      = 66,
    Advance_K_Key           = 67,
    XoffsetEnterKey         = 68,
-   YoffsetEnterKey         = 69,   
+   YoffsetEnterKey         = 69,
    PETGHeadSetEnterKey     = 70,
    PETGBedSetEnterKey      = 71,
    CUSTHeadSetEnterKey     = 72,
-   CUSTBedSetEnterKey      = 73,   
+   CUSTBedSetEnterKey      = 73,
    XShapingFreqsetEnterKey = 74,
-   YShapingFreqsetEnterKey = 75,   
+   YShapingFreqsetEnterKey = 75,
    XShapingZetasetEnterKey = 76,
    YShapingZetasetEnterKey = 77,
    XMinPosEepromEnterKey   = 78,
-   YMinPosEepromEnterKey   = 79             
-} proc_command_t; 
+   YMinPosEepromEnterKey   = 79
+} proc_command_t;
 
-const unsigned long Addrbuf[] = 
-{
+const uint32_t addrBuf[] = {
   0x1002,
   0x1004,
   0x1006,
@@ -730,27 +744,27 @@ const unsigned long Addrbuf[] =
   0x111A,
   0x2198,
   0x2199,  // 54
-  #if HAS_CUTTER || ENABLED(E3S1PRO_RTS)
-    0x2201, //SwitchDeviceKey
+  #if ANY(HAS_CUTTER, E3S1PRO_RTS)
+    0x2201, // SwitchDeviceKey
     0x2202,
-    0x2203, //EngraveWarningKey
+    0x2203, // EngraveWarningKey
     0x2204,
     0x2205,
     0x2206,
     0x2207,
-  #endif  
-   0x2209, //pidsetkey nozzle temp
-   0x2210, //pidsetkey nozzle cycles
-   0x2211, //pidsetkey bed temp
-   0x2212, //pidsetkey bed cycle
-   0x2213, // Zoffset005enterkey   
-   0x2214, // Advance_K_set 
+  #endif
+   0x2209, // pidsetkey nozzle temp
+   0x2210, // pidsetkey nozzle cycles
+   0x2211, // pidsetkey bed temp
+   0x2212, // pidsetkey bed cycle
+   0x2213, // Zoffset005enterkey
+   0x2214, // Advance_K_set
    0x163A, // XoffsetEnterKey
-   0x164A, // YoffsetEnterKey 
+   0x164A, // YoffsetEnterKey
    0x175A, // PETG NozzleTemp
    0x176A, // PETG BedTemp
    0x177A, // CUST NozzleTemp
-   0x178A, // CUST BedTemp 
+   0x178A, // CUST BedTemp
    0x173A, // X Frequency
    0x174A, // Y Frequency
    0x185A, // X Zeta
@@ -761,11 +775,11 @@ const unsigned long Addrbuf[] =
 };
 
 extern int EndsWith(const char*, const char*);
-void ErrorHanding(void);
-extern void RTSUpdate(void);
-extern void RTSInit(void);
+void ErrorHanding();
+extern void RTSUpdate();
+extern void RTSInit();
 #if HAS_CUTTER
-  extern void RTSUpdateLaser(void);
+  extern void RTSUpdateLaser();
 #endif
 extern int touchscreen_requested_mesh;
 extern float zprobe_zoffset;
@@ -790,48 +804,43 @@ extern char errorway;
 extern char errornum;
 extern char error_sd_num;
 extern unsigned char Count_first;
-extern unsigned char Count_probe; 
+extern unsigned char Count_probe;
 extern float z_offset;
 extern uint32_t last_start_time;
 extern bool eeprom_save_flag;
 
-#define EEPROM_SAVE_LANGUAGE()      {if(eeprom_save_flag) { settings.save(); eeprom_save_flag = false; }}
+#define EEPROM_SAVE_LANGUAGE() { if (eeprom_save_flag) { settings.save(); eeprom_save_flag = false; } }
 
 void Read_lcd_Register(unsigned char len, unsigned int addr);
-void Write_lcd_Register(unsigned int addr,unsigned char data);
-void lcd_eight_language(void);
+void Write_lcd_Register(unsigned int addr, unsigned char data);
+void lcd_eight_language();
 
-void RTS_PauseMoveAxisPage(void);
-void RTS_AutoBedLevelPage(void);
-void RTS_MoveAxisHoming(void);
+void RTS_PauseMoveAxisPage();
+void RTS_AutoBedLevelPage();
+void RTS_MoveAxisHoming();
 void RTS_SetMeshPage();
-void RTS_MoveParkNozzle(void);
-void RTS_CommandPause(void);
+void RTS_MoveParkNozzle();
+void RTS_CommandPause();
 
-typedef enum
-{
-    GO_HOME_IDLE         = 0,              /* idle status          */
-    GO_HOME_DOING        = 1,              /* it's going home      */
-    GO_HOME_DONE         = 2,              /* it has gone home     */
-}AutoGoHomeSta_t;
+typedef enum {
+  GO_HOME_IDLE  = 0,  // idle status
+  GO_HOME_DOING = 1,  // it's going home
+  GO_HOME_DONE  = 2,  // it has gone home
+} AutoGoHomeSta_t;
 
-typedef struct
-{
-  /* data */
-  bool isBedLeveling;
-  unsigned char bedNozzleHeightState;
-  bool bedNozzleHeightCalFinishFlag;
-  unsigned char goHomeSta;
-  float  zCoordinateOffset;
-
-}BedNozzleHeightCalSt;
+typedef struct {
+  bool    isBedLeveling;
+  uint8_t bedNozzleHeightState;
+  bool    bedNozzleHeightCalFinishFlag;
+  uint8_t goHomeSta;
+  float   zCoordinateOffset;
+} BedNozzleHeightCalSt;
 
 extern BedNozzleHeightCalSt st_bedNozzleHeightCal;
 extern float bedNozzleHeightCalZ;
 extern uint8_t g_soundSetOffOn;
 extern int8_t g_uiAutoPIDRuningDiff;
 extern int16_t g_uiCurveDataCnt;
-void AutoUIBedNozzleHeightCali(void);
+void AutoUIBedNozzleHeightCali();
 void LcdAutoUIMoveXYBlock(float _posX, float _posY);
 void LcdAutoUIMoveZBlock(float _posZ);
-#endif

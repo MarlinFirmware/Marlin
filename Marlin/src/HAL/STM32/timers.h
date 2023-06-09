@@ -124,7 +124,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
   #define LASER_TIMER_PWM_MAX            255 // PWM value range: 0~255
 
   void laser_timer_soft_pwm_init(const uint32_t frequency);
-  void laser_timer_soft_pwm_start(uint8_t pwm);
-  void laser_timer_soft_pwm_stop(void);
+  void laser_timer_soft_pwm_start(const uint8_t pwm);
+  void laser_timer_soft_pwm_stop();
   void laser_timer_soft_pwm_close();
 #endif

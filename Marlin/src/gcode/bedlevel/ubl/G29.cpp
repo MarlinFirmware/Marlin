@@ -52,7 +52,7 @@ void GcodeSuite::G29() {
       rtscheck.RTS_SndData(100, AUTO_LEVELING_PERCENT_DATA_VP);
     #endif
   #endif
-  
+
 }
 
 #endif // AUTO_BED_LEVELING_UBL

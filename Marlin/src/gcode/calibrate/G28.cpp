@@ -664,7 +664,7 @@ void GcodeSuite::G28() {
   TERN_(E3S1PRO_RTS, rtscheck.RTS_SndData(0, MOTOR_FREE_ICON_VP));
 
   #if ENABLED(E3S1PRO_RTS)
-    home_flag  = false; 
+    home_flag  = false;
   #endif
 
   report_current_position();
@@ -672,7 +672,7 @@ void GcodeSuite::G28() {
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
  #if ALL(E3S1PRO_RTS, LASER_FEATURE)
-    if(laser_device.is_laser_device()){
+    if (laser_device.is_laser_device()){
       do_blocking_move_to_xy(0, 10, homing_feedrate(X_AXIS));
       sync_plan_position();
     }else

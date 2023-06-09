@@ -220,7 +220,7 @@ void RTS::onIdle() {
       break;
 
     case 3:
-      //if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
+      //if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
       rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
       waitway = 7;
       //return;
@@ -1559,7 +1559,7 @@ void RTS::handleData() {
         else if (recdat.data[0] == 2) { // Page Down
           if ((fileIndex + DISPLAY_FILES) < (filenavigator.maxFiles() + (filenavigator.folderdepth != 0))) {
             fileIndex = fileIndex + DISPLAY_FILES;
-            // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
+            // if (filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
             //  filenavigator.getFiles(fileIndex-1);
             // else
             filenavigator.getFiles(fileIndex);
@@ -1569,7 +1569,7 @@ void RTS::handleData() {
         else if (recdat.data[0] == 3) { // Page Up
           if (fileIndex >= DISPLAY_FILES) {
             fileIndex = fileIndex - DISPLAY_FILES;
-            // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
+            // if (filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
             // filenavigator.getFiles(filenavigator.currentindex-DISPLAY_FILES);
             // else
             filenavigator.getFiles(fileIndex);

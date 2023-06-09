@@ -69,8 +69,7 @@ static const unsigned char base64de[] = {
 	    49,  50,  51, 255, 255, 255, 255, 255
 };
 
-unsigned int base64_encode(const unsigned char *in, unsigned int inlen, char *out)
-{
+unsigned int base64_encode(const unsigned char *in, unsigned int inlen, char *out) {
 	int s;
 	unsigned int i;
 	unsigned int j;
@@ -123,31 +122,21 @@ unsigned int base64_encode(const unsigned char *in, unsigned int inlen, char *ou
  * 	*in         指向待解码的数据的指针
  * 	inlen       待解码数据长度
  * 	*out        指向解码完成的数据的指针
- *  
- *  return ：   解码完成的数据长度
+ *
+ *  return :   解码完成的数据长度
  */
-unsigned int base64_decode(const char *in, unsigned int inlen, unsigned char *out)
-{
-	unsigned int i;
-	unsigned int j;
+unsigned int base64_decode(const char *in, unsigned int inlen, unsigned char *out) {
+	unsigned int i, j;
 	unsigned char c;
 
-	if (inlen & 0x3) {
-		return 0;
-	}
+	if (inlen & 0x3) return 0;
 
 	for (i = j = 0; i < inlen; i++) {
-		if (in[i] == BASE64_PAD) {
-			break;
-		}
-		if (in[i] < BASE64DE_FIRST || in[i] > BASE64DE_LAST) {
-			return 0;
-		}
+		if (in[i] == BASE64_PAD) break;
+		if (in[i] < BASE64DE_FIRST || in[i] > BASE64DE_LAST) return 0;
 
 		c = base64de[(unsigned char)in[i]];
-		if (c == 255) {
-			return 0;
-		}
+		if (c == 255) return 0;
 
 		switch (i & 0x3) {
 		case 0:
@@ -155,7 +144,7 @@ unsigned int base64_decode(const char *in, unsigned int inlen, unsigned char *ou
 			break;
 		case 1:
 			out[j++] |= (c >> 4) & 0x3;
-			out[j] = (c & 0xF) << 4; 
+			out[j] = (c & 0xF) << 4;
 			break;
 		case 2:
 			out[j++] |= (c >> 2) & 0xF;

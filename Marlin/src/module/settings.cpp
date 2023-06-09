@@ -2695,12 +2695,12 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(E3S1PRO_RTS)
-        if((g_soundSetOffOn != 1) && (g_soundSetOffOn != 2)) {
+        if ((g_soundSetOffOn != 1) && (g_soundSetOffOn != 2)) {
           g_soundSetOffOn = 1;
         }
-        EEPROM_READ(g_soundSetOffOn); 
-            
-        if((language_change_font != 1) &&
+        EEPROM_READ(g_soundSetOffOn);
+
+        if ((language_change_font != 1) &&
           (language_change_font != 2) &&
           (language_change_font != 3) &&
           (language_change_font != 4) &&

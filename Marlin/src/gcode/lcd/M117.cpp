@@ -62,7 +62,7 @@ void GcodeSuite::M117() {
     else
       ui.reset_status();
   #endif
-  
+
 }
 
 #endif // HAS_STATUS_MESSAGE

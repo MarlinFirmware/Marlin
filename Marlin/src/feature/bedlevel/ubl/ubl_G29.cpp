@@ -478,7 +478,7 @@ void unified_bed_leveling::G29() {
               queue.enqueue_one(F("G29 P3"));
             }
           #endif
-          
+
         } break;
 
       #endif // HAS_BED_PROBE
@@ -592,7 +592,7 @@ void unified_bed_leveling::G29() {
               break;
           }
         }
-    
+
         #if ENABLED(E3S1PRO_RTS)
           if (touchscreen_requested_mesh == 1) {
             touchscreen_requested_mesh = 0;
