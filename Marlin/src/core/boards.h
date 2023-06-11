@@ -467,6 +467,7 @@
 #define BOARD_BTT_SKR_V3_0            6006  // BigTreeTech SKR V3.0 (STM32H743VG)
 #define BOARD_BTT_SKR_V3_0_EZ         6007  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6008  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
+#define BOARD_NUCLEO_F746ZG           6009  // ST NUCLEO-F746ZG Dev Board
 
 //
 // Espressif ESP32 WiFi
