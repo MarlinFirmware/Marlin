@@ -436,7 +436,7 @@
   #include "teensy2/pins_5DPRINT.h"             // AT90USB1286                            env:at90usb1286_dfu
 
 //
-// LPC1768 ARM Cortex M3
+// LPC1768 ARM Cortex-M3
 //
 
 #elif MB(RAMPS_14_RE_ARM_EFB, RAMPS_14_RE_ARM_EEB, RAMPS_14_RE_ARM_EFF, RAMPS_14_RE_ARM_EEF, RAMPS_14_RE_ARM_SF)
@@ -465,7 +465,7 @@
   #include "lpc1768/pins_EMOTRONIC.h"           // LPC1768                                env:LPC1768
 
 //
-// LPC1769 ARM Cortex M3
+// LPC1769 ARM Cortex-M3
 //
 
 #elif MB(MKS_SGEN)
@@ -537,6 +537,7 @@
 //
 // STM32 ARM Cortex-M0
 //
+
 #elif MB(MALYAN_M200_V2)
   #include "stm32f0/pins_MALYAN_M200_V2.h"      // STM32F0                                env:STM32F070RB_malyan env:STM32F070CB_malyan
 #elif MB(MALYAN_M300)
@@ -796,7 +797,7 @@
   #include "stm32f4/pins_I3DBEEZ9.h"            // STM32F4                                env:I3DBEEZ9_V1
 
 //
-// ARM Cortex M7
+// ARM Cortex-M7
 //
 
 #elif MB(REMRAM_V1)
