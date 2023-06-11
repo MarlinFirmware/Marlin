@@ -26,6 +26,7 @@
  *
  * Differences from RAMPS v1.4:
  *  - SPI Stepper drivers use AVR hardware SPI pins
+ *  - SPI Stepper CS pins are different
  */
 
 #include "env_validate.h"
@@ -33,8 +34,14 @@
 #define BOARD_INFO_NAME "RAMPS BTT 1.6+"
 
 #undef TMC_USE_SW_SPI
-#define TMC_SPI_MOSI MOSI // 51
-#define TMC_SPI_MISO MISO // 50
-#define TMC_SPI_SCK  SCK  // 52
+#define TMC_SPI_MOSI                        MOSI  // 51
+#define TMC_SPI_MISO                        MISO  // 50
+#define TMC_SPI_SCK                          SCK  // 52
+
+#define X_CS_PIN                              63  // A0
+#define Y_CS_PIN                              40
+#define Z_CS_PIN                              42
+#define E0_CS_PIN                             65  // A11
+#define E1_CS_PIN                             66  // A12
 
 #include "pins_RAMPS.h"
