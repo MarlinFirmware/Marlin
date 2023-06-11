@@ -216,7 +216,7 @@
 // CN9 & CN10 and the standard 10 pin cables.
 //
 // Conductor 10 on the EXP1 cable will need to be modified to provide +5V.
-// Cut connductor 10 loose from the cable near the CN10 end and add an
+// Cut conductor 10 loose from the cable near the CN10 end and add an
 // adapter/jumper so you can plug into +5V.
 
 /**
@@ -276,6 +276,13 @@
   //#define SOFTWARE_SPI                            // Use soft SPI for LCD's SD
 #endif
 
+
+
+#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! NUCLEO_F746ZG requires wiring modifications. See 'pins_NUCLEO_F746ZG.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+  #endif
+#endif
 
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
