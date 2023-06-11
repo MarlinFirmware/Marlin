@@ -29,15 +29,13 @@
  *
  */
 
+#ifdef STM32F7xx
 
 #include <stdint.h>
 #include <inttypes.h>
 #include "stm32f7xx_hal_rcc.h"
 #include "stm32f7xx_hal_pwr.h"
 #include "stm32f7xx_hal_flash_ex.h"
-
-#ifdef STM32F7xx
-
 
 // This init gives a SYSCLK of 192MHz and a HCLK of 48MHz.
 // The default init results in both set to 216MHz.  Some peripherals
