@@ -3988,8 +3988,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 // Check requirements for upload.py
-#if ENABLED(XFER_BUILD) && !ALL(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
-  #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
+#if ENABLED(XFER_BUILD) && !ALL(SDSUPPORT, BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+  #error "SDSUPPORT, BINARY_FILE_TRANSFER, and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif
 
 /**
