@@ -420,6 +420,6 @@ static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected.
     }
   }
 
-#endif // E3S1PRO_RTS && HAS_CUTTER
+#endif // HAS_LASER_E3S1PRO
 
 #endif // HAL_STM32
