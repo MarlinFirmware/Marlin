@@ -307,14 +307,11 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      PGMSTR(mode0, "OD");
-      PGMSTR(mode1, "5V");
-      DEBUG_ECHOPGM("BLTouch Mode: ");
-      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
-      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
+      FSTR_P const mode0 = F("OD"), mode1 = F("5V");
+      DEBUG_ECHOLNPGM("BLTouch Mode: ", bltouch.od_5v_mode ? mode1 : mode0, " (Default ", TERN(BLTOUCH_SET_5V_MODE, mode1, mode0), ")");
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode: "));
-      strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
+      strcpy_P(&mess[15], bltouch.od_5v_mode ? FTOP(mode1) : FTOP(mode0));
       ui.set_status(mess);
       ui.return_to_status();
     }

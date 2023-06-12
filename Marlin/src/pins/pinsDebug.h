@@ -177,11 +177,11 @@ const PinInfo pin_array[] PROGMEM = {
 bool pin_is_protected(const pin_t pin);
 
 static void print_input_or_output(const bool isout) {
-  SERIAL_ECHOF(isout ? F("Output ") : F("Input  "));
+  SERIAL_ECHO(isout ? F("Output ") : F("Input  "));
 }
 
 static void print_pin_state(const bool state) {
-  SERIAL_ECHOF(state ? F("HIGH") : F("LOW"));
+  SERIAL_ECHO(state ? F("HIGH") : F("LOW"));
 }
 
 // pretty report with PWM info
@@ -209,7 +209,7 @@ inline void report_pin_state_extended(const pin_t pin, const bool ignore, const 
   for (uint8_t x = 0; x < COUNT(pin_array); ++x)  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
-        if (start_string) SERIAL_ECHOF(start_string);
+        if (start_string) SERIAL_ECHO(start_string);
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         print_port(pin);
@@ -257,7 +257,7 @@ inline void report_pin_state_extended(const pin_t pin, const bool ignore, const 
   } // end of for loop
 
   if (!found) {
-    if (start_string) SERIAL_ECHOF(start_string);
+    if (start_string) SERIAL_ECHO(start_string);
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
     print_port(pin);

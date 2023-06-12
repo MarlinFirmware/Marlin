@@ -375,9 +375,8 @@ void Endstops::event_handler() {
   #endif
 
   static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-    if (flabel) SERIAL_ECHOF(flabel);
-    SERIAL_ECHOPGM(": ");
-    SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
+    if (flabel) SERIAL_ECHO(flabel);
+    SERIAL_ECHOLN(F(": "), is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
   }
 
   #pragma GCC diagnostic pop
