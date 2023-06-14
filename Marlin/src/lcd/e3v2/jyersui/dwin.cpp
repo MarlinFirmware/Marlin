@@ -58,10 +58,6 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#ifndef strcasecmp_P
-  #define strcasecmp_P(a, b) strcasecmp((a), (b))
-#endif
-
 #if HAS_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
 #endif
@@ -206,7 +202,7 @@ float corner_pos;
 
 bool probe_deployed = false;
 
-CrealityDWINClass CrealityDWIN;
+CrealityDWIN crealityDWIN;
 
 template <unsigned N, unsigned S = N>
 class TextScroller {
@@ -332,7 +328,7 @@ private:
         planner.synchronize();
       }
       else {
-        CrealityDWIN.Popup_Handler(MoveWait);
+        crealityDWIN.popupHandler(MoveWait);
         sprintf_P(cmd, PSTR("G0 F300 Z%s"), dtostrf(Z_CLEARANCE_BETWEEN_PROBES, 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
         sprintf_P(cmd, PSTR("G42 F4000 I%i J%i"), mesh_x, mesh_y);
@@ -341,7 +337,7 @@ private:
         current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
         planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
         planner.synchronize();
-        CrealityDWIN.Redraw_Menu();
+        crealityDWIN.redrawMenu();
       }
     }
 
@@ -363,7 +359,7 @@ private:
       return min;
     }
 
-    void Draw_Bed_Mesh(const int16_t selected=-1, const uint8_t gridline_width=1, const uint16_t padding_x=8, const uint16_t padding_y_top=40 + 53 - 7) {
+    void drawBedMesh(const int16_t selected=-1, const uint8_t gridline_width=1, const uint16_t padding_x=8, const uint16_t padding_y_top=40 + 53 - 7) {
       drawing_mesh = true;
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
                      cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
@@ -371,13 +367,13 @@ private:
       const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
+      dwinDrawRectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
         const auto selected_y = selected / (GRID_MAX_POINTS_X);
         const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
         const auto start_y_px = padding_y_top + selected_y * cell_height_px;
         const auto start_x_px = padding_x + selected_x * cell_width_px;
-        DWIN_Draw_Rectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
+        dwinDrawRectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
       }
 
       // Draw value square grid
@@ -387,7 +383,7 @@ private:
         const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
         const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
-        DWIN_Draw_Rectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
+        dwinDrawRectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? Color_Grey : (                                                           // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
               (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
@@ -403,7 +399,7 @@ private:
         if (viewer_print_value) {
           int8_t offset_x, offset_y = cell_height_px / 2 - 6;
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
-            DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+            dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
           else {                          // has value
             if (GRID_MAX_POINTS_X < 10)
@@ -412,8 +408,8 @@ private:
               sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
             offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
             if (!(GRID_MAX_POINTS_X < 10))
-              DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
-            DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
+              dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
+            dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
           }
           safe_delay(10);
           LCD_SERIAL.flushTX();
@@ -421,7 +417,7 @@ private:
       }
     }
 
-    void Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
+    void setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
       float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
       if (v_min > 3e+10F) v_min = 0.0000001;
       if (v_max > 3e+10F) v_max = 0.0000001;
@@ -436,7 +432,7 @@ private:
         dtostrf( range, 1, 3, str_2);
       }
       sprintf_P(msg, PSTR("Red %s..0..%s Green"), str_1, str_2);
-      CrealityDWIN.Update_Status(msg);
+      crealityDWIN.updateStatus(msg);
       drawing_mesh = false;
     }
 
@@ -447,42 +443,42 @@ private:
 
 /* General Display Functions */
 
-struct CrealityDWINClass::EEPROM_Settings CrealityDWINClass::eeprom_settings{0};
-constexpr const char * const CrealityDWINClass::color_names[11];
-constexpr const char * const CrealityDWINClass::preheat_modes[3];
+struct CrealityDWIN::EEPROM_Settings CrealityDWIN::eeprom_settings{0};
+constexpr const char * const CrealityDWIN::color_names[11];
+constexpr const char * const CrealityDWIN::preheat_modes[3];
 
 // Clear a part of the screen
 //  4=Entire screen
 //  3=Title bar and Menu area (default)
 //  2=Menu area
 //  1=Title bar
-void CrealityDWINClass::Clear_Screen(const uint8_t e/*=3*/) {
-  if (e == 1 || e == 3 || e == 4) DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
-  if (e == 2 || e == 3) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
-  if (e == 4) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
+void CrealityDWIN::clearScreen(const uint8_t e/*=3*/) {
+  if (e == 1 || e == 3 || e == 4) dwinDrawRectangle(1, getColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
+  if (e == 2 || e == 3) dwinDrawRectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
+  if (e == 4) dwinDrawRectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-void CrealityDWINClass::Draw_Float(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
+void CrealityDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
   const uint8_t digits = (uint8_t)floor(log10(abs(value))) + log10(minunit) + (minunit > 1);
   const uint16_t bColor = selected ? Select_Color : Color_Bg_Black;
   const uint16_t xpos = 240 - (digits * 8);
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 194, MBASE(row), 234 - (digits * 8), MBASE(row) + 16);
+  dwinDrawRectangle(1, Color_Bg_Black, 194, MBASE(row), 234 - (digits * 8), MBASE(row) + 16);
   if (isnan(value))
-    DWIN_Draw_String(true, DWIN_FONT_MENU, Color_White, bColor, xpos - 8, MBASE(row), F(" NaN"));
+    dwinDrawString(true, DWIN_FONT_MENU, Color_White, bColor, xpos - 8, MBASE(row), F(" NaN"));
   else {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, digits - log10(minunit) + 1, log10(minunit), xpos, MBASE(row), (value < 0 ? -value : value));
-    DWIN_Draw_String(true, DWIN_FONT_MENU, Color_White, bColor, xpos - 8, MBASE(row), value < 0 ? F("-") : F(" "));
+    dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, digits - log10(minunit) + 1, log10(minunit), xpos, MBASE(row), (value < 0 ? -value : value));
+    dwinDrawString(true, DWIN_FONT_MENU, Color_White, bColor, xpos - 8, MBASE(row), value < 0 ? F("-") : F(" "));
   }
 }
 
-void CrealityDWINClass::Draw_Option(const uint8_t value, const char * const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
+void CrealityDWIN::drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
   const uint16_t bColor = selected ? Select_Color : Color_Bg_Black,
-                 tColor = color ? GetColor(value, Color_White, false) : Color_White;
-  DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
+                 tColor = color ? getColor(value, Color_White, false) : Color_White;
+  dwinDrawRectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
+  dwinDrawString(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
-uint16_t CrealityDWINClass::GetColor(const uint8_t color, const uint16_t original, const bool light/*=false*/) {
+uint16_t CrealityDWIN::getColor(const uint8_t color, const uint16_t original, const bool light/*=false*/) {
   switch (color) {
     case Default:
       return original;
@@ -521,215 +517,215 @@ uint16_t CrealityDWINClass::GetColor(const uint8_t color, const uint16_t origina
   return Color_White;
 }
 
-void CrealityDWINClass::Draw_Title(const char * const ctitle) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen(ctitle) * STAT_CHR_W) / 2, 5, ctitle);
+void CrealityDWIN::drawTitle(const char * const ctitle) {
+  dwinDrawString(false, DWIN_FONT_HEAD, getColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen(ctitle) * STAT_CHR_W) / 2, 5, ctitle);
 }
-void CrealityDWINClass::Draw_Title(FSTR_P const ftitle) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen_P(FTOP(ftitle)) * STAT_CHR_W) / 2, 5, ftitle);
-}
-
-void _Decorate_Menu_Item(uint8_t row, uint8_t icon, bool more) {
-  if (icon) DWIN_ICON_Show(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
-  if (more) DWIN_ICON_Show(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
-  DWIN_Draw_Line(CrealityDWIN.GetColor(CrealityDWIN.eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
+void CrealityDWIN::drawTitle(FSTR_P const ftitle) {
+  dwinDrawString(false, DWIN_FONT_HEAD, getColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen_P(FTOP(ftitle)) * STAT_CHR_W) / 2, 5, ftitle);
 }
 
-void CrealityDWINClass::Draw_Menu_Item(const uint8_t row, const uint8_t icon/*=0*/, const char * const label1, const char * const label2, const bool more/*=false*/, const bool centered/*=false*/) {
+void _decorateMenuItem(uint8_t row, uint8_t icon, bool more) {
+  if (icon) dwinIconShow(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
+  if (more) dwinIconShow(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
+  dwinDrawLine(crealityDWIN.getColor(crealityDWIN.eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
+}
+
+void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, const char * const label1, const char * const label2, const bool more/*=false*/, const bool centered/*=false*/) {
   const uint8_t label_offset_y = (label1 || label2) ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
-  if (label1) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
-  if (label2) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label2_offset_x, MBASE(row) - 1 + label_offset_y, label2); // Draw Label
-  _Decorate_Menu_Item(row, icon, more);
+  if (label1) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
+  if (label2) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label2_offset_x, MBASE(row) - 1 + label_offset_y, label2); // Draw Label
+  _decorateMenuItem(row, icon, more);
 }
 
-void CrealityDWINClass::Draw_Menu_Item(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, const bool more/*=false*/, const bool centered/*=false*/) {
+void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, const bool more/*=false*/, const bool centered/*=false*/) {
   const uint8_t label_offset_y = (flabel1 || flabel2) ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel1 ? strlen_P(FTOP(flabel1)) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel2 ? strlen_P(FTOP(flabel2)) : 0) * MENU_CHR_W) / 2);
-  if (flabel1) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
-  if (flabel2) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label2_offset_x, MBASE(row) - 1 + label_offset_y, flabel2); // Draw Label
-  _Decorate_Menu_Item(row, icon, more);
+  if (flabel1) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
+  if (flabel2) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label2_offset_x, MBASE(row) - 1 + label_offset_y, flabel2); // Draw Label
+  _decorateMenuItem(row, icon, more);
 }
 
-void CrealityDWINClass::Draw_Checkbox(const uint8_t row, const bool value) {
+void CrealityDWIN::drawCheckbox(const uint8_t row, const bool value) {
   #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS) // Draw appropriate checkbox icon
-    DWIN_ICON_Show(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3);
+    dwinIconShow(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3);
   #else                                         // Draw a basic checkbox using rectangles and lines
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
-    DWIN_Draw_Rectangle(0, Color_White, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
+    dwinDrawRectangle(1, Color_Bg_Black, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
+    dwinDrawRectangle(0, Color_White, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
     if (value) {
-      DWIN_Draw_Line(Check_Color, 227, MBASE(row) - 3 + 11, 226 + 8, MBASE(row) - 3 + 17);
-      DWIN_Draw_Line(Check_Color, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 + 1);
-      DWIN_Draw_Line(Check_Color, 227, MBASE(row) - 3 + 12, 226 + 8, MBASE(row) - 3 + 18);
-      DWIN_Draw_Line(Check_Color, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 + 2);
-      DWIN_Draw_Line(Check_Color, 227, MBASE(row) - 3 + 13, 226 + 8, MBASE(row) - 3 + 19);
-      DWIN_Draw_Line(Check_Color, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 + 3);
+      dwinDrawLine(Check_Color, 227, MBASE(row) - 3 + 11, 226 + 8, MBASE(row) - 3 + 17);
+      dwinDrawLine(Check_Color, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 + 1);
+      dwinDrawLine(Check_Color, 227, MBASE(row) - 3 + 12, 226 + 8, MBASE(row) - 3 + 18);
+      dwinDrawLine(Check_Color, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 + 2);
+      dwinDrawLine(Check_Color, 227, MBASE(row) - 3 + 13, 226 + 8, MBASE(row) - 3 + 19);
+      dwinDrawLine(Check_Color, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 + 3);
     }
   #endif
 }
 
-void CrealityDWINClass::Draw_Menu(const uint8_t menu, const uint8_t select/*=0*/, const uint8_t scroll/*=0*/) {
+void CrealityDWIN::drawMenu(const uint8_t menu, const uint8_t select/*=0*/, const uint8_t scroll/*=0*/) {
   if (active_menu != menu) {
     last_menu = active_menu;
     if (process == Menu) last_selection = selection;
   }
-  selection = _MIN(select, Get_Menu_Size(menu));
+  selection = _MIN(select, getMenuSize(menu));
   scrollpos = scroll;
   if (selection - scrollpos > MROWS)
     scrollpos = selection - MROWS;
   process = Menu;
   active_menu = menu;
-  Clear_Screen();
-  Draw_Title(Get_Menu_Title(menu));
-  for (uint8_t i = 0; i < TROWS; ++i) Menu_Item_Handler(menu, i + scrollpos);
-  DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+  clearScreen();
+  drawTitle(getMenuTitle(menu));
+  for (uint8_t i = 0; i < TROWS; ++i) menuItemHandler(menu, i + scrollpos);
+  dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
 }
 
-void CrealityDWINClass::Redraw_Menu(const bool lastproc/*=true*/, const bool lastsel/*=false*/, const bool lastmenu/*=false*/) {
+void CrealityDWIN::redrawMenu(const bool lastproc/*=true*/, const bool lastsel/*=false*/, const bool lastmenu/*=false*/) {
   switch (lastproc ? last_process : process) {
     case Menu:
-      Draw_Menu(lastmenu ? last_menu : active_menu, lastsel ? last_selection : selection, lastmenu ? 0 : scrollpos);
+      drawMenu(lastmenu ? last_menu : active_menu, lastsel ? last_selection : selection, lastmenu ? 0 : scrollpos);
       break;
-    case Main:  Draw_Main_Menu(lastsel ? last_selection : selection); break;
-    case Print: Draw_Print_Screen(); break;
-    case File:  Draw_SD_List(); break;
+    case Main:  drawMainMenu(lastsel ? last_selection : selection); break;
+    case Print: drawPrintScreen(); break;
+    case File:  drawSDList(); break;
     default: break;
   }
 }
 
-void CrealityDWINClass::Redraw_Screen() {
-  Redraw_Menu(false);
-  Draw_Status_Area(true);
-  Update_Status_Bar(true);
+void CrealityDWIN::redrawScreen() {
+  redrawMenu(false);
+  drawStatusArea(true);
+  updateStatusBar(true);
 }
 
 /* Primary Menus and Screen Elements */
 
-void CrealityDWINClass::Main_Menu_Icons() {
+void CrealityDWIN::mainMenuIcons() {
   if (selection == 0) {
-    DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 17, 130, 126, 229);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 52, 200, F("Print"));
+    dwinIconShow(ICON, ICON_Print_1, 17, 130);
+    dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 17, 130, 126, 229);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 52, 200, F("Print"));
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Print_0, 17, 130);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 52, 200, F("Print"));
+    dwinIconShow(ICON, ICON_Print_0, 17, 130);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 52, 200, F("Print"));
   }
   if (selection == 1) {
-    DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 130, 254, 229);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 170, 200, F("Prepare"));
+    dwinIconShow(ICON, ICON_Prepare_1, 145, 130);
+    dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 145, 130, 254, 229);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 170, 200, F("Prepare"));
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 130);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 170, 200, F("Prepare"));
+    dwinIconShow(ICON, ICON_Prepare_0, 145, 130);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 170, 200, F("Prepare"));
   }
   if (selection == 2) {
-    DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 17, 246, 126, 345);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 43, 317, F("Control"));
+    dwinIconShow(ICON, ICON_Control_1, 17, 246);
+    dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 17, 246, 126, 345);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 43, 317, F("Control"));
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Control_0, 17, 246);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 43, 317, F("Control"));
+    dwinIconShow(ICON, ICON_Control_0, 17, 246);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 43, 317, F("Control"));
   }
   #if HAS_ABL_OR_UBL
     if (selection == 3) {
-      DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 179, 317, F("Level"));
+      dwinIconShow(ICON, ICON_Leveling_1, 145, 246);
+      dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 179, 317, F("Level"));
     }
     else {
-      DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 246);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 179, 317, F("Level"));
+      dwinIconShow(ICON, ICON_Leveling_0, 145, 246);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 179, 317, F("Level"));
     }
   #else
     if (selection == 3) {
-      DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 181, 317, F("Info"));
+      dwinIconShow(ICON, ICON_Info_1, 145, 246);
+      dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 181, 317, F("Info"));
     }
     else {
-      DWIN_ICON_Show(ICON, ICON_Info_0, 145, 246);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 181, 317, F("Info"));
+      dwinIconShow(ICON, ICON_Info_0, 145, 246);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 181, 317, F("Info"));
     }
   #endif
 }
 
-void CrealityDWINClass::Draw_Main_Menu(const uint8_t select/*=0*/) {
+void CrealityDWIN::drawMainMenu(const uint8_t select/*=0*/) {
   process = Main;
   active_menu = MainMenu;
   selection = select;
-  Clear_Screen();
-  Draw_Title(Get_Menu_Title(MainMenu));
+  clearScreen();
+  drawTitle(getMenuTitle(MainMenu));
   SERIAL_ECHOPGM("\nDWIN handshake ");
-  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 72);
-  Main_Menu_Icons();
+  dwinIconShow(ICON, ICON_LOGO, 71, 72);
+  mainMenuIcons();
 }
 
-void CrealityDWINClass::Print_Screen_Icons() {
+void CrealityDWIN::printScreenIcons() {
   if (selection == 0) {
-    DWIN_ICON_Show(ICON, ICON_Setup_1, 8, 252);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 8, 252, 87, 351);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 30, 322, F("Tune"));
+    dwinIconShow(ICON, ICON_Setup_1, 8, 252);
+    dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 8, 252, 87, 351);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 30, 322, F("Tune"));
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Setup_0, 8, 252);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 30, 322, F("Tune"));
+    dwinIconShow(ICON, ICON_Setup_0, 8, 252);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 30, 322, F("Tune"));
   }
   if (selection == 2) {
-    DWIN_ICON_Show(ICON, ICON_Stop_1, 184, 252);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 184, 252, 263, 351);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 205, 322, F("Stop"));
+    dwinIconShow(ICON, ICON_Stop_1, 184, 252);
+    dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 184, 252, 263, 351);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 205, 322, F("Stop"));
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Stop_0, 184, 252);
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 205, 322, F("Stop"));
+    dwinIconShow(ICON, ICON_Stop_0, 184, 252);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 205, 322, F("Stop"));
   }
   if (paused) {
     if (selection == 1) {
-      DWIN_ICON_Show(ICON, ICON_Continue_1, 96, 252);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Print"));
+      dwinIconShow(ICON, ICON_Continue_1, 96, 252);
+      dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Print"));
     }
     else {
-      DWIN_ICON_Show(ICON, ICON_Continue_0, 96, 252);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Print"));
+      dwinIconShow(ICON, ICON_Continue_0, 96, 252);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Print"));
     }
   }
   else {
     if (selection == 1) {
-      DWIN_ICON_Show(ICON, ICON_Pause_1, 96, 252);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Pause"));
+      dwinIconShow(ICON, ICON_Pause_1, 96, 252);
+      dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Pause"));
     }
     else {
-      DWIN_ICON_Show(ICON, ICON_Pause_0, 96, 252);
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Pause"));
+      dwinIconShow(ICON, ICON_Pause_0, 96, 252);
+      dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Pause"));
     }
   }
 }
 
-void CrealityDWINClass::Draw_Print_Screen() {
+void CrealityDWIN::drawPrintScreen() {
   process = Print;
   selection = 0;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH - 8, 376);
-  Draw_Title("Printing...");
-  Print_Screen_Icons();
-  DWIN_ICON_Show(ICON, ICON_PrintTime, 14, 171);
-  DWIN_ICON_Show(ICON, ICON_RemainTime, 147, 169);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 41, 163, F("Elapsed"));
-  DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 176, 163, F("Remaining"));
-  Update_Status_Bar(true);
-  Draw_Print_ProgressBar();
-  Draw_Print_ProgressElapsed();
-  TERN_(SET_REMAINING_TIME, Draw_Print_ProgressRemain());
-  Draw_Print_Filename(true);
+  clearScreen();
+  dwinDrawRectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH - 8, 376);
+  drawTitle("Printing...");
+  printScreenIcons();
+  dwinIconShow(ICON, ICON_PrintTime, 14, 171);
+  dwinIconShow(ICON, ICON_RemainTime, 147, 169);
+  dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 41, 163, F("Elapsed"));
+  dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 176, 163, F("Remaining"));
+  updateStatusBar(true);
+  drawPrintProgressBar();
+  drawPrintProgressElapsed();
+  TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+  drawPrintFilename(true);
 }
 
-void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
+void CrealityDWIN::drawPrintFilename(const bool reset/*=false*/) {
   typedef TextScroller<30> Scroller;
   static Scroller scroller;
   if (reset) scroller.reset();
@@ -737,61 +733,61 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
     Scroller::Buffer buf;
     size_t outlen = 0;
     const char* outstr = scroller.scroll(outlen, buf, filename);
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
+    dwinDrawRectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
     const int8_t npos = (DWIN_WIDTH - outlen * MENU_CHR_W) / 2;
-    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, outstr);
+    dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, outstr);
   }
 }
 
-void CrealityDWINClass::Draw_Print_ProgressBar() {
+void CrealityDWIN::drawPrintProgressBar() {
   uint8_t printpercent = sdprint ? card.percentDone() : (ui._get_progress() / 100);
-  DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
-  DWIN_Draw_Rectangle(1, BarFill_Color, 16 + printpercent * 240 / 100, 93, 256, 113);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 3, 109, 133, printpercent);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 133, 133, F("%"));
+  dwinIconShow(ICON, ICON_Bar, 15, 93);
+  dwinDrawRectangle(1, BarFill_Color, 16 + printpercent * 240 / 100, 93, 256, 113);
+  dwinDrawIntValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 3, 109, 133, printpercent);
+  dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 133, 133, F("%"));
 }
 
 #if ENABLED(SET_REMAINING_TIME)
 
-  void CrealityDWINClass::Draw_Print_ProgressRemain() {
+  void CrealityDWIN::drawPrintProgressRemain() {
     uint16_t remainingtime = ui.get_remaining_time();
-    DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 176, 187, remainingtime / 3600);
-    DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 200, 187, (remainingtime % 3600) / 60);
+    dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 176, 187, remainingtime / 3600);
+    dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 200, 187, (remainingtime % 3600) / 60);
     if (eeprom_settings.time_format_textual) {
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 192, 187, F("h"));
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 216, 187, F("m"));
+      dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 192, 187, F("h"));
+      dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 216, 187, F("m"));
     }
     else
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 192, 187, F(":"));
+      dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 192, 187, F(":"));
   }
 
 #endif
 
-void CrealityDWINClass::Draw_Print_ProgressElapsed() {
+void CrealityDWIN::drawPrintProgressElapsed() {
   duration_t elapsed = print_job_timer.duration();
-  DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 42, 187, elapsed.value / 3600);
-  DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 66, 187, (elapsed.value % 3600) / 60);
+  dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 42, 187, elapsed.value / 3600);
+  dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 66, 187, (elapsed.value % 3600) / 60);
   if (eeprom_settings.time_format_textual) {
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 58, 187, F("h"));
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 82, 187, F("m"));
+    dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 58, 187, F("h"));
+    dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 82, 187, F("m"));
   }
   else
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 58, 187, F(":"));
+    dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 58, 187, F(":"));
 }
 
-void CrealityDWINClass::Draw_Print_confirm() {
-  Draw_Print_Screen();
+void CrealityDWIN::drawPrintConfirm() {
+  drawPrintScreen();
   process = Confirm;
   popup = Complete;
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 252, 263, 351);
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 87, 283);
-  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 86, 282, 187, 321);
-  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 85, 281, 188, 322);
+  dwinDrawRectangle(1, Color_Bg_Black, 8, 252, 263, 351);
+  dwinIconShow(ICON, ICON_Confirm_E, 87, 283);
+  dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 86, 282, 187, 321);
+  dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 85, 281, 188, 322);
 }
 
-void CrealityDWINClass::Draw_SD_Item(const uint8_t item, const uint8_t row) {
+void CrealityDWIN::drawSDItem(const uint8_t item, const uint8_t row) {
   if (item == 0)
-    Draw_Menu_Item(0, ICON_Back, card.flag.workDirIsRoot ? F("Back") : F(".."));
+    drawMenuItem(0, ICON_Back, card.flag.workDirIsRoot ? F("Back") : F(".."));
   else {
     card.selectFileByIndexSorted(item - 1);
     char * const filename = card.longest_filename();
@@ -806,31 +802,31 @@ void CrealityDWINClass::Draw_SD_Item(const uint8_t item, const uint8_t row) {
     if (pos > max)
       for (uint8_t i = len - 3; i < len; ++i) name[i] = '.';
     name[len] = '\0';
-    Draw_Menu_Item(row, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
+    drawMenuItem(row, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
   }
 }
 
-void CrealityDWINClass::Draw_SD_List(const bool removed/*=false*/) {
-  Clear_Screen();
-  Draw_Title("Select File");
+void CrealityDWIN::drawSDList(const bool removed/*=false*/) {
+  clearScreen();
+  drawTitle("Select File");
   selection = 0;
   scrollpos = 0;
   process = File;
   if (card.isMounted() && !removed) {
     for (uint8_t i = 0; i < _MIN(card.get_num_items() + 1, TROWS); ++i)
-      Draw_SD_Item(i, i);
+      drawSDItem(i, i);
   }
   else {
-    Draw_Menu_Item(0, ICON_Back, F("Back"));
-    DWIN_Draw_Rectangle(1, Color_Bg_Red, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    DWIN_Draw_String(false, font16x32, Color_Yellow, Color_Bg_Red, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
+    drawMenuItem(0, ICON_Back, F("Back"));
+    dwinDrawRectangle(1, Color_Bg_Red, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
+    dwinDrawString(false, font16x32, Color_Yellow, Color_Bg_Red, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
   }
-  DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(0) - 18, 14, MBASE(0) + 33);
+  dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(0) - 18, 14, MBASE(0) + 33);
 }
 
-void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
+void CrealityDWIN::drawStatusArea(const bool icons/*=false*/) {
 
-  if (icons) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
+  if (icons) dwinDrawRectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
   #if HAS_HOTEND
     static float hotend = -1;
@@ -838,27 +834,27 @@ void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
     if (icons) {
       hotend = -1;
       hotendtarget = -1;
-      DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
+      dwinIconShow(ICON, ICON_HotendTemp, 10, 383);
+      dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
     }
     if (thermalManager.temp_hotend[0].celsius != hotend) {
       hotend = thermalManager.temp_hotend[0].celsius;
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
-      DWIN_Draw_DegreeSymbol(GetColor(eeprom_settings.status_area_text, Color_White), 25 + 3 * STAT_CHR_W + 5, 386);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
+      dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, Color_White), 25 + 3 * STAT_CHR_W + 5, 386);
     }
     if (thermalManager.temp_hotend[0].target != hotendtarget) {
       hotendtarget = thermalManager.temp_hotend[0].target;
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
-      DWIN_Draw_DegreeSymbol(GetColor(eeprom_settings.status_area_text, Color_White), 25 + 4 * STAT_CHR_W + 39, 386);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
+      dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, Color_White), 25 + 4 * STAT_CHR_W + 39, 386);
     }
     if (icons) {
       flow = -1;
-      DWIN_ICON_Show(ICON, ICON_StepE, 112, 417);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
+      dwinIconShow(ICON, ICON_StepE, 112, 417);
+      dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
     }
     if (planner.flow_percentage[0] != flow) {
       flow = planner.flow_percentage[0];
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
     }
   #endif
 
@@ -868,18 +864,18 @@ void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
     if (icons) {
       bed = -1;
       bedtarget = -1;
-      DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
+      dwinIconShow(ICON, ICON_BedTemp, 10, 416);
+      dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
     }
     if (thermalManager.temp_bed.celsius != bed) {
       bed = thermalManager.temp_bed.celsius;
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
-      DWIN_Draw_DegreeSymbol(GetColor(eeprom_settings.status_area_text, Color_White), 25 + 3 * STAT_CHR_W + 5, 419);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
+      dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, Color_White), 25 + 3 * STAT_CHR_W + 5, 419);
     }
     if (thermalManager.temp_bed.target != bedtarget) {
       bedtarget = thermalManager.temp_bed.target;
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
-      DWIN_Draw_DegreeSymbol(GetColor(eeprom_settings.status_area_text, Color_White), 25 + 4 * STAT_CHR_W + 39, 419);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
+      dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, Color_White), 25 + 4 * STAT_CHR_W + 39, 419);
     }
   #endif
 
@@ -887,11 +883,11 @@ void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
     static uint8_t fan = -1;
     if (icons) {
       fan = -1;
-      DWIN_ICON_Show(ICON, ICON_FanSpeed, 187, 383);
+      dwinIconShow(ICON, ICON_FanSpeed, 187, 383);
     }
     if (thermalManager.fan_speed[0] != fan) {
       fan = thermalManager.fan_speed[0];
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
     }
   #endif
 
@@ -900,24 +896,24 @@ void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
 
     if (icons) {
       offset = -1;
-      DWIN_ICON_Show(ICON, ICON_Zoffset, 187, 416);
+      dwinIconShow(ICON, ICON_Zoffset, 187, 416);
     }
     if (zoffsetvalue != offset) {
       offset = zoffsetvalue;
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 2, 2, 207, 417, (zoffsetvalue < 0 ? -zoffsetvalue : zoffsetvalue));
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 205, 419, zoffsetvalue < 0 ? F("-") : F(" "));
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 2, 2, 207, 417, (zoffsetvalue < 0 ? -zoffsetvalue : zoffsetvalue));
+      dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 205, 419, zoffsetvalue < 0 ? F("-") : F(" "));
     }
   #endif
 
   static int16_t feedrate = -1;
   if (icons) {
     feedrate = -1;
-    DWIN_ICON_Show(ICON, ICON_Speed, 113, 383);
-    DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
+    dwinIconShow(ICON, ICON_Speed, 113, 383);
+    dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
   }
   if (feedrate_percentage != feedrate) {
     feedrate = feedrate_percentage;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
+    dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, Color_White), Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
   }
 
   static float x = -1, y = -1, z = -1;
@@ -927,75 +923,75 @@ void CrealityDWINClass::Draw_Status_Area(const bool icons/*=false*/) {
   update_z = (current_position.z != z || axis_should_home(Z_AXIS) || update_z);
   if (icons) {
     x = y = z = -1;
-    DWIN_Draw_Line(GetColor(eeprom_settings.coordinates_split_line, Line_Color, true), 16, 450, 256, 450);
-    DWIN_ICON_Show(ICON, ICON_MaxSpeedX,  10, 456);
-    DWIN_ICON_Show(ICON, ICON_MaxSpeedY,  95, 456);
-    DWIN_ICON_Show(ICON, ICON_MaxSpeedZ, 180, 456);
+    dwinDrawLine(getColor(eeprom_settings.coordinates_split_line, Line_Color, true), 16, 450, 256, 450);
+    dwinIconShow(ICON, ICON_MaxSpeedX,  10, 456);
+    dwinIconShow(ICON, ICON_MaxSpeedY,  95, 456);
+    dwinIconShow(ICON, ICON_MaxSpeedZ, 180, 456);
   }
   if (update_x) {
     x = current_position.x;
     if ((update_x = axis_should_home(X_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 35, 459, F("  -?-  "));
+      dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 35, 459, F("  -?-  "));
     else
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 35, 459, current_position.x);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 35, 459, current_position.x);
   }
   if (update_y) {
     y = current_position.y;
     if ((update_y = axis_should_home(Y_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 120, 459, F("  -?-  "));
+      dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 120, 459, F("  -?-  "));
     else
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 120, 459, current_position.y);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 120, 459, current_position.y);
   }
   if (update_z) {
     z = current_position.z;
     if ((update_z = axis_should_home(Z_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 205, 459, F("  -?-  "));
+      dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 205, 459, F("  -?-  "));
     else
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 2, 205, 459, current_position.z >= 0 ? current_position.z : 0);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 2, 205, 459, current_position.z >= 0 ? current_position.z : 0);
   }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Draw_Popup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon/*=0*/) {
+void CrealityDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon/*=0*/) {
   if (process != Confirm && process != Popup && process != Wait) last_process = process;
   if ((process == Menu || process == Wait) && mode == Popup) last_selection = selection;
   process = mode;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(0, Color_White, 13, 59, 259, 351);
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
+  clearScreen();
+  dwinDrawRectangle(0, Color_White, 13, 59, 259, 351);
+  dwinDrawRectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   const uint8_t ypos = (mode == Popup || mode == Confirm) ? 150 : 230;
-  if (icon > 0) DWIN_ICON_Show(ICON, icon, 101, 105);
-  DWIN_Draw_String(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line1))) / 2, ypos, line1);
-  DWIN_Draw_String(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line2))) / 2, ypos + 30, line2);
-  DWIN_Draw_String(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line3))) / 2, ypos + 60, line3);
+  if (icon > 0) dwinIconShow(ICON, icon, 101, 105);
+  dwinDrawString(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line1))) / 2, ypos, line1);
+  dwinDrawString(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line2))) / 2, ypos + 30, line2);
+  dwinDrawString(true, DWIN_FONT_MENU, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen_P(FTOP(line3))) / 2, ypos + 60, line3);
   if (mode == Popup) {
     selection = 0;
-    DWIN_Draw_Rectangle(1, Confirm_Color, 26, 280, 125, 317);
-    DWIN_Draw_Rectangle(1, Cancel_Color, 146, 280, 245, 317);
-    DWIN_Draw_String(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 39, 290, F("Confirm"));
-    DWIN_Draw_String(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 165, 290, F("Cancel"));
-    Popup_Select();
+    dwinDrawRectangle(1, Confirm_Color, 26, 280, 125, 317);
+    dwinDrawRectangle(1, Cancel_Color, 146, 280, 245, 317);
+    dwinDrawString(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 39, 290, F("Confirm"));
+    dwinDrawString(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 165, 290, F("Cancel"));
+    popupSelect();
   }
   else if (mode == Confirm) {
-    DWIN_Draw_Rectangle(1, Confirm_Color, 87, 280, 186, 317);
-    DWIN_Draw_String(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 96, 290, F("Continue"));
+    dwinDrawRectangle(1, Confirm_Color, 87, 280, 186, 317);
+    dwinDrawString(false, DWIN_FONT_STAT, Color_White, Color_Bg_Window, 96, 290, F("Continue"));
   }
 }
 
 void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-  CrealityDWIN.Draw_Popup(F("Printer Kill Reason:"), error, F("Restart Required"), Wait, ICON_BLTouch);
+  crealityDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Wait, ICON_BLTouch);
 }
 
-void CrealityDWINClass::Popup_Select() {
-  const uint16_t c1 = selection ? Color_Bg_Window : GetColor(eeprom_settings.highlight_box, Color_White),
-                 c2 = selection ? GetColor(eeprom_settings.highlight_box, Color_White) : Color_Bg_Window;
-  DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
-  DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
-  DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
-  DWIN_Draw_Rectangle(0, c2, 144, 278, 247, 319);
+void CrealityDWIN::popupSelect() {
+  const uint16_t c1 = selection ? Color_Bg_Window : getColor(eeprom_settings.highlight_box, Color_White),
+                 c2 = selection ? getColor(eeprom_settings.highlight_box, Color_White) : Color_Bg_Window;
+  dwinDrawRectangle(0, c1, 25, 279, 126, 318);
+  dwinDrawRectangle(0, c1, 24, 278, 127, 319);
+  dwinDrawRectangle(0, c2, 145, 279, 246, 318);
+  dwinDrawRectangle(0, c2, 144, 278, 247, 319);
 }
 
-void CrealityDWINClass::Update_Status_Bar(const bool refresh/*=false*/) {
+void CrealityDWIN::updateStatusBar(const bool refresh/*=false*/) {
   typedef TextScroller<30> Scroller;
   static bool new_msg;
   static Scroller scroller;
@@ -1011,21 +1007,21 @@ void CrealityDWINClass::Update_Status_Bar(const bool refresh/*=false*/) {
   if (new_msg) {
     new_msg = false;
     if (process == Print) {
-      DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH - 8, 238);
+      dwinDrawRectangle(1, Color_Grey, 8, 214, DWIN_WIDTH - 8, 238);
       const int8_t npos = (DWIN_WIDTH - len * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 219, dispmsg);
+      dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 219, dispmsg);
     }
     else {
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH - 8, 376);
+      dwinDrawRectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH - 8, 376);
       const int8_t npos = (DWIN_WIDTH - len * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 357, dispmsg);
+      dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 357, dispmsg);
     }
   }
 }
 
 /* Menu Item Config */
 
-void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item, bool draw/*=true*/) {
+void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool draw/*=true*/) {
   const uint8_t row = item - scrollpos;
   #if HAS_LEVELING
     static bool level_state;
@@ -1043,38 +1039,38 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case PREHEAT_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(TempMenu, sel);
+            drawMenu(TempMenu, sel);
           break;
         #if HAS_HOTEND
           case PREHEAT_SUBMENU_HOTEND:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetEndTemp, F("Hotend"));
-              Draw_Float(ui.material_preset[index].hotend_temp, row, false, 1);
+              drawMenuItem(row, ICON_SetEndTemp, F("Hotend"));
+              drawFloat(ui.material_preset[index].hotend_temp, row, false, 1);
             }
             else
-              Modify_Value(ui.material_preset[index].hotend_temp, MIN_E_TEMP, MAX_E_TEMP, 1);
+              modifyValue(ui.material_preset[index].hotend_temp, MIN_E_TEMP, MAX_E_TEMP, 1);
             break;
         #endif
         #if HAS_HEATED_BED
           case PREHEAT_SUBMENU_BED:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetBedTemp, F("Bed"));
-              Draw_Float(ui.material_preset[index].bed_temp, row, false, 1);
+              drawMenuItem(row, ICON_SetBedTemp, F("Bed"));
+              drawFloat(ui.material_preset[index].bed_temp, row, false, 1);
             }
             else
-              Modify_Value(ui.material_preset[index].bed_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
+              modifyValue(ui.material_preset[index].bed_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
             break;
         #endif
         #if HAS_FAN
           case PREHEAT_SUBMENU_FAN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_FanSpeed, F("Fan"));
-              Draw_Float(ui.material_preset[index].fan_speed, row, false, 1);
+              drawMenuItem(row, ICON_FanSpeed, F("Fan"));
+              drawFloat(ui.material_preset[index].fan_speed, row, false, 1);
             }
             else
-              Modify_Value(ui.material_preset[index].fan_speed, MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
+              modifyValue(ui.material_preset[index].fan_speed, MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
       }
@@ -1100,54 +1096,54 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case PREPARE_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Main_Menu(1);
+            drawMainMenu(1);
           break;
         case PREPARE_MOVE:
           if (draw)
-            Draw_Menu_Item(row, ICON_Axis, F("Move"), nullptr, true);
+            drawMenuItem(row, ICON_Axis, F("Move"), nullptr, true);
           else
-            Draw_Menu(Move);
+            drawMenu(Move);
           break;
         case PREPARE_DISABLE:
           if (draw)
-            Draw_Menu_Item(row, ICON_CloseMotor, F("Disable Stepper"));
+            drawMenuItem(row, ICON_CloseMotor, F("Disable Stepper"));
           else
             queue.inject(F("M84"));
           break;
         case PREPARE_HOME:
           if (draw)
-            Draw_Menu_Item(row, ICON_SetHome, F("Homing"), nullptr, true);
+            drawMenuItem(row, ICON_SetHome, F("Homing"), nullptr, true);
           else
-            Draw_Menu(HomeMenu);
+            drawMenu(HomeMenu);
           break;
         case PREPARE_MANUALLEVEL:
           if (draw)
-            Draw_Menu_Item(row, ICON_PrintSize, F("Manual Leveling"), nullptr, true);
+            drawMenuItem(row, ICON_PrintSize, F("Manual Leveling"), nullptr, true);
           else {
             if (axes_should_home()) {
-              Popup_Handler(Home);
+              popupHandler(Home);
               gcode.home_all_axes(true);
             }
             #if HAS_LEVELING
               level_state = planner.leveling_active;
               set_bed_leveling_enabled(false);
             #endif
-            Draw_Menu(ManualLevel);
+            drawMenu(ManualLevel);
           }
           break;
 
         #if HAS_ZOFFSET_ITEM
           case PREPARE_ZOFFSET:
             if (draw)
-              Draw_Menu_Item(row, ICON_Zoffset, F("Z-Offset"), nullptr, true);
+              drawMenuItem(row, ICON_Zoffset, F("Z-Offset"), nullptr, true);
             else {
               #if HAS_LEVELING
                 level_state = planner.leveling_active;
                 set_bed_leveling_enabled(false);
               #endif
-              Draw_Menu(ZOffset);
+              drawMenu(ZOffset);
             }
             break;
         #endif
@@ -1155,16 +1151,16 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if HAS_PREHEAT
           case PREPARE_PREHEAT:
             if (draw)
-              Draw_Menu_Item(row, ICON_Temperature, F("Preheat"), nullptr, true);
+              drawMenuItem(row, ICON_Temperature, F("Preheat"), nullptr, true);
             else
-              Draw_Menu(Preheat);
+              drawMenu(Preheat);
             break;
         #endif
 
         #if HAS_HOTEND || HAS_HEATED_BED
           case PREPARE_COOLDOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_Cool, F("Cooldown"));
+              drawMenuItem(row, ICON_Cool, F("Cooldown"));
             else
               thermalManager.cooldown();
             break;
@@ -1176,16 +1172,16 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               #define CUSTOM_MENU_CONFIG_TITLE "Custom Commands"
             #endif
             if (draw)
-              Draw_Menu_Item(row, ICON_Version, F(CUSTOM_MENU_CONFIG_TITLE));
+              drawMenuItem(row, ICON_Version, F(CUSTOM_MENU_CONFIG_TITLE));
             else
-              Draw_Menu(MenuCustom);
+              drawMenu(MenuCustom);
             break;
         #endif
 
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           case PREPARE_CHANGEFIL:
             if (draw) {
-              Draw_Menu_Item(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
+              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   , nullptr, true
                 #endif
@@ -1193,16 +1189,16 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             }
             else {
               #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-                Draw_Menu(ChangeFilament);
+                drawMenu(ChangeFilament);
               #else
                 if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                  Popup_Handler(ETemp);
+                  popupHandler(ETemp);
                 else {
                   if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                    Popup_Handler(Heating);
+                    popupHandler(Heating);
                     thermalManager.wait_for_hotend(0);
                   }
-                  Popup_Handler(FilChange);
+                  popupHandler(FilChange);
                   sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
                   gcode.process_subcommands_now(cmd);
                 }
@@ -1226,55 +1222,55 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case HOME_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Prepare, PREPARE_HOME);
+            drawMenu(Prepare, PREPARE_HOME);
           break;
         case HOME_ALL:
           if (draw)
-            Draw_Menu_Item(row, ICON_Homing, F("Home All"));
+            drawMenuItem(row, ICON_Homing, F("Home All"));
           else {
-            Popup_Handler(Home);
+            popupHandler(Home);
             gcode.home_all_axes(true);
-            Redraw_Menu();
+            redrawMenu();
           }
           break;
         case HOME_X:
           if (draw)
-            Draw_Menu_Item(row, ICON_MoveX, F("Home X"));
+            drawMenuItem(row, ICON_MoveX, F("Home X"));
           else {
-            Popup_Handler(Home);
+            popupHandler(Home);
             gcode.process_subcommands_now(F("G28 X"));
             planner.synchronize();
-            Redraw_Menu();
+            redrawMenu();
           }
           break;
         case HOME_Y:
           if (draw)
-            Draw_Menu_Item(row, ICON_MoveY, F("Home Y"));
+            drawMenuItem(row, ICON_MoveY, F("Home Y"));
           else {
-            Popup_Handler(Home);
+            popupHandler(Home);
             gcode.process_subcommands_now(F("G28 Y"));
             planner.synchronize();
-            Redraw_Menu();
+            redrawMenu();
           }
           break;
         case HOME_Z:
           if (draw)
-            Draw_Menu_Item(row, ICON_MoveZ, F("Home Z"));
+            drawMenuItem(row, ICON_MoveZ, F("Home Z"));
           else {
-            Popup_Handler(Home);
+            popupHandler(Home);
             gcode.process_subcommands_now(F("G28 Z"));
             planner.synchronize();
-            Redraw_Menu();
+            redrawMenu();
           }
           break;
         case HOME_SET:
           if (draw)
-            Draw_Menu_Item(row, ICON_SetHome, F("Set Home Position"));
+            drawMenuItem(row, ICON_SetHome, F("Set Home Position"));
           else {
             gcode.process_subcommands_now(F("G92X0Y0Z0"));
-            AudioFeedback();
+            audioFeedback();
           }
           break;
       }
@@ -1294,61 +1290,61 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case MOVE_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else {
             #if HAS_BED_PROBE
               probe_deployed = false;
               probe.set_deployed(probe_deployed);
             #endif
-            Draw_Menu(Prepare, PREPARE_MOVE);
+            drawMenu(Prepare, PREPARE_MOVE);
           }
           break;
         case MOVE_X:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MoveX, F("Move X"));
-            Draw_Float(current_position.x, row, false);
+            drawMenuItem(row, ICON_MoveX, F("Move X"));
+            drawFloat(current_position.x, row, false);
           }
           else
-            Modify_Value(current_position.x, X_MIN_POS, X_MAX_POS, 10);
+            modifyValue(current_position.x, X_MIN_POS, X_MAX_POS, 10);
           break;
         case MOVE_Y:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MoveY, F("Move Y"));
-            Draw_Float(current_position.y, row);
+            drawMenuItem(row, ICON_MoveY, F("Move Y"));
+            drawFloat(current_position.y, row);
           }
           else
-            Modify_Value(current_position.y, Y_MIN_POS, Y_MAX_POS, 10);
+            modifyValue(current_position.y, Y_MIN_POS, Y_MAX_POS, 10);
           break;
         case MOVE_Z:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MoveZ, F("Move Z"));
-            Draw_Float(current_position.z, row);
+            drawMenuItem(row, ICON_MoveZ, F("Move Z"));
+            drawFloat(current_position.z, row);
           }
           else
-            Modify_Value(current_position.z, Z_MIN_POS, Z_MAX_POS, 10);
+            modifyValue(current_position.z, Z_MIN_POS, Z_MAX_POS, 10);
           break;
 
         #if HAS_HOTEND
           case MOVE_E:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Extruder, F("Extruder"));
+              drawMenuItem(row, ICON_Extruder, F("Extruder"));
               current_position.e = 0;
               sync_plan_position();
-              Draw_Float(current_position.e, row);
+              drawFloat(current_position.e, row);
             }
             else {
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp) {
-                Popup_Handler(ETemp);
+                popupHandler(ETemp);
               }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                  Popup_Handler(Heating);
+                  popupHandler(Heating);
                   thermalManager.wait_for_hotend(0);
-                  Redraw_Menu();
+                  redrawMenu();
                 }
                 current_position.e = 0;
                 sync_plan_position();
-                Modify_Value(current_position.e, -500, 500, 10);
+                modifyValue(current_position.e, -500, 500, 10);
               }
             }
           break;
@@ -1357,25 +1353,25 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if HAS_BED_PROBE
           case MOVE_P:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StockConfiguration, F("Probe"));
-              Draw_Checkbox(row, probe_deployed);
+              drawMenuItem(row, ICON_StockConfiguration, F("Probe"));
+              drawCheckbox(row, probe_deployed);
             }
             else {
               probe_deployed = !probe_deployed;
               probe.set_deployed(probe_deployed);
-              Draw_Checkbox(row, probe_deployed);
+              drawCheckbox(row, probe_deployed);
             }
             break;
         #endif
 
         case MOVE_LIVE:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, F("Live Movement"));
-            Draw_Checkbox(row, livemove);
+            drawMenuItem(row, ICON_Axis, F("Live Movement"));
+            drawCheckbox(row, livemove);
           }
           else {
             livemove = !livemove;
-            Draw_Checkbox(row, livemove);
+            drawCheckbox(row, livemove);
           }
           break;
       }
@@ -1405,24 +1401,24 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case MLEVEL_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else {
             TERN_(HAS_LEVELING, set_bed_leveling_enabled(level_state));
-            Draw_Menu(Prepare, PREPARE_MANUALLEVEL);
+            drawMenu(Prepare, PREPARE_MANUALLEVEL);
           }
           break;
 
         #if HAS_BED_PROBE
           case MLEVEL_PROBE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Zoffset, F("Use Probe"));
-              Draw_Checkbox(row, use_probe);
+              drawMenuItem(row, ICON_Zoffset, F("Use Probe"));
+              drawCheckbox(row, use_probe);
             }
             else {
               use_probe ^= true;
-              Draw_Checkbox(row, use_probe);
+              drawCheckbox(row, use_probe);
               if (use_probe) {
-                Popup_Handler(Level);
+                popupHandler(Level);
                 const struct { xy_pos_t p; ProbePtRaise r; } points[] = {
                   { { probe_x_min, probe_y_min }, PROBE_PT_RAISE },
                   { { probe_x_min, probe_y_max }, PROBE_PT_RAISE },
@@ -1436,7 +1432,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                   corner_avg += mz;
                 }
                 corner_avg /= 4;
-                Redraw_Menu();
+                redrawMenu();
               }
             }
             break;
@@ -1444,116 +1440,116 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
         case MLEVEL_BL:
           if (draw)
-            Draw_Menu_Item(row, ICON_AxisBL, F("Bottom Left"));
+            drawMenuItem(row, ICON_AxisBL, F("Bottom Left"));
           else {
-            Popup_Handler(MoveWait);
+            popupHandler(MoveWait);
             if (use_probe) {
               #if HAS_BED_PROBE
                 sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(probe_x_min, 1, 3, str_1), dtostrf(probe_y_min, 1, 3, str_2));
                 gcode.process_subcommands_now(cmd);
                 planner.synchronize();
-                Popup_Handler(ManualProbing);
+                popupHandler(ManualProbing);
               #endif
             }
             else {
               sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf(corner_pos, 1, 3, str_1), dtostrf(corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
           }
           break;
         case MLEVEL_TL:
           if (draw)
-            Draw_Menu_Item(row, ICON_AxisTL, F("Top Left"));
+            drawMenuItem(row, ICON_AxisTL, F("Top Left"));
           else {
-            Popup_Handler(MoveWait);
+            popupHandler(MoveWait);
             if (use_probe) {
               #if HAS_BED_PROBE
                 sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(probe_x_min, 1, 3, str_1), dtostrf(probe_y_max, 1, 3, str_2));
                 gcode.process_subcommands_now(cmd);
                 planner.synchronize();
-                Popup_Handler(ManualProbing);
+                popupHandler(ManualProbing);
               #endif
             }
             else {
               sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf(corner_pos, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) - corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
           }
           break;
         case MLEVEL_TR:
           if (draw)
-            Draw_Menu_Item(row, ICON_AxisTR, F("Top Right"));
+            drawMenuItem(row, ICON_AxisTR, F("Top Right"));
           else {
-            Popup_Handler(MoveWait);
+            popupHandler(MoveWait);
             if (use_probe) {
               #if HAS_BED_PROBE
                 sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(probe_x_max, 1, 3, str_1), dtostrf(probe_y_max, 1, 3, str_2));
                 gcode.process_subcommands_now(cmd);
                 planner.synchronize();
-                Popup_Handler(ManualProbing);
+                popupHandler(ManualProbing);
               #endif
             }
             else {
               sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS) - corner_pos, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) - corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
           }
           break;
         case MLEVEL_BR:
           if (draw)
-            Draw_Menu_Item(row, ICON_AxisBR, F("Bottom Right"));
+            drawMenuItem(row, ICON_AxisBR, F("Bottom Right"));
           else {
-            Popup_Handler(MoveWait);
+            popupHandler(MoveWait);
             if (use_probe) {
               #if HAS_BED_PROBE
                 sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(probe_x_max, 1, 3, str_1), dtostrf(probe_y_min, 1, 3, str_2));
                 gcode.process_subcommands_now(cmd);
                 planner.synchronize();
-                Popup_Handler(ManualProbing);
+                popupHandler(ManualProbing);
               #endif
             }
             else {
               sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS) - corner_pos, 1, 3, str_1), dtostrf(corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
           }
           break;
         case MLEVEL_C:
           if (draw)
-            Draw_Menu_Item(row, ICON_AxisC, F("Center"));
+            drawMenuItem(row, ICON_AxisC, F("Center"));
           else {
-            Popup_Handler(MoveWait);
+            popupHandler(MoveWait);
             if (use_probe) {
               #if HAS_BED_PROBE
                 sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(X_MAX_POS / 2.0f - probe.offset.x, 1, 3, str_1), dtostrf(Y_MAX_POS / 2.0f - probe.offset.y, 1, 3, str_2));
                 gcode.process_subcommands_now(cmd);
                 planner.synchronize();
-                Popup_Handler(ManualProbing);
+                popupHandler(ManualProbing);
               #endif
             }
             else {
               sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS) / 2.0f, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
           }
           break;
         case MLEVEL_ZPOS:
           if (draw) {
-            Draw_Menu_Item(row, ICON_SetZOffset, F("Z Position"));
-            Draw_Float(mlev_z_pos, row, false, 100);
+            drawMenuItem(row, ICON_SetZOffset, F("Z Position"));
+            drawFloat(mlev_z_pos, row, false, 100);
           }
           else
-            Modify_Value(mlev_z_pos, 0, MAX_Z_OFFSET, 100);
+            modifyValue(mlev_z_pos, 0, MAX_Z_OFFSET, 100);
           break;
       }
 
@@ -1574,20 +1570,20 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case ZOFFSET_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else {
               liveadjust = false;
               TERN_(HAS_LEVELING, set_bed_leveling_enabled(level_state));
-              Draw_Menu(Prepare, PREPARE_ZOFFSET);
+              drawMenu(Prepare, PREPARE_ZOFFSET);
             }
             break;
           case ZOFFSET_HOME:
             if (draw)
-              Draw_Menu_Item(row, ICON_Homing, F("Home Z Axis"));
+              drawMenuItem(row, ICON_Homing, F("Home Z Axis"));
             else {
-              Popup_Handler(Home);
+              popupHandler(Home);
               gcode.process_subcommands_now(F("G28 Z"));
-              Popup_Handler(MoveWait);
+              popupHandler(MoveWait);
               #if ENABLED(Z_SAFE_HOMING)
                 planner.synchronize();
                 sprintf_P(cmd, PSTR("G0 F4000 X%s Y%s"), dtostrf(Z_SAFE_HOMING_X_POINT, 1, 3, str_1), dtostrf(Z_SAFE_HOMING_Y_POINT, 1, 3, str_2));
@@ -1597,21 +1593,21 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               #endif
               gcode.process_subcommands_now(F("G0 F300 Z0"));
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
             break;
           case ZOFFSET_MODE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Zoffset, F("Live Adjustment"));
-              Draw_Checkbox(row, liveadjust);
+              drawMenuItem(row, ICON_Zoffset, F("Live Adjustment"));
+              drawCheckbox(row, liveadjust);
             }
             else {
               if (!liveadjust) {
                 if (axes_should_home()) {
-                  Popup_Handler(Home);
+                  popupHandler(Home);
                   gcode.home_all_axes(true);
                 }
-                Popup_Handler(MoveWait);
+                popupHandler(MoveWait);
                 #if ENABLED(Z_SAFE_HOMING)
                   planner.synchronize();
                   sprintf_P(cmd, PSTR("G0 F4000 X%s Y%s"), dtostrf(Z_SAFE_HOMING_X_POINT, 1, 3, str_1), dtostrf(Z_SAFE_HOMING_Y_POINT, 1, 3, str_2));
@@ -1621,23 +1617,23 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                 #endif
                 gcode.process_subcommands_now(F("G0 F300 Z0"));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
               }
               liveadjust = !liveadjust;
-              Draw_Checkbox(row, liveadjust);
+              drawCheckbox(row, liveadjust);
             }
             break;
           case ZOFFSET_OFFSET:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetZOffset, F("Z Offset"));
-              Draw_Float(zoffsetvalue, row, false, 100);
+              drawMenuItem(row, ICON_SetZOffset, F("Z Offset"));
+              drawFloat(zoffsetvalue, row, false, 100);
             }
             else
-              Modify_Value(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             break;
           case ZOFFSET_UP:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
+              drawMenuItem(row, ICON_Axis, F("Microstep Up"));
             else {
               if (zoffsetvalue < MAX_Z_OFFSET) {
                 if (liveadjust) {
@@ -1645,13 +1641,13 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                   planner.synchronize();
                 }
                 zoffsetvalue += 0.01;
-                Draw_Float(zoffsetvalue, row - 1, false, 100);
+                drawFloat(zoffsetvalue, row - 1, false, 100);
               }
             }
             break;
           case ZOFFSET_DOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_AxisD, F("Microstep Down"));
+              drawMenuItem(row, ICON_AxisD, F("Microstep Down"));
             else {
               if (zoffsetvalue > MIN_Z_OFFSET) {
                 if (liveadjust) {
@@ -1659,16 +1655,16 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                   planner.synchronize();
                 }
                 zoffsetvalue -= 0.01;
-                Draw_Float(zoffsetvalue, row - 2, false, 100);
+                drawFloat(zoffsetvalue, row - 2, false, 100);
               }
             }
             break;
           #if ENABLED(EEPROM_SETTINGS)
             case ZOFFSET_SAVE:
               if (draw)
-                Draw_Menu_Item(row, ICON_WriteEEPROM, F("Save"));
+                drawMenuItem(row, ICON_WriteEEPROM, F("Save"));
               else
-                AudioFeedback(settings.save());
+                audioFeedback(settings.save());
               break;
           #endif
         }
@@ -1694,23 +1690,23 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case PREHEAT_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Prepare, PREPARE_PREHEAT);
+              drawMenu(Prepare, PREPARE_PREHEAT);
             break;
 
           case PREHEAT_MODE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Homing, F("Preheat Mode"));
-              Draw_Option(preheatmode, preheat_modes, row);
+              drawMenuItem(row, ICON_Homing, F("Preheat Mode"));
+              drawOption(preheatmode, preheat_modes, row);
             }
             else
-              Modify_Option(preheatmode, preheat_modes, 2);
+              modifyOption(preheatmode, preheat_modes, 2);
             break;
 
           #define _PREHEAT_CASE(N) \
             case PREHEAT_##N: { \
-              if (draw) Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_## N ##_LABEL)); \
+              if (draw) drawMenuItem(row, ICON_Temperature, F(PREHEAT_## N ##_LABEL)); \
               else do_preheat(N - 1); \
             } break;
 
@@ -1731,59 +1727,59 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case CHANGEFIL_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Prepare, PREPARE_CHANGEFIL);
+              drawMenu(Prepare, PREPARE_CHANGEFIL);
             break;
           case CHANGEFIL_LOAD:
             if (draw)
-              Draw_Menu_Item(row, ICON_WriteEEPROM, GET_TEXT_F(MSG_FILAMENTLOAD));
+              drawMenuItem(row, ICON_WriteEEPROM, GET_TEXT_F(MSG_FILAMENTLOAD));
             else {
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                Popup_Handler(ETemp);
+                popupHandler(ETemp);
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                  Popup_Handler(Heating);
+                  popupHandler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
-                Popup_Handler(FilLoad);
+                popupHandler(FilLoad);
                 gcode.process_subcommands_now(F("M701"));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
               }
             }
             break;
           case CHANGEFIL_UNLOAD:
             if (draw)
-              Draw_Menu_Item(row, ICON_ReadEEPROM, GET_TEXT_F(MSG_FILAMENTUNLOAD));
+              drawMenuItem(row, ICON_ReadEEPROM, GET_TEXT_F(MSG_FILAMENTUNLOAD));
             else {
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp) {
-                Popup_Handler(ETemp);
+                popupHandler(ETemp);
               }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                  Popup_Handler(Heating);
+                  popupHandler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
-                Popup_Handler(FilLoad, true);
+                popupHandler(FilLoad, true);
                 gcode.process_subcommands_now(F("M702"));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
               }
             }
             break;
           case CHANGEFIL_CHANGE:
             if (draw)
-              Draw_Menu_Item(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else {
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                Popup_Handler(ETemp);
+                popupHandler(ETemp);
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                  Popup_Handler(Heating);
+                  popupHandler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
-                Popup_Handler(FilChange);
+                popupHandler(FilChange);
                 sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
                 gcode.process_subcommands_now(cmd);
               }
@@ -1808,23 +1804,23 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case CUSTOM_MENU_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Prepare, PREPARE_CUSTOM_MENU);
+              drawMenu(Prepare, PREPARE_CUSTOM_MENU);
             break;
 
           #if CUSTOM_MENU_COUNT >= 1
             case CUSTOM_MENU_1:
               if (draw)
-                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_1_DESC));
+                drawMenuItem(row, ICON_Info, F(CONFIG_MENU_ITEM_1_DESC));
               else {
-                Popup_Handler(Custom);
+                popupHandler(Custom);
                 //queue.inject(F(CONFIG_MENU_ITEM_1_GCODE)); // Old code
                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_1_GCODE));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
                 #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
-                  AudioFeedback();
+                  audioFeedback();
                 #endif
                 #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
                   queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
@@ -1836,14 +1832,14 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           #if CUSTOM_MENU_COUNT >= 2
             case CUSTOM_MENU_2:
               if (draw)
-                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_2_DESC));
+                drawMenuItem(row, ICON_Info, F(CONFIG_MENU_ITEM_2_DESC));
               else {
-                Popup_Handler(Custom);
+                popupHandler(Custom);
                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_2_GCODE));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
                 #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
-                  AudioFeedback();
+                  audioFeedback();
                 #endif
                 #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
                   queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
@@ -1855,14 +1851,14 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           #if CUSTOM_MENU_COUNT >= 3
             case CUSTOM_MENU_3:
               if (draw)
-                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_3_DESC));
+                drawMenuItem(row, ICON_Info, F(CONFIG_MENU_ITEM_3_DESC));
               else {
-                Popup_Handler(Custom);
+                popupHandler(Custom);
                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_3_GCODE));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
                 #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
-                  AudioFeedback();
+                  audioFeedback();
                 #endif
                 #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
                   queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
@@ -1874,14 +1870,14 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           #if CUSTOM_MENU_COUNT >= 4
             case CUSTOM_MENU_4:
               if (draw)
-                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_4_DESC));
+                drawMenuItem(row, ICON_Info, F(CONFIG_MENU_ITEM_4_DESC));
               else {
-                Popup_Handler(Custom);
+                popupHandler(Custom);
                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_4_GCODE));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
                 #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
-                  AudioFeedback();
+                  audioFeedback();
                 #endif
                 #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
                   queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
@@ -1893,14 +1889,14 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           #if CUSTOM_MENU_COUNT >= 5
             case CUSTOM_MENU_5:
               if (draw)
-                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_5_DESC));
+                drawMenuItem(row, ICON_Info, F(CONFIG_MENU_ITEM_5_DESC));
               else {
-                Popup_Handler(Custom);
+                popupHandler(Custom);
                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_5_GCODE));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
                 #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
-                  AudioFeedback();
+                  audioFeedback();
                 #endif
                 #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
                   queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
@@ -1929,61 +1925,61 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case CONTROL_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Main_Menu(2);
+            drawMainMenu(2);
           break;
         case CONTROL_TEMP:
           if (draw)
-            Draw_Menu_Item(row, ICON_Temperature, F("Temperature"), nullptr, true);
+            drawMenuItem(row, ICON_Temperature, F("Temperature"), nullptr, true);
           else
-            Draw_Menu(TempMenu);
+            drawMenu(TempMenu);
           break;
         case CONTROL_MOTION:
           if (draw)
-            Draw_Menu_Item(row, ICON_Motion, F("Motion"), nullptr, true);
+            drawMenuItem(row, ICON_Motion, F("Motion"), nullptr, true);
           else
-            Draw_Menu(Motion);
+            drawMenu(Motion);
           break;
         case CONTROL_VISUAL:
           if (draw)
-            Draw_Menu_Item(row, ICON_PrintSize, F("Visual"), nullptr, true);
+            drawMenuItem(row, ICON_PrintSize, F("Visual"), nullptr, true);
           else
-            Draw_Menu(Visual);
+            drawMenu(Visual);
           break;
         case CONTROL_ADVANCED:
           if (draw)
-            Draw_Menu_Item(row, ICON_Version, F("Advanced"), nullptr, true);
+            drawMenuItem(row, ICON_Version, F("Advanced"), nullptr, true);
           else
-            Draw_Menu(Advanced);
+            drawMenu(Advanced);
           break;
         #if ENABLED(EEPROM_SETTINGS)
           case CONTROL_SAVE:
             if (draw)
-              Draw_Menu_Item(row, ICON_WriteEEPROM, F("Store Settings"));
+              drawMenuItem(row, ICON_WriteEEPROM, F("Store Settings"));
             else
-              AudioFeedback(settings.save());
+              audioFeedback(settings.save());
             break;
           case CONTROL_RESTORE:
             if (draw)
-              Draw_Menu_Item(row, ICON_ReadEEPROM, F("Restore Settings"));
+              drawMenuItem(row, ICON_ReadEEPROM, F("Restore Settings"));
             else
-              AudioFeedback(settings.load());
+              audioFeedback(settings.load());
             break;
           case CONTROL_RESET:
             if (draw)
-              Draw_Menu_Item(row, ICON_Temperature, F("Reset to Defaults"));
+              drawMenuItem(row, ICON_Temperature, F("Reset to Defaults"));
             else {
               settings.reset();
-              AudioFeedback();
+              audioFeedback();
             }
             break;
         #endif
         case CONTROL_INFO:
           if (draw)
-            Draw_Menu_Item(row, ICON_Info, F("Info"));
+            drawMenuItem(row, ICON_Info, F("Info"));
           else
-            Draw_Menu(Info);
+            drawMenu(Info);
           break;
       }
       break;
@@ -2005,53 +2001,53 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case TEMP_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Control, CONTROL_TEMP);
+            drawMenu(Control, CONTROL_TEMP);
           break;
         #if HAS_HOTEND
           case TEMP_HOTEND:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetEndTemp, F("Hotend"));
-              Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawMenuItem(row, ICON_SetEndTemp, F("Hotend"));
+              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
+              modifyValue(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
             break;
         #endif
         #if HAS_HEATED_BED
           case TEMP_BED:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetBedTemp, F("Bed"));
-              Draw_Float(thermalManager.temp_bed.target, row, false, 1);
+              drawMenuItem(row, ICON_SetBedTemp, F("Bed"));
+              drawFloat(thermalManager.temp_bed.target, row, false, 1);
             }
             else
-              Modify_Value(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
+              modifyValue(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
             break;
         #endif
         #if HAS_FAN
           case TEMP_FAN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_FanSpeed, F("Fan"));
-              Draw_Float(thermalManager.fan_speed[0], row, false, 1);
+              drawMenuItem(row, ICON_FanSpeed, F("Fan"));
+              drawFloat(thermalManager.fan_speed[0], row, false, 1);
             }
             else
-              Modify_Value(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
+              modifyValue(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
         #if HAS_HOTEND || HAS_HEATED_BED
           case TEMP_PID:
             if (draw)
-              Draw_Menu_Item(row, ICON_Step, F("PID"), nullptr, true);
+              drawMenuItem(row, ICON_Step, F("PID"), nullptr, true);
             else
-              Draw_Menu(PID);
+              drawMenu(PID);
             break;
         #endif
 
         #define _TEMP_PREHEAT_CASE(N) \
           case TEMP_PREHEAT##N: { \
-            if (draw) Draw_Menu_Item(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
-            else Draw_Menu(Preheat##N); \
+            if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
+            else drawMenu(Preheat##N); \
           } break;
 
         REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
@@ -2072,33 +2068,33 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case PID_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(TempMenu, TEMP_PID);
+              drawMenu(TempMenu, TEMP_PID);
             break;
           #if HAS_HOTEND
             case PID_HOTEND:
               if (draw)
-                Draw_Menu_Item(row, ICON_HotendTemp, F("Hotend"), nullptr, true);
+                drawMenuItem(row, ICON_HotendTemp, F("Hotend"), nullptr, true);
               else
-                Draw_Menu(HotendPID);
+                drawMenu(HotendPID);
               break;
           #endif
           #if HAS_HEATED_BED
             case PID_BED:
               if (draw)
-                Draw_Menu_Item(row, ICON_BedTemp, F("Bed"), nullptr, true);
+                drawMenuItem(row, ICON_BedTemp, F("Bed"), nullptr, true);
               else
-                Draw_Menu(BedPID);
+                drawMenu(BedPID);
               break;
           #endif
           case PID_CYCLES:
             if (draw) {
-              Draw_Menu_Item(row, ICON_FanSpeed, F("Cycles"));
-              Draw_Float(PID_cycles, row, false, 1);
+              drawMenuItem(row, ICON_FanSpeed, F("Cycles"));
+              drawFloat(PID_cycles, row, false, 1);
             }
             else
-              Modify_Value(PID_cycles, 3, 50, 1);
+              modifyValue(PID_cycles, 3, 50, 1);
             break;
         }
         break;
@@ -2120,52 +2116,52 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case HOTENDPID_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(PID, PID_HOTEND);
+              drawMenu(PID, PID_HOTEND);
             break;
           case HOTENDPID_TUNE:
             if (draw)
-              Draw_Menu_Item(row, ICON_HotendTemp, F("Autotune"));
+              drawMenuItem(row, ICON_HotendTemp, F("Autotune"));
             else {
-              Popup_Handler(PIDWait);
+              popupHandler(PIDWait);
               sprintf_P(cmd, PSTR("M303 E0 C%i S%i U1"), PID_cycles, PID_e_temp);
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
             break;
           case HOTENDPID_TEMP:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Temperature, F("Temperature"));
-              Draw_Float(PID_e_temp, row, false, 1);
+              drawMenuItem(row, ICON_Temperature, F("Temperature"));
+              drawFloat(PID_e_temp, row, false, 1);
             }
             else
-              Modify_Value(PID_e_temp, MIN_E_TEMP, MAX_E_TEMP, 1);
+              modifyValue(PID_e_temp, MIN_E_TEMP, MAX_E_TEMP, 1);
             break;
           case HOTENDPID_KP:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Kp Value"));
-              Draw_Float(thermalManager.temp_hotend[0].pid.p(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Kp Value"));
+              drawFloat(thermalManager.temp_hotend[0].pid.p(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].pid.Kp, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_hotend[0].pid.Kp, 0, 5000, 100, thermalManager.updatePID);
             break;
           case HOTENDPID_KI:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Ki Value"));
-              Draw_Float(thermalManager.temp_hotend[0].pid.i(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Ki Value"));
+              drawFloat(thermalManager.temp_hotend[0].pid.i(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].pid.Ki, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_hotend[0].pid.Ki, 0, 5000, 100, thermalManager.updatePID);
             break;
           case HOTENDPID_KD:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Kd Value"));
-              Draw_Float(thermalManager.temp_hotend[0].pid.d(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Kd Value"));
+              drawFloat(thermalManager.temp_hotend[0].pid.d(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].pid.Kd, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_hotend[0].pid.Kd, 0, 5000, 100, thermalManager.updatePID);
             break;
         }
         break;
@@ -2187,53 +2183,53 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case BEDPID_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(PID, PID_BED);
+              drawMenu(PID, PID_BED);
             break;
           case BEDPID_TUNE:
             if (draw)
-              Draw_Menu_Item(row, ICON_HotendTemp, F("Autotune"));
+              drawMenuItem(row, ICON_HotendTemp, F("Autotune"));
             else {
-              Popup_Handler(PIDWait);
+              popupHandler(PIDWait);
               sprintf_P(cmd, PSTR("M303 E-1 C%i S%i U1"), PID_cycles, PID_bed_temp);
               gcode.process_subcommands_now(cmd);
               planner.synchronize();
-              Redraw_Menu();
+              redrawMenu();
             }
             break;
           case BEDPID_TEMP:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Temperature, F("Temperature"));
-              Draw_Float(PID_bed_temp, row, false, 1);
+              drawMenuItem(row, ICON_Temperature, F("Temperature"));
+              drawFloat(PID_bed_temp, row, false, 1);
             }
             else
-              Modify_Value(PID_bed_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
+              modifyValue(PID_bed_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
             break;
           case BEDPID_KP:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Kp Value"));
-              Draw_Float(thermalManager.temp_bed.pid.p(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Kp Value"));
+              drawFloat(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
             else {
-              Modify_Value(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
             }
             break;
           case BEDPID_KI:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Ki Value"));
-              Draw_Float(thermalManager.temp_bed.pid.i(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Ki Value"));
+              drawFloat(thermalManager.temp_bed.pid.i(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
             break;
           case BEDPID_KD:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("Kd Value"));
-              Draw_Float(thermalManager.temp_bed.pid.d(), row, false, 100);
+              drawMenuItem(row, ICON_Version, F("Kd Value"));
+              drawFloat(thermalManager.temp_bed.pid.d(), row, false, 100);
             }
             else
-              Modify_Value(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
             break;
         }
         break;
@@ -2258,50 +2254,50 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case MOTION_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Control, CONTROL_MOTION);
+            drawMenu(Control, CONTROL_MOTION);
           break;
         case MOTION_HOMEOFFSETS:
           if (draw)
-            Draw_Menu_Item(row, ICON_SetHome, F("Home Offsets"), nullptr, true);
+            drawMenuItem(row, ICON_SetHome, F("Home Offsets"), nullptr, true);
           else
-            Draw_Menu(HomeOffsets);
+            drawMenu(HomeOffsets);
           break;
         case MOTION_SPEED:
           if (draw)
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Max Speed"), nullptr, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Max Speed"), nullptr, true);
           else
-            Draw_Menu(MaxSpeed);
+            drawMenu(MaxSpeed);
           break;
         case MOTION_ACCEL:
           if (draw)
-            Draw_Menu_Item(row, ICON_MaxAccelerated, F("Max Acceleration"), nullptr, true);
+            drawMenuItem(row, ICON_MaxAccelerated, F("Max Acceleration"), nullptr, true);
           else
-            Draw_Menu(MaxAcceleration);
+            drawMenu(MaxAcceleration);
           break;
         #if HAS_CLASSIC_JERK
           case MOTION_JERK:
             if (draw)
-              Draw_Menu_Item(row, ICON_MaxJerk, F("Max Jerk"), nullptr, true);
+              drawMenuItem(row, ICON_MaxJerk, F("Max Jerk"), nullptr, true);
             else
-              Draw_Menu(MaxJerk);
+              drawMenu(MaxJerk);
             break;
         #endif
         case MOTION_STEPS:
           if (draw)
-            Draw_Menu_Item(row, ICON_Step, F("Steps/mm"), nullptr, true);
+            drawMenuItem(row, ICON_Step, F("Steps/mm"), nullptr, true);
           else
-            Draw_Menu(Steps);
+            drawMenu(Steps);
           break;
         #if HAS_HOTEND
           case MOTION_FLOW:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Speed, F("Flow Rate"));
-              Draw_Float(planner.flow_percentage[0], row, false, 1);
+              drawMenuItem(row, ICON_Speed, F("Flow Rate"));
+              drawFloat(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
+              modifyValue(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
         #endif
       }
@@ -2317,25 +2313,25 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case HOMEOFFSETS_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Motion, MOTION_HOMEOFFSETS);
+            drawMenu(Motion, MOTION_HOMEOFFSETS);
           break;
         case HOMEOFFSETS_XOFFSET:
           if (draw) {
-            Draw_Menu_Item(row, ICON_StepX, F("X Offset"));
-            Draw_Float(home_offset.x, row, false, 100);
+            drawMenuItem(row, ICON_StepX, F("X Offset"));
+            drawFloat(home_offset.x, row, false, 100);
           }
           else
-            Modify_Value(home_offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+            modifyValue(home_offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
           break;
         case HOMEOFFSETS_YOFFSET:
           if (draw) {
-            Draw_Menu_Item(row, ICON_StepY, F("Y Offset"));
-            Draw_Float(home_offset.y, row, false, 100);
+            drawMenuItem(row, ICON_StepY, F("Y Offset"));
+            drawFloat(home_offset.y, row, false, 100);
           }
           else
-            Modify_Value(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+            modifyValue(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
           break;
       }
       break;
@@ -2351,51 +2347,51 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case SPEED_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Motion, MOTION_SPEED);
+            drawMenu(Motion, MOTION_SPEED);
           break;
         #if HAS_X_AXIS
           case SPEED_X:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedX, F("X Axis"));
-              Draw_Float(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, FEEDRATE_UNIT);
+              drawMenuItem(row, ICON_MaxSpeedX, F("X Axis"));
+              drawFloat(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[X_AXIS], min_feedrate_edit_values.x, max_feedrate_edit_values.x, FEEDRATE_UNIT);
+              modifyValue(planner.settings.max_feedrate_mm_s[X_AXIS], min_feedrate_edit_values.x, max_feedrate_edit_values.x, FEEDRATE_UNIT);
             break;
         #endif
 
         #if HAS_Y_AXIS
           case SPEED_Y:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedY, F("Y Axis"));
-              Draw_Float(planner.settings.max_feedrate_mm_s[Y_AXIS], row, false, FEEDRATE_UNIT);
+              drawMenuItem(row, ICON_MaxSpeedY, F("Y Axis"));
+              drawFloat(planner.settings.max_feedrate_mm_s[Y_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[Y_AXIS], min_feedrate_edit_values.y, max_feedrate_edit_values.y, FEEDRATE_UNIT);
+              modifyValue(planner.settings.max_feedrate_mm_s[Y_AXIS], min_feedrate_edit_values.y, max_feedrate_edit_values.y, FEEDRATE_UNIT);
             break;
         #endif
 
         #if HAS_Z_AXIS
           case SPEED_Z:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedZ, F("Z Axis"));
-              Draw_Float(planner.settings.max_feedrate_mm_s[Z_AXIS], row, false, FEEDRATE_UNIT);
+              drawMenuItem(row, ICON_MaxSpeedZ, F("Z Axis"));
+              drawFloat(planner.settings.max_feedrate_mm_s[Z_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[Z_AXIS], min_feedrate_edit_values.z, max_feedrate_edit_values.z, FEEDRATE_UNIT);
+              modifyValue(planner.settings.max_feedrate_mm_s[Z_AXIS], min_feedrate_edit_values.z, max_feedrate_edit_values.z, FEEDRATE_UNIT);
             break;
         #endif
 
         #if HAS_HOTEND
           case SPEED_E:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedE, F("Extruder"));
-              Draw_Float(planner.settings.max_feedrate_mm_s[E_AXIS], row, false, FEEDRATE_UNIT);
+              drawMenuItem(row, ICON_MaxSpeedE, F("Extruder"));
+              drawFloat(planner.settings.max_feedrate_mm_s[E_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[E_AXIS], min_feedrate_edit_values.e, max_feedrate_edit_values.e, FEEDRATE_UNIT);
+              modifyValue(planner.settings.max_feedrate_mm_s[E_AXIS], min_feedrate_edit_values.e, max_feedrate_edit_values.e, FEEDRATE_UNIT);
             break;
         #endif
       }
@@ -2413,42 +2409,42 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case ACCEL_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Motion, MOTION_ACCEL);
+            drawMenu(Motion, MOTION_ACCEL);
           break;
         case ACCEL_X:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccX, F("X Axis"));
-            Draw_Float(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, ACCELERATION_UNIT);
+            drawMenuItem(row, ICON_MaxAccX, F("X Axis"));
+            drawFloat(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values.x, max_acceleration_edit_values.x, ACCELERATION_UNIT);
+            modifyValue(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values.x, max_acceleration_edit_values.x, ACCELERATION_UNIT);
           break;
         case ACCEL_Y:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccY, F("Y Axis"));
-            Draw_Float(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, ACCELERATION_UNIT);
+            drawMenuItem(row, ICON_MaxAccY, F("Y Axis"));
+            drawFloat(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values.y, max_acceleration_edit_values.y, ACCELERATION_UNIT);
+            modifyValue(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values.y, max_acceleration_edit_values.y, ACCELERATION_UNIT);
           break;
         case ACCEL_Z:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccZ, F("Z Axis"));
-            Draw_Float(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, ACCELERATION_UNIT);
+            drawMenuItem(row, ICON_MaxAccZ, F("Z Axis"));
+            drawFloat(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values.z, max_acceleration_edit_values.z, ACCELERATION_UNIT);
+            modifyValue(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values.z, max_acceleration_edit_values.z, ACCELERATION_UNIT);
           break;
         #if HAS_HOTEND
           case ACCEL_E:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxAccE, F("Extruder"));
-              Draw_Float(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, ACCELERATION_UNIT);
+              drawMenuItem(row, ICON_MaxAccE, F("Extruder"));
+              drawFloat(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, ACCELERATION_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values.e, max_acceleration_edit_values.e, ACCELERATION_UNIT);
+              modifyValue(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values.e, max_acceleration_edit_values.e, ACCELERATION_UNIT);
             break;
         #endif
       }
@@ -2466,48 +2462,48 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case JERK_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Motion, MOTION_JERK);
+              drawMenu(Motion, MOTION_JERK);
             break;
           #if HAS_X_AXIS
             case JERK_X:
               if (draw) {
-                Draw_Menu_Item(row, ICON_MaxSpeedJerkX, F("X Axis"));
-                Draw_Float(planner.max_jerk.x, row, false, JERK_UNIT);
+                drawMenuItem(row, ICON_MaxSpeedJerkX, F("X Axis"));
+                drawFloat(planner.max_jerk.x, row, false, JERK_UNIT);
               }
               else
-                Modify_Value(planner.max_jerk.x, min_jerk_edit_values.x, max_jerk_edit_values.x, JERK_UNIT);
+                modifyValue(planner.max_jerk.x, min_jerk_edit_values.x, max_jerk_edit_values.x, JERK_UNIT);
               break;
           #endif
           #if HAS_Y_AXIS
             case JERK_Y:
               if (draw) {
-                Draw_Menu_Item(row, ICON_MaxSpeedJerkY, F("Y Axis"));
-                Draw_Float(planner.max_jerk.y, row, false, JERK_UNIT);
+                drawMenuItem(row, ICON_MaxSpeedJerkY, F("Y Axis"));
+                drawFloat(planner.max_jerk.y, row, false, JERK_UNIT);
               }
               else
-                Modify_Value(planner.max_jerk.y, min_jerk_edit_values.y, max_jerk_edit_values.y, JERK_UNIT);
+                modifyValue(planner.max_jerk.y, min_jerk_edit_values.y, max_jerk_edit_values.y, JERK_UNIT);
               break;
           #endif
           #if HAS_Z_AXIS
             case JERK_Z:
               if (draw) {
-                Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
-                Draw_Float(planner.max_jerk.z, row, false, JERK_UNIT);
+                drawMenuItem(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
+                drawFloat(planner.max_jerk.z, row, false, JERK_UNIT);
               }
               else
-                Modify_Value(planner.max_jerk.z, min_jerk_edit_values.z, max_jerk_edit_values.z, JERK_UNIT);
+                modifyValue(planner.max_jerk.z, min_jerk_edit_values.z, max_jerk_edit_values.z, JERK_UNIT);
               break;
           #endif
           #if HAS_HOTEND
             case JERK_E:
               if (draw) {
-                Draw_Menu_Item(row, ICON_MaxSpeedJerkE, F("Extruder"));
-                Draw_Float(planner.max_jerk.e, row, false, JERK_UNIT);
+                drawMenuItem(row, ICON_MaxSpeedJerkE, F("Extruder"));
+                drawFloat(planner.max_jerk.e, row, false, JERK_UNIT);
               }
               else
-                Modify_Value(planner.max_jerk.e, min_jerk_edit_values.e, max_jerk_edit_values.e, JERK_UNIT);
+                modifyValue(planner.max_jerk.e, min_jerk_edit_values.e, max_jerk_edit_values.e, JERK_UNIT);
               break;
           #endif
         }
@@ -2525,48 +2521,48 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case STEPS_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Motion, MOTION_STEPS);
+            drawMenu(Motion, MOTION_STEPS);
           break;
         #if HAS_X_AXIS
           case STEPS_X:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StepX, F("X Axis"));
-              Draw_Float(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
+              drawMenuItem(row, ICON_StepX, F("X Axis"));
+              drawFloat(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
             }
             else
-              Modify_Value(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
+              modifyValue(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
             break;
         #endif
         #if HAS_Y_AXIS
           case STEPS_Y:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StepY, F("Y Axis"));
-              Draw_Float(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
+              drawMenuItem(row, ICON_StepY, F("Y Axis"));
+              drawFloat(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
             }
             else
-              Modify_Value(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
+              modifyValue(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
             break;
         #endif
         #if HAS_Z_AXIS
           case STEPS_Z:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StepZ, F("Z Axis"));
-              Draw_Float(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
+              drawMenuItem(row, ICON_StepZ, F("Z Axis"));
+              drawFloat(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
             }
             else
-              Modify_Value(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
+              modifyValue(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
             break;
         #endif
         #if HAS_HOTEND
           case STEPS_E:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StepE, F("Extruder"));
-              Draw_Float(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
+              drawMenuItem(row, ICON_StepE, F("Extruder"));
+              drawFloat(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
             }
             else
-              Modify_Value(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
+              modifyValue(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
             break;
         #endif
       }
@@ -2584,39 +2580,39 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case VISUAL_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Control, CONTROL_VISUAL);
+            drawMenu(Control, CONTROL_VISUAL);
           break;
         case VISUAL_BACKLIGHT:
           if (draw)
-            Draw_Menu_Item(row, ICON_Brightness, F("Display Off"));
+            drawMenuItem(row, ICON_Brightness, F("Display Off"));
           else
             ui.set_brightness(0);
           break;
         case VISUAL_BRIGHTNESS:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Brightness, F("LCD Brightness"));
-            Draw_Float(ui.brightness, row, false, 1);
+            drawMenuItem(row, ICON_Brightness, F("LCD Brightness"));
+            drawFloat(ui.brightness, row, false, 1);
           }
           else
-            Modify_Value(ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, 1, ui.refresh_brightness);
+            modifyValue(ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, 1, ui.refresh_brightness);
           break;
         case VISUAL_TIME_FORMAT:
           if (draw) {
-            Draw_Menu_Item(row, ICON_PrintTime, F("Progress as __h__m"));
-            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+            drawMenuItem(row, ICON_PrintTime, F("Progress as __h__m"));
+            drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           else {
             eeprom_settings.time_format_textual = !eeprom_settings.time_format_textual;
-            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+            drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           break;
         case VISUAL_COLOR_THEMES:
           if (draw)
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("UI Color Settings"), nullptr, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("UI Color Settings"), nullptr, true);
           else
-            Draw_Menu(ColorSettings);
+            drawMenu(ColorSettings);
         break;
       }
       break;
@@ -2640,97 +2636,97 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case COLORSETTINGS_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Visual, VISUAL_COLOR_THEMES);
+            drawMenu(Visual, VISUAL_COLOR_THEMES);
           break;
         case COLORSETTINGS_CURSOR:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Cursor"));
-            Draw_Option(eeprom_settings.cursor_color, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Cursor"));
+            drawOption(eeprom_settings.cursor_color, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.cursor_color, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.cursor_color, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_SPLIT_LINE:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Menu Split Line"));
-            Draw_Option(eeprom_settings.menu_split_line, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Menu Split Line"));
+            drawOption(eeprom_settings.menu_split_line, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.menu_split_line, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.menu_split_line, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_MENU_TOP_TXT:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Menu Header Text"));
-            Draw_Option(eeprom_settings.menu_top_txt, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Menu Header Text"));
+            drawOption(eeprom_settings.menu_top_txt, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.menu_top_txt, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.menu_top_txt, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_MENU_TOP_BG:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Menu Header Bg"));
-            Draw_Option(eeprom_settings.menu_top_bg, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Menu Header Bg"));
+            drawOption(eeprom_settings.menu_top_bg, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.menu_top_bg, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.menu_top_bg, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_HIGHLIGHT_BORDER:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Highlight Box"));
-            Draw_Option(eeprom_settings.highlight_box, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Highlight Box"));
+            drawOption(eeprom_settings.highlight_box, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.highlight_box, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.highlight_box, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_PERCENT:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Progress Percent"));
-            Draw_Option(eeprom_settings.progress_percent, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Progress Percent"));
+            drawOption(eeprom_settings.progress_percent, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.progress_percent, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.progress_percent, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_TIME:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Progress Time"));
-            Draw_Option(eeprom_settings.progress_time, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Progress Time"));
+            drawOption(eeprom_settings.progress_time, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.progress_time, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.progress_time, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_STATUS_BAR:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Status Bar Text"));
-            Draw_Option(eeprom_settings.status_bar_text, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Status Bar Text"));
+            drawOption(eeprom_settings.status_bar_text, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.status_bar_text, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.status_bar_text, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_STATUS_AREA:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Status Area Text"));
-            Draw_Option(eeprom_settings.status_area_text, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Status Area Text"));
+            drawOption(eeprom_settings.status_area_text, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.status_area_text, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.status_area_text, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_COORDINATES:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Coordinates Text"));
-            Draw_Option(eeprom_settings.coordinates_text, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Coordinates Text"));
+            drawOption(eeprom_settings.coordinates_text, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.coordinates_text, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.coordinates_text, color_names, Custom_Colors);
           break;
         case COLORSETTINGS_PROGRESS_COORDINATES_LINE:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, F("Coordinates Line"));
-            Draw_Option(eeprom_settings.coordinates_split_line, color_names, row, false, true);
+            drawMenuItem(row, ICON_MaxSpeed, F("Coordinates Line"));
+            drawOption(eeprom_settings.coordinates_split_line, color_names, row, false, true);
           }
           else
-            Modify_Option(eeprom_settings.coordinates_split_line, color_names, Custom_Colors);
+            modifyOption(eeprom_settings.coordinates_split_line, color_names, Custom_Colors);
           break;
       } // switch (item)
       break;
@@ -2754,20 +2750,20 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case ADVANCED_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Menu(Control, CONTROL_ADVANCED);
+            drawMenu(Control, CONTROL_ADVANCED);
           break;
 
         #if ENABLED(SOUND_MENU_ITEM)
           case ADVANCED_BEEPER:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Version, F("LCD Beeper"));
-              Draw_Checkbox(row, ui.sound_on);
+              drawMenuItem(row, ICON_Version, F("LCD Beeper"));
+              drawCheckbox(row, ui.sound_on);
             }
             else {
               ui.sound_on = !ui.sound_on;
-              Draw_Checkbox(row, ui.sound_on);
+              drawCheckbox(row, ui.sound_on);
             }
             break;
         #endif
@@ -2775,68 +2771,68 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if HAS_BED_PROBE
           case ADVANCED_PROBE:
             if (draw)
-              Draw_Menu_Item(row, ICON_StepX, F("Probe"), nullptr, true);
+              drawMenuItem(row, ICON_StepX, F("Probe"), nullptr, true);
             else
-              Draw_Menu(ProbeMenu);
+              drawMenu(ProbeMenu);
             break;
         #endif
 
         #if HAS_TRINAMIC_CONFIG
           case ADVANCED_TMC:
             if (draw)
-              Draw_Menu_Item(row, ICON_Motion, F("TMC Drivers"), nullptr, true);
+              drawMenuItem(row, ICON_Motion, F("TMC Drivers"), nullptr, true);
             else
-              Draw_Menu(TMCMenu);
+              drawMenu(TMCMenu);
             break;
         #endif
 
         case ADVANCED_CORNER:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccelerated, F("Bed Screw Inset"));
-            Draw_Float(corner_pos, row, false, 10);
+            drawMenuItem(row, ICON_MaxAccelerated, F("Bed Screw Inset"));
+            drawFloat(corner_pos, row, false, 10);
           }
           else
-            Modify_Value(corner_pos, 1, 100, 10);
+            modifyValue(corner_pos, 1, 100, 10);
           break;
 
         #if ENABLED(LIN_ADVANCE)
           case ADVANCED_LA:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxAccelerated, F("Lin Advance K"));
-              Draw_Float(planner.extruder_advance_K[0], row, false, 100);
+              drawMenuItem(row, ICON_MaxAccelerated, F("Lin Advance K"));
+              drawFloat(planner.extruder_advance_K[0], row, false, 100);
             }
             else
-              Modify_Value(planner.extruder_advance_K[0], 0, 10, 100);
+              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
             break;
         #endif
 
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           case ADVANCED_LOAD:
             if (draw) {
-              Draw_Menu_Item(row, ICON_WriteEEPROM, F("Load Length"));
-              Draw_Float(fc_settings[0].load_length, row, false, 1);
+              drawMenuItem(row, ICON_WriteEEPROM, F("Load Length"));
+              drawFloat(fc_settings[0].load_length, row, false, 1);
             }
             else
-              Modify_Value(fc_settings[0].load_length, 0, EXTRUDE_MAXLENGTH, 1);
+              modifyValue(fc_settings[0].load_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
           case ADVANCED_UNLOAD:
             if (draw) {
-              Draw_Menu_Item(row, ICON_ReadEEPROM, F("Unload Length"));
-              Draw_Float(fc_settings[0].unload_length, row, false, 1);
+              drawMenuItem(row, ICON_ReadEEPROM, F("Unload Length"));
+              drawFloat(fc_settings[0].unload_length, row, false, 1);
             }
             else
-              Modify_Value(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
+              modifyValue(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
         #endif // ADVANCED_PAUSE_FEATURE
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           case ADVANCED_COLD_EXTRUDE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Cool, F("Min Extrusion T"));
-              Draw_Float(thermalManager.extrude_min_temp, row, false, 1);
+              drawMenuItem(row, ICON_Cool, F("Min Extrusion T"));
+              drawFloat(thermalManager.extrude_min_temp, row, false, 1);
             }
             else {
-              Modify_Value(thermalManager.extrude_min_temp, 0, MAX_E_TEMP, 1);
+              modifyValue(thermalManager.extrude_min_temp, 0, MAX_E_TEMP, 1);
               thermalManager.allow_cold_extrude = (thermalManager.extrude_min_temp == 0);
             }
             break;
@@ -2845,23 +2841,23 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              drawMenuItem(row, ICON_Extruder, F("Filament Sensor"));
+              drawCheckbox(row, runout.enabled);
             }
             else {
               runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              drawCheckbox(row, runout.enabled);
             }
             break;
 
           #if ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE)
             case ADVANCED_FILSENSORDISTANCE:
               if (draw) {
-                Draw_Menu_Item(row, ICON_MaxAccE, F("Runout Distance"));
-                Draw_Float(runout.runout_distance(), row, false, 10);
+                drawMenuItem(row, ICON_MaxAccE, F("Runout Distance"));
+                drawFloat(runout.runout_distance(), row, false, 10);
               }
               else
-                Modify_Value(runout.runout_distance(), 0, 999, 10);
+                modifyValue(runout.runout_distance(), 0, 999, 10);
               break;
           #endif
         #endif // FILAMENT_RUNOUT_SENSOR
@@ -2869,12 +2865,12 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if ENABLED(POWER_LOSS_RECOVERY)
           case ADVANCED_POWER_LOSS:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Motion, F("Power-loss recovery"));
-              Draw_Checkbox(row, recovery.enabled);
+              drawMenuItem(row, ICON_Motion, F("Power-loss recovery"));
+              drawCheckbox(row, recovery.enabled);
             }
             else {
               recovery.enable(!recovery.enabled);
-              Draw_Checkbox(row, recovery.enabled);
+              drawCheckbox(row, recovery.enabled);
             }
             break;
         #endif
@@ -2896,30 +2892,30 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case PROBE_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Advanced, ADVANCED_PROBE);
+              drawMenu(Advanced, ADVANCED_PROBE);
             break;
 
             case PROBE_XOFFSET:
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepX, F("Probe X Offset"));
-                Draw_Float(probe.offset.x, row, false, 10);
+                drawMenuItem(row, ICON_StepX, F("Probe X Offset"));
+                drawFloat(probe.offset.x, row, false, 10);
               }
               else
-                Modify_Value(probe.offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
+                modifyValue(probe.offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
               break;
             case PROBE_YOFFSET:
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepY, F("Probe Y Offset"));
-                Draw_Float(probe.offset.y, row, false, 10);
+                drawMenuItem(row, ICON_StepY, F("Probe Y Offset"));
+                drawFloat(probe.offset.y, row, false, 10);
               }
               else
-                Modify_Value(probe.offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
+                modifyValue(probe.offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
               break;
             case PROBE_TEST:
               if (draw)
-                Draw_Menu_Item(row, ICON_StepY, F("M48 Probe Test"));
+                drawMenuItem(row, ICON_StepY, F("M48 Probe Test"));
               else {
                 sprintf_P(cmd, PSTR("G28O\nM48 X%s Y%s P%i"), dtostrf((X_BED_SIZE + X_MIN_POS) / 2.0f, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 1, 3, str_2), testcount);
                 gcode.process_subcommands_now(cmd);
@@ -2927,11 +2923,11 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               break;
             case PROBE_TEST_COUNT:
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepY, F("Probe Test Count"));
-                Draw_Float(testcount, row, false, 1);
+                drawMenuItem(row, ICON_StepY, F("Probe Test Count"));
+                drawFloat(testcount, row, false, 1);
               }
               else
-                Modify_Value(testcount, 4, 50, 1);
+                modifyValue(testcount, 4, 50, 1);
               break;
         }
         break;
@@ -2951,9 +2947,9 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
           case TMC_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Advanced, ADVANCED_TMC);
+              drawMenu(Advanced, ADVANCED_TMC);
             break;
 
           #if AXIS_IS_TMC(X)
@@ -2962,12 +2958,12 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               static float stepper_current_x;
 
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepX, F("Stepper X current"));
+                drawMenuItem(row, ICON_StepX, F("Stepper X current"));
                 stepper_current_x = stepperX.getMilliamps();
-                Draw_Float(stepper_current_x, row, false, 1);
+                drawFloat(stepper_current_x, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_x, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperX.rms_current(stepper_current_x); });
+                modifyValue(stepper_current_x, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperX.rms_current(stepper_current_x); });
               }
               break;
           #endif
@@ -2978,12 +2974,12 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               static float stepper_current_y;
 
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepY, F("Stepper Y current"));
+                drawMenuItem(row, ICON_StepY, F("Stepper Y current"));
                 stepper_current_y = stepperY.getMilliamps();
-                Draw_Float(stepper_current_y, row, false, 1);
+                drawFloat(stepper_current_y, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_y, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperY.rms_current(stepper_current_y); });
+                modifyValue(stepper_current_y, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperY.rms_current(stepper_current_y); });
               }
               break;
           #endif
@@ -2994,12 +2990,12 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               static float stepper_current_z;
 
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepZ, F("Stepper Z current"));
+                drawMenuItem(row, ICON_StepZ, F("Stepper Z current"));
                 stepper_current_z = stepperZ.getMilliamps();
-                Draw_Float(stepper_current_z, row, false, 1);
+                drawFloat(stepper_current_z, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_z, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperZ.rms_current(stepper_current_z); });
+                modifyValue(stepper_current_z, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperZ.rms_current(stepper_current_z); });
               }
               break;
           #endif
@@ -3010,12 +3006,12 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               static float stepper_current_e;
 
               if (draw) {
-                Draw_Menu_Item(row, ICON_StepE, F("Stepper E current"));
+                drawMenuItem(row, ICON_StepE, F("Stepper E current"));
                 stepper_current_e = stepperE0.getMilliamps();
-                Draw_Float(stepper_current_e, row, false, 1);
+                drawFloat(stepper_current_e, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_e, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperE0.rms_current(stepper_current_e); });
+                modifyValue(stepper_current_e, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperE0.rms_current(stepper_current_e); });
               }
               break;
           #endif
@@ -3037,7 +3033,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case INFO_BACK:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
 
             #if ENABLED(PRINTCOUNTER)
               char row1[50], row2[50], buf[32];
@@ -3045,24 +3041,24 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
               sprintf_P(row1, PSTR("%i prints, %i finished"), ps.totalPrints, ps.finishedPrints);
               sprintf_P(row2, PSTR("%s m filament used"), dtostrf(ps.filamentUsed / 1000, 1, 2, str_1));
-              Draw_Menu_Item(INFO_PRINTCOUNT, ICON_HotendTemp, row1, row2, false, true);
+              drawMenuItem(INFO_PRINTCOUNT, ICON_HotendTemp, row1, row2, false, true);
 
               duration_t(print_job_timer.getStats().printTime).toString(buf);
               sprintf_P(row1, PSTR("Printed: %s"), buf);
               duration_t(print_job_timer.getStats().longestPrint).toString(buf);
               sprintf_P(row2, PSTR("Longest: %s"), buf);
-              Draw_Menu_Item(INFO_PRINTTIME, ICON_PrintTime, row1, row2, false, true);
+              drawMenuItem(INFO_PRINTTIME, ICON_PrintTime, row1, row2, false, true);
             #endif
 
-            Draw_Menu_Item(INFO_SIZE, ICON_PrintSize, F(MACHINE_SIZE), nullptr, false, true);
-            Draw_Menu_Item(INFO_VERSION, ICON_Version, F(SHORT_BUILD_VERSION), nullptr, false, true);
-            Draw_Menu_Item(INFO_CONTACT, ICON_Contact, F(CORP_WEBSITE), nullptr, false, true);
+            drawMenuItem(INFO_SIZE, ICON_PrintSize, F(MACHINE_SIZE), nullptr, false, true);
+            drawMenuItem(INFO_VERSION, ICON_Version, F(SHORT_BUILD_VERSION), nullptr, false, true);
+            drawMenuItem(INFO_CONTACT, ICON_Contact, F(CORP_WEBSITE), nullptr, false, true);
           }
           else {
             if (menu == Info)
-              Draw_Menu(Control, CONTROL_INFO);
+              drawMenu(Control, CONTROL_INFO);
             else
-              Draw_Main_Menu(3);
+              drawMainMenu(3);
           }
           break;
       }
@@ -3086,40 +3082,40 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case LEVELING_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Main_Menu(3);
+              drawMainMenu(3);
             break;
           case LEVELING_ACTIVE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StockConfiguration, F("Leveling Active"));
-              Draw_Checkbox(row, planner.leveling_active);
+              drawMenuItem(row, ICON_StockConfiguration, F("Leveling Active"));
+              drawCheckbox(row, planner.leveling_active);
             }
             else {
               if (!planner.leveling_active) {
                 set_bed_leveling_enabled(!planner.leveling_active);
                 if (!planner.leveling_active) {
-                  Confirm_Handler(LevelError);
+                  confirmHandler(LevelError);
                   break;
                 }
               }
               else
                 set_bed_leveling_enabled(!planner.leveling_active);
-              Draw_Checkbox(row, planner.leveling_active);
+              drawCheckbox(row, planner.leveling_active);
             }
             break;
           #if ALL(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL)
             case LEVELING_GET_TILT:
               if (draw)
-                Draw_Menu_Item(row, ICON_Tilt, F("Autotilt Current Mesh"));
+                drawMenuItem(row, ICON_Tilt, F("Autotilt Current Mesh"));
               else {
                 if (bedlevel.storage_slot < 0) {
-                  Popup_Handler(MeshSlot);
+                  popupHandler(MeshSlot);
                   break;
                 }
-                Popup_Handler(Home);
+                popupHandler(Home);
                 gcode.home_all_axes(true);
-                Popup_Handler(Level);
+                popupHandler(Level);
                 if (mesh_conf.tilt_grid > 1) {
                   sprintf_P(cmd, PSTR("G29 J%i"), mesh_conf.tilt_grid);
                   gcode.process_subcommands_now(cmd);
@@ -3127,78 +3123,78 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                 else
                   gcode.process_subcommands_now(F("G29 J"));
                 planner.synchronize();
-                Redraw_Menu();
+                redrawMenu();
               }
               break;
           #endif
           case LEVELING_GET_MESH:
             if (draw)
-              Draw_Menu_Item(row, ICON_Mesh, F("Create New Mesh"));
+              drawMenuItem(row, ICON_Mesh, F("Create New Mesh"));
             else {
-              Popup_Handler(Home);
+              popupHandler(Home);
               gcode.home_all_axes(true);
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-                  Popup_Handler(Heating);
+                  popupHandler(Heating);
                   probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
                 #endif
                 #if HAS_BED_PROBE
-                  Popup_Handler(Level);
+                  popupHandler(Level);
                   gcode.process_subcommands_now(F("G29 P0\nG29 P1"));
                   gcode.process_subcommands_now(F("G29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nG29 P3\nM420 S1"));
                   planner.synchronize();
-                  Update_Status("Probed all reachable points");
-                  Popup_Handler(SaveLevel);
+                  updateStatus("Probed all reachable points");
+                  popupHandler(SaveLevel);
                 #else
                   level_state = planner.leveling_active;
                   set_bed_leveling_enabled(false);
                   mesh_conf.goto_mesh_value = true;
                   mesh_conf.mesh_x = mesh_conf.mesh_y = 0;
-                  Popup_Handler(MoveWait);
+                  popupHandler(MoveWait);
                   mesh_conf.manual_mesh_move();
-                  Draw_Menu(UBLMesh);
+                  drawMenu(UBLMesh);
                 #endif
               #elif HAS_BED_PROBE
-                Popup_Handler(Level);
+                popupHandler(Level);
                 gcode.process_subcommands_now(F("G29"));
                 planner.synchronize();
-                Popup_Handler(SaveLevel);
+                popupHandler(SaveLevel);
               #else
                 level_state = planner.leveling_active;
                 set_bed_leveling_enabled(false);
                 gridpoint = 1;
-                Popup_Handler(MoveWait);
+                popupHandler(MoveWait);
                 gcode.process_subcommands_now(F("G29"));
                 planner.synchronize();
-                Draw_Menu(ManualMesh);
+                drawMenu(ManualMesh);
               #endif
             }
             break;
           case LEVELING_MANUAL:
             if (draw)
-              Draw_Menu_Item(row, ICON_Mesh, F("Manual Tuning"), nullptr, true);
+              drawMenuItem(row, ICON_Mesh, F("Manual Tuning"), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
                 if (!leveling_is_valid()) {
-                  Confirm_Handler(InvalidMesh);
+                  confirmHandler(InvalidMesh);
                   break;
                 }
               #endif
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 if (bedlevel.storage_slot < 0) {
-                  Popup_Handler(MeshSlot);
+                  popupHandler(MeshSlot);
                   break;
                 }
               #endif
               if (axes_should_home()) {
-                Popup_Handler(Home);
+                popupHandler(Home);
                 gcode.home_all_axes(true);
               }
               level_state = planner.leveling_active;
               set_bed_leveling_enabled(false);
               mesh_conf.goto_mesh_value = false;
               #if ENABLED(PREHEAT_BEFORE_LEVELING)
-                Popup_Handler(Heating);
+                popupHandler(Heating);
                 #if HAS_HOTEND
                   if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
                     thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
@@ -3210,63 +3206,63 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                 TERN_(HAS_HOTEND, thermalManager.wait_for_hotend(0));
                 TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
               #endif
-              Popup_Handler(MoveWait);
+              popupHandler(MoveWait);
               mesh_conf.manual_mesh_move();
-              Draw_Menu(LevelManual);
+              drawMenu(LevelManual);
             }
             break;
           case LEVELING_VIEW:
             if (draw)
-              Draw_Menu_Item(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
+              drawMenuItem(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 if (bedlevel.storage_slot < 0) {
-                  Popup_Handler(MeshSlot);
+                  popupHandler(MeshSlot);
                   break;
                 }
               #endif
-              Draw_Menu(LevelView);
+              drawMenu(LevelView);
             }
             break;
           case LEVELING_SETTINGS:
             if (draw)
-              Draw_Menu_Item(row, ICON_Step, F("Leveling Settings"), nullptr, true);
+              drawMenuItem(row, ICON_Step, F("Leveling Settings"), nullptr, true);
             else
-              Draw_Menu(LevelSettings);
+              drawMenu(LevelSettings);
             break;
           #if ENABLED(AUTO_BED_LEVELING_UBL)
           case LEVELING_SLOT:
             if (draw) {
-              Draw_Menu_Item(row, ICON_PrintSize, F("Mesh Slot"));
-              Draw_Float(bedlevel.storage_slot, row, false, 1);
+              drawMenuItem(row, ICON_PrintSize, F("Mesh Slot"));
+              drawFloat(bedlevel.storage_slot, row, false, 1);
             }
             else
-              Modify_Value(bedlevel.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
+              modifyValue(bedlevel.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
             break;
           case LEVELING_LOAD:
             if (draw)
-              Draw_Menu_Item(row, ICON_ReadEEPROM, F("Load Mesh"));
+              drawMenuItem(row, ICON_ReadEEPROM, F("Load Mesh"));
             else {
               if (bedlevel.storage_slot < 0) {
-                Popup_Handler(MeshSlot);
+                popupHandler(MeshSlot);
                 break;
               }
               gcode.process_subcommands_now(F("G29 L"));
               planner.synchronize();
-              AudioFeedback(true);
+              audioFeedback(true);
             }
             break;
           case LEVELING_SAVE:
             if (draw)
-              Draw_Menu_Item(row, ICON_WriteEEPROM, F("Save Mesh"));
+              drawMenuItem(row, ICON_WriteEEPROM, F("Save Mesh"));
             else {
               if (bedlevel.storage_slot < 0) {
-                Popup_Handler(MeshSlot);
+                popupHandler(MeshSlot);
                 break;
               }
               gcode.process_subcommands_now(F("G29 S"));
               planner.synchronize();
-              AudioFeedback(true);
+              audioFeedback(true);
             }
             break;
           #endif
@@ -3284,34 +3280,34 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case LEVELING_VIEW_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Leveling, LEVELING_VIEW);
+              drawMenu(Leveling, LEVELING_VIEW);
             break;
           case LEVELING_VIEW_MESH:
             if (draw)
-              Draw_Menu_Item(row, ICON_PrintSize, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
+              drawMenuItem(row, ICON_PrintSize, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else
-              Draw_Menu(MeshViewer);
+              drawMenu(MeshViewer);
             break;
           case LEVELING_VIEW_TEXT:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Contact, F("Viewer Show Values"));
-              Draw_Checkbox(row, mesh_conf.viewer_print_value);
+              drawMenuItem(row, ICON_Contact, F("Viewer Show Values"));
+              drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             else {
               mesh_conf.viewer_print_value = !mesh_conf.viewer_print_value;
-              Draw_Checkbox(row, mesh_conf.viewer_print_value);
+              drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             break;
           case LEVELING_VIEW_ASYMMETRIC:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Axis, F("Viewer Asymmetric"));
-              Draw_Checkbox(row, mesh_conf.viewer_asymmetric_range);
+              drawMenuItem(row, ICON_Axis, F("Viewer Asymmetric"));
+              drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             else {
               mesh_conf.viewer_asymmetric_range = !mesh_conf.viewer_asymmetric_range;
-              Draw_Checkbox(row, mesh_conf.viewer_asymmetric_range);
+              drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             break;
         }
@@ -3330,17 +3326,17 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case LEVELING_SETTINGS_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else
-              Draw_Menu(Leveling, LEVELING_SETTINGS);
+              drawMenu(Leveling, LEVELING_SETTINGS);
             break;
           case LEVELING_SETTINGS_FADE:
               if (draw) {
-                Draw_Menu_Item(row, ICON_Fade, F("Fade Mesh within"));
-                Draw_Float(planner.z_fade_height, row, false, 1);
+                drawMenuItem(row, ICON_Fade, F("Fade Mesh within"));
+                drawFloat(planner.z_fade_height, row, false, 1);
               }
               else {
-                Modify_Value(planner.z_fade_height, 0, Z_MAX_POS, 1);
+                modifyValue(planner.z_fade_height, 0, Z_MAX_POS, 1);
                 planner.z_fade_height = -1;
                 set_z_fade_height(planner.z_fade_height);
               }
@@ -3349,31 +3345,31 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             case LEVELING_SETTINGS_TILT:
               if (draw) {
-                Draw_Menu_Item(row, ICON_Tilt, F("Tilting Grid Size"));
-                Draw_Float(mesh_conf.tilt_grid, row, false, 1);
+                drawMenuItem(row, ICON_Tilt, F("Tilting Grid Size"));
+                drawFloat(mesh_conf.tilt_grid, row, false, 1);
               }
               else
-                Modify_Value(mesh_conf.tilt_grid, 1, 8, 1);
+                modifyValue(mesh_conf.tilt_grid, 1, 8, 1);
               break;
             case LEVELING_SETTINGS_PLANE:
               if (draw)
-                Draw_Menu_Item(row, ICON_ResumeEEPROM, F("Convert Mesh to Plane"));
+                drawMenuItem(row, ICON_ResumeEEPROM, F("Convert Mesh to Plane"));
               else {
                 if (mesh_conf.create_plane_from_mesh()) break;
                 gcode.process_subcommands_now(F("M420 S1"));
                 planner.synchronize();
-                AudioFeedback(true);
+                audioFeedback(true);
               }
               break;
             case LEVELING_SETTINGS_ZERO:
               if (draw)
-                Draw_Menu_Item(row, ICON_Mesh, F("Zero Current Mesh"));
+                drawMenuItem(row, ICON_Mesh, F("Zero Current Mesh"));
               else
                 ZERO(bedlevel.z_values);
               break;
             case LEVELING_SETTINGS_UNDEF:
               if (draw)
-                Draw_Menu_Item(row, ICON_Mesh, F("Clear Current Mesh"));
+                drawMenuItem(row, ICON_Mesh, F("Clear Current Mesh"));
               else
                 bedlevel.invalidate();
               break;
@@ -3387,13 +3383,13 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
         if (item == MESHVIEW_BACK) {
           if (draw) {
-            Draw_Menu_Item(0, ICON_Back, F("Back"));
-            mesh_conf.Draw_Bed_Mesh();
-            mesh_conf.Set_Mesh_Viewer_Status();
+            drawMenuItem(0, ICON_Back, F("Back"));
+            mesh_conf.drawBedMesh();
+            mesh_conf.setMeshViewerStatus();
           }
           else if (!mesh_conf.drawing_mesh) {
-            Draw_Menu(LevelView, LEVELING_VIEW_MESH);
-            Update_Status("");
+            drawMenu(LevelView, LEVELING_VIEW_MESH);
+            updateStatus("");
           }
         }
         break;
@@ -3414,32 +3410,32 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case LEVELING_M_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
               TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
-              Draw_Menu(Leveling, LEVELING_MANUAL);
+              drawMenu(Leveling, LEVELING_MANUAL);
             }
             break;
           case LEVELING_M_X:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MoveX, F("Mesh Point X"));
-              Draw_Float(mesh_conf.mesh_x, row, 0, 1);
+              drawMenuItem(row, ICON_MoveX, F("Mesh Point X"));
+              drawFloat(mesh_conf.mesh_x, row, 0, 1);
             }
             else
-              Modify_Value(mesh_conf.mesh_x, 0, GRID_MAX_POINTS_X - 1, 1);
+              modifyValue(mesh_conf.mesh_x, 0, GRID_MAX_POINTS_X - 1, 1);
             break;
           case LEVELING_M_Y:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MoveY, F("Mesh Point Y"));
-              Draw_Float(mesh_conf.mesh_y, row, 0, 1);
+              drawMenuItem(row, ICON_MoveY, F("Mesh Point Y"));
+              drawFloat(mesh_conf.mesh_y, row, 0, 1);
             }
             else
-              Modify_Value(mesh_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
+              modifyValue(mesh_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
             break;
           case LEVELING_M_NEXT:
             if (draw)
-              Draw_Menu_Item(row, ICON_More, F("Next Point"));
+              drawMenuItem(row, ICON_More, F("Next Point"));
             else {
               if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1)) {
                 if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
@@ -3454,58 +3450,58 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             break;
           case LEVELING_M_OFFSET:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetZOffset, F("Point Z Offset"));
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
+              drawMenuItem(row, ICON_SetZOffset, F("Point Z Offset"));
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
             }
             else {
               if (isnan(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y]))
                 bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
-              Modify_Value(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             }
             break;
           case LEVELING_M_UP:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
+              drawMenuItem(row, ICON_Axis, F("Microstep Up"));
             else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
               current_position.z += 0.01f;
               sync_plan_position();
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
           case LEVELING_M_DOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_AxisD, F("Microstep Down"));
+              drawMenuItem(row, ICON_AxisD, F("Microstep Down"));
             else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
               current_position.z -= 0.01f;
               sync_plan_position();
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
           case LEVELING_M_GOTO_VALUE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StockConfiguration, F("Go to Mesh Z Value"));
-              Draw_Checkbox(row, mesh_conf.goto_mesh_value);
+              drawMenuItem(row, ICON_StockConfiguration, F("Go to Mesh Z Value"));
+              drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
             else {
               mesh_conf.goto_mesh_value = !mesh_conf.goto_mesh_value;
               current_position.z = 0;
               mesh_conf.manual_mesh_move(true);
-              Draw_Checkbox(row, mesh_conf.goto_mesh_value);
+              drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
             break;
           #if ENABLED(AUTO_BED_LEVELING_UBL)
           case LEVELING_M_UNDEF:
             if (draw)
-              Draw_Menu_Item(row, ICON_ResumeEEPROM, F("Clear Point Value"));
+              drawMenuItem(row, ICON_ResumeEEPROM, F("Clear Point Value"));
             else {
               mesh_conf.manual_value_update(true);
-              Redraw_Menu(false);
+              redrawMenu(false);
             }
             break;
           #endif
@@ -3527,18 +3523,18 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case UBL_M_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Back"));
+              drawMenuItem(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
-              Draw_Menu(Leveling, LEVELING_GET_MESH);
+              drawMenu(Leveling, LEVELING_GET_MESH);
             }
             break;
           case UBL_M_NEXT:
             if (draw) {
               if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1))
-                Draw_Menu_Item(row, ICON_More, F("Next Point"));
+                drawMenuItem(row, ICON_More, F("Next Point"));
               else
-                Draw_Menu_Item(row, ICON_More, F("Save Mesh"));
+                drawMenuItem(row, ICON_More, F("Save Mesh"));
             }
             else {
               if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1)) {
@@ -3553,14 +3549,14 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               else {
                 gcode.process_subcommands_now(F("G29 S"));
                 planner.synchronize();
-                AudioFeedback(true);
-                Draw_Menu(Leveling, LEVELING_GET_MESH);
+                audioFeedback(true);
+                drawMenu(Leveling, LEVELING_GET_MESH);
               }
             }
             break;
           case UBL_M_PREV:
             if (draw)
-              Draw_Menu_Item(row, ICON_More, F("Previous Point"));
+              drawMenuItem(row, ICON_More, F("Previous Point"));
             else {
               if (mesh_conf.mesh_x != 0 || mesh_conf.mesh_y != 0) {
                 if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0))
@@ -3575,37 +3571,37 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             break;
           case UBL_M_OFFSET:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetZOffset, F("Point Z Offset"));
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
+              drawMenuItem(row, ICON_SetZOffset, F("Point Z Offset"));
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
             }
             else {
               if (isnan(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y]))
                 bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
-              Modify_Value(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             }
             break;
           case UBL_M_UP:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
+              drawMenuItem(row, ICON_Axis, F("Microstep Up"));
             else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
               current_position.z += 0.01f;
               sync_plan_position();
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
           case UBL_M_DOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Microstep Down"));
+              drawMenuItem(row, ICON_Axis, F("Microstep Down"));
             else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
               current_position.z -= 0.01f;
               sync_plan_position();
-              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
+              drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
         }
@@ -3626,64 +3622,64 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case MMESH_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Cancel"));
+              drawMenuItem(row, ICON_Back, F("Cancel"));
             else {
               gcode.process_subcommands_now(F("G29 A"));
               planner.synchronize();
               set_bed_leveling_enabled(level_state);
-              Draw_Menu(Leveling, LEVELING_GET_MESH);
+              drawMenu(Leveling, LEVELING_GET_MESH);
             }
             break;
           case MMESH_NEXT:
             if (draw) {
               if (gridpoint < GRID_MAX_POINTS)
-                Draw_Menu_Item(row, ICON_More, F("Next Point"));
+                drawMenuItem(row, ICON_More, F("Next Point"));
               else
-                Draw_Menu_Item(row, ICON_More, F("Save Mesh"));
+                drawMenuItem(row, ICON_More, F("Save Mesh"));
             }
             else if (gridpoint < GRID_MAX_POINTS) {
-              Popup_Handler(MoveWait);
+              popupHandler(MoveWait);
               gcode.process_subcommands_now(F("G29"));
               planner.synchronize();
               gridpoint++;
-              Redraw_Menu();
+              redrawMenu();
             }
             else {
               gcode.process_subcommands_now(F("G29"));
               planner.synchronize();
-              AudioFeedback(settings.save());
-              Draw_Menu(Leveling, LEVELING_GET_MESH);
+              audioFeedback(settings.save());
+              drawMenu(Leveling, LEVELING_GET_MESH);
             }
             break;
           case MMESH_OFFSET:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetZOffset, F("Z Position"));
+              drawMenuItem(row, ICON_SetZOffset, F("Z Position"));
               current_position.z = MANUAL_PROBE_START_Z;
-              Draw_Float(current_position.z, row, false, 100);
+              drawFloat(current_position.z, row, false, 100);
             }
             else
-              Modify_Value(current_position.z, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(current_position.z, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             break;
           case MMESH_UP:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
+              drawMenuItem(row, ICON_Axis, F("Microstep Up"));
             else if (current_position.z < MAX_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
               current_position.z += 0.01f;
               sync_plan_position();
-              Draw_Float(current_position.z, row - 1, false, 100);
+              drawFloat(current_position.z, row - 1, false, 100);
             }
             break;
           case MMESH_DOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_AxisD, F("Microstep Down"));
+              drawMenuItem(row, ICON_AxisD, F("Microstep Down"));
             else if (current_position.z > MIN_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
               current_position.z -= 0.01f;
               sync_plan_position();
-              Draw_Float(current_position.z, row - 2, false, 100);
+              drawFloat(current_position.z, row - 2, false, 100);
             }
             break;
           case MMESH_OLD:
@@ -3698,15 +3694,15 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             const float currval = bedlevel.z_values[mesh_x][mesh_y];
 
             if (draw) {
-              Draw_Menu_Item(row, ICON_Zoffset, F("Goto Mesh Value"));
-              Draw_Float(currval, row, false, 100);
+              drawMenuItem(row, ICON_Zoffset, F("Goto Mesh Value"));
+              drawFloat(currval, row, false, 100);
             }
             else if (!isnan(currval)) {
               current_position.z = currval;
               planner.synchronize();
               planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
               planner.synchronize();
-              Draw_Float(current_position.z, row - 3, false, 100);
+              drawFloat(current_position.z, row - 3, false, 100);
             }
             break;
         }
@@ -3733,85 +3729,85 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       switch (item) {
         case TUNE_BACK:
           if (draw)
-            Draw_Menu_Item(row, ICON_Back, F("Back"));
+            drawMenuItem(row, ICON_Back, F("Back"));
           else
-            Draw_Print_Screen();
+            drawPrintScreen();
           break;
         case TUNE_SPEED:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Speed, F("Print Speed"));
-            Draw_Float(feedrate_percentage, row, false, 1);
+            drawMenuItem(row, ICON_Speed, F("Print Speed"));
+            drawFloat(feedrate_percentage, row, false, 1);
           }
           else
-            Modify_Value(feedrate_percentage, MIN_PRINT_SPEED, MAX_PRINT_SPEED, 1);
+            modifyValue(feedrate_percentage, MIN_PRINT_SPEED, MAX_PRINT_SPEED, 1);
           break;
 
         #if HAS_HOTEND
           case TUNE_FLOW:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Speed, F("Flow Rate"));
-              Draw_Float(planner.flow_percentage[0], row, false, 1);
+              drawMenuItem(row, ICON_Speed, F("Flow Rate"));
+              drawFloat(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
+              modifyValue(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
           case TUNE_HOTEND:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetEndTemp, F("Hotend"));
-              Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawMenuItem(row, ICON_SetEndTemp, F("Hotend"));
+              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
+              modifyValue(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
             break;
         #endif
 
         #if HAS_HEATED_BED
           case TUNE_BED:
             if (draw) {
-              Draw_Menu_Item(row, ICON_SetBedTemp, F("Bed"));
-              Draw_Float(thermalManager.temp_bed.target, row, false, 1);
+              drawMenuItem(row, ICON_SetBedTemp, F("Bed"));
+              drawFloat(thermalManager.temp_bed.target, row, false, 1);
             }
             else
-              Modify_Value(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
+              modifyValue(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
             break;
         #endif
 
         #if HAS_FAN
           case TUNE_FAN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_FanSpeed, F("Fan"));
-              Draw_Float(thermalManager.fan_speed[0], row, false, 1);
+              drawMenuItem(row, ICON_FanSpeed, F("Fan"));
+              drawFloat(thermalManager.fan_speed[0], row, false, 1);
             }
             else
-              Modify_Value(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
+              modifyValue(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
 
         #if HAS_ZOFFSET_ITEM
           case TUNE_ZOFFSET:
             if (draw) {
-              Draw_Menu_Item(row, ICON_FanSpeed, F("Z-Offset"));
-              Draw_Float(zoffsetvalue, row, false, 100);
+              drawMenuItem(row, ICON_FanSpeed, F("Z-Offset"));
+              drawFloat(zoffsetvalue, row, false, 100);
             }
             else
-              Modify_Value(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             break;
           case TUNE_ZUP:
             if (draw)
-              Draw_Menu_Item(row, ICON_Axis, F("Z-Offset Up"));
+              drawMenuItem(row, ICON_Axis, F("Z-Offset Up"));
             else if (zoffsetvalue < MAX_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z0.01"));
               zoffsetvalue += 0.01;
-              Draw_Float(zoffsetvalue, row - 1, false, 100);
+              drawFloat(zoffsetvalue, row - 1, false, 100);
             }
             break;
           case TUNE_ZDOWN:
             if (draw)
-              Draw_Menu_Item(row, ICON_AxisD, F("Z-Offset Down"));
+              drawMenuItem(row, ICON_AxisD, F("Z-Offset Down"));
             else if (zoffsetvalue > MIN_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               zoffsetvalue -= 0.01;
-              Draw_Float(zoffsetvalue, row - 2, false, 100);
+              drawFloat(zoffsetvalue, row - 2, false, 100);
             }
             break;
         #endif
@@ -3819,38 +3815,38 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           case TUNE_CHANGEFIL:
             if (draw)
-              Draw_Menu_Item(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else
-              Popup_Handler(ConfFilChange);
+              popupHandler(ConfFilChange);
             break;
         #endif
 
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           case TUNE_FILSENSORENABLED:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              drawMenuItem(row, ICON_Extruder, F("Filament Sensor"));
+              drawCheckbox(row, runout.enabled);
             }
             else {
               runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              drawCheckbox(row, runout.enabled);
             }
             break;
         #endif
 
         case TUNE_BACKLIGHT_OFF:
           if (draw)
-            Draw_Menu_Item(row, ICON_Brightness, F("Display Off"));
+            drawMenuItem(row, ICON_Brightness, F("Display Off"));
           else
             ui.set_brightness(0);
           break;
         case TUNE_BACKLIGHT:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Brightness, F("LCD Brightness"));
-            Draw_Float(ui.brightness, row, false, 1);
+            drawMenuItem(row, ICON_Brightness, F("LCD Brightness"));
+            drawFloat(ui.brightness, row, false, 1);
           }
           else
-            Modify_Value(ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, 1, ui.refresh_brightness);
+            modifyValue(ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, 1, ui.refresh_brightness);
           break;
       }
       break;
@@ -3872,22 +3868,22 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
         switch (item) {
           case PREHEATHOTEND_BACK:
             if (draw)
-              Draw_Menu_Item(row, ICON_Back, F("Cancel"));
+              drawMenuItem(row, ICON_Back, F("Cancel"));
             else {
               thermalManager.setTargetHotend(0, 0);
               TERN_(HAS_FAN, thermalManager.set_fan_speed(0, 0));
-              Redraw_Menu(false, true, true);
+              redrawMenu(false, true, true);
             }
             break;
           case PREHEATHOTEND_CONTINUE:
             if (draw)
-              Draw_Menu_Item(row, ICON_SetEndTemp, F("Continue"));
+              drawMenuItem(row, ICON_SetEndTemp, F("Continue"));
             else {
-              Popup_Handler(Heating);
+              popupHandler(Heating);
               thermalManager.wait_for_hotend(0);
               switch (last_menu) {
                 case Prepare:
-                  Popup_Handler(FilChange);
+                  popupHandler(FilChange);
                   sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
                   gcode.process_subcommands_now(cmd);
                   break;
@@ -3895,19 +3891,19 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                   case ChangeFilament:
                     switch (last_selection) {
                       case CHANGEFIL_LOAD:
-                        Popup_Handler(FilLoad);
+                        popupHandler(FilLoad);
                         gcode.process_subcommands_now(F("M701"));
                         planner.synchronize();
-                        Redraw_Menu(true, true, true);
+                        redrawMenu(true, true, true);
                         break;
                       case CHANGEFIL_UNLOAD:
-                        Popup_Handler(FilLoad, true);
+                        popupHandler(FilLoad, true);
                         gcode.process_subcommands_now(F("M702"));
                         planner.synchronize();
-                        Redraw_Menu(true, true, true);
+                        redrawMenu(true, true, true);
                         break;
                       case CHANGEFIL_CHANGE:
-                        Popup_Handler(FilChange);
+                        popupHandler(FilChange);
                         sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
                         gcode.process_subcommands_now(cmd);
                         break;
@@ -3915,7 +3911,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                     break;
                 #endif
                 default:
-                  Redraw_Menu(true, true, true);
+                  redrawMenu(true, true, true);
                   break;
               }
             }
@@ -3924,7 +3920,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
           #define _PREHEAT_HOTEND_CASE(N) \
             case PREHEATHOTEND_##N: \
-              if (draw) Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_## N ##_LABEL)); \
+              if (draw) drawMenuItem(row, ICON_Temperature, F(PREHEAT_## N ##_LABEL)); \
               else ui.preheat_hotend_and_fan((N) - 1); \
               break;
 
@@ -3932,11 +3928,11 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
           case PREHEATHOTEND_CUSTOM:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Temperature, F("Custom"));
-              Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawMenuItem(row, ICON_Temperature, F("Custom"));
+              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
             }
             else
-              Modify_Value(thermalManager.temp_hotend[0].target, EXTRUDE_MINTEMP, MAX_E_TEMP, 1);
+              modifyValue(thermalManager.temp_hotend[0].target, EXTRUDE_MINTEMP, MAX_E_TEMP, 1);
             break;
         }
         break;
@@ -3945,7 +3941,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
   }
 }
 
-FSTR_P CrealityDWINClass::Get_Menu_Title(const uint8_t menu) {
+FSTR_P CrealityDWIN::getMenuTitle(const uint8_t menu) {
   switch (menu) {
     case MainMenu:          return GET_TEXT_F(MSG_MAIN_MENU);
     case Prepare:           return GET_TEXT_F(MSG_PREPARE);
@@ -4022,7 +4018,7 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(const uint8_t menu) {
   return F("");
 }
 
-uint8_t CrealityDWINClass::Get_Menu_Size(const uint8_t menu) {
+uint8_t CrealityDWIN::getMenuSize(const uint8_t menu) {
   switch (menu) {
     case Prepare:           return PREPARE_TOTAL;
     case HomeMenu:          return HOME_TOTAL;
@@ -4099,108 +4095,108 @@ uint8_t CrealityDWINClass::Get_Menu_Size(const uint8_t menu) {
 
 /* Popup Config */
 
-void CrealityDWINClass::Popup_Handler(const PopupID popupid, const bool option/*=false*/) {
+void CrealityDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
   popup = last_popup = popupid;
   switch (popupid) {
-    case Pause:         Draw_Popup(F("Pause Print"), F(""), F(""), Popup); break;
-    case Stop:          Draw_Popup(F("Stop Print"), F(""), F(""), Popup); break;
-    case Resume:        Draw_Popup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Popup); break;
-    case ConfFilChange: Draw_Popup(F("Confirm Filament Change"), F(""), F(""), Popup); break;
-    case PurgeMore:     Draw_Popup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Popup); break;
-    case SaveLevel:     Draw_Popup(F("Leveling Complete"), F("Save to EEPROM?"), F(""), Popup); break;
-    case MeshSlot:      Draw_Popup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Popup); break;
-    case ETemp:         Draw_Popup(F("Nozzle is too cold"), F("Open Preheat Menu?"), F(""), Popup); break;
-    case ManualProbing: Draw_Popup(F("Manual Probing"), F("(Confirm to probe)"), F("(cancel to exit)"), Popup); break;
-    case Level:         Draw_Popup(F("Auto Bed Leveling"), F("Please wait until done."), F(""), Wait, ICON_AutoLeveling); break;
-    case Home:          Draw_Popup(option ? F("Parking") : F("Homing"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
-    case MoveWait:      Draw_Popup(F("Moving to Point"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
-    case Heating:       Draw_Popup(F("Heating"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
-    case FilLoad:       Draw_Popup(option ? F("Unloading Filament") : F("Loading Filament"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
-    case FilChange:     Draw_Popup(F("Filament Change"), F("Please wait for prompt."), F(""), Wait, ICON_BLTouch); break;
-    case TempWarn:      Draw_Popup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
-    case Runout:        Draw_Popup(F("Filament Runout"), F(""), F(""), Wait, ICON_BLTouch); break;
-    case PIDWait:       Draw_Popup(F("PID Autotune"), F("in process"), F("Please wait until done."), Wait, ICON_BLTouch); break;
-    case Resuming:      Draw_Popup(F("Resuming Print"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
-    case Custom:        Draw_Popup(F("Running Custom GCode"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case Pause:         drawPopup(F("Pause Print"), F(""), F(""), Popup); break;
+    case Stop:          drawPopup(F("Stop Print"), F(""), F(""), Popup); break;
+    case Resume:        drawPopup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Popup); break;
+    case ConfFilChange: drawPopup(F("Confirm Filament Change"), F(""), F(""), Popup); break;
+    case PurgeMore:     drawPopup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Popup); break;
+    case SaveLevel:     drawPopup(F("Leveling Complete"), F("Save to EEPROM?"), F(""), Popup); break;
+    case MeshSlot:      drawPopup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Popup); break;
+    case ETemp:         drawPopup(F("Nozzle is too cold"), F("Open Preheat Menu?"), F(""), Popup); break;
+    case ManualProbing: drawPopup(F("Manual Probing"), F("(Confirm to probe)"), F("(cancel to exit)"), Popup); break;
+    case Level:         drawPopup(F("Auto Bed Leveling"), F("Please wait until done."), F(""), Wait, ICON_AutoLeveling); break;
+    case Home:          drawPopup(option ? F("Parking") : F("Homing"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case MoveWait:      drawPopup(F("Moving to Point"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case Heating:       drawPopup(F("Heating"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case FilLoad:       drawPopup(option ? F("Unloading Filament") : F("Loading Filament"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case FilChange:     drawPopup(F("Filament Change"), F("Please wait for prompt."), F(""), Wait, ICON_BLTouch); break;
+    case TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
+    case Runout:        drawPopup(F("Filament Runout"), F(""), F(""), Wait, ICON_BLTouch); break;
+    case PIDWait:       drawPopup(F("PID Autotune"), F("in process"), F("Please wait until done."), Wait, ICON_BLTouch); break;
+    case Resuming:      drawPopup(F("Resuming Print"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case Custom:        drawPopup(F("Running Custom GCode"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
     default: break;
   }
 }
 
-void CrealityDWINClass::Confirm_Handler(PopupID popupid) {
+void CrealityDWIN::confirmHandler(PopupID popupid) {
   popup = popupid;
   switch (popupid) {
-    case FilInsert:   Draw_Popup(F("Insert Filament"), F("Press to Continue"), F(""), Confirm); break;
-    case HeaterTime:  Draw_Popup(F("Heater Timed Out"), F("Press to Reheat"), F(""), Confirm); break;
-    case UserInput:   Draw_Popup(F("Waiting for Input"), F("Press to Continue"), F(""), Confirm); break;
-    case LevelError:  Draw_Popup(F("Couldn't enable Leveling"), F("(Valid mesh must exist)"), F(""), Confirm); break;
-    case InvalidMesh: Draw_Popup(F("Valid mesh must exist"), F("before tuning can be"), F("performed"), Confirm); break;
+    case FilInsert:   drawPopup(F("Insert Filament"), F("Press to Continue"), F(""), Confirm); break;
+    case HeaterTime:  drawPopup(F("Heater Timed Out"), F("Press to Reheat"), F(""), Confirm); break;
+    case UserInput:   drawPopup(F("Waiting for Input"), F("Press to Continue"), F(""), Confirm); break;
+    case LevelError:  drawPopup(F("Couldn't enable Leveling"), F("(Valid mesh must exist)"), F(""), Confirm); break;
+    case InvalidMesh: drawPopup(F("Valid mesh must exist"), F("before tuning can be"), F("performed"), Confirm); break;
     default: break;
   }
 }
 
 /* Navigation and Control */
 
-void CrealityDWINClass::Main_Menu_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::mainMenuControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < PAGE_COUNT - 1) {
     selection++; // Select Down
-    Main_Menu_Icons();
+    mainMenuIcons();
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && selection > 0) {
     selection--; // Select Up
-    Main_Menu_Icons();
+    mainMenuIcons();
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
     switch (selection) {
-      case PAGE_PRINT: card.mount(); Draw_SD_List(); break;
-      case PAGE_PREPARE: Draw_Menu(Prepare); break;
-      case PAGE_CONTROL: Draw_Menu(Control); break;
-      case PAGE_INFO_LEVELING: Draw_Menu(TERN(HAS_MESH, Leveling, InfoMain)); break;
+      case PAGE_PRINT: card.mount(); drawSDList(); break;
+      case PAGE_PREPARE: drawMenu(Prepare); break;
+      case PAGE_CONTROL: drawMenu(Control); break;
+      case PAGE_INFO_LEVELING: drawMenu(TERN(HAS_MESH, Leveling, InfoMain)); break;
     }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Menu_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::menuControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < Get_Menu_Size(active_menu)) {
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < getMenuSize(active_menu)) {
+    dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     selection++; // Select Down
     if (selection > scrollpos+MROWS) {
       scrollpos++;
-      DWIN_Frame_AreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
-      Menu_Item_Handler(active_menu, selection);
+      dwinFrameAreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
+      menuItemHandler(active_menu, selection);
     }
-    DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && selection > 0) {
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     selection--; // Select Up
     if (selection < scrollpos) {
       scrollpos--;
-      DWIN_Frame_AreaMove(1, 3, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
-      Menu_Item_Handler(active_menu, selection);
+      dwinFrameAreaMove(1, 3, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
+      menuItemHandler(active_menu, selection);
     }
-    DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
-    Menu_Item_Handler(active_menu, selection, false);
-  DWIN_UpdateLCD();
+    menuItemHandler(active_menu, selection, false);
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Value_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::valueControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW)
-    tempvalue += EncoderRate.encoderMoveValue;
+    tempvalue += encoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
-    tempvalue -= EncoderRate.encoderMoveValue;
+    tempvalue -= encoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     process = Menu;
-    EncoderRate.enabled = false;
-    Draw_Float(tempvalue / valueunit, selection - scrollpos, false, valueunit);
-    DWIN_UpdateLCD();
+    encoderRate.enabled = false;
+    drawFloat(tempvalue / valueunit, selection - scrollpos, false, valueunit);
+    dwinUpdateLCD();
     if (active_menu == ZOffset && liveadjust) {
       planner.synchronize();
       current_position.z += (tempvalue / valueunit - zoffsetvalue);
@@ -4243,24 +4239,24 @@ void CrealityDWINClass::Value_Control() {
     return;
   }
   LIMIT(tempvalue, valuemin * valueunit, valuemax * valueunit);
-  Draw_Float(tempvalue / valueunit, selection - scrollpos, true, valueunit);
-  DWIN_UpdateLCD();
+  drawFloat(tempvalue / valueunit, selection - scrollpos, true, valueunit);
+  dwinUpdateLCD();
   if (active_menu == Move && livemove) {
     *(float*)valuepointer = tempvalue / valueunit;
     planner.buffer_line(current_position, manual_feedrate_mm_s[selection - 1], active_extruder);
   }
 }
 
-void CrealityDWINClass::Option_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::optionControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW)
-    tempvalue += EncoderRate.encoderMoveValue;
+    tempvalue += encoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
-    tempvalue -= EncoderRate.encoderMoveValue;
+    tempvalue -= encoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     process = Menu;
-    EncoderRate.enabled = false;
+    encoderRate.enabled = false;
     if (valuepointer == &color_names) {
       switch (selection) {
         case COLORSETTINGS_CURSOR: eeprom_settings.cursor_color = tempvalue; break;
@@ -4275,24 +4271,24 @@ void CrealityDWINClass::Option_Control() {
         case COLORSETTINGS_PROGRESS_COORDINATES: eeprom_settings.coordinates_text = tempvalue; break;
         case COLORSETTINGS_PROGRESS_COORDINATES_LINE: eeprom_settings.coordinates_split_line = tempvalue; break;
       }
-      Redraw_Screen();
+      redrawScreen();
     }
     else if (valuepointer == &preheat_modes)
       preheatmode = tempvalue;
 
-    Draw_Option(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, false, (valuepointer == &color_names));
-    DWIN_UpdateLCD();
+    drawOption(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, false, (valuepointer == &color_names));
+    dwinUpdateLCD();
     return;
   }
   LIMIT(tempvalue, valuemin, valuemax);
-  Draw_Option(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, true);
-  DWIN_UpdateLCD();
+  drawOption(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, true);
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::File_Control() {
+void CrealityDWIN::fileControl() {
   typedef TextScroller<MENU_CHAR_LIMIT> Scroller;
   static Scroller scroller;
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) {
     if (selection > 0) {
       card.selectFileByIndexSorted(selection - 1);
@@ -4307,82 +4303,82 @@ void CrealityDWINClass::File_Control() {
         time = millis() + 200;
         Scroller::Buffer buf;
         const char* const name = scroller.scroll(pos, buf, filename);
-        DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
-        Draw_Menu_Item(selection - scrollpos, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
-        DWIN_UpdateLCD();
+        dwinDrawRectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
+        drawMenuItem(selection - scrollpos, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
+        dwinUpdateLCD();
       }
     }
     return;
   }
   if (encoder_diffState == ENCODER_DIFF_CW && selection < card.get_num_items()) {
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     if (selection > 0) {
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
-      Draw_SD_Item(selection, selection - scrollpos);
+      dwinDrawRectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
+      drawSDItem(selection, selection - scrollpos);
     }
     scroller.reset();
     selection++; // Select Down
     if (selection > scrollpos + MROWS) {
       scrollpos++;
-      DWIN_Frame_AreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
-      Draw_SD_Item(selection, selection - scrollpos);
+      dwinFrameAreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
+      drawSDItem(selection, selection - scrollpos);
     }
-    DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && selection > 0) {
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
-    Draw_SD_Item(selection, selection - scrollpos);
+    dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
+    drawSDItem(selection, selection - scrollpos);
     scroller.reset();
     selection--; // Select Up
     if (selection < scrollpos) {
       scrollpos--;
-      DWIN_Frame_AreaMove(1, 3, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
-      Draw_SD_Item(selection, selection - scrollpos);
+      dwinFrameAreaMove(1, 3, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
+      drawSDItem(selection, selection - scrollpos);
     }
-    DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
+    dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     if (selection == 0) {
       if (card.flag.workDirIsRoot) {
         process = Main;
-        Draw_Main_Menu();
+        drawMainMenu();
       }
       else {
         card.cdup();
-        Draw_SD_List();
+        drawSDList();
       }
     }
     else {
       card.selectFileByIndexSorted(selection - 1);
       if (card.flag.filenameIsDir) {
         card.cd(card.filename);
-        Draw_SD_List();
+        drawSDList();
       }
       else {
         card.openAndPrintFile(card.filename);
       }
     }
   }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Print_Screen_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::printScreenControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < PRINT_COUNT - 1) {
     selection++; // Select Down
-    Print_Screen_Icons();
+    printScreenIcons();
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && selection > 0) {
     selection--; // Select Up
-    Print_Screen_Icons();
+    printScreenIcons();
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (selection) {
       case PRINT_SETUP:
-        Draw_Menu(Tune);
-        Update_Status_Bar(true);
+        drawMenu(Tune);
+        updateStatusBar(true);
         break;
       case PRINT_PAUSE_RESUME:
         if (paused) {
@@ -4409,27 +4405,27 @@ void CrealityDWINClass::Print_Screen_Control() {
           else {
             TERN_(HOST_ACTION_COMMANDS, hostui.resume());
           }
-          Draw_Print_Screen();
+          drawPrintScreen();
         }
         else
-          Popup_Handler(Pause);
+          popupHandler(Pause);
         break;
-      case PRINT_STOP: Popup_Handler(Stop); break;
+      case PRINT_STOP: popupHandler(Stop); break;
     }
   }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Popup_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::popupControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < 1) {
     selection++;
-    Popup_Select();
+    popupSelect();
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && selection > 0) {
     selection--;
-    Popup_Select();
+    popupSelect();
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (popup) {
@@ -4440,7 +4436,7 @@ void CrealityDWINClass::Popup_Control() {
               if (recovery.enabled) recovery.save(true);
             #endif
             #if ENABLED(PARK_HEAD_ON_PAUSE)
-              Popup_Handler(Home, true);
+              popupHandler(Home, true);
               #if HAS_MEDIA
                 if (IS_SD_PRINTING()) card.pauseSDPrint();
               #endif
@@ -4459,7 +4455,7 @@ void CrealityDWINClass::Popup_Control() {
             TERN_(HOST_ACTION_COMMANDS, hostui.pause());
           }
         }
-        Draw_Print_Screen();
+        drawPrintScreen();
         break;
       case Stop:
         if (selection == 0) {
@@ -4472,14 +4468,14 @@ void CrealityDWINClass::Popup_Control() {
           }
         }
         else
-          Draw_Print_Screen();
+          drawPrintScreen();
         break;
       case Resume:
         if (selection == 0)
           queue.inject(F("M1000"));
         else {
           queue.inject(F("M1000 C"));
-          Draw_Main_Menu();
+          drawMainMenu();
         }
         break;
 
@@ -4488,10 +4484,10 @@ void CrealityDWINClass::Popup_Control() {
           if (selection == 0) {
             thermalManager.setTargetHotend(EXTRUDE_MINTEMP, 0);
             TERN_(HAS_FAN, thermalManager.set_fan_speed(0, MAX_FAN_SPEED));
-            Draw_Menu(PreheatHotend);
+            drawMenu(PreheatHotend);
           }
           else
-            Redraw_Menu(true, true, false);
+            redrawMenu(true, true, false);
           break;
       #endif
 
@@ -4501,11 +4497,11 @@ void CrealityDWINClass::Popup_Control() {
             char buf[80];
             const float dif = probe.probe_at_point(current_position.x, current_position.y, PROBE_PT_STOW, 0, false) - corner_avg;
             sprintf_P(buf, dif > 0 ? PSTR("Corner is %smm high") : PSTR("Corner is %smm low"), dtostrf(abs(dif), 1, 3, str_1));
-            Update_Status(buf);
+            updateStatus(buf);
           }
           else {
-            Redraw_Menu(true, true, false);
-            Update_Status("");
+            redrawMenu(true, true, false);
+            updateStatus("");
           }
           break;
       #endif
@@ -4514,29 +4510,29 @@ void CrealityDWINClass::Popup_Control() {
         case ConfFilChange:
           if (selection == 0) {
             if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-              Popup_Handler(ETemp);
+              popupHandler(ETemp);
             else {
               if (thermalManager.temp_hotend[0].is_below_target(2)) {
-                Popup_Handler(Heating);
+                popupHandler(Heating);
                 thermalManager.wait_for_hotend(0);
               }
-              Popup_Handler(FilChange);
+              popupHandler(FilChange);
               sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
               gcode.process_subcommands_now(cmd);
             }
           }
           else
-            Redraw_Menu(true, true, false);
+            redrawMenu(true, true, false);
           break;
         case PurgeMore:
           if (selection == 0) {
             pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
-            Popup_Handler(FilChange);
+            popupHandler(FilChange);
           }
           else {
             pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-            if (printing) Popup_Handler(Resuming);
-            else Redraw_Menu(true, true, active_menu == PreheatHotend);
+            if (printing) popupHandler(Resuming);
+            else redrawMenu(true, true, active_menu == PreheatHotend);
           }
           break;
       #endif // ADVANCED_PAUSE_FEATURE
@@ -4547,55 +4543,55 @@ void CrealityDWINClass::Popup_Control() {
             #if ENABLED(AUTO_BED_LEVELING_UBL)
               gcode.process_subcommands_now(F("G29 S"));
               planner.synchronize();
-              AudioFeedback(true);
+              audioFeedback(true);
             #else
-              AudioFeedback(settings.save());
+              audioFeedback(settings.save());
             #endif
           }
-          Draw_Menu(Leveling, LEVELING_GET_MESH);
+          drawMenu(Leveling, LEVELING_GET_MESH);
           break;
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         case MeshSlot:
           if (selection == 0) bedlevel.storage_slot = 0;
-          Redraw_Menu(true, true);
+          redrawMenu(true, true);
           break;
       #endif
       default: break;
     }
   }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
-void CrealityDWINClass::Confirm_Control() {
-  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+void CrealityDWIN::confirmControl() {
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (popup) {
       case Complete:
-        Draw_Main_Menu();
+        drawMainMenu();
         break;
       case FilInsert:
-        Popup_Handler(FilChange);
+        popupHandler(FilChange);
         wait_for_user = false;
         break;
       case HeaterTime:
-        Popup_Handler(Heating);
+        popupHandler(Heating);
         wait_for_user = false;
         break;
       default:
-        Redraw_Menu(true, true, false);
+        redrawMenu(true, true, false);
         wait_for_user = false;
         break;
     }
   }
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
 /* In-Menu Value Modification */
 
-void CrealityDWINClass::Setup_Value(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
+void CrealityDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
   if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
   else if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Kd))
@@ -4607,58 +4603,58 @@ void CrealityDWINClass::Setup_Value(const_float_t value, const_float_t min, cons
   valueunit = unit;
   valuetype = type;
   process = Value;
-  EncoderRate.enabled = true;
-  Draw_Float(tempvalue / unit, selection - scrollpos, true, valueunit);
+  encoderRate.enabled = true;
+  drawFloat(tempvalue / unit, selection - scrollpos, true, valueunit);
 }
 
-void CrealityDWINClass::Modify_Value(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 0);
+  setupValue((float)value, min, max, unit, 0);
 }
-void CrealityDWINClass::Modify_Value(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 1);
+  setupValue((float)value, min, max, unit, 1);
 }
-void CrealityDWINClass::Modify_Value(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 2);
+  setupValue((float)value, min, max, unit, 2);
 }
-void CrealityDWINClass::Modify_Value(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 3);
+  setupValue((float)value, min, max, unit, 3);
 }
-void CrealityDWINClass::Modify_Value(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 4);
+  setupValue((float)value, min, max, unit, 4);
 }
-void CrealityDWINClass::Modify_Value(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void CrealityDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
-  Setup_Value((float)value, min, max, unit, 5);
+  setupValue((float)value, min, max, unit, 5);
 }
 
-void CrealityDWINClass::Modify_Option(const uint8_t value, const char * const * options, const uint8_t max) {
+void CrealityDWIN::modifyOption(const uint8_t value, const char * const * options, const uint8_t max) {
   tempvalue = value;
   valuepointer = const_cast<const char * *>(options);
   valuemin = 0;
   valuemax = max;
   process = Option;
-  EncoderRate.enabled = true;
-  Draw_Option(value, options, selection - scrollpos, true);
+  encoderRate.enabled = true;
+  drawOption(value, options, selection - scrollpos, true);
 }
 
 /* Main Functions */
 
-void CrealityDWINClass::Update_Status(const char * const text) {
+void CrealityDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
     for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
-    Draw_Print_Filename(true);
+    drawPrintFilename(true);
   }
   else {
     for (uint8_t i = 0; i < _MIN((size_t)64, strlen(text)); ++i) statusmsg[i] = text[i];
@@ -4666,7 +4662,7 @@ void CrealityDWINClass::Update_Status(const char * const text) {
   }
 }
 
-void CrealityDWINClass::Start_Print(const bool sd) {
+void CrealityDWIN::startPrint(const bool sd) {
   sdprint = sd;
   if (!printing) {
     printing = true;
@@ -4685,59 +4681,59 @@ void CrealityDWINClass::Start_Print(const bool sd) {
       strcpy_P(filename, PSTR("Host Print"));
     TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
     TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
-    Draw_Print_Screen();
+    drawPrintScreen();
   }
 }
 
-void CrealityDWINClass::Stop_Print() {
+void CrealityDWIN::stopPrint() {
   printing = false;
   sdprint = false;
   thermalManager.cooldown();
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
   TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
-  Draw_Print_confirm();
+  drawPrintConfirm();
 }
 
-void CrealityDWINClass::Update() {
-  State_Update();
-  Screen_Update();
+void CrealityDWIN::update() {
+  stateUpdate();
+  screenUpdate();
   switch (process) {
-    case Main:    Main_Menu_Control();    break;
-    case Menu:    Menu_Control();         break;
-    case Value:   Value_Control();        break;
-    case Option:  Option_Control();       break;
-    case File:    File_Control();         break;
-    case Print:   Print_Screen_Control(); break;
-    case Popup:   Popup_Control();        break;
-    case Confirm: Confirm_Control();      break;
+    case Main:    mainMenuControl();    break;
+    case Menu:    menuControl();         break;
+    case Value:   valueControl();        break;
+    case Option:  optionControl();       break;
+    case File:    fileControl();         break;
+    case Print:   printScreenControl(); break;
+    case Popup:   popupControl();        break;
+    case Confirm: confirmControl();      break;
   }
 }
 
-void MarlinUI::update() { CrealityDWIN.Update(); }
+void MarlinUI::update() { crealityDWIN.update(); }
 
 #if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
 
-void CrealityDWINClass::State_Update() {
+void CrealityDWIN::stateUpdate() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    if (!printing) Start_Print(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
-    else Stop_Print();
+    if (!printing) startPrint(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
+    else stopPrint();
   }
   if (print_job_timer.isPaused() != paused) {
     paused = print_job_timer.isPaused();
-    if (process == Print) Print_Screen_Icons();
-    if (process == Wait && !paused) Redraw_Menu(true, true);
+    if (process == Print) printScreenIcons();
+    if (process == Wait && !paused) redrawMenu(true, true);
   }
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused())
-    Confirm_Handler(UserInput);
+    confirmHandler(UserInput);
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     if (process == Popup && popup == PurgeMore) {
       if (pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE)
-        Popup_Handler(FilChange);
+        popupHandler(FilChange);
       else if (pause_menu_response == PAUSE_RESPONSE_RESUME_PRINT) {
-        if (printing) Popup_Handler(Resuming);
-        else Redraw_Menu(true, true, active_menu == PreheatHotend);
+        if (printing) popupHandler(Resuming);
+        else redrawMenu(true, true, active_menu == PreheatHotend);
       }
     }
   #endif
@@ -4745,33 +4741,33 @@ void CrealityDWINClass::State_Update() {
     static bool ranout = false;
     if (runout.filament_ran_out != ranout) {
       ranout = runout.filament_ran_out;
-      if (ranout) Popup_Handler(Runout);
+      if (ranout) popupHandler(Runout);
     }
   #endif
 }
 
-void CrealityDWINClass::Screen_Update() {
+void CrealityDWIN::screenUpdate() {
   const millis_t ms = millis();
   static millis_t scrltime = 0;
   if (ELAPSED(ms, scrltime)) {
     scrltime = ms + 200;
-    Update_Status_Bar();
-    if (process == Print) Draw_Print_Filename();
+    updateStatusBar();
+    if (process == Print) drawPrintFilename();
   }
 
   static millis_t statustime = 0;
   if (ELAPSED(ms, statustime)) {
     statustime = ms + 500;
-    Draw_Status_Area();
+    drawStatusArea();
   }
 
   static millis_t printtime = 0;
   if (ELAPSED(ms, printtime)) {
     printtime = ms + 1000;
     if (process == Print) {
-      Draw_Print_ProgressBar();
-      Draw_Print_ProgressElapsed();
-      TERN_(SET_REMAINING_TIME, Draw_Print_ProgressRemain());
+      drawPrintProgressBar();
+      drawPrintProgressElapsed();
+      TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
     }
   }
 
@@ -4779,7 +4775,7 @@ void CrealityDWINClass::Screen_Update() {
   if (mounted != card.isMounted()) {
     mounted = card.isMounted();
     if (process == File)
-      Draw_SD_List();
+      drawSDList();
   }
 
   #if HAS_HOTEND
@@ -4820,7 +4816,7 @@ void CrealityDWINClass::Screen_Update() {
             hotendtarget = thermalManager.temp_hotend[0].target;
             if (scrollpos <= TEMP_HOTEND && TEMP_HOTEND <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.temp_hotend[0].target, TEMP_HOTEND - scrollpos, false, 1);
+                drawFloat(thermalManager.temp_hotend[0].target, TEMP_HOTEND - scrollpos, false, 1);
             }
           }
         #endif
@@ -4829,7 +4825,7 @@ void CrealityDWINClass::Screen_Update() {
             bedtarget = thermalManager.temp_bed.target;
             if (scrollpos <= TEMP_BED && TEMP_BED <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.temp_bed.target, TEMP_BED - scrollpos, false, 1);
+                drawFloat(thermalManager.temp_bed.target, TEMP_BED - scrollpos, false, 1);
             }
           }
         #endif
@@ -4838,7 +4834,7 @@ void CrealityDWINClass::Screen_Update() {
             fanspeed = thermalManager.fan_speed[0];
             if (scrollpos <= TEMP_FAN && TEMP_FAN <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.fan_speed[0], TEMP_FAN - scrollpos, false, 1);
+                drawFloat(thermalManager.fan_speed[0], TEMP_FAN - scrollpos, false, 1);
             }
           }
         #endif
@@ -4849,7 +4845,7 @@ void CrealityDWINClass::Screen_Update() {
             hotendtarget = thermalManager.temp_hotend[0].target;
             if (scrollpos <= TUNE_HOTEND && TUNE_HOTEND <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.temp_hotend[0].target, TUNE_HOTEND - scrollpos, false, 1);
+                drawFloat(thermalManager.temp_hotend[0].target, TUNE_HOTEND - scrollpos, false, 1);
             }
           }
         #endif
@@ -4858,7 +4854,7 @@ void CrealityDWINClass::Screen_Update() {
             bedtarget = thermalManager.temp_bed.target;
             if (scrollpos <= TUNE_BED && TUNE_BED <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.temp_bed.target, TUNE_BED - scrollpos, false, 1);
+                drawFloat(thermalManager.temp_bed.target, TUNE_BED - scrollpos, false, 1);
             }
           }
         #endif
@@ -4867,7 +4863,7 @@ void CrealityDWINClass::Screen_Update() {
             fanspeed = thermalManager.fan_speed[0];
             if (scrollpos <= TUNE_FAN && TUNE_FAN <= scrollpos + MROWS) {
               if (process != Value || selection != TEMP_HOTEND - scrollpos)
-                Draw_Float(thermalManager.fan_speed[0], TUNE_FAN - scrollpos, false, 1);
+                drawFloat(thermalManager.fan_speed[0], TUNE_FAN - scrollpos, false, 1);
             }
           }
         #endif
@@ -4876,25 +4872,25 @@ void CrealityDWINClass::Screen_Update() {
   }
 }
 
-void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
+void CrealityDWIN::audioFeedback(const bool success/*=true*/) {
   if (ui.sound_on)
     DONE_BUZZ(success);
   else
-    Update_Status(success ? "Success" : "Failed");
+    updateStatus(success ? "Success" : "Failed");
 }
 
-void CrealityDWINClass::Save_Settings(char * const buff) {
+void CrealityDWIN::saveSettings(char * const buff) {
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
   eeprom_settings.corner_pos = corner_pos * 10;
   memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
-void CrealityDWINClass::Load_Settings(const char * const buff) {
+void CrealityDWIN::loadSettings(const char * const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   corner_pos = eeprom_settings.corner_pos / 10.0f;
-  Redraw_Screen();
+  redrawScreen();
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool init = true;
     if (init) {
@@ -4904,7 +4900,7 @@ void CrealityDWINClass::Load_Settings(const char * const buff) {
   #endif
 }
 
-void CrealityDWINClass::Reset_Settings() {
+void CrealityDWIN::resetSettings() {
   eeprom_settings.time_format_textual = false;
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = 0);
   eeprom_settings.corner_pos = 325;
@@ -4922,36 +4918,36 @@ void CrealityDWINClass::Reset_Settings() {
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
   TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
-  Redraw_Screen();
+  redrawScreen();
 }
 
 void MarlinUI::init_lcd() {
   delay(800);
   SERIAL_ECHOPGM("\nDWIN handshake ");
-  if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-  DWIN_Frame_SetDir(1); // Orientation 90°
-  DWIN_UpdateLCD();     // Show bootscreen (first image)
-  Encoder_Configuration();
+  if (dwinHandshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+  dwinFrameSetDir(1); // Orientation 90°
+  dwinUpdateLCD();     // Show bootscreen (first image)
+  encoderConfiguration();
   for (uint16_t t = 0; t <= 100; t += 2) {
-    DWIN_ICON_Show(ICON, ICON_Bar, 15, 260);
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
-    DWIN_UpdateLCD();
+    dwinIconShow(ICON, ICON_Bar, 15, 260);
+    dwinDrawRectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
+    dwinUpdateLCD();
     delay(20);
   }
 
-  DWIN_JPG_ShowAndCache(3);
-  DWIN_JPG_CacheTo1(Language_English);
-  CrealityDWIN.Redraw_Screen();
+  dwinJPGShowAndCache(3);
+  dwinJPGCacheTo1(Language_English);
+  crealityDWIN.redrawScreen();
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch (message) {
-      case PAUSE_MESSAGE_INSERT:  CrealityDWIN.Confirm_Handler(FilInsert);  break;
+      case PAUSE_MESSAGE_INSERT:  crealityDWIN.confirmHandler(FilInsert);  break;
       case PAUSE_MESSAGE_PURGE:
-      case PAUSE_MESSAGE_OPTION:  CrealityDWIN.Popup_Handler(PurgeMore);    break;
-      case PAUSE_MESSAGE_HEAT:    CrealityDWIN.Confirm_Handler(HeaterTime); break;
-      case PAUSE_MESSAGE_WAITING: CrealityDWIN.Draw_Print_Screen();         break;
+      case PAUSE_MESSAGE_OPTION:  crealityDWIN.popupHandler(PurgeMore);    break;
+      case PAUSE_MESSAGE_HEAT:    crealityDWIN.confirmHandler(HeaterTime); break;
+      case PAUSE_MESSAGE_WAITING: crealityDWIN.drawPrintScreen();         break;
       default: break;
     }
   }
