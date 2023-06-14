@@ -24,30 +24,20 @@
  ******************************************************************************
  */
 
-
-/* The sole purpose of this file is to provide a method of offsetting the build
-   offset.   This is needed in the case where a bootloader is used.
-
-   Right now modifying this file is the only way to change the build offset.  This is
-   done by modifying the "__LD_FLASH_OFFSET" variable.
-*/
-
 /* Entry Point */
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(RAM) + LENGTH(RAM);	/* end of "RAM" Ram type memory */
+_estack = 0x20000000 + LD_MAX_DATA_SIZE; 	/* end of "RAM" Ram type memory */
 
-_Min_Heap_Size = 0x400 ;	/* required amount of heap  */
-_Min_Stack_Size = 0x800 ;	/* required amount of stack */
-
-__LD_FLASH_OFFSET = 0x8000;
+_Min_Heap_Size = 0x200 ;	/* required amount of heap  */
+_Min_Stack_Size = 0x400 ;	/* required amount of stack */
 
 /* Memories definition */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = LD_MAX_DATA_SIZE
-  FLASH    (rx)    : ORIGIN = 0x8000000 + __LD_FLASH_OFFSET, LENGTH = LD_MAX_SIZE - __LD_FLASH_OFFSET
+  FLASH    (rx)    : ORIGIN = 0x08000000 + LD_FLASH_OFFSET, LENGTH = LD_MAX_SIZE - LD_FLASH_OFFSET
 }
 
 /* Sections */
@@ -62,7 +52,7 @@ SECTIONS
   } >FLASH
 
   /* The program code and other data into "FLASH" Rom type memory */
-  .text :
+  .text ALIGN(4):
   {
     . = ALIGN(4);
     *(.text)           /* .text sections (code) */
@@ -79,7 +69,7 @@ SECTIONS
   } >FLASH
 
   /* Constant data into "FLASH" Rom type memory */
-  .rodata :
+  .rodata ALIGN(4):
   {
     . = ALIGN(4);
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */

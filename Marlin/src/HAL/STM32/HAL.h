@@ -118,11 +118,28 @@
   #endif
 #endif
 
-/**
+
+#ifndef analogInputToDigitalPin
+  #ifdef STM32F746xx
+
+    int16_t analogInputToDigitalPin(int16_t Ard_num) {
+      if (WITHIN(Ard_num, 0, 7))
+        return Ard_num;
+      if (WITHIN(Ard_num, 8, 9))
+        return Ard_num + 8;
+      if (WITHIN(Ard_num, 11, 12))
+        return Ard_num + 22;
+      if (WITHIN(Ard_num, 13, 23))
+        return Ard_num + 67;
+      return -1;
+    }
+
+  #else
+  /**
  * TODO: review this to return 1 for pins that are not analog input
  */
-#ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+    #define analogInputToDigitalPin(p) (p)
+  #endif
 #endif
 
 //

@@ -108,6 +108,10 @@ const XrefInfo pin_xref[] PROGMEM = {
  * Translation of routines & variables used by pinsDebug.h
  */
 
+#ifdef STM32F746xx
+  #define NUM_ANALOG_FIRST 0
+#endif
+
 #if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
   #define HAS_HIGH_ANALOG_PINS 1
 #endif
@@ -149,6 +153,8 @@ const XrefInfo pin_xref[] PROGMEM = {
   #endif
 #endif
 
+int8_t digital_pin_to_analog_pin(const pin_t Ard_num);
+
 uint8_t get_pin_mode(const pin_t Ard_num) {
   const PinName dp = digitalPinToPinName(Ard_num);
   uint32_t ll_pin  = STM_LL_GPIO_PIN(dp);
@@ -167,14 +173,6 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
 bool GET_PINMODE(const pin_t Ard_num) {
   const uint8_t pin_mode = get_pin_mode(Ard_num);
   return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
-}
-
-int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
-  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
-    return Ard_num - NUM_ANALOG_FIRST;
-
-  const uint32_t ind = digitalPinToAnalogInput(Ard_num);
-  return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
 bool IS_ANALOG(const pin_t Ard_num) {
@@ -264,6 +262,24 @@ void pwm_details(const pin_t Ard_num) {
       if (alt_func < 10) SERIAL_CHAR(' ');
       SERIAL_ECHOPGM(" - ");
       switch (alt_func) {
+ #ifdef STM32F746xx
+        case  0 : SERIAL_ECHOPGM("system (misc. I/O)"); break;
+        case  1 : SERIAL_ECHOPGM("TIM1/TIM2 (probably PWM)"); break;
+        case  2 : SERIAL_ECHOPGM("TIM3..5 (probably PWM)"); break;
+        case  3 : SERIAL_ECHOPGM("TIM8..11, LPTIM1, CEC (probably PWM)"); break;
+        case  4 : SERIAL_ECHOPGM("I2C1..4, CEC"); break;
+        case  5 : SERIAL_ECHOPGM("SPI1..6"); break;
+        case  6 : SERIAL_ECHOPGM("SPI3, SAI1"); break;
+        case  7 : SERIAL_ECHOPGM("USART1..3,5, SPI2,3"); break;
+        case  8 : SERIAL_ECHOPGM("USART4..8, SAI2, SPDIFRX"); break;
+        case  9 : SERIAL_ECHOPGM("CAN1/2, TIM12..14, QUADSPI, LCD  (probably PWM)"); break;
+        case 10 : SERIAL_ECHOPGM("SAI2, QUADSPI, OTG2_HS, OTG1_FS"); break;
+        case 11 : SERIAL_ECHOPGM("ETH, OTG1_FS"); break;
+        case 12 : SERIAL_ECHOPGM("FMC, SDMMC1/O, TG2_FS"); break;
+        case 13 : SERIAL_ECHOPGM("DCMI"); break;
+        case 14 : SERIAL_ECHOPGM("LCD"); break;
+        case 15 : SERIAL_ECHOPGM("EVENTOUT"); break;
+#else
         case  0 : SERIAL_ECHOPGM("system (misc. I/O)"); break;
         case  1 : SERIAL_ECHOPGM("TIM1/TIM2 (probably PWM)"); break;
         case  2 : SERIAL_ECHOPGM("TIM3..5 (probably PWM)"); break;
@@ -280,9 +296,36 @@ void pwm_details(const pin_t Ard_num) {
         case 13 : SERIAL_ECHOPGM("DCMI"); break;
         case 14 : SERIAL_ECHOPGM("unused (shouldn't see this)"); break;
         case 15 : SERIAL_ECHOPGM("EVENTOUT"); break;
+#endif
       }
     }
   #else
     // TODO: F1 doesn't support changing pins function, so we need to check the function of the PIN and if it's enabled
   #endif
 } // pwm_details
+
+
+#ifdef STM32F746xx
+
+  int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
+    if (WITHIN(Ard_num, 0, 7))
+      return Ard_num - NUM_ANALOG_FIRST;
+    if (WITHIN(Ard_num, 16, 17))
+      return Ard_num - 8;
+    if (WITHIN(Ard_num, 32, 37))
+      return Ard_num - 22;
+    if (WITHIN(Ard_num, 83, 90))
+      return Ard_num - 67;
+    return -1;
+  }
+
+#else
+
+  int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
+    if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
+      return Ard_num - NUM_ANALOG_FIRST;
+
+    const uint32_t ind = digitalPinToAnalogInput(Ard_num);
+    return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
+  }
+#endif

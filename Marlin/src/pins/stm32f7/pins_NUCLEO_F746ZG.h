@@ -176,7 +176,7 @@
 
 
   // SDIO for SD Card
-  #define ONBOARD_SDIO
+  //#define ONBOARD_SDIO
   #ifdef ONBOARD_SDIO
     #define SDIO_CLOCK                          4800000
     #define SDIO__MAX_CLOCK                     118
@@ -189,8 +189,11 @@
     #define SDIO_CMD_PIN                        PD2
   #else  // SPI
     #define SD_MOSI_PIN                         PA7
+    #define MOSI                                SD_MOSI_PIN
     #define SD_MISO_PIN                         PA6
+    #define MISO                                SD_MISO_PIN
     #define SD_SCK_PIN                          PA5
+    #define SCK                                 SD_SCK_PIN
     #define SDSS                                PD14
   #endif
 #endif
@@ -200,7 +203,9 @@
 #define LD1_PIN                          PB0  // green
 #define LD2_PIN                          PB7  // blue
 #define LD3_PIN                          PB14  // red
-//#define LED_BLUE                         LD2_PIN   // already defined in JSON for nucleo_F746ZG
+#ifndef LED_BLUE
+  #define LED_BLUE                         LD2_PIN   // already defined in JSON for nucleo_F746ZG
+#endif
 #define LED_PIN                          LED_BLUE
 
 
