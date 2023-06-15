@@ -47,6 +47,9 @@
 #include "PinNames.h"
 #include <stdint.h>
 #include "HAL.h"
+#include "../../core/serial.h"
+//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\STM32\PWM_PIN.cpp
+//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\core\serial.cpp
 
 uint32_t pinmap_function(PinName pin, const PinMap *map);
 
@@ -59,6 +62,50 @@ typedef struct {
 
 #define MAX_PWM 32
 PWM_chan_t used_PWM_channels[MAX_PWM] = {0};
+
+
+
+void PIN_NUM_TO_ASCII(pin_t pin, char *array) {
+  array[0] = 'P';
+  array[1] = 'A' + pin/16;
+  uint8_t temp = pin % 16;
+  if (temp > 9) {
+    array[2] = '1';
+    array[3] = '0' + temp - 10;
+    array[4] = '\0';
+  }
+  else {
+    array[2] = '0' + temp;
+    array[3] = '\0';
+  }
+}
+
+void TIM_TO_ASCII(uint32_t* tim, uint8_t chan, char *array)  {
+  uint8_t index;
+  array[0] = 'T';
+  array[1] = 'I';
+  array[2] = 'M';
+  uint32_t timer = (uint32_t)tim;
+  switch (timer) {
+    case TIM1_BASE  : array[3] = '1' ; index = 4; break;
+    case TIM2_BASE  : array[3] = '2' ; index = 4; break;
+    case TIM3_BASE  : array[3] = '3' ; index = 4; break;
+    case TIM4_BASE  : array[3] = '4' ; index = 4; break;
+    case TIM5_BASE  : array[3] = '5' ; index = 4; break;
+    case TIM6_BASE  : array[3] = '6' ; index = 4; break;
+    case TIM7_BASE  : array[3] = '7' ; index = 4; break;
+    case TIM8_BASE  : array[3] = '8' ; index = 4; break;
+    case TIM9_BASE  : array[3] = '9' ; index = 4; break;
+    case TIM10_BASE : array[3] = '1' ; array[3] = '0' ; index = 5; break;
+    case TIM11_BASE : array[3] = '1' ; array[3] = '1' ; index = 5; break;
+    case TIM12_BASE : array[3] = '1' ; array[3] = '2' ; index = 5; break;
+    case TIM13_BASE : array[3] = '1' ; array[3] = '3' ; index = 5; break;//
+    case TIM14_BASE : array[3] = '1' ; array[3] = '4' ; index = 5; break;
+  }
+  array[index] = '_';
+  array[index+1] = chan + '0';
+  array[index+2] = '\0';
+}
 
 // return true if a PWM channel is available for the pin
 
@@ -74,6 +121,14 @@ uint8_t digitalPinHasAvailablPWM(pin_t pin) {
           return true;  //  this pin is already set up
         }
         else {
+          char ascii_array[6];
+          SERIAL_ECHOLNPGM("WARNING: Attempt to assign one PWM channel to two pins.");
+          PIN_NUM_TO_ASCII(used_PWM_channels[i].pin, ascii_array);
+          SERIAL_ECHOPGM("pins: ", ascii_array);
+          PIN_NUM_TO_ASCII(pin, ascii_array);
+          SERIAL_ECHOLNPGM(" & ", ascii_array);
+          TIM_TO_ASCII(timer, channel, ascii_array);
+          SERIAL_ECHOLNPGM("Timer & channel: ", ascii_array);
           return false;   // PWM already in use so this pin can't have it
         }
     }
