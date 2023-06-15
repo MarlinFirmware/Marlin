@@ -47,8 +47,7 @@ void menu_job_recovery();
 inline void plr_error(FSTR_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    DEBUG_ECHOF(prefix);
-    DEBUG_ECHOLNPGM(" Job Recovery Data");
+    DEBUG_ECHOLN(prefix, F(" Job Recovery Data"));
   #else
     UNUSED(prefix);
   #endif

@@ -91,15 +91,9 @@ bool PersistentStore::access_finish() {
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
   #if ENABLED(DEBUG_SD_EEPROM_EMULATION)
     FSTR_P const rw_str = write ? F("write") : F("read");
-    SERIAL_CHAR(' ');
-    SERIAL_ECHOF(rw_str);
-    SERIAL_ECHOLNPGM("_data(", pos, ",", *value, ",", size, ", ...)");
-    if (total) {
-      SERIAL_ECHOPGM(" f_");
-      SERIAL_ECHOF(rw_str);
-      SERIAL_ECHOPGM("()=", s, "\n size=", size, "\n bytes_");
-      SERIAL_ECHOLNF(write ? F("written=") : F("read="), total);
-    }
+    SERIAL_ECHOLN(AS_CHAR(' '), rw_str, F("_data("), pos, AS_CHAR(','), *value, AS_CHAR(','), size, F(", ...)"));
+    if (total)
+      SERIAL_ECHOLN(F(" f_"), rw_str, F("()="), s, F("\n size="), size, F("\n bytes_"), write ? F("written=") : F("read="), total);
     else
       SERIAL_ECHOLNPGM(" f_lseek()=", s);
   #endif
