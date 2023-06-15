@@ -34,10 +34,11 @@
 
 #define BOARD_INFO_NAME "RAMPS BTT 1.6+"
 
-#undef TMC_USE_SW_SPI
-#define TMC_SPI_MOSI                        MOSI  // 51
-#define TMC_SPI_MISO                        MISO  // 50
-#define TMC_SPI_SCK                          SCK  // 52
+#if HAS_TMC_SPI && DISABLED(TMC_USE_SW_SPI)
+  #define TMC_SPI_MOSI                      MOSI  // 51
+  #define TMC_SPI_MISO                      MISO  // 50
+  #define TMC_SPI_SCK                        SCK  // 52
+#endif
 
 #define X_CS_PIN                              63  // A0
 #define Y_CS_PIN                              40
