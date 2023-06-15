@@ -112,7 +112,7 @@ void NextionTFT::statusChange(const char * const msg) {
 
 void NextionTFT::tftSend(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
-    DEBUG_ECHOF(fstr);
+    DEBUG_ECHO(fstr);
   #endif
   PGM_P str = FTOP(fstr);
   while (const char c = pgm_read_byte(str++)) LCD_SERIAL.write(c);
@@ -161,20 +161,20 @@ void NextionTFT::selectFile() {
   strncpy(selectedfile, nextion_command + 4, command_len - 4);
   selectedfile[command_len - 5] = '\0';
   #if NEXDEBUG(N_FILE)
-    DEBUG_ECHOLNPAIR_F(" Selected File: ", selectedfile);
+    DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
   switch (selectedfile[0]) {
-  case '/': // Valid file selected
-    //SEND_TXT("tmppage.M117", msg_sd_file_open_success);
-    break;
-  case '<': // .. (go up folder level)
-    filenavigator.upDIR();
-    sendFileList(0);
-    break;
-  default: // enter sub folder
-    filenavigator.changeDIR(selectedfile);
-    sendFileList(0);
-    break;
+    case '/': // Valid file selected
+      //SEND_TXT("tmppage.M117", msg_sd_file_open_success);
+      break;
+    case '<': // .. (go up folder level)
+      filenavigator.upDIR();
+      sendFileList(0);
+      break;
+    default: // enter sub folder
+      filenavigator.changeDIR(selectedfile);
+      sendFileList(0);
+      break;
   }
 }
 

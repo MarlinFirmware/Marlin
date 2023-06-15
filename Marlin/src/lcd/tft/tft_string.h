@@ -29,7 +29,7 @@
 
 /*
  * Marlin fonts with optional antialiasing. Fonts use unifont_t font header and glyph_t glyphs headers.
- * Number of glyphs (FontEndEncoding - FontStartEncoding) can not exceed 256 (TBD).
+ * Number of glyphs (fontEndEncoding - fontStartEncoding) can not exceed 256 (TBD).
  * Some glyphs may be left undefined with NO_GLYPH
  */
 #define FONT_MARLIN_GLYPHS      0x80
@@ -44,7 +44,7 @@
  *
  * IMPORTANT NOTES:
  *   - glyphs fast search method REQUIRES glyphs to be ordered by unicode
- *   - last glyph's code MUST be FontEndEncoding
+ *   - last glyph's code MUST be fontEndEncoding
  */
 #define FONT_MARLIN_HIEROGLYPHS      0xA0
 #define FONT_MARLIN_HIEROGLYPHS_1BPP 0xA1
@@ -146,22 +146,22 @@
 
 // TFT font with unicode support
 typedef struct __attribute__((__packed__)) {
-  uint8_t  Format;
-  uint8_t  CapitalAHeight;    // Not really needed, but helps with data alingment for uint16_t variables
-  uint16_t FontStartEncoding;
-  uint16_t FontEndEncoding;
-   int8_t  FontAscent;
-   int8_t  FontDescent;
+  uint8_t  format;
+  uint8_t  capitalAHeight;    // Not really needed, but helps with data alignment for uint16_t variables
+  uint16_t fontStartEncoding;
+  uint16_t fontEndEncoding;
+  int8_t   fontAscent;
+  int8_t   fontDescent;
 } unifont_t;
 
 // TFT glyphs
 typedef struct __attribute__((__packed__)) {
-  uint8_t BBXWidth;
-  uint8_t BBXHeight;
-  uint8_t DataSize;
-   int8_t DWidth;
-   int8_t BBXOffsetX;
-   int8_t BBXOffsetY;
+  uint8_t bbxWidth;
+  uint8_t bbxHeight;
+  uint8_t dataSize;
+   int8_t dWidth;
+   int8_t bbxOffsetX;
+   int8_t bbxOffsetY;
 } glyph_t;
 
 // unicode-prepended TFT glyphs
@@ -194,9 +194,9 @@ class TFT_String {
     static void set_font(const uint8_t *font);
     static void add_glyphs(const uint8_t *font);
 
-    static uint8_t  font_type() { return font_header->Format; };
-    static uint16_t font_ascent() { return font_header->FontAscent; }
-    static uint16_t font_height() { return font_header->FontAscent - font_header->FontDescent; }
+    static uint8_t  font_type() { return font_header->format; };
+    static uint16_t font_ascent() { return font_header->fontAscent; }
+    static uint16_t font_height() { return font_header->fontAscent - font_header->fontDescent; }
 
     static glyph_t *glyph(uint16_t character);
     static glyph_t *glyph(uint16_t *character) { return glyph(*character); }
@@ -264,7 +264,7 @@ class TFT_String {
     static uint16_t *string() { return data; }
     static uint16_t width() { return span; }
     static uint16_t center(const uint16_t width) { return span > width ? 0 : (width - span) / 2; }
-    static uint16_t vcenter(const uint16_t height) { return (height + font_header->CapitalAHeight + 1) / 2 > font_header->FontAscent ? (height + font_header->CapitalAHeight + 1) / 2 - font_header->FontAscent : 0 ; }
+    static uint16_t vcenter(const uint16_t height) { return (height + font_header->capitalAHeight + 1) / 2 > font_header->fontAscent ? (height + font_header->capitalAHeight + 1) / 2 - font_header->fontAscent : 0 ; }
 };
 
 extern TFT_String tft_string;

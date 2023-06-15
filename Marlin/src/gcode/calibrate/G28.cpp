@@ -274,7 +274,7 @@ void GcodeSuite::G28() {
 
     #if HAS_HOMING_CURRENT
       auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+        DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b);
       };
       #if HAS_CURRENT_HOME(X)
         const int16_t tmc_save_current_X = stepperX.getMilliamps();

@@ -63,8 +63,7 @@ void ip_report(const uint16_t cmd, FSTR_P const post, const IPAddress &ipo) {
     SERIAL_ECHO(ipo[i]);
     if (i < 3) SERIAL_CHAR('.');
   }
-  SERIAL_ECHOPGM(" ; ");
-  SERIAL_ECHOLNF(post);
+  SERIAL_ECHOLN(F(" ; "), post);
 }
 
 /**
