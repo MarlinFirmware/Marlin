@@ -283,6 +283,36 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
+// Packaged character for AS_CHAR macro and other usage
+typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
+#define AS_CHAR(C) serial_char_t(C)
+
+// Packaged types: float with precision and/or width; a repeated space/character
+typedef struct WFloat { float value; char width; char prec;
+                        WFloat(float v, char w, char p) : value(v), width(w), prec(p) {}
+                      } w_float_t;
+typedef struct PFloat { float value; char prec;
+                        PFloat(float v, char p) : value(v), prec(p) {}
+                      } p_float_t;
+typedef struct RepChr { char asc; uint8_t count;
+                        RepChr(char a, uint8_t c) : asc(a), count(c) {}
+                      } repchr_t;
+typedef struct Spaces { uint8_t count;
+                        Spaces(uint8_t c) : count(c) {}
+                      } spaces_t;
+
+#ifdef __AVR__
+  typedef w_float_t w_double_t;
+  typedef p_float_t p_double_t;
+#else
+  typedef struct WDouble { double value; char width; char prec;
+                          WDouble(double v, char w, char p) : value(v), width(w), prec(p) {}
+                        } w_double_t;
+  typedef struct PDouble { double value; char prec;
+                          PDouble(double v, char p) : value(v), prec(p) {}
+                        } p_double_t;
+#endif
+
 //
 // Coordinates structures for XY, XYZ, XYZE...
 //

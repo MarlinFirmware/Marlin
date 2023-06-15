@@ -817,11 +817,11 @@ G29_TYPE GcodeSuite::G29() {
       abl.mean /= abl.abl_points;
 
       if (abl.verbose_level) {
-        SERIAL_ECHOPAIR_F("Eqn coefficients: a: ", plane_equation_coefficients.a, 8);
-        SERIAL_ECHOPAIR_F(" b: ", plane_equation_coefficients.b, 8);
-        SERIAL_ECHOPAIR_F(" d: ", plane_equation_coefficients.d, 8);
+        SERIAL_ECHOPGM("Eqn coefficients: a: ", p_float_t(plane_equation_coefficients.a, 8),
+                                        " b: ", p_float_t(plane_equation_coefficients.b, 8),
+                                        " d: ", p_float_t(plane_equation_coefficients.d, 8));
         if (abl.verbose_level > 2)
-          SERIAL_ECHOPAIR_F("\nMean of sampled points: ", abl.mean, 8);
+          SERIAL_ECHOPGM("\nMean of sampled points: ", p_float_t(abl.mean, 8));
         SERIAL_EOL();
       }
 
@@ -837,7 +837,7 @@ G29_TYPE GcodeSuite::G29() {
         float min_diff = 999;
 
         auto print_topo_map = [&](FSTR_P const title, const bool get_min) {
-          SERIAL_ECHOF(title);
+          SERIAL_ECHO(title);
           for (int8_t yy = abl.grid_points.y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl.grid_points.x; ++xx) {
               const int ind = abl.indexIntoAB[xx][yy];
@@ -848,7 +848,7 @@ G29_TYPE GcodeSuite::G29() {
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;
               SERIAL_CHAR(' '); if (diff >= 0.0) SERIAL_CHAR('+');   // Include + for column alignment
-              SERIAL_ECHO_F(diff, 5);
+              SERIAL_ECHO(p_float_t(diff, 5));
             } // xx
             SERIAL_EOL();
           } // yy
