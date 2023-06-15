@@ -2,11 +2,11 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m7",
-    "extra_flags": "-DSTM32F7xx -DSTM32F746xx -DSTM32F746ZG",
+    "extra_flags": "-DSTM32F7xx -DSTM32F746xx",
     "f_cpu": "192000000L",
-    "mcu": "stm32f746zgt6",
+    "mcu": "STM32F746ZGT6",
     "product_line": "STM32f746xx",
-    "variant": "MARLIN_F746ZG"
+    "variant": "MARLIN_STM32F746"
   },
   "connectivity": [
     "can",
@@ -39,7 +39,7 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32F746ZG (320k RAM. 1024k Flash)",
+  "name": "STM32F746",
   "upload": {
     "disable_flushing": false,
     "maximum_ram_size": 327680,
@@ -51,7 +51,7 @@
       "jlink",
       "cmsis-dap"
     ],
-    "offset_address": "0x8008000",
+    "offset_address": "0x8000000",
     "require_upload_port": true,
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
