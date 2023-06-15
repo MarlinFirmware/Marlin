@@ -688,7 +688,8 @@
  *
  * Use a physical model of the hotend to control temperature. When configured correctly
  * this gives better responsiveness and stability than PID and it also removes the need
- * for PID_EXTRUSION_SCALING and PID_FAN_SCALING. Use M306 T to autotune the model.
+ * for PID_EXTRUSION_SCALING and PID_FAN_SCALING. Enable MPC_AUTOTUNE and use M306 T to
+ * autotune the model.
  * @section mpctemp
  */
 #if ENABLED(MPCTEMP)
