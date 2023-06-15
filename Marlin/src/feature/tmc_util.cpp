@@ -562,7 +562,7 @@
   };
 
   template<class TMC>
-  static void print_vsense(TMC &st) { SERIAL_ECHOF(st.vsense() ? F("1=.18") : F("0=.325")); }
+  static void print_vsense(TMC &st) { SERIAL_ECHO(st.vsense() ? F("1=.18") : F("0=.325")); }
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
@@ -680,7 +680,7 @@
       case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
-      case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
+      case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
       case TMC_IRUN:
         SERIAL_ECHO(st.irun());
         SERIAL_ECHOPGM("/31");
@@ -728,12 +728,12 @@
         case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
         case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
-        case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
+        case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
         case TMC_IRUN:
           SERIAL_ECHO(st.cs());
           SERIAL_ECHOPGM("/31");
           break;
-        case TMC_VSENSE: SERIAL_ECHOF(st.vsense() ? F("1=.165") : F("0=.310")); break;
+        case TMC_VSENSE: SERIAL_ECHO(st.vsense() ? F("1=.165") : F("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
         //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
         //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
@@ -1228,7 +1228,7 @@ static bool test_connection(TMC &st) {
     case 1: stat = F("HIGH"); break;
     case 2: stat = F("LOW"); break;
   }
-  SERIAL_ECHOLNF(stat);
+  SERIAL_ECHOLN(stat);
 
   return test_result;
 }
