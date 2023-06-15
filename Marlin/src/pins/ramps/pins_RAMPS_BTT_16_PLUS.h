@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Arduino Mega with RAMPS BTT v1.6+   Schematic https://github.com/bigtreetech/ramps-1.6/blob/master/Ramps1.6/hardware/R6%2B-SCH.pdf
+ * Arduino Mega with RAMPS BTT v1.6+
+ * Schematic: https://github.com/bigtreetech/ramps-1.6/blob/master/Ramps1.6/hardware/R6%2B-SCH.pdf
  *
  * Differences from RAMPS v1.4:
  *  - SPI Stepper drivers use AVR hardware SPI pins
