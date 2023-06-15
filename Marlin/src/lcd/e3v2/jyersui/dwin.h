@@ -148,7 +148,7 @@ enum colorID : uint8_t {
 #define Confirm_Color       0x34B9
 #define Cancel_Color        0x3186
 
-class CrealityDWINClass {
+class CrealityDWIN {
 public:
   static constexpr size_t eeprom_data_size = 48;
   static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
@@ -173,76 +173,76 @@ public:
   static constexpr const char * const color_names[11] = { "Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black" };
   static constexpr const char * const preheat_modes[3] = { "Both", "Hotend", "Bed" };
 
-  static void Clear_Screen(const uint8_t e=3);
-  static void Draw_Float(const_float_t value, const uint8_t row, const bool selected=false, const uint8_t minunit=10);
-  static void Draw_Option(const uint8_t value, const char * const * options, const uint8_t row, const bool selected=false, const bool color=false);
-  static uint16_t GetColor(const uint8_t color, const uint16_t original, const bool light=false);
-  static void Draw_Checkbox(const uint8_t row, const bool value);
-  static void Draw_Title(const char * const title);
-  static void Draw_Title(FSTR_P const title);
-  static void Draw_Menu_Item(const uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, const bool more=false, const bool centered=false);
-  static void Draw_Menu_Item(const uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, const bool more=false, const bool centered=false);
-  static void Draw_Menu(const uint8_t menu, const uint8_t select=0, const uint8_t scroll=0);
-  static void Redraw_Menu(const bool lastproc=true, const bool lastsel=false, const bool lastmenu=false);
-  static void Redraw_Screen();
+  static void clearScreen(const uint8_t e=3);
+  static void drawFloat(const_float_t value, const uint8_t row, const bool selected=false, const uint8_t minunit=10);
+  static void drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected=false, const bool color=false);
+  static uint16_t getColor(const uint8_t color, const uint16_t original, const bool light=false);
+  static void drawCheckbox(const uint8_t row, const bool value);
+  static void drawTitle(const char * const title);
+  static void drawTitle(FSTR_P const title);
+  static void drawMenuItem(const uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, const bool more=false, const bool centered=false);
+  static void drawMenuItem(const uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, const bool more=false, const bool centered=false);
+  static void drawMenu(const uint8_t menu, const uint8_t select=0, const uint8_t scroll=0);
+  static void redrawMenu(const bool lastproc=true, const bool lastsel=false, const bool lastmenu=false);
+  static void redrawScreen();
 
-  static void Main_Menu_Icons();
-  static void Draw_Main_Menu(uint8_t select=0);
-  static void Print_Screen_Icons();
-  static void Draw_Print_Screen();
-  static void Draw_Print_Filename(const bool reset=false);
-  static void Draw_Print_ProgressBar();
+  static void mainMenuIcons();
+  static void drawMainMenu(uint8_t select=0);
+  static void printScreenIcons();
+  static void drawPrintScreen();
+  static void drawPrintFilename(const bool reset=false);
+  static void drawPrintProgressBar();
   #if ENABLED(SET_REMAINING_TIME)
-    static void Draw_Print_ProgressRemain();
+    static void drawPrintProgressRemain();
   #endif
-  static void Draw_Print_ProgressElapsed();
-  static void Draw_Print_confirm();
-  static void Draw_SD_Item(const uint8_t item, const uint8_t row);
-  static void Draw_SD_List(const bool removed=false);
-  static void Draw_Status_Area(const bool icons=false);
-  static void Draw_Popup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon=0);
-  static void Popup_Select();
-  static void Update_Status_Bar(const bool refresh=false);
+  static void drawPrintProgressElapsed();
+  static void drawPrintConfirm();
+  static void drawSDItem(const uint8_t item, const uint8_t row);
+  static void drawSDList(const bool removed=false);
+  static void drawStatusArea(const bool icons=false);
+  static void drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon=0);
+  static void popupSelect();
+  static void updateStatusBar(const bool refresh=false);
 
   #if HAS_MESH
-    static void Set_Mesh_Viewer_Status();
+    static void setMeshViewerStatus();
   #endif
 
-  static FSTR_P Get_Menu_Title(const uint8_t menu);
-  static uint8_t Get_Menu_Size(const uint8_t menu);
-  static void Menu_Item_Handler(const uint8_t menu, const uint8_t item, bool draw=true);
+  static FSTR_P getMenuTitle(const uint8_t menu);
+  static uint8_t getMenuSize(const uint8_t menu);
+  static void menuItemHandler(const uint8_t menu, const uint8_t item, bool draw=true);
 
-  static void Popup_Handler(const PopupID popupid, bool option=false);
-  static void Confirm_Handler(const PopupID popupid);
+  static void popupHandler(const PopupID popupid, bool option=false);
+  static void confirmHandler(const PopupID popupid);
 
-  static void Main_Menu_Control();
-  static void Menu_Control();
-  static void Value_Control();
-  static void Option_Control();
-  static void File_Control();
-  static void Print_Screen_Control();
-  static void Popup_Control();
-  static void Confirm_Control();
+  static void mainMenuControl();
+  static void menuControl();
+  static void valueControl();
+  static void optionControl();
+  static void fileControl();
+  static void printScreenControl();
+  static void popupControl();
+  static void confirmControl();
 
-  static void Setup_Value(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type);
-  static void Modify_Value(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Value(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Value(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Value(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Value(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Value(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void Modify_Option(const uint8_t value, const char * const * options, const uint8_t max);
+  static void setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type);
+  static void modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void modifyOption(const uint8_t value, const char * const * options, const uint8_t max);
 
-  static void Update_Status(const char * const text);
-  static void Start_Print(const bool sd);
-  static void Stop_Print();
-  static void Update();
-  static void State_Update();
-  static void Screen_Update();
-  static void AudioFeedback(const bool success=true);
-  static void Save_Settings(char * const buff);
-  static void Load_Settings(const char * const buff);
-  static void Reset_Settings();
+  static void updateStatus(const char * const text);
+  static void startPrint(const bool sd);
+  static void stopPrint();
+  static void update();
+  static void stateUpdate();
+  static void screenUpdate();
+  static void audioFeedback(const bool success=true);
+  static void saveSettings(char * const buff);
+  static void loadSettings(const char * const buff);
+  static void resetSettings();
 };
 
-extern CrealityDWINClass CrealityDWIN;
+extern CrealityDWIN crealityDWIN;
