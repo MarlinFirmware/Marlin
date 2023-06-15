@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 2.8.12)
 
 #====================================================================#
 # Download marlin-cmake scriptfiles if not already installed         #
-# and add the path to the module path                                 #
+# and add the path to the module path                                #
 #====================================================================#
 
 set(SCRIPT_BRANCH 1.0.2) #Set to wanted marlin-cmake release tag or branch
