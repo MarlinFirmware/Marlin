@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.8.12)
 #    From Marlin/buildroot/share/cmake folder:                       #
 #        mkdir build && cd build                                     #
 #        cmake -G"Unix Makefiles" ..                                 #
-#        make						             #
+#        make                                                        #
 #====================================================================#
 
 #====================================================================#
