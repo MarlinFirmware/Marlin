@@ -1583,7 +1583,7 @@ void setup() {
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
-    SETUP_RUN(DWIN_InitScreen());
+    SETUP_RUN(dwinInitScreen());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
