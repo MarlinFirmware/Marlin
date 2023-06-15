@@ -41,6 +41,7 @@
 #include "../platforms.h"
 
 #ifdef HAL_STM32
+#ifdef STM32F746xx
 
 #include "../../inc/MarlinConfig.h"
 
@@ -48,8 +49,6 @@
 #include <stdint.h>
 #include "HAL.h"
 #include "../../core/serial.h"
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\STM32\PWM_PIN.cpp
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\core\serial.cpp
 
 uint32_t pinmap_function(PinName pin, const PinMap *map);
 
@@ -143,4 +142,5 @@ uint8_t digitalPinHasAvailablPWM(pin_t pin) {
   return false;
 }
 
+#endif  //STM32F746xx
 #endif  //HAL_STM32
