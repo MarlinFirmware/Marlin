@@ -613,14 +613,13 @@ void PrintJobRecovery::resume() {
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
   void PrintJobRecovery::debug(FSTR_P const prefix) {
-    DEBUG_ECHOF(prefix);
-    DEBUG_ECHOLNPGM(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
+    DEBUG_ECHOLN(prefix, F(" Job Recovery Info...\nvalid_head:"), info.valid_head, F(" valid_foot:"), info.valid_foot);
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
         LOOP_LOGICAL_AXES(i) {
           if (i) DEBUG_CHAR(',');
-          DEBUG_DECIMAL(info.current_position[i]);
+          DEBUG_ECHO(info.current_position[i]);
         }
         DEBUG_EOL();
 
@@ -638,7 +637,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOPGM("home_offset: ");
           LOOP_NUM_AXES(i) {
             if (i) DEBUG_CHAR(',');
-            DEBUG_DECIMAL(info.home_offset[i]);
+            DEBUG_ECHO(info.home_offset[i]);
           }
           DEBUG_EOL();
         #endif
@@ -647,7 +646,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOPGM("position_shift: ");
           LOOP_NUM_AXES(i) {
             if (i) DEBUG_CHAR(',');
-            DEBUG_DECIMAL(info.position_shift[i]);
+            DEBUG_ECHO(info.position_shift[i]);
           }
           DEBUG_EOL();
         #endif

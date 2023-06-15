@@ -133,7 +133,7 @@ void DWIN_String::add_character(const char character) {
   if (length < MAX_STRING_LENGTH) {
     data[length] = character;
     length++;
-    //span += glyph(character)->DWidth;
+    //span += glyph(character)->dWidth;
   }
 }
 
@@ -141,7 +141,7 @@ void DWIN_String::rtrim(const char character) {
   while (length) {
     if (data[length - 1] == 0x20 || data[length - 1] == character) {
       length--;
-      //span -= glyph(data[length])->DWidth;
+      //span -= glyph(data[length])->dWidth;
       eol();
     }
     else
@@ -152,7 +152,7 @@ void DWIN_String::rtrim(const char character) {
 void DWIN_String::ltrim(const char character) {
   uint16_t i, j;
   for (i = 0; (i < length) && (data[i] == 0x20 || data[i] == character); i++) {
-    //span -= glyph(data[i])->DWidth;
+    //span -= glyph(data[i])->dWidth;
   }
   if (i == 0) return;
   for (j = 0; i < length; data[j++] = data[i++]);

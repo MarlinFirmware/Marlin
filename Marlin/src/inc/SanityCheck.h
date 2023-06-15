@@ -375,7 +375,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if HAS_LCDPRINT && HAS_EXTRA_PROGRESS && LCD_HEIGHT < 4
-  #error "Displays with fewer than 4 rows of text can't show progress values."
+  #error "Displays with fewer than 4 rows can't show progress values (e.g., SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)."
 #endif
 
 #if !HAS_MARLINUI_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -1551,6 +1551,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if HAS_MESH && HAS_CLASSIC_JERK
   static_assert(DEFAULT_ZJERK > 0.1, "Low DEFAULT_ZJERK values are incompatible with mesh-based leveling.");
+#endif
+#if HAS_MESH && DGUS_LCD_UI_IA_CREALITY && GRID_MAX_POINTS > 25
+  #error "DGUS_LCD_UI IA_CREALITY requires a mesh with no more than 25 points as defined by GRID_MAX_POINTS_X/Y."
 #endif
 
 #if ENABLED(G26_MESH_VALIDATION)
@@ -3988,8 +3991,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 // Check requirements for upload.py
-#if ENABLED(XFER_BUILD) && !ALL(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
-  #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
+#if ENABLED(XFER_BUILD) && !ALL(SDSUPPORT, BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+  #error "SDSUPPORT, BINARY_FILE_TRANSFER, and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif
 
 /**
