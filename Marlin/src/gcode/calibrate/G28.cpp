@@ -236,7 +236,7 @@ void GcodeSuite::G28() {
     set_and_report_grblstate(M_HOMING);
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingStart());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -649,7 +649,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingDone());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();
