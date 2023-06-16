@@ -41,7 +41,7 @@
 #include "../platforms.h"
 
 #ifdef HAL_STM32
-#ifdef STM32F746xx
+#if defined(STM32G0B1xx) || defined(STM32H7xx) || defined(STM32F7xx)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -81,25 +81,62 @@ void PIN_NUM_TO_ASCII(pin_t pin, char *array) {
 
 void TIM_TO_ASCII(uint32_t* tim, uint8_t chan, char *array)  {
   uint8_t index;
+  uint32_t timer = (uint32_t)tim;
   array[0] = 'T';
   array[1] = 'I';
   array[2] = 'M';
-  uint32_t timer = (uint32_t)tim;
   switch (timer) {
-    case TIM1_BASE  : array[3] = '1' ; index = 4; break;
-    case TIM2_BASE  : array[3] = '2' ; index = 4; break;
-    case TIM3_BASE  : array[3] = '3' ; index = 4; break;
-    case TIM4_BASE  : array[3] = '4' ; index = 4; break;
-    case TIM5_BASE  : array[3] = '5' ; index = 4; break;
-    case TIM6_BASE  : array[3] = '6' ; index = 4; break;
-    case TIM7_BASE  : array[3] = '7' ; index = 4; break;
-    case TIM8_BASE  : array[3] = '8' ; index = 4; break;
-    case TIM9_BASE  : array[3] = '9' ; index = 4; break;
-    case TIM10_BASE : array[3] = '1' ; array[3] = '0' ; index = 5; break;
-    case TIM11_BASE : array[3] = '1' ; array[3] = '1' ; index = 5; break;
-    case TIM12_BASE : array[3] = '1' ; array[3] = '2' ; index = 5; break;
-    case TIM13_BASE : array[3] = '1' ; array[3] = '3' ; index = 5; break;//
-    case TIM14_BASE : array[3] = '1' ; array[3] = '4' ; index = 5; break;
+    #ifdef TIM1_BASE
+      case TIM1_BASE  : array[3] = '1' ; index = 4; break;
+    #endif
+    #ifdef TIM2_BASE
+      case TIM2_BASE  : array[3] = '2' ; index = 4; break;
+    #endif
+    #ifdef TIM3_BASE
+      case TIM3_BASE  : array[3] = '3' ; index = 4; break;
+    #endif
+    #ifdef TIM4_BASE
+      case TIM4_BASE  : array[3] = '4' ; index = 4; break;
+    #endif
+    #ifdef TIM5_BASE
+      case TIM5_BASE  : array[3] = '5' ; index = 4; break;
+    #endif
+    #ifdef TIM6_BASE
+      case TIM6_BASE  : array[3] = '6' ; index = 4; break;
+    #endif
+    #ifdef TIM7_BASE
+      case TIM7_BASE  : array[3] = '7' ; index = 4; break;
+    #endif
+    #ifdef TIM8_BASE
+      case TIM8_BASE  : array[3] = '8' ; index = 4; break;
+    #endif
+    #ifdef TIM9_BASE
+      case TIM9_BASE  : array[3] = '9' ; index = 4; break;
+    #endif
+    #ifdef TIM10_BASE
+      case TIM10_BASE : array[3] = '1' ; array[3] = '0' ; index = 5; break;
+    #endif
+    #ifdef TIM11_BASE
+      case TIM11_BASE : array[3] = '1' ; array[3] = '1' ; index = 5; break;
+    #endif
+    #ifdef TIM12_BASE
+      case TIM12_BASE : array[3] = '1' ; array[3] = '2' ; index = 5; break;
+    #endif
+    #ifdef TIM13_BASE
+      case TIM13_BASE : array[3] = '1' ; array[3] = '3' ; index = 5; break;
+    #endif
+    #ifdef TIM14_BASE
+      case TIM14_BASE : array[3] = '1' ; array[3] = '4' ; index = 5; break;
+    #endif
+    #ifdef TIM15_BASE
+      case TIM15_BASE : array[3] = '1' ; array[3] = '5' ; index = 5; break;
+    #endif
+    #ifdef TIM16_BASE
+      case TIM16_BASE : array[3] = '1' ; array[3] = '6' ; index = 5; break;
+    #endif
+    #ifdef TIM17_BASE
+      case TIM17_BASE : array[3] = '1' ; array[3] = '7' ; index = 5; break;
+    #endif
   }
   array[index] = '_';
   array[index+1] = chan + '0';
@@ -142,5 +179,5 @@ uint8_t digitalPinHasAvailablPWM(pin_t pin) {
   return false;
 }
 
-#endif  //STM32F746xx
+#endif  //STM32G0B1xx, STM32H7xx, STM32F7xx
 #endif  //HAL_STM32

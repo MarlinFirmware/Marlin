@@ -33,13 +33,6 @@
 
 extern GPIO_TypeDef * FastIOPortMap[];
 
-#if defined(STM32F746xx)
-  typedef int16_t pin_t;
-  uint8_t digitalPinHasAvailablPWM(pin_t pin);
-#endif
-
-
-
 // ------------------------
 // Public functions
 // ------------------------
@@ -50,6 +43,15 @@ void FastIO_init(); // Must be called before using fast io macros
 // ------------------------
 // Defines
 // ------------------------
+
+#if defined(STM32G0B1xx) || defined(STM32H7xx) || defined(STM32F7xx)
+  typedef int32_t pin_t;
+  uint8_t digitalPinHasAvailablPWM(pin_t pin);
+  #define PWM_PIN(P)              digitalPinHasAvailablPWM(P)
+#else
+  #define PWM_PIN(P)              digitalPinHasPWM(P)
+#endif
+
 
 #define _BV32(b) (1UL << (b))
 
@@ -90,11 +92,6 @@ void FastIO_init(); // Must be called before using fast io macros
 #define IS_INPUT(IO)
 #define IS_OUTPUT(IO)
 
-#if defined(STM32F746xx)
-  #define PWM_PIN(P)              digitalPinHasAvailablPWM(P)
-#else
-  #define PWM_PIN(P)              digitalPinHasPWM(P)
-#endif
 #define NO_COMPILE_TIME_PWM
 
 // digitalRead/Write wrappers
