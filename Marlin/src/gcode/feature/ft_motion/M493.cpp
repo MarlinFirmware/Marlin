@@ -74,28 +74,18 @@ void say_shaping() {
 
     #if HAS_X_AXIS
       SERIAL_ECHO_TERNARY(dynamic, "X/A ", "base dynamic", "static", " compensator frequency: ");
-      SERIAL_ECHO_F(fxdTiCtrl.cfg.baseFreq[X_AXIS], 2);
-      SERIAL_ECHOPGM("Hz");
+      SERIAL_ECHO(p_float_t(fxdTiCtrl.cfg.baseFreq[X_AXIS], 2), F("Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) {
-          SERIAL_ECHOPGM(" scaling: ");
-          SERIAL_ECHO_F(fxdTiCtrl.cfg.dynFreqK[X_AXIS], 8);
-          serial_ternary(F("Hz/"), z_based, F("mm"), F("g"));
-        }
+        if (dynamic) SERIAL_ECHO(" scaling: ", p_float_t(fxdTiCtrl.cfg.dynFreqK[X_AXIS], 8), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
 
     #if HAS_Y_AXIS
       SERIAL_ECHO_TERNARY(dynamic, "Y/B ", "base dynamic", "static", " compensator frequency: ");
-      SERIAL_ECHO_F(fxdTiCtrl.cfg.baseFreq[Y_AXIS], 2);
-      SERIAL_ECHOLNPGM(" Hz");
+      SERIAL_ECHO(p_float_t(fxdTiCtrl.cfg.baseFreq[Y_AXIS], 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) {
-          SERIAL_ECHOPGM(" scaling: ");
-          SERIAL_ECHO_F(fxdTiCtrl.cfg.dynFreqK[Y_AXIS], 8);
-          serial_ternary(F("Hz/"), z_based, F("mm"), F("g"));
-        }
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(fxdTiCtrl.cfg.dynFreqK[Y_AXIS], 8), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
@@ -103,10 +93,8 @@ void say_shaping() {
 
   #if HAS_EXTRUDERS
     SERIAL_ECHO_TERNARY(fxdTiCtrl.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-    SERIAL_ECHOPGM(". Gain: "); SERIAL_ECHO_F(fxdTiCtrl.cfg.linearAdvK, 5);
-    SERIAL_EOL();
+    SERIAL_ECHOLN(F(". Gain: "), p_float_t(fxdTiCtrl.cfg.linearAdvK, 5));
   #endif
-
 }
 
 void GcodeSuite::M493_report(const bool forReplay/*=true*/) {

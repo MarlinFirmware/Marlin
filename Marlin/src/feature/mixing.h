@@ -137,11 +137,11 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) tcolor[i] = mix[i] * scale;
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPGM("Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
-        SERIAL_ECHOPGM(" ] to Color [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]);
-        SERIAL_ECHOLNPGM(" ]");
+        SERIAL_ECHOLN(
+          F("Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]),
+          F(" ] to Color [ "), LIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]),
+          F(" ]")
+        );
       #endif
     }
 
@@ -151,11 +151,10 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot + 0.5f);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPGM("V-tool ", j, " [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]);
-        SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
-        SERIAL_ECHOLNPGM(" ]");
+        SERIAL_ECHOLN(F("V-tool "), j,
+          F(" [ "), LIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+        );
       #endif
     }
 
@@ -196,11 +195,10 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = (mixer_perc_t)CEIL(100.0f * gradient.color[i] / ctot);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPGM("Gradient [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]);
-        SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
-        SERIAL_ECHOLNPGM(" ]");
+        SERIAL_ECHOLN(
+          F("Gradient [ "), LIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+        );
       #endif
     }
 

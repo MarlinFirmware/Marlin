@@ -294,9 +294,7 @@ void GcodeSuite::M43() {
   // 'E' Enable or disable endstop monitoring and return
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
-    SERIAL_ECHOPGM("endstop monitor ");
-    SERIAL_ECHOF(endstops.monitor_flag ? F("en") : F("dis"));
-    SERIAL_ECHOLNPGM("abled");
+    SERIAL_ECHOLN(F("endstop monitor "), endstops.monitor_flag ? F("en") : F("dis"), F("abled"));
     return;
   }
 

@@ -307,7 +307,7 @@
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #ifdef TFT_CLASSIC_UI
+  #if ENABLED(TFT_CLASSIC_UI)
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow

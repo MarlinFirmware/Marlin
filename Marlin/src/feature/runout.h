@@ -303,7 +303,7 @@ class FilamentSensorBase {
             static uint8_t was_out; // = 0
             if (out != TEST(was_out, s)) {
               TBI(was_out, s);
-              SERIAL_ECHOLNF(F("Filament Sensor "), AS_DIGIT(s), out ? F(" OUT") : F(" IN"));
+              SERIAL_ECHOLN(F("Filament Sensor "), AS_DIGIT(s), out ? F(" OUT") : F(" IN"));
             }
           #endif
         }
@@ -369,10 +369,10 @@ class FilamentSensorBase {
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
             for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i)
-              SERIAL_ECHOF(i ? F(", ") : F("Runout remaining mm: "), mm_countdown.runout[i]);
+              SERIAL_ECHO(i ? F(", ") : F("Runout remaining mm: "), mm_countdown.runout[i]);
             #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
               for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i)
-                SERIAL_ECHOF(i ? F(", ") : F("Motion remaining mm: "), mm_countdown.motion[i]);
+                SERIAL_ECHO(i ? F(", ") : F("Motion remaining mm: "), mm_countdown.motion[i]);
             #endif
             SERIAL_EOL();
           }
