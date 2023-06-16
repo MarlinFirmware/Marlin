@@ -112,7 +112,7 @@ static duration_t _PrintRemainingDurationEstimate() {
     remainingDuration = duration_t(3600);
 
     if (progressPercentage >= 2)
-      remainingDuration = ExtUI::getProgress_seconds_elapsed() * (100.0 / progressPercentage);
+      remainingDuration = ExtUI::getProgress_seconds_elapsed() * ((100.0 / (float)progressPercentage) - 1.0);
   }
 
   return remainingDuration;
