@@ -45,13 +45,11 @@ void FastIO_init(); // Must be called before using fast io macros
 // ------------------------
 
 #if defined(STM32G0B1xx) || defined(STM32H7xx) || defined(STM32F7xx)
-  typedef int32_t pin_t;
-  uint8_t digitalPinHasAvailablPWM(pin_t pin);
-  #define PWM_PIN(P)              digitalPinHasAvailablPWM(P)
+  bool digitalPinHasAvailablePWM(const int32_t pin);
+  #define PWM_PIN(P) digitalPinHasAvailablePWM(P)
 #else
-  #define PWM_PIN(P)              digitalPinHasPWM(P)
+  #define PWM_PIN(P) digitalPinHasPWM(P)
 #endif
-
 
 #define _BV32(b) (1UL << (b))
 
@@ -61,8 +59,8 @@ void FastIO_init(); // Must be called before using fast io macros
 
 #if defined(STM32F0xx) || defined(STM32F1xx) || defined(STM32F3xx) || defined(STM32L0xx) || defined(STM32L4xx)
   #define _WRITE(IO, V) do { \
-    if (V) FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BSRR = _BV32(STM_PIN(digitalPinToPinName(IO))) ; \
-    else   FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BRR  = _BV32(STM_PIN(digitalPinToPinName(IO))) ; \
+    if (V) FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BSRR = _BV32(STM_PIN(digitalPinToPinName(IO))); \
+    else   FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BRR  = _BV32(STM_PIN(digitalPinToPinName(IO))); \
   }while(0)
 #else
   #define _WRITE(IO, V) (FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BSRR = _BV32(STM_PIN(digitalPinToPinName(IO)) + ((V) ? 0 : 16)))

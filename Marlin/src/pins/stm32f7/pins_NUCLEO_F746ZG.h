@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -61,7 +61,7 @@
 #define TEMP_TIMER 14
 
 /**
- * These pin assignments are arbitrary and intending for testing purposes.
+ * These pin assignments are arbitrary and intended for testing purposes.
  * Assignments may not be ideal, and not every assignment has been tested.
  * Proceed at your own risk.
  *                                                            _CN7_
@@ -169,106 +169,87 @@
 #define SERVO0_PIN                          PB4   // PWM Capable, TIM3_CH1
 #define SERVO1_PIN                          PB5   // PWM Capable, TIM3_CH2
 
-//SD card
-
+//
+// SD card
+//
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN                       PG2
-
+  #define SD_DETECT_PIN                     PG2
 
   // SDIO for SD Card
   //#define ONBOARD_SDIO
-  #ifdef ONBOARD_SDIO
-    #define SDIO_CLOCK                          4800000
-    #define SDIO__MAX_CLOCK                     118
-    #define SDIO_READ_RETRIES                   16
-    #define SDIO_D0_PIN                         PC8
-    //#define SDIO_D1_PIN                         PC9
-    //#define SDIO_D2_PIN                         PC10
-    //#define SDIO_D3_PIN                         PC11
-    #define SDIO_CK_PIN                         PC12
-    #define SDIO_CMD_PIN                        PD2
-  #else  // SPI
-    #define SD_MOSI_PIN                         PA7
-    #define MOSI                                SD_MOSI_PIN
-    #define SD_MISO_PIN                         PA6
-    #define MISO                                SD_MISO_PIN
-    #define SD_SCK_PIN                          PA5
-    #define SCK                                 SD_SCK_PIN
-    #define SDSS                                PD14
+  #if ENABLED(ONBOARD_SDIO)
+    #define SDIO_CLOCK                   4800000
+    #define SDIO__MAX_CLOCK                  118
+    #define SDIO_READ_RETRIES                 16
+    #define SDIO_D0_PIN                     PC8
+    //#define SDIO_D1_PIN                   PC9
+    //#define SDIO_D2_PIN                   PC10
+    //#define SDIO_D3_PIN                   PC11
+    #define SDIO_CK_PIN                     PC12
+    #define SDIO_CMD_PIN                    PD2
+  #else                                           // SPI
+    #define SD_MOSI_PIN                     PA7
+    #define MOSI                     SD_MOSI_PIN
+    #define SD_MISO_PIN                     PA6
+    #define MISO                     SD_MISO_PIN
+    #define SD_SCK_PIN                      PA5
+    #define SCK                       SD_SCK_PIN
+    #define SDSS                            PD14
   #endif
 #endif
 
-
-
-#define LD1_PIN                          PB0  // green
-#define LD2_PIN                          PB7  // blue
-#define LD3_PIN                          PB14  // red
+#define LD1_PIN                             PB0   // green
+#define LD2_PIN                             PB7   // blue
+#define LD3_PIN                             PB14  // red
 #ifndef LED_BLUE
-  #define LED_BLUE                         LD2_PIN   // already defined in JSON for nucleo_F746ZG
+  #define LED_BLUE                       LD2_PIN  // already defined in JSON for nucleo_F746ZG
 #endif
-#define LED_PIN                          LED_BLUE
-
-
-
-
-//
-// LCD / Controller
-//
-
-// Sections of CN9 & CN10 can be used as EXP1 & EXP2.
-//
-// Use a pair of 2x5 male-male headers to interface between
-// CN9 & CN10 and the standard 10 pin cables.
-//
-// Conductor 10 on the EXP1 cable will need to be modified to provide +5V.
-// Cut conductor 10 loose from the cable near the CN10 end and add an
-// adapter/jumper so you can plug into +5V.
+#define LED_PIN                         LED_BLUE
 
 /**
+ * Sections of CN9 & CN10 can be used as EXP1 & EXP2.
  *
- *    CN10  EXP1  CN10
- *         ______
- * PC2  9  |1  2| 10  PE13
- * PF4 11  |3  4| 12  PF15
- * PB6 13  |5  6| 14  PG14
- * PB2 15  |7  8| 16  PG9
- * GND 17  |9 10| 18  5V    * -  custom cable needed - 5V pin must be split out
- *         ￣￣￣￣
+ * Use a pair of 2x5 male-male headers to interface between
+ * CN9 & CN10 and the standard 10 pin cables.
  *
- *     CN9  EXP2  CN9
- *         ______
- * PA7 15  |1  2| 16  PE4
- * PF2 17  |3  4| 18  PE5
- * PF1 19  |5  6| 20  PE6
- * PF0 21  |7  8| 22  PE3
- * GND 23  |9 10| 24  PF8
- *         ￣￣￣￣
+ * Conductor 10 on the EXP1 cable will need to be modified to provide +5V.
+ * Cut conductor 10 loose from the cable near the CN10 end and add an
+ * adapter/jumper so you can plug into +5V.
  */
 
-#define EXP1_01_PIN                          PC2
-#define EXP1_02_PIN                          PE13
-#define EXP1_03_PIN                          PF4
-#define EXP1_04_PIN                          PF15
-#define EXP1_05_PIN                          PB6
-#define EXP1_06_PIN                          PG14
-#define EXP1_07_PIN                          PB2
-#define EXP1_08_PIN                          PG9
-//#define EXP1_09_PIN                        GND
-//#define EXP1_10_PIN                        +5V
+/**
+ *          ----                              ----
+ * PC2  9  |1  2| 10  PE13           PA7 15  |1  2| 16  PE4
+ * PF4 11  |3  4| 12  PF15           PF2 17  |3  4| 18  PE5
+ * PB6 13  |5  6| 14  PG14           PF1 19  |5  6| 20  PE6
+ * PB2 15  |7  8| 16  PG9            PF0 21  |7  8| 22  PE3
+ * GND 17  |9 10| 18  5V *           GND 23  |9 10| 24  PF8
+ *          ----         |                    ----
+ *    CN10  EXP1  CN10   |               CN9  EXP2  CN9
+ *                       |
+ *                       -- custom cable needed - 5V pin must be split out
+ */
 
-#define EXP2_01_PIN                          PA7
-#define EXP2_02_PIN                          PE4
-#define EXP2_03_PIN                          PF2
-#define EXP2_04_PIN                          PE5
-#define EXP2_05_PIN                          PF1
-#define EXP2_06_PIN                          PE6
-#define EXP2_07_PIN                          PF0
-#define EXP2_08_PIN                          PE3
-//#define EXP2_09_PIN                        GND
-//#define EXP2_10_PIN                        PF8
+#define EXP1_01_PIN                         PC2
+#define EXP1_02_PIN                         PE13
+#define EXP1_03_PIN                         PF4
+#define EXP1_04_PIN                         PF15
+#define EXP1_05_PIN                         PB6
+#define EXP1_06_PIN                         PG14
+#define EXP1_07_PIN                         PB2
+#define EXP1_08_PIN                         PG9
+
+#define EXP2_01_PIN                         PA7
+#define EXP2_02_PIN                         PE4
+#define EXP2_03_PIN                         PF2
+#define EXP2_04_PIN                         PE5
+#define EXP2_05_PIN                         PF1
+#define EXP2_06_PIN                         PE6
+#define EXP2_07_PIN                         PF0
+#define EXP2_08_PIN                         PE3
 
 //
-// MicroSD card
+// SD Card
 //
 
 #if SD_CONNECTION_IS(LCD)
@@ -281,14 +262,20 @@
   //#define SOFTWARE_SPI                            // Use soft SPI for LCD's SD
 #endif
 
-
+//
+// LCD / Controller
+//
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! NUCLEO_F746ZG requires wiring modifications. See 'pins_NUCLEO_F746ZG.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
-#endif
 
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+#endif
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN
@@ -378,29 +365,18 @@
       #define LCD_PINS_D7            EXP1_08_PIN
     #endif
 
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             600
-
   #endif // !MKS_MINI_12864
 
 #endif // HAS_WIRED_LCD
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-  #define BTN_ENC                    EXP1_02_PIN
+#if HAS_MARLINUI_U8GLIB
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               600
 #endif
 
-
-
-// init ITCM ram or else callbacks don't register correctly
+// Init ITCM RAM or else callbacks don't register correctly
 #define BOARD_PREINIT() do { \
-                           uint32_t *i; \
-              i = 0; \
-              for (uint32_t count = 0; count < 0x0fff; count++) { \
-                *(i + count) = 0;\
-                } \
-              }while(0)
-
+  uint32_t *i = 0x00000000; \
+  for (uint32_t count = 0; count < 0x0FFF; count++) i[count] = 0; \
+}while(0)

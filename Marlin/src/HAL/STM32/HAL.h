@@ -122,22 +122,18 @@
 #ifndef analogInputToDigitalPin
   #ifdef STM32F746xx
 
-    int16_t analogInputToDigitalPin(int16_t Ard_num) {
-      if (WITHIN(Ard_num, 0, 7))
-        return Ard_num;
-      if (WITHIN(Ard_num, 8, 9))
-        return Ard_num + 8;
-      if (WITHIN(Ard_num, 11, 12))
-        return Ard_num + 22;
-      if (WITHIN(Ard_num, 13, 23))
-        return Ard_num + 67;
+    int16_t analogInputToDigitalPin(const int16_t Ard_num) {
+      if (WITHIN(Ard_num, 0, 7))    return Ard_num;        // Pins  0 -  7
+      if (WITHIN(Ard_num, 8, 9))    return Ard_num + 8;    // Pins 16 - 17
+      if (WITHIN(Ard_num, 11, 12))  return Ard_num + 22;   // Pins 33 - 34
+      if (WITHIN(Ard_num, 13, 23))  return Ard_num + 67;   // Pins 80 - 90
       return -1;
     }
 
   #else
-  /**
- * TODO: review this to return 1 for pins that are not analog input
- */
+    /**
+     * TODO: Revise this to return -1 for pins that are not Analog Input
+     */
     #define analogInputToDigitalPin(p) (p)
   #endif
 #endif

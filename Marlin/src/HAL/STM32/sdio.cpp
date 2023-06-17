@@ -69,7 +69,7 @@ SD_HandleTypeDef hsd = {0};  // SDIO structure
 
 static uint32_t clock_to_divider(uint32_t clk) {
   #ifdef SDIO__MAX_CLOCK
-	  return SDIO__MAX_CLOCK;
+    return SDIO__MAX_CLOCK;
   #endif
   #ifdef SDIO_FOR_STM32H7
     // SDMMC_CK frequency = sdmmc_ker_ck / [2 * CLKDIV].
@@ -91,7 +91,7 @@ static uint32_t clock_to_divider(uint32_t clk) {
 // Start the SDIO clock
 void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   UNUSED(hsd);
-  #if (defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7))
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
     pinmap_pinout(PC_12, PinMap_SD);
     pinmap_pinout(PD_2,  PinMap_SD);
     pinmap_pinout(PC_8,  PinMap_SD);
@@ -107,7 +107,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   #endif
 }
 
-#if (defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7))
+#if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
 
   #define SD_TIMEOUT              1000 // ms
 
@@ -189,7 +189,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     return (sd_state == HAL_OK);
   }
 
- #else // !SDIO_FOR_STM32H7 or F7
+#else // !SDIO_FOR_STM32H7 or F7
 
   #define SD_TIMEOUT               500 // ms
 
@@ -213,18 +213,18 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
   extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
-  /*
-    SDIO_INIT_CLK_DIV is 118
-    SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
-    SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
-
-    Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
-    Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
-    This might be too fast for stable SDIO operations
-
-    MKS Robin SDIO seems stable with BusWide 1bit and ClockDiv 8 (i.e., 4.8MHz SDIO clock frequency)
-    More testing is required as there are clearly some 4bit init problems.
-  */
+  /**
+   * SDIO_INIT_CLK_DIV is 118
+   * SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
+   * SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
+   *
+   * Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
+   * Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
+   * This might be too fast for stable SDIO operations
+   *
+   * MKS Robin SDIO seems stable with BusWide 1bit and ClockDiv 8 (i.e., 4.8MHz SDIO clock frequency)
+   * More testing is required as there are clearly some 4bit init problems.
+   */
 
   void go_to_transfer_speed() {
     /* Default SDIO peripheral configuration for SD card initialization */
@@ -431,7 +431,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
  */
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 
-  #if (defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7))
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
     uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
     while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
@@ -474,7 +474,7 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
 
-  #if (defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7))
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
 
     uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
