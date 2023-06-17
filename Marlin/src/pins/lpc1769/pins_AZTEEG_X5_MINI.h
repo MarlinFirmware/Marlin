@@ -23,6 +23,10 @@
 
 /**
  * Azteeg X5 MINI pin assignments
+ * Schematic (V1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V1/X5%20Mini%20PUB%20v1.0.pdf
+ * Schematic (V2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V2/X5%20Mini%20V2%20SCH%20Pub.pdf
+ * Schematic (V3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V3/X5%20Mini%20V3%20SCH%20Pub.pdf
+ * Origin: http://files.panucatt.com/datasheets/x5mini_design_files.zip
  */
 #include "env_validate.h"
 
@@ -100,8 +104,8 @@
 //
 #define HEATER_BED_PIN                     P2_07
 #define HEATER_0_PIN                       P2_05
-#ifndef FAN_PIN
-  #define FAN_PIN                          P0_26
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P0_26
 #endif
 #define FAN1_PIN                           P1_25
 
@@ -124,7 +128,7 @@
     #define BTN_ENC                        P3_25  // J3-4 & AUX-4
 
     #define LCD_PINS_RS                    P0_15  // J3-9 & AUX-4 (CS)
-    #define LCD_PINS_ENABLE                P0_18  // J3-10 & AUX-3 (SID, MOSI)
+    #define LCD_PINS_EN                    P0_18  // J3-10 & AUX-3 (SID, MOSI)
     #define LCD_PINS_D4                    P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
   #else
@@ -138,7 +142,7 @@
     #define LCD_PINS_RS                    P0_16  // (16) J3-7 & AUX-4
     #define LCD_SDSS                       P0_16  // (16) J3-7 & AUX-4
     #define LCD_BACKLIGHT_PIN              P0_16  // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
+    #define LCD_PINS_EN                    P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
 
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
@@ -154,7 +158,7 @@
       //#define SHIFT_EN_PIN               P1_22  // (41)  J5-4 & AUX-4
     #endif
 
-    #if EITHER(VIKI2, miniVIKI)
+    #if ANY(VIKI2, miniVIKI)
       #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
       #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
       #define DOGLCD_SCK              SD_SCK_PIN

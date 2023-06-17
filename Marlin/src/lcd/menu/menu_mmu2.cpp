@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_MARLINUI_MENU, MMU2_MENUS)
+#if ALL(HAS_MARLINUI_MENU, MMU2_MENUS)
 
 #include "../../MarlinCore.h"
 #include "../../feature/mmu/mmu2.h"
@@ -33,22 +33,21 @@
 // Load Filament
 //
 
-inline void action_mmu2_load_filament_to_nozzle(const uint8_t tool) {
-  ui.reset_status();
+inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  if (mmu2.load_filament_to_nozzle(tool)) ui.reset_status();
-  ui.return_to_status();
+  if (mmu2.load_to_nozzle(tool)) ui.reset_status();
 }
 
-void _mmu2_load_filament(uint8_t index) {
+void _mmu2_load_to_feeder(const uint8_t index) {
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
-  mmu2.load_filament(index);
+  mmu2.load_to_feeder(index);
   ui.reset_status();
 }
+
 void action_mmu2_load_all() {
-  EXTRUDER_LOOP() _mmu2_load_filament(e);
+  EXTRUDER_LOOP() _mmu2_load_to_feeder(e);
   ui.return_to_status();
 }
 
@@ -56,14 +55,14 @@ void menu_mmu2_load_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
   ACTION_ITEM(MSG_MMU2_ALL, action_mmu2_load_all);
-  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_load_filament(MenuItemBase::itemIndex); });
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_load_to_feeder(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
 void menu_mmu2_load_to_nozzle() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ action_mmu2_load_filament_to_nozzle(MenuItemBase::itemIndex); });
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ action_mmu2_load_to_nozzle(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
@@ -104,7 +103,7 @@ void action_mmu2_reset() {
 
 void menu_mmu2() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
   SUBMENU(MSG_MMU2_LOAD_FILAMENT, menu_mmu2_load_filament);
   SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_load_to_nozzle);
   SUBMENU(MSG_MMU2_EJECT_FILAMENT, menu_mmu2_eject_filament);
@@ -117,7 +116,7 @@ void menu_mmu2() {
 // T* Choose Filament
 //
 
-uint8_t feeder_index;
+int8_t feeder_index;
 bool wait_for_mmu_menu;
 
 inline void action_mmu2_chosen(const uint8_t index) {
@@ -144,10 +143,10 @@ void menu_mmu2_pause() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
-  ACTION_ITEM(MSG_MMU2_RESUME, []{ wait_for_mmu_menu = false; });
+  ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
   ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-  ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{ mmu2.load_filament(feeder_index); });
-  ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE, []{ mmu2.load_filament_to_nozzle(feeder_index); });
+  ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
+  ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
   END_MENU();
 }
 

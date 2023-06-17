@@ -23,6 +23,10 @@
 
 /**
  * Einsy-Retro pin assignments
+ * Schematic (1.0b): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Retro/Schematic%20Prints_EinsyRetro_1.0b.PDF
+ * Origin (1.0b): https://github.com/ultimachine/EinsyRetro/blob/master/board/Project%20Outputs/Schematic%20Prints_EinsyRetro_1.0b.PDF
+ * Schematic (1.0c): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Retro/Schematic%20Prints_EinsyRetro_1.0c.PDF
+ * Origin (1.0c): https://github.com/ultimachine/EinsyRetro/blob/master/board/Project%20Outputs/Schematic%20Prints_EinsyRetro_1.0c.PDF
  */
 
 #include "env_validate.h"
@@ -131,8 +135,8 @@
 #define HEATER_0_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             8
 #endif
 #define FAN1_PIN                               6
 
@@ -149,10 +153,12 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-// use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#if HAS_CUTTER
+  // Use P1 connector for spindle pins
+  #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
+  #define SPINDLE_DIR_PIN                     19
+#endif
 
 //
 // Průša i3 MK2 Multiplexer Support
@@ -174,13 +180,13 @@
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS                     85
-      #define LCD_PINS_ENABLE                 71
+      #define LCD_PINS_EN                     71
       #define LCD_PINS_D4                     70
       #define BTN_EN1                         18
       #define BTN_EN2                         19
     #else
       #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 18  // On 0.6b, use 61
+      #define LCD_PINS_EN                     18  // On 0.6b, use 61
       #define LCD_PINS_D4                     19  // On 0.6b, use 59
       #define LCD_PINS_D5                     70
       #define LCD_PINS_D6                     85

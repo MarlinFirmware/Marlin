@@ -23,20 +23,20 @@
 
 namespace DGUSSetupHandler {
 
-  #if ENABLED(SDSUPPORT)
-    bool Print();
+  #if HAS_MEDIA
+    bool print();
   #endif
-  bool PrintStatus();
-  bool PrintAdjust();
-  bool LevelingMenu();
-  bool LevelingOffset();
-  bool LevelingManual();
-  bool LevelingAutomatic();
-  bool LevelingProbing();
-  bool Filament();
-  bool Move();
-  bool Gcode();
-  bool PID();
-  bool Infos();
+  bool printStatus();
+  bool printAdjust();
+  bool levelingMenu();
+  bool levelingOffset();
+  bool levelingManual();
+  bool levelingAutomatic();
+  bool levelingProbing();
+  bool filament();
+  bool move();
+  bool gcode();
+  bool pid();
+  bool infos();
 
 }

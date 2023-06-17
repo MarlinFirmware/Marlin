@@ -152,7 +152,7 @@
 #define HEATER_BED_PIN                         7
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                                8
+#define FAN0_PIN                               8
 #define FAN1_PIN                               9
 #define FAN2_PIN                              30
 #define FAN3_PIN                              31
@@ -182,25 +182,25 @@
  *        5B    | .  . | 5V
  *               ------
  *
- *- Special mapping of EXP1 to EXP3 to work with Ender displays.
+ *- Special mapping of EXP1 to work with Ender displays.
  *
- *               Enable CR10_STOCKDISPLAY in Configuration.h and connect EXP1 to the display EXP3 with this mapping.
  *               ------
- *        VCC   | 1  2 | GND
- *        LCDDE | 3  4 | LCDRS
- *        LCDD4 | 5  6   BTN_EN2
- *        RESET | 7  8 | BTN_EN1
- *  BTN_ENCODER | 9 10 | BEEPER
+ *       BEEPER | 1  2 | ENC
+ *          EN1 | 3  4 | RESET
+ *          EN2   5  6 | LCD_D4
+ *       LCD_RS | 7  8 | LCD_EN
+ *          GND | 9 10 | 5V
  *               ------
+ *                EXP1
  *
  *- Digital pinout reference of the Bricolemon for advanced users/configurations.
  *
  *               ------                    ------
- *          VCC | 1  2 | GND          D49 | 1  2 | GND
- *          D39 | 3  4 | D38          RST | 3  4 | D44
- *          D37 | 5  6   D36          D51 | 5  6   D42
- *          D34 | 7  8 | D35          D53 | 7  8 | D43
- *          D40 | 9 10 | D41          D52 | 9 10 | D50
+ *          D41 | 1  2 | D40          D50 | 1  2 | D52
+ *          D35 | 3  4 | D34          D43 | 3  4 | D53
+ *          D36   5  6 | D37          D42   5  6 | D51
+ *          D38 | 7  8 | D39          D44 | 7  8 | RST
+ *          GND | 9 10 | VCC          GND | 9 10 | D49
  *               ------                    ------
  *                EXP1                      EXP2
  *
@@ -255,10 +255,10 @@
  * This sections starts with the pins_RAMPS_144.h as example, after if you need any new
  * display, you could use normal duponts and connect it with with the scheme showed before.
  * Tested:
- *   - Ender 3 Old display (Character LCD)
- *   - Ender 3 New Serial DWING Display
+ *   - Ender-3 Old display (Character LCD)
+ *   - Ender-3 New Serial DWING Display
  *   - Reprap Display
- *   - Ender 5 New Serial Display
+ *   - Ender-5 New Serial Display
  *   - Any Reprap character display like
  */
 
@@ -288,14 +288,14 @@
 
     // TO TEST
     //#define LCD_PINS_RS            EXP2_10_PIN  // CS chip select /SS chip slave select
-    //#define LCD_PINS_ENABLE        EXP2_06_PIN  // SID (MOSI)
+    //#define LCD_PINS_EN            EXP2_06_PIN  // SID (MOSI)
     //#define LCD_PINS_D4            EXP2_02_PIN  // SCK (CLK) clock
 
-  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
+  #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS            EXP1_02_PIN
-    //#define LCD_PINS_ENABLE        EXP2_05_PIN
+    //#define LCD_PINS_EN            EXP2_05_PIN
     //#define LCD_PINS_D4                     57  // Mega/Due:65 - AGCM4:57
     //#define LCD_PINS_D5                     58  // Mega/Due:66 - AGCM4:58
     //#define LCD_PINS_D6            EXP2_07_PIN
@@ -307,7 +307,7 @@
 
       // TO TEST
       #define LCD_PINS_RS            EXP3_04_PIN
-      #define LCD_PINS_ENABLE        EXP3_03_PIN
+      #define LCD_PINS_EN            EXP3_03_PIN
       #define LCD_PINS_D4            EXP3_05_PIN
 
       #if !IS_NEWPANEL
@@ -319,7 +319,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   56  // Mega/Due:64 - AGCM4:56
-      //#define LCD_PINS_ENABLE      EXP2_07_PIN
+      //#define LCD_PINS_EN          EXP2_07_PIN
       //#define LCD_PINS_D4                   55  // Mega/Due:63 - AGCM4:55
       //#define LCD_PINS_D5          EXP1_02_PIN
       //#define LCD_PINS_D6          EXP2_05_PIN
@@ -327,7 +327,7 @@
 
     #else
 
-      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         // TO TEST
         //#define LCD_PINS_DC                 25  // Set as output on init
         //#define LCD_PINS_RS                 27  // Pull low for 1s to init
@@ -340,7 +340,7 @@
       #else
         // Definitions for any standard Display
         #define LCD_PINS_RS          EXP1_04_PIN
-        #define LCD_PINS_ENABLE      EXP1_03_PIN
+        #define LCD_PINS_EN          EXP1_03_PIN
         #define LCD_PINS_D4          EXP1_05_PIN
         #define LCD_PINS_D5          EXP1_06_PIN
         #define LCD_PINS_D6          EXP1_07_PIN
@@ -424,7 +424,7 @@
       //#define LCD_SDSS                    SDSS
       //#define SD_DETECT_PIN        EXP2_10_PIN
 
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       // TO TEST
       //#define DOGLCD_CS                     45
@@ -459,7 +459,7 @@
       //#define SD_DETECT_PIN        EXP2_10_PIN
       //#define KILL_PIN             EXP1_01_PIN
 
-    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
+    #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
       // TO TEST
       //#define BEEPER_PIN           EXP1_06_PIN
@@ -504,7 +504,7 @@
 
         //#define LCD_RESET_PIN               23  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             // TO TEST
             //#define RGB_LED_R_PIN           25

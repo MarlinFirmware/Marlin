@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
 #if ENABLED(ALLOW_MEGA644)
   #if NOT_TARGET(__AVR_ATmega644__, __AVR_ATmega644P__, __AVR_ATmega1284P__)
@@ -40,3 +41,5 @@
 #undef ALLOW_MEGA644
 #undef ALLOW_MEGA644P
 #undef REQUIRE_MEGA644P
+
+#endif

@@ -41,7 +41,7 @@ namespace Language_eu {
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
-  LSTR MSG_MAIN                           = _UxGT("Menu nagusia");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu nagusia");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto hasiera");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Itzali motoreak");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Arazketa Menua");
@@ -194,7 +194,7 @@ namespace Language_eu {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Kargatu memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Larri. berriz.");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM-a hasieratu");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Berriz kargatu");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantaila info");
   LSTR MSG_PREPARE                        = _UxGT("Prestatu");
   LSTR MSG_TUNE                           = _UxGT("Doitu");

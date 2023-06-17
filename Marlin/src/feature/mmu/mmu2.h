@@ -47,13 +47,12 @@ public:
   static void mmu_loop();
   static void tool_change(const uint8_t index);
   static void tool_change(const char *special);
-  static uint8_t get_current_tool();
+  static int8_t get_current_tool();
   static void set_filament_type(const uint8_t index, const uint8_t type);
 
   static bool unload();
-  static void load_filament(uint8_t);
-  static void load_all();
-  static bool load_filament_to_nozzle(const uint8_t index);
+  static void load_to_feeder(const uint8_t index);
+  static bool load_to_nozzle(const uint8_t index);
   static bool eject_filament(const uint8_t index, const bool recover);
 
 private:
@@ -71,8 +70,9 @@ private:
   static bool get_response();
   static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
-  static void load_to_nozzle();
   static void execute_extruder_sequence(const E_Step * sequence, int steps);
+  static void ramming_sequence();
+  static void load_to_nozzle_sequence();
 
   static void filament_runout();
 
@@ -96,7 +96,7 @@ private:
   static int8_t state;
   static volatile int8_t finda;
   static volatile bool finda_runout_valid;
-  static int16_t version, buildnr;
+  static uint16_t version, buildnr;
   static millis_t prev_request, prev_P0_request;
   static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 

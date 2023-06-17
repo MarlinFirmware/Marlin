@@ -49,7 +49,7 @@ namespace Language_fr {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
@@ -331,7 +331,7 @@ namespace Language_fr {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Config. enregistrée");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("MaJ Firmware SD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("RaZ imprimante");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Actualiser");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Actualiser");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Surveiller");
   LSTR MSG_PREPARE                        = _UxGT("Préparer");
   LSTR MSG_TUNE                           = _UxGT("Régler");
@@ -353,7 +353,7 @@ namespace Language_fr {
   LSTR MSG_STOP_PRINT                     = _UxGT("Arrêter impr.");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Impression objet");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Annuler objet");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Récup. coup.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Impression SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Pas de média");
@@ -443,9 +443,6 @@ namespace Language_fr {
 
   LSTR MSG_HALTED                         = _UxGT("IMPR. STOPPÉE");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Redémarrer SVP");
-  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
   LSTR MSG_HEATING                        = _UxGT("en chauffe...");
   LSTR MSG_COOLING                        = _UxGT("Refroidissement");
@@ -543,7 +540,7 @@ namespace Language_fr {
   LSTR MSG_MMU2_RESETTING                 = _UxGT("Réinit. MMU...");
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retrait, click");
 
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante {");
   LSTR MSG_MIXER                          = _UxGT("Mixeur");
   LSTR MSG_GRADIENT                       = _UxGT("Dégradé");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Dégradé complet");
@@ -631,4 +628,31 @@ namespace Language_fr {
 
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
+  LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
+  LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
+  LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
+  LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
+  LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");
+  LSTR DGUS_MSG_PID_AUTOTUNING            = _UxGT("Autocalibrage du PID...");
+  LSTR DGUS_MSG_INVALID_RECOVERY_DATA     = _UxGT("Donnees de recuperation non valides");
+
+  LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
+  LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
+  LSTR DGUS_MSG_HOMING                    = _UxGT("Retour a l'origine...");
+  LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Mise a jour DWIN GUI/OS necessaire");
+  LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Nivellement du bed necessaire");
+  LSTR DGUS_MSG_PROBING_FAILED            = _UxGT("Echec du nivellement...");
+  LSTR DGUS_MSG_PROBING_SUCCESS           = _UxGT("Nivellement realise avec succes");
+  LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reinitialisation de l'EEPROM");
+  LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Echec ecriture de l'EEPROM");
+  LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E%d");
+
+  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 }

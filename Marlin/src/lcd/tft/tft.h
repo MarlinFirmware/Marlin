@@ -69,9 +69,9 @@ class TFT {
     static void add_glyphs(const uint8_t *Font) { string.add_glyphs(Font); }
 
     static bool is_busy() { return io.isBusy(); }
-    static void abort() { io.Abort(); }
-    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultipleDMA(Data, Count); }
-    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequenceDMA(Data, Count); }
+    static void abort() { io.abort(); }
+    static void write_multiple(uint16_t data, uint16_t count) { io.WriteMultipleDMA(data, count); }
+    static void write_sequence(uint16_t *data, uint16_t count) { io.writeSequenceDMA(data, count); }
     static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }
