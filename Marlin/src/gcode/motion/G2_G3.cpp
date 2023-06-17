@@ -269,7 +269,7 @@ void plan_arc(
     // d) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
     // The last has to be calculated every time through the loop.
     const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
-                limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
+                limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_feedrate_mm_s[axis_q]),
                 limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius, sq(scaled_fr_mm_s));
     float arc_mm_remaining = flat_mm;
 
