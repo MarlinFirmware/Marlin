@@ -1427,7 +1427,7 @@ void DWIN_LevelingStart() {
   #endif
 }
 
-void DWIN_LevelingDone() {
+void dwinLevelingDone() {
   TERN_(HAS_MESH, Goto_MeshViewer());
 }
 

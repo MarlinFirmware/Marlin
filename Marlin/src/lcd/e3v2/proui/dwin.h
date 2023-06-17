@@ -269,7 +269,7 @@ void dwinHomingDone();
   void DWIN_MeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
 void DWIN_LevelingStart();
-void DWIN_LevelingDone();
+void dwinLevelingDone();
 void DWIN_Print_Started();
 void DWIN_Print_Pause();
 void DWIN_Print_Resume();
