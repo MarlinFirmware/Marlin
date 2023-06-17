@@ -23,6 +23,8 @@
 
 /**
  * Cohesion3D ReMix pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20ReMix/C3D%20ReMix%20rev2.svg
+ * Origin: https://github.com/Cohesion3D/Cohesion3D-ReMix/blob/master/C3D%20ReMix%20rev2.sch
  */
 
 #include "env_validate.h"
@@ -87,16 +89,14 @@
 //
 // Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P1_16  // Ethernet Expansion - Pin 5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P1_17  // Ethernet Expansion - Pin 6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P1_08  // Ethernet Expansion - Pin 7
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P1_16  // Ethernet Expansion - Pin 5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P1_17  // Ethernet Expansion - Pin 6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P1_08  // Ethernet Expansion - Pin 7
 #endif
 
 //
@@ -119,8 +119,8 @@
 #define HEATER_0_PIN                       P2_07  // FET 1
 #define HEATER_1_PIN                       P1_23  // FET 2
 #define HEATER_2_PIN                       P1_22  // FET 3
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_06  // FET 4
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_06  // FET 4
 #endif
 
 //
@@ -152,9 +152,9 @@
 #if HAS_CUTTER
   #undef HEATER_0_PIN
   #undef HEATER_BED_PIN
-  #undef FAN_PIN
-  #define SPINDLE_LASER_ENA_PIN            P2_07  // FET 1
+  #undef FAN0_PIN
   #define SPINDLE_LASER_PWM_PIN            P2_05  // Bed FET
+  #define SPINDLE_LASER_ENA_PIN            P2_07  // FET 1
   #define SPINDLE_DIR_PIN                  P2_06  // FET 4
 #endif
 
@@ -190,7 +190,7 @@
   // A custom EXP1 cable is required colored LEDs. Pins 1-5, 9, 10 of the cable go to pins 1-5, 9, 10
   // on the board's EXP1 connector. Pins 6, 7, and 8 of the EXP1 cable go to the Ethernet connector.
   // Rev 1.2 displays do NOT require the RGB LEDs. 2.0 and 2.1 displays do require RGB.
-  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+  #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #ifndef RGB_LED_R_PIN
       #define RGB_LED_R_PIN                P1_16  // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
     #endif
@@ -215,7 +215,7 @@
 
   #define LCD_PINS_RS                      P0_16  // EXP1-4
   #define LCD_SDSS                         P0_28  // EXP2-4
-  #define LCD_PINS_ENABLE                  P0_18  // EXP1-3
+  #define LCD_PINS_EN                      P0_18  // EXP1-3
   #define LCD_PINS_D4                      P0_15  // EXP1-5
 
   #define KILL_PIN                         P2_11  // EXP2-10

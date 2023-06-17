@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "lv_conf.h"
 #include "draw_ui.h"

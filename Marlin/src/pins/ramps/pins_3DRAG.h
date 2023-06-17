@@ -23,6 +23,10 @@
 
 /**
  * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
+ * This may be compatible with the standalone Controller variant.
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/3DRAG%20+%20Controller/Schema_base.jpg
+ * Origin: https://reprap.org/wiki/File:Schema_base.jpg
+ * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME
@@ -113,7 +117,7 @@
     #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
     #define SPINDLE_DIR_PIN                   48
-  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
+  #elif !ALL(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
     #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   17
     #if !NUM_SERVOS                               // Use servo connector if possible
@@ -132,7 +136,7 @@
 
   // TODO: Remap EXP1/2 based on adapter
   #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     29
+  #define LCD_PINS_EN                         29
   #define LCD_PINS_D4                         37
   #define LCD_PINS_D5                         35
   #define LCD_PINS_D6                         33

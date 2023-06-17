@@ -23,6 +23,7 @@
 
 /**
  * Melzi pin assignments
+ * ATmega644P, ATmega1284P
  */
 
 #define BOARD_INFO_NAME "Melzi (Tronxy)"
@@ -31,9 +32,9 @@
 
 #define LCD_SDSS                              -1
 
-#if EITHER(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+#if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
   #define LCD_PINS_RS                         30
-  #define LCD_PINS_ENABLE                     28
+  #define LCD_PINS_EN                         28
   #define LCD_PINS_D4                         16
   #define LCD_PINS_D5                         17
   #define LCD_PINS_D6                         27

@@ -41,19 +41,27 @@
   #include "../feature/fancheck.h"
 #endif
 
-#ifndef SOFT_PWM_SCALE
-  #define SOFT_PWM_SCALE 0
-#endif
-
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
+#if HAS_FAN
+  #if NUM_REDUNDANT_FANS
+    #define FAN_IS_REDUNDANT(Q) WITHIN(Q, REDUNDANT_PART_COOLING_FAN, REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS - 1)
+  #else
+    #define FAN_IS_REDUNDANT(Q) false
+  #endif
+  #define FAN_IS_M106ABLE(Q) (HAS_FAN##Q && !FAN_IS_REDUNDANT(Q))
+#else
+  #define FAN_IS_M106ABLE(Q) false
+#endif
+
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
-typedef enum : int8_t {
+typedef enum : int_fast8_t {
   H_REDUNDANT = HID_REDUNDANT,
   H_COOLER = HID_COOLER,
   H_PROBE = HID_PROBE,
   H_BOARD = HID_BOARD,
+  H_SOC = HID_SOC,
   H_CHAMBER = HID_CHAMBER,
   H_BED = HID_BED,
   H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7,
@@ -82,6 +90,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_BOARD
     PrepareTemp_BOARD, MeasureTemp_BOARD,
+  #endif
+  #if HAS_TEMP_ADC_SOC
+    PrepareTemp_SOC, MeasureTemp_SOC,
   #endif
   #if HAS_TEMP_ADC_REDUNDANT
     PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
@@ -150,7 +161,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #if HAS_PID_HEATING
 
-  #define PID_K2 (1-float(PID_K1))
+  #define PID_K2 (1.0f - float(PID_K1))
   #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
 
   // Apply the scale factors to the PID values
@@ -231,7 +242,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   };
 
-#endif
+#endif // HAS_PID_HEATING
 
 #if ENABLED(PIDTEMP)
 
@@ -262,7 +273,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       base::reset();
       prev_e_pos = 0;
       lpq_ptr = 0;
-      LOOP_L_N(i, LPQ_ARR_SZ) lpq[i] = 0;
+      for (uint8_t i = 0; i < LPQ_ARR_SZ; ++i) lpq[i] = 0;
     }
 
     float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
@@ -358,7 +369,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   };
 
   typedef
-    #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
+    #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
       PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
       PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
@@ -377,7 +388,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #elif ENABLED(MPCTEMP)
 
-  typedef struct {
+  typedef struct MPC {
+    static bool e_paused;               // Pause E filament permm tracking
+    static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
@@ -396,7 +409,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #endif
 
-#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+#if ENABLED(G26_MESH_VALIDATION) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -472,11 +485,14 @@ struct PIDHeaterInfo : public HeaterInfo {
 #if HAS_TEMP_PROBE
   typedef temp_info_t probe_info_t;
 #endif
-#if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
+#if ANY(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
 #endif
 #if HAS_TEMP_BOARD
   typedef temp_info_t board_info_t;
+#endif
+#if HAS_TEMP_SOC
+  typedef temp_info_t soc_info_t;
 #endif
 
 // Heater watch handling
@@ -605,11 +621,14 @@ class Temperature {
     #if HAS_TEMP_BOARD
       static board_info_t temp_board;
     #endif
+    #if HAS_TEMP_SOC
+      static soc_info_t temp_soc;
+    #endif
     #if HAS_TEMP_REDUNDANT
       static redundant_info_t temp_redundant;
     #endif
 
-    #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
+    #if ANY(AUTO_POWER_E_FANS, HAS_FANCHECK)
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -624,11 +643,11 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
       static uint8_t soft_pwm_controller_speed;
     #endif
 
-    #if BOTH(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
+    #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
       static bool allow_cold_extrude_override;
       static void set_menu_cold_override(const bool allow) { allow_cold_extrude_override = allow; }
     #else
@@ -652,7 +671,7 @@ class Temperature {
     static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
-    #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+    #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
       #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
         static celsius_t singlenozzle_temp[EXTRUDERS];
       #endif
@@ -716,40 +735,44 @@ class Temperature {
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
 
-    #if ENABLED(MPCTEMP)
-      static int32_t mpc_e_position;
-    #endif
-
     #if HAS_HOTEND
       static temp_range_t temp_range[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
-      #if ENABLED(WATCH_BED)
+      #if WATCH_BED
         static bed_watch_t watch_bed;
       #endif
-      IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
+      #if DISABLED(PIDTEMPBED)
+        static millis_t next_bed_check_ms;
+      #endif
       static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
-      #if ENABLED(WATCH_CHAMBER)
+      #if WATCH_CHAMBER
         static chamber_watch_t watch_chamber;
       #endif
-      TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
+      #if DISABLED(PIDTEMPCHAMBER)
+        static millis_t next_chamber_check_ms;
+      #endif
       static raw_adc_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
-      #if ENABLED(WATCH_COOLER)
+      #if WATCH_COOLER
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
+    #if ALL(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+    #endif
+
+    #if ALL(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
+      static raw_adc_t maxtemp_raw_SOC;
     #endif
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
@@ -844,6 +867,9 @@ class Temperature {
     #if HAS_TEMP_BOARD
       static celsius_float_t analog_to_celsius_board(const raw_adc_t raw);
     #endif
+    #if HAS_TEMP_SOC
+      static celsius_float_t analog_to_celsius_soc(const raw_adc_t raw);
+    #endif
     #if HAS_TEMP_REDUNDANT
       static celsius_float_t analog_to_celsius_redundant(const raw_adc_t raw);
     #endif
@@ -851,7 +877,7 @@ class Temperature {
     #if HAS_FAN
 
       static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
+      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
 
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 
@@ -859,7 +885,7 @@ class Temperature {
         static void report_fan_speed(const uint8_t fan);
       #endif
 
-      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
         static uint8_t saved_fan_speed[FAN_COUNT];
       #endif
@@ -887,7 +913,7 @@ class Temperature {
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
 
-      #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif
 
@@ -1117,6 +1143,14 @@ class Temperature {
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
+    #if HAS_TEMP_SOC
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
+      #endif
+      static celsius_float_t degSoc()    { return temp_soc.celsius; }
+      static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
+    #endif
+
     #if HAS_TEMP_REDUNDANT
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
@@ -1192,11 +1226,68 @@ class Temperature {
         }
       #endif
 
-    #endif
+    #endif // HAS_PID_HEATING
 
-    #if ENABLED(MPCTEMP)
-      void MPC_autotune(const uint8_t e);
-    #endif
+    #if ENABLED(MPC_AUTOTUNE)
+
+      // Utility class to perform MPCTEMP auto tuning measurements
+      class MPC_autotuner {
+        public:
+          enum MeasurementState { CANCELLED, FAILED, SUCCESS };
+          MPC_autotuner(const uint8_t extruderIdx);
+          ~MPC_autotuner();
+          MeasurementState measure_ambient_temp();
+          MeasurementState measure_heatup();
+          MeasurementState measure_transfer();
+
+          celsius_float_t get_ambient_temp() { return ambient_temp; }
+          celsius_float_t get_last_measured_temp() { return current_temp; }
+
+          float get_elapsed_heating_time() { return elapsed_heating_time; }
+          float get_sample_1_time() { return t1_time; }
+          static float get_sample_1_temp() { return temp_samples[0]; }
+          static float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
+          static float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
+          static float get_sample_interval() { return sample_distance * (sample_count >> 1); }
+
+          static celsius_float_t get_temp_fastest() { return temp_fastest; }
+          float get_time_fastest() { return time_fastest; }
+          float get_rate_fastest() { return rate_fastest; }
+
+          float get_power_fan0() { return power_fan0; }
+          #if HAS_FAN
+            static float get_power_fan255() { return power_fan255; }
+          #endif
+
+        protected:
+          static void init_timers() { curr_time_ms = next_report_ms = millis(); }
+          MeasurementState housekeeping();
+
+          uint8_t e;
+
+          float elapsed_heating_time;
+          celsius_float_t ambient_temp, current_temp;
+          float t1_time;
+
+          static millis_t curr_time_ms, next_report_ms;
+          static celsius_float_t temp_samples[16];
+          static uint8_t sample_count;
+          static uint16_t sample_distance;
+
+          // Parameters from differential analysis
+          static celsius_float_t temp_fastest;
+          float time_fastest, rate_fastest;
+
+          float power_fan0;
+          #if HAS_FAN
+            static float power_fan255;
+          #endif
+      };
+
+      enum MPCTuningType { AUTO, FORCE_ASYMPTOTIC, FORCE_DIFFERENTIAL };
+      static void MPC_autotune(const uint8_t e, MPCTuningType tuning_type);
+
+    #endif // MPC_AUTOTUNE
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
@@ -1317,12 +1408,12 @@ class Temperature {
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
-        float running_temp;
+        celsius_float_t running_temp;
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
-        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

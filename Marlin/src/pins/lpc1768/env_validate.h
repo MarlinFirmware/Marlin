@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
 #if ENABLED(REQUIRE_LPC1769) && NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
@@ -28,3 +29,5 @@
 #endif
 
 #undef REQUIRE_LPC1769
+
+#endif

@@ -95,7 +95,7 @@ extern "C" {
 
 // Timer Definitions
 #define TIMER_TONE              TIM2  // TIMER_TONE must be defined in this file
-#define TIMER_SERVO             TIM5  // TIMER_SERVO must be defined in this file
+#define TIMER_SERVO             TIM3  // TIMER_SERVO must be defined in this file
 #define TIMER_SERIAL            TIM11 // TIMER_SERIAL must be defined in this file
 
 // UART Definitions
@@ -121,6 +121,7 @@ extern "C" {
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
  *----------------------------------------------------------------------------*/

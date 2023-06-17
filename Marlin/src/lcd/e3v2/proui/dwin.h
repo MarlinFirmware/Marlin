@@ -33,9 +33,10 @@
 #include "dwin_defines.h"
 #include "dwinui.h"
 #include "../common/encoder.h"
+#include "../common/limits.h"
 #include "../../../libs/BL24CXX.h"
 
-#if EITHER(BABYSTEPPING, HAS_BED_PROBE)
+#if ANY(BABYSTEPPING, HAS_BED_PROBE)
   #define HAS_ZOFFSET_ITEM 1
   #if !HAS_BED_PROBE
     #define JUST_BABYSTEP 1
@@ -74,7 +75,7 @@ enum processID : uint8_t {
   NothingToDo
 };
 
-#if EITHER(DWIN_PID_TUNE, MPCTEMP)
+#if ANY(DWIN_PID_TUNE, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
     #if DWIN_PID_TUNE
@@ -85,7 +86,7 @@ enum processID : uint8_t {
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
     #endif
-    #if ENABLED(MPCTEMP)
+    #if ENABLED(MPC_AUTOTUNE)
       MPC_DONE,
       MPCTEMP_START,
       MPC_TEMP_ERROR,
@@ -141,10 +142,10 @@ typedef struct {
 
   bool FullManualTramming = false;
   bool MediaAutoMount = ENABLED(HAS_SD_EXTENDER);
-  #if BOTH(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t z_after_homing = DEF_Z_AFTER_HOMING;
   #endif
-  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+  #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
   #endif
 } HMI_data_t;
@@ -174,13 +175,13 @@ typedef struct {
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
-extern HMI_flag_t HMI_flag;
+extern HMI_flag_t hmiFlag;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
 
 // Popups
 #if HAS_HOTEND || HAS_HEATED_BED
-  void DWIN_Popup_Temperature(const bool toohigh);
+  void dwinPopupTemperature(const bool toohigh);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   void Popup_PowerLossRecovery();
@@ -224,12 +225,11 @@ void ParkHead();
 #if HAS_ONESTEP_LEVELING
   void Trammingwizard();
 #endif
-#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+#if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   void ApplyLEDColor();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void UBLMeshTilt();
-  bool UBLValidMesh();
   void UBLMeshSave();
   void UBLMeshLoad();
 #endif
@@ -260,11 +260,11 @@ void HMI_SaveProcessID(const uint8_t id);
 void HMI_SDCardUpdate();
 void EachMomentUpdate();
 void update_variable();
-void DWIN_InitScreen();
+void dwinInitScreen();
 void DWIN_HandleScreen();
 void DWIN_CheckStatusMessage();
-void DWIN_HomingStart();
-void DWIN_HomingDone();
+void dwinHomingStart();
+void dwinHomingDone();
 #if HAS_MESH
   void DWIN_MeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
@@ -333,7 +333,7 @@ void Draw_FilSet_Menu();
 void Draw_PhySet_Menu();
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
-#if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+#if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
   void Draw_CaseLight_Menu();
 #endif
 #if ENABLED(LED_CONTROL_MENU)
@@ -354,7 +354,7 @@ void Draw_MaxAccel_Menu();
   void Draw_MaxJerk_Menu();
 #endif
 void Draw_Steps_Menu();
-#if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+#if ANY(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
@@ -384,7 +384,9 @@ void Draw_Steps_Menu();
 #endif
 
 // MPC
-#if ENABLED(MPCTEMP)
-  void DWIN_MPCTuning(tempcontrol_t result);
+#if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
   void Draw_HotendMPC_Menu();
+#endif
+#if ENABLED(MPC_AUTOTUNE)
+  void DWIN_MPCTuning(tempcontrol_t result);
 #endif

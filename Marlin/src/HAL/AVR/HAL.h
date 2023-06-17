@@ -140,7 +140,7 @@ typedef Servo hal_servo_t;
   #endif
   #define LCD_SERIAL lcdSerial
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
   #endif
 #endif
 

@@ -71,7 +71,7 @@ void GcodeSuite::G61() {
   if (!TEST(saved_slots[slot >> 3], slot & 0x07)) return;
 
   // Apply any given feedrate over 0.0
-  feedRate_t saved_feedrate = feedrate_mm_s;
+  REMEMBER(saved, feedrate_mm_s);
   const float fr = parser.linearval('F');
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
@@ -87,8 +87,7 @@ void GcodeSuite::G61() {
         destination[i] = parser.seen(AXIS_CHAR(i))
           ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
           : current_position[i];
-        DEBUG_CHAR(' ', AXIS_CHAR(i));
-        DEBUG_ECHO_F(destination[i]);
+        DEBUG_ECHO(AS_CHAR(' '), AS_CHAR(AXIS_CHAR(i)), p_float_t(destination[i], 2));
       }
       DEBUG_EOL();
       // Move to the saved position
@@ -101,8 +100,6 @@ void GcodeSuite::G61() {
       }
     #endif
   }
-
-  feedrate_mm_s = saved_feedrate;
 }
 
 #endif // SAVED_POSITIONS

@@ -23,6 +23,9 @@
 
 /**
  * bq ZUM Mega 3D board definition
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/bq%20ZUM%20Mega%203D/Zum%20Mega%203D.PDF
+ * Origin: https://github.com/bq/zum/blob/master/zum-mega3d/Zum%20Mega%203D.PDF
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -92,9 +95,11 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN                 40  // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN                 44  // Hardware PWM
-#define SPINDLE_DIR_PIN                       42
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN               44  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               40  // Pullup or pulldown!
+  #define SPINDLE_DIR_PIN                     42
+#endif
 
 //
 // Misc. Functions
@@ -118,9 +123,10 @@
 #include "pins_RAMPS_13.h" // ... RAMPS
 
 //
-// Used by the Hephestos 2 heated bed upgrade kit
+// Hephestos 2 heated bed upgrade kit uses pin 8
 //
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef HEATER_BED_PIN
   #define HEATER_BED_PIN                       8
+  #define HEATER_BED_INVERTING              true
 #endif

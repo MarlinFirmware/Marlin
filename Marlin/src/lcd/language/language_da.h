@@ -39,7 +39,7 @@ namespace Language_da {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" er klar");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kort isat");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kort fjernet");
-  LSTR MSG_MAIN                           = _UxGT("Menu");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Slå alle steppere fra");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home"); // G28
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Klik når du er klar");
@@ -92,9 +92,9 @@ namespace Language_da {
   LSTR MSG_FAN_SPEED                      = _UxGT("Blæser hastighed");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser hastighed ~");
   LSTR MSG_CONTROL                        = _UxGT("Kontrol");
-  LSTR MSG_MIN                            = _UxGT(" \002 Min");
-  LSTR MSG_MAX                            = _UxGT(" \002 Max");
-  LSTR MSG_FACTOR                         = _UxGT(" \002 Fact");
+  LSTR MSG_MIN                            = " " LCD_STR_THERMOMETER _UxGT(" Min");
+  LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
+  LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fact");
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Til");
   LSTR MSG_LCD_OFF                        = _UxGT("Fra");
@@ -111,7 +111,7 @@ namespace Language_da {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Gem i EEPROM");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Hent fra EEPROM");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Gendan Defaults");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Genopfrisk");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Genopfrisk");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info skærm");
   LSTR MSG_PREPARE                        = _UxGT("Forbered");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pause printet");
