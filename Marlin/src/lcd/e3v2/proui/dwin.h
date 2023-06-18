@@ -175,13 +175,13 @@ typedef struct {
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
-extern HMI_flag_t HMI_flag;
+extern HMI_flag_t hmiFlag;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
 
 // Popups
 #if HAS_HOTEND || HAS_HEATED_BED
-  void DWIN_Popup_Temperature(const bool toohigh);
+  void dwinPopupTemperature(const bool toohigh);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   void Popup_PowerLossRecovery();
@@ -260,11 +260,11 @@ void HMI_SaveProcessID(const uint8_t id);
 void HMI_SDCardUpdate();
 void EachMomentUpdate();
 void update_variable();
-void DWIN_InitScreen();
+void dwinInitScreen();
 void DWIN_HandleScreen();
 void DWIN_CheckStatusMessage();
-void DWIN_HomingStart();
-void DWIN_HomingDone();
+void dwinHomingStart();
+void dwinHomingDone();
 #if HAS_MESH
   void DWIN_MeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
