@@ -122,11 +122,14 @@
 #ifndef analogInputToDigitalPin
   #ifdef STM32F746xx
 
-    int16_t analogInputToDigitalPin(const int16_t Ard_num) {
-      if (WITHIN(Ard_num, 0, 7))    return Ard_num;        // Pins  0 -  7
-      if (WITHIN(Ard_num, 8, 9))    return Ard_num + 8;    // Pins 16 - 17
-      if (WITHIN(Ard_num, 11, 12))  return Ard_num + 22;   // Pins 33 - 34
-      if (WITHIN(Ard_num, 13, 23))  return Ard_num + 67;   // Pins 80 - 90
+    int16_t analogInputToDigitalPin(const int16_t ch) {
+      // V has 16 ADC channels ; Z, I, B, N have 24 ADC channels
+      if (WITHIN(ch, 0, 7))      return ch;       // A0  - A7   =>  Pins  0 -  7
+      if (WITHIN(ch, 8, 9))      return ch + 8;   // A8  - A9   =>  Pins 16 - 17
+      if (WITHIN(ch, 10, 15))    return ch + 22;  // A10 - A15  =>  Pins 33 - 37
+      #ifndef STM32F746Vx
+        if (WITHIN(ch, 16, 23))  return ch + 67;  // A16 - A23  =>  Pins 83 - 90
+      #endif
       return -1;
     }
 
