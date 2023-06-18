@@ -24,60 +24,60 @@ set(SCRIPT_BRANCH 1.0.2) #Set to wanted marlin-cmake release tag or branch
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
 
-	file(DOWNLOAD https://github.com/tohara/marlin-cmake/archive/${SCRIPT_BRANCH}.tar.gz
-	${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz SHOW_PROGRESS)
+  file(DOWNLOAD https://github.com/tohara/marlin-cmake/archive/${SCRIPT_BRANCH}.tar.gz
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz SHOW_PROGRESS)
 
-	execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvf ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvf ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-	file(RENAME ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-${SCRIPT_BRANCH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
-	file(REMOVE ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz)
+  file(RENAME ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-${SCRIPT_BRANCH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake)
+  file(REMOVE ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake-src.tar.gz)
 
 endif()
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/Arduino_SDK.cmake)
-    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/modules/Arduino_SDK.cmake
-				  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/Arduino_SDK.cmake SHOW_PROGRESS)
+  file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/modules/Arduino_SDK.cmake
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/Arduino_SDK.cmake SHOW_PROGRESS)
 endif()
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/marlin_cmake_functions.cmake)
-    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/modules/marlin_cmake_functions.cmake
-                  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/marlin_cmake_functions.cmake SHOW_PROGRESS)
+  file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/modules/marlin_cmake_functions.cmake
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules/marlin_cmake_functions.cmake SHOW_PROGRESS)
 endif()
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/Platform/Arduino.cmake)
-    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/Platform/Arduino.cmake
-                  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/Platform/Arduino.cmake SHOW_PROGRESS)
+  file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/Platform/Arduino.cmake
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/Platform/Arduino.cmake SHOW_PROGRESS)
 endif()
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/settings/marlin_boards.txt)
-    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/settings/marlin_boards.txt
-                  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/settings/marlin_boards.txt SHOW_PROGRESS)
+  file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/settings/marlin_boards.txt
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/settings/marlin_boards.txt SHOW_PROGRESS)
 endif()
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/toolchain/ArduinoToolchain.cmake)
-    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/toolchain/ArduinoToolchain.cmake
-                  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/toolchain/ArduinoToolchain.cmake SHOW_PROGRESS)
+  file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/toolchain/ArduinoToolchain.cmake
+                ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/toolchain/ArduinoToolchain.cmake SHOW_PROGRESS)
 endif()
 
 if(WIN32)
-	if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe)
-        file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/resources/make.exe
-                      ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe SHOW_PROGRESS)
-    endif()
+  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe)
+    file(DOWNLOAD https://raw.githubusercontent.com/tohara/marlin-cmake/master/resources/make.exe
+                  ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/resources/make.exe SHOW_PROGRESS)
+  endif()
 endif(WIN32)
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19)
 
-	file(DOWNLOAD https://downloads.arduino.cc/arduino-1.8.19-windows.zip
-	${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip SHOW_PROGRESS)
+  file(DOWNLOAD https://downloads.arduino.cc/arduino-1.8.19-windows.zip
+                ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip SHOW_PROGRESS)
 
-	execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvzf ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvzf ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-	file(REMOVE ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip)
+  file(REMOVE ${CMAKE_CURRENT_LIST_DIR}/arduino-1.8.19-windows.zip)
 
 endif()
 
-# Print CMake version 
+# Print CMake version
 message("-- Running CMake version: " ${CMAKE_VERSION})
 
 # Replace the CMake Ver. in the Arduino.cmake
@@ -125,7 +125,6 @@ project(Marlin C CXX)
 print_board_list()
 print_programmer_list()
 
-
 #====================================================================#
 #  Get motherboard settings from Configuration.h                     #
 #  setup_motherboard(TARGET Marlin_src_folder)                       #
@@ -151,9 +150,9 @@ set(${PROJECT_NAME}_SRCS "${SOURCES};../../../Marlin/Marlin.ino")
 #    cmake .. -DUPLOAD_PORT=/dev/ttyACM0                             #
 #====================================================================#
 if(UPLOAD_PORT)
-	set(${PROJECT_NAME}_PORT ${UPLOAD_PORT})
+  set(${PROJECT_NAME}_PORT ${UPLOAD_PORT})
 else()
-	set(${PROJECT_NAME}_PORT /dev/ttyACM0)
+  set(${PROJECT_NAME}_PORT /dev/ttyACM0)
 endif()
 
 #====================================================================#
