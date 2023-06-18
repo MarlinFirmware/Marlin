@@ -159,7 +159,7 @@
 // Z Probe PIN6 Header H3 (Print head connector)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     Z_MIN_PIN
+  #define Z_MIN_PROBE_PIN              Z_MIN_PIN
 #endif
 
 //
