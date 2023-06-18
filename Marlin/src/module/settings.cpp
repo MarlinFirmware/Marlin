@@ -535,7 +535,7 @@ typedef struct SettingsDataStruct {
   #if ENABLED(DWIN_LCD_PROUI)
     uint8_t dwin_data[eeprom_data_size];
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    uint8_t dwin_settings[CrealityDWIN.eeprom_data_size];
+    uint8_t dwin_settings[crealityDWIN.eeprom_data_size];
   #endif
 
   //

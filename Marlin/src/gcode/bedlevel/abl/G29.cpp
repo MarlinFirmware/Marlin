@@ -78,7 +78,7 @@ static void pre_g29_return(const bool retry, const bool did) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
   }
   if (did) {
-    TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone());
+    TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 }

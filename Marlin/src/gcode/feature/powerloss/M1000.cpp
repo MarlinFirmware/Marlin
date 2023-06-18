@@ -71,7 +71,7 @@ void GcodeSuite::M1000() {
       #elif HAS_DWIN_E3V2_BASIC
         recovery.dwin_flag = true;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
-        CrealityDWIN.Popup_Handler(Resume);
+        crealityDWIN.popupHandler(Resume);
       #elif ENABLED(EXTENSIBLE_UI)
         ExtUI::onPowerLossResume();
       #else

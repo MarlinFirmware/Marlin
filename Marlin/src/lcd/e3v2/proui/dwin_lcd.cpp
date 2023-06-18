@@ -44,20 +44,20 @@
 //  str: multi-bit data
 void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string) {
   size_t i = 0;
-  DWIN_Byte(i, 0x21);
-  DWIN_Word(i, x);
-  DWIN_Word(i, y);
-  DWIN_Byte(i, QR_Pixel);
-  DWIN_Text(i, string);
-  DWIN_Send(i);
+  dwinByte(i, 0x21);
+  dwinWord(i, x);
+  dwinWord(i, y);
+  dwinByte(i, QR_Pixel);
+  dwinText(i, string);
+  dwinSend(i);
 }
 
 // Draw an Icon with transparent background
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
-  DWIN_ICON_Show(false, false, true, libID, picID, x, y);
+void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+  dwinIconShow(false, false, true, libID, picID, x, y);
 }
 
 // Copy area from current virtual display area to current screen
@@ -66,14 +66,14 @@ void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
 //  x/y: Screen paste point
 void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
-  DWIN_Byte(i, 0x26);
-  DWIN_Word(i, xStart);
-  DWIN_Word(i, yStart);
-  DWIN_Word(i, xEnd);
-  DWIN_Word(i, yEnd);
-  DWIN_Word(i, x);
-  DWIN_Word(i, y);
-  DWIN_Send(i);
+  dwinByte(i, 0x26);
+  dwinWord(i, xStart);
+  dwinWord(i, yStart);
+  dwinWord(i, xEnd);
+  dwinWord(i, yEnd);
+  dwinWord(i, x);
+  dwinWord(i, y);
+  dwinSend(i);
 }
 
 // Copy area from virtual display area to current screen
@@ -86,15 +86,15 @@ void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16
 //  x/y: Screen paste point
 void DWIN_Frame_AreaCopy(bool IBD, bool BIR, bool BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
-  DWIN_Byte(i, 0x27);
-  DWIN_Byte(i, (IBD & 1) << 7 | (BIR & 1) << 6 | (BFI & 1) << 5 | cacheID);
-  DWIN_Word(i, xStart);
-  DWIN_Word(i, yStart);
-  DWIN_Word(i, xEnd);
-  DWIN_Word(i, yEnd);
-  DWIN_Word(i, x);
-  DWIN_Word(i, y);
-  DWIN_Send(i);
+  dwinByte(i, 0x27);
+  dwinByte(i, (IBD & 1) << 7 | (BIR & 1) << 6 | (BFI & 1) << 5 | cacheID);
+  dwinWord(i, xStart);
+  dwinWord(i, yStart);
+  dwinWord(i, xEnd);
+  dwinWord(i, yEnd);
+  dwinWord(i, x);
+  dwinWord(i, y);
+  dwinSend(i);
 }
 
 // Copy area from virtual display area to current screen with transparent background
@@ -122,13 +122,13 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
     indx = block * max_size;
     to_send = _MIN(pending, max_size);
     size_t i = 0;
-    DWIN_Byte(i, 0x31);
-    DWIN_Byte(i, mem);
-    DWIN_Word(i, addr + indx); // start address of the data block
+    dwinByte(i, 0x31);
+    dwinByte(i, mem);
+    dwinWord(i, addr + indx); // start address of the data block
     ++i;
-    for (uint8_t j = 0; j < i; ++j) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
+    for (uint8_t j = 0; j < i; ++j) { LCD_SERIAL.write(dwinSendBuf[j]); delayMicroseconds(1); }  // Buf header
     for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
-    for (uint8_t j = 0; j < 4; ++j) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
+    for (uint8_t j = 0; j < 4; ++j) { LCD_SERIAL.write(dwinBufTail[j]); delayMicroseconds(1); }
     block++;
     pending -= to_send;
   }
@@ -138,23 +138,23 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
 //  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
 void DWIN_SRAMToPic(uint8_t picID) {
   size_t i = 0;
-  DWIN_Byte(i, 0x33);
-  DWIN_Byte(i, 0x5A);
-  DWIN_Byte(i, 0xA5);
-  DWIN_Byte(i, picID);
-  DWIN_Send(i);
+  dwinByte(i, 0x33);
+  dwinByte(i, 0x5A);
+  dwinByte(i, 0xA5);
+  dwinByte(i, picID);
+  dwinSend(i);
 }
 
 //--------------------------Test area -------------------------
 
 //void DWIN_ReadSRAM(uint16_t addr, const uint8_t length, const char * const data) {
 //  size_t i = 0;
-//  DWIN_Byte(i, 0x32);
-//  DWIN_Byte(i, 0x5A);  // 0x5A Read from SRAM - 0xA5 Read from Flash
-//  DWIN_Word(i, addr);  // 0x0000 to 0x7FFF
+//  dwinByte(i, 0x32);
+//  dwinByte(i, 0x5A);  // 0x5A Read from SRAM - 0xA5 Read from Flash
+//  dwinWord(i, addr);  // 0x0000 to 0x7FFF
 //  const size_t len = _MIN(0xF0, length);
-//  DWIN_Byte(i, len);
-//  DWIN_Send(i);
+//  dwinByte(i, len);
+//  dwinSend(i);
 //}
 
 #endif // DWIN_LCD_PROUI
