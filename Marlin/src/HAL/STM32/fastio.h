@@ -45,6 +45,12 @@ void FastIO_init(); // Must be called before using fast io macros
 // ------------------------
 
 #if defined(STM32G0B1xx) || defined(STM32H7xx) || defined(STM32F7xx)
+  //#define PWM_ALLOCATION_TEST 1
+#else
+  #undef PWM_ALLOCATION_TEST
+#endif
+
+#if PWM_ALLOCATION_TEST
   bool digitalPinHasAvailablePWM(const int32_t pin);
   #define PWM_PIN(P) digitalPinHasAvailablePWM(P)
 #else

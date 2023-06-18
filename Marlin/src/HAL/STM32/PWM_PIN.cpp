@@ -40,15 +40,13 @@
 
 #include "../platforms.h"
 
-#ifdef HAL_STM32
-#if defined(STM32G0B1xx) || defined(STM32H7xx) || defined(STM32F7xx)
+#if defined(HAL_STM32)
 
 #include "../../inc/MarlinConfig.h"
 
+#if PWM_ALLOCATION_TEST
+
 #include "PinNames.h"
-#include <stdint.h>
-#include "HAL.h"
-#include "../../core/serial.h"
 
 uint32_t pinmap_function(PinName pin, const PinMap *map);
 
@@ -180,5 +178,5 @@ bool digitalPinHasAvailablePWM(const int32_t pin) {
   return false;
 }
 
-#endif // STM32G0B1xx, STM32H7xx, STM32F7xx
+#endif // PWM_ALLOCATION_TEST
 #endif // HAL_STM32
