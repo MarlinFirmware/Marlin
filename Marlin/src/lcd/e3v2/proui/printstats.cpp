@@ -82,7 +82,7 @@ void Goto_PrintStats() {
 // Print Stats Reset popup
 void Popup_ResetStats() { DWIN_Popup_ConfirmCancel(ICON_Info_0, GET_TEXT_F(MSG_RESET_STATS)); }
 void OnClick_ResetStats() {
-  if (HMI_flag.select_flag) PrintStatsClass::Reset();
+  if (hmiFlag.select_flag) PrintStatsClass::Reset();
   HMI_ReturnScreen();
 }
 void PrintStatsReset() { Goto_Popup(Popup_ResetStats, OnClick_ResetStats); }

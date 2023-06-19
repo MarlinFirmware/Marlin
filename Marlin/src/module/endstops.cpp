@@ -65,7 +65,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 
 #if ENABLED(BD_SENSOR)
   bool Endstops::bdp_state; // = false
-  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? bdp_state : READ(P))
+  #if HOMING_Z_WITH_PROBE
+    #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
+  #else
+    #define READ_ENDSTOP(P) READ(P)
+  #endif
 #else
   #define READ_ENDSTOP(P) READ(P)
 #endif
@@ -375,9 +379,8 @@ void Endstops::event_handler() {
   #endif
 
   static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-    if (flabel) SERIAL_ECHOF(flabel);
-    SERIAL_ECHOPGM(": ");
-    SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
+    if (flabel) SERIAL_ECHO(flabel);
+    SERIAL_ECHOLN(F(": "), is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
   }
 
   #pragma GCC diagnostic pop

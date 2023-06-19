@@ -2419,8 +2419,8 @@ bool Planner::_populate_block(
         xs2 = xs1; xs1 = xs0;
         ys2 = ys1; ys1 = ys0;
       }
-      xs0 = TEST(direction_change, X_AXIS) ? segment_time_us : xy_freq_min_interval_us;
-      ys0 = TEST(direction_change, Y_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+      xs0 = direction_change.x ? segment_time_us : xy_freq_min_interval_us;
+      ys0 = direction_change.y ? segment_time_us : xy_freq_min_interval_us;
 
       if (segment_time_us < xy_freq_min_interval_us) {
         const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));

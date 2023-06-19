@@ -147,8 +147,7 @@ void mesh_bed_leveling::reset() {
 void mesh_bed_leveling::report_mesh() {
   #define STR_MESH_SIZE STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh."
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_base_offset, 5);
-    SERIAL_ECHOLNPGM("\nMeasured points:");
+    SERIAL_ECHOLN(F(STR_MESH_SIZE " Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
   #else
     SERIAL_ECHOLNPGM(STR_MESH_SIZE "\nMeasured points:");
   #endif
