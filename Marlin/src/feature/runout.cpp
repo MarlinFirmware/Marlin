@@ -100,14 +100,19 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   const bool run_runout_script = !runout.host_handling;
+  
+  const bool park_or_pause = 
+    #ifdef FILAMENT_RUNOUT_SCRIPT
+      strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+      || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
+      || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
+    #else
+      false
+    #endif 
+    ;
 
   #if ENABLED(HOST_ACTION_COMMANDS)
-    if (run_runout_script
-      && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
-        || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-        || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
-      )
-    ) {
+    if (run_runout_script && park_or_pause) {
       hostui.paused(false);
     }
     else {
@@ -126,22 +131,24 @@ void event_filament_runout(const uint8_t extruder) {
     SERIAL_EOL();
   #endif // HOST_ACTION_COMMANDS
 
-  if (run_runout_script) {
-    #if MULTI_FILAMENT_SENSOR
-      char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
-      sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-        SERIAL_ECHOLNPGM("Runout Command: ", script);
+  #ifdef FILAMENT_RUNOUT_SCRIPT
+    if (run_runout_script) {
+      #if MULTI_FILAMENT_SENSOR
+        char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
+        sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+          SERIAL_ECHOLNPGM("Runout Command: ", script);
+        #endif
+        queue.inject(script);
+      #else
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+          SERIAL_ECHOPGM("Runout Command: ");
+          SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
+        #endif
+        queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
       #endif
-      queue.inject(script);
-    #else
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-        SERIAL_ECHOPGM("Runout Command: ");
-        SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
-      #endif
-      queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
-    #endif
-  }
+    }
+  #endif 
 }
 
 #endif // HAS_FILAMENT_SENSOR
