@@ -47,9 +47,9 @@ enum {
 
 static void drawCross(uint16_t x, uint16_t y, uint16_t color) {
   SPI_TFT.tftio.set_window(x - 15, y, x + 15, y);
-  SPI_TFT.tftio.WriteMultiple(color, 31);
+  SPI_TFT.tftio.writeMultiple(color, 31);
   SPI_TFT.tftio.set_window(x, y - 15, x, y + 15);
-  SPI_TFT.tftio.WriteMultiple(color, 31);
+  SPI_TFT.tftio.writeMultiple(color, 31);
 }
 
 void lv_update_touch_calibration_screen() {
