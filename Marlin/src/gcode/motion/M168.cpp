@@ -52,11 +52,11 @@ void GcodeSuite::M168() {
 
   DEBUG_ECHOLNPGM("X", X_5, " Y", Y_5, " Z", Z_5, " A", A_5, " B", B_5, " C", C_5);
 
-  #if BOTH(A_5x, B_5x)
+  #if ALL(A_5x, B_5x)
     const float I = A_5, J = B_5;
-  #elif BOTH(A_5x, C_5x)
+  #elif ALL(A_5x, C_5x)
     const float I = A_5, J = C_5;
-  #elif BOTH(B_5x, C_5x)
+  #elif ALL(B_5x, C_5x)
     const float I = B_5, J = C_5;
   #endif
 
