@@ -60,6 +60,10 @@
 #define STEP_TIMER  4
 #define TEMP_TIMER 14
 
+// system/debug pins - do not use as GPIO
+// PA13  SWDIO,
+// PA14  SWCLK
+
 /**
  * These pin assignments are arbitrary and intended for testing purposes.
  * Assignments may not be ideal, and not every assignment has been tested.
@@ -128,6 +132,11 @@
 #define E0_ENABLE_PIN                       PF14
 #define E0_CS_PIN                           PE7
 
+#define E1_STEP_PIN                         PG1
+#define E1_DIR_PIN                          PG13
+#define E1_ENABLE_PIN                       PG14
+#define E1_CS_PIN                           PG7
+
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PB9
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
@@ -145,13 +154,43 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA3
-#define TEMP_BED_PIN                        PC0
+
+#define A0    0   // PA0  ADC1 IN0
+#define A1    1   // PA1  ADC1 IN1
+#define A2    2   // PA2  ADC1 IN2
+#define A3    3   // PA3  ADC1 IN3
+#define A4    4   // PA4  ADC1 IN4
+#define A5    5   // PA5  ADC1 IN5
+#define A6    6   // PA6  ADC1 IN6
+#define A7    7   // PA7  ADC1 IN7
+#define A8    8   // PB0  ADC1 IN8
+#define A9    9   // PB1  ADC1 IN9
+#define A10  10   // PC0  ADC1 IN10
+#define A11  11   // PC1  ADC1 IN11
+#define A12  12   // PC2  ADC1 IN12
+#define A13  13   // PC3  ADC1 IN13
+#define A14  14   // PC4  ADC1 IN14
+#define A15  15   // PC5  ADC1 IN15
+#if (STM32F746Zxx || STM32F746Ixx || STM32F746Bxx || STM32F746Nxx)
+  #define A16  16   // PF3  ADC3 IN9
+  #define A17  17   // PF4  ADC3 IN14
+  #define A18  18   // PF5  ADC3 IN15
+  #define A19  19   // PF6  ADC3 IN4
+  #define A20  20   // PF7  ADC3 IN5
+  #define A21  21   // PF8  ADC3 IN6
+  #define A22  22   // PF9  ADC3 IN7
+  #define A23  23   // PF10 ADC3 IN8
+#endif
+
+#define TEMP_0_PIN                     A3  // PA3
+#define TEMP_1_PIN                     A10 // PC0
+#define TEMP_BED_PIN                   A23 // PF10
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA15  // PWM Capable, TIM2_CH1
+#define HEATER_1_PIN                        PB13
 #define HEATER_BED_PIN                      PB3   // PWM Capable, TIM2_CH2
 
 #ifndef FAN0_PIN
