@@ -165,7 +165,7 @@ void MarlinHAL::init_board() {
 }
 
 void MarlinHAL::idletask() {
-  #if ALL(WIFISUPPORT, OTASUPPORT)
+  #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());

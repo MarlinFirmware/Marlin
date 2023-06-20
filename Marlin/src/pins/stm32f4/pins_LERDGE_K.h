@@ -159,11 +159,8 @@
   //#define E2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
   //#define E2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -220,10 +217,10 @@
 //
 // SD support
 //
-#define ONBOARD_SDIO
+#define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
 #define SD_DETECT_PIN                       PA8
-#if DISABLED(ONBOARD_SDIO)
+#if DISABLED(SDIO_SUPPORT)
   #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8

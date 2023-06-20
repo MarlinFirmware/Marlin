@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -101,7 +101,9 @@ void GcodeSuite::M25() {
   #else
 
     // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
-    if (IS_SD_PRINTING()) card.pauseSDPrint();
+    #if ENABLED(SDSUPPORT)
+      if (IS_SD_PRINTING()) card.pauseSDPrint();
+    #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(DGUS_LCD_UI_MKS)
       if (recovery.enabled) recovery.save(true);
@@ -123,4 +125,4 @@ void GcodeSuite::M25() {
   #endif
 }
 
-#endif // HAS_MEDIA
+#endif // SDSUPPORT

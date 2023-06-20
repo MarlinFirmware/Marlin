@@ -22,8 +22,10 @@
 #pragma once
 
 /**
- * MKS TinyBee pin assignments
- * https://github.com/makerbase-mks/MKS-TinyBee
+ * MRR ESPE pin assignments
+ * MRR ESPE is a 3D printer control board based on the ESP32 microcontroller.
+ * Supports 5 stepper drivers (using I2S stepper stream), heated bed,
+ * single hotend, and LCD controller.
  */
 
 #include "env_validate.h"
@@ -177,7 +179,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-    #if ALL(MKS_MINI_12864_V3, HAS_MEDIA)
+    #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
       #define PAUSE_LCD_FOR_BUSY_SD
     #endif
   #else

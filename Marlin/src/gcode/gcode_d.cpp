@@ -199,7 +199,7 @@ void GcodeSuite::D(const int16_t dcode) {
       SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
     } break;
 
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
 
       case 101: { // D101 Test SD Write
         card.openFileWrite("test.gco");
@@ -250,7 +250,7 @@ void GcodeSuite::D(const int16_t dcode) {
         card.closefile();
       } break;
 
-    #endif // HAS_MEDIA
+    #endif // SDSUPPORT
 
     #if ENABLED(POSTMORTEM_DEBUGGING)
 

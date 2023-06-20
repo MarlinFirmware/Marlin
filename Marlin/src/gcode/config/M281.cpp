@@ -56,7 +56,7 @@ void GcodeSuite::M281() {
 
 void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_SERVO_ANGLES));
-  for (uint8_t i = 0; i < NUM_SERVOS; ++i) {
+  LOOP_L_N(i, NUM_SERVOS) {
     switch (i) {
       default: break;
       #if ENABLED(SWITCHING_EXTRUDER)

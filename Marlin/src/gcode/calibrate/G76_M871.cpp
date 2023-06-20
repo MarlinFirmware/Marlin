@@ -81,7 +81,7 @@
  *  - `P` - Run probe temperature calibration.
  */
 
-#if ALL(PTC_PROBE, PTC_BED)
+#if BOTH(PTC_PROBE, PTC_BED)
 
   static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
   static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
@@ -113,7 +113,7 @@
       if (isnan(measured_z))
         SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
       else {
-        SERIAL_ECHOLNPGM("Measured: ", p_float_t(measured_z, 2));
+        SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
         if (targ == ProbeTempComp::cali_info[sid].start_temp)
           ptc.prepare_new_calibration(measured_z);
         else

@@ -248,7 +248,7 @@ void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
   ));
-  SERIAL_ECHO(
+  SERIAL_ECHOF(
     F("  M420 S"), planner.leveling_active
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       , FPSTR(SP_Z_STR), LINEAR_UNIT(planner.z_fade_height)

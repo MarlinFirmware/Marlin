@@ -47,6 +47,7 @@
 #endif
 
 #include "../lcdprint.h"
+#include "../fontutils.h"
 #include "../../libs/numtostr.h"
 #include "../marlinui.h"
 
@@ -55,7 +56,7 @@
 #include "../../module/printcounter.h"
 #include "../../MarlinCore.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #include "../../libs/duration_t.h"
 #endif
 
@@ -155,7 +156,7 @@ bool MarlinUI::detected() { return true; }
         #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
           constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
-        for (uint8_t f = 0; f < COUNT(custom_bootscreen_animation); ++f)
+        LOOP_L_N(f, COUNT(custom_bootscreen_animation))
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
@@ -228,7 +229,7 @@ bool MarlinUI::detected() { return true; }
       draw_bootscreen_bmp(start_bmp);
     #else
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
-      for (uint8_t f = 0; f < COUNT(marlin_bootscreen_animation); ++f) {
+      LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
         if (frame_time) safe_delay(frame_time);
       }
@@ -410,38 +411,20 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-      const int pwide = ftpl ? calculateWidth(ftpl) : 0,
+      const int plen = ftpl ? calculateWidth(ftpl) : 0,
                 vlen = vstr ? utf8_strlen(vstr) : 0;
-      int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
-
-      // SS_CENTER: Pad with half of the unused space first
-      if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
-
-      // Draw as much of the label as fits
-      if (pwide) {
-        const pixel_len_t expw = n;
-        n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-        pad -= (expw - n - pwide) / (MENU_FONT_WIDTH);  // Reduce the padding
+      if (style & SS_CENTER) {
+        int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
+        while (--pad >= 0) n -= lcd_put_u8str(F(" "));
       }
 
-      if (vlen) {
-        // SS_FULL: Pad with enough space to justify the value
-        if (full && !center && n > MENU_FONT_WIDTH) {
-          // Move the leading colon from the value to the label
-          if (*vstr == ':') { n -= lcd_put_u8str(F(":")); vstr++; }
-          // Move spaces to the padding
-          while (*vstr == ' ') { vstr++; pad++; }
-          // Pad in-between
-          for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
-        }
-        n -= lcd_put_u8str_max(vstr, n);
-      }
+      if (plen) n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      if (vlen) n -= lcd_put_u8str_max(vstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
     }
   }
@@ -544,7 +527,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -556,7 +539,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       }
     }
 
-  #endif // HAS_MEDIA
+  #endif // SDSUPPORT
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -645,7 +628,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     //
     // Draw knob rotation => Z motion key for:

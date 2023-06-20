@@ -74,7 +74,7 @@ enum {
   #if ENABLED(CASE_LIGHT_ENABLE)
     CASE_LIGHT_SCREEN_CACHE,
   #endif
-  #if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+  #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
     FILAMENT_MENU_CACHE,
   #endif
   #if ENABLED(LIN_ADVANCE)
@@ -83,7 +83,7 @@ enum {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     FILAMENT_RUNOUT_SCREEN_CACHE,
   #endif
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     FILES_SCREEN_CACHE,
   #endif
   #if ENABLED(CUSTOM_MENU_MAIN)
@@ -192,7 +192,7 @@ enum {
   #include "case_light_screen.h"
 #endif
 
-#if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+#if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
   #include "filament_menu.h"
 #endif
 
@@ -204,7 +204,7 @@ enum {
   #include "linear_advance_screen.h"
 #endif
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #include "files_screen.h"
 #endif
 

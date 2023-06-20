@@ -35,20 +35,20 @@
 
 namespace ExtUI {
 
-  void onStartup()        { anycubicTFT.onSetup(); }
-  void onIdle()           { anycubicTFT.onCommandScan(); }
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { anycubicTFT.onKillTFT(); }
-  void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
-  void onMediaError()     { anycubicTFT.onSDCardError(); }
-  void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
+  void onStartup()        { AnycubicTFT.OnSetup(); }
+  void onIdle()           { AnycubicTFT.OnCommandScan(); }
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { AnycubicTFT.OnKillTFT(); }
+  void onMediaInserted()  { AnycubicTFT.OnSDCardStateChange(true); }
+  void onMediaError()     { AnycubicTFT.OnSDCardError(); }
+  void onMediaRemoved()   { AnycubicTFT.OnSDCardStateChange(false); }
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
-  void onPrintTimerStarted()  { anycubicTFT.onPrintTimerStarted(); }
-  void onPrintTimerPaused()   { anycubicTFT.onPrintTimerPaused(); }
-  void onPrintTimerStopped()  { anycubicTFT.onPrintTimerStopped(); }
-  void onFilamentRunout(const extruder_t extruder)   { anycubicTFT.onFilamentRunout(); }
-  void onUserConfirmRequired(const char * const msg) { anycubicTFT.onUserConfirmRequired(msg); }
+  void onPrintTimerStarted()  { AnycubicTFT.OnPrintTimerStarted(); }
+  void onPrintTimerPaused()   { AnycubicTFT.OnPrintTimerPaused(); }
+  void onPrintTimerStopped()  { AnycubicTFT.OnPrintTimerStopped(); }
+  void onFilamentRunout(const extruder_t extruder)   { AnycubicTFT.OnFilamentRunout(); }
+  void onUserConfirmRequired(const char * const msg) { AnycubicTFT.OnUserConfirmRequired(msg); }
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
@@ -91,12 +91,11 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if HAS_LEVELING
+  #if HAS_MESH
+
     void onLevelingStart() {}
     void onLevelingDone() {}
-  #endif
 
-  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }

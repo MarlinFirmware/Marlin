@@ -80,7 +80,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_PAUSE:
       if (uiCfg.print_state == WORKING) {
-        #if HAS_MEDIA
+        #if ENABLED(SDSUPPORT)
           card.pauseSDPrint();
           stop_print_time();
           uiCfg.print_state = PAUSING;
@@ -246,7 +246,7 @@ void disp_fan_speed() {
 void disp_print_time() {
   #if ENABLED(SET_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
-    sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
+     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
   #else
     sprintf_P(public_buf_l, PSTR("%d%d:%d%d:%d%d"), print_time.hours / 10, print_time.hours % 10, print_time.minutes / 10, print_time.minutes % 10, print_time.seconds / 10, print_time.seconds % 10);
   #endif
@@ -274,17 +274,16 @@ void setProBarRate() {
   volatile long long rate_tmp_r;
 
   if (!gCfgItems.from_flash_pic) {
-    #if HAS_MEDIA
-      rate_tmp_r = (long long)card.getIndex() * 100;
+    #if HAS_PRINT_PROGRESS
+      rate = ui.get_progress_percent();
     #endif
-    rate = rate_tmp_r / gCfgItems.curFilesize;
   }
   else {
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       rate_tmp_r = (long long)card.getIndex();
     #endif
     rate = (rate_tmp_r - (PREVIEW_SIZE + To_pre_view)) * 100 / (gCfgItems.curFilesize - (PREVIEW_SIZE + To_pre_view));
-  }
+    }
 
   if (rate <= 0) return;
 

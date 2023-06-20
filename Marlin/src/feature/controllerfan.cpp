@@ -38,10 +38,6 @@ uint8_t ControllerFan::speed;
    const controllerFan_settings_t &ControllerFan::settings = controllerFan_defaults;
 #endif
 
-#if ENABLED(FAN_SOFT_PWM)
-  uint8_t ControllerFan::soft_pwm_speed;
-#endif
-
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
   #ifdef CONTROLLER_FAN2_PIN
@@ -65,16 +61,10 @@ void ControllerFan::update() {
     //   - At least one stepper driver is enabled
     //   - The heated bed is enabled
     //   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
-    //   - TEMP_SENSOR_SOC is reporting >= CONTROLLER_FAN_MIN_SOC_TEMP
     const ena_mask_t axis_mask = TERN(CONTROLLER_FAN_USE_Z_ONLY, _BV(Z_AXIS), (ena_mask_t)~TERN0(CONTROLLER_FAN_IGNORE_Z, _BV(Z_AXIS)));
     if ( (stepper.axis_enabled.bits & axis_mask)
       || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
-      #ifdef CONTROLLER_FAN_MIN_BOARD_TEMP
-        || thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP
-      #endif
-      #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
-        || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
-      #endif
+      || TERN0(HAS_CONTROLLER_FAN_MIN_BOARD_TEMP, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP)
     ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:
@@ -102,7 +92,7 @@ void ControllerFan::update() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_speed = speed;
+      thermalManager.soft_pwm_controller_speed = speed;
     #else
       if (PWM_PIN(CONTROLLER_FAN_PIN))
         hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);

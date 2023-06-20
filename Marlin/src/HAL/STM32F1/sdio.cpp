@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
 #include "sdio.h"
 

@@ -42,6 +42,6 @@ void reset_stepper_drivers() {
 }
 
 #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-  // Flags to optimize axis enabled state
+  // Flags to optimize XYZ Enabled state
   xyz_bool_t axis_sw_enabled; // = { false, false, false }
 #endif

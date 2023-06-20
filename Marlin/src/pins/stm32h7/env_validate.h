@@ -19,11 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifndef ENV_VALIDATE_H
-#define ENV_VALIDATE_H
+#pragma once
 
 #if NOT_TARGET(STM32H7)
   #error "Oops! Select an STM32H7 board in 'Tools > Board.'"
-#endif
-
 #endif

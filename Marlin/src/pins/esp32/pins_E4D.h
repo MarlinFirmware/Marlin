@@ -30,7 +30,9 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+#if EXTRUDERS > 1 || E_STEPPERS > 1
+  #error "E4d@box only supports 1 E stepper."
+#elif HAS_MULTI_HOTEND
   #error "E4d@box only supports 1 hotend / E stepper."
 #endif
 

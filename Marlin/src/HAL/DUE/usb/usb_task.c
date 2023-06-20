@@ -51,14 +51,14 @@
 #include "conf_usb.h"
 #include "udc.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   static volatile bool main_b_msc_enable = false;
 #endif
 static volatile bool main_b_cdc_enable = false;
 static volatile bool main_b_dtr_active = false;
 
 void usb_task_idle(void) {
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     // Attend SD card access from the USB MSD -- Prioritize access to improve speed
     int delay = 2;
     while (main_b_msc_enable && --delay > 0) {
@@ -70,7 +70,7 @@ void usb_task_idle(void) {
   #endif
 }
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   bool usb_task_msc_enable(void)                { return ((main_b_msc_enable = true)); }
   void usb_task_msc_disable(void)               { main_b_msc_enable = false; }
   bool usb_task_msc_isenabled(void)             { return main_b_msc_enable; }
@@ -206,13 +206,13 @@ static USB_MicrosoftExtendedPropertiesDescriptor microsoft_extended_properties_d
 bool usb_task_extra_string(void) {
   static uint8_t udi_msft_magic[] = "MSFT100\xEE";
   static uint8_t udi_cdc_name[] = "CDC interface";
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     static uint8_t udi_msc_name[] = "MSC interface";
   #endif
 
   struct extra_strings_desc_t {
     usb_str_desc_t header;
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       le16_t string[Max(Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msc_name) - 1), sizeof(udi_msft_magic) - 1)];
     #else
       le16_t string[Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msft_magic) - 1)];
@@ -231,7 +231,7 @@ bool usb_task_extra_string(void) {
     str_lgt = sizeof(udi_cdc_name) - 1;
     str = udi_cdc_name;
     break;
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     case UDI_MSC_STRING_ID:
       str_lgt = sizeof(udi_msc_name) - 1;
       str = udi_msc_name;

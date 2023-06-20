@@ -162,8 +162,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER
-  #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               10  // Pullup!
-  #define SPINDLE_DIR_PIN                     11  // use the EXP3 PWM header
-#endif
+#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 10  // Pullup!
+#define SPINDLE_DIR_PIN                       11  // use the EXP3 PWM header

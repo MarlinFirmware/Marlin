@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(EXTUI_EXAMPLE, EXTENSIBLE_UI)
+#if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
 #include "../ui_api.h"
 
@@ -98,12 +98,10 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if HAS_LEVELING
+  #if HAS_MESH
     void onLevelingStart() {}
     void onLevelingDone() {}
-  #endif
 
-  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }

@@ -29,6 +29,7 @@
  */
 
 //#define DEBUG_DWIN 1
+//#define NEED_HEX_PRINT 1
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
@@ -65,7 +66,7 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
 #define Def_Button_Color      RGB( 0, 23, 16)
-#if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
 #endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)

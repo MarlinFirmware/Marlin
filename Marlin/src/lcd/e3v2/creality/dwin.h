@@ -27,7 +27,6 @@
 
 #include "dwin_lcd.h"
 #include "../common/encoder.h"
-#include "../common/limits.h"
 #include "../../../libs/BL24CXX.h"
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -133,7 +132,7 @@ typedef struct {
   float Home_OffZ_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
-} hmi_value_t;
+} HMI_value_t;
 
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
@@ -151,59 +150,59 @@ typedef struct {
     bool cold_flag:1;
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
-} hmi_flag_t;
+} HMI_flag_t;
 
-extern hmi_value_t hmiValues;
-extern hmi_flag_t hmiFlag;
+extern HMI_value_t HMI_ValueStruct;
+extern HMI_flag_t HMI_flag;
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
-  void dwinPopupTemperature(const bool toohigh);
+  void DWIN_Popup_Temperature(const bool toohigh);
 #endif
 
 #if HAS_HOTEND
-  void popupWindowETempTooLow();
+  void Popup_Window_ETempTooLow();
 #endif
 
-void popupWindowResume();
-void popupWindowHome(const bool parking=false);
-void popupWindowLeveling();
+void Popup_Window_Resume();
+void Popup_Window_Home(const bool parking=false);
+void Popup_Window_Leveling();
 
-void gotoPrintProcess();
-void gotoMainMenu();
+void Goto_PrintProcess();
+void Goto_MainMenu();
 
 // Variable control
-void hmiMoveX();
-void hmiMoveY();
-void hmiMoveZ();
-void hmiMoveE();
+void HMI_Move_X();
+void HMI_Move_Y();
+void HMI_Move_Z();
+void HMI_Move_E();
 
-void hmiZoffset();
+void HMI_Zoffset();
 
 #if HAS_HOTEND
-  void hmiETemp();
+  void HMI_ETemp();
 #endif
 #if HAS_HEATED_BED
-  void hmiBedTemp();
+  void HMI_BedTemp();
 #endif
 #if HAS_FAN
-  void hmiFanSpeed();
+  void HMI_FanSpeed();
 #endif
 
-void hmiPrintSpeed();
+void HMI_PrintSpeed();
 
-void hmiMaxFeedspeedXYZE();
-void hmiMaxAccelerationXYZE();
-void hmiMaxJerkXYZE();
-void hmiStepXYZE();
-void hmiSetLanguageCache();
+void HMI_MaxFeedspeedXYZE();
+void HMI_MaxAccelerationXYZE();
+void HMI_MaxJerkXYZE();
+void HMI_StepXYZE();
+void HMI_SetLanguageCache();
 
 void update_variable();
-void dwinDrawSigned_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 // SD Card
-void hmiSDCardInit();
-void hmiSDCardUpdate();
+void HMI_SDCardInit();
+void HMI_SDCardUpdate();
 
 // Main Process
 void Icon_print(bool value);
@@ -212,39 +211,39 @@ void Icon_temperature(bool value);
 void Icon_leveling(bool value);
 
 // Other
-void drawStatusArea(const bool with_update); // Status Area
-void hmiStartFrame(const bool with_update);   // Prepare the menu view
-void hmiMainMenu();    // Main process screen
-void hmiSelectFile();  // File page
-void hmiPrinting();    // Print page
-void hmiPrepare();     // Prepare page
-void hmiControl();     // Control page
-void hmiLeveling();    // Level the page
-void hmiAxisMove();    // Axis movement menu
-void hmiTemperature(); // Temperature menu
-void hmiMotion();      // Sports menu
-void hmiInfo();        // Information menu
-void hmiTune();        // Adjust the menu
+void Draw_Status_Area(const bool with_update); // Status Area
+void HMI_StartFrame(const bool with_update);   // Prepare the menu view
+void HMI_MainMenu();    // Main process screen
+void HMI_SelectFile();  // File page
+void HMI_Printing();    // Print page
+void HMI_Prepare();     // Prepare page
+void HMI_Control();     // Control page
+void HMI_Leveling();    // Level the page
+void HMI_AxisMove();    // Axis movement menu
+void HMI_Temperature(); // Temperature menu
+void HMI_Motion();      // Sports menu
+void HMI_Info();        // Information menu
+void HMI_Tune();        // Adjust the menu
 
 #if HAS_PREHEAT
-  void hmiPLAPreheatSetting(); // PLA warm-up setting
-  void hmiABSPreheatSetting(); // ABS warm-up setting
+  void HMI_PLAPreheatSetting(); // PLA warm-up setting
+  void HMI_ABSPreheatSetting(); // ABS warm-up setting
 #endif
 
-void hmiMaxSpeed();        // Maximum speed submenu
-void hmiMaxAcceleration(); // Maximum acceleration submenu
-void hmiMaxJerk();         // Maximum jerk speed submenu
-void hmiStep();            // Transmission ratio
+void HMI_MaxSpeed();        // Maximum speed submenu
+void HMI_MaxAcceleration(); // Maximum acceleration submenu
+void HMI_MaxJerk();         // Maximum jerk speed submenu
+void HMI_Step();            // Transmission ratio
 
-void hmiInit();
-void dwinInitScreen();
-void dwinUpdate();
-void eachMomentUpdate();
-void dwinHandleScreen();
-void dwinStatusChanged(const char * const cstr=nullptr);
-void dwinStatusChanged(FSTR_P const fstr);
+void HMI_Init();
+void DWIN_InitScreen();
+void DWIN_Update();
+void EachMomentUpdate();
+void DWIN_HandleScreen();
+void DWIN_StatusChanged(const char * const cstr=nullptr);
+void DWIN_StatusChanged(FSTR_P const fstr);
 
-inline void dwinHomingStart() { hmiFlag.home_flag = true; }
+inline void DWIN_HomingStart() { HMI_flag.home_flag = true; }
 
-void dwinHomingDone();
-void dwinLevelingDone();
+void DWIN_HomingDone();
+void DWIN_LevelingDone();

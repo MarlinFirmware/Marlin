@@ -47,7 +47,7 @@ enum CanvasSubtype : uint8_t {
   CANVAS_ADD_TEXT,
   CANVAS_ADD_IMAGE,
   CANVAS_ADD_BAR,
-  CANVAS_ADD_RECT,
+  CANVAS_ADD_RECTANGLE,
 };
 
 typedef struct __attribute__((__packed__)) {

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -36,4 +36,4 @@ void GcodeSuite::M928() {
 
 }
 
-#endif // HAS_MEDIA
+#endif // SDSUPPORT

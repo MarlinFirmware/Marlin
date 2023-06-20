@@ -141,7 +141,7 @@ void xatc_wizard_goto_next_point() {
       xatc.set_enabled(true);
       current_position += probe.offset_xy;
       current_position.z = (XATC_START_Z) - probe.offset.z + measured_z;
-      line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+      line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
       ui.wait_for_move = false;
     }
     else
@@ -150,12 +150,12 @@ void xatc_wizard_goto_next_point() {
   else {
     // Compute the z-offset by averaging the values found with this wizard
     z_offset = 0;
-    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) z_offset += xatc.z_offset[i];
+    LOOP_L_N(i, XATC_MAX_POINTS) z_offset += xatc.z_offset[i];
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
     // This way they are indipendent from the z-offset
-    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
+    LOOP_L_N(i, XATC_MAX_POINTS) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);
   }
@@ -170,7 +170,7 @@ void xatc_wizard_homing_done() {
     MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
 
     // Color UI needs a control to detect a touch
-    #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+    #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
       touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     #endif
   }

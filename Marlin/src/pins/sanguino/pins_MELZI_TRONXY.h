@@ -32,7 +32,7 @@
 
 #define LCD_SDSS                              -1
 
-#if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+#if EITHER(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
   #define LCD_PINS_RS                         30
   #define LCD_PINS_EN                         28
   #define LCD_PINS_D4                         16

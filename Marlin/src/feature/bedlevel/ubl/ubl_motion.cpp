@@ -61,7 +61,7 @@
       const xyze_pos_t &start = current_position, &end = destination;
     #endif
 
-    const xy_uint8_t istart = cell_indexes(start), iend = cell_indexes(end);
+    const xy_int8_t istart = cell_indexes(start), iend = cell_indexes(end);
 
     // A move within the same cell needs no splitting
     if (istart == iend) {
@@ -108,7 +108,7 @@
 
     const xy_float_t dist = end - start;
     const xy_bool_t neg { dist.x < 0, dist.y < 0 };
-    const xy_uint8_t ineg { uint8_t(neg.x), uint8_t(neg.y) };
+    const xy_int8_t ineg { int8_t(neg.x), int8_t(neg.y) };
     const xy_float_t sign { neg.x ? -1.0f : 1.0f, neg.y ? -1.0f : 1.0f };
     const xy_int8_t iadd { int8_t(iend.x == istart.x ? 0 : sign.x), int8_t(iend.y == istart.y ? 0 : sign.y) };
 
@@ -131,7 +131,7 @@
       const bool inf_normalized_flag = isinf(e_normalized_dist);
     #endif
 
-    xy_uint8_t icell = istart;
+    xy_int8_t icell = istart;
 
     const float ratio = dist.y / dist.x,        // Allow divide by zero
                 c = start.y - ratio * start.x;
@@ -252,7 +252,7 @@
      * Generic case of a line crossing both X and Y Mesh lines.
      */
 
-    xy_uint8_t cnt = istart.diff(iend);
+    xy_int8_t cnt = (istart - iend).ABS();
 
     icell += ineg;
 

@@ -27,10 +27,6 @@
 #include "../libs/buzzer.h"
 #include "buttons.h"
 
-#if ENABLED(EEPROM_SETTINGS)
-  #include "../module/settings.h"
-#endif
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
 #endif
@@ -88,7 +84,7 @@ typedef bool (*statusResetFunc_t)();
 
 #endif // HAS_WIRED_LCD
 
-#if ANY(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
   #define LCD_WITH_BLINK 1
   #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
 #endif
@@ -232,7 +228,7 @@ public:
   #endif
 
   #if USE_MARLINUI_BUZZER
-    static void buzz(const long duration, const uint16_t freq=0);
+    static void buzz(const long duration, const uint16_t freq);
   #endif
 
   static void chirp() {
@@ -246,13 +242,13 @@ public:
   // LCD implementations
   static void clear_lcd();
 
-  #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
+  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
     }
   #endif
 
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
@@ -313,7 +309,7 @@ public:
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
     #endif
-    #if ANY(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
+    #if EITHER(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
         const duration_t elapsed = print_job_timer.duration();
         const progress_t progress = _get_progress();
@@ -361,7 +357,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+    #if EITHER(HAS_WIRED_LCD, DWIN_LCD_PROUI)
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
       #else
@@ -412,7 +408,7 @@ public:
     static void resume_print();
     static void flow_fault();
 
-    #if ALL(HAS_MARLINUI_MENU, PSU_CONTROL)
+    #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
       static void poweroff();
     #endif
 
@@ -471,9 +467,8 @@ public:
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 
-      #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+      #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
-        static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
       #if HAS_TOUCH_SLEEP
@@ -510,7 +505,7 @@ public:
       static bool did_first_redraw;
     #endif
 
-    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
       static void zoffset_overlay(const int8_t dir);
       static void zoffset_overlay(const_float_t zvalue);
     #endif
@@ -528,13 +523,8 @@ public:
 
   #endif
 
-  #if !HAS_WIRED_LCD
-    static void quick_feedback(const bool=true) {}
-    static void completion_feedback(const bool=true) {}
-  #endif
-
-  #if HAS_MEDIA
-    #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
+  #if ENABLED(SDSUPPORT)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
     #if MARLINUI_SCROLL_NAME
@@ -646,7 +636,7 @@ public:
 
   #endif
 
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+  #if EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
     static bool lcd_clicked;
     static bool use_click() {
       const bool click = lcd_clicked;
@@ -678,13 +668,18 @@ public:
       static void load_settings();
       static void store_settings();
     #endif
-    static void eeprom_alert(const EEPROM_Error) TERN_(EEPROM_AUTO_INIT, {});
+    #if DISABLED(EEPROM_AUTO_INIT)
+      static void eeprom_alert(const uint8_t msgid);
+      static void eeprom_alert_crc()     { eeprom_alert(0); }
+      static void eeprom_alert_index()   { eeprom_alert(1); }
+      static void eeprom_alert_version() { eeprom_alert(2); }
+    #endif
   #endif
 
   //
   // Special handling if a move is underway
   //
-  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION) || (ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING))
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
     #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
@@ -694,7 +689,7 @@ public:
   //
   // Block interaction while under external control
   //
-  #if HAS_MARLINUI_MENU && ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+  #if HAS_MARLINUI_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
@@ -727,7 +722,7 @@ public:
        * printer unusable in practice.
        */
       static bool hw_button_pressed() {
-        for (uint8_t s = 0; s < ENCODER_SAMPLES; ++s) {
+        LOOP_L_N(s, ENCODER_SAMPLES) {
           if (!BUTTON_CLICK()) return false;
           safe_delay(1);
         }
@@ -737,7 +732,7 @@ public:
       static bool hw_button_pressed() { return BUTTON_CLICK(); }
     #endif
 
-    #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+    #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
 
@@ -745,14 +740,14 @@ public:
 
     #define ENCODERBASE (TERN(REVERSE_ENCODER_DIRECTION, -1, +1))
 
-    #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+    #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
     #endif
 
     FORCE_INLINE static void encoder_direction_normal() {
-      #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+      #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
         encoderDirection = ENCODERBASE;
       #endif
     }
@@ -808,7 +803,5 @@ private:
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
-#define LCD_MESSAGE_MIN(M)     ui.set_status(GET_TEXT_F(M), -1)
-#define LCD_MESSAGE_MAX(M)     ui.set_status(GET_TEXT_F(M), 99)
 #define LCD_ALERTMESSAGE_F(S)  ui.set_alert_status(F(S))
 #define LCD_ALERTMESSAGE(M)    ui.set_alert_status(GET_TEXT_F(M))

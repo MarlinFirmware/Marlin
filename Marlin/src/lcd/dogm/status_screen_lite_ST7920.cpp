@@ -73,6 +73,7 @@
 #if ENABLED(LIGHTWEIGHT_UI)
 
 #include "../marlinui.h"
+#include "../fontutils.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"
 #include "../../module/motion.h"
@@ -80,7 +81,7 @@
 #include "../../module/temperature.h"
 #include "../../libs/numtostr.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
 #endif
 
@@ -237,7 +238,7 @@ void ST7920_Lite_Status_Screen::clear_ddram() {
 
 /* This fills the entire graphics buffer with zeros */
 void ST7920_Lite_Status_Screen::clear_gdram() {
-  for (uint8_t y = 0; y < BUFFER_HEIGHT; ++y) {
+  LOOP_L_N(y, BUFFER_HEIGHT) {
     set_gdram_address(0, y);
     begin_data();
     for (uint8_t i = (BUFFER_WIDTH) / 16; i--;) write_word(0);
@@ -435,7 +436,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, const b
     const uint8_t x_word  = x >> 1,
                   y_top   = degree_symbol_y_top,
                   y_bot   = y_top + COUNT(degree_symbol);
-    for (uint8_t i = y_top; i < y_bot; ++i) {
+    LOOP_S_L_N(i, y_top, y_bot) {
       uint8_t byte = pgm_read_byte(p_bytes++);
       set_gdram_address(x_word, i + y * 16);
       begin_data();
@@ -628,14 +629,14 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
     #endif
   }
   else {
-    write_byte(alt_label ?: 'X');
+    write_byte(alt_label ? alt_label : 'X');
     write_str(dtostrf(pos.x, -4, 0, str), 4);
 
-    write_byte(alt_label ?: 'Y');
+    write_byte(alt_label ? alt_label : 'Y');
     write_str(dtostrf(pos.y, -4, 0, str), 4);
   }
 
-  write_byte(alt_label ?: 'Z');
+  write_byte(alt_label ? alt_label : 'Z');
   write_str(dtostrf(pos.z, -5, 1, str), 5);
 }
 
@@ -754,10 +755,10 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     // This drawing is a mess and only produce readable result around 25% steps
     // i.e. 74-76% look fine [||||||||||||||||||||||||        ], but 73% look like this: [||||||||||||||||       |        ]
     // meaning partially filled bytes produce only single vertical line, and i bet they're not supposed to!
-    for (uint8_t y = top; y <= bottom; ++y) {
+    LOOP_S_LE_N(y, top, bottom) {
       set_gdram_address(left, y);
       begin_data();
-      for (uint8_t x = 0; x < width; ++x) {
+      LOOP_L_N(x, width) {
         uint16_t gfx_word = 0x0000;
         if ((x + 1) * char_pcnt <= value)
           gfx_word = 0xFFFF;                                              // Draw completely filled bytes

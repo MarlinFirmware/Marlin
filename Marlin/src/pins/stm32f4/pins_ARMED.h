@@ -158,7 +158,7 @@
 
   #define LCD_RESET_PIN                     PB12  // Must be high or open for LCD to operate normally.
 
-  #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #ifndef RGB_LED_R_PIN
       #define RGB_LED_R_PIN                 PB13
     #endif
@@ -223,8 +223,5 @@
   #define Z2_SERIAL_RX_PIN              EXT4_PIN
   #define Z2_SERIAL_TX_PIN              EXT4_PIN
 
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif

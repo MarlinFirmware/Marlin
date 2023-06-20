@@ -40,8 +40,8 @@ using namespace ExtUI;
 
 namespace Anycubic {
 
-  FileList  FileNavigator::filelist;                          // ExtUI file API
-  char      FileNavigator::currentDirPath[MAX_PATH_LEN + 1];  // Current folder path
+  FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
+  char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
   uint16_t  FileNavigator::lastindex;
   uint8_t   FileNavigator::folderdepth;
   uint16_t  FileNavigator::currentindex;                      // override the panel request
@@ -51,7 +51,7 @@ namespace Anycubic {
   FileNavigator::FileNavigator() { reset(); }
 
   void FileNavigator::reset() {
-    currentDirPath[0] = '\0';
+    currentfoldername[0] = '\0';
     folderdepth  = 0;
     currentindex = 0;
     lastindex    = 0;
@@ -91,10 +91,10 @@ namespace Anycubic {
       if (filelist.seek(_seek)) {
         //sendFile();
 
-        DgusTFT::sendTxtToTFT(filelist.longFilename(), TXT_FILE_0 + file_num*0x30);
+        DgusTFT::SendTxtToTFT(filelist.longFilename(), TXT_FILE_0 + file_num*0x30);
 
         #if ACDEBUG(AC_FILE)
-          SERIAL_ECHOLNPGM("seek: ", _seek, " '", filelist.longFilename(), "' '", currentDirPath, "", filelist.shortFilename(), "'\n");
+          SERIAL_ECHOLNPGM("seek: ", _seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
         #endif
       }
       else {
@@ -102,7 +102,7 @@ namespace Anycubic {
           SERIAL_ECHOLNPGM("over seek: ", _seek);
         #endif
 
-        DgusTFT::sendTxtToTFT("\0", TXT_FILE_0 + file_num*0x30);
+        DgusTFT::SendTxtToTFT("\0", TXT_FILE_0 + file_num*0x30);
       }
 
       file_num++;
@@ -115,16 +115,16 @@ namespace Anycubic {
     // Permitted special characters in file name: -_*#~
     // Panel can display 22 characters per line.
     if (!filelist.isDir())
-      DgusTFT::sendTxtToTFT(filelist.longFilename(), TXT_FILE_0);
+      DgusTFT::SendTxtToTFT(filelist.longFilename(), TXT_FILE_0);
   }
 
   void FileNavigator::changeDIR(char *folder) {
     #if ACDEBUG(AC_FILE)
-      SERIAL_ECHOLNPGM("currentfolder: ", currentDirPath, "  New: ", folder);
+      SERIAL_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
     #endif
     if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-    strcat(currentDirPath, folder);
-    strcat(currentDirPath, "/");
+    strcat(currentfoldername, folder);
+    strcat(currentfoldername, "/");
     filelist.changeDir(folder);
     refresh();
     folderdepth++;
@@ -138,22 +138,22 @@ namespace Anycubic {
     currentindex = 0;
     // Remove the last child folder from the stored path
     if (folderdepth == 0) {
-      currentDirPath[0] = '\0';
+      currentfoldername[0] = '\0';
       reset();
     }
     else {
       char *pos = nullptr;
       for (uint8_t f = 0; f < folderdepth; f++)
-        pos = strchr(currentDirPath, '/');
+        pos = strchr(currentfoldername, '/');
 
       *(pos + 1) = '\0';
     }
     #if ACDEBUG(AC_FILE)
-      SERIAL_ECHOLNPGM("depth: ", folderdepth, " currentDirPath: ", currentDirPath);
+      SERIAL_ECHOLNPGM("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
     #endif
   }
 
-  char* FileNavigator::getCurrentDirPath() { return currentDirPath; }
+  char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
 
   uint16_t FileNavigator::getFileNum() { return filelist.count(); }
 }

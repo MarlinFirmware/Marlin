@@ -47,20 +47,20 @@ MenuData_t MenuData;
 // Menuitem Drawing functions =================================================
 
 void Draw_Title(TitleClass* title) {
-  dwinDrawRectangle(1, HMI_data.TitleBg_Color, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
+  DWIN_Draw_Rectangle(1, HMI_data.TitleBg_Color, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
   if (title->frameid)
     DWIN_Frame_AreaCopy(title->frameid, title->frame.left, title->frame.top, title->frame.right, title->frame.bottom, 14, (TITLE_HEIGHT - (title->frame.bottom - title->frame.top)) / 2 - 1);
   else
     #if ENABLED(TITLE_CENTERED)
       DWINUI::Draw_CenteredString(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
     #else
-      dwinDrawString(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
+      DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
     #endif
 }
 
 void Draw_Menu(MenuClass* menu) {
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
-  dwinDrawRectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
+  DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
 }
 
 void Draw_Menu_Cursor(const int8_t line) {
@@ -84,7 +84,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon /*=0*/, const char * 
   if (label) DWINUI::Draw_String(LBLX, MBASE(line) - 1, (char*)label);
   if (more)  DWINUI::Draw_Icon(ICON_More, VALX + 16, MBASE(line) - 3);
   if (selected) Draw_Menu_Cursor(line);
-  dwinDrawHLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
+  DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
 }
 
 void Draw_Menu_Line(const uint8_t line, const uint8_t icon /*=0*/, FSTR_P label /*=nullptr*/, bool more /*=false*/, bool selected /*=false*/) {
@@ -98,7 +98,7 @@ void Draw_Chkb_Line(const uint8_t line, const bool checked) {
 void Show_Chkb_Line(const bool checked) {
   const uint8_t line = CurrentMenu->line();
   DWINUI::Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, VALX + 3 * DWINUI::fontWidth(), MBASE(line) - 1, checked);
-  dwinUpdateLCD();
+  DWIN_UpdateLCD();
 }
 
 void Toggle_Chkb_Line(bool &checked) {
@@ -116,7 +116,7 @@ void onDrawMenuItem(MenuItemClass* menuitem, int8_t line) {
     DWIN_Frame_AreaCopy(menuitem->frameid, menuitem->frame.left, menuitem->frame.top, menuitem->frame.right, menuitem->frame.bottom, LBLX, MBASE(line));
   else if (menuitem->caption)
     DWINUI::Draw_String(LBLX, MBASE(line) - 1, menuitem->caption);
-  dwinDrawHLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
+  DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
 }
 
 void onDrawSubMenu(MenuItemClass* menuitem, int8_t line) {
@@ -197,7 +197,7 @@ void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp,
   MenuData.Apply = Apply;
   MenuData.LiveUpdate = LiveUpdate;
   MenuData.Value = constrain(val, lo, hi);
-  encoderRate.enabled = true;
+  EncoderRate.enabled = true;
 }
 
 // Generic onclick event for integer values
@@ -292,8 +292,8 @@ int8_t HMI_Get(bool draw) {
   const int32_t cval = MenuData.Value;
   EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (applyEncoder(encoder_diffState, MenuData.Value)) {
-      encoderRate.enabled = false;
+    if (Apply_Encoder(encoder_diffState, MenuData.Value)) {
+      EncoderRate.enabled = false;
       if (draw) DrawItemEdit(false);
       checkkey = Menu;
       return 2;
@@ -358,7 +358,7 @@ void MenuClass::draw() {
   for (int8_t i = 0; i < MenuItemCount; i++)
     MenuItems[i]->draw(i - topline);
   Draw_Menu_Cursor(line());
-  dwinUpdateLCD();
+  DWIN_UpdateLCD();
 }
 
 void MenuClass::onScroll(bool dir) {
@@ -367,20 +367,20 @@ void MenuClass::onScroll(bool dir) {
   LIMIT(sel, 0, MenuItemCount - 1);
   if (sel != selected) {
     Erase_Menu_Cursor(line());
-    dwinUpdateLCD();
+    DWIN_UpdateLCD();
     if ((sel - topline) == TROWS) {
-      dwinFrameAreaMove(1, DWIN_SCROLL_UP, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
+      DWIN_Frame_AreaMove(1, DWIN_SCROLL_UP, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
       topline++;
       MenuItems[sel]->draw(TROWS - 1);
     }
     if ((sel < topline)) {
-      dwinFrameAreaMove(1, DWIN_SCROLL_DOWN, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
+      DWIN_Frame_AreaMove(1, DWIN_SCROLL_DOWN, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
       topline--;
       MenuItems[sel]->draw(0);
     }
     selected = sel;
     Draw_Menu_Cursor(line());
-    dwinUpdateLCD();
+    DWIN_UpdateLCD();
   }
 }
 

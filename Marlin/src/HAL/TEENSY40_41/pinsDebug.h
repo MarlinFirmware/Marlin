@@ -30,6 +30,7 @@
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
 #define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
+#define PRINT_PORT(p)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
@@ -38,6 +39,7 @@
 #define VALID_PIN(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(13)) || ((P) >= analogInputToDigitalPin(14) && (P) <= analogInputToDigitalPin(17))
+#define pwm_status(pin) HAL_pwm_status(pin)
 #define GET_PINMODE(PIN) (VALID_PIN(pin) && IS_OUTPUT(pin))
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
@@ -118,12 +120,12 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
   #endif
 };
 
-void print_analog_pin(char buffer[], const pin_t pin) {
+void HAL_print_analog_pin(char buffer[], int8_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
   else if (pin <= 41) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 24));
 }
 
-void analog_pin_state(char buffer[], const pin_t pin) {
+void HAL_analog_pin_state(char buffer[], int8_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 14));
   else if (pin <= 41) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 24));
 }
@@ -134,14 +136,14 @@ void analog_pin_state(char buffer[], const pin_t pin) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-bool pwm_status(const pin_t pin) {
+bool HAL_pwm_status(int8_t pin) {
   char buffer[20];   // for the sprintf statements
   const struct pwm_pin_info_struct *info;
 
-  if (pin >= CORE_NUM_DIGITAL) return false;
-
+  if (pin >= CORE_NUM_DIGITAL) return 0;
   info = pwm_pin_info + pin;
-  if (info->type == 0) return false;
+
+  if (info->type == 0) return 0;
 
   /* TODO decode pwm value from timers */
   // for now just indicate if output is set as pwm
@@ -149,6 +151,4 @@ bool pwm_status(const pin_t pin) {
   return (*(portConfigRegister(pin)) == info->muxval);
 }
 
-void pwm_details(const pin_t) { /* TODO */ }
-
-void print_port(const pin_t) {}
+static void pwm_details(uint8_t pin) { /* TODO */ }

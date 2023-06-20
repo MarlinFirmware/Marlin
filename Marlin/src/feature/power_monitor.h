@@ -119,7 +119,7 @@ public:
       volts.reset();
     #endif
 
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       display_item_ms = 0;
       display_item = 0;
     #endif

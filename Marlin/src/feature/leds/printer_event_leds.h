@@ -59,7 +59,7 @@ public:
     static void onPidTuningDone(LEDColor c) { leds.set_color(c); }
   #endif
 
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
 
     static void onPrintCompleted() {
       leds.set_green();
@@ -80,7 +80,7 @@ public:
       #endif
     }
 
-  #endif // HAS_MEDIA
+  #endif // SDSUPPORT
 };
 
 extern PrinterEventLEDs printerEventLEDs;

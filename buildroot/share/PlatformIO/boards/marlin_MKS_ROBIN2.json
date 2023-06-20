@@ -1,54 +1,40 @@
 {
   "build": {
+    "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F407xx",
+    "extra_flags": "-DSTM32F4 -DSTM32F407xx ",
     "f_cpu": "168000000L",
-    "hwids": [
-      [
-        "0x1EAF",
-        "0x0003"
-      ],
-      [
-        "0x0483",
-        "0x3748"
-      ]
-    ],
-    "ldscript": "ldscript.ld",
+    
     "mcu": "stm32f407zet6",
-    "variant": "MARLIN_MKS_ROBIN2"
+    "product_line": "STM32F407xx",
+    "variant": "MKS_Robin2"
   },
-  "debug": {
+  
+   "debug": {
+    "default_tools": [
+      "stlink"
+    ],
     "jlink_device": "STM32F407ZE",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_board": "stm32f407",
     "openocd_target": "stm32f4x",
-    "svd_path": "STM32F40x.svd",
-    "tools": {
-      "stlink": {
-        "server": {
-          "arguments": [
-            "-f",
-            "scripts/interface/stlink.cfg",
-            "-c",
-            "transport select hla_swd",
-            "-f",
-            "scripts/target/stm32f4x.cfg",
-            "-c",
-            "reset_config none"
-          ],
-          "executable": "bin/openocd",
-          "package": "tool-openocd"
-        }
-      }
-    }
+    "svd_path": "STM32F407x.svd"
   },
   "frameworks": [
-    "arduino",
-    "stm32cube"
-  ],
-  "name": "STM32F407ZE (192k RAM. 512k Flash)",
+   "arduino",
+    "cmsis",
+    "mbed",
+    "stm32cube",
+    "libopencm3",
+    "zephyr" 
+     ],
+  "name": "STM32F407ZE (128k RAM, 64k CCM RAM, 512k Flash)",
   "upload": {
     "disable_flushing": false,
     "maximum_ram_size": 131072,
-    "maximum_size": 514288,
+    "maximum_size": 524288,
     "protocol": "stlink",
     "protocols": [
       "stlink",

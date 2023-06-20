@@ -52,7 +52,7 @@ typedef Serial1Class<MarlinSerial> MSerialT;
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;
-#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   extern MSerialT MSerial4;
   extern MSerialT MSerial5;
 #endif

@@ -103,4 +103,5 @@
 
 #endif
 
+#include "../fontutils.h"
 #include "../lcdprint.h"

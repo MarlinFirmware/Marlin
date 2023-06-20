@@ -189,12 +189,12 @@
  */
 
 // UART
-#define RXD        0
-#define TXD        1
+#define RXD        DIO0
+#define TXD        DIO1
 
 // TWI (I2C)
-#define SCL        21
-#define SDA        20
+#define SCL        DIO21
+#define SDA        DIO20
 
 /**
  * pins

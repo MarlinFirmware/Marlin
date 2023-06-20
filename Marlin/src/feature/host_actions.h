@@ -35,8 +35,6 @@
     PROMPT_INFO
   };
 
-  extern const char CONTINUE_STR[], DISMISS_STR[];
-
 #endif
 
 class HostUI {
@@ -113,9 +111,6 @@ class HostUI {
     static void prompt_do(const PromptReason reason, FSTR_P const pstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
     static void prompt_do(const PromptReason reason, const char * const cstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
 
-    static void continue_prompt(FSTR_P const fstr) { prompt_do(PROMPT_USER_CONTINUE, fstr, FPSTR(CONTINUE_STR)); }
-    static void continue_prompt(const char * const cstr) { prompt_do(PROMPT_USER_CONTINUE, cstr, FPSTR(CONTINUE_STR)); }
-
     static void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
@@ -129,3 +124,5 @@ class HostUI {
 };
 
 extern HostUI hostui;
+
+extern const char CONTINUE_STR[], DISMISS_STR[];

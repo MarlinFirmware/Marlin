@@ -60,7 +60,6 @@ if pioutil.is_pio_build():
 
         def rename_target(source, target, env):
             from pathlib import Path
-            from datetime import datetime
-            Path(target[0].path).replace(Path(target[0].dir.path, datetime.now().strftime(new_name.replace('{date}', '%Y%m%d').replace('{time}', '%H%M%S'))))
+            Path(target[0].path).replace(Path(target[0].dir.path, new_name))
 
         marlin.add_post_action(rename_target)

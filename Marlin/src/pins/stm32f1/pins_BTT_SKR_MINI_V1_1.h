@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -93,11 +93,8 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Heaters / Fans
@@ -142,7 +139,7 @@
 //
 // LCD / Controller
 //
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
+#if EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
@@ -221,7 +218,7 @@
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 
-      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       //  #ifndef RGB_LED_R_PIN
       //    #define RGB_LED_R_PIN    EXP1_06_PIN
       //  #endif
@@ -273,7 +270,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SPI_DEVICE                           3  // Maple
+  #define SPI_DEVICE                           3
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN

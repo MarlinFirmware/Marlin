@@ -85,7 +85,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_printing();
 
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       if (!gcode_preview_over) {
         char *cur_name;
         cur_name = strrchr(list_file.file_name[sel_id], '/');
@@ -121,7 +121,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_ready_print();
 
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       uiCfg.print_state = IDLE;
       card.abortFilePrintSoon();
     #endif
@@ -311,6 +311,9 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
     lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
+    sprintf_P(public_buf_l, PSTR("%s: %d%d:%d%d:%d%d"), print_file_dialog_menu.print_time, print_time.hours / 10, print_time.hours % 10, print_time.minutes / 10, print_time.minutes % 10, print_time.seconds / 10, print_time.seconds % 10);
+    lv_obj_t *labelPrintTime = lv_label_create(scr, public_buf_l);
+    lv_obj_align(labelPrintTime, nullptr, LV_ALIGN_CENTER, 0, -60);
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_PARKING)) {
     lv_label_set_text(labelDialog, pause_msg_menu.pausing);
