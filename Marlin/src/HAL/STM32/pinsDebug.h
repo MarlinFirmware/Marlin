@@ -301,15 +301,13 @@ void pwm_details(const pin_t Ard_num) {
 
 int8_t digital_pin_to_analog_ch(const pin_t Ard_num) {
 
-  #ifdef STM32F746xx
+  #ifndef NUM_ANALOG_FIRST
 
-    // V has 16 ADC channels ; Z, I, B, N have 24 ADC channels
-    if (WITHIN(Ard_num, 0, 7))      return Ard_num;       // Pins  0 -  7  =>  A0  - A7
-    if (WITHIN(Ard_num, 16, 17))    return Ard_num - 8;   // Pins 16 - 17  =>  A8  - A9
-    if (WITHIN(Ard_num, 32, 37))    return Ard_num - 22;  // Pins 33 - 34  =>  A10 - A15
-    #ifndef STM32F746Vx
-      if (WITHIN(Ard_num, 83, 90))  return Ard_num - 67;  // Pins 80 - 90  =>  A16 - A23
-    #endif
+    for (uint8_t i = 0; i < NUM_ANALOG_INPUTS ; i++) {
+      if (analogInputPin[i] == Ard_num) {
+       return i;
+      }
+    }
 
   #else
 
