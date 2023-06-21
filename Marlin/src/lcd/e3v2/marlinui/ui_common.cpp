@@ -78,14 +78,14 @@ void MarlinUI::set_font(const uint8_t font_nr) {
 bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
-void MarlinUI::init_lcd() { DWIN_Startup(); }
+void MarlinUI::init_lcd() { dwinStartup(); }
 
 // This LCD should clear where it will draw anew
 void MarlinUI::clear_lcd() {
-  DWIN_ICON_AnimationControl(0x0000); // disable all icon animations
-  DWIN_JPG_ShowAndCache(3);
-  DWIN_Frame_Clear(Color_Bg_Black);
-  DWIN_UpdateLCD();
+  dwinIconAnimationControl(0x0000); // disable all icon animations
+  dwinJPGShowAndCache(3);
+  dwinFrameClear(Color_Bg_Black);
+  dwinUpdateLCD();
 
   did_first_redraw = false;
 }
@@ -109,25 +109,25 @@ void MarlinUI::clear_lcd() {
       #define VERSION_Y   84
     #endif
 
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    dwinDrawString(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
     clear_lcd();
 
-    DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
+    dwinIconShow(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
-      DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, LOGO_CENTER - 174 / 2, 280);
-      DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  LOGO_CENTER - 180 / 2, 420);
-      DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  LOGO_CENTER - 100 / 2, 440);
-      DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  LOGO_CENTER - 126 / 2, 460);
+      dwinIconShow(BOOT_ICON, ICON_OpenSource, LOGO_CENTER - 174 / 2, 280);
+      dwinIconShow(BOOT_ICON, ICON_GitHubURL,  LOGO_CENTER - 180 / 2, 420);
+      dwinIconShow(BOOT_ICON, ICON_MarlinURL,  LOGO_CENTER - 100 / 2, 440);
+      dwinIconShow(BOOT_ICON, ICON_Copyright,  LOGO_CENTER - 126 / 2, 460);
     #else
-      DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
-      DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, INFO_CENTER - 174 / 2,  60);
-      DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  INFO_CENTER - 180 / 2, 130);
-      DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
-      DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
+      dwinIconShow(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
+      dwinIconShow(BOOT_ICON, ICON_OpenSource, INFO_CENTER - 174 / 2,  60);
+      dwinIconShow(BOOT_ICON, ICON_GitHubURL,  INFO_CENTER - 180 / 2, 130);
+      dwinIconShow(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
+      dwinIconShow(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
     #endif
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
-    DWIN_UpdateLCD();
+    dwinDrawString(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    dwinUpdateLCD();
   }
 
   void MarlinUI::bootscreen_completion(const millis_t sofar) {
@@ -140,23 +140,23 @@ void MarlinUI::clear_lcd() {
 // The kill screen is displayed for unrecoverable conditions
 void MarlinUI::draw_kill_screen() {
   set_font(DWIN_FONT_ALERT);
-  DWIN_Frame_Clear(Color_Bg_Black);
+  dwinFrameClear(Color_Bg_Black);
   dwin_font.fg = Color_Error_Red;
   dwin_font.solid = false;
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 20, 20, LCD_PIXEL_WIDTH - 20, LCD_PIXEL_HEIGHT - 20);
+  dwinDrawRectangle(1, Color_Bg_Window, 20, 20, LCD_PIXEL_WIDTH - 20, LCD_PIXEL_HEIGHT - 20);
   // make the frame a few pixels thick
-  DWIN_Draw_Rectangle(0, Color_Yellow, 20, 20, LCD_PIXEL_WIDTH - 20, LCD_PIXEL_HEIGHT - 20);
-  DWIN_Draw_Rectangle(0, Color_Yellow, 21, 21, LCD_PIXEL_WIDTH - 21, LCD_PIXEL_HEIGHT - 21);
-  DWIN_Draw_Rectangle(0, Color_Yellow, 22, 22, LCD_PIXEL_WIDTH - 22, LCD_PIXEL_HEIGHT - 22);
+  dwinDrawRectangle(0, Color_Yellow, 20, 20, LCD_PIXEL_WIDTH - 20, LCD_PIXEL_HEIGHT - 20);
+  dwinDrawRectangle(0, Color_Yellow, 21, 21, LCD_PIXEL_WIDTH - 21, LCD_PIXEL_HEIGHT - 21);
+  dwinDrawRectangle(0, Color_Yellow, 22, 22, LCD_PIXEL_WIDTH - 22, LCD_PIXEL_HEIGHT - 22);
 
   uint8_t cx = (LCD_PIXEL_WIDTH / dwin_font.width / 2),
           cy = (LCD_PIXEL_HEIGHT / dwin_font.height / 2);
 
   #if ENABLED(DWIN_MARLINUI_LANDSCAPE)
     cx += (96 / 2 / dwin_font.width);
-    DWIN_ICON_Show(ICON, ICON_Halted, 40, (LCD_PIXEL_HEIGHT - 96) / 2);
+    dwinIconShow(ICON, ICON_Halted, 40, (LCD_PIXEL_HEIGHT - 96) / 2);
   #else
-    DWIN_ICON_Show(ICON, ICON_Halted, (LCD_PIXEL_WIDTH - 96) / 2, 40);
+    dwinIconShow(ICON, ICON_Halted, (LCD_PIXEL_WIDTH - 96) / 2, 40);
   #endif
 
   uint8_t slen = utf8_strlen(status_message);
@@ -260,7 +260,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 }
 
 #if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
 
 #if HAS_MARLINUI_MENU
@@ -295,13 +295,13 @@ void MarlinUI::draw_status_message(const bool blink) {
     if (y >= LCD_PIXEL_HEIGHT) return false;
 
     if (is_static && sel)
-      DWIN_Draw_Box(1, Color_Bg_Heading, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
+      dwinDrawBox(1, Color_Bg_Heading, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
     else {
       #if ENABLED(MENU_HOLLOW_FRAME)
-                 DWIN_Draw_Box(1, Color_Bg_Black, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
-        if (sel) DWIN_Draw_Box(0, Select_Color,   0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
+                 dwinDrawBox(1, Color_Bg_Black, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
+        if (sel) dwinDrawBox(0, Select_Color,   0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
       #else
-        DWIN_Draw_Box(1, sel ? Select_Color : Color_Bg_Black, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
+        dwinDrawBox(1, sel ? Select_Color : Color_Bg_Black, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
       #endif
     }
 
@@ -425,7 +425,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_string.set(value);
 
       const dwin_coord_t by = (row * MENU_LINE_HEIGHT) + MENU_FONT_HEIGHT + EXTRA_ROW_HEIGHT / 2;
-      DWIN_Draw_String(true, font16x32, Color_Yellow, Color_Bg_Black, (LCD_PIXEL_WIDTH - vallen * 16) / 2, by, S(dwin_string.string()));
+      dwinDrawString(true, font16x32, Color_Yellow, Color_Bg_Black, (LCD_PIXEL_WIDTH - vallen * 16) / 2, by, S(dwin_string.string()));
 
       if (ui.can_show_slider()) {
 
@@ -435,11 +435,11 @@ void MarlinUI::draw_status_message(const bool blink) {
                            slider_y = by + 32 + 4,
                            amount = ui.encoderPosition * slider_length / maxEditValue;
 
-        DWIN_Draw_Rectangle(1, Color_Bg_Window, slider_x - 1, slider_y - 1, slider_x - 1 + slider_length + 2 - 1, slider_y - 1 + slider_height + 2 - 1);
+        dwinDrawRectangle(1, Color_Bg_Window, slider_x - 1, slider_y - 1, slider_x - 1 + slider_length + 2 - 1, slider_y - 1 + slider_height + 2 - 1);
         if (amount > 0)
-          DWIN_Draw_Box(1, BarFill_Color, slider_x, slider_y, amount, slider_height);
+          dwinDrawBox(1, BarFill_Color, slider_x, slider_y, amount, slider_height);
         if (amount < slider_length)
-          DWIN_Draw_Box(1, Color_Bg_Black, slider_x + amount, slider_y, slider_length - amount, slider_height);
+          dwinDrawBox(1, Color_Bg_Black, slider_x + amount, slider_y, slider_length - amount, slider_height);
       }
     }
   }
@@ -450,7 +450,7 @@ void MarlinUI::draw_status_message(const bool blink) {
                   col = yesopt ? LCD_WIDTH - mar - len : mar,
                   row = (LCD_HEIGHT >= 8 ? LCD_HEIGHT / 2 + 3 : LCD_HEIGHT - 1);
     lcd_moveto(col, row);
-    DWIN_Draw_Box(1, inv ? Select_Color : Color_Bg_Black, cursor.x - dwin_font.width, cursor.y + 1, dwin_font.width * (len + 2), dwin_font.height + 2);
+    dwinDrawBox(1, inv ? Select_Color : Color_Bg_Black, cursor.x - dwin_font.width, cursor.y + 1, dwin_font.width * (len + 2), dwin_font.height + 2);
     lcd_put_u8str(col, row, fstr);
   }
 
@@ -512,9 +512,9 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Clear the Mesh Map
 
       // First draw the bigger box in White so we have a border around the mesh map box
-      DWIN_Draw_Rectangle(1, Color_White, x_offset - 2, y_offset - 2, x_offset + 2 + x_map_pixels, y_offset + 2 + y_map_pixels);
+      dwinDrawRectangle(1, Color_White, x_offset - 2, y_offset - 2, x_offset + 2 + x_map_pixels, y_offset + 2 + y_map_pixels);
       // Now actually clear the mesh map box
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, x_offset, y_offset, x_offset + x_map_pixels, y_offset + y_map_pixels);
+      dwinDrawRectangle(1, Color_Bg_Black, x_offset, y_offset, x_offset + x_map_pixels, y_offset + y_map_pixels);
 
       // Fill in the Specified Mesh Point
 
@@ -522,7 +522,7 @@ void MarlinUI::draw_status_message(const bool blink) {
                                                                     // invert the Y to get it to plot in the right location.
 
       const dwin_coord_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
-      DWIN_Draw_Rectangle(1, Select_Color,
+      dwinDrawRectangle(1, Select_Color,
         x_offset + (x_plot * pixels_per_x_mesh_pnt), by,
         x_offset + (x_plot * pixels_per_x_mesh_pnt) + pixels_per_x_mesh_pnt, by + pixels_per_y_mesh_pnt
       );
@@ -532,7 +532,7 @@ void MarlinUI::draw_status_message(const bool blink) {
             dwin_coord_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
       for (uint8_t j = 0; j < (GRID_MAX_POINTS_Y); j++, y += pixels_per_y_mesh_pnt)
         for (uint8_t i = 0, x = sx; i < (GRID_MAX_POINTS_X); i++, x += pixels_per_x_mesh_pnt)
-          DWIN_Draw_Point(Color_White, 1, 1, x, y);
+          dwinDrawPoint(Color_White, 1, 1, x, y);
 
       // Put Relevant Text on Display
 
@@ -591,17 +591,17 @@ void MarlinUI::draw_status_message(const bool blink) {
       const int nozzle = (LCD_PIXEL_WIDTH / 2) - 20;
 
       // Draw a representation of the nozzle
-      DWIN_Draw_Box(1, Color_Bg_Black, nozzle + 3, 8, 48, 52); // 'clear' the area where the nozzle is drawn in case it was moved up/down
-      DWIN_ICON_Show(ICON, ICON_HotendOff, nozzle + 3, 10 - dir);
-      DWIN_ICON_Show(ICON, ICON_BedLine, nozzle, 10 + 36);
+      dwinDrawBox(1, Color_Bg_Black, nozzle + 3, 8, 48, 52); // 'clear' the area where the nozzle is drawn in case it was moved up/down
+      dwinIconShow(ICON, ICON_HotendOff, nozzle + 3, 10 - dir);
+      dwinIconShow(ICON, ICON_BedLine, nozzle, 10 + 36);
 
       // Draw cw/ccw indicator and up/down arrows
       const int arrow_y = LCD_PIXEL_HEIGHT / 2 - 24;
-      DWIN_ICON_Show(ICON, ICON_DownArrow, 0, arrow_y - dir);
-      DWIN_ICON_Show(ICON, rot_down, 48, arrow_y);
+      dwinIconShow(ICON, ICON_DownArrow, 0, arrow_y - dir);
+      dwinIconShow(ICON, rot_down, 48, arrow_y);
 
-      DWIN_ICON_Show(ICON, ICON_UpArrow, LCD_PIXEL_WIDTH - 10 - (48*2), arrow_y - dir);
-      DWIN_ICON_Show(ICON, rot_up, LCD_PIXEL_WIDTH - 10 - 48, arrow_y);
+      dwinIconShow(ICON, ICON_UpArrow, LCD_PIXEL_WIDTH - 10 - (48*2), arrow_y - dir);
+      dwinIconShow(ICON, rot_up, LCD_PIXEL_WIDTH - 10 - 48, arrow_y);
     }
 
   #endif // BABYSTEP_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY

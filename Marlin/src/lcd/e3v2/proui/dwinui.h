@@ -286,10 +286,10 @@ namespace DWINUI {
   //  color: Line segment color
   //  x/y: End point
   inline void LineTo(uint16_t color, uint16_t x, uint16_t y) {
-    DWIN_Draw_Line(color, cursor.x, cursor.y, x, y);
+    dwinDrawLine(color, cursor.x, cursor.y, x, y);
   }
   inline void LineTo(uint16_t x, uint16_t y) {
-    DWIN_Draw_Line(pencolor, cursor.x, cursor.y, x, y);
+    dwinDrawLine(pencolor, cursor.x, cursor.y, x, y);
   }
 
   // Extend a frame box
@@ -462,28 +462,28 @@ namespace DWINUI {
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, string);
+    dwinDrawString(false, fontid, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, FTOP(title));
+    dwinDrawString(false, fontid, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, fontid, color, backcolor, x, y, string);
+    dwinDrawString(false, fontid, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, fontid, color, backcolor, x, y, title);
+    dwinDrawString(false, fontid, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, string);
+    dwinDrawString(true, fontid, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, title);
+    dwinDrawString(true, fontid, color, bgcolor, x, y, title);
   }
   inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, fid, color, bgcolor, x, y, string);
+    dwinDrawString(true, fid, color, bgcolor, x, y, string);
   }
   inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, fid, color, bgcolor, x, y, title);
+    dwinDrawString(true, fid, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
@@ -527,7 +527,7 @@ namespace DWINUI {
   //  color: Rectangle color
   //  frame: Box coordinates and size
   inline void Draw_Box(uint8_t mode, uint16_t color, frame_rect_t frame) {
-    DWIN_Draw_Box(mode, color, frame.x, frame.y, frame.w, frame.h);
+    dwinDrawBox(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
   // Draw a circle

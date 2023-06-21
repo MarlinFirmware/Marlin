@@ -55,9 +55,9 @@ void LockScreenClass::draw() {
   DWINUI::Draw_CenteredString(Color_White, 180, GET_TEXT_F(MSG_LOCKSCREEN_LOCKED));
   DWINUI::Draw_CenteredString(Color_White, 200, GET_TEXT_F(MSG_LOCKSCREEN_UNLOCK));
   DWINUI::Draw_CenteredString(Color_White, 240, F("-> | <-"));
-  DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
-  DWIN_UpdateLCD();
+  dwinDrawBox(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
+  dwinDrawVLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
+  dwinUpdateLCD();
 }
 
 void LockScreenClass::onEncoder(EncoderState encoder_diffState) {
@@ -67,9 +67,9 @@ void LockScreenClass::onEncoder(EncoderState encoder_diffState) {
     case ENCODER_DIFF_ENTER: unlocked = (lock_pos == 128); break;
     default: break;
   }
-  DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
-  DWIN_UpdateLCD();
+  dwinDrawBox(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
+  dwinDrawVLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
+  dwinUpdateLCD();
 }
 
 #endif // DWIN_LCD_PROUI && HAS_LOCKSCREEN

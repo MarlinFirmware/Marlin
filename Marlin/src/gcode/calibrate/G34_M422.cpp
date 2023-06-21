@@ -411,7 +411,7 @@ void GcodeSuite::G34() {
         SERIAL_ECHOLNPGM("G34 aborted.");
       else {
         SERIAL_ECHOLNPGM("Did ", iteration + (iteration != z_auto_align_iterations), " of ", z_auto_align_iterations);
-        SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
+        SERIAL_ECHOLNPGM("Accuracy: ", p_float_t(z_maxdiff, 2));
       }
 
       // Stow the probe because the last call to probe.probe_at_point(...)
@@ -501,8 +501,7 @@ void GcodeSuite::M422() {
   }
 
   if (!WITHIN(position_index, 1, NUM_Z_STEPPERS)) {
-    SERIAL_ECHOF(err_string);
-    SERIAL_ECHOLNPGM(" index invalid (1.." STRINGIFY(NUM_Z_STEPPERS) ").");
+    SERIAL_ECHOLN(err_string, F(" index invalid (1.." STRINGIFY(NUM_Z_STEPPERS) ")."));
     return;
   }
 

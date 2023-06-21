@@ -109,13 +109,7 @@
   #if ENABLED(MARLIN_DEV_MODE)
     void dump_delay_accuracy_check() {
       auto report_call_time = [](FSTR_P const name, FSTR_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
-        SERIAL_ECHOPGM("Calling ");
-        SERIAL_ECHOF(name);
-        SERIAL_ECHOLNPGM(" for ", cycles);
-        SERIAL_ECHOF(unit);
-        SERIAL_ECHOLNPGM(" took: ", total);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHOF(unit);
+        SERIAL_ECHOLN(F("Calling "), name, F(" for "), cycles, AS_CHAR(' '), unit, F(" took: "), total, AS_CHAR(' '), unit);
         if (do_flush) SERIAL_FLUSHTX();
       };
 
