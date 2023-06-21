@@ -1258,7 +1258,11 @@ void EachMomentUpdate() {
       if (checkkey == ESDiagProcess) ESDiag.Update();
     #endif
     #if SHOW_TUNING_GRAPH
-      if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
+      if (checkkey == PidProcess) {
+        TERN_(PIDTEMP, if (HMI_value.tempcontrol == PIDTEMP_START) plot.Update(thermalManager.wholeDegHotend(0)));
+        TERN_(PIDTEMPBED, if (HMI_value.tempcontrol == PIDTEMPBED_START) plot.Update(thermalManager.wholeDegBed()));
+      }
+      TERN_(MPCTEMP, if (checkkey == MPCProcess) plot.Update(thermalManager.wholeDegHotend(0)));
     #endif
   }
 
@@ -1501,7 +1505,7 @@ void DWIN_LevelingDone() {
     DWINUI::ClearMainArea();
     Draw_Popup_Bkgd();
 
-    switch (HMI_value.pidresult) {
+    switch (HMI_value.tempcontrol) {
       default: return;
       #if ENABLED(MPC_AUTOTUNE)
         case MPCTEMP_START:
@@ -1518,7 +1522,7 @@ void DWIN_LevelingDone() {
       #endif
     }
 
-    switch (HMI_value.pidresult) {
+    switch (HMI_value.tempcontrol) {
       default: break;
       #if ANY(PIDTEMP, MPC_AUTOTUNE)
         TERN_(PIDTEMP,      case PIDTEMP_START:)
@@ -1533,7 +1537,7 @@ void DWIN_LevelingDone() {
       #endif
     }
 
-    switch (HMI_value.pidresult) {
+    switch (HMI_value.tempcontrol) {
       default: break;
       #if ENABLED(MPC_AUTOTUNE)
         case MPCTEMP_START:
@@ -1575,7 +1579,7 @@ void DWIN_LevelingDone() {
   }
 
   void DWIN_PidTuning(tempcontrol_t result) {
-    HMI_value.pidresult = result;
+    HMI_value.tempcontrol = result;
     switch (result) {
       #if ENABLED(PIDTEMP)
         case PIDTEMP_START:
@@ -1609,7 +1613,7 @@ void DWIN_LevelingDone() {
         checkkey = last_checkkey;
         DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
         break;
-      case PID_DONE:
+      case AUTOTUNE_DONE:
         checkkey = last_checkkey;
         DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         break;
@@ -1624,7 +1628,7 @@ void DWIN_LevelingDone() {
 #if ENABLED(MPC_AUTOTUNE)
 
   void DWIN_MPCTuning(tempcontrol_t result) {
-    HMI_value.pidresult = result;
+    HMI_value.tempcontrol = result;
     switch (result) {
       case MPCTEMP_START:
         HMI_SaveProcessID(MPCProcess);
@@ -1644,7 +1648,7 @@ void DWIN_LevelingDone() {
         DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
         ui.reset_alert_level();
         break;
-      case MPC_DONE:
+      case AUTOTUNE_DONE:
         checkkey = last_checkkey;
         DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_MPC_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         ui.reset_alert_level();

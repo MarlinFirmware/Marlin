@@ -79,7 +79,6 @@ enum processID : uint8_t {
 
   enum tempcontrol_t : uint8_t {
     #if DWIN_PID_TUNE
-      PID_DONE,
       PIDTEMP_START,
       PIDTEMPBED_START,
       PID_BAD_HEATER_ID,
@@ -87,11 +86,11 @@ enum processID : uint8_t {
       PID_TUNING_TIMEOUT,
     #endif
     #if ENABLED(MPC_AUTOTUNE)
-      MPC_DONE,
       MPCTEMP_START,
       MPC_TEMP_ERROR,
-      MPC_INTERRUPTED
+      MPC_INTERRUPTED,
     #endif
+    AUTOTUNE_DONE
   };
 
 #endif
@@ -158,8 +157,8 @@ static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 
 typedef struct {
   int8_t Color[3];                    // Color components
-  #if DWIN_PID_TUNE
-    tempcontrol_t pidresult = PID_DONE;
+  #if ANY(DWIN_PID_TUNE, MPCTEMP)
+    tempcontrol_t tempcontrol = AUTOTUNE_DONE;
   #endif
   uint8_t Select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
