@@ -283,7 +283,7 @@ int8_t HMI_Get(bool draw) {
   const int32_t lo = MenuData.MinValue;
   const int32_t hi = MenuData.MaxValue;
   const int32_t cval = MenuData.Value;
-  EncoderState encoder_diffState = TERN(SMOOTH_ENCODER_MENUITEMS, get_encoder_state(), Encoder_ReceiveAnalyze());
+  EncoderState encoder_diffState = TERN(SMOOTH_ENCODER_MENUITEMS, get_encoder_state(), encoderReceiveAnalyze());
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (applyEncoder(encoder_diffState, MenuData.Value)) {
       encoderRate.enabled = false;
