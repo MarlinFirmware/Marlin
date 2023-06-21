@@ -177,13 +177,8 @@ static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_
   return cnt;
 }
 
-uint8_t utf8_strlen(const char *pstart) {
-  return utf8_strlen_cb(pstart, read_byte_ram);
-}
-
-uint8_t utf8_strlen_P(PGM_P pstart) {
-  return utf8_strlen_cb(pstart, read_byte_rom);
-}
+uint8_t utf8_strlen(const char *pstart) { return utf8_strlen_cb(pstart, read_byte_ram); }
+uint8_t utf8_strlen_P(PGM_P pstart) { return utf8_strlen_cb(pstart, read_byte_rom); }
 
 static inline uint8_t utf8_byte_pos_by_char_num_cb(const char *pstart, read_byte_cb_t cb_read_byte, const uint8_t charnum) {
   uint8_t *p = (uint8_t *)pstart;

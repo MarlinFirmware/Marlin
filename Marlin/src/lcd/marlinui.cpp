@@ -1179,7 +1179,7 @@ void MarlinUI::init() {
           run_current_screen();
 
           // Apply all DWIN drawing after processing
-          TERN_(IS_DWIN_MARLINUI, DWIN_UpdateLCD());
+          TERN_(IS_DWIN_MARLINUI, dwinUpdateLCD());
 
         #endif
 
@@ -1609,9 +1609,9 @@ void MarlinUI::init() {
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, dwinStatusChanged(status_message));
     TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
+    TERN_(DWIN_CREALITY_LCD_JYERSUI, crealityDWIN.updateStatus(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1667,7 +1667,7 @@ void MarlinUI::init() {
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
-    TERN_(DWIN_LCD_PROUI, HMI_flag.abort_flag = true);
+    TERN_(DWIN_LCD_PROUI, hmiFlag.abort_flag = true);
   }
 
   #if ALL(HAS_MARLINUI_MENU, PSU_CONTROL)
