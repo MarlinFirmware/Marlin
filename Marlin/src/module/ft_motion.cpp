@@ -632,7 +632,7 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
   //#define STEPS_ROUNDING
   #if ENABLED(STEPS_ROUNDING)
     const xyze_float_t steps_tar = LOGICAL_AXIS_ARRAY(
-      trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(0)] + (trajMod.e[idx] < 0.0f ? -0.5f : 0.5f), // May be eliminated if guaranteed positive.
+      trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)] + (trajMod.e[idx] < 0.0f ? -0.5f : 0.5f), // May be eliminated if guaranteed positive.
       trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS] + (trajMod.x[idx] < 0.0f ? -0.5f : 0.5f),
       trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS] + (trajMod.y[idx] < 0.0f ? -0.5f : 0.5f),
       trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS] + (trajMod.z[idx] < 0.0f ? -0.5f : 0.5f),
@@ -658,7 +658,7 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
     //);
   #else
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(0)]) - steps.e,
+      int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)]) - steps.e,
       int32_t(trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS]) - steps.x,
       int32_t(trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS]) - steps.y,
       int32_t(trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS]) - steps.z,
