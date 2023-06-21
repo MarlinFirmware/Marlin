@@ -154,7 +154,7 @@ void Draw_MeshViewer() { MeshViewer.Draw(true, meshredraw); }
 
 void onClick_MeshViewer() { if (hmiFlag.select_flag) SaveMesh(); HMI_ReturnScreen(); }
 
-void Goto_MeshViewer(bool redraw) { 
+void Goto_MeshViewer(bool redraw) {
   meshredraw = redraw;
   if (leveling_is_valid()) Goto_Popup(Draw_MeshViewer, onClick_MeshViewer);
   else HMI_ReturnScreen();

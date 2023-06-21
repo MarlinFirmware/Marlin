@@ -1452,7 +1452,7 @@ void dwinHomingStart() {
 
 void dwinHomingDone() {
   hmiFlag.home_flag = false;
-  if (last_checkkey == PrintDone) 
+  if (last_checkkey == PrintDone)
     Goto_PrintDone();
   else
     HMI_ReturnScreen();
