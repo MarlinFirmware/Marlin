@@ -288,6 +288,18 @@ public:
   // Bool is true with no value or non-zero
   static bool value_bool() { return !has_value() || !!value_byte(); }
 
+  #if HAS_ROTATIONAL_AXES
+    static constexpr bool axis_is_rotational(const AxisEnum axis) {
+      return (false
+        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+        );
+      }
+  #endif
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
@@ -307,14 +319,9 @@ public:
     }
 
     static float axis_unit_factor(const AxisEnum axis) {
-      if (false
-        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-      ) return 1.0f;
+      #if HAS_ROTATIONAL_AXES
+        if (axis_is_rotational(axis)) return 1.0f;
+      #endif
       #if HAS_EXTRUDERS
         if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
       #endif

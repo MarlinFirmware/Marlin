@@ -327,6 +327,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");
   LSTR MSG_MOVE_05IN                      = _UxGT("Move 0.5in");
   LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
+  LSTR MSG_MOVE_001DEG                    = _UxGT("Move 0.01 ") LCD_STR_DEGREE;
+  LSTR MSG_MOVE_01DEG                     = _UxGT("Move 0.1 ") LCD_STR_DEGREE;
+  LSTR MSG_MOVE_1DEG                      = _UxGT("Move 1 ") LCD_STR_DEGREE;
+  LSTR MSG_MOVE_10DEG                     = _UxGT("Move 10 ") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
