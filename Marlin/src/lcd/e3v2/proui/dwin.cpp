@@ -573,12 +573,14 @@ void Draw_Print_ProgressElapsed() {
   DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 47, 192, buf);
 }
 
-void Draw_Print_ProgressRemain() {
-  const uint32_t _remain_time = ui.get_remaining_time();
-  char buf[10];
-  sprintf_P(buf, PSTR("%02i:%02i "), (uint16_t)(_remain_time / 3600), ((uint16_t)_remain_time % 3600) / 60);
-  DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 181, 192, buf);
-}
+#if ENABLED(SHOW_REMAINING_TIME)
+  void Draw_Print_ProgressRemain() {
+    const uint32_t _remain_time = ui.get_remaining_time();
+    char buf[10];
+    sprintf_P(buf, PSTR("%02i:%02i "), (uint16_t)(_remain_time / 3600), ((uint16_t)_remain_time % 3600) / 60);
+    DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 181, 192, buf);
+  }
+#endif
 
 void ICON_ResumeOrPause() {
   if (checkkey == PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? ICON_Resume() : ICON_Pause();
@@ -610,7 +612,7 @@ void Draw_PrintProcess() {
   DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
-  Draw_Print_ProgressRemain();
+  TERN_(SHOW_REMAINING_TIME, Draw_Print_ProgressRemain());
   ICON_Tune();
   ICON_ResumeOrPause();
   ICON_Stop();
@@ -628,8 +630,8 @@ void Goto_PrintProcess() {
 }
 
 void Draw_PrintDone() {
-  ui.set_progress_done();
-  ui.reset_remaining_time();
+  TERN_(SET_PROGRESS_PERCENT, ui.set_progress_done());
+  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   Title.ShowCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::ClearMainArea();
   DWIN_Print_Header(nullptr);
@@ -649,7 +651,7 @@ void Draw_PrintDone() {
     DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
     DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
     Draw_Print_ProgressElapsed();
-    Draw_Print_ProgressRemain();
+    TERN_(SHOW_REMAINING_TIME, Draw_Print_ProgressRemain());
     DWINUI::Draw_Button(BTN_Continue, 86, 273);
   }
 }
@@ -1313,11 +1315,13 @@ void EachMomentUpdate() {
       }
 
       // Remaining time
-      static uint32_t _remain_time = 0;
-      if (_remain_time != ui.get_remaining_time()) {
-        _remain_time = ui.get_remaining_time();
-        Draw_Print_ProgressRemain();
-      }
+      #if ENABLED(SHOW_REMAINING_TIME)
+        static uint32_t _remain_time = 0;
+        if (_remain_time != ui.get_remaining_time()) {
+          _remain_time = ui.get_remaining_time();
+          Draw_Print_ProgressRemain();
+        }
+      #endif
 
       // Elapse print time
       static uint16_t _printtime = 0;
@@ -1665,8 +1669,8 @@ void DWIN_LevelingDone() {
 // Started a Print Job
 void DWIN_Print_Started() {
   TERN_(HAS_GCODE_PREVIEW, if (Host_Printing()) Preview_Invalidate());
-  ui.progress_reset();
-  ui.reset_remaining_time();
+  TERN_(SET_PROGRESS_PERCENT, ui.progress_reset());
+  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   hmiFlag.pause_flag = false;
   hmiFlag.abort_flag = false;
   select_print.reset();
