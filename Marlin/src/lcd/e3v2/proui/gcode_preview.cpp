@@ -23,8 +23,8 @@
 /**
  * DWIN G-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
- * version: 3.1.2
- * Date: 2022/09/03
+ * version: 3.3.2
+ * Date: 2023/06/18
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -35,12 +35,13 @@
 #include "../../marlinui.h"
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h" // for wait_for_user
-#include "dwin_lcd.h"
-#include "dwinui.h"
 #include "dwin.h"
 #include "dwin_popup.h"
 #include "base64.hpp"
 #include "gcode_preview.h"
+
+#define THUMBWIDTH 230
+#define THUMBHEIGHT 180
 
 typedef struct {
   char name[13] = "";   //8.3 + null
@@ -104,7 +105,7 @@ void Get_Value(char *buf, const char * const key, float &value) {
 }
 
 bool Has_Preview() {
-  const char * tbstart = "; thumbnail begin 230x180";
+  const char * tbstart = "; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT);
   char * posptr = 0;
   uint8_t nbyte = 1;
   uint32_t indx = 0;
@@ -187,6 +188,8 @@ bool Has_Preview() {
   card.closefile();
   buf64[readed] = 0;
 
+  fileprop.thumbwidth = THUMBWIDTH;
+  fileprop.thumbheight = THUMBHEIGHT;
   fileprop.thumbsize = decode_base64(buf64, fileprop.thumbdata);  card.closefile();
   DWINUI::WriteToSRAM(0x00, fileprop.thumbsize, fileprop.thumbdata);
   delete[] fileprop.thumbdata;
@@ -218,7 +221,7 @@ void Preview_DrawFromSD() {
     }
     DWINUI::Draw_Button(BTN_Print, 26, 290);
     DWINUI::Draw_Button(BTN_Cancel, 146, 290);
-    dwinIconShow(0, 0, 1, 21, 90, 0x00);
+    Preview_Show();
     Draw_Select_Highlight(true, 290);
     dwinUpdateLCD();
   }
@@ -229,15 +232,17 @@ void Preview_DrawFromSD() {
 }
 
 void Preview_Invalidate() {
-  fileprop.thumbstart = 0;
+  fileprop.thumbsize = 0;
 }
 
 bool Preview_Valid() {
-  return !!fileprop.thumbstart;
+  return !!fileprop.thumbsize;
 }
 
-void Preview_Reset() {
-  fileprop.thumbsize = 0;
+void Preview_Show() {
+  const uint8_t xpos = (DWIN_WIDTH - fileprop.thumbwidth) / 2;
+  const uint8_t ypos = (205 - fileprop.thumbheight) / 2 + 87;
+  dwinIconShow(xpos, ypos, 0x00);
 }
 
 #endif // HAS_GCODE_PREVIEW && DWIN_LCD_PROUI

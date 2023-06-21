@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.18.1
- * Date: 2022/07/05
+ * Version: 3.21.1
+ * Date: 2023/03/21
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -68,6 +68,7 @@
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_HSMode               ICON_StockConfiguration
+#define ICON_InputShaping         ICON_MaxAccelerated
 #define ICON_InvertE0             ICON_StepE
 #define ICON_Tram                 ICON_SetEndTemp
 #define ICON_Level                ICON_HotendTemp
@@ -82,6 +83,7 @@
 #define ICON_MeshEditZ            ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshPoints           ICON_SetEndTemp
+#define ICON_MeshReset            ICON_StockConfiguration
 #define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp

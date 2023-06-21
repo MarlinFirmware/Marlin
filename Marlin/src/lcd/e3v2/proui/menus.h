@@ -24,14 +24,17 @@
 /**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
- * Version: 1.9.1
- * Date: 2022/12/02
+ * Version: 1.10.1
+ * Date: 2022/05/01
  */
 
 #include "dwinui.h"
 
 #define MENU_CHAR_LIMIT  24
-#define MENU_MAX_ITEMS   TERN(SDSORT_LIMIT, SDSORT_LIMIT, 64)
+
+#ifndef MENU_MAX_ITEMS
+  #define MENU_MAX_ITEMS 100
+#endif
 
 typedef struct {
   int32_t MaxValue     = 0;        // Auxiliar max integer/scaled float value
@@ -123,7 +126,6 @@ extern MenuClass *PreviousMenu;
 // Menuitem Drawing functions =================================================
 
 void Draw_Title(TitleClass* title);
-void Draw_Menu(MenuClass* menu);
 void Draw_Menu_Cursor(const int8_t line);
 void Erase_Menu_Cursor(const int8_t line);
 void Erase_Menu_Text(const int8_t line);
@@ -175,6 +177,9 @@ void InitMenu();
 bool SetMenu(MenuClass* &menu, FSTR_P title, int8_t totalitems);
 bool SetMenu(MenuClass* &menu, frame_rect_t cn, FSTR_P title, int8_t totalitems);
 
+// Reset top line and selected item
+void ResetMenu(MenuClass* &menu);
+
 // Invalidate CurrentMenu to prepare for full menu drawing
 void InvalidateMenu();
 
@@ -183,6 +188,9 @@ void UpdateMenu(MenuClass* &menu);
 
 //Redraw the current Menu if it is valid
 void ReDrawMenu(bool force = false);
+
+//Redraw selected menu item
+void ReDrawItem();
 
 // Clear MenuItems array and free MenuItems elements
 void MenuItemsClear();
