@@ -324,7 +324,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNF(ferr, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLN(ferr, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;

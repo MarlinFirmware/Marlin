@@ -156,7 +156,7 @@ void GT911::read_reg(uint16_t reg, uint8_t reg_len, uint8_t* r_data, uint8_t r_l
   sw_iic.stop();
 }
 
-void GT911::Init() {
+void GT911::init() {
   OUT_WRITE(GT911_RST_PIN, LOW);
   OUT_WRITE(GT911_INT_PIN, LOW);
   delay(11);

@@ -82,16 +82,16 @@ void Canvas::addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, u
   }
   for (uint16_t i = 0 ; *(string + i) ; i++) {
     glyph_t *pGlyph = glyph(string + i);
-    if (stringWidth + pGlyph->BBXWidth > maxWidth) break;
+    if (stringWidth + pGlyph->bbxWidth > maxWidth) break;
     switch (getFontType()) {
       case FONT_MARLIN_GLYPHS_1BPP:
-        addImage(x + stringWidth + pGlyph->BBXOffsetX, y + getFontAscent() - pGlyph->BBXHeight - pGlyph->BBXOffsetY, pGlyph->BBXWidth, pGlyph->BBXHeight, GREYSCALE1, ((uint8_t *)pGlyph) + sizeof(glyph_t), &color);
+        addImage(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE1, ((uint8_t *)pGlyph) + sizeof(glyph_t), &color);
         break;
       case FONT_MARLIN_GLYPHS_2BPP:
-        addImage(x + stringWidth + pGlyph->BBXOffsetX, y + getFontAscent() - pGlyph->BBXHeight - pGlyph->BBXOffsetY, pGlyph->BBXWidth, pGlyph->BBXHeight, GREYSCALE2, ((uint8_t *)pGlyph) + sizeof(glyph_t), colors);
+        addImage(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE2, ((uint8_t *)pGlyph) + sizeof(glyph_t), colors);
         break;
     }
-    stringWidth += pGlyph->DWidth;
+    stringWidth += pGlyph->dWidth;
   }
 }
 
