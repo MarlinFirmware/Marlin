@@ -78,50 +78,47 @@ extern "C" {
  * For Mega application used "code".
  */
 #define  UDC_DESC_STORAGE
-	// Descriptor storage in internal RAM
+  // Descriptor storage in internal RAM
 #if (defined UDC_DATA_USE_HRAM_SUPPORT)
-#	if defined(__GNUC__)
-#		define UDC_DATA(x)              COMPILER_WORD_ALIGNED __attribute__((__section__(".data_hram0")))
-#		define UDC_BSS(x)               COMPILER_ALIGNED(x)   __attribute__((__section__(".bss_hram0")))
-#	elif defined(__ICCAVR32__)
-#		define UDC_DATA(x)              COMPILER_ALIGNED(x)   __data32
-#		define UDC_BSS(x)               COMPILER_ALIGNED(x)   __data32
-#	endif
-#else
-#	define UDC_DATA(x)              COMPILER_ALIGNED(x)
-#	define UDC_BSS(x)               COMPILER_ALIGNED(x)
+  #if defined(__GNUC__)
+  #define UDC_DATA(x)   COMPILER_WORD_ALIGNED __attribute__((__section__(".data_hram0")))
+  #define UDC_BSS(x)    COMPILER_ALIGNED(x)   __attribute__((__section__(".bss_hram0")))
+#elif defined(__ICCAVR32__)
+  #define UDC_DATA(x)   COMPILER_ALIGNED(x)   __data32
+  #define UDC_BSS(x)    COMPILER_ALIGNED(x)   __data32
 #endif
-
-
+#else
+  #define UDC_DATA(x)   COMPILER_ALIGNED(x)
+  #define UDC_BSS(x)    COMPILER_ALIGNED(x)
+#endif
 
 /**
  * \brief Configuration descriptor and UDI link for one USB speed
  */
 typedef struct {
-	//! USB configuration descriptor
-	usb_conf_desc_t UDC_DESC_STORAGE *desc;
-	//! Array of UDI API pointer
-	udi_api_t UDC_DESC_STORAGE *UDC_DESC_STORAGE * udi_apis;
+  //! USB configuration descriptor
+  usb_conf_desc_t UDC_DESC_STORAGE *desc;
+  //! Array of UDI API pointer
+  udi_api_t UDC_DESC_STORAGE *UDC_DESC_STORAGE * udi_apis;
 } udc_config_speed_t;
-
 
 /**
  * \brief All information about the USB Device
  */
 typedef struct {
-	//! USB device descriptor for low or full speed
-	usb_dev_desc_t UDC_DESC_STORAGE *confdev_lsfs;
-	//! USB configuration descriptor and UDI API pointers for low or full speed
-	udc_config_speed_t UDC_DESC_STORAGE *conf_lsfs;
-#ifdef USB_DEVICE_HS_SUPPORT
-	//! USB device descriptor for high speed
-	usb_dev_desc_t UDC_DESC_STORAGE *confdev_hs;
-	//! USB device qualifier, only use in high speed mode
-	usb_dev_qual_desc_t UDC_DESC_STORAGE *qualifier;
-	//! USB configuration descriptor and UDI API pointers for high speed
-	udc_config_speed_t UDC_DESC_STORAGE *conf_hs;
-#endif
-	usb_dev_bos_desc_t UDC_DESC_STORAGE *conf_bos;
+  //! USB device descriptor for low or full speed
+  usb_dev_desc_t UDC_DESC_STORAGE *confdev_lsfs;
+  //! USB configuration descriptor and UDI API pointers for low or full speed
+  udc_config_speed_t UDC_DESC_STORAGE *conf_lsfs;
+  #ifdef USB_DEVICE_HS_SUPPORT
+    //! USB device descriptor for high speed
+    usb_dev_desc_t UDC_DESC_STORAGE *confdev_hs;
+    //! USB device qualifier, only use in high speed mode
+    usb_dev_qual_desc_t UDC_DESC_STORAGE *qualifier;
+    //! USB configuration descriptor and UDI API pointers for high speed
+    udc_config_speed_t UDC_DESC_STORAGE *conf_hs;
+  #endif
+  usb_dev_bos_desc_t UDC_DESC_STORAGE *conf_bos;
 } udc_config_t;
 
 //! Global variables of USB Device Descriptor and UDI links

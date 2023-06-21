@@ -55,7 +55,7 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames);
+uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const bool with_longnames);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -723,7 +723,7 @@ void get_file_list(const char * const path, const bool with_longnames) {
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // udisk
   }
-  Explore_Disk(path, 0, with_longnames);
+  exploreDisk(path, 0, with_longnames);
 }
 
 char wait_ip_back_flag = 0;
@@ -818,7 +818,7 @@ static int cut_msg_head(uint8_t * const msg, const uint16_t msgLen, uint16_t cut
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames) {
+uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const bool with_longnames) {
   char Fstream[200];
 
   if (!path) return 0;
@@ -1805,7 +1805,7 @@ void stopEspTransfer() {
   W25QXX.init(SPI_QUARTER_SPEED);
 
   // ?? Workaround for SPI / Servo issues ??
-  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
+  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spiInit(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
 

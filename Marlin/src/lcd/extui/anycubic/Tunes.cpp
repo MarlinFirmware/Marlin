@@ -39,7 +39,7 @@
 
 namespace Anycubic {
 
-  void PlayTune(const uint16_t *tune, const uint8_t speed/*=1*/) {
+  void playTune(const uint16_t *tune, const uint8_t speed/*=1*/) {
     const uint16_t wholenotelen = tune[0] / speed;
     for (uint8_t pos = 1; pos < MAX_TUNE_LENGTH; pos += 2) {
       const uint16_t freq = tune[pos];
