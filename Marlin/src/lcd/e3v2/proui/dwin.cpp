@@ -3091,7 +3091,7 @@ void Draw_AdvancedSettings_Menu() {
     #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
       MENU_ITEM_F(ICON_MPCNozzle, "MPC Settings", onDrawSubMenu, Draw_HotendMPC_Menu);
     #endif
-    #if ENABLED(PIDTEMPBED)
+    #if ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
       MENU_ITEM_F(ICON_PIDBed, STR_BED_PID " Settings", onDrawSubMenu, Draw_BedPID_Menu);
     #endif
     #if HAS_TRINAMIC_CONFIG
