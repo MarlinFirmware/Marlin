@@ -60,7 +60,7 @@ void DWINUI::setFont(fontid_t fid) { fontid = fid; }
 uint8_t DWINUI::fontWidth(fontid_t fid) {
   switch (fid) {
     #if DISABLED(TJC_DISPLAY)
-    case font6x12 : return 6;
+      case font6x12 : return 6;
       case font20x40: return 20;
       case font24x48: return 24;
       case font28x56: return 28;
@@ -264,13 +264,13 @@ void DWINUI::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
 //  y: ordinate of the center of the circle
 //  r: circle radius
 void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
-  dwinDrawLine(bcolor, x-r,y,x+r,y);
+  dwinDrawLine(bcolor, x - r, y, x + r, y);
   uint16_t b = 1;
   while (b <= r) {
     uint16_t a = SQRT(sq(r) - sq(b));
-    dwinDrawLine(bcolor, x-a,y+b,x+a,y+b);
-    dwinDrawLine(bcolor, x-a,y-b,x+a,y-b);
-    b+=TERN(TJC_DISPLAY,2,1);
+    dwinDrawLine(bcolor, x - a, y + b, x + a, y + b);
+    dwinDrawLine(bcolor, x - a, y - b, x + a, y - b);
+    b += TERN(TJC_DISPLAY, 2, 1);
   }
 }
 

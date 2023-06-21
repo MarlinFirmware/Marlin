@@ -88,11 +88,11 @@ namespace Language_en {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Settings");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Manual Leveling");
-  LSTR MSG_LEVBED_FL                      = _UxGT("Front Left");
-  LSTR MSG_LEVBED_FR                      = _UxGT("Front Right");
-  LSTR MSG_LEVBED_C                       = _UxGT("Center");
-  LSTR MSG_LEVBED_BL                      = _UxGT("Back Left");
-  LSTR MSG_LEVBED_BR                      = _UxGT("Back Right");
+  LSTR MSG_TRAM_FL                        = _UxGT("Front Left");
+  LSTR MSG_TRAM_FR                        = _UxGT("Front Right");
+  LSTR MSG_TRAM_C                         = _UxGT("Center");
+  LSTR MSG_TRAM_BL                        = _UxGT("Back Left");
+  LSTR MSG_TRAM_BR                        = _UxGT("Back Right");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Manual Mesh");
   LSTR MSG_AUTO_MESH                      = _UxGT("Auto Build Mesh");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");

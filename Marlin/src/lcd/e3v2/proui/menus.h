@@ -152,13 +152,13 @@ void onDrawChkbMenu(MenuItemClass* menuitem, int8_t line);
 
 // On click functions =========================================================
 
-void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetIntOnClick(const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetPIntOnClick(const int32_t lo, const int32_t hi, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetFloatOnClick(const float lo, const float hi, uint8_t dp, const float val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
-void SetPFloatOnClick(const float lo, const float hi, uint8_t dp, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr);
+void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp, const int32_t val, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetIntOnClick(const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetPIntOnClick(const int32_t lo, const int32_t hi, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetFloatOnClick(const float lo, const float hi, uint8_t dp, const float val, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
+void SetPFloatOnClick(const float lo, const float hi, uint8_t dp, void (*Apply)()=nullptr, void (*LiveUpdate)()=nullptr);
 
 // HMI user control functions =================================================
 
@@ -187,7 +187,7 @@ void InvalidateMenu();
 void UpdateMenu(MenuClass* &menu);
 
 //Redraw the current Menu if it is valid
-void ReDrawMenu(bool force = false);
+void ReDrawMenu(bool force=false);
 
 //Redraw selected menu item
 void ReDrawItem();
@@ -204,7 +204,7 @@ bool IsMenu(MenuClass* menu);
 // Add elements to the MenuItems array
 CustomMenuItemClass* MenuItemAdd(OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
 MenuItemClass* MenuItemAdd(uint8_t cicon, const char * const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
-inline MenuItemClass* MenuItemAdd(uint8_t cicon, FSTR_P text = nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr) {
+inline MenuItemClass* MenuItemAdd(uint8_t cicon, FSTR_P text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr) {
   return MenuItemAdd(cicon, FTOP(text), ondraw, onclick);
 }
 MenuItemClass* MenuItemAdd(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);

@@ -170,9 +170,9 @@ void BedLevelToolsClass::MoveToZ() {
   bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true);
 }
 void BedLevelToolsClass::ProbeXY() {
-  const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
+  const uint16_t zclear = Z_CLEARANCE_DEPLOY_PROBE;
   sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
-    Clear,
+    zclear,
     dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
     dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)
   );
@@ -181,9 +181,7 @@ void BedLevelToolsClass::ProbeXY() {
 
 void BedLevelToolsClass::mesh_reset() {
   ZERO(bedlevel.z_values);
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    bedlevel.refresh_bed_level();
-  #endif
+  TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 }
 
 // Accessors
@@ -216,13 +214,9 @@ bool BedLevelToolsClass::meshvalidate() {
 
 #if ENABLED(USE_GRID_MESHVIEWER)
 
-  #if ENABLED(TJC_DISPLAY)
-    #define meshfont font8x16
-  #else
-    #define meshfont font6x12
-  #endif
+  constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
 
-  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
+  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);

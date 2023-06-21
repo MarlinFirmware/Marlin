@@ -77,7 +77,7 @@ public:
   static float get_min_value();
   static bool meshvalidate();
   #if ENABLED(USE_GRID_MESHVIEWER)
-    static void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
+    static void Draw_Bed_Mesh(int16_t selected=-1, uint8_t gridline_width=1, uint16_t padding_x=8, uint16_t padding_y_top=(40 + 53 - 7));
     static void Set_Mesh_Viewer_Status();
   #endif
 };

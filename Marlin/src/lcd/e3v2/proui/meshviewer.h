@@ -33,10 +33,10 @@ public:
   static float max, min;
   static void DrawMeshGrid(const uint8_t csizex, const uint8_t csizey);
   static void DrawMeshPoint(const uint8_t x, const uint8_t y, const float z);
-  static void Draw(bool withsave = false, bool redraw = true);
-  static void DrawMesh(bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
+  static void Draw(const bool withsave=false, const bool redraw=true);
+  static void DrawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
 };
 
 extern MeshViewerClass MeshViewer;
 
-void Goto_MeshViewer(bool redraw);
+void Goto_MeshViewer(const bool redraw);
