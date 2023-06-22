@@ -179,6 +179,7 @@ void GcodeSuite::M493() {
         #endif
         case ftMotionMode_DISABLED:
         case ftMotionMode_ENABLED:
+          if(printJobOngoing() && ftMotionMode_DISABLED) {SERIAL_ECHOLNPGM("Ongoing Job, control mode [S] forbidden"); return;}
           fxdTiCtrl.cfg.mode = newmm;
           flag.report_h = true;
           if (oldmm == ftMotionMode_DISABLED) flag.reset_ft = true;
