@@ -727,7 +727,6 @@ private:
 
   #if ENABLED(BD_SENSOR)
     static void M102();
-    static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_HOTEND
