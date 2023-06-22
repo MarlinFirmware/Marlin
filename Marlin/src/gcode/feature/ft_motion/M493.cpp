@@ -169,6 +169,7 @@ void GcodeSuite::M493() {
         #if HAS_X_AXIS
           case ftMotionMode_ZV:
           case ftMotionMode_ZVD:
+          case ftMotionMode_EI:
           case ftMotionMode_2HEI:
           case ftMotionMode_3HEI:
           case ftMotionMode_MZV:
