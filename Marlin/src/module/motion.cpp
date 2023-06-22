@@ -33,6 +33,10 @@
 #include "../lcd/marlinui.h"
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
+
 #if IS_SCARA
   #include "../libs/buzzer.h"
   #include "../lcd/marlinui.h"
@@ -2097,6 +2101,21 @@ void prepare_line_to_destination() {
    */
 
   void homeaxis(const AxisEnum axis) {
+
+    #if ENABLED(FT_MOTION)
+      // Disable ft-motion for homing
+      struct OnExit {
+        ftMotionMode_t oldmm;
+        OnExit() {
+          oldmm = fxdTiCtrl.cfg.mode;
+          fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+        }
+        ~OnExit() {
+          fxdTiCtrl.cfg.mode = oldmm;
+          fxdTiCtrl.init();
+        }
+      } on_exit;
+    #endif
 
     #if ANY(MORGAN_SCARA, MP_SCARA)
       // Only Z homing (with probe) is permitted

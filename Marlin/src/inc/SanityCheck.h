@@ -4058,12 +4058,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION)
-  #if NUM_AXES > 3
-    #error "FT_MOTION is currently limited to machines with 3 linear axes."
-  #elif ENABLED(MIXING_EXTRUDER)
-    #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
-  #endif
+#if ALL(FT_MOTION, MIXING_EXTRUDER)
+  #error "FT_MOTION does not currently support MIXING_EXTRUDER."
 #endif
 
 // Multi-Stepping Limit
