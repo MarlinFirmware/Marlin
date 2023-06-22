@@ -199,7 +199,7 @@ void Preview_DrawFromSD() {
     char str_1[6] = "";
     char str_2[6] = "";
     char str_3[6] = "";
-    DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
+    dwinDrawRectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
     if (fileprop.time) {
       sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
       DWINUI::Draw_String(20, 10, buf);
@@ -218,12 +218,12 @@ void Preview_DrawFromSD() {
     }
     DWINUI::Draw_Button(BTN_Print, 26, 290);
     DWINUI::Draw_Button(BTN_Cancel, 146, 290);
-    DWIN_ICON_Show(0, 0, 1, 21, 90, 0x00);
+    dwinIconShow(0, 0, 1, 21, 90, 0x00);
     Draw_Select_Highlight(true, 290);
-    DWIN_UpdateLCD();
+    dwinUpdateLCD();
   }
   else {
-    HMI_flag.select_flag = 1;
+    hmiFlag.select_flag = 1;
     wait_for_user = false;
   }
 }

@@ -141,26 +141,26 @@ public:
     return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
   }
 
-  static int8_t cell_index_x_valid(const_float_t x) {
+  static bool cell_index_x_valid(const_float_t x) {
     return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static int8_t cell_index_y_valid(const_float_t y) {
+  static bool cell_index_y_valid(const_float_t y) {
     return WITHIN(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static int8_t cell_index_x(const_float_t x) {
+  static uint8_t cell_index_x(const_float_t x) {
     return constrain(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static int8_t cell_index_y(const_float_t y) {
+  static uint8_t cell_index_y(const_float_t y) {
     return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
-  static xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+  static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const_float_t x) {
     const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
@@ -279,10 +279,8 @@ public:
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
 
-    if (DEBUGGING(MESH_ADJUST)) {
-      DEBUG_ECHOPGM("get_z_correction(", rx0, ", ", ry0);
-      DEBUG_ECHOLNPAIR_F(") => ", z0, 6);
-    }
+    if (DEBUGGING(MESH_ADJUST))
+      DEBUG_ECHOLN(F("get_z_correction("), rx0, F(", "), ry0, F(") => "), p_float_t(z0, 6));
 
     return z0;
   }

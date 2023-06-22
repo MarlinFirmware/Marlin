@@ -73,6 +73,11 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+
+#if ENABLED(BD_SENSOR)
+  #include "../feature/bedlevel/bdl/bdl.h"
+#endif
+
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
@@ -2131,6 +2136,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) {
         if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
         if (TERN0(PROBE_TARE, probe.tare())) return;
+        TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
 
@@ -2379,6 +2385,10 @@ void prepare_line_to_destination() {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
 
+    #endif
+
+    #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
+      if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
     // Put away the Z probe
