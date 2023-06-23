@@ -1547,6 +1547,9 @@
     #if ANY(HAS_MARLINUI_U8GLIB, TFT_COLOR_UI)
       #define BOOT_MARLIN_LOGO_SMALL      // Show a smaller Marlin logo on the Boot Screen (saving lots of flash)
     #endif
+    #if ENABLED(TFT_COLOR_UI)
+      //#define BOOT_MARLIN_LOGO_USES_RLE16 // Uses less flash space.
+    #endif
     #if HAS_MARLINUI_U8GLIB
       //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~3260 (or ~940) bytes of flash.
     #endif

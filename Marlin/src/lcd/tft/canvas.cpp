@@ -103,24 +103,82 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
            image_height = images[image].height;
   colorMode_t color_mode = images[image].colorMode;
 
-  if (color_mode != HIGHCOLOR)
-    return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
+  if (color_mode == HIGHCOLOR ) {
+    // HIGHCOLOR - 16 bits per pixel
+    for (int16_t i = 0; i < image_height; i++) {
+      int16_t line = y + i;
+      if (line >= startLine && line < endLine) {
+        uint16_t *pixel = buffer + x + (line - startLine) * width;
+        for (int16_t j = 0; j < image_width; j++) {
+          if ((x + j >= 0) && (x + j < width)) {
+            *pixel = ENDIAN_COLOR(*data);
+          }
+          pixel++;
+          data++;
+        }
+      }
+      else
+        data += image_width;
+    }
+  }
+  #if ENABLED(BOOT_MARLIN_LOGO_USES_RLE16)
+    // RLE16 HIGHCOLOR - 16 bits per pixel
+    else if (color_mode == RLE16 ) {
+      uint8_t *bytedata = (uint8_t *)Images[image].data;
+      if (!bytedata) return;
+      uint8_t overflow = 0;
 
-  // HIGHCOLOR - 16 bits per pixel
-
-  for (int16_t i = 0; i < image_height; i++) {
-    int16_t line = y + i;
-    if (line >= startLine && line < endLine) {
-      uint16_t *pixel = buffer + x + (line - startLine) * width;
-      for (int16_t j = 0; j < image_width; j++) {
-        if ((x + j >= 0) && (x + j < width)) *pixel = ENDIAN_COLOR(*data);
-        pixel++;
-        data++;
+      for (int16_t i = 0; i < image_height; i++) {
+        int16_t line = y + i;
+        if (line >= startLine && line < endLine) {
+          uint16_t *pixel = buffer + x + (line - startLine) * width;
+          int16_t j=0;
+          while (j < image_width) {
+            if ((x + j >= 0) && (x + j < width)) {
+              uint8_t count = *bytedata;
+              uint16_t color = ENDIAN_COLOR((bytedata[1]<<8)+bytedata[2]);
+              if (overflow) {
+                count = overflow;
+                overflow = 0;
+              }
+              if (j + count > image_width) {
+                 overflow = (j + count) - image_width;
+                 count = count - overflow;
+              }
+              for (uint8_t runcount = 0; runcount < count; runcount++) {
+                *pixel = color;
+                pixel++;
+                j++;
+              }
+              if (!overflow)
+                bytedata += 3;
+            }
+          }
+        }
+        else {
+          int16_t j=0;
+          while (j < image_width) {
+            if ((x + j >= 0) && (x + j < width)) {
+              uint8_t count = *bytedata;
+              if (overflow) {
+                count = overflow;
+                overflow = 0;
+              }
+              if (j + count > image_width) {
+                 overflow = (j + count) - image_width;
+                 count = count - overflow;
+              }
+              j += count;
+              if (!overflow)
+                bytedata += 3;
+            }
+          }
+        }
       }
     }
-    else
-      data += image_width;
-  }
+  #endif
+  else
+    return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
 }
 
 void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors) {
