@@ -21,7 +21,7 @@
 
 #include "../ftdi_extended.h"
 
-#if BOTH(FTDI_EXTENDED, TOUCH_UI_USE_UTF8)
+#if ALL(FTDI_EXTENDED, TOUCH_UI_USE_UTF8)
 
   using namespace FTDI;
 

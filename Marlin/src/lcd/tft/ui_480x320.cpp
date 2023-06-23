@@ -684,11 +684,6 @@ struct {
   char message[32];
 } motionAxisState;
 
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
-
 #define BTN_WIDTH 64
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
@@ -1111,7 +1106,7 @@ void MarlinUI::move_axis_screen() {
 
     x += spacing;
     #if HAS_Z_AXIS
-      drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+      drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
     #endif
 
     // ROW 2 -> "Ex"  X-  HOME X+  "Z"

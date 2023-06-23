@@ -79,7 +79,7 @@ void write_to_lcd(FSTR_P const fmsg) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = _MIN(strlen_P(pmsg), sizeof(encoded_message));
 
-  LOOP_L_N(i, message_length)
+  for (uint8_t i = 0; i < message_length; ++i)
     encoded_message[i] = pgm_read_byte(&pmsg[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -89,7 +89,7 @@ void write_to_lcd(const char * const cmsg) {
   char encoded_message[MAX_CURLY_COMMAND];
   const uint8_t message_length = _MIN(strlen(cmsg), sizeof(encoded_message));
 
-  LOOP_L_N(i, message_length)
+  for (uint8_t i = 0; i < message_length; ++i)
     encoded_message[i] = cmsg[i] | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -167,7 +167,7 @@ void process_lcd_eb_command(const char *command) {
       char message_buffer[MAX_CURLY_COMMAND];
       uint8_t done_pct = print_job_timer.isRunning() ? (iteration * 10) : 100;
       iteration = (iteration + 1) % 10; // Provide progress animation
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         if (ExtUI::isPrintingFromMedia() || ExtUI::isPrintingFromMediaPaused())
           done_pct = card.percentDone();
       #endif
@@ -180,7 +180,7 @@ void process_lcd_eb_command(const char *command) {
         #else
           0, 0,
         #endif
-        TERN(SDSUPPORT, done_pct, 0),
+        TERN(HAS_MEDIA, done_pct, 0),
         elapsed_buffer
       );
       write_to_lcd(message_buffer);
@@ -257,7 +257,7 @@ void process_lcd_p_command(const char *command) {
         break;
     case 'H': queue.enqueue_now_P(G28_STR); break; // Home all axes
     default: {
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         // Print file 000 - a three digit number indicating which
         // file to print in the SD card. If it's a directory,
         // then switch to the directory.
@@ -316,7 +316,7 @@ void process_lcd_s_command(const char *command) {
     } break;
 
     case 'L': {
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         if (!card.isMounted()) card.mount();
 
         // A more efficient way to do this would be to
@@ -326,8 +326,8 @@ void process_lcd_s_command(const char *command) {
         // select a file for printing during a print, there's
         // little reason not to do it this way.
         char message_buffer[MAX_CURLY_COMMAND];
-        uint16_t file_count = card.get_num_Files();
-        for (uint16_t i = 0; i < file_count; i++) {
+        int16_t file_count = card.get_num_items();
+        for (int16_t i = 0; i < file_count; i++) {
           card.selectFileByIndex(i);
           sprintf_P(message_buffer, card.flag.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);

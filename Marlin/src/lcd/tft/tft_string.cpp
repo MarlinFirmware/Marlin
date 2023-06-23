@@ -25,7 +25,7 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "tft_string.h"
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../marlinui.h"
 
 //#define DEBUG_TFT_FONT
@@ -59,11 +59,11 @@ void TFT_String::set_font(const uint8_t *font) {
   #endif
 
   DEBUG_ECHOLNPGM("Format: ",            ((unifont_t *)font_header)->Format);
-  DEBUG_ECHOLNPGM("CapitalAHeight: ",    ((unifont_t *)font_header)->CapitalAHeight);
-  DEBUG_ECHOLNPGM("FontStartEncoding: ", ((unifont_t *)font_header)->FontStartEncoding);
-  DEBUG_ECHOLNPGM("FontEndEncoding: ",   ((unifont_t *)font_header)->FontEndEncoding);
-  DEBUG_ECHOLNPGM("FontAscent: ",        ((unifont_t *)font_header)->FontAscent);
-  DEBUG_ECHOLNPGM("FontDescent: ",       ((unifont_t *)font_header)->FontDescent);
+  DEBUG_ECHOLNPGM("capitalAHeight: ",    ((unifont_t *)font_header)->capitalAHeight);
+  DEBUG_ECHOLNPGM("fontStartEncoding: ", ((unifont_t *)font_header)->fontStartEncoding);
+  DEBUG_ECHOLNPGM("fontEndEncoding: ",   ((unifont_t *)font_header)->fontEndEncoding);
+  DEBUG_ECHOLNPGM("fontAscent: ",        ((unifont_t *)font_header)->fontAscent);
+  DEBUG_ECHOLNPGM("fontDescent: ",       ((unifont_t *)font_header)->fontDescent);
 
   add_glyphs(font);
 }
@@ -72,15 +72,15 @@ void TFT_String::add_glyphs(const uint8_t *font) {
   uint16_t unicode, fontStartEncoding, fontEndEncoding;
   uint8_t *pointer;
 
-  fontStartEncoding = ((unifont_t *)font)->FontStartEncoding;
-  fontEndEncoding = ((unifont_t *)font)->FontEndEncoding;
+  fontStartEncoding = ((unifont_t *)font)->fontStartEncoding;
+  fontEndEncoding = ((unifont_t *)font)->fontEndEncoding;
   pointer = (uint8_t *)font + sizeof(unifont_t);
 
   if (fontEndEncoding < 0x0100) { // base and symbol fonts
     for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
       if (*pointer != NO_GLYPH) {
         glyphs[unicode] = (glyph_t *)pointer;
-        pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
+        pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
       }
       else
         pointer++;
@@ -98,7 +98,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
             }
             if (*pointer != NO_GLYPH) {
               glyphs_extra[unicode - fontStartEncoding] = pointer;
-              pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
+              pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
             }
             else
               pointer++;
@@ -112,7 +112,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
           }
           glyphs_extra[i] = pointer;
           unicode = *(uint16_t *) pointer;
-          pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.DataSize;
+          pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.dataSize;
           extra_count = i + 1;
           if (unicode == fontEndEncoding)
             break;
@@ -127,11 +127,11 @@ glyph_t *TFT_String::glyph(uint16_t character) {
   if (character < 0x00ff) return glyphs[character] ?: glyphs['?'];    /* Use '?' for unknown glyphs */
 
   #if EXTRA_GLYPHS
-    if (font_header_extra == nullptr || character < font_header_extra->FontStartEncoding || character > font_header_extra->FontEndEncoding) return glyphs['?'];
+    if (font_header_extra == nullptr || character < font_header_extra->fontStartEncoding || character > font_header_extra->fontEndEncoding) return glyphs['?'];
 
     if ((font_header_extra->Format & 0xF0) == FONT_MARLIN_GLYPHS) {
-      if (glyphs_extra[character - font_header_extra->FontStartEncoding])
-        return (glyph_t *)glyphs_extra[character - font_header_extra->FontStartEncoding];
+      if (glyphs_extra[character - font_header_extra->fontStartEncoding])
+        return (glyph_t *)glyphs_extra[character - font_header_extra->fontStartEncoding];
     }
     else {
       #if 0
@@ -179,7 +179,7 @@ void TFT_String::set() {
  * Add a string, applying substitutions for the following characters:
  *
  *   $ displays the string given by fstr or cstr
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -191,9 +191,9 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
     tpl = get_utf8_value_cb(tpl, read_byte_ram, wc);
     const uint16_t ch = uint16_t(wc);
 
-    if (ch == '=' || ch == '~' || ch == '*') {
+    if (ch == '{' || ch == '~' || ch == '*') {
       if (index >= 0) {
-        int8_t inum = index + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+        int8_t inum = index + ((ch == '{') ? 0 : LCD_FIRST_TOOL);
         if (ch == '*') add_character('E');
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
@@ -232,7 +232,7 @@ void TFT_String::add_character(const uint16_t character) {
   if (length < MAX_STRING_LENGTH) {
     data[length] = character;
     length++;
-    span += glyph(character)->DWidth;
+    span += glyph(character)->dWidth;
   }
 }
 
@@ -240,7 +240,7 @@ void TFT_String::rtrim(const uint16_t character) {
   while (length) {
     if (data[length - 1] == 0x20 || data[length - 1] == character) {
       length--;
-      span -= glyph(data[length])->DWidth;
+      span -= glyph(data[length])->dWidth;
       eol();
     }
     else
@@ -251,7 +251,7 @@ void TFT_String::rtrim(const uint16_t character) {
 void TFT_String::ltrim(const uint16_t character) {
   uint16_t i, j;
   for (i = 0; (i < length) && (data[i] == 0x20 || data[i] == character); i++) {
-    span -= glyph(data[i])->DWidth;
+    span -= glyph(data[i])->dWidth;
   }
   if (i == 0) return;
   for (j = 0; i < length; data[j++] = data[i++]);

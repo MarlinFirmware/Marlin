@@ -57,7 +57,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .font(Theme::font_medium)
        .tag( 2).button(MOVE_XYZ_POS,          GET_TEXT_F(MSG_XYZ_MOVE))
        .tag( 3).button(TEMPERATURE_POS,       GET_TEXT_F(MSG_TEMPERATURE))
-               .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE))
+               .enabled(ALL(HAS_LEVELING, HAS_BED_PROBE))
        .tag( 4).button(ZPROBE_ZOFFSET_POS,    GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
        .tag( 5).button(MOVE_E_POS,            GET_TEXT_F(MSG_E_MOVE))
        .tag( 6).button(SPEED_POS,             GET_TEXT_F(MSG_PRINT_SPEED))
@@ -79,7 +79,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case  2: GOTO_SCREEN(MoveXYZScreen);                    break;
     case  3: GOTO_SCREEN(TemperatureScreen);                break;
-    #if BOTH(HAS_LEVELING, HAS_BED_PROBE)
+    #if ALL(HAS_LEVELING, HAS_BED_PROBE)
     case  4: GOTO_SCREEN(ZOffsetScreen);                    break;
     #endif
     case  5: GOTO_SCREEN(MoveEScreen);                      break;

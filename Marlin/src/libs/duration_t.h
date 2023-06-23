@@ -143,7 +143,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Format the duration as a string
+   * @brief Format the duration as a compact string
    * @details String will be formatted using a "full" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 18 bytes

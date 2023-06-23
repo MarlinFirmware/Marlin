@@ -292,16 +292,6 @@ void MarlinUI::draw_status_screen() {
       tft.add_text(600 - tft_string.width(), 3, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
     #endif
   }
-  tft.add_text(800, 3, COLOR_AXIS_HOMED, "Z");
-  uint16_t offset = 32;
-  const bool nhz = axis_should_home(Z_AXIS);
-  if (blink && nhz)
-    tft_string.set('?');
-  else {
-    const float z = LOGICAL_Z_POSITION(current_position.z);
-    tft_string.set(ftostr52sp((int16_t)z));
-    tft_string.rtrim();
-    offset += tft_string.width();
 
   #if HAS_Z_AXIS
     tft.add_text(800, 3, COLOR_AXIS_HOMED, "Z");
@@ -336,13 +326,13 @@ void MarlinUI::draw_status_screen() {
 
   // Flow rate
   #if HAS_EXTRUDERS
-    tft.canvas(650, y, 200, 32);
+    tft.canvas(650, y, 128, 32);
     tft.set_background(COLOR_BACKGROUND);
     color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
     tft.add_image(0, 0, imgFlowRate, color);
     tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
     tft_string.add('%');
-    tft.add_text(36, 1, color , tft_string);
+    tft.add_text(36, 1, color, tft_string);
     TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 200, 32, active_extruder));
   #endif
 
@@ -710,11 +700,6 @@ struct {
   char message[32];
 } motionAxisState;
 
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
-
 #define BTN_WIDTH 64
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
@@ -1009,7 +994,7 @@ void MarlinUI::move_axis_screen() {
 
   x += spacing;
   #if HAS_Z_AXIS
-    drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+    drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
   #endif
 
   // ROW 2 -> "Ex"  X-  HOME X+  "Z"

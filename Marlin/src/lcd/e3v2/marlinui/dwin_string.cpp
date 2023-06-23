@@ -25,7 +25,7 @@
 #if IS_DWIN_MARLINUI
 
 #include "dwin_string.h"
-//#include "../../fontutils.h"
+//#include "../../utf8.h"
 
 char DWIN_String::data[];
 uint16_t DWIN_String::span;
@@ -44,7 +44,7 @@ uint8_t read_byte(const uint8_t *byte) { return *byte; }
  * Add a string, applying substitutions for the following characters:
  *
  *   $ displays the clipped string given by fstr or cstr
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -57,9 +57,9 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
     if (wc > 255) wc |= 0x0080;
     const uint8_t ch = uint8_t(wc & 0x00FF);
 
-    if (ch == '=' || ch == '~' || ch == '*') {
+    if (ch == '{' || ch == '~' || ch == '*') {
       if (index >= 0) {
-        int8_t inum = index + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+        int8_t inum = index + ((ch == '{') ? 0 : LCD_FIRST_TOOL);
         if (ch == '*') add_character('E');
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
@@ -133,7 +133,7 @@ void DWIN_String::add_character(const char character) {
   if (length < MAX_STRING_LENGTH) {
     data[length] = character;
     length++;
-    //span += glyph(character)->DWidth;
+    //span += glyph(character)->dWidth;
   }
 }
 
@@ -141,7 +141,7 @@ void DWIN_String::rtrim(const char character) {
   while (length) {
     if (data[length - 1] == 0x20 || data[length - 1] == character) {
       length--;
-      //span -= glyph(data[length])->DWidth;
+      //span -= glyph(data[length])->dWidth;
       eol();
     }
     else
@@ -152,7 +152,7 @@ void DWIN_String::rtrim(const char character) {
 void DWIN_String::ltrim(const char character) {
   uint16_t i, j;
   for (i = 0; (i < length) && (data[i] == 0x20 || data[i] == character); i++) {
-    //span -= glyph(data[i])->DWidth;
+    //span -= glyph(data[i])->dWidth;
   }
   if (i == 0) return;
   for (j = 0; i < length; data[j++] = data[i++]);

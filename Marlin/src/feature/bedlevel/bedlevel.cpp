@@ -27,7 +27,7 @@
 #include "bedlevel.h"
 #include "../../module/planner.h"
 
-#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+#if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
   #include "../../module/motion.h"
 #endif
 
@@ -120,7 +120,7 @@ void reset_bed_level() {
   TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
-#if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
+#if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
   /**
    * Enable to produce output in JSON format suitable
@@ -137,8 +137,8 @@ void reset_bed_level() {
    */
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
     #ifndef SCAD_MESH_OUTPUT
-      LOOP_L_N(x, sx) {
-        serial_spaces(precision + (x < 10 ? 3 : 2));
+      for (uint8_t x = 0; x < sx; ++x) {
+        SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
       SERIAL_EOL();
@@ -146,19 +146,19 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    LOOP_L_N(y, sy) {
+    for (uint8_t y = 0; y < sy; ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      LOOP_L_N(x, sx) {
+      for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_CHAR(' ');
         const float offset = values[x * sy + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
-          SERIAL_ECHO_F(offset, int(precision));
+          SERIAL_ECHO(p_float_t(offset, precision));
         }
         else {
           #ifdef SCAD_MESH_OUTPUT
@@ -166,7 +166,7 @@ void reset_bed_level() {
               SERIAL_CHAR(' ');
             SERIAL_ECHOPGM("NAN");
           #else
-            LOOP_L_N(i, precision + 3)
+            for (uint8_t i = 0; i < precision + 3; ++i)
               SERIAL_CHAR(i ? '=' : ' ');
           #endif
         }
@@ -188,7 +188,7 @@ void reset_bed_level() {
 
 #endif // AUTO_BED_LEVELING_BILINEAR || MESH_BED_LEVELING
 
-#if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+#if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 

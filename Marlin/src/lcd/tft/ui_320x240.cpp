@@ -487,7 +487,10 @@ void MarlinUI::draw_status_screen() {
     );
     #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
-      add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+      if (cm && pa)
+        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   }
   #endif // TOUCH_SCREEN
@@ -720,11 +723,6 @@ struct {
   bool blocked = false;
   char message[32];
 } motionAxisState;
-
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
 
 #define BTN_WIDTH 48
 #define BTN_HEIGHT 39

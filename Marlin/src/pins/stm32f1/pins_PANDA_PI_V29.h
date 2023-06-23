@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -88,18 +88,16 @@
 #define E0_DIR_PIN                          PB14
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB4
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB4
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
 #endif
 
 #if HAS_TMC_UART
@@ -127,8 +125,11 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -142,7 +143,7 @@
 //
 #define HEATER_0_PIN                        PB12  // "HE"
 #define HEATER_BED_PIN                      PB13  // "HB"
-#define FAN_PIN                             PA8   // "FAN0"
+#define FAN0_PIN                            PA8   // "FAN0"
 #define HEATER_1_PIN                        PA12
 
 //
@@ -173,11 +174,11 @@
   #define BTN_EN2                           PC5
 
   #define LCD_PINS_RS                       PC0
-  #define LCD_PINS_ENABLE                   PC2
+  #define LCD_PINS_EN                       PC2
   #define LCD_PINS_D4                       PC1
 #endif
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_PANDA_PI_V29.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -218,7 +219,7 @@
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
 
-  #if SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+  #if SD_CONNECTION_IS(LCD) && ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
     #define SD_DETECT_PIN                   PA15
     #define SD_SS_PIN                       PA10
   #endif

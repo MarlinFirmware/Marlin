@@ -45,27 +45,27 @@ uint16_t HighlightYPos = 280;
 
 void Draw_Select_Highlight(const bool sel, const uint16_t ypos) {
   HighlightYPos = ypos;
-  HMI_flag.select_flag = sel;
+  hmiFlag.select_flag = sel;
   const uint16_t c1 = sel ? HMI_data.Highlight_Color : HMI_data.PopupBg_Color,
                  c2 = sel ? HMI_data.PopupBg_Color : HMI_data.Highlight_Color;
-  DWIN_Draw_Rectangle(0, c1, 25, ypos - 1, 126, ypos + 38);
-  DWIN_Draw_Rectangle(0, c1, 24, ypos - 2, 127, ypos + 39);
-  DWIN_Draw_Rectangle(0, c2, 145, ypos - 1, 246, ypos + 38);
-  DWIN_Draw_Rectangle(0, c2, 144, ypos - 2, 247, ypos + 39);
+  dwinDrawRectangle(0, c1, 25, ypos - 1, 126, ypos + 38);
+  dwinDrawRectangle(0, c1, 24, ypos - 2, 127, ypos + 39);
+  dwinDrawRectangle(0, c2, 145, ypos - 1, 246, ypos + 38);
+  dwinDrawRectangle(0, c2, 144, ypos - 2, 247, ypos + 39);
 }
 
 void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2) {
   HMI_SaveProcessID(WaitResponse);
   DWIN_Draw_Popup(icon, fmsg1, fmsg2, BTN_Continue);  // Button Continue
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
 void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   DWIN_Draw_Popup(ICON_BLTouch, F("Please confirm"), fmsg2);
   DWINUI::Draw_Button(BTN_Confirm, 26, 280);
   DWINUI::Draw_Button(BTN_Cancel, 146, 280);
-  Draw_Select_Highlight(HMI_flag.select_flag);
-  DWIN_UpdateLCD();
+  Draw_Select_Highlight(hmiFlag.select_flag);
+  dwinUpdateLCD();
 }
 
 void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick/*=nullptr*/, const popupChangeFunc_t fnChange/*=nullptr*/) {
@@ -73,7 +73,7 @@ void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick/*=n
   popupClick = fnClick;
   popupChange = fnChange;
   HMI_SaveProcessID(Popup);
-  HMI_flag.select_flag = false;
+  hmiFlag.select_flag = false;
   popupDraw();
 }
 
@@ -87,7 +87,7 @@ void HMI_Popup() {
     if (encoder_diffState == ENCODER_DIFF_CW || encoder_diffState == ENCODER_DIFF_CCW) {
       const bool change = encoder_diffState != ENCODER_DIFF_CW;
       if (popupChange) popupChange(change); else Draw_Select_Highlight(change, HighlightYPos);
-      DWIN_UpdateLCD();
+      dwinUpdateLCD();
     }
   }
 }

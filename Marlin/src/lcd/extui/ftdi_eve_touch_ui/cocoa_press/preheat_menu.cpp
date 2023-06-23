@@ -32,7 +32,7 @@ using namespace Theme;
 #define GRID_ROWS 5
 
 void PreheatMenu::onRedraw(draw_mode_t what) {
-  const int16_t w = TERN0(COCOA_PRESS_EXTRA_HEATER, has_extra_heater() ? BTN_W(1) : BTN_W(2));
+  const int16_t w = TERN0(COCOA_PRESS_EXTRA_HEATER, has_extra_heater()) ? BTN_W(1) : BTN_W(2);
   const int16_t h = BTN_H(1);
 
   if (what & BACKGROUND) {
