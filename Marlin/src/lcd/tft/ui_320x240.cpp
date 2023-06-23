@@ -228,7 +228,7 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.clear());
 
   // Statuses of heaters and fans
-  const uint16_t y = TFT_STATUS_TOP_Y;
+  constexpr uint16_t y = TFT_STATUS_TOP_Y;
   for (uint16_t i = 0 ; i < ITEMS_COUNT; i++) {
     const uint16_t x = (TFT_WIDTH / ITEMS_COUNT - 64) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
     switch (i) {
@@ -278,14 +278,9 @@ void MarlinUI::draw_status_screen() {
       tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 32, 10), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, "X");
       const bool nhx = axis_should_home(X_AXIS);
       tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
-      tft.add_text(
-        #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-          32 - tft_string.width() / 2, FONT_LINE_HEIGHT + tft_string.vcenter(FONT_LINE_HEIGHT),
-        #else
-          68 - tft_string.width(), tft_string.vcenter(FONT_LINE_HEIGHT),
-        #endif
-        nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string
-      );
+      uint16_t pos_x = TERN(TFT_COLOR_UI_PORTRAIT, 32 - tft_string.width() / 2, 68 - tft_string.width()),
+               pos_y = SUM_TERN(TFT_COLOR_UI_PORTRAIT, tft_string.vcenter(FONT_LINE_HEIGHT), FONT_LINE_HEIGHT);
+      tft.add_text(pos_x, pos_y, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
     #endif
 
     #if HAS_Y_AXIS
@@ -318,31 +313,30 @@ void MarlinUI::draw_status_screen() {
       tft_string.set(ftostr52sp(z));
       offset -= tft_string.width();
     }
-    tft.add_text(
-      #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        192 - tft_string.width() / 2, FONT_LINE_HEIGHT + tft_string.vcenter(FONT_LINE_HEIGHT),
-      #else
-        301 - tft_string.width() - offset, tft_string.vcenter(FONT_LINE_HEIGHT),
-      #endif
-    nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 0, 103,
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      232, FONT_LINE_HEIGHT * 2
-    #else
-      312, FONT_LINE_HEIGHT
-    #endif
-  ));
+  uint16_t pos_x = TERN(TFT_COLOR_UI_PORTRAIT, 192 - tft_string.width() / 2, 301 - tft_string.width() - offset),
+           pos_y = SUM_TERN(TFT_COLOR_UI_PORTRAIT, tft_string.vcenter(FONT_LINE_HEIGHT), FONT_LINE_HEIGHT);
+  tft.add_text(pos_x, pos_y, nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+
+  // 3rd horizontal group - controls and times (height = 64, top margin = 3)
+  // 3rd group, subgroup A - controls (on the sides)
+  #if ENABLED(TOUCH_SCREEN)
+    width = TERN(TFT_COLOR_UI_PORTRAIT, 232, 312);
+    height = TERN(TFT_COLOR_UI_PORTRAIT, FONT_LINE_HEIGHT * 2, FONT_LINE_HEIGHT);
+    touch.add_control(MOVE_AXIS, 0, 103, width, height);
+    add_control(256, 130, menu_main, imgSettings);
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+  #endif
+
+  // 3rd group, subgroup B - speeds (center, top half)
 
   // Feed rate
   tft.canvas(
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      30, 172, 80
-    #else
-      70, 136, 84
-    #endif
-    , 32
+    TERN(TFT_COLOR_UI_PORTRAIT,  30,  70),
+    TERN(TFT_COLOR_UI_PORTRAIT, 172, 132),
+    TERN(TFT_COLOR_UI_PORTRAIT,  80,  88),
+    MENU_ITEM_HEIGHT
   );
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
@@ -351,88 +345,134 @@ void MarlinUI::draw_status_screen() {
   tft_string.add('%');
   tft.add_text(32, tft_string.vcenter(30), color, tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE,
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      30, 172, 80
-    #else
-      70, 136, 84
-    #endif
-    , 32
+    TERN(TFT_COLOR_UI_PORTRAIT,  30,  70),
+    TERN(TFT_COLOR_UI_PORTRAIT, 172, 132),
+    80, MENU_ITEM_HEIGHT
   ));
 
   // Flow rate
-  #if HAS_EXTRUDERS
-    tft.canvas(
-      #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        140, 172, 80
-      #else
-        170, 136, 84
-      #endif
-      , 32
-    );
-    tft.set_background(COLOR_BACKGROUND);
-    color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-    tft.add_image(0, 0, imgFlowRate, color);
-    tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
-    tft_string.add('%');
-    tft.add_text(32, tft_string.vcenter(30), color, tft_string);
-    TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE,
-      #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        140, 172, 80
-      #else
-        170, 136, 84
-      #endif
-      , 32, active_extruder
-    ));
-  #endif // HAS_EXTRUDERS
-
-  // Print duration
-  char buffer[14];
-  duration_t elapsed = print_job_timer.duration();
-  elapsed.toDigital(buffer);
-
   tft.canvas(
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      56, 256, 128
-    #else
-      96, 173, 128
-    #endif
-    , FONT_LINE_HEIGHT
+    TERN(TFT_COLOR_UI_PORTRAIT, 140, 162),
+    TERN(TFT_COLOR_UI_PORTRAIT, 172, 132),
+    TERN(TFT_COLOR_UI_PORTRAIT,  80,  88),
+    MENU_ITEM_HEIGHT
   );
   tft.set_background(COLOR_BACKGROUND);
-  tft_string.set(buffer);
-  tft.add_text(tft_string.center(128), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
+  color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+  tft.add_image(0, 0, imgFlowRate, color);
+  tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
+  tft_string.add('%');
+  tft.add_text(32, tft_string.vcenter(30), color, tft_string);
+  #if ENABLED(TOUCH_SCREEN)
+    touch.add_control(FLOWRATE,
+      TERN(TFT_COLOR_UI_PORTRAIT, 140, 170),
+      TERN(TFT_COLOR_UI_PORTRAIT, 172, 132),
+      80, MENU_ITEM_HEIGHT, active_extruder
+    );
+  #endif
 
-  // Progress bar
-  const uint8_t progress = ui.get_progress_percent();
-  tft.canvas(
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      4, 278, 232
-    #else
-      4, 198, 312
-    #endif
-    , 9
-  );
+  // 3rd group, subgroup C - times (center, bottom half)
+  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
+  const uint16_t time_str_width = 180, image_width = 34;
+  pos_x = (TFT_WIDTH - time_str_width) / 2;
+  pos_y = TERN(TFT_COLOR_UI_PORTRAIT, 256, 164);
+  #if ENABLED(SHOW_ELAPSED_TIME) && DISABLED(SHOW_REMAINING_TIME)
+    // Print duration so far (time elapsed) - centered
+    char elapsed_str[18];
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toCompactString(elapsed_str);
+
+    tft.canvas(pos_x, pos_y, time_str_width, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(elapsed_str);
+    uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
+    tft.add_image(text_pos_x, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft.add_text(text_pos_x + image_width, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
+
+  #elif DISABLED(SHOW_ELAPSED_TIME) && ENABLED(SHOW_REMAINING_TIME)
+    // Print time remaining estimation - centered
+    char estimate_str[18];
+    duration_t elapsed = print_job_timer.duration();
+
+    // Get the estimate, first from M73
+    uint32_t estimate_remaining = (0
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+        + get_remaining_time()
+      #endif
+    );
+    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+    if (!estimate_remaining && progress > 0)
+      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+    // Generate estimate string
+    if (!estimate_remaining)
+      tft_string.set("-");
+    else {
+      duration_t estimation = estimate_remaining;
+      estimation.toCompactString(estimate_str);
+      tft_string.set(estimate_str);
+    }
+
+    tft.canvas(pos_x, pos_y, time_str_width, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
+    tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
+    tft.add_text(text_pos_x + image_width, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
+
+  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+    // Print duration so far (time elapsed) - aligned under feed rate
+    char elapsed_str[18];
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toCompactString(elapsed_str);
+
+    tft.canvas(pos_x, pos_y, time_str_width / 2 - 2, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft_string.set(elapsed_str);
+    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
+
+    // Print time remaining estimation - aligned under flow rate
+    char estimate_str[18];
+
+    // Get the estimate, first from M73
+    uint32_t estimate_remaining = (0
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+        + get_remaining_time()
+      #endif
+    );
+    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+    if (!estimate_remaining && progress > 0)
+      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+    // Generate estimate string
+    if (!estimate_remaining)
+      tft_string.set("-");
+    else {
+      duration_t estimation = estimate_remaining;
+      estimation.toCompactString(estimate_str);
+      tft_string.set(estimate_str);
+    }
+
+    // Push out the estimate to the screen
+    tft.canvas(pos_x + time_str_width / 2 + 2, pos_y, time_str_width / 2 - 2, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    tft.add_image(0, 0, imgTimeRemaining, color);
+    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
+  #endif
+
+  // Fourth horizontal group - progress bar (height = 9, top margin = 4)
+  pos_y = TERN(TFT_COLOR_UI_PORTRAIT, 278, 198);
+  tft.canvas(4, pos_y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
-  tft.add_rectangle(0, 0,
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      232, 9
-    #else
-      312, 9
-    #endif
-    , COLOR_PROGRESS_FRAME
-  );
+  tft.add_rectangle(0, 0, TFT_WIDTH - 8, 9, COLOR_PROGRESS_FRAME);
   if (progress)
-    tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
+    tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 
   // Status message
-  tft.canvas(
-    #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      0, 296, 240
-    #else
-      0, 212, 320
-    #endif
-    , FONT_LINE_HEIGHT
-  );
+  pos_y += 9 + 7;
+  tft.canvas(0, pos_y, TFT_WIDTH, TFT_HEIGHT - pos_y);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
@@ -441,12 +481,9 @@ void MarlinUI::draw_status_screen() {
   #if ENABLED(TOUCH_SCREEN)
   {
     add_control(
-      #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        176, 210
-      #else
-        256, 130
-      #endif
-      , menu_main, imgSettings
+      TERN(TFT_COLOR_UI_PORTRAIT, 176, 256),
+      TERN(TFT_COLOR_UI_PORTRAIT, 210, 130),
+      menu_main, imgSettings
     );
     #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
@@ -552,8 +589,8 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   }
   #if ENABLED(TOUCH_SCREEN)
-    if (no)  add_control(TERN(TFT_COLOR_UI_PORTRAIT, 16, 48), TFT_HEIGHT - 64, CANCEL,  imgCancel,  true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
-    if (yes) add_control(TERN(TFT_COLOR_UI_PORTRAIT, 160, 208), TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
+    if (no)  add_control(TERN(TFT_COLOR_UI_PORTRAIT, 32,48), TFT_HEIGHT - 64, CANCEL, imgCancel, true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
+    if (yes) add_control(TERN(TFT_COLOR_UI_PORTRAIT, 172, 208), TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
   #endif
 }
 
