@@ -120,9 +120,9 @@ enum colorMode_t : uint8_t {
   GREYSCALE1 = 0x01,  // 1 bit per pixel
   GREYSCALE2,         // 2 bits per pixel
   GREYSCALE4,         // 4 bits per pixel
-  HIGHCOLOR,          // 16 bits per pixel
+  HIGHCOLOR           // 16 bits per pixel
   #if ENABLED(BOOT_MARLIN_LOGO_USES_RLE16)
-    RLE16             // RLE16 8 bit count and 16 bits per pixel row
+    , RLE16           // RLE16 8 bit count and 16 bits per pixel row
   #endif
 };
 
