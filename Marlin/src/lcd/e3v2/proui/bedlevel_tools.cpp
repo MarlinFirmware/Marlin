@@ -23,8 +23,8 @@
 /**
  * Bed Level Tools for Pro UI
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 2.1.0
- * Date: 2022/08/27
+ * Version: 3.2.0
+ * Date: 2023/05/03
  *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
@@ -65,7 +65,7 @@
 
 BedLevelToolsClass bedLevelTools;
 
-#if ENABLED(USE_UBL_VIEWER)
+#if ENABLED(USE_GRID_MESHVIEWER)
   bool BedLevelToolsClass::viewer_asymmetric_range = false;
   bool BedLevelToolsClass::viewer_print_value = false;
 #endif
@@ -170,13 +170,18 @@ void BedLevelToolsClass::MoveToZ() {
   bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true);
 }
 void BedLevelToolsClass::ProbeXY() {
-  const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
-  sprintf_P(cmd, PSTR("G28O\nG0Z%i\nG30X%sY%s"),
-    Clear,
+  const uint16_t zclear = Z_CLEARANCE_DEPLOY_PROBE;
+  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
+    zclear,
     dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
     dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)
   );
   gcode.process_subcommands_now(cmd);
+}
+
+void BedLevelToolsClass::mesh_reset() {
+  ZERO(bedlevel.z_values);
+  TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 }
 
 // Accessors
@@ -207,9 +212,11 @@ bool BedLevelToolsClass::meshvalidate() {
   return true;
 }
 
-#if ENABLED(USE_UBL_VIEWER)
+#if ENABLED(USE_GRID_MESHVIEWER)
 
-  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
+  constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
+
+  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
@@ -227,7 +234,6 @@ bool BedLevelToolsClass::meshvalidate() {
     }
 
     // Draw value square grid
-    char buf[8];
     GRID_LOOP(x, y) {
       const auto start_x_px = padding_x + x * cell_width_px;
       const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
@@ -246,20 +252,22 @@ bool BedLevelToolsClass::meshvalidate() {
       LCD_SERIAL.flushTX();
 
       // Draw value text on
+      char buf[8];
+      const uint8_t fs = DWINUI::fontWidth(meshfont);
       if (viewer_print_value) {
-        int8_t offset_x, offset_y = cell_height_px / 2 - 6;
+        int8_t offset_x, offset_y = cell_height_px / 2 - fs;
         if (isnan(bedlevel.z_values[x][y])) {  // undefined
-          dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+          dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
         }
         else {                          // has value
-          if (GRID_MAX_POINTS_X < 10)
+          if (GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10))
             sprintf_P(buf, PSTR("%s"), dtostrf(abs(bedlevel.z_values[x][y]), 1, 2, str_1));
           else
             sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
-          offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
-          if (!(GRID_MAX_POINTS_X < 10))
-            dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
-          dwinDrawString(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
+          offset_x = cell_width_px / 2 - (fs/2) * (strlen(buf)) - 2;
+          if (!(GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10)))
+            dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
+          dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y, buf);
         }
         safe_delay(10);
         LCD_SERIAL.flushTX();
@@ -286,6 +294,6 @@ bool BedLevelToolsClass::meshvalidate() {
     drawing_mesh = false;
   }
 
-#endif // USE_UBL_VIEWER
+#endif // USE_GRID_MESHVIEWER
 
 #endif // DWIN_LCD_PROUI && HAS_LEVELING

@@ -23,7 +23,7 @@
 /**
  * Print Stats page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.4.2
+ * Version: 1.4.0
  * Date: 2022/12/03
  */
 
@@ -37,10 +37,8 @@
 #include "../../../MarlinCore.h"
 #include "../../marlinui.h"
 #include "../../../module/printcounter.h"
-#include "dwin_lcd.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
 #include "dwin.h"
+#include "dwin_popup.h"
 
 PrintStatsClass PrintStats;
 

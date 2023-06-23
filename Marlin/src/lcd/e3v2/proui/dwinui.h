@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.18.1
- * Date: 2022/07/05
+ * Version: 3.21.1
+ * Date: 2023/03/21
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -68,7 +68,8 @@
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_HSMode               ICON_StockConfiguration
-#define ICON_InvertE0             ICON_StepE
+#define ICON_InputShaping         ICON_MaxAccelerated
+#define ICON_JDmm                 ICON_MaxJerk
 #define ICON_Tram                 ICON_SetEndTemp
 #define ICON_Level                ICON_HotendTemp
 #define ICON_Lock                 ICON_Cool
@@ -82,6 +83,7 @@
 #define ICON_MeshEditZ            ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshPoints           ICON_SetEndTemp
+#define ICON_MeshReset            ICON_StockConfiguration
 #define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
@@ -132,8 +134,14 @@
 #define ICON_SetPreheat8          ICON_SetCustomPreheat
 #define ICON_SetPreheat9          ICON_SetCustomPreheat
 #define ICON_SetPreheat10         ICON_SetCustomPreheat
+#define ICON_ShapingX             ICON_MoveX
+#define ICON_ShapingY             ICON_MoveY
 #define ICON_Sound                ICON_Cool
-#define ICON_TBSetup              ICON_Contact
+#define ICON_TMCSet               ICON_PrintSize
+#define ICON_TMCXSet              ICON_MoveX
+#define ICON_TMCYSet              ICON_MoveY
+#define ICON_TMCZSet              ICON_MoveZ
+#define ICON_TMCESet              ICON_Extruder
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLSlot              ICON_ResumeEEPROM

@@ -23,20 +23,18 @@
 /**
  * DWIN Single var plot
  * Author: Miguel A. Risco-Castillo
- * Version: 2.1.2
- * Date: 2022/11/20
+ * Version: 2.2.3
+ * Date: 2023/01/29
  */
 
 #include "../../../inc/MarlinConfig.h"
 
 #if ALL(DWIN_LCD_PROUI, SHOW_TUNING_GRAPH)
 
-#include "plot.h"
+#include "dwin.h"
 #include "../../../core/types.h"
 #include "../../marlinui.h"
-#include "dwin_lcd.h"
-#include "dwinui.h"
-#include "dwin.h"
+#include "plot.h"
 
 #define Plot_Bg_Color RGB( 1, 12,  8)
 
@@ -46,7 +44,7 @@ uint16_t grphpoints, r, x2, y2 = 0;
 frame_rect_t grphframe = {0};
 float scale = 0;
 
-void PlotClass::Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref/*=0*/) {
+void PlotClass::Draw(const frame_rect_t &frame, const_float_t max, const_float_t ref/*=0*/) {
   grphframe = frame;
   grphpoints = 0;
   scale = frame.h / max;

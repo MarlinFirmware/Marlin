@@ -894,11 +894,11 @@ namespace Language_ru {
     LSTR MSG_FILAMENT_MAN                 = _UxGT("Управл.филаментом");
   #endif
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Ручное выравнивание");
-  LSTR MSG_LEVBED_FL                      = _UxGT("Передний левый");
-  LSTR MSG_LEVBED_FR                      = _UxGT("Передний правый");
-  LSTR MSG_LEVBED_C                       = _UxGT("Центр");
-  LSTR MSG_LEVBED_BL                      = _UxGT("Задний левый");
-  LSTR MSG_LEVBED_BR                      = _UxGT("Задний правый");
+  LSTR MSG_TRAM_FL                        = _UxGT("Передний левый");
+  LSTR MSG_TRAM_FR                        = _UxGT("Передний правый");
+  LSTR MSG_TRAM_C                         = _UxGT("Центр");
+  LSTR MSG_TRAM_BL                        = _UxGT("Задний левый");
+  LSTR MSG_TRAM_BR                        = _UxGT("Задний правый");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Сетка вручную");
   LSTR MSG_AUTO_MESH                      = _UxGT("Сетка автоматически");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Ошибка: слишком далеко!");
