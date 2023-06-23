@@ -164,12 +164,6 @@ void GcodeSuite::M493() {
                          newmm = (ftMotionMode_t)parser.value_byte();
 
     if (newmm != oldmm) {
-
-      if (printJobOngoing()) {
-        SERIAL_ECHOLNPGM("Ongoing Job, control mode [S] forbidden.");
-        return;
-      }
-
       switch (newmm) {
         default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
         #if HAS_X_AXIS
