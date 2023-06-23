@@ -42,8 +42,8 @@ def addcompresseddata(input_file,output_file):
 
     # convert data from from raw RGB565 to a simple run length encoded format for each word of data.
     #
-    # Data is stored 3 byte 'tupples'.
-    # Byte 1 is the run count. Limit is 255, if > 255 create multiple tupples of the same RGB565 value.
+    # Data is stored 3 byte 'tuples'.
+    # Byte 1 is the run count. Limit is 255, if > 255 create multiple tuples of the same RGB565 value.
     # Byte 2 is the high byte of the uint16_t RGB565 value
     # Byte 3 is the low byte of the uint16_t RGB565 value
 
