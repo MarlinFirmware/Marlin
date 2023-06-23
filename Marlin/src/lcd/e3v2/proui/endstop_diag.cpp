@@ -23,8 +23,8 @@
 /**
  * DWIN Endstops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.3
- * Date: 2022/10/07
+ * Version: 1.4.3
+ * Date: 2023/05/10
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -35,10 +35,8 @@
 
 #include "../../../core/types.h"
 #include "../../marlinui.h"
-#include "dwin_lcd.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
 #include "dwin.h"
+#include "dwin_popup.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"
@@ -60,7 +58,7 @@ void draw_es_label(FSTR_P const flabel=nullptr) {
 void draw_es_state(const bool is_hit) {
   const uint8_t LM = 130;
   DWINUI::cursor.x = LM;
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_Color, LM, DWINUI::cursor.y, LM + 100, DWINUI::cursor.y + 20);
+  dwinDrawRectangle(1, HMI_data.PopupBg_Color, LM, DWINUI::cursor.y, LM + 100, DWINUI::cursor.y + 20);
   is_hit ? DWINUI::Draw_String(RGB(31,31,16), F(STR_ENDSTOP_HIT)) : DWINUI::Draw_String(RGB(16,63,16), F(STR_ENDSTOP_OPEN));
   DWINUI::MoveBy(0, 25);
 }
@@ -86,7 +84,7 @@ void ESDiagClass::Update() {
   TERN_(USE_Y_MIN,     ES_REPORT(Y_MIN)); TERN_(USE_Y_MAX, ES_REPORT(Y_MAX));
   TERN_(HAS_Z_MIN_PIN, ES_REPORT(Z_MIN)); TERN_(USE_Z_MAX, ES_REPORT(Z_MAX));
   TERN_(HAS_FILAMENT_SENSOR, draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE));
-  DWIN_UpdateLCD();
+  dwinUpdateLCD();
 }
 
 #endif // DWIN_LCD_PROUI && HAS_ESDIAG

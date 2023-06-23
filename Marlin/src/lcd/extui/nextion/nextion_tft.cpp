@@ -451,7 +451,7 @@ void NextionTFT::panelInfo(uint8_t req) {
       SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE
-      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      //SEND_VALasTXT("bltouch", PROBE_TRIGGERED() ? "triggered" : "open");
     #else
       SEND_NA("bltouch");
     #endif

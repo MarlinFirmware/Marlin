@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.18.1
- * Date: 2022/07/05
+ * Version: 3.21.1
+ * Date: 2023/03/21
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -68,7 +68,8 @@
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_HSMode               ICON_StockConfiguration
-#define ICON_InvertE0             ICON_StepE
+#define ICON_InputShaping         ICON_MaxAccelerated
+#define ICON_JDmm                 ICON_MaxJerk
 #define ICON_Tram                 ICON_SetEndTemp
 #define ICON_Level                ICON_HotendTemp
 #define ICON_Lock                 ICON_Cool
@@ -82,6 +83,7 @@
 #define ICON_MeshEditZ            ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshPoints           ICON_SetEndTemp
+#define ICON_MeshReset            ICON_StockConfiguration
 #define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
@@ -132,8 +134,14 @@
 #define ICON_SetPreheat8          ICON_SetCustomPreheat
 #define ICON_SetPreheat9          ICON_SetCustomPreheat
 #define ICON_SetPreheat10         ICON_SetCustomPreheat
+#define ICON_ShapingX             ICON_MoveX
+#define ICON_ShapingY             ICON_MoveY
 #define ICON_Sound                ICON_Cool
-#define ICON_TBSetup              ICON_Contact
+#define ICON_TMCSet               ICON_PrintSize
+#define ICON_TMCXSet              ICON_MoveX
+#define ICON_TMCYSet              ICON_MoveY
+#define ICON_TMCZSet              ICON_MoveZ
+#define ICON_TMCESet              ICON_Extruder
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLSlot              ICON_ResumeEEPROM
@@ -286,10 +294,10 @@ namespace DWINUI {
   //  color: Line segment color
   //  x/y: End point
   inline void LineTo(uint16_t color, uint16_t x, uint16_t y) {
-    DWIN_Draw_Line(color, cursor.x, cursor.y, x, y);
+    dwinDrawLine(color, cursor.x, cursor.y, x, y);
   }
   inline void LineTo(uint16_t x, uint16_t y) {
-    DWIN_Draw_Line(pencolor, cursor.x, cursor.y, x, y);
+    dwinDrawLine(pencolor, cursor.x, cursor.y, x, y);
   }
 
   // Extend a frame box
@@ -462,28 +470,28 @@ namespace DWINUI {
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, string);
+    dwinDrawString(false, fontid, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, FTOP(title));
+    dwinDrawString(false, fontid, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, fontid, color, backcolor, x, y, string);
+    dwinDrawString(false, fontid, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, fontid, color, backcolor, x, y, title);
+    dwinDrawString(false, fontid, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, string);
+    dwinDrawString(true, fontid, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, title);
+    dwinDrawString(true, fontid, color, bgcolor, x, y, title);
   }
   inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, fid, color, bgcolor, x, y, string);
+    dwinDrawString(true, fid, color, bgcolor, x, y, string);
   }
   inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, fid, color, bgcolor, x, y, title);
+    dwinDrawString(true, fid, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
@@ -527,7 +535,7 @@ namespace DWINUI {
   //  color: Rectangle color
   //  frame: Box coordinates and size
   inline void Draw_Box(uint8_t mode, uint16_t color, frame_rect_t frame) {
-    DWIN_Draw_Box(mode, color, frame.x, frame.y, frame.w, frame.h);
+    dwinDrawBox(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
   // Draw a circle

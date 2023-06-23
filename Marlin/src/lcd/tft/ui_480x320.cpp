@@ -264,7 +264,7 @@ void MarlinUI::draw_status_screen() {
 
   if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
-      tft.add_text( 16, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, "E");
+      tft.add_text(16, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, "E");
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       tft_string.add(escale == 10 ? 'c' : 'm');
@@ -340,50 +340,116 @@ void MarlinUI::draw_status_screen() {
     TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, x, y, component_width, 32, active_extruder));
   #endif
 
-  #if TFT_COLOR_UI_PORTRAIT || DISABLED(TOUCH_SCREEN)
-    y += STATUS_MARGIN_SIZE + 32;
+  y += TERN(HAS_UI_480x272, 36, 44);
+
+  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
+  #if ENABLED(SHOW_ELAPSED_TIME) && DISABLED(SHOW_REMAINING_TIME)
+    // Print duration so far (time elapsed) - centered
+    char elapsed_str[22];
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toString(elapsed_str);
+
+    // Same width constraints as feedrate/flowrate controls
+    constexpr uint16_t time_str_width = 288, image_width = 36;
+
+    tft.canvas((TFT_WIDTH - time_str_width) / 2, y, time_str_width, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(elapsed_str);
+    uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
+    tft.add_image(text_pos_x, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft.add_text(text_pos_x + image_width, tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
+
+  #elif DISABLED(SHOW_ELAPSED_TIME) && ENABLED(SHOW_REMAINING_TIME)
+    // Print time remaining estimation - centered
+    char estimate_str[22];
+    duration_t elapsed = print_job_timer.duration();
+
+    // Get the estimate, first from M73
+    uint32_t estimate_remaining = (0
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+        + get_remaining_time()
+      #endif
+    );
+    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+    if (!estimate_remaining && progress > 0)
+      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+    // Generate estimate string
+    if (!estimate_remaining)
+      tft_string.set("-");
+    else {
+      duration_t estimation = estimate_remaining;
+      estimation.toString(estimate_str);
+      tft_string.set(estimate_str);
+    }
+
+    // Same width constraints as feedrate/flowrate controls
+    constexpr uint16_t time_str_width = 288, image_width = 36;
+
+    tft.canvas((TFT_WIDTH - time_str_width) / 2, y, time_str_width, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
+    tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
+    tft.add_text(text_pos_x + image_width, tft_string.vcenter(29), color, tft_string);
+
+  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+    // Print duration so far (time elapsed) - aligned under feed rate
+    char elapsed_str[18];
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toCompactString(elapsed_str);
+
+    tft.canvas(96, y, 144, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft_string.set(elapsed_str);
+    tft.add_text(36, tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
+
+    // Print time remaining estimation - aligned under flow rate
+    char estimate_str[18];
+
+    // Get the estimate, first from M73
+    uint32_t estimate_remaining = (0
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+        + get_remaining_time()
+      #endif
+    );
+    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+    if (!estimate_remaining && progress > 0)
+      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+    // Generate estimate string
+    if (!estimate_remaining)
+      tft_string.set("-");
+    else {
+      duration_t estimation = estimate_remaining;
+      estimation.toCompactString(estimate_str);
+      tft_string.set(estimate_str);
+    }
+
+    // Push out the estimate to the screen
+    tft.canvas(256, y, 144, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    tft.add_image(0, 0, imgTimeRemaining, color);
+    tft.add_text(36, tft_string.vcenter(29), color, tft_string);
   #endif
 
-  #if ENABLED(TOUCH_SCREEN)
-    // Settings button
-    add_control(SETTINGS_X, y, menu_main, imgSettings);
-
-    // SD-card button / Cancel button
-    #if HAS_MEDIA
-      const bool cm = card.isMounted(), pa = printingIsActive();
-      if (cm && pa)
-        add_control(SDCARD_X, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
-      else
-        add_control(SDCARD_X, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED); // 64px icon size
-    #endif
-
-    y += STATUS_MARGIN_SIZE + TERN(TFT_COLOR_UI_PORTRAIT, 64, 44);
-  #endif
-
-  // Print duration
-  char buffer[14];
-  duration_t elapsed = print_job_timer.duration();
-  elapsed.toDigital(buffer);
-
-  tft.canvas((TFT_WIDTH - 128) / 2, y, 128, 29);
-  tft.set_background(COLOR_BACKGROUND);
-  tft_string.set(buffer);
-  tft.add_text(tft_string.center(128), tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
-
-  y += STATUS_MARGIN_SIZE + 29;
+  y += TERN(HAS_UI_480x272, 36, 44);
 
   // Progress bar
-  const uint8_t progress = ui.get_progress_percent();
+  // TODO: print percentage text for SHOW_PROGRESS_PERCENT
   tft.canvas(4, y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, TFT_WIDTH - 8, 9, COLOR_PROGRESS_FRAME);
   if (progress)
-    tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
+    tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 
-  y += STATUS_MARGIN_SIZE + 7;
-
+  y += 12;
   // Status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
+  // Canvas height should be 40px on 480x320 and 28 on 480x272
+  const uint16_t status_height = TFT_HEIGHT - y;
+  tft.canvas(0, y, TFT_WIDTH, status_height);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
@@ -745,29 +811,28 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
             probe.offset.z = new_offs;
           else
             TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
-          drawMessage(NUL_STR); // clear the error
+          drawMessage(NUL_STR); // Clear the error
           drawAxisValue(axis);
         }
         else
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
 
       #else
-        // only change probe.offset.z
+        // Only change probe.offset.z
         probe.offset.z += diff;
-        if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
-          current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
+        if (direction < 0 && current_position.z < Z_PROBE_OFFSET_RANGE_MIN) {
+          current_position.z = Z_PROBE_OFFSET_RANGE_MIN;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
-        else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
-          current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
+        else if (direction > 0 && current_position.z > Z_PROBE_OFFSET_RANGE_MAX) {
+          current_position.z = Z_PROBE_OFFSET_RANGE_MAX;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
         else
-          drawMessage(NUL_STR); // clear the error
+          drawMessage(NUL_STR); // Clear the error
 
         drawAxisValue(axis);
       #endif
-      return;
     }
 
   #endif // HAS_BED_PROBE
@@ -863,9 +928,9 @@ static void disable_steppers() {
   queue.inject(F("M84"));
 }
 
-static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
-  const uint16_t width = Images[imgBtn52Rounded].width,
-                height = Images[imgBtn52Rounded].height;
+static void drawBtn(const int x, const int y, const char *label, intptr_t data, const MarlinImage img, uint16_t bgColor, const bool enabled=true) {
+  const uint16_t width = images[imgBtn52Rounded].width,
+                height = images[imgBtn52Rounded].height;
 
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
@@ -879,9 +944,8 @@ static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage 
     tft_string.trim();
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
   }
-  else {
+  else
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
-  }
 
   TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
@@ -953,7 +1017,7 @@ void MarlinUI::move_axis_screen() {
 
     #if HAS_X_AXIS
       drawBtn(TFT_WIDTH / 6 - BTN_WIDTH / 2, y, "X-", (intptr_t)x_minus, imgLeft, X_BTN_COLOR, !busy);
-      TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy));
+      TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH / 2 - images[imgHome].width / 2, y - (images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy));
       drawBtn(TFT_WIDTH * 5 / 6 - BTN_WIDTH / 2, y, "X+", (intptr_t)x_plus, imgRight, X_BTN_COLOR, !busy);
     #endif
 
@@ -1018,7 +1082,7 @@ void MarlinUI::move_axis_screen() {
     drawBtn(TFT_WIDTH / 2, y, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
 
     // Button "Back"
-    TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH * 5 / 6 - Images[imgBack].width / 2, y + 12, BACK, imgBack));
+    TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH * 5 / 6 - images[imgBack].width / 2, y + 12, BACK, imgBack));
 
   #else // !TFT_COLOR_UI_PORTRAIT
 
@@ -1042,7 +1106,7 @@ void MarlinUI::move_axis_screen() {
 
     x += spacing;
     #if HAS_Z_AXIS
-      drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+      drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
     #endif
 
     // ROW 2 -> "Ex"  X-  HOME X+  "Z"
@@ -1063,11 +1127,11 @@ void MarlinUI::move_axis_screen() {
     x += BTN_WIDTH + spacing; //imgHome is 64x64
 
     #if ALL(HAS_X_AXIS, TOUCH_SCREEN)
-      add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy);
+      add_control(TFT_WIDTH / 2 - images[imgHome].width / 2, y - (images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy);
     #endif
 
     x += BTN_WIDTH + spacing;
-    uint16_t xplus_x = x;
+    const uint16_t xplus_x = x;
 
     TERN_(HAS_X_AXIS, drawBtn(x, y, "X+", (intptr_t)x_plus, imgRight, X_BTN_COLOR, !busy));
 
@@ -1092,21 +1156,22 @@ void MarlinUI::move_axis_screen() {
       drawAxisValue(E_AXIS);
     #endif
 
+    // Cur X
     #if HAS_X_AXIS
       motionAxisState.xValuePos.set(BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4, y - 10);
       TERN_(HAS_X_AXIS, drawAxisValue(X_AXIS));
     #endif
 
     x += BTN_WIDTH + spacing;
+
+    // Cur Y
     TERN_(HAS_Y_AXIS, drawBtn(x, y, "Y-", (intptr_t)y_minus, imgDown, Y_BTN_COLOR, !busy));
 
     x += BTN_WIDTH + spacing;
-    #if HAS_Z_AXIS
-      drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
-    #endif
 
     // Cur Z
     #if HAS_Z_AXIS
+      drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
       motionAxisState.zValuePos.set(x, y + BTN_HEIGHT + 2);
       drawAxisValue(Z_AXIS);
     #endif
@@ -1120,7 +1185,7 @@ void MarlinUI::move_axis_screen() {
       TERN_(TOUCH_SCREEN, touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (intptr_t)step_size));
     }
 
-    // aligned with x+
+    // Aligned with x+
     drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
 
     TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));

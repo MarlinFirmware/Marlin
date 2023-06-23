@@ -33,6 +33,10 @@
 #include "../lcd/marlinui.h"
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
+
 #if IS_SCARA
   #include "../libs/buzzer.h"
   #include "../lcd/marlinui.h"
@@ -72,6 +76,11 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
+
+
+#if ENABLED(BD_SENSOR)
+  #include "../feature/bedlevel/bdl/bdl.h"
+#endif
 
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
@@ -2093,6 +2102,21 @@ void prepare_line_to_destination() {
 
   void homeaxis(const AxisEnum axis) {
 
+    #if ENABLED(FT_MOTION)
+      // Disable ft-motion for homing
+      struct OnExit {
+        ftMotionMode_t oldmm;
+        OnExit() {
+          oldmm = fxdTiCtrl.cfg.mode;
+          fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+        }
+        ~OnExit() {
+          fxdTiCtrl.cfg.mode = oldmm;
+          fxdTiCtrl.init();
+        }
+      } on_exit;
+    #endif
+
     #if ANY(MORGAN_SCARA, MP_SCARA)
       // Only Z homing (with probe) is permitted
       if (axis != Z_AXIS) { BUZZ(100, 880); return; }
@@ -2131,6 +2155,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) {
         if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
         if (TERN0(PROBE_TARE, probe.tare())) return;
+        TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
 
@@ -2379,6 +2404,10 @@ void prepare_line_to_destination() {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
 
+    #endif
+
+    #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
+      if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
     // Put away the Z probe
