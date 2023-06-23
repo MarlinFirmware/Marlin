@@ -297,16 +297,17 @@ public:
     }
   #endif
 
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    typedef uint16_t progress_t;
+    #define PROGRESS_SCALE 100U
+    #define PROGRESS_MASK 0x7FFF
+  #else
+    typedef uint8_t progress_t;
+    #define PROGRESS_SCALE 1U
+    #define PROGRESS_MASK 0x7F
+  #endif
+
   #if HAS_PRINT_PROGRESS
-    #if HAS_PRINT_PROGRESS_PERMYRIAD
-      typedef uint16_t progress_t;
-      #define PROGRESS_SCALE 100U
-      #define PROGRESS_MASK 0x7FFF
-    #else
-      typedef uint8_t progress_t;
-      #define PROGRESS_SCALE 1U
-      #define PROGRESS_MASK 0x7F
-    #endif
     #if ENABLED(SET_PROGRESS_PERCENT)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }

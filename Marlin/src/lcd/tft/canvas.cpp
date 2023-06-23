@@ -96,12 +96,12 @@ void Canvas::addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, u
 }
 
 void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {
-  uint16_t *data = (uint16_t *)Images[image].data;
+  uint16_t *data = (uint16_t *)images[image].data;
   if (!data) return;
 
-  uint16_t image_width = Images[image].width,
-           image_height = Images[image].height;
-  colorMode_t color_mode = Images[image].colorMode;
+  uint16_t image_width = images[image].width,
+           image_height = images[image].height;
+  colorMode_t color_mode = images[image].colorMode;
 
   if (color_mode != HIGHCOLOR)
     return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);

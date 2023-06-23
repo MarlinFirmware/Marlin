@@ -2633,10 +2633,12 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
-        while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
-          max_rate <<= 1;                                   // Try to double the rate
-          if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
-            ++oversampling_factor;                          // Increase the oversampling (used for left-shift)
+        if (TERN1(DWIN_LCD_PROUI, HMI_data.AdaptiveStepSmoothing)) {
+          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+            max_rate <<= 1;                                 // Try to double the rate
+            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+              ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
+          }
         }
       #endif
 

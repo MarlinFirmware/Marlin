@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.21.2
- * Date: 2022/12/02
+ * Version: 3.25.3
+ * Date: 2023/05/18
  */
 
 #include "../../../inc/MarlinConfig.h"
@@ -79,7 +79,6 @@ enum processID : uint8_t {
 
   enum tempcontrol_t : uint8_t {
     #if DWIN_PID_TUNE
-      PID_DONE,
       PIDTEMP_START,
       PIDTEMPBED_START,
       PID_BAD_HEATER_ID,
@@ -87,11 +86,11 @@ enum processID : uint8_t {
       PID_TUNING_TIMEOUT,
     #endif
     #if ENABLED(MPC_AUTOTUNE)
-      MPC_DONE,
       MPCTEMP_START,
       MPC_TEMP_ERROR,
-      MPC_INTERRUPTED
+      MPC_INTERRUPTED,
     #endif
+    AUTOTUNE_DONE
   };
 
 #endif
@@ -141,6 +140,7 @@ typedef struct {
   #endif
 
   bool FullManualTramming = false;
+  bool MediaSort = true;
   bool MediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t z_after_homing = DEF_Z_AFTER_HOMING;
@@ -148,6 +148,8 @@ typedef struct {
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
   #endif
+  bool AdaptiveStepSmoothing = true;
+  bool EnablePreview = true;
 } HMI_data_t;
 
 extern HMI_data_t HMI_data;
@@ -155,8 +157,8 @@ static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 
 typedef struct {
   int8_t Color[3];                    // Color components
-  #if DWIN_PID_TUNE
-    tempcontrol_t pidresult = PID_DONE;
+  #if ANY(DWIN_PID_TUNE, MPCTEMP)
+    tempcontrol_t tempcontrol = AUTOTUNE_DONE;
   #endif
   uint8_t Select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
@@ -167,17 +169,13 @@ typedef struct {
   bool printing_flag:1; // sd or host printing
   bool abort_flag:1;    // sd or host was aborted
   bool pause_flag:1;    // printing is paused
-  bool percent_flag:1;  // percent was override by M73
-  bool remain_flag:1;   // remain was override by M73
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
-  bool heat_flag:1;     // 0: heating done  1: during heating
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
 extern HMI_flag_t hmiFlag;
 extern uint8_t checkkey;
-extern millis_t dwin_heat_time;
 
 // Popups
 #if HAS_HOTEND || HAS_HEATED_BED
@@ -206,12 +204,6 @@ void AutoHome();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
 void DoCoolDown();
-#if ENABLED(PIDTEMP)
-  void HotendPID();
-#endif
-#if ENABLED(PIDTEMPBED)
-  void BedPID();
-#endif
 #if ENABLED(BAUD_RATE_GCODE)
   void HMI_SetBaudRate();
   void SetBaud115K();
@@ -236,7 +228,7 @@ void ParkHead();
 #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
   void HostShutDown();
 #endif
-#if !HAS_BED_PROBE
+#if DISABLED(HAS_BED_PROBE)
   void HomeZandDisable();
 #endif
 
@@ -252,7 +244,6 @@ void DWIN_DrawStatusLine(const char *text = ""); // Draw simple status text
 void DWIN_RedrawDash();     // Redraw Dash and Status line
 void DWIN_RedrawScreen();   // Redraw all screen elements
 void HMI_MainMenu();        // Main process screen
-void HMI_SelectFile();      // File page
 void HMI_Printing();        // Print page
 void HMI_ReturnScreen();    // Return to previous screen before popups
 void HMI_WaitForUser();
@@ -278,10 +269,8 @@ void DWIN_Print_Aborted();
 #if HAS_FILAMENT_SENSOR
   void DWIN_FilamentRunout(const uint8_t extruder);
 #endif
-void DWIN_M73();
 void DWIN_Print_Header(const char *text);
 void DWIN_SetColorDefaults();
-void DWIN_ApplyColor();
 void DWIN_CopySettingsTo(char * const buff);
 void DWIN_CopySettingsFrom(const char * const buff);
 void DWIN_SetDataDefaults();
@@ -291,7 +280,6 @@ void DWIN_RebootScreen();
   void DWIN_Popup_Pause(FSTR_P const fmsg, uint8_t button=0);
   void Draw_Popup_FilamentPurge();
   void Goto_FilamentPurge();
-  void HMI_FilamentPurge();
 #endif
 
 // Utility and extensions
@@ -331,8 +319,6 @@ void Draw_FilSet_Menu();
   void Draw_ParkPos_Menu();
 #endif
 void Draw_PhySet_Menu();
-void Draw_SelectColors_Menu();
-void Draw_GetColor_Menu();
 #if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
   void Draw_CaseLight_Menu();
 #endif
@@ -369,16 +355,36 @@ void Draw_Steps_Menu();
     void Draw_EditMesh_Menu();
   #endif
 #endif
+#if HAS_TRINAMIC_CONFIG
+  void Draw_TrinamicConfig_menu();
+#endif
+
+// Custom colors editing
+#if HAS_CUSTOM_COLORS
+  void DWIN_ApplyColor();
+  void Draw_SelectColors_Menu();
+  void Draw_GetColor_Menu();
+#endif
 
 // PID
 #if DWIN_PID_TUNE
   #include "../../../module/temperature.h"
   void DWIN_StartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
   void DWIN_PidTuning(tempcontrol_t result);
-  #if ENABLED(PIDTEMP)
+#endif
+#if ENABLED(PIDTEMP)
+  #if ENABLED(PID_AUTOTUNE_MENU)
+    void HotendPID();
+  #endif
+  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
     void Draw_HotendPID_Menu();
   #endif
-  #if ENABLED(PIDTEMPBED)
+#endif
+#if ENABLED(PIDTEMPBED)
+  #if ENABLED(PID_AUTOTUNE_MENU)
+    void BedPID();
+  #endif
+  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
     void Draw_BedPID_Menu();
   #endif
 #endif
