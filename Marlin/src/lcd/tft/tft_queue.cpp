@@ -289,7 +289,7 @@ void TFT_Queue::add_image(int16_t x, int16_t y, MarlinImage image, uint16_t *col
   task_parameters->count++;
   parameters->nextParameter = end_of_queue;
 
-  colorMode_t color_mode = Images[image].colorMode;
+  colorMode_t color_mode = images[image].colorMode;
 
   if (color_mode == HIGHCOLOR) return;
 
@@ -325,7 +325,7 @@ uint16_t gradient(uint16_t colorA, uint16_t colorB, uint16_t factor) {
 
 void TFT_Queue::add_image(int16_t x, int16_t y, MarlinImage image, uint16_t color_main, uint16_t color_background, uint16_t color_shadow) {
   uint16_t colors[16];
-  colorMode_t color_mode = Images[image].colorMode;
+  colorMode_t color_mode = images[image].colorMode;
   uint16_t i;
 
   switch (color_mode) {

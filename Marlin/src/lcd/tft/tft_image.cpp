@@ -77,7 +77,7 @@ const tImage Time_Remaining_32x32x4 = { (void *)time_remaining_32x32x4, 32, 32, 
 
 const tImage Slider8x16x4           = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
 
-const tImage Images[imgCount] = {
+const tImage images[imgCount] = {
   TERN(SHOW_BOOTSCREEN, TERN(BOOT_MARLIN_LOGO_SMALL, MarlinLogo195x59x16, MARLIN_LOGO_FULL_SIZE), NoLogo),
   HotEnd_64x64x4,
   Bed_64x64x4,
