@@ -258,7 +258,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[X_AXIS] = val;
-          flag.update_n = flag.reset_ft = flag.report_h = true;
+          flag.update_n = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
@@ -289,7 +289,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[Y_AXIS] = val;
-          flag.update_n = flag.reset_ft = flag.report_h = true;
+          flag.update_n = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");
