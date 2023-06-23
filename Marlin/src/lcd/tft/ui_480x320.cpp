@@ -298,30 +298,31 @@ void MarlinUI::draw_status_screen() {
 
   y += TERN(HAS_UI_480x272, 34, 48);
   // Feed rate
-  tft.canvas(96, y, 128, 32);
+  tft.canvas(96, y, 144, 32);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
-  tft.add_text(36, tft_string.vcenter(30), color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 96, y, 128, 32));
+  tft.add_text(36, tft_string.vcenter(30), color, tft_string);
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 96, y, 100, 32));
 
   // Flow rate
-  tft.canvas(284, y, 128, 32);
+  tft.canvas(256, y, 144, 32);
   tft.set_background(COLOR_BACKGROUND);
   color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFlowRate, color);
   tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
   tft_string.add('%');
-  tft.add_text(36, tft_string.vcenter(30), color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 284, y, 128, 32, active_extruder));
+  tft.add_text(36, tft_string.vcenter(30), color, tft_string);
+  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 284, y, 100, 32, active_extruder));
 
   #if ENABLED(TOUCH_SCREEN)
-    add_control(404, y, menu_main, imgSettings);
+    add_control(404, y + TERN(HAS_UI_480x272, 4, 8), menu_main, imgSettings);
     #if ENABLED(SDSUPPORT)
       const bool cm = card.isMounted(), pa = printingIsActive();
-      add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+      color = cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED;
+      add_control(12, y + TERN(HAS_UI_480x272, 4, 8), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, color);
     #endif
   #endif
 
@@ -336,18 +337,21 @@ void MarlinUI::draw_status_screen() {
   tft_string.set(buffer);
   tft.add_text(tft_string.center(128), tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
 
-  y += TERN(HAS_UI_480x272, 29, 36);
+  y += TERN(HAS_UI_480x272, 36, 44);
+
   // Progress bar
-  const uint8_t progress = ui.get_progress_percent();
+  // TODO: print percentage text for SHOW_PROGRESS_PERCENT
   tft.canvas(4, y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, TFT_WIDTH - 8, 9, COLOR_PROGRESS_FRAME);
   if (progress)
     tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
 
-  y += 15;
+  y += 12;
   // Status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
+  // Canvas height should be 40px on 480x320 and 28 on 480x272
+  const uint16_t status_height = TFT_HEIGHT - y;
+  tft.canvas(0, y, TFT_WIDTH, status_height);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();

@@ -304,24 +304,24 @@ void MarlinUI::draw_status_screen() {
 
   y += 100;
   // Feed rate
-  tft.canvas(274, y, 128, 32);
+  tft.canvas(274, y, 200, 32);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 128, 32));
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 200, 32));
 
   // Flow rate
-  tft.canvas(650, y, 128, 32);
+  tft.canvas(650, y, 200, 32);
   tft.set_background(COLOR_BACKGROUND);
   color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFlowRate, color);
   tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 128, 32, active_extruder));
+  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 200, 32, active_extruder));
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(900, y, menu_main, imgSettings);
@@ -344,7 +344,6 @@ void MarlinUI::draw_status_screen() {
 
   y += 50;
   // Progress bar
-  const uint8_t progress = ui.get_progress_percent();
   tft.canvas(4, y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, TFT_WIDTH - 8, 9, COLOR_PROGRESS_FRAME);
@@ -353,11 +352,12 @@ void MarlinUI::draw_status_screen() {
 
   y += 50;
   // Status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
+  const uint16_t status_height = TFT_HEIGHT - y;
+  tft.canvas(0, y, TFT_WIDTH, status_height);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_STATUS_MESSAGE, tft_string);
+  tft.add_text(tft_string.center(TFT_WIDTH), (status_height - FONT_LINE_HEIGHT) / 2, COLOR_STATUS_MESSAGE, tft_string);
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace

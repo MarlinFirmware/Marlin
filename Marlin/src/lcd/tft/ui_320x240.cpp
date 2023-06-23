@@ -316,6 +316,8 @@ void MarlinUI::draw_status_screen() {
     width = TERN(TFT_COLOR_UI_PORTRAIT, 232, 312);
     height = TERN(TFT_COLOR_UI_PORTRAIT, FONT_LINE_HEIGHT * 2, FONT_LINE_HEIGHT);
     touch.add_control(MOVE_AXIS, 0, 103, width, height);
+    add_control(256, 130, menu_main, imgSettings);
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 
   // 3rd group, subgroup B - speeds (center, top half)
