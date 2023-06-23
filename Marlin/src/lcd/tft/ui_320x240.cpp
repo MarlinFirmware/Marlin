@@ -396,7 +396,7 @@ void MarlinUI::draw_status_screen() {
 
     // Get the estimate, first from M73
     uint32_t estimate_remaining = (0
-      #if BOTH(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
         + get_remaining_time()
       #endif
     );
@@ -420,7 +420,7 @@ void MarlinUI::draw_status_screen() {
     tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
     tft.add_text(text_pos_x + image_width, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
 
-  #elif BOTH(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
     // Print duration so far (time elapsed) - aligned under feed rate
     char elapsed_str[18];
     duration_t elapsed = print_job_timer.duration();
@@ -437,7 +437,7 @@ void MarlinUI::draw_status_screen() {
 
     // Get the estimate, first from M73
     uint32_t estimate_remaining = (0
-      #if BOTH(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
         + get_remaining_time()
       #endif
     );
@@ -483,7 +483,7 @@ void MarlinUI::draw_status_screen() {
     add_control(
       TERN(TFT_COLOR_UI_PORTRAIT, 176, 256),
       TERN(TFT_COLOR_UI_PORTRAIT, 210, 130),
-	    menu_main, imgSettings
+      menu_main, imgSettings
     );
     #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
