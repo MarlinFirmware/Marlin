@@ -145,7 +145,7 @@ uint32_t TFT_SPI::getID() {
   return id;
 }
 
-uint32_t TFT_SPI::readID(uint16_t reg) {
+uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
   #if PIN_EXISTS(TFT_MISO)
     uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
@@ -153,7 +153,7 @@ uint32_t TFT_SPI::readID(uint16_t reg) {
 
     SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
     dataTransferBegin(DATASIZE_8BIT);
-    writeReg(reg);
+    writeReg(inReg);
 
     if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_RX(&SPIx);
     __HAL_SPI_ENABLE(&SPIx);
