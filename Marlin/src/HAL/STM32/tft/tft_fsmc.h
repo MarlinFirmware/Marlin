@@ -62,7 +62,7 @@ class TFT_FSMC {
 
     static LCD_CONTROLLER_TypeDef *LCD;
 
-    static uint32_t readID(tft_data_t reg);
+    static uint32_t readID(const tft_data_t reg);
     static void transmit(tft_data_t data) { LCD->RAM = data; __DSB(); }
     static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
     static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
@@ -77,7 +77,7 @@ class TFT_FSMC {
     static void dataTransferEnd() {}
 
     static void writeData(uint16_t data) { transmit(tft_data_t(data)); }
-    static void writeReg(uint16_t reg) { LCD->REG = tft_data_t(reg); __DSB(); }
+    static void writeReg(const uint16_t inReg) { LCD->REG = tft_data_t(inReg); __DSB(); }
 
     static void writeSequence_DMA(uint16_t *data, uint16_t count) { transmitDMA(DMA_PINC_ENABLE, data, count); }
     static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_PINC_DISABLE, &data, count); }

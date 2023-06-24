@@ -64,7 +64,7 @@ public:
   inline static void dataTransferEnd() { io.dataTransferEnd(); }
 
   inline static void writeData(uint16_t data) { io.writeData(data); }
-  inline static void writeReg(uint16_t reg) { io.writeReg(reg); }
+  inline static void writeReg(const uint16_t inReg) { io.writeReg(inReg); }
 
   // Blocking IO used by TFT_CLASSIC_UI and TFT_LVGL_UI
   // These functions start data transfer and WAIT for data transfer completion

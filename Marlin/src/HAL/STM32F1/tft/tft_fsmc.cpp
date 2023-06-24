@@ -186,8 +186,8 @@ void TFT_FSMC::transmit(uint16_t data) {
   __DSB();
 }
 
-void TFT_FSMC::writeReg(uint16_t reg) {
-  LCD->REG = reg;
+void TFT_FSMC::writeReg(const uint16_t inReg) {
+  LCD->REG = inReg;
   __DSB();
 }
 
@@ -205,11 +205,11 @@ uint32_t TFT_FSMC::getID() {
   return id;
 }
 
- uint32_t TFT_FSMC::readID(uint16_t reg) {
+ uint32_t TFT_FSMC::readID(const uint16_t inReg) {
    uint32_t id;
-   writeReg(reg);
+   writeReg(inReg);
    id = LCD->RAM; // dummy read
-   id = reg << 24;
+   id = inReg << 24;
    id |= (LCD->RAM & 0x00FF) << 16;
    id |= (LCD->RAM & 0x00FF) << 8;
    id |= LCD->RAM & 0x00FF;
