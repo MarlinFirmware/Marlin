@@ -21,9 +21,9 @@
  */
 #pragma once
 
-#define MARLIN_LOGO_FULL_SIZE MarlinLogo480x320x16
-
 #include "ui_common.h"
+
+#define MARLIN_LOGO_FULL_SIZE MarlinLogo480x320x16
 
 #define TFT_STATUS_TOP_Y       4
 #define TFT_TOP_LINE_Y         4
@@ -40,7 +40,7 @@
   #define MENU_ITEM_HEIGHT    43
   #define FONT_LINE_HEIGHT    34
 
-  #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
+  #if TFT_FONT == NOTOSANS || TFT_FONT == HELVETICA
     #define FONT_SIZE         19
   #elif TFT_FONT == UNIFONT
     #define FONT_SIZE         20

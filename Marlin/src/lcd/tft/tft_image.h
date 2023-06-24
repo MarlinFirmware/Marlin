@@ -29,13 +29,15 @@ extern const uint8_t marlin_logo_112x38x1[];
 extern const uint8_t marlin_logo_228x255x2[];
 extern const uint8_t marlin_logo_228x255x4[];
 #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
-  extern const uint16_t marlin_logo_195x59x16_rle16[];
-  extern const uint16_t marlin_logo_320x240x16_rle16[];
-  extern const uint16_t marlin_logo_480x320x16_rle16[];
+  extern const uint8_t marlin_logo_195x59x16_rle16[];
+  extern const uint8_t marlin_logo_320x240x16_rle16[];
+  extern const uint8_t marlin_logo_480x320x16_rle16[];
+  extern const uint8_t marlin_logo_1024x600x16_rle16[];
 #else
   extern const uint16_t marlin_logo_195x59x16[];
   extern const uint16_t marlin_logo_320x240x16[];
   extern const uint16_t marlin_logo_480x320x16[];
+  extern const uint16_t marlin_logo_1024x600x16[];
 #endif
 extern const uint16_t background_320x30x16[];
 
