@@ -126,51 +126,40 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
       if (!bytedata) return;
-      uint8_t overflow = 0;
 
-      for (int16_t i = 0; i < image_height; i++) {
-        int16_t line = y + i;
-        if (line >= startLine && line < endLine) {
-          uint16_t *pixel = buffer + x + (line - startLine) * width;
-          int16_t j=0;
-          while (j < image_width) {
-            if ((x + j >= 0) && (x + j < width)) {
-              uint8_t count = *bytedata;
-              uint16_t color = ENDIAN_COLOR((bytedata[1]<<8)+bytedata[2]);
-              if (overflow) {
-                count = overflow;
-                overflow = 0;
-              }
-              if (j + count > image_width) {
-                 overflow = (j + count) - image_width;
-                 count = count - overflow;
-              }
-              for (uint8_t runcount = 0; runcount < count; runcount++) {
-                *pixel = color;
-                pixel++;
-                j++;
-              }
-              if (!overflow)
-                bytedata += 3;
+      // Loop through the image data advancing the row and column as needed
+      int16_t row = 0, col = 0, // Image data line and column indexes
+              outrow = y, outcol = x;
+
+      bool done = false;
+      while (!done) {
+        uint8_t count = *bytedata++;                        // Get the count byte
+        const bool isrle = (count < 0x80);                  // < 128 is a repeat run; > 128 is a distinct run
+        count = (count & 0x7F) + 1;                         // Actual count is 7-bit plus 1
+
+        bool getcol = true;                                 // Get at least one color word
+        while (count--) {                                   // Emit 'count' pixels
+
+          uint16_t msb, lsb, color;
+          if (getcol) {
+            msb = *bytedata++, lsb = *bytedata++, color = ENDIAN_COLOR((msb << 8) + lsb);
+            getcol = !isrle;
+          }
+
+          if (outrow >= startLine) {                        // Dest pixel Y at the canvas yet?
+            if (WITHIN(outcol, 0, width - 1)) {             // Dest pixel X within the canvas?
+              uint16_t * const pixel = buffer + outcol + (outrow - startLine) * width;
+              *pixel = color;                               // Store the color in the pixel
             }
           }
-        }
-        else {
-          int16_t j=0;
-          while (j < image_width) {
-            if ((x + j >= 0) && (x + j < width)) {
-              uint8_t count = *bytedata;
-              if (overflow) {
-                count = overflow;
-                overflow = 0;
-              }
-              if (j + count > image_width) {
-                 overflow = (j + count) - image_width;
-                 count = count - overflow;
-              }
-              j += count;
-              if (!overflow)
-                bytedata += 3;
+
+          ++col; ++outcol;                                  // Advance the pixel column
+          if (col >= image_width) {                         // Past the right edge of the source image?
+            ++row; ++outrow;                                // Advance to the next line
+            col = 0; outcol = x;
+            if (outrow >= endLine || row >= image_height) {
+              done = true;                                  // Done once past the end of the canvas
+              break;
             }
           }
         }
