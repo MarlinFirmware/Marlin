@@ -134,16 +134,18 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       bool done = false;
       while (!done) {
         uint8_t count = *bytedata++;                        // Get the count byte
-        const bool isrle = (count < 0x80);                  // < 128 is a repeat run; > 128 is a distinct run
+        const bool uniq = bool(count & 0x80);               // >= 128 is a distinct run; < 128 is a repeat run
         count = (count & 0x7F) + 1;                         // Actual count is 7-bit plus 1
 
         bool getcol = true;                                 // Get at least one color word
         while (count--) {                                   // Emit 'count' pixels
 
-          uint16_t msb, lsb, color;
+          uint16_t color;
           if (getcol) {
-            msb = *bytedata++, lsb = *bytedata++, color = ENDIAN_COLOR((msb << 8) + lsb);
-            getcol = !isrle;
+            getcol = uniq;                                  // Keep getting colors if not RLE
+            const uint16_t msb = *bytedata++,               // Color most-significant bits
+                           lsb = *bytedata++;               // Color least-significant bits
+            color = ENDIAN_COLOR((msb << 8) + lsb);         // Color with proper endianness
           }
 
           if (outrow >= startLine) {                        // Dest pixel Y at the canvas yet?
@@ -158,7 +160,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
             ++row; ++outrow;                                // Advance to the next line
             col = 0; outcol = x;
             if (outrow >= endLine || row >= image_height) {
-              done = true;                                  // Done once past the end of the canvas
+              done = true;                                  // Once past the end of the canvas we're done
               break;
             }
           }
