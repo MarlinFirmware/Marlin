@@ -121,7 +121,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     return;
   }
 
-  #if ENABLED(BOOT_MARLIN_LOGO_USES_RLE16)
+  #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
     // RLE16 HIGHCOLOR - 16 bits per pixel
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
@@ -166,7 +166,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       }
       return;
     }
-  #endif // BOOT_MARLIN_LOGO_USES_RLE16
+  #endif // COMPACT_MARLIN_BOOT_LOGO
 
   return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
 }

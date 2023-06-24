@@ -28,7 +28,7 @@
 extern const uint8_t marlin_logo_112x38x1[];
 extern const uint8_t marlin_logo_228x255x2[];
 extern const uint8_t marlin_logo_228x255x4[];
-#if ENABLED(BOOT_MARLIN_LOGO_USES_RLE16)
+#if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
   extern const uint16_t marlin_logo_195x59x16_rle16[];
   extern const uint16_t marlin_logo_320x240x16_rle16[];
   extern const uint16_t marlin_logo_480x320x16_rle16[];
@@ -121,8 +121,8 @@ enum colorMode_t : uint8_t {
   GREYSCALE2,         // 2 bits per pixel
   GREYSCALE4,         // 4 bits per pixel
   HIGHCOLOR           // 16 bits per pixel
-  #if ENABLED(BOOT_MARLIN_LOGO_USES_RLE16)
-    , RLE16           // RLE16 8 bit count and 16 bits per pixel row
+  #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
+    , RLE16           // RLE16 Compressed 16 bits per pixel row
   #endif
 };
 

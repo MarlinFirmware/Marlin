@@ -659,6 +659,8 @@
   #error "Z3_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
 #elif defined(Z4_USE_ENDSTOP)
   #error "Z4_USE_ENDSTOP is obsolete. Instead set Z4_STOP_PIN directly. (e.g., 'Z4_USE_ENDSTOP _ZMAX_' becomes 'Z4_STOP_PIN Z_MAX_PIN')"
+#elif defined(BOOT_MARLIN_LOGO_USES_RLE16)
+  #error "BOOT_MARLIN_LOGO_USES_RLE16 is now COMPACT_MARLIN_BOOT_LOGO."
 #endif
 
 // L64xx stepper drivers have been removed
