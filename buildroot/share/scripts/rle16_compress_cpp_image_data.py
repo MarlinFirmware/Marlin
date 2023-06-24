@@ -41,27 +41,24 @@ def addCompressedData(input_file, output_file):
 
     input_file.close()
 
-    # RLE16 (run length 16) encoding
-
-    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
     #
-    # Data is stored as 3 byte 'tuples'.
-    # Byte 1 is the run count.
-    #   If the run value is > 127 then the run contains unique words.
-    #   If the run is < 128 then it repeats the following word.
-    # Byte 2 is the high byte of the uint16_t RGB565 value
-    # Byte 3 is the low byte of the uint16_t RGB565 value
-
-    def rle_encode(mydata):
+    # RLE16 (run length 16) encoding
+    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
+    # - Each sequence begins with a count byte N.
+    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
+    #   - Otherwise it repeats the following word N + 1 times.
+    # - Each RGB565 word is stored in MSB / LSB order.
+    #
+    def rle_encode(data):
         rledata = []
         distinct = []
         i = 0
-        while i < len(mydata):
-            v = mydata[i]
+        while i < len(data):
+            v = data[i]
             i += 1
             rsize = 1
-            for j in range(i, len(mydata)):
-                if v != mydata[j]: break;
+            for j in range(i, len(data)):
+                if v != data[j]: break;
                 i += 1
                 rsize += 1
                 if rsize >= 128: break;
@@ -71,9 +68,9 @@ def addCompressedData(input_file, output_file):
 
             # If distinct length >= 127, or the repeat run is 2 or more,
             # store the distinct run.
-            if len(distinct) and (len(distinct) >= 128 or rsize > 1 or i >= len(mydata)):
-                # Store the distinct run
-                rledata += [(len(distinct) - 1) | 0x80] + distinct
+            nr = len(distinct)
+            if nr and (nr >= 128 or rsize > 1 or i >= len(data)):
+                rledata += [(nr - 1) | 0x80] + distinct
                 distinct = []
 
             # If the repeat run is 2 or more, store the repeat run.
@@ -81,7 +78,7 @@ def addCompressedData(input_file, output_file):
 
         return rledata
 
-    def extend_data(data, byte, cols=240):
+    def append_byte(data, byte, cols=240):
         if data == '': data = '  '
         data += ('0x{0:02X}, '.format(byte)) # 6 characters
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
@@ -91,29 +88,28 @@ def addCompressedData(input_file, output_file):
         col = 0
         i = 0
         outstr = ''
-        bcount = 0
+        size = 0
         while i < len(rledata):
-            count = rledata[i]
+            rval = rledata[i]
             i += 1
-            if count & 0x80:
-                count &= 0x7F
-                outstr = extend_data(outstr, count)
-                count += 1
-                bcount += 1
+            if rval & 0x80:
+                count = (rval & 0x7F) + 1
+                outstr = append_byte(outstr, rval)
+                size += 1
                 for j in range(count):
-                    outstr = extend_data(outstr, rledata[i + j] >> 8)
-                    outstr = extend_data(outstr, rledata[i + j] & 0xFF)
-                    bcount += 2
+                    outstr = append_byte(outstr, rledata[i + j] >> 8)
+                    outstr = append_byte(outstr, rledata[i + j] & 0xFF)
+                    size += 2
                 i += count
             else:
-                outstr = extend_data(outstr, count)
-                outstr = extend_data(outstr, rledata[i] >> 8)
-                outstr = extend_data(outstr, rledata[i] & 0xFF)
+                outstr = append_byte(outstr, rval)
+                outstr = append_byte(outstr, rledata[i] >> 8)
+                outstr = append_byte(outstr, rledata[i] & 0xFF)
                 i += 1
-                bcount += 3
+                size += 3
 
         outstr = outstr.rstrip()[:-1]
-        ofile.write("\nextern const uint8_t %s_rle16[%d] = {\n%s\n};\n" % (name, bcount, outstr))
+        ofile.write("\nextern const uint8_t %s_rle16[%d] = {\n%s\n};\n" % (name, size, outstr))
 
     # Encode the data, write it out, close the file
     rledata = rle_encode(raw_data)
