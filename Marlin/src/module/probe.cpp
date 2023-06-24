@@ -979,7 +979,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   #if ENABLED(BD_SENSOR)
-
+    safe_delay(4);
     return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
