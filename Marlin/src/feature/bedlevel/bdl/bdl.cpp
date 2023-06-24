@@ -109,7 +109,10 @@ void BDS_Leveling::process() {
   static float zpos = 0.0f;
   const millis_t ms = millis();
   if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
-    next_check_ms = ms + (config_state < BDS_IDLE ? 200 : 50);   // check at 5Hz or 20Hz
+    if(config_state == BDS_HOMING_Z)
+      next_check_ms = ms + 1;
+    else
+      next_check_ms = ms + (config_state < BDS_IDLE ? 200 : 50);   // check at 5Hz or 20Hz
 
     uint16_t tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
@@ -136,7 +139,7 @@ void BDS_Leveling::process() {
 
       old_cur_z = cur_z;
       old_buf_z = current_position.z;
-      endstops.bdp_state_update(z_sensor <= 0.01f);
+      endstops.bdp_state_update(z_sensor <= abs(probe.offset.z) );
 
       #if HAS_STATUS_MESSAGE
         static float old_z_sensor = 0;
@@ -149,8 +152,13 @@ void BDS_Leveling::process() {
         }
       #endif
     }
-    else
+    else {
       stepper.apply_directions();
+      if(config_state == BDS_HOMING_Z){
+        SERIAL_ECHOLNPGM("Read:", tmp);
+        kill(F("BDsensor connect Err!"));
+      }
+    }
 
     DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);
     if (TERN0(DEBUG_OUT_BD, BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)) DEBUG_ECHOLNPGM("CRC error");
@@ -229,15 +237,19 @@ void BDS_Leveling::process() {
         }
         else {
           char tmp_1[32];
+          int time_out_n=0;
           // TODO: Use prepare_internal_move_to_destination to guarantee machine space
           sprintf_P(tmp_1, PSTR("G1Z%d.%d"), int(zpos), int(zpos * 10) % 10);
           gcode.process_subcommands_now(tmp_1);
           SERIAL_ECHO(tmp_1); SERIAL_ECHOLNPGM(", Z:", current_position.z);
-          for (float tmp_k = 0; abs(zpos - tmp_k) > 0.004f;) {
+          for (float tmp_k = 0; abs(zpos - tmp_k) > 0.006f;) {
             tmp_k = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
             safe_delay(10);
+            time_out_n++;
+            if(time_out_n>300)
+                break;
           }
-          safe_delay(zpos <= 0.4f ? 600 : 100);
+          safe_delay(zpos <= 0.4f ? 600 : 300);
           tmp = uint16_t((zpos + 0.00001f) * 10);
           BD_I2C_SENSOR.BD_i2c_write(tmp);
           SERIAL_ECHOLNPGM("w:", tmp, ", Z:", zpos);
