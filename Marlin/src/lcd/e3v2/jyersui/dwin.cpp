@@ -1990,8 +1990,9 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
       #define TEMP_HOTEND (TEMP_BACK + ENABLED(HAS_HOTEND))
       #define TEMP_BED (TEMP_HOTEND + ENABLED(HAS_HEATED_BED))
       #define TEMP_FAN (TEMP_BED + ENABLED(HAS_FAN))
-      #define TEMP_PID (TEMP_FAN + ANY(HAS_HOTEND, HAS_HEATED_BED))
-      #define TEMP_PREHEAT1 (TEMP_PID + (PREHEAT_COUNT >= 1))
+      #define TEMP_PID (TEMP_FAN + ANY(PIDTEMP, PIDTEMPBED))
+      #define TEMP_MPC (TEMP_PID + ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU))
+      #define TEMP_PREHEAT1 (TEMP_MPC + (PREHEAT_COUNT >= 1))
       #define TEMP_PREHEAT2 (TEMP_PREHEAT1 + (PREHEAT_COUNT >= 2))
       #define TEMP_PREHEAT3 (TEMP_PREHEAT2 + (PREHEAT_COUNT >= 3))
       #define TEMP_PREHEAT4 (TEMP_PREHEAT3 + (PREHEAT_COUNT >= 4))
@@ -2035,12 +2036,20 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               modifyValue(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
-        #if HAS_HOTEND || HAS_HEATED_BED
+        #if ANY(PIDTEMP, PIDTEMPBED)
           case TEMP_PID:
             if (draw)
               drawMenuItem(row, ICON_Step, F("PID"), nullptr, true);
             else
               drawMenu(PID);
+            break;
+        #endif
+        #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+          case TEMP_MPC:
+            if (draw)
+              drawMenuItem(row, ICON_Step, F("MPC"), nullptr, true);
+            else
+              drawMenu(MPC);
             break;
         #endif
 
@@ -2054,12 +2063,12 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
       }
       break;
 
-    #if HAS_HOTEND || HAS_HEATED_BED
+    #if ANY(PIDTEMP, PIDTEMPBED)
       case PID:
 
         #define PID_BACK 0
-        #define PID_HOTEND (PID_BACK + ENABLED(HAS_HOTEND))
-        #define PID_BED (PID_HOTEND + ENABLED(HAS_HEATED_BED))
+        #define PID_HOTEND (PID_BACK + ENABLED(PIDTEMP))
+        #define PID_BED (PID_HOTEND + ENABLED(PIDTEMPBED))
         #define PID_CYCLES (PID_BED + 1)
         #define PID_TOTAL PID_CYCLES
 
@@ -2072,7 +2081,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             else
               drawMenu(TempMenu, TEMP_PID);
             break;
-          #if HAS_HOTEND
+          #if ENABLED(PIDTEMP)
             case PID_HOTEND:
               if (draw)
                 drawMenuItem(row, ICON_HotendTemp, F("Hotend"), nullptr, true);
@@ -2080,7 +2089,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
                 drawMenu(HotendPID);
               break;
           #endif
-          #if HAS_HEATED_BED
+          #if ENABLED(PIDTEMPBED)
             case PID_BED:
               if (draw)
                 drawMenuItem(row, ICON_BedTemp, F("Bed"), nullptr, true);
@@ -2098,9 +2107,9 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             break;
         }
         break;
-    #endif // HAS_HOTEND || HAS_HEATED_BED
+    #endif // ANY(PIDTEMP, PIDTEMPBED)
 
-    #if HAS_HOTEND
+    #if ENABLED(PIDTEMP)
       case HotendPID:
 
         #define HOTENDPID_BACK 0
@@ -2165,9 +2174,9 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             break;
         }
         break;
-    #endif // HAS_HOTEND
+    #endif // ENABLED(PIDTEMP)
 
-    #if HAS_HEATED_BED
+    #if ENABLED(PIDTEMPBED)
       case BedPID:
 
         #define BEDPID_BACK 0
@@ -2212,7 +2221,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawFloat(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
             else {
-              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100);
             }
             break;
           case BEDPID_KI:
@@ -2221,7 +2230,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawFloat(thermalManager.temp_bed.pid.i(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100);
             break;
           case BEDPID_KD:
             if (draw) {
@@ -2229,11 +2238,100 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawFloat(thermalManager.temp_bed.pid.d(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100);
             break;
         }
         break;
-    #endif // HAS_HEATED_BED
+    #endif // ENABLED(PIDTEMPBED)
+
+    #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+      case MPC:
+
+        #define MPCMENU_BACK 0
+        #define MPCMENU_AUTOTUNE (MPCMENU_BACK + ENABLED(MPC_AUTOTUNE_MENU))
+        #define MPCMENU_HEATER_POWER (MPCMENU_AUTOTUNE + ENABLED(MPC_EDIT_MENU))
+        #define MPCMENU_BLOCK_HEAT_CAPACITY (MPCMENU_HEATER_POWER + ENABLED(MPC_EDIT_MENU))
+        #define MPCMENU_SENSOR_RESPONSIVENESS (MPCMENU_BLOCK_HEAT_CAPACITY + ENABLED(MPC_EDIT_MENU))
+        #define MPCMENU_AMBIENT_XFER_COEFF (MPCMENU_SENSOR_RESPONSIVENESS + ENABLED(MPC_EDIT_MENU))
+        #define MPCMENU_AMBIENT_XFER_COEFF_FAN (MPCMENU_AMBIENT_XFER_COEFF + ALL(MPC_EDIT_MENU, MPC_INCLUDE_FAN))
+        #define MPCMENU_TOTAL MPCMENU_AMBIENT_XFER_COEFF_FAN
+
+        switch (item) {
+          case MPCMENU_BACK:
+            if (draw)
+              drawMenuItem(row, ICON_Back, F("Back"));
+            else
+              drawMenu(TempMenu, TEMP_MPC);
+            break;
+
+        #if ENABLED(MPC_AUTOTUNE_MENU)
+          case MPCMENU_AUTOTUNE:
+            if (draw)
+              drawMenuItem(row, ICON_HotendTemp, F("Autotune"));
+            else {
+              popupHandler(MPCWait);
+              thermalManager.MPC_autotune(active_extruder, Temperature::MPCTuningType::AUTO);
+              redrawMenu();
+            }
+            break;
+        #endif // ENABLED(MPC_AUTOTUNE_MENU)
+
+        #if ENABLED(MPC_EDIT_MENU)
+          case MPCMENU_HEATER_POWER:
+            if (draw) {
+              drawMenuItem(row, ICON_Version, F("Heater Power"));
+              drawFloat(thermalManager.temp_hotend[0].mpc.heater_power, row, false, 1);
+            }
+            else
+              modifyValue(thermalManager.temp_hotend[0].mpc.heater_power, 1, 200, 1);
+            break;
+
+          case MPCMENU_BLOCK_HEAT_CAPACITY:
+            if (draw) {
+              drawMenuItem(row, ICON_Version, F("Block Heat Cap."));
+              drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
+            }
+            else
+              modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
+            break;
+
+          case MPCMENU_SENSOR_RESPONSIVENESS:
+            if (draw) {
+              drawMenuItem(row, ICON_Version, F("Sensor Resp."));
+              drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
+            }
+            else
+              modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
+            break;
+
+          case MPCMENU_AMBIENT_XFER_COEFF:
+            if (draw) {
+              drawMenuItem(row, ICON_Version, F("Amb. xfer coeff"));
+              drawFloat(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, row, false, 10000);
+            }
+            else
+              modifyValue(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, 0, 1, 10000);
+            break;
+
+        #if ENABLED(MPC_INCLUDE_FAN)
+          case MPCMENU_AMBIENT_XFER_COEFF_FAN:
+
+            static float fan255_adjustment;
+
+            if (draw) {
+              drawMenuItem(row, ICON_Version, F("Amb. xfer adj."));
+              fan255_adjustment = thermalManager.temp_hotend[0].fanCoefficient();
+              drawFloat(fan255_adjustment, row, false, 10000);
+            }
+            else
+              modifyValue(fan255_adjustment, 0, 1, 10000, []{ thermalManager.temp_hotend[0].applyFanAdjustment(fan255_adjustment); });
+            break;
+        #endif // ENABLED(MPC_INCLUDE_FAN)
+        #endif // ENABLED(MPC_EDIT_MENU)
+
+        }
+        break;
+    #endif // ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
 
     #if HAS_PREHEAT
       #define _PREHEAT_SUBMENU_CASE(N) case Preheat##N: preheat_submenu((N) - 1, item, TEMP_PREHEAT##N); break;
@@ -3967,14 +4065,17 @@ FSTR_P CrealityDWIN::getMenuTitle(const uint8_t menu) {
     #endif
     case Control:           return GET_TEXT_F(MSG_CONTROL);
     case TempMenu:          return GET_TEXT_F(MSG_TEMPERATURE);
-    #if HAS_HOTEND || HAS_HEATED_BED
+    #if ANY(PIDTEMP, PIDTEMPBED)
       case PID:             return F("PID Menu");
     #endif
-    #if HAS_HOTEND
+    #if ENABLED(PIDTEMP)
       case HotendPID:       return F("Hotend PID Settings");
     #endif
-    #if HAS_HEATED_BED
+    #if ENABLED(PIDTEMPBED)
       case BedPID:          return F("Bed PID Settings");
+    #endif
+    #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+      case MPC:             return F("MPC Menu");
     #endif
     #if HAS_PREHEAT
       #define _PREHEAT_TITLE_CASE(N) case Preheat##N: return F(PREHEAT_## N ##_LABEL " Settings");
@@ -4038,14 +4139,17 @@ uint8_t CrealityDWIN::getMenuSize(const uint8_t menu) {
     #endif
     case Control:           return CONTROL_TOTAL;
     case TempMenu:          return TEMP_TOTAL;
-    #if HAS_HOTEND || HAS_HEATED_BED
+    #if ANY(PIDTEMP, PIDTEMPBED)
       case PID:             return PID_TOTAL;
     #endif
-    #if HAS_HOTEND
+    #if ENABLED(PIDTEMP)
       case HotendPID:       return HOTENDPID_TOTAL;
     #endif
-    #if HAS_HEATED_BED
+    #if ENABLED(PIDTEMPBED)
       case BedPID:          return BEDPID_TOTAL;
+    #endif
+    #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+      case MPC:             return MPCMENU_TOTAL;
     #endif
     #if HAS_PREHEAT
       case Preheat1 ... CAT(Preheat, PREHEAT_COUNT):
@@ -4116,6 +4220,7 @@ void CrealityDWIN::popupHandler(const PopupID popupid, const bool option/*=false
     case TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
     case Runout:        drawPopup(F("Filament Runout"), F(""), F(""), Wait, ICON_BLTouch); break;
     case PIDWait:       drawPopup(F("PID Autotune"), F("in process"), F("Please wait until done."), Wait, ICON_BLTouch); break;
+    case MPCWait:       drawPopup(F("MPC Autotune"), F("in process"), F("Please wait until done."), Wait, ICON_BLTouch); break;
     case Resuming:      drawPopup(F("Resuming Print"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
     case Custom:        drawPopup(F("Running Custom GCode"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
     default: break;
@@ -4208,9 +4313,9 @@ void CrealityDWIN::valueControl() {
       sprintf_P(cmd, PSTR("M290 Z%s"), dtostrf((tempvalue / valueunit - zoffsetvalue), 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     }
-    if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Ki))
+    if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
       tempvalue = scalePID_i(tempvalue);
-    if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Kd))
+    if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
       tempvalue = scalePID_d(tempvalue);
     switch (valuetype) {
       case 0: *(float*)valuepointer = tempvalue / valueunit; break;
@@ -4592,9 +4697,9 @@ void CrealityDWIN::confirmControl() {
 /* In-Menu Value Modification */
 
 void CrealityDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
-  if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Ki))
+  if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
-  else if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Kd))
+  else if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
     tempvalue = unscalePID_d(value) * unit;
   else
     tempvalue = value * unit;
