@@ -128,39 +128,39 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       if (!bytedata) return;
 
       // Loop through the image data advancing the row and column as needed
-      int16_t row = 0, col = 0, // Image data line and column indexes
-              outrow = y, outcol = x;
+      int16_t srcy = 0, srcx = 0,                   // Image data line / column index
+              dsty = y, dstx = x;                   // Destination line / column index
 
       bool done = false;
       while (!done) {
-        uint8_t count = *bytedata++;                        // Get the count byte
-        const bool uniq = bool(count & 0x80);               // >= 128 is a distinct run; < 128 is a repeat run
-        count = (count & 0x7F) + 1;                         // Actual count is 7-bit plus 1
+        uint8_t count = *bytedata++;                // Get the count byte
+        const bool uniq = bool(count & 0x80);       // >= 128 is a distinct run; < 128 is a repeat run
+        count = (count & 0x7F) + 1;                 // Actual count is 7-bit plus 1
 
-        bool getcol = true;                                 // Get at least one color word
-        while (count--) {                                   // Emit 'count' pixels
+        bool getcol = true;                         // Get at least one color word
+        while (count--) {                           // Emit 'count' pixels
 
           uint16_t color;
           if (getcol) {
-            getcol = uniq;                                  // Keep getting colors if not RLE
-            const uint16_t msb = *bytedata++,               // Color most-significant bits
-                           lsb = *bytedata++;               // Color least-significant bits
-            color = ENDIAN_COLOR((msb << 8) + lsb);         // Color with proper endianness
+            getcol = uniq;                          // Keep getting colors if not RLE
+            const uint16_t msb = *bytedata++,       // Color most-significant bits
+                           lsb = *bytedata++;       // Color least-significant bits
+            color = ENDIAN_COLOR((msb << 8) | lsb); // Color with proper endianness
           }
 
-          if (outrow >= startLine) {                        // Dest pixel Y at the canvas yet?
-            if (WITHIN(outcol, 0, width - 1)) {             // Dest pixel X within the canvas?
-              uint16_t * const pixel = buffer + outcol + (outrow - startLine) * width;
-              *pixel = color;                               // Store the color in the pixel
+          if (dsty >= startLine) {                  // Dest pixel Y at the canvas yet?
+            if (WITHIN(dstx, 0, width - 1)) {       // Dest pixel X within the canvas?
+              uint16_t * const pixel = buffer + dstx + (dsty - startLine) * width;
+              *pixel = color;                       // Store the color in the pixel
             }
           }
 
-          ++col; ++outcol;                                  // Advance the pixel column
-          if (col >= image_width) {                         // Past the right edge of the source image?
-            ++row; ++outrow;                                // Advance to the next line
-            col = 0; outcol = x;
-            if (outrow >= endLine || row >= image_height) {
-              done = true;                                  // Once past the end of the canvas we're done
+          ++srcx; ++dstx;                           // Advance the pixel column
+          if (srcx >= image_width) {                // Past the right edge of the source image?
+            ++srcy; ++dsty;                         // Advance to the next line
+            srcx = 0; dstx = x;
+            if (dsty >= endLine || srcy >= image_height) {
+              done = true;                          // Once past the end of the canvas we're done
               break;
             }
           }
@@ -170,7 +170,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     }
   #endif // COMPACT_MARLIN_BOOT_LOGO
 
-  return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
+  addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
 }
 
 void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors) {
