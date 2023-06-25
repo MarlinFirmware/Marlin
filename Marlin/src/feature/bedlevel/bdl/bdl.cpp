@@ -79,7 +79,7 @@ bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, con
   }
   if (raw_data == true) {
     if (hicheck && (data & 0x3FF) > 550)
-      SERIAL_ECHOLNPGM("BD Sensor mounted too high!");
+      SERIAL_ECHOLNPGM("BD Sensor mounted too far or too close the bed! Recommended distance 0.5mm~2.0mm");
     else if (!good_data(data))
       SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
     else
