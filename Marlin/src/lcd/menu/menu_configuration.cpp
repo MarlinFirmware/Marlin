@@ -59,6 +59,10 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../../feature/hotend_idle.h"
+#endif
+
 #if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
   #define HAS_DEBUG_MENU 1
@@ -275,6 +279,24 @@ void menu_advanced_settings();
     #endif
     END_MENU();
   }
+#endif
+
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+
+  void menu_hotend_idle() {
+    hotend_idle_settings_t &c = hotend_idle.cfg;
+    START_MENU();
+    BACK_ITEM(MSG_BACK);
+
+    if (c.timeout) GCODES_ITEM(MSG_HOTEND_IDLE_DISABLE, F("M87"));
+    EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
+    EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAXTEMP);
+
+    END_MENU();
+  }
+
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -609,6 +631,10 @@ void menu_configuration() {
       SUBMENU(MSG_TOUCHMI_PROBE, menu_touchmi);
     #endif
   }
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    SUBMENU(MSG_HOTEND_IDLE_TIMEOUT, menu_hotend_idle);
+  #endif
 
   //
   // Set single nozzle filament retract and prime length

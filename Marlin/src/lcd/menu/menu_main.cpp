@@ -100,6 +100,10 @@ void menu_configuration();
   void menu_preheat_only();
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  void menu_hotend_idle();
+#endif
+
 #if HAS_MULTI_LANGUAGE
   void menu_language();
 #endif
