@@ -48,7 +48,7 @@ enum stepDirState_t : uint8_t {
   stepDirState_NEG     = 2U
 };
 
-typedef struct XYZEarray<float, 2 * (FTM_BATCH_SIZE)> xyze_trajectory_t;
+typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
 
 typedef struct XYZEval<stepDirState_t> xyze_stepDir_t;
