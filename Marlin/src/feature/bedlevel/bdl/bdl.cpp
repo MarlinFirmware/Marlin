@@ -148,12 +148,9 @@ void BDS_Leveling::process() {
         }
       #endif
     }
-    else {
-      stepper.apply_directions();
-      if (config_state == BDS_HOMING_Z) {
-        SERIAL_ECHOLNPGM("Read:", tmp);
-        kill(F("BDsensor connect Err!"));
-      }
+    else if (config_state == BDS_HOMING_Z) {
+      SERIAL_ECHOLNPGM("Read:", tmp);
+      kill(F("BDsensor connect Err!"));
     }
 
     DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);
