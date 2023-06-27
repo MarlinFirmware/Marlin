@@ -1139,7 +1139,7 @@ void setup() {
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
+      TSS('[', millis(), F("] ")).echo();
       SERIAL_ECHOLNPGM_P(msg);
     };
     #define SETUP_LOG(M) log_current_ms(PSTR(M))

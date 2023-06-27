@@ -213,47 +213,46 @@
 
   template<typename TMC>
   void report_driver_otpw(TMC &st) {
-    char timestamp[14];
+    MString<13> timestamp;
     duration_t elapsed = print_job_timer.duration();
     const bool has_days = (elapsed.value > 60*60*24L);
-    (void)elapsed.toDigital(timestamp, has_days);
-    SERIAL_EOL();
-    SERIAL_ECHO(timestamp);
-    SERIAL_ECHOPGM(": ");
+    (void)elapsed.toDigital(&timestamp, has_days);
+    TSS('\n', timestamp, F(": ")).echo();
     st.printLabel();
-    SERIAL_ECHOLNPGM(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
+    SString<50>(F(" driver overtemperature warning! ("), st.getMilliamps(), F("mA)")).echoln();
   }
 
   template<typename TMC>
   void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
     const uint32_t pwm_scale = get_pwm_scale(st);
     st.printLabel();
-    SERIAL_CHAR(':'); SERIAL_ECHO(pwm_scale);
+    SString<60> report(':', pwm_scale);
     #if ENABLED(TMC_DEBUG)
       #if HAS_TMCX1X0 || HAS_TMC220x
-        SERIAL_CHAR('/'); SERIAL_ECHO(data.cs_actual);
+        report.append('/', data.cs_actual);
       #endif
       #if HAS_STALLGUARD
-        SERIAL_CHAR('/');
+        report += '/';
         if (data.sg_result_reasonable)
-          SERIAL_ECHO(data.sg_result);
+          report += data.sg_result;
         else
-          SERIAL_CHAR('-');
+          report += '-';
       #endif
     #endif
-    SERIAL_CHAR('|');
-    if (st.error_count)       SERIAL_CHAR('E'); // Error
-    if (data.is_ot)           SERIAL_CHAR('O'); // Over-temperature
-    if (data.is_otpw)         SERIAL_CHAR('W'); // over-temperature pre-Warning
+    report += '|';
+    if (st.error_count)       report += 'E'; // Error
+    if (data.is_ot)           report += 'O'; // Over-temperature
+    if (data.is_otpw)         report += 'W'; // over-temperature pre-Warning
     #if ENABLED(TMC_DEBUG)
-      if (data.is_stall)      SERIAL_CHAR('G'); // stallGuard
-      if (data.is_stealth)    SERIAL_CHAR('T'); // stealthChop
-      if (data.is_standstill) SERIAL_CHAR('I'); // standstIll
+      if (data.is_stall)      report += 'G'; // stallGuard
+      if (data.is_stealth)    report += 'T'; // stealthChop
+      if (data.is_standstill) report += 'I'; // standstIll
     #endif
-    if (st.flag_otpw)         SERIAL_CHAR('F'); // otpw Flag
-    SERIAL_CHAR('|');
-    if (st.otpw_count > 0) SERIAL_ECHO(st.otpw_count);
-    SERIAL_CHAR('\t');
+    if (st.flag_otpw)         report += 'F'; // otpw Flag
+    report += '|';
+    if (st.otpw_count > 0)    report += st.otpw_count;
+    report += '\t';
+    report.echo();
   }
 
   #if CURRENT_STEP_DOWN > 0

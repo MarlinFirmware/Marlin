@@ -331,10 +331,7 @@ void menu_advanced_settings();
     void bltouch_report() {
       FSTR_P const mode0 = F("OD"), mode1 = F("5V");
       DEBUG_ECHOLNPGM("BLTouch Mode: ", bltouch.od_5v_mode ? mode1 : mode0, " (Default ", TERN(BLTOUCH_SET_5V_MODE, mode1, mode0), ")");
-      char mess[21];
-      strcpy_P(mess, PSTR("BLTouch Mode: "));
-      strcpy_P(&mess[15], bltouch.od_5v_mode ? FTOP(mode1) : FTOP(mode0));
-      ui.set_status(mess);
+      ui.set_status(MString<18>(F("BLTouch Mode: "), bltouch.od_5v_mode ? mode1 : mode0));
       ui.return_to_status();
     }
   #endif
