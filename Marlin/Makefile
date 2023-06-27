@@ -86,7 +86,7 @@ ARDUINO_INSTALL_DIR  ?= ${HOME}/AppData/Local/Arduino       # C:/Users/${USERNAM
 ARDUINO_VERSION      ?= 10819
 
 # The installed Libraries are in the User folder
-ARDUINO_USER_DIR ?= ${HOME}/Arduino
+ARDUINO_USER_DIR ?= ${HOME}/Documents/Arduino
 
 # You can optionally set a path to the avr-gcc tools.
 # Requires a trailing slash. For example, /usr/local/avr-gcc/bin/
