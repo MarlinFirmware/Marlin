@@ -1215,7 +1215,7 @@ void drawPrintProgressBar() {
 
 void drawPrintProgressElapsed() {
   constexpr uint16_t x = 45, y = 192;
-  duration_t elapsed = print_job_timer.duration(); // print timer
+  duration_t elapsed = print_job_timer.duration(); // Print timer
   dwinDrawIntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, x, y, elapsed.value / 3600);
   dwinDrawString(false, font8x16, Color_White, Color_Bg_Black, x + 8 * 2, y, F(":"));
   dwinDrawIntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, x + 8 * 3, y, (elapsed.value % 3600) / 60);
@@ -4104,7 +4104,7 @@ void eachMomentUpdate() {
     queue.inject(F("G1 F1200 X0 Y0"));
   }
 
-  if (card.isPrinting() && checkkey == PrintProcess) { // print process
+  if (card.isPrinting() && checkkey == PrintProcess) { // Print process
     const uint8_t card_pct = card.percentDone();
     static uint8_t last_cardpercentValue = 101;
     if (last_cardpercentValue != card_pct) { // print percent
@@ -4115,7 +4115,7 @@ void eachMomentUpdate() {
       }
     }
 
-    duration_t elapsed = print_job_timer.duration(); // print timer
+    duration_t elapsed = print_job_timer.duration(); // Print timer
 
     // Print time so far
     static uint16_t last_Printtime = 0;
