@@ -34,7 +34,7 @@ exec_test $1 $2 "MKS SBASE with SWITCHING_NOZZLE, Grbl Realtime Report" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EEB \
-        EXTRUDERS 2 TEMP_SENSOR_1 -1 TEMP_SENSOR_BED 5 \
+        EXTRUDERS 2 TEMP_SENSOR_1 -4 TEMP_SENSOR_BED 5 \
         GRID_MAX_POINTS_X 16 \
         NOZZLE_TO_PROBE_OFFSET '{ 0, 0, 0 }' \
         NOZZLE_CLEAN_MIN_TEMP 170 \
