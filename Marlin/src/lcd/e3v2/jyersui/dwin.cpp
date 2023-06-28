@@ -128,9 +128,9 @@
 #define JERK_UNIT 10
 #define STEPS_UNIT 10
 
-/**
- * Custom menu items with jyersLCD
- */
+//
+// Custom menu items with JyersLCD
+//
 #if ENABLED(CUSTOM_MENU_CONFIG)
   #ifdef CONFIG_MENU_ITEM_5_DESC
     #define CUSTOM_MENU_COUNT 5
@@ -201,7 +201,7 @@ float corner_pos;
 
 bool probe_deployed = false;
 
-CrealityDWIN crealityDWIN;
+JyersDWIN jyersDWIN;
 
 template <unsigned N, unsigned S = N>
 class TextScroller {
@@ -329,14 +329,14 @@ private:
         planner.synchronize();
       }
       else {
-        crealityDWIN.popupHandler(MoveWait);
+        jyersDWIN.popupHandler(MoveWait);
         gcode.process_subcommands_now(TS(F("G0F300Z"), p_float_t(current_position.z, 3)));
         gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, 'J', mesh_y));
         planner.synchronize();
         current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
         planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
         planner.synchronize();
-        crealityDWIN.redrawMenu();
+        jyersDWIN.redrawMenu();
       }
     }
 
@@ -432,7 +432,7 @@ private:
         v1 = -range;
         v2 =  range;
       }
-      crealityDWIN.updateStatus(TS(F("Red "), p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), F(" Green")));
+      jyersDWIN.updateStatus(TS(F("Red "), p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), F(" Green")));
       drawing_mesh = false;
     }
 
@@ -441,24 +441,26 @@ private:
 
 #endif // HAS_MESH
 
-/* General Display Functions */
+//
+// General Display Functions
+//
 
-struct CrealityDWIN::EEPROM_Settings CrealityDWIN::eeprom_settings{0};
-constexpr const char * const CrealityDWIN::color_names[11];
-constexpr const char * const CrealityDWIN::preheat_modes[3];
+struct JyersDWIN::EEPROM_Settings JyersDWIN::eeprom_settings{0};
+constexpr const char * const JyersDWIN::color_names[11];
+constexpr const char * const JyersDWIN::preheat_modes[3];
 
 // Clear a part of the screen
 //  4=Entire screen
 //  3=Title bar and Menu area (default)
 //  2=Menu area
 //  1=Title bar
-void CrealityDWIN::clearScreen(const uint8_t e/*=3*/) {
+void JyersDWIN::clearScreen(const uint8_t e/*=3*/) {
   if (e == 1 || e == 3 || e == 4) dwinDrawRectangle(1, getColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
   if (e == 2 || e == 3) dwinDrawRectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
   if (e == 4) dwinDrawRectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-void CrealityDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
+void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
   const uint8_t digits = (uint8_t)floor(log10(abs(value))) + log10(minunit) + (minunit > 1);
   const uint16_t bColor = selected ? Select_Color : Color_Bg_Black;
   const uint16_t xpos = 240 - (digits * 8);
@@ -471,67 +473,45 @@ void CrealityDWIN::drawFloat(const_float_t value, const uint8_t row, const bool 
   }
 }
 
-void CrealityDWIN::drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
+void JyersDWIN::drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
   const uint16_t bColor = selected ? Select_Color : Color_Bg_Black,
                  tColor = color ? getColor(value, Color_White, false) : Color_White;
   dwinDrawRectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
   dwinDrawString(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
-uint16_t CrealityDWIN::getColor(const uint8_t color, const uint16_t original, const bool light/*=false*/) {
+uint16_t JyersDWIN::getColor(const uint8_t color, const uint16_t original, const bool light/*=false*/) {
   switch (color) {
-    case Default:
-      return original;
-      break;
-    case White:
-      return light ? Color_Light_White : Color_White;
-      break;
-    case Green:
-      return light ? Color_Light_Green : Color_Green;
-      break;
-    case Cyan:
-      return light ? Color_Light_Cyan : Color_Cyan;
-      break;
-    case Blue:
-      return light ? Color_Light_Blue : Color_Blue;
-      break;
-    case Magenta:
-      return light ? Color_Light_Magenta : Color_Magenta;
-      break;
-    case Red:
-      return light ? Color_Light_Red : Color_Red;
-      break;
-    case Orange:
-      return light ? Color_Light_Orange : Color_Orange;
-      break;
-    case Yellow:
-      return light ? Color_Light_Yellow : Color_Yellow;
-      break;
-    case Brown:
-      return light ? Color_Light_Brown : Color_Brown;
-      break;
-    case Black:
-      return Color_Black;
-      break;
+    case White:   return light ? Color_Light_White   : Color_White;
+    case Green:   return light ? Color_Light_Green   : Color_Green;
+    case Cyan:    return light ? Color_Light_Cyan    : Color_Cyan;
+    case Blue:    return light ? Color_Light_Blue    : Color_Blue;
+    case Magenta: return light ? Color_Light_Magenta : Color_Magenta;
+    case Red:     return light ? Color_Light_Red     : Color_Red;
+    case Orange:  return light ? Color_Light_Orange  : Color_Orange;
+    case Yellow:  return light ? Color_Light_Yellow  : Color_Yellow;
+    case Brown:   return light ? Color_Light_Brown   : Color_Brown;
+    case Black:   return Color_Black;
+    case Default: return original;
   }
   return Color_White;
 }
 
-void CrealityDWIN::drawTitle(const char * const ctitle) {
+void JyersDWIN::drawTitle(const char * const ctitle) {
   dwinDrawString(false, DWIN_FONT_HEAD, getColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen(ctitle) * STAT_CHR_W) / 2, 5, ctitle);
 }
-void CrealityDWIN::drawTitle(FSTR_P const ftitle) {
+void JyersDWIN::drawTitle(FSTR_P const ftitle) {
   dwinDrawString(false, DWIN_FONT_HEAD, getColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen_P(FTOP(ftitle)) * STAT_CHR_W) / 2, 5, ftitle);
 }
 
 void _decorateMenuItem(uint8_t row, uint8_t icon, bool more) {
-  if (icon) dwinIconShow(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
+  if (icon) dwinIconShow(ICON, icon, 26, MBASE(row) - 3);       // Draw Menu Icon
   if (more) dwinIconShow(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
-  dwinDrawLine(crealityDWIN.getColor(crealityDWIN.eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
+  dwinDrawLine(jyersDWIN.getColor(jyersDWIN.eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
 }
 
-void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, const char * const label1, const char * const label2, const bool more/*=false*/, const bool centered/*=false*/) {
-  const uint8_t label_offset_y = (label1 || label2) ? MENU_CHR_H * 3 / 5 : 0,
+void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, const char * const label1, const char * const label2, const bool more/*=false*/, const bool centered/*=false*/) {
+  const uint8_t label_offset_y = label2 ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
   if (label1) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
@@ -539,8 +519,8 @@ void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, con
   _decorateMenuItem(row, icon, more);
 }
 
-void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, const bool more/*=false*/, const bool centered/*=false*/) {
-  const uint8_t label_offset_y = (flabel1 || flabel2) ? MENU_CHR_H * 3 / 5 : 0,
+void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, const bool more/*=false*/, const bool centered/*=false*/) {
+  const uint8_t label_offset_y = flabel2 ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel1 ? strlen_P(FTOP(flabel1)) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel2 ? strlen_P(FTOP(flabel2)) : 0) * MENU_CHR_W) / 2);
   if (flabel1) dwinDrawString(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
@@ -548,8 +528,8 @@ void CrealityDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FST
   _decorateMenuItem(row, icon, more);
 }
 
-void CrealityDWIN::drawCheckbox(const uint8_t row, const bool value) {
-  #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS) // Draw appropriate checkbox icon
+void JyersDWIN::drawCheckbox(const uint8_t row, const bool value) {
+  #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)   // Draw appropriate checkbox icon
     dwinIconShow(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3);
   #else                                         // Draw a basic checkbox using rectangles and lines
     dwinDrawRectangle(1, Color_Bg_Black, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
@@ -565,15 +545,14 @@ void CrealityDWIN::drawCheckbox(const uint8_t row, const bool value) {
   #endif
 }
 
-void CrealityDWIN::drawMenu(const uint8_t menu, const uint8_t select/*=0*/, const uint8_t scroll/*=0*/) {
+void JyersDWIN::drawMenu(const uint8_t menu, const uint8_t select/*=0*/, const uint8_t scroll/*=0*/) {
   if (active_menu != menu) {
     last_menu = active_menu;
     if (process == Menu) last_selection = selection;
   }
   selection = _MIN(select, getMenuSize(menu));
   scrollpos = scroll;
-  if (selection - scrollpos > MROWS)
-    scrollpos = selection - MROWS;
+  if (selection - scrollpos > MROWS) scrollpos = selection - MROWS; // i.e., NOLESS(scrollpos, selection - MROWS);
   process = Menu;
   active_menu = menu;
   clearScreen();
@@ -582,7 +561,7 @@ void CrealityDWIN::drawMenu(const uint8_t menu, const uint8_t select/*=0*/, cons
   dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
 }
 
-void CrealityDWIN::redrawMenu(const bool lastproc/*=true*/, const bool lastsel/*=false*/, const bool lastmenu/*=false*/) {
+void JyersDWIN::redrawMenu(const bool lastproc/*=true*/, const bool lastsel/*=false*/, const bool lastmenu/*=false*/) {
   switch (lastproc ? last_process : process) {
     case Menu:
       drawMenu(lastmenu ? last_menu : active_menu, lastsel ? last_selection : selection, lastmenu ? 0 : scrollpos);
@@ -594,15 +573,16 @@ void CrealityDWIN::redrawMenu(const bool lastproc/*=true*/, const bool lastsel/*
   }
 }
 
-void CrealityDWIN::redrawScreen() {
+void JyersDWIN::redrawScreen() {
   redrawMenu(false);
   drawStatusArea(true);
   updateStatusBar(true);
 }
 
-/* Primary Menus and Screen Elements */
-
-void CrealityDWIN::mainMenuIcons() {
+//
+// Primary Menus and Screen Elements
+//
+void JyersDWIN::mainMenuIcons() {
   if (selection == 0) {
     dwinIconShow(ICON, ICON_Print_1, 17, 130);
     dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 17, 130, 126, 229);
@@ -653,7 +633,7 @@ void CrealityDWIN::mainMenuIcons() {
   #endif
 }
 
-void CrealityDWIN::drawMainMenu(const uint8_t select/*=0*/) {
+void JyersDWIN::drawMainMenu(const uint8_t select/*=0*/) {
   process = Main;
   active_menu = MainMenu;
   selection = select;
@@ -664,7 +644,7 @@ void CrealityDWIN::drawMainMenu(const uint8_t select/*=0*/) {
   mainMenuIcons();
 }
 
-void CrealityDWIN::printScreenIcons() {
+void JyersDWIN::printScreenIcons() {
   if (selection == 0) {
     dwinIconShow(ICON, ICON_Setup_1, 8, 252);
     dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 8, 252, 87, 351);
@@ -707,7 +687,7 @@ void CrealityDWIN::printScreenIcons() {
   }
 }
 
-void CrealityDWIN::drawPrintScreen() {
+void JyersDWIN::drawPrintScreen() {
   process = Print;
   selection = 0;
   clearScreen();
@@ -725,7 +705,7 @@ void CrealityDWIN::drawPrintScreen() {
   drawPrintFilename(true);
 }
 
-void CrealityDWIN::drawPrintFilename(const bool reset/*=false*/) {
+void JyersDWIN::drawPrintFilename(const bool reset/*=false*/) {
   typedef TextScroller<30> Scroller;
   static Scroller scroller;
   if (reset) scroller.reset();
@@ -739,7 +719,7 @@ void CrealityDWIN::drawPrintFilename(const bool reset/*=false*/) {
   }
 }
 
-void CrealityDWIN::drawPrintProgressBar() {
+void JyersDWIN::drawPrintProgressBar() {
   uint8_t printpercent = sdprint ? card.percentDone() : (ui._get_progress() / 100);
   dwinIconShow(ICON, ICON_Bar, 15, 93);
   dwinDrawRectangle(1, BarFill_Color, 16 + printpercent * 240 / 100, 93, 256, 113);
@@ -749,7 +729,7 @@ void CrealityDWIN::drawPrintProgressBar() {
 
 #if ENABLED(SET_REMAINING_TIME)
 
-  void CrealityDWIN::drawPrintProgressRemain() {
+  void JyersDWIN::drawPrintProgressRemain() {
     uint16_t remainingtime = ui.get_remaining_time();
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 176, 187, remainingtime / 3600);
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 200, 187, (remainingtime % 3600) / 60);
@@ -763,7 +743,7 @@ void CrealityDWIN::drawPrintProgressBar() {
 
 #endif
 
-void CrealityDWIN::drawPrintProgressElapsed() {
+void JyersDWIN::drawPrintProgressElapsed() {
   duration_t elapsed = print_job_timer.duration();
   dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 42, 187, elapsed.value / 3600);
   dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 2, 66, 187, (elapsed.value % 3600) / 60);
@@ -775,7 +755,7 @@ void CrealityDWIN::drawPrintProgressElapsed() {
     dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, Color_White), Color_Bg_Black, 58, 187, F(":"));
 }
 
-void CrealityDWIN::drawPrintConfirm() {
+void JyersDWIN::drawPrintConfirm() {
   drawPrintScreen();
   process = Confirm;
   popup = Complete;
@@ -785,7 +765,7 @@ void CrealityDWIN::drawPrintConfirm() {
   dwinDrawRectangle(0, getColor(eeprom_settings.highlight_box, Color_White), 85, 281, 188, 322);
 }
 
-void CrealityDWIN::drawSDItem(const uint8_t item, const uint8_t row) {
+void JyersDWIN::drawSDItem(const uint8_t item, const uint8_t row) {
   if (item == 0)
     drawMenuItem(0, ICON_Back, card.flag.workDirIsRoot ? F("Back") : F(".."));
   else {
@@ -806,7 +786,7 @@ void CrealityDWIN::drawSDItem(const uint8_t item, const uint8_t row) {
   }
 }
 
-void CrealityDWIN::drawSDList(const bool removed/*=false*/) {
+void JyersDWIN::drawSDList(const bool removed/*=false*/) {
   clearScreen();
   drawTitle("Select File");
   selection = 0;
@@ -824,7 +804,7 @@ void CrealityDWIN::drawSDList(const bool removed/*=false*/) {
   dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(0) - 18, 14, MBASE(0) + 33);
 }
 
-void CrealityDWIN::drawStatusArea(const bool icons/*=false*/) {
+void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
 
   if (icons) dwinDrawRectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
@@ -952,7 +932,7 @@ void CrealityDWIN::drawStatusArea(const bool icons/*=false*/) {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon/*=0*/) {
+void JyersDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon/*=0*/) {
   if (process != Confirm && process != Popup && process != Wait) last_process = process;
   if ((process == Menu || process == Wait) && mode == Popup) last_selection = selection;
   process = mode;
@@ -979,10 +959,10 @@ void CrealityDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P cons
 }
 
 void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-  crealityDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Wait, ICON_BLTouch);
+  jyersDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Wait, ICON_BLTouch);
 }
 
-void CrealityDWIN::popupSelect() {
+void JyersDWIN::popupSelect() {
   const uint16_t c1 = selection ? Color_Bg_Window : getColor(eeprom_settings.highlight_box, Color_White),
                  c2 = selection ? getColor(eeprom_settings.highlight_box, Color_White) : Color_Bg_Window;
   dwinDrawRectangle(0, c1, 25, 279, 126, 318);
@@ -991,7 +971,7 @@ void CrealityDWIN::popupSelect() {
   dwinDrawRectangle(0, c2, 144, 278, 247, 319);
 }
 
-void CrealityDWIN::updateStatusBar(const bool refresh/*=false*/) {
+void JyersDWIN::updateStatusBar(const bool refresh/*=false*/) {
   typedef TextScroller<30> Scroller;
   static bool new_msg;
   static Scroller scroller;
@@ -1019,9 +999,11 @@ void CrealityDWIN::updateStatusBar(const bool refresh/*=false*/) {
   }
 }
 
-/* Menu Item Config */
+//
+// Menu Item Config
+//
 
-void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool draw/*=true*/) {
+void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool draw/*=true*/) {
   const uint8_t row = item - scrollpos;
   #if HAS_LEVELING
     static bool level_state;
@@ -2064,7 +2046,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
       }
       break;
 
-    #if HAS_HOTEND || HAS_HEATED_BED
+    #if ANY(PIDTEMP, PIDTEMPBED)
       case PID:
 
         #define PID_BACK 0
@@ -2219,9 +2201,8 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawMenuItem(row, ICON_Version, F("Kp Value"));
               drawFloat(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
-            else {
-              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
-            }
+            else
+              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
           case BEDPID_KI:
             if (draw) {
@@ -2229,7 +2210,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawFloat(thermalManager.temp_bed.pid.i(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
           case BEDPID_KD:
             if (draw) {
@@ -2237,11 +2218,11 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawFloat(thermalManager.temp_bed.pid.d(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
+              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
         }
         break;
-    #endif // HAS_HEATED_BED
+    #endif // PIDTEMPBED
 
     #if HAS_PREHEAT
       #define _PREHEAT_SUBMENU_CASE(N) case Preheat##N: preheat_submenu((N) - 1, item, TEMP_PREHEAT##N); break;
@@ -3943,7 +3924,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
   }
 }
 
-FSTR_P CrealityDWIN::getMenuTitle(const uint8_t menu) {
+FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
   switch (menu) {
     case MainMenu:          return GET_TEXT_F(MSG_MAIN_MENU);
     case Prepare:           return GET_TEXT_F(MSG_PREPARE);
@@ -4020,7 +4001,7 @@ FSTR_P CrealityDWIN::getMenuTitle(const uint8_t menu) {
   return F("");
 }
 
-uint8_t CrealityDWIN::getMenuSize(const uint8_t menu) {
+uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
   switch (menu) {
     case Prepare:           return PREPARE_TOTAL;
     case HomeMenu:          return HOME_TOTAL;
@@ -4095,9 +4076,11 @@ uint8_t CrealityDWIN::getMenuSize(const uint8_t menu) {
   return 0;
 }
 
-/* Popup Config */
+//
+// Popup Config
+//
 
-void CrealityDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
+void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
   popup = last_popup = popupid;
   switch (popupid) {
     case Pause:         drawPopup(F("Pause Print"), F(""), F(""), Popup); break;
@@ -4124,7 +4107,7 @@ void CrealityDWIN::popupHandler(const PopupID popupid, const bool option/*=false
   }
 }
 
-void CrealityDWIN::confirmHandler(PopupID popupid) {
+void JyersDWIN::confirmHandler(PopupID popupid) {
   popup = popupid;
   switch (popupid) {
     case FilInsert:   drawPopup(F("Insert Filament"), F("Press to Continue"), F(""), Confirm); break;
@@ -4136,9 +4119,11 @@ void CrealityDWIN::confirmHandler(PopupID popupid) {
   }
 }
 
-/* Navigation and Control */
+//
+// Navigation and Control
+//
 
-void CrealityDWIN::mainMenuControl() {
+void JyersDWIN::mainMenuControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < PAGE_COUNT - 1) {
@@ -4159,13 +4144,13 @@ void CrealityDWIN::mainMenuControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::menuControl() {
+void JyersDWIN::menuControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < getMenuSize(active_menu)) {
     dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     selection++; // Select Down
-    if (selection > scrollpos+MROWS) {
+    if (selection > scrollpos + MROWS) {
       scrollpos++;
       dwinFrameAreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
       menuItemHandler(active_menu, selection);
@@ -4187,7 +4172,7 @@ void CrealityDWIN::menuControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::valueControl() {
+void JyersDWIN::valueControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW)
@@ -4248,7 +4233,7 @@ void CrealityDWIN::valueControl() {
   }
 }
 
-void CrealityDWIN::optionControl() {
+void JyersDWIN::optionControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW)
@@ -4286,7 +4271,7 @@ void CrealityDWIN::optionControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::fileControl() {
+void JyersDWIN::fileControl() {
   typedef TextScroller<MENU_CHAR_LIMIT> Scroller;
   static Scroller scroller;
   EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -4294,8 +4279,7 @@ void CrealityDWIN::fileControl() {
     if (selection > 0) {
       card.selectFileByIndexSorted(selection - 1);
       char * const filename = card.longest_filename();
-      size_t len = strlen(filename);
-      size_t pos = len;
+      size_t len = strlen(filename), pos = len;
       if (!card.flag.filenameIsDir)
         while (pos && filename[pos] != '.') pos--;
       if (pos > MENU_CHAR_LIMIT) {
@@ -4364,7 +4348,7 @@ void CrealityDWIN::fileControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::printScreenControl() {
+void JyersDWIN::printScreenControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < PRINT_COUNT - 1) {
@@ -4414,7 +4398,7 @@ void CrealityDWIN::printScreenControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::popupControl() {
+void JyersDWIN::popupControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < 1) {
@@ -4559,7 +4543,7 @@ void CrealityDWIN::popupControl() {
   dwinUpdateLCD();
 }
 
-void CrealityDWIN::confirmControl() {
+void JyersDWIN::confirmControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
@@ -4584,12 +4568,14 @@ void CrealityDWIN::confirmControl() {
   dwinUpdateLCD();
 }
 
-/* In-Menu Value Modification */
+//
+// In-Menu Value Modification
+//
 
-void CrealityDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
-  if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Ki))
+void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
+  if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
-  else if (TERN0(HAS_HOTEND, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(HAS_HEATED_BED, valuepointer == &thermalManager.temp_bed.pid.Kd))
+  else if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
     tempvalue = unscalePID_d(value) * unit;
   else
     tempvalue = value * unit;
@@ -4602,38 +4588,38 @@ void CrealityDWIN::setupValue(const_float_t value, const_float_t min, const_floa
   drawFloat(tempvalue / unit, selection - scrollpos, true, valueunit);
 }
 
-void CrealityDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 0);
 }
-void CrealityDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 1);
 }
-void CrealityDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 2);
 }
-void CrealityDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 3);
 }
-void CrealityDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 4);
 }
-void CrealityDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 5);
 }
 
-void CrealityDWIN::modifyOption(const uint8_t value, const char * const * options, const uint8_t max) {
+void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, const uint8_t max) {
   tempvalue = value;
   valuepointer = const_cast<const char * *>(options);
   valuemin = 0;
@@ -4643,9 +4629,11 @@ void CrealityDWIN::modifyOption(const uint8_t value, const char * const * option
   drawOption(value, options, selection - scrollpos, true);
 }
 
-/* Main Functions */
+//
+// Main Functions
+//
 
-void CrealityDWIN::updateStatus(const char * const text) {
+void JyersDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
     for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
@@ -4657,7 +4645,7 @@ void CrealityDWIN::updateStatus(const char * const text) {
   }
 }
 
-void CrealityDWIN::startPrint(const bool sd) {
+void JyersDWIN::startPrint(const bool sd) {
   sdprint = sd;
   if (!printing) {
     printing = true;
@@ -4680,7 +4668,7 @@ void CrealityDWIN::startPrint(const bool sd) {
   }
 }
 
-void CrealityDWIN::stopPrint() {
+void JyersDWIN::stopPrint() {
   printing = false;
   sdprint = false;
   thermalManager.cooldown();
@@ -4689,7 +4677,7 @@ void CrealityDWIN::stopPrint() {
   drawPrintConfirm();
 }
 
-void CrealityDWIN::update() {
+void JyersDWIN::update() {
   stateUpdate();
   screenUpdate();
   switch (process) {
@@ -4704,13 +4692,13 @@ void CrealityDWIN::update() {
   }
 }
 
-void MarlinUI::update() { crealityDWIN.update(); }
+void MarlinUI::update() { jyersDWIN.update(); }
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
 
-void CrealityDWIN::stateUpdate() {
+void JyersDWIN::stateUpdate() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
     if (!printing) startPrint(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
     else stopPrint();
@@ -4741,7 +4729,7 @@ void CrealityDWIN::stateUpdate() {
   #endif
 }
 
-void CrealityDWIN::screenUpdate() {
+void JyersDWIN::screenUpdate() {
   const millis_t ms = millis();
   static millis_t scrltime = 0;
   if (ELAPSED(ms, scrltime)) {
@@ -4867,20 +4855,20 @@ void CrealityDWIN::screenUpdate() {
   }
 }
 
-void CrealityDWIN::audioFeedback(const bool success/*=true*/) {
+void JyersDWIN::audioFeedback(const bool success/*=true*/) {
   if (ui.sound_on)
     DONE_BUZZ(success);
   else
     updateStatus(success ? "Success" : "Failed");
 }
 
-void CrealityDWIN::saveSettings(char * const buff) {
+void JyersDWIN::saveSettings(char * const buff) {
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
   eeprom_settings.corner_pos = corner_pos * 10;
   memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
-void CrealityDWIN::loadSettings(const char * const buff) {
+void JyersDWIN::loadSettings(const char * const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
@@ -4895,7 +4883,7 @@ void CrealityDWIN::loadSettings(const char * const buff) {
   #endif
 }
 
-void CrealityDWIN::resetSettings() {
+void JyersDWIN::resetSettings() {
   eeprom_settings.time_format_textual = false;
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = 0);
   eeprom_settings.corner_pos = 325;
@@ -4932,17 +4920,17 @@ void MarlinUI::init_lcd() {
 
   dwinJPGShowAndCache(3);
   dwinJPGCacheTo1(Language_English);
-  crealityDWIN.redrawScreen();
+  jyersDWIN.redrawScreen();
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch (message) {
-      case PAUSE_MESSAGE_INSERT:  crealityDWIN.confirmHandler(FilInsert);  break;
+      case PAUSE_MESSAGE_INSERT:  jyersDWIN.confirmHandler(FilInsert);  break;
       case PAUSE_MESSAGE_PURGE:
-      case PAUSE_MESSAGE_OPTION:  crealityDWIN.popupHandler(PurgeMore);    break;
-      case PAUSE_MESSAGE_HEAT:    crealityDWIN.confirmHandler(HeaterTime); break;
-      case PAUSE_MESSAGE_WAITING: crealityDWIN.drawPrintScreen();         break;
+      case PAUSE_MESSAGE_OPTION:  jyersDWIN.popupHandler(PurgeMore);    break;
+      case PAUSE_MESSAGE_HEAT:    jyersDWIN.confirmHandler(HeaterTime); break;
+      case PAUSE_MESSAGE_WAITING: jyersDWIN.drawPrintScreen();          break;
       default: break;
     }
   }
