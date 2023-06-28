@@ -151,7 +151,7 @@ enum colorID : uint8_t {
 #define Confirm_Color       0x34B9
 #define Cancel_Color        0x3186
 
-class CrealityDWIN {
+class JyersDWIN {
 public:
   static constexpr size_t eeprom_data_size = 48;
   static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
@@ -248,4 +248,4 @@ public:
   static void resetSettings();
 };
 
-extern CrealityDWIN crealityDWIN;
+extern JyersDWIN jyersDWIN;
