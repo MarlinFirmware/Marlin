@@ -784,6 +784,6 @@
 /**
  * AD595 Minimum Voltage
  */
-#if defined(HAL_ADC_VREF) && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
-  static_assert(HAL_ADC_VREF >= 5.0f, "The AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC.");
+#if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
+  #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif

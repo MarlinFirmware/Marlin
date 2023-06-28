@@ -31,10 +31,10 @@
 #endif
 
 // ADC
-#ifdef BOARD_ADC_VREF
-  #define ADC_VREF BOARD_ADC_VREF
+#ifdef BOARD_ADC_VREF_MV
+  #define ADC_VREF_MV BOARD_ADC_VREF_MV
 #else
-  #define ADC_VREF HAL_ADC_VREF
+  #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
