@@ -66,9 +66,9 @@ enum menuID : uint8_t {
           #define _PREHEAT_ID(N) Preheat##N,
           REPEAT_1(PREHEAT_COUNT, _PREHEAT_ID)
         #endif
-      #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-        MPC,
-      #endif
+        #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+          MPC,
+        #endif
       Motion,
         HomeOffsets,
         MaxSpeed,
@@ -79,9 +79,9 @@ enum menuID : uint8_t {
         ColorSettings,
       Advanced,
         ProbeMenu,
-      #if HAS_TRINAMIC_CONFIG
-        TMCMenu,
-      #endif
+        #if HAS_TRINAMIC_CONFIG
+          TMCMenu,
+        #endif
       Info,
     Leveling,
       LevelManual,

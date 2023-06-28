@@ -128,9 +128,9 @@
 #define JERK_UNIT 10
 #define STEPS_UNIT 10
 
-/**
- * Custom menu items with jyersLCD
- */
+//
+// Custom menu items with JyersLCD
+//
 #if ENABLED(CUSTOM_MENU_CONFIG)
   #ifdef CONFIG_MENU_ITEM_5_DESC
     #define CUSTOM_MENU_COUNT 5
@@ -441,7 +441,9 @@ private:
 
 #endif // HAS_MESH
 
-/* General Display Functions */
+//
+// General Display Functions
+//
 
 struct CrealityDWIN::EEPROM_Settings CrealityDWIN::eeprom_settings{0};
 constexpr const char * const CrealityDWIN::color_names[11];
@@ -480,39 +482,17 @@ void CrealityDWIN::drawOption(const uint8_t value, const char * const * options,
 
 uint16_t CrealityDWIN::getColor(const uint8_t color, const uint16_t original, const bool light/*=false*/) {
   switch (color) {
-    case Default:
-      return original;
-      break;
-    case White:
-      return light ? Color_Light_White : Color_White;
-      break;
-    case Green:
-      return light ? Color_Light_Green : Color_Green;
-      break;
-    case Cyan:
-      return light ? Color_Light_Cyan : Color_Cyan;
-      break;
-    case Blue:
-      return light ? Color_Light_Blue : Color_Blue;
-      break;
-    case Magenta:
-      return light ? Color_Light_Magenta : Color_Magenta;
-      break;
-    case Red:
-      return light ? Color_Light_Red : Color_Red;
-      break;
-    case Orange:
-      return light ? Color_Light_Orange : Color_Orange;
-      break;
-    case Yellow:
-      return light ? Color_Light_Yellow : Color_Yellow;
-      break;
-    case Brown:
-      return light ? Color_Light_Brown : Color_Brown;
-      break;
-    case Black:
-      return Color_Black;
-      break;
+    case White:   return light ? Color_Light_White   : Color_White;
+    case Green:   return light ? Color_Light_Green   : Color_Green;
+    case Cyan:    return light ? Color_Light_Cyan    : Color_Cyan;
+    case Blue:    return light ? Color_Light_Blue    : Color_Blue;
+    case Magenta: return light ? Color_Light_Magenta : Color_Magenta;
+    case Red:     return light ? Color_Light_Red     : Color_Red;
+    case Orange:  return light ? Color_Light_Orange  : Color_Orange;
+    case Yellow:  return light ? Color_Light_Yellow  : Color_Yellow;
+    case Brown:   return light ? Color_Light_Brown   : Color_Brown;
+    case Black:   return Color_Black;
+    case Default: return original;
   }
   return Color_White;
 }
@@ -525,7 +505,7 @@ void CrealityDWIN::drawTitle(FSTR_P const ftitle) {
 }
 
 void _decorateMenuItem(uint8_t row, uint8_t icon, bool more) {
-  if (icon) dwinIconShow(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
+  if (icon) dwinIconShow(ICON, icon, 26, MBASE(row) - 3);       // Draw Menu Icon
   if (more) dwinIconShow(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
   dwinDrawLine(crealityDWIN.getColor(crealityDWIN.eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
 }
@@ -572,8 +552,7 @@ void CrealityDWIN::drawMenu(const uint8_t menu, const uint8_t select/*=0*/, cons
   }
   selection = _MIN(select, getMenuSize(menu));
   scrollpos = scroll;
-  if (selection - scrollpos > MROWS)
-    scrollpos = selection - MROWS;
+  if (selection - scrollpos > MROWS) scrollpos = selection - MROWS; // i.e., NOLESS(scrollpos, selection - MROWS);
   process = Menu;
   active_menu = menu;
   clearScreen();
@@ -600,8 +579,9 @@ void CrealityDWIN::redrawScreen() {
   updateStatusBar(true);
 }
 
-/* Primary Menus and Screen Elements */
-
+//
+// Primary Menus and Screen Elements
+//
 void CrealityDWIN::mainMenuIcons() {
   if (selection == 0) {
     dwinIconShow(ICON, ICON_Print_1, 17, 130);
@@ -1019,7 +999,9 @@ void CrealityDWIN::updateStatusBar(const bool refresh/*=false*/) {
   }
 }
 
-/* Menu Item Config */
+//
+// Menu Item Config
+//
 
 void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool draw/*=true*/) {
   const uint8_t row = item - scrollpos;
@@ -2107,7 +2089,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             break;
         }
         break;
-    #endif // ANY(PIDTEMP, PIDTEMPBED)
+    #endif // PIDTEMP || PIDTEMPBED
 
     #if ENABLED(PIDTEMP)
       case HotendPID:
@@ -2174,7 +2156,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             break;
         }
         break;
-    #endif // ENABLED(PIDTEMP)
+    #endif // PIDTEMP
 
     #if ENABLED(PIDTEMPBED)
       case BedPID:
@@ -2220,9 +2202,8 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawMenuItem(row, ICON_Version, F("Kp Value"));
               drawFloat(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
-            else {
+            else
               modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100);
-            }
             break;
           case BEDPID_KI:
             if (draw) {
@@ -2242,7 +2223,7 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
             break;
         }
         break;
-    #endif // ENABLED(PIDTEMPBED)
+    #endif // PIDTEMPBED
 
     #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
       case MPC:
@@ -2264,74 +2245,73 @@ void CrealityDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool 
               drawMenu(TempMenu, TEMP_MPC);
             break;
 
-        #if ENABLED(MPC_AUTOTUNE_MENU)
-          case MPCMENU_AUTOTUNE:
-            if (draw)
-              drawMenuItem(row, ICON_HotendTemp, F("Autotune"));
-            else {
-              popupHandler(MPCWait);
-              thermalManager.MPC_autotune(active_extruder, Temperature::MPCTuningType::AUTO);
-              redrawMenu();
-            }
-            break;
-        #endif // ENABLED(MPC_AUTOTUNE_MENU)
+          #if ENABLED(MPC_AUTOTUNE_MENU)
+            case MPCMENU_AUTOTUNE:
+              if (draw)
+                drawMenuItem(row, ICON_HotendTemp, F("Autotune"));
+              else {
+                popupHandler(MPCWait);
+                thermalManager.MPC_autotune(active_extruder, Temperature::MPCTuningType::AUTO);
+                redrawMenu();
+              }
+              break;
+          #endif
 
-        #if ENABLED(MPC_EDIT_MENU)
-          case MPCMENU_HEATER_POWER:
-            if (draw) {
-              drawMenuItem(row, ICON_Version, F("Heater Power"));
-              drawFloat(thermalManager.temp_hotend[0].mpc.heater_power, row, false, 1);
-            }
-            else
-              modifyValue(thermalManager.temp_hotend[0].mpc.heater_power, 1, 200, 1);
-            break;
+          #if ENABLED(MPC_EDIT_MENU)
+            case MPCMENU_HEATER_POWER:
+              if (draw) {
+                drawMenuItem(row, ICON_Version, F("Heater Power"));
+                drawFloat(thermalManager.temp_hotend[0].mpc.heater_power, row, false, 1);
+              }
+              else
+                modifyValue(thermalManager.temp_hotend[0].mpc.heater_power, 1, 200, 1);
+              break;
 
-          case MPCMENU_BLOCK_HEAT_CAPACITY:
-            if (draw) {
-              drawMenuItem(row, ICON_Version, F("Block Heat Cap."));
-              drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
-            }
-            else
-              modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
-            break;
+            case MPCMENU_BLOCK_HEAT_CAPACITY:
+              if (draw) {
+                drawMenuItem(row, ICON_Version, F("Block Heat Cap."));
+                drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
+              }
+              else
+                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
+              break;
 
-          case MPCMENU_SENSOR_RESPONSIVENESS:
-            if (draw) {
-              drawMenuItem(row, ICON_Version, F("Sensor Resp."));
-              drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
-            }
-            else
-              modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
-            break;
+            case MPCMENU_SENSOR_RESPONSIVENESS:
+              if (draw) {
+                drawMenuItem(row, ICON_Version, F("Sensor Resp."));
+                drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
+              }
+              else
+                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
+              break;
 
-          case MPCMENU_AMBIENT_XFER_COEFF:
-            if (draw) {
-              drawMenuItem(row, ICON_Version, F("Amb. xfer coeff"));
-              drawFloat(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, row, false, 10000);
-            }
-            else
-              modifyValue(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, 0, 1, 10000);
-            break;
+            case MPCMENU_AMBIENT_XFER_COEFF:
+              if (draw) {
+                drawMenuItem(row, ICON_Version, F("Amb. xfer coeff"));
+                drawFloat(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, row, false, 10000);
+              }
+              else
+                modifyValue(thermalManager.temp_hotend[0].mpc.ambient_xfer_coeff_fan0, 0, 1, 10000);
+              break;
 
-        #if ENABLED(MPC_INCLUDE_FAN)
-          case MPCMENU_AMBIENT_XFER_COEFF_FAN:
+            #if ENABLED(MPC_INCLUDE_FAN)
+              case MPCMENU_AMBIENT_XFER_COEFF_FAN: {
+                static float fan255_adjustment;
+                if (draw) {
+                  drawMenuItem(row, ICON_Version, F("Amb. xfer adj."));
+                  fan255_adjustment = thermalManager.temp_hotend[0].fanCoefficient();
+                  drawFloat(fan255_adjustment, row, false, 10000);
+                }
+                else
+                  modifyValue(fan255_adjustment, 0, 1, 10000, []{ thermalManager.temp_hotend[0].applyFanAdjustment(fan255_adjustment); });
+              } break;
+            #endif
 
-            static float fan255_adjustment;
-
-            if (draw) {
-              drawMenuItem(row, ICON_Version, F("Amb. xfer adj."));
-              fan255_adjustment = thermalManager.temp_hotend[0].fanCoefficient();
-              drawFloat(fan255_adjustment, row, false, 10000);
-            }
-            else
-              modifyValue(fan255_adjustment, 0, 1, 10000, []{ thermalManager.temp_hotend[0].applyFanAdjustment(fan255_adjustment); });
-            break;
-        #endif // ENABLED(MPC_INCLUDE_FAN)
-        #endif // ENABLED(MPC_EDIT_MENU)
-
+          #endif // MPC_EDIT_MENU
         }
         break;
-    #endif // ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+
+    #endif // MPC_EDIT_MENU || MPC_AUTOTUNE_MENU
 
     #if HAS_PREHEAT
       #define _PREHEAT_SUBMENU_CASE(N) case Preheat##N: preheat_submenu((N) - 1, item, TEMP_PREHEAT##N); break;
@@ -4197,7 +4177,9 @@ uint8_t CrealityDWIN::getMenuSize(const uint8_t menu) {
   return 0;
 }
 
-/* Popup Config */
+//
+// Popup Config
+//
 
 void CrealityDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
   popup = last_popup = popupid;
@@ -4239,7 +4221,9 @@ void CrealityDWIN::confirmHandler(PopupID popupid) {
   }
 }
 
-/* Navigation and Control */
+//
+// Navigation and Control
+//
 
 void CrealityDWIN::mainMenuControl() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -4268,7 +4252,7 @@ void CrealityDWIN::menuControl() {
   if (encoder_diffState == ENCODER_DIFF_CW && selection < getMenuSize(active_menu)) {
     dwinDrawRectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     selection++; // Select Down
-    if (selection > scrollpos+MROWS) {
+    if (selection > scrollpos + MROWS) {
       scrollpos++;
       dwinFrameAreaMove(1, 2, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
       menuItemHandler(active_menu, selection);
@@ -4398,8 +4382,7 @@ void CrealityDWIN::fileControl() {
     if (selection > 0) {
       card.selectFileByIndexSorted(selection - 1);
       char * const filename = card.longest_filename();
-      size_t len = strlen(filename);
-      size_t pos = len;
+      size_t len = strlen(filename), pos = len;
       if (!card.flag.filenameIsDir)
         while (pos && filename[pos] != '.') pos--;
       if (pos > MENU_CHAR_LIMIT) {
@@ -4694,7 +4677,9 @@ void CrealityDWIN::confirmControl() {
   dwinUpdateLCD();
 }
 
-/* In-Menu Value Modification */
+//
+// In-Menu Value Modification
+//
 
 void CrealityDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
   if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
@@ -4753,7 +4738,9 @@ void CrealityDWIN::modifyOption(const uint8_t value, const char * const * option
   drawOption(value, options, selection - scrollpos, true);
 }
 
-/* Main Functions */
+//
+// Main Functions
+//
 
 void CrealityDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
