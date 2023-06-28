@@ -43,7 +43,7 @@ enum processID : uint8_t {
 
 enum PopupID : uint8_t {
   Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
-  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming, ManualProbing,
+  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, MPCWait, Resuming, ManualProbing,
   FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom
 };
 
@@ -65,6 +65,9 @@ enum menuID : uint8_t {
         #if HAS_PREHEAT
           #define _PREHEAT_ID(N) Preheat##N,
           REPEAT_1(PREHEAT_COUNT, _PREHEAT_ID)
+        #endif
+        #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+          MPC,
         #endif
       Motion,
         HomeOffsets,
