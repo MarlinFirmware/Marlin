@@ -2211,7 +2211,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(thermalManager.temp_bed.pid.p(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100);
+              modifyValue(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
           case BEDPID_KI:
             if (draw) {
@@ -2219,7 +2219,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(thermalManager.temp_bed.pid.i(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100);
+              modifyValue(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
           case BEDPID_KD:
             if (draw) {
@@ -2227,7 +2227,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(thermalManager.temp_bed.pid.d(), row, false, 100);
             }
             else
-              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100);
+              modifyValue(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, []{ thermalManager.temp_bed.pid.reset(); });
             break;
         }
         break;
