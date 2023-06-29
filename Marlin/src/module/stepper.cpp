@@ -247,7 +247,7 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
-  #if NOT_TARGET(MCU_LPC1768, MCU_LPC1769)
+  #if NONE(MCU_LPC1768, MCU_LPC1769)
     shaping_time_t    ShapingQueue::times[shaping_echoes];
   #else
     shaping_time_t    ShapingQueue::times[shaping_echoes] __attribute__((section("AHBSRAM1"),aligned)); // Unused LPC ethernet buffer: https://github.com/MarlinFirmware/Marlin/issues/25432#issuecomment-1450420638
