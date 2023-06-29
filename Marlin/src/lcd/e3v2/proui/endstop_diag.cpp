@@ -23,8 +23,8 @@
 /**
  * DWIN Endstops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.3
- * Date: 2022/10/07
+ * Version: 1.4.3
+ * Date: 2023/05/10
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -35,10 +35,8 @@
 
 #include "../../../core/types.h"
 #include "../../marlinui.h"
-#include "dwin_lcd.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
 #include "dwin.h"
+#include "dwin_popup.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"

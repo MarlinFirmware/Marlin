@@ -23,8 +23,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.10.1
- * Date: 2022/03/06
+ * Version: 3.12.1
+ * Date: 2023/01/22
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -132,6 +132,26 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
     block++;
     pending -= to_send;
   }
+}
+
+// Draw an Icon from SRAM without background transparency for DACAI Screens support
+void DACAI_ICON_Show(uint16_t x, uint16_t y, uint16_t addr) {
+  NOMORE(x, DWIN_WIDTH - 1);
+  NOMORE(y, DWIN_HEIGHT - 1);
+  size_t i = 0;
+  dwinByte(i, 0x70);
+  dwinWord(i, x);
+  dwinWord(i, y);
+  dwinWord(i, addr);
+  dwinSend(i);
+}
+
+void dwinIconShow(uint16_t x, uint16_t y, uint16_t addr) {
+  #if ENABLED(DACAI_DISPLAY)
+    DACAI_ICON_Show(x, y, addr);
+  #else
+    dwinIconShow(0, 0, 1, x, y, addr);
+  #endif
 }
 
 // Write the contents of the 32KB SRAM data memory into the designated image memory space.

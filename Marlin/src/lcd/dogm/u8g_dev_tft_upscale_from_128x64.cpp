@@ -136,8 +136,8 @@ TFT_IO tftio;
   #define TFT_BTOKMENU_COLOR COLOR_RED
 #endif
 
-static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  tftio.set_window(Xmin, Ymin, Xmax, Ymax);
+static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, uint16_t xMax, uint16_t yMax) {
+  tftio.set_window(xMin, yMin, xMax, yMax);
 }
 
 #if HAS_TOUCH_BUTTONS

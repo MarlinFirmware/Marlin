@@ -2718,14 +2718,18 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #elif ENABLED(DWIN_LCD_PROUI)
   #if !HAS_MEDIA
     #error "DWIN_LCD_PROUI requires SDSUPPORT to be enabled."
-  #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
-    #error "DWIN_LCD_PROUI does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
-  #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-    #error "DWIN_LCD_PROUI does not support MPC_EDIT_MENU or MPC_AUTOTUNE_MENU."
-  #elif ENABLED(LCD_BED_TRAMMING)
-    #error "DWIN_LCD_PROUI does not support LCD_BED_TRAMMING."
   #elif ALL(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_LCD_PROUI does not support LCD_BED_LEVELING with PROBE_MANUALLY."
+  #elif ENABLED(MEDIASORT_MENU_ITEM) && DISABLED(SDCARD_SORT_ALPHA)
+    #error "MEDIASORT_MENU_ITEM requires SDCARD_SORT_ALPHA."
+  #elif ENABLED(RUNOUT_TUNE_ITEM) && DISABLED(HAS_FILAMENT_SENSOR)
+    #error "RUNOUT_TUNE_ITEM requires HAS_FILAMENT_SENSOR."
+  #elif ENABLED(PLR_TUNE_ITEM) && DISABLED(POWER_LOSS_RECOVERY)
+    #error "PLR_TUNE_ITEM requires POWER_LOSS_RECOVERY."
+  #elif ENABLED(JD_TUNE_ITEM) && DISABLED(HAS_JUNCTION_DEVIATION)
+    #error "JD_TUNE_ITEM requires HAS_JUNCTION_DEVIATION."
+  #elif ENABLED(ADVK_TUNE_ITEM) && DISABLED(LIN_ADVANCE)
+    #error "ADVK_TUNE_ITEM requires LIN_ADVANCE."
   #endif
 #endif
 
@@ -4058,12 +4062,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ENABLED(FT_MOTION)
-  #if NUM_AXES > 3
-    #error "FT_MOTION is currently limited to machines with 3 linear axes."
-  #elif ENABLED(MIXING_EXTRUDER)
-    #error "FT_MOTION is incompatible with MIXING_EXTRUDER."
-  #endif
+#if ALL(FT_MOTION, MIXING_EXTRUDER)
+  #error "FT_MOTION does not currently support MIXING_EXTRUDER."
 #endif
 
 // Multi-Stepping Limit

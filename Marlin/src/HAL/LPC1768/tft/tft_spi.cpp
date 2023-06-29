@@ -63,7 +63,7 @@ uint32_t TFT_SPI::getID() {
   return id;
 }
 
-uint32_t TFT_SPI::readID(uint16_t reg) {
+uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
 
   #if PIN_EXISTS(TFT_MISO)
@@ -72,7 +72,7 @@ uint32_t TFT_SPI::readID(uint16_t reg) {
     SPIx.setClock(SPI_CLOCK_DIV64);
     SPIx.begin();
     WRITE(TFT_CS_PIN, LOW);
-    writeReg(reg);
+    writeReg(inReg);
 
     for (uint8_t i = 0; i < 4; ++i) {
       SPIx.read((uint8_t*)&d, 1);

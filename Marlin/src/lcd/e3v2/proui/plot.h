@@ -24,15 +24,15 @@
 /**
  * DWIN Single var plot
  * Author: Miguel A. Risco-Castillo
- * Version: 2.1.2
- * Date: 2022/11/20
+ * Version: 2.2.3
+ * Date: 2023/01/29
  */
 
 #include "dwinui.h"
 
 class PlotClass {
 public:
-  static void Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref=0);
+  static void Draw(const frame_rect_t &frame, const_float_t max, const_float_t ref=0);
   static void Update(const_float_t value);
 };
 
