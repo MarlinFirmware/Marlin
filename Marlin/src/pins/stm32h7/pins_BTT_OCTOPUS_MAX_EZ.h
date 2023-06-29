@@ -399,38 +399,37 @@
 //
 // LCDs and Controllers
 //
-#if HAS_WIRED_LCD
-  #if ENABLED(BTT_MINI_12864_V1) // BTT Mini 12864 V2.0 connected via 18-pin FCP cable
 
-    #define BEEPER_PIN                 EXP1_01_PIN
-    #define BTN_ENC                    EXP1_02_PIN
-    #define LCD_PINS_RS                EXP1_04_PIN
+#if ENABLED(BTT_MINI_12864_V1)                    // BTT Mini 12864 V2.0 connected via 18-pin FCP cable
 
-    #define BTN_EN1                    EXP2_03_PIN
-    #define BTN_EN2                    EXP2_05_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
 
-    #define LCD_PINS_EN                EXP1_03_PIN
-    #define LCD_PINS_D4                EXP1_05_PIN
-    #define LCD_PINS_D5                EXP1_06_PIN
-    #define LCD_PINS_D6                EXP1_07_PIN
-    #define LCD_PINS_D7                EXP1_08_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
 
-    #define DOGLCD_CS                  EXP1_03_PIN
-    #define DOGLCD_A0                  EXP1_04_PIN
-    #define DOGLCD_SCK                 EXP2_02_PIN
-    #define DOGLCD_MOSI                EXP2_06_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
 
-    #define SOFTWARE_SPI
-    #define FORCE_SOFT_SPI                          // Use this if default of hardware SPI causes display problems
-                                                    //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+  #define DOGLCD_CS                  EXP1_03_PIN
+  #define DOGLCD_A0                  EXP1_04_PIN
+  #define DOGLCD_SCK                 EXP2_02_PIN
+  #define DOGLCD_MOSI                EXP2_06_PIN
 
-    //#define LCD_BACKLIGHT_PIN           -1
-    #define LCD_RESET_PIN              EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-    #define NEOPIXEL_PIN               EXP1_06_PIN
+  #define SOFTWARE_SPI
+  #define FORCE_SOFT_SPI                          // Use this if Hardware SPI causes display problems.
+                                                  // Results in LCD Software SPI mode 3, SD Software SPI mode 0.
 
-  #else
-    #error "Only BTT_MINI_12864_V1 is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
-  #endif
+  //#define LCD_BACKLIGHT_PIN               -1
+  #define LCD_RESET_PIN              EXP1_05_PIN  // Must be high or open for LCD to operate normally.
+  #define NEOPIXEL_PIN               EXP1_06_PIN
+
+#elif HAS_WIRED_LCD
+  #error "Only BTT_MINI_12864_V1 is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
 #endif
 
 //
@@ -439,28 +438,26 @@
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PE10
 #endif
-
 #ifndef NEOPIXEL2_PIN
   #define NEOPIXEL2_PIN                     PE9
 #endif
 
+//
+// WIFI
+//
 #if ENABLED(WIFISUPPORT)
-  //
-  // WIFI
-  //
-
   /**
-   *                      -------
-   *            GND | 9  |       | 8 | 3.3V
-   *  (ESP-CS) PG1  | 10 |       | 7 | PB15 (ESP-MOSI)
-   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
-   * (ESP-IO0)  PG0 | 12 |       | 5 | PB13 (ESP-CLK)
-   * (ESP-IO4) PF15 | 13 |       | 4 | --
-   *             -- | 14 |       | 3 | 3.3V (ESP-EN)
-   *  (ESP-RX)  PE7 | 15 |       | 2 | --
-   *  (ESP-TX)  PE8 | 16 |       | 1 | PB2 (ESP-RST)
-   *                      -------
-   *                       WIFI
+   *                 --------
+   *           GND  |  9   8 | 3.3V
+   *  (ESP-CS) PG1  | 10   7 | PB15 (ESP-MOSI)
+   *           3.3V | 11   6 | PB14 (ESP-MISO)
+   * (ESP-IO0) PG0  | 12   5 | PB13 (ESP-CLK)
+   * (ESP-IO4) PF15 | 13   4 | --
+   *             -- | 14   3 | 3.3V (ESP-EN)
+   *  (ESP-RX) PE7  | 15   2 | --
+   *  (ESP-TX) PE8  | 16   1 | PB2 (ESP-RST)
+   *                 --------
+   *                   WIFI
    */
   #define ESP_WIFI_MODULE_COM                  7  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
