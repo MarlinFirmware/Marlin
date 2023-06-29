@@ -247,7 +247,13 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
-  shaping_time_t      ShapingQueue::times[shaping_echoes];
+  #if ANY(MCU_LPC1768, MCU_LPC1769) && DISABLED(NO_LPC_ETHERNET_BUFFER)
+    // Use the 16K LPC Ethernet buffer: https://github.com/MarlinFirmware/Marlin/issues/25432#issuecomment-1450420638
+    #define _ATTR_BUFFER __attribute__((section("AHBSRAM1"),aligned))
+  #else
+    #define _ATTR_BUFFER
+  #endif
+  shaping_time_t      ShapingQueue::times[shaping_echoes] _ATTR_BUFFER;
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 

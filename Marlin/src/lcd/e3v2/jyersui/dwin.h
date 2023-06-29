@@ -43,7 +43,7 @@ enum processID : uint8_t {
 
 enum PopupID : uint8_t {
   Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
-  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming, ManualProbing,
+  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, MPCWait, Resuming, ManualProbing,
   FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom
 };
 
@@ -66,6 +66,9 @@ enum menuID : uint8_t {
           #define _PREHEAT_ID(N) Preheat##N,
           REPEAT_1(PREHEAT_COUNT, _PREHEAT_ID)
         #endif
+        #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+          MPC,
+        #endif
       Motion,
         HomeOffsets,
         MaxSpeed,
@@ -76,9 +79,9 @@ enum menuID : uint8_t {
         ColorSettings,
       Advanced,
         ProbeMenu,
-      #if HAS_TRINAMIC_CONFIG
-        TMCMenu,
-      #endif
+        #if HAS_TRINAMIC_CONFIG
+          TMCMenu,
+        #endif
       Info,
     Leveling,
       LevelManual,
@@ -148,7 +151,7 @@ enum colorID : uint8_t {
 #define Confirm_Color       0x34B9
 #define Cancel_Color        0x3186
 
-class CrealityDWIN {
+class JyersDWIN {
 public:
   static constexpr size_t eeprom_data_size = 48;
   static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
@@ -245,4 +248,4 @@ public:
   static void resetSettings();
 };
 
-extern CrealityDWIN crealityDWIN;
+extern JyersDWIN jyersDWIN;
