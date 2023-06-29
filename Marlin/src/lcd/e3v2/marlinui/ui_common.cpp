@@ -159,7 +159,7 @@ void MarlinUI::draw_kill_screen() {
     dwinIconShow(ICON, ICON_Halted, (LCD_PIXEL_WIDTH - 96) / 2, 40);
   #endif
 
-  uint8_t slen = utf8_strlen(status_message);
+  uint8_t slen = status_message.glyphs();
   lcd_moveto(cx - (slen / 2), cy - 1);
   lcd_put_u8str(status_message);
 
@@ -185,13 +185,8 @@ void MarlinUI::draw_status_message(const bool blink) {
   constexpr uint8_t max_status_chars = (LCD_PIXEL_WIDTH) / (STAT_FONT_WIDTH);
 
   auto status_changed = []{
-    static uint16_t old_hash = 0x0000;
-    uint16_t hash = 0x0000;
-    for (uint8_t i = 0; i < MAX_MESSAGE_LENGTH; i++) {
-      const char c = ui.status_message[i];
-      if (!c) break;
-      hash = ((hash << 1) | (hash >> 15)) ^ c;
-    }
+    static MString<>::hash_t old_hash = 0x0000;
+    const MString<>::hash_t hash = ui.status_message.hash();
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
     return hash_changed || !did_first_redraw;
@@ -201,7 +196,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     static bool last_blink = false;
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(status_message);
+    uint8_t slen = status_message.glyphs();
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= max_status_chars) {
@@ -247,7 +242,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     if (status_changed()) {
       // Get the UTF8 character count of the string
-      uint8_t slen = utf8_strlen(status_message);
+      uint8_t slen = status_message.glyphs();
 
       // Just print the string to the LCD
       lcd_put_u8str_max(status_message, max_status_chars);

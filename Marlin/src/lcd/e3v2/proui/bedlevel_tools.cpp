@@ -75,12 +75,13 @@ uint8_t BedLevelToolsClass::mesh_y = 0;
 uint8_t BedLevelToolsClass::tilt_grid = 1;
 
 bool drawing_mesh = false;
-char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
-    sprintf_P(cmd, PSTR("M421 I%i J%i Z%s %s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1), undefined ? "N" : "");
+    MString<MAX_CMD_SIZE> cmd;
+    cmd.set(F("M421 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3));
+    if (undefined) cmd += F(" N");
     gcode.process_subcommands_now(cmd);
     planner.synchronize();
   }
@@ -126,8 +127,9 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 #else
 
   void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y) {
-    sprintf_P(cmd, PSTR("G29 I%i J%i Z%s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1));
-    gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now(
+      TS(F("G29 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
+    );
     planner.synchronize();
   }
 
@@ -144,10 +146,8 @@ void BedLevelToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y,
   else {
     DWIN_Show_Popup(ICON_BLTouch, F("Moving to Point"), F("Please wait until done."));
     HMI_SaveProcessID(NothingToDo);
-    sprintf_P(cmd, PSTR("G0 F300 Z%s"), dtostrf(Z_CLEARANCE_BETWEEN_PROBES, 1, 3, str_1));
-    gcode.process_subcommands_now(cmd);
-    sprintf_P(cmd, PSTR("G42 F4000 I%i J%i"), mesh_x, mesh_y);
-    gcode.process_subcommands_now(cmd);
+    gcode.process_subcommands_now(TS(F("G0 F300 Z"), p_float_t(Z_CLEARANCE_BETWEEN_PROBES, 3)));
+    gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, F(" J"), mesh_y));
     planner.synchronize();
     current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
     planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
@@ -170,13 +170,13 @@ void BedLevelToolsClass::MoveToZ() {
   bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true);
 }
 void BedLevelToolsClass::ProbeXY() {
-  const uint16_t zclear = Z_CLEARANCE_DEPLOY_PROBE;
-  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
-    zclear,
-    dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
-    dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)
+  gcode.process_subcommands_now(
+    MString<MAX_CMD_SIZE>(
+      F("G28O\nG0Z"), uint16_t(Z_CLEARANCE_DEPLOY_PROBE),
+      F("\nG30X"), p_float_t(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 2),
+      F("Y"), p_float_t(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 2)
+    )
   );
-  gcode.process_subcommands_now(cmd);
 }
 
 void BedLevelToolsClass::mesh_reset() {
@@ -277,20 +277,16 @@ bool BedLevelToolsClass::meshvalidate() {
 
   void BedLevelToolsClass::Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
     float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
-    if (v_min > 3e+10F) v_min = 0.0000001;
-    if (v_max > 3e+10F) v_max = 0.0000001;
-    if (range > 3e+10F) range = 0.0000001;
-    char msg[46];
-    if (viewer_asymmetric_range) {
-      dtostrf(-v_min, 1, 3, str_1);
-      dtostrf( v_max, 1, 3, str_2);
-    }
-    else {
-      dtostrf(-range, 1, 3, str_1);
-      dtostrf( range, 1, 3, str_2);
-    }
-    sprintf_P(msg, PSTR("Red %s..0..%s Green"), str_1, str_2);
-    ui.set_status(msg);
+    if (v_min > 3e+10f) v_min = 0.0000001;
+    if (v_max > 3e+10f) v_max = 0.0000001;
+    if (range > 3e+10f) range = 0.0000001;
+    ui.set_status(
+      &MString<45>(
+        F("Red "),  p_float_t(viewer_asymmetric_range ? -v_min : -range, 3),
+        F("..0.."), p_float_t(viewer_asymmetric_range ?  v_max :  range, 3),
+        F(" Green")
+      )
+    );
     drawing_mesh = false;
   }
 

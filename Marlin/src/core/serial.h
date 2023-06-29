@@ -251,6 +251,55 @@ inline void print_pos(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_
 #define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
 #define SERIAL_XYZ(PREFIX,V...) do { print_pos(V, F(PREFIX)); }while(0)
 
+/**
+ * Extended string that can echo itself to serial
+ */
+template <int SIZE=DEFAULT_MSTRING_SIZE>
+class SString : public MString<SIZE> {
+public:
+  typedef MString<SIZE> super;
+  using super::str;
+  using super::debug;
+
+  SString() : super() {}
+
+  template <typename T, typename... Args>
+  SString(T arg1, Args... more) : super(arg1, more...) {}
+
+  SString& set() { super::set(); return *this; }
+
+  template<typename... Args>
+  SString& setf_P(PGM_P const fmt, Args... more) { snprintf_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+
+  template<typename... Args>
+  SString& setf(const char *fmt, Args... more)   { snprintf(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+
+  template<typename... Args>
+  SString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+
+  template <typename T>
+  SString& set(const T &v) { super::set(v); return *this; }
+
+  template <typename T>
+  SString& append(const T &v) { super::append(v); return *this; }
+
+  template<typename T, typename... Args>
+  SString& set(T arg1, Args... more) { set(arg1).append(more...); return *this; }
+
+  template<typename T, typename... Args>
+  SString& append(T arg1, Args... more) { append(arg1).append(more...); return *this; }
+
+  SString& clear() { set(); return *this; }
+  SString& eol() { append('\n'); return *this; }
+  SString& trunc(const int &i) { super::trunc(i); return *this; }
+
+  // Extended with methods to print to serial
+  SString& echo()   { SERIAL_ECHO(str);   return *this; }
+  SString& echoln() { SERIAL_ECHOLN(str); return *this; }
+};
+
+#define TSS(V...) SString<>(V)
+
 //
 // Commonly-used strings in serial output
 //

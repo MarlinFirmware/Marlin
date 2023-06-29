@@ -2142,8 +2142,10 @@ void Temperature::task() {
   UNUSED(ms);
 }
 
-#define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
-#define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
+// For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
+#define TEMP_AD595(RAW)  ((RAW) * (ADC_VREF_MV / 10) / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
+// For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
+#define TEMP_AD8495(RAW) ((RAW) * (ADC_VREF_MV /  5) / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
 
 /**
  * Bisect search for the range of the 'raw' value, then interpolate
@@ -4179,22 +4181,17 @@ void Temperature::isr() {
         case H_REDUNDANT: k = 'R'; break;
       #endif
     }
-    SERIAL_CHAR(' ', k);
-    #if HAS_MULTI_HOTEND
-      if (e >= 0) SERIAL_CHAR('0' + e);
-    #endif
-    #ifdef SERIAL_FLOAT_PRECISION
-      #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
-    #else
-      #define SFP 2
-    #endif
-    SERIAL_ECHO(AS_CHAR(':'), p_float_t(c, SFP));
-    if (show_t) { SERIAL_ECHOPGM(" /", p_float_t(t, SFP)); }
+    #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
+
+    SString<50> s(' ', k);
+    if (TERN0(HAS_MULTI_HOTEND, e >= 0)) s += char('0' + e);
+    s += TS(':', p_float_t(c, SFP));
+    if (show_t) { s += F(" /"); s += p_float_t(t, SFP); }
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
-      SERIAL_ECHOPGM(" (", TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR));
-      SERIAL_CHAR(')');
+      s.append(F(" ("), TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR), ')');
     #endif
+    s.echo();
     delay(2);
   }
 
@@ -4228,23 +4225,20 @@ void Temperature::isr() {
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
     #endif
-    SERIAL_ECHOPGM(" @:", getHeaterPower((heater_id_t)target_extruder));
+    SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
     #if HAS_HEATED_BED
-      SERIAL_ECHOPGM(" B@:", getHeaterPower(H_BED));
+      s.append(" B@:", getHeaterPower(H_BED));
     #endif
     #if HAS_HEATED_CHAMBER
-      SERIAL_ECHOPGM(" C@:", getHeaterPower(H_CHAMBER));
+      s.append(" C@:", getHeaterPower(H_CHAMBER));
     #endif
     #if HAS_COOLER
-      SERIAL_ECHOPGM(" C@:", getHeaterPower(H_COOLER));
+      s.append(" C@:", getHeaterPower(H_COOLER));
     #endif
     #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() {
-        SERIAL_ECHOPGM(" @", e);
-        SERIAL_CHAR(':');
-        SERIAL_ECHO(getHeaterPower((heater_id_t)e));
-      }
+      HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
     #endif
+    s.echo();
   }
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
@@ -4331,11 +4325,12 @@ void Temperature::isr() {
           next_temp_ms = now + 1000UL;
           print_heater_states(target_extruder);
           #if TEMP_RESIDENCY_TIME > 0
-            SERIAL_ECHOPGM(" W:");
+            SString<20> s(F(" W:"));
             if (residency_start_ms)
-              SERIAL_ECHO(long((SEC_TO_MS(TEMP_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
+              s += long((SEC_TO_MS(TEMP_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
             else
-              SERIAL_CHAR('?');
+              s += '?';
+            s.echo();
           #endif
           SERIAL_EOL();
         }
@@ -4468,11 +4463,12 @@ void Temperature::isr() {
           next_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
-            SERIAL_ECHOPGM(" W:");
+            SString<20> s(F(" W:"));
             if (residency_start_ms)
-              SERIAL_ECHO(long((SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
+              s += long((SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
             else
-              SERIAL_CHAR('?');
+              s += '?';
+            s.echo();
           #endif
           SERIAL_EOL();
         }
@@ -4562,7 +4558,7 @@ void Temperature::isr() {
       const bool wants_to_cool = isProbeAboveTemp(target_temp),
                  will_wait = !(wants_to_cool && no_wait_for_cooling);
       if (will_wait)
-        SERIAL_ECHOLNPGM("Waiting for probe to ", wants_to_cool ? F("cool down") : F("heat up"), " to ", target_temp, " degrees.");
+        SString<60>(F("Waiting for probe to "), wants_to_cool ? F("cool down") : F("heat up"), F(" to "), target_temp, F(" degrees.")).echoln();
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         KEEPALIVE_STATE(NOT_BUSY);
@@ -4600,9 +4596,8 @@ void Temperature::isr() {
 
         // Loop until the temperature is very close target
         if (!(wants_to_cool ? isProbeAboveTemp(target_temp) : isProbeBelowTemp(target_temp))) {
-            SERIAL_ECHOLN(wants_to_cool ? PSTR("Cooldown") : PSTR("Heatup"));
-            SERIAL_ECHOLNPGM(" complete, target probe temperature reached.");
-            break;
+          SString<60>(wants_to_cool ? F("Cooldown") : F("Heatup"), F(" complete, target probe temperature reached.")).echoln();
+          break;
         }
       }
 
@@ -4663,11 +4658,12 @@ void Temperature::isr() {
           next_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
-            SERIAL_ECHOPGM(" W:");
+            SString<20> s(F(" W:"));
             if (residency_start_ms)
-              SERIAL_ECHO(long((SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
+              s += long((SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
             else
-              SERIAL_CHAR('?');
+              s += '?';
+            s.echo();
           #endif
           SERIAL_EOL();
         }
@@ -4762,11 +4758,12 @@ void Temperature::isr() {
           next_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_COOLER_RESIDENCY_TIME > 0
-            SERIAL_ECHOPGM(" W:");
+            SString<20> s(F(" W:"));
             if (residency_start_ms)
-              SERIAL_ECHO(long((SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
+              s += long((SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
             else
-              SERIAL_CHAR('?');
+              s += '?';
+            s.echo();
           #endif
           SERIAL_EOL();
         }
