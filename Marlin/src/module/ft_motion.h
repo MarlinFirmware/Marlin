@@ -133,7 +133,7 @@ class FxdTiCtrl {
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
     static bool runoutEna;
-    static bool runout;
+    static bool blockDataIsRunout;
 
     // Trapezoid data variables.
     static xyze_pos_t   startPosn,          // (mm) Start position of block
