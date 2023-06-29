@@ -124,6 +124,8 @@ hal_timer_t FxdTiCtrl::nextStepTicks = FTM_MIN_TICKS; // Accumulator for the nex
   float FxdTiCtrl::e_advanced_z1 = 0.0f;        // (ms) Unit delay of advanced extruder position.
 #endif
 
+constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
+
 //-----------------------------------------------------------------//
 // Function definitions.
 //-----------------------------------------------------------------//
@@ -144,7 +146,7 @@ void FxdTiCtrl::runoutBlock() {
   if (runoutEna && !batchRdy) {   // If the window is full already (block intervals was a multiple of
                                   // the batch size), or runout is not enabled, no runout is needed.
     // Fill out the trajectory window with the last position calculated.
-    if (makeVector_batchIdx > (FTM_WINDOW_SIZE - FTM_BATCH_SIZE))
+    if (makeVector_batchIdx > last_batchIdx)
       for (uint32_t i = makeVector_batchIdx; i < (FTM_WINDOW_SIZE); i++) {
         LOGICAL_AXIS_CODE(
           traj.e[i] = traj.e[makeVector_batchIdx - 1],
@@ -160,7 +162,7 @@ void FxdTiCtrl::runoutBlock() {
         );
       }
 
-    makeVector_batchIdx = (FTM_WINDOW_SIZE - FTM_BATCH_SIZE);
+    makeVector_batchIdx = last_batchIdx;
     batchRdy = true;
     runout = true;
   }
@@ -196,20 +198,19 @@ void FxdTiCtrl::loop() {
 
   if (runout && !batchRdy) { // The lower half of the window has been runout.
     // Runout the upper half of the window: the upper half has been shifted into the lower
-    // half. Fillout the upper half so another batch can be processed.
-    for (uint32_t i = (FTM_WINDOW_SIZE - FTM_BATCH_SIZE); i < (FTM_WINDOW_SIZE - 1); i++)
-    {
+    // half. Fill out the upper half so another batch can be processed.
+    for (uint32_t i = last_batchIdx; i < (FTM_WINDOW_SIZE) - 1; i++) {
       LOGICAL_AXIS_CODE(
-      traj.e[i] = traj.e[(FTM_WINDOW_SIZE - 1)],
-      traj.x[i] = traj.x[(FTM_WINDOW_SIZE - 1)],
-      traj.y[i] = traj.y[(FTM_WINDOW_SIZE - 1)],
-      traj.z[i] = traj.z[(FTM_WINDOW_SIZE - 1)],
-      traj.i[i] = traj.i[(FTM_WINDOW_SIZE - 1)],
-      traj.j[i] = traj.j[(FTM_WINDOW_SIZE - 1)],
-      traj.k[i] = traj.k[(FTM_WINDOW_SIZE - 1)],
-      traj.u[i] = traj.u[(FTM_WINDOW_SIZE - 1)],
-      traj.v[i] = traj.v[(FTM_WINDOW_SIZE - 1)],
-      traj.w[i] = traj.w[(FTM_WINDOW_SIZE - 1)]
+        traj.e[i] = traj.e[(FTM_WINDOW_SIZE) - 1],
+        traj.x[i] = traj.x[(FTM_WINDOW_SIZE) - 1],
+        traj.y[i] = traj.y[(FTM_WINDOW_SIZE) - 1],
+        traj.z[i] = traj.z[(FTM_WINDOW_SIZE) - 1],
+        traj.i[i] = traj.i[(FTM_WINDOW_SIZE) - 1],
+        traj.j[i] = traj.j[(FTM_WINDOW_SIZE) - 1],
+        traj.k[i] = traj.k[(FTM_WINDOW_SIZE) - 1],
+        traj.u[i] = traj.u[(FTM_WINDOW_SIZE) - 1],
+        traj.v[i] = traj.v[(FTM_WINDOW_SIZE) - 1],
+        traj.w[i] = traj.w[(FTM_WINDOW_SIZE) - 1]
       );
     }
     batchRdy = true;
@@ -638,7 +639,7 @@ void FxdTiCtrl::makeVector() {
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == (FTM_WINDOW_SIZE)) {
-    makeVector_batchIdx = (FTM_WINDOW_SIZE - FTM_BATCH_SIZE);
+    makeVector_batchIdx = last_batchIdx;
     batchRdy = true;
   }
 
