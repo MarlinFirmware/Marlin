@@ -43,7 +43,6 @@
 PrintStatsClass PrintStats;
 
 void PrintStatsClass::Draw() {
-  char buf[50] = "";
   char str[30] = "";
   constexpr int8_t MRG = 30;
 
@@ -53,18 +52,13 @@ void PrintStatsClass::Draw() {
   DWINUI::Draw_Button(BTN_Continue, 86, 250);
   printStatistics ps = print_job_timer.getStats();
 
-  sprintf_P(buf, PSTR(S_FMT ": %i"), GET_TEXT(MSG_INFO_PRINT_COUNT), ps.totalPrints);
-  DWINUI::Draw_String(MRG, 80, buf);
-  sprintf_P(buf, PSTR(S_FMT ": %i"), GET_TEXT(MSG_INFO_COMPLETED_PRINTS), ps.finishedPrints);
-  DWINUI::Draw_String(MRG, 100, buf);
+  DWINUI::Draw_String(MRG,  80, TS(GET_TEXT_F(MSG_INFO_PRINT_COUNT), F(": "), ps.totalPrints));
+  DWINUI::Draw_String(MRG, 100, TS(GET_TEXT_F(MSG_INFO_COMPLETED_PRINTS), F(": "), ps.finishedPrints));
   duration_t(print_job_timer.getStats().printTime).toDigital(str, true);
-  sprintf_P(buf, PSTR(S_FMT ": %s"), GET_TEXT(MSG_INFO_PRINT_TIME), str);
-  DWINUI::Draw_String(MRG, 120, buf);
+  DWINUI::Draw_String(MRG, 120, MString<50>(GET_TEXT_F(MSG_INFO_PRINT_TIME), F(": "), str));
   duration_t(print_job_timer.getStats().longestPrint).toDigital(str, true);
-  sprintf_P(buf, PSTR(S_FMT ": %s"), GET_TEXT(MSG_INFO_PRINT_LONGEST), str);
-  DWINUI::Draw_String(MRG, 140, buf);
-  sprintf_P(buf, PSTR(S_FMT ": %s m"), GET_TEXT(MSG_INFO_PRINT_FILAMENT), dtostrf(ps.filamentUsed / 1000, 1, 2, str));
-  DWINUI::Draw_String(MRG, 160, buf);
+  DWINUI::Draw_String(MRG, 140, MString<50>(GET_TEXT(MSG_INFO_PRINT_LONGEST), F(": "), str));
+  DWINUI::Draw_String(MRG, 160, TS(GET_TEXT_F(MSG_INFO_PRINT_FILAMENT), F(": "), p_float_t(ps.filamentUsed / 1000, 2), F(" m")));
 }
 
 void PrintStatsClass::Reset() {

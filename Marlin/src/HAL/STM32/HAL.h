@@ -160,7 +160,7 @@ typedef libServo hal_servo_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 //
 // Pin Mapping for M42, M43, M226
