@@ -150,10 +150,11 @@ void FxdTiCtrl::runoutBlock() {
 
   accel_P = decel_P = 0.0f;
 
-  max_intervals = WITHIN(cfg.mode, 10U, 19U) ? (FTM_BATCH_SIZE) * ceil((FTM_ZMAX) / (FTM_BATCH_SIZE)) : 0;
+  static constexpr uint32_t shaper_intervals = (FTM_BATCH_SIZE) * ceil((FTM_ZMAX) / (FTM_BATCH_SIZE)),
+                            min_max_intervals = (FTM_BATCH_SIZE) * ceil((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE));
 
-  static constexpr uint32_t nr_windows = ceil((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE));
-  if (max_intervals <= (FTM_BATCH_SIZE) * (nr_windows - 1)) max_intervals = (FTM_BATCH_SIZE) * nr_windows;
+  max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
+  if (max_intervals <= min_max_intervals - (FTM_BATCH_SIZE)) max_intervals = min_max_intervals;
   max_intervals += (FTM_WINDOW_SIZE) - makeVector_batchIdx;
 
   blockProcRdy = blockDataIsRunout = true;
