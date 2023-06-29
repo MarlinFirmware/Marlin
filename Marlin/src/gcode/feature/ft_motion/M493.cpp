@@ -316,10 +316,7 @@ void GcodeSuite::M493() {
     if (flag.update_n) fxdTiCtrl.refreshShapingN();
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
-  if (flag.reset_ft) {
-    planner.synchronize();
-    fxdTiCtrl.reset();
-  }
+  if (flag.reset_ft) fxdTiCtrl.reset();
   if (flag.report_h) say_shaping();
 
 }

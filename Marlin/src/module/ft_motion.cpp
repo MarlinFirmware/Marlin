@@ -174,7 +174,7 @@ void FxdTiCtrl::loop() {
     if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
     reset();
     blockProcDn = true;                   // Set queueing to look for next block.
-    runoutEna = false;             // Disabling running out this block, since we want to halt the motion.
+    runoutEna = false;                    // Disabling running out this block, since we want to halt the motion.
     stepper.abort_current_block = false;  // Abort finished.
   }
 
