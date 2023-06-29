@@ -55,18 +55,7 @@
   #define FAN_IS_M106ABLE(Q) false
 #endif
 
-// Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
-typedef enum : int_fast8_t {
-  H_REDUNDANT = HID_REDUNDANT,
-  H_COOLER = HID_COOLER,
-  H_PROBE = HID_PROBE,
-  H_BOARD = HID_BOARD,
-  H_SOC = HID_SOC,
-  H_CHAMBER = HID_CHAMBER,
-  H_BED = HID_BED,
-  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7,
-  H_NONE = -128
-} heater_id_t;
+typedef int_fast8_t heater_id_t;
 
 /**
  * States for ADC reading in the ISR

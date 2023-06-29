@@ -1578,7 +1578,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               #if ENABLED(Z_SAFE_HOMING)
                 planner.synchronize();
                 gcode.process_subcommands_now(
-                  TS(F("G0F4000X"), p_float_t(Z_SAFE_HOMING_X_POINT, 3), 'Y', p_float_t(Z_SAFE_HOMING_Y_POINT, 3));
+                  TS(F("G0F4000X"), p_float_t(Z_SAFE_HOMING_X_POINT, 3), 'Y', p_float_t(Z_SAFE_HOMING_Y_POINT, 3))
                 );
               #else
                 gcode.process_subcommands_now(F("G0 F4000 X117.5 Y117.5"));
@@ -1603,7 +1603,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 #if ENABLED(Z_SAFE_HOMING)
                   planner.synchronize();
                   gcode.process_subcommands_now(
-                    TS(F("G0F4000X"), p_float_t(Z_SAFE_HOMING_X_POINT, 3), 'Y', p_float_t(Z_SAFE_HOMING_Y_POINT, 3));
+                    TS(F("G0F4000X"), p_float_t(Z_SAFE_HOMING_X_POINT, 3), 'Y', p_float_t(Z_SAFE_HOMING_Y_POINT, 3))
                   );
                 #else
                   gcode.process_subcommands_now(F("G0 F4000 X117.5 Y117.5"));
@@ -3004,7 +3004,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawMenuItem(row, ICON_StepY, F("M48 Probe Test"));
               else {
                 gcode.process_subcommands_now(
-                  TS(F("G28O\nM48X" , p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount))
+                  TS(F("G28O\nM48X") , p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
                 );
               }
               break;
