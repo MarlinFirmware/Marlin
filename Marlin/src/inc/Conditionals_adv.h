@@ -306,21 +306,22 @@
  */
 
 // Temperature sensor IDs
-#define HID_REDUNDANT -7
-#define HID_SOC       -6
-#define HID_BOARD     -5
-#define HID_COOLER    -4
-#define HID_PROBE     -3
-#define HID_CHAMBER   -2
-#define HID_BED       -1
-#define HID_E0         0
-#define HID_E1         1
-#define HID_E2         2
-#define HID_E3         3
-#define HID_E4         4
-#define HID_E5         5
-#define HID_E6         6
-#define HID_E7         7
+#define H_NONE    -128
+#define H_REDUNDANT -7
+#define H_SOC       -6
+#define H_BOARD     -5
+#define H_COOLER    -4
+#define H_PROBE     -3
+#define H_CHAMBER   -2
+#define H_BED       -1
+#define H_E0         0
+#define H_E1         1
+#define H_E2         2
+#define H_E3         3
+#define H_E4         4
+#define H_E5         5
+#define H_E6         6
+#define H_E7         7
 
 #define _SENSOR_IS(I,N) || (TEMP_SENSOR(N) == I)
 #define _E_SENSOR_IS(I,N) _SENSOR_IS(N,I)
@@ -333,7 +334,7 @@
 #endif
 
 #if TEMP_SENSOR_REDUNDANT
-  #define _HEATER_ID(M) HID_##M
+  #define _HEATER_ID(M) H_##M
   #define HEATER_ID(M)  _HEATER_ID(M)
   #define REDUNDANT_TEMP_MATCH(M,N) (HEATER_ID(TEMP_SENSOR_REDUNDANT_##M) == _HEATER_ID(N))
 #else
