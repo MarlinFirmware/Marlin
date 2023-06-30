@@ -224,13 +224,13 @@ bool BedLevelToolsClass::meshvalidate() {
     const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
-    dwinDrawRectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
+    dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
     if (selected >= 0) {
       const auto selected_y = selected / (GRID_MAX_POINTS_X);
       const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
       const auto start_y_px = padding_y_top + selected_y * cell_height_px;
       const auto start_x_px = padding_x + selected_x * cell_width_px;
-      dwinDrawRectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
+      dwinDrawRectangle(1, COLOR_WHITE, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
     }
 
     // Draw value square grid
@@ -240,7 +240,7 @@ bool BedLevelToolsClass::meshvalidate() {
       const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       dwinDrawRectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
-        isnan(bedlevel.z_values[x][y]) ? Color_Grey : (                                                           // gray if undefined
+        isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (                                                           // gray if undefined
           (bedlevel.z_values[x][y] < 0 ?
             (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
             (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
@@ -257,7 +257,7 @@ bool BedLevelToolsClass::meshvalidate() {
       if (viewer_print_value) {
         int8_t offset_x, offset_y = cell_height_px / 2 - fs;
         if (isnan(bedlevel.z_values[x][y])) {  // undefined
-          dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
         }
         else {                          // has value
           if (GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10))
@@ -266,8 +266,8 @@ bool BedLevelToolsClass::meshvalidate() {
             sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
           offset_x = cell_width_px / 2 - (fs/2) * (strlen(buf)) - 2;
           if (!(GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10)))
-            dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
-          dwinDrawString(false, meshfont, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y, buf);
+            dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
+          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, buf);
         }
         safe_delay(10);
         LCD_SERIAL.flushTX();
