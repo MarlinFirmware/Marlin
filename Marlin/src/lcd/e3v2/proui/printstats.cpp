@@ -40,43 +40,43 @@
 #include "dwin.h"
 #include "dwin_popup.h"
 
-PrintStatsClass PrintStats;
+PrintStats printStats;
 
-void PrintStatsClass::Draw() {
+void PrintStats::draw() {
   char str[30] = "";
   constexpr int8_t MRG = 30;
 
-  Title.ShowCaption(GET_TEXT_F(MSG_INFO_STATS_MENU));
-  DWINUI::ClearMainArea();
-  Draw_Popup_Bkgd();
-  DWINUI::Draw_Button(BTN_Continue, 86, 250);
+  title.showCaption(GET_TEXT_F(MSG_INFO_STATS_MENU));
+  DWINUI::clearMainArea();
+  drawPopupBkgd();
+  DWINUI::drawButton(BTN_Continue, 86, 250);
   printStatistics ps = print_job_timer.getStats();
 
-  DWINUI::Draw_String(MRG,  80, TS(GET_TEXT_F(MSG_INFO_PRINT_COUNT), F(": "), ps.totalPrints));
-  DWINUI::Draw_String(MRG, 100, TS(GET_TEXT_F(MSG_INFO_COMPLETED_PRINTS), F(": "), ps.finishedPrints));
+  DWINUI::drawString(MRG,  80, TS(GET_TEXT_F(MSG_INFO_PRINT_COUNT), F(": "), ps.totalPrints));
+  DWINUI::drawString(MRG, 100, TS(GET_TEXT_F(MSG_INFO_COMPLETED_PRINTS), F(": "), ps.finishedPrints));
   duration_t(print_job_timer.getStats().printTime).toDigital(str, true);
-  DWINUI::Draw_String(MRG, 120, MString<50>(GET_TEXT_F(MSG_INFO_PRINT_TIME), F(": "), str));
+  DWINUI::drawString(MRG, 120, MString<50>(GET_TEXT_F(MSG_INFO_PRINT_TIME), F(": "), str));
   duration_t(print_job_timer.getStats().longestPrint).toDigital(str, true);
-  DWINUI::Draw_String(MRG, 140, MString<50>(GET_TEXT(MSG_INFO_PRINT_LONGEST), F(": "), str));
-  DWINUI::Draw_String(MRG, 160, TS(GET_TEXT_F(MSG_INFO_PRINT_FILAMENT), F(": "), p_float_t(ps.filamentUsed / 1000, 2), F(" m")));
+  DWINUI::drawString(MRG, 140, MString<50>(GET_TEXT(MSG_INFO_PRINT_LONGEST), F(": "), str));
+  DWINUI::drawString(MRG, 160, TS(GET_TEXT_F(MSG_INFO_PRINT_FILAMENT), F(": "), p_float_t(ps.filamentUsed / 1000, 2), F(" m")));
 }
 
-void PrintStatsClass::Reset() {
+void PrintStats::reset() {
   print_job_timer.initStats();
   DONE_BUZZ(true);
 }
 
-void Goto_PrintStats() {
-  PrintStats.Draw();
-  HMI_SaveProcessID(WaitResponse);
+void gotoPrintStats() {
+  printStats.draw();
+  hmiSaveProcessID(ID_WaitResponse);
 }
 
 // Print Stats Reset popup
-void Popup_ResetStats() { DWIN_Popup_ConfirmCancel(ICON_Info_0, GET_TEXT_F(MSG_RESET_STATS)); }
-void OnClick_ResetStats() {
-  if (hmiFlag.select_flag) PrintStatsClass::Reset();
-  HMI_ReturnScreen();
+void popupResetStats() { dwinPopupConfirmCancel(ICON_Info_0, GET_TEXT_F(MSG_RESET_STATS)); }
+void onClickResetStats() {
+  if (hmiFlag.select_flag) printStats.reset();
+  hmiReturnScreen();
 }
-void PrintStatsReset() { Goto_Popup(Popup_ResetStats, OnClick_ResetStats); }
+void printStatsReset() { gotoPopup(popupResetStats, onClickResetStats); }
 
 #endif // DWIN_LCD_PROUI && PRINTCOUNTER

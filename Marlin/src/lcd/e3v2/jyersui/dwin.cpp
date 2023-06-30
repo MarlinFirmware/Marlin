@@ -265,14 +265,14 @@ private:
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid = 1;
 
-      void manual_value_update(bool undefined=false) {
+      void manualValueUpdate(bool undefined=false) {
         gcode.process_subcommands_now(
           TS(F("M421I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
         );
         planner.synchronize();
       }
 
-      bool create_plane_from_mesh() {
+      bool createPlaneFromMesh() {
         struct linear_fit_data lsf_results;
         incremental_LSF_reset(&lsf_results);
         GRID_LOOP(x, y) {
@@ -312,7 +312,7 @@ private:
 
     #else
 
-      void manual_value_update() {
+      void manualValueUpdate() {
         gcode.process_subcommands_now(
           TS(F("G29I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
         );
@@ -340,7 +340,7 @@ private:
       }
     }
 
-    float get_max_value() {
+    float getMaxValue() {
       float max = __FLT_MIN__;
       GRID_LOOP(x, y) {
         if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
@@ -349,7 +349,7 @@ private:
       return max;
     }
 
-    float get_min_value() {
+    float getMinValue() {
       float min = __FLT_MAX__;
       GRID_LOOP(x, y) {
         if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
@@ -363,7 +363,7 @@ private:
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
                      cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
                      cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
-      const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
+      const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
@@ -418,8 +418,8 @@ private:
 
     void setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
       float v1, v2,
-            v_min = abs(get_min_value()),
-            v_max = abs(get_max_value());
+            v_min = abs(getMinValue()),
+            v_max = abs(getMaxValue());
       if (viewer_asymmetric_range) {
         if (v_min > 3e+10F) v_min = 0.0000001;
         if (v_max > 3e+10F) v_max = 0.0000001;
@@ -3437,7 +3437,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               if (draw)
                 drawMenuItem(row, ICON_ResumeEEPROM, F("Convert Mesh to Plane"));
               else {
-                if (mesh_conf.create_plane_from_mesh()) break;
+                if (mesh_conf.createPlaneFromMesh()) break;
                 gcode.process_subcommands_now(F("M420 S1"));
                 planner.synchronize();
                 audioFeedback(true);
@@ -3582,7 +3582,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_ResumeEEPROM, F("Clear Point Value"));
             else {
-              mesh_conf.manual_value_update(true);
+              mesh_conf.manualValueUpdate(true);
               redrawMenu(false);
             }
             break;

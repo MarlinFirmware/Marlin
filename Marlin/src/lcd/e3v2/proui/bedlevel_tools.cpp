@@ -63,22 +63,22 @@
 #include "dwin_popup.h"
 #include "bedlevel_tools.h"
 
-BedLevelToolsClass bedLevelTools;
+BedLevelTools bedLevelTools;
 
 #if ENABLED(USE_GRID_MESHVIEWER)
-  bool BedLevelToolsClass::viewer_asymmetric_range = false;
-  bool BedLevelToolsClass::viewer_print_value = false;
+  bool BedLevelTools::viewer_asymmetric_range = false;
+  bool BedLevelTools::viewer_print_value = false;
 #endif
-bool BedLevelToolsClass::goto_mesh_value = false;
-uint8_t BedLevelToolsClass::mesh_x = 0;
-uint8_t BedLevelToolsClass::mesh_y = 0;
-uint8_t BedLevelToolsClass::tilt_grid = 1;
+bool BedLevelTools::goto_mesh_value = false;
+uint8_t BedLevelTools::mesh_x = 0;
+uint8_t BedLevelTools::mesh_y = 0;
+uint8_t BedLevelTools::tilt_grid = 1;
 
 bool drawing_mesh = false;
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
+  void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
     MString<MAX_CMD_SIZE> cmd;
     cmd.set(F("M421 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3));
     if (undefined) cmd += F(" N");
@@ -86,7 +86,7 @@ bool drawing_mesh = false;
     planner.synchronize();
   }
 
-  bool BedLevelToolsClass::create_plane_from_mesh() {
+  bool BedLevelTools::createPlaneFromMesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
     GRID_LOOP(x, y) {
@@ -126,7 +126,7 @@ bool drawing_mesh = false;
 
 #else
 
-  void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y) {
+  void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y) {
     gcode.process_subcommands_now(
       TS(F("G29 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
     );
@@ -135,7 +135,7 @@ bool drawing_mesh = false;
 
 #endif
 
-void BedLevelToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove/*=false*/) {
+void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove/*=false*/) {
   gcode.process_subcommands_now(F("G28O"));
   if (zmove) {
     planner.synchronize();
@@ -144,48 +144,48 @@ void BedLevelToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y,
     planner.synchronize();
   }
   else {
-    DWIN_Show_Popup(ICON_BLTouch, F("Moving to Point"), F("Please wait until done."));
-    HMI_SaveProcessID(NothingToDo);
+    dwinShowPopup(ICON_BLTouch, F("Moving to Point"), F("Please wait until done."));
+    hmiSaveProcessID(ID_NothingToDo);
     gcode.process_subcommands_now(TS(F("G0 F300 Z"), p_float_t(Z_CLEARANCE_BETWEEN_PROBES, 3)));
     gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, F(" J"), mesh_y));
     planner.synchronize();
     current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
     planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
     planner.synchronize();
-    HMI_ReturnScreen();
+    hmiReturnScreen();
   }
 }
 
 // Move / Probe methods. As examples, not yet used.
-void BedLevelToolsClass::MoveToXYZ() {
-  bedLevelTools.goto_mesh_value = true;
-  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, false);
+void BedLevelTools::moveToXYZ() {
+  goto_mesh_value = true;
+  manualMove(mesh_x, mesh_y, false);
 }
-void BedLevelToolsClass::MoveToXY() {
-  bedLevelTools.goto_mesh_value = false;
-  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, false);
+void BedLevelTools::moveToXY() {
+  goto_mesh_value = false;
+  manualMove(mesh_x, mesh_y, false);
 }
-void BedLevelToolsClass::MoveToZ() {
-  bedLevelTools.goto_mesh_value = true;
-  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true);
+void BedLevelTools::moveToZ() {
+  goto_mesh_value = true;
+  manualMove(mesh_x, mesh_y, true);
 }
-void BedLevelToolsClass::ProbeXY() {
+void BedLevelTools::probeXY() {
   gcode.process_subcommands_now(
     MString<MAX_CMD_SIZE>(
       F("G28O\nG0Z"), uint16_t(Z_CLEARANCE_DEPLOY_PROBE),
-      F("\nG30X"), p_float_t(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 2),
-      F("Y"), p_float_t(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 2)
+      F("\nG30X"), p_float_t(bedlevel.get_mesh_x(mesh_x), 2),
+      F("Y"), p_float_t(bedlevel.get_mesh_y(mesh_y), 2)
     )
   );
 }
 
-void BedLevelToolsClass::mesh_reset() {
+void BedLevelTools::meshReset() {
   ZERO(bedlevel.z_values);
   TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 }
 
 // Accessors
-float BedLevelToolsClass::get_max_value() {
+float BedLevelTools::getMaxValue() {
   float max = __FLT_MAX__ * -1;
   GRID_LOOP(x, y) {
     if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
@@ -194,7 +194,7 @@ float BedLevelToolsClass::get_max_value() {
   return max;
 }
 
-float BedLevelToolsClass::get_min_value() {
+float BedLevelTools::getMinValue() {
   float min = __FLT_MAX__;
   GRID_LOOP(x, y) {
     if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
@@ -204,7 +204,7 @@ float BedLevelToolsClass::get_min_value() {
 }
 
 // Return 'true' if mesh is good and within LCD limits
-bool BedLevelToolsClass::meshvalidate() {
+bool BedLevelTools::meshValidate() {
   GRID_LOOP(x, y) {
     const float v = bedlevel.z_values[x][y];
     if (isnan(v) || !WITHIN(v, UBL_Z_OFFSET_MIN, UBL_Z_OFFSET_MAX)) return false;
@@ -216,12 +216,12 @@ bool BedLevelToolsClass::meshvalidate() {
 
   constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
 
-  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
+  void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
     const uint16_t cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
-    const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
+    const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
     dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
@@ -275,8 +275,8 @@ bool BedLevelToolsClass::meshvalidate() {
     }
   }
 
-  void BedLevelToolsClass::Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
-    float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
+  void BedLevelTools::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
+    float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
     if (v_min > 3e+10f) v_min = 0.0000001;
     if (v_max > 3e+10f) v_max = 0.0000001;
     if (range > 3e+10f) range = 0.0000001;
