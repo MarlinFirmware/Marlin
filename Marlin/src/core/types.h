@@ -44,17 +44,19 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_ARRAY_1(V)   { NUM_AXIS_LIST_1(V) }
 #define NUM_AXIS_ARGS(T)      NUM_AXIS_LIST(T x, T y, T z, T i, T j, T k, T u, T v, T w)
 #define NUM_AXIS_ELEM(O)      NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
-#define NUM_AXIS_DEFS(T,V)    NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
+#define NUM_AXIS_DECL(T,V)    NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #if NUM_AXES
   #define NUM_AXES_SEP ,
   #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
+  #define OPTARGS_NUM(T)      , NUM_AXIS_ARGS(T)
   #define OPTARGS_LOGICAL(T)  , LOGICAL_AXIS_ARGS(T)
 #else
   #define NUM_AXES_SEP
   #define MAIN_AXIS_MAP(F)
+  #define OPTARGS_NUM(T)
   #define OPTARGS_LOGICAL(T)
 #endif
 
@@ -531,8 +533,8 @@ template<typename T>
 struct XYZval {
   union {
     #if NUM_AXES
-      struct { T NUM_AXIS_ARGS(); };
-      struct { T NUM_AXIS_LIST(a, b, c, _i, _j, _k, _u, _v, _w); };
+      struct { NUM_AXIS_CODE(T x, T y, T z, T i, T j, T k, T u, T v, T w); };
+      struct { NUM_AXIS_CODE(T a, T b, T c, T _i, T _j, T _k, T _u, T _v, T _w); };
     #endif
     T pos[NUM_AXES];
   };
@@ -820,6 +822,101 @@ struct XYZEval {
 
 #include <string.h> // for memset
 
+template<typename T, int SIZE>
+struct XYZarray {
+  typedef T el[SIZE];
+  union {
+    el data[LOGICAL_AXES];
+    struct { NUM_AXIS_CODE(T x, T y, T z, T i, T j, T k, T u, T v, T w); };
+    struct { NUM_AXIS_CODE(T a, T b, T c, T _i, T _j, T _k, T _u, T _v, T _w); };
+  };
+  FI void reset() { ZERO(data); }
+
+  FI void set(const int n, const XYval<T>   p) { NUM_AXIS_CODE(x[n]=p.x, y[n]=p.y,,,,,,,); }
+  FI void set(const int n, const XYZval<T>  p) { NUM_AXIS_CODE(x[n]=p.x, y[n]=p.y, z[n]=p.z, i[n]=p.i, j[n]=p.j, k[n]=p.k, u[n]=p.u, v[n]=p.v, w[n]=p.w ); }
+  FI void set(const int n, const XYZEval<T> p) { NUM_AXIS_CODE(x[n]=p.x, y[n]=p.y, z[n]=p.z, i[n]=p.i, j[n]=p.j, k[n]=p.k, u[n]=p.u, v[n]=p.v, w[n]=p.w ); }
+
+  // Setter for all individual args
+  FI void set(const int n OPTARGS_NUM(const T)) { NUM_AXIS_CODE(a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
+
+  // Setters with fewer elements leave the rest untouched
+  #if HAS_Y_AXIS
+    FI void set(const int n, const T px) { x[n] = px; }
+  #endif
+  #if HAS_Z_AXIS
+    FI void set(const int n, const T px, const T py) { x[n] = px; y[n] = py; }
+  #endif
+  #if HAS_I_AXIS
+    FI void set(const int n, const T px, const T py, const T pz) { x[n] = px; y[n] = py; z[n] = pz; }
+  #endif
+  #if HAS_J_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; }
+  #endif
+  #if HAS_K_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; }
+  #endif
+  #if HAS_U_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; }
+  #endif
+  #if HAS_V_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; }
+  #endif
+  #if HAS_W_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; v[n] = pv; }
+  #endif
+
+  FI XYZval<T> operator[](const int n) const { return XYZval<T>(NUM_AXIS_ARRAY(x[n], y[n], z[n], i[n], j[n], k[n], u[n], v[n], w[n])); }
+};
+
+template<typename T, int SIZE>
+struct XYZEarray {
+  typedef T el[SIZE];
+  union {
+    el data[LOGICAL_AXES];
+    struct { el LOGICAL_AXIS_ARGS(); };
+    struct { el LOGICAL_AXIS_LIST(_e, a, b, c, _i, _j, _k, _u, _v, _w); };
+  };
+  FI void reset() { ZERO(data); }
+
+  FI void set(const int n, const XYval<T>   p) { NUM_AXIS_CODE(x[n]=p.x, y[n]=p.y,,,,,,,); }
+  FI void set(const int n, const XYZval<T>  p) { NUM_AXIS_CODE(x[n]=p.x, y[n]=p.y, z[n]=p.z, i[n]=p.i, j[n]=p.j, k[n]=p.k, u[n]=p.u, v[n]=p.v, w[n]=p.w ); }
+  FI void set(const int n, const XYZEval<T> p) { LOGICAL_AXIS_CODE(e[n]=p.e, x[n]=p.x, y[n]=p.y, z[n]=p.z, i[n]=p.i, j[n]=p.j, k[n]=p.k, u[n]=p.u, v[n]=p.v, w[n]=p.w ); }
+
+  // Setter for all individual args
+  FI void set(const int n OPTARGS_NUM(const T)) { NUM_AXIS_CODE(a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
+  #if LOGICAL_AXES > NUM_AXES
+    FI void set(const int n, LOGICAL_AXIS_ARGS(const T)) { LOGICAL_AXIS_CODE(_e[n] = e, a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
+  #endif
+
+  // Setters with fewer elements leave the rest untouched
+  #if HAS_Y_AXIS
+    FI void set(const int n, const T px) { x[n] = px; }
+  #endif
+  #if HAS_Z_AXIS
+    FI void set(const int n, const T px, const T py) { x[n] = px; y[n] = py; }
+  #endif
+  #if HAS_I_AXIS
+    FI void set(const int n, const T px, const T py, const T pz) { x[n] = px; y[n] = py; z[n] = pz; }
+  #endif
+  #if HAS_J_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; }
+  #endif
+  #if HAS_K_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; }
+  #endif
+  #if HAS_U_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; }
+  #endif
+  #if HAS_V_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; }
+  #endif
+  #if HAS_W_AXIS
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; v[n] = pv; }
+  #endif
+
+  FI XYZEval<T> operator[](const int n) const { return XYZval<T>(LOGICAL_AXIS_ARRAY(e[n], x[n], y[n], z[n], i[n], j[n], k[n], u[n], v[n], w[n])); }
+};
+
 class AxisBits;
 
 class AxisBits {
@@ -972,6 +1069,8 @@ public:
   #undef MSET
 
   FI bool toggle(const AxisEnum n) { TBI(bits, n); return TEST(bits, n); }
+  FI void bset(const AxisEnum n) { SBI(bits, n); }
+  FI void bclr(const AxisEnum n) { CBI(bits, n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
   FI bool operator[](const int n) const { return TEST(bits, n); }

@@ -88,7 +88,7 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
-  TERN_(DWIN_LCD_PROUI, DWIN_FilamentRunout(extruder));
+  TERN_(DWIN_LCD_PROUI, dwinFilamentRunout(extruder));
 
   #if ANY(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS, MULTI_FILAMENT_SENSOR)
     const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
@@ -100,16 +100,14 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   const bool run_runout_script = !runout.host_handling;
-  
-  const bool park_or_pause = 
+
+  const bool park_or_pause = (false
     #ifdef FILAMENT_RUNOUT_SCRIPT
-      strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+      || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
       || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
       || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
-    #else
-      false
-    #endif 
-    ;
+    #endif
+  );
 
   #if ENABLED(HOST_ACTION_COMMANDS)
     if (run_runout_script && park_or_pause) {
@@ -134,12 +132,12 @@ void event_filament_runout(const uint8_t extruder) {
   #ifdef FILAMENT_RUNOUT_SCRIPT
     if (run_runout_script) {
       #if MULTI_FILAMENT_SENSOR
-        char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
-        sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
+        MString<strlen(FILAMENT_RUNOUT_SCRIPT)> script;
+        script.setf(F(FILAMENT_RUNOUT_SCRIPT), AS_CHAR(tool));
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          SERIAL_ECHOLNPGM("Runout Command: ", script);
+          SERIAL_ECHOLNPGM("Runout Command: ", &script);
         #endif
-        queue.inject(script);
+        queue.inject(&script);
       #else
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           SERIAL_ECHOPGM("Runout Command: ");
@@ -148,7 +146,7 @@ void event_filament_runout(const uint8_t extruder) {
         queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
       #endif
     }
-  #endif 
+  #endif
 }
 
 #endif // HAS_FILAMENT_SENSOR

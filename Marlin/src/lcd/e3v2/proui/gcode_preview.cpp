@@ -23,8 +23,8 @@
 /**
  * DWIN G-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
- * version: 3.1.2
- * Date: 2022/09/03
+ * version: 3.3.2
+ * Date: 2023/06/18
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -35,12 +35,13 @@
 #include "../../marlinui.h"
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h" // for wait_for_user
-#include "dwin_lcd.h"
-#include "dwinui.h"
 #include "dwin.h"
 #include "dwin_popup.h"
 #include "base64.hpp"
 #include "gcode_preview.h"
+
+#define THUMBWIDTH 230
+#define THUMBHEIGHT 180
 
 typedef struct {
   char name[13] = "";   //8.3 + null
@@ -104,7 +105,7 @@ void Get_Value(char *buf, const char * const key, float &value) {
 }
 
 bool Has_Preview() {
-  const char * tbstart = "; thumbnail begin 230x180";
+  const char * tbstart = "; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT);
   char * posptr = 0;
   uint8_t nbyte = 1;
   uint32_t indx = 0;
@@ -187,6 +188,8 @@ bool Has_Preview() {
   card.closefile();
   buf64[readed] = 0;
 
+  fileprop.thumbwidth = THUMBWIDTH;
+  fileprop.thumbheight = THUMBHEIGHT;
   fileprop.thumbsize = decode_base64(buf64, fileprop.thumbdata);  card.closefile();
   DWINUI::WriteToSRAM(0x00, fileprop.thumbsize, fileprop.thumbdata);
   delete[] fileprop.thumbdata;
@@ -195,31 +198,29 @@ bool Has_Preview() {
 
 void Preview_DrawFromSD() {
   if (Has_Preview()) {
-    char buf[46];
-    char str_1[6] = "";
-    char str_2[6] = "";
-    char str_3[6] = "";
-    dwinDrawRectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
+    MString<45> buf;
+    char str_1[6] = "", str_2[6] = "", str_3[6] = "";
+    dwinDrawRectangle(1, hmiData.colorBackground, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
     if (fileprop.time) {
-      sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
-      DWINUI::Draw_String(20, 10, buf);
+      buf.setf(F("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
+      DWINUI::drawString(20, 10, &buf);
     }
     if (fileprop.filament) {
-      sprintf_P(buf, PSTR("Filament used: %s m"), dtostrf(fileprop.filament, 1, 2, str_1));
-      DWINUI::Draw_String(20, 30, buf);
+      buf.setf(F("Filament used: %s m"), dtostrf(fileprop.filament, 1, 2, str_1));
+      DWINUI::drawString(20, 30, &buf);
     }
     if (fileprop.layer) {
-      sprintf_P(buf, PSTR("Layer height: %s mm"), dtostrf(fileprop.layer, 1, 2, str_1));
-      DWINUI::Draw_String(20, 50, buf);
+      buf.setf(F("Layer height: %s mm"), dtostrf(fileprop.layer, 1, 2, str_1));
+      DWINUI::drawString(20, 50, &buf);
     }
     if (fileprop.width) {
-      sprintf_P(buf, PSTR("Volume: %sx%sx%s mm"), dtostrf(fileprop.width, 1, 1, str_1), dtostrf(fileprop.length, 1, 1, str_2), dtostrf(fileprop.height, 1, 1, str_3));
-      DWINUI::Draw_String(20, 70, buf);
+      buf.setf(F("Volume: %sx%sx%s mm"), dtostrf(fileprop.width, 1, 1, str_1), dtostrf(fileprop.length, 1, 1, str_2), dtostrf(fileprop.height, 1, 1, str_3));
+      DWINUI::drawString(20, 70, &buf);
     }
-    DWINUI::Draw_Button(BTN_Print, 26, 290);
-    DWINUI::Draw_Button(BTN_Cancel, 146, 290);
-    dwinIconShow(0, 0, 1, 21, 90, 0x00);
-    Draw_Select_Highlight(true, 290);
+    DWINUI::drawButton(BTN_Print, 26, 290);
+    DWINUI::drawButton(BTN_Cancel, 146, 290);
+    Preview_Show();
+    drawSelectHighlight(true, 290);
     dwinUpdateLCD();
   }
   else {
@@ -229,15 +230,17 @@ void Preview_DrawFromSD() {
 }
 
 void Preview_Invalidate() {
-  fileprop.thumbstart = 0;
+  fileprop.thumbsize = 0;
 }
 
 bool Preview_Valid() {
-  return !!fileprop.thumbstart;
+  return !!fileprop.thumbsize;
 }
 
-void Preview_Reset() {
-  fileprop.thumbsize = 0;
+void Preview_Show() {
+  const uint8_t xpos = (DWIN_WIDTH - fileprop.thumbwidth) / 2;
+  const uint8_t ypos = (205 - fileprop.thumbheight) / 2 + 87;
+  dwinIconShow(xpos, ypos, 0x00);
 }
 
 #endif // HAS_GCODE_PREVIEW && DWIN_LCD_PROUI

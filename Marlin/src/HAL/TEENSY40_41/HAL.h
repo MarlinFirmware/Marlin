@@ -124,7 +124,7 @@ typedef int8_t pin_t;
   #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 #define HAL_ADC_RESOLUTION  10
 #define HAL_ADC_FILTERED      // turn off ADC oversampling
 

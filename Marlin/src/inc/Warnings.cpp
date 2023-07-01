@@ -750,10 +750,16 @@
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif
 
+/**
+ * Automatic Multistepping Limit
+ */
 #if MULTISTEPPING_LIMIT_WARNING
   #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
 #endif
 
+/**
+ * SD Card extras
+ */
 #if SDSORT_CACHE_VFATS_WARNING
   #warning "SDSORT_CACHE_VFATS has been reduced to VFAT_ENTRIES_LIMIT."
 #endif
@@ -768,6 +774,16 @@
   #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
 #endif
 
+/**
+ * ProUI Boot Screen Duration
+ */
 #if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
   #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+#endif
+
+/**
+ * AD595 Minimum Voltage
+ */
+#if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
+  #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif

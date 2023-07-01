@@ -153,49 +153,37 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M493() {
   struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
 
-  if (!parser.seen_any()) flag.report_h = true;
+  if (!parser.seen_any())
+    flag.report_h = true;
+  else
+    planner.synchronize();
 
   // Parse 'S' mode parameter.
   if (parser.seenval('S')) {
     const ftMotionMode_t oldmm = fxdTiCtrl.cfg.mode,
                          newmm = (ftMotionMode_t)parser.value_byte();
-    switch (newmm) {
-      #if HAS_X_AXIS
-        case ftMotionMode_ZV:
-        case ftMotionMode_ZVD:
-        case ftMotionMode_2HEI:
-        case ftMotionMode_3HEI:
-        case ftMotionMode_MZV:
-        //case ftMotionMode_ULENDO_FBS:
-        //case ftMotionMode_DISCTF:
-      #endif
-      case ftMotionMode_DISABLED:
-      case ftMotionMode_ENABLED:
-        fxdTiCtrl.cfg.mode = newmm;
-        flag.report_h = true;
-        break;
-      default:
-        SERIAL_ECHOLNPGM("?Invalid control mode [M] value.");
-        return;
-    }
 
-    if (fxdTiCtrl.cfg.mode != oldmm) switch (newmm) {
-      default: break;
-      #if HAS_X_AXIS
-        //case ftMotionMode_ULENDO_FBS:
-        //case ftMotionMode_DISCTF:
-        //  break;
-        case ftMotionMode_ZV:
-        case ftMotionMode_ZVD:
-        case ftMotionMode_EI:
-        case ftMotionMode_2HEI:
-        case ftMotionMode_3HEI:
-        case ftMotionMode_MZV:
-          flag.update_n = flag.update_a = true;
-      #endif
-      case ftMotionMode_ENABLED:
-        flag.reset_ft = true;
-        break;
+    if (newmm != oldmm) {
+      switch (newmm) {
+        default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
+        #if HAS_X_AXIS
+          case ftMotionMode_ZV:
+          case ftMotionMode_ZVD:
+          case ftMotionMode_EI:
+          case ftMotionMode_2HEI:
+          case ftMotionMode_3HEI:
+          case ftMotionMode_MZV:
+          //case ftMotionMode_ULENDO_FBS:
+          //case ftMotionMode_DISCTF:
+            flag.update_n = flag.update_a = true;
+        #endif
+        case ftMotionMode_DISABLED:
+        case ftMotionMode_ENABLED:
+          fxdTiCtrl.cfg.mode = newmm;
+          flag.report_h = true;
+          if (oldmm == ftMotionMode_DISABLED) flag.reset_ft = true;
+          break;
+      }
     }
   }
 
