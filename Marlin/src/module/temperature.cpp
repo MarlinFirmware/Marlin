@@ -2617,8 +2617,8 @@ void Temperature::updateTemperaturesFromRawValues() {
     HOTEND_LOOP() {
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
-      if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
-        maxtemp_error((heater_id_t)e);
+      //if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
+      //  maxtemp_error((heater_id_t)e);
 
       /**
       // DEBUG PREHEATING TIME
