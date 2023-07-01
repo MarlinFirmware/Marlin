@@ -36,10 +36,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(BD_SENSOR)
-  #include "../../feature/bedlevel/bdl/bdl.h"
-#endif
-
 #if ENABLED(SENSORLESS_HOMING)
   #include "../../feature/tmc_util.h"
 #endif
@@ -229,14 +225,12 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(BD_SENSOR, bdl.config_state = 0);
-
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
     set_and_report_grblstate(M_HOMING);
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingStart());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -274,7 +268,7 @@ void GcodeSuite::G28() {
 
     #if HAS_HOMING_CURRENT
       auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+        DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b);
       };
       #if HAS_CURRENT_HOME(X)
         const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -486,7 +480,7 @@ void GcodeSuite::G28() {
         }
       #endif // HAS_X_AXIS
 
-      #if BOTH(FOAMCUTTER_XYUV, HAS_I_AXIS)
+      #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
         // Home I (after X)
         if (doI) homeaxis(I_AXIS);
       #endif
@@ -497,7 +491,7 @@ void GcodeSuite::G28() {
           homeaxis(Y_AXIS);
       #endif
 
-      #if BOTH(FOAMCUTTER_XYUV, HAS_J_AXIS)
+      #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
         // Home J (after Y)
         if (doJ) homeaxis(J_AXIS);
       #endif
@@ -514,7 +508,7 @@ void GcodeSuite::G28() {
         // Home Z last if homing towards the bed
         #if DISABLED(HOME_Z_FIRST)
           if (doZ) {
-            #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+            #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
               stepper.set_all_z_lock(false);
               stepper.set_separate_multi_axis(false);
             #endif
@@ -525,7 +519,7 @@ void GcodeSuite::G28() {
               homeaxis(Z_AXIS);
             #endif
 
-            #if EITHER(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+            #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
               finalRaiseZ = true;
             #endif
           }
@@ -649,7 +643,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingDone());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();

@@ -220,7 +220,7 @@ void RTS::onIdle() {
       break;
 
     case 3:
-      //if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
+      //if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
       rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
       waitway = 7;
       //return;
@@ -674,7 +674,7 @@ void RTS::handleData() {
     case DisplayStandbyBrightness: Checkkey = DisplayStandbyBrightness; break;
     case DisplayStandbySeconds:    Checkkey = DisplayStandbySeconds; break;
     default:
-      if (WITHIN(recdat.addr, AutolevelVal, 4400)) // (int16_t(AutolevelVal) + GRID_MAX_POINTS * 2) = 4400 with 5x5 mesh
+      if (WITHIN(recdat.addr, AutolevelVal, AutolevelVal + 2 * (5 * 5 - 1))) // Assuming 5x5 mesh or smaller
         Checkkey = AutolevelVal;
       else if (WITHIN(recdat.addr, SDFILE_ADDR, SDFILE_ADDR + 10 * (FileNum + 1)))
         Checkkey = Filename;
@@ -1043,7 +1043,7 @@ void RTS::handleData() {
         #if HAS_MESH
           sendData(getLevelingActive() ? 3 : 2, AutoLevelIcon);
 
-          if (ExtUI::getMeshValid()) {
+          if (ExtUI::getLevelingIsValid()) {
             uint8_t abl_probe_index = 0;
             for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
               for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
@@ -1559,7 +1559,7 @@ void RTS::handleData() {
         else if (recdat.data[0] == 2) { // Page Down
           if ((fileIndex + DISPLAY_FILES) < (filenavigator.maxFiles() + (filenavigator.folderdepth != 0))) {
             fileIndex = fileIndex + DISPLAY_FILES;
-            // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
+            // if (filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
             //  filenavigator.getFiles(fileIndex-1);
             // else
             filenavigator.getFiles(fileIndex);
@@ -1569,7 +1569,7 @@ void RTS::handleData() {
         else if (recdat.data[0] == 3) { // Page Up
           if (fileIndex >= DISPLAY_FILES) {
             fileIndex = fileIndex - DISPLAY_FILES;
-            // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
+            // if (filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
             // filenavigator.getFiles(filenavigator.currentindex-DISPLAY_FILES);
             // else
             filenavigator.getFiles(fileIndex);

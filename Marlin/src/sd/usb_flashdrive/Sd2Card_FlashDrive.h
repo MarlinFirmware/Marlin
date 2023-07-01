@@ -33,7 +33,7 @@
   /**
    * Define SOFTWARE_SPI to use bit-bang SPI
    */
-  #if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
+  #if ANY(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
     #define SOFTWARE_SPI
   #endif
 

@@ -106,10 +106,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPGM("Current position is ", pos);
           SERIAL_ECHOLNPGM("Position in encoder ticks is ", positionInTicks);
           SERIAL_ECHOLNPGM("New zero-offset of ", zeroOffset);
-          SERIAL_ECHOPGM("New position reads as ", get_position());
-          SERIAL_CHAR('(');
-          SERIAL_DECIMAL(mm_from_count(get_position()));
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLN(F("New position reads as "), get_position(), AS_CHAR('('), mm_from_count(get_position()), AS_CHAR(')'));
         #endif
       }
     #endif
@@ -138,7 +135,7 @@ void I2CPositionEncoder::update() {
       errIdx = (errIdx >= I2CPE_ERR_ARRAY_SIZE - 1) ? 0 : errIdx + 1;
       err[errIdx] = get_axis_error_steps(false);
 
-      LOOP_L_N(i, I2CPE_ERR_ARRAY_SIZE) {
+      for (uint8_t i = 0; i < I2CPE_ERR_ARRAY_SIZE; ++i) {
         sum += err[i];
         if (i) diffSum += ABS(err[i-1] - err[i]);
       }
@@ -170,7 +167,7 @@ void I2CPositionEncoder::update() {
           errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
             float sumP = 0;
-            LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
+            for (uint8_t i = 0; i < I2CPE_ERR_PRST_ARRAY_SIZE; ++i) sumP += errPrst[i];
             const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_CHAR(AXIS_CHAR(encoderAxis));
             SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.mm_per_step[encoderAxis], "mm");
@@ -404,7 +401,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   planner.synchronize();
 
-  LOOP_L_N(i, iter) {
+  for (uint8_t i = 0; i < iter; ++i) {
     TERN_(HAS_EXTRUDERS, startCoord.e = planner.get_axis_position_mm(E_AXIS));
     planner.buffer_line(startCoord, fr_mm_s, 0);
     planner.synchronize();

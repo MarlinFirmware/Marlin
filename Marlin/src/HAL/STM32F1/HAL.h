@@ -82,7 +82,7 @@
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
-#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   #define NUM_UARTS 5
 #else
   #define NUM_UARTS 3
@@ -190,7 +190,7 @@ typedef int8_t pin_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 uint16_t analogRead(const pin_t pin); // need hal.adc_enable() first
 void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?

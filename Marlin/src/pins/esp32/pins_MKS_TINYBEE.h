@@ -177,7 +177,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-    #if BOTH(MKS_MINI_12864_V3, HAS_MEDIA)
+    #if ALL(MKS_MINI_12864_V3, HAS_MEDIA)
       #define PAUSE_LCD_FOR_BUSY_SD
     #endif
   #else

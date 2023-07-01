@@ -45,9 +45,9 @@ enum AnycubicMediaPauseState {
   AMPAUSESTATE_REHEAT_FINISHED
 };
 
-class AnycubicTFTClass {
+class AnycubicTFT {
 public:
-  AnycubicTFTClass();
+  AnycubicTFT();
   static void onSetup();
   static void onCommandScan();
   static void onKillTFT();
@@ -88,5 +88,5 @@ private:
   static char selectedFile[FILENAME_LENGTH];
 };
 
-extern AnycubicTFTClass anycubicTFT;
+extern AnycubicTFT anycubicTFT;
 extern const char G28_STR[];

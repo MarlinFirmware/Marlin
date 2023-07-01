@@ -81,7 +81,7 @@ void GcodeSuite::M115() {
     // Although this code should work on all STM32 based boards
     SERIAL_ECHOPGM(" UUID:");
     uint32_t *uid_address = (uint32_t*)UID_BASE;
-    LOOP_L_N(i, 3) {
+    for (uint8_t i = 0; i < 3; ++i) {
       const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
       uid_address += 4U;
       for (int B = 24; B >= 0; B -= 8) print_hex_byte(UID >> B);
