@@ -1,58 +1,27 @@
 #!/usr/bin/env python3
-#
-# exportTranslations.py
-#
-# Export LCD language strings to CSV files for easier translation.
-# Use importTranslations.py to import CSV into the language files.
-#
+'''
+languageExport.py
+
+Export LCD language strings to CSV files for easier translation.
+Use importTranslations.py to import CSV into the language files.
+
+'''
 
 import re
 from pathlib import Path
+from languageUtil import namebyid
+
+LANGHOME = "Marlin/src/lcd/language"
 
 # Write multiple sheets if true, otherwise write one giant sheet
 MULTISHEET = True
-
-# Where to look for the language files
-LANGHOME = "Marlin/src/lcd/language"
+OUTDIR = 'out-csv'
 
 # Check for the path to the language files
 if not Path(LANGHOME).is_dir():
     print("Error: Couldn't find the '%s' directory." % LANGHOME)
     print("Edit LANGHOME or cd to the root of the repo before running.")
     exit(1)
-
-# A dictionary to contain language names
-LANGNAME = {
-    'an': "Aragonese",
-    'bg': "Bulgarian",
-    'ca': "Catalan",
-    'cz': "Czech",
-    'da': "Danish",
-    'de': "German",
-    'el': "Greek", 'el_CY': "Greek (Cyprus)", 'el_gr': "Greek (Greece)",
-    'en': "English",
-    'es': "Spanish",
-    'eu': "Basque-Euskera",
-    'fi': "Finnish",
-    'fr': "French", 'fr_na': "French (no accent)",
-    'gl': "Galician",
-    'hr': "Croatian (Hrvatski)",
-    'hu': "Hungarian / Magyar",
-    'it': "Italian",
-    'jp_kana': "Japanese (Kana)",
-    'ko_KR': "Korean",
-    'nl': "Dutch",
-    'pl': "Polish",
-    'pt': "Portuguese", 'pt_br': "Portuguese (Brazil)",
-    'ro': "Romanian",
-    'ru': "Russian",
-    'sk': "Slovak",
-    'sv': "Swedish",
-    'tr': "Turkish",
-    'uk': "Ukrainian",
-    'vi': "Vietnamese",
-    'zh_CN': "Simplified Chinese", 'zh_TW': "Traditional Chinese"
-}
 
 # A limit just for testing
 LIMIT = 0
@@ -80,8 +49,7 @@ for langfile in langfiles:
     if not f: continue
 
     # Flags to indicate a wide or tall section
-    wideflag = False
-    tallflag = False
+    wideflag, tallflag = False, False
     # A counter for the number of strings in the file
     stringcount = 0
     # A dictionary to hold all the strings
@@ -94,25 +62,20 @@ for langfile in langfiles:
 
         # Check for wide or tall sections, assume no complicated nesting
         if line.startswith("#endif") or line.startswith("#else"):
-            wideflag = False
-            tallflag = False
+            wideflag, tallflag = False, False
         elif re.match(r'#if.*WIDTH\s*>=?\s*2[01].*', line): wideflag = True
         elif re.match(r'#if.*LCD_HEIGHT\s*>=?\s*4.*', line): tallflag = True
 
         # For string-defining lines capture the string data
         match = re.match(r'LSTR\s+([A-Z0-9_]+)\s*=\s*(.+)\s*', line)
         if match:
-            # The name is the first captured group
-            name = match.group(1)
-            # The value is the second captured group
-            value = match.group(2)
-            # Replace escaped quotes temporarily
-            value = value.replace('\\"', '__Q__')
+            # Name and quote-sanitized value
+            name, value = match.group(1), match.group(2).replace('\\"', '$$$')
 
             # Remove all _UxGT wrappers from the value in a non-greedy way
             value = re.sub(r'_UxGT\((".*?")\)', r'\1', value)
 
-            # Multi-line strings will get one or more bars | for identification
+            # Multi-line strings get one or more bars | for identification
             multiline = 0
             multimatch = re.match(r'.*MSG_(\d)_LINE\s*\(\s*(.+?)\s*\).*', value)
             if multimatch:
@@ -122,7 +85,7 @@ for langfile in langfiles:
             # Wrap inline defines in parentheses
             value = re.sub(r' *([A-Z0-9]+_[A-Z0-9_]+) *', r'(\1)', value)
             # Remove quotes around strings
-            value = re.sub(r'"(.*?)"', r'\1', value).replace('__Q__', '"')
+            value = re.sub(r'"(.*?)"', r'\1', value).replace('$$$', '""')
             # Store all unique names as dictionary keys
             names[name] = 1
             # Store the string as narrow or wide
@@ -144,6 +107,9 @@ langcodes = list(language_strings.keys())
 # Print the array
 #print(language_strings)
 
+# Report the total number of unique strings
+print("Found %s distinct LCD strings." % len(names))
+
 # Write a single language entry to the CSV file with narrow, wide, and tall strings
 def write_csv_lang(f, strings, name):
     f.write(',')
@@ -157,32 +123,27 @@ if MULTISHEET:
     #
     # Export a separate sheet for each language
     #
-    OUTDIR = 'csv-out'
     Path.mkdir(Path(OUTDIR), exist_ok=True)
 
     for lang in langcodes:
-        f = open("%s/language_%s.csv" % (OUTDIR, lang), 'w', encoding='utf-8')
-        if not f: continue
+        with open("%s/language_%s.csv" % (OUTDIR, lang), 'w', encoding='utf-8') as f:
+            lname = lang + ' ' + namebyid(lang)
+            header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
+            f.write('"' + '","'.join(header) + '"\n')
 
-        lname = lang + ' ' + LANGNAME[lang]
-        header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
-        f.write('"' + '","'.join(header) + '"\n')
-
-        for name in names.keys():
-            f.write('"' + name + '"')
-            write_csv_lang(f, language_strings[lang], name)
-            f.write('\n')
-        f.close()
+            for name in names.keys():
+                f.write('"' + name + '"')
+                write_csv_lang(f, language_strings[lang], name)
+                f.write('\n')
 
 else:
     #
     # Export one large sheet containing all languages
     #
-    f = open("languages.csv", 'w', encoding='utf-8')
-    if f:
+    with open("languages.csv", 'w', encoding='utf-8') as f:
         header = ['name']
         for lang in langcodes:
-            lname = lang + ' ' + LANGNAME[lang]
+            lname = lang + ' ' + namebyid(lang)
             header += [lname, lname + ' (wide)', lname + ' (tall)']
         f.write('"' + '","'.join(header) + '"\n')
 
@@ -190,4 +151,3 @@ else:
             f.write('"' + name + '"')
             for lang in langcodes: write_csv_lang(f, language_strings[lang], name)
             f.write('\n')
-        f.close()
