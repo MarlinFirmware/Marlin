@@ -54,7 +54,7 @@ private:
   static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   #if ENABLED(USE_SPI_DMA_TC)
-    static void TransmitDMA_IT(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
+    static void transmitDMA_IT(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   #endif
 
 public:
@@ -74,7 +74,7 @@ public:
   static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_MINC_DISABLE, &data, count); }
 
   #if ENABLED(USE_SPI_DMA_TC)
-    static void writeSequenceIT(uint16_t *data, uint16_t count) { TransmitDMA_IT(DMA_MINC_ENABLE, data, count); }
+    static void writeSequenceIT(uint16_t *data, uint16_t count) { transmitDMA_IT(DMA_MINC_ENABLE, data, count); }
     inline static void DMA_IRQHandler() { HAL_DMA_IRQHandler(&TFT_SPI::DMAtx); }
   #endif
 

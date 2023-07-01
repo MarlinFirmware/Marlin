@@ -140,7 +140,7 @@ void TFT_SPI::init() {
   DMAtx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   DMAtx.Init.Mode = DMA_NORMAL;
   DMAtx.Init.Priority = DMA_PRIORITY_LOW;
-  #if EITHER(STM32F4xx, STM32H7xx)
+  #if ANY(STM32F4xx, STM32H7xx)
     DMAtx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   #endif
 }
@@ -189,7 +189,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
           SPIx.Instance->TXDR = 0;
         #endif
         while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_EOT)) {}
-        Data = (Data << 8) | SPIx.Instance->RXDR;
+        data = (data << 8) | SPIx.Instance->RXDR;
         __HAL_SPI_DISABLE(&SPIx);
         __HAL_SPI_CLEAR_EOTFLAG(&SPIx);
         __HAL_SPI_CLEAR_TXTFFLAG(&SPIx);
@@ -202,7 +202,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
           SPIx.Instance->DR = 0;
         #endif
         while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_RXNE)) {}
-        Data = (Data << 8) | SPIx.Instance->DR;
+        data = (data << 8) | SPIx.Instance->DR;
       }
     #endif
 
@@ -305,12 +305,12 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
     HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(SPIx.Instance->TXDR), count);
 
     CLEAR_BIT(SPIx.Instance->CFG1, SPI_CFG1_TXDMAEN);
-    MODIFY_REG(SPIx.Instance->CR2, SPI_CR2_TSIZE, Count);
+    MODIFY_REG(SPIx.Instance->CR2, SPI_CR2_TSIZE, count);
     SET_BIT(SPIx.Instance->CFG1, SPI_CFG1_TXDMAEN);   // Enable Tx DMA Request
     __HAL_SPI_ENABLE(&SPIx);
     SET_BIT(SPIx.Instance->CR1, SPI_CR1_CSTART);
   #else
-    HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(SPIx.Instance->DR), Count);
+    HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(SPIx.Instance->DR), count);
 
     __HAL_SPI_ENABLE(&SPIx);
     SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
@@ -320,7 +320,7 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
 }
 
 void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  TransmitDMA(memoryIncrease, data, count);
+  transmitDMA(memoryIncrease, data, count);
 
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
   #ifdef STM32H7xx
