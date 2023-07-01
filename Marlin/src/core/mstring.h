@@ -73,6 +73,10 @@ extern void SERIAL_CHAR(char c);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+#if DISABLED(UNSAFE_MSTRING)
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 /**
  * @brief MString class template
  * @details A class template providing convenient string operators,
