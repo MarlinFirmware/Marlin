@@ -52,16 +52,17 @@ void runStartupTests() {
   // 100 dashes, but chopped down to DEFAULT_MSTRING_SIZE (20)
   TSS(repchr_t('-', 100)).echoln();
 
-  // Hello World!-123456------   <spaces!
+  // Hello World!-123456------   <spaces!33
   // ^ eol! ... 1234.50*2345.602 = 2895645.67
   SString<100> str(F("Hello"));
   str.append(F(" World!"));
   str += '-';
-  str += "123";
+  str += uint8_t(123);
   str += F("456");
   str += repchr_t('-', 6);
   str += Spaces(3);
   str += "< spaces!";
+  str += int8_t(33);
   str.eol();
   str += "^ eol!";
 
