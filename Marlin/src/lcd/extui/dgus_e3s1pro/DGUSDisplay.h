@@ -78,7 +78,7 @@ public:
   static void readVersions();
 
   // Force display into another screen.
-  static void switchScreen(DGUS_Screen screen);
+  static void switchScreen(DGUS_ScreenID screen);
   // Play sounds using the display speaker.
   //   start: position at which the sound was stored on the display.
   //   len: how many sounds to play. Sounds will play consecutively from start to start+len-1.
@@ -87,8 +87,8 @@ public:
   // Enable/disable a specific touch control.
   //   type: control type.
   //   control: index of the control on the page (set during screen development).
-  static void enableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
-  static void disableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control);
+  static void enableControl(DGUS_ScreenID screen, DGUS_ControlType type, DGUS_Control control);
+  static void disableControl(DGUS_ScreenID screen, DGUS_ControlType type, DGUS_Control control);
 
   static uint8_t getBrightness();
   static uint8_t getVolume();

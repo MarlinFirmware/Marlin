@@ -58,10 +58,10 @@ private:
   static bool settings_ready;
   static bool booted;
 
-  static DGUS_Screen current_screen;
-  static DGUS_Screen new_screen;
-  static DGUS_Screen wait_return_screen;
-  static DGUS_Screen confirm_return_screen;
+  static DGUS_ScreenID current_screen;
+  static DGUS_ScreenID new_screen;
+  static DGUS_ScreenID wait_return_screen;
+  static DGUS_ScreenID confirm_return_screen;
   static bool full_update;
   static uint8_t angry_beeps;
 
@@ -90,7 +90,7 @@ public:
   static void loop();
 
   static void printerKilled(FSTR_P const error, FSTR_P const component);
-  static bool isOnUserConfirmationScreen() { return confirm_return_screen != DGUS_Screen::BOOT; }
+  static bool isOnUserConfirmationScreen() { return confirm_return_screen != DGUS_ScreenID::BOOT; }
   static void userConfirmRequired(const char * const msg);
   static void userConfirmation();
   static void settingsReset();
@@ -142,12 +142,12 @@ public:
   static void setStatusMessage(FSTR_P msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void setStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
 
-  static DGUS_Screen getCurrentScreen();
-  static void homeThenChangeScreen(DGUS_Screen screen);
-  static void triggerScreenChange(DGUS_Screen screen);
-  static void triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen returnScreen);
+  static DGUS_ScreenID getCurrentScreen();
+  static void homeThenChangeScreen(DGUS_ScreenID screen);
+  static void triggerScreenChange(DGUS_ScreenID screen);
+  static void triggerTempScreenChange(DGUS_ScreenID screen, DGUS_ScreenID returnScreen);
   static void triggerReturnScreen();
-  static bool isOnTempScreen(DGUS_Screen screen = DGUS_Screen::BOOT);
+  static bool isOnTempScreen(DGUS_ScreenID screen = DGUS_ScreenID::BOOT);
   static void triggerFullUpdate();
 
   static void triggerEEPROMSave();
@@ -155,11 +155,11 @@ public:
   static bool isPrinterIdle();
 
 private:
-  static const DGUS_Addr* findScreenAddrList(DGUS_Screen screen);
-  static bool callScreenSetup(DGUS_Screen screen);
+  static const DGUS_Addr* findScreenAddrList(DGUS_ScreenID screen);
+  static bool callScreenSetup(DGUS_ScreenID screen);
 
-  static void moveToScreen(DGUS_Screen screen, bool abort_wait=false);
-  static bool sendScreenVPData(DGUS_Screen screen, bool complete_update);
+  static void moveToScreen(DGUS_ScreenID screen, bool abort_wait=false);
+  static bool sendScreenVPData(DGUS_ScreenID screen, bool complete_update);
   static bool refreshVP(DGUS_Addr vpAddr);
 };
 

@@ -24,8 +24,8 @@
 #include "../config/DGUS_Screen.h"
 
 struct DGUS_ScreenSetup {
-  DGUS_Screen   screen;
-  bool          (*setup_fn)(void);
+  DGUS_ScreenID screen;
+  bool (*setup_fn)(void);
 };
 
 extern const struct DGUS_ScreenSetup screen_setup_list[];

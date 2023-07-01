@@ -29,7 +29,7 @@
 #include "DGUSDisplay.h"
 #include "DGUSScreenHandler.h"
 
-typedef void (*controlSet_t)(const DGUS_ScreenID, DGUS_ControlType, DGUS_Control);
+typedef void (*controlSet_t)(const DGUS_ScreenID, DGUSDisplay::DGUS_ControlType, DGUS_Control);
 
 bool DGUSSetupHandler::sdCardPrepare() {
   bool isConfirm = false;
@@ -39,18 +39,18 @@ bool DGUSSetupHandler::sdCardPrepare() {
     controlSet_t controlSet = isConfirm ? dgus.disableControl : dgus.enableControl;
 
     // Only allow the fifth line used as the confirm button to be clicked
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
-    controlSet(DGUS_Screen::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File1);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File2);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File3);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_File4);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Start);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_End);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Prev);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Next);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Home);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Print);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Ready);
+    controlSet(DGUS_ScreenID::FILE1, DGUSDisplay::DGUS_ControlType::RETURN_KEY_CODE, DGUS_Control::FILE1_Settings);
   #endif
 
   if (!isConfirm) dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(screen.getCurrentScreen()));

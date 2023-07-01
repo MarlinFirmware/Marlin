@@ -21,7 +21,7 @@
  */
 #pragma once
 
-enum class DGUS_Screen : uint8_t {
+enum class DGUS_ScreenID : uint8_t {
   START               = 0,
   MAIN,
   FILE1,

@@ -29,7 +29,8 @@
 #include "DGUSScreenHandler.h"
 #include "config/DGUS_Data.h"
 
-#include "../../../module/stepper.h"
+#include "../../../module/stepper.h" // for axis_enabled
+#include "../../../libs/duration_t.h"
 
 void DGUSTxHandler::bootAnimation(DGUS_VP &vp) {
   static uint16_t bootIcon = 0;
@@ -38,7 +39,7 @@ void DGUSTxHandler::bootAnimation(DGUS_VP &vp) {
 
   if (++bootIcon > 100) {
     bootIcon = 0;
-    screen.triggerScreenChange(DGUS_Screen::HOME);
+    screen.triggerScreenChange(DGUS_ScreenID::HOME);
   }
 }
 

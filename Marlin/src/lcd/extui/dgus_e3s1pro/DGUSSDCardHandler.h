@@ -27,8 +27,8 @@
 #define DGUS_E3S1PRO_BASIC_SDCARD_MAX_FILES      20
 #define DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE  5
 
-#define DGUS_PAGE_TO_SCREEN(page)   (DGUS_Screen)((uint8_t)DGUS_Screen::FILE1 + ((uint8_t)page - (uint8_t)DGUS_SDCardHandler::page_t::PAGE_1))
-#define DGUS_SCREEN_TO_PAGE(screen) (DGUS_SDCardHandler::page_t)((uint8_t)DGUS_SDCardHandler::page_t::PAGE_1 + ((uint8_t)screen - (uint8_t)DGUS_Screen::FILE1))
+#define DGUS_PAGE_TO_SCREEN(page)   (DGUS_ScreenID)((uint8_t)DGUS_ScreenID::FILE1 + ((uint8_t)page - (uint8_t)DGUS_SDCardHandler::page_t::PAGE_1))
+#define DGUS_SCREEN_TO_PAGE(screen) (DGUS_SDCardHandler::page_t)((uint8_t)DGUS_SDCardHandler::page_t::PAGE_1 + ((uint8_t)screen - (uint8_t)DGUS_ScreenID::FILE1))
 
 #define DGUS_PAGE_TO_INDEX(page)    (uint8_t)((uint8_t)page - (uint8_t)DGUS_SDCardHandler::page_t::PAGE_1)
 #define DGUS_FILE_TO_INDEX(file)    (uint8_t)((uint8_t)file - (uint8_t)DGUS_SDCardHandler::file_t::FILE_1)

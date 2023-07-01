@@ -4012,6 +4012,10 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI E3S1PRO requires a bed probe."
   #elif !HAS_MESH
     #error "DGUS_LCD_UI E3S1PRO requires mesh leveling."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI E3S1PRO requires SDSUPPORT."
+  #elif DISABLED(POWER_LOSS_RECOVERY)
+    #error "DGUS_LCD_UI E3S1PRO requires POWER_LOSS_RECOVERY."
   #elif DISABLED(LCD_BED_TRAMMING)
     #error "DGUS_LCD_UI E3S1PRO requires LCD_BED_TRAMMING."
   #elif DISABLED(BABYSTEP_ALWAYS_AVAILABLE)

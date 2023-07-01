@@ -102,7 +102,7 @@ bool DGUS_SDCardHandler::onFileSelect(DGUS_SDCardHandler::file_t file) {
     if (currentPage == page_t::PAGE_1)
       onPageLoad(page_t::PAGE_1);
     else
-      screen.triggerScreenChange(DGUS_Screen::FILE1);
+      screen.triggerScreenChange(DGUS_ScreenID::FILE1);
     return true;
   }
 

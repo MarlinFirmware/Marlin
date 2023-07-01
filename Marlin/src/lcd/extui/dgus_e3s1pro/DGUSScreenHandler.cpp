@@ -43,10 +43,10 @@ char DGUSScreenHandler::homeStatusMessage[128];
 bool DGUSScreenHandler::settings_ready = false;
 bool DGUSScreenHandler::booted = false;
 
-DGUS_Screen DGUSScreenHandler::current_screen = DGUS_Screen::BOOT;
-DGUS_Screen DGUSScreenHandler::new_screen = DGUS_Screen::BOOT;
-DGUS_Screen DGUSScreenHandler::wait_return_screen = DGUS_Screen::BOOT;
-DGUS_Screen DGUSScreenHandler::confirm_return_screen = DGUS_Screen::BOOT;
+DGUS_ScreenID DGUSScreenHandler::current_screen = DGUS_ScreenID::BOOT;
+DGUS_ScreenID DGUSScreenHandler::new_screen = DGUS_ScreenID::BOOT;
+DGUS_ScreenID DGUSScreenHandler::wait_return_screen = DGUS_ScreenID::BOOT;
+DGUS_ScreenID DGUSScreenHandler::confirm_return_screen = DGUS_ScreenID::BOOT;
 bool DGUSScreenHandler::full_update = false;
 uint8_t DGUSScreenHandler::angry_beeps = 0;
 
@@ -70,7 +70,7 @@ millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
   dgus.init();
-  moveToScreen(DGUS_Screen::BOOT, true);
+  moveToScreen(DGUS_ScreenID::BOOT, true);
 }
 
 void DGUSScreenHandler::ready() {
@@ -82,9 +82,9 @@ void DGUSScreenHandler::loop() {
   static millis_t next_event_ms = 0, next_beep_ms = 0;
   static bool wasLeveling = isLeveling;
 
-  if (new_screen != DGUS_Screen::BOOT) {
-    const DGUS_Screen screen = new_screen;
-    new_screen = DGUS_Screen::BOOT;
+  if (new_screen != DGUS_ScreenID::BOOT) {
+    const DGUS_ScreenID screen = new_screen;
+    new_screen = DGUS_ScreenID::BOOT;
 
     #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
       currentScrollIndex = -DGUS_AUTOSCROLL_START_CYCLES;
@@ -99,7 +99,7 @@ void DGUSScreenHandler::loop() {
     return;
   }
 
-  if (!booted && current_screen == DGUS_Screen::HOME) {
+  if (!booted && current_screen == DGUS_ScreenID::HOME) {
     // Boot complete
     booted = true;
     dgus.readVersions();
@@ -109,7 +109,7 @@ void DGUSScreenHandler::loop() {
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (booted && powerLossRecoveryAvailable)
     {
-      triggerScreenChange(DGUS_Screen::POWERCONTINUE);
+      triggerScreenChange(DGUS_ScreenID::POWERCONTINUE);
       powerLossRecoveryAvailable = false;
     }
   #endif
@@ -173,12 +173,12 @@ void DGUSScreenHandler::loop() {
 void DGUSScreenHandler::printerKilled(FSTR_P const error, FSTR_P const component) {
   dgus.playSound(0, (uint8_t)(3000/8), 100);
   setStatusMessage(error);
-  moveToScreen(DGUS_Screen::ABNORMAL);
+  moveToScreen(DGUS_ScreenID::ABNORMAL);
 }
 
 void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
   #if ENABLED(DGUS_USERCONFIRM)
-    if (confirm_return_screen == DGUS_Screen::BOOT)
+    if (confirm_return_screen == DGUS_ScreenID::BOOT)
       confirm_return_screen = getCurrentScreen();
 
     strcpy(dgus_sdcard_handler.filenames[0], msg);
@@ -190,7 +190,7 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
     strcat(dgus_sdcard_handler.filenames[4], GET_TEXT(MSG_BUTTON_CONFIRM));
     strcat(dgus_sdcard_handler.filenames[4], "]");
 
-    new_screen = DGUS_Screen::FILE1;
+    new_screen = DGUS_ScreenID::FILE1;
     #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
       DEBUG_ECHOLNPGM("trig confirm: ", msg, ", ret: ", (uint16_t)confirm_return_screen);
     #endif
@@ -201,12 +201,12 @@ void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
 
 void DGUSScreenHandler::userConfirmation() {
   #if ENABLED(DGUS_USERCONFIRM)
-    if (confirm_return_screen == DGUS_Screen::BOOT) {
+    if (confirm_return_screen == DGUS_ScreenID::BOOT) {
       DEBUG_ECHOLNPGM("DGUS: User confirmation triggered but no return screen");
       return;
     }
 
-    if (confirm_return_screen >= DGUS_Screen::FILE1 && confirm_return_screen <= DGUS_Screen::FILE4)
+    if (confirm_return_screen >= DGUS_ScreenID::FILE1 && confirm_return_screen <= DGUS_ScreenID::FILE4)
       dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(confirm_return_screen));
 
     #ifdef DEBUG_DGUSLCD
@@ -214,7 +214,7 @@ void DGUSScreenHandler::userConfirmation() {
     #endif
 
     new_screen = confirm_return_screen;
-    confirm_return_screen = DGUS_Screen::BOOT;
+    confirm_return_screen = DGUS_ScreenID::BOOT;
     ExtUI::setUserConfirmed();
   #endif
 }
@@ -322,21 +322,21 @@ void DGUSScreenHandler::meshUpdate(const int8_t xpos, const int8_t ypos) {
 
 void DGUSScreenHandler::printTimerStarted() {
   TERN_(HAS_FILAMENT_SENSOR, ExtUI::setFilamentRunoutState(false));
-  triggerScreenChange(DGUS_Screen::PAUSE);
+  triggerScreenChange(DGUS_ScreenID::PAUSE);
 }
 
 void DGUSScreenHandler::printTimerPaused() {
   dgus.playSound(3);
-  triggerScreenChange(DGUS_Screen::RESUME);
+  triggerScreenChange(DGUS_ScreenID::RESUME);
 }
 
 void DGUSScreenHandler::printTimerStopped() {
   dgus.playSound(3);
-  triggerScreenChange(DGUS_Screen::FINISH);
+  triggerScreenChange(DGUS_ScreenID::FINISH);
 }
 
 void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
-  triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
+  triggerScreenChange(DGUS_ScreenID::FILAMENTUSEUP);
   dgus.playSound(3);
 }
 
@@ -356,9 +356,9 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
   void DGUSScreenHandler::sdCardRemoved() {
     sdPrintFilename = noFileSelected;
 
-    if (getCurrentScreen() >= DGUS_Screen::FILE1
-      && getCurrentScreen() <= DGUS_Screen::FILE4) {
-      triggerTempScreenChange(DGUS_Screen::SDCARDCHECK, DGUS_Screen::HOME);
+    if (getCurrentScreen() >= DGUS_ScreenID::FILE1
+      && getCurrentScreen() <= DGUS_ScreenID::FILE4) {
+      triggerTempScreenChange(DGUS_ScreenID::SDCARDCHECK, DGUS_ScreenID::HOME);
     }
   }
 
@@ -383,12 +383,12 @@ void DGUSScreenHandler::steppersStatusChanged(bool steppersEnabled) {
 }
 
 void DGUSScreenHandler::homingDone() {
-  if (isOnTempScreen(DGUS_Screen::AUTOHOME))
+  if (isOnTempScreen(DGUS_ScreenID::AUTOHOME))
     triggerReturnScreen();
 }
 
 void DGUSScreenHandler::startPrintFromSD(const char* const filename) {
-  triggerScreenChange(DGUS_Screen::HOME);
+  triggerScreenChange(DGUS_ScreenID::HOME);
   sdPrintFilename = filename;
   setStatusMessage(sdPrintFilename, 0);
 }
@@ -403,27 +403,27 @@ void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duratio
   status_expire = duration ? ExtUI::safe_millis() + duration : 0;
 }
 
-DGUS_Screen DGUSScreenHandler::getCurrentScreen() { return current_screen; }
+DGUS_ScreenID DGUSScreenHandler::getCurrentScreen() { return current_screen; }
 
-void DGUSScreenHandler::homeThenChangeScreen(DGUS_Screen screen) {
-  triggerTempScreenChange(DGUS_Screen::AUTOHOME, screen);
+void DGUSScreenHandler::homeThenChangeScreen(DGUS_ScreenID screen) {
+  triggerTempScreenChange(DGUS_ScreenID::AUTOHOME, screen);
   ExtUI::injectCommands(F("G28"));
 }
 
-void DGUSScreenHandler::triggerScreenChange(DGUS_Screen screen) {
-  if (confirm_return_screen != DGUS_Screen::BOOT)
+void DGUSScreenHandler::triggerScreenChange(DGUS_ScreenID screen) {
+  if (confirm_return_screen != DGUS_ScreenID::BOOT)
     confirm_return_screen = screen;
   else
     new_screen = screen;
-  wait_return_screen = DGUS_Screen::BOOT; // cancel temp screen
+  wait_return_screen = DGUS_ScreenID::BOOT; // cancel temp screen
 
   #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
     DEBUG_ECHOLNPGM("trig scr: ", (uint16_t)screen);
   #endif
 }
 
-void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen returnScreen) {
-  if (confirm_return_screen != DGUS_Screen::BOOT)
+void DGUSScreenHandler::triggerTempScreenChange(DGUS_ScreenID screen, DGUS_ScreenID returnScreen) {
+  if (confirm_return_screen != DGUS_ScreenID::BOOT)
     confirm_return_screen = screen;
   else
     new_screen = screen;
@@ -436,15 +436,15 @@ void DGUSScreenHandler::triggerTempScreenChange(DGUS_Screen screen, DGUS_Screen 
 
 void DGUSScreenHandler::triggerReturnScreen() {
   new_screen = wait_return_screen;
-  wait_return_screen = DGUS_Screen::BOOT;
+  wait_return_screen = DGUS_ScreenID::BOOT;
   #if ALL(DEBUG_OUT, DGUS_SCREEN_PAGE_DEBUG)
     DEBUG_ECHOLNPGM("trig ret scr");
   #endif
 }
 
-bool DGUSScreenHandler::isOnTempScreen(DGUS_Screen screen) {
-  return wait_return_screen != DGUS_Screen::BOOT
-    && (screen == DGUS_Screen::BOOT || current_screen == screen);
+bool DGUSScreenHandler::isOnTempScreen(DGUS_ScreenID screen) {
+  return wait_return_screen != DGUS_ScreenID::BOOT
+    && (screen == DGUS_ScreenID::BOOT || current_screen == screen);
 }
 
 void DGUSScreenHandler::triggerFullUpdate() {
@@ -459,7 +459,7 @@ bool DGUSScreenHandler::isPrinterIdle() {
   return (!ExtUI::commandsInQueue() && !ExtUI::isMoving());
 }
 
-const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(DGUS_Screen screen) {
+const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(DGUS_ScreenID screen) {
   DGUS_ScreenAddrList list;
   const DGUS_ScreenAddrList *map = screen_addr_list_map;
 
@@ -472,7 +472,7 @@ const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(DGUS_Screen screen) {
   return nullptr;
 }
 
-bool DGUSScreenHandler::callScreenSetup(DGUS_Screen screen) {
+bool DGUSScreenHandler::callScreenSetup(DGUS_ScreenID screen) {
   DGUS_ScreenSetup setup;
   const DGUS_ScreenSetup *list = screen_setup_list;
 
@@ -485,7 +485,7 @@ bool DGUSScreenHandler::callScreenSetup(DGUS_Screen screen) {
   return true;
 }
 
-void DGUSScreenHandler::moveToScreen(DGUS_Screen screen, bool abort_wait) {
+void DGUSScreenHandler::moveToScreen(DGUS_ScreenID screen, bool abort_wait) {
   current_screen = screen;
 
   if (!callScreenSetup(screen)) return;
@@ -494,7 +494,7 @@ void DGUSScreenHandler::moveToScreen(DGUS_Screen screen, bool abort_wait) {
   dgus.switchScreen(current_screen);
 }
 
-bool DGUSScreenHandler::sendScreenVPData(DGUS_Screen screen, bool complete_update) {
+bool DGUSScreenHandler::sendScreenVPData(DGUS_ScreenID screen, bool complete_update) {
   if (complete_update) full_update = false;
 
   const DGUS_Addr *list = findScreenAddrList(screen);

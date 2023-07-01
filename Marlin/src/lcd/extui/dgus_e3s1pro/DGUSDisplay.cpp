@@ -148,7 +148,7 @@ void DGUSDisplay::readVersions() {
   read(DGUS_VERSION, 1);
 }
 
-void DGUSDisplay::switchScreen(DGUS_Screen screen) {
+void DGUSDisplay::switchScreen(DGUS_ScreenID screen) {
   const uint8_t command[] = { 0x5A, 0x01, 0x00, (uint8_t)screen };
   write(0x84, command, sizeof(command));
 }
@@ -162,7 +162,7 @@ void DGUSDisplay::playSound(uint8_t start, uint8_t len, uint8_t volume) {
   write(0xA0, command, sizeof(command));
 }
 
-void DGUSDisplay::enableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control) {
+void DGUSDisplay::enableControl(DGUS_ScreenID screen, DGUS_ControlType type, DGUS_Control control) {
   const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screen, (uint8_t)control, type, 0x00, 0x01 };
   write(0xB0, command, sizeof(command));
 
@@ -170,7 +170,7 @@ void DGUSDisplay::enableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_
   delay(50);
 }
 
-void DGUSDisplay::disableControl(DGUS_Screen screen, DGUS_ControlType type, DGUS_Control control) {
+void DGUSDisplay::disableControl(DGUS_ScreenID screen, DGUS_ControlType type, DGUS_Control control) {
   const uint8_t command[] = { 0x5A, 0xA5, 0x00, (uint8_t)screen, (uint8_t)control, type, 0x00, 0x00 };
   write(0xB0, command, sizeof(command));
 

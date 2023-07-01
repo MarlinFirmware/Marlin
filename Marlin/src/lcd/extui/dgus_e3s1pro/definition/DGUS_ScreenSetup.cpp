@@ -34,11 +34,11 @@
   .setup_fn = SETUP }
 
 const struct DGUS_ScreenSetup screen_setup_list[] PROGMEM = {
-  SETUP_HELPER(DGUS_Screen::FILE1, &DGUSSetupHandler::sdCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE2, &DGUSSetupHandler::sdCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE3, &DGUSSetupHandler::sdCardPrepare),
-  SETUP_HELPER(DGUS_Screen::FILE4, &DGUSSetupHandler::sdCardPrepare),
-  SETUP_HELPER((DGUS_Screen)0, nullptr)
+  SETUP_HELPER(DGUS_ScreenID::FILE1, &DGUSSetupHandler::sdCardPrepare),
+  SETUP_HELPER(DGUS_ScreenID::FILE2, &DGUSSetupHandler::sdCardPrepare),
+  SETUP_HELPER(DGUS_ScreenID::FILE3, &DGUSSetupHandler::sdCardPrepare),
+  SETUP_HELPER(DGUS_ScreenID::FILE4, &DGUSSetupHandler::sdCardPrepare),
+  SETUP_HELPER((DGUS_ScreenID)0, nullptr)
 };
 
 #endif // DGUS_LCD_UI_E3S1PRO

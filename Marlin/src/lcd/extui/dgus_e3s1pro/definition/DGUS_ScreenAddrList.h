@@ -25,7 +25,7 @@
 #include "../config/DGUS_Addr.h"
 
 struct DGUS_ScreenAddrList {
-  DGUS_Screen       screen;
+  DGUS_ScreenID     screen;
   const DGUS_Addr   *addr_list;
 };
 

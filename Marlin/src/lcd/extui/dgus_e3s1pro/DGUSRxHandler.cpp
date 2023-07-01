@@ -79,7 +79,7 @@ void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
 
   #if HAS_FILAMENT_SENSOR
     if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
-      screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+      screen.triggerTempScreenChange(DGUS_ScreenID::FILAMENTCHECK, DGUS_ScreenID::CONTROL_DEVICE);
       return;
     }
   #endif
@@ -92,7 +92,7 @@ void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
 
   #if HAS_FILAMENT_SENSOR
     if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
-      screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+      screen.triggerTempScreenChange(DGUS_ScreenID::FILAMENTCHECK, DGUS_ScreenID::CONTROL_DEVICE);
       return;
     }
   #endif
