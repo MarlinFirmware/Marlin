@@ -45,7 +45,7 @@ void dwinStartup() {
   const bool success = dwinHandshake();
   if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
   dwinFrameSetDir(TERN(DWIN_MARLINUI_LANDSCAPE, 0, 1));
-  dwinFrameClear(Color_Bg_Black); // MarlinUI handles the bootscreen so just clear here
+  dwinFrameClear(COLOR_BG_BLACK); // MarlinUI handles the bootscreen so just clear here
   dwinJPGShowAndCache(3);
   dwinUpdateLCD();
 }

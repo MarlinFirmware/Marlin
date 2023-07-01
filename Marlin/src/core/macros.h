@@ -408,7 +408,41 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // remove const/volatile type qualifiers
+    template<typename T> struct remove_const { typedef T type; };
+    template<typename T> struct remove_const<T const> { typedef T type; };
+
+    template<typename T> struct remove_volatile { typedef T type; };
+    template<typename T> struct remove_volatile<T volatile> { typedef T type; };
+
+    template<typename T> struct remove_cv { typedef typename remove_const<typename remove_volatile<T>::type>::type type; };
+
+    // test if type is integral
+    template<typename>  struct _is_integral { enum { value = false }; };
+    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
+    template<>          struct _is_integral<char> { enum { value = true }; };
+    template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
+    template<>          struct _is_integral<long> { enum { value = true }; };
+    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
   }
+
+  // enum type check and regression to its underlying integral.
+  namespace Private {
+    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+
+    template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
+    template<typename T>                            struct _underlying_type<T, false> { };
+
+    template<typename T> struct underlying_type : public _underlying_type<T> { };
+  }
+
   // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
@@ -712,5 +746,6 @@
 #define _UI_MKS         104
 #define _UI_RELOADED    105
 #define _UI_IA_CREALITY 106
+#define _UI_E3S1PRO     107
 #define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
 #define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))
