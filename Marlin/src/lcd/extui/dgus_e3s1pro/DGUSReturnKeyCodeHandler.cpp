@@ -209,8 +209,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
   switch (command) {
     case DGUS_Data::CheckOKCommand::ContinueStop_Continue:
       #if HAS_FILAMENT_SENSOR
-        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
-        {
+        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
           screen.triggerScreenChange(DGUS_Screen::FILAMENTUSEUP);
           break;
         }
@@ -231,8 +230,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
         break;
 
       case DGUS_Data::CheckOKCommand::FilamentLoad_Yes:
-        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
-        {
+        if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
           screen.triggerScreenChange(DGUS_Screen::FILAMENTLOAD);
           break;
         }
@@ -430,7 +428,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
 
     case DGUS_Data::LevelingCommand::Show_Settings_Leveling:
     case DGUS_Data::LevelingCommand::Show_AutoLeveling:
-        screen.homeThenChangeScreen(DGUS_Screen::LEVELING);
+      screen.homeThenChangeScreen(DGUS_Screen::LEVELING);
       break;
 
     case DGUS_Data::LevelingCommand::Goto_Center:
@@ -516,8 +514,7 @@ void DGUSReturnKeyCodeHandler::Command_PowerLoss(DGUS_VP &vp, void *data) {
 
   switch (command) {
     case DGUS_Data::PowerLossCommand::PowerLoss_Continue:
-      if (!recovery.valid())
-      {
+      if (!recovery.valid()) {
         screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_INVALID_RECOVERY_DATA));
         screen.triggerScreenChange(DGUS_Screen::HOME);
         return;
@@ -604,8 +601,7 @@ void DGUSReturnKeyCodeHandler::Command_FilelistControl(DGUS_VP &vp, void *data) 
         }
 
         #if HAS_FILAMENT_SENSOR
-          if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE)
-          {
+          if (ExtUI::getFilamentRunoutEnabled() && READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
             screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::HOME);
             return;
           }

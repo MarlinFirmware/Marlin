@@ -117,7 +117,7 @@ DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onFirstPage() {
 }
 
 DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onLastPage() {
-  currentVirtualPage = ((fileCount-1) + (fileList.isAtRootDir() ? 0 : 1)) / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE;
+  currentVirtualPage = (fileCount - 1 + (fileList.isAtRootDir() ? 0 : 1)) / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE;
 
   if (currentVirtualPage >= 4) {
     currentPage = page_t::PAGE_4;
@@ -142,10 +142,8 @@ DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onPreviousPage() {
 }
 
 DGUS_SDCardHandler::page_t DGUS_SDCardHandler::onNextPage() {
-  if (currentVirtualPage < ((fileCount-1) + (fileList.isAtRootDir() ? 0 : 1)) / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE) {
-    currentVirtualPage += 1;
-
-    if (currentVirtualPage >= 4) {
+  if (currentVirtualPage < (fileCount - 1 + (fileList.isAtRootDir() ? 0 : 1)) / DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE) {
+    if (++currentVirtualPage >= 4) {
       currentPage = page_t::PAGE_4;
       onPageLoad(page_t::PAGE_4);
     }

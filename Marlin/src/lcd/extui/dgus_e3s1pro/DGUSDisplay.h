@@ -26,7 +26,6 @@
  * Updated for STM32G0B1RE by Protomosh in 2022.
  */
 
-
 #include "config/DGUS_Screen.h"
 #include "config/DGUS_Control.h"
 #include "definition/DGUS_VP.h"
@@ -34,7 +33,6 @@
 #include "../ui_api.h"
 #include "../../../inc/MarlinConfigPre.h"
 #include "../../../MarlinCore.h"
-
 
 //#define DEBUG_DGUSLCD // Uncomment for debug messages
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)

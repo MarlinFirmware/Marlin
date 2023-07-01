@@ -78,11 +78,10 @@ void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
 
   #if HAS_FILAMENT_SENSOR
-  if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
-  {
-    screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
-    return;
-  }
+    if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
+      screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+      return;
+    }
   #endif
   ExtUI::setAxisPosition_mm(currentPosition+length, ExtUI::E0);
 }
@@ -92,11 +91,10 @@ void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
   const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
 
   #if HAS_FILAMENT_SENSOR
-  if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState())
-  {
-    screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
-    return;
-  }
+    if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
+      screen.triggerTempScreenChange(DGUS_Screen::FILAMENTCHECK, DGUS_Screen::CONTROL_DEVICE);
+      return;
+    }
   #endif
   ExtUI::setAxisPosition_mm(currentPosition-length, ExtUI::E0);
 }
@@ -109,6 +107,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
 }
 
 #if ENABLED(PIDTEMPBED)
+
   void DGUSRxHandler::bed_PID_P(DGUS_VP &vp, void *data) {
     float pidValue = dgus.fromFixedPoint<int16_t, float, 2>(Endianness::fromBE_P<int16_t>(data));
     ExtUI::setBedPID(
@@ -135,6 +134,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
       pidValue
     );
   }
+
 #endif // PIDTEMPBED
 
 void DGUSRxHandler::fanSpeed(DGUS_VP &vp, void *data) {

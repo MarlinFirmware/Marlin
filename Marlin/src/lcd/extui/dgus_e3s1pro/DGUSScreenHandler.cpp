@@ -283,10 +283,8 @@ void DGUSScreenHandler::configurationStoreRead(bool success) {
 }
 
 void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration) {
-  UNUSED(duration);
-
-  if (frequency >= 1 && frequency <= 255) {
-    if (duration >= 1 && duration <= 255)
+  if (WITHIN(frequency, 1, 255)) {
+    if (WITHIN(duration, 1, 255))
       dgus.playSound((uint8_t)frequency, (uint8_t)duration);
     else
       dgus.playSound((uint8_t)frequency);
@@ -468,9 +466,7 @@ const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(DGUS_Screen screen) {
   do {
     memcpy_P(&list, map, sizeof(*map));
     if (!list.addr_list) break;
-    if (list.screen == screen) {
-      return list.addr_list;
-    }
+    if (list.screen == screen) return list.addr_list;
   } while (++map);
 
   return nullptr;
