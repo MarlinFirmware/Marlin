@@ -28,15 +28,15 @@
  * Date: 2023/05/05
  */
 
-class MeshViewerClass {
+class MeshViewer {
 public:
   static float max, min;
-  static void DrawMeshGrid(const uint8_t csizex, const uint8_t csizey);
-  static void DrawMeshPoint(const uint8_t x, const uint8_t y, const float z);
-  static void Draw(const bool withsave=false, const bool redraw=true);
-  static void DrawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
+  static void drawMeshGrid(const uint8_t csizex, const uint8_t csizey);
+  static void drawMeshPoint(const uint8_t x, const uint8_t y, const float z);
+  static void draw(const bool withsave=false, const bool redraw=true);
+  static void drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
 };
 
-extern MeshViewerClass MeshViewer;
+extern MeshViewer meshViewer;
 
-void Goto_MeshViewer(const bool redraw);
+void gotoMeshViewer(const bool redraw);

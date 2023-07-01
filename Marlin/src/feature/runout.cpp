@@ -88,7 +88,7 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
-  TERN_(DWIN_LCD_PROUI, DWIN_FilamentRunout(extruder));
+  TERN_(DWIN_LCD_PROUI, dwinFilamentRunout(extruder));
 
   #if ANY(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS, MULTI_FILAMENT_SENSOR)
     const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
