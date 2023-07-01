@@ -71,7 +71,7 @@
   #if WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_2 must be from 1 to 6."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL2 MSerialUSB
   #else
@@ -83,7 +83,7 @@
   #if WITHIN(SERIAL_PORT_3, 1, 6)
     #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_3 must be from 1 to 6."
   #elif SERIAL_PORT_3 == -1
     #define MYSERIAL3 MSerialUSB
   #else
@@ -95,7 +95,7 @@
   #if WITHIN(MMU2_SERIAL_PORT, 1, 6)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "MMU2_SERIAL_PORT must be from 1 to 6."
   #elif MMU2_SERIAL_PORT == -1
     #define MMU2_SERIAL MSerialUSB
   #else
@@ -107,7 +107,7 @@
   #if WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "LCD_SERIAL_PORT must be from 1 to 6."
   #elif LCD_SERIAL_PORT == -1
     #define LCD_SERIAL MSerialUSB
   #else
@@ -160,7 +160,7 @@ typedef libServo hal_servo_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 //
 // Pin Mapping for M42, M43, M226

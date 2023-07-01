@@ -306,21 +306,22 @@
  */
 
 // Temperature sensor IDs
-#define HID_REDUNDANT -7
-#define HID_SOC       -6
-#define HID_BOARD     -5
-#define HID_COOLER    -4
-#define HID_PROBE     -3
-#define HID_CHAMBER   -2
-#define HID_BED       -1
-#define HID_E0         0
-#define HID_E1         1
-#define HID_E2         2
-#define HID_E3         3
-#define HID_E4         4
-#define HID_E5         5
-#define HID_E6         6
-#define HID_E7         7
+#define H_NONE    -128
+#define H_REDUNDANT -7
+#define H_SOC       -6
+#define H_BOARD     -5
+#define H_COOLER    -4
+#define H_PROBE     -3
+#define H_CHAMBER   -2
+#define H_BED       -1
+#define H_E0         0
+#define H_E1         1
+#define H_E2         2
+#define H_E3         3
+#define H_E4         4
+#define H_E5         5
+#define H_E6         6
+#define H_E7         7
 
 #define _SENSOR_IS(I,N) || (TEMP_SENSOR(N) == I)
 #define _E_SENSOR_IS(I,N) _SENSOR_IS(N,I)
@@ -333,7 +334,7 @@
 #endif
 
 #if TEMP_SENSOR_REDUNDANT
-  #define _HEATER_ID(M) HID_##M
+  #define _HEATER_ID(M) H_##M
   #define HEATER_ID(M)  _HEATER_ID(M)
   #define REDUNDANT_TEMP_MATCH(M,N) (HEATER_ID(TEMP_SENSOR_REDUNDANT_##M) == _HEATER_ID(N))
 #else
@@ -364,12 +365,12 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
-#elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
-  #define TEMP_SENSOR_0_IS_DUMMY 1
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
     #define TEMP_SENSOR_0_IS_CUSTOM 1
+  #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
+    #define TEMP_SENSOR_0_IS_DUMMY 1
   #endif
 #endif
 
@@ -407,12 +408,12 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
-#elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
-  #define TEMP_SENSOR_1_IS_DUMMY 1
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
     #define TEMP_SENSOR_1_IS_CUSTOM 1
+  #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
+    #define TEMP_SENSOR_1_IS_DUMMY 1
   #endif
 #endif
 
@@ -450,57 +451,57 @@
   #define TEMP_SENSOR_2_IS_AD8495 1
 #elif TEMP_SENSOR_2 == -1
   #define TEMP_SENSOR_2_IS_AD595 1
-#elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
-  #define TEMP_SENSOR_2_IS_DUMMY 1
 #elif TEMP_SENSOR_2 > 0
   #define TEMP_SENSOR_2_IS_THERMISTOR 1
   #if TEMP_SENSOR_2 == 1000
     #define TEMP_SENSOR_2_IS_CUSTOM 1
+  #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
+    #define TEMP_SENSOR_2_IS_DUMMY 1
   #endif
 #endif
 
-#if TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
-  #define TEMP_SENSOR_3_IS_DUMMY 1
-#elif TEMP_SENSOR_3 > 0
+#if TEMP_SENSOR_3 > 0
   #define TEMP_SENSOR_3_IS_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
     #define TEMP_SENSOR_3_IS_CUSTOM 1
+  #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+    #define TEMP_SENSOR_3_IS_DUMMY 1
   #endif
 #endif
 
-#if TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
-  #define TEMP_SENSOR_4_IS_DUMMY 1
-#elif TEMP_SENSOR_4 > 0
+#if TEMP_SENSOR_4 > 0
   #define TEMP_SENSOR_4_IS_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
     #define TEMP_SENSOR_4_IS_CUSTOM 1
+  #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+    #define TEMP_SENSOR_4_IS_DUMMY 1
   #endif
 #endif
 
-#if TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
-  #define TEMP_SENSOR_5_IS_DUMMY 1
-#elif TEMP_SENSOR_5 > 0
+#if TEMP_SENSOR_5 > 0
   #define TEMP_SENSOR_5_IS_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
     #define TEMP_SENSOR_5_IS_CUSTOM 1
+  #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+    #define TEMP_SENSOR_5_IS_DUMMY 1
   #endif
 #endif
 
-#if TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
-  #define TEMP_SENSOR_6_IS_DUMMY 1
-#elif TEMP_SENSOR_6 > 0
+#if TEMP_SENSOR_6 > 0
   #define TEMP_SENSOR_6_IS_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
     #define TEMP_SENSOR_6_IS_CUSTOM 1
+  #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+    #define TEMP_SENSOR_6_IS_DUMMY 1
   #endif
 #endif
 
-#if TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
-  #define TEMP_SENSOR_7_IS_DUMMY 1
-#elif TEMP_SENSOR_7 > 0
+#if TEMP_SENSOR_7 > 0
   #define TEMP_SENSOR_7_IS_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
     #define TEMP_SENSOR_7_IS_CUSTOM 1
+  #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+    #define TEMP_SENSOR_7_IS_DUMMY 1
   #endif
 #endif
 
@@ -680,12 +681,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -1
   #define TEMP_SENSOR_BED_IS_AD595 1
-#elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
-  #define TEMP_SENSOR_BED_IS_DUMMY 1
 #elif TEMP_SENSOR_BED > 0
   #define TEMP_SENSOR_BED_IS_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
     #define TEMP_SENSOR_BED_IS_CUSTOM 1
+  #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
+    #define TEMP_SENSOR_BED_IS_DUMMY 1
   #endif
 #else
   #undef BED_MINTEMP
@@ -700,12 +701,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -1
   #define TEMP_SENSOR_CHAMBER_IS_AD595 1
-#elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
-  #define TEMP_SENSOR_CHAMBER_IS_DUMMY 1
 #elif TEMP_SENSOR_CHAMBER > 0
   #define TEMP_SENSOR_CHAMBER_IS_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
     #define TEMP_SENSOR_CHAMBER_IS_CUSTOM 1
+  #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
+    #define TEMP_SENSOR_CHAMBER_IS_DUMMY 1
   #endif
 #else
   #undef THERMAL_PROTECTION_CHAMBER
@@ -742,12 +743,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE == -1
   #define TEMP_SENSOR_PROBE_IS_AD595 1
-#elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
-  #define TEMP_SENSOR_PROBE_IS_DUMMY 1
 #elif TEMP_SENSOR_PROBE > 0
   #define TEMP_SENSOR_PROBE_IS_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
     #define TEMP_SENSOR_PROBE_IS_CUSTOM 1
+  #elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
+    #define TEMP_SENSOR_PROBE_IS_DUMMY 1
   #endif
 #endif
 
@@ -759,12 +760,12 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BOARD."
 #elif TEMP_SENSOR_BOARD == -1
   #define TEMP_SENSOR_BOARD_IS_AD595 1
-#elif TEMP_SENSOR_BOARD == 998 || TEMP_SENSOR_BOARD == 999
-  #define TEMP_SENSOR_BOARD_IS_DUMMY 1
 #elif TEMP_SENSOR_BOARD > 0
   #define TEMP_SENSOR_BOARD_IS_THERMISTOR 1
   #if TEMP_SENSOR_BOARD == 1000
     #define TEMP_SENSOR_BOARD_IS_CUSTOM 1
+  #elif TEMP_SENSOR_BOARD == 998 || TEMP_SENSOR_BOARD == 999
+    #define TEMP_SENSOR_BOARD_IS_DUMMY 1
   #endif
 #endif
 
