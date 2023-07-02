@@ -40,9 +40,10 @@ static void rs485_write_failed(const PacketWriteResult writeResult) {
   SERIAL_ERROR_START();
   SERIAL_ECHOPGM("RS485: Write failed ");
   switch (writeResult) {
-    case FAILED_INTERRUPTED: SERIAL_ECHOPGM("interrupted"); break;
-    case FAILED_BUFFER_FULL: SERIAL_ECHOPGM("buffer full"); break;
-    case FAILED_TIMEOUT: SERIAL_ECHOPGM("timeout"); break;
+    case PacketWriteResult::FAILED_INTERRUPTED: SERIAL_ECHOPGM("interrupted"); break;
+    case PacketWriteResult::FAILED_BUFFER_FULL: SERIAL_ECHOPGM("buffer full"); break;
+    case PacketWriteResult::FAILED_TIMEOUT: SERIAL_ECHOPGM("timeout"); break;
+    default: break;
   }
   SERIAL_EOL();
 }
@@ -86,7 +87,7 @@ void GcodeSuite::M485() {
   const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
   switch (writeResult) {
     default: rs485_write_failed(writeResult);
-    case PacketWriteResult::OK:  // Nothing to do
+    case PacketWriteResult::OK: break; // Nothing to do
   }
 
   rs485Packetizer.setMaxReadTimeout(50000); // 50 ms
