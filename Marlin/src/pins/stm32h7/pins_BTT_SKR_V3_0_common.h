@@ -461,10 +461,12 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
+    #define TFT_SCK_PIN              EXP2_02_PIN
+    #define TFT_MISO_PIN             EXP2_01_PIN
+    #define TFT_MOSI_PIN             EXP2_06_PIN
+
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
-
-    #define TFT_DC_PIN                TFT_A0_PIN
 
     #ifndef TFT_WIDTH
       #define TFT_WIDTH                      480
@@ -475,9 +477,10 @@
 
     #if ENABLED(BTT_TFT35_SPI_V1_0)
       // 480x320, 3.5", SPI Display with Rotary Encoder.
-      // Stock Display for the BIQU B1 SE.
+      // Stock Display for the BIQU B1 SE Series.
       #define TFT_CS_PIN             EXP2_04_PIN
-      #define TFT_A0_PIN             EXP2_07_PIN
+      #define TFT_DC_PIN             EXP2_07_PIN
+      #define TFT_A0_PIN              TFT_DC_PIN
 
       #define TOUCH_CS_PIN           EXP1_04_PIN
       #define TOUCH_SCK_PIN          EXP1_05_PIN
@@ -513,7 +516,8 @@
        *                        EXP1                                     EXP2
        */
       #define TFT_CS_PIN             EXP1_07_PIN  // SPI1_CS
-      #define TFT_A0_PIN             EXP1_08_PIN  // SPI1_RS
+      #define TFT_DC_PIN             EXP1_08_PIN  // SPI1_RS
+      #define TFT_A0_PIN              TFT_DC_PIN
 
       #define TFT_RESET_PIN          EXP1_04_PIN
 
