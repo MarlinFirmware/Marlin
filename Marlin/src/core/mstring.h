@@ -73,7 +73,7 @@ extern void SERIAL_CHAR(char c);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-#if DISABLED(UNSAFE_MSTRING)
+#if DISABLED(UNSAFE_MSTRING) && GCC_VERSION >= 80000
   #pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
 
