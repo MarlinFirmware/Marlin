@@ -355,6 +355,9 @@ void drawStepsMenu();
     void drawEditMeshMenu();
   #endif
 #endif
+#if HAS_TRINAMIC_CONFIG
+  void drawTrinamicConfigMenu();
+#endif
 
 // Custom colors editing
 #if HAS_CUSTOM_COLORS

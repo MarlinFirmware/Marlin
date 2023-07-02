@@ -25,8 +25,10 @@
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
+#elif defined(STM32H7xx)
+  #include "stm32h7xx_hal.h"
 #else
-  #error SPI TFT is currently only supported on STM32F1 and STM32F4 hardware.
+  #error SPI TFT is currently only supported on STM32F1, STM32F4 and STM32H7 hardware.
 #endif
 
 #ifndef LCD_READ_ID
@@ -38,6 +40,7 @@
 
 #define DATASIZE_8BIT  SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
+#define DATASIZE_32BIT SPI_DATASIZE_32BIT
 #define TFT_IO_DRIVER  TFT_SPI
 #define DMA_MAX_SIZE   0xFFFF
 
@@ -51,7 +54,7 @@ private:
   static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   #if ENABLED(USE_SPI_DMA_TC)
-    static void TransmitDMA_IT(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
+    static void transmitDMA_IT(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
   #endif
 
 public:
@@ -71,7 +74,7 @@ public:
   static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_MINC_DISABLE, &data, count); }
 
   #if ENABLED(USE_SPI_DMA_TC)
-    static void writeSequenceIT(uint16_t *data, uint16_t count) { TransmitDMA_IT(DMA_MINC_ENABLE, data, count); }
+    static void writeSequenceIT(uint16_t *data, uint16_t count) { transmitDMA_IT(DMA_MINC_ENABLE, data, count); }
     inline static void DMA_IRQHandler() { HAL_DMA_IRQHandler(&TFT_SPI::DMAtx); }
   #endif
 

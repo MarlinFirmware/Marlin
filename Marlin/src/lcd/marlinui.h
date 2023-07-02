@@ -505,7 +505,10 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-    static void flow_fault();
+
+    #if ENABLED(FLOWMETER_SAFETY)
+      static void flow_fault();
+    #endif
 
     #if ALL(HAS_MARLINUI_MENU, PSU_CONTROL)
       static void poweroff();

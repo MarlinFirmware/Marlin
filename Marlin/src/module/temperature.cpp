@@ -4185,7 +4185,7 @@ void Temperature::isr() {
 
     SString<50> s(' ', k);
     if (TERN0(HAS_MULTI_HOTEND, e >= 0)) s += char('0' + e);
-    s += TS(':', p_float_t(c, SFP));
+    s += ':'; s += p_float_t(c, SFP);
     if (show_t) { s += F(" /"); s += p_float_t(t, SFP); }
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
