@@ -59,7 +59,11 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../../feature/hotend_idle.h"
+#endif
+
+#if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
   #define HAS_DEBUG_MENU 1
 #endif
@@ -68,7 +72,7 @@
 #include "../../core/debug_out.h"
 
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
@@ -277,6 +281,24 @@ void menu_advanced_settings();
   }
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+
+  void menu_hotend_idle() {
+    hotend_idle_settings_t &c = hotend_idle.cfg;
+    START_MENU();
+    BACK_ITEM(MSG_BACK);
+
+    if (c.timeout) GCODES_ITEM(MSG_HOTEND_IDLE_DISABLE, F("M87"));
+    EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
+    EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, HEATER_0_MAXTEMP);
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAXTEMP);
+
+    END_MENU();
+  }
+
+#endif
+
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
@@ -307,15 +329,9 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      PGMSTR(mode0, "OD");
-      PGMSTR(mode1, "5V");
-      DEBUG_ECHOPGM("BLTouch Mode: ");
-      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
-      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
-      char mess[21];
-      strcpy_P(mess, PSTR("BLTouch Mode: "));
-      strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
-      ui.set_status(mess);
+      FSTR_P const mode0 = F("OD"), mode1 = F("5V");
+      DEBUG_ECHOLNPGM("BLTouch Mode: ", bltouch.od_5v_mode ? mode1 : mode0, " (Default ", TERN(BLTOUCH_SET_5V_MODE, mode1, mode0), ")");
+      ui.set_status(MString<18>(F("BLTouch Mode: "), bltouch.od_5v_mode ? mode1 : mode0));
       ui.return_to_status();
     }
   #endif
@@ -592,7 +608,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -612,6 +628,10 @@ void menu_configuration() {
       SUBMENU(MSG_TOUCHMI_PROBE, menu_touchmi);
     #endif
   }
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    SUBMENU(MSG_HOTEND_IDLE_TIMEOUT, menu_hotend_idle);
+  #endif
 
   //
   // Set single nozzle filament retract and prime length
@@ -657,7 +677,7 @@ void menu_configuration() {
 
   // Preheat configurations
   #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
       SUBMENU_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 

@@ -35,8 +35,7 @@
 template<typename TMC>
 void tmc_say_stealth_status(TMC &st) {
   st.printLabel();
-  SERIAL_ECHOPGM(" driver mode:\t");
-  SERIAL_ECHOLNF(st.get_stealthChop() ? F("stealthChop") : F("spreadCycle"));
+  SERIAL_ECHOLN(F(" driver mode:\t"), st.get_stealthChop() ? F("stealthChop") : F("spreadCycle"));
 }
 template<typename TMC>
 void tmc_set_stealthChop(TMC &st, const bool enable) {
@@ -57,10 +56,12 @@ static void set_stealth_status(const bool enable, const int8_t eindex) {
 
   LOOP_LOGICAL_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
     switch (i) {
-      case X_AXIS:
-        TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(X));
-        TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(X2));
-        break;
+      #if HAS_X_AXIS
+        case X_AXIS:
+          TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(X));
+          TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(X2));
+          break;
+      #endif
 
       #if HAS_Y_AXIS
         case Y_AXIS:
@@ -159,10 +160,7 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
   auto say_M569 = [](const bool forReplay, FSTR_P const etc=nullptr, const bool eol=false) {
     if (!forReplay) SERIAL_ECHO_START();
     SERIAL_ECHOPGM("  M569 S1");
-    if (etc) {
-      SERIAL_CHAR(' ');
-      SERIAL_ECHOF(etc);
-    }
+    if (etc) SERIAL_ECHO(AS_CHAR(' '), etc);
     if (eol) SERIAL_EOL();
   };
 
@@ -198,13 +196,13 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
 
   if (chop_x2 || chop_y2 || chop_z2) {
     say_M569(forReplay, F("I1"));
-    if (chop_x2) SERIAL_ECHOPGM_P(SP_X_STR);
-    #if HAS_Y_AXIS
-      if (chop_y2) SERIAL_ECHOPGM_P(SP_Y_STR);
-    #endif
-    #if HAS_Z_AXIS
-      if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR);
-    #endif
+    NUM_AXIS_CODE(
+      if (chop_x2) SERIAL_ECHOPGM_P(SP_X_STR),
+      if (chop_y2) SERIAL_ECHOPGM_P(SP_Y_STR),
+      if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR),
+      NOOP, NOOP, NOOP,
+      NOOP, NOOP, NOOP
+    );
     SERIAL_EOL();
   }
 

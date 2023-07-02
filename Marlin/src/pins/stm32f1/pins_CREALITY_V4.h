@@ -183,7 +183,7 @@
   #define EXP3_07_PIN                       PB12
   #define EXP3_08_PIN                       PB15
 
-#elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
+#elif ANY(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
 
   /**
    *    VET6 12864 LCD
@@ -204,7 +204,7 @@
   #define EXP3_07_PIN                       PA4
   #define EXP3_08_PIN                       PA7
 
-#elif EITHER(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
+#elif ANY(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
 #endif
 
@@ -299,11 +299,3 @@
 #define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
 #define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
 #define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
-
-// SDIO pins
-#define SDIO_D0_PIN                         PC8
-#define SDIO_D1_PIN                         PC9
-#define SDIO_D2_PIN                         PC10
-#define SDIO_D3_PIN                         PC11
-#define SDIO_CK_PIN                         PC12
-#define SDIO_CMD_PIN                        PD2

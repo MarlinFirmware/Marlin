@@ -52,15 +52,15 @@
 //#define FLASH_EEPROM_EMULATION
 //#define SDCARD_EEPROM_EMULATION
 
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
-// Note: MKS Robin board is using SPI2 interface.
+// SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -156,7 +156,10 @@
   #define E0_SERIAL_RX_PIN                  PD9
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -379,9 +382,9 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
 #ifndef BEEPER_PIN

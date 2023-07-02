@@ -87,12 +87,12 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = ESTATE(TERN(HAS_X_MIN,      X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = ESTATE(TERN(HAS_X2_MIN,    X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = ESTATE(TERN(HAS_Y_MIN,      Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = ESTATE(TERN(HAS_Y2_MIN,    Y2_MIN, Y2_MAX)));
+    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = ESTATE(TERN(USE_X_MIN,      X_MIN,  X_MAX)));
+    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = ESTATE(TERN(USE_X2_MIN,    X2_MIN, X2_MAX)));
+    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = ESTATE(TERN(USE_Y_MIN,      Y_MIN,  Y_MAX)));
+    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = ESTATE(TERN(USE_Y2_MIN,    Y2_MIN, Y2_MAX)));
     TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = ESTATE(TERN(HAS_Z_MIN_PIN,  Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = ESTATE(TERN(HAS_Z2_MIN,    Z2_MIN, Z2_MAX)));
+    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = ESTATE(TERN(USE_Z2_MIN,    Z2_MIN, Z2_MAX)));
   }
 
   void test_gpio_readlevel_H() {
@@ -104,12 +104,12 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = !ESTATE(TERN(HAS_X_MIN,     X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = !ESTATE(TERN(HAS_X2_MIN,   X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = !ESTATE(TERN(HAS_Y_MIN,     Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = !ESTATE(TERN(HAS_Y2_MIN,   Y2_MIN, Y2_MAX)));
+    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = !ESTATE(TERN(USE_X_MIN,     X_MIN,  X_MAX)));
+    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = !ESTATE(TERN(USE_X2_MIN,   X2_MIN, X2_MAX)));
+    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = !ESTATE(TERN(USE_Y_MIN,     Y_MIN,  Y_MAX)));
+    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = !ESTATE(TERN(USE_Y2_MIN,   Y2_MIN, Y2_MAX)));
     TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = !ESTATE(TERN(HAS_Z_MIN_PIN, Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = !ESTATE(TERN(HAS_Z2_MIN,   Z2_MIN, Z2_MAX)));
+    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = !ESTATE(TERN(USE_Z2_MIN,   Z2_MIN, Z2_MAX)));
   }
 
   #include "../../../libs/buzzer.h"
@@ -194,7 +194,9 @@
     void mks_hardware_test() {
       if (millis() % 2000 < 1000) {
         thermalManager.fan_speed[0] = 255;
-        WRITE(X_DIR_PIN, LOW);
+        #if HAS_X_AXIS
+          WRITE(X_DIR_PIN, LOW);
+        #endif
         #if HAS_Y_AXIS
           WRITE(Y_DIR_PIN, LOW);
         #endif
@@ -219,7 +221,9 @@
       }
       else {
         thermalManager.fan_speed[0] = 0;
-        WRITE(X_DIR_PIN, HIGH);
+        #if HAS_X_AXIS
+          WRITE(X_DIR_PIN, HIGH);
+        #endif
         #if HAS_Y_AXIS
           WRITE(Y_DIR_PIN, HIGH);
         #endif
@@ -644,7 +648,7 @@ void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint1
   for (uint16_t i = 0; i < 24; i++) {
     const uint16_t tmp_char = pgm_read_word(&ASCII_Table_16x24[((c - 0x20) * 24) + i]);
     for (uint16_t j = 0; j < 16; j++)
-      SPI_TFT.SetPoint(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
+      SPI_TFT.setPoint(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
   }
 }
 
@@ -660,7 +664,7 @@ void disp_string(uint16_t x, uint16_t y, FSTR_P const fstr, uint16_t charColor, 
 }
 
 void disp_assets_update() {
-  SPI_TFT.LCD_clear(0x0000);
+  SPI_TFT.lcdClear(0x0000);
   disp_string(100, 140, F("Assets Updating..."), 0xFFFF, 0x0000);
 }
 
@@ -677,7 +681,7 @@ void disp_assets_update_progress(FSTR_P const fmsg) {
   #endif
 }
 
-#if BOTH(MKS_TEST, HAS_MEDIA)
+#if ALL(MKS_TEST, HAS_MEDIA)
   uint8_t mks_test_flag = 0;
   const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {

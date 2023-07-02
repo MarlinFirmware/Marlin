@@ -70,7 +70,7 @@
   #define CALIBRATION_MEASUREMENT_CERTAIN   0.5 // mm
 #endif
 
-#if BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
+#if ALL(HAS_X_AXIS, CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
   #define HAS_X_CENTER 1
 #endif
 #if ALL(HAS_Y_AXIS, CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
@@ -171,7 +171,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 #if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
-    LOOP_S_L_N(e, 1, HOTENDS)
+    for (uint8_t e = 1; e < HOTENDS; ++e)
       hotend_offset[e] -= hotend_offset[0];
     hotend_offset[0].reset();
   }
@@ -398,11 +398,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.obj_side[TOP]);
     #endif
-    #if ENABLED(CALIBRATION_MEASURE_LEFT)
-      SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
-    #endif
-    #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-      SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+    #if HAS_X_AXIS
+      #if ENABLED(CALIBRATION_MEASURE_LEFT)
+        SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_RIGHT)
+        SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+      #endif
     #endif
     #if HAS_Y_AXIS
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
@@ -616,7 +618,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     // This function requires normalize_hotend_offsets() to be called
     //
     inline void report_hotend_offsets() {
-      LOOP_S_L_N(e, 1, HOTENDS)
+      for (uint8_t e = 1; e < HOTENDS; ++e)
         SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif

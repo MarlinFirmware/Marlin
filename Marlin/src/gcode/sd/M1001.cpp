@@ -34,7 +34,7 @@
   #include "../queue.h"
 #endif
 
-#if EITHER(SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
+#if ANY(SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/marlinui.h"
 #endif
 
@@ -49,8 +49,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)

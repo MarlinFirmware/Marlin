@@ -34,7 +34,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
@@ -224,7 +224,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
