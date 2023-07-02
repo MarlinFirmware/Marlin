@@ -575,6 +575,7 @@ void drawPrintProgressElapsed() {
 }
 
 #if ENABLED(SHOW_REMAINING_TIME)
+  uint32_t _remain_time = 0;
   void drawPrintProgressRemain() {
     MString<12> buf;
     buf.setf(F("%02i:%02i "), _remain_time / 3600, (_remain_time % 3600) / 60);
@@ -1319,7 +1320,6 @@ void eachMomentUpdate() {
 
       // Remaining time
       #if ENABLED(SHOW_REMAINING_TIME)
-        static uint32_t _remain_time = 0;
         if (_remain_time != ui.get_remaining_time()) {
           _remain_time = ui.get_remaining_time();
           drawPrintProgressRemain();
