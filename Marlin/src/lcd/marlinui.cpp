@@ -1432,7 +1432,9 @@ void MarlinUI::host_notify(const char * const cstr) {
   TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(cstr));
 }
 void MarlinUI::host_status() {
-  TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
+  #if HAS_STATUS_MESSAGE
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
+  #endif
 }
 
 #include <stdarg.h>
