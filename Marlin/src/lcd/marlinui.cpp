@@ -1679,11 +1679,13 @@ void MarlinUI::host_status() {
 
   #endif
 
-  void MarlinUI::flow_fault() {
-    LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
-    BUZZ(1000, 440);
-    TERN_(HAS_MARLINUI_MENU, return_to_status());
-  }
+  #if ENABLED(FLOWMETER_SAFETY)
+    void MarlinUI::flow_fault() {
+      LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
+      BUZZ(1000, 440);
+      TERN_(HAS_MARLINUI_MENU, return_to_status());
+    }
+  #endif
 
   void MarlinUI::pause_print() {
     #if HAS_MARLINUI_MENU
@@ -1718,13 +1720,13 @@ void MarlinUI::host_status() {
 
   #if HAS_TOUCH_BUTTONS
 
-    //
-    // Screen Click
-    //  - On menu screens move directly to the touched item
-    //  - On menu screens, right side (last 3 cols) acts like a scroll - half up => prev page, half down = next page
-    //  - On select screens (and others) touch the Right Half for +, Left Half for -
-    //  - On edit screens, touch Up Half for -,  Bottom Half to +
-    //
+    /**
+     * Screen Click
+     *  - On menu screens move directly to the touched item
+     *  - On menu screens, right side (last 3 cols) acts like a scroll - half up => prev page, half down = next page
+     *  - On select screens (and others) touch the Left Half for ←, Right Half for →
+     *  - On edit screens, touch Top Half for ↑, Bottom Half for ↓
+     */
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
       const millis_t now = millis();
       if (PENDING(now, next_button_update_ms)) return;
