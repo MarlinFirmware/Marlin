@@ -88,8 +88,8 @@ TFT_IO tftio;
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
-// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
+// RGB565 color picker: https://embeddednotepad.com/page/rgb565-color-picker
+// Hex code to color name: https://www.color-name.com/
 
 #define COLOR_BLACK       0x0000  // #000000
 #define COLOR_WHITE       0xFFFF  // #FFFFFF
