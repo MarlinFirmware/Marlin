@@ -375,8 +375,8 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
-      template <class N> static constexpr auto _MIN(const N val) { return val; }
-      template <class N> static constexpr auto _MAX(const N val) { return val; }
+      template <class N> static constexpr N _MIN(const N val) { return val; }
+      template <class N> static constexpr N _MAX(const N val) { return val; }
       template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
