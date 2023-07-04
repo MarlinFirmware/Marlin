@@ -5,7 +5,7 @@
 # Examples:
 #   use_example_configs
 #   use_example_configs Creality/CR-10/CrealityV1
-#   use_example_configs release-2.0.9.6:Creality/CR-10/CrealityV1
+#   use_example_configs release-2.0.9.7:Creality/CR-10/CrealityV1
 #
 # If a configpath has spaces (or quotes) escape them or enquote the path
 #
