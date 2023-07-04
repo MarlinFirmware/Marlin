@@ -536,7 +536,7 @@
     // Stock Display for the BIQU B1 SE Series.
     #define TFT_CS_PIN               EXP2_04_PIN
     #define TFT_DC_PIN               EXP2_07_PIN
-    #define TFT_A0_PIN               TFT_DC_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #define TOUCH_CS_PIN             EXP1_04_PIN
     #define TOUCH_SCK_PIN            EXP1_05_PIN

@@ -319,7 +319,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define TFT_DC_PIN                TFT_A0_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #ifndef TFT_WIDTH
       #define TFT_WIDTH                      480
@@ -332,7 +332,7 @@
       // 480x320, 3.5", SPI Display with Rotary Encoder.
       // Stock Display for the BIQU B1 SE.
       #define TFT_CS_PIN             EXP2_04_PIN
-      #define TFT_A0_PIN             EXP2_07_PIN
+      #define TFT_DC_PIN             EXP2_07_PIN
 
       #define TOUCH_CS_PIN           EXP1_04_PIN
       #define TOUCH_SCK_PIN          EXP1_05_PIN
@@ -343,7 +343,7 @@
     #elif ENABLED(MKS_TS35_V2_0)
 
       #define TFT_CS_PIN             EXP1_07_PIN
-      #define TFT_A0_PIN             EXP1_08_PIN
+      #define TFT_DC_PIN             EXP1_08_PIN
 
       #define TFT_RESET_PIN          EXP1_04_PIN
 
