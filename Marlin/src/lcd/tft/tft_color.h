@@ -30,8 +30,8 @@
 #define COLOR(color)          RGB(((color >> 16) & 0xFF), ((color >> 8) & 0xFF), (color & 0xFF))
 #define HALF(color)           RGB(RED(color) >> 1, GREEN(color) >> 1, BLUE(color) >> 1)
 
-// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
+// RGB565 color picker: https://embeddednotepad.com/page/rgb565-color-picker
+// Hex code to color name: https://www.color-name.com/
 
 #define COLOR_BLACK           0x0000  // #000000
 #define COLOR_WHITE           0xFFFF  // #FFFFFF
@@ -44,13 +44,13 @@
 #define COLOR_RED             0xF800  // #FF0000
 #define COLOR_SCARLET         0xF904  // #FF2020
 #define COLOR_LIME            0x7E00  // #00FF00
+#define COLOR_MIDNIGHT_BLUE   0x20AC  // #1E156E
 #define COLOR_BLUE            0x001F  // #0000FF
+#define COLOR_OCEAN_BOAT_BLUE 0x03B7  // #0075BD
 #define COLOR_LIGHT_BLUE      0x061F  // #00C3FF
 #define COLOR_YELLOW          0xFFE0  // #FFFF00
 #define COLOR_MAGENTA         0xF81F  // #FF00FF
-#define COLOR_FUCHSIA         0xF81F  // #FF00FF
 #define COLOR_CYAN            0x07FF  // #00FFFF
-#define COLOR_AQUA            0x07FF  // #00FFFF
 #define COLOR_DODGER_BLUE     0x041F  // #0080FF
 #define COLOR_VIVID_VIOLET    0x7933  // #772399
 
@@ -68,23 +68,21 @@
 #define COLOR_DARK_ORANGE     0xFC40  // #FF8C00
 #define COLOR_CORAL_RED       0xF9E7  // #FF3F3F
 
-#define COLOR_DARK_PURPLE     0x9930  // #992380
-
 #ifndef COLOR_BACKGROUND
-  #define COLOR_BACKGROUND    0x20AC  // #1E156E
+  #define COLOR_BACKGROUND        COLOR_MIDNIGHT_BLUE
 #endif
 #ifndef COLOR_SELECTION_BG
-  #define COLOR_SELECTION_BG  0x9930  // #992380
+  #define COLOR_SELECTION_BG      COLOR_DARK_PURPLE
 #endif
 #ifndef COLOR_WEBSITE_URL
-  #define COLOR_WEBSITE_URL   0x03B7  // #0075BD
+  #define COLOR_WEBSITE_URL       COLOR_OCEAN_BOAT_BLUE
 #endif
 
 #ifndef COLOR_INACTIVE
   #define COLOR_INACTIVE          COLOR_GREY
 #endif
 #ifndef COLOR_COLD
-  #define COLOR_COLD              COLOR_AQUA
+  #define COLOR_COLD              COLOR_CYAN
 #endif
 #ifndef COLOR_HOTEND
   #define COLOR_HOTEND            COLOR_SCARLET
@@ -99,7 +97,7 @@
   #define COLOR_COOLER            COLOR_DARK_ORANGE
 #endif
 #ifndef COLOR_FAN
-  #define COLOR_FAN               COLOR_AQUA
+  #define COLOR_FAN               COLOR_CYAN
 #endif
 
 #ifndef COLOR_AXIS_HOMED
@@ -117,7 +115,7 @@
 #endif
 
 #ifndef COLOR_PRINT_TIME
-  #define COLOR_PRINT_TIME        COLOR_AQUA
+  #define COLOR_PRINT_TIME        COLOR_CYAN
 #endif
 
 #ifndef COLOR_PROGRESS_FRAME
