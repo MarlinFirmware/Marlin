@@ -48,9 +48,7 @@
 #define COLOR_LIGHT_BLUE      0x061F  // #00C3FF
 #define COLOR_YELLOW          0xFFE0  // #FFFF00
 #define COLOR_MAGENTA         0xF81F  // #FF00FF
-#define COLOR_FUCHSIA         0xF81F  // #FF00FF
 #define COLOR_CYAN            0x07FF  // #00FFFF
-#define COLOR_AQUA            0x07FF  // #00FFFF
 #define COLOR_DODGER_BLUE     0x041F  // #0080FF
 #define COLOR_VIVID_VIOLET    0x7933  // #772399
 
@@ -68,8 +66,6 @@
 #define COLOR_DARK_ORANGE     0xFC40  // #FF8C00
 #define COLOR_CORAL_RED       0xF9E7  // #FF3F3F
 
-#define COLOR_DARK_PURPLE     0x9930  // #992380
-
 #ifndef COLOR_BACKGROUND
   #define COLOR_BACKGROUND    0x20AC  // #1E156E
 #endif
@@ -84,7 +80,7 @@
   #define COLOR_INACTIVE          COLOR_GREY
 #endif
 #ifndef COLOR_COLD
-  #define COLOR_COLD              COLOR_AQUA
+  #define COLOR_COLD              COLOR_CYAN
 #endif
 #ifndef COLOR_HOTEND
   #define COLOR_HOTEND            COLOR_SCARLET
@@ -99,7 +95,7 @@
   #define COLOR_COOLER            COLOR_DARK_ORANGE
 #endif
 #ifndef COLOR_FAN
-  #define COLOR_FAN               COLOR_AQUA
+  #define COLOR_FAN               COLOR_CYAN
 #endif
 
 #ifndef COLOR_AXIS_HOMED
@@ -117,7 +113,7 @@
 #endif
 
 #ifndef COLOR_PRINT_TIME
-  #define COLOR_PRINT_TIME        COLOR_AQUA
+  #define COLOR_PRINT_TIME        COLOR_CYAN
 #endif
 
 #ifndef COLOR_PROGRESS_FRAME
