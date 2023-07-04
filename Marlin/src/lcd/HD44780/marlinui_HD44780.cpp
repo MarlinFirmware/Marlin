@@ -81,7 +81,7 @@
 #elif ENABLED(SR_LCD_2W_NL)
 
   // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+  // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN
     #if PIN_EXISTS(SR_STROBE)
