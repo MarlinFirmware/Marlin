@@ -2802,8 +2802,6 @@
 //
 // These require LiquidCrystal_I2C library:
 //   https://github.com/MarlinFirmware/New-LiquidCrystal
-//
-// F.Malpartida's Wiki:
 //   https://github.com/fmalpartida/New-LiquidCrystal/wiki
 //
 //#define LCD_SAINSMART_I2C_1602
@@ -2977,11 +2975,10 @@
 //#define BTT_MINI_12864_V1
 
 //
-// Factory display for Creality CR-10/CR-7/Ender-3
+// Factory display for Creality CR-10 / CR-7 / Ender-3
 // https://www.aliexpress.com/item/32833148327.html
 //
-// This is RAMPS-compatible using a single 10-pin connector.
-// (For CR-10/CR-7/Ender-3 owners who want to replace the Melzi Creality board but retain the display)
+// Connect to EXP1 on RAMPS and compatible boards.
 //
 //#define CR10_STOCKDISPLAY
 
