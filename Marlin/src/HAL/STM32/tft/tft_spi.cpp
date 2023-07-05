@@ -43,8 +43,8 @@ void TFT_SPI::init() {
   if ((spiInstance = (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_SCK_PIN),  PinMap_SPI_SCLK)) == NP) return;
   if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MOSI_PIN), PinMap_SPI_MOSI)) return;
 
-  #if PIN_EXISTS(TFT_MISO) && TFT_MISO_PIN != TFT_MOSI_PIN
-    if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO)) return;
+  #if PIN_EXISTS(TFT_MISO)
+    if ((TFT_MISO_PIN != TFT_MOSI_PIN) && (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO))) return;
   #endif
 
   SPIx.Instance                = spiInstance;
@@ -76,8 +76,8 @@ void TFT_SPI::init() {
 
   pinmap_pinout(digitalPinToPinName(TFT_SCK_PIN), PinMap_SPI_SCLK);
   pinmap_pinout(digitalPinToPinName(TFT_MOSI_PIN), PinMap_SPI_MOSI);
-  #if PIN_EXISTS(TFT_MISO) && TFT_MISO_PIN != TFT_MOSI_PIN
-    pinmap_pinout(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO);
+  #if PIN_EXISTS(TFT_MISO)
+    if (TFT_MISO_PIN != TFT_MOSI_PIN) pinmap_pinout(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO);
   #endif
 
   #ifdef SPI1_BASE
@@ -185,9 +185,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
         __HAL_SPI_ENABLE(&SPIx);
         SET_BIT(SPIx.Instance->CR1, SPI_CR1_CSTART);
 
-        #if TFT_MISO_PIN != TFT_MOSI_PIN
-          SPIx.Instance->TXDR = 0;
-        #endif
+        if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) SPIx.Instance->TXDR = 0;
         while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_EOT)) {}
         data = (data << 8) | SPIx.Instance->RXDR;
         __HAL_SPI_DISABLE(&SPIx);
@@ -197,10 +195,10 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     #else
       __HAL_SPI_ENABLE(&SPIx);
       for (uint32_t i = 0; i < 4; i++) {
-        #if TFT_MISO_PIN != TFT_MOSI_PIN
+        if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) {
           while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
           SPIx.Instance->DR = 0;
-        #endif
+        }
         while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_RXNE)) {}
         data = (data << 8) | SPIx.Instance->DR;
       }
@@ -263,9 +261,7 @@ void TFT_SPI::abort() {
 }
 
 void TFT_SPI::transmit(uint16_t data) {
-  #if TFT_MISO_PIN == TFT_MOSI_PIN
-    SPI_1LINE_TX(&SPIx);
-  #endif
+  if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_TX(&SPIx);
 
   #ifdef STM32H7xx
     MODIFY_REG(SPIx.Instance->CR2, SPI_CR2_TSIZE, 1);
@@ -278,17 +274,15 @@ void TFT_SPI::transmit(uint16_t data) {
 
     __HAL_SPI_CLEAR_EOTFLAG(&SPIx);
     __HAL_SPI_CLEAR_TXTFFLAG(&SPIx);
+    __HAL_SPI_DISABLE(&SPIx);
   #else
     __HAL_SPI_ENABLE(&SPIx);
     SPIx.Instance->DR = data;
-    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}   // Wait for data transfer to actually start
+    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}    // Wait until SPI is idle
   #endif
 
-  __HAL_SPI_DISABLE(&SPIx);
-
-  #if TFT_MISO_PIN != TFT_MOSI_PIN
-    __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received data is not read
-  #endif
+  if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received data is not read
 }
 
 void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
