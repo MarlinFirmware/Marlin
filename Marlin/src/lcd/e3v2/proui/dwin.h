@@ -47,38 +47,38 @@ namespace GET_LANG(LCD_LANGUAGE) {
   #define _MSG_PREHEAT(N) \
     LSTR MSG_PREHEAT_##N                  = _UxGT("Preheat ") PREHEAT_## N ##_LABEL; \
     LSTR MSG_PREHEAT_## N ##_SETTINGS     = _UxGT("Preheat ") PREHEAT_## N ##_LABEL _UxGT(" Conf");
-  #if PREHEAT_COUNT > 3
-    REPEAT_S(4, PREHEAT_COUNT, _MSG_PREHEAT)
+  #if PREHEAT_COUNT > 1
+    REPEAT_S(2, INCREMENT(PREHEAT_COUNT), _MSG_PREHEAT)
   #endif
 }
 
 enum processID : uint8_t {
   // Process ID
-  MainMenu,
-  Menu,
-  SetInt,
-  SetPInt,
-  SetIntNoDraw,
-  SetFloat,
-  SetPFloat,
-  PrintProcess,
-  Popup,
-  Leveling,
-  Locked,
-  Reboot,
-  PrintDone,
-  ESDiagProcess,
-  WaitResponse,
-  Homing,
-  PidProcess,
-  MPCProcess,
-  NothingToDo
+  ID_MainMenu,
+  ID_Menu,
+  ID_SetInt,
+  ID_SetPInt,
+  ID_SetIntNoDraw,
+  ID_SetFloat,
+  ID_SetPFloat,
+  ID_PrintProcess,
+  ID_Popup,
+  ID_Leveling,
+  ID_Locked,
+  ID_Reboot,
+  ID_PrintDone,
+  ID_ESDiagProcess,
+  ID_WaitResponse,
+  ID_Homing,
+  ID_PIDProcess,
+  ID_MPCProcess,
+  ID_NothingToDo
 };
 
-#if ANY(DWIN_PID_TUNE, MPC_AUTOTUNE)
+#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
-    #if DWIN_PID_TUNE
+    #if PROUI_PID_TUNE
       PIDTEMP_START,
       PIDTEMPBED_START,
       PID_BAD_HEATER_ID,
@@ -100,69 +100,69 @@ enum processID : uint8_t {
 
 typedef struct {
   // Color settings
-  uint16_t Background_Color;
-  uint16_t Cursor_Color;
-  uint16_t TitleBg_Color;
-  uint16_t TitleTxt_Color;
-  uint16_t Text_Color;
-  uint16_t Selected_Color;
-  uint16_t SplitLine_Color;
-  uint16_t Highlight_Color;
-  uint16_t StatusBg_Color;
-  uint16_t StatusTxt_Color;
-  uint16_t PopupBg_Color;
-  uint16_t PopupTxt_Color;
-  uint16_t AlertBg_Color;
-  uint16_t AlertTxt_Color;
-  uint16_t PercentTxt_Color;
-  uint16_t Barfill_Color;
-  uint16_t Indicator_Color;
-  uint16_t Coordinate_Color;
+  uint16_t colorBackground;
+  uint16_t colorCursor;
+  uint16_t colorTitleBg;
+  uint16_t colorTitleTxt;
+  uint16_t colorText;
+  uint16_t colorSelected;
+  uint16_t colorSplitLine;
+  uint16_t colorHighlight;
+  uint16_t colorStatusBg;
+  uint16_t colorStatusTxt;
+  uint16_t colorPopupBg;
+  uint16_t colorPopupTxt;
+  uint16_t colorAlertBg;
+  uint16_t colorAlertTxt;
+  uint16_t colorPercentTxt;
+  uint16_t colorBarfill;
+  uint16_t colorIndicator;
+  uint16_t colorCoordinate;
 
   // Temperatures
-  #if DWIN_PID_TUNE
-    int16_t PidCycles = DEF_PIDCYCLES;
+  #if PROUI_PID_TUNE
+    int16_t pidCycles = DEF_PIDCYCLES;
     #if ENABLED(PIDTEMP)
-      int16_t HotendPidT = DEF_HOTENDPIDT;
+      int16_t hotendPidT = DEF_HOTENDPIDT;
     #endif
     #if ENABLED(PIDTEMPBED)
-      int16_t BedPidT = DEF_BEDPIDT;
+      int16_t bedPidT = DEF_BEDPIDT;
     #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    int16_t ExtMinT = EXTRUDE_MINTEMP;
+    int16_t extMinT = EXTRUDE_MINTEMP;
   #endif
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    int16_t BedLevT = LEVELING_BED_TEMP;
+    int16_t bedLevT = LEVELING_BED_TEMP;
   #endif
   #if ENABLED(BAUD_RATE_GCODE)
-    bool Baud115K = false;
+    bool baud115K = false;
   #endif
 
-  bool FullManualTramming = false;
-  bool MediaSort = true;
-  bool MediaAutoMount = ENABLED(HAS_SD_EXTENDER);
+  bool fullManualTramming = false;
+  bool mediaSort = true;
+  bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t z_after_homing = DEF_Z_AFTER_HOMING;
+    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor Led_Color = Def_Leds_Color;
+    LEDColor ledColor = defColorLeds;
   #endif
-  bool AdaptiveStepSmoothing = true;
-  bool EnablePreview = true;
-} HMI_data_t;
+  bool adaptiveStepSmoothing = true;
+  bool enablePreview = true;
+} hmi_data_t;
 
-extern HMI_data_t HMI_data;
-static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
+extern hmi_data_t hmiData;
+static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
 
 typedef struct {
   int8_t Color[3];                    // Color components
-  #if ANY(DWIN_PID_TUNE, MPCTEMP)
-    tempcontrol_t tempcontrol = AUTOTUNE_DONE;
+  #if ANY(PROUI_PID_TUNE, MPCTEMP)
+    tempcontrol_t tempControl = AUTOTUNE_DONE;
   #endif
-  uint8_t Select          = 0;        // Auxiliary selector variable
+  uint8_t select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
-} HMI_value_t;
+} hmi_value_t;
 
 typedef struct {
   uint8_t language;
@@ -171,10 +171,10 @@ typedef struct {
   bool pause_flag:1;    // printing is paused
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
-} HMI_flag_t;
+} hmi_flag_t;
 
-extern HMI_value_t HMI_value;
-extern HMI_flag_t hmiFlag;
+extern hmi_value_t hmiValue;
+extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
 // Popups
@@ -182,217 +182,217 @@ extern uint8_t checkkey;
   void dwinPopupTemperature(const bool toohigh);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
-  void Popup_PowerLossRecovery();
+  void popupPowerLossRecovery();
 #endif
 
 // Tool Functions
-uint32_t GetHash(char * str);
+uint32_t getHash(char * str);
 #if ENABLED(EEPROM_SETTINGS)
-  void WriteEeprom();
-  void ReadEeprom();
-  void ResetEeprom();
+  void writeEEPROM();
+  void readEEPROM();
+  void resetEEPROM();
   #if HAS_MESH
-    void SaveMesh();
+    void saveMesh();
   #endif
 #endif
-void RebootPrinter();
-void DisableMotors();
-void AutoLev();
-void AutoHome();
+void rebootPrinter();
+void disableMotors();
+void autoLevel();
+void autoHome();
 #if HAS_PREHEAT
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
-void DoCoolDown();
+void doCoolDown();
 #if ENABLED(BAUD_RATE_GCODE)
-  void HMI_SetBaudRate();
-  void SetBaud115K();
-  void SetBaud250K();
+  void hmiSetBaudRate();
+  void setBaud115K();
+  void setBaud250K();
 #endif
 #if HAS_LCD_BRIGHTNESS
-  void TurnOffBacklight();
+  void turnOffBacklight();
 #endif
-void ApplyExtMinT();
-void ParkHead();
+void applyExtMinT();
+void parkHead();
 #if HAS_ONESTEP_LEVELING
-  void Trammingwizard();
+  void trammingwizard();
 #endif
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-  void ApplyLEDColor();
+  void applyLEDColor();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  void UBLMeshTilt();
-  void UBLMeshSave();
-  void UBLMeshLoad();
+  void ublMeshTilt();
+  void ublMeshSave();
+  void ublMeshLoad();
 #endif
 #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-  void HostShutDown();
+  void hostShutDown();
 #endif
 #if DISABLED(HAS_BED_PROBE)
-  void HomeZandDisable();
+  void homeZAndDisable();
 #endif
 
 // Other
-void Goto_PrintProcess();
-void Goto_Main_Menu();
-void Goto_Info_Menu();
-void Goto_PowerLossRecovery();
-void Goto_ConfirmToPrint();
-void DWIN_Draw_Dashboard(const bool with_update); // Status Area
-void Draw_Main_Area();      // Redraw main area
-void DWIN_DrawStatusLine(const char *text = ""); // Draw simple status text
-void DWIN_RedrawDash();     // Redraw Dash and Status line
-void DWIN_RedrawScreen();   // Redraw all screen elements
-void HMI_MainMenu();        // Main process screen
-void HMI_Printing();        // Print page
-void HMI_ReturnScreen();    // Return to previous screen before popups
-void HMI_WaitForUser();
-void HMI_SaveProcessID(const uint8_t id);
-void HMI_SDCardUpdate();
-void EachMomentUpdate();
-void update_variable();
+void gotoPrintProcess();
+void gotoMainMenu();
+void gotoInfoMenu();
+void gotoPowerLossRecovery();
+void gotoConfirmToPrint();
+void dwinDrawDashboard(const bool with_update); // Status Area
+void drawMainArea();      // Redraw main area
+void dwinDrawStatusLine(const char *text = ""); // Draw simple status text
+void dwinRedrawDash();     // Redraw Dash and Status line
+void dwinRedrawScreen();   // Redraw all screen elements
+void hmiMainMenu();        // Main process screen
+void hmiPrinting();        // Print page
+void hmiReturnScreen();    // Return to previous screen before popups
+void hmiWaitForUser();
+void hmiSaveProcessID(const uint8_t id);
+void hmiSDCardUpdate();
+void eachMomentUpdate();
+void updateVariable();
 void dwinInitScreen();
-void DWIN_HandleScreen();
-void DWIN_CheckStatusMessage();
+void dwinHandleScreen();
+void dwinCheckStatusMessage();
 void dwinHomingStart();
 void dwinHomingDone();
 #if HAS_MESH
-  void DWIN_MeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
+  void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
-void DWIN_LevelingStart();
-void DWIN_LevelingDone();
-void DWIN_Print_Started();
-void DWIN_Print_Pause();
-void DWIN_Print_Resume();
-void DWIN_Print_Finished();
-void DWIN_Print_Aborted();
+void dwinLevelingStart();
+void dwinLevelingDone();
+void dwinPrintStarted();
+void dwinPrintPause();
+void dwinPrintResume();
+void dwinPrintFinished();
+void dwinPrintAborted();
 #if HAS_FILAMENT_SENSOR
-  void DWIN_FilamentRunout(const uint8_t extruder);
+  void dwinFilamentRunout(const uint8_t extruder);
 #endif
-void DWIN_Print_Header(const char *text);
-void DWIN_SetColorDefaults();
-void DWIN_CopySettingsTo(char * const buff);
-void DWIN_CopySettingsFrom(const char * const buff);
-void DWIN_SetDataDefaults();
-void DWIN_RebootScreen();
+void dwinPrintHeader(const char *text);
+void dwinSetColorDefaults();
+void dwinCopySettingsTo(char * const buff);
+void dwinCopySettingsFrom(const char * const buff);
+void dwinSetDataDefaults();
+void dwinRebootScreen();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void DWIN_Popup_Pause(FSTR_P const fmsg, uint8_t button=0);
-  void Draw_Popup_FilamentPurge();
-  void Goto_FilamentPurge();
+  void dwinPopupPause(FSTR_P const fmsg, uint8_t button=0);
+  void drawPopupFilamentPurge();
+  void gotoFilamentPurge();
 #endif
 
 // Utility and extensions
 #if HAS_LOCKSCREEN
-  void DWIN_LockScreen();
-  void DWIN_UnLockScreen();
-  void HMI_LockScreen();
+  void dwinLockScreen();
+  void dwinUnLockScreen();
+  void hmiLockScreen();
 #endif
 #if HAS_MESH
-  void DWIN_MeshViewer();
+  void dwinMeshViewer();
 #endif
 #if HAS_GCODE_PREVIEW
-  void HMI_ConfirmToPrint();
+  void hmiConfirmToPrint();
 #endif
 #if HAS_ESDIAG
-  void Draw_EndStopDiag();
+  void drawEndStopDiag();
 #endif
 #if ENABLED(PRINTCOUNTER)
-  void Draw_PrintStats();
+  void drawPrintStats();
 #endif
 
 // Menu drawing functions
-void Draw_Print_File_Menu();
-void Draw_Control_Menu();
-void Draw_AdvancedSettings_Menu();
-void Draw_Prepare_Menu();
-void Draw_Move_Menu();
-void Draw_Tramming_Menu();
+void drawPrintFileMenu();
+void drawControlMenu();
+void drawAdvancedSettingsMenu();
+void drawPrepareMenu();
+void drawMoveMenu();
+void drawTrammingMenu();
 #if HAS_HOME_OFFSET
-  void Draw_HomeOffset_Menu();
+  void drawHomeOffsetMenu();
 #endif
 #if HAS_BED_PROBE
-  void Draw_ProbeSet_Menu();
+  void drawProbeSetMenu();
 #endif
-void Draw_FilSet_Menu();
+void drawFilSetMenu();
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  void Draw_ParkPos_Menu();
+  void drawParkPosMenu();
 #endif
-void Draw_PhySet_Menu();
+void drawPhySetMenu();
 #if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
-  void Draw_CaseLight_Menu();
+  void drawCaseLightMenu();
 #endif
 #if ENABLED(LED_CONTROL_MENU)
-  void Draw_LedControl_Menu();
+  void drawLedControlMenu();
 #endif
-void Draw_Tune_Menu();
-void Draw_Motion_Menu();
+void drawTuneMenu();
+void drawMotionMenu();
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void Draw_FilamentMan_Menu();
+  void drawFilamentManMenu();
 #endif
 #if ENABLED(MESH_BED_LEVELING)
-  void Draw_ManualMesh_Menu();
+  void drawManualMeshMenu();
 #endif
-void Draw_Temperature_Menu();
-void Draw_MaxSpeed_Menu();
-void Draw_MaxAccel_Menu();
+void drawTemperatureMenu();
+void drawMaxSpeedMenu();
+void drawMaxAccelMenu();
 #if HAS_CLASSIC_JERK
-  void Draw_MaxJerk_Menu();
+  void drawMaxJerkMenu();
 #endif
-void Draw_Steps_Menu();
+void drawStepsMenu();
 #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-  void Draw_ZOffsetWiz_Menu();
+  void drawZOffsetWizMenu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
-  void Draw_Homing_Menu();
+  void drawHomingMenu();
 #endif
 #if ENABLED(FWRETRACT)
-  void Draw_FWRetract_Menu();
+  void drawFWRetractMenu();
 #endif
 #if HAS_MESH
-  void Draw_MeshSet_Menu();
+  void drawMeshSetMenu();
   #if ENABLED(MESH_EDIT_MENU)
-    void Draw_EditMesh_Menu();
+    void drawEditMeshMenu();
   #endif
 #endif
 #if HAS_TRINAMIC_CONFIG
-  void Draw_TrinamicConfig_menu();
+  void drawTrinamicConfigMenu();
 #endif
 
 // Custom colors editing
 #if HAS_CUSTOM_COLORS
-  void DWIN_ApplyColor();
-  void Draw_SelectColors_Menu();
-  void Draw_GetColor_Menu();
+  void dwinApplyColor();
+  void drawSelectColorsMenu();
+  void drawGetColorMenu();
 #endif
 
 // PID
-#if DWIN_PID_TUNE
+#if PROUI_PID_TUNE
   #include "../../../module/temperature.h"
-  void DWIN_StartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
-  void DWIN_PidTuning(tempcontrol_t result);
+  void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
+  void dwinPidTuning(tempcontrol_t result);
 #endif
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_AUTOTUNE_MENU)
-    void HotendPID();
+    void hotendPID();
   #endif
   #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void Draw_HotendPID_Menu();
+    void drawHotendPIDMenu();
   #endif
 #endif
 #if ENABLED(PIDTEMPBED)
   #if ENABLED(PID_AUTOTUNE_MENU)
-    void BedPID();
+    void bedPID();
   #endif
   #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void Draw_BedPID_Menu();
+    void drawBedPIDMenu();
   #endif
 #endif
 
 // MPC
 #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-  void Draw_HotendMPC_Menu();
+  void drawHotendMPCMenu();
 #endif
 #if ENABLED(MPC_AUTOTUNE)
-  void DWIN_MPCTuning(tempcontrol_t result);
+  void dwinMPCTuning(tempcontrol_t result);
 #endif
