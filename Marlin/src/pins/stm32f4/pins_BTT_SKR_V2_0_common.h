@@ -532,8 +532,21 @@
   #endif
 
   #if ENABLED(BTT_TFT35_SPI_V1_0)
-    // 480x320, 3.5", SPI Display with Rotary Encoder.
-    // Stock Display for the BIQU B1 SE Series.
+
+    /**
+     *            ------                       ------
+     *    BEEPER | 1  2 | LCD-BTN        MISO | 1  2 | CLK
+     *    T_MOSI | 3  4 | T_CS       LCD-ENCA | 3  4 | TFTCS
+     *     T_CLK | 5  6   T_MISO     LCD-ENCB | 5  6   MOSI
+     *    PENIRQ | 7  8 | F_CS             RS | 7  8 | RESET
+     *       GND | 9 10 | VCC             GND | 9 10 | NC
+     *            ------                       ------
+     *             EXP1                         EXP2
+     *
+     * 480x320, 3.5", SPI Display with Rotary Encoder.
+     * Stock Display for the BIQU B1 SE Series.
+     * Schematic: https://github.com/bigtreetech/TFT35-SPI/blob/master/v1/Hardware/BTT%20TFT35-SPI%20V1-SCH.pdf
+     */
     #define TFT_CS_PIN               EXP2_04_PIN
     #define TFT_DC_PIN               EXP2_07_PIN
     #define TFT_A0_PIN                TFT_DC_PIN
@@ -592,6 +605,22 @@
     #define LCD_USE_DMA_SPI
 
     #define TFT_BUFFER_SIZE                14400
+
+    #ifndef TOUCH_CALIBRATION_X
+      #define TOUCH_CALIBRATION_X         -17253
+    #endif
+    #ifndef TOUCH_CALIBRATION_Y
+      #define TOUCH_CALIBRATION_Y          11579
+    #endif
+    #ifndef TOUCH_OFFSET_X
+      #define TOUCH_OFFSET_X                 514
+    #endif
+    #ifndef TOUCH_OFFSET_Y
+      #define TOUCH_OFFSET_Y                 -24
+    #endif
+    #ifndef TOUCH_ORIENTATION
+      #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+    #endif
 
   #endif
 
