@@ -674,7 +674,7 @@ class Stepper {
     #endif
 
     #if ENABLED(FT_MOTION)
-      static void fxdTiCtrl_stepper(const bool applyDir, const ft_command_t command);
+      static void fxdTiCtrl_stepper();
       static void fxdTiCtrl_refreshAxisDidMove();
     #endif
 

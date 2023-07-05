@@ -26,6 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
+#include "../../../module/stepper.h"
 
 void say_shaping() {
   // FT Enabled
@@ -160,10 +161,9 @@ void GcodeSuite::M493() {
 
   // Parse 'S' mode parameter.
   if (parser.seenval('S')) {
-    const ftMotionMode_t oldmm = fxdTiCtrl.cfg.mode,
-                         newmm = (ftMotionMode_t)parser.value_byte();
+    const ftMotionMode_t newmm = (ftMotionMode_t)parser.value_byte();
 
-    if (newmm != oldmm) {
+    if (newmm != fxdTiCtrl.cfg.mode) {
       switch (newmm) {
         default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
         #if HAS_X_AXIS
@@ -177,11 +177,16 @@ void GcodeSuite::M493() {
           //case ftMotionMode_DISCTF:
             flag.update_n = flag.update_a = true;
         #endif
-        case ftMotionMode_DISABLED:
+        case ftMotionMode_DISABLED: LOGICAL_AXIS_CODE(
+          stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
+          stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
+          stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
+          stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
+          stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w)
+        );
         case ftMotionMode_ENABLED:
           fxdTiCtrl.cfg.mode = newmm;
           flag.report_h = true;
-          if (oldmm == ftMotionMode_DISABLED) flag.reset_ft = true;
           break;
       }
     }
@@ -193,6 +198,7 @@ void GcodeSuite::M493() {
     if (parser.seen('P')) {
       const bool val = parser.value_bool();
       fxdTiCtrl.cfg.linearAdvEna = val;
+      flag.report_h = true;
       SERIAL_ECHO_TERNARY(val, "Linear Advance ", "en", "dis", "abled.\n");
     }
 
@@ -215,23 +221,17 @@ void GcodeSuite::M493() {
     if (parser.seenval('D')) {
       if (fxdTiCtrl.cfg.modeHasShaper()) {
         const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
-        switch (val) {
+        switch (val) {          
+          #if HAS_DYNAMIC_FREQ_MM
+            case dynFreqMode_Z_BASED:
+          #endif
+          #if HAS_DYNAMIC_FREQ_G
+            case dynFreqMode_MASS_BASED:
+          #endif
           case dynFreqMode_DISABLED:
             fxdTiCtrl.cfg.dynFreqMode = val;
             flag.report_h = true;
             break;
-          #if HAS_DYNAMIC_FREQ_MM
-            case dynFreqMode_Z_BASED:
-              fxdTiCtrl.cfg.dynFreqMode = val;
-              flag.report_h = true;
-              break;
-          #endif
-          #if HAS_DYNAMIC_FREQ_G
-            case dynFreqMode_MASS_BASED:
-              fxdTiCtrl.cfg.dynFreqMode = val;
-              flag.report_h = true;
-              break;
-          #endif
           default:
             SERIAL_ECHOLNPGM("?Invalid Dynamic Frequency Mode [D] value.");
             break;
@@ -258,7 +258,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[X_AXIS] = val;
-          flag.update_n = flag.reset_ft = flag.report_h = true;
+          flag.update_n = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
@@ -289,7 +289,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[Y_AXIS] = val;
-          flag.update_n = flag.reset_ft = flag.report_h = true;
+          flag.update_n = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");

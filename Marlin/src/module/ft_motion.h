@@ -26,8 +26,6 @@
 
 #include "ft_types.h"
 
-#define FTM_STEPPERCMD_DIR_SIZE ((FTM_STEPPERCMD_BUFF_SIZE + 7) / 8)
-
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
@@ -93,8 +91,6 @@ class FxdTiCtrl {
     }
 
     static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];               // Buffer of stepper commands.
-    static hal_timer_t stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of the stepper command timing.
-    static uint8_t stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE];            // Buffer of whether DIR needs to be updated.
     static uint32_t stepperCmdBuff_produceIdx,              // Index of next stepper command write to the buffer.
                     stepperCmdBuff_consumeIdx;              // Index of next stepper command read from the buffer.
 
@@ -133,7 +129,7 @@ class FxdTiCtrl {
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
     static bool runoutEna;
-    static bool runout;
+    static bool blockDataIsRunout;
 
     // Trapezoid data variables.
     static xyze_pos_t   startPosn,          // (mm) Start position of block
@@ -158,9 +154,6 @@ class FxdTiCtrl {
                     interpIdx_z1;
 
     static xyze_long_t steps;
-    static xyze_stepDir_t dirState;
-
-    static hal_timer_t nextStepTicks;
 
     #if HAS_X_AXIS
 

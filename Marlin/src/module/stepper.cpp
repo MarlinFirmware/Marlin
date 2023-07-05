@@ -1485,10 +1485,6 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static bool fxdTiCtrl_stepCmdRdy = false;   // Indicates a step command was loaded from the
-                                                // buffers and is ready to be output.
-    static bool fxdTiCtrl_applyDir = false;     // Indicates the DIR output should be set.
-    static ft_command_t fxdTiCtrl_stepCmd = 0U; // Storage for the step command to be output.
     static uint32_t fxdTiCtrl_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
   #endif
 
@@ -1506,53 +1502,22 @@ void Stepper::isr() {
       const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
-          if (abort_current_block) {
-            fxdTiCtrl_stepCmdRdy = false; // If a command was ready, cancel it.
-            fxdTiCtrl.sts_stepperBusy = false; // Set busy false to allow a reset.
-            nextMainISR = 0.01f * (STEPPER_TIMER_RATE); // Come back in 10 msec.
+          nextMainISR = (STEPPER_TIMER_RATE/FTM_STEPPER_FS);
+          fxdTiCtrl_stepper();
+
+          // Define 2.5 msec task for auxilliary functions.
+          if (!fxdTiCtrl_nextAuxISR) {
+            endstops.update();
+            TERN_(INTEGRATED_BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+            fxdTiCtrl_refreshAxisDidMove();
+            fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
           }
-          else { // !(abort_current_block)
-            if (fxdTiCtrl_stepCmdRdy) {
-              fxdTiCtrl_stepper(fxdTiCtrl_applyDir, fxdTiCtrl_stepCmd);
-              fxdTiCtrl_stepCmdRdy = false;
-            }
-            // Check if there is data in the buffers.
-            if (fxdTiCtrl.stepperCmdBuff_produceIdx != fxdTiCtrl.stepperCmdBuff_consumeIdx) {
 
-              fxdTiCtrl.sts_stepperBusy = true;
-
-              // "Pop" one command from the command buffer.
-              fxdTiCtrl_stepCmd = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx];
-              const uint8_t dir_index = fxdTiCtrl.stepperCmdBuff_consumeIdx >> 3,
-                            dir_bit = fxdTiCtrl.stepperCmdBuff_consumeIdx & 0x7;
-              fxdTiCtrl_applyDir = TEST(fxdTiCtrl.stepperCmdBuff_ApplyDir[dir_index], dir_bit);
-              nextMainISR = fxdTiCtrl.stepperCmdBuff_StepRelativeTi[fxdTiCtrl.stepperCmdBuff_consumeIdx];
-              fxdTiCtrl_stepCmdRdy = true;
-
-              if (++fxdTiCtrl.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
-                fxdTiCtrl.stepperCmdBuff_consumeIdx = 0;
-
-            }
-            else { // Buffer empty.
-              fxdTiCtrl.sts_stepperBusy = false;
-              nextMainISR = 0.01f * (STEPPER_TIMER_RATE); // Come back in 10 msec.
-            }
-          } // !(abort_current_block)
-        } // if (!nextMainISR)
-
-        // Define 2.5 msec task for auxilliary functions.
-        if (!fxdTiCtrl_nextAuxISR) {
-          endstops.update();
-          TERN_(INTEGRATED_BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-          fxdTiCtrl_refreshAxisDidMove();
-          fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
+          interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
+          nextMainISR -= interval;
+          fxdTiCtrl_nextAuxISR -= interval;
         }
-
-        interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
-        nextMainISR -= interval;
-        fxdTiCtrl_nextAuxISR -= interval;
       }
-
     #else
 
       constexpr bool using_fxtictrl = false;
@@ -3415,98 +3380,108 @@ void Stepper::report_positions() {
 #if ENABLED(FT_MOTION)
 
   // Set stepper I/O for fixed time controller.
-  void Stepper::fxdTiCtrl_stepper(const bool applyDir, const ft_command_t command) {
+  void Stepper::fxdTiCtrl_stepper() {
+     // Check if the buffer is empty.
+    fxdTiCtrl.sts_stepperBusy = (fxdTiCtrl.stepperCmdBuff_produceIdx != fxdTiCtrl.stepperCmdBuff_consumeIdx);
 
-    USING_TIMED_PULSE();
+    if (fxdTiCtrl.sts_stepperBusy) {
+     // "Pop" one command from current motion buffer            
+      // Use one byte to restore one stepper command in the format:
+      // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
+      ft_command_t command = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx++];
+      if (fxdTiCtrl.stepperCmdBuff_consumeIdx == FTM_STEPPERCMD_BUFF_SIZE) { fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U; }
 
-    const xyze_bool_t axis_step = LOGICAL_AXIS_ARRAY(
-      TEST(command, FT_BIT_STEP_E),
-      TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
-      TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
-      TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
-    );
+      if (!abort_current_block){
 
-    // Apply directions (which will apply to the entire linear move)
-    AxisBits axis_dir = last_direction_bits;
-    if (applyDir) {
-      axis_dir = LOGICAL_AXIS_ARRAY(
-        TEST(command, FT_BIT_DIR_E),
-        TEST(command, FT_BIT_DIR_X), TEST(command, FT_BIT_DIR_Y), TEST(command, FT_BIT_DIR_Z),
-        TEST(command, FT_BIT_DIR_I), TEST(command, FT_BIT_DIR_J), TEST(command, FT_BIT_DIR_K),
-        TEST(command, FT_BIT_DIR_U), TEST(command, FT_BIT_DIR_V), TEST(command, FT_BIT_DIR_W)
-      );
-      LOGICAL_AXIS_CODE(
-        E_APPLY_DIR(axis_dir.e, false),
-        X_APPLY_DIR(axis_dir.x, false), Y_APPLY_DIR(axis_dir.y, false), Z_APPLY_DIR(axis_dir.z, false),
-        I_APPLY_DIR(axis_dir.i, false), J_APPLY_DIR(axis_dir.j, false), K_APPLY_DIR(axis_dir.k, false),
-        U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
-      );
-      last_direction_bits = axis_dir;
-      DIR_WAIT_AFTER();
+        USING_TIMED_PULSE();
+
+        const xyze_bool_t axis_step = LOGICAL_AXIS_ARRAY(
+          TEST(command, FT_BIT_STEP_E),
+          TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
+          TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
+          TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
+        );
+
+        // Apply directions (which will apply to the entire linear move)
+        AxisBits axis_dir = last_direction_bits;
+            axis_dir = LOGICAL_AXIS_ARRAY(
+            TEST(command, FT_BIT_DIR_E),
+            TEST(command, FT_BIT_DIR_X), TEST(command, FT_BIT_DIR_Y), TEST(command, FT_BIT_DIR_Z),
+            TEST(command, FT_BIT_DIR_I), TEST(command, FT_BIT_DIR_J), TEST(command, FT_BIT_DIR_K),
+            TEST(command, FT_BIT_DIR_U), TEST(command, FT_BIT_DIR_V), TEST(command, FT_BIT_DIR_W)
+          );
+        LOGICAL_AXIS_CODE(
+          E_APPLY_DIR(axis_dir.e, false),
+          X_APPLY_DIR(axis_dir.x, false), Y_APPLY_DIR(axis_dir.y, false), Z_APPLY_DIR(axis_dir.z, false),
+          I_APPLY_DIR(axis_dir.i, false), J_APPLY_DIR(axis_dir.j, false), K_APPLY_DIR(axis_dir.k, false),
+          U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
+        );
+        last_direction_bits = axis_dir;
+        DIR_WAIT_AFTER();
+
+        // Start a step pulse
+        LOGICAL_AXIS_CODE(
+          if (axis_step.e) E_APPLY_STEP(STEP_STATE_E, false),
+          if (axis_step.x) X_APPLY_STEP(STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(STEP_STATE_Y, false),
+          if (axis_step.z) Z_APPLY_STEP(STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(STEP_STATE_I, false),
+          if (axis_step.j) J_APPLY_STEP(STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(STEP_STATE_K, false),
+          if (axis_step.u) U_APPLY_STEP(STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(STEP_STATE_V, false),
+          if (axis_step.w) W_APPLY_STEP(STEP_STATE_W, false)
+        );
+
+        // Begin waiting for the minimum pulse duration
+        START_TIMED_PULSE();
+
+        // Update axis direction adders
+        count_direction = LOGICAL_AXIS_ARRAY(
+          int8_t(axis_dir.e ? 1 : -1),
+          int8_t(axis_dir.x ? 1 : -1), int8_t(axis_dir.y ? 1 : -1), int8_t(axis_dir.z ? 1 : -1),
+          int8_t(axis_dir.i ? 1 : -1), int8_t(axis_dir.j ? 1 : -1), int8_t(axis_dir.k ? 1 : -1),
+          int8_t(axis_dir.u ? 1 : -1), int8_t(axis_dir.v ? 1 : -1), int8_t(axis_dir.w ? 1 : -1)
+        );
+
+        // Update stepper counts - required for various operations
+        LOGICAL_AXIS_CODE(
+          if (axis_step.e) count_position.e += count_direction.e,
+          if (axis_step.x) count_position.x += count_direction.x, if (axis_step.y) count_position.y += count_direction.y,
+          if (axis_step.z) count_position.z += count_direction.z, if (axis_step.i) count_position.i += count_direction.i,
+          if (axis_step.j) count_position.j += count_direction.j, if (axis_step.k) count_position.k += count_direction.k,
+          if (axis_step.u) count_position.u += count_direction.u, if (axis_step.v) count_position.v += count_direction.v,
+          if (axis_step.w) count_position.w += count_direction.w
+        );
+
+        #if HAS_EXTRUDERS
+          #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+            constexpr bool e_axis_has_dedge = AXIS_HAS_DEDGE(E0) && AXIS_HAS_DEDGE(E1);
+          #else
+            #define _EDGE_BIT(N) | (AXIS_HAS_DEDGE(E##N) << TOOL_ESTEPPER(N))
+            constexpr Flags<E_STEPPERS> e_stepper_dedge { 0 REPEAT(EXTRUDERS, _EDGE_BIT) };
+            const bool e_axis_has_dedge = e_stepper_dedge[stepper_extruder];
+          #endif
+        #endif
+
+        // Only wait for axes without edge stepping
+        const bool any_wait = false LOGICAL_AXIS_GANG(
+          || (!e_axis_has_dedge && axis_step.e),
+          || (!AXIS_HAS_DEDGE(X) && axis_step.x), || (!AXIS_HAS_DEDGE(Y) && axis_step.y), || (!AXIS_HAS_DEDGE(Z) && axis_step.z),
+          || (!AXIS_HAS_DEDGE(I) && axis_step.i), || (!AXIS_HAS_DEDGE(J) && axis_step.j), || (!AXIS_HAS_DEDGE(K) && axis_step.k),
+          || (!AXIS_HAS_DEDGE(U) && axis_step.u), || (!AXIS_HAS_DEDGE(V) && axis_step.v), || (!AXIS_HAS_DEDGE(W) && axis_step.w)
+        );
+
+        // Allow pulses to be registered by stepper drivers
+        if (any_wait) AWAIT_HIGH_PULSE();
+
+        // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
+        LOGICAL_AXIS_CODE(
+          if (axis_step.e) E_APPLY_STEP(!STEP_STATE_E, false),
+          if (axis_step.x) X_APPLY_STEP(!STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(!STEP_STATE_Y, false),
+          if (axis_step.z) Z_APPLY_STEP(!STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(!STEP_STATE_I, false),
+          if (axis_step.j) J_APPLY_STEP(!STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(!STEP_STATE_K, false),
+          if (axis_step.u) U_APPLY_STEP(!STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(!STEP_STATE_V, false),
+          if (axis_step.w) W_APPLY_STEP(!STEP_STATE_W, false)
+        );
+      }
     }
-
-    // Start a step pulse
-    LOGICAL_AXIS_CODE(
-      if (axis_step.e) E_APPLY_STEP(STEP_STATE_E, false),
-      if (axis_step.x) X_APPLY_STEP(STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(STEP_STATE_Y, false),
-      if (axis_step.z) Z_APPLY_STEP(STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(STEP_STATE_I, false),
-      if (axis_step.j) J_APPLY_STEP(STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(STEP_STATE_K, false),
-      if (axis_step.u) U_APPLY_STEP(STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(STEP_STATE_V, false),
-      if (axis_step.w) W_APPLY_STEP(STEP_STATE_W, false)
-    );
-
-    // Begin waiting for the minimum pulse duration
-    START_TIMED_PULSE();
-
-    // Update axis direction adders
-    count_direction = LOGICAL_AXIS_ARRAY(
-      int8_t(axis_dir.e ? 1 : -1),
-      int8_t(axis_dir.x ? 1 : -1), int8_t(axis_dir.y ? 1 : -1), int8_t(axis_dir.z ? 1 : -1),
-      int8_t(axis_dir.i ? 1 : -1), int8_t(axis_dir.j ? 1 : -1), int8_t(axis_dir.k ? 1 : -1),
-      int8_t(axis_dir.u ? 1 : -1), int8_t(axis_dir.v ? 1 : -1), int8_t(axis_dir.w ? 1 : -1)
-    );
-
-    // Update stepper counts - required for various operations
-    LOGICAL_AXIS_CODE(
-      if (axis_step.e) count_position.e += count_direction.e,
-      if (axis_step.x) count_position.x += count_direction.x, if (axis_step.y) count_position.y += count_direction.y,
-      if (axis_step.z) count_position.z += count_direction.z, if (axis_step.i) count_position.i += count_direction.i,
-      if (axis_step.j) count_position.j += count_direction.j, if (axis_step.k) count_position.k += count_direction.k,
-      if (axis_step.u) count_position.u += count_direction.u, if (axis_step.v) count_position.v += count_direction.v,
-      if (axis_step.w) count_position.w += count_direction.w
-    );
-
-    #if HAS_EXTRUDERS
-      #if ENABLED(E_DUAL_STEPPER_DRIVERS)
-        constexpr bool e_axis_has_dedge = AXIS_HAS_DEDGE(E0) && AXIS_HAS_DEDGE(E1);
-      #else
-        #define _EDGE_BIT(N) | (AXIS_HAS_DEDGE(E##N) << TOOL_ESTEPPER(N))
-        constexpr Flags<E_STEPPERS> e_stepper_dedge { 0 REPEAT(EXTRUDERS, _EDGE_BIT) };
-        const bool e_axis_has_dedge = e_stepper_dedge[stepper_extruder];
-      #endif
-    #endif
-
-    // Only wait for axes without edge stepping
-    const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!e_axis_has_dedge && axis_step.e),
-      || (!AXIS_HAS_DEDGE(X) && axis_step.x), || (!AXIS_HAS_DEDGE(Y) && axis_step.y), || (!AXIS_HAS_DEDGE(Z) && axis_step.z),
-      || (!AXIS_HAS_DEDGE(I) && axis_step.i), || (!AXIS_HAS_DEDGE(J) && axis_step.j), || (!AXIS_HAS_DEDGE(K) && axis_step.k),
-      || (!AXIS_HAS_DEDGE(U) && axis_step.u), || (!AXIS_HAS_DEDGE(V) && axis_step.v), || (!AXIS_HAS_DEDGE(W) && axis_step.w)
-    );
-
-    // Allow pulses to be registered by stepper drivers
-    if (any_wait) AWAIT_HIGH_PULSE();
-
-    // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
-    LOGICAL_AXIS_CODE(
-      if (axis_step.e) E_APPLY_STEP(!STEP_STATE_E, false),
-      if (axis_step.x) X_APPLY_STEP(!STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(!STEP_STATE_Y, false),
-      if (axis_step.z) Z_APPLY_STEP(!STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(!STEP_STATE_I, false),
-      if (axis_step.j) J_APPLY_STEP(!STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(!STEP_STATE_K, false),
-      if (axis_step.u) U_APPLY_STEP(!STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(!STEP_STATE_V, false),
-      if (axis_step.w) W_APPLY_STEP(!STEP_STATE_W, false)
-    );
-
   } // Stepper::fxdTiCtrl_stepper
 
   void Stepper::fxdTiCtrl_BlockQueueUpdate() {

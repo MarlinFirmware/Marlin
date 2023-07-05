@@ -52,8 +52,6 @@ FxdTiCtrl fxdTiCtrl;
 
 ft_config_t FxdTiCtrl::cfg;
 ft_command_t FxdTiCtrl::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U};                // Buffer of stepper commands.
-hal_timer_t FxdTiCtrl::stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE] = {0U};  // Buffer of the stepper command timing.
-uint8_t FxdTiCtrl::stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE] = {0U};             // Buffer of whether DIR needs to be updated.
 uint32_t FxdTiCtrl::stepperCmdBuff_produceIdx = 0,  // Index of next stepper command write to the buffer.
          FxdTiCtrl::stepperCmdBuff_consumeIdx = 0;  // Index of next stepper command read from the buffer.
 
@@ -75,7 +73,7 @@ bool FxdTiCtrl::batchRdy = false;                 // Indicates a batch of the fi
 bool FxdTiCtrl::batchRdyForInterp = false;        // Indicates the batch is done being post processed,
                                                   //  if applicable, and is ready to be converted to step commands.
 bool FxdTiCtrl::runoutEna = false;                // True if runout of the block hasn't been done and is allowed.
-bool FxdTiCtrl::runout = false;                   // Indicates if runout is in progress.
+bool FxdTiCtrl::blockDataIsRunout = false;      // Indicates the last loaded block variables are for a runout.
 
 // Trapezoid data variables.
 xyze_pos_t   FxdTiCtrl::startPosn,                    // (mm) Start position of block
@@ -101,11 +99,9 @@ uint32_t FxdTiCtrl::makeVector_idx = 0,                     // Index of fixed ti
 
 // Interpolation variables.
 xyze_long_t FxdTiCtrl::steps = { 0 };                                            // Step count accumulator.
-xyze_stepDir_t FxdTiCtrl::dirState = LOGICAL_AXIS_ARRAY_1(stepDirState_NOT_SET); // Memory of the currently set step direction of the axis.
 
 uint32_t FxdTiCtrl::interpIdx = 0,                    // Index of current data point being interpolated.
          FxdTiCtrl::interpIdx_z1 = 0;                 // Storage for the previously calculated index above.
-hal_timer_t FxdTiCtrl::nextStepTicks = FTM_MIN_TICKS; // Accumulator for the next step time (in ticks).
 
 // Shaping variables.
 #if HAS_X_AXIS
@@ -124,8 +120,6 @@ hal_timer_t FxdTiCtrl::nextStepTicks = FTM_MIN_TICKS; // Accumulator for the nex
   float FxdTiCtrl::e_advanced_z1 = 0.0f;        // (ms) Unit delay of advanced extruder position.
 #endif
 
-constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
-
 //-----------------------------------------------------------------//
 // Function definitions.
 //-----------------------------------------------------------------//
@@ -143,30 +137,22 @@ void FxdTiCtrl::startBlockProc(block_t * const current_block) {
 // Moves any free data points to the stepper buffer even if a full batch isn't ready.
 void FxdTiCtrl::runoutBlock() {
 
-  if (runoutEna && !batchRdy) {   // If the window is full already (block intervals was a multiple of
-                                  // the batch size), or runout is not enabled, no runout is needed.
-    // Fill out the trajectory window with the last position calculated.
-    if (makeVector_batchIdx > last_batchIdx)
-      for (uint32_t i = makeVector_batchIdx; i < (FTM_WINDOW_SIZE); i++) {
-        LOGICAL_AXIS_CODE(
-          traj.e[i] = traj.e[makeVector_batchIdx - 1],
-          traj.x[i] = traj.x[makeVector_batchIdx - 1],
-          traj.y[i] = traj.y[makeVector_batchIdx - 1],
-          traj.z[i] = traj.z[makeVector_batchIdx - 1],
-          traj.i[i] = traj.i[makeVector_batchIdx - 1],
-          traj.j[i] = traj.j[makeVector_batchIdx - 1],
-          traj.k[i] = traj.k[makeVector_batchIdx - 1],
-          traj.u[i] = traj.u[makeVector_batchIdx - 1],
-          traj.v[i] = traj.v[makeVector_batchIdx - 1],
-          traj.w[i] = traj.w[makeVector_batchIdx - 1]
-        );
-      }
+  if (!runoutEna) return;
 
-    makeVector_batchIdx = last_batchIdx;
-    batchRdy = true;
-    runout = true;
-  }
-  runoutEna = false;
+  startPosn = endPosn_prevBlock;
+  ratio.reset();
+
+  accel_P = decel_P = 0.f;
+
+  static constexpr uint32_t shaper_intervals = (FTM_BATCH_SIZE) * ceil((FTM_ZMAX) / (FTM_BATCH_SIZE)),
+                            min_max_intervals = (FTM_BATCH_SIZE) * ceil((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE));
+
+  max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
+  if (max_intervals <= min_max_intervals - (FTM_BATCH_SIZE)) max_intervals = min_max_intervals;
+  max_intervals += (FTM_WINDOW_SIZE) - makeVector_batchIdx;
+
+  blockProcRdy = blockDataIsRunout = true;
+  runoutEna = blockProcDn = false;
 }
 
 // Controller main, to be invoked from non-isr task.
@@ -188,33 +174,15 @@ void FxdTiCtrl::loop() {
   }
 
   // Planner processing and block conversion.
-  if (!blockProcRdy && !runout) stepper.fxdTiCtrl_BlockQueueUpdate();
+  if (!blockProcRdy) stepper.fxdTiCtrl_BlockQueueUpdate();
 
   if (blockProcRdy) {
-    if (!blockProcRdy_z1) loadBlockData(current_block_cpy); // One-shot.
+   if (!blockProcRdy_z1) { // One-shot.
+      if (!blockDataIsRunout) loadBlockData(current_block_cpy);
+      else blockDataIsRunout = false;
+    }
     while (!blockProcDn && !batchRdy && (makeVector_idx - makeVector_idx_z1 < (FTM_POINTS_PER_LOOP)))
       makeVector();
-  }
-
-  if (runout && !batchRdy) { // The lower half of the window has been runout.
-    // Runout the upper half of the window: the upper half has been shifted into the lower
-    // half. Fill out the upper half so another batch can be processed.
-    for (uint32_t i = last_batchIdx; i < (FTM_WINDOW_SIZE) - 1; i++) {
-      LOGICAL_AXIS_CODE(
-        traj.e[i] = traj.e[(FTM_WINDOW_SIZE) - 1],
-        traj.x[i] = traj.x[(FTM_WINDOW_SIZE) - 1],
-        traj.y[i] = traj.y[(FTM_WINDOW_SIZE) - 1],
-        traj.z[i] = traj.z[(FTM_WINDOW_SIZE) - 1],
-        traj.i[i] = traj.i[(FTM_WINDOW_SIZE) - 1],
-        traj.j[i] = traj.j[(FTM_WINDOW_SIZE) - 1],
-        traj.k[i] = traj.k[(FTM_WINDOW_SIZE) - 1],
-        traj.u[i] = traj.u[(FTM_WINDOW_SIZE) - 1],
-        traj.v[i] = traj.v[(FTM_WINDOW_SIZE) - 1],
-        traj.w[i] = traj.w[(FTM_WINDOW_SIZE) - 1]
-      );
-    }
-    batchRdy = true;
-    runout = false;
   }
 
   // FBS / post processing.
@@ -237,8 +205,20 @@ void FxdTiCtrl::loop() {
     );
 
     // Shift the time series back in the window for (shaped) X and Y
-    TERN_(HAS_X_AXIS, memcpy(traj.x, &traj.x[FTM_BATCH_SIZE], sizeof(traj.x) / 2));
-    TERN_(HAS_Y_AXIS, memcpy(traj.y, &traj.y[FTM_BATCH_SIZE], sizeof(traj.y) / 2));
+     LOGICAL_AXIS_CODE(
+      memcpy(traj.e, &traj.e[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.e[0])),
+      memcpy(traj.x, &traj.x[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.x[0])),
+      memcpy(traj.y, &traj.y[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.y[0])),
+      memcpy(traj.z, &traj.z[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.z[0])),
+      memcpy(traj.i, &traj.i[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.i[0])),
+      memcpy(traj.j, &traj.j[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.j[0])),
+      memcpy(traj.k, &traj.k[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.k[0])),
+      memcpy(traj.u, &traj.u[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.u[0])),
+      memcpy(traj.v, &traj.v[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.v[0])),
+      memcpy(traj.w, &traj.w[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.w[0]))
+    );
+    //TERN_(HAS_X_AXIS, memcpy(traj.x, &traj.x[FTM_BATCH_SIZE], sizeof(traj.x) / 2));
+    //TERN_(HAS_Y_AXIS, memcpy(traj.y, &traj.y[FTM_BATCH_SIZE], sizeof(traj.y) / 2));
 
     // Z...W and E Disabled! Uncompensated so the lower half is not used.
     //TERN_(HAS_Z_AXIS, memcpy(&traj.z[0], &traj.z[FTM_BATCH_SIZE], sizeof(traj.z) / 2));
@@ -337,7 +317,7 @@ void FxdTiCtrl::loop() {
       } break;
 
       default:
-        for (uint32_t i = 0U; i < 5U; i++) x.Ai[i] = 0.0f;
+        ZERO(x.Ai);
         max_i = 0;
     }
     #if HAS_Y_AXIS
@@ -395,13 +375,18 @@ void FxdTiCtrl::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  traj.reset(); // Reset trajectory history
-  trajMod.reset(); // Reset modified trajectory history
+  for (uint32_t i = 0U; i < (FTM_WINDOW_SIZE - FTM_BATCH_SIZE); i++) { // Reset trajectory history
+    NUM_AXIS_CODE(
+      traj.e[i] = 0.0f,
+      traj.x[i] = 0.0f, traj.y[i] = 0.0f, traj.z[i] = 0.0f,
+      traj.i[i] = 0.0f, traj.j[i] = 0.0f, traj.k[i] = 0.0f,
+      traj.u[i] = 0.0f, traj.v[i] = 0.0f, traj.w[i] = 0.0f
+    );
+  }
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
   batchRdy = batchRdyForInterp = false;
   runoutEna = false;
-  runout = false;
 
   endPosn_prevBlock.reset();
 
@@ -410,8 +395,6 @@ void FxdTiCtrl::reset() {
 
   steps.reset();
   interpIdx = interpIdx_z1 = 0;
-  dirState = LOGICAL_AXIS_ARRAY_1(stepDirState_NOT_SET);
-  nextStepTicks = FTM_MIN_TICKS;
 
   #if HAS_X_AXIS
     for (uint32_t i = 0U; i < (FTM_ZMAX); i++)
@@ -530,7 +513,7 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   s_2e = s_1e + F_P * T2_P;
 
   // One less than (Accel + Coasting + Decel) datapoints
-  max_intervals = N1 + N2 + N3 - 1U;
+  max_intervals = N1 + N2 + N3;
 
   endPosn_prevBlock += moveDist;
 }
@@ -639,17 +622,15 @@ void FxdTiCtrl::makeVector() {
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == (FTM_WINDOW_SIZE)) {
-    makeVector_batchIdx = last_batchIdx;
+    makeVector_batchIdx = (FTM_WINDOW_SIZE - FTM_BATCH_SIZE);
     batchRdy = true;
   }
 
-  if (makeVector_idx == max_intervals) {
+  if (++makeVector_idx == max_intervals) {
     blockProcDn = true;
     blockProcRdy = false;
     makeVector_idx = 0;
   }
-  else
-    makeVector_idx++;
 }
 
 // Interpolates single data point to stepper commands.
@@ -698,28 +679,11 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
     );
   #endif
 
-  bool any_dirChange = (false
-    LOGICAL_AXIS_GANG(
-      || (delta.e > 0 && dirState.e != stepDirState_POS) || (delta.e < 0 && dirState.e != stepDirState_NEG),
-      || (delta.x > 0 && dirState.x != stepDirState_POS) || (delta.x < 0 && dirState.x != stepDirState_NEG),
-      || (delta.y > 0 && dirState.y != stepDirState_POS) || (delta.y < 0 && dirState.y != stepDirState_NEG),
-      || (delta.z > 0 && dirState.z != stepDirState_POS) || (delta.z < 0 && dirState.z != stepDirState_NEG),
-      || (delta.i > 0 && dirState.i != stepDirState_POS) || (delta.i < 0 && dirState.i != stepDirState_NEG),
-      || (delta.j > 0 && dirState.j != stepDirState_POS) || (delta.j < 0 && dirState.j != stepDirState_NEG),
-      || (delta.k > 0 && dirState.k != stepDirState_POS) || (delta.k < 0 && dirState.k != stepDirState_NEG),
-      || (delta.u > 0 && dirState.u != stepDirState_POS) || (delta.u < 0 && dirState.u != stepDirState_NEG),
-      || (delta.v > 0 && dirState.v != stepDirState_POS) || (delta.v < 0 && dirState.v != stepDirState_NEG),
-      || (delta.w > 0 && dirState.w != stepDirState_POS) || (delta.w < 0 && dirState.w != stepDirState_NEG)
-    )
-  );
-
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
 
     // TODO: (?) Since the *delta variables will not change,
     // the comparison may be done once before iterating at
     // expense of storage and lines of code.
-
-    bool anyStep = false;
 
     // Commands are written in a bitmask with step and dir as single bits
     auto COMMAND_SET = [&](auto &d, auto &e, auto &s, auto &b, auto bd, auto bs) {
@@ -731,7 +695,6 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
           s++;
           b |= bd | bs;
           e += d - (FTM_STEPS_PER_UNIT_TIME);
-          anyStep = true;
         }
       }
       else {
@@ -742,7 +705,6 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
           s--;
           b |= bs;
           e += d + (FTM_STEPS_PER_UNIT_TIME);
-          anyStep = true;
         }
       }
     };
@@ -764,48 +726,9 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
       COMMAND_SET(delta.w, err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
     );
 
-    if (!anyStep) {
-      nextStepTicks += (FTM_MIN_TICKS);
-    }
-    else {
-      stepperCmdBuff_StepRelativeTi[stepperCmdBuff_produceIdx] = nextStepTicks;
+    if (++stepperCmdBuff_produceIdx == FTM_STEPPERCMD_BUFF_SIZE)
+      stepperCmdBuff_produceIdx = 0;
 
-      const uint8_t dir_index = stepperCmdBuff_produceIdx >> 3,
-                    dir_bit = stepperCmdBuff_produceIdx & 0x7;
-      if (any_dirChange) {
-
-        SBI(stepperCmdBuff_ApplyDir[dir_index], dir_bit);
-
-        auto DIR_SET = [&](auto &d, auto &c, auto &b, auto bd) {
-          if (d > 0) { b |= bd; c = stepDirState_POS; } else { c = stepDirState_NEG; }
-        };
-
-        LOGICAL_AXIS_CODE(
-          DIR_SET(delta.e, dirState.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E)),
-          DIR_SET(delta.x, dirState.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X)),
-          DIR_SET(delta.y, dirState.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y)),
-          DIR_SET(delta.z, dirState.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z)),
-          DIR_SET(delta.i, dirState.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I)),
-          DIR_SET(delta.j, dirState.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J)),
-          DIR_SET(delta.k, dirState.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K)),
-          DIR_SET(delta.u, dirState.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U)),
-          DIR_SET(delta.v, dirState.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V)),
-          DIR_SET(delta.w, dirState.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W)),
-        );
-
-        any_dirChange = false;
-      }
-      else { // ...no direction change.
-        CBI(stepperCmdBuff_ApplyDir[dir_index], dir_bit);
-      }
-
-      if (stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE) - 1)
-        stepperCmdBuff_produceIdx = 0;
-      else
-        stepperCmdBuff_produceIdx++;
-
-      nextStepTicks = FTM_MIN_TICKS;
-    }
   } // FTM_STEPS_PER_UNIT_TIME loop
 }
 
