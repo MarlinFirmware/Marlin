@@ -245,7 +245,7 @@
 #endif
 
 #if ENABLED(LEGACY_ALLOCATE_Z2)
-  #define Z2_STEP_PIN                M3_STEP_PIN  // X2 on MOTOR 3
+  #define Z2_STEP_PIN                M3_STEP_PIN  // Z2 on MOTOR 3
   #define Z2_DIR_PIN                  M3_DIR_PIN
   #define Z2_ENABLE_PIN            M3_ENABLE_PIN
   #ifndef Z2_CS_PIN
