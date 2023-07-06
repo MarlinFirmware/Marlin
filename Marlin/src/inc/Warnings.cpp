@@ -787,3 +787,13 @@
 #if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
   #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif
+
+/**
+ * BTT Octopus motor allocation warnings
+ */
+#if ANY(LEGACY_ALLOCATE_Z2, BTT_Z2_DRIVER_WARNING)
+  #warning "Z2 is on MOTOR 3, E0 is on MOTOR 4, E1 is on MOTOR 5, E2 is on MOTOR 6, E3 is on MOTOR 7"
+#endif
+#if BTT_NO_Z2_DRIVER_WARNING
+  #warning "No Z2_DRIVER detected. E0 is on MOTOR 3, E1 is on MOTOR 4, E2 is on MOTOR 5, E3 is on MOTOR 6, E4 is on MOTOR 7"
+#endif

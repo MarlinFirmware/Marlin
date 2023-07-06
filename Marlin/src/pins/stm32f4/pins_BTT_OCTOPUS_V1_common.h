@@ -26,6 +26,14 @@
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
 
+// allocate Z2 on motor 3, either autmatically or deliberately in config using the LEGACY_ALLOCATE_Z2 define.
+#ifdef Z2_DRIVER_TYPE
+  #define LEGACY_ALLOCATE_Z2
+  #define BTT_Z2_DRIVER_WARNING                1
+#elif DISABLED(LEGACY_ALLOCATE_Z2)
+  #define BTT_NO_Z2_DRIVER_WARNING             1
+#endif
+
 // Onboard I2C EEPROM
 #if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
@@ -37,7 +45,7 @@
 #endif
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 8
+#define STEP_TIMER                             8
 
 //
 // Servos
@@ -52,14 +60,31 @@
 //
 // Trinamic Stallguard pins
 //
-#define X_DIAG_PIN                          PG6   // X-STOP
-#define Y_DIAG_PIN                          PG9   // Y-STOP
-#define Z_DIAG_PIN                          PG10  // Z-STOP
-#define Z2_DIAG_PIN                         PG11  // Z2-STOP
-#define E0_DIAG_PIN                         PG12  // E0DET
-#define E1_DIAG_PIN                         PG13  // E1DET
-#define E2_DIAG_PIN                         PG14  // E2DET
-#define E3_DIAG_PIN                         PG15  // E3DET
+#define M0_DIAG_PIN                         PG6
+#define M1_DIAG_PIN                         PG9
+#define M2_DIAG_PIN                         PG10
+#define M3_DIAG_PIN                         PG11
+#define M4_DIAG_PIN                         PG12
+#define M5_DIAG_PIN                         PG13
+#define M6_DIAG_PIN                         PG14
+#define M7_DIAG_PIN                         PG15
+
+#define X_DIAG_PIN                   M0_DIAG_PIN  // X-STOP
+#define Y_DIAG_PIN                   M1_DIAG_PIN  // Y-STOP
+#define Z_DIAG_PIN                   M2_DIAG_PIN  // Z-STOP
+#if ENABLED(LEGACY_ALLOCATE_Z2)
+  #define Z2_DIAG_PIN                M3_DIAG_PIN  // Z2-STOP
+  #define E0_DIAG_PIN                M4_DIAG_PIN  // E0DET
+  #define E1_DIAG_PIN                M5_DIAG_PIN  // E1DET
+  #define E2_DIAG_PIN                M6_DIAG_PIN  // E2DET
+  #define E3_DIAG_PIN                M7_DIAG_PIN  // E3DET
+#else
+  #define E0_DIAG_PIN                M3_DIAG_PIN  // E0DET
+  #define E1_DIAG_PIN                M4_DIAG_PIN  // E1DET
+  #define E2_DIAG_PIN                M5_DIAG_PIN  // E2DET
+  #define E3_DIAG_PIN                M6_DIAG_PIN  // E3DET
+  #define E4_DIAG_PIN                M7_DIAG_PIN  // E4DET
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -150,61 +175,145 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                          PF13  // MOTOR 0
-#define X_DIR_PIN                           PF12
-#define X_ENABLE_PIN                        PF14
+#define M0_STEP_PIN                         PF13  // MOTOR 0
+#define M0_DIR_PIN                          PF12
+#define M0_ENABLE_PIN                       PF14
+#define M0_CS_PIN                           PC4
+#define M0_SERIAL_PIN                       PC4
+
+#define M1_STEP_PIN                         PG0   // MOTOR 1
+#define M1_DIR_PIN                          PG1
+#define M1_ENABLE_PIN                       PF15
+#define M1_CS_PIN                           PD11
+#define M1_SERIAL_PIN                       PD11
+
+#define M2_STEP_PIN                         PF11  // MOTOR 2
+#define M2_DIR_PIN                          PG3
+#define M2_ENABLE_PIN                       PG5
+#define M2_CS_PIN                           PC6
+#define M2_SERIAL_PIN                       PC6
+
+#define M3_STEP_PIN                         PG4   // MOTOR 3
+#define M3_DIR_PIN                          PC1
+#define M3_ENABLE_PIN                       PA0
+#define M3_CS_PIN                           PC7
+#define M3_SERIAL_PIN                       PC7
+
+#define M4_STEP_PIN                         PF9   // MOTOR 4
+#define M4_DIR_PIN                          PF10
+#define M4_ENABLE_PIN                       PG2
+#define M4_CS_PIN                           PF2
+#define M4_SERIAL_PIN                       PF2
+
+#define M5_STEP_PIN                         PC13  // MOTOR 5
+#define M5_DIR_PIN                          PF0
+#define M5_ENABLE_PIN                       PF1
+#define M5_CS_PIN                           PE4
+#define M5_SERIAL_PIN                       PE4
+
+#define M6_STEP_PIN                         PE2   // MOTOR 6
+#define M6_DIR_PIN                          PE3
+#define M6_ENABLE_PIN                       PD4
+#define M6_CS_PIN                           PE1
+#define M6_SERIAL_PIN                       PE1
+
+#define M7_STEP_PIN                         PE6   // MOTOR 7
+#define M7_DIR_PIN                          PA14
+#define M7_ENABLE_PIN                       PE0
+#define M7_CS_PIN                           PD3
+#define M7_SERIAL_PIN                       PD3
+
+#define X_STEP_PIN                   M0_STEP_PIN  // X on MOTOR 0
+#define X_DIR_PIN                     M0_DIR_PIN
+#define X_ENABLE_PIN               M0_ENABLE_PIN
 #ifndef X_CS_PIN
-  #define X_CS_PIN                          PC4
+  #define X_CS_PIN                     M0_CS_PIN
 #endif
 
-#define Y_STEP_PIN                          PG0   // MOTOR 1
-#define Y_DIR_PIN                           PG1
-#define Y_ENABLE_PIN                        PF15
+#define Y_STEP_PIN                   M1_STEP_PIN  // Y on MOTOR 1
+#define Y_DIR_PIN                     M1_DIR_PIN
+#define Y_ENABLE_PIN               M1_ENABLE_PIN
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                          PD11
+  #define Y_CS_PIN                     M1_CS_PIN
 #endif
 
-#define Z_STEP_PIN                          PF11  // MOTOR 2
-#define Z_DIR_PIN                           PG3
-#define Z_ENABLE_PIN                        PG5
+#define Z_STEP_PIN                   M2_STEP_PIN  // Z on MOTOR 2
+#define Z_DIR_PIN                     M2_DIR_PIN
+#define Z_ENABLE_PIN               M2_ENABLE_PIN
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                          PC6
+  #define Z_CS_PIN                     M2_CS_PIN
 #endif
 
-#define Z2_STEP_PIN                         PG4   // MOTOR 3
-#define Z2_DIR_PIN                          PC1
-#define Z2_ENABLE_PIN                       PA0
-#ifndef Z2_CS_PIN
-  #define Z2_CS_PIN                         PC7
-#endif
+#if ENABLED(LEGACY_ALLOCATE_Z2)
+  #define Z2_STEP_PIN                M3_STEP_PIN  // X2 on MOTOR 3
+  #define Z2_DIR_PIN                  M3_DIR_PIN
+  #define Z2_ENABLE_PIN            M3_ENABLE_PIN
+  #ifndef Z2_CS_PIN
+    #define Z2_CS_PIN                  M3_CS_PIN
+  #endif
 
-#define E0_STEP_PIN                         PF9   // MOTOR 4
-#define E0_DIR_PIN                          PF10
-#define E0_ENABLE_PIN                       PG2
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PF2
-#endif
+  #define E0_STEP_PIN                M4_STEP_PIN  // E0 on MOTOR 4
+  #define E0_DIR_PIN                  M4_DIR_PIN
+  #define E0_ENABLE_PIN            M4_ENABLE_PIN
+  #ifndef E0_CS_PIN
+    #define E0_CS_PIN                  M4_CS_PIN
+  #endif
 
-#define E1_STEP_PIN                         PC13  // MOTOR 5
-#define E1_DIR_PIN                          PF0
-#define E1_ENABLE_PIN                       PF1
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN                         PE4
-#endif
+  #define E1_STEP_PIN                M5_STEP_PIN  // E1 on MOTOR 5
+  #define E1_DIR_PIN                  M5_DIR_PIN
+  #define E1_ENABLE_PIN            M5_ENABLE_PIN
+  #ifndef E1_CS_PIN
+    #define E1_CS_PIN                  M5_CS_PIN
+  #endif
 
-#define E2_STEP_PIN                         PE2   // MOTOR 6
-#define E2_DIR_PIN                          PE3
-#define E2_ENABLE_PIN                       PD4
-#ifndef E2_CS_PIN
+  #define E2_STEP_PIN                M6_STEP_PIN  // E2 on MOTOR 6
+  #define E2_DIR_PIN                  M6_DIR_PIN
+  #define E2_ENABLE_PIN            M6_ENABLE_PIN
+  #ifndef E2_CS_PIN
+    #define E2_CS_PIN                  M6_CS_PIN
+  #endif
 
-  #define E2_CS_PIN                         PE1
-#endif
+  #define E3_STEP_PIN                M7_STEP_PIN  // E3 on MOTOR 7
+  #define E3_DIR_PIN                  M7_DIR_PIN
+  #define E3_ENABLE_PIN            M7_ENABLE_PIN
+  #ifndef E3_CS_PIN
+    #define E3_CS_PIN                  M7_CS_PIN
+  #endif
+#else // ENABLED(LEGACY_ALLOCATE_Z2)
+  #define E0_STEP_PIN                M3_STEP_PIN  // E0 on MOTOR 3
+  #define E0_DIR_PIN                  M3_DIR_PIN
+  #define E0_ENABLE_PIN            M3_ENABLE_PIN
+  #ifndef E0_CS_PIN
+    #define E0_CS_PIN                  M3_CS_PIN
+  #endif
 
-#define E3_STEP_PIN                         PE6   // MOTOR 7
-#define E3_DIR_PIN                          PA14
-#define E3_ENABLE_PIN                       PE0
-#ifndef E3_CS_PIN
-  #define E3_CS_PIN                         PD3
+  #define E1_STEP_PIN                M4_STEP_PIN  // E1 on MOTOR 4
+  #define E1_DIR_PIN                  M4_DIR_PIN
+  #define E1_ENABLE_PIN            M4_ENABLE_PIN
+  #ifndef E1_CS_PIN
+    #define E1_CS_PIN                  M4_CS_PIN
+  #endif
+
+  #define E2_STEP_PIN                M5_STEP_PIN  // E2 on MOTOR 5
+  #define E2_DIR_PIN                  M5_DIR_PIN
+  #define E2_ENABLE_PIN            M5_ENABLE_PIN
+  #ifndef E2_CS_PIN
+    #define E2_CS_PIN                  M5_CS_PIN
+  #endif
+
+  #define E3_STEP_PIN                M6_STEP_PIN  // E3 on MOTOR 6
+  #define E3_DIR_PIN                  M6_DIR_PIN
+  #define E3_ENABLE_PIN            M6_ENABLE_PIN
+  #ifndef E3_CS_PIN
+    #define E3_CS_PIN                  M6_CS_PIN
+  #endif
+
+  #define E4_STEP_PIN                M7_STEP_PIN  // E4 on MOTOR 7
+  #define E4_DIR_PIN                  M7_DIR_PIN
+  #define E4_ENABLE_PIN            M7_ENABLE_PIN
+  #ifndef E4_CS_PIN
+    #define E4_CS_PIN                  M7_CS_PIN
+  #endif
 #endif
 
 //
@@ -274,28 +383,33 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  #define X_SERIAL_TX_PIN                   PC4
+  #define X_SERIAL_TX_PIN          M0_SERIAL_PIN
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
-  #define Y_SERIAL_TX_PIN                   PD11
+  #define Y_SERIAL_TX_PIN          M1_SERIAL_PIN
   #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                   PC6
+  #define Z_SERIAL_TX_PIN          M2_SERIAL_PIN
   #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define Z2_SERIAL_TX_PIN                  PC7
-  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
-
-  #define E0_SERIAL_TX_PIN                  PF2
+  #if ENABLED(LEGACY_ALLOCATE_Z2)
+    #define Z2_SERIAL_TX_PIN       M3_SERIAL_PIN
+    #define Z2_SERIAL_RX_PIN    Z2_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN       M4_SERIAL_PIN
+    #define E1_SERIAL_TX_PIN       M5_SERIAL_PIN
+    #define E2_SERIAL_TX_PIN       M6_SERIAL_PIN
+    #define E3_SERIAL_TX_PIN       M7_SERIAL_PIN
+  #else
+    #define E0_SERIAL_TX_PIN       M3_SERIAL_PIN
+    #define E1_SERIAL_TX_PIN       M4_SERIAL_PIN
+    #define E2_SERIAL_TX_PIN       M5_SERIAL_PIN
+    #define E3_SERIAL_TX_PIN       M6_SERIAL_PIN
+    #define E4_SERIAL_TX_PIN       M7_SERIAL_PIN
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
+  #endif
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
-  #define E1_SERIAL_TX_PIN                  PE4
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
-  #define E2_SERIAL_TX_PIN                  PE1
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
-  #define E3_SERIAL_TX_PIN                  PD3
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
@@ -370,35 +484,99 @@
    */
 
   // M1 on Driver Expansion Module
-  #define E4_STEP_PIN                EXP2_06_PIN
-  #define E4_DIR_PIN                 EXP2_05_PIN
-  #define E4_ENABLE_PIN              EXP2_07_PIN
-  #define E4_DIAG_PIN                EXP1_05_PIN
-  #define E4_CS_PIN                  EXP1_06_PIN
+  #define BTT_M1_STEP_PIN            EXP2_06_PIN
+  #define BTT_M1_DIR_PIN             EXP2_05_PIN
+  #define BTT_M1_ENABLE_PIN          EXP2_07_PIN
+  #define BTT_M1_DIAG_PIN            EXP1_05_PIN
+  #define BTT_M1_CS_PIN              EXP1_06_PIN
   #if HAS_TMC_UART
-    #define E4_SERIAL_TX_PIN         EXP1_06_PIN
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
+    #define BTT_M1_SERIAL_PIN        EXP1_06_PIN
   #endif
 
   // M2 on Driver Expansion Module
-  #define E5_STEP_PIN                EXP2_03_PIN
-  #define E5_DIR_PIN                 EXP2_04_PIN
-  #define E5_ENABLE_PIN              EXP1_08_PIN
-  #define E5_DIAG_PIN                EXP1_03_PIN
-  #define E5_CS_PIN                  EXP1_04_PIN
+  #define BTT_M2_STEP_PIN            EXP2_03_PIN
+  #define BTT_M2_DIR_PIN             EXP2_04_PIN
+  #define BTT_M2_ENABLE_PIN          EXP1_08_PIN
+  #define BTT_M2_DIAG_PIN            EXP1_03_PIN
+  #define BTT_M2_CS_PIN              EXP1_04_PIN
   #if HAS_TMC_UART
-    #define E5_SERIAL_TX_PIN         EXP1_04_PIN
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
+    #define BTT_M2_SERIAL_PIN        EXP1_04_PIN
   #endif
 
   // M3 on Driver Expansion Module
-  #define E6_STEP_PIN                EXP2_01_PIN
-  #define E6_DIR_PIN                 EXP2_02_PIN
-  #define E6_ENABLE_PIN              EXP1_07_PIN
-  #define E6_DIAG_PIN                EXP1_01_PIN
-  #define E6_CS_PIN                  EXP1_02_PIN
+  #define BTT_M3_STEP_PIN            EXP2_01_PIN
+  #define BTT_M3_DIR_PIN             EXP2_02_PIN
+  #define BTT_M3_ENABLE_PIN          EXP1_07_PIN
+  #define BTT_M3_DIAG_PIN            EXP1_01_PIN
+  #define BTT_M3_CS_PIN              EXP1_02_PIN
   #if HAS_TMC_UART
-    #define E6_SERIAL_TX_PIN         EXP1_02_PIN
+    #define BTT_M3_SERIAL_PIN        EXP1_02_PIN
+  #endif
+
+  #if ENBALED(LEGACY_ALLOCATE_Z2)
+    #define E4_STEP_PIN          BTT_M1_STEP_PIN
+    #define E4_DIR_PIN            BTT_M1_DIR_PIN
+    #define E4_ENABLE_PIN      BTT_M1_ENABLE_PIN
+    #define E4_DIAG_PIN          BTT_M1_DIAG_PIN
+    #define E4_CS_PIN              BTT_M1_CS_PIN
+    #if HAS_TMC_UART
+      #define E4_SERIAL_PIN BTT_M1_SERIAL_TX_PIN
+      #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
+    #endif
+
+    // M2 on Driver Expansion Module
+    #define E5_STEP_PIN          BTT_M2_STEP_PIN
+    #define E5_DIR_PIN            BTT_M2_DIR_PIN
+    #define E5_ENABLE_PIN      BTT_M2_ENABLE_PIN
+    #define E5_DIAG_PIN          BTT_M2_DIAG_PIN
+    #define E5_CS_PIN              BTT_M2_CS_PIN
+    #if HAS_TMC_UART
+      #define E5_SERIAL_PIN BTT_M2_SERIAL_TX_PIN
+    #endif
+
+    // M3 on Driver Expansion Module
+    #define E6_STEP_PIN          BTT_M3_STEP_PIN
+    #define E6_DIR_PIN            BTT_M3_DIR_PIN
+    #define E6_ENABLE_PIN      BTT_M3_ENABLE_PIN
+    #define E6_DIAG_PIN          BTT_M3_DIAG_PIN
+    #define E6_CS_PIN              BTT_M3_CS_PIN
+    #if HAS_TMC_UART
+      #define E6_SERIAL_PIN BTT_M3_SERIAL_TX_PIN
+    #endif
+  #else                                           // LEGACY_ALLOCATE_Z2
+    #define E5_STEP_PIN          BTT_M1_STEP_PIN
+    #define E5_DIR_PIN            BTT_M1_DIR_PIN
+    #define E5_ENABLE_PIN      BTT_M1_ENABLE_PIN
+    #define E5_DIAG_PIN          BTT_M1_DIAG_PIN
+    #define E5_CS_PIN              BTT_M1_CS_PIN
+    #if HAS_TMC_UART
+      #define E5_SERIAL_PIN BTT_M1_SERIAL_TX_PIN
+    #endif
+
+    // M2 on Driver Expansion Module
+    #define E6_STEP_PIN          BTT_M2_STEP_PIN
+    #define E6_DIR_PIN            BTT_M2_DIR_PIN
+    #define E6_ENABLE_PIN      BTT_M2_ENABLE_PIN
+    #define E6_DIAG_PIN          BTT_M2_DIAG_PIN
+    #define E6_CS_PIN              BTT_M2_CS_PIN
+    #if HAS_TMC_UART
+      #define E6_SERIAL_PIN BTT_M2_SERIAL_TX_PIN
+    #endif
+
+    // M3 on Driver Expansion Module
+    #define E7_STEP_PIN          BTT_M3_STEP_PIN
+    #define E7_DIR_PIN            BTT_M3_DIR_PIN
+    #define E7_ENABLE_PIN      BTT_M3_ENABLE_PIN
+    #define E7_DIAG_PIN          BTT_M3_DIAG_PIN
+    #define E7_CS_PIN              BTT_M3_CS_PIN
+    #if HAS_TMC_UART
+      #define E7_SERIAL_PIN BTT_M3_SERIAL_TX_PIN
+      #define E7_SERIAL_RX_PIN  E6_SERIAL_TX_PIN
+    #endif
+  #endif // !LEGACY_ALLOCATE_Z2
+
+  #if HAS_TMC_UART
+    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
     #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
   #endif
 
