@@ -513,7 +513,7 @@
     #define BTT_M3_SERIAL_PIN        EXP1_02_PIN
   #endif
 
-  #if ENBALED(LEGACY_ALLOCATE_Z2)
+  #if ENABLED(LEGACY_ALLOCATE_Z2)
     #define E4_STEP_PIN          BTT_M1_STEP_PIN
     #define E4_DIR_PIN            BTT_M1_DIR_PIN
     #define E4_ENABLE_PIN      BTT_M1_ENABLE_PIN
@@ -576,8 +576,8 @@
   #endif // !LEGACY_ALLOCATE_Z2
 
   #if HAS_TMC_UART
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
+    #define E5_SERIAL_RX_PIN       E5_SERIAL_PIN
+    #define E6_SERIAL_RX_PIN       E6_SERIAL_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
