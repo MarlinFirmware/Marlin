@@ -1494,7 +1494,7 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    hal_timer_t interval;
+    hal_timer_t interval = 0;
 
     #if ENABLED(FT_MOTION)
 
