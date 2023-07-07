@@ -51,7 +51,7 @@ void GcodeSuite::M302() {
   if (seen_S) {
     thermalManager.extrude_min_temp = parser.value_celsius();
     thermalManager.allow_cold_extrude = (thermalManager.extrude_min_temp == 0);
-    TERN_(DWIN_LCD_PROUI, HMI_data.ExtMinT = thermalManager.extrude_min_temp);
+    TERN_(DWIN_LCD_PROUI, hmiData.extMinT = thermalManager.extrude_min_temp);
   }
 
   if (parser.seen('P'))

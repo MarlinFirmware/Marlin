@@ -31,10 +31,10 @@
 #endif
 
 // ADC
-#ifdef BOARD_ADC_VREF
-  #define ADC_VREF BOARD_ADC_VREF
+#ifdef BOARD_ADC_VREF_MV
+  #define ADC_VREF_MV BOARD_ADC_VREF_MV
 #else
-  #define ADC_VREF HAL_ADC_VREF
+  #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
@@ -2386,10 +2386,10 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
   #if ANY(PIDTEMP, PIDTEMPBED)
-    #define DWIN_PID_TUNE 1
+    #define PROUI_PID_TUNE 1
   #endif
-  #if ANY(DWIN_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
-    #define SHOW_TUNING_GRAPH 1
+  #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+    #define PROUI_TUNING_GRAPH 1
   #endif
 #endif
 

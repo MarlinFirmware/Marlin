@@ -88,8 +88,8 @@ TFT_IO tftio;
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
-// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
+// RGB565 color picker: https://embeddednotepad.com/page/rgb565-color-picker
+// Hex code to color name: https://www.color-name.com/
 
 #define COLOR_BLACK       0x0000  // #000000
 #define COLOR_WHITE       0xFFFF  // #FFFFFF
@@ -104,9 +104,7 @@ TFT_IO tftio;
 #define COLOR_BLUE        0x001F  // #0000FF
 #define COLOR_YELLOW      0xFFE0  // #FFFF00
 #define COLOR_MAGENTA     0xF81F  // #FF00FF
-#define COLOR_FUCHSIA     0xF81F  // #FF00FF
 #define COLOR_CYAN        0x07FF  // #00FFFF
-#define COLOR_AQUA        0x07FF  // #00FFFF
 
 #define COLOR_MAROON      0x7800  // #800000
 #define COLOR_GREEN       0x03E0  // #008000
@@ -136,8 +134,8 @@ TFT_IO tftio;
   #define TFT_BTOKMENU_COLOR COLOR_RED
 #endif
 
-static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  tftio.set_window(Xmin, Ymin, Xmax, Ymax);
+static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, uint16_t xMax, uint16_t yMax) {
+  tftio.set_window(xMin, yMin, xMax, yMax);
 }
 
 #if HAS_TOUCH_BUTTONS

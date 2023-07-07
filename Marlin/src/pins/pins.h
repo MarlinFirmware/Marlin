@@ -120,7 +120,7 @@
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
 #else
-  #define NOT_TARGET(V...) NONE(V)
+  #define NOT_TARGET NONE
 #endif
 
 //

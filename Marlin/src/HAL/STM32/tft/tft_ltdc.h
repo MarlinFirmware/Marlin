@@ -43,7 +43,7 @@ class TFT_LTDC {
     static uint16_t x_min, x_max, y_min, y_max, x_cur, y_cur;
     static uint8_t reg;
 
-    static uint32_t readID(tft_data_t reg);
+    static uint32_t readID(const tft_data_t inReg);
 
     static uint16_t readPoint(uint16_t x, uint16_t y);
     static void drawPoint(uint16_t x, uint16_t y, uint16_t color);
@@ -62,7 +62,7 @@ class TFT_LTDC {
     static void dataTransferEnd() {};
 
     static void writeData(uint16_t data);
-    static void writeReg(uint16_t reg);
+    static void writeReg(const uint16_t inReg) { reg = inReg; }
 
     // Non-blocking DMA data transfer is not implemented for LTDC interface
     inline static void writeSequence_DMA(uint16_t *data, uint16_t count) { writeSequence(data, count); }
