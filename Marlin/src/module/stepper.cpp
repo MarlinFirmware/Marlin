@@ -3495,35 +3495,31 @@ void Stepper::report_positions() {
       discard_current_block();
     }
 
-    if (!current_block) { // No current block
-
       // Check the buffer for a new block
-      current_block = planner.get_current_block();
+    current_block = planner.get_current_block();
 
-      if (current_block) {
-        // Sync block? Sync the stepper counts and return
-        while (current_block->is_sync()) {
-          if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
-          discard_current_block();
-
-          // Try to get a new block
-          if (!(current_block = planner.get_current_block()))
-            return; // No more queued movements!image.png
-        }
-
-        // this is needed by motor_direction() and subsequently bed leveling (somehow)
-        // update it here, even though it will may be out of sync with step commands
-        last_direction_bits = current_block->direction_bits;
-
-        fxdTiCtrl.startBlockProc(current_block);
-
-      }
-      else {
-        fxdTiCtrl.runoutBlock();
-        return; // No queued blocks
+    if (current_block) {
+      // Sync block? Sync the stepper counts and return
+      while (current_block->is_sync()) {
+        if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
+        discard_current_block();
+        
+        // Try to get a new block
+        if (!(current_block = planner.get_current_block()))
+          return; // No more queued movements!image.png
       }
 
-    } // if (!current_block)
+      // this is needed by motor_direction() and subsequently bed leveling (somehow)
+      // update it here, even though it will may be out of sync with step commands
+      last_direction_bits = current_block->direction_bits;
+
+      fxdTiCtrl.startBlockProc(current_block);
+
+    }
+    else {
+      fxdTiCtrl.runoutBlock();
+      return; // No queued blocks
+    }
 
   } // Stepper::fxdTiCtrl_BlockQueueUpdate()
 
