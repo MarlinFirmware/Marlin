@@ -512,7 +512,7 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   // Calculate the distance traveled during the decel phase
   s_2e = s_1e + F_P * T2_P;
 
-  // One less than (Accel + Coasting + Decel) datapoints
+  // Accel + Coasting + Decel datapoints
   max_intervals = N1 + N2 + N3;
 
   endPosn_prevBlock += moveDist;
