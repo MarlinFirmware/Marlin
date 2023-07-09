@@ -32,7 +32,7 @@
 
 #define NUM_DIGITAL_PINS BOARD_NR_GPIO_PINS
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
-#define VALID_PIN(pin) (pin >= 0 && pin < BOARD_NR_GPIO_PINS)
+#define VALID_PIN(pin) IS_GPIO_PIN(pin)
 #define GET_ARRAY_PIN(p) pin_t(pin_array[p].pin)
 #define pwm_status(pin) PWM_PIN(pin)
 #define digitalRead_mod(p) extDigitalRead(p)
