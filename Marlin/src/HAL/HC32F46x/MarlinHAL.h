@@ -1,7 +1,8 @@
 #pragma once
 #include <stdint.h>
+#include <core_types.h>
 
-typedef int16_t pin_t;
+typedef gpio_pin_t pin_t;
 
 class MarlinHAL
 {
