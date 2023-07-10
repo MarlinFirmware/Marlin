@@ -124,45 +124,47 @@ void MarlinHAL::idletask()
 
 uint8_t MarlinHAL::get_reset_source()
 {
-    // query reset cause
+    // query reset cause from RMU
     stc_rmu_rstcause_t rstCause;
-    MEM_ZERO_STRUCT(rstCause);
     RMU_GetResetCause(&rstCause);
 
-    // map reset causes to those expected by Marlin
+    // map reset cause code to those expected by Marlin
+    // - reset causes are flags, so multiple can be set
+    printf("-- Reset Cause -- \n");
     uint8_t cause = 0;
-#define MAP_CAUSE(from, to)                                \
-    if (rstCause.from == Set)                              \
-    {                                                      \
-        printf("GetResetCause " STRINGIFY(from) " set\n"); \
-        cause |= to;                                       \
+#define MAP_CAUSE(from, to)                 \
+    if (rstCause.from == Set)               \
+    {                                       \
+        printf(" - " STRINGIFY(from) "\n"); \
+        cause |= to;                        \
     }
 
+    // power on
+    MAP_CAUSE(enPowerOn, RST_POWER_ON) // power on reset
+
     // external
-    MAP_CAUSE(enRstPin, RST_EXTERNAL)
-    MAP_CAUSE(enPvd1, RST_EXTERNAL)
-    MAP_CAUSE(enPvd2, RST_EXTERNAL)
+    MAP_CAUSE(enRstPin, RST_EXTERNAL) // reset pin
+    MAP_CAUSE(enPvd1, RST_EXTERNAL)   // program voltage detection reset
+    MAP_CAUSE(enPvd2, RST_EXTERNAL)   // "
 
     // brown out
-    MAP_CAUSE(enBrownOut, RST_BROWN_OUT)
+    MAP_CAUSE(enBrownOut, RST_BROWN_OUT) // brown out reset
 
     // wdt
-    MAP_CAUSE(enWdt, RST_WATCHDOG)
-    MAP_CAUSE(enSwdt, RST_WATCHDOG)
+    MAP_CAUSE(enWdt, RST_WATCHDOG)  // Watchdog reset
+    MAP_CAUSE(enSwdt, RST_WATCHDOG) // Special WDT reset
 
     // software
-    MAP_CAUSE(enPowerDown, RST_SOFTWARE)
-    MAP_CAUSE(enSoftware, RST_SOFTWARE)
+    MAP_CAUSE(enPowerDown, RST_SOFTWARE) // MCU power down (?)
+    MAP_CAUSE(enSoftware, RST_SOFTWARE)  // software reset (e.g. NVIC_SystemReset())
 
-    // other
-    MAP_CAUSE(enMpuErr, RST_BACKUP)
-    MAP_CAUSE(enRamParityErr, RST_BACKUP)
-    MAP_CAUSE(enRamEcc, RST_BACKUP)
-    MAP_CAUSE(enClkFreqErr, RST_BACKUP)
-    MAP_CAUSE(enXtalErr, RST_BACKUP)
+    // misc.
+    MAP_CAUSE(enMpuErr, RST_BACKUP)       // MPU error
+    MAP_CAUSE(enRamParityErr, RST_BACKUP) // RAM parity error
+    MAP_CAUSE(enRamEcc, RST_BACKUP)       // RAM ecc error
+    MAP_CAUSE(enClkFreqErr, RST_BACKUP)   // clock frequency failure
+    MAP_CAUSE(enXtalErr, RST_BACKUP)      // XTAL failure
 
-    // power on
-    MAP_CAUSE(enPowerOn, RST_POWER_ON)
     return cause;
 }
 
