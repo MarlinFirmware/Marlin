@@ -114,8 +114,8 @@ extern MSerialT serial_stream_3;
 // ADC
 // ------------------------
 
-#define HAL_ADC_VREF           5.0
-#define HAL_ADC_RESOLUTION    10
+#define HAL_ADC_VREF_MV   5000
+#define HAL_ADC_RESOLUTION  10
 
 /* ---------------- Delay in cycles */
 
@@ -208,8 +208,8 @@ public:
   MarlinHAL() {}
 
   // Watchdog
-  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
-  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_init();
+  static void watchdog_refresh();
 
   static void init() {}        // Called early in setup()
   static void init_board() {}  // Called less early in setup()

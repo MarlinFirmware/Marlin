@@ -51,7 +51,7 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 
@@ -62,12 +62,12 @@ private:
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();
 
-  static void DataTransferBegin();
-  static void DataTransferEnd();
+  static void dataTransferBegin();
+  static void dataTransferEnd();
   #if ENABLED(TOUCH_BUTTONS_HW_SPI)
-    static uint16_t HardwareIO(uint16_t data);
+    static uint16_t hardwareIO(uint16_t data);
   #endif
-  static uint16_t SoftwareIO(uint16_t data);
+  static uint16_t softwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0);
 
 public:
@@ -75,6 +75,6 @@ public:
     static SPIClass SPIx;
   #endif
 
-  static void Init();
+  static void init();
   static bool getRawPoint(int16_t *x, int16_t *y);
 };

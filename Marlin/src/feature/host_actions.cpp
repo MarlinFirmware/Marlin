@@ -41,8 +41,7 @@ HostUI hostui;
 
 void HostUI::action(FSTR_P const fstr, const bool eol) {
   PORT_REDIRECT(SerialMask::All);
-  SERIAL_ECHOPGM("//action:");
-  SERIAL_ECHOF(fstr);
+  SERIAL_ECHOPGM("//action:", fstr);
   if (eol) SERIAL_EOL();
 }
 
@@ -107,24 +106,33 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   void HostUI::prompt(FSTR_P const ptype, const bool eol/*=true*/) {
     PORT_REDIRECT(SerialMask::All);
     action(F("prompt_"), false);
-    SERIAL_ECHOF(ptype);
+    SERIAL_ECHO(ptype);
     if (eol) SERIAL_EOL();
   }
 
-  void HostUI::prompt_plus(FSTR_P const ptype, FSTR_P const fstr, const char extra_char/*='\0'*/) {
+  void HostUI::prompt_plus(const bool pgm, FSTR_P const ptype, const char * const str, const char extra_char/*='\0'*/) {
     prompt(ptype, false);
     PORT_REDIRECT(SerialMask::All);
     SERIAL_CHAR(' ');
-    SERIAL_ECHOF(fstr);
+    if (pgm)
+      SERIAL_ECHOPGM_P(str);
+    else
+      SERIAL_ECHO(str);
     if (extra_char != '\0') SERIAL_CHAR(extra_char);
     SERIAL_EOL();
   }
+
   void HostUI::prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char/*='\0'*/) {
     prompt_end();
     host_prompt_reason = reason;
     prompt_plus(F("begin"), fstr, extra_char);
   }
-  void HostUI::prompt_button(FSTR_P const fstr) { prompt_plus(F("button"), fstr); }
+  void HostUI::prompt_begin(const PromptReason reason, const char * const cstr, const char extra_char/*='\0'*/) {
+    prompt_end();
+    host_prompt_reason = reason;
+    prompt_plus(F("begin"), cstr, extra_char);
+  }
+
   void HostUI::prompt_end() { prompt(F("end")); }
   void HostUI::prompt_show() { prompt(F("show")); }
 
@@ -133,12 +141,24 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     if (btn2) prompt_button(btn2);
     prompt_show();
   }
+
+  void HostUI::prompt_button(FSTR_P const fstr) { prompt_plus(F("button"), fstr); }
+  void HostUI::prompt_button(const char * const cstr) { prompt_plus(F("button"), cstr); }
+
   void HostUI::prompt_do(const PromptReason reason, FSTR_P const fstr, FSTR_P const btn1/*=nullptr*/, FSTR_P const btn2/*=nullptr*/) {
     prompt_begin(reason, fstr);
     _prompt_show(btn1, btn2);
   }
+  void HostUI::prompt_do(const PromptReason reason, const char * const cstr, FSTR_P const btn1/*=nullptr*/, FSTR_P const btn2/*=nullptr*/) {
+    prompt_begin(reason, cstr);
+    _prompt_show(btn1, btn2);
+  }
   void HostUI::prompt_do(const PromptReason reason, FSTR_P const fstr, const char extra_char, FSTR_P const btn1/*=nullptr*/, FSTR_P const btn2/*=nullptr*/) {
     prompt_begin(reason, fstr, extra_char);
+    _prompt_show(btn1, btn2);
+  }
+  void HostUI::prompt_do(const PromptReason reason, const char * const cstr, const char extra_char, FSTR_P const btn1/*=nullptr*/, FSTR_P const btn2/*=nullptr*/) {
+    prompt_begin(reason, cstr, extra_char);
     _prompt_show(btn1, btn2);
   }
 
@@ -166,13 +186,13 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR
@@ -188,7 +208,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
         break;
       case PROMPT_PAUSE_RESUME:
-        #if BOTH(ADVANCED_PAUSE_FEATURE, SDSUPPORT)
+        #if ALL(ADVANCED_PAUSE_FEATURE, HAS_MEDIA)
           extern const char M24_STR[];
           queue.inject_P(M24_STR);
         #endif

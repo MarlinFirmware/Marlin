@@ -102,21 +102,23 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PIN_NUM_ALPHA_LEFT(P) (((P & 0x000F) < 10) ? ('0' + (P & 0x000F)) : '1')
 #define PIN_NUM_ALPHA_RIGHT(P) (((P & 0x000F) > 9)  ? ('0' + (P & 0x000F) - 10) : 0 )
 #define PORT_NUM(P) ((P  >> 4) & 0x0007)
-#define PORT_ALPHA(P) ('A' + (P  >> 4))
+#define PORT_ALPHA(P) ('A' + (P >> 4))
 
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#if PA0 >= NUM_DIGITAL_PINS
+#if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
   #define HAS_HIGH_ANALOG_PINS 1
 #endif
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
-#define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
+#ifndef NUM_ANALOG_LAST
+  #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
+#endif
+#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
+#define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PORT(ANUM) port_print(ANUM)
 #define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
 
 // x is a variable used to search pin_array
@@ -168,7 +170,7 @@ bool GET_PINMODE(const pin_t Ard_num) {
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
-  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS - 1))
+  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
     return Ard_num - NUM_ANALOG_FIRST;
 
   const uint32_t ind = digitalPinToAnalogInput(Ard_num);
@@ -184,7 +186,7 @@ bool is_digital(const pin_t Ard_num) {
   return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 }
 
-void port_print(const pin_t Ard_num) {
+void print_port(const pin_t Ard_num) {
   char buffer[16];
   pin_t Index;
   for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
@@ -206,8 +208,11 @@ void port_print(const pin_t Ard_num) {
     SERIAL_ECHO_SP(7);
 
   // Print number to be used with M42
-  int calc_p = Ard_num % (NUM_DIGITAL_PINS + 1);
-  if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
+  int calc_p = Ard_num;
+  if (Ard_num > NUM_DIGITAL_PINS) {
+    calc_p -= NUM_ANALOG_FIRST;
+    if (calc_p > 7) calc_p += 8;
+  }
   SERIAL_ECHOPGM(" M42 P", calc_p);
   SERIAL_CHAR(' ');
   if (calc_p < 100) {

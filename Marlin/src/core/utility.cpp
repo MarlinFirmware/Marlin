@@ -25,6 +25,10 @@
 #include "../MarlinCore.h"
 #include "../module/temperature.h"
 
+#if ENABLED(MARLIN_DEV_MODE)
+  MarlinError marlin_error_number;    // Error Number - Marlin can beep X times periodically, display, and emit...
+#endif
+
 void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
@@ -51,7 +55,7 @@ void safe_delay(millis_t ms) {
 
   #include "../module/probe.h"
   #include "../module/motion.h"
-  #include "../module/stepper.h"
+  #include "../module/planner.h"
   #include "../libs/numtostr.h"
   #include "../feature/bedlevel/bedlevel.h"
 
@@ -70,6 +74,7 @@ void safe_delay(millis_t ms) {
       TERN_(NOZZLE_AS_PROBE, "NOZZLE_AS_PROBE")
       TERN_(FIX_MOUNTED_PROBE, "FIX_MOUNTED_PROBE")
       TERN_(HAS_Z_SERVO_PROBE, TERN(BLTOUCH, "BLTOUCH", "SERVO PROBE"))
+      TERN_(BD_SENSOR, "BD_SENSOR")
       TERN_(TOUCH_MI_PROBE, "TOUCH_MI_PROBE")
       TERN_(Z_PROBE_SLED, "Z_PROBE_SLED")
       TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")
@@ -94,9 +99,9 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Aligned With");
 
         if (probe.offset_xy.y > 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Distal", "-Back")));
+          SERIAL_ECHO(F(TERN(IS_SCARA, "-Distal", "-Back")));
         else if (probe.offset_xy.y < 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Proximal", "-Front")));
+          SERIAL_ECHO(F(TERN(IS_SCARA, "-Proximal", "-Front")));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
@@ -104,7 +109,7 @@ void safe_delay(millis_t ms) {
 
       #endif
 
-      SERIAL_ECHOF(probe.offset.z < 0 ? F("Below") : probe.offset.z > 0 ? F("Above") : F("Same Z as"));
+      SERIAL_ECHO(probe.offset.z < 0 ? F("Below") : probe.offset.z > 0 ? F("Above") : F("Same Z as"));
       SERIAL_ECHOLNPGM(" Nozzle)");
 
     #endif

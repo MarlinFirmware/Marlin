@@ -36,7 +36,7 @@
 #include "../../marlinui.h"
 #include "../../../HAL/shared/Delay.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
   #include "../../../libs/buzzer.h"
 #endif
 
@@ -46,17 +46,15 @@
   #define ENCODER_PULSES_PER_STEP 4
 #endif
 
-ENCODER_Rate EncoderRate;
+EncoderRate encoderRate;
 
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
-  #if PIN_EXISTS(BEEPER)
-    if (ui.sound_on) buzzer.click(10);
-  #endif
+  TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
 }
 
 // Encoder initialization
-void Encoder_Configuration() {
+void encoderConfiguration() {
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
   #endif
@@ -66,13 +64,13 @@ void Encoder_Configuration() {
   #if BUTTON_EXISTS(ENC)
     SET_INPUT_PULLUP(BTN_ENC);
   #endif
-  #if PIN_EXISTS(BEEPER)
+  #if HAS_BEEPER
     SET_OUTPUT(BEEPER_PIN);     // TODO: Use buzzer.h which already inits this
   #endif
 }
 
 // Analyze encoder value and return state
-EncoderState Encoder_ReceiveAnalyze() {
+EncoderState encoderReceiveAnalyze() {
   const millis_t now = millis();
   static uint8_t lastEncoderBits;
   uint8_t newbutton = 0;
@@ -98,21 +96,21 @@ EncoderState Encoder_ReceiveAnalyze() {
   }
   if (newbutton != lastEncoderBits) {
     switch (newbutton) {
-      case ENCODER_PHASE_0:
-             if (lastEncoderBits == ENCODER_PHASE_3) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_1) temp_diff--;
+      case 0:
+             if (lastEncoderBits == 1) temp_diff++;
+        else if (lastEncoderBits == 2) temp_diff--;
         break;
-      case ENCODER_PHASE_1:
-             if (lastEncoderBits == ENCODER_PHASE_0) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_2) temp_diff--;
+      case 2:
+             if (lastEncoderBits == 0) temp_diff++;
+        else if (lastEncoderBits == 3) temp_diff--;
         break;
-      case ENCODER_PHASE_2:
-             if (lastEncoderBits == ENCODER_PHASE_1) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_3) temp_diff--;
+      case 3:
+             if (lastEncoderBits == 2) temp_diff++;
+        else if (lastEncoderBits == 1) temp_diff--;
         break;
-      case ENCODER_PHASE_3:
-             if (lastEncoderBits == ENCODER_PHASE_2) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_0) temp_diff--;
+      case 1:
+             if (lastEncoderBits == 3) temp_diff++;
+        else if (lastEncoderBits == 0) temp_diff--;
         break;
     }
     lastEncoderBits = newbutton;
@@ -128,20 +126,20 @@ EncoderState Encoder_ReceiveAnalyze() {
       int32_t encoderMultiplier = 1;
 
       // if must encoder rati multiplier
-      if (EncoderRate.enabled) {
+      if (encoderRate.enabled) {
         const float abs_diff = ABS(temp_diff),
                     encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
-        if (EncoderRate.lastEncoderTime) {
+        if (encoderRate.lastEncoderTime) {
           // Note that the rate is always calculated between two passes through the
           // loop and that the abs of the temp_diff value is tracked.
-          const float encoderStepRate = encoderMovementSteps / float(ms - EncoderRate.lastEncoderTime) * 1000;
+          const float encoderStepRate = encoderMovementSteps / float(ms - encoderRate.lastEncoderTime) * 1000;
                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
           else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
           #if ENCODER_5X_STEPS_PER_SEC
             else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
           #endif
         }
-        EncoderRate.lastEncoderTime = ms;
+        encoderRate.lastEncoderTime = ms;
       }
 
     #else
@@ -150,9 +148,9 @@ EncoderState Encoder_ReceiveAnalyze() {
 
     #endif
 
-    // EncoderRate.encoderMoveValue += (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
-    EncoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
-    if (EncoderRate.encoderMoveValue < 0) EncoderRate.encoderMoveValue = -EncoderRate.encoderMoveValue;
+    // encoderRate.encoderMoveValue += (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
+    encoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
+    if (encoderRate.encoderMoveValue < 0) encoderRate.encoderMoveValue = -encoderRate.encoderMoveValue;
 
     temp_diff = 0;
   }

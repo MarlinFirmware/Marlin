@@ -42,7 +42,7 @@ void Repeat::add_marker(const uint32_t sdpos, const uint16_t count) {
     SERIAL_ECHO_MSG("!Too many markers.");
   else {
     marker[index].sdpos = sdpos;
-    marker[index].counter = count ?: -1;
+    marker[index].counter = count ? count - 1 : -1;
     index++;
     DEBUG_ECHOLNPGM("Add Marker ", index, " at ", sdpos, " (", count, ")");
   }
@@ -66,7 +66,7 @@ void Repeat::loop() {
   }
 }
 
-void Repeat::cancel() { LOOP_L_N(i, index) marker[i].counter = 0; }
+void Repeat::cancel() { for (uint8_t i = 0; i < index; ++i) marker[i].counter = 0; }
 
 void Repeat::early_parse_M808(char * const cmd) {
   if (is_command_M808(cmd)) {

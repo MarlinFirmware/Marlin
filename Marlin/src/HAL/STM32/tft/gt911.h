@@ -39,42 +39,18 @@ class SW_IIC {
   private:
     uint16_t scl_pin;
     uint16_t sda_pin;
-    void write_scl(bool level)
-    {
-      WRITE(scl_pin, level);
-    }
-    void write_sda(bool level)
-    {
-      WRITE(sda_pin, level);
-    }
-    bool read_sda()
-    {
-      return READ(sda_pin);
-    }
-    void set_sda_out()
-    {
-      SET_OUTPUT(sda_pin);
-    }
-    void set_sda_in()
-    {
-      SET_INPUT_PULLUP(sda_pin);
-    }
-    static void iic_delay(uint8_t t)
-    {
-      delayMicroseconds(t);
-    }
+    void write_scl(bool level) { WRITE(scl_pin, level); }
+    void write_sda(bool level) { WRITE(sda_pin, level); }
+    bool read_sda() { return READ(sda_pin); }
+    void set_sda_out() { SET_OUTPUT(sda_pin); }
+    void set_sda_in() { SET_INPUT_PULLUP(sda_pin); }
+    static void iic_delay(uint8_t t) { delayMicroseconds(t); }
 
   public:
     SW_IIC(uint16_t sda, uint16_t scl);
     // setSCL/SDA have to be called before begin()
-    void setSCL(uint16_t scl)
-    {
-      scl_pin = scl;
-    };
-    void setSDA(uint16_t sda)
-    {
-      sda_pin = sda;
-    };
+    void setSCL(uint16_t scl) { scl_pin = scl; }
+    void setSDA(uint16_t sda) { sda_pin = sda; }
     void init();                // Initialize the IO port of IIC
     void start();               // Send IIC start signal
     void stop();                // Send IIC stop signal
@@ -114,7 +90,7 @@ class GT911 {
     static void read_reg(uint16_t reg, uint8_t reg_len, uint8_t* r_data, uint8_t r_len);
 
   public:
-    static void Init();
+    static void init();
     static bool getFirstTouchPoint(int16_t *x, int16_t *y);
     static bool getPoint(int16_t *x, int16_t *y);
 };

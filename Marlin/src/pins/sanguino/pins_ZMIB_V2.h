@@ -31,12 +31,14 @@
 
 /**
  * ZMIB pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/ZONESTAR%20ZMIB%20V2/ZMIB_V2_Schmatic.pdf
+ * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
  *
  * The ZMIB board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
  * electronic components to write the bootloader.
  *
- * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ * See https://www.instructables.com/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  */
 
 /**
@@ -77,7 +79,7 @@
  * PIN:  25   Port: A6   FIL_RUNOUT_PIN
  * PIN:  26   Port: A5   E0_DIR_PIN
  * PIN:  27   Port: A4   E0_STEP_PIN
- * PIN:  28   Port: A3   FAN_PIN
+ * PIN:  28   Port: A3   FAN0_PIN
  * PIN:  29   Port: A2   EXP1_3(BTN_ENC)
  *                       ADC_KEY_PIN
  * PIN:  30   Port: A1   TEMP_0_PIN
@@ -90,7 +92,7 @@
 #define X_MIN_PIN                             21
 #define Y_MIN_PIN                             18
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_MIN_PIN                           25
 #else
   #define Z_MIN_PIN                           13
@@ -107,7 +109,7 @@
 #define Y_DIR_PIN                             19
 #define Y_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_STEP_PIN                          27
   #define Z_DIR_PIN                           26
 #else
@@ -117,7 +119,7 @@
 
 #define Z_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define E0_STEP_PIN                         15
   #define E0_DIR_PIN                          14
 #else
@@ -142,13 +144,13 @@
 //
 #define HEATER_0_PIN                           0
 #define HEATER_BED_PIN                         1
-#define FAN_PIN                               28
+#define FAN0_PIN                              28
 #define FAN1_PIN                              -1
 
 //
 // Filament Runout Sensor
 //
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define FIL_RUNOUT_PIN                      13
 #else
   #define FIL_RUNOUT_PIN                      25  // Z-MIN
@@ -157,32 +159,32 @@
 //
 // SD card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
 
 /**             EXP1
  *             ------
- * (MOSI) D5  |10  9 | D7       (SCK)
- * (CS)   D11 | 8  7 | D10      (DC/D4)
- * (EN2)  D12   6  5 | D4 or D3 (EN/RS)
- * (ENC)  D29 | 4  3 | D2       (EN1)
- *      (GND) | 2  1 | (5V)
+ * (MOSI) D5  | 1  2 | D7       (SCK)
+ * (CS)   D11 | 3  4 | D10      (DC/D4)
+ * (EN2)  D12   5  6 | D4 or D3 (EN/RS)
+ * (ENC)  D29 | 7  8 | D2       (EN1)
+ *      (GND) | 9 10 | (5V)
  *             ------
  */
-#define EXP1_03_PIN                            2
-#define EXP1_04_PIN                           29
+#define EXP1_01_PIN                            5
+#define EXP1_02_PIN                            7
+#define EXP1_03_PIN                           11
+#define EXP1_04_PIN                           10
+#define EXP1_05_PIN                           12
 #ifndef IS_ZMIB_V2
-  #define EXP1_05_PIN                          4  // ZMIB V1
+  #define EXP1_06_PIN                          4  // ZMIB V1
 #else
-  #define EXP1_05_PIN                          3  // ZMIB V2
+  #define EXP1_06_PIN                          3  // ZMIB V2
 #endif
-#define EXP1_06_PIN                           12
-#define EXP1_07_PIN                           10
-#define EXP1_08_PIN                           11
-#define EXP1_09_PIN                            7
-#define EXP1_10_PIN                            5
+#define EXP1_07_PIN                           29
+#define EXP1_08_PIN                            2
 
 #if ENABLED(ZONESTAR_12864LCD)
   //
@@ -190,24 +192,24 @@
   //
   #define LCDSCREEN_NAME "ZONESTAR_12864LCD"
   #define FORCE_SOFT_SPI
-  //#define LCD_SDSS                 EXP1_08_PIN
-  #define LCD_PINS_RS                EXP1_08_PIN  // ST7920_CS_PIN  (LCD module pin 4)
-  #define LCD_PINS_ENABLE            EXP1_05_PIN  // ST7920_DAT_PIN (LCD module pin 5)
-  #define LCD_PINS_D4                EXP1_07_PIN  // ST7920_CLK_PIN (LCD module pin 6)
+  //#define LCD_SDSS                 EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_03_PIN  // ST7920_CS_PIN  (LCD module pin 4)
+  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
+  #define LCD_PINS_D4                EXP1_04_PIN  // ST7920_CLK_PIN (LCD module pin 6)
 
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_2       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_3       DELAY_2_NOP
 
-#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
+#elif ANY(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   //
   // OLED 128x64
   //
   #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define FORCE_SOFT_SPI
-  #define LCD_PINS_RS                EXP1_05_PIN
-  #define LCD_PINS_DC                EXP1_07_PIN
-  #define DOGLCD_CS                  EXP1_08_PIN
+  #define LCD_PINS_RS                EXP1_06_PIN
+  #define LCD_PINS_DC                EXP1_04_PIN
+  #define DOGLCD_CS                  EXP1_03_PIN
 
   #if ENABLED(OLED_HW_IIC)
     #error "Oops! can't choose HW IIC for ZMIB board!!"
@@ -224,9 +226,9 @@
 // All the above are also RRDSC with rotary encoder
 //
 #if IS_RRD_SC
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_04_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_07_PIN
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
 #endif

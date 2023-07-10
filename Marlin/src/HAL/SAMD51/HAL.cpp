@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  */
 #ifdef __SAMD51__
 
@@ -597,7 +602,7 @@ void MarlinHAL::dma_init() {
 // HAL initialization task
 void MarlinHAL::init() {
   TERN_(DMA_IS_REQUIRED, dma_init());
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
@@ -645,10 +650,10 @@ void MarlinHAL::adc_init() {
   #if ADC_IS_REQUIRED
     memset(adc_results, 0xFF, sizeof(adc_results));                         // Fill result with invalid values
 
-    LOOP_L_N(pi, COUNT(adc_pins))
+    for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi)
       pinPeripheral(adc_pins[pi], PIO_ANALOG);
 
-    LOOP_S_LE_N(ai, FIRST_ADC, LAST_ADC) {
+    for (uint8_t ai = FIRST_ADC; ai <= LAST_ADC; ++ai) {
       Adc* adc = ((Adc*[])ADC_INSTS)[ai];
 
       // ADC clock setup
@@ -680,7 +685,7 @@ void MarlinHAL::adc_init() {
 
 void MarlinHAL::adc_start(const pin_t pin) {
   #if ADC_IS_REQUIRED
-    LOOP_L_N(pi, COUNT(adc_pins))
+    for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi)
       if (pin == adc_pins[pi]) { adc_result = adc_results[pi]; return; }
   #endif
 

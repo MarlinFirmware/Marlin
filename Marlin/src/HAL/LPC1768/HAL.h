@@ -101,7 +101,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -127,7 +127,7 @@ extern DefaultSerial1 USBSerial;
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
-#define HAL_ADC_VREF            3.3 // ADC voltage reference
+#define HAL_ADC_VREF_MV      3300   // ADC voltage reference
 
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
@@ -165,7 +165,9 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // Defines
 // ------------------------
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
@@ -241,15 +243,18 @@ public:
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static uint32_t adc_result;
-  static void adc_start(const pin_t pin) {
-    adc_result = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
-  }
+  static pin_t adc_pin;
+
+  static void adc_start(const pin_t pin) { adc_pin = pin; }
 
   // Is the ADC ready for reading?
-  static bool adc_ready() { return true; }
+  static bool adc_ready() { return LPC176x::adc_hardware.done(LPC176x::pin_get_adc_channel(adc_pin)); }
 
   // The current value of the ADC register
-  static uint16_t adc_value() { return uint16_t(adc_result); }
+  static uint16_t adc_value() {
+    adc_result = FilteredADC::read(adc_pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+    return uint16_t(adc_result);
+  }
 
   /**
    * Set the PWM duty cycle for the pin to the given value.

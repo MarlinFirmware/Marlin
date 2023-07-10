@@ -166,8 +166,8 @@
 #define HEATER_5_PIN                        PE3
 #define HEATER_BED_PIN                      PE2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PF8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PF8
 #endif
 #define FAN1_PIN                            PF9
 #define FAN2_PIN                            PA2
@@ -177,31 +177,31 @@
 
 /**
  *        ------                ------
- *  PB10 |10  9 | PE15    PB14 |10  9 | PB13
- *  PE14 | 8  7 | PE12    PC5  | 8  7 | PF11
- *  PE10   6  5 | PE9     PC4    6  5 | PB15
- *  PE8  | 4  3 | PE7     PB2  | 4  3 | RESET
- *   GND | 2  1 | 5V       GND | 2  1 | --
+ *  PB10 | 1  2 | PE15    PB14 | 1  2 | PB13
+ *  PE14 | 3  4 | PE12    PC5  | 3  4 | PF11
+ *  PE10   5  6 | PE9     PC4    5  6 | PB15
+ *  PE8  | 7  8 | PE7     PB2  | 7  8 | RESET
+ *   GND | 9 10 | 5V       GND | 9 10 | --
  *        ------                ------
  *         EXP1                  EXP2
  */
-#define EXP1_03_PIN                         PE7
-#define EXP1_04_PIN                         PE8
-#define EXP1_05_PIN                         PE9
-#define EXP1_06_PIN                         PE10
-#define EXP1_07_PIN                         PE12
-#define EXP1_08_PIN                         PE14
-#define EXP1_09_PIN                         PE15
-#define EXP1_10_PIN                         PB10
+#define EXP1_01_PIN                         PB10
+#define EXP1_02_PIN                         PE15
+#define EXP1_03_PIN                         PE14
+#define EXP1_04_PIN                         PE12
+#define EXP1_05_PIN                         PE10
+#define EXP1_06_PIN                         PE9
+#define EXP1_07_PIN                         PE8
+#define EXP1_08_PIN                         PE7
 
-#define EXP2_03_PIN                         -1    // RESET
-#define EXP2_04_PIN                         PB2
-#define EXP2_05_PIN                         PB15
-#define EXP2_06_PIN                         PC4
-#define EXP2_07_PIN                         PF11
-#define EXP2_08_PIN                         PC5
-#define EXP2_09_PIN                         PB13
-#define EXP2_10_PIN                         PB14
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PC5
+#define EXP2_04_PIN                         PF11
+#define EXP2_05_PIN                         PC4
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PB2
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // Onboard SD support
@@ -214,9 +214,9 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
 
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
 
-  #if DISABLED(SDIO_SUPPORT)
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                            PC11
     #define SD_SCK_PIN                      PC12
@@ -226,27 +226,25 @@
 
 #elif SD_CONNECTION_IS(LCD)
 
-  #define SD_SCK_PIN                 EXP2_09_PIN
-  #define SD_MISO_PIN                EXP2_10_PIN
-  #define SD_MOSI_PIN                EXP2_05_PIN
-  #define SDSS                       EXP2_07_PIN
-  #define SD_DETECT_PIN              EXP2_04_PIN
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SDSS                       EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
 
 #endif
 
 //
-// Trinamic Software SPI
+// Trinamic SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK               EXP2_09_PIN
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO              EXP2_10_PIN
-  #endif
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI              EXP2_05_PIN
-  #endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                EXP2_02_PIN
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO               EXP2_01_PIN
+#endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI               EXP2_06_PIN
 #endif
 
 //
@@ -286,16 +284,16 @@
 // LCD / Controller
 //
 #if IS_RRD_SC
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
-  #define LCD_PINS_D5                EXP1_05_PIN
-  #define LCD_PINS_D6                EXP1_04_PIN
-  #define LCD_PINS_D7                EXP1_03_PIN
-  #define BTN_EN1                    EXP2_06_PIN
-  #define BTN_EN2                    EXP2_08_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 #endif
 
 //

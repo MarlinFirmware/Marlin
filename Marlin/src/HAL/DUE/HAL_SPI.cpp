@@ -42,7 +42,7 @@
 // Public functions
 // ------------------------
 
-#if EITHER(DUE_SOFTWARE_SPI, FORCE_SOFT_SPI)
+#if ANY(DUE_SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
   // Software SPI
@@ -247,12 +247,12 @@
       b <<= 1; // little setup time
 
       WRITE(SD_SCK_PIN, HIGH);
-      DELAY_NS(spiDelayNS);
+      DELAY_NS_VAR(spiDelayNS);
 
       b |= (READ(SD_MISO_PIN) != 0);
 
       WRITE(SD_SCK_PIN, LOW);
-      DELAY_NS(spiDelayNS);
+      DELAY_NS_VAR(spiDelayNS);
     } while (--bits);
     return b;
   }

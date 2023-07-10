@@ -86,8 +86,8 @@
 //#define HEATER_BED2_PIN                   -1    // BED2
 //#define HEATER_BED3_PIN                   -1    // BED3
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PD14
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PD14
 #endif
 #define FAN1_PIN                            PD13
 
@@ -116,7 +116,7 @@
     #error "REPRAPWORLD_GRAPHICAL_LCD is not supported."
   #else
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PD2
+    #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14

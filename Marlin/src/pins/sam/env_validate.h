@@ -19,9 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
-#if BOTH(ALLOW_MEGA1280, ALLOW_MEGA2560) && NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
+#if ALL(ALLOW_MEGA1280, ALLOW_MEGA2560) && NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #elif ENABLED(ALLOW_MEGA2560) && NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
@@ -31,3 +32,5 @@
 
 #undef ALLOW_MEGA1280
 #undef ALLOW_MEGA2560
+
+#endif

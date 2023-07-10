@@ -82,7 +82,7 @@ void GcodeSuite::M92() {
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
         SERIAL_ECHOPGM(", best:[", best);
-        if (best != wanted) { SERIAL_CHAR(','); SERIAL_DECIMAL(best + z_full_step_mm); }
+        if (best != wanted) { SERIAL_ECHO(AS_CHAR(','), best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }
       SERIAL_ECHOLNPGM(" }");
@@ -92,24 +92,30 @@ void GcodeSuite::M92() {
 
 void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/) {
   report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
-  SERIAL_ECHOPGM_P(LIST_N(DOUBLE(NUM_AXES),
-    PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
-    SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
-    SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
-    SP_I_STR, I_AXIS_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
-    SP_J_STR, J_AXIS_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
-    SP_K_STR, K_AXIS_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]),
-    SP_U_STR, U_AXIS_UNIT(planner.settings.axis_steps_per_mm[U_AXIS]),
-    SP_V_STR, V_AXIS_UNIT(planner.settings.axis_steps_per_mm[V_AXIS]),
-    SP_W_STR, W_AXIS_UNIT(planner.settings.axis_steps_per_mm[W_AXIS])
-  ));
+  #if NUM_AXES
+    SERIAL_ECHOPGM_P(LIST_N(DOUBLE(NUM_AXES),
+      PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
+      SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
+      SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
+      SP_I_STR, I_AXIS_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
+      SP_J_STR, J_AXIS_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
+      SP_K_STR, K_AXIS_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]),
+      SP_U_STR, U_AXIS_UNIT(planner.settings.axis_steps_per_mm[U_AXIS]),
+      SP_V_STR, V_AXIS_UNIT(planner.settings.axis_steps_per_mm[V_AXIS]),
+      SP_W_STR, W_AXIS_UNIT(planner.settings.axis_steps_per_mm[W_AXIS])
+    ));
+  #endif
+
   #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
     SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
-  SERIAL_EOL();
+
+  #if NUM_AXES || (HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS))
+    SERIAL_EOL();
+  #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
+    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
       if (e >= 0 && i != e) continue;
       report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(

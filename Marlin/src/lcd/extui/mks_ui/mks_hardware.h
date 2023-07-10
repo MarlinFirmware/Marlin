@@ -26,7 +26,7 @@
 #include <lvgl.h>
 
 // Functions for MKS_TEST
-#if BOTH(MKS_TEST, SDSUPPORT)
+#if ALL(MKS_TEST, HAS_MEDIA)
   void mks_hardware_test();
   void mks_test_get();
   void mks_gpio_test();

@@ -28,6 +28,7 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
+#include "temp_soc.h"
 #include "fastio.h"
 #include "Servo.h"
 #include "MarlinSerial.h"
@@ -70,7 +71,7 @@
   #if WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_2 must be from 1 to 6."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL2 MSerialUSB
   #else
@@ -82,7 +83,7 @@
   #if WITHIN(SERIAL_PORT_3, 1, 6)
     #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_3 must be from 1 to 6."
   #elif SERIAL_PORT_3 == -1
     #define MYSERIAL3 MSerialUSB
   #else
@@ -94,7 +95,7 @@
   #if WITHIN(MMU2_SERIAL_PORT, 1, 6)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "MMU2_SERIAL_PORT must be from 1 to 6."
   #elif MMU2_SERIAL_PORT == -1
     #define MMU2_SERIAL MSerialUSB
   #else
@@ -106,14 +107,14 @@
   #if WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "LCD_SERIAL_PORT must be from 1 to 6."
   #elif LCD_SERIAL_PORT == -1
     #define LCD_SERIAL MSerialUSB
   #else
     #error "LCD_SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif
 
@@ -138,7 +139,7 @@
 
 typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 
-#ifdef STM32G0B1xx
+#if defined(STM32G0B1xx) || defined(STM32H7xx)
   typedef int32_t pin_t;
 #else
   typedef int16_t pin_t;
@@ -159,7 +160,7 @@ typedef libServo hal_servo_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 //
 // Pin Mapping for M42, M43, M226
@@ -174,7 +175,9 @@ typedef libServo hal_servo_t;
   #define JTAGSWD_RESET() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_RESET); // Reset: FULL SWD+JTAG
 #endif
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 // Maple Compatibility

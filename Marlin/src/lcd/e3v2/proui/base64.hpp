@@ -5,7 +5,7 @@
  * Author: Densaugeo
  * Maintainer: Densaugeo
  * Version: 1.2.1.1
- * Changed unsigned int to uint16_t for use in the professional Ender 3V2/S1 firmware
+ * Changed unsigned int to uint16_t for use in the professional Ender-3V2/S1 firmware
  * Url: https://www.arduino.cc/reference/en/libraries/base64/
  */
 

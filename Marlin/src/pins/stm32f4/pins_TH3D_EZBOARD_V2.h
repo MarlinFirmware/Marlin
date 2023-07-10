@@ -24,6 +24,10 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "TH3D EZBoard only supports 1 hotend / E stepper."
+#endif
+
 #define BOARD_INFO_NAME   "TH3D EZBoard V2"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
@@ -57,7 +61,7 @@
 //
 // Limit Switches
 //
-#if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+#if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Sensorless homing pins
   #if ENABLED(X_AXIS_SENSORLESS_HOMING)
     #define X_STOP_PIN                      PB4
@@ -128,9 +132,6 @@
   #define E0_SERIAL_TX_PIN                  PC10
   #define E0_SERIAL_RX_PIN                  PC11
 
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
@@ -144,7 +145,13 @@
   #ifndef E0_SLAVE_ADDRESS
     #define E0_SLAVE_ADDRESS 3
   #endif
-#endif
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temp Sensors
@@ -158,8 +165,8 @@
 //
 #define HEATER_BED_PIN                      PC9
 #define HEATER_0_PIN                        PC8
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC6
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC6
 #endif
 #define FAN1_PIN                            PC7
 
@@ -169,12 +176,6 @@
 #define AUTO_FAN_PIN                        PC7
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
 
 //
@@ -199,11 +200,11 @@
 
 /**
  *        ------
- *  PA14 |10  9 | PB0
- *  PC4  | 8  7 | --
- *  PC5  | 6  5   PB13
- *  PB12 | 4  3 | PB15
- *   GND | 2  1 | 5V
+ *  PA14 | 1  2 | PB0
+ *  PC4  | 3  4 | --
+ *  PC5  | 5  6   PB13
+ *  PB12 | 7  8 | PB15
+ *   GND | 9 10 | 5V
  *        ------
  *         EXP1
  *
@@ -213,30 +214,30 @@
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
  */
-#define EXP1_03_PIN                         PB15
-#define EXP1_04_PIN                         PB12
-#define EXP1_05_PIN                         PB13
-#define EXP1_06_PIN                         PC5
-//#define EXP1_07_PIN                       -1
-#define EXP1_08_PIN                         PC4
-#define EXP1_09_PIN                         PB0
-#define EXP1_10_PIN                         PA14
+#define EXP1_01_PIN                         PA14
+#define EXP1_02_PIN                         PB0
+#define EXP1_03_PIN                         PC4
+//#define EXP1_04_PIN                       -1
+#define EXP1_05_PIN                         PC5
+#define EXP1_06_PIN                         PB13
+#define EXP1_07_PIN                         PB12
+#define EXP1_08_PIN                         PB15
 
 #if ENABLED(CR10_STOCKDISPLAY)
   /**          ------
-   *   BEEPER |10  9 | ENC
-   *   EN1    | 8  7 | RESET
-   *   EN2    | 6  5   LCD_D4
-   *   LCD_RS | 4  3 | LCD_EN
-   *      GND | 2  1 | 5V
+   *   BEEPER | 1  2 | ENC
+   *   EN1    | 3  4 | RESET
+   *   EN2    | 5  6   LCD_D4
+   *   LCD_RS | 7  8 | LCD_EN
+   *      GND | 9 10 | 5V
    *           ------
    */
   #ifdef DISABLE_JTAGSWD
-    #define BEEPER_PIN               EXP1_10_PIN  // Not connected in dev board
+    #define BEEPER_PIN               EXP1_01_PIN  // Not connected in dev board
   #endif
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
   //#define KILL_PIN                        -1
 
   #define BOARD_ST7920_DELAY_1           600
@@ -245,17 +246,17 @@
 
 #elif ENABLED(MKS_MINI_12864)
   /**          ------
-   *      SCK |10  9 | ENC
-   *      EN1 | 8  7 | --
-   *      EN2 | 6  5   A0
-   *      CS  | 4  3 | MOSI
-   *      GND | 2  1 | 5V
+   *      SCK | 1  2 | ENC
+   *      EN1 | 3  4 | --
+   *      EN2 | 5  6   A0
+   *      CS  | 7  8 | MOSI
+   *      GND | 9 10 | 5V
    *           ------
    */
-  #define DOGLCD_CS                  EXP1_04_PIN
-  #define DOGLCD_A0                  EXP1_05_PIN
-  #define DOGLCD_SCK                 EXP1_10_PIN
-  #define DOGLCD_MOSI                EXP1_03_PIN
+  #define DOGLCD_CS                  EXP1_07_PIN
+  #define DOGLCD_A0                  EXP1_06_PIN
+  #define DOGLCD_SCK                 EXP1_01_PIN
+  #define DOGLCD_MOSI                EXP1_08_PIN
   #define LCD_CONTRAST_INIT                  160
   #define LCD_CONTRAST_MIN                   120
   #define LCD_CONTRAST_MAX                   180
@@ -268,8 +269,8 @@
 
 #endif
 
-#if EITHER(CR10_STOCKDISPLAY, MKS_MINI_12864)
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 #endif

@@ -22,9 +22,14 @@
 #pragma once
 
 /**
- * STB V1.1 pin assignments
+ * STB Electronics V1.1 pin assignments
+ * https://www.reprap.org/wiki/STB_Electronics
  */
 
 #define BOARD_INFO_NAME "STB V1.1"
+
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             4  // Works for Panelolu2 too
+#endif
 
 #include "pins_SANGUINOLOLU_12.h" // ... SANGUINOLOLU_11

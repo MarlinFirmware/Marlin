@@ -23,6 +23,9 @@
 
 /**
  * Arduino Mega with PICA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/PICA/pica_schematic.pdf
+ * Origin: https://github.com/mjrice/PICA/blob/master/pica_schematic.pdf
+ * ATmega2560
  *
  * PICA is Power, Interface, and Control Adapter and is open source hardware.
  * See https://github.com/mjrice/PICA for schematics etc.
@@ -31,6 +34,10 @@
  */
 
 #include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "PICA supports up to 2 hotends / E steppers."
+#endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
@@ -105,8 +112,8 @@
 #endif
 #define HEATER_BED_PIN                         8  // HEAT-BED
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 #ifndef FAN_2_PIN
   #define FAN_2_PIN                            7
@@ -120,7 +127,7 @@
 #define SSR_PIN                                6
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -139,7 +146,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         33
-  #define LCD_PINS_ENABLE                     30
+  #define LCD_PINS_EN                         30
   #define LCD_PINS_D4                         35
   #define LCD_PINS_D5                         32
   #define LCD_PINS_D6                         37

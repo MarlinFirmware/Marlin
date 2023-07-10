@@ -27,6 +27,18 @@
 #include <lpc17xx_ssp.h>
 // #include <lpc17xx_gpdma.h>
 
+#define IS_SPI(N) (BOARD_NR_SPI >= N && (TFT_SCK_PIN == BOARD_SPI##N##_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI##N##_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI##N##_MISO_PIN))
+#if IS_SPI(1)
+  #define TFT_SPI_DEVICE  1
+  #define LPC_SSPx  LPC_SSP0
+#elif IS_SPI(2)
+  #define TFT_SPI_DEVICE  2
+  #define LPC_SSPx  LPC_SSP1
+#else
+  #error "Invalid TFT SPI configuration."
+#endif
+#undef IS_SPI
+
 #ifndef LCD_READ_ID
   #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
@@ -34,44 +46,44 @@
   #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
 #endif
 
-#define DATASIZE_8BIT    SSP_DATABIT_8
-#define DATASIZE_16BIT   SSP_DATABIT_16
-#define TFT_IO_DRIVER TFT_SPI
+#define DATASIZE_8BIT     SSP_DATABIT_8
+#define DATASIZE_16BIT    SSP_DATABIT_16
+#define TFT_IO_DRIVER     TFT_SPI
+#define DMA_MAX_SIZE      0xFFF
 
-#define DMA_MINC_ENABLE 1
-#define DMA_MINC_DISABLE 0
+#define DMA_MINC_ENABLE   1
+#define DMA_MINC_DISABLE  0
 
 class TFT_SPI {
 private:
-  static uint32_t ReadID(uint16_t Reg);
-  static void Transmit(uint16_t Data);
-  static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+  static uint32_t readID(const uint16_t inReg);
+  static void transmit(uint16_t data);
+  static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
+  static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
 
 public:
   static SPIClass SPIx;
 
-  static void Init();
-  static uint32_t GetID();
+  static void init();
+  static uint32_t getID();
   static bool isBusy();
-  static void Abort();
+  static void abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
-  static void DataTransferEnd() { OUT_WRITE(TFT_CS_PIN, HIGH); SPIx.end(); };
-  static void DataTransferAbort();
+  static void dataTransferBegin(uint16_t dataWidth=DATASIZE_16BIT);
+  static void dataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); SSP_Cmd(LPC_SSPx, DISABLE); };
+  static void dataTransferAbort();
 
-  static void WriteData(uint16_t Data) { Transmit(Data); }
-  static void WriteReg(uint16_t Reg) { OUT_WRITE(TFT_A0_PIN, LOW); Transmit(Reg); OUT_WRITE(TFT_A0_PIN, HIGH); }
+  static void writeData(uint16_t data) { transmit(data); }
+  static void writeReg(const uint16_t inReg) { WRITE(TFT_DC_PIN, LOW); transmit(inReg); WRITE(TFT_DC_PIN, HIGH); }
 
-  static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
-  // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
-  static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    static uint16_t Data; Data = Color;
-    //LPC dma can only write 0xFFF bytes at once.
-    #define MAX_DMA_SIZE (0xFFF - 1)
-    while (Count > 0) {
-      TransmitDMA(DMA_MINC_DISABLE, &Data, Count > MAX_DMA_SIZE ? MAX_DMA_SIZE : Count);
-      Count = Count > MAX_DMA_SIZE ? Count - MAX_DMA_SIZE : 0;
+  static void writeSequence_DMA(uint16_t *data, uint16_t count) { transmitDMA(DMA_MINC_ENABLE, data, count); }
+  static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_MINC_DISABLE, &data, count); }
+
+  static void writeSequence(uint16_t *data, uint16_t count) { transmit(DMA_MINC_ENABLE, data, count); }
+  static void writeMultiple(uint16_t color, uint32_t count) {
+    while (count > 0) {
+      transmit(DMA_MINC_DISABLE, &color, count > DMA_MAX_SIZE ? DMA_MAX_SIZE : count);
+      count = count > DMA_MAX_SIZE ? count - DMA_MAX_SIZE : 0;
     }
-    #undef MAX_DMA_SIZE
   }
 };
