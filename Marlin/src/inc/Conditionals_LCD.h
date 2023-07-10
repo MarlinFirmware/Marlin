@@ -1720,8 +1720,13 @@
   #endif
   #define GRAPHICAL_TFT_UPSCALE 2
 #elif ENABLED(TFT_RES_480x272)
-  #define TFT_WIDTH  480
-  #define TFT_HEIGHT 272
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define TFT_WIDTH  272
+    #define TFT_HEIGHT 480
+  #else
+    #define TFT_WIDTH  480
+    #define TFT_HEIGHT 272
+  #endif
   #define GRAPHICAL_TFT_UPSCALE 2
 #elif ENABLED(TFT_RES_480x320)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
@@ -1733,8 +1738,13 @@
   #endif
   #define GRAPHICAL_TFT_UPSCALE 3
 #elif ENABLED(TFT_RES_1024x600)
-  #define TFT_WIDTH  1024
-  #define TFT_HEIGHT 600
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define TFT_WIDTH   600
+    #define TFT_HEIGHT 1024
+  #else
+    #define TFT_WIDTH  1024
+    #define TFT_HEIGHT  600
+  #endif
   #if ENABLED(TOUCH_SCREEN)
     #define GRAPHICAL_TFT_UPSCALE 6
     #define TFT_PIXEL_OFFSET_X 120
@@ -1781,14 +1791,21 @@
 #elif ANY(TFT_1024x600_LTDC, TFT_1024x600_SIM)
   #define HAS_UI_1024x600 1
 #endif
+
+// Number of text lines the screen can display (may depend on font used)
+// Touch screens leave space for extra buttons at the bottom
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9)
   #else
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 18, 19)
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
+  #endif
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

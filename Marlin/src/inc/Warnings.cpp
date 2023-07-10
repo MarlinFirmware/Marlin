@@ -787,3 +787,11 @@
 #if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
   #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif
+
+#if ENABLED(TFT_COLOR_UI_PORTRAIT)
+  #if ENABLED(TFT_RES_480x272)
+    #warning "TFT_COLOR_UI_PORTRAIT is not fully implemented for 480x272 TFT."
+  #elif ENABLED(TFT_RES_1024x600)
+    #warning "TFT_COLOR_UI_PORTRAIT is not fully implemented for 1024x600 TFT."
+  #endif
+#endif

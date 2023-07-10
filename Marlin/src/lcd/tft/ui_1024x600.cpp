@@ -220,6 +220,45 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
   tft.add_text(tft_string.center(80) + 6, 82, COLOR_FAN, tft_string);
 }
 
+/**
+ * For limited space draw the percent / time values in series.
+ * Call ui.rotate_progress within draw_status_screen to use these.
+ */
+#if ENABLED(SHOW_PROGRESS_PERCENT)
+  void MarlinUI::drawPercent() {
+    // Draw the progress percentage
+  }
+#endif
+#if ENABLED(SHOW_ELAPSED_TIME)
+  void MarlinUI::drawElapsed() {
+    // Draw the elapsed time
+  }
+#endif
+#if ENABLED(SHOW_REMAINING_TIME)
+  void MarlinUI::drawRemain() {
+    // Draw remaining time
+  }
+#endif
+#if ENABLED(SHOW_INTERACTION_TIME)
+  void MarlinUI::drawInter() {
+    // Draw interaction time
+  }
+#endif
+
+/**
+ * Draw Status Screen
+ *
+ *  - Temperatures E0 / E1 / E2 / BED / Chamber / Cooler
+ *  - Fan
+ *  - E Total or XY Positions
+ *  - Z Position
+ *  - Feed Rate
+ *  - Flow Rate
+ *  - Settings Button
+ *  - Time Elapsed and/or Remaining
+ *  - Progress Bar
+ *  - Status Message
+ */
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
 
@@ -314,6 +353,7 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
 
   y += 100;
+
   // Feed rate
   tft.canvas(274, y, 200, 32);
   tft.set_background(COLOR_BACKGROUND);
@@ -348,11 +388,69 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   y += 100;
+
   const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
-  #if ENABLED(SHOW_ELAPSED_TIME) && DISABLED(SHOW_REMAINING_TIME)
-    // Print duration so far (time elapsed) - centered
+
+  #if ANY(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
+    const duration_t elapsed = print_job_timer.duration();
+  #endif
+
+  #if ENABLED(SHOW_ELAPSED_TIME)
+  #endif
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    auto set_remaining_string = [&]{
+      // Get the estimate, first from M73
+      uint32_t estimate_remaining = (0
+        #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+          + get_remaining_time()
+        #endif
+      );
+      // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+      if (!estimate_remaining && progress > 0)
+        estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+      if (!estimate_remaining)
+        tft_string.set("-");
+      else {
+        duration_t estimation = estimate_remaining;
+        char estimate_str[TERN(SHOW_ELAPSED_TIME, 18, 22)];
+        estimation.TERN(SHOW_ELAPSED_TIME, toCompactString, toString)(estimate_str);
+        tft_string.set(estimate_str);
+      }
+    };
+  #endif
+
+  #if ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+
+    // Draw both elapsed and remaining
+
     char elapsed_str[22];
-    duration_t elapsed = print_job_timer.duration();
+    elapsed.toString(elapsed_str);
+
+    tft.canvas(274, y, 200, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft_string.set(elapsed_str);
+    tft.add_text(36, 1, COLOR_PRINT_TIME, tft_string);
+
+    // Print time remaining estimation - aligned under flow rate
+
+    // Generate estimated remaining time string
+    set_remaining_string();
+
+    // Push out the estimate to the screen
+    tft.canvas(650, y, 200, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    tft.add_image(0, 0, imgTimeRemaining, color);
+    tft.add_text(36, 1, color, tft_string);
+
+  #elif ENABLED(SHOW_ELAPSED_TIME)
+
+    // Print duration so far (time elapsed) - centered
+
+    char elapsed_str[22];
     elapsed.toString(elapsed_str);
 
     // Same width constraints as feedrate/flowrate controls
@@ -365,29 +463,12 @@ void MarlinUI::draw_status_screen() {
     tft.add_image(text_pos_x, 0, imgTimeElapsed, COLOR_PRINT_TIME);
     tft.add_text(text_pos_x + image_width, 1, COLOR_PRINT_TIME, tft_string);
 
-  #elif DISABLED(SHOW_ELAPSED_TIME) && ENABLED(SHOW_REMAINING_TIME)
+  #elif ENABLED(SHOW_REMAINING_TIME)
+
     // Print time remaining estimation - centered
-    char estimate_str[22];
-    duration_t elapsed = print_job_timer.duration();
 
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toString(estimate_str);
-      tft_string.set(estimate_str);
-    }
+    // Generate estimated remaining time string
+    set_remaining_string();
 
     // Same width constraints as feedrate/flowrate controls
     constexpr uint16_t time_str_width = 476, image_width = 36;
@@ -399,49 +480,10 @@ void MarlinUI::draw_status_screen() {
     tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
     tft.add_text(text_pos_x + image_width, 1, color, tft_string);
 
-  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
-    // Print duration so far (time elapsed) - aligned under feed rate
-    char elapsed_str[22];
-    duration_t elapsed = print_job_timer.duration();
-    elapsed.toString(elapsed_str);
-
-    tft.canvas(274, y, 200, 32);
-    tft.set_background(COLOR_BACKGROUND);
-    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
-    tft_string.set(elapsed_str);
-    tft.add_text(36, 1, COLOR_PRINT_TIME, tft_string);
-
-    // Print time remaining estimation - aligned under flow rate
-    char estimate_str[22];
-
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toString(estimate_str);
-      tft_string.set(estimate_str);
-    }
-
-    // Push out the estimate to the screen
-    tft.canvas(650, y, 200, 32);
-    tft.set_background(COLOR_BACKGROUND);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
-    tft.add_image(0, 0, imgTimeRemaining, color);
-    tft.add_text(36, 1, color, tft_string);
   #endif
 
   y += 50;
+
   // Progress bar
   tft.canvas(4, y, TFT_WIDTH - 8, 9);
   tft.set_background(COLOR_PROGRESS_BG);
@@ -450,6 +492,7 @@ void MarlinUI::draw_status_screen() {
     tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 
   y += 50;
+
   // Status message
   const uint16_t status_height = TFT_HEIGHT - y;
   tft.canvas(0, y, TFT_WIDTH, status_height);

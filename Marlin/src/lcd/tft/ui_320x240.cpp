@@ -222,6 +222,45 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
   tft.add_text(tft_string.center(64) + 6, 69 + tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_FAN, tft_string);
 }
 
+/**
+ * For limited space draw the percent / time values in series.
+ * Call ui.rotate_progress within draw_status_screen to use these.
+ */
+#if ENABLED(SHOW_PROGRESS_PERCENT)
+  void MarlinUI::drawPercent() {
+    // Draw the progress percentage
+  }
+#endif
+#if ENABLED(SHOW_ELAPSED_TIME)
+  void MarlinUI::drawElapsed() {
+    // Draw the elapsed time
+  }
+#endif
+#if ENABLED(SHOW_REMAINING_TIME)
+  void MarlinUI::drawRemain() {
+    // Draw remaining time
+  }
+#endif
+#if ENABLED(SHOW_INTERACTION_TIME)
+  void MarlinUI::drawInter() {
+    // Draw interaction time
+  }
+#endif
+
+/**
+ * Draw Status Screen
+ *
+ *  - Temperatures E0 / E1 / E2 / BED / Chamber / Cooler
+ *  - Fan
+ *  - E Total or XY Positions
+ *  - Z Position
+ *  - Feed Rate
+ *  - Flow Rate
+ *  - Settings Button
+ *  - Time Elapsed and/or Remaining
+ *  - Progress Bar
+ *  - Status Message
+ */
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
 
@@ -326,7 +365,10 @@ void MarlinUI::draw_status_screen() {
     height = TERN(TFT_COLOR_UI_PORTRAIT, FONT_LINE_HEIGHT * 2, FONT_LINE_HEIGHT);
     touch.add_control(MOVE_AXIS, 0, 103, width, height);
     add_control(256, 130, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    // #if HAS_MEDIA
+    //   const bool cm = card.isMounted(), pa = printingIsActive();
+    //   add_control(0, 130, menu_media, imgSD, !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+    // #endif
   #endif
 
   // 3rd group, subgroup B - speeds (center, top half)
@@ -373,13 +415,67 @@ void MarlinUI::draw_status_screen() {
 
   // 3rd group, subgroup C - times (center, bottom half)
   const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
+
+  #if ANY(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
+    const duration_t elapsed = print_job_timer.duration();
+  #endif
+
+  #if ENABLED(SHOW_ELAPSED_TIME)
+  #endif
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    auto set_remaining_string = [&]{
+      // Get the estimate, first from M73
+      uint32_t estimate_remaining = (0
+        #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+          + get_remaining_time()
+        #endif
+      );
+      // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+      if (!estimate_remaining && progress > 0)
+        estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+      if (!estimate_remaining)
+        tft_string.set("-");
+      else {
+        duration_t estimation = estimate_remaining;
+        char estimate_str[TERN(SHOW_ELAPSED_TIME, 18, 22)];
+        estimation.TERN(SHOW_ELAPSED_TIME, toCompactString, toString)(estimate_str);
+        tft_string.set(estimate_str);
+      }
+    };
+  #endif
+
   const uint16_t time_str_width = 180, image_width = 34;
+
   pos_x = (TFT_WIDTH - time_str_width) / 2;
-  pos_y = TERN(TFT_COLOR_UI_PORTRAIT, 256, 164);
-  #if ENABLED(SHOW_ELAPSED_TIME) && DISABLED(SHOW_REMAINING_TIME)
+  pos_y = TERN(TFT_COLOR_UI_PORTRAIT, 224, 164);
+
+  #if ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+
+    // Print duration so far (time elapsed) - aligned under feed rate
+    char elapsed_str[18];
+    elapsed.toCompactString(elapsed_str);
+
+    constexpr uint16_t w = time_str_width / 2 - 2;
+
+    tft.canvas(pos_x, pos_y, w, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft_string.set(elapsed_str);
+    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
+
+    // Remaining Print Time estimation - aligned under flow rate
+    set_remaining_string();
+    tft.canvas(pos_x + time_str_width / 2 + 2, pos_y, w, MENU_ITEM_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    tft.add_image(0, 0, imgTimeRemaining, color);
+    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
+
+  #elif ENABLED(SHOW_ELAPSED_TIME)
     // Print duration so far (time elapsed) - centered
     char elapsed_str[18];
-    duration_t elapsed = print_job_timer.duration();
     elapsed.toCompactString(elapsed_str);
 
     tft.canvas(pos_x, pos_y, time_str_width, MENU_ITEM_HEIGHT);
@@ -389,30 +485,10 @@ void MarlinUI::draw_status_screen() {
     tft.add_image(text_pos_x, 0, imgTimeElapsed, COLOR_PRINT_TIME);
     tft.add_text(text_pos_x + image_width, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
 
-  #elif DISABLED(SHOW_ELAPSED_TIME) && ENABLED(SHOW_REMAINING_TIME)
-    // Print time remaining estimation - centered
-    char estimate_str[18];
-    duration_t elapsed = print_job_timer.duration();
+  #elif ENABLED(SHOW_REMAINING_TIME)
 
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toCompactString(estimate_str);
-      tft_string.set(estimate_str);
-    }
-
+    // Remaining Print Time estimation - centered
+    set_remaining_string();
     tft.canvas(pos_x, pos_y, time_str_width, MENU_ITEM_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
@@ -420,46 +496,6 @@ void MarlinUI::draw_status_screen() {
     tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
     tft.add_text(text_pos_x + image_width, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
 
-  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
-    // Print duration so far (time elapsed) - aligned under feed rate
-    char elapsed_str[18];
-    duration_t elapsed = print_job_timer.duration();
-    elapsed.toCompactString(elapsed_str);
-
-    tft.canvas(pos_x, pos_y, time_str_width / 2 - 2, MENU_ITEM_HEIGHT);
-    tft.set_background(COLOR_BACKGROUND);
-    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
-    tft_string.set(elapsed_str);
-    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
-
-    // Print time remaining estimation - aligned under flow rate
-    char estimate_str[18];
-
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toCompactString(estimate_str);
-      tft_string.set(estimate_str);
-    }
-
-    // Push out the estimate to the screen
-    tft.canvas(pos_x + time_str_width / 2 + 2, pos_y, time_str_width / 2 - 2, MENU_ITEM_HEIGHT);
-    tft.set_background(COLOR_BACKGROUND);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
-    tft.add_image(0, 0, imgTimeRemaining, color);
-    tft.add_text(32, tft_string.vcenter(FONT_LINE_HEIGHT), color, tft_string);
   #endif
 
   // Fourth horizontal group - progress bar (height = 9, top margin = 4)
@@ -480,20 +516,17 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
   {
-    add_control(
-      TERN(TFT_COLOR_UI_PORTRAIT, 176, 256),
-      TERN(TFT_COLOR_UI_PORTRAIT, 210, 130),
-      menu_main, imgSettings
-    );
+    pos_y = TERN(TFT_COLOR_UI_PORTRAIT, 210, 130);
+    add_control(TERN(TFT_COLOR_UI_PORTRAIT, 176, 256), pos_y, menu_main, imgSettings);
     #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
       if (cm && pa)
-        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+        add_control(0, pos_y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
-        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
+        add_control(0, pos_y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   }
-  #endif // TOUCH_SCREEN
+  #endif
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace

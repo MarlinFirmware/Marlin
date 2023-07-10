@@ -220,6 +220,45 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
   tft.add_text(tft_string.center(80) + 6, 80 + tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_FAN, tft_string);
 }
 
+/**
+ * For limited space draw the percent / time values in series.
+ * Call ui.rotate_progress within draw_status_screen to use these.
+ */
+#if ENABLED(SHOW_PROGRESS_PERCENT)
+  void MarlinUI::drawPercent() {
+    // Draw the progress percentage
+  }
+#endif
+#if ENABLED(SHOW_ELAPSED_TIME)
+  void MarlinUI::drawElapsed() {
+    // Draw the elapsed time
+  }
+#endif
+#if ENABLED(SHOW_REMAINING_TIME)
+  void MarlinUI::drawRemain() {
+    // Draw remaining time
+  }
+#endif
+#if ENABLED(SHOW_INTERACTION_TIME)
+  void MarlinUI::drawInter() {
+    // Draw interaction time
+  }
+#endif
+
+/**
+ * Draw Status Screen
+ *
+ *  - Temperatures E0 / E1 / E2 / BED / Chamber / Cooler
+ *  - Fan
+ *  - E Total or XY Positions
+ *  - Z Position
+ *  - Feed Rate
+ *  - Flow Rate
+ *  - Settings Button
+ *  - Time Elapsed and/or Remaining
+ *  - Progress Bar
+ *  - Status Message
+ */
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
 
@@ -257,10 +296,11 @@ void MarlinUI::draw_status_screen() {
   y += STATUS_MARGIN_SIZE + 114;
 
   // Coordinates
-  constexpr uint16_t coords_width = TFT_WIDTH - 8;
-  tft.canvas((TFT_WIDTH - coords_width) / 2, y, coords_width, FONT_LINE_HEIGHT);
+  constexpr uint16_t coords_w = TFT_WIDTH - TERN(HAS_UI_480x320, 8, 2);
+  uint16_t x = (TFT_WIDTH - coords_w) / 2;
+  tft.canvas(x, y, coords_w, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_rectangle(0, 0, coords_width, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
+  tft.add_rectangle(0, 0, coords_w, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
 
   if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -276,46 +316,46 @@ void MarlinUI::draw_status_screen() {
     // Coords in mask "X____Y____Z____"
     #if HAS_X_AXIS
       tft_string.set("X");
-      tft.add_text(coords_width / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(coords_w / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
 
       const bool nhx = axis_should_home(X_AXIS);
       tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
       tft_string.ltrim();
-      tft.add_text(coords_width / 5 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(coords_w / 5 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
     #endif
 
     #if HAS_Y_AXIS
       tft_string.set("Y");
-      tft.add_text(11 * coords_width / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(11 * coords_w / 30 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
 
       const bool nhy = axis_should_home(Y_AXIS);
       tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
       tft_string.ltrim();
-      tft.add_text(8 * coords_width / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(8 * coords_w / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
     #endif
   }
 
   #if HAS_Z_AXIS
     tft_string.set("Z");
-    tft.add_text(7 * coords_width / 10 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
+    tft.add_text(7 * coords_w / 10 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
 
     const bool nhz = axis_should_home(Z_AXIS);
     tft_string.set(blink && nhz ? "?" : ftostr52sp(LOGICAL_Z_POSITION(current_position.z)));
     tft_string.ltrim();
     tft_string.rtrim();
-    tft.add_text(13 * coords_width / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+    tft.add_text(13 * coords_w / 15 - tft_string.width() / 2, tft_string.vcenter(FONT_LINE_HEIGHT), nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
+  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, x, y, coords_w, FONT_LINE_HEIGHT));
 
-  y += STATUS_MARGIN_SIZE + 34;
+  y += STATUS_MARGIN_SIZE + 40;
 
   // Feed rate (preparing)
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add("%");
   uint16_t component_width = 36 + tft_string.width(); // 32px icon size + 4px margin before text
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  uint16_t x = FEEDRATE_X(component_width);
+  x = FEEDRATE_X(component_width);
 
   // Feed rate (drawing)
   tft.canvas(x, y, component_width, 32);
@@ -340,120 +380,130 @@ void MarlinUI::draw_status_screen() {
     TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, x, y, component_width, 32, active_extruder));
   #endif
 
-  y += TERN(HAS_UI_480x272, 36, 44);
+  y += TERN(HAS_UI_480x272, 30, 38);
+
+  #if ENABLED(TOUCH_SCREEN)
+    // Settings button
+    add_control(SETTINGS_X, y, menu_main, imgSettings);
+
+    // SD-card button / Cancel button
+    #if HAS_MEDIA
+      const bool cm = card.isMounted(), pa = printingIsActive();
+      if (cm && pa)
+        add_control(SDCARD_X, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(SDCARD_X, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED); // 64px icon size
+    #endif
+    y += STATUS_MARGIN_SIZE + TERN(TFT_COLOR_UI_PORTRAIT, 64, 44);
+  #endif
 
   const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
-  #if ENABLED(SHOW_ELAPSED_TIME) && DISABLED(SHOW_REMAINING_TIME)
+
+  #if ANY(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
+    const duration_t elapsed = print_job_timer.duration();
+    // Same width constraints as feedrate/flowrate controls
+    constexpr uint16_t time_str_width = FONT_SIZE * 16, image_width = 36;
+    x = (TFT_WIDTH - time_str_width) / 2;
+  #endif
+
+  #if ENABLED(SHOW_ELAPSED_TIME)
+  #endif
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    auto set_remaining_string = [&]{
+      // Get the estimate, first from M73
+      uint32_t estimate_remaining = (0
+        #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
+          + get_remaining_time()
+        #endif
+      );
+      // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
+      if (!estimate_remaining && progress > 0)
+        estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+
+      if (!estimate_remaining)
+        tft_string.set("-");
+      else {
+        duration_t estimation = estimate_remaining;
+        char estimate_str[TERN(SHOW_ELAPSED_TIME, 18, 22)];
+        estimation.TERN(SHOW_ELAPSED_TIME, toCompactString, toString)(estimate_str);
+        tft_string.set(estimate_str);
+      }
+    };
+  #endif
+
+  #if ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
+
+    // Draw both elapsed and remaining
+
+    char elapsed_str[18];
+    elapsed.toCompactString(elapsed_str);
+
+    tft.canvas(96, y, image_width + time_str_width, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
+    tft_string.set(elapsed_str);
+    tft.add_text(image_width, tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
+
+    // Print time remaining estimation - aligned under flow rate
+
+    // Generate estimated remaining time string
+    set_remaining_string();
+
+    // Push out the estimate to the screen
+    tft.canvas(x + time_str_width / 2 + 2, y, image_width + time_str_width, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    tft.add_image(0, 0, imgTimeRemaining, color);
+    tft.add_text(image_width, tft_string.vcenter(29), color, tft_string);
+
+  #elif ENABLED(SHOW_ELAPSED_TIME)
     // Print duration so far (time elapsed) - centered
     char elapsed_str[22];
-    duration_t elapsed = print_job_timer.duration();
     elapsed.toString(elapsed_str);
 
-    // Same width constraints as feedrate/flowrate controls
-    constexpr uint16_t time_str_width = 288, image_width = 36;
-
-    tft.canvas((TFT_WIDTH - time_str_width) / 2, y, time_str_width, 32);
+    tft.canvas(x, y, time_str_width, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(elapsed_str);
     uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
     tft.add_image(text_pos_x, 0, imgTimeElapsed, COLOR_PRINT_TIME);
     tft.add_text(text_pos_x + image_width, tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
 
-  #elif DISABLED(SHOW_ELAPSED_TIME) && ENABLED(SHOW_REMAINING_TIME)
-    // Print time remaining estimation - centered
-    char estimate_str[22];
-    duration_t elapsed = print_job_timer.duration();
+  #elif ENABLED(SHOW_REMAINING_TIME)
+    // Remaining Print Time estimation - centered
 
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+    // Generate estimated remaining time string
+    set_remaining_string();
 
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toString(estimate_str);
-      tft_string.set(estimate_str);
-    }
-
-    // Same width constraints as feedrate/flowrate controls
-    constexpr uint16_t time_str_width = 288, image_width = 36;
-
-    tft.canvas((TFT_WIDTH - time_str_width) / 2, y, time_str_width, 32);
+    tft.canvas(x, y, time_str_width, 32);
     tft.set_background(COLOR_BACKGROUND);
     color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
     uint16_t text_pos_x = tft_string.center(time_str_width - image_width);
     tft.add_image(text_pos_x, 0, imgTimeRemaining, color);
     tft.add_text(text_pos_x + image_width, tft_string.vcenter(29), color, tft_string);
 
-  #elif ALL(SHOW_REMAINING_TIME, SHOW_ELAPSED_TIME)
-    // Print duration so far (time elapsed) - aligned under feed rate
-    char elapsed_str[18];
-    duration_t elapsed = print_job_timer.duration();
-    elapsed.toCompactString(elapsed_str);
-
-    tft.canvas(96, y, 144, 32);
-    tft.set_background(COLOR_BACKGROUND);
-    tft.add_image(0, 0, imgTimeElapsed, COLOR_PRINT_TIME);
-    tft_string.set(elapsed_str);
-    tft.add_text(36, tft_string.vcenter(29), COLOR_PRINT_TIME, tft_string);
-
-    // Print time remaining estimation - aligned under flow rate
-    char estimate_str[18];
-
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-
-    // Generate estimate string
-    if (!estimate_remaining)
-      tft_string.set("-");
-    else {
-      duration_t estimation = estimate_remaining;
-      estimation.toCompactString(estimate_str);
-      tft_string.set(estimate_str);
-    }
-
-    // Push out the estimate to the screen
-    tft.canvas(256, y, 144, 32);
-    tft.set_background(COLOR_BACKGROUND);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
-    tft.add_image(0, 0, imgTimeRemaining, color);
-    tft.add_text(36, tft_string.vcenter(29), color, tft_string);
   #endif
 
-  y += TERN(HAS_UI_480x272, 36, 44);
+  y += TERN(HAS_UI_480x272, 36, 44) + TERN(TFT_COLOR_UI_PORTRAIT, 20, 0);
+
+  constexpr uint16_t bar_i = TERN(HAS_UI_480x320, 8, 4),
+                     bar_w = TFT_WIDTH - bar_i,
+                     bar_h = TERN(TFT_COLOR_UI_PORTRAIT, 16, 9);
 
   // Progress bar
   // TODO: print percentage text for SHOW_PROGRESS_PERCENT
-  tft.canvas(4, y, TFT_WIDTH - 8, 9);
+  tft.canvas(bar_i / 2, y, bar_w, bar_h);
   tft.set_background(COLOR_PROGRESS_BG);
-  tft.add_rectangle(0, 0, TFT_WIDTH - 8, 9, COLOR_PROGRESS_FRAME);
-  if (progress)
-    tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
+  tft.add_rectangle(0, 0, bar_w, bar_h, COLOR_PROGRESS_FRAME);
+  if (progress) tft.add_bar(1, 1, ((bar_w - 2) * progress / (PROGRESS_SCALE)) / 100, bar_h - 2, COLOR_PROGRESS_BAR);
 
-  y += 12;
   // Status message
-  // Canvas height should be 40px on 480x320 and 28 on 480x272
-  const uint16_t status_height = TFT_HEIGHT - y;
-  tft.canvas(0, y, TFT_WIDTH, status_height);
+  constexpr uint16_t status_height = FONT_LINE_HEIGHT + 4; // TERN(HAS_UI_480x272, 28, 40);
+  tft.canvas(0, TFT_HEIGHT - status_height, TFT_WIDTH, status_height);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_STATUS_MESSAGE, tft_string);
+  tft.add_text(tft_string.center(TFT_WIDTH), tft_string.vcenter(status_height), COLOR_STATUS_MESSAGE, tft_string);
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
