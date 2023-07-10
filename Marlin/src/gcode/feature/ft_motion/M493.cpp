@@ -152,7 +152,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    H<Hz> Set frequency scaling for the Y axis
  */
 void GcodeSuite::M493() {
-  struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
+  struct { bool update_n:1, update_a:1, report_h:1; } flag = { false };
 
   if (!parser.seen_any())
     flag.report_h = true;
@@ -316,7 +316,6 @@ void GcodeSuite::M493() {
     if (flag.update_n) fxdTiCtrl.refreshShapingN();
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
-  if (flag.reset_ft) fxdTiCtrl.reset();
   if (flag.report_h) say_shaping();
 
 }
