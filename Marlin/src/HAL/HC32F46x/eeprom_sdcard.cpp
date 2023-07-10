@@ -21,7 +21,6 @@
  */
 
 /**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  * Implementation of EEPROM settings in SD Card
  */
 

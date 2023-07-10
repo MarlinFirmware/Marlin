@@ -24,6 +24,8 @@
  * SOFTWARE.
  *****************************************************************************/
 
+// TODO: SPI.cpp not implemented for HC32F46x
+
 /**
  * @author Marti Bolivar <mbolivar@leaflabs.com>
  * @brief Wirish SPI implementation.

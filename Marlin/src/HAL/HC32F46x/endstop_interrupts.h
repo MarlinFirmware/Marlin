@@ -23,14 +23,13 @@
 #pragma once
 
 /**
- * Endstop interrupts for Libmaple HC32F46x based on STM32F1 based targets.
+ * Endstop interrupts for HC32F46x based targets.
  *
- * On STM32F, all pins support external interrupt capability.
- * Any pin can be used for external interrupts, but there are some restrictions.
- * At most 16 different external interrupts can be used at one time.
- * Further, you can’t just pick any 16 pins to use. This is because every pin on the STM32
- * connects to what is called an EXTI line, and only one pin per EXTI line can be used for external interrupts at a time
- * Check the Reference Manual of the MCU to confirm which line is used by each pin
+ * On HC32F46x, all pins support external interrupt capability, with some restrictions.
+ * See the documentation of WInterrupts#attachInterrupt() for details.
+ *
+ * TL;DR
+ * any 16 pins can be used, but only one pin per EXTI line (so PA0 and PB0 are no-good).
  */
 
 /**

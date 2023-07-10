@@ -21,8 +21,10 @@
  *
  */
 
-/**
- * HAL for stm32duino.com based on Libmaple and compatible (HC32F46x based on STM32F1)
+/** 
+ * HAL for HC32F46x based boards
+ * 
+ * Note: MarlinHAL class is in MarlinHAL.h/cpp
  */
 
 #define CPU_32_BIT
@@ -103,7 +105,6 @@ extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 //
 // Misc. Defines
 //
-#define STM32_FLASH_SIZE 256
 #define square(x) ((x) * (x))
 
 #ifndef strncpy_P
@@ -117,6 +118,7 @@ extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 #define analogInputToDigitalPin(p) (p)
 #endif
 
+//TODO: digitalPinHasPWM is not implemented
 #ifndef digitalPinHasPWM
 #define digitalPinHasPWM(P) (P) //(PIN_MAP[P].timer_device != nullptr)
 #endif

@@ -24,7 +24,7 @@
 
 /**
  * Fast I/O interfaces for HC32F46x
- * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
+ * These use GPIO functions instead of Direct Port Manipulation.
  */
 #include <wiring_digital.h>
 #include <gpio/gpio.h>

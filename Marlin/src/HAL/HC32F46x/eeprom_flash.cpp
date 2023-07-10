@@ -21,12 +21,6 @@
  *
  */
 
-/**
- * persistent_store_flash.cpp
- * HAL for stm32duino and compatible (HC32F46x based on STM32F1)
- * Implementation of EEPROM settings in SDCard
- */
-
 #ifdef TARGET_HC32F46x
 
 #include "../../inc/MarlinConfig.h"

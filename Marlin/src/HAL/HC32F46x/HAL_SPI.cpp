@@ -27,7 +27,7 @@
  */
 
 /**
- * Adapted to the STM32F1 HAL
+ * TODO: not yet Adapted to HC32F46x
  */
 
 #ifdef TARGET_HC32F46x

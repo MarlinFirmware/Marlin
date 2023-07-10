@@ -24,6 +24,9 @@
  * SOFTWARE.
  *****************************************************************************/
 #pragma once
+
+// TODO: SPI.h not implemented for HC32F46x
+
 #ifdef USE_SPI
 #warning "'SPI' has not been tested to work as expected. Proceed at your own risk"
 

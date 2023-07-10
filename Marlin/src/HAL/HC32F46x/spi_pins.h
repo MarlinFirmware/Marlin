@@ -19,7 +19,7 @@
 #pragma once
 
 /**
- * HAL for stm32duino.com based on Libmaple and compatible (HC32F46x based on STM32F1)
+ * TODO: spi_pins.h not implemented yet
  */
 
 /**

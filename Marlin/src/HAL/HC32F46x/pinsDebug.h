@@ -20,9 +20,6 @@
 #include "fastio.h"
 #include "../../inc/MarlinConfig.h"
 
-// allow pins with potentially unsafe FuncSel
-// #define ALLOW_UNSAFE_FUNCTION_PINS
-
 //
 // Translation of routines & variables used by pinsDebug.h
 //
