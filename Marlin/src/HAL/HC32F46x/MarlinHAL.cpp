@@ -13,18 +13,19 @@ extern "C" char *_sbrk(int incr);
 
 pin_t MarlinHAL::last_adc_pin;
 
+void HAL_wdt_callback()
+{
+    panic("WDT timeout");
+    NVIC_SystemReset();
+}
+
 MarlinHAL::MarlinHAL() {}
 
 void MarlinHAL::watchdog_init()
 {
 #if ENABLED(USE_WATCHDOG)
-    stc_wdt_init_t wdtConf = {
-        .enCountCycle = WdtCountCycle65536,
-        .enClkDiv = WdtPclk3Div8192,
-        .enRefreshRange = WdtRefresh100Pct,
-        .enSleepModeCountEn = Disable,
-        .enRequestType = WdtTriggerResetRequest};
-    WDT.begin(&wdtConf);
+    // 5s timeout, panic on timeout
+    WDT.begin(5000, &HAL_wdt_callback);
 #endif
 }
 
