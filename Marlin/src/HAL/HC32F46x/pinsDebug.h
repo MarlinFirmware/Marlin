@@ -60,9 +60,11 @@
 #ifndef M43_NEVER_TOUCH
 // do not touch any of the following pins:
 // - host serial pins, and
-// - pins related to the oscillator
+// - pins that could be connected to oscillators (see datasheet, Table 2.1):
+//   - XTAL = PH0, PH1
+//   - XTAL32 = PC14, PC15
 #define IS_HOST_USART_PIN(Q) (Q == BOARD_USART2_TX_PIN || Q == BOARD_USART2_RX_PIN)
-#define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PH2)
+#define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PC14 || Q == PC15)
 
 #define M43_NEVER_TOUCH(Q) ( \
     IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
