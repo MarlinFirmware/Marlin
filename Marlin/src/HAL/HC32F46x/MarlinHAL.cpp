@@ -97,19 +97,24 @@ void MarlinHAL::idletask()
     MarlinHAL::watchdog_refresh();
 
     // monitor SOC temperature
+    // #define HAL_ALWAYS_PRINT_SOC_TEMP
     float temp;
     if (ChipTemperature.read(temp))
     {
+#ifdef HAL_ALWAYS_PRINT_SOC_TEMP
         // print SoC temperature on every read
-        // char tempStr[10];
-        // dtostrf(temp, 8, 1, tempStr);
-        // printf("SoC temperature is %sC\n", tempStr);
+        char tempStr[10];
+        dtostrf(temp, 8, 1, tempStr);
+        printf("SoC temperature is %sC\n", tempStr);
+#endif
 
         // warn after reaching 60C
         if (temp > 60)
         {
+#ifndef HAL_ALWAYS_PRINT_SOC_TEMP
             char tempStr[10];
             dtostrf(temp, 8, 1, tempStr);
+#endif
             printf("SoC temperature %s is above 60C", tempStr);
         }
 

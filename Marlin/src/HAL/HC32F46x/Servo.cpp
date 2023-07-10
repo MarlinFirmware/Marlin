@@ -26,6 +26,8 @@
 
 #if HAS_SERVOS
 
+#warning "Servo support on HC32F46x is experimental. Please report any issue"
+
 uint8_t ServoCount = 0;
 
 #include "Servo.h"

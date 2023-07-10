@@ -30,6 +30,8 @@
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
 
+#warning "SD EEPROM emulation has not been tested on HC32F46x. Please report any issue" 
+
 #include "../shared/eeprom_api.h"
 #include "../../sd/cardreader.h"
 

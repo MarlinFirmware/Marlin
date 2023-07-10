@@ -29,7 +29,7 @@
 #include "../../../inc/MarlinConfig.h"
 
 #if defined(TARGET_HC32F46x) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
-#warning "'u8g_com_stm32duino_fsmc' has not been tested to work as expected. Proceed at your own risk"
+#warning "'u8g_com_stm32duino_fsmc' has not been adapted to HC32F46x. Proceed at your own risk"
 
 #if HAS_GRAPHICAL_LCD
 

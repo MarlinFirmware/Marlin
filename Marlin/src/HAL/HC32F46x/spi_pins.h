@@ -17,22 +17,3 @@
  *
  */
 #pragma once
-
-/**
- * TODO: spi_pins.h not implemented yet
- */
-
-/**
- * STM32F1 Default SPI Pins
- *
- *         SS     SCK     MISO    MOSI
- *       +-----------------------------+
- *  SPI1 | PA4    PA5     PA6     PA7  |
- *  SPI2 | PB12   PB13    PB14    PB15 |
- *  SPI3 | PA15   PB3     PB4     PB5  |
- *       +-----------------------------+
- * Any pin can be used for Chip Select (SS_PIN)
- * SPI1 is enabled by default
- */
-
-#define SPI_DEVICE 1
