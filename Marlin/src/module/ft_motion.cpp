@@ -397,8 +397,8 @@ void FxdTiCtrl::reset() {
   interpIdx = interpIdx_z1 = 0;
 
   #if HAS_X_AXIS
-    for (uint32_t i = 0U; i < (FTM_ZMAX); i++)
-      shaping.x.d_zi[i] = TERN_(HAS_Y_AXIS, shaping.y.d_zi[i] =) 0.0f;
+    ZERO(shaping.x.d_zi);
+    TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
 
