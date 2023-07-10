@@ -2,6 +2,8 @@
 #include "../../module/endstops.h"
 #include <Arduino.h>
 
+#define ENDSTOP_IRQ_PRIORITY DDL_IRQ_PRIORITY_06
+
 //
 // IRQ handler
 //
@@ -41,7 +43,7 @@ void endstopIRQHandler()
 //
 void setup_endstop_interrupts()
 {
-#define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE))
+#define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE); setInterruptPriority(name##_PIN, ENDSTOP_IRQ_PRIORITY))
 
   SETUP(X_MAX);
   SETUP(X_MIN);
