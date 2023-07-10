@@ -70,22 +70,24 @@ void GcodeSuite::G30() {
 
     remember_feedrate_scaling_off();
 
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, process_subcommands_now(F("G28O")));
+    #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+      process_subcommands_now(F("G28O"));
+    #endif
 
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
-    TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
+    TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
     const float measured_z = probe.probe_at_point(probepos, raise_after);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
-      SERIAL_ECHOLNPGM("Bed X: ", probepos.asLogical().x, " Y: ", probepos.asLogical().y, " Z: ", measured_z);
-      #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
-        char msg[31], str_1[6], str_2[6], str_3[6];
-        sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
-          dtostrf(probepos.x, 1, 1, str_1),
-          dtostrf(probepos.y, 1, 1, str_2),
-          dtostrf(measured_z, 1, 2, str_3)
-        );
+      const xy_pos_t lpos = probepos.asLogical();
+      SString<30> msg(
+        F("Bed X:"), p_float_t(lpos.x, 1),
+        F(  " Y:"), p_float_t(lpos.y, 1),
+        F(  " Z:"), p_float_t(measured_z, 2)
+      );
+      msg.echoln();
+      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
         ui.set_status(msg);
       #endif
     }
@@ -100,7 +102,7 @@ void GcodeSuite::G30() {
     report_current_position();
   }
   else {
-    SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
+    SERIAL_ECHOLN(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
     LCD_MESSAGE(MSG_ZPROBE_OUT);
   }
 

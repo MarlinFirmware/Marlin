@@ -22,18 +22,18 @@
 #pragma once
 
 /* ****************************************
- * lcd/extui/ia_creality/ia_creality_extui.h
+ * lcd/extui/ia_creality/ia_creality_rts.h
  * ****************************************
  * Extensible_UI implementation for Creality DWIN
  * 10SPro, Max, CRX, and others
- * Based original Creality release, ported to ExtUI for Marlin 2.0
+ * Based original Creality release
  * Written by Insanity Automation, sponsored by Tiny Machines 3D
  *
  * ***************************************/
 
-#include "../ui_api.h"
+#include "../../../inc/MarlinConfig.h"
 
-#include <string.h>
+#include <WString.h>
 
 /*********************************/
 #define FHONE   (0x5A)
@@ -211,7 +211,7 @@ struct creality_dwin_settings_t {
   bool display_sound;
   int8_t screen_rotation;
   int16_t display_volume;
-  uint8_t standby_screen_brightness;
+  uint8_t standby_brightness;
   uint8_t screen_brightness;
   int16_t standby_time_seconds;
 };
@@ -279,7 +279,7 @@ enum PROC_COM {
 };
 
 const uint16_t Addrbuf[] = {
-  0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
+  0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C, 0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
   0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
   0x105C, 0x105E, 0x105F, 0x1088, 0
 };
@@ -296,4 +296,20 @@ void RTS_Update();
   #endif
 #else
   #define MEASURING_GCODE MAIN_MENU_ITEM_1_GCODE
+#endif
+
+// Data shared by RTS and ExtUI
+extern uint16_t fileIndex;
+extern uint8_t recordcount;
+extern uint8_t startprogress;
+extern char waitway;
+extern char printerStatusKey[2];  // [0] = 0:ready  [1] = 0:keep temperature, 1:heating, 2:cooling, 3:printing
+extern bool show_status;
+extern bool tpShowStatus;         // true: opening time/percentage, false: closing time/percentage
+extern uint8_t lastPauseMsgState;
+extern creality_dwin_settings_t dwin_settings;
+extern bool no_reentry;
+#if HAS_PID_HEATING
+  extern uint16_t pid_hotendAutoTemp;
+  extern uint16_t pid_bedAutoTemp;
 #endif

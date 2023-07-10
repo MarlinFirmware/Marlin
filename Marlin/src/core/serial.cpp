@@ -68,26 +68,51 @@ MAP(_N_LBL, LOGICAL_AXIS_NAMES); MAP(_SP_N_LBL, LOGICAL_AXIS_NAMES);
 
 #endif
 
-void serial_print_P(PGM_P str) {
-  while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
+// Specializations for float, p_float_t, w_float_t
+template <> void SERIAL_ECHO(const float f)      { SERIAL_IMPL.print(f); }
+template <> void SERIAL_ECHO(const p_float_t pf) { SERIAL_IMPL.print(pf.value, pf.prec); }
+template <> void SERIAL_ECHO(const w_float_t wf) { char f1[20]; SERIAL_IMPL.print(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+
+// Specializations for F-string
+template <> void SERIAL_ECHO(const FSTR_P fstr)   { SERIAL_ECHO_P(FTOP(fstr)); }
+template <> void SERIAL_ECHOLN(const FSTR_P fstr) { SERIAL_ECHOLN_P(FTOP(fstr)); }
+
+void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
+void SERIAL_EOL() { SERIAL_CHAR('\n'); }
+
+void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+
+void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
+void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
+
+void SERIAL_ECHO_P(PGM_P pstr) {
+  while (const char c = pgm_read_byte(pstr++)) SERIAL_CHAR(c);
 }
+void SERIAL_ECHOLN_P(PGM_P pstr) { SERIAL_ECHO_P(pstr); SERIAL_EOL(); }
 
-void serial_echo_start()  { serial_print(F("echo:")); }
-void serial_error_start() { serial_print(F("Error:")); }
+void SERIAL_ECHO_START()  { SERIAL_ECHO(F("echo:")); }
+void SERIAL_ERROR_START() { SERIAL_ECHO(F("Error:")); }
 
-void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
+void SERIAL_ECHO_SP(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
 void serial_offset(const_float_t v, const uint8_t sp/*=0*/) {
   if (v == 0 && sp == 1)
     SERIAL_CHAR(' ');
   else if (v > 0 || (v == 0 && sp == 2))
     SERIAL_CHAR('+');
-  SERIAL_DECIMAL(v);
+  SERIAL_ECHO(v);
 }
 
-void serialprint_onoff(const bool onoff) { serial_print(onoff ? F(STR_ON) : F(STR_OFF)); }
+void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post/*=nullptr*/) {
+  if (pre)           SERIAL_ECHO(pre);
+  if (onoff && on)   SERIAL_ECHO(on);
+  if (!onoff && off) SERIAL_ECHO(off);
+  if (post)          SERIAL_ECHO(post);
+}
+
+void serialprint_onoff(const bool onoff) { SERIAL_ECHO(onoff ? F(STR_ON) : F(STR_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
-void serialprint_truefalse(const bool tf) { serial_print(tf ? F("true") : F("false")); }
+void serialprint_truefalse(const bool tf) { SERIAL_ECHO(tf ? F("true") : F("false")); }
 
 void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
@@ -96,12 +121,24 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
-  if (prefix) serial_print(prefix);
+void _print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix) {
+  if (prefix) SERIAL_ECHO(prefix);
   #if NUM_AXES
     SERIAL_ECHOPGM_P(
       LIST_N(DOUBLE(NUM_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k, SP_U_STR, u, SP_V_STR, v, SP_W_STR, w)
     );
   #endif
-  if (suffix) serial_print(suffix); else SERIAL_EOL();
+}
+
+void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+  _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
+  if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
+}
+
+void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+  _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM_P(SP_E_STR, e);
+  #endif
+  if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
 }

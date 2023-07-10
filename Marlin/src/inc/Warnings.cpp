@@ -687,17 +687,17 @@
 /**
  * FYSETC/MKS/BTT Mini Panel backlighting
  */
-#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
+#if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
   #warning "Your FYSETC/MKS/BTT Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
 #endif
 
-#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
+#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
-#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+#elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
   #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
-#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && BOTH(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
+#if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && ALL(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
   #warning "Your FYSETC display with PSU_CONTROL works best with LED_POWEROFF_TIMEOUT."
 #endif
 
@@ -730,9 +730,16 @@
 #endif
 
 /**
+ * EP Babystepping works best with EMERGENCY_PARSER
+ */
+#if ENABLED(EP_BABYSTEPPING) && DISABLED(EMERGENCY_PARSER)
+  #warning "EMERGENCY_PARSER is recommended for EP_BABYSTEPPING."
+#endif
+
+/**
  * POLAR warnings
  */
-#if BOTH(POLAR, S_CURVE_ACCELERATION)
+#if ALL(POLAR, S_CURVE_ACCELERATION)
   #warning "POLAR kinematics may not work well with S_CURVE_ACCELERATION."
 #endif
 
@@ -743,10 +750,16 @@
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif
 
+/**
+ * Automatic Multistepping Limit
+ */
 #if MULTISTEPPING_LIMIT_WARNING
   #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
 #endif
 
+/**
+ * SD Card extras
+ */
 #if SDSORT_CACHE_VFATS_WARNING
   #warning "SDSORT_CACHE_VFATS has been reduced to VFAT_ENTRIES_LIMIT."
 #endif
@@ -761,6 +774,16 @@
   #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
 #endif
 
+/**
+ * ProUI Boot Screen Duration
+ */
 #if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
   #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+#endif
+
+/**
+ * AD595 Minimum Voltage
+ */
+#if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
+  #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RC BigTreeTech (SKR Mini E3)
+# Build tests for STM32F103RC_btt (BigTreeTech SKR Mini E3)
 #
 
 # exit on first failure
@@ -12,7 +12,7 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_0 SERIAL_PORT 1 SERIAL_PORT_2 -1 \
         X_DRIVER_TYPE TMC2209 Y_DRIVER_TYPE TMC2209 Z_DRIVER_TYPE TMC2209 E0_DRIVER_TYPE TMC2209
-opt_enable PINS_DEBUGGING Z_IDLE_HEIGHT FT_MOTION
+opt_enable CR10_STOCKDISPLAY PINS_DEBUGGING Z_IDLE_HEIGHT FT_MOTION FT_MOTION_MENU
 exec_test $1 $2 "BigTreeTech SKR Mini E3 1.0 - TMC2209 HW Serial, FT_MOTION" "$3"
 
 # clean up

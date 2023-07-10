@@ -35,8 +35,7 @@
 template<typename TMC>
 void tmc_say_stealth_status(TMC &st) {
   st.printLabel();
-  SERIAL_ECHOPGM(" driver mode:\t");
-  SERIAL_ECHOLNF(st.get_stealthChop() ? F("stealthChop") : F("spreadCycle"));
+  SERIAL_ECHOLN(F(" driver mode:\t"), st.get_stealthChop() ? F("stealthChop") : F("spreadCycle"));
 }
 template<typename TMC>
 void tmc_set_stealthChop(TMC &st, const bool enable) {
@@ -161,10 +160,7 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
   auto say_M569 = [](const bool forReplay, FSTR_P const etc=nullptr, const bool eol=false) {
     if (!forReplay) SERIAL_ECHO_START();
     SERIAL_ECHOPGM("  M569 S1");
-    if (etc) {
-      SERIAL_CHAR(' ');
-      SERIAL_ECHOF(etc);
-    }
+    if (etc) SERIAL_ECHO(AS_CHAR(' '), etc);
     if (eol) SERIAL_EOL();
   };
 
