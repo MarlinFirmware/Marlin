@@ -31,12 +31,19 @@
 
 #define USES_DIAG_JUMPERS
 
-// Add-on board for IDEX conversion
-//#define BTT_E3_RRF_IDEX_BOARD
+// Use one of these or SDCard-based Emulation will be used
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+#endif
 
-// Onboard I2C EEPROM
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4K
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
+
+//#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
@@ -54,6 +61,15 @@
 // Z Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PC2   // PROBE
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  #ifndef PROBE_ENABLE_PIN
+    #define PROBE_ENABLE_PIN          SERVO0_PIN
+  #endif
+#endif
 
 //
 // Steppers
@@ -112,6 +128,56 @@
 #define FAN1_PIN                            PA1
 #define FAN2_PIN                            PA2
 #define FAN3_PIN                            PA3
+
+
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
+
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                   PC15
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
+
+  #define Y_SERIAL_TX_PIN                   PB6
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
+
+  #define Z_SERIAL_TX_PIN                   PD7
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+
+  #define E0_SERIAL_TX_PIN                  PD4
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
+
+  #define E1_SERIAL_TX_PIN                  PD0
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
+
+//#ifndef SDCARD_CONNECTION
+//  #define SDCARD_CONNECTION              ONBOARD
+//#endif
+
 
 /**
  *              BTT E3 RRF
@@ -315,19 +381,19 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   //#define SDIO_CLOCK                  48000000
-  #define SD_DETECT_PIN                     PC4
+  //#define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
 #endif
 
-#if ENABLED(WIFISUPPORT)
+//#if ENABLED(WIFISUPPORT)
   //
   // WIFI
   //
-  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PA4
-  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
-  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
-#endif
+//  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+//  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+//  #define ESP_WIFI_MODULE_RESET_PIN         PA4
+//  #define ESP_WIFI_MODULE_ENABLE_PIN        PA5
+//  #define ESP_WIFI_MODULE_GPIO0_PIN         PA6
+//#endif
 
