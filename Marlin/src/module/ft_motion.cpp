@@ -192,16 +192,16 @@ void FxdTiCtrl::loop() {
 
     // Copy the uncompensated vectors. (XY done, other axes uncompensated)
     LOGICAL_AXIS_CODE(
-      memcpy(trajMod.e, &traj.e[FTM_BATCH_SIZE], sizeof(trajMod.e)),
-      memcpy(trajMod.x, &traj.x[FTM_BATCH_SIZE], sizeof(trajMod.x)),
-      memcpy(trajMod.y, &traj.y[FTM_BATCH_SIZE], sizeof(trajMod.y)),
-      memcpy(trajMod.z, &traj.z[FTM_BATCH_SIZE], sizeof(trajMod.z)),
-      memcpy(trajMod.i, &traj.i[FTM_BATCH_SIZE], sizeof(trajMod.i)),
-      memcpy(trajMod.j, &traj.j[FTM_BATCH_SIZE], sizeof(trajMod.j)),
-      memcpy(trajMod.k, &traj.k[FTM_BATCH_SIZE], sizeof(trajMod.k)),
-      memcpy(trajMod.u, &traj.u[FTM_BATCH_SIZE], sizeof(trajMod.u)),
-      memcpy(trajMod.v, &traj.v[FTM_BATCH_SIZE], sizeof(trajMod.v)),
-      memcpy(trajMod.w, &traj.w[FTM_BATCH_SIZE], sizeof(trajMod.w))
+      memcpy(trajMod.e, traj.e, sizeof(trajMod.e)),
+      memcpy(trajMod.x, traj.x, sizeof(trajMod.x)),
+      memcpy(trajMod.y, traj.y, sizeof(trajMod.y)),
+      memcpy(trajMod.z, traj.z, sizeof(trajMod.z)),
+      memcpy(trajMod.i, traj.i, sizeof(trajMod.i)),
+      memcpy(trajMod.j, traj.j, sizeof(trajMod.j)),
+      memcpy(trajMod.k, traj.k, sizeof(trajMod.k)),
+      memcpy(trajMod.u, traj.u, sizeof(trajMod.u)),
+      memcpy(trajMod.v, traj.v, sizeof(trajMod.v)),
+      memcpy(trajMod.w, traj.w, sizeof(trajMod.w))
     );
 
     // Shift the time series back in the window for (shaped) X and Y
