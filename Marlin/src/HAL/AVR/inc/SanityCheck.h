@@ -39,7 +39,7 @@
   || X_STEP_PIN == N || Y_STEP_PIN == N || Z_STEP_PIN  == N \
   || X_DIR_PIN  == N || Y_DIR_PIN  == N || Z_DIR_PIN   == N \
   || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN   == N \
-  || BTN_EN1    == N || BTN_EN2    == N || LCD_PINS_EN == N\
+  || BTN_EN1    == N || BTN_EN2    == N || LCD_PINS_EN == N \
 )
 #if SERIAL_IN_USE(0)
   // D0-D1. No known conflicts.
