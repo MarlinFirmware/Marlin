@@ -76,7 +76,7 @@
   #define SERVO2_PIN                           5
 #endif
 #ifndef SERVO3_PIN
-  #define SERVO3_PIN                           4
+  #define SERVO3_PIN                           -1 //Pin 4-Now use for I axis
 #endif
 
 //
@@ -112,7 +112,7 @@
     #define X_MIN_PIN                          3  // X-
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                          2  // X+
+    #define X_MAX_PIN                          -1
   #endif
 #endif
 #ifndef Y_STOP_PIN
@@ -120,17 +120,27 @@
     #define Y_MIN_PIN                         14  // Y-
   #endif
   #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                         15  // Y+
+    #define Y_MAX_PIN                         -1
   #endif
 #endif
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         18  // Z-
+    #define Z_MIN_PIN                         15
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         19  // Z+
+    #define Z_MAX_PIN                         -1
   #endif
 #endif
+
+#ifndef I_STOP_PIN
+  #ifndef I_MIN_PIN
+    #define I_MIN_PIN                         2
+  #endif
+  #ifndef I_MAX_PIN
+    #define I_MAX_PIN                         -1
+  #endif
+#endif
+
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -153,7 +163,7 @@
 #define Y_DIR_PIN                             61
 #define Y_ENABLE_PIN                          56
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                            49
+  #define Y_CS_PIN                            -1//49
 #endif
 
 #ifndef Z_STEP_PIN
@@ -166,7 +176,7 @@
   #define Z_ENABLE_PIN                        62
 #endif
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                            40
+  #define Z_CS_PIN                            -1//40
 #endif
 
 #ifndef E0_STEP_PIN
@@ -179,7 +189,7 @@
   #define E0_ENABLE_PIN                       24
 #endif
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                           42
+  #define E0_CS_PIN                           -1//42
 #endif
 
 #ifndef E1_STEP_PIN
@@ -192,8 +202,23 @@
   #define E1_ENABLE_PIN                       30
 #endif
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                           44
+  #define E1_CS_PIN                           -1//44
 #endif
+
+#ifndef I_STEP_PIN
+  #define I_STEP_PIN                         4
+#endif
+#ifndef I_DIR_PIN
+  #define I_DIR_PIN                          40
+#endif
+#ifndef I_ENABLE_PIN
+  #define I_ENABLE_PIN                       42
+#endif
+#ifndef I_CS_PIN
+  #define I_CS_PIN                           -1//44
+#endif
+
+
 
 //
 // Temperature Sensors
@@ -202,7 +227,7 @@
   #define TEMP_0_PIN                          13  // Analog Input
 #endif
 #ifndef TEMP_1_PIN
-  #define TEMP_1_PIN                          15  // Analog Input
+  #define TEMP_1_PIN                          -1  // Analog Input
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN                        14  // Analog Input
@@ -618,7 +643,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_EN            EXP1_08_PIN
+      #define LCD_PINS_ENABLE        EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
 
       #if !IS_NEWPANEL
@@ -689,6 +714,8 @@
   #if IS_NEWPANEL
 
     #if IS_RRD_SC
+
+      #define BEEPER_PIN             EXP1_01_PIN
 
       #if ENABLED(CR10_STOCKDISPLAY)
         #define BTN_EN1              EXP1_03_PIN
@@ -764,9 +791,7 @@
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
 
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN           EXP1_05_PIN
-      #endif
+      #define BEEPER_PIN             EXP1_05_PIN
       #define LCD_BACKLIGHT_PIN      EXP2_05_PIN
 
       #define BTN_EN1                EXP1_02_PIN
@@ -834,9 +859,7 @@
 
     #elif ENABLED(MINIPANEL)
 
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN           AUX2_08_PIN
-      #endif
+      #define BEEPER_PIN             AUX2_08_PIN
       #define LCD_BACKLIGHT_PIN      AUX2_10_PIN
 
       #define DOGLCD_A0              AUX2_07_PIN

@@ -168,3 +168,5 @@ __pycache__
 tags
 *.logs
 *.bak
+Marlin/Configuration - Copy.h
+Marlin/Configuration_adv - Copy.h
