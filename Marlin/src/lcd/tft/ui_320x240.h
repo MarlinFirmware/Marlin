@@ -37,6 +37,7 @@
 
 #define MENU_ITEM_HEIGHT      32
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
+#define FONT_LINE_HEIGHT      24
 
 #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
   #define FONT_SIZE           14

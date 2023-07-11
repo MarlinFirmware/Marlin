@@ -120,7 +120,7 @@ const char* ftostr61rj(const_float_t x);
 const char* ftostr72rj(const_float_t x);
 
 // Convert float to rj string with 123 or -12 format
-FORCE_INLINE const char* ftostr3(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
+FORCE_INLINE const char* ftostr3rj(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
   // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format

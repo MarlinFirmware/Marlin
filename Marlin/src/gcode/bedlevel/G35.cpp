@@ -97,29 +97,23 @@ void GcodeSuite::G35() {
   bool err_break = false;
 
   // Probe all positions
-  LOOP_L_N(i, G35_PROBE_COUNT) {
-
-    // In BLTOUCH HS mode, the probe travels in a deployed state.
-    // Users of G35 might have a badly misaligned bed, so raise Z by the
-    // length of the deployed pin (BLTOUCH stroke < 7mm)
-
-    // Unsure if this is even required. The probe seems to lift correctly after probe done.
-    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
-
+  for (uint8_t i = 0; i < G35_PROBE_COUNT; ++i) {
+    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
-      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_CHAR(')');
-      SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
+      SERIAL_ECHO(
+        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y
+      );
       err_break = true;
       break;
     }
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
-      DEBUG_CHAR(')');
-      DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
+      DEBUG_ECHOLN(
+        F("Probing point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y,
+        FPSTR(SP_Z_STR), z_probed_height
+      );
     }
 
     z_measured[i] = z_probed_height;
@@ -135,17 +129,18 @@ void GcodeSuite::G35() {
 
     // Calculate adjusts
     LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
-      const float diff_mm = z_measured[i] - z_measured[0];
-      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPGM(": Diff ", diff_mm, "mm");
-      #ifdef TRAMMING_SCREW_THREAD
-        const float diff_turns_abs = ABS(diff_mm) < 0.001f ? 0 : ABS(diff_mm) / threads_factor[(screw_thread - 30) / 10];
-        const int full_turns = int(diff_turns_abs);
-        const float decimal_part = diff_turns_abs - float(full_turns);
-        const int degrees = int(decimal_part * 360.0f);
-        SERIAL_ECHOPGM(", Turn ", (screw_thread & 1) == (diff_mm > 0) ? F("CCW") : F("CW"), " by ", full_turns, " turns");
-        if (degrees) SERIAL_ECHOPGM(" and ", degrees, " degrees");
-      #endif
+      const float diff = z_measured[0] - z_measured[i],
+                  adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
+
+      const int full_turns = trunc(adjust);
+      const float decimal_part = adjust - float(full_turns);
+      const int minutes = trunc(decimal_part * 60.0f);
+
+      SERIAL_ECHOPGM("Turn ");
+      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
+      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
       SERIAL_EOL();
     }
   }
@@ -155,7 +150,7 @@ void GcodeSuite::G35() {
   // Restore the active tool after homing
   probe.use_probing_tool(false);
 
-  #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
+  #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 

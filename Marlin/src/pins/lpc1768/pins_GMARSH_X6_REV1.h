@@ -106,7 +106,9 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 #else
   #error "TMC2208 UART configuration is required for GMarsh X6."
 #endif
@@ -141,7 +143,7 @@
   #define BTN_EN2                          P1_24
   #define BTN_ENC                          P1_25
   #define LCD_PINS_RS                      P0_20
-  #define LCD_PINS_ENABLE                  P0_21
+  #define LCD_PINS_EN                      P0_21
   #define LCD_PINS_D4                      P2_11
   #define LCD_PINS_D5                      P0_22
   #define LCD_PINS_D6                      P1_29

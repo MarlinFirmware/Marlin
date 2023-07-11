@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
+#if ALL(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
 
 #include "menu_item.h"
 #include "../../module/motion.h"
@@ -43,7 +43,7 @@
   #define BED_TRAMMING_HEIGHT 0.0
 #endif
 
-#if BOTH(HAS_STOWABLE_PROBE, BED_TRAMMING_USE_PROBE) && DISABLED(BLTOUCH)
+#if ALL(HAS_STOWABLE_PROBE, BED_TRAMMING_USE_PROBE) && DISABLED(BLTOUCH)
   #define NEEDS_PROBE_DEPLOY 1
 #endif
 
@@ -152,7 +152,7 @@ static void _lcd_goto_next_corner() {
   }
 
   float z = BED_TRAMMING_Z_HOP;
-  #if BOTH(BED_TRAMMING_USE_PROBE, BLTOUCH)
+  #if ALL(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif
   line_to_z(z);
@@ -187,7 +187,7 @@ static void _lcd_goto_next_corner() {
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_GOOD_POINTS));
-      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
+      TERN_(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_u8str(F("/"));
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
@@ -200,7 +200,7 @@ static void _lcd_goto_next_corner() {
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_LAST_Z));
-      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
+      TERN_(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }

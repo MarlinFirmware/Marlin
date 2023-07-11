@@ -36,21 +36,21 @@
 namespace ExtUI {
 
   void onStartup() {
-    dgusdisplay.InitDisplay();
-    ScreenHandler.UpdateScreenVPData();
+    dgus.initDisplay();
+    screen.updateScreenVPData();
   }
 
-  void onIdle() { ScreenHandler.loop(); }
+  void onIdle() { screen.loop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
-    ScreenHandler.sendinfoscreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
-    while (!ScreenHandler.loop());  // Wait while anything is left to be sent
+    screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
+    screen.gotoScreen(DGUS_SCREEN_KILL);
+    while (!screen.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() { TERN_(SDSUPPORT, ScreenHandler.SDCardInserted()); }
-  void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
-  void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
+  void onMediaInserted() { TERN_(HAS_MEDIA, screen.sdCardInserted()); }
+  void onMediaError()    { TERN_(HAS_MEDIA, screen.sdCardError()); }
+  void onMediaRemoved()  { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
@@ -60,17 +60,17 @@ namespace ExtUI {
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      ScreenHandler.sendinfoscreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
-      ScreenHandler.SetupConfirmAction(setUserConfirmed);
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
+      screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
+      screen.setupConfirmAction(setUserConfirmed);
+      screen.gotoScreen(DGUS_SCREEN_POPUP);
     }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
-      ScreenHandler.SetupConfirmAction(nullptr);
-      ScreenHandler.PopToOldScreen();
+    else if (screen.getCurrentScreen() == DGUS_SCREEN_POPUP) {
+      screen.setupConfirmAction(nullptr);
+      screen.popToOldScreen();
     }
   }
 
-  void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }
+  void onStatusChanged(const char * const msg) { screen.setStatusMessage(msg); }
 
   void onHomingStart() {}
   void onHomingDone() {}
@@ -112,10 +112,12 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
@@ -134,7 +136,7 @@ namespace ExtUI {
     }
     void onPowerLossResume() {
       // Called on resume from power-loss
-      IF_DISABLED(DGUS_LCD_UI_MKS, ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS));
+      IF_DISABLED(DGUS_LCD_UI_MKS, screen.gotoScreen(DGUS_SCREEN_POWER_LOSS));
     }
   #endif
 
@@ -143,22 +145,22 @@ namespace ExtUI {
       // Called for temperature PID tuning result
       switch (rst) {
         case PID_STARTED:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
         case PID_BAD_HEATER_ID:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
+          screen.setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
           break;
         case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
+          screen.setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_TIMEOUT));
+          screen.setStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
+          screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
           break;
       }
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+      screen.gotoScreen(DGUS_SCREEN_MAIN);
     }
   #endif
 

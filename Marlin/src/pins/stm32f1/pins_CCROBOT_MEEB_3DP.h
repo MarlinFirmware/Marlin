@@ -41,7 +41,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -100,7 +100,9 @@
 #endif
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -151,7 +153,7 @@
 
   #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
 #endif
 
 // Alter timing for graphical display

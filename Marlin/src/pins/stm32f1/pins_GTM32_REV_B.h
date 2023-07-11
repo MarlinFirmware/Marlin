@@ -51,7 +51,7 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
@@ -146,7 +146,7 @@
     //
     #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
     // RW is hardwired to VSS
-    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
+    #define LCD_PINS_EN                     PC7   // SID (MOSI)
     #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD4
     #define LCD_PINS_D6                     PD5

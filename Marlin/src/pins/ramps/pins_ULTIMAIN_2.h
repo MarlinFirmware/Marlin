@@ -135,7 +135,7 @@
 #define BEEPER_PIN                            18
 
 #define LCD_PINS_RS                           20
-#define LCD_PINS_ENABLE                       15
+#define LCD_PINS_EN                           15
 #define LCD_PINS_D4                           14
 #define LCD_PINS_D5                           21
 #define LCD_PINS_D6                            5
@@ -151,9 +151,9 @@
 //
 #if HAS_CUTTER                                    // use the LED_PIN for spindle speed control or case light
   #undef LED_PIN
-  #define SPINDLE_DIR_PIN                     16
-  #define SPINDLE_LASER_ENA_PIN               17  // Pullup!
   #define SPINDLE_LASER_PWM_PIN                8  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               17  // Pullup!
+  #define SPINDLE_DIR_PIN                     16
 #else
   #undef LED_PIN
   #define CASE_LIGHT_PIN                       8

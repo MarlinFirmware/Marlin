@@ -72,7 +72,7 @@
 
 // SPI for MAX Thermocouple
 #undef TEMP_0_CS_PIN
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53  // Don't use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       49  // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present

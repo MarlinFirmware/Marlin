@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -55,7 +55,7 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames);
+uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const bool with_longnames);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -135,7 +135,7 @@ void wifi_reset() {
 
 void mount_file_sys(const uint8_t disk_type) {
   switch (disk_type) {
-    case FILE_SYS_SD: TERN_(SDSUPPORT, card.mount()); break;
+    case FILE_SYS_SD: TERN_(HAS_MEDIA, card.mount()); break;
     case FILE_SYS_USB: break;
   }
 }
@@ -718,12 +718,12 @@ void get_file_list(const char * const path, const bool with_longnames) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
+    TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // udisk
   }
-  Explore_Disk(path, 0, with_longnames);
+  exploreDisk(path, 0, with_longnames);
 }
 
 char wait_ip_back_flag = 0;
@@ -818,7 +818,7 @@ static int cut_msg_head(uint8_t * const msg, const uint16_t msgLen, uint16_t cut
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames) {
+uint8_t exploreDisk(const char * const path, const uint8_t recu_level, const bool with_longnames) {
   char Fstream[200];
 
   if (!path) return 0;
@@ -993,7 +993,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
             uiCfg.print_state = WORKING;
             lv_draw_printing();
 
-            #if ENABLED(SDSUPPORT)
+            #if HAS_MEDIA
               if (!gcode_preview_over) {
                 char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
@@ -1058,7 +1058,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
           clear_cur_ui();
 
-          #if ENABLED(SDSUPPORT)
+          #if HAS_MEDIA
             card.pauseSDPrint();
             uiCfg.print_state = PAUSING;
           #endif
@@ -1077,7 +1077,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           stop_print_time();
 
           clear_cur_ui();
-          #if ENABLED(SDSUPPORT)
+          #if HAS_MEDIA
             uiCfg.print_state = IDLE;
             card.abortFilePrintSoon();
           #endif
@@ -1118,7 +1118,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
             }
             mount_file_sys(gCfgItems.fileSysType);
 
-            #if ENABLED(SDSUPPORT)
+            #if HAS_MEDIA
               char *cur_name = strrchr(list_file.file_name[sel_id], '/');
               card.openFileWrite(cur_name);
               if (card.isFileOpen()) {
@@ -1529,7 +1529,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   ZERO(saveFilePath);
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
+    TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // nothing
@@ -1541,11 +1541,11 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   wifiTransError.start_tick = 0;
   wifiTransError.now_tick = 0;
 
-  TERN_(SDSUPPORT, card.closefile());
+  TERN_(HAS_MEDIA, card.closefile());
 
   wifi_delay(1000);
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     char dosName[FILENAME_LENGTH];
 
@@ -1574,7 +1574,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
       return;
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   wifi_link_state = WIFI_TRANS_FILE;
 
@@ -1774,7 +1774,7 @@ void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
     wifi_link_state = WIFI_CONNECTED;
 
-  TERN_(SDSUPPORT, card.closefile());
+  TERN_(HAS_MEDIA, card.closefile());
 
   if (upload_result != 3) {
     wifiTransError.flag = 1;
@@ -1804,7 +1804,8 @@ void stopEspTransfer() {
 
   W25QXX.init(SPI_QUARTER_SPEED);
 
-  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
+  // ?? Workaround for SPI / Servo issues ??
+  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spiInit(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
 
