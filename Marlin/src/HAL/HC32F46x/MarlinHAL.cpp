@@ -11,13 +11,98 @@
 
 extern "C" char *_sbrk(int incr);
 
-pin_t MarlinHAL::last_adc_pin;
-
 void HAL_wdt_callback()
 {
     panic("WDT timeout");
     NVIC_SystemReset();
 }
+
+inline void HAL_clock_frequencies_dump()
+{
+    // 1. dump all clock frequencies
+    update_system_clock_frequencies();
+    SERIAL_ECHOPGM("-- clocks dump -- \nSYS=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.system);
+    SERIAL_ECHOPGM("\nHCLK=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.hclk);
+    SERIAL_ECHOPGM("\nPCLK0=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.pclk0);
+    SERIAL_ECHOPGM("\nPCLK1=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.pclk1);
+    SERIAL_ECHOPGM("\nPCLK2=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.pclk2);
+    SERIAL_ECHOPGM("\nPCLK3=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.pclk3);
+    SERIAL_ECHOPGM("\nPCLK4=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.pclk4);
+    SERIAL_ECHOPGM("\nEXCLK=");
+    SERIAL_ECHO(SYSTEM_CLOCK_FREQUENCIES.exclk);
+    SERIAL_ECHOPGM("\nF_CPU=");
+    SERIAL_ECHO(F_CPU);
+
+    // 2. dump current system clock source
+    en_clk_sys_source_t clkSrc = CLK_GetSysClkSource();
+    SERIAL_ECHOPGM("\nSYSCLK=");
+    switch (clkSrc)
+    {
+    case ClkSysSrcHRC:
+        SERIAL_ECHOPGM("HRC");
+        break;
+    case ClkSysSrcMRC:
+        SERIAL_ECHOPGM("MRC");
+        break;
+    case ClkSysSrcLRC:
+        SERIAL_ECHOPGM("LRC");
+        break;
+    case ClkSysSrcXTAL:
+        SERIAL_ECHOPGM("XTAL");
+        break;
+    case ClkSysSrcXTAL32:
+        SERIAL_ECHOPGM("XTAL32");
+        break;
+    case CLKSysSrcMPLL:
+        SERIAL_ECHOPGM("MPLL");
+
+        // 3. if MPLL is used, dump MPLL settings:
+        // (derived from CLK_SetPllSource and CLK_MpllConfig)
+        // source
+        switch (M4_SYSREG->CMU_PLLCFGR_f.PLLSRC)
+        {
+        case ClkPllSrcXTAL:
+            SERIAL_ECHOPGM(",XTAL");
+            break;
+        case ClkPllSrcHRC:
+            SERIAL_ECHOPGM(",HRC");
+            break;
+        default:
+            break;
+        }
+
+        // PLL multiplies and dividers
+        SERIAL_ECHOPGM("\nP=");
+        SERIAL_ECHO(M4_SYSREG->CMU_PLLCFGR_f.MPLLP + 1ul);
+        SERIAL_ECHOPGM("\nQ=");
+        SERIAL_ECHO(M4_SYSREG->CMU_PLLCFGR_f.MPLLQ + 1ul);
+        SERIAL_ECHOPGM("\nR=");
+        SERIAL_ECHO(M4_SYSREG->CMU_PLLCFGR_f.MPLLR + 1ul);
+        SERIAL_ECHOPGM("\nN=");
+        SERIAL_ECHO(M4_SYSREG->CMU_PLLCFGR_f.MPLLN + 1ul);
+        SERIAL_ECHOPGM("\nM=");
+        SERIAL_ECHO(M4_SYSREG->CMU_PLLCFGR_f.MPLLM + 1ul);
+        break;
+    default:
+        break;
+    }
+
+    // done
+    SERIAL_ECHOPGM("\n--\n");
+}
+
+//
+// MarlinHAL class implementation
+//
+
+pin_t MarlinHAL::last_adc_pin;
 
 MarlinHAL::MarlinHAL() {}
 
@@ -41,25 +126,7 @@ void MarlinHAL::init()
     NVIC_SetPriorityGrouping(0x3);
 
     // print clock frequencies to host serial
-    SERIAL_LEAF_1.print("-- clocks dump -- \n");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.system);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.hclk);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk0);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk1);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk2);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk3);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.pclk4);
-    SERIAL_LEAF_1.print(" ; ");
-    SERIAL_LEAF_1.print(SYSTEM_CLOCK_FREQUENCIES.exclk);
-    SERIAL_LEAF_1.print(" ; F_CPU=");
-    SERIAL_LEAF_1.print(F_CPU);
-    SERIAL_LEAF_1.print("\n");
+    HAL_clock_frequencies_dump();
 
     // start OTS, min. 1s between reads
     ChipTemperature.begin();
