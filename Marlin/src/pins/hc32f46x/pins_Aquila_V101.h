@@ -38,6 +38,13 @@
 #endif
 
 //
+// on-board crystal oscillator
+//
+#ifndef BOARD_XTAL_FREQUENCY
+  #define BOARD_XTAL_FREQUENCY 8000000 // 8 MHz XTAL
+#endif
+
+//
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
