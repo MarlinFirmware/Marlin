@@ -57,29 +57,26 @@ class MenuItemBase {
     // Optional pointers for use in display or by the action
     static FSTR_P itemStringF;
     static const char* itemStringC;
-    static const char* itemRAlignedStringC;
 
     // Store an index and string for later substitution
     FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
     FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
 
-    FORCE_INLINE static void setRAlignedString(const char * const cstr) { itemRAlignedStringC = cstr; }
-
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
     // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
-    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
+    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style=SS_LEFT, const char * vstr=nullptr, const uint8_t minFstr = 0);
 
     // Draw an item either selected ('>') or not (space) with post_char
-    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char) {
-      _draw(sel, row, fstr, '>', post_char);
+    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char,  const uint8_t style=SS_LEFT, const char * vstr=nullptr, const uint8_t minFstr = 0) {
+      _draw(sel, row, fstr, '>', post_char, style, vstr, minFstr);
     }
 };
 
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)

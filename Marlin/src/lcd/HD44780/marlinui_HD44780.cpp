@@ -1163,7 +1163,7 @@ void MarlinUI::draw_status_screen() {
   #endif // ADVANCED_PAUSE_FEATURE
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
     lcd_moveto(0, row);
 
     int8_t n = LCD_WIDTH;
@@ -1199,14 +1199,32 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
-    const uint8_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char, const uint8_t style, const char * vstr, const uint8_t minFstr) {
+    const uint8_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
     int8_t post_char_len = post_char == ' ' ? 0 : 1;
     uint8_t n = _MAX(LCD_WIDTH - 1 - post_char_len - rlen, 0);
+    const bool full = bool(style & SS_FULL), center = bool(style & SS_CENTER);
+
     lcd_put_lchar(0, row, sel ? pre_char : ' ');
-    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-    for (; n; --n) lcd_put_u8str(F(" "));
-    if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, LCD_WIDTH - 2 - post_char_len); };
+
+    if (!full || !vstr) {
+
+      const uint8_t totalLen = rlen + utf8_strlen(ftpl);
+      uint8_t padLeft = center ? _MAX(0, (LCD_WIDTH - post_char_len - totalLen) / 2) : 0;
+      n = LCD_WIDTH - 1 - post_char_len - padLeft;
+      for (; padLeft; --padLeft) lcd_put_u8str(F(" "));
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      if (vstr) n -= lcd_put_u8str_max(vstr, n);
+      for (; n; --n) lcd_put_u8str(F(" "));
+    
+    } else {
+    
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      for (; n; --n) lcd_put_u8str(F(" "));
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(vstr, LCD_WIDTH - 2 - post_char_len); };
+      
+    }
+
     if (post_char_len) lcd_put_lchar(post_char);
   }
 
