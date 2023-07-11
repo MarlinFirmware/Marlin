@@ -71,7 +71,6 @@ uint8_t screen_history_depth = 0;
 int8_t MenuItemBase::itemIndex;         // Index number for draw and action
 FSTR_P MenuItemBase::itemStringF;       // A string for substitution
 const char *MenuItemBase::itemStringC;
-const char *MenuItemBase::itemRAlignedStringC;
 chimera_t editable;                     // Value Editing
 
 // Menu Edit Items

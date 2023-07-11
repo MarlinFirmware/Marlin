@@ -137,8 +137,8 @@ void GcodeSuite::G35() {
       const int minutes = trunc(decimal_part * 60.0f);
 
       SERIAL_ECHOPGM("Turn ");
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? F("CCW") : F("CW"), " by ", ABS(full_turns), " turns");
       if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
       if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
       SERIAL_EOL();

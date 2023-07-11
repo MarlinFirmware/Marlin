@@ -305,7 +305,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -352,19 +352,47 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char * vstr, const uint8_t minFstr) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
       dwin_font.fg = COLOR_WHITE;
 
-      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+      dwin_string.set();
 
-      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
-      while (--n > 1) dwin_string.add(' ');
+      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+      const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
+                   vlen = vstr ? utf8_strlen(vstr) : 0;
+      int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
+
+      // SS_CENTER: Pad with half of the unused space first
+      if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
+
+      // Append the templated label string
+      if (plen) {
+        dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+        pad -= dwin_string.length - plen;
+      }
+
+      // SS_FULL: Pad with enough space to justify the value
+      if (vlen) {
+        if (full && !center) {
+          // Move the leading colon from the value to the label
+          if (*vstr == ':') { dwin_string.add(':'); vstr++; }
+          // Move spaces to the padding
+          while (*vstr == ' ') { vstr++; pad++; }
+          // Pad in-between
+          for (; pad > 0; --pad) dwin_string.add(' ');
+        }
+        // Append the value
+        dwin_string.add(vstr);
+      }
+
+      // SS_CENTER: Pad the rest of the string
+      if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
 
       dwin_string.add(post_char);
-
+      
       lcd_moveto(1, row);
       lcd_put_dwin_string();
     }
