@@ -679,13 +679,7 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
     );
   #endif
 
-  for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
-
-    // TODO: (?) Since the *delta variables will not change,
-    // the comparison may be done once before iterating at
-    // expense of storage and lines of code.
-
-    // Commands are written in a bitmask with step and dir as single bits
+  // Commands are written in a bitmask with step and dir as single bits
     auto COMMAND_SET = [&](auto &d, auto &e, auto &s, auto &b, auto bd, auto bs) {
       if (d >= 0) {
         if (e + d < (FTM_CTS_COMPARE_VAL)) {
@@ -708,6 +702,12 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
         }
       }
     };
+
+  for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
+
+    // TODO: (?) Since the *delta variables will not change,
+    // the comparison may be done once before iterating at
+    // expense of storage and lines of code.
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
