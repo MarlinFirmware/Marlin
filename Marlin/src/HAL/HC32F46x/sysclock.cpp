@@ -61,6 +61,13 @@ void core_hook_sysclock_init()
     sysclock_configure_hrc();
     sysclock_configure_mpll(ClkPllSrcHRC, &pllConf);
 
+    // HRC could have been configured by ICG to 20 MHz
+    // TODO: handle this gracefully
+    if (1UL != (HRC_FREQ_MON() & 1UL))
+    {
+        panic("HRC is not 16 MHz");
+    }
+
 #if defined(BOARD_XTAL_FREQUENCY)
 #warning "no valid XTAL frequency defined, falling back to HRC. please submit a PR or issue to add support for your XTAL frequency"
 #endif
@@ -79,6 +86,13 @@ void core_hook_sysclock_init()
     };
     sysclock_set_clock_dividers(&sysClkConf);
 
+    // set power mode
+#define POWER_MODE_SYSTEM_CLOCK 200000000 // 200 MHz
+    power_mode_update_pre(POWER_MODE_SYSTEM_CLOCK);
+
     // switch to MPLL as sysclk source
     CLK_SetSysClkSource(CLKSysSrcMPLL);
+
+    // set power mode
+    power_mode_update_post(POWER_MODE_SYSTEM_CLOCK);
 }
