@@ -57,6 +57,8 @@
  *               41 - Counter-Clockwise M4
  *               50 - Clockwise M5
  *               51 - Counter-Clockwise M5
+ * 
+ * (Counter-)Clockwise-ness is the direction of bed lowering.
  **/
 void GcodeSuite::G35() {
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
@@ -128,19 +130,18 @@ void GcodeSuite::G35() {
     SERIAL_ECHOLNPGM("Reference point: ", FPSTR(pgm_read_ptr(&tramming_point_name[0])));
 
     // Calculate adjusts
-    LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
-      const float diff = z_measured[0] - z_measured[i],
-                  adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
-
-      const int full_turns = trunc(adjust);
-      const float decimal_part = adjust - float(full_turns);
-      const int minutes = trunc(decimal_part * 60.0f);
-
-      SERIAL_ECHOPGM("Turn ");
+    for (uint8_t i = 1; i < G35_PROBE_COUNT; ++i) {
+      const float diff_mm = z_measured[i] - z_measured[0];
       SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? F("CCW") : F("CW"), " by ", ABS(full_turns), " turns");
-      if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
-      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
+      SERIAL_ECHOPGM(": Diff ", diff_mm, "mm");
+      #ifdef TRAMMING_SCREW_THREAD
+        const float diff_turns_abs = ABS(diff_mm) < 0.001f ? 0 : ABS(diff_mm) / threads_factor[(screw_thread - 30) / 10];
+        const int full_turns = int(diff_turns_abs);
+        const float decimal_part = diff_turns_abs - float(full_turns);
+        const int degrees = int(decimal_part * 360.0f);
+        SERIAL_ECHOPGM(", Turn ", (screw_thread & 1) == (diff_mm > 0) ? F("CCW") : F("CW"), " by ", full_turns, " turns");
+        if (degrees) SERIAL_ECHOPGM(" and ", degrees, " degrees");
+      #endif
       SERIAL_EOL();
     }
   }

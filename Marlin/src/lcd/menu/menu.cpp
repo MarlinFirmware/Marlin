@@ -255,7 +255,9 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
  */
 void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/, FSTR_P const str2/*=nullptr*/) {
 
-  uint8_t ptr_count = 0;
+  static uint8_t ptr_count;
+  ptr_count = 0;
+  
   if (str1 != nullptr) message_ptrs[ptr_count++] = str1;
   if (str2 != nullptr) message_ptrs[ptr_count++] = str2;
 

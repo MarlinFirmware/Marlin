@@ -177,10 +177,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_TW_SELECT_TRAM_POINT           = _UxGT("Select Pt to Measure");
   LSTR MSG_TW_MEASURING_REF               = _UxGT("Measuring reference\nZ value at\n");
   LSTR MSG_TW_SET_AS_REF                  = _UxGT("Set as new Ref Z");
-  LSTR MSG_TW_MENU_MODE_MEASURE           = _UxGT("Menu mode: Measure");
-  LSTR MSG_TW_MENU_MODE_DETAIL            = _UxGT("Menu mode: Pt Detail");
-  LSTR MSG_TW_UNITS_MM                    = _UxGT("Unit: mm");
-  LSTR MSG_TW_UNITS_SCREW                 = _UxGT("Unit: M{ screw turns");
+  LSTR MSG_TW_MENU_MODE_MEASURE           = _UxGT("Menu mode: ") _UxGT("Measure");;
+  LSTR MSG_TW_MENU_MODE_DETAIL            = _UxGT("Menu mode: ") _UxGT("Pt Detail");;
+  LSTR MSG_TW_UNITS_MM                    = _UxGT("Unit: ") _UxGT("mm");
+  LSTR MSG_TW_UNITS_SCREW                 = _UxGT("Unit: ") _UxGT("M{ screw turns");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Next Corner");
   LSTR MSG_MESH_EDITOR                    = _UxGT("Mesh Editor");
   LSTR MSG_MESH_VIEWER                    = _UxGT("Mesh Viewer");

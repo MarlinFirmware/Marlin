@@ -45,7 +45,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-//#define SIMULATOR_TESTING
+#define SIMULATOR_TESTING
 
 static uint8_t tram_target = 0;
 static float z_measured[G35_PROBE_COUNT];
@@ -73,7 +73,7 @@ static void menu_tramming_wizard();
 
     const float FL_z = 2, FR_z = -5, BL_z = 0, BR_z = 3, // bed corner Z values from which to interpolate
                 FX_z = (FR_z - FL_z) / (X_BED_SIZE) * pos.x + FL_z,
-                BX_z = (BR_z - BL_z) / (X_BED_SIZE) * pos.x + BL_z;
+                BX_z = (BR_z - BL_z) / (X_BED_SIZE) * pos.x + BL_z,
                 YX_z = (BX_z - FX_z) / (Y_BED_SIZE) * pos.y + FX_z;
     return YX_z;
   }
@@ -111,7 +111,7 @@ static void _set_reference_z(const_float_t z) {
   reference_z = z;
   reference_valid = true;
   #ifdef TRAMMING_SCREW_THREAD
-    LOOP_L_N(i, G35_PROBE_COUNT)
+    for (uint8_t i = 0; i < G35_PROBE_COUNT;i++)
       if (z_isvalid[i]) _update_screw_turns_str_in_buffer(i);
   #endif
 }
@@ -184,9 +184,9 @@ static void menu_tram_point() {
 
   START_MENU();
 
-  ITEM_ADD_RIGHT_ALIGNED_STRING(STATIC_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])), SS_LEFT), _get_mms_str(tram_target));
+  STATIC_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])), SS_FULL, _get_mms_str(tram_target));
   #ifdef TRAMMING_SCREW_THREAD
-    ITEM_ADD_RIGHT_ALIGNED_STRING(STATIC_ITEM_N_F(screw_size, F("M= screw turns"), SS_LEFT), _get_screw_turns_str(tram_target));
+    STATIC_ITEM_N_F(screw_size, F("M= screw turns"), SS_FULL, _get_screw_turns_str(tram_target));
   #endif
 
   ACTION_ITEM(MSG_MEASURE, []{ if (_probe_single_point()) ui.refresh(); });
@@ -219,18 +219,13 @@ static void menu_tramming_wizard() {
     );
 
     if (!reference_valid || menu_mode_measure)
-      ITEM_ADD_RIGHT_ALIGNED_STRING(
-        ACTION_ITEM_F(
-          FPSTR(pgm_read_ptr(&tramming_point_name[t])),
-          []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } }
-        ), tram_val
-      );
+      
+        ACTION_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[t])), []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } }, SS_FULL, tram_val);
     else
-      ITEM_ADD_RIGHT_ALIGNED_STRING(
-        SUBMENU_F(
+      SUBMENU_F(
           FPSTR(pgm_read_ptr(&tramming_point_name[t])),
           []{ tram_target = t; menu_tram_point(); }
-        ), tram_val
+        , SS_FULL, tram_val
       );
   }
 

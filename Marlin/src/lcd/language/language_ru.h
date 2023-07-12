@@ -78,9 +78,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Смещ. дома Z");
 
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
-  LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
   LSTR MSG_TW_SELECT_TRAM_REF               = _UxGT("Выберите ноль");
-  LSTR MSG_LAST_VALUE_SP                    = _UxGT("Послед. знач. ");
 
   LSTR MSG_PREHEAT_1                        = _UxGT("Нагрев ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                      = _UxGT("Нагреть ~ ") PREHEAT_1_LABEL " ~";
@@ -848,7 +846,6 @@ namespace LanguageWide_ru {
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z");
-    LSTR MSG_LAST_VALUE_SP                  = _UxGT("Последнее значение ");
     LSTR MSG_SPINDLE_MENU                   = _UxGT("Управлен.шпинделем");
     LSTR MSG_LASER_TOGGLE                   = _UxGT("Переключить лазер");
     LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Переключ. шпиндель");
