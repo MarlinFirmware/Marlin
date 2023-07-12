@@ -78,7 +78,7 @@ static pin_t DIGITAL_PIN_TO_ANALOG_PIN(pin_t pin)
 {
     if (!VALID_PIN(pin))
         return -1;
-    int8_t adc_channel = int8_t(PIN_MAP[pin].adc_channel);
+    int8_t adc_channel = int8_t(PIN_MAP[pin].adc_info.channel);
     return pin_t(adc_channel);
 }
 
@@ -86,7 +86,7 @@ static bool IS_ANALOG(pin_t pin)
 {
     if (!VALID_PIN(pin))
         return false;
-    if (PIN_MAP[pin].adc_channel != ADC_PIN_INVALID)
+    if (PIN_MAP[pin].adc_info.channel != ADC_PIN_INVALID)
     {
         return _GET_MODE(pin) == INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
     }
