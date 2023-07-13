@@ -58,10 +58,14 @@ static xy_uint_t cursor;
 
 #endif
 
+void text_line(const uint16_t y, uint16_t color) {
+  tft.canvas(0, y, TFT_WIDTH, MENU_ITEM_HEIGHT);
+  tft.set_background(color);
+}
+
 void menu_line(const uint8_t row, uint16_t color) {
   cursor.set(0, row);
-  tft.canvas(0, TFT_TOP_LINE_Y + cursor.y * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT);
-  tft.set_background(color);
+  text_line(MENU_TOP_LINE_Y + cursor.y * MENU_LINE_HEIGHT, color);
 }
 
 void menu_item(const uint8_t row, bool sel ) {
@@ -75,7 +79,16 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   #if ENABLED(TOUCH_SCREEN)
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, TFT_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
+    touch.add_control(tct, 0, MENU_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
+  #endif
+}
+
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+  const uint16_t width = images[image].width, height = images[image].height;
+  tft.canvas(x, y, width, height);
+  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
+  #if ENABLED(TOUCH_SCREEN)
+    if (is_enabled) touch.add_control(control_type, x, y, width, height, data);
   #endif
 }
 
@@ -88,7 +101,7 @@ void menu_item(const uint8_t row, bool sel ) {
 void lcd_gotopixel(const uint16_t x, const uint16_t y) {
   if (x >= TFT_WIDTH) return;
   cursor.set(x / (TFT_COL_WIDTH), y / MENU_LINE_HEIGHT);
-  tft.canvas(x, TFT_TOP_LINE_Y + y, (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
+  tft.canvas(x, MENU_TOP_LINE_Y + y, (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
 }
 
@@ -99,7 +112,7 @@ void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
 int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   if (max_length < 1) return 0;
   tft_string.set(c);
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
   return tft_string.width();
 }
@@ -109,7 +122,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   tft_string.set(utf8_pstr);
   tft_string.trim();
   tft_string.truncate(max_length);
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
   return tft_string.width();
 }
@@ -139,7 +152,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     case 0x02: image = imgDirectory; break;  // LCD_STR_FOLDER
   }
 
-  uint8_t offset = MENU_TEXT_X_OFFSET;
+  uint8_t offset = MENU_TEXT_X;
   if (image != noImage) {
     string++;
     offset = MENU_ITEM_ICON_SPACE;
@@ -148,7 +161,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
 
   tft_string.set(string, itemIndex, itemStringC, itemStringF);
 
-  tft.add_text(offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 }
 
 // Draw a menu item with a (potentially) editable value
@@ -156,10 +169,10 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
   menu_item(row, sel);
 
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   if (inStr) {
     tft_string.set(inStr);
-    tft.add_text(TFT_WIDTH - MENU_TEXT_X_OFFSET - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+    tft.add_text(TFT_WIDTH - MENU_TEXT_X - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
   }
 }
 
@@ -172,7 +185,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
     return;
   }
 
@@ -180,12 +193,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   if (*vstr == ':') { tft_string.add(':'); vstr++; }
 
   // Left-justified label
-  tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+  tft.add_text(0, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
   // Right-justified value, after spaces
   while (*vstr == ' ') vstr++;
   tft_string.set(vstr);
-  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 }
 
 #if HAS_MEDIA
@@ -193,8 +206,8 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
     if (isDir) tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-    uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y_OFFSET) + 1;
-    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
+    uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y) + 1;
+    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
   }
 
 #endif
@@ -294,4 +307,13 @@ void MarlinUI::clear_lcd() {
 
 #endif // TOUCH_SCREEN_CALIBRATION
 
+#if ENABLED(SHOW_PROGRESS_PERCENT)
+  void MarlinUI::drawPercent() {}
+#endif
+#if ENABLED(SHOW_REMAINING_TIME)
+  void MarlinUI::drawRemain() {}
+#endif
+#if ENABLED(SHOW_ELAPSED_TIME)
+  void MarlinUI::drawElapsed() {}
+#endif
 #endif // HAS_GRAPHICAL_TFT

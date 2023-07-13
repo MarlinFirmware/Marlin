@@ -66,49 +66,49 @@
 #endif
 
 #if !defined(NAVIGATION_PAGE_UP_X) && !defined(NAVIGATION_PAGE_UP_Y) && !defined(NAVIGATION_PAGE_DOWN_X) && !defined(NAVIGATION_PAGE_DOWN_Y) && !defined(NAVIGATION_BACK_X) && !defined(NAVIGATION_BACK_Y)
-  #define NAVIGATION_PAGE_UP_X      164
-  #define NAVIGATION_PAGE_UP_Y      TFT_HEIGHT - 50
-  #define NAVIGATION_PAGE_DOWN_X    796
-  #define NAVIGATION_PAGE_DOWN_Y    TFT_HEIGHT - 50
-  #define NAVIGATION_BACK_X         480
-  #define NAVIGATION_BACK_Y         TFT_HEIGHT - 50
+  #define NAVIGATION_PAGE_UP_X      48
+  #define NAVIGATION_PAGE_UP_Y      TFT_HEIGHT - 38
+  #define NAVIGATION_PAGE_DOWN_X    240
+  #define NAVIGATION_PAGE_DOWN_Y    TFT_HEIGHT - 38
+  #define NAVIGATION_BACK_X         144
+  #define NAVIGATION_BACK_Y         TFT_HEIGHT - 38
 #endif
 
 #if !defined(BUTTON_DECREASE_X) && !defined(BUTTON_DECREASE_Y) && !defined(BUTTON_INCREASE_X) && !defined(BUTTON_INCREASE_Y) && !defined(BUTTON_CLICK_X) && !defined(BUTTON_CLICK_Y)
-  #define BUTTON_DECREASE_X         164
-  #define BUTTON_DECREASE_Y         TFT_HEIGHT - 80
-  #define BUTTON_INCREASE_X         796
-  #define BUTTON_INCREASE_Y         TFT_HEIGHT - 80
-  #define BUTTON_CLICK_X            480
-  #define BUTTON_CLICK_Y            TFT_HEIGHT - 80
+  #define BUTTON_DECREASE_X         32
+  #define BUTTON_DECREASE_Y         TFT_HEIGHT - 64
+  #define BUTTON_INCREASE_X         224
+  #define BUTTON_INCREASE_Y         TFT_HEIGHT - 64
+  #define BUTTON_CLICK_X            128
+  #define BUTTON_CLICK_Y            TFT_HEIGHT - 64
 #endif
 
 #if !defined(BUTTON_CANCEL_X) && !defined(BUTTON_CANCEL_Y) && !defined(BUTTON_CONFIRM_X) && !defined(BUTTON_CONFIRM_Y)
-  #define BUTTON_CANCEL_X           256
-  #define BUTTON_CANCEL_Y           TFT_HEIGHT - 80
-  #define BUTTON_CONFIRM_X          704
-  #define BUTTON_CONFIRM_Y          TFT_HEIGHT - 80
+  #define BUTTON_CANCEL_X           48
+  #define BUTTON_CANCEL_Y           TFT_HEIGHT - 64
+  #define BUTTON_CONFIRM_X          208
+  #define BUTTON_CONFIRM_Y          TFT_HEIGHT - 64
 #endif
 
 
 // MarlinUI::draw_kill_screen()
 #if !defined(KILL_SCREEN_STATUS_Y) && !defined(KILL_SCREEN_HALTED_Y) && !defined(KILL_SCREEN_RESET_Y)
-  #define KILL_SCREEN_STATUS_Y      94
-  #define KILL_SCREEN_HALTED_Y      184
-  #define KILL_SCREEN_RESET_Y       229
+  #define KILL_SCREEN_STATUS_Y      139
+  #define KILL_SCREEN_HALTED_Y      229
+  #define KILL_SCREEN_RESET_Y       274
 #endif
 
 // draw_heater_status() and draw_fan_status()
 #if !defined(TEMP_FAN_CONTROL_W) && !defined(TEMP_FAN_CONTROL_H)
-  #define TEMP_FAN_CONTROL_W        80
+  #define TEMP_FAN_CONTROL_W        64
   #define TEMP_FAN_CONTROL_H        120
 #endif
 #if !defined(TEMP_ICON_X) && !defined(TEMP_ICON_Y)
-  #define TEMP_ICON_X               8
+  #define TEMP_ICON_X               0
   #define TEMP_ICON_Y               28
 #endif
 #if !defined(FAN_ICON_X) && !defined(FAN_ICON_Y)
-  #define FAN_ICON_X                8
+  #define FAN_ICON_X                0
   #define FAN_ICON_Y                20
 #endif
 
@@ -126,52 +126,52 @@
 
 // MarlinUI::draw_status_screen()
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
-  #define MAX_ITEMS                 12
+  #define MAX_ITEMS                 5
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
   #define ITEM_Y                    4
 #endif
 
 #if !defined(COORDINATES_W) && !defined(COORDINATES_H) && !defined(COORDINATES_X) && !defined(COORDINATES_Y)
   #define COORDINATES_W             TFT_WIDTH - 8
-  #define COORDINATES_H             FONT_LINE_HEIGHT
+  #define COORDINATES_H             FONT_LINE_HEIGHT * 2
   #define COORDINATES_X             4
-  #define COORDINATES_Y             204
+  #define COORDINATES_Y             132
 #endif
 
 #if !defined(E_MARK_X) && !defined(E_MARK_Y) && !defined(E_VALUE_X) && !defined(E_VALUE_Y)
-  #define E_MARK_X                  572
-  #define E_MARK_Y                  VCENTER
-  #define E_VALUE_X                 672 - tft_string.width()
-  #define E_VALUE_Y                 VCENTER
+  #define E_MARK_X                  10
+  #define E_MARK_Y                  VCENTER + FONT_LINE_HEIGHT
+  #define E_VALUE_X                 103 - tft_string.width()
+  #define E_VALUE_Y                 VCENTER + FONT_LINE_HEIGHT
 #endif
 
 #if !defined(X_MARK_X) && !defined(X_MARK_Y) && !defined(X_VALUE_X) && !defined(X_VALUE_Y)
-  #define X_MARK_X                  64
+  #define X_MARK_X                  10
   #define X_MARK_Y                  VCENTER
-  #define X_VALUE_X                 164 - tft_string.width()
+  #define X_VALUE_X                 103 - tft_string.width()
   #define X_VALUE_Y                 VCENTER
 #endif
 
 #if !defined(Y_MARK_X) && !defined(Y_MARK_Y) && !defined(Y_VALUE_X) && !defined(Y_VALUE_Y)
-  #define Y_MARK_X                  318
+  #define Y_MARK_X                  176
   #define Y_MARK_Y                  VCENTER
-  #define Y_VALUE_X                 418 - tft_string.width()
+  #define Y_VALUE_X                 265 - tft_string.width()
   #define Y_VALUE_Y                 VCENTER
 #endif
 
 #if !defined(Z_MARK_X) && !defined(Z_MARK_Y) && !defined(Z_VALUE_X) && !defined(Z_VALUE_Y)
-  #define Z_MARK_X                  826
-  #define Z_MARK_Y                  VCENTER
-  #define Z_VALUE_X                 965 - tft_string.width()
-  #define Z_VALUE_Y                 VCENTER
+  #define Z_MARK_X                  176
+  #define Z_MARK_Y                  VCENTER + FONT_LINE_HEIGHT
+  #define Z_VALUE_X                 297 - tft_string.width()
+  #define Z_VALUE_Y                 VCENTER + FONT_LINE_HEIGHT
   #define Z_VALUE_OFFSET            32
 #endif
 
 #if !defined(FEEDRATE_W) && !defined(FEEDRATE_H) && !defined(FEEDRATE_X) && !defined(FEEDRATE_Y)
   #define FEEDRATE_W                120
   #define FEEDRATE_H                32
-  #define FEEDRATE_X                274
-  #define FEEDRATE_Y                304
+  #define FEEDRATE_X                24
+  #define FEEDRATE_Y                218
 #endif
 #if !defined(FEEDRATE_ICON_X) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_TEXT_Y)
   #define FEEDRATE_ICON_X           0
@@ -183,8 +183,8 @@
 #if !defined(FLOWRATE_W) && !defined(FLOWRATE_H) && !defined(FLOWRATE_X) && !defined(FLOWRATE_Y)
   #define FLOWRATE_W                120
   #define FLOWRATE_H                32
-  #define FLOWRATE_X                650
-  #define FLOWRATE_Y                304
+  #define FLOWRATE_X                176
+  #define FLOWRATE_Y                218
 #endif
 #if !defined(FLOWRATE_ICON_X) && !defined(FLOWRATE_ICON_Y) && !defined(FLOWRATE_TEXT_X) && !defined(FLOWRATE_TEXT_Y)
   #define FLOWRATE_ICON_X           0
@@ -194,38 +194,31 @@
 #endif
 
 #if !defined(MENU_ICON_X) && !defined(MENU_ICON_Y)
-  #define MENU_ICON_X               900
-  #define MENU_ICON_Y               304
+  #define MENU_ICON_X               250
+  #define MENU_ICON_Y               354
 #endif
 #if !defined(SDCARD_ICON_X) && !defined(SDCARD_ICON_Y)
-  #define SDCARD_ICON_X             60
-  #define SDCARD_ICON_Y             304
+  #define SDCARD_ICON_X             6
+  #define SDCARD_ICON_Y             354
 #endif
 
 #if !defined(ELAPSED_TIME_W) && !defined(ELAPSED_TIME_H) && !defined(ELAPSED_TIME_X) && !defined(ELAPSED_TIME_Y)
-  #if ALL(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
-    #define ELAPSED_TIME_W          (TFT_WIDTH / 2)
-    #define ELAPSED_TIME_X          (TFT_WIDTH / 2) - ELAPSED_TIME_W
-  #elif ENABLED(SHOW_ELAPSED_TIME)
-    #define ELAPSED_TIME_W          TFT_WIDTH
-    #define ELAPSED_TIME_X          (TFT_WIDTH - ELAPSED_TIME_W) / 2
-  #endif
-
-  #define ELAPSED_TIME_H            32
-  #define ELAPSED_TIME_Y            404
+  #define ELAPSED_TIME_W            168
+  #define ELAPSED_TIME_H            29
+  #define ELAPSED_TIME_X            (TFT_WIDTH - ELAPSED_TIME_W) / 2
+  #define ELAPSED_TIME_Y            388
 #endif
 
 #if !defined(REMAINING_TIME_W) && !defined(REMAINING_TIME_H) && !defined(REMAINING_TIME_X) && !defined(REMAINING_TIME_Y)
   #if ALL(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_W        (TFT_WIDTH / 2)
-    #define REMAINING_TIME_X        (TFT_WIDTH / 2)
+    #define REMAINING_TIME_Y        354
   #elif ENABLED(SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_W        TFT_WIDTH
-    #define REMAINING_TIME_X        (TFT_WIDTH - REMAINING_TIME_W) / 2
+    #define REMAINING_TIME_Y        388
   #endif
 
-  #define REMAINING_TIME_H          32
-  #define REMAINING_TIME_Y          404
+  #define REMAINING_TIME_H          29
+  #define REMAINING_TIME_W          168
+  #define REMAINING_TIME_X          (TFT_WIDTH - REMAINING_TIME_W) / 2
 #endif
 
 #if !defined(ELAPSED_TIME_IMAGE_X) && !defined(ELAPSED_TIME_IMAGE_Y) && !defined(ELAPSED_TIME_TEXT_X) && !defined(ELAPSED_TIME_TEXT_Y)
@@ -246,14 +239,14 @@
   #define PROGRESS_BAR_W            TFT_WIDTH - 8
   #define PROGRESS_BAR_H            12
   #define PROGRESS_BAR_X            4
-  #define PROGRESS_BAR_Y            454
+  #define PROGRESS_BAR_Y            422
 #endif
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
   #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
   #define STATUS_MESSAGE_X          0
-  #define STATUS_MESSAGE_Y          504
+  #define STATUS_MESSAGE_Y          440
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
@@ -263,8 +256,8 @@
 
 // MenuEditItemBase::draw_edit_screen()
 #if !defined(SLIDER_W) && !defined(SLIDER_Y)
-  #define SLIDER_W                  720
-  #define SLIDER_Y                  320
+  #define SLIDER_W                  288
+  #define SLIDER_Y                  280
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -285,16 +278,16 @@
   #endif
 
   #if !defined(UBL_COORDINATES_W) && !defined(UBL_COORDINATES_X) && !defined(UBL_X_COORDINATE_Y) && !defined(UBL_Y_COORDINATE_Y) && !defined(UBL_Z_COORDINATE_Y)
-    #define UBL_COORDINATES_W       120
-    #define UBL_COORDINATES_X       320
+    #define UBL_COORDINATES_W       168
+    #define UBL_COORDINATES_X       20
 
-    #define UBL_X_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 - MENU_ITEM_HEIGHT
-    #define UBL_Y_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2
-    #define UBL_Z_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 + MENU_ITEM_HEIGHT
+    #define UBL_X_COORDINATE_Y      283
+    #define UBL_Y_COORDINATE_Y      326
+    #define UBL_Z_COORDINATE_Y      369
   #endif
 
   #if !defined(UBL_ACTION_X) && !defined(UBL_ACTION_Y)
-    #define UBL_ACTION_X            UBL_COORDINATES_X
-    #define UBL_ACTION_Y            UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET
+    #define UBL_ACTION_X            240
+    #define UBL_ACTION_Y            332
   #endif
 #endif

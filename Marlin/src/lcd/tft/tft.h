@@ -23,7 +23,7 @@
 
 #include "tft_queue.h"
 #include "canvas.h"
-#include "tft_color.h"
+#include "ui_theme.h"
 #include "tft_string.h"
 #include "tft_image.h"
 #include "../tft_io/tft_io.h"
