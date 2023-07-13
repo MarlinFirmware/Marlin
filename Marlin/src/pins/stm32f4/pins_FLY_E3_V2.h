@@ -29,8 +29,6 @@
   #define BOARD_INFO_NAME "FLY_E3_V2"
 #endif
 
-#define USES_DIAG_JUMPERS
-
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -43,7 +41,7 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
-//#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
@@ -51,11 +49,34 @@
 #define SERVO0_PIN                          PE6   // SERVOS
 
 //
+// Trinamic Stallguard pins
+//
+#define X_DIAG_PIN                          PE7   // X-STOP
+#define Y_DIAG_PIN                          PE8   // Y-STOP
+#define Z_DIAG_PIN                          PE9   // Z-STOP
+
+//
 // Limit Switches
 //
-#define X_STOP_PIN                          PE7   // X-STOP
-#define Y_STOP_PIN                          PE8   // Y-STOP
-#define Z_STOP_PIN                          PE9   // Z-STOP
+#ifdef X_STALL_SENSITIVITY
+  #define X_STOP_PIN                  X_DIAG_PIN
+#else
+  #define X_STOP_PIN                        PE7   // X-STOP
+#endif
+
+#ifdef Y_STALL_SENSITIVITY
+  #define Y_STOP_PIN                  Y_DIAG_PIN
+#else
+  #define Y_STOP_PIN                        PE8   // Y-STOP
+#endif
+
+#ifdef Z_STALL_SENSITIVITY
+  #define Z_STOP_PIN                  Z_DIAG_PIN
+#else
+  #ifndef Z_STOP_PIN
+    #define Z_STOP_PIN                      PE9   // Z-STOP
+  #endif
+#endif
 
 //
 // Z Probe must be this pin
@@ -120,15 +141,38 @@
 //
 // Heaters / Fans
 //
-#define HEATER_BED_PIN                      PB0   // "HB"
-#define HEATER_0_PIN                        PC6   // "HE0"
-#define HEATER_1_PIN                        PC7   // "HE0"
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                      PB0   // "HB"
+#endif
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                        PC6   // "HE0"
+#endif
+#ifndef HEATER_1_PIN
+  #define HEATER_1_PIN                        PC7   // "HE0"
+#endif
 
-#define FAN0_PIN                            PA0   // "FAN0"
-#define FAN1_PIN                            PA1
-#define FAN2_PIN                            PA2
-#define FAN3_PIN                            PA3
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            PA0   // "FAN0"
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN                            PA1
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                            PA2
+#endif
+#ifndef FAN3_PIN
+  #define FAN3_PIN                            PA3
+#endif
 
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB4
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
+#endif
 
 #if HAS_TMC_UART
   /**
@@ -174,21 +218,21 @@
 
 #endif // HAS_TMC_UART
 
-//#ifndef SDCARD_CONNECTION
-//  #define SDCARD_CONNECTION              ONBOARD
-//#endif
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
 
 
 /**
- *              BTT E3 RRF
- *                ------
- * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)
- * (BTN_EN1) PE7 | 3  4 | RESET
- * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)
- * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)
- *           GND | 9 10 | 5V
- *                ------
- *                 EXP1
+ *              Fly-E3-v2
+ *                ------                                    ------
+ * (BEEPER) PD10 | 1  2 | PA9  (BTN_ENC)  (MISO)       PA6 | 1  2 | PA5 (SCK)
+ * (LCD_EN) PA8  | 3  4 | PA10 (LCD_RS)   (BTN_EN1)   PB11 | 3  4 | PA4 (SD_SS)
+ * (LCD_D4) PE15 | 5  6   PE14 (LCD_D5)   (BTN_EN2)   PB10 | 5  6 | PA7 (MOSI)
+ * (LCD_D6) PA14 | 7  8 | PA13 (LCD_D7)   (SD_DETECT) PE13 | 7  8 | RESET
+ *           GND | 9 10 | 5V                           GND | 9 10 | --
+ *                ------                                    ------
+ *                 EXP1                                      EXP2
  */
 
 #if HAS_WIRED_LCD
