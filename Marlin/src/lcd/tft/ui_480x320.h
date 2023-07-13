@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 // -------------------------------- Core Parameters --------------------------------
 #define MENU_TEXT_X                 16
