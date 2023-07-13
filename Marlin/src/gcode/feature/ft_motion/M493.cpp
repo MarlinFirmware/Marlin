@@ -177,7 +177,7 @@ void GcodeSuite::M493() {
           //case ftMotionMode_DISCTF:
             flag.update_n = flag.update_a = true;
         #endif
-        case ftMotionMode_DISABLED: LOGICAL_AXIS_CODE(
+        case ftMotionMode_DISABLED: LOGICAL_AXIS_CODE( // Tell the world where we are
           stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
           stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
           stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
