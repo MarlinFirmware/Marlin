@@ -257,7 +257,7 @@ void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/, FSTR_P const s
 
   static uint8_t ptr_count;
   ptr_count = 0;
-  
+
   if (str1 != nullptr) message_ptrs[ptr_count++] = str1;
   if (str2 != nullptr) message_ptrs[ptr_count++] = str2;
 
@@ -279,7 +279,7 @@ void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/, FSTR_P const s
             item_line_buf[item_line_pos] = '\0';
             const uint8_t lcd_line = LCD_HEIGHT / 2 - 1 + line_to_draw;
             if (lcd_line < LCD_HEIGHT)  // implementation limited
-              MenuItem_static::draw(lcd_line, FPSTR(item_line_buf));
+              MenuItem_static::draw(lcd_line, nullptr, SS_CENTER, item_line_buf);
             line_to_draw++;
             item_line_pos = 0;
           }

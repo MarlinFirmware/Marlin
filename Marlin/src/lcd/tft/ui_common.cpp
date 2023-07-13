@@ -205,7 +205,11 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
   menu_item(row);
 
-  tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
+  if (fstr) {
+    tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
+  } else {
+    tft_string.set();
+  }
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
