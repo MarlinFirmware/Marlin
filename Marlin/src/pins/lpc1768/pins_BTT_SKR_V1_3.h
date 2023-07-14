@@ -23,6 +23,8 @@
 
 /**
  * BigTreeTech SKR 1.3 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20V1.3/SKR-V1.3-SCH.pdf
+ * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/blob/master/BTT%20SKR%20V1.3/hardware/SKR-V1.3-SCH.pdf
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.3"
@@ -137,18 +139,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P4_28
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_05
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_04
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P4_28
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_05
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_04
 #endif
 
 #if HAS_TMC_UART
@@ -186,8 +186,11 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**
  *                 ------                                     ------
@@ -254,7 +257,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_03_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_06_PIN
+    #define LCD_PINS_EN              EXP1_06_PIN
     #define LCD_PINS_D4              EXP1_04_PIN
 
   #elif ENABLED(WYH_L12864)
@@ -289,7 +292,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_01_PIN
-    #define LCD_BACKLIGHT_PIN            -1
+    #define LCD_BACKLIGHT_PIN              -1
 
   #elif ENABLED(CR10_STOCKDISPLAY)
 
@@ -299,7 +302,7 @@
     #define BTN_EN2                  EXP1_05_PIN
     #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif HAS_ADC_BUTTONS
@@ -308,28 +311,15 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
-    #define TFT_A0_PIN               EXP1_08_PIN
-    #define TFT_DC_PIN               EXP1_08_PIN
-    #define TFT_CS_PIN               EXP1_07_PIN
-    #define TFT_RESET_PIN            EXP1_04_PIN
-    #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
-
-    //#define TFT_RST_PIN            EXP2_07_PIN
-    #define TFT_MOSI_PIN             EXP2_06_PIN
-    #define TFT_SCK_PIN              EXP2_02_PIN
-    #define TFT_MISO_PIN             EXP2_01_PIN
-
-    #define BTN_EN2                  EXP2_05_PIN
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define BEEPER_PIN               EXP1_01_PIN
     #define SDCARD_CONNECTION            ONBOARD
 
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+    #define BEEPER_PIN               EXP1_01_PIN
 
-    #define TFT_BUFFER_SIZE                 2400
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
+
+    #define TFT_DC_PIN                TFT_A0_PIN
 
     #ifndef TFT_WIDTH
       #define TFT_WIDTH                      480
@@ -338,8 +328,41 @@
       #define TFT_HEIGHT                     320
     #endif
 
-    #define LCD_READ_ID                     0xD3
-    #define LCD_USE_DMA_SPI
+    #if ENABLED(BTT_TFT35_SPI_V1_0)
+      // 480x320, 3.5", SPI Display with Rotary Encoder.
+      // Stock Display for the BIQU B1 SE.
+      #define TFT_CS_PIN             EXP2_04_PIN
+      #define TFT_A0_PIN             EXP2_07_PIN
+
+      #define TOUCH_CS_PIN           EXP1_04_PIN
+      #define TOUCH_SCK_PIN          EXP1_05_PIN
+      #define TOUCH_MISO_PIN         EXP1_06_PIN
+      #define TOUCH_MOSI_PIN         EXP1_03_PIN
+      #define TOUCH_INT_PIN          EXP1_07_PIN
+
+    #elif ENABLED(MKS_TS35_V2_0)
+
+      #define TFT_CS_PIN             EXP1_07_PIN
+      #define TFT_A0_PIN             EXP1_08_PIN
+
+      #define TFT_RESET_PIN          EXP1_04_PIN
+
+      #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
+
+      #define TOUCH_BUTTONS_HW_SPI
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+
+      //#define TFT_RST_PIN          EXP2_07_PIN
+      #define TFT_SCK_PIN            EXP2_02_PIN
+      #define TFT_MISO_PIN           EXP2_01_PIN
+      #define TFT_MOSI_PIN           EXP2_06_PIN
+
+      #define LCD_READ_ID                   0xD3
+      #define LCD_USE_DMA_SPI
+
+      #define TFT_BUFFER_SIZE               2400
+
+    #endif
 
     #if ENABLED(TFT_CLASSIC_UI)
       #ifndef TOUCH_CALIBRATION_X
@@ -377,7 +400,7 @@
 
     #define SD_DETECT_PIN            EXP2_07_PIN
 
-  #else                                           // !CR10_STOCKDISPLAY
+  #else // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS              EXP1_04_PIN
 
@@ -385,7 +408,7 @@
     #define BTN_EN2                  EXP2_05_PIN  // (33) J3-4 & AUX-4
     #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #define LCD_SDSS                 EXP2_04_PIN  // (16) J3-7 & AUX-4
@@ -404,7 +427,7 @@
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
@@ -418,7 +441,7 @@
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
 

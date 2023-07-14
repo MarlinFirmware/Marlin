@@ -35,7 +35,7 @@
 #define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -104,8 +104,8 @@
 //
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC8
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC8
 #endif
 
 //
@@ -164,7 +164,7 @@
     #define DOGLCD_SCK               EXP1_06_PIN
     #define DOGLCD_MOSI              EXP1_08_PIN
 
-    #if EITHER(FYSETC_MINI_12864, U8GLIB_ST7920)
+    #if ANY(FYSETC_MINI_12864, U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
@@ -172,7 +172,7 @@
 
   #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT                190
 

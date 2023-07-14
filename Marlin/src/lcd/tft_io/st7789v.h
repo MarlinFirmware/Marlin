@@ -33,10 +33,11 @@
 #define ST7789V_MADCTL_RGB        0x00
 #define ST7789V_MADCTL_MH         0x04 // Horizontal Refresh Order
 
-#define ST7789V_ORIENTATION_UP    ST7789V_MADCTL_MX | ST7789V_MADCTL_MY // 240x320 ; Cable on the upper side
-#define ST7789V_ORIENTATION_RIGHT ST7789V_MADCTL_MX | ST7789V_MADCTL_MV // 320x240 ; Cable on the right side
-#define ST7789V_ORIENTATION_LEFT  ST7789V_MADCTL_MY | ST7789V_MADCTL_MV // 320x240 ; Cable on the left side
-#define ST7789V_ORIENTATION_DOWN  0                                     // 240x320 ; Cable on the lower side
+// ST7789V-specific: "MX Inversion" is enabled by default in LCM Control register.
+#define ST7789V_ORIENTATION_TOP     ST7789V_MADCTL_MX | ST7789V_MADCTL_MY // 240x320 ; PFC cable on the top side
+#define ST7789V_ORIENTATION_RIGHT   ST7789V_MADCTL_MX | ST7789V_MADCTL_MV // 320x240 ; PFC cable on the right side
+#define ST7789V_ORIENTATION_LEFT    ST7789V_MADCTL_MY | ST7789V_MADCTL_MV // 320x240 ; PFC cable on the left side
+#define ST7789V_ORIENTATION_BOTTOM  0                                     // 240x320 ; PFC cable on the bottom side
 
 #define ST7789V_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ST7789V_MADCTL_MV) | \
                             IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ST7789V_MADCTL_MX) | \
@@ -141,7 +142,22 @@ static const uint16_t st7789v_init[] = {
   ESC_REG(ST7789V_PORCTRL), 0x000C, 0x000C, 0x0000, 0x0033, 0x0033,
   ESC_REG(ST7789V_GCTRL), 0x0035,
   ESC_REG(ST7789V_VCOMS), 0x001F,
-  ESC_REG(ST7789V_LCMCTRL), 0x002C,
+
+  /**
+   * LCM Control
+   *
+   * Default Power-on Value: 0x2C / 00101100b
+   * MY Inversion: 0
+   * RGB/BGR Inversion: 1
+   * Display Inversion: 0
+   * MX Inversion: 1
+   * MH (Source Output) Inversion: 1
+   * MV Inversion: 0
+   * Gate Scan Inversion: 0
+   */
+  ESC_REG(ST7789V_LCMCTRL), 0x002C, // Default Power-on Value
+  ESC_REG(ST7789V_GATECTRL), 0x0027, 0x0000, 0x0010, // Gate Scan Direction: 0
+
   ESC_REG(ST7789V_VDVVRHEN), 0x0001, 0x00C3,
   ESC_REG(ST7789V_VDVS), 0x0020,
   ESC_REG(ST7789V_FRCTRL2), 0x000F,

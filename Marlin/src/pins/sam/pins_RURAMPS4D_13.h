@@ -114,7 +114,7 @@
 #define HEATER_2_PIN                          11
 #define HEATER_BED_PIN                         7  // BED H1
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN1_PIN                               8
 #define CONTROLLER_FAN_PIN                    -1
 
@@ -135,7 +135,7 @@
 
 // SPI for MAX Thermocouple
 /*
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49
@@ -153,11 +153,13 @@
 #define TFT_LCD_MODULE_COM                     1
 #define TFT_LCD_MODULE_BAUDRATE              115200
 
-// ESP WiFi Use internal USART-2
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE             115200
-#define ESP_WIFI_MODULE_RESET_PIN             -1
-#define PIGGY_GPIO_PIN                        -1
+#if ENABLED(WIFISUPPORT)
+  // ESP WiFi Use internal USART-2
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE           115200
+  #define ESP_WIFI_MODULE_RESET_PIN           -1
+  #define PIGGY_GPIO_PIN                      -1
+#endif
 
 //
 // EEPROM
@@ -215,15 +217,15 @@
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
 
-  #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
+  #if ANY(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
 
   #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
   #elif HAS_U8GLIB_I2C_OLED
 
@@ -242,7 +244,7 @@
 
     #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN        EXP1_06_PIN  // D5
       #endif

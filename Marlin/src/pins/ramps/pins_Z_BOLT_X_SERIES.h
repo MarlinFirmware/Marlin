@@ -23,6 +23,7 @@
 
 /**
  *  Z-Bolt X Series board – based on Arduino Mega2560
+ *  ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -135,7 +136,7 @@
 #define HEATER_3_PIN                           5
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 //
 // Misc. Functions
@@ -169,12 +170,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0     // Prefer the servo connector
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS
-    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
@@ -182,16 +183,14 @@
 //
 // TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                        66
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                        44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                         64
 #endif
 
 #if HAS_TMC_UART

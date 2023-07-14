@@ -45,6 +45,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
+
 #if M600_PURGE_MORE_RESUMABLE
   #include "../../feature/pause.h"
 #endif
@@ -171,14 +172,14 @@ namespace ExtUI {
   #if HAS_LEVELING
     bool getLevelingActive();
     void setLevelingActive(const bool);
-    bool getMeshValid();
+    bool getLevelingIsValid();
+    void onLevelingStart();
+    void onLevelingDone();
     #if HAS_MESH
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zval);
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z);
-      void onLevelingStart();
-      void onLevelingDone();
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const_float_t zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
@@ -375,9 +376,6 @@ namespace ExtUI {
   void resumePrint();
 
   class FileList {
-    private:
-      uint16_t num_files;
-
     public:
       FileList();
       void refresh();
@@ -406,6 +404,7 @@ namespace ExtUI {
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
+  void onSurviveInKilled();
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
@@ -423,9 +422,11 @@ namespace ExtUI {
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
   void onPostprocessSettings();
-  void onSettingsStored(bool success);
-  void onSettingsLoaded(bool success);
+  void onSettingsStored(const bool success);
+  void onSettingsLoaded(const bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff);
+    void onPowerLoss();
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING

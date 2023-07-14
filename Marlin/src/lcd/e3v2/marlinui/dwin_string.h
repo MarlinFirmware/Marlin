@@ -23,7 +23,7 @@
 
 // TODO: Make AVR-compatible with separate ROM / RAM string methods
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include <stdint.h>
@@ -55,7 +55,7 @@ class DWIN_String {
     //static void add_glyphs(const uint8_t *font);
 
     //static font_t *font() { return font_header; };
-    //static uint16_t font_height() { return font_header->FontAscent - font_header->FontDescent; }
+    //static uint16_t font_height() { return font_header->fontAscent - font_header->fontDescent; }
     //static glyph_t *glyph(uint8_t character) { return glyphs[character] ?: glyphs[0x3F]; }  /* Use '?' for unknown glyphs */
     //static glyph_t *glyph(uint8_t *character) { return glyph(*character); }
 

@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -100,8 +100,8 @@
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PA8   // "FAN0"
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PA8   // "FAN0"
 #endif
 
 //
@@ -114,15 +114,15 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2
- *                ------
+ *         SKR Mini E3 V1.0, V1.2
+ *                 ------
  * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
  * (BTN_EN1) PA9  | 3  4 | RESET
  * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
  * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
  *            GND | 9 10 | 5V
- *                ------
- *                 EXP1
+ *                 ------
+ *                  EXP1
  */
 #ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6
@@ -163,14 +163,45 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN               EXP1_01_PIN
-    #define BTN_ENC                  EXP1_02_PIN
 
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
+
+  #elif ENABLED(LCD_FOR_MELZI)
+
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! LCD for Melzi v4 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
+
+    /**
+     * LCD for Melzi v4 needs a custom cable with reversed GND/5V pins; plugging in a standard cable may damage the board or LCD!
+     *  1. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     *  2. Swap pin 4 on the Melzi LCD to pin 7 on the SKR Mini E3 EXP1 connector (pin 4 on the SKR is a RESET and cannot be used)
+     *
+     *       LCD for Melzi V4         SKR Mini E3 V2.0
+     *            ------                   ------
+     *    LCD RS | 1  2 | EN1      LCD RS | 1  2 | EN1
+     *    LCD EN | 3  4 | EN2      LCD EN | 3  4 | OPEN (RESET)
+     *    LCD D4 | 5  6 | ENC      LCD D4 | 5  6 | ENC
+     *    E-Stop | 7  8 | BEEP        EN2 | 7  8 | BEEP
+     *        5V | 9 10 | GND         GND | 9 10 | 5V
+     *            ------                   ------
+     *             EXP1                     EXP1
+     */
+    #define BEEPER_PIN               EXP1_08_PIN
+
+    #define BTN_ENC                  EXP1_06_PIN
+    #define BTN_EN1                  EXP1_02_PIN
+    #define BTN_EN2                  EXP1_07_PIN
+
+    #define LCD_PINS_RS              EXP1_01_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
@@ -179,14 +210,14 @@
     #endif
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_ENABLE          EXP1_02_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
@@ -284,8 +315,8 @@
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
      *
-     *    TFT-2 ----------- EXP2-5   SCK
-     *    TFT-3 ----------- EXP2-9   MOSI
+     *    TFT-2 ----------- EXP2-5   MOSI
+     *    TFT-3 ----------- EXP2-9   SCK
      *
      * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
      */
@@ -306,12 +337,12 @@
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -365,7 +396,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
+#elif SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN              EXP1_01_PIN
   #define SD_SS_PIN                  EXP1_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

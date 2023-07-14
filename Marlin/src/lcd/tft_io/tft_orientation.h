@@ -59,27 +59,10 @@
 #define TFT_COLOR_BGR   _BV32(4)
 
 // Each TFT Driver is responsible for its default color mode.
-// #ifndef TFT_COLOR
-//   #define TFT_COLOR   TFT_COLOR_RGB
-// #endif
+//#ifndef TFT_COLOR
+//  #define TFT_COLOR   TFT_COLOR_RGB
+//#endif
 
 #define TOUCH_ORIENTATION_NONE  0
 #define TOUCH_LANDSCAPE         1
 #define TOUCH_PORTRAIT          2
-
-#ifndef TOUCH_CALIBRATION_X
-  #define TOUCH_CALIBRATION_X   0
-#endif
-#ifndef TOUCH_CALIBRATION_Y
-  #define TOUCH_CALIBRATION_Y   0
-#endif
-#ifndef TOUCH_OFFSET_X
-  #define TOUCH_OFFSET_X        0
-#endif
-#ifndef TOUCH_OFFSET_Y
-  #define TOUCH_OFFSET_Y        0
-#endif
-#ifndef TOUCH_ORIENTATION
-  #define TOUCH_ORIENTATION     TOUCH_LANDSCAPE
-#endif
-

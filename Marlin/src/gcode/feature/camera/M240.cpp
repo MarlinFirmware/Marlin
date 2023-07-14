@@ -84,7 +84,7 @@
 
     inline void spin_photo_pin() {
       static constexpr uint32_t sequence[] = PHOTO_PULSES_US;
-      LOOP_L_N(i, COUNT(sequence))
+      for (uint8_t i = 0; i < COUNT(sequence); ++i)
         pulse_photo_pin(sequence[i], !(i & 1));
     }
 
@@ -111,7 +111,7 @@
  *    B - Y offset to the return position
  *    F - Override the XY movement feedrate
  *    R - Retract/recover length (current units)
- *    S - Retract/recover feedrate (mm/m)
+ *    S - Retract/recover feedrate (mm/min)
  *    X - Move to X before triggering the shutter
  *    Y - Move to Y before triggering the shutter
  *    Z - Raise Z by a distance before triggering the shutter
@@ -128,11 +128,13 @@ void GcodeSuite::M240() {
 
     if (homing_needed_error()) return;
 
-    const xyz_pos_t old_pos = {
+    const xyz_pos_t old_pos = NUM_AXIS_ARRAY(
       current_position.x + parser.linearval('A'),
       current_position.y + parser.linearval('B'),
-      current_position.z
-    };
+      current_position.z,
+      current_position.i, current_position.j, current_position.k,
+      current_position.u, current_position.v, current_position.w
+    );
 
     #ifdef PHOTO_RETRACT_MM
       const float rval = parser.linearval('R', _PHOTO_RETRACT_MM);
@@ -140,7 +142,7 @@ void GcodeSuite::M240() {
       e_move_m240(-rval, sval);
     #endif
 
-    feedRate_t fr_mm_s = MMM_TO_MMS(parser.linearval('F'));
+    feedRate_t fr_mm_s = parser.feedrateval('F');
     if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;

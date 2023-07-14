@@ -4,14 +4,18 @@ root = true
 [{*.patch,syntax_test_*}]
 trim_trailing_whitespace = false
 
-[{*.c,*.cpp,*.h,*.ino}]
-charset = utf-8
-
-[{*.c,*.cpp,*.h,*.ino,Makefile}]
+[{*.c,*.cpp,*.h,*.ino,*.py,Makefile}]
 trim_trailing_whitespace = true
 insert_final_newline = true
 end_of_line = lf
+
+[{*.c,*.cpp,*.h,*.ino}]
+charset = utf-8
 indent_style = space
+indent_size = 2
+
+[{Makefile}]
+indent_style = tab
 indent_size = 2
 
 [{*.py}]

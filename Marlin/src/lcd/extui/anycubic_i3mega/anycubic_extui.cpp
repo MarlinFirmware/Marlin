@@ -35,20 +35,20 @@
 
 namespace ExtUI {
 
-  void onStartup()        { AnycubicTFT.OnSetup(); }
-  void onIdle()           { AnycubicTFT.OnCommandScan(); }
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { AnycubicTFT.OnKillTFT(); }
-  void onMediaInserted()  { AnycubicTFT.OnSDCardStateChange(true); }
-  void onMediaError()     { AnycubicTFT.OnSDCardError(); }
-  void onMediaRemoved()   { AnycubicTFT.OnSDCardStateChange(false); }
+  void onStartup()        { anycubicTFT.onSetup(); }
+  void onIdle()           { anycubicTFT.onCommandScan(); }
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { anycubicTFT.onKillTFT(); }
+  void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
+  void onMediaError()     { anycubicTFT.onSDCardError(); }
+  void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
-  void onPrintTimerStarted()  { AnycubicTFT.OnPrintTimerStarted(); }
-  void onPrintTimerPaused()   { AnycubicTFT.OnPrintTimerPaused(); }
-  void onPrintTimerStopped()  { AnycubicTFT.OnPrintTimerStopped(); }
-  void onFilamentRunout(const extruder_t extruder)   { AnycubicTFT.OnFilamentRunout(); }
-  void onUserConfirmRequired(const char * const msg) { AnycubicTFT.OnUserConfirmRequired(msg); }
+  void onPrintTimerStarted()  { anycubicTFT.onPrintTimerStarted(); }
+  void onPrintTimerPaused()   { anycubicTFT.onPrintTimerPaused(); }
+  void onPrintTimerStopped()  { anycubicTFT.onPrintTimerStopped(); }
+  void onFilamentRunout(const extruder_t extruder)   { anycubicTFT.onFilamentRunout(); }
+  void onUserConfirmRequired(const char * const msg) { anycubicTFT.onUserConfirmRequired(msg); }
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
@@ -81,21 +81,22 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
-  #if HAS_MESH
-
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
@@ -106,6 +107,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
     }
