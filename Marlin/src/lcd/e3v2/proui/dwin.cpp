@@ -4033,7 +4033,7 @@ void drawStepsMenu() {
 // More Host support
 //=============================================================================
 
-//#if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+#if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
 
   void popupHostShutDown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
   void onClickHostShutDown() {
@@ -4042,7 +4042,7 @@ void drawStepsMenu() {
   }
   void hostShutDown() { gotoPopup(popupHostShutDown, onClickHostShutDown); }
 
-//#endif
+#endif
 
 //=============================================================================
 
