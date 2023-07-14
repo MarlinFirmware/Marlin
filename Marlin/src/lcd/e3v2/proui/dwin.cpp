@@ -3039,7 +3039,7 @@ void drawPrepareMenu() {
 
 void drawControlMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(ControlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 10)) {
+  if (SET_MENU_R(ControlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 11)) {
     BACK_ITEM(gotoMainMenu);
     MENU_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawTempSubMenu, drawTemperatureMenu);
     MENU_ITEM(ICON_Motion, MSG_MOTION, onDrawMotionSubMenu, drawMotionMenu);
@@ -3058,6 +3058,9 @@ void drawControlMenu() {
     #endif
     #if ENABLED(LED_CONTROL_MENU)
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
+    #endif
+    #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+      MENU_ITEM(ICON_Host, MSG_HOST_SHUTDOWN, onDrawMenuItem, HostShutDown);
     #endif
     MENU_ITEM(ICON_Info, MSG_INFO_SCREEN, onDrawInfoSubMenu, gotoInfoMenu);
   }
@@ -4032,12 +4035,12 @@ void drawStepsMenu() {
 
 //#if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
 
-  void PopUp_HostShutDown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
-  void onClick_HostShutDown() {
+  void popupHostShutDown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
+  void onClickHostShutDown() {
     if (hmiFlag.select_flag) { hostui.shutdown(); }
     hmiReturnScreen();
   }
-  void hostShutDown() { gotoPopup(PopUp_HostShutDown, onClick_HostShutDown); }
+  void hostShutDown() { gotoPopup(popupHostShutDown, onClickHostShutDown); }
 
 //#endif
 
