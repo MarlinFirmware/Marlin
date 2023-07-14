@@ -29,6 +29,18 @@
   #define BOARD_INFO_NAME "FLY_E3_V2"
 #endif
 
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
+// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
+//#define BTT_MOTOR_EXPANSION
+
+#if ALL(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+    #define EXP_MOT_USE_EXP2_ONLY 1
+  #else
+    #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
+  #endif
+#endif
+
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -476,19 +488,6 @@
   // WIFI
   //
 
-  /**
-   *                      -------
-   *            GND | 9  |       | 8 | 3.3V
-   *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
-   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
-   * (ESP-IO0) PB10 | 12 |       | 5 | PB13 (ESP-CLK)
-   * (ESP-IO4) PB11 | 13 |       | 4 | --
-   *             -- | 14 |       | 3 | 3.3V (ESP-EN)
-   *  (ESP-RX)  PD8 | 15 |       | 2 | --
-   *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
-   *                      -------
-   *                       WIFI
-   */
   #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
   #define ESP_WIFI_MODULE_RESET_PIN         PE11
