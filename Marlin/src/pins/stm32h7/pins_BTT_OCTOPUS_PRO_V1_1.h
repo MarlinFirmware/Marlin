@@ -542,7 +542,7 @@
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     PB10
+  #define NEOPIXEL_PIN                      PB10
 #endif
 
 #if ENABLED(WIFISUPPORT)
