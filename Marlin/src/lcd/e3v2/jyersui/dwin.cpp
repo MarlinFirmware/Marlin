@@ -416,7 +416,7 @@ private:
       }
     }
 
-    void setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
+    void JyersDWIN::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
       float v1, v2,
             v_min = abs(getMinValue()),
             v_max = abs(getMaxValue());
