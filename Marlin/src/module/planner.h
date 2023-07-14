@@ -306,7 +306,7 @@ typedef struct PlannerBlock {
 
 } block_t;
 
-#if ANY(LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
+#if ANY(LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY, HAS_FILAMENT_RUNOUT_DISTANCE)
   #define HAS_POSITION_FLOAT 1
 #endif
 
@@ -559,6 +559,13 @@ class Planner {
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
+      static bool purgingbailedBlock;
+      static bool hasBailedBlock;
+      static abce_pos_t bailedBlockTarget;
+      static feedRate_t bailedBlockFeedRate;
+    #endif
+
   public:
 
     /**
@@ -604,7 +611,6 @@ class Planner {
         flow_percentage[e] = flow;
         refresh_e_factor(e);
       }
-
     #endif
 
     // Manage fans, paste pressure, etc.

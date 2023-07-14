@@ -229,6 +229,13 @@ float Planner::previous_nominal_speed;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
+#if HAS_FILAMENT_RUNOUT_DISTANCE
+  bool Planner::purgingbailedBlock;
+  bool Planner::hasBailedBlock;
+  abce_pos_t Planner::bailedBlockTarget;
+  feedRate_t Planner::bailedBlockFeedRate;
+#endif
+
 #if ENABLED(FT_MOTION)
   bool Planner::fxdTiCtrl_busy = false;
 #endif
@@ -268,6 +275,7 @@ void Planner::init() {
     last_page_step_rate = 0;
     last_page_dir.reset();
   #endif
+  TERN_(HAS_FILAMENT_RUNOUT_DISTANCE,  hasBailedBlock = purgingbailedBlock = false);
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -2186,8 +2194,16 @@ bool Planner::_populate_block(
     #endif
   );
 
-  // Bail if this is a zero-length block
-  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
+  // Bail if this is a zero-length block and not purging "short movements"
+  if (block->step_event_count < MIN_STEPS_PER_SEGMENT && TERN1(HAS_FILAMENT_RUNOUT_DISTANCE, !purgingbailedBlock)) {
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
+      hasBailedBlock = true;
+      bailedBlockTarget = target_float;
+      bailedBlockFeedRate = fr_mm_s;
+    #endif
+    return false;
+  }
+  TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, hasBailedBlock = false);
 
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
@@ -2990,6 +3006,14 @@ bool Planner::buffer_segment(const abce_pos_t &abce
     if (DEBUGGING(DRYRUN) || TERN0(CANCEL_OBJECTS, cancelable.skipping)) {
       position.e = target.e;
       TERN_(HAS_POSITION_FLOAT, position_float.e = abce.e);
+    }
+  #endif
+
+  #if HAS_FILAMENT_RUNOUT_DISTANCE
+    if ((abc_pos_t)abce == (abc_pos_t)bailedBlockTarget && abce.e != bailedBlockTarget.e && hasBailedBlock) {
+      purgingbailedBlock = true;
+      buffer_segment(bailedBlockTarget, bailedBlockFeedRate);
+      purgingbailedBlock = false;
     }
   #endif
 
