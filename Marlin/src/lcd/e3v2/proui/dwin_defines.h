@@ -28,8 +28,6 @@
  * Date: 2022/08/08
  */
 
-//#define DEBUG_DWIN 1
-
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
