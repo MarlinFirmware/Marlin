@@ -121,18 +121,10 @@ static bool _probe_single_point() {
   const bool probing_reference = !reference_valid;
 
   if (probing_reference)
-    ui.goto_message_screen(GET_TEXT_F(MSG_TW_MEASURING_REF), FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));
-    /* This can be used instead of goto_message_screen once draw_select_screen_prompt is implemented for HAS_GRAPHICAL_TFT
-    *
-    * ui.push_current_screen();
-    * ui.goto_screen([]{
-    *   ui.draw_select_screen_prompt(GET_TEXT_F(MSG_TW_MEASURING_REF), nullptr, FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));
-    * });
-    * }
-    * 
-    */
+    ui.goto_message_screen(GET_TEXT_F(MSG_TW_MEASURING_REF), nullptr, FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));
     
-
+    
+    
   #if HAS_LEVELING
     const bool leveling_prev_state = planner.leveling_active;
     set_bed_leveling_enabled(false);

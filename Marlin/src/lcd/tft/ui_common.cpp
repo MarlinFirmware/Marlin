@@ -271,6 +271,86 @@ void MarlinUI::clear_lcd() {
   cursor.set(0, 0);
 }
 
+
+uint8_t _get_word(const char * const string, read_byte_cb_t cb_read_byte, lchar_t &last_char) {
+        
+  if (!string) return 0;
+
+  const uint8_t *p = (uint8_t*)string;
+  lchar_t wc;
+  uint8_t c = 0;
+  
+  // find the end of the part
+  for (;;) {
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    const bool eol = !wc;         // zero ends the string
+    // End or a break between phrases?
+    if (eol || wc == ' ' || wc == '-' || wc == '+' || wc == '.' || wc == '\n') {
+      c += !eol;                  // +1 so the space will be printed
+      last_char = wc;
+      return c;
+    }
+    else c++;                     // count word characters
+  }
+}
+
+template<typename T>
+void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool flush=false) {
+
+  auto print_str = [&row] () {
+      menu_line(row++);
+      tft_string.trim();
+      tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+      tft_string.set();  
+  };
+
+  const uint8_t *p;
+  uint8_t wrd_len = 0;
+  p = (uint8_t*)string;
+  
+  lchar_t last_char;
+  p = &p[wrd_len];
+  bool eol = !p;
+  while (!eol) {
+    wrd_len = _get_word((const char *)p, cb_read_byte, last_char);
+    const uint8_t len = tft_string.length;
+    tft_string.add((T)p, wrd_len);
+    const uint32_t wid = tft_string.width();
+    
+    if (wid > TFT_WIDTH) {
+      tft_string.truncate(len);
+      print_str();
+      tft_string.set((T)p, wrd_len);
+    }
+    if (last_char == '\n') {
+      tft_string.truncate(tft_string.length - 1);
+      print_str();
+    }
+
+    p = &p[wrd_len];
+    eol = !*p;
+  }
+  if (flush && tft_string.length > 0) {
+      print_str();  
+  }
+}
+void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
+    
+    const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
+    uint8_t row = 1;
+    if (!string && plen + slen <= LCD_WIDTH) {
+      row = LCD_HEIGHT > 3 ? 1 : 0;
+    }
+
+    if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
+    
+    tft_string.set();
+
+    if (plen) _wrap_string<FSTR_P>(row, pref, read_byte_rom);
+    if (string) _wrap_string<const char * const>(row, string, read_byte_ram);
+    if (slen) _wrap_string<FSTR_P>(row, suff, read_byte_rom, true);
+}
+
 #if HAS_LCD_BRIGHTNESS
 
   void MarlinUI::_set_brightness() {
@@ -335,5 +415,6 @@ void MarlinUI::clear_lcd() {
   }
 
 #endif // TOUCH_SCREEN_CALIBRATION
+
 
 #endif // HAS_GRAPHICAL_TFT

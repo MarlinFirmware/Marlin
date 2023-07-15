@@ -529,28 +529,9 @@ void TFT::draw_edit_screen_buttons() {
 
 // The Select Screen presents a prompt and two "buttons"
 void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-  uint16_t line = 1;
+  
+  ui.draw_message_on_screen(pref, string, suff);
 
-  if (!string) line++;
-
-  menu_line(line++);
-  tft_string.set(pref);
-  tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
-
-  if (string) {
-    menu_line(line++);
-    tft_string.set(string);
-    tft_string.trim();
-    tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
-  }
-
-  if (suff) {
-    menu_line(line);
-    tft_string.set(suff);
-    tft_string.trim();
-    tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
-  }
   #if ENABLED(TOUCH_SCREEN)
     add_control(88, TFT_HEIGHT - 64, CANCEL, imgCancel, true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
     add_control(328, TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));

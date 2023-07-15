@@ -51,6 +51,11 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
 void menu_item(const uint8_t row, bool sel = false);
 
+template<typename T>
+void _wrap_string(uint8_t &col, uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
+
 #if HAS_TOUCH_SLEEP
   bool lcd_sleep_task();
 #endif

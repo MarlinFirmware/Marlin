@@ -229,18 +229,19 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 ////////////////////////////////////////////
 
 // Helper vars for custom msg pointers
-static FSTR_P message_ptrs[2];
-static char item_line_buf[LCD_WIDTH+1];
+static FSTR_P _fstr1;
+static const char * _cstr;
+static FSTR_P _fstr2;
 
 //
 // Display a "synchronize" screen with a custom message until
 // all moves are finished. Go back to calling screen when done.
 //
 void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
-  message_ptrs[0] = fmsg ?: GET_TEXT_F(MSG_MOVING);
+  _fstr1 = fmsg ?: GET_TEXT_F(MSG_MOVING);
   push_current_screen();
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, message_ptrs[0]);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, _fstr1);
   });
   defer_status_screen();
   planner.synchronize(); // idle() is called until moves complete
@@ -249,48 +250,28 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
 
 /**
  * Displays screen with custom message.
- *   Message is automatically wrapped to fit screen width.
- *   Line breaks can be forced by "\n"
- *   Takes up to 2 FSTR_P (str1, str2) that are seamlessly joined
+ *   Message is automatically wrapped to fit screen.
+ *   Line breaks can be forced by "\n".
+ *   Takes up to 2 FSTR_P and 1 RAM string that are seamlessly joined
+ *   Message can be synchronized with planner to stay visible untill all moves are fnished.
  */
-void MarlinUI::goto_message_screen(FSTR_P const str1/*=nullptr*/, FSTR_P const str2/*=nullptr*/) {
+void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string /*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize /*=false*/) {
 
-  static uint8_t ptr_count;
-  ptr_count = 0;
-
-  if (str1 != nullptr) message_ptrs[ptr_count++] = str1;
-  if (str2 != nullptr) message_ptrs[ptr_count++] = str2;
+  _fstr1 = fstr1;
+  _cstr = string;
+  _fstr2 = fstr2;
 
   push_current_screen();
   goto_screen([]{
     if (should_draw()) {
-
-      uint8_t item_line_pos = 0, line_to_draw = 0;
-
-      for (uint8_t p = 0; p < ptr_count; p++) {
-
-        PGM_P const str = FTOP(message_ptrs[p]);
-        const uint8_t str_len = strlen_P(str);
-
-        for (uint8_t i = 0; i <= str_len; i++) {
-          const char c = pgm_read_byte(&str[i]);
-
-          if (c == '\n' || item_line_pos == LCD_WIDTH || (c == '\0' && p == ptr_count - 1)) {
-            item_line_buf[item_line_pos] = '\0';
-            const uint8_t lcd_line = LCD_HEIGHT / 2 - 1 + line_to_draw;
-            if (lcd_line < LCD_HEIGHT)  // implementation limited
-              MenuItem_static::draw(lcd_line, nullptr, SS_CENTER, item_line_buf);
-            line_to_draw++;
-            item_line_pos = 0;
-          }
-          else if (c != '\0') {
-            item_line_buf[item_line_pos] = c;
-            item_line_pos++;
-          }
-        }
-      }
+      ui.draw_message_on_screen(_fstr1, _cstr, _fstr2);
     }
   });
+  if (synchronize) {
+    defer_status_screen();
+    planner.synchronize(); // idle() is called until moves complete
+    goto_previous_screen_no_defer();
+  }
 }
 
 /**

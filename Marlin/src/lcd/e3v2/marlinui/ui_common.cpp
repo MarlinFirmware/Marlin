@@ -484,7 +484,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;
     dwin_font.fg = COLOR_WHITE;
-    ui.draw_select_screen_prompt(pref, string, suff);
+    ui.draw_message_on_screen(pref, string, suff);
     if (no)  draw_boxed_string(false, no, !yesno);
     if (yes) draw_boxed_string(true, yes,  yesno);
   }
