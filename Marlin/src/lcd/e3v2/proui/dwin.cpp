@@ -3060,7 +3060,7 @@ void drawControlMenu() {
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
     #endif
     #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-      MENU_ITEM(ICON_Host, MSG_HOST_SHUTDOWN, onDrawMenuItem, HostShutDown);
+      MENU_ITEM(ICON_Host, MSG_HOST_SHUTDOWN, onDrawMenuItem, hostShutdown);
     #endif
     MENU_ITEM(ICON_Info, MSG_INFO_SCREEN, onDrawInfoSubMenu, gotoInfoMenu);
   }
@@ -4035,12 +4035,12 @@ void drawStepsMenu() {
 
 #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
 
-  void popupHostShutDown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
-  void onClickHostShutDown() {
+  void popupHostShutdown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
+  void onClickHostShutdown() {
     if (hmiFlag.select_flag) { hostui.shutdown(); }
     hmiReturnScreen();
   }
-  void hostShutDown() { gotoPopup(popupHostShutDown, onClickHostShutDown); }
+  void hostShutdown() { gotoPopup(popupHostShutdown, onClickHostShutdown); }
 
 #endif
 

@@ -230,7 +230,7 @@ void doCoolDown();
   void ublMeshLoad();
 #endif
 #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-  void hostShutDown();
+  void hostShutdown();
 #endif
 #if DISABLED(HAS_BED_PROBE)
   void homeZAndDisable();
