@@ -1172,7 +1172,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                 drawMenu(ID_ChangeFilament);
               #else
-                if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+                if (thermalManager.targetTooColdToExtrude(0))
                   popupHandler(Popup_ETemp);
                 else {
                   if (thermalManager.temp_hotend[0].is_below_target(2)) {
@@ -1313,7 +1313,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(current_position.e, row);
             }
             else {
-              if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp) {
+              if (thermalManager.targetTooColdToExtrude(0)) {
                 popupHandler(Popup_ETemp);
               }
               else {
@@ -1727,7 +1727,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_WriteEEPROM, GET_TEXT_F(MSG_FILAMENTLOAD));
             else {
-              if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
@@ -1745,7 +1745,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_ReadEEPROM, GET_TEXT_F(MSG_FILAMENTUNLOAD));
             else {
-              if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp) {
+              if (thermalManager.targetTooColdToExtrude(0)) {
                 popupHandler(Popup_ETemp);
               }
               else {
@@ -1764,7 +1764,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else {
-              if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
@@ -4593,7 +4593,7 @@ void JyersDWIN::popupControl() {
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case Popup_ConfFilChange:
           if (selection == 0) {
-            if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+            if (thermalManager.targetTooColdToExtrude(0))
               popupHandler(Popup_ETemp);
             else {
               if (thermalManager.temp_hotend[0].is_below_target(2)) {
