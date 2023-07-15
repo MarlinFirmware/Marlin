@@ -254,7 +254,7 @@ private:
 
 #if HAS_MESH
 
-  struct Mesh_Settings {
+  struct {
     bool viewer_asymmetric_range = false;
     bool viewer_print_value = false;
     bool goto_mesh_value = false;
@@ -436,8 +436,7 @@ private:
       drawing_mesh = false;
     }
 
-  };
-  Mesh_Settings mesh_conf;
+  } mesh_conf;
 
 #endif // HAS_MESH
 
