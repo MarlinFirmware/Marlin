@@ -37,6 +37,7 @@
 
 LevelingBilinear bedlevel;
 
+xy_uint8_t LevelingBilinear::grid_points;
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;
 xy_float_t LevelingBilinear::grid_factor;
@@ -100,16 +101,18 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
 void LevelingBilinear::reset() {
   grid_start.reset();
   grid_spacing.reset();
+  grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   GRID_LOOP(x, y) {
     z_values[x][y] = NAN;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
   }
 }
 
-void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start) {
+void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start, const xy_uint8_t& _grid_points) {
   grid_spacing = _grid_spacing;
   grid_start = _grid_start;
   grid_factor = grid_spacing.reciprocal();
+  grid_points = _grid_points;
 }
 
 /**
@@ -156,7 +159,7 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
 void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/) {
   // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
+  print_2d_array(grid_points.x, grid_points.y, 3, _z_values ? *_z_values[0] : z_values[0]);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
@@ -272,8 +275,8 @@ void LevelingBilinear::refresh_bed_level() {
 #else
   #define ABL_BG_SPACING(A) grid_spacing.A
   #define ABL_BG_FACTOR(A)  grid_factor.A
-  #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
-  #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
+  #define ABL_BG_POINTS_X   grid_points.x
+  #define ABL_BG_POINTS_Y   grid_points.y
   #define ABL_BG_GRID(X,Y)  z_values[X][Y]
 #endif
 

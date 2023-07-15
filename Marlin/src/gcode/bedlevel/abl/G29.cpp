@@ -59,7 +59,7 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
 
 #if ABL_USES_GRID
@@ -125,7 +125,7 @@ public:
       bool                topography_map;
       xy_uint8_t          grid_points;
     #else // Bilinear
-      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      xy_uint8_t grid_points;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -143,7 +143,7 @@ public:
 };
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  constexpr xy_uint8_t G29_State::grid_points;
+  //constexpr xy_uint8_t G29_State::grid_points;
   constexpr grid_count_t G29_State::abl_points;
 #endif
 
@@ -230,9 +230,19 @@ G29_TYPE GcodeSuite::G29() {
   // Leveling state is persistent when done manually with multiple G29 commands
   TERN_(PROBE_MANUALLY, static) G29_State abl;
 
+  // Safely define abl.grid_points as soon as possible in the similar manner it was in class declaration (someone smarter will fix this later ;-) )
+  #if ABL_USES_GRID
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      {}  
+    #else // Bilinear
+      abl.grid_points.x = GRID_MAX_POINTS_X;
+      abl.grid_points.y = GRID_MAX_POINTS_Y;
+    #endif
+  #endif
+
   // Keep powered steppers from timing out
   reset_stepper_timeout();
-
+  
   // Q = Query leveling and G29 state
   const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
@@ -274,6 +284,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Set and report "probing" state to host
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
+
 
   /**
    * On the initial G29 fetch command parameters.
@@ -412,8 +423,24 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       // Probe at the points of a lattice grid
-      abl.gridSpacing.set((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1),
-                          (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
+      float dX = (abl.probe_position_rb.x - abl.probe_position_lf.x),
+            dY = (abl.probe_position_rb.y - abl.probe_position_lf.y);
+
+      float
+        spacing_x = ((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1)),
+        spacing_y = ((abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
+      
+
+      if (spacing_x < GRID_MIN_SPACING) {
+        abl.grid_points.x = (CEIL(dX / GRID_MIN_SPACING)) + 1;
+        spacing_x =  dX / (abl.grid_points.x - 1);
+      }
+      if (spacing_y < GRID_MIN_SPACING) {
+        abl.grid_points.y = (CEIL(dY / GRID_MIN_SPACING)) + 1;
+        spacing_y =  dY / (abl.grid_points.y - 1);
+      }
+
+      abl.gridSpacing.set(spacing_x, spacing_y);
 
     #endif // ABL_USES_GRID
 
@@ -693,8 +720,8 @@ G29_TYPE GcodeSuite::G29() {
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
-          if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
+          if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.grid_points.x * abl.grid_points.y, ".");
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.grid_points.x * abl.grid_points.y)));
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
@@ -849,7 +876,7 @@ G29_TYPE GcodeSuite::G29() {
       if (abl.dryrun)
         bedlevel.print_leveling_grid(&abl.z_values);
       else {
-        bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
+        bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf, abl.grid_points);
         COPY(bedlevel.z_values, abl.z_values);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
