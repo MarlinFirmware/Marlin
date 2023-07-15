@@ -4785,12 +4785,12 @@ void JyersDWIN::update() {
   stateUpdate();
   screenUpdate();
   switch (process) {
-    case Proc_Main:    mainMenuControl();    break;
+    case Proc_Main:    mainMenuControl();     break;
     case Proc_Menu:    menuControl();         break;
     case Proc_Value:   valueControl();        break;
     case Proc_Option:  optionControl();       break;
     case Proc_File:    fileControl();         break;
-    case Proc_Print:   printScreenControl(); break;
+    case Proc_Print:   printScreenControl();  break;
     case Proc_Popup:   popupControl();        break;
     case Proc_Confirm: confirmControl();      break;
   }
