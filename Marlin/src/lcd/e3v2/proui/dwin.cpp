@@ -3059,9 +3059,6 @@ void drawControlMenu() {
     #if ENABLED(LED_CONTROL_MENU)
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
     #endif
-    #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-      MENU_ITEM(ICON_Host, MSG_HOST_SHUTDOWN, onDrawMenuItem, hostShutdown);
-    #endif
     MENU_ITEM(ICON_Info, MSG_INFO_SCREEN, onDrawInfoSubMenu, gotoInfoMenu);
   }
   ui.reset_status(true);
@@ -4028,22 +4025,5 @@ void drawStepsMenu() {
   #endif
 
 #endif // HAS_MESH
-
-//=============================================================================
-// More Host support
-//=============================================================================
-
-#if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-
-  void popupHostShutdown() { dwinPopupConfirmCancel(ICON_Info_1, GET_TEXT_F(MSG_HOST_SHUTDOWN)); }
-  void onClickHostShutdown() {
-    if (hmiFlag.select_flag) { hostui.shutdown(); }
-    hmiReturnScreen();
-  }
-  void hostShutdown() { gotoPopup(popupHostShutdown, onClickHostShutdown); }
-
-#endif
-
-//=============================================================================
 
 #endif // DWIN_LCD_PROUI
