@@ -399,7 +399,8 @@ class FilamentSensorBase {
       #endif
 
       static void block_completed(const block_t * const b) {
-        if (b->steps.x || b->steps.y || b->steps.z || did_pause_print) { // Allow pause purge move to re-trigger runout state
+        if (b->steps.x >= MIN_STEPS_PER_SEGMENT || b->steps.y >= MIN_STEPS_PER_SEGMENT ||
+            b->steps.z >= MIN_STEPS_PER_SEGMENT || did_pause_print) { // Allow pause purge move to re-trigger runout state
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;
