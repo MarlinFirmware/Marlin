@@ -349,25 +349,18 @@ void menu_move() {
 
   #if HAS_DYNAMIC_FREQ
 
-    void _M493_D(const dynFreqMode_t d) {
-      char cmd[10];
-      sprintf_P(cmd, PSTR("M493D%i"), int(d));
-      gcode.process_subcommands_now(cmd);
-      ui.go_back();
-    }
-
     inline void menu_ftm_dyn_mode() {
       const dynFreqMode_t dmode = fxdTiCtrl.cfg.dynFreqMode;
 
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ _M493_D(dynFreqMode_DISABLED); });
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back();});
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ _M493_D(dynFreqMode_Z_BASED); });
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back();});
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ _M493_D(dynFreqMode_MASS_BASED); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back();});
       #endif
 
       END_MENU();
@@ -408,29 +401,34 @@ void menu_move() {
 
     SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
     MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+    
+    if (c.modeHasShaper()) {
+      #if HAS_X_AXIS
+        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+      #endif
 
-    #if HAS_X_AXIS
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
-    #endif
-    #if HAS_Y_AXIS
-      EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
-    #endif
-
-    #if HAS_DYNAMIC_FREQ
-      if (c.modeHasShaper()) {
-        SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
-        #if HAS_X_AXIS
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
-        #endif
-        #if HAS_Y_AXIS
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
-        #endif
-      }
-    #endif
+      #if HAS_DYNAMIC_FREQ
+        if (c.modeHasShaper()) {
+          SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+          MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+          #if HAS_X_AXIS
+            if(c.dynFreqMode != dynFreqMode_DISABLED)
+              EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
+          #endif
+          #if HAS_Y_AXIS
+            if(c.dynFreqMode != dynFreqMode_DISABLED)
+              EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
+          #endif
+        }
+      #endif
+    }
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+      if(c.linearAdvEna)
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();
