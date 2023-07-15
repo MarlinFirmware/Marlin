@@ -414,14 +414,14 @@ void menu_move() {
         if (c.modeHasShaper()) {
           SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
           MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
-          #if HAS_X_AXIS
-            if(c.dynFreqMode != dynFreqMode_DISABLED)
+          if(c.dynFreqMode != dynFreqMode_DISABLED) {
+            #if HAS_X_AXIS
               EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
-          #endif
-          #if HAS_Y_AXIS
-            if(c.dynFreqMode != dynFreqMode_DISABLED)
+            #endif
+            #if HAS_Y_AXIS
               EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
-          #endif
+            #endif
+          }
         }
       #endif
     }
