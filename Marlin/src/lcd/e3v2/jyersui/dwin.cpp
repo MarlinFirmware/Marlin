@@ -816,14 +816,14 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
       dwinIconShow(ICON, ICON_HotendTemp, 10, 383);
       dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
     }
-    if (thermalManager.temp_hotend[0].celsius != hotend) {
-      hotend = thermalManager.temp_hotend[0].celsius;
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
+    if (thermalManager.degHotend(0) != hotend) {
+      hotend = thermalManager.degHotend(0);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 28, 384, hotend);
       dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, COLOR_WHITE), 25 + 3 * STAT_CHR_W + 5, 386);
     }
-    if (thermalManager.temp_hotend[0].target != hotendtarget) {
-      hotendtarget = thermalManager.temp_hotend[0].target;
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
+    if (thermalManager.wholeDegHotend(0) != hotendtarget) {
+      hotendtarget = thermalManager.degTargetHotend(0);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 25 + 4 * STAT_CHR_W + 6, 384, hotendtarget);
       dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, COLOR_WHITE), 25 + 4 * STAT_CHR_W + 39, 386);
     }
     if (icons) {
@@ -846,14 +846,14 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
       dwinIconShow(ICON, ICON_BedTemp, 10, 416);
       dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
     }
-    if (thermalManager.temp_bed.celsius != bed) {
-      bed = thermalManager.temp_bed.celsius;
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 28, 417, thermalManager.temp_bed.celsius);
+    if (thermalManager.degBed() != bed) {
+      bed = thermalManager.degBed();
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 28, 417, bed);
       dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, COLOR_WHITE), 25 + 3 * STAT_CHR_W + 5, 419);
     }
-    if (thermalManager.temp_bed.target != bedtarget) {
-      bedtarget = thermalManager.temp_bed.target;
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
+    if (thermalManager.degTargetBed() != bedtarget) {
+      bedtarget = thermalManager.degTargetBed();
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 25 + 4 * STAT_CHR_W + 6, 417, bedtarget);
       dwinDrawDegreeSymbol(getColor(eeprom_settings.status_area_text, COLOR_WHITE), 25 + 4 * STAT_CHR_W + 39, 419);
     }
   #endif
@@ -1180,7 +1180,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                     thermalManager.wait_for_hotend(0);
                   }
                   popupHandler(Popup_FilChange);
-                  gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.temp_hotend[0].target));
+                  gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.degTargetHotend(0)));
                 }
               #endif
             }
@@ -1772,7 +1772,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   thermalManager.wait_for_hotend(0);
                 }
                 popupHandler(Popup_FilChange);
-                gcode.process_subcommands_now(TS(F("M600B1R"), thermalManager.temp_hotend[0].target));
+                gcode.process_subcommands_now(TS(F("M600B1R"), thermalManager.degTargetHotend(0)));
               }
             }
             break;
@@ -2001,7 +2001,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TEMP_HOTEND:
             if (draw) {
               drawMenuItem(row, ICON_SetEndTemp, F("Hotend"));
-              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawFloat(thermalManager.degTargetHotend(0), row, false, 1);
             }
             else
               modifyValue(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
@@ -2011,7 +2011,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TEMP_BED:
             if (draw) {
               drawMenuItem(row, ICON_SetBedTemp, F("Bed"));
-              drawFloat(thermalManager.temp_bed.target, row, false, 1);
+              drawFloat(thermalManager.degTargetBed(), row, false, 1);
             }
             else
               modifyValue(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
@@ -3835,7 +3835,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_HOTEND:
             if (draw) {
               drawMenuItem(row, ICON_SetEndTemp, F("Hotend"));
-              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawFloat(thermalManager.degTargetHotend(0), row, false, 1);
             }
             else
               modifyValue(thermalManager.temp_hotend[0].target, MIN_E_TEMP, MAX_E_TEMP, 1);
@@ -3846,7 +3846,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_BED:
             if (draw) {
               drawMenuItem(row, ICON_SetBedTemp, F("Bed"));
-              drawFloat(thermalManager.temp_bed.target, row, false, 1);
+              drawFloat(thermalManager.degTargetBed(), row, false, 1);
             }
             else
               modifyValue(thermalManager.temp_bed.target, MIN_BED_TEMP, MAX_BED_TEMP, 1);
@@ -3965,7 +3965,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               switch (last_menu) {
                 case ID_Prepare:
                   popupHandler(Popup_FilChange);
-                  gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.temp_hotend[0].target));
+                  gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.degTargetHotend(0)));
                   break;
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   case ID_ChangeFilament:
@@ -3984,7 +3984,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                         break;
                       case CHANGEFIL_CHANGE:
                         popupHandler(Popup_FilChange);
-                        gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.temp_hotend[0].target));
+                        gcode.process_subcommands_now(TS(F("M600 B1 R"), thermalManager.degTargetHotend(0)));
                         break;
                     }
                     break;
@@ -4008,7 +4008,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case PREHEATHOTEND_CUSTOM:
             if (draw) {
               drawMenuItem(row, ICON_Temperature, F("Custom"));
-              drawFloat(thermalManager.temp_hotend[0].target, row, false, 1);
+              drawFloat(thermalManager.degTargetHotend(0), row, false, 1);
             }
             else
               modifyValue(thermalManager.temp_hotend[0].target, EXTRUDE_MINTEMP, MAX_E_TEMP, 1);
@@ -4531,8 +4531,8 @@ void JyersDWIN::popupControl() {
               planner.synchronize();
             #else
               queue.inject(F("M25"));
-              TERN_(HAS_HOTEND, pausetemp = thermalManager.temp_hotend[0].target);
-              TERN_(HAS_HEATED_BED, pausebed = thermalManager.temp_bed.target);
+              TERN_(HAS_HOTEND, pausetemp = thermalManager.degTargetHotend(0));
+              TERN_(HAS_HEATED_BED, pausebed = thermalManager.degTargetBed());
               TERN_(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
               thermalManager.cooldown();
             #endif
@@ -4601,7 +4601,7 @@ void JyersDWIN::popupControl() {
                 thermalManager.wait_for_hotend(0);
               }
               popupHandler(Popup_FilChange);
-              gcode.process_subcommands_now(TS(F("M600B1R"), thermalManager.temp_hotend[0].target));
+              gcode.process_subcommands_now(TS(F("M600B1R"), thermalManager.degTargetHotend(0)));
             }
           }
           else
@@ -4899,20 +4899,20 @@ void JyersDWIN::screenUpdate() {
     switch (active_menu) {
       case ID_TempMenu:
         #if HAS_HOTEND
-          if (thermalManager.temp_hotend[0].target != hotendtarget) {
-            hotendtarget = thermalManager.temp_hotend[0].target;
+          if (thermalManager.degTargetHotend(0) != hotendtarget) {
+            hotendtarget = thermalManager.degTargetHotend(0);
             if (scrollpos <= TEMP_HOTEND && TEMP_HOTEND <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.temp_hotend[0].target, TEMP_HOTEND - scrollpos, false, 1);
+                drawFloat(hotendtarget, TEMP_HOTEND - scrollpos, false, 1);
             }
           }
         #endif
         #if HAS_HEATED_BED
-          if (thermalManager.temp_bed.target != bedtarget) {
-            bedtarget = thermalManager.temp_bed.target;
+          if (thermalManager.degTargetBed() != bedtarget) {
+            bedtarget = thermalManager.degTargetBed();
             if (scrollpos <= TEMP_BED && TEMP_BED <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.temp_bed.target, TEMP_BED - scrollpos, false, 1);
+                drawFloat(bedtarget, TEMP_BED - scrollpos, false, 1);
             }
           }
         #endif
@@ -4921,27 +4921,27 @@ void JyersDWIN::screenUpdate() {
             fanspeed = thermalManager.fan_speed[0];
             if (scrollpos <= TEMP_FAN && TEMP_FAN <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.fan_speed[0], TEMP_FAN - scrollpos, false, 1);
+                drawFloat(fanspeed, TEMP_FAN - scrollpos, false, 1);
             }
           }
         #endif
         break;
       case ID_Tune:
         #if HAS_HOTEND
-          if (thermalManager.temp_hotend[0].target != hotendtarget) {
-            hotendtarget = thermalManager.temp_hotend[0].target;
+          if (thermalManager.degTargetHotend(0) != hotendtarget) {
+            hotendtarget = thermalManager.degTargetHotend(0);
             if (scrollpos <= TUNE_HOTEND && TUNE_HOTEND <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.temp_hotend[0].target, TUNE_HOTEND - scrollpos, false, 1);
+                drawFloat(hotendtarget, TUNE_HOTEND - scrollpos, false, 1);
             }
           }
         #endif
         #if HAS_HEATED_BED
-          if (thermalManager.temp_bed.target != bedtarget) {
-            bedtarget = thermalManager.temp_bed.target;
+          if (thermalManager.degTargetBed() != bedtarget) {
+            bedtarget = thermalManager.degTargetBed();
             if (scrollpos <= TUNE_BED && TUNE_BED <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.temp_bed.target, TUNE_BED - scrollpos, false, 1);
+                drawFloat(bedtarget, TUNE_BED - scrollpos, false, 1);
             }
           }
         #endif
@@ -4950,7 +4950,7 @@ void JyersDWIN::screenUpdate() {
             fanspeed = thermalManager.fan_speed[0];
             if (scrollpos <= TUNE_FAN && TUNE_FAN <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
-                drawFloat(thermalManager.fan_speed[0], TUNE_FAN - scrollpos, false, 1);
+                drawFloat(fanspeed, TUNE_FAN - scrollpos, false, 1);
             }
           }
         #endif
