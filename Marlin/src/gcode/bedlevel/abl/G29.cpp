@@ -133,7 +133,7 @@ public:
     #if EITHER(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
       xy_uint8_t grid_points;
     #else
-      constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
