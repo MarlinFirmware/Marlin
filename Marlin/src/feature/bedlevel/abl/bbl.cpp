@@ -127,17 +127,19 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
     constexpr uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
   #else
-    constexpr uint8_t ctrx1 = (nr_grid_points.x - 1) / 2, // left-of-center
-                      ctrx2 = nr_grid_points.x / 2,       // right-of-center
-                      xend = ctrx1;
+    TERN(VARIABLE_GRID_POINTS,, constexpr) uint8_t
+      ctrx1 = (nr_grid_points.x - 1) / 2, // left-of-center
+      ctrx2 = nr_grid_points.x / 2,       // right-of-center
+      xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
     constexpr uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
   #else
-    constexpr uint8_t ctry1 = (nr_grid_points.y - 1) / 2, // top-of-center
-                      ctry2 = nr_grid_points.y / 2,       // bottom-of-center
-                      yend = ctry1;
+    TERN(VARIABLE_GRID_POINTS,, constexpr) uint8_t
+      ctry1 = (nr_grid_points.y - 1) / 2, // top-of-center
+      ctry2 = nr_grid_points.y / 2,       // bottom-of-center
+      yend = ctry1;
   #endif
 
   for (uint8_t xo = 0; xo <= xend; ++xo)
@@ -164,8 +166,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
   print_2d_array(
-    _grid_points ? _grid_points->x : nr_grid_points.x,
-    _grid_points ? _grid_points->y : nr_grid_points.y,
+    TERN_(VARIABLE_GRID_POINTS, _grid_points ? _grid_points->x :) nr_grid_points.x,
+    TERN_(VARIABLE_GRID_POINTS, _grid_points ? _grid_points->y :) nr_grid_points.y,
     3,
     _z_values ? *_z_values[0] : z_values[0]);
 

@@ -146,9 +146,11 @@ public:
   #endif
 };
 
-#if ABL_USES_GRID
+#if ABL_USES_GRID    
   #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-    constexpr grid_count_t G29_State::abl_points;
+    #if !ENABLED(VARIABLE_GRID_POINTS)
+      constexpr grid_count_t G29_State::abl_points;
+    #endif
   #endif
   #if NONE(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
     constexpr xy_uint8_t G29_State::grid_points;
@@ -365,7 +367,9 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_USES_GRID
       // set defaults
-      abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+      #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+        abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+      #endif
       abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
     #endif
 
