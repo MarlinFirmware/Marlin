@@ -31,7 +31,12 @@ class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;
-  static xy_uint8_t grid_points;
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static xy_uint8_t nr_grid_points;
+  #else
+    static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+  #endif
 
 private:
   static xy_float_t grid_factor;
@@ -41,12 +46,16 @@ private:
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
-    #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_MAX_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_MAX_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
 
-    static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+    static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
+
+    static xy_uint8_t subpoints() {
+      return { nr_grid_points.x * (BILINEAR_SUBDIVISIONS) + 1, nr_grid_points.y * (BILINEAR_SUBDIVISIONS) + 1 };
+    }
 
     static float virt_coord(const uint8_t x, const uint8_t y);
     static float virt_cmr(const float p[4], const uint8_t i, const float t);
@@ -56,7 +65,7 @@ private:
 
 public:
   static void reset();
-  static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start, const xy_uint8_t& _grid_points = {GRID_MAX_POINTS_X , GRID_MAX_POINTS_Y});
+  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr);
   static void refresh_bed_level();
