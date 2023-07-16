@@ -130,7 +130,7 @@ public:
     #endif
 
     // Grid points can be specified for Linear and (optionally) Bilinear
-    #if EITHER(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
       xy_uint8_t grid_points;
     #else
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
