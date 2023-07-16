@@ -174,7 +174,11 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      print_2d_array(subpoints().x, subpoints().y, 5, z_values_virt[0]);
+      print_2d_array(
+        ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y, 5, z_values_virt[0]
+        OPTARG(VARIABLE_GRID_POINTS, nr_grid_points_virt.x)
+        OPTARG(VARIABLE_GRID_POINTS, nr_grid_points_virt.y)
+      );
     }
   #endif
 }
@@ -184,6 +188,9 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   float LevelingBilinear::z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
   xy_pos_t LevelingBilinear::grid_spacing_virt;
   xy_float_t LevelingBilinear::grid_factor_virt;
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    xy_uint_t LevelingBilinear::nr_grid_points_virt;
+  #endif
 
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float LevelingBilinear::virt_coord(const uint8_t x, const uint8_t y) {
@@ -254,6 +261,9 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   void LevelingBilinear::subdivide_mesh() {
     grid_spacing_virt = grid_spacing / (BILINEAR_SUBDIVISIONS);
     grid_factor_virt = grid_spacing_virt.reciprocal();
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      nr_grid_points_virt.set((nr_grid_points.x - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1, (nr_grid_points.y - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1);
+    #endif
     for (uint8_t y = 0; y < nr_grid_points.y; ++y)
       for (uint8_t x = 0; x < nr_grid_points.x; ++x)
         for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ++ty)
@@ -280,8 +290,8 @@ void LevelingBilinear::refresh_bed_level() {
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
   #define ABL_BG_SPACING(A) grid_spacing_virt.A
   #define ABL_BG_FACTOR(A)  grid_factor_virt.A
-  #define ABL_BG_POINTS_X   subpoints().x
-  #define ABL_BG_POINTS_Y   subpoints().y
+  #define ABL_BG_POINTS_X   nr_grid_points_virt.x
+  #define ABL_BG_POINTS_Y   nr_grid_points_virt.y
   #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
 #else
   #define ABL_BG_SPACING(A) grid_spacing.A

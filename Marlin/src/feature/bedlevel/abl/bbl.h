@@ -52,10 +52,11 @@ private:
     static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
-
-    static xy_uint8_t subpoints() {
-      return { nr_grid_points.x * (BILINEAR_SUBDIVISIONS) + 1, nr_grid_points.y * (BILINEAR_SUBDIVISIONS) + 1 };
-    }
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      static xy_uint_t nr_grid_points_virt;
+    #else
+      static constexpr xy_uint_t nr_grid_points_virt { ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y };
+    #endif
 
     static float virt_coord(const uint8_t x, const uint8_t y);
     static float virt_cmr(const float p[4], const uint8_t i, const float t);
