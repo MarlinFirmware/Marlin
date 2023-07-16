@@ -100,7 +100,7 @@
 
 // draw_heater_status() and draw_fan_status()
 #if !defined(TEMP_FAN_CONTROL_W) && !defined(TEMP_FAN_CONTROL_H)
-  #define TEMP_FAN_CONTROL_W        64
+  #define TEMP_FAN_CONTROL_W        80
   #define TEMP_FAN_CONTROL_H        120
 #endif
 #if !defined(TEMP_ICON_X) && !defined(TEMP_ICON_Y)
@@ -126,7 +126,7 @@
 
 // MarlinUI::draw_status_screen()
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
-  #define MAX_ITEMS                 5
+  #define MAX_ITEMS                 4
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
   #define ITEM_Y                    4
 #endif
