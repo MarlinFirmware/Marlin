@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Voxelab Aquila V1.0.1 (HC32F460) as found in the Voxelab Aquila X2
+// Voxelab Aquila V1.0.1 and V1.0.2 (HC32F460) as found in the Voxelab Aquila X2
 //
 #include "env_validate.h"
 
@@ -175,23 +175,43 @@
 // Screen Pins
 //
 // Screen Port Pinout:
-// TODO: check screen port pinout
-//    ------
-// ? | 1  2 | ?
-// ? | 3  4 | ?
-// ?   5  6 | ?
-// ? | 7  8 | ?
-// ? | 9 10 | ?
-//    ------
+// TODO: screen port pinout is not fully confirmed
+//       ------
+// ?    | 1  2 | ?
+// PC1  | 3  4 | PC0
+// PB14   5  6 | PB13
+// PB12 | 7  8 | PB15
+// GND  | 9 10 | VCC
+//       ------
+#define EXP_01_PIN // ?
+#define EXP_02_PIN // ?
+#define EXP_03_PIN PC1
+#define EXP_04_PIN PC0
+#define EXP_05_PIN PB14
+#define EXP_06_PIN PB13
+#define EXP_07_PIN PB12
+#define EXP_08_PIN PB15
 
 #if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)  
-  #define BTN_ENC PB14
-  #define BTN_EN1 PB15
-  #define BTN_EN2 PB12
+
+  //       ------
+  // ?    | 1  2 | ?
+  // RX   | 3  4 | TX
+  // EN     5  6 | BEEP
+  // B    | 7  8 | A
+  // GND  | 9 10 | VCC
+  //       ------
+
+  #define BTN_ENC EXP_05_PIN // EN
+  #define BTN_EN1 EXP_08_PIN // A
+  #define BTN_EN2 EXP_07_PIN // B
   
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN PB13
+    #define BEEPER_PIN EXP_06_PIN // BEEP
   #endif
+
+  #define BOARD_USART1_TX_PIN EXP_03_PIN // RX
+  #define BOARD_USART1_RX_PIN EXP_04_PIN // TX
 #endif
 
 //
@@ -208,12 +228,19 @@
 //
 // USART Pins
 //
-#define BOARD_USART1_TX_PIN PC0
-#define BOARD_USART1_RX_PIN PC1
+// Screen
+#ifndef BOARD_USART1_TX_PIN
+  #define BOARD_USART1_TX_PIN PC0
+#endif
+#ifndef BOARD_USART1_RX_PIN
+  #define BOARD_USART1_RX_PIN PC1
+#endif
 
+// Host
 #define BOARD_USART2_TX_PIN PA9
 #define BOARD_USART2_RX_PIN PA15
 
+// Unused / Debug
 #define BOARD_USART3_TX_PIN PE5
 #define BOARD_USART3_RX_PIN PE4
 
