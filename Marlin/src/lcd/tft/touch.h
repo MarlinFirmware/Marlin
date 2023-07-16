@@ -99,7 +99,7 @@ class Touch {
 
     static bool get_point(int16_t *x, int16_t *y);
     static void touch(touch_control_t *control);
-    static void hold(touch_control_t *control, millis_t delay = 0);
+    static void hold(touch_control_t *control, millis_t delay=0);
 
   public:
     static void init();
@@ -121,7 +121,10 @@ class Touch {
       static void sleepTimeout();
       static void wakeUp();
     #endif
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data=0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, void (*handler)()) {
+      add_control(type, x, y, width, height, intptr_t(handler));
+    }
 };
 
 extern Touch touch;

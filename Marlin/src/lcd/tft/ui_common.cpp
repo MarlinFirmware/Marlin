@@ -28,13 +28,164 @@
 #include "../lcdprint.h"
 #include "../../libs/numtostr.h"
 #include "../menu/menu.h"
+#include "../../gcode/queue.h"
+#include "../../module/temperature.h"
+#include "../../module/planner.h"
+#include "../../module/probe.h"
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../feature/babystep.h"
+#endif
+
+motionAxisState_t motionAxisState;
+static xy_uint_t cursor;
+#if ENABLED(TOUCH_SCREEN)
+  bool draw_menu_navigation = false;
+#endif
 
 void menu_pause_option();
 
-static xy_uint_t cursor;
+void quick_feedback() {
+  #if HAS_CHIRP
+    ui.chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
+    #if ALL(HAS_MARLINUI_MENU, HAS_BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #elif HAS_MARLINUI_MENU
+      delay(10);
+    #endif
+  #endif
+}
+
+void disable_steppers() {
+  quick_feedback();
+  queue.inject(F("M84"));
+}
+
+void moveAxis(const AxisEnum axis, const int8_t direction) {
+  quick_feedback();
+
+  #if HAS_EXTRUDERS
+    if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
+      drawMessage(F("Too cold"));
+      return;
+    }
+  #endif
+
+  const float diff = motionAxisState.currentStepSize * direction;
+
+  #if HAS_BED_PROBE
+
+    if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
+        const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
+        const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
+                    new_probe_offset = probe.offset.z + bsDiff,
+                    new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
+                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
+                      , new_probe_offset
+                    );
+        if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+          babystep.add_steps(Z_AXIS, babystep_increment);
+          if (do_probe)
+            probe.offset.z = new_offs;
+          else
+            TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+          drawMessage_P(NUL_STR); // Clear the error
+          drawAxisValue(axis);
+        }
+        else
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+
+      #else
+        // Only change probe.offset.z
+        probe.offset.z += diff;
+        if (direction < 0 && current_position.z < Z_PROBE_OFFSET_RANGE_MIN) {
+          current_position.z = Z_PROBE_OFFSET_RANGE_MIN;
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+        }
+        else if (direction > 0 && current_position.z > Z_PROBE_OFFSET_RANGE_MAX) {
+          current_position.z = Z_PROBE_OFFSET_RANGE_MAX;
+          drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
+        }
+        else
+          drawMessage_P(NUL_STR); // Clear the error
+
+        drawAxisValue(axis);
+      #endif
+    }
+
+  #endif // HAS_BED_PROBE
+
+  if (!ui.manual_move.processing) {
+    // Get motion limit from software endstops, if any
+    float min, max;
+    soft_endstop.get_manual_axis_limits(axis, min, max);
+
+    // Delta limits XY based on the current offset from center
+    // This assumes the center is 0,0
+    #if ENABLED(DELTA)
+      if (axis != Z_AXIS && TERN1(HAS_EXTRUDERS, axis != E_AXIS)) {
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        min = -max;
+      }
+    #endif
+
+    // Get the new position
+    const bool limited = ui.manual_move.apply_diff(axis, diff, min, max);
+    #if IS_KINEMATIC
+      UNUSED(limited);
+    #else
+      FSTR_P const msg = limited ? GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS) : FPSTR(NUL_STR);
+      drawMessage(msg);
+    #endif
+
+    ui.manual_move.soon(axis OPTARG(MULTI_E_MANUAL, motionAxisState.e_selection));
+  }
+
+  drawAxisValue(axis);
+}
 
 #if ENABLED(TOUCH_SCREEN)
-  bool draw_menu_navigation = false;
+
+  void do_home() {
+    quick_feedback();
+    drawMessage(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
+    queue.inject_P(G28_STR);
+    // Disable touch until home is done
+    touch.disable();
+    TERN_(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
+    TERN_(HAS_X_AXIS,    drawAxisValue(X_AXIS));
+    TERN_(HAS_Y_AXIS,    drawAxisValue(Y_AXIS));
+    TERN_(HAS_Z_AXIS,    drawAxisValue(Z_AXIS));
+  }
+
+  void step_size() {
+    motionAxisState.currentStepSize = motionAxisState.currentStepSize / 10.0;
+    if (motionAxisState.currentStepSize < 0.0015) motionAxisState.currentStepSize = 10.0;
+    quick_feedback();
+    drawCurStepValue();
+  }
+
+  #if HAS_EXTRUDERS
+    void e_select() {
+      if (++motionAxisState.e_selection >= EXTRUDERS)
+        motionAxisState.e_selection = 0;
+      quick_feedback();
+      drawCurESelection();
+      drawAxisValue(E_AXIS);
+    }
+  #endif
+
+  #if HAS_BED_PROBE
+    void z_select() {
+      motionAxisState.z_selection *= -1;
+      quick_feedback();
+      drawCurZSelection();
+      drawAxisValue(Z_AXIS);
+    }
+  #endif
+
 #endif
 
 #if HAS_TOUCH_SLEEP
@@ -56,7 +207,7 @@ static xy_uint_t cursor;
     return false;
   }
 
-#endif
+#endif // HAS_TOUCH_SLEEP
 
 void text_line(const uint16_t y, uint16_t color) {
   tft.canvas(0, y, TFT_WIDTH, MENU_ITEM_HEIGHT);
@@ -91,6 +242,29 @@ void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t
     if (is_enabled) touch.add_control(control_type, x, y, width, height, data);
   #endif
 }
+
+void drawBtn(const int x, const int y, const char *label, intptr_t data, const MarlinImage btnimg, const MarlinImage img, uint16_t bgColor, const bool enabled) {
+  const uint16_t width = images[btnimg].width,
+                height = images[btnimg].height;
+
+  if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
+
+  tft.canvas(x, y, width, height);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_image(0, 0, btnimg, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+
+  // TODO: Make an add_text() taking a font arg
+  if (label) {
+    tft_string.set(label);
+    tft_string.trim();
+    tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
+  }
+  else
+    tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+
+  TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
+}
+
 
 //
 // lcdprint.h functions

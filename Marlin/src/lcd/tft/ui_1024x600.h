@@ -92,7 +92,6 @@
   #define BUTTON_CONFIRM_Y          TFT_HEIGHT - 80
 #endif
 
-
 // MarlinUI::draw_kill_screen()
 #if !defined(KILL_SCREEN_STATUS_Y) && !defined(KILL_SCREEN_HALTED_Y) && !defined(KILL_SCREEN_RESET_Y)
   #define KILL_SCREEN_STATUS_Y      94
