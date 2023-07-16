@@ -39,6 +39,8 @@ LevelingBilinear bedlevel;
 
 #if ENABLED(VARIABLE_GRID_POINTS)
   xy_uint8_t LevelingBilinear::nr_grid_points;
+#else
+  constexpr xy_uint8_t LevelingBilinear::nr_grid_points;
 #endif
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;
