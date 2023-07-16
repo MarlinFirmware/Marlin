@@ -125,16 +125,16 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
     constexpr uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
   #else
-    constexpr uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2, // left-of-center
-                      ctrx2 = nr_grid_points.x / 2,   // right-of-center
+    constexpr uint8_t ctrx1 = (nr_grid_points.x - 1) / 2, // left-of-center
+                      ctrx2 = nr_grid_points.x / 2,       // right-of-center
                       xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
     constexpr uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
   #else
-    constexpr uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2, // top-of-center
-                      ctry2 = nr_grid_points.y / 2,   // bottom-of-center
+    constexpr uint8_t ctry1 = (nr_grid_points.y - 1) / 2, // top-of-center
+                      ctry2 = nr_grid_points.y / 2,       // bottom-of-center
                       yend = ctry1;
   #endif
 
@@ -191,7 +191,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     if (!x || x == (nr_grid_points.x + 2) - 1) {
       if (x) {
         ep = nr_grid_points.x - 1;
-        ip = GRID_MAX_CELLS_X - 1;
+        ip = (nr_grid_points.x - 1) - 1;
       }
       if (WITHIN(y, 1, (nr_grid_points.y + 2) - 2))
         return LINEAR_EXTRAPOLATION(
@@ -207,7 +207,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     if (!y || y == (nr_grid_points.y + 2) - 1) {
       if (y) {
         ep = nr_grid_points.y - 1;
-        ip = GRID_MAX_CELLS_Y - 1;
+        ip = (nr_grid_points.y - 1) - 1;
       }
       if (WITHIN(x, 1, (nr_grid_points.x + 2) - 2))
         return LINEAR_EXTRAPOLATION(
