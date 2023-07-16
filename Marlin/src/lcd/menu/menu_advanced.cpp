@@ -568,7 +568,7 @@ void menu_backlash();
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
         }
         else
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, SHAPING_FREQ_X); });
+          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); });
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         editable.decimal = stepper.get_shaping_frequency(Y_AXIS);
@@ -579,7 +579,7 @@ void menu_backlash();
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
         }
         else
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, SHAPING_FREQ_Y); });
+          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, (SHAPING_FREQ_Y) ?: (SHAPING_MIN_FREQ)); });
       #endif
 
       END_MENU();
