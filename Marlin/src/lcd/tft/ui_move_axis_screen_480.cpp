@@ -139,7 +139,7 @@ static void drawMessage(PGM_P const msg) {
     tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - Y_OFFSET, TFT_HEIGHT / 2, Y_OFFSET);
   #endif
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_text(0, 0, COLOR_YELLOW, msg);
+  tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);
 }
 
 static void drawMessage(FSTR_P const fmsg) { drawMessage(FTOP(fmsg)); }
@@ -293,9 +293,9 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     // Disable touch until home is done
     touch.disable();
     TERN_(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
-    TERN_(HAS_X_AXIS, drawAxisValue(X_AXIS));
-    TERN_(HAS_Y_AXIS, drawAxisValue(Y_AXIS));
-    TERN_(HAS_Z_AXIS, drawAxisValue(Z_AXIS));
+    TERN_(HAS_X_AXIS,    drawAxisValue(X_AXIS));
+    TERN_(HAS_Y_AXIS,    drawAxisValue(Y_AXIS));
+    TERN_(HAS_Z_AXIS,    drawAxisValue(Z_AXIS));
   }
 
   static void step_size() {
@@ -364,7 +364,7 @@ void MarlinUI::move_axis_screen() {
     int y = MOVE_AXIS_MARGIN_SIZE;
 
     /**************************************************************************
-     * 1st: | Button "E+" | Button "Y+" | Button "Z+" |
+     * ROW 1: | [E+] | [Y+] | [Z+] |
      *************************************************************************/
 
     TERN_(HAS_EXTRUDERS, drawBtn(TFT_WIDTH / 6     - BTN_WIDTH / 2, y, "E+", (intptr_t)e_plus, imgUp, E_BTN_COLOR, !busy));
@@ -374,7 +374,7 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + 4;
 
     /**************************************************************************
-     * 2nd: | Label "Ex" (E0, E1, etc.) | Y value | Label "Z" |
+     * ROW 2: | "Ex" (E0, E1, etc.) | Current Y | "Z" |
      *************************************************************************/
 
     // Label "Ex" (E0, E1, etc.)
@@ -404,7 +404,7 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + MOVE_AXIS_MARGIN_SIZE;
 
     /**************************************************************************
-     * 3rd: | Button "X-" | Button "Homing" | Button "X+" |
+     * ROW 3: | [X-] | [Home] | [X+] |
      *************************************************************************/
 
     #if HAS_X_AXIS
@@ -416,7 +416,7 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + 4;
 
     /**************************************************************************
-     * 4th: | X value |
+     * ROW 4: | Current X |
      *************************************************************************/
 
     #ifdef HAS_X_AXIS
@@ -427,7 +427,7 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + MOVE_AXIS_MARGIN_SIZE;
 
     /**************************************************************************
-     * 5th: | Button "E-" | Button "Y-" | Button "Z-"
+     * ROW 5: | [E-] | [Y-] | [Z-] |
      *************************************************************************/
 
     TERN_(HAS_EXTRUDERS, drawBtn(TFT_WIDTH / 6 - BTN_WIDTH / 2, y, "E-", (intptr_t)e_minus, imgDown, E_BTN_COLOR, !busy));
@@ -437,7 +437,7 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + 4;
 
     /**************************************************************************
-     * 6th: | Current Ex value | Z value |
+     * ROW 6: | Current Ex | Current Z |
      *************************************************************************/
 
     // Current Ex value
@@ -454,13 +454,13 @@ void MarlinUI::move_axis_screen() {
     y += BTN_HEIGHT + MOVE_AXIS_MARGIN_SIZE;
 
     /**************************************************************************
-     * 7th: | Message - drawMessage(...) function |
+     * ROW 7: | Message - drawMessage(...) function |
      *************************************************************************/
 
     y += FONT_LINE_HEIGHT + MOVE_AXIS_MARGIN_SIZE;
 
     /**************************************************************************
-     * 8th: | Step size | Button "Disable steppers" | Button "Back" |
+     * ROW 8: | Step Size | [Disable Steppers] | [Back] |
      *************************************************************************/
 
     // Step size
@@ -478,7 +478,10 @@ void MarlinUI::move_axis_screen() {
 
   #else // !TFT_COLOR_UI_PORTRAIT
 
-    // ROW 1 -> E- Y- CurY Z+
+    /**************************************************************************
+     * ROW 1: | [E+] | [Y+] | [Z+] |
+     *************************************************************************/
+
     int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
     TERN_(HAS_EXTRUDERS, drawBtn(x, y, "E+", (intptr_t)e_plus, imgUp, E_BTN_COLOR, !busy));
@@ -497,11 +500,15 @@ void MarlinUI::move_axis_screen() {
     #endif
 
     x += spacing;
+
     #if HAS_Z_AXIS
       drawBtn(x, y, "Z+", (intptr_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
     #endif
 
-    // ROW 2 -> "Ex"  X-  HOME X+  "Z"
+    /**************************************************************************
+     * ROW 2: | "Ex" | [X-] | [Home] | [X+] | "Z" |
+     *************************************************************************/
+
     y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
     x = X_MARGIN;
     spacing = (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4;
@@ -516,7 +523,7 @@ void MarlinUI::move_axis_screen() {
 
     TERN_(HAS_X_AXIS, drawBtn(x, y, "X-", (intptr_t)x_minus, imgLeft, X_BTN_COLOR, !busy));
 
-    x += BTN_WIDTH + spacing; //imgHome is 64x64
+    x += BTN_WIDTH + spacing;
 
     #if ALL(HAS_X_AXIS, TOUCH_SCREEN)
       add_control(TFT_WIDTH / 2 - images[imgHome].width / 2, y - (images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (intptr_t)do_home, imgHome, !busy);
@@ -537,7 +544,10 @@ void MarlinUI::move_axis_screen() {
       #endif
     #endif
 
-    // ROW 3 -> E- CurX Y-  Z-
+    /**************************************************************************
+     * ROW 3: | [E-] | Current X | [Y-] | [Z-] |
+     *************************************************************************/
+
     y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
     x = X_MARGIN;
     spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
@@ -551,7 +561,7 @@ void MarlinUI::move_axis_screen() {
     // Cur X
     #if HAS_X_AXIS
       motionAxisState.xValuePos.set(BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4, y - 10);
-      TERN_(HAS_X_AXIS, drawAxisValue(X_AXIS));
+      drawAxisValue(X_AXIS);
     #endif
 
     x += BTN_WIDTH + spacing;
@@ -563,12 +573,15 @@ void MarlinUI::move_axis_screen() {
 
     // Cur Z
     #if HAS_Z_AXIS
-      drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
+      drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
       motionAxisState.zValuePos.set(x, y + BTN_HEIGHT + 2);
       drawAxisValue(Z_AXIS);
     #endif
 
-    // ROW 4 -> step_size  disable steppers back
+    /**************************************************************************
+     * ROW 4: | Step Size | [Disable Steppers] | [Back] |
+     *************************************************************************/
+
     y = TFT_HEIGHT - Y_MARGIN - TERN(HAS_UI_480x272, BTN_WIDTH / 2, 32);
     x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
     motionAxisState.stepValuePos.set(x, y);
@@ -584,5 +597,6 @@ void MarlinUI::move_axis_screen() {
 
   #endif // !TFT_COLOR_UI_PORTRAIT
 }
+
 #endif // MOVE_AXIS_SCREEN
 #endif // HAS_UI_480x320 || HAS_UI_480x272
