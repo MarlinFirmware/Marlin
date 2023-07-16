@@ -269,6 +269,9 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
 
 // Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    GRID_LOOP(x, y) if (!(x < nr_grid_points.x && y < nr_grid_points.y)) z_values[x][y] = NAN;
+  #endif
   TERN_(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
   cached_rel.x = cached_rel.y = -999.999;
   cached_g.x = cached_g.y = -99;
