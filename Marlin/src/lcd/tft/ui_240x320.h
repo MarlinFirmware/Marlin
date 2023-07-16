@@ -23,6 +23,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 // -------------------------------- Core Parameters --------------------------------
+
 #define MENU_TEXT_X                 10
 #define MENU_TEXT_Y                 tft_string.vcenter(MENU_ITEM_HEIGHT)
 
@@ -31,7 +32,7 @@
 #define MENU_ITEM_ICON_SPACE        32
 
 #define MENU_ITEM_HEIGHT            32
-#define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
+#define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
 #define MENU_TOP_LINE_Y             2
 
 #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
@@ -41,11 +42,12 @@
 #endif
 
 #define FONT_LINE_HEIGHT            24
+
 // ---------------------------------------------------------------------------------
 
 #define VCENTER tft_string.vcenter(FONT_LINE_HEIGHT)
 
-// MarlinUI::show_bootscreen() 
+// MarlinUI::show_bootscreen()
 #ifndef BOOTSCREEN_LOGO
   #if ENABLED(BOOT_MARLIN_LOGO_SMALL)
     #define BOOTSCREEN_LOGO         MarlinLogo195x59x16

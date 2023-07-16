@@ -130,7 +130,7 @@ static void drawCurStepValue() {
   }
 #endif
 
-static void drawMessage(PGM_P const msg) {
+static void drawMessage_P(PGM_P const msg) {
   tft.canvas(X_MARGIN,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
       TFT_HEIGHT - 2 * BTN_HEIGHT, TFT_WIDTH - X_MARGIN
@@ -143,7 +143,7 @@ static void drawMessage(PGM_P const msg) {
   tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);
 }
 
-static void drawMessage(FSTR_P const fmsg) { drawMessage(FTOP(fmsg)); }
+static void drawMessage(FSTR_P const fmsg) { drawMessage_P(FTOP(fmsg)); }
 
 static void drawAxisValue(const AxisEnum axis) {
   const float value = (
@@ -259,19 +259,19 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
 }
 
 #if HAS_EXTRUDERS
-  static void e_plus()  { moveAxis(E_AXIS, 1);  }
+  static void e_plus()  { moveAxis(E_AXIS, +1); }
   static void e_minus() { moveAxis(E_AXIS, -1); }
 #endif
 #if HAS_X_AXIS
   static void x_minus() { moveAxis(X_AXIS, -1); }
-  static void x_plus()  { moveAxis(X_AXIS, 1);  }
+  static void x_plus()  { moveAxis(X_AXIS, +1); }
 #endif
 #if HAS_Y_AXIS
-  static void y_plus()  { moveAxis(Y_AXIS, 1);  }
+  static void y_plus()  { moveAxis(Y_AXIS, +1); }
   static void y_minus() { moveAxis(Y_AXIS, -1); }
 #endif
 #if HAS_Z_AXIS
-  static void z_plus()  { moveAxis(Z_AXIS, 1);  }
+  static void z_plus()  { moveAxis(Z_AXIS, +1); }
   static void z_minus() { moveAxis(Z_AXIS, -1); }
 #endif
 
@@ -493,7 +493,7 @@ void MarlinUI::move_axis_screen() {
 
     x += BTN_WIDTH;
 
-    // Cur Y
+    // Current Y
     #if HAS_Y_AXIS
       motionAxisState.yValuePos.set(x + 2, y);
       drawAxisValue(Y_AXIS);
@@ -558,7 +558,7 @@ void MarlinUI::move_axis_screen() {
       drawAxisValue(E_AXIS);
     #endif
 
-    // Cur X
+    // Current X
     #if HAS_X_AXIS
       motionAxisState.xValuePos.set(BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4, y - 10);
       drawAxisValue(X_AXIS);
@@ -566,12 +566,12 @@ void MarlinUI::move_axis_screen() {
 
     x += BTN_WIDTH + spacing;
 
-    // Cur Y
+    // Current Y
     TERN_(HAS_Y_AXIS, drawBtn(x, y, "Y-", (intptr_t)y_minus, imgDown, Y_BTN_COLOR, !busy));
 
     x += BTN_WIDTH + spacing;
 
-    // Cur Z
+    // Current Z
     #if HAS_Z_AXIS
       drawBtn(x, y, "Z-", (intptr_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have baby step
       motionAxisState.zValuePos.set(x, y + BTN_HEIGHT + 2);
