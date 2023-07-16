@@ -307,13 +307,4 @@ void MarlinUI::clear_lcd() {
 
 #endif // TOUCH_SCREEN_CALIBRATION
 
-#if ENABLED(SHOW_PROGRESS_PERCENT)
-  void MarlinUI::drawPercent() {}
-#endif
-#if ENABLED(SHOW_REMAINING_TIME)
-  void MarlinUI::drawRemain() {}
-#endif
-#if ENABLED(SHOW_ELAPSED_TIME)
-  void MarlinUI::drawElapsed() {}
-#endif
 #endif // HAS_GRAPHICAL_TFT
