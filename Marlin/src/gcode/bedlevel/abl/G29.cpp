@@ -363,33 +363,48 @@ G29_TYPE GcodeSuite::G29() {
 
     abl.dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #if ABL_USES_GRID
+      // set defaults
+      abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+      abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
+    #endif
 
-      incremental_LSF_reset(&lsf_results);
+    #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
 
-      abl.topography_map = abl.verbose_level > 2 || parser.boolval('T');
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        incremental_LSF_reset(&lsf_results);
 
+        abl.topography_map = abl.verbose_level > 2 || parser.boolval('T');
+      #endif
+
+      // U specifies GRID_MIN_SPACING
       // X and Y specify points in each direction, overriding the default
       // These values may be saved with the completed mesh
-      abl.grid_points.set(
-        parser.byteval('X', GRID_MAX_POINTS_X),
-        parser.byteval('Y', GRID_MAX_POINTS_Y)
-      );
-      if (parser.seenval('P')) abl.grid_points.x = abl.grid_points.y = parser.value_int();
-
-      if (!WITHIN(abl.grid_points.x, 2, GRID_MAX_POINTS_X)) {
-        SERIAL_ECHOLNPGM("?Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
-        G29_RETURN(false, false);
-      }
-      if (!WITHIN(abl.grid_points.y, 2, GRID_MAX_POINTS_Y)) {
-        SERIAL_ECHOLNPGM("?Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
-        G29_RETURN(false, false);
+      if (parser.seenval('U')) { 
+        abl.gridSpacing.set(parser.value_linear_units(), parser.value_linear_units()); // override GRID_MIN_SPACING
       }
 
-      abl.abl_points = abl.grid_points.x * abl.grid_points.y;
-      abl.mean = 0;
+      if (parser.seenval('P')) {
+        abl.grid_points.x = abl.grid_points.y = parser.value_int(); // override GRID_MAX_POINTS_[XY]
+        abl.gridSpacing.set(0,0); // hard override, spacing will be ignored
+      }
 
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      if (parser.seenval('X')) { // same as for P but affects X only
+        abl.grid_points.x = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_X)); 
+        abl.gridSpacing.x = 0; 
+      }
+      if (parser.seenval('Y')) { // same as for P but affects Y only
+        abl.grid_points.y = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_Y));
+        abl.gridSpacing.y = 0;
+      }
+
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        abl.mean = 0;
+      #endif
+
+    #endif
+    
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       abl.Z_offset = parser.linearval('Z');
 
@@ -428,17 +443,21 @@ G29_TYPE GcodeSuite::G29() {
       // Spacing between grid lines
       xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
 
-      // Reduce the number of points if cells are too small
-      #if ENABLED(VARIABLE_GRID_POINTS)
-        if (spacing.x < (GRID_MIN_SPACING)) {
-          abl.grid_points.x = (CEIL(size.x / (GRID_MIN_SPACING))) + 1;
+    
+      #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+        
+        // Reduce the number of points if cells are too small
+        if (spacing.x < abl.gridSpacing.x) {
+          abl.grid_points.x = _MIN((_MAX(round(size.x / (abl.gridSpacing.x)) + 1, 2)), abl.gridSpacing.x);
           spacing.x = size.x / (abl.grid_points.x - 1);
         }
 
-        if (spacing.y < (GRID_MIN_SPACING)) {
-          abl.grid_points.y = (CEIL(size.y / (GRID_MIN_SPACING))) + 1;
+        if (spacing.y < abl.gridSpacing.y) {
+          abl.grid_points.y = _MIN((_MAX(round(size.y / (abl.gridSpacing.y)) + 1, 2)), abl.gridSpacing.y);
           spacing.y = size.y / (abl.grid_points.y - 1);
         }
+
+        abl.abl_points = abl.grid_points.x * abl.grid_points.y;
       #endif
 
       abl.gridSpacing = spacing;
@@ -721,8 +740,8 @@ G29_TYPE GcodeSuite::G29() {
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
-          if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.grid_points.x * abl.grid_points.y, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.grid_points.x * abl.grid_points.y)));
+          if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
@@ -875,7 +894,8 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bedlevel.print_leveling_grid(&abl.z_values);
+        // we are just using the bedlevel's print algo with our data, therefore have to supply grid_point limits
+        bedlevel.print_leveling_grid(&abl.z_values OPTARG(VARIABLE_GRID_POINTS, &abl.grid_points));
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf OPTARG(VARIABLE_GRID_POINTS, abl.grid_points));
         COPY(bedlevel.z_values, abl.z_values);

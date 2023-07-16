@@ -160,10 +160,14 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
     }
 }
 
-void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/) {
+void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/ OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points/* = nullptr*/)) {
   // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  print_2d_array(nr_grid_points.x, nr_grid_points.y, 3, _z_values ? *_z_values[0] : z_values[0]);
+  print_2d_array(
+    _grid_points ? _grid_points->x : nr_grid_points.x,
+    _grid_points ? _grid_points->y : nr_grid_points.y,
+    3,
+    _z_values ? *_z_values[0] : z_values[0]);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {

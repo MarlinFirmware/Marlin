@@ -295,6 +295,9 @@ typedef struct SettingsDataStruct {
   uint16_t grid_check;                                  // Hash to check against X/Y
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      xy_uint8_t bilinear_grid_points;
+    #endif
     bed_mesh_t z_values;                                // G29
   #else
     float z_values[3][3];
@@ -1018,9 +1021,15 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          EEPROM_WRITE(bedlevel.nr_grid_points);
+        #endif
         EEPROM_WRITE(bedlevel.z_values);              // 9-256 floats
       #else
         dummyf = 0;
+        uint8_t dummyUint8 = 0;
+        EEPROM_WRITE(dummyUint8);
+        EEPROM_WRITE(dummyUint8);
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
@@ -2025,12 +2034,18 @@ void MarlinSettings::postprocess() {
         }
 
         xy_pos_t spacing, start;
-        EEPROM_READ(spacing);                          // 2 ints
-        EEPROM_READ(start);                            // 2 ints
+        EEPROM_READ(spacing);                          // 2 floats
+        EEPROM_READ(start);                            // 2 floats
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
-            bedlevel.set_grid(spacing, start);
+          
+            #if ENABLED(VARIABLE_GRID_POINTS)
+              xy_uint8_t points;
+              EEPROM_READ(points);                         // 2 uint8_t
+            #endif
+
+            bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, points));
             EEPROM_READ(bedlevel.z_values);                 // 9 to 256 floats
           }
           else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
@@ -2041,6 +2056,9 @@ void MarlinSettings::postprocess() {
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
+            uint8_t dummyUint8 = 0;
+            EEPROM_READ(dummyUint8);
+            EEPROM_READ(dummyUint8);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }
