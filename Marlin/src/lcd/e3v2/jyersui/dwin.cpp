@@ -428,11 +428,13 @@ private:
       }
       else {
         float range = _MAX(v_min, v_max);
+        float range2 = _MIN(v_min, v_max);
         if (range > 3e+10F) range = 0.0000001;
+        if (range2 > 3e+10F) range2 = 0.0000001;
         v1 = -range;
-        v2 =  range;
+        v2 =  range2;
       }
-      jyersDWIN.updateStatus(TS(F("Red "), p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), F(" Green")));
+      jyersDWIN.updateStatus(TS(F("Red "), p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), F("+ Green")));
       drawing_mesh = false;
     }
 
