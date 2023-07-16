@@ -244,5 +244,7 @@
 #define BOARD_USART3_TX_PIN PE5
 #define BOARD_USART3_RX_PIN PE4
 
-// on-board LED (?)
-// #define LED PA3
+// on-board LED (HIGH = off, LOW = on)
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN PA3
+#endif
