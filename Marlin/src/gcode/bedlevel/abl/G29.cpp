@@ -898,8 +898,7 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        // we are just using the bedlevel's print algo with our data, therefore have to supply grid_point limits
-        bedlevel.print_leveling_grid(&abl.z_values OPTARG(VARIABLE_GRID_POINTS, &abl.grid_points));
+        bedlevel.print_leveling_grid(&abl.z_values OPTARG(VARIABLE_GRID_POINTS, &abl.grid_points)); // we are just using the bedlevel's print algo with our data, therefore have to supply grid_point limits
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf OPTARG(VARIABLE_GRID_POINTS, abl.grid_points));
         COPY(bedlevel.z_values, abl.z_values);

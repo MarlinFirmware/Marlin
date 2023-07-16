@@ -132,12 +132,28 @@ void reset_bed_level() {
    */
   //#define SCAD_MESH_OUTPUT
 
+  #ifdef VARIABLE_GRID_POINTS
+    // how many values in each array dimension to print dependes on fn argument
+    #define PRINT_X print_x
+    #define PRINT_Y print_y
+  #else
+    // how many values in each array dimension to print dependes on array size (print all)
+    #define PRINT_X sx
+    #define PRINT_Y sy
+  #endif
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, uint8_t print_x) OPTARG(VARIABLE_GRID_POINTS, uint8_t print_y)) {
+
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      // if show_[xy] not supplied, print all in respective dimension
+      if (print_x == 0) print_x = sx;
+      if (print_y == 0) print_y = sy;
+    #endif
+
     #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < sx; ++x) {
+      for (uint8_t x = 0; x < PRINT_X; ++x) {
         SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
@@ -146,14 +162,14 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    for (uint8_t y = 0; y < sy; ++y) {
+    for (uint8_t y = 0; y < PRINT_Y; ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      for (uint8_t x = 0; x < sx; ++x) {
+      for (uint8_t x = 0; x < PRINT_X; ++x) {
         SERIAL_CHAR(' ');
         const float offset = values[x * sy + y];
         if (!isnan(offset)) {
@@ -171,12 +187,12 @@ void reset_bed_level() {
           #endif
         }
         #ifdef SCAD_MESH_OUTPUT
-          if (x < sx - 1) SERIAL_CHAR(',');
+          if (x < PRINT_X - 1) SERIAL_CHAR(',');
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" ]");            // close sub-array
-        if (y < sy - 1) SERIAL_CHAR(',');
+        if (y < PRINT_Y - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }
