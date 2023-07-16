@@ -109,7 +109,13 @@ public:
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
+    
+    /**
+     * in case of AUTO_BED_LEVELING_BILINEAR, this has the meaning of abl_max_points, the actual number, that is currently being probed can be lower
+     * If PROBE_MANUALLY is mutually exclusive with BILINEAR, abl_points is not needed when BILINEAR is active
+    */
+    static constexpr grid_count_t abl_points = GRID_MAX_POINTS; 
+
   #endif
 
   #if ABL_USES_GRID
@@ -123,10 +129,8 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       bool                topography_map;
-      xy_uint8_t          grid_points;
-    #else // Bilinear
-      xy_uint8_t grid_points;
     #endif
+    xy_uint8_t          grid_points;
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       float Z_offset;
@@ -143,7 +147,6 @@ public:
 };
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  //constexpr xy_uint8_t G29_State::grid_points;
   constexpr grid_count_t G29_State::abl_points;
 #endif
 
@@ -230,14 +233,9 @@ G29_TYPE GcodeSuite::G29() {
   // Leveling state is persistent when done manually with multiple G29 commands
   TERN_(PROBE_MANUALLY, static) G29_State abl;
 
-  // Safely define abl.grid_points as soon as possible in the similar manner it was in class declaration (someone smarter will fix this later ;-) )
-  #if ABL_USES_GRID
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      {}  
-    #else // Bilinear
-      abl.grid_points.x = GRID_MAX_POINTS_X;
-      abl.grid_points.y = GRID_MAX_POINTS_Y;
-    #endif
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    // Safely define abl.grid_points as soon as possible in a similar manner it used to be in class declaration, when grid_points was static const (someone smarter will move this later ;-) )
+    abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   #endif
 
   // Keep powered steppers from timing out
@@ -422,25 +420,39 @@ G29_TYPE GcodeSuite::G29() {
         G29_RETURN(false, false);
       }
 
-      // Probe at the points of a lattice grid
+
+      // Determine number of probing points and spacing of a lattice grid
+
       float dX = (abl.probe_position_rb.x - abl.probe_position_lf.x),
             dY = (abl.probe_position_rb.y - abl.probe_position_lf.y);
+  
 
-      float
-        spacing_x = ((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1)),
-        spacing_y = ((abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
-      
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        
+        // set defaults
+        abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+        abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
 
-      if (spacing_x < GRID_MIN_SPACING) {
-        abl.grid_points.x = (CEIL(dX / GRID_MIN_SPACING)) + 1;
-        spacing_x =  dX / (abl.grid_points.x - 1);
-      }
-      if (spacing_y < GRID_MIN_SPACING) {
-        abl.grid_points.y = (CEIL(dY / GRID_MIN_SPACING)) + 1;
-        spacing_y =  dY / (abl.grid_points.y - 1);
-      }
+        if (parser.seenval('G')) { 
+          abl.gridSpacing.set(parser.value_linear_units(), parser.value_linear_units()); // override GRID_MIN_SPACING
+        }
 
-      abl.gridSpacing.set(spacing_x, spacing_y);
+        if (parser.seenval('N')) {
+          abl.grid_points.x = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_X)); // override GRID_MAX_POINTS_X
+          abl.gridSpacing.x = 0; // hard override, spacing will be ignored
+        }
+        if (parser.seenval('M')) { // same as for X
+          abl.grid_points.y = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_Y));
+          abl.gridSpacing.y = 0;
+        }
+
+        // if spacing is set, what number of points will it generate, but cap at maximum
+        if (!NEAR_ZERO(abl.gridSpacing.x)) abl.grid_points.x = _MIN( abl.grid_points.x, round(dX / abl.gridSpacing.x) + 1);
+        if (!NEAR_ZERO(abl.gridSpacing.y)) abl.grid_points.y = _MIN( abl.grid_points.y, round(dY / abl.gridSpacing.y) + 1);
+      #endif
+     
+      // determine spacing based on grid points
+      abl.gridSpacing.set(dX / (abl.grid_points.x - 1), dY / (abl.grid_points.y - 1));
 
     #endif // ABL_USES_GRID
 
@@ -556,7 +568,7 @@ G29_TYPE GcodeSuite::G29() {
     if (abl.verbose_level || seenQ) {
       SERIAL_ECHOPGM("Manual G29 ");
       if (g29_in_progress)
-        SERIAL_ECHOLNPGM("point ", _MIN(abl.abl_probe_index + 1, abl.abl_points), " of ", abl.abl_points);
+        SERIAL_ECHOLNPGM("point ", _MIN(abl.abl_probe_index + 1, abl.abl_points), " of ", abl.abl_points); // todo: is this code relevant to BILINEAR?
       else
         SERIAL_ECHOLNPGM("idle");
     }
@@ -612,7 +624,7 @@ G29_TYPE GcodeSuite::G29() {
     #if ABL_USES_GRID
 
       // Skip any unreachable points
-      while (abl.abl_probe_index < abl.abl_points) {
+      while (abl.abl_probe_index < abl.abl_points) { // todo: is this code relevant to BILINEAR since it is PROBE_MANUALLY ?
 
         // Set abl.meshCount.x, abl.meshCount.y based on abl.abl_probe_index, with zig-zag
         PR_OUTER_VAR = abl.abl_probe_index / PR_INNER_SIZE;
@@ -632,7 +644,7 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       // Is there a next point to move to?
-      if (abl.abl_probe_index < abl.abl_points) {
+      if (abl.abl_probe_index < abl.abl_points) { // todo: is this code relevant to BILINEAR since it is PROBE_MANUALLY ?
         _manual_goto_xy(abl.probePos); // Can be used here too!
         // Disable software endstops to allow manual adjustment
         // If G29 is not completed, they will not be re-enabled
@@ -649,7 +661,7 @@ G29_TYPE GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
       // Probe at 3 arbitrary points
-      if (abl.abl_probe_index < abl.abl_points) {
+      if (abl.abl_probe_index < abl.abl_points) { // todo: is this code relevant to BILINEAR since it is PROBE_MANUALLY ?
         abl.probePos = xy_pos_t(points[abl.abl_probe_index]);
         _manual_goto_xy(abl.probePos);
         // Disable software endstops to allow manual adjustment
@@ -874,7 +886,7 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bedlevel.print_leveling_grid(&abl.z_values);
+        bedlevel.print_leveling_grid(&abl.z_values); // todo: this needs limit params
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf, abl.grid_points);
         COPY(bedlevel.z_values, abl.z_values);

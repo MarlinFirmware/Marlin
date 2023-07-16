@@ -2056,12 +2056,13 @@
   // Set the number of grid points per dimension.
   #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-  #define GRID_MIN_SPACING 25
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    #define GRID_MIN_SPACING 50
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
