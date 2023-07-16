@@ -59,7 +59,7 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#define DEBUG_OUT 1
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
 #if ABL_USES_GRID
@@ -104,15 +104,11 @@ public:
     int abl_probe_index;
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
     grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    /**
-     * in case of AUTO_BED_LEVELING_BILINEAR, this has the meaning of abl_max_points, the actual number, that is currently being probed can be lower
-     * If PROBE_MANUALLY is mutually exclusive with BILINEAR, abl_points is not needed when BILINEAR is active
-     */
     static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
@@ -243,8 +239,6 @@ G29_TYPE GcodeSuite::G29() {
 
   // Leveling state is persistent when done manually with multiple G29 commands
   TERN_(PROBE_MANUALLY, static) G29_State abl;
-
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
   // Keep powered steppers from timing out
   reset_stepper_timeout();
@@ -432,7 +426,7 @@ G29_TYPE GcodeSuite::G29() {
       // Size of the probing area
       const xy_float_t size { abl.probe_position_rb.x - abl.probe_position_lf.x, abl.probe_position_rb.y - abl.probe_position_lf.y };
       // Spacing between grid lines
-      float xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
+      xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
 
       // Reduce the number of points if cells are too small
       #if ENABLED(VARIABLE_GRID_POINTS)
