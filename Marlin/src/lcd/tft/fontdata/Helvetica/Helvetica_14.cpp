@@ -20,17 +20,17 @@
  *
  */
 
-/*
-  Fontname: Helvetica
-  Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
-  Capital A Height: 14, '1' Height: 13
-  Calculated Max Values w=16 h=18 x= 2 y=12 dx=18 dy= 0 ascent=16 len=36
-  Font Bounding box     w=18 h=19 x= 0 y=-4
-  Calculated Min Values           x= 0 y=-4 dx= 0 dy= 0
-  Pure Font   ascent =14 descent=-4
-  X Font      ascent =14 descent=-4
-  Max Font    ascent =16 descent=-4
-*/
+/**
+ * Fontname: Helvetica
+ * Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
+ * Capital A Height: 14, '1' Height: 13
+ * Calculated Max Values w=16 h=18 x= 2 y=12 dx=18 dy= 0 ascent=16 len=36
+ * Font Bounding box     w=18 h=19 x= 0 y=-4
+ * Calculated Min Values           x= 0 y=-4 dx= 0 dy= 0
+ * Pure Font   ascent =14 descent=-4
+ * X Font      ascent =14 descent=-4
+ * Max Font    ascent =16 descent=-4
+ */
 
 #include "../fontdata.h"
 
