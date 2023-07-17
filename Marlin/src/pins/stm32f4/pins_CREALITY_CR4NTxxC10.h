@@ -31,6 +31,10 @@
   #error "CR4NT220622C10 only supports one hotend / E-stepper."
 #endif
 
+#if !AXIS_DRIVER_TYPE_X(TMC2209) || !AXIS_DRIVER_TYPE_Y(TMC2209) || !AXIS_DRIVER_TYPE_Z(TMC2209) || !AXIS_DRIVER_TYPE_E0(TMC2209)
+  #error "This board has onboard TMC2209 drivers for X, Y, Z, and E0."
+#endif
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME      "CR4NT220622C10"
 #endif
@@ -189,39 +193,35 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                  // This board's SD is only seen by the printer
 
-#if !AXIS_DRIVER_TYPE_X(TMC2209) || !AXIS_DRIVER_TYPE_Y(TMC2209) || !AXIS_DRIVER_TYPE_Z(TMC2209) || !AXIS_DRIVER_TYPE_E0(TMC2209)
-  #error "This board have soldered TMC2209 drivers for X,Y,Z,E0"
-#endif
+#if ENABLED(CR10_STOCKDISPLAY)
 
-#if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
-  #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
-#endif
+  #if ENABLED(RET6_12864_LCD)
+    // RET6 12864 LCD
+    #define LCD_PINS_RS                     PB12
+    #define LCD_PINS_ENABLE                 PB15
+    #define LCD_PINS_D4                     PB13
 
-#if ENABLED(RET6_12864_LCD)
+    #define BTN_ENC                         PB2
+    #define BTN_EN1                         PA2
+    #define BTN_EN2                         PB14
 
-  // RET6 12864 LCD
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_ENABLE                   PB15
-  #define LCD_PINS_D4                       PB13
+    #ifndef HAS_PIN_27_BOARD
+      #define BEEPER_PIN                    PC0
+    #endif
 
-  #define BTN_ENC                           PB2
-  #define BTN_EN1                           PA2
-  #define BTN_EN2                           PB14
+  #elif ENABLED(VET6_12864_LCD)
+    // VET6 12864 LCD
+    #define LCD_PINS_RS                     PA4
+    //#define LCD_PINS_ENABLE               PA7
+    #define LCD_PINS_D4                     PA5
 
-  #ifndef HAS_PIN_27_BOARD
-    #define BEEPER_PIN                      PC0
+    #define BTN_ENC                         PC5
+    #define BTN_EN1                         PB10
+    #define BTN_EN2                         PA6
+
+  #else
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the CREALITY_CR4NTxxC10 controller."
   #endif
-
-#elif ENABLED(VET6_12864_LCD)
-
-  // VET6 12864 LCD
-  #define LCD_PINS_RS                       PA4
-  //#define LCD_PINS_ENABLE                 PA7
-  #define LCD_PINS_D4                       PA5
-
-  #define BTN_ENC                           PC5
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PA6
 
 #elif ENABLED(DWIN_CREALITY_LCD)
 
