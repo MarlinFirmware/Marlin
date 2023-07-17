@@ -3308,6 +3308,7 @@
    *
    * BLUE_MARLIN  - Default theme with 'midnight blue' background
    * BLACK_MARLIN - Theme with 'black' background
+   * ANET_BLACK   - Theme used for Anet ET4/5
    */
   #define TFT_THEME BLACK_MARLIN
 

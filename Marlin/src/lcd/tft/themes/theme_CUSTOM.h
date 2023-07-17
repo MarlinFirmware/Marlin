@@ -23,6 +23,8 @@
 
 #define MOVE_AXIS_SCREEN  // Special "Move Axis" screen activated by touching coordinates area
 
-#define COLOR_BACKGROUND        COLOR_BLACK
+#ifndef COLOR_BACKGROUND
+  #define COLOR_BACKGROUND      COLOR_BLACK
+#endif
 #define COLOR_COLD              COLOR_WHITE
 #define COLOR_FAN               COLOR_WHITE
