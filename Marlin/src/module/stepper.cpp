@@ -2411,7 +2411,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif // LIN_ADVANCE
 
-        /*
+        /**
          * Adjust Laser Power - Decelerating
          * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
          */
