@@ -26,7 +26,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "MELLOW_FLY_E3_V2"
+  #define BOARD_INFO_NAME "Mellow Fly E3 V2"
 #endif
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
@@ -140,7 +140,6 @@
   #define E1_CS_PIN                         PD0
 #endif
 
-
 //
 // Temperature Sensors
 //
@@ -152,26 +151,26 @@
 // Heaters / Fans
 //
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                      PB0   // "HB"
+  #define HEATER_BED_PIN                    PB0   // "HB"
 #endif
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                        PC6   // "HE0"
+  #define HEATER_0_PIN                      PC6   // "HE0"
 #endif
 #ifndef HEATER_1_PIN
-  #define HEATER_1_PIN                        PC7   // "HE0"
+  #define HEATER_1_PIN                      PC7   // "HE0"
 #endif
 
 #ifndef FAN0_PIN
-  #define FAN0_PIN                            PA0   // "FAN0"
+  #define FAN0_PIN                          PA0   // "FAN0"
 #endif
 #ifndef FAN1_PIN
-  #define FAN1_PIN                            PA1
+  #define FAN1_PIN                          PA1
 #endif
 #ifndef FAN2_PIN
-  #define FAN2_PIN                            PA2
+  #define FAN2_PIN                          PA2
 #endif
 #ifndef FAN3_PIN
-  #define FAN3_PIN                            PA3
+  #define FAN3_PIN                          PA3
 #endif
 
 #ifndef TMC_SPI_MOSI
@@ -231,7 +230,6 @@
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
-
 
 /**
  *              Fly-E3-v2
@@ -424,10 +422,10 @@
   #define BTN_EN2                    EXP2_05_PIN
 
   #ifndef TFT_WIDTH
-    #define TFT_WIDTH                      480
+    #define TFT_WIDTH                        480
   #endif
   #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                     320
+    #define TFT_HEIGHT                       320
   #endif
 
   #if ENABLED(BTT_TFT35_SPI_V1_0)
@@ -435,7 +433,7 @@
     // Stock Display for the BIQU B1 SE.
     #define TFT_CS_PIN               EXP2_04_PIN
     #define TFT_DC_PIN               EXP2_07_PIN
-    #define TFT_A0_PIN               TFT_DC_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #define TOUCH_CS_PIN             EXP1_04_PIN
     #define TOUCH_SCK_PIN            EXP1_05_PIN
@@ -456,7 +454,7 @@
       #define TOUCH_OFFSET_Y                 337
     #endif
     #ifndef TOUCH_ORIENTATION
-      #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+      #define TOUCH_ORIENTATION  TOUCH_LANDSCAPE
     #endif
 
   #elif ENABLED(MKS_TS35_V2_0)
@@ -480,7 +478,7 @@
     #define TFT_BACKLIGHT_PIN  LCD_BACKLIGHT_PIN
 
     #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
     #define TOUCH_CS_PIN             EXP1_05_PIN  // SPI1_NSS
     #define TOUCH_SCK_PIN            EXP2_02_PIN  // SPI1_SCK
