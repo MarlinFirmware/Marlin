@@ -25,45 +25,6 @@
 
 #include <stdint.h>
 
-extern const uint8_t marlin_logo_112x38x1[];
-extern const uint8_t marlin_logo_228x255x2[];
-extern const uint8_t marlin_logo_228x255x4[];
-extern const uint16_t marlin_logo_195x59x16[];
-extern const uint16_t marlin_logo_320x240x16[];
-extern const uint16_t marlin_logo_480x320x16[];
-extern const uint16_t background_320x30x16[];
-
-extern const uint8_t hotend_64x64x4[];
-extern const uint8_t bed_64x64x4[], bed_heated_64x64x4[];
-extern const uint8_t chamber_64x64x4[], chamber_heated_64x64x4[];
-extern const uint8_t fan0_64x64x4[], fan1_64x64x4[];
-extern const uint8_t fan_slow0_64x64x4[], fan_slow1_64x64x4[];
-extern const uint8_t fan_fast0_64x64x4[], fan_fast1_64x64x4[];
-extern const uint8_t sd_64x64x4[];
-extern const uint8_t home_64x64x4[];
-extern const uint8_t btn_rounded_64x52x4[];
-extern const uint8_t btn_rounded_42x39x4[];
-extern const uint8_t menu_64x64x4[];
-extern const uint8_t settings_64x64x4[];
-extern const uint8_t confirm_64x64x4[];
-extern const uint8_t cancel_64x64x4[];
-extern const uint8_t increase_64x64x4[];
-extern const uint8_t decrease_64x64x4[];
-extern const uint8_t pause_64x64x4[];
-
-extern const uint8_t feedrate_32x32x4[];
-extern const uint8_t flowrate_32x32x4[];
-extern const uint8_t directory_32x32x4[];
-extern const uint8_t back_32x32x4[];
-extern const uint8_t up_32x32x4[];
-extern const uint8_t down_32x32x4[];
-extern const uint8_t left_32x32x4[];
-extern const uint8_t right_32x32x4[];
-extern const uint8_t refresh_32x32x4[];
-extern const uint8_t leveling_32x32x4[];
-
-extern const uint8_t slider_8x16x4[];
-
 enum MarlinImage : uint8_t {
   imgBootScreen = 0x00,
   imgHotEnd,
@@ -97,6 +58,9 @@ enum MarlinImage : uint8_t {
   imgHome,
   imgBtn52Rounded,
   imgBtn39Rounded,
+  imgTimeElapsed,
+  imgTimeRemaining,
+  // Special values - must be at the end!
   imgCount,
   noImage = imgCount,
   imgPageUp = imgLeft,
@@ -172,7 +136,9 @@ extern const tImage Left_32x32x4;
 extern const tImage Right_32x32x4;
 extern const tImage Refresh_32x32x4;
 extern const tImage Leveling_32x32x4;
+extern const tImage Time_Elapsed_32x32x4;
+extern const tImage Time_Remaining_32x32x4;
 
 extern const tImage Slider8x16x4;
 
-extern const tImage Images[imgCount];
+extern const tImage images[imgCount];

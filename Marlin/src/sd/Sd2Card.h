@@ -70,7 +70,7 @@ typedef enum : uint8_t {
   SD_CARD_ERROR_WRITE_PROGRAMMING  = 0x16, // Card returned an error to a CMD13 status check after a write
   SD_CARD_ERROR_WRITE_TIMEOUT      = 0x17, // Timeout occurred during write programming
   SD_CARD_ERROR_SCK_RATE           = 0x18, // Incorrect rate selected
-  SD_CARD_ERROR_INIT_NOT_CALLED    = 0x19, // Init() not called
+  SD_CARD_ERROR_INIT_NOT_CALLED    = 0x19, // init() not called
   // 0x1A is unused now, it was: card returned an error for CMD59 (CRC_ON_OFF)
   SD_CARD_ERROR_READ_CRC = 0x1B             // Invalid read CRC
 } sd_error_code_t;
@@ -83,7 +83,7 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,        // Standard capacity V1 SD card
 /**
  * Define SOFTWARE_SPI to use bit-bang SPI
  */
-#if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
+#if ANY(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI
 #endif
 
@@ -143,7 +143,7 @@ public:
    *
    * \return true for success or false for failure.
    */
-  bool readCID(cid_t *cid) { return readRegister(CMD10, cid); }
+  bool readCID(cid_t * const cid) { return readRegister(CMD10, cid); }
 
   /**
    * Read a card's CSD register. The CSD contains Card-Specific Data that
@@ -153,18 +153,18 @@ public:
    *
    * \return true for success or false for failure.
    */
-  inline bool readCSD(csd_t *csd) override { return readRegister(CMD9, csd); }
+  inline bool readCSD(csd_t * const csd) override { return readRegister(CMD9, csd); }
 
-  bool readData(uint8_t *dst) override;
+  bool readData(uint8_t * const dst) override;
   bool readStart(uint32_t blockNumber) override;
   bool readStop() override;
 
-  bool writeData(const uint8_t *src) override;
-  bool writeStart(const uint32_t blockNumber, const uint32_t eraseCount) override;
+  bool writeData(const uint8_t * const src) override;
+  bool writeStart(uint32_t blockNumber, const uint32_t eraseCount) override;
   bool writeStop() override;
 
-  bool readBlock(uint32_t block, uint8_t *dst) override;
-  bool writeBlock(uint32_t blockNumber, const uint8_t *src) override;
+  bool readBlock(uint32_t blockNumber, uint8_t * const dst) override;
+  bool writeBlock(uint32_t blockNumber, const uint8_t * const src) override;
 
   uint32_t cardSize() override;
 
@@ -187,11 +187,11 @@ private:
   }
   uint8_t cardCommand(const uint8_t cmd, const uint32_t arg);
 
-  bool readData(uint8_t *dst, const uint16_t count);
-  bool readRegister(const uint8_t cmd, void *buf);
+  bool readData(uint8_t * const dst, const uint16_t count);
+  bool readRegister(const uint8_t cmd, void * const buf);
   void chipDeselect();
   void chipSelect();
   inline void type(const uint8_t value) { type_ = value; }
   bool waitNotBusy(const millis_t timeout_ms);
-  bool writeData(const uint8_t token, const uint8_t *src);
+  bool writeData(const uint8_t token, const uint8_t * const src);
 };

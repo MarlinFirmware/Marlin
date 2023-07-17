@@ -30,7 +30,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_TR
 
-namespace Language_tr {
+namespace LanguageNarrow_tr {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -55,10 +55,8 @@ namespace Language_tr {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Yazılımsal Endstops");
-  LSTR MSG_MAIN                           = _UxGT("Ana");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Araç Çubuğu Kurulumu");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Seçenek Devre Dışı");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");
@@ -73,11 +71,11 @@ namespace Language_tr {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Ayarları");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Yönetimi");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Manuel Seviyeleme");
-  LSTR MSG_LEVBED_FL                      = _UxGT("Sol Ön");
-  LSTR MSG_LEVBED_FR                      = _UxGT("Ön Sağ");
-  LSTR MSG_LEVBED_C                       = _UxGT("Orta");
-  LSTR MSG_LEVBED_BL                      = _UxGT("Arka Sol");
-  LSTR MSG_LEVBED_BR                      = _UxGT("Arka Sağ");
+  LSTR MSG_TRAM_FL                        = _UxGT("Sol Ön");
+  LSTR MSG_TRAM_FR                        = _UxGT("Ön Sağ");
+  LSTR MSG_TRAM_C                         = _UxGT("Orta");
+  LSTR MSG_TRAM_BL                        = _UxGT("Arka Sol");
+  LSTR MSG_TRAM_BR                        = _UxGT("Arka Sağ");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Manuel Mesh");
   LSTR MSG_AUTO_MESH                      = _UxGT("Oto Mesh Oluştur");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Oto. Z-Hizalama");
@@ -97,30 +95,23 @@ namespace Language_tr {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Hizalama Sihirbazı");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
-    #ifdef PREHEAT_2_LABEL
-      LSTR MSG_PREHEAT_2                  = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
-      LSTR MSG_PREHEAT_2_SETTINGS         = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Conf");
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      LSTR MSG_PREHEAT_3                  = _UxGT("Ön Isınma ") PREHEAT_3_LABEL;
-      LSTR MSG_PREHEAT_3_SETTINGS         = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Conf");
-    #endif
-    LSTR MSG_PREHEAT_M                    = _UxGT("Ön Isınma $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Ön Isınma $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Ön Isınma $ Nozul");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Ön Isınma $ Nozul ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Ön Isınma $ Tüm");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Ön Isınma $ Tabla");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Ön Isınma $ Ayarlar");
-  #endif
+
+  LSTR MSG_PREHEAT_1                      = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Ön Isınma $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Ön Isınma $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Ön Isınma $ Nozul");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Ön Isınma $ Nozul ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Ön Isınma $ Tüm");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Ön Isınma $ Tabla");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Ön Isınma $ Ayarlar");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isınma");
   LSTR MSG_COOLDOWN                       = _UxGT("Soğut/(Durdur)");
 
@@ -280,7 +271,7 @@ namespace Language_tr {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Menekşe");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Beyaz");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Varsayılan");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Işıklar #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Işık #2 Ön Ayarları");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Parlaklık");
@@ -431,12 +422,12 @@ namespace Language_tr {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Fabrika Ayarları");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM'u başlat");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hata: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hata: EEPROM Indeks");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hata: EEPROM Boyutu");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hata: EEPROM Sürümü");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Ayarlar Kaydedildi");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("SD Güncellemesi");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Yazıcıyı Resetle");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Yenile");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Yenile");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Bilgi Ekranı");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Makine Adı");
   LSTR MSG_INFO_SIZE                      = _UxGT("Boyut");
@@ -475,25 +466,16 @@ namespace Language_tr {
   LSTR MSG_RESUME_PRINT                   = _UxGT("Baskıyı Sürdür");
   LSTR MSG_STOP_PRINT                     = _UxGT("Baskıyı Durdur");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Kesinti Kurtarma");
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");
-    LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");
-    LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et =");
-    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");
-    LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
-    LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
-    LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");
-  #else
-    LSTR MSG_HOST_START_PRINT             = _UxGT("Host Başlatma");
-    LSTR MSG_PRINTING_OBJECT              = _UxGT("Nesneyi Yazdır");
-    LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et =");
-    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("İşe Devam Et");
-    LSTR MSG_MEDIA_MENU                   = MEDIA_TYPE_EN _UxGT(" Yazdır");
-    LSTR MSG_TURN_OFF                     = _UxGT("Şimdi kapat");
-    LSTR MSG_END_LOOPS                    = _UxGT("Son Döngüler");
-  #endif
+
+  LSTR MSG_HOST_START_PRINT               = _UxGT("Host Başlatma");
+  LSTR MSG_PRINTING_OBJECT                = _UxGT("Nesneyi Yazdır");
+  LSTR MSG_CANCEL_OBJECT                  = _UxGT("Nesneyi İptal Et");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Nesneyi İptal Et {");
+  LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("İşe Devam Et");
+  LSTR MSG_MEDIA_MENU                     = MEDIA_TYPE_EN _UxGT(" Yazdır");
+  LSTR MSG_TURN_OFF                       = _UxGT("Şimdi kapat");
+  LSTR MSG_END_LOOPS                      = _UxGT("Son Döngüler");
+
   LSTR MSG_NO_MEDIA                       = _UxGT("SD Kart Yok!");
   LSTR MSG_DWELL                          = _UxGT("Uyku...");
   LSTR MSG_USERWAIT                       = _UxGT("Devam için tıkla...");
@@ -654,22 +636,12 @@ namespace Language_tr {
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Toplam Filaman");
-  #else
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Medya Yok");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Ön Isıtma Lütfen");
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Süre");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Filaman");
-  #endif
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Medya Yok");
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Baskı");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Süre");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("En Uzun");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Filaman");
 
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Tamamlanan");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Sıc.");
@@ -720,7 +692,7 @@ namespace Language_tr {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Kaldır, tıkla");
 
   LSTR MSG_MIX                            = _UxGT("Karışım");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Bileşen =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Bileşen {");
   LSTR MSG_MIXER                          = _UxGT("Karıştırıcı");
   LSTR MSG_GRADIENT                       = _UxGT("Gradyan");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Tam Gradyan");
@@ -759,35 +731,20 @@ namespace Language_tr {
   LSTR MSG_PASSWORD_REMOVED               = _UxGT("Şifre Kaldırıldı");
 
   //
-  // Filament Değişim ekranları 4 satırlı ekranda 3 satıra kadar gösterilir
-  //                        ...veya 3 satırlı ekranda 2 satıra kadar
+  // Filament Değişim ekranları 3 satırlı ekranda 2 satıra kadar
   //
-  #if LCD_HEIGHT >= 4
+  LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("Sürdürmek İçin Tıkla"));
+  LSTR MSG_PAUSE_PRINT_PARKING            = _UxGT(MSG_1_LINE("Park Ediliyor..."));
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("Lütfen bekleyiniz..."));
+  LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("Yükle ve bas"));
+  LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("Isıtmak için Tıkla"));
+  LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_1_LINE("Isınıyor..."));
+  LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_1_LINE("Çıkartılıyor..."));
+  LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_1_LINE("Yüklüyor..."));
+  LSTR MSG_FILAMENT_CHANGE_PURGE          = _UxGT(MSG_1_LINE("Temizleniyor..."));
+  LSTR MSG_FILAMENT_CHANGE_CONT_PURGE     = _UxGT(MSG_1_LINE("Bitirmek için Tıkla"));
+  LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_1_LINE("Sürdürülüyor..."));
 
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Baskıya devam etmek", "için Butona bas"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Park Ediliyor..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Filaman değişimi", "için başlama", "bekleniyor"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filamanı yükle", "ve devam için", "tuşa bas..."));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nozulü Isıtmak için", "Butona Bas."));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nozul Isınıyor", "Lütfen Bekleyin..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Filamanın çıkması", "bekleniyor"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Filamanın yüklenmesi", "bekleniyor.."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "için bekle"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "bitirmek için tıkla"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle"));
-  #else
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Sürdürmek İçin Tıkla"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Park Ediliyor..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_1_LINE("Lütfen bekleyiniz..."));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_1_LINE("Yükle ve bas"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_1_LINE("Isıtmak için Tıkla"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_1_LINE("Isınıyor..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_1_LINE("Çıkartılıyor..."));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_1_LINE("Yüklüyor..."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("Temizleniyor..."));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Bitirmek için Tıkla"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Sürdürülüyor..."));
-  #endif
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Sürücüleri");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Sürücü Akımı");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrit Eşiği");
@@ -802,11 +759,8 @@ namespace Language_tr {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Seviye X Ekseni");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Otomatik Kalibre Et");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Boşta kalma zaman aşımı, sıcaklık düştü. Yeniden ısıtmak ve tekrar devam etmek için için Tamam'a basın.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Isıtıcı Zaman Aşımı");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Boşta kalma zaman aşımı, sıcaklık düştü. Yeniden ısıtmak ve tekrar devam etmek için için Tamam'a basın.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Isıtıcı Zaman Aşımı");
   LSTR MSG_REHEAT                         = _UxGT("Yeniden ısıt");
   LSTR MSG_REHEATING                      = _UxGT("Yeniden ısıtılıyor...");
   LSTR MSG_REHEATDONE                     = _UxGT("Y. Isıtma Tamam");
@@ -838,4 +792,47 @@ namespace Language_tr {
   LSTR MSG_SHORT_DAY                      = _UxGT("g"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("s"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("d"); // One character only
+}
+
+namespace LanguageWide_tr {
+  using namespace LanguageNarrow_tr;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");
+    LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");
+    LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et {");
+    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");
+    LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
+    LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
+    LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Toplam Filaman");
+  #endif
+}
+
+namespace LanguageTall_tr {
+  using namespace LanguageWide_tr;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Baskıya devam etmek", "için Butona bas"));
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Park Ediliyor..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Filaman değişimi", "için başlama", "bekleniyor"));
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filamanı yükle", "ve devam için", "tuşa bas..."));
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nozulü Isıtmak için", "Butona Bas."));
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nozul Isınıyor", "Lütfen Bekleyin..."));
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Filamanın çıkması", "bekleniyor"));
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Filamanın yüklenmesi", "bekleniyor.."));
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "için bekle"));
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "bitirmek için tıkla"));
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle"));
+  #endif
+}
+
+namespace Language_tr {
+  using namespace LanguageTall_tr;
 }

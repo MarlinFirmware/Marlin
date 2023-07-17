@@ -38,10 +38,10 @@
 // Heaters / Fans
 //
 
-#define MOSFET_A_PIN                           9  // HE0
-#define MOSFET_B_PIN                           8  // HE1
-#define MOSFET_C_PIN                          10  // HBED
-#define FAN0_PIN                               7
+#define MOSFET_A_PIN                          10  // HE0
+#define MOSFET_B_PIN                           7  // HE1 or FAN Hotend Cooling
+#define MOSFET_C_PIN                           8  // HBED
+#define FAN0_PIN                               9  // FAN Part Cooling
 
 //
 // CS Pins wired to avoid conflict with the LCD

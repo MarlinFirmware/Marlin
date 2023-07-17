@@ -126,10 +126,12 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-// use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#if HAS_CUTTER
+  // Use P1 connector for spindle pins
+  #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
+  #define SPINDLE_DIR_PIN                     19
+#endif
 
 //
 // Průša i3 MK2 Multiplexer Support
@@ -162,7 +164,7 @@
       #define BTN_ENC                         21
 
       #define LCD_PINS_RS                     38
-      #define LCD_PINS_ENABLE                  5
+      #define LCD_PINS_EN                      5
       #define LCD_PINS_D4                     14
       #define LCD_PINS_D5                     15
       #define LCD_PINS_D6                     32
@@ -181,7 +183,7 @@
       #define BTN_ENC                          9
 
       #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 18
+      #define LCD_PINS_EN                     18
       #define LCD_PINS_D4                     19
       #define LCD_PINS_D5                     70
       #define LCD_PINS_D6                     85

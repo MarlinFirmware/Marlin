@@ -30,7 +30,7 @@
 //
 // Flash EEPROM Emulation
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     0x800 // 2K
   #define EEPROM_START_ADDRESS (0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE) // 256K firmware space
@@ -152,7 +152,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #define SPI_DEVICE                           2
+  #define SPI_DEVICE                           2  // Maple
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
@@ -164,7 +164,7 @@
   #define BEEPER_PIN                 EXP1_01_PIN
 
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #define LCD_PINS_D5                EXP1_06_PIN
   #define LCD_PINS_D6                EXP1_07_PIN

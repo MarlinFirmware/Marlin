@@ -25,7 +25,7 @@
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   #include "media_file_reader.h"
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     bool MediaFileReader::open(const char *filename) {
       root = CardReader::getroot();
       return file.open(&root, filename, O_READ);

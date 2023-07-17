@@ -1,8 +1,7 @@
 /*
 *****************************************************************************
 **
-
-**  File        : LinkerScript.ld
+**  File        : ldscript.ld
 **
 **  Abstract    : Linker script for STM32F401RETx Device with
 **                512KByte FLASH, 96KByte RAM
@@ -55,13 +54,13 @@ ENTRY(Reset_Handler)
 _estack = 0x20017FFB;    /* end of RAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;;      /* required amount of heap  */
-_Min_Stack_Size = 0x400;; /* required amount of stack */
+_Min_Heap_Size = 0x200;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8000000 + LD_FLASH_OFFSET, LENGTH = LD_MAX_SIZE - LD_FLASH_OFFSET
+FLASH (rx)     : ORIGIN = 0x8000000 + LD_FLASH_OFFSET, LENGTH = LD_MAX_SIZE - LD_FLASH_OFFSET
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 96K
 }
 

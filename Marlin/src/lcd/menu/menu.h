@@ -35,7 +35,8 @@ typedef void (*selectFunc_t)();
 
 #define SS_LEFT    0x00
 #define SS_CENTER  0x01
-#define SS_INVERT  0x02
+#define SS_FULL    0x02
+#define SS_INVERT  0x04
 #define SS_DEFAULT SS_CENTER
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
@@ -75,7 +76,7 @@ class MenuItemBase {
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char *vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
@@ -167,7 +168,7 @@ class MenuEditItemBase : public MenuItemBase {
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
-      const uint16_t ep,      // Initial encoder value
+      const uint32_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
       const screenFunc_t cb,  // Callback after edit
       const bool le           // Flag to call cb() during editing
@@ -190,7 +191,7 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   class CardReader;
   class MenuItem_sdbase {
     public:
@@ -206,7 +207,7 @@ class MenuEditItemBase : public MenuItemBase {
 void menu_main();
 void menu_move();
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void menu_media();
 #endif
 
@@ -241,21 +242,14 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
-
-  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
-    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
-    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
-    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
-  #else
-    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
-  #endif
-
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void touch_screen_calibration();
+#endif
+
+#if ENABLED(ONE_CLICK_PRINT)
+  void one_click_print();
 #endif
 
 extern uint8_t screen_history_depth;

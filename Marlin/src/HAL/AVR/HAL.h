@@ -140,15 +140,15 @@ typedef Servo hal_servo_t;
   #endif
   #define LCD_SERIAL lcdSerial
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
   #endif
 #endif
 
 //
 // ADC
 //
-#define HAL_ADC_VREF        5.0
-#define HAL_ADC_RESOLUTION 10
+#define HAL_ADC_VREF_MV   5000
+#define HAL_ADC_RESOLUTION  10
 
 //
 // Pin Mapping for M42, M43, M226

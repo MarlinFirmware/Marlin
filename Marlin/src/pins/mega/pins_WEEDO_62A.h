@@ -85,7 +85,7 @@
 //
 // SD Support
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

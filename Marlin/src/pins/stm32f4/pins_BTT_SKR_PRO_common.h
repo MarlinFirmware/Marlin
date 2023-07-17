@@ -29,8 +29,8 @@
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
-  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+#if ALL(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
     #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
@@ -222,8 +222,11 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -442,7 +445,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -494,7 +497,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -502,7 +505,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

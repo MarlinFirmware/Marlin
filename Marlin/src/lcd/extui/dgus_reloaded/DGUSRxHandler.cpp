@@ -27,7 +27,7 @@
 #include "DGUSRxHandler.h"
 
 #include "DGUSScreenHandler.h"
-#include "config/DGUS_Screen.h"
+#include "config/DGUS_ScreenID.h"
 
 #include "../ui_api.h"
 #include "../../../core/language.h"
@@ -42,121 +42,121 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
-  const DGUS_Screen screen = (DGUS_Screen)((uint8_t*)data_ptr)[1];
+void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
+  const DGUS_ScreenID screenID = (DGUS_ScreenID)((uint8_t*)data_ptr)[1];
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_SD) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       IF_DISABLED(HAS_SD_DETECT, card.mount());
 
       if (!ExtUI::isMediaInserted()) {
-        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
+        screen.setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
         return;
       }
 
       card.cdroot();
     #else
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
+      screen.setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
       return;
     #endif
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Idle
       && (ExtUI::isPrinting() || ExtUI::isPrintingPaused())) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_PRINTING));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_PRINTING));
     return;
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Printing
       && (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused())) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_IDLE));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_IDLE));
     return;
   }
 
-  dgus_screen_handler.TriggerScreenChange(screen);
+  screen.triggerScreenChange(screenID);
 }
 
-#if ENABLED(SDSUPPORT)
-  void DGUSRxHandler::Scroll(DGUS_VP &vp, void *data_ptr) {
+#if HAS_MEDIA
+  void DGUSRxHandler::scroll(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
     const DGUS_Data::Scroll scroll = (DGUS_Data::Scroll)((uint8_t*)data_ptr)[1];
 
     switch (scroll) {
       case DGUS_Data::Scroll::GO_BACK:
-        if (dgus_screen_handler.filelist.isAtRootDir()) {
+        if (screen.filelist.isAtRootDir()) {
           return;
         }
 
-        dgus_screen_handler.filelist_offset = 0;
-        dgus_screen_handler.filelist_selected = -1;
-        dgus_screen_handler.filelist.upDir();
+        screen.filelist_offset = 0;
+        screen.filelist_selected = -1;
+        screen.filelist.upDir();
         break;
       case DGUS_Data::Scroll::UP:
-        if (dgus_screen_handler.filelist_offset < 1) {
+        if (screen.filelist_offset < 1) {
           return;
         }
 
-        --dgus_screen_handler.filelist_offset;
+        --screen.filelist_offset;
         break;
       case DGUS_Data::Scroll::DOWN:
-        if (dgus_screen_handler.filelist_offset + 1 + DGUS_FILE_COUNT > dgus_screen_handler.filelist.count()) {
+        if (screen.filelist_offset + 1 + DGUS_FILE_COUNT > screen.filelist.count()) {
           return;
         }
 
-        ++dgus_screen_handler.filelist_offset;
+        ++screen.filelist_offset;
         break;
     }
 
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
   }
 
-  void DGUSRxHandler::SelectFile(DGUS_VP &vp, void *data_ptr) {
+  void DGUSRxHandler::selectFile(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
     const uint8_t index = ((uint8_t*)data_ptr)[1];
 
-    if (!dgus_screen_handler.filelist.seek(dgus_screen_handler.filelist_offset + index)) {
+    if (!screen.filelist.seek(screen.filelist_offset + index)) {
       return;
     }
 
-    if (dgus_screen_handler.filelist.isDir()) {
-      dgus_screen_handler.filelist_offset = 0;
-      dgus_screen_handler.filelist_selected = -1;
-      dgus_screen_handler.filelist.changeDir(dgus_screen_handler.filelist.filename());
+    if (screen.filelist.isDir()) {
+      screen.filelist_offset = 0;
+      screen.filelist_selected = -1;
+      screen.filelist.changeDir(screen.filelist.filename());
     }
     else {
-      dgus_screen_handler.filelist_selected = dgus_screen_handler.filelist_offset + index;
+      screen.filelist_selected = screen.filelist_offset + index;
     }
 
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
   }
 
-  void DGUSRxHandler::PrintFile(DGUS_VP &vp, void *data_ptr) {
+  void DGUSRxHandler::printFile(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
     UNUSED(data_ptr);
 
-    if (dgus_screen_handler.filelist_selected < 0) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NO_FILE_SELECTED));
+    if (screen.filelist_selected < 0) {
+      screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_NO_FILE_SELECTED));
       return;
     }
 
-    if (!dgus_screen_handler.filelist.seek(dgus_screen_handler.filelist_selected)
-        || dgus_screen_handler.filelist.isDir()) {
+    if (!screen.filelist.seek(screen.filelist_selected)
+        || screen.filelist.isDir()) {
       return;
     }
 
-    if (!dgus_screen_handler.IsPrinterIdle()) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+    if (!screen.isPrinterIdle()) {
+      screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
       return;
     }
 
-    ExtUI::printFile(dgus_screen_handler.filelist.shortFilename());
-    dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PRINT_STATUS);
+    ExtUI::printFile(screen.filelist.shortFilename());
+    screen.triggerScreenChange(DGUS_ScreenID::PRINT_STATUS);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
-void DGUSRxHandler::PrintAbort(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::printAbort(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -166,14 +166,14 @@ void DGUSRxHandler::PrintAbort(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused()) {
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
     return;
   }
 
   ExtUI::stopPrint();
 }
 
-void DGUSRxHandler::PrintPause(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::printPause(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -183,14 +183,14 @@ void DGUSRxHandler::PrintPause(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (!ExtUI::isPrinting()) {
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
     return;
   }
 
   ExtUI::pausePrint();
 }
 
-void DGUSRxHandler::PrintResume(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::printResume(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -200,29 +200,29 @@ void DGUSRxHandler::PrintResume(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (!ExtUI::isPrintingPaused()) {
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
     return;
   }
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   ExtUI::resumePrint();
 }
 
-void DGUSRxHandler::Feedrate(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::feedrate(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const int16_t feedrate = BE16_P(data_ptr);
 
   ExtUI::setFeedrate_percent(feedrate);
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::flowrate(DGUS_VP &vp, void *data_ptr) {
   const int16_t flowrate = BE16_P(data_ptr);
 
   switch (vp.addr) {
@@ -240,24 +240,24 @@ void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
     #endif
   }
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::BabystepSet(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::babystepSet(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const int16_t data = BE16_P(data_ptr);
-  const float offset = dgus_display.FromFixedPoint<int16_t, float, 2>(data);
+  const float offset = dgus.fromFixedPoint<int16_t, float, 2>(data);
 
   const int16_t steps = ExtUI::mmToWholeSteps(offset - ExtUI::getZOffset_mm(), ExtUI::Z);
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::Z, true);
 
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::Babystep(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::babystep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Adjust adjust = (DGUS_Data::Adjust)((uint8_t*)data_ptr)[1];
@@ -275,11 +275,11 @@ void DGUSRxHandler::Babystep(DGUS_VP &vp, void *data_ptr) {
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::Z, true);
 
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::TempPreset(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::tempPreset(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::TempPreset preset = (DGUS_Data::TempPreset)((uint8_t*)data_ptr)[1];
@@ -311,10 +311,10 @@ void DGUSRxHandler::TempPreset(DGUS_VP &vp, void *data_ptr) {
       break;
   }
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::TempTarget(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::tempTarget(DGUS_VP &vp, void *data_ptr) {
   const int16_t temp = BE16_P(data_ptr);
 
   switch (vp.addr) {
@@ -332,10 +332,10 @@ void DGUSRxHandler::TempTarget(DGUS_VP &vp, void *data_ptr) {
     #endif
   }
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::TempCool(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::tempCool(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Heater heater = (DGUS_Data::Heater)BE16_P(data_ptr);
@@ -362,12 +362,12 @@ void DGUSRxHandler::TempCool(DGUS_VP &vp, void *data_ptr) {
     #endif
   }
 
-  dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_COOLING));
+  screen.setStatusMessage(GET_TEXT_F(MSG_COOLING));
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::steppers(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Control control = (DGUS_Data::Control)((uint8_t*)data_ptr)[1];
@@ -381,50 +381,50 @@ void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
       break;
   }
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(ExtUI::Z))) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   const int16_t data = BE16_P(data_ptr);
-  const float offset = dgus_display.FromFixedPoint<int16_t, float, 2>(data);
+  const float offset = dgus.fromFixedPoint<int16_t, float, 2>(data);
 
   const int16_t steps = ExtUI::mmToWholeSteps(offset - ExtUI::getZOffset_mm(), ExtUI::Z);
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::Z, true);
 
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::ZOffsetStep(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::zOffsetStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(ExtUI::Z))) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   const DGUS_Data::Adjust adjust = (DGUS_Data::Adjust)((uint8_t*)data_ptr)[1];
   int16_t steps;
 
-  switch (dgus_screen_handler.offset_steps) {
+  switch (screen.offset_steps) {
     default: return;
     case DGUS_Data::StepSize::MMP1:
       steps = ExtUI::mmToWholeSteps((adjust == DGUS_Data::Adjust::INCREMENT ? 0.1f : -0.1f), ExtUI::Z);
@@ -436,30 +436,30 @@ void DGUSRxHandler::ZOffsetStep(DGUS_VP &vp, void *data_ptr) {
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::Z, true);
 
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::ZOffsetSetStep(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::zOffsetSetStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::StepSize size = (DGUS_Data::StepSize)((uint8_t*)data_ptr)[1];
 
-  dgus_screen_handler.offset_steps = size;
+  screen.offset_steps = size;
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::MoveToPoint(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   if (!ExtUI::isPositionKnown()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
@@ -499,26 +499,26 @@ void DGUSRxHandler::MoveToPoint(DGUS_VP &vp, void *data_ptr) {
   ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_HEIGHT, ExtUI::Z);
 }
 
-void DGUSRxHandler::Probe(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
   #if ENABLED(MESH_BED_LEVELING)
-    dgus_screen_handler.SetStatusMessage(FPSTR(DGUS_MSG_ABL_REQUIRED));
+    screen.setStatusMessage(FPSTR(DGUS_MSG_ABL_REQUIRED));
     return;
   #endif
 
   if (!ExtUI::isPositionKnown()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
-  dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LEVELING_PROBING);
+  screen.triggerScreenChange(DGUS_ScreenID::LEVELING_PROBING);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     queue.enqueue_now(F("G29P1\nG29P3\nG29P5C"));
@@ -528,22 +528,22 @@ void DGUSRxHandler::Probe(DGUS_VP &vp, void *data_ptr) {
   queue.enqueue_now(F("M500"));
 }
 
-void DGUSRxHandler::DisableABL(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::disableABL(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   ExtUI::setLevelingActive(false);
 
-  dgus_screen_handler.TriggerEEPROMSave();
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerEEPROMSave();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::filamentSelect(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Extruder extruder = (DGUS_Data::Extruder)BE16_P(data_ptr);
@@ -553,34 +553,34 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
     case DGUS_Data::Extruder::CURRENT:
     case DGUS_Data::Extruder::E0:
     E_TERN_(case DGUS_Data::Extruder::E1:)
-      dgus_screen_handler.filament_extruder = extruder;
+      screen.filament_extruder = extruder;
       break;
   }
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::FilamentLength(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::filamentLength(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const uint16_t length = BE16_P(data_ptr);
 
-  dgus_screen_handler.filament_length = constrain(length, 0, EXTRUDE_MAXLENGTH);
+  screen.filament_length = constrain(length, 0, EXTRUDE_MAXLENGTH);
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::filamentMove(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   ExtUI::extruder_t extruder;
 
-  switch (dgus_screen_handler.filament_extruder) {
+  switch (screen.filament_extruder) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
       #if HAS_MULTI_EXTRUDER
@@ -598,7 +598,7 @@ void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (ExtUI::getActualTemp_celsius(extruder) < (float)EXTRUDE_MINTEMP) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW));
     return;
   }
 
@@ -606,25 +606,25 @@ void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
 
   switch (move) {
     case DGUS_Data::FilamentMove::RETRACT:
-      UI_DECREMENT_BY(AxisPosition_mm, (float)dgus_screen_handler.filament_length, extruder);
+      UI_DECREMENT_BY(AxisPosition_mm, (float)screen.filament_length, extruder);
       break;
     case DGUS_Data::FilamentMove::EXTRUDE:
-      UI_INCREMENT_BY(AxisPosition_mm, (float)dgus_screen_handler.filament_length, extruder);
+      UI_INCREMENT_BY(AxisPosition_mm, (float)screen.filament_length, extruder);
       break;
   }
 }
 
-void DGUSRxHandler::Home(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::home(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   DGUS_Data::Axis axis = (DGUS_Data::Axis)((uint8_t*)data_ptr)[1];
 
-  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), dgus_screen_handler.GetCurrentScreen());
+  screen.showWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), screen.getCurrentScreen());
 
   switch (axis) {
     case DGUS_Data::Axis::X_Y_Z:
@@ -639,9 +639,9 @@ void DGUSRxHandler::Home(DGUS_VP &vp, void *data_ptr) {
   }
 }
 
-void DGUSRxHandler::Move(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::move(DGUS_VP &vp, void *data_ptr) {
   const int16_t data = BE16_P(data_ptr);
-  const float position = dgus_display.FromFixedPoint<int16_t, float, 1>(data);
+  const float position = dgus.fromFixedPoint<int16_t, float, 1>(data);
   ExtUI::axis_t axis;
 
   switch (vp.addr) {
@@ -652,20 +652,20 @@ void DGUSRxHandler::Move(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(axis))) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
   ExtUI::setAxisPosition_mm(position, axis);
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::MoveStep(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::moveStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   float offset;
-  switch (dgus_screen_handler.move_steps) {
+  switch (screen.move_steps) {
     default: return;
     case DGUS_Data::StepSize::MM10: offset = 10.0f; break;
     case DGUS_Data::StepSize::MM1: offset = 1.0f; break;
@@ -686,58 +686,58 @@ void DGUSRxHandler::MoveStep(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(axis))) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
 
   UI_INCREMENT_BY(AxisPosition_mm, offset, axis);
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::MoveSetStep(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::moveSetStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::StepSize size = (DGUS_Data::StepSize)((uint8_t*)data_ptr)[1];
-  dgus_screen_handler.move_steps = size;
+  screen.move_steps = size;
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::GcodeClear(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::gcodeClear(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  ZERO(dgus_screen_handler.gcode);
+  ZERO(screen.gcode);
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::GcodeExecute(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::gcodeExecute(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  if (!strlen(dgus_screen_handler.gcode)) return;
+  if (!strlen(screen.gcode)) return;
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
-  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_EXECUTING_COMMAND), DGUS_Screen::GCODE);
+  screen.showWaitScreen(GET_TEXT_F(DGUS_MSG_EXECUTING_COMMAND), DGUS_ScreenID::GCODE);
 
-  queue.enqueue_one_now(dgus_screen_handler.gcode);
+  queue.enqueue_one_now(screen.gcode);
 }
 
-void DGUSRxHandler::ResetEEPROM(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::resetEEPROM(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
   if (result != DGUS_Data::Popup::CONFIRMED) return;
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
@@ -745,7 +745,7 @@ void DGUSRxHandler::ResetEEPROM(DGUS_VP &vp, void *data_ptr) {
   queue.enqueue_now(F("M500"));
 }
 
-void DGUSRxHandler::SettingsExtra(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::settingsExtra(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Extra extra = (DGUS_Data::Extra)((uint8_t*)data_ptr)[1];
@@ -754,25 +754,25 @@ void DGUSRxHandler::SettingsExtra(DGUS_VP &vp, void *data_ptr) {
     default: return;
     case DGUS_Data::Extra::BUTTON1:
       #if ENABLED(BLTOUCH)
-        if (!dgus_screen_handler.IsPrinterIdle()) {
-          dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+        if (!screen.isPrinterIdle()) {
+          screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
           return;
         }
 
         queue.enqueue_now(F(DGUS_RESET_BLTOUCH));
       #else
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::INFOS);
+        screen.triggerScreenChange(DGUS_ScreenID::INFOS);
       #endif
       break;
     #if ENABLED(BLTOUCH)
       case DGUS_Data::Extra::BUTTON2:
-        dgus_screen_handler.TriggerScreenChange(DGUS_Screen::INFOS);
+        screen.triggerScreenChange(DGUS_ScreenID::INFOS);
         break;
     #endif
   }
 }
 
-void DGUSRxHandler::PIDSelect(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::pidSelect(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Heater heater = (DGUS_Data::Heater)BE16_P(data_ptr);
@@ -780,34 +780,34 @@ void DGUSRxHandler::PIDSelect(DGUS_VP &vp, void *data_ptr) {
   switch (heater) {
     default: return;
     case DGUS_Data::Heater::BED:
-      dgus_screen_handler.pid_temp = DGUS_PLA_TEMP_BED;
-      dgus_screen_handler.pid_heater = heater;
+      screen.pid_temp = DGUS_PLA_TEMP_BED;
+      screen.pid_heater = heater;
       break;
     case DGUS_Data::Heater::H0:
     #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
     #endif
-      dgus_screen_handler.pid_temp = DGUS_PLA_TEMP_HOTEND;
-      dgus_screen_handler.pid_heater = heater;
+      screen.pid_temp = DGUS_PLA_TEMP_HOTEND;
+      screen.pid_heater = heater;
       break;
   }
 
-  dgus_screen_handler.pid_cycles = 5;
+  screen.pid_cycles = 5;
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::PIDSetTemp(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::pidSetTemp(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   uint16_t temp = BE16_P(data_ptr);
 
-  switch (dgus_screen_handler.pid_heater) {
+  switch (screen.pid_heater) {
     default: return;
     case DGUS_Data::Heater::BED:
       temp = constrain(temp, BED_MINTEMP, BED_MAX_TARGET);
@@ -822,31 +822,31 @@ void DGUSRxHandler::PIDSetTemp(DGUS_VP &vp, void *data_ptr) {
     #endif
   }
 
-  dgus_screen_handler.pid_temp = temp;
+  screen.pid_temp = temp;
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::pidRun(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+  if (!screen.isPrinterIdle()) {
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return;
   }
 
   heater_id_t heater;
-  uint8_t cycles = constrain(dgus_screen_handler.pid_cycles, 3, 10);
+  uint8_t cycles = constrain(screen.pid_cycles, 3, 10);
 
-  switch (dgus_screen_handler.pid_heater) {
+  switch (screen.pid_heater) {
     default: return;
     case DGUS_Data::Heater::BED:
       #if ENABLED(PIDTEMPBED)
         heater = H_BED;
         break;
       #else
-        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BED_PID_DISABLED));
+        screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BED_PID_DISABLED));
         return;
       #endif
     case DGUS_Data::Heater::H0:
@@ -854,7 +854,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
         heater = H_E0;
         break;
       #else
-        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
+        screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
         return;
       #endif
     #if HAS_MULTI_HOTEND
@@ -863,23 +863,23 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
           heater = H_E1;
           break;
         #else
-          dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
+          screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
           return;
         #endif
     #endif
   }
 
   char buffer[24];
-  snprintf_P(buffer, sizeof(buffer), PSTR("M303C%dE%dS%dU1"), cycles, heater, dgus_screen_handler.pid_temp);
+  snprintf_P(buffer, sizeof(buffer), PSTR("M303C%dE%dS%dU1"), cycles, heater, screen.pid_temp);
 
-  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_PID_AUTOTUNING), DGUS_Screen::PID);
+  screen.showWaitScreen(GET_TEXT_F(DGUS_MSG_PID_AUTOTUNING), DGUS_ScreenID::PID);
 
   queue.enqueue_one_now(buffer);
   queue.enqueue_now(F("M500"));
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  void DGUSRxHandler::PowerLossAbort(DGUS_VP &vp, void *data_ptr) {
+  void DGUSRxHandler::powerLossAbort(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
     const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -888,17 +888,17 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
       return;
     }
 
-    if (!dgus_screen_handler.IsPrinterIdle()) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+    if (!screen.isPrinterIdle()) {
+      screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
       return;
     }
 
-    dgus_screen_handler.TriggerScreenChange(DGUS_Screen::HOME);
+    screen.triggerScreenChange(DGUS_ScreenID::HOME);
 
     queue.enqueue_now(F("M1000C"));
   }
 
-  void DGUSRxHandler::PowerLossResume(DGUS_VP &vp, void *data_ptr) {
+  void DGUSRxHandler::powerLossResume(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
     const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -907,23 +907,23 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
       return;
     }
 
-    if (!dgus_screen_handler.IsPrinterIdle()) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
+    if (!screen.isPrinterIdle()) {
+      screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
       return;
     }
 
     if (!recovery.valid()) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_INVALID_RECOVERY_DATA));
+      screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_INVALID_RECOVERY_DATA));
       return;
     }
 
-    dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PRINT_STATUS);
+    screen.triggerScreenChange(DGUS_ScreenID::PRINT_STATUS);
 
     queue.enqueue_now(F("M1000"));
   }
 #endif // POWER_LOSS_RECOVERY
 
-void DGUSRxHandler::WaitAbort(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::waitAbort(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
@@ -933,25 +933,25 @@ void DGUSRxHandler::WaitAbort(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (!ExtUI::isPrintingPaused()) {
-    dgus_screen_handler.TriggerFullUpdate();
+    screen.triggerFullUpdate();
     return;
   }
 
   ExtUI::stopPrint();
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::WaitContinue(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::waitContinue(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
   ExtUI::setUserConfirmed();
 
-  dgus_screen_handler.TriggerFullUpdate();
+  screen.triggerFullUpdate();
 }
 
-void DGUSRxHandler::FanSpeed(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::fanSpeed(DGUS_VP &vp, void *data_ptr) {
   uint8_t speed = ((uint8_t*)data_ptr)[1];
   switch (vp.addr) {
     default: return;
@@ -961,36 +961,36 @@ void DGUSRxHandler::FanSpeed(DGUS_VP &vp, void *data_ptr) {
   }
 }
 
-void DGUSRxHandler::Volume(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::volume(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   uint8_t volume = ((uint8_t*)data_ptr)[1];
-  dgus_display.SetVolume(volume);
+  dgus.setVolume(volume);
 
-  dgus_screen_handler.TriggerEEPROMSave();
+  screen.triggerEEPROMSave();
 }
 
-void DGUSRxHandler::Brightness(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::brightness(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   uint8_t brightness = ((uint8_t*)data_ptr)[1];
-  dgus_display.SetBrightness(brightness);
+  dgus.setBrightness(brightness);
 
-  dgus_screen_handler.TriggerEEPROMSave();
+  screen.triggerEEPROMSave();
 }
 
-void DGUSRxHandler::Debug(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::debug(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  ++dgus_screen_handler.debug_count;
+  ++screen.debug_count;
 
-  if (dgus_screen_handler.debug_count >= 10) {
-    dgus_screen_handler.TriggerScreenChange(DGUS_Screen::DEBUG);
+  if (screen.debug_count >= 10) {
+    screen.triggerScreenChange(DGUS_ScreenID::DEBUG);
   }
 }
 
-void DGUSRxHandler::StringToExtra(DGUS_VP &vp, void *data_ptr) {
+void DGUSRxHandler::stringToExtra(DGUS_VP &vp, void *data_ptr) {
   if (!vp.size || !vp.extra) return;
   memcpy(vp.extra, data_ptr, vp.size);
 }

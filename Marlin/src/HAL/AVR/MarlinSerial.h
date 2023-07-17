@@ -280,7 +280,7 @@
     static constexpr bool DROPPED_RX        = false;
     static constexpr bool RX_FRAMING_ERRORS = false;
     static constexpr bool MAX_RX_QUEUED     = false;
-    static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
+    static constexpr bool RX_OVERRUNS       = ALL(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
   };
 
   typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialLCD;

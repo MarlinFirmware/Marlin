@@ -125,7 +125,7 @@
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       16
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                        5
@@ -147,7 +147,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20
@@ -162,6 +162,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 10  // Pullup!
-#define SPINDLE_DIR_PIN                       11  // use the EXP3 PWM header
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               10  // Pullup!
+  #define SPINDLE_DIR_PIN                     11  // use the EXP3 PWM header
+#endif

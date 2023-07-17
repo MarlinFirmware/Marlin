@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
+#if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
 /**
  * PersistentStore for Arduino-style EEPROM interface

@@ -80,11 +80,24 @@
 
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
-  constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
-           manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(_mf.e / 60.0f,
-                                                     _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f,
-                                                     _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f,
-                                                     _mf.u / 60.0f, _mf.v / 60.0f, _mf.w / 60.0f);
+  constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE,
+                            manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(
+                              MMM_TO_MMS(manual_feedrate_mm_m.e),
+                              MMM_TO_MMS(manual_feedrate_mm_m.x), MMM_TO_MMS(manual_feedrate_mm_m.y), MMM_TO_MMS(manual_feedrate_mm_m.z),
+                              MMM_TO_MMS(manual_feedrate_mm_m.i), MMM_TO_MMS(manual_feedrate_mm_m.j), MMM_TO_MMS(manual_feedrate_mm_m.k),
+                              MMM_TO_MMS(manual_feedrate_mm_m.u), MMM_TO_MMS(manual_feedrate_mm_m.v), MMM_TO_MMS(manual_feedrate_mm_m.w));
+#endif
+
+#if ENABLED(BABYSTEPPING)
+  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
+    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
+    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
+  #else
+    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
+  #endif
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -245,7 +258,7 @@ typedef struct PlannerBlock {
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
-  axis_bits_t direction_bits;               // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -416,7 +429,7 @@ class Planner {
 
     #if ENABLED(DIRECT_STEPPING)
       static uint32_t last_page_step_rate;          // Last page step rate given
-      static xyze_bool_t last_page_dir;             // Last page direction given
+      static AxisBits last_page_dir;                // Last page direction given, where 1 represents forward or positive motion
     #endif
 
     #if HAS_EXTRUDERS
@@ -637,7 +650,7 @@ class Planner {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
-        LOOP_L_N(i, COUNT(filament_size))
+        for (uint8_t i = 0; i < COUNT(filament_size); ++i)
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -925,7 +938,7 @@ class Planner {
     }
 
     // SCARA AB and Polar YB axes are in degrees, not mm
-    #if EITHER(IS_SCARA, POLAR)
+    #if ANY(IS_SCARA, POLAR)
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
@@ -1028,7 +1041,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+    #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */

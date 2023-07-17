@@ -150,10 +150,9 @@
 //
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                         18
-  #define LCD_PINS_ENABLE                     15
+  #define LCD_PINS_EN                         15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
-  #undef UI_VOLTAGE_LEVEL
   #define UI_VOLTAGE_LEVEL                     1
 #endif
 

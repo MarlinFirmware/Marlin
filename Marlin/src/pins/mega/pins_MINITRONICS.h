@@ -108,7 +108,7 @@
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define LCD_PINS_RS                         15  // CS chip select /SS chip slave select
-  #define LCD_PINS_ENABLE                     11  // SID (MOSI)
+  #define LCD_PINS_EN                         11  // SID (MOSI)
   #define LCD_PINS_D4                         10  // SCK (CLK) clock
 
   #define BTN_EN1                             18
@@ -120,7 +120,7 @@
 #else
 
   #define LCD_PINS_RS                         -1
-  #define LCD_PINS_ENABLE                     -1
+  #define LCD_PINS_EN                         -1
 
   // Buttons are directly attached using keypad
   #define BTN_EN1                             -1
@@ -141,7 +141,7 @@
   #define HEATER_BED_PIN                       4  // won't compile
   #define TEMP_BED_PIN                        50
   #define TEMP_0_PIN                          51
-  #define SPINDLE_LASER_ENA_PIN               52  // using A6 because it already has a pullup
   #define SPINDLE_LASER_PWM_PIN                3  // WARNING - LED & resistor pull up to +12/+24V stepper voltage
+  #define SPINDLE_LASER_ENA_PIN               52  // using A6 because it already has a pullup
   #define SPINDLE_DIR_PIN                     53
 #endif
