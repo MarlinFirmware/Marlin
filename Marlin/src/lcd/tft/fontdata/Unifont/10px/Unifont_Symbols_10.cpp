@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
-
-#include <stdint.h>
 
 // Unifont Symbols 16pt, capital 'A' height: 10px, width: 100%
 extern const uint8_t Unifont_Symbols_10[44] = {

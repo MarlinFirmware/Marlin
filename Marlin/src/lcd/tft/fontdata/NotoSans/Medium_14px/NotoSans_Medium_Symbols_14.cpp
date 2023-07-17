@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define NOTOSANS 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
-
-#include <stdint.h>
 
 // NotoSans Medium Symbols 19pt, capital 'A' height: 14px, width: 100%
 extern const uint8_t NotoSans_Medium_Symbols_14[131] = {

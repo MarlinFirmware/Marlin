@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
-
-#include <stdint.h>
 
 // NotoSans_Medium Vietnamese 36pt, capital 'A' height: 26px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
 extern const uint8_t NotoSans_Medium_Vietnamese_26[18855] = {

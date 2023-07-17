@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
-
-#include <stdint.h>
 
 // Unifont Cyrillic 16pt, capital 'A' height: 10px, width: 100%, range: 0x0401-0x0491, glyphs: 74
 extern const uint8_t Unifont_Cyrillic_10[1243] = {

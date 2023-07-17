@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
-
-#include <stdint.h>
 
 // NotoSans_Medium Simplified Chinese 36pt, capital 'A' height: 26px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
 extern const uint8_t NotoSans_Medium_Simplified_Chinese_26[20454] = {

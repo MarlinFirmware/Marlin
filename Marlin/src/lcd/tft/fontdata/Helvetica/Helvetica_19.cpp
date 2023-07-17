@@ -32,12 +32,9 @@
   Max Font    ascent =24 descent=-5
 */
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../fontdata.h"
 
-#define HELVETICA 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == HELVETICA
-
-#include <stdint.h>
 
 // Helvetica Symbols, capital 'A' height: 19px
 extern const uint8_t Helvetica_Symbols_19[45] = {

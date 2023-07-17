@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
-
-#include <stdint.h>
 
 // Unifont Katakana 48pt, capital 'A' height: 30px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
 extern const uint8_t Unifont_Katakana_30[15707] = {

@@ -20,12 +20,9 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define NOTOSANS 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
-
-#include <stdint.h>
 
 // NotoSans Medium Traditional Chinese 19pt, capital 'A' height: 14px, width: 100%, range: 0x22bf-0xff1a, glyphs: 307
 extern const uint8_t NotoSans_Medium_Traditional_Chinese_14[30758] = {
