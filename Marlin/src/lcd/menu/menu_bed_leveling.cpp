@@ -129,7 +129,7 @@
     //
     if (ui.should_draw()) {
       const float v = current_position.z;
-      MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_MOVE_Z), SS_CENTER, ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
 
@@ -139,7 +139,7 @@
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
       MString<9> msg;
-      msg.setf(F("%i / %u"), int(manual_probe_index + 1), total_probe_points);
+      msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
       MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);

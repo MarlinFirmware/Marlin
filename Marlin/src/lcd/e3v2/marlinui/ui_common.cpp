@@ -422,7 +422,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       const dwin_coord_t by = (row * MENU_LINE_HEIGHT) + MENU_FONT_HEIGHT + EXTRA_ROW_HEIGHT / 2;
       dwinDrawString(true, font16x32, COLOR_YELLOW, COLOR_BG_BLACK, (LCD_PIXEL_WIDTH - vallen * 16) / 2, by, S(dwin_string.string()));
 
-      if (ui.can_show_slider()) {
+      if (ui.can_show_slider() && maxEditValue > 0) {
 
         const dwin_coord_t slider_length = LCD_PIXEL_WIDTH - TERN(DWIN_MARLINUI_LANDSCAPE, 120, 20),
                            slider_height = 16,
