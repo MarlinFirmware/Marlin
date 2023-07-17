@@ -27,7 +27,7 @@
 
 #define NO_GLYPH  0xFF
 
-/*
+/**
  * Marlin fonts with optional antialiasing. Fonts use unifont_t font header and glyph_t glyphs headers.
  * Number of glyphs (fontEndEncoding - fontStartEncoding) can not exceed 256 (TBD).
  * Some glyphs may be left undefined with NO_GLYPH
@@ -37,7 +37,7 @@
 #define FONT_MARLIN_GLYPHS_2BPP 0x82
 #define FONT_MARLIN_GLYPHS_4BPP 0x84
 
-/*
+/**
  * TFT fonts with optional antialiasing. Fonts use unifont_t font header and uniglyph_t glyphs headers.
  * Each glyph is prepended with its unicode.
  * Designed to be used for Japanese, Korean, Simplified Chinese and Traditional Chinese glyphs.
