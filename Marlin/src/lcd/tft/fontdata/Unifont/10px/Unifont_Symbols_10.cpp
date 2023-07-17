@@ -31,7 +31,7 @@ extern const uint8_t Unifont_Symbols_10[44] = {
   5,12,12,16,5,0,32,80,80,80,80,112,112,112,248,248,248,112,
   // 0x09 - LCD_STR_DEGREE a.k.a 0x00b0  °
   4,4,4,8,2,6,96,144,144,96,
-  // 0x0a - replacement for 0x2026 used in Greek languange files  …
+  // 0x0a - replacement for 0x2026 used in Greek language files  …
   7,2,2,8,1,0,146,146,
 };
 
