@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Simplified Chinese 16pt, capital 'A' heigth: 10px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
+// Unifont Simplified Chinese 16pt, capital 'A' height: 10px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
 extern const uint8_t Unifont_Simplified_Chinese_10[14547] = {
   161,10,28,32,26,255,14,254, // unifont_t
   // 0x201c  “

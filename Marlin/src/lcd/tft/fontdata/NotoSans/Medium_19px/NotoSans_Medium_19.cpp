@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans Medium 26pt, capital 'A' heigth: 19px, width: 100%, range: 0x0020-0x00ff
+// NotoSans Medium 26pt, capital 'A' height: 19px, width: 100%, range: 0x0020-0x00ff
 extern const uint8_t NotoSans_Medium_19[13901] = {
   130,19,32,0,255,0,25,249, // unifont_t
   // 0x0020 " "

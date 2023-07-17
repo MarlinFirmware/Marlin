@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Cyrillic 48pt, capital 'A' heigth: 30px, width: 100%, range: 0x0401-0x0491, glyphs: 74
+// Unifont Cyrillic 48pt, capital 'A' height: 30px, width: 100%, range: 0x0401-0x0491, glyphs: 74
 extern const uint8_t Unifont_Cyrillic_30[6865] = {
   129,30,1,4,145,4,42,250, // unifont_t
   // 0x0401  Ё

@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Vietnamese 48pt, capital 'A' heigth: 30px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
+// Unifont Vietnamese 48pt, capital 'A' height: 30px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
 extern const uint8_t Unifont_Vietnamese_30[12660] = {
   161,30,2,1,249,30,42,250, // unifont_t
   // 0x0102  Ă

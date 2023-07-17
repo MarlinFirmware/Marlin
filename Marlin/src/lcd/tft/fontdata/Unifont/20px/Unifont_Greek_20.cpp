@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Greek 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
+// Unifont Greek 32pt, capital 'A' height: 20px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
 extern const uint8_t Unifont_Greek_20[3014] = {
   129,20,134,3,206,3,28,252, // unifont_t
   // 0x0386  Ά

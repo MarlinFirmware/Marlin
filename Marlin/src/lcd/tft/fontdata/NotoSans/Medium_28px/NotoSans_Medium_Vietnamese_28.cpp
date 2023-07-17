@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Vietnamese 38pt, capital 'A' heigth: 28px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
+// NotoSans_Medium Vietnamese 38pt, capital 'A' height: 28px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
 extern const uint8_t NotoSans_Medium_Vietnamese_28[15066] = {
   162,28,2,1,249,30,37,246, // unifont_t
   // 0x0102  Ă

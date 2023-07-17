@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans Medium Symbols 22pt, capital 'A' heigth: 16px, width: 100%
+// NotoSans Medium Symbols 22pt, capital 'A' height: 16px, width: 100%
 extern const uint8_t NotoSans_Medium_Symbols_16[166] = {
   130,16,8,0,10,0,21,250, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡

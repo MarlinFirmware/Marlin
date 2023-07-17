@@ -39,7 +39,7 @@
 
 #include <stdint.h>
 
-// Helvetica Symbols, capital 'A' heigth: 14px
+// Helvetica Symbols, capital 'A' height: 14px
 extern const uint8_t Helvetica_Symbols_14[43] = {
   129,14,8,0,9,0,16,252, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡
@@ -48,7 +48,7 @@ extern const uint8_t Helvetica_Symbols_14[43] = {
   5,5,5,7,1,8,112,216,136,216,112,
 };
 
-// Helvetica, capital 'A' heigth: 14px
+// Helvetica, capital 'A' height: 14px
 extern const uint8_t Helvetica_14[4831] = {
   129,14,32,0,255,0,16,252, // unifont_t
   // 0x0020 " "

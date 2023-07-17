@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Latin Extended-A 36pt, capital 'A' heigth: 26px, width: 100%, range: 0x0100-0x017f
+// NotoSans_Medium Latin Extended-A 36pt, capital 'A' height: 26px, width: 100%, range: 0x0100-0x017f
 extern const uint8_t NotoSans_Medium_Latin_Extended_A_26[19795] = {
   130,26,0,1,127,1,34,247, // unifont_t
   // 0x0100  Ā

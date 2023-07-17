@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Korean 36pt, capital 'A' heigth: 26px, width: 100%, range: 0xac70-0xd788, glyphs: 110
+// NotoSans_Medium Korean 36pt, capital 'A' height: 26px, width: 100%, range: 0xac70-0xd788, glyphs: 110
 extern const uint8_t NotoSans_Medium_Korean_26[17586] = {
   162,26,112,172,136,215,34,247, // unifont_t
   // 0xac70  거

@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont ASCII 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0020-0x007e
+// Unifont ASCII 32pt, capital 'A' height: 20px, width: 100%, range: 0x0020-0x007e
 extern const uint8_t Unifont_ASCII_20[3770] = {
   129,20,32,0,126,0,28,252, // unifont_t
   // 0x0020 " "

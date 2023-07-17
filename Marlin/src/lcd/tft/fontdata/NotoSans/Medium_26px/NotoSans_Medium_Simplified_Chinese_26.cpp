@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Simplified Chinese 36pt, capital 'A' heigth: 26px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
+// NotoSans_Medium Simplified Chinese 36pt, capital 'A' height: 26px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
 extern const uint8_t NotoSans_Medium_Simplified_Chinese_26[20454] = {
   162,26,28,32,26,255,34,247, // unifont_t
   // 0x201c  “

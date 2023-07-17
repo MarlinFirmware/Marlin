@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Cyrillic 36pt, capital 'A' heigth: 26px, width: 100%, range: 0x0401-0x0491, glyphs: 74
+// NotoSans_Medium Cyrillic 36pt, capital 'A' height: 26px, width: 100%, range: 0x0401-0x0491, glyphs: 74
 extern const uint8_t NotoSans_Medium_Cyrillic_26[10307] = {
   130,26,1,4,145,4,34,247, // unifont_t
   // 0x0401  Ё

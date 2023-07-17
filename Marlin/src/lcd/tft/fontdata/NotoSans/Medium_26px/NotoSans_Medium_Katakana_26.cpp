@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Katakana 36pt, capital 'A' heigth: 26px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
+// NotoSans_Medium Katakana 36pt, capital 'A' height: 26px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
 extern const uint8_t NotoSans_Medium_Katakana_26[14440] = {
   162,26,160,48,104,136,34,247, // unifont_t
   // 0x30a0  ゠

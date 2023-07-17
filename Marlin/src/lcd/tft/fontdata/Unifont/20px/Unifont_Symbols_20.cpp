@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Symbols 32pt, capital 'A' heigth: 20px, width: 100%
+// Unifont Symbols 32pt, capital 'A' height: 20px, width: 100%
 extern const uint8_t Unifont_Symbols_20[90] = {
   129,20,8,0,10,0,28,252, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡

@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// Unifont Korean 32pt, capital 'A' heigth: 20px, width: 100%, range: 0xac70-0xd788, glyphs: 110
+// Unifont Korean 32pt, capital 'A' height: 20px, width: 100%, range: 0xac70-0xd788, glyphs: 110
 extern const uint8_t Unifont_Korean_20[11304] = {
   161,20,112,172,136,215,28,252, // unifont_t
   // 0xac70  거

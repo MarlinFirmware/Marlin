@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-// NotoSans_Medium Greek 40pt, capital 'A' heigth: 29px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
+// NotoSans_Medium Greek 40pt, capital 'A' height: 29px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
 extern const uint8_t NotoSans_Medium_Greek_29[10140] = {
   130,29,134,3,206,3,38,246, // unifont_t
   // 0x0386  Ά
