@@ -66,7 +66,7 @@ private:
 
 public:
   static void reset();
-  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y })); // todo: it should be possible to remove default value for _nr_grid_points, because is VARIABLE_GRID_POINTS is enabled, that argument should be always passed
+  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points = nullptr));
   static void refresh_bed_level();
