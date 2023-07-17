@@ -110,14 +110,40 @@
 #endif
 
 #if HAS_GRAPHICAL_TFT
-  #define NOTOSANS 1
-  #define UNIFONT 2
-  #define HELVETICA 3
+  #include "../../../../Marlin/src/lcd/tft/fontdata/fontdata.h"
+  #define UI_INCL_(W, H) STRINGIFY_(../../../../Marlin/src/lcd/tft/ui_##W##x##H.h)
+  #define UI_INCL(W, H) UI_INCL_(W, H)
+  #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+
   #if TFT_FONT == NOTOSANS
-    #define TFT_FONT_NOTOSANS
+    #if FONT_SIZE == 14
+      #define TFT_FONT_NOTOSANS_14
+    #elif FONT_SIZE == 16
+      #define TFT_FONT_NOTOSANS_16
+    #elif FONT_SIZE == 19
+      #define TFT_FONT_NOTOSANS_19
+    #elif FONT_SIZE == 26
+      #define TFT_FONT_NOTOSANS_26
+    #elif FONT_SIZE == 27
+      #define TFT_FONT_NOTOSANS_27
+    #elif FONT_SIZE == 28
+      #define TFT_FONT_NOTOSANS_28
+    #elif FONT_SIZE == 29
+      #define TFT_FONT_NOTOSANS_29
+    #endif
   #elif TFT_FONT == UNIFONT
-    #define TFT_FONT_UNIFONT
+    #if FONT_SIZE == 10
+      #define TFT_FONT_UNIFONT_10
+    #elif FONT_SIZE == 20
+      #define TFT_FONT_UNIFONT_20
+    #elif FONT_SIZE == 30
+      #define TFT_FONT_UNIFONT_30
+    #endif
   #elif TFT_FONT == HELVETICA
-    #define TFT_FONT_HELVETICA
+    #if FONT_SIZE == 14
+      #define TFT_FONT_HELVETICA_14
+    #elif FONT_SIZE == 19
+      #define TFT_FONT_HELVETICA_19
+    #endif
   #endif
 #endif
