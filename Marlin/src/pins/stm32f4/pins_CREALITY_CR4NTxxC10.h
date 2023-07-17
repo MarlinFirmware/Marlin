@@ -21,7 +21,7 @@
  */
 
 /**
- * Creality CREALITY_CR4NTxxC10 (STM32F401RET6) board pin assignments
+ * Creality CREALITY_CR4NTXXC10 (STM32F401RET6) board pin assignments
  *
  * Sold as "E3 Free-runs Silent Motherboard"
  */
@@ -220,7 +220,7 @@
     #define BTN_EN2                         PA6
 
   #else
-    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the CREALITY_CR4NTxxC10 controller."
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the CREALITY_CR4NTXXC10 controller."
   #endif
 
 #elif ENABLED(DWIN_CREALITY_LCD)
