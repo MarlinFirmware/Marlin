@@ -3,8 +3,8 @@ from os.path import expandvars
 Import("env", "projenv")
 
 # Relocate firmware from 0x08000000 to 0x08002000
-#env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
-#env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
+#import marlin
+#marlin.relocate_firmware("0x08001000")
 
 # Custom HEX from ELF
 env.AddPostAction(
