@@ -1,11 +1,8 @@
-import os
+import os, marlin
 Import("env")
 
 # Relocate firmware from 0x08000000 to 0x0800A000
-env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
-#alternatively, for STSTM <=5.1.0 use line below
-#env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x0800A000"))
+marlin.relocate_firmware("0x0800A000")
 
 custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/jgaurora_a5s_a1.ld")
 for i, flag in enumerate(env["LINKFLAGS"]):

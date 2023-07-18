@@ -1,4 +1,4 @@
-import os,sys,shutil
+import os,sys,shutil,marlin
 Import("env")
 
 from SCons.Script import DefaultEnvironment
@@ -12,11 +12,7 @@ def noencrypt(source, target, env):
 
 if 'offset' in board.get("build").keys():
   LD_FLASH_OFFSET = board.get("build.offset")
-
-  for define in env['CPPDEFINES']:
-    if define[0] == "VECT_TAB_OFFSET":
-      env['CPPDEFINES'].remove(define)
-  env['CPPDEFINES'].append(("VECT_TAB_OFFSET", LD_FLASH_OFFSET))
+  marlin.replace_define("VECT_TAB_OFFSET", LD_FLASH_OFFSET)
 
   maximum_ram_size = board.get("upload.maximum_ram_size")
 

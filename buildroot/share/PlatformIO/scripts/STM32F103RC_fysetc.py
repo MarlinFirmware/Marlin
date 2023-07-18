@@ -4,10 +4,8 @@ from os.path import expandvars
 Import("env")
 
 # Relocate firmware from 0x08000000 to 0x08008000
-#for define in env['CPPDEFINES']:
-#    if define[0] == "VECT_TAB_ADDR":
-#        env['CPPDEFINES'].remove(define)
-#env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08008000"))
+#import marlin
+#marlin.relocate_firmware("0x08008000")
 
 #custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/fysetc_stm32f103rc.ld")
 #for i, flag in enumerate(env["LINKFLAGS"]):
