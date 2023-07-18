@@ -63,7 +63,7 @@ def add_to_feat_cnf(feature, flines):
 	for line in atoms:
 		parts = line.split('=')
 		name = parts.pop(0)
-		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
+		if name in ['build_flags', 'extra_scripts', 'build_src_filter', 'lib_ignore']:
 			feat[name] = '='.join(parts)
 			blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
 		else:
@@ -176,19 +176,19 @@ def apply_features_config():
 			blab("Running extra_scripts for %s... " % feature, 2)
 			env.SConscript(feat['extra_scripts'], exports="env")
 
-		if 'src_filter' in feat:
-			blab("========== Adding src_filter for %s... " % feature, 2)
-			src_filter = ' '.join(env.GetProjectOption('src_filter'))
+		if 'build_src_filter' in feat:
+			blab("========== Adding build_src_filter for %s... " % feature, 2)
+			build_src_filter = ' '.join(env.GetProjectOption('build_src_filter'))
 			# first we need to remove the references to the same folder
-			my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
-			cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
+			my_srcs = re.findall(r'[+-](<.*?>)', feat['build_src_filter'])
+			cur_srcs = re.findall(r'[+-](<.*?>)', build_src_filter)
 			for d in my_srcs:
 				if d in cur_srcs:
-					src_filter = re.sub(r'[+-]' + d, '', src_filter)
+					build_src_filter = re.sub(r'[+-]' + d, '', build_src_filter)
 
-			src_filter = feat['src_filter'] + ' ' + src_filter
-			set_env_field('src_filter', [src_filter])
-			env.Replace(SRC_FILTER=src_filter)
+			build_src_filter = feat['build_src_filter'] + ' ' + build_src_filter
+			set_env_field('build_src_filter', [build_src_filter])
+			env.Replace(SRC_FILTER=build_src_filter)
 
 		if 'lib_ignore' in feat:
 			blab("========== Adding lib_ignore for %s... " % feature, 2)
