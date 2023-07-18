@@ -92,7 +92,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   auto get_s_power = [] {
-    float u;
+    float u = 0.0f;
     if (parser.seenval('S')) {
       const float v = parser.value_float();
       u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
