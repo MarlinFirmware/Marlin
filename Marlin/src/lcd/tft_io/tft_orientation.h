@@ -58,11 +58,6 @@
 #define TFT_COLOR_RGB   _BV32(3)
 #define TFT_COLOR_BGR   _BV32(4)
 
-// Each TFT Driver is responsible for its default color mode.
-//#ifndef TFT_COLOR
-//  #define TFT_COLOR   TFT_COLOR_RGB
-//#endif
-
 #define TOUCH_ORIENTATION_NONE  0
 #define TOUCH_LANDSCAPE         1
 #define TOUCH_PORTRAIT          2
