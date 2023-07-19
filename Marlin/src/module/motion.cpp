@@ -577,7 +577,9 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  */
 void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+  #if NUM_AXES
+    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+  #endif
 
   const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
 
@@ -1623,22 +1625,21 @@ void prepare_line_to_destination() {
   }
 
   bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
-    if ((axis_bits &= axes_should_home(axis_bits))) {
-      char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
-      uint8_t n = 0;
-      LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
-      need[n] = '\0';
+    if (!(axis_bits &= axes_should_home(axis_bits))) return false;
 
-      char msg[30];
-      sprintf_P(msg, GET_EN_TEXT(MSG_HOME_FIRST), need);
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLN(msg);
+    char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
+    uint8_t n = 0;
+    LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
+    need[n] = '\0';
 
-      sprintf_P(msg, GET_TEXT(MSG_HOME_FIRST), need);
-      ui.set_status(msg);
-      return true;
-    }
-    return false;
+    SString<30> msg;
+    msg.setf(GET_EN_TEXT_F(MSG_HOME_FIRST), need);
+    SERIAL_ECHO_START();
+    msg.echoln();
+
+    msg.setf(GET_TEXT_F(MSG_HOME_FIRST), need);
+    ui.set_status(msg);
+    return true;
   }
 
   /**

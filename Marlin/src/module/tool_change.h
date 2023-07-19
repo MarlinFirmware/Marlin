@@ -34,8 +34,8 @@
       float extra_resume;           // M217 B
       int16_t prime_speed;          // M217 P
       int16_t wipe_retract;         // M217 G
-      int16_t retract_speed;        // M217 R (mm/m)
-      int16_t unretract_speed;      // M217 U (mm/m)
+      int16_t retract_speed;        // M217 R (mm/min)
+      int16_t unretract_speed;      // M217 U (mm/min)
       uint8_t fan_speed;            // M217 F
       uint8_t fan_time;             // M217 D
     #endif

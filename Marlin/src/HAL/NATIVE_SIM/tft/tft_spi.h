@@ -40,7 +40,7 @@
 
 class TFT_SPI {
 private:
-  static uint32_t readID(uint16_t reg);
+  static uint32_t readID(const uint16_t inReg);
   static void transmit(uint16_t data);
   static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
 
@@ -57,7 +57,7 @@ public:
   static void dataTransferAbort();
 
   static void writeData(uint16_t data);
-  static void writeReg(uint16_t reg);
+  static void writeReg(const uint16_t inReg);
 
   static void writeSequence_DMA(uint16_t *data, uint16_t count) { writeSequence(data, count); }
   static void writeMultiple_DMA(uint16_t color, uint16_t count) { writeMultiple(color, count); }

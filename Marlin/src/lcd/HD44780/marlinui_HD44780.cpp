@@ -81,7 +81,7 @@
 #elif ENABLED(SR_LCD_2W_NL)
 
   // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+  // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN
     #if PIN_EXISTS(SR_STROBE)
@@ -731,7 +731,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     static bool last_blink = false;
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(status_message);
+    uint8_t slen = status_message.glyphs();
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
@@ -773,7 +773,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     UNUSED(blink);
 
     // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(status_message);
+    uint8_t slen = status_message.glyphs();
 
     // Just print the string to the LCD
     lcd_put_u8str_max(status_message, LCD_WIDTH);

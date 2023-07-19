@@ -915,7 +915,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Get the UTF8 character count of the string
   uint8_t lcd_width = LCD_WIDTH, pixel_width = LCD_PIXEL_WIDTH,
-          slen = utf8_strlen(status_message);
+          slen = status_message.glyphs();
 
   #if HAS_POWER_MONITOR
     if (power_monitor.display_enabled()) {

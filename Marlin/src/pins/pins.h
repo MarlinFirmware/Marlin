@@ -120,7 +120,7 @@
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
 #else
-  #define NOT_TARGET(V...) NONE(V)
+  #define NOT_TARGET NONE
 #endif
 
 //
@@ -821,6 +821,8 @@
   #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"         // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"      // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_OCTOPUS_PRO_V1_1)
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"    // STM32H7                              env:STM32H723ZE_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
 #elif MB(T41U5XBB)

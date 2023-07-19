@@ -352,7 +352,9 @@ void GcodeSuite::G28() {
 
     endstops.enable(true); // Enable endstops for next homing move
 
-    bool finalRaiseZ = false;
+    #if HAS_Z_AXIS
+      bool finalRaiseZ = false;
+    #endif
 
     #if ENABLED(DELTA)
 
@@ -622,10 +624,12 @@ void GcodeSuite::G28() {
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
 
-    // Move to the configured Z only if Z was homed to MIN, because machines that
-    // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
-    // print, and do_move_after_z_homing is not very nuanced.
-    if (finalRaiseZ) do_move_after_z_homing();
+    #if HAS_Z_AXIS
+      // Move to the configured Z only if Z was homed to MIN, because machines that
+      // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
+      // print, and do_move_after_z_homing is not very nuanced.
+      if (finalRaiseZ) do_move_after_z_homing();
+    #endif
 
     TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 

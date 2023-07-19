@@ -190,7 +190,7 @@
 
 /**
  * Hephestos 2 24V heated bed upgrade kit.
- * https://store.bq.com/en/heated-bed-kit-hephestos2
+ * https://www.en3dstudios.com/product/bq-hephestos-2-heated-bed-kit/
  */
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -1125,7 +1125,7 @@
    * Advanced configuration
    */
   #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation;
-                                                        // half the window size for Ulendo FBS.
+  #define FTM_WINDOW_SIZE           200                 // Window size for trajectory generation.
   #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
   #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
   #define FTM_STEPPER_FS          20000                 // (Hz) Frequency for stepper I/O update.
@@ -2015,6 +2015,22 @@
       #define DGUS_UI_WAITING_STATUS 10
       #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
     #endif
+
+  #elif DGUS_UI_IS(E3S1PRO)
+    /**
+     * The stock Ender-3 S1 Pro/Plus display firmware has rather poor SD file handling.
+     *
+     * The autoscroll is mainly useful for status messages, filenames, and the "About" page.
+     *
+     * NOTE: The Advanced SD Card option is affected by the stock touchscreen firmware, so
+     *       pages 5 and up will display "4/4". This may get fixed in a screen firmware update.
+     */
+    #define DGUS_SOFTWARE_AUTOSCROLL        // Enable long text software auto-scroll
+    #define DGUS_AUTOSCROLL_START_CYCLES 1  // Refresh cycles without scrolling at the beginning of text strings
+    #define DGUS_AUTOSCROLL_END_CYCLES 1    // ... at the end of text strings
+
+    #define DGUS_ADVANCED_SDCARD            // Allow more than 20 files and navigating directories
+    #define DGUS_USERCONFIRM                // Reuse the SD Card page to show various messages
   #endif
 #endif // HAS_DGUS_LCD
 
@@ -3410,7 +3426,7 @@
   //#define PHOTOGRAPH_PIN 23
 
   // Canon Hack Development Kit
-  // https://captain-slow.dk/2014/03/09/3d-printing-timelapses/
+  // https://web.archive.org/web/20200920094805/https://captain-slow.dk/2014/03/09/3d-printing-timelapses/
   //#define CHDK_PIN        4
 
   // Optional second move with delay to trigger the camera shutter
@@ -4012,7 +4028,7 @@
  * Wiki: https://wiki.aus3d.com.au/Magnetic_Encoder
  * Github: https://github.com/Aus3D/MagneticEncoder
  *
- * Supplier: https://aus3d.com.au/magnetic-encoder-module
+ * Supplier: https://aus3d.com.au/products/magnetic-encoder-module
  * Alternative Supplier: https://reliabuild3d.com/
  *
  * Reliabuild encoders have been modified to improve reliability.
@@ -4283,7 +4299,7 @@
   /**
    * Using a sensor like the MMU2S
    * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
-   * See https://help.prusa3d.com/en/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560, step 11
+   * See https://help.prusa3d.com/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560#42048, step 11
    */
   #if HAS_PRUSA_MMU2S
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)

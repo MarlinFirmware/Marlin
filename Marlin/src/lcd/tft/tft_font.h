@@ -21,10 +21,6 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if HAS_GRAPHICAL_TFT
-
 #define JOIN(A,B,C)         CAT(CAT(A, B), C)
 #define MENU_FONT_NAME      JOIN(FONT_FAMILY, _, FONT_SIZE)
 #define SYMBOLS_FONT_NAME   JOIN(FONT_FAMILY, _Symbols_, FONT_SIZE)
@@ -36,5 +32,3 @@ extern const uint8_t SYMBOLS_FONT_NAME[];
   #define EXTRA_FONT_NAME   JOIN(FONT_FAMILY, JOIN(_, FONT_EXTRA, _), FONT_SIZE)
   extern const uint8_t EXTRA_FONT_NAME[];
 #endif
-
-#endif // HAS_GRAPHICAL_TFT

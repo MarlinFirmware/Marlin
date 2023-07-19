@@ -247,7 +247,13 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
-  shaping_time_t      ShapingQueue::times[shaping_echoes];
+  #if ANY(MCU_LPC1768, MCU_LPC1769) && DISABLED(NO_LPC_ETHERNET_BUFFER)
+    // Use the 16K LPC Ethernet buffer: https://github.com/MarlinFirmware/Marlin/issues/25432#issuecomment-1450420638
+    #define _ATTR_BUFFER __attribute__((section("AHBSRAM1"),aligned))
+  #else
+    #define _ATTR_BUFFER
+  #endif
+  shaping_time_t      ShapingQueue::times[shaping_echoes] _ATTR_BUFFER;
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
@@ -2405,7 +2411,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif // LIN_ADVANCE
 
-        /*
+        /**
          * Adjust Laser Power - Decelerating
          * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
          */
@@ -2633,7 +2639,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
-        if (TERN1(DWIN_LCD_PROUI, HMI_data.AdaptiveStepSmoothing)) {
+        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
           while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
             if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit

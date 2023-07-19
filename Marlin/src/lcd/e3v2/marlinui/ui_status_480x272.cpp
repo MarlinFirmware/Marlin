@@ -72,7 +72,7 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
   const bool x_redraw = !ui.did_first_redraw || old_is_printing != print_job_timer.isRunning();
   if (x_redraw) {
     dwin_string.set('X' + axis);
-    dwinDrawString(true, font16x32, Color_IconBlue, Color_Bg_Black,
+    dwinDrawString(true, font16x32, COLOR_ICONBLUE, COLOR_BG_BLACK,
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
         x + (utf8_strlen(value) * 14 - 14) / 2, y + 2
       #else
@@ -96,7 +96,7 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
   if (TERN0(LCD_SHOW_E_TOTAL, x_redraw && axis == X_AXIS))
     dwin_string.add(F("   "));
 
-  dwinDrawString(true, font14x28, Color_White, Color_Bg_Black,
+  dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK,
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
       x, y + 32
     #else
@@ -117,26 +117,26 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
       if (e_redraw) {
         // Extra spaces to erase previous value
         dwin_string.set(F("E         "));
-        dwinDrawString(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
+        dwinDrawString(true, font16x32, COLOR_ICONBLUE, COLOR_BG_BLACK, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
       }
 
       dwin_string.set(ui16tostr5rj(value / scale));
-      dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x, y + 32, S(dwin_string.string()));
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x, y + 32, S(dwin_string.string()));
 
       // Extra spaces to erase previous value
-      dwinDrawString(true, font14x28, Color_IconBlue, Color_Bg_Black, x + (5 * 14), y + 32, S(scale == 1 ? "mm      " : "cm      "));
+      dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, x + (5 * 14), y + 32, S(scale == 1 ? "mm      " : "cm      "));
 
     #else // !DWIN_MARLINUI_PORTRAIT
 
       if (e_redraw) {
         dwin_string.set(F("E "));
-        dwinDrawString(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
+        dwinDrawString(true, font16x32, COLOR_ICONBLUE, COLOR_BG_BLACK, x, y, S(dwin_string.string()));
       }
 
       dwin_string.set(ui16tostr5rj(value / scale));
-      dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x + 32, y + 4, S(dwin_string.string()));
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x + 32, y + 4, S(dwin_string.string()));
 
-      dwinDrawString(true, font14x28, Color_IconBlue, Color_Bg_Black, x + (32 + 70), y + 4, S(scale == 1 ? "mm      " : "cm      "));
+      dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, x + (32 + 70), y + 4, S(scale == 1 ? "mm      " : "cm      "));
 
     #endif // !DWIN_MARLINUI_PORTRAIT
   }
@@ -154,13 +154,13 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
       dwinIconAnimation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
       dwin_string.set(i8tostr3rj(thermalManager.scaledFanSpeedPercent(0)));
       dwin_string.add('%');
-      dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
     }
     else {
       dwinIconAnimationControl(0x0000); // disable all icon animations (this is the only one)
       dwinIconShow(ICON, ICON_Fan0, x + fanx, y);
       dwin_string.set(F("    "));
-      dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
     }
   }
 #endif
@@ -230,7 +230,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
   if (t_draw) {
     dwin_string.set(i16tostr3rj(tt + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
-    dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x, y, S(dwin_string.string()));
+    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x, y, S(dwin_string.string()));
   }
 
   // Draw heater icon with on / off / leveled states
@@ -243,7 +243,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
   if (c_draw) {
     dwin_string.set(i16tostr3rj(tc + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
-    dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x, y + 70, S(dwin_string.string()));
+    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x, y + 70, S(dwin_string.string()));
   }
 }
 
@@ -253,12 +253,12 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
 FORCE_INLINE void _draw_feedrate_status(const char *value, uint16_t x, uint16_t y) {
   if (!ui.did_first_redraw) {
     dwin_string.set(LCD_STR_FEEDRATE);
-    dwinDrawString(true, font14x28, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
+    dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, x, y, S(dwin_string.string()));
   }
 
   dwin_string.set(value);
   dwin_string.add('%');
-  dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, x + 14, y, S(dwin_string.string()));
+  dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x + 14, y, S(dwin_string.string()));
 }
 
 /**
@@ -281,7 +281,7 @@ void MarlinUI::draw_status_screen() {
     );
 
     // Draw a frame around the x/y/z values
-    dwinDrawRectangle(0, Select_Color,
+    dwinDrawRectangle(0, COLOR_SELECT,
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
         0, 193, LCD_PIXEL_WIDTH - 1, 260
       #else
@@ -358,7 +358,7 @@ void MarlinUI::draw_status_screen() {
     time.toDigital(buffer);
     dwin_string.add(prefix);
     dwin_string.add(buffer);
-    dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, (LCD_PIXEL_WIDTH - ((dwin_string.length + 1) * 14)), 290, S(dwin_string.string()));
+    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, (LCD_PIXEL_WIDTH - ((dwin_string.length + 1) * 14)), 290, S(dwin_string.string()));
 
   #else
 
@@ -367,23 +367,23 @@ void MarlinUI::draw_status_screen() {
     time.toDigital(buffer);
     dwin_string.set(' ');
     dwin_string.add(buffer);
-    dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, 230, 170, S(dwin_string.string()));
+    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 230, 170, S(dwin_string.string()));
 
     #if ENABLED(SHOW_REMAINING_TIME)
       if (print_job_timer.isRunning()) {
         time = get_remaining_time();
-        dwinDrawString(true, font14x28, Color_IconBlue, Color_Bg_Black, 336, 170, S(" R "));
+        dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(" R "));
         if (print_job_timer.isPaused() && blink)
           dwin_string.set(F("     "));
         else {
           time.toDigital(buffer);
           dwin_string.set(buffer);
         }
-        dwinDrawString(true, font14x28, Color_White, Color_Bg_Black, 378, 170, S(dwin_string.string()));
+        dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 378, 170, S(dwin_string.string()));
       }
       else if (!ui.did_first_redraw || old_is_printing != print_job_timer.isRunning()) {
         dwin_string.set(F("        "));
-        dwinDrawString(true, font14x28, Color_IconBlue, Color_Bg_Black, 336, 170, S(dwin_string.string()));
+        dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(dwin_string.string()));
       }
     #endif
   #endif
@@ -403,7 +403,7 @@ void MarlinUI::draw_status_screen() {
     const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
 
     if (!ui.did_first_redraw)
-      dwinDrawRectangle(0, Select_Color, pb_left, pb_top, pb_right, pb_bottom);   // Outline
+      dwinDrawRectangle(0, COLOR_SELECT, pb_left, pb_top, pb_right, pb_bottom);   // Outline
 
     static uint16_t old_solid = 50;
     const uint16_t pb_solid = (pb_width - 2) * (progress / (PROGRESS_SCALE)) * 0.01f;
@@ -411,16 +411,16 @@ void MarlinUI::draw_status_screen() {
 
     if (p_draw) {
       //if (pb_solid)
-        dwinDrawRectangle(1, Select_Color, pb_left + 1, pb_top + 1, pb_left + pb_solid, pb_bottom - 1); // Fill the solid part
+        dwinDrawRectangle(1, COLOR_SELECT, pb_left + 1, pb_top + 1, pb_left + pb_solid, pb_bottom - 1); // Fill the solid part
 
       //if (pb_solid < old_solid)
-        dwinDrawRectangle(1, Color_Bg_Black, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
+        dwinDrawRectangle(1, COLOR_BG_BLACK, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
 
       #if ENABLED(SHOW_PROGRESS_PERCENT)
         dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
         dwin_string.add('%');
         dwinDrawString(
-          false, font16x32, Percent_Color, Color_Bg_Black,
+          false, font16x32, COLOR_PERCENT, COLOR_BG_BLACK,
           pb_left + (pb_width - dwin_string.length * 16) / 2,
           pb_top + (pb_height - 32) / 2 - 1,
           S(dwin_string.string())

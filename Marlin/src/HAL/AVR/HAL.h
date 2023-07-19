@@ -147,8 +147,8 @@ typedef Servo hal_servo_t;
 //
 // ADC
 //
-#define HAL_ADC_VREF        5.0
-#define HAL_ADC_RESOLUTION 10
+#define HAL_ADC_VREF_MV   5000
+#define HAL_ADC_RESOLUTION  10
 
 //
 // Pin Mapping for M42, M43, M226

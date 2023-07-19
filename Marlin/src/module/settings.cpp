@@ -178,6 +178,10 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../feature/hotend_idle.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -535,7 +539,7 @@ typedef struct SettingsDataStruct {
   #if ENABLED(DWIN_LCD_PROUI)
     uint8_t dwin_data[eeprom_data_size];
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    uint8_t dwin_settings[crealityDWIN.eeprom_data_size];
+    uint8_t dwin_settings[jyersDWIN.eeprom_data_size];
   #endif
 
   //
@@ -621,6 +625,13 @@ typedef struct SettingsDataStruct {
   #if ENABLED(INPUT_SHAPING_Y)
     float shaping_y_frequency,                          // M593 Y F
           shaping_y_zeta;                               // M593 Y D
+  #endif
+
+  //
+  // HOTEND_IDLE_TIMEOUT
+  //
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    hotend_idle_settings_t hotend_idle_config;          // M86 S T E B
   #endif
 
 } SettingsData;
@@ -803,7 +814,7 @@ void MarlinSettings::postprocess() {
    */
   bool MarlinSettings::save() {
     float dummyf = 0;
-    char ver[4] = "ERR";
+    MString<3> ver(F("ERR"));
 
     if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
@@ -1599,7 +1610,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(dwin_data);
       char dwin_data[eeprom_data_size] = { 0 };
-      DWIN_CopySettingsTo(dwin_data);
+      dwinCopySettingsTo(dwin_data);
       EEPROM_WRITE(dwin_data);
     }
     #endif
@@ -1607,8 +1618,8 @@ void MarlinSettings::postprocess() {
     #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     {
       _FIELD_TEST(dwin_settings);
-      char dwin_settings[crealityDWIN.eeprom_data_size] = { 0 };
-      crealityDWIN.saveSettings(dwin_settings);
+      char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
+      jyersDWIN.saveSettings(dwin_settings);
       EEPROM_WRITE(dwin_settings);
     }
     #endif
@@ -1702,7 +1713,7 @@ void MarlinSettings::postprocess() {
 
     //
     // Input Shaping
-    ///
+    //
     #if HAS_ZV_SHAPING
       #if ENABLED(INPUT_SHAPING_X)
         EEPROM_WRITE(stepper.get_shaping_frequency(X_AXIS));
@@ -1712,6 +1723,13 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(stepper.get_shaping_frequency(Y_AXIS));
         EEPROM_WRITE(stepper.get_shaping_damping_ratio(Y_AXIS));
       #endif
+    #endif
+
+    //
+    // HOTEND_IDLE_TIMEOUT
+    //
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      EEPROM_WRITE(hotend_idle.cfg);
     #endif
 
     //
@@ -2657,14 +2675,14 @@ void MarlinSettings::postprocess() {
         const char dwin_data[eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_data);
         EEPROM_READ(dwin_data);
-        if (!validating) DWIN_CopySettingsFrom(dwin_data);
+        if (!validating) dwinCopySettingsFrom(dwin_data);
       }
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
-        const char dwin_settings[crealityDWIN.eeprom_data_size] = { 0 };
+        const char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_settings);
         EEPROM_READ(dwin_settings);
-        if (!validating) crealityDWIN.loadSettings(dwin_settings);
+        if (!validating) jyersDWIN.loadSettings(dwin_settings);
       }
       #endif
 
@@ -2779,6 +2797,13 @@ void MarlinSettings::postprocess() {
         stepper.set_shaping_frequency(Y_AXIS, _data[0]);
         stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
       }
+      #endif
+
+      //
+      // HOTEND_IDLE_TIMEOUT
+      //
+      #if ENABLED(HOTEND_IDLE_TIMEOUT)
+        EEPROM_READ(hotend_idle.cfg);
       #endif
 
       //
@@ -2997,7 +3022,7 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshvalidate();
+          status = !bedLevelTools.meshValidate();
           if (status) {
             bedlevel.invalidate();
             LCD_MESSAGE(MSG_UBL_MESH_INVALID);
@@ -3147,7 +3172,7 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, crealityDWIN.resetSettings());
+  TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
 
   //
   // Case Light Brightness
@@ -3534,7 +3559,7 @@ void MarlinSettings::reset() {
   //
   // Ender-3 V2 with ProUI
   //
-  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
+  TERN_(DWIN_LCD_PROUI, dwinSetDataDefaults());
 
   //
   // Model predictive control
@@ -3589,6 +3614,11 @@ void MarlinSettings::reset() {
       stepper.set_shaping_damping_ratio(Y_AXIS, SHAPING_ZETA_Y);
     #endif
   #endif
+
+  //
+  // Hotend Idle Timeout
+  //
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
 
   postprocess();
 
@@ -3844,6 +3874,11 @@ void MarlinSettings::reset() {
     // Input Shaping
     //
     TERN_(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
+
+    //
+    // Hotend Idle Timeout
+    //
+    TERN_(HOTEND_IDLE_TIMEOUT, gcode.M86_report(forReplay));
 
     //
     // Linear Advance
