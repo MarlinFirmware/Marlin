@@ -359,7 +359,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(TFT_WIDTH) : MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft.add_text(center ? tft_string.center(TFT_WIDTH) : MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
     return;
   }
 
@@ -367,12 +367,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   if (*vstr == ':') { tft_string.add(':'); vstr++; }
 
   // Left-justified label
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
   // Right-justified value, after spaces
   while (*vstr == ' ') vstr++; 
   tft_string.set(vstr);
-  tft.add_text(TFT_WIDTH - MENU_TEXT_X_OFFSET - 1 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(TFT_WIDTH - MENU_TEXT_X - 1 - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 }
 
 #if HAS_MEDIA
