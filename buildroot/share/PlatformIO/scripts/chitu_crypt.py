@@ -1,12 +1,8 @@
-import os
-import struct
+import os,struct,marlin
 Import("env")
 
 # Relocate firmware from 0x08000000 to 0x08008800
-for define in env['CPPDEFINES']:
-    if define[0] == "VECT_TAB_ADDR":
-        env['CPPDEFINES'].remove(define)
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x8008800"))
+marlin.relocate_firmware("0x08008800")
 
 custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/chitu_f103.ld")
 for i, flag in enumerate(env["LINKFLAGS"]):
@@ -14,7 +10,6 @@ for i, flag in enumerate(env["LINKFLAGS"]):
         env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
     elif flag == "-T":
         env["LINKFLAGS"][i + 1] = custom_ld_script
-
 
 def calculate_crc(contents, seed):
     accumulating_xor_value = seed;
