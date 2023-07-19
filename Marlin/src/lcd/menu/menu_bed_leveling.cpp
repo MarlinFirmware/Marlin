@@ -212,10 +212,14 @@
 
   void menu_edit_mesh() {
     static uint8_t xind, yind; // =0
+    MString<13> msg;
+    msg.setf(F("%.0f / %.0f"), bedlevel.get_mesh_x(xind), bedlevel.get_mesh_y(yind));
+
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
-    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);
-    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_MAX_POINTS_Y) - 1);
+    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_USED_POINTS_X) - 1);
+    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_USED_POINTS_Y) - 1);
+    STATIC_ITEM(MSG_MESH_XY, SS_FULL, &msg);
     EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &bedlevel.z_values[xind][yind], -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
     END_MENU();
   }
