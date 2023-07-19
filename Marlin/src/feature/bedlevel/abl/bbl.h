@@ -72,7 +72,7 @@ public:
   static void refresh_bed_level();
   static bool has_mesh() { return !!grid_spacing.x; }
   static bool mesh_is_valid() { return has_mesh(); }
-  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; }
+  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; } // todo: this is somewhat dangerous since it relies on the caller to know how many grid lines there are
   static float get_mesh_y(const uint8_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
   static constexpr float get_z_offset() { return 0.0f; }
