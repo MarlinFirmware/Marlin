@@ -116,8 +116,35 @@ void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
 void menu_item(const uint8_t row, bool sel = false);
 
-#if HAS_TOUCH_SLEEP
-  bool lcd_sleep_task();
+template<typename T>
+void _wrap_string(uint8_t &col, uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
+
+typedef void (*screenFunc_t)();
+void add_control(
+  uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled=true,
+  uint16_t color_enabled=COLOR_CONTROL_ENABLED, uint16_t color_disabled=COLOR_CONTROL_DISABLED
+);
+inline void add_control(
+  uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image,
+  bool is_enabled=true, uint16_t color_enabled=COLOR_CONTROL_ENABLED, uint16_t color_disabled=COLOR_CONTROL_DISABLED
+) {
+  add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled);
+}
+#if ENABLED(TOUCH_SCREEN)
+  inline void add_control(
+    uint16_t x, uint16_t y, TouchControlType control_type, screenFunc_t action, MarlinImage image, bool is_enabled=true,
+    uint16_t color_enabled=COLOR_CONTROL_ENABLED, uint16_t color_disabled=COLOR_CONTROL_DISABLED
+  ) {
+    add_control(x, y, control_type, (intptr_t)action, image, is_enabled, color_enabled, color_disabled);
+  }
+  inline void add_control(
+    uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled=true,
+    uint16_t color_enabled=COLOR_CONTROL_ENABLED, uint16_t color_disabled=COLOR_CONTROL_DISABLED
+  ) {
+    add_control(x, y, MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled);
+  }
 #endif
 
 void drawBtn(const int x, const int y, const char *label, intptr_t data, const MarlinImage btnimg, const MarlinImage img, uint16_t bgColor, const bool enabled=true);

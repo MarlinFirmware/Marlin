@@ -329,20 +329,19 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     case LCD_STR_FOLDER[0]: image = imgDirectory; break;
   }
 
-  uint8_t l_offset = TEXT_X_OFFSET;
+  uint8_t l_offset = MENU_TEXT_X;
   if (image != noImage) {
     string++;
     l_offset = MENU_ITEM_ICON_SPACE;
     tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
-  image = noImage;
-  #if ENABLED(TFT_MENU_ITEM_SHOW_NAV_ICONS)
-    switch (post_char) {
-      case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
-      case LCD_STR_UPLEVEL[0]: image = imgBack; break;
-    }
-  #endif
+  image = noImage;  
+  switch (post_char) {
+    case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
+    case LCD_STR_UPLEVEL[0]: image = imgBack; break;
+  }
+
 
   uint16_t r_offset = TFT_WIDTH;
   if (image != noImage) {
@@ -350,14 +349,14 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     tft.add_image(r_offset, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
   else
-    r_offset -= MENU_TEXT_X_OFFSET;
+    r_offset -= MENU_TEXT_X;
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     
     tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
     
   } else {
 
@@ -366,12 +365,12 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
       tft_string.set(vstr);
       max_width = r_offset - l_offset;
       r_offset -= _MIN(tft_string.width(), max_width);
-      tft.add_text(r_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
+      tft.add_text(r_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string, max_width);
     }
 
-    max_width = _MAX(r_offset - l_offset - MENU_TEXT_X_OFFSET, 1);
+    max_width = _MAX(r_offset - l_offset - MENU_TEXT_X, 1);
     tft_string.set(string, itemIndex, itemStringC, itemStringF);
-    tft.add_text(l_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
+    tft.add_text(l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string, max_width);
 
   }
 }
@@ -487,7 +486,7 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
   auto print_str = [&row] () {
       menu_line(row++);
       tft_string.trim();
-      tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+      tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
       tft_string.set();  
   };
 
@@ -523,13 +522,8 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
 }
 void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
     
-    const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
-    uint8_t row = 1;
-    if (!string && plen + slen <= LCD_WIDTH) {
-      row = LCD_HEIGHT > 3 ? 1 : 0;
-    }
-
-    if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
+    const uint8_t plen = utf8_strlen(pref), strlen = string ? utf8_strlen(string) : 0, slen = suff ? utf8_strlen(suff) : 0;
+    uint8_t row = _MAX(0, (LCD_HEIGHT - CEIL(((plen + strlen + slen) / LCD_WIDTH)+0.5f))/2);
     
     tft_string.set();
 
