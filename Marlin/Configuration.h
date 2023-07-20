@@ -3303,7 +3303,14 @@
    */
   #define TFT_FONT  NOTOSANS
 
-  #define TFT_MENU_ITEM_SHOW_NAV_ICONS
+  /**
+   * TFT Theme for Color_UI. Choose one of the following or add a new one to 'Marlin/src/lcd/tft/themes' directory
+   *
+   * BLUE_MARLIN  - Default theme with 'midnight blue' background
+   * BLACK_MARLIN - Theme with 'black' background
+   * ANET_BLACK   - Theme used for Anet ET4/5
+   */
+  #define TFT_THEME BLACK_MARLIN
 
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 #endif

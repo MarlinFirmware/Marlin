@@ -33,44 +33,121 @@
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;
+#else
+  // add_control() function is used to display encoder-controlled elements
+  enum TouchControlType : uint16_t {
+    NONE = 0x0000,
+  };
 #endif
 
-#if HAS_UI_320x240
-  #include "ui_320x240.h"
-#elif HAS_UI_480x320 || HAS_UI_480x272
-  #include "ui_480x320.h"
-#elif HAS_UI_1024x600
-  #include "ui_1024x600.h"
-#else
-  #error "Unsupported display resolution!"
+#define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
+#define UI_INCL(W, H) UI_INCL_(W, H)
+
+#include "ui_theme.h"
+#include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+#include "tft_font.h"
+#include "tft_color.h"
+
+// Common Implementation
+#define Z_SELECTION_Z 1
+#define Z_SELECTION_Z_PROBE -1
+
+typedef struct {
+  #if HAS_X_AXIS
+    xy_int_t xValuePos;
+  #endif
+  #if HAS_Y_AXIS
+    xy_int_t yValuePos;
+  #endif
+  #if HAS_Z_AXIS
+    xy_int_t zValuePos, zTypePos;
+    int z_selection = Z_SELECTION_Z;
+  #endif
+  #if HAS_EXTRUDERS
+    xy_int_t eValuePos, eNamePos;
+    uint8_t e_selection = 0;
+  #endif
+  xy_int_t stepValuePos;
+  float currentStepSize = 10.0;
+  bool blocked = false;
+  char message[32];
+} motionAxisState_t;
+
+extern motionAxisState_t motionAxisState;
+
+void moveAxis(const AxisEnum axis, const int8_t direction);
+
+#if HAS_EXTRUDERS
+  inline void e_plus()  { moveAxis(E_AXIS, +1); }
+  inline void e_minus() { moveAxis(E_AXIS, -1); }
+#endif
+#if HAS_X_AXIS
+  inline void x_minus() { moveAxis(X_AXIS, -1); }
+  inline void x_plus()  { moveAxis(X_AXIS, +1); }
+#endif
+#if HAS_Y_AXIS
+  inline void y_plus()  { moveAxis(Y_AXIS, +1); }
+  inline void y_minus() { moveAxis(Y_AXIS, -1); }
+#endif
+#if HAS_Z_AXIS
+  inline void z_plus()  { moveAxis(Z_AXIS, +1); }
+  inline void z_minus() { moveAxis(Z_AXIS, -1); }
+#endif
+void quick_feedback();
+void disable_steppers();
+#if ENABLED(TOUCH_SCREEN)
+  void do_home();
+  void step_size();
+  #if HAS_BED_PROBE
+    void z_select();
+  #endif
+  #if HAS_EXTRUDERS
+    void e_select();
+  #endif
+#endif
+#if HAS_TOUCH_SLEEP
+  bool lcd_sleep_task();
 #endif
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 
+void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
 void menu_item(const uint8_t row, bool sel = false);
-
-template<typename T>
-void _wrap_string(uint8_t &col, uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
-inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
-inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
 
 #if HAS_TOUCH_SLEEP
   bool lcd_sleep_task();
 #endif
 
+void drawBtn(const int x, const int y, const char *label, intptr_t data, const MarlinImage btnimg, const MarlinImage img, uint16_t bgColor, const bool enabled=true);
+void drawBtn(const int x, const int y, const char *label, intptr_t data, const MarlinImage img, uint16_t bgColor, const bool enabled=true);
+inline void drawBtn(const int x, const int y, const char *label, void (*handler)(), const MarlinImage img, uint16_t bgColor, const bool enabled=true) {
+  drawBtn(x, y, label, intptr_t(handler), img, bgColor, enabled);
+}
+
+// Custom Implementation
+void drawMessage_P(PGM_P const msg);
+inline void drawMessage(FSTR_P const fmsg) { drawMessage_P(FTOP(fmsg)); }
+
+void drawAxisValue(const AxisEnum axis);
+void drawCurZSelection();
+void drawCurESelection();
+void drawCurStepValue();
+
 #define ABSOLUTE_ZERO     -273.15
 
-enum {
-  OPTITEM(HAS_EXTRUDERS, ITEM_E0)
-  OPTITEM(HAS_MULTI_HOTEND, ITEM_E1)
-  #if HOTENDS > 2
-    ITEM_E2,
-  #endif
-  OPTITEM(HAS_HEATED_BED, ITEM_BED)
-  OPTITEM(HAS_TEMP_CHAMBER, ITEM_CHAMBER)
-  OPTITEM(HAS_TEMP_COOLER, ITEM_COOLER)
-  OPTITEM(HAS_FAN, ITEM_FAN)
-  ITEMS_COUNT
-};
+#if DISABLED(CUSTOM_STATUS_SCREEN_ITEMS_ORDER)
+  enum {
+    OPTITEM(HAS_EXTRUDERS, ITEM_E0)
+    OPTITEM(HAS_MULTI_HOTEND, ITEM_E1)
+    #if HOTENDS > 2
+      ITEM_E2,
+    #endif
+    OPTITEM(HAS_HEATED_BED, ITEM_BED)
+    OPTITEM(HAS_TEMP_CHAMBER, ITEM_CHAMBER)
+    OPTITEM(HAS_TEMP_COOLER, ITEM_COOLER)
+    OPTITEM(HAS_FAN, ITEM_FAN)
+    ITEMS_COUNT
+  };
+#endif

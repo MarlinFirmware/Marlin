@@ -46,27 +46,15 @@
 #define SERVO0_PIN                          PB14
 
 //
-// Misc. Functions
-//
-#define LED_PIN                             PA14
-
-//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                          PF0   // M1-STOP
 #define Y_DIAG_PIN                          PF2   // M2-STOP
 #define Z_DIAG_PIN                          PF4   // M3-STOP
-#define Z2_DIAG_PIN                         PF3   // M4-STOP
-#define E0_DIAG_PIN                         PF1   // M5-STOP
-#define E1_DIAG_PIN                         PC15  // M6-STOP
+#define Z2_DIAG_PIN                         PF3   // M4-DET
+#define E0_DIAG_PIN                         PF1   // M5-DET
+#define E1_DIAG_PIN                         PC15  // M6-DET
 #define E2_DIAG_PIN                         PF12  // PWRDET
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB15
-#endif
 
 //
 // Limit Switches
@@ -74,16 +62,16 @@
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_TO_MIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // E0DET
+    #define X_MAX_PIN                E0_DIAG_PIN  // M4-DET
   #else
-    #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
+    #define X_MIN_PIN                E0_DIAG_PIN  // M4-DET
   #endif
 #elif NEEDS_X_MINMAX
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // E0DET
+    #define X_MAX_PIN                E0_DIAG_PIN  // M4-DET
   #endif
 #else
   #define X_STOP_PIN                  X_DIAG_PIN  // X-STOP
@@ -92,16 +80,16 @@
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // E1DET
+    #define Y_MAX_PIN                E1_DIAG_PIN  // M5-DET
   #else
-    #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
+    #define Y_MIN_PIN                E1_DIAG_PIN  // M5-DET
   #endif
 #elif NEEDS_Y_MINMAX
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
   #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // E1DET
+    #define Y_MAX_PIN                E1_DIAG_PIN  // M5-DET
   #endif
 #else
   #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-STOP
@@ -126,24 +114,17 @@
 #endif
 
 //
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB15
+#endif
+
+//
 // Filament Runout Sensor
 //
-#define FIL_RUNOUT_PIN                      PF1   // E0DET
-#define FIL_RUNOUT2_PIN                     PF15  // E1DET
-
-//
-// Power Supply Control
-//
-#ifndef PS_ON_PIN
-  #define PS_ON_PIN                         PF13  // PS-ON
-#endif
-
-//
-// Power Loss Detection
-//
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PF12  // PWRDET
-#endif
+#define FIL_RUNOUT_PIN                      PF1   // M5-DET
+#define FIL_RUNOUT2_PIN                     PC15  // M6-DET
 
 //
 // Steppers
@@ -243,6 +224,31 @@
 #define FAN4_PIN                            PA1   // 4 wire Fan4
 #define FAN5_PIN                            PF8   // 4 wire Fan5
 #define FAN6_PIN                            PA2   // 4 wire Fan6
+
+//
+// Power Supply Control
+//
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN                         PF13  // PS-ON
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PF12  // PWRDET
+#endif
+
+//
+// Misc. Functions
+//
+#define LED_PIN                             PA14
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN                      PC0
+#endif
+#ifndef FILWIDTH2_PIN
+  #define FILWIDTH2_PIN                     PF10
+#endif
 
 //
 // SD Support
