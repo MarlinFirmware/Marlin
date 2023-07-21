@@ -699,8 +699,6 @@
 #define COOLER_AUTO_FAN_TEMPERATURE 18
 #define COOLER_AUTO_FAN_SPEED 255
 
-#define DEFAULT_EXTRUDER_FLOWRATE 100
-
 /**
  * Hotend Cooling Fans tachometers
  *
@@ -2237,6 +2235,11 @@
 #endif
 
 // @section extruder
+
+/**
+ * Default flow percentage. Override with 'M221 T<tool> S<flow>'.
+ */
+#define DEFAULT_FLOW_PERCENT 100
 
 /**
  * Linear Pressure Control v1.5

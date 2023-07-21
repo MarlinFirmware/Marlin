@@ -293,6 +293,7 @@
 #define STR_ACCELERATION_P_R_T              "Acceleration (units/s2) (P<print-accel> R<retract-accel> T<travel-accel>)"
 #define STR_TOOL_CHANGING                   "Tool-changing"
 #define STR_HOTEND_OFFSETS                  "Hotend offsets"
+#define STR_FLOW_RATE                       "Flow Percentage"
 #define STR_SERVO_ANGLES                    "Servo Angles"
 #define STR_HOTEND_PID                      "Hotend PID"
 #define STR_BED_PID                         "Bed PID"
@@ -584,8 +585,6 @@
 #define STR_E5 STR_E STR_N5
 #define STR_E6 STR_E STR_N6
 #define STR_E7 STR_E STR_N7
-
-#define STR_FLOW_RATE "Extruder Flowrate"
 
 // Include localized LCD Menu Messages
 

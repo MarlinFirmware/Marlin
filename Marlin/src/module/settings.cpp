@@ -249,6 +249,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Extruder Flow %
+  //
+  #if HAS_EXTRUDERS
+    uint16_t flow_percentage[EXTRUDERS];                // M221 T S
+  #endif
+
+  //
   // FILAMENT_RUNOUT_SENSOR
   //
   bool runout_sensor_enabled;                           // M412 S
@@ -881,13 +888,19 @@ void MarlinSettings::postprocess() {
     //
     // Hotend Offsets, if any
     //
-    {
-      #if HAS_HOTEND_OFFSET
-        // Skip hotend 0 which must be 0
-        for (uint8_t e = 1; e < HOTENDS; ++e)
-          EEPROM_WRITE(hotend_offset[e]);
-      #endif
-    }
+    #if HAS_HOTEND_OFFSET
+      // Skip hotend 0 which must be 0
+      for (uint8_t e = 1; e < HOTENDS; ++e)
+        EEPROM_WRITE(hotend_offset[e]);
+    #endif
+
+    //
+    // Extruder Flow %
+    //
+    #if HAS_EXTRUDERS
+      _FIELD_TEST(flow_percentage);
+      EEPROM_WRITE(planner.flow_percentage);
+    #endif
 
     //
     // Filament Runout Sensor
@@ -1899,13 +1912,19 @@ void MarlinSettings::postprocess() {
       //
       // Hotend Offsets, if any
       //
-      {
-        #if HAS_HOTEND_OFFSET
-          // Skip hotend 0 which must be 0
-          for (uint8_t e = 1; e < HOTENDS; ++e)
-            EEPROM_READ(hotend_offset[e]);
-        #endif
-      }
+      #if HAS_HOTEND_OFFSET
+        // Skip hotend 0 which must be 0
+        for (uint8_t e = 1; e < HOTENDS; ++e)
+          EEPROM_READ(hotend_offset[e]);
+      #endif
+
+      //
+      // Extruder Flow %
+      //
+      #if HAS_EXTRUDERS
+        _FIELD_TEST(flow_percentage);
+        EEPROM_READ(planner.flow_percentage);
+      #endif
 
       //
       // Filament Runout Sensor
@@ -3116,6 +3135,16 @@ void MarlinSettings::reset() {
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   //
+  // Extruder Flow %
+  //
+  #if HAS_EXTRUDERS
+    #ifndef DEFAULT_FLOW_PERCENT
+      #define DEFAULT_FLOW_PERCENT 100
+    #endif
+    EXTRUDER_LOOP() planner.flow_percentage[e] = DEFAULT_FLOW_PERCENT;
+  #endif
+
+  //
   // Filament Runout Sensor
   //
 
@@ -3467,13 +3496,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  //
-  // M221 Extruder Flowrate
-  //
-  #if HAS_EXTRUDERS  
-    planner.flow_percentage[0] = DEFAULT_EXTRUDER_FLOWRATE;
-  #endif
-
   endstops.enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
 
   reset_stepper_drivers();
@@ -3713,9 +3735,9 @@ void MarlinSettings::reset() {
     TERN_(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
 
     //
-    // M221 Extruder Flowrate
+    // M221 Extruder Flow %
     //
-    TERN_(HAS_EXTRUDERS, gcode.M221_report(forReplay)); 
+    TERN_(HAS_EXTRUDERS, gcode.M221_report(forReplay));
 
     //
     // Bed Leveling
