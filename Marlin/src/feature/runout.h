@@ -398,9 +398,9 @@ class FilamentSensorBase {
 
       static void filament_present(const uint8_t extruder) {
         if (mm_countdown.runout[extruder] < runout_distance_mm || did_pause_print) {
-          // Reset runout only if it is smaller than runout_distance or printing is paused
-          // on Bowden systems retract may be larger than runout_distance_mm, so if retract
-          // was added leave it in place, or following unretract will cause runout event.
+          // Reset runout only if it is smaller than runout_distance or printing is paused.
+          // On Bowden systems retract may be larger than runout_distance_mm, so if retract
+          // was added leave it in place, or the following unretract will cause runout event.
           mm_countdown.runout[extruder] = runout_distance_mm;
           mm_countdown.runout_reset.clear(extruder);
         }
