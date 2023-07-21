@@ -30,7 +30,8 @@
 #include "../module/planner.h"
 #include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
-#include "../feature/pause.h"
+#include "../feature/pause.h" // for did_pause_print
+#include "../MarlinCore.h" // for printingIsActive()
 
 #include "../inc/MarlinConfig.h"
 
@@ -59,6 +60,7 @@ typedef Flags<
         > runout_flags_t;
 
 void event_filament_runout(const uint8_t extruder);
+inline bool should_monitor_runout() { return did_pause_print || printingIsActive(); }
 
 template<class RESPONSE_T, class SENSOR_T>
 class TFilamentMonitor;
@@ -134,7 +136,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static void run() {
-      if (enabled && !filament_ran_out && (printingIsActive() || did_pause_print)) {
+      if (enabled && !filament_ran_out && should_monitor_runout()) {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
@@ -430,7 +432,7 @@ class FilamentSensorBase {
         if (!esteps) return;
 
         // No calculation unless paused or printing
-        if (!did_pause_print && !printingIsActive()) return;
+        if (!should_monitor_runout()) return;
 
         // No need to ignore retract/unretract movement since they complement each other
         const uint8_t e = b->extruder;
