@@ -50,7 +50,13 @@
   #define HAS_FILAMENT_SWITCH 1
 #endif
 
-typedef Flags<8> runout_flags_t;
+typedef Flags<
+          #if NUM_MOTION_SENSORS > NUM_RUNOUT_SENSORS
+            NUM_MOTION_SENSORS
+          #else
+            NUM_RUNOUT_SENSORS
+          #endif
+        > runout_flags_t;
 
 void event_filament_runout(const uint8_t extruder);
 
@@ -352,7 +358,7 @@ class FilamentSensorBase {
   // during a runout condition.
   class RunoutResponseDelayed {
     private:
-      static volatile countdown_t mm_countdown;
+      static countdown_t mm_countdown;
 
     public:
       static float runout_distance_mm;
