@@ -3080,7 +3080,9 @@ void Temperature::init() {
 #if HAS_THERMAL_PROTECTION
 
   #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+  #if __has_cpp_attribute(fallthrough)
+    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+  #endif
 
   Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
 
@@ -3978,7 +3980,9 @@ void Temperature::isr() {
   switch (adc_sensor_state) {
 
     #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+    #if __has_cpp_attribute(fallthrough)
+      #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+    #endif
 
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
