@@ -399,17 +399,17 @@ class FilamentSensorBase {
       #endif
 
       static void block_completed(const block_t * const b) {
-        if (b->steps.x >= MIN_STEPS_PER_SEGMENT || b->steps.y >= MIN_STEPS_PER_SEGMENT ||
-            b->steps.z >= MIN_STEPS_PER_SEGMENT || did_pause_print) { // Allow pause purge move to re-trigger runout state
-          // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
-          const uint8_t e = b->extruder;
-          const int32_t steps = b->steps.e;
-          const float mm = (b->direction_bits.e ? steps : -steps) * planner.mm_per_step[E_AXIS_N(e)];
-          if (e < NUM_RUNOUT_SENSORS) mm_countdown.runout[e] -= mm;
-          #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-            if (e < NUM_MOTION_SENSORS) mm_countdown.motion[e] -= mm;
-          #endif
-        }
+        const int32_t esteps = b->steps.e;
+        if (!esteps) return;
+
+        // Allow pause purge move to re-trigger runout state
+        if (!did_pause_print && b->steps.x < MIN_STEPS_PER_SEGMENT && b->steps.y < MIN_STEPS_PER_SEGMENT && b->steps.z < MIN_STEPS_PER_SEGMENT) return;
+
+        // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
+        const uint8_t e = b->extruder;
+        const float mm = (b->direction_bits.e ? esteps : -esteps) * planner.mm_per_step[E_AXIS_N(e)];
+        if (e < NUM_RUNOUT_SENSORS) mm_countdown.runout[e] -= mm;
+        TERN_(FILAMENT_SWITCH_AND_MOTION, if (e < NUM_MOTION_SENSORS) mm_countdown.motion[e] -= mm);
       }
   };
 
