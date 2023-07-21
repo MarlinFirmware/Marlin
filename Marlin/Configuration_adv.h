@@ -699,6 +699,8 @@
 #define COOLER_AUTO_FAN_TEMPERATURE 18
 #define COOLER_AUTO_FAN_SPEED 255
 
+#define DEFAULT_EXTRUDER_FLOWRATE 100
+
 /**
  * Hotend Cooling Fans tachometers
  *

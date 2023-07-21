@@ -893,6 +893,7 @@ private:
 
   #if HAS_EXTRUDERS
     static void M221();
+    static void M221_report(const bool forReplay=true);  
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)

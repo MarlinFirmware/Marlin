@@ -585,6 +585,8 @@
 #define STR_E6 STR_E STR_N6
 #define STR_E7 STR_E STR_N7
 
+#define STR_FLOW_RATE "Extruder Flowrate"
+
 // Include localized LCD Menu Messages
 
 #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)

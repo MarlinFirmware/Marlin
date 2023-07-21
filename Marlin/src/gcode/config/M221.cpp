@@ -44,4 +44,13 @@ void GcodeSuite::M221() {
   }
 }
 
+void GcodeSuite::M221_report(const bool forReplay/*=true*/) {
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
+
+  report_heading_etc(forReplay, F(STR_FLOW_RATE));
+  SERIAL_ECHOPGM("  M221 S", planner.flow_percentage[target_extruder]);
+  SERIAL_EOL();
+}
+
 #endif // EXTRUDERS
