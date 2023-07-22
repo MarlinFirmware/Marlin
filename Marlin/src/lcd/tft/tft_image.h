@@ -23,8 +23,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <stdint.h>
-
 #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
   #define BOOTSCREEN_LOGO_NAME(S) S##_rle16
 #else

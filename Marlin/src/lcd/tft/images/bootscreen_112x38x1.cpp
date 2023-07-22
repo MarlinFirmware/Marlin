@@ -20,15 +20,11 @@
  *
  */
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "../tft_image.h"
 
-#if HAS_GRAPHICAL_TFT
+#if ALL(HAS_GRAPHICAL_TFT, SHOW_BOOTSCREEN)
 
-#include "../../../inc/MarlinConfig.h"
-
-extern const uint8_t marlin_logo_112x38x1[];
-const tImage MarlinLogo112x38x1 = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
+#include "../../../inc/MarlinConfig.h" // for binary defines
 
 const uint8_t marlin_logo_112x38x1[532] = {
   B00000001,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,
@@ -71,4 +67,6 @@ const uint8_t marlin_logo_112x38x1[532] = {
   B00000001,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B10000000
 };
 
-#endif // HAS_GRAPHICAL_TFT
+const tImage MarlinLogo112x38x1 = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
+
+#endif // HAS_GRAPHICAL_TFT && SHOW_BOOTSCREEN

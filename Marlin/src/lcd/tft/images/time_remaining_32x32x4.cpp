@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "../tft_image.h"
 
 #if HAS_GRAPHICAL_TFT

@@ -20,7 +20,6 @@
  *
  */
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "../tft_image.h"
 
 #if HAS_GRAPHICAL_TFT
