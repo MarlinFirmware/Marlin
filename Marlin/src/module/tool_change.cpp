@@ -1417,19 +1417,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
         // G0/G1/G2/G3/G5 moves are relative to the active tool.
         // Shift the workspace to make custom moves relative to T0.
-        xyz_pos_t old_position_shift;
+        xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
-          old_position_shift = position_shift;
+          old_workspace_offset = workspace_offset;
           const xyz_pos_t &he = hotend_offset[new_tool];
-          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
-            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
-            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
-            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
-          #endif
+          TERN_(TC_GCODE_USE_GLOBAL_X, workspace_offset.x -= he.x);
+          TERN_(TC_GCODE_USE_GLOBAL_Y, workspace_offset.y -= he.y);
+          TERN_(TC_GCODE_USE_GLOBAL_Z, workspace_offset.z -= he.z);
         }
       #endif
 
@@ -1462,12 +1456,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
 
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
-        if (new_tool > 0) {
-          position_shift = old_position_shift;
-          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
-        }
+        if (new_tool > 0) workspace_offset = old_workspace_offset;
       #endif
 
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE

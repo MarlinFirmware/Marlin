@@ -80,9 +80,8 @@ void DGUSScreenHandler::ready() {
 }
 
 void DGUSScreenHandler::loop() {
-  if (!settings_ready || current_screenID == DGUS_ScreenID::KILL) {
+  if (!settings_ready || current_screenID == DGUS_ScreenID::KILL)
     return;
-  }
 
   const millis_t ms = ExtUI::safe_millis();
   static millis_t next_event_ms = 0;
@@ -226,10 +225,8 @@ void DGUSScreenHandler::configurationStoreRead(bool success) {
 }
 
 void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration) {
-  UNUSED(duration);
-
-  if (frequency >= 1 && frequency <= 255) {
-    if (duration >= 1 && duration <= 255)
+  if (WITHIN(frequency, 1, 255)) {
+    if (WITHIN(duration, 1, 255))
       dgus.playSound((uint8_t)frequency, (uint8_t)duration);
     else
       dgus.playSound((uint8_t)frequency);
@@ -301,12 +298,10 @@ void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
 #endif // HAS_MEDIA
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-
   void DGUSScreenHandler::powerLossResume() {
     moveToScreen(DGUS_ScreenID::POWERLOSS, true);
   }
-
-#endif // POWER_LOSS_RECOVERY
+#endif
 
 #if HAS_PID_HEATING
 
@@ -374,20 +369,18 @@ void DGUSScreenHandler::setMessageLinePGM(PGM_P const msg, const uint8_t line) {
 
 void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duration) {
   dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, msg, DGUS_STATUS_LEN, false, true);
-
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
 void DGUSScreenHandler::setStatusMessage(FSTR_P const fmsg, const millis_t duration) {
   dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, fmsg, DGUS_STATUS_LEN, false, true);
-
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
 void DGUSScreenHandler::showWaitScreen(const DGUS_ScreenID return_screenID, const bool has_continue/*=false*/) {
-  if (return_screenID != DGUS_ScreenID::WAIT) {
+  if (return_screenID != DGUS_ScreenID::WAIT)
     wait_return_screenID = return_screenID;
-  }
+
   wait_continue = has_continue;
 
   triggerScreenChange(DGUS_ScreenID::WAIT);
@@ -418,8 +411,7 @@ void DGUSScreenHandler::triggerEEPROMSave() {
 }
 
 bool DGUSScreenHandler::isPrinterIdle() {
-  return (!ExtUI::commandsInQueue()
-          && !ExtUI::isMoving());
+  return (!ExtUI::commandsInQueue() && !ExtUI::isMoving());
 }
 
 const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(const DGUS_ScreenID screenID) {
@@ -429,9 +421,7 @@ const DGUS_Addr* DGUSScreenHandler::findScreenAddrList(const DGUS_ScreenID scree
   do {
     memcpy_P(&list, map, sizeof(*map));
     if (!list.addr_list) break;
-    if (list.screenID == screenID) {
-      return list.addr_list;
-    }
+    if (list.screenID == screenID) return list.addr_list;
   } while (++map);
 
   return nullptr;
@@ -453,20 +443,16 @@ bool DGUSScreenHandler::callScreenSetup(const DGUS_ScreenID screenID) {
 }
 
 void DGUSScreenHandler::moveToScreen(const DGUS_ScreenID screenID, bool abort_wait) {
-  if (current_screenID == DGUS_ScreenID::KILL) {
-    return;
-  }
+  if (current_screenID == DGUS_ScreenID::KILL) return;
 
   if (current_screenID == DGUS_ScreenID::WAIT) {
-    if (screenID != DGUS_ScreenID::WAIT) {
+    if (screenID != DGUS_ScreenID::WAIT)
       wait_return_screenID = screenID;
-    }
 
     if (!abort_wait) return;
 
-    if (wait_continue && wait_for_user) {
+    if (wait_continue && wait_for_user)
       ExtUI::setUserConfirmed();
-    }
   }
 
   if (!callScreenSetup(screenID)) return;

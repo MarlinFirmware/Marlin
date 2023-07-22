@@ -177,16 +177,12 @@ xyz_pos_t cartes;
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
  */
-#if HAS_POSITION_SHIFT
-  // The distance that XYZ has been offset by G92. Reset by G28.
-  xyz_pos_t position_shift{0};
-#endif
 #if HAS_HOME_OFFSET
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
   xyz_pos_t home_offset{0};
 #endif
-#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+#if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
   xyz_pos_t workspace_offset{0};
 #endif
@@ -577,7 +573,9 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  */
 void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+  #if NUM_AXES
+    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+  #endif
 
   const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
 
@@ -1623,22 +1621,21 @@ void prepare_line_to_destination() {
   }
 
   bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
-    if ((axis_bits &= axes_should_home(axis_bits))) {
-      char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
-      uint8_t n = 0;
-      LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
-      need[n] = '\0';
+    if (!(axis_bits &= axes_should_home(axis_bits))) return false;
 
-      char msg[30];
-      sprintf_P(msg, GET_EN_TEXT(MSG_HOME_FIRST), need);
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLN(msg);
+    char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
+    uint8_t n = 0;
+    LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
+    need[n] = '\0';
 
-      sprintf_P(msg, GET_TEXT(MSG_HOME_FIRST), need);
-      ui.set_status(msg);
-      return true;
-    }
-    return false;
+    SString<30> msg;
+    msg.setf(GET_EN_TEXT_F(MSG_HOME_FIRST), need);
+    SERIAL_ECHO_START();
+    msg.echoln();
+
+    msg.setf(GET_TEXT_F(MSG_HOME_FIRST), need);
+    ui.set_status(msg);
+    return true;
   }
 
   /**
@@ -2467,7 +2464,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
-      current_position.x = x_home_pos(active_extruder);
+      current_position.x = SUM_TERN(HAS_HOME_OFFSET, x_home_pos(active_extruder), home_offset.x);
       return;
     }
   #endif
@@ -2477,7 +2474,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
   #else
-    current_position[axis] = base_home_pos(axis);
+    current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
 
   /**
@@ -2498,10 +2495,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
 
-  #if HAS_POSITION_SHIFT
-    position_shift[axis] = 0;
-    update_workspace_offset(axis);
-  #endif
+  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
@@ -2512,20 +2506,11 @@ void set_axis_is_at_home(const AxisEnum axis) {
   }
 }
 
-#if HAS_WORKSPACE_OFFSET
-  void update_workspace_offset(const AxisEnum axis) {
-    workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
-  }
-#endif
-
-#if HAS_M206_COMMAND
+#if HAS_HOME_OFFSET
   /**
-   * Change the home offset for an axis.
-   * Also refreshes the workspace offset.
+   * Set the home offset for an axis.
    */
   void set_home_offset(const AxisEnum axis, const_float_t v) {
     home_offset[axis] = v;
-    update_workspace_offset(axis);
   }
 #endif

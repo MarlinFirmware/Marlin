@@ -31,10 +31,10 @@
 #endif
 
 // ADC
-#ifdef BOARD_ADC_VREF
-  #define ADC_VREF BOARD_ADC_VREF
+#ifdef BOARD_ADC_VREF_MV
+  #define ADC_VREF_MV BOARD_ADC_VREF_MV
 #else
-  #define ADC_VREF HAL_ADC_VREF
+  #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
@@ -2386,10 +2386,10 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
   #if ANY(PIDTEMP, PIDTEMPBED)
-    #define DWIN_PID_TUNE 1
+    #define PROUI_PID_TUNE 1
   #endif
-  #if ANY(DWIN_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
-    #define SHOW_TUNING_GRAPH 1
+  #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+    #define PROUI_TUNING_GRAPH 1
   #endif
 #endif
 
@@ -3140,15 +3140,15 @@
   #undef MOTOR_CURRENT
 #endif
 
-// Updated G92 behavior shifts the workspace
+// G92 shifts the workspace
 #if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_POSITION_SHIFT 1
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
   #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
-    #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
-    #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
   #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
   #endif
 #endif
 

@@ -759,7 +759,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
     TERN_(HAS_MARLINUI_MENU, ui.capture());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
     grid_count_t count = GRID_MAX_POINTS;
@@ -820,7 +820,7 @@ void unified_bed_leveling::shift_mesh_height() {
     );
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingDone());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
   }
 
 #endif // HAS_BED_PROBE

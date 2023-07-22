@@ -20,26 +20,23 @@
  *
  */
 
-/*
-  Fontname: Helvetica
-  Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
-  Capital A Height: 14, '1' Height: 13
-  Calculated Max Values w=16 h=18 x= 2 y=12 dx=18 dy= 0 ascent=16 len=36
-  Font Bounding box     w=18 h=19 x= 0 y=-4
-  Calculated Min Values           x= 0 y=-4 dx= 0 dy= 0
-  Pure Font   ascent =14 descent=-4
-  X Font      ascent =14 descent=-4
-  Max Font    ascent =16 descent=-4
-*/
+/**
+ * Fontname: Helvetica
+ * Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
+ * Capital A Height: 14, '1' Height: 13
+ * Calculated Max Values w=16 h=18 x= 2 y=12 dx=18 dy= 0 ascent=16 len=36
+ * Font Bounding box     w=18 h=19 x= 0 y=-4
+ * Calculated Min Values           x= 0 y=-4 dx= 0 dy= 0
+ * Pure Font   ascent =14 descent=-4
+ * X Font      ascent =14 descent=-4
+ * Max Font    ascent =16 descent=-4
+ */
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../fontdata.h"
 
-#define HELVETICA 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == HELVETICA
 
-#include <stdint.h>
-
-// Helvetica Symbols, capital 'A' heigth: 14px
+// Helvetica Symbols, capital 'A' height: 14px
 extern const uint8_t Helvetica_Symbols_14[43] = {
   129,14,8,0,9,0,16,252, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡
@@ -48,7 +45,7 @@ extern const uint8_t Helvetica_Symbols_14[43] = {
   5,5,5,7,1,8,112,216,136,216,112,
 };
 
-// Helvetica, capital 'A' heigth: 14px
+// Helvetica, capital 'A' height: 14px
 extern const uint8_t Helvetica_14[4831] = {
   129,14,32,0,255,0,16,252, // unifont_t
   // 0x0020 " "
