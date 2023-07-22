@@ -174,32 +174,30 @@
 //
 // Screen Pins
 //
-// Screen Port Pinout:
-// TODO: screen port pinout is not fully confirmed
 //       ------
-// ?    | 1  2 | ?
-// PC1  | 3  4 | PC0
+// PC6  | 1  2 | PB2
+// PC0  | 3  4 | PC1
 // PB14   5  6 | PB13
 // PB12 | 7  8 | PB15
-// GND  | 9 10 | VCC
+// GND  | 9 10 | +5V
 //       ------
-#define EXP_01_PIN // ?
-#define EXP_02_PIN // ?
-#define EXP_03_PIN PC1
-#define EXP_04_PIN PC0
+#define EXP_01_PIN PC6
+#define EXP_02_PIN PB2
+#define EXP_03_PIN PC0
+#define EXP_04_PIN PC1
 #define EXP_05_PIN PB14
 #define EXP_06_PIN PB13
 #define EXP_07_PIN PB12
 #define EXP_08_PIN PB15
 
 #if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)  
-
+  // screen pinout (screen side, so RX/TX are swapped)
   //       ------
-  // ?    | 1  2 | ?
+  // NC   | 1  2 | NC
   // RX   | 3  4 | TX
   // EN     5  6 | BEEP
   // B    | 7  8 | A
-  // GND  | 9 10 | VCC
+  // GND  | 9 10 | +5V
   //       ------
 
   #define BTN_ENC EXP_05_PIN // EN
@@ -210,8 +208,8 @@
     #define BEEPER_PIN EXP_06_PIN // BEEP
   #endif
 
-  #define BOARD_USART1_TX_PIN EXP_03_PIN // RX
-  #define BOARD_USART1_RX_PIN EXP_04_PIN // TX
+  #define BOARD_USART1_RX_PIN EXP_04_PIN // screen TX
+  #define BOARD_USART1_TX_PIN EXP_03_PIN // screen RX
 #endif
 
 //
