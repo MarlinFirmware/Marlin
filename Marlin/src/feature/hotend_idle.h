@@ -24,7 +24,8 @@
 #include "../inc/MarlinConfig.h"
 
 typedef struct {
-  int16_t timeout, trigger, nozzle_target;
+  uint16_t timeout;
+  int16_t trigger, nozzle_target;
   #if HAS_HEATED_BED
     int16_t bed_target;
   #endif

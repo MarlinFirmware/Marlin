@@ -289,7 +289,7 @@ void menu_advanced_settings();
     BACK_ITEM(MSG_BACK);
 
     if (c.timeout) GCODES_ITEM(MSG_HOTEND_IDLE_DISABLE, F("M87"));
-    EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_TIMEOUT, &c.timeout, 0, 999);
     EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, HEATER_0_MAXTEMP);
     EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, HEATER_0_MAXTEMP);
     EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAXTEMP);
