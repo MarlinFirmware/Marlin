@@ -78,7 +78,7 @@ bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, con
     return true; // error
   }
   if (raw_data == true) {
-    if (hicheck && (data & 0x3FF) > 550)
+    if (hicheck && (data & 0x3FF) > 400)
       SERIAL_ECHOLNPGM("Bad BD Sensor height! Recommended distance 0.5-2.0mm");
     else if (!good_data(data))
       SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
@@ -240,7 +240,7 @@ void BDS_Leveling::process() {
             safe_delay(10);
             if (!failcount--) break;
           }
-          safe_delay(zpos <= 0.4f ? 600 : 300);
+          safe_delay(600);
           tmp = uint16_t((zpos + 0.00001f) * 10);
           BD_I2C_SENSOR.BD_i2c_write(tmp);
           SERIAL_ECHOLNPGM("w:", tmp, ", Z:", zpos);
