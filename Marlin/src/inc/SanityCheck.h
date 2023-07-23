@@ -2736,7 +2736,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if LCD_BACKLIGHT_TIMEOUT_MINS
-  #if !HAS_ENCODER_ACTION
+  #if !HAS_ENCODER_ACTION && !HAS_RESUME_CONTINUE
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
@@ -2744,7 +2744,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
       #error "LCD_BACKLIGHT_TIMEOUT is not compatible with NEOPIXEL_BKGD_ALWAYS_ON."
     #endif
-  #elif !PIN_EXISTS(LCD_BACKLIGHT)
+  #elif !PIN_EXISTS(LCD_BACKLIGHT) && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires either LCD_BACKLIGHT_PIN or NEOPIXEL_BKGD_INDEX_FIRST."
   #endif
 #endif
