@@ -42,7 +42,7 @@ void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height
 
 void Canvas::next() {
   startLine = endLine;
-  endLine = TFT_BUFFER_SIZE < width * (height - startLine) ? startLine + TFT_BUFFER_SIZE / width : height;
+  endLine = (TFT_BUFFER_WORDS) < width * (height - startLine) ? startLine + (TFT_BUFFER_WORDS) / width : height;
 }
 
 bool Canvas::toScreen() {
@@ -107,7 +107,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     // HIGHCOLOR - 16 bits per pixel
     for (int16_t i = 0; i < image_height; i++) {
       const int16_t line = y + i;
-      if (line >= startLine && line < endLine) {
+      if (WITHIN(line, startLine, endLine - 1)) {
         uint16_t *pixel = buffer + x + (line - startLine) * width;
         for (int16_t j = 0; j < image_width; j++) {
           if (WITHIN(x + j, 0, width - 1)) {
@@ -153,7 +153,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
             if (color == 0x0001) color = COLOR_BACKGROUND; // 0x0001 is "transparent"
           }
 
-          if (dsty >= startLine) {                  // Dest pixel Y at the canvas yet?
+          if (WITHIN(dsty, startLine, endLine - 1)) { // Dest pixel Y within the canvas?
             if (WITHIN(dstx, 0, width - 1)) {       // Dest pixel X within the canvas?
               uint16_t * const pixel = buffer + dstx + (dsty - startLine) * width;
               *pixel = color;                       // Store the color in the pixel
