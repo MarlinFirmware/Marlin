@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t fan_slow0_64x64x4[], fan_slow1_64x64x4[];
 const tImage Fan_Slow0_64x64x4 = { (void *)fan_slow0_64x64x4, 64, 64, GREYSCALE4 };

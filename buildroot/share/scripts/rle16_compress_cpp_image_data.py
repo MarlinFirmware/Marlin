@@ -11,31 +11,38 @@ import re
 def addCompressedData(input_file, output_file):
     ofile = open(output_file, 'wt')
 
-    line = input_file.readline()
     c_data_section = False
+    c_skip_data = False
     c_footer = False
     raw_data = []
     rle_value = []
     rle_count = []
-    footer = ''
+    arrname = ''
+
+    line = input_file.readline()
     while line:
-        if c_footer:
-            footer += line
-        else:
-            ofile.write(line)
-            currentline = re.sub(r"\s|,|\n", "", line)
-        if "};" in currentline:
+        if not c_footer:
+            if not c_skip_data: ofile.write(line)
+
+        if "};" in line:
+            c_skip_data = False
             c_data_section = False
             c_footer = True
+
         if c_data_section:
-            as_list = currentline.split("0x")
+            cleaned = re.sub(r"\s|,|\n", "", line)
+            as_list = cleaned.split("0x")
             as_list.pop(0)
             raw_data += [int(x, 16) for x in as_list]
 
-        if "extern" in currentline:
-            # e.g.: extern const uint16_t marlin_logo_480x320x16[153600] = {
-            c_data_section = True
-            name = line.split(' ')[3].split('[')[0]
+        if "const uint" in line:
+            # e.g.: const uint16_t marlin_logo_480x320x16[153600] = {
+            if "_rle16" in line:
+                c_skip_data = True
+            else:
+                c_data_section = True
+                arrname = line.split('[')[0].split(' ')[-1]
+                print("Found data array", arrname)
 
         line = input_file.readline()
 
@@ -50,6 +57,8 @@ def addCompressedData(input_file, output_file):
     # - Each RGB565 word is stored in MSB / LSB order.
     #
     def rle_encode(data):
+        warn = "This may take a while" if len(data) > 300000 else ""
+        print("Compressing image data...", warn)
         rledata = []
         distinct = []
         i = 0
@@ -84,7 +93,7 @@ def addCompressedData(input_file, output_file):
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
         return data
 
-    def rle_emit(ofile, name, rledata):
+    def rle_emit(ofile, arrname, rledata, rawsize):
         col = 0
         i = 0
         outstr = ''
@@ -109,12 +118,15 @@ def addCompressedData(input_file, output_file):
                 size += 3
 
         outstr = outstr.rstrip()[:-1]
-        ofile.write("\nextern const uint8_t %s_rle16[%d] = {\n%s\n};\n" % (name, size, outstr))
+        ofile.write("\n// Saves %i bytes\nconst uint8_t %s_rle16[%d] = {\n%s\n};\n" % (rawsize - size, arrname, size, outstr))
+
+        (w, h, d) = arrname.split("_")[-1].split('x')
+        ofile.write("\nconst tImage MarlinLogo{0}x{1}x16 = MARLIN_LOGO_CHOSEN({0}, {1});\n".format(w, h))
+        ofile.write("\n#endif // HAS_GRAPHICAL_TFT && SHOW_BOOTSCREEN\n".format(w, h))
 
     # Encode the data, write it out, close the file
     rledata = rle_encode(raw_data)
-    rle_emit(ofile, name, rledata)
-    ofile.write(footer)
+    rle_emit(ofile, arrname, rledata, len(raw_data) * 2)
     ofile.close()
 
 if len(sys.argv) <= 2:
@@ -124,5 +136,7 @@ if len(sys.argv) <= 2:
     exit(1)
 
 output_cpp = sys.argv[2]
-input_cpp = open(sys.argv[1])
+inname = sys.argv[1].replace('//', '/')
+input_cpp = open(inname)
+print("Processing", inname, "...")
 addCompressedData(input_cpp, output_cpp)

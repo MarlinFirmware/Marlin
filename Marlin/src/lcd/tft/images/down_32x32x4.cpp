@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t down_32x32x4[];
 const tImage Down_32x32x4 = { (void *)down_32x32x4, 32, 32, GREYSCALE4 };

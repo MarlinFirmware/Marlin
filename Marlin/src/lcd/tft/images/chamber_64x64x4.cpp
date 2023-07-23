@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t chamber_64x64x4[], chamber_heated_64x64x4[];
 const tImage Chamber_64x64x4 = { (void *)chamber_64x64x4, 64, 64, GREYSCALE4 };

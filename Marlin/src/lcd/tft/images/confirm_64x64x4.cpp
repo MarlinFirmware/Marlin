@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t confirm_64x64x4[];
 const tImage Confirm_64x64x4 = { (void *)confirm_64x64x4, 64, 64, GREYSCALE4 };

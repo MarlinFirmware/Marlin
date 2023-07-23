@@ -24,9 +24,9 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
-  #define BOOTSCREEN_LOGO_NAME(S) S##_rle16
+  #define MARLIN_LOGO_CHOSEN(W,H) { (void *)marlin_logo_##W##x##H##x16_rle16, W, H, RLE16 }
 #else
-  #define BOOTSCREEN_LOGO_NAME(S) S
+  #define MARLIN_LOGO_CHOSEN(W,H) { (void *)marlin_logo_##W##x##H##x16, W, H, HIGHCOLOR }
 #endif
 
 enum MarlinImage : uint8_t {
@@ -105,8 +105,10 @@ extern const tImage NoLogo;
   extern const tImage MarlinLogo228x255x2;
   extern const tImage MarlinLogo228x255x4;
   extern const tImage MarlinLogo195x59x16;
+  extern const tImage MarlinLogo240x250x16;
   extern const tImage MarlinLogo320x240x16;
   extern const tImage MarlinLogo480x320x16;
+  extern const tImage MarlinLogo1024x600x16;
 #endif
 extern const tImage Background320x30x16;
 

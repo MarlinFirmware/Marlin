@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t time_elapsed_32x32x4[];
 const tImage Time_Elapsed_32x32x4 = { (void *)time_elapsed_32x32x4, 32, 32, GREYSCALE4 };

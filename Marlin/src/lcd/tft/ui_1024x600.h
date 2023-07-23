@@ -56,11 +56,11 @@
     #define BOOTSCREEN_SITE_URL_Y   (TFT_HEIGHT - 70)
   #else
     #if ENABLED(BOOT_MARLIN_LOGO_HUGE)
-      #define BOOTSCREEN_LOGO MarlinLogo1024x600x16
+      #define BOOTSCREEN_LOGO       MarlinLogo1024x600x16
       #define BOOTSCREEN_LOGO_W     TFT_WIDTH
       #define BOOTSCREEN_LOGO_H     TFT_HEIGHT
     #else
-      #define BOOTSCREEN_LOGO MarlinLogo480x320x16
+      #define BOOTSCREEN_LOGO       MarlinLogo480x320x16
       #define BOOTSCREEN_LOGO_W     480
       #define BOOTSCREEN_LOGO_H     320
     #endif

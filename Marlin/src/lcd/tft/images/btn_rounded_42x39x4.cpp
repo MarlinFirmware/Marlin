@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t btn_rounded_42x39x4[];
 const tImage BtnRounded_42x39x4 = { (void *)btn_rounded_42x39x4, 42, 39, GREYSCALE4 };

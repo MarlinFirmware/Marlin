@@ -110,7 +110,11 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       if (line >= startLine && line < endLine) {
         uint16_t *pixel = buffer + x + (line - startLine) * width;
         for (int16_t j = 0; j < image_width; j++) {
-          if (WITHIN(x + j, 0, width - 1)) *pixel = ENDIAN_COLOR(*data);
+          if (WITHIN(x + j, 0, width - 1)) {
+            uint16_t color = ENDIAN_COLOR(*data);
+            if (color == 0x0001) color = COLOR_BACKGROUND;
+            *pixel = color;
+          }
           pixel++;
           data++;
         }
@@ -131,6 +135,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       int16_t srcy = 0, srcx = 0,                   // Image data line / column index
               dsty = y, dstx = x;                   // Destination line / column index
 
+      uint16_t color = 0;                           // Persist the last fetched color value
       bool done = false;
       while (!done) {
         uint8_t count = *bytedata++;                // Get the count byte
@@ -140,12 +145,12 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
         bool getcol = true;                         // Get at least one color word
         while (count--) {                           // Emit 'count' pixels
 
-          uint16_t color;
           if (getcol) {
             getcol = uniq;                          // Keep getting colors if not RLE
             const uint16_t msb = *bytedata++,       // Color most-significant bits
                            lsb = *bytedata++;       // Color least-significant bits
             color = ENDIAN_COLOR((msb << 8) | lsb); // Color with proper endianness
+            if (color == 0x0001) color = COLOR_BACKGROUND; // 0x0001 is "transparent"
           }
 
           if (dsty >= startLine) {                  // Dest pixel Y at the canvas yet?

@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t slider_8x16x4[];
 const tImage Slider8x16x4 = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };

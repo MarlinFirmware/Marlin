@@ -20,9 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_GRAPHICAL_TFT
+
+#include "../tft_image.h"
 
 extern const uint8_t refresh_32x32x4[];
 const tImage Refresh_32x32x4 = { (void *)refresh_32x32x4, 32, 32, GREYSCALE4 };

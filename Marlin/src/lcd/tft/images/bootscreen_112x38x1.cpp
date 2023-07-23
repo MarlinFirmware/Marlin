@@ -20,10 +20,11 @@
  *
  */
 
-#include "../tft_image.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ALL(HAS_GRAPHICAL_TFT, SHOW_BOOTSCREEN)
 
+#include "../tft_image.h"
 #include "../../../inc/MarlinConfig.h" // for binary defines
 
 const uint8_t marlin_logo_112x38x1[532] = {
