@@ -37,6 +37,8 @@ void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height
   startLine = 0;
   endLine = 0;
 
+  // The TFT handles DMA within the given canvas rectangle
+  // so whatever is drawn will be offset on the screen by x,y.
   tft.set_window(x, y, x + width - 1, y + height - 1);
 }
 
@@ -105,12 +107,13 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
 
   if (color_mode == HIGHCOLOR) {
     // HIGHCOLOR - 16 bits per pixel
-    for (int16_t i = 0; i < image_height; i++) {
-      const int16_t line = y + i;
+    int16_t line = y;
+    for (int16_t i = 0; i < image_height; i++, line++) {
       if (WITHIN(line, startLine, endLine - 1)) {
         uint16_t *pixel = buffer + x + (line - startLine) * width;
-        for (int16_t j = 0; j < image_width; j++) {
-          if (WITHIN(x + j, 0, width - 1)) {
+        uint16_t cx = x;
+        for (int16_t j = 0; j < image_width; j++, cx++) {
+          if (WITHIN(cx, 0, width - 1)) {
             uint16_t color = ENDIAN_COLOR(*data);
             if (color == 0x0001) color = COLOR_BACKGROUND;
             *pixel = color;
@@ -153,7 +156,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
             if (color == 0x0001) color = COLOR_BACKGROUND; // 0x0001 is "transparent"
           }
 
-          if (WITHIN(dsty, startLine, endLine - 1)) { // Dest pixel Y within the canvas?
+          if (WITHIN(dsty, startLine, endLine - 1)) { // Dest pixel Y within the segment?
             if (WITHIN(dstx, 0, width - 1)) {       // Dest pixel X within the canvas?
               uint16_t * const pixel = buffer + dstx + (dsty - startLine) * width;
               *pixel = color;                       // Store the color in the pixel
@@ -163,10 +166,10 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
           ++srcx; ++dstx;                           // Advance the pixel column
           if (srcx >= image_width) {                // Past the right edge of the source image?
             ++srcy; ++dsty;                         // Advance to the next line
-            srcx = 0; dstx = x;
-            if (dsty >= endLine || srcy >= image_height) {
-              done = true;                          // Once past the end of the canvas we're done
-              break;
+            srcx = 0; dstx = x;                     // May be shifted within the canvas, but usually not
+            if (dsty >= endLine || srcy >= image_height) { // Done with the segment or the image?
+              done = true;                          // Set a flag to end the loop...
+              break;                                // ...and break out of while(count--)
             }
           }
         }
