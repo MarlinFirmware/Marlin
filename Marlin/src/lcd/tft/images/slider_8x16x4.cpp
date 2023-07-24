@@ -26,9 +26,6 @@
 
 #include "../tft_image.h"
 
-extern const uint8_t slider_8x16x4[];
-const tImage Slider8x16x4 = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
-
 const uint8_t slider_8x16x4[64] = {
   0x88, 0xFF, 0xFF, 0x88,
   0x8F, 0xFF, 0xFF, 0xF8,
@@ -47,5 +44,7 @@ const uint8_t slider_8x16x4[64] = {
   0x8F, 0xFF, 0xFF, 0xF8,
   0x88, 0xFF, 0xFF, 0x88,
 };
+
+const tImage Slider8x16x4 = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
 
 #endif // HAS_GRAPHICAL_TFT
