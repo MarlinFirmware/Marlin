@@ -77,6 +77,9 @@ class FxdTiCtrl {
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
 
+      cfg.zeta = FTM_SHAPING_ZETA;
+      cfg.vtol = FTM_SHAPING_VTOL;
+
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
         cfg.dynFreqK[X_AXIS] = TERN_(HAS_Y_AXIS, cfg.dynFreqK[Y_AXIS]) = 0.0f;
