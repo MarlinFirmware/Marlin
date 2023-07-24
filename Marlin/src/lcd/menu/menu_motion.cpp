@@ -400,7 +400,7 @@ void menu_move() {
 
     SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
     MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
-    
+
     if (c.modeHasShaper()) {
       #if HAS_X_AXIS
         EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
@@ -408,6 +408,11 @@ void menu_move() {
       #if HAS_Y_AXIS
         EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
       #endif
+
+      EDIT_ITEM_FAST(float42_52, MSG_FTM_ZETA, &c.zeta, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
+
+      if WITHIN(c.mode, ftMotionMode_EI, ftMotionMode_3HEI)
+        EDIT_ITEM_FAST(float42_52, MSG_FTM_VTOL, &c.vtol, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
 
       #if HAS_DYNAMIC_FREQ
         if (c.modeHasShaper()) {
