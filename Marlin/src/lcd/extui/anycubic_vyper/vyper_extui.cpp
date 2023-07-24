@@ -60,10 +60,10 @@ namespace ExtUI {
   void onPrintTimerStopped() { dgus.timerEvent(AC_timer_stopped); }
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { dgus.filamentRunout();             }
+  void onFilamentRunout(const extruder_t)            { dgus.filamentRunout();         }
 
-  void onUserConfirmRequired(const char * const msg) { dgus.confirmationRequest(msg);     }
-  void onStatusChanged(const char * const msg)       { dgus.statusChange(msg);            }
+  void onUserConfirmRequired(const char * const msg) { dgus.confirmationRequest(msg); }
+  void onStatusChanged(const char * const msg)       { dgus.statusChange(msg);        }
 
   void onHomingStart()    { dgus.homingStart(); }
   void onHomingDone()     { dgus.homingComplete(); }

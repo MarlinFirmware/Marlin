@@ -52,16 +52,11 @@
 
 // Set TFT_COLOR_UI_PORTRAIT flag, if needed
 #if ((TFT_ORIENTATION) & TFT_EXCHANGE_XY) == 0
-  #define TFT_COLOR_UI_PORTRAIT 1
+  #define TFT_COLOR_UI_PORTRAIT
 #endif
 
 #define TFT_COLOR_RGB   _BV32(3)
 #define TFT_COLOR_BGR   _BV32(4)
-
-// Each TFT Driver is responsible for its default color mode.
-//#ifndef TFT_COLOR
-//  #define TFT_COLOR   TFT_COLOR_RGB
-//#endif
 
 #define TOUCH_ORIENTATION_NONE  0
 #define TOUCH_LANDSCAPE         1
