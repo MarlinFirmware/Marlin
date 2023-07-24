@@ -416,7 +416,7 @@ class Stepper {
       static bool        la_active;        // Whether linear advance is used on the present segment.
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       static constexpr hal_timer_t BABYSTEP_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextBabystepISR;
     #endif
@@ -475,7 +475,7 @@ class Stepper {
       static void advance_isr();
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       // The Babystepping ISR phase
       static hal_timer_t babystepping_isr();
       FORCE_INLINE static void initiateBabystepping() {
