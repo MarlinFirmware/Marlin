@@ -670,10 +670,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   // Software endstops depend on home_offset
-  LOOP_NUM_AXES(i) {
-    update_workspace_offset((AxisEnum)i);
-    update_software_endstops((AxisEnum)i);
-  }
+  LOOP_NUM_AXES(i) update_software_endstops((AxisEnum)i);
 
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
@@ -3701,7 +3698,7 @@ void MarlinSettings::reset() {
     //
     // M206 Home Offset
     //
-    TERN_(HAS_M206_COMMAND, gcode.M206_report(forReplay));
+    TERN_(HAS_HOME_OFFSET, gcode.M206_report(forReplay));
 
     //
     // M218 Hotend offsets

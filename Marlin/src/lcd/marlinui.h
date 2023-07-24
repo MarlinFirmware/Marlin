@@ -361,7 +361,6 @@ public:
   static void host_notify_P(PGM_P const fstr);
   static void host_notify(FSTR_P const fstr) { host_notify_P(FTOP(fstr)); }
   static void host_notify(const char * const cstr);
-  static void host_status();
 
   #if HAS_STATUS_MESSAGE
 

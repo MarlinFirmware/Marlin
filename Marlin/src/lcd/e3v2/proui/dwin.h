@@ -212,8 +212,12 @@ void doCoolDown();
 #if HAS_LCD_BRIGHTNESS
   void turnOffBacklight();
 #endif
-void applyExtMinT();
-void parkHead();
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  void applyExtMinT();
+#endif
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  void parkHead();
+#endif
 #if HAS_ONESTEP_LEVELING
   void trammingwizard();
 #endif
@@ -225,9 +229,6 @@ void parkHead();
   void ublMeshSave();
   void ublMeshLoad();
 #endif
-#if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-  void hostShutDown();
-#endif
 #if DISABLED(HAS_BED_PROBE)
   void homeZAndDisable();
 #endif
@@ -238,7 +239,7 @@ void gotoMainMenu();
 void gotoInfoMenu();
 void gotoPowerLossRecovery();
 void gotoConfirmToPrint();
-void dwinDrawDashboard(const bool with_update); // Status Area
+void dwinDrawDashboard(); // Status Area
 void drawMainArea();      // Redraw main area
 void dwinDrawStatusLine(const char *text = ""); // Draw simple status text
 void dwinRedrawDash();     // Redraw Dash and Status line
@@ -291,14 +292,8 @@ void dwinRebootScreen();
 #if HAS_MESH
   void dwinMeshViewer();
 #endif
-#if HAS_GCODE_PREVIEW
-  void hmiConfirmToPrint();
-#endif
 #if HAS_ESDIAG
   void drawEndStopDiag();
-#endif
-#if ENABLED(PRINTCOUNTER)
-  void drawPrintStats();
 #endif
 
 // Menu drawing functions
@@ -315,10 +310,6 @@ void drawTrammingMenu();
   void drawProbeSetMenu();
 #endif
 void drawFilSetMenu();
-#if ENABLED(NOZZLE_PARK_FEATURE)
-  void drawParkPosMenu();
-#endif
-void drawPhySetMenu();
 #if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
   void drawCaseLightMenu();
 #endif
@@ -371,6 +362,9 @@ void drawStepsMenu();
   #include "../../../module/temperature.h"
   void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
   void dwinPidTuning(tempcontrol_t result);
+  #if PROUI_TUNING_GRAPH
+    void dwinDrawPIDMPCPopup();
+  #endif
 #endif
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_AUTOTUNE_MENU)
@@ -390,9 +384,11 @@ void drawStepsMenu();
 #endif
 
 // MPC
-#if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-  void drawHotendMPCMenu();
-#endif
-#if ENABLED(MPC_AUTOTUNE)
-  void dwinMPCTuning(tempcontrol_t result);
+#if ENABLED(MPCTEMP)
+  #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+    void drawHotendMPCMenu();
+  #endif
+  #if ENABLED(MPC_AUTOTUNE)
+    void dwinMPCTuning(tempcontrol_t result);
+  #endif
 #endif
