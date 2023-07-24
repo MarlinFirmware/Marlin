@@ -404,7 +404,7 @@
     #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
   #endif
 
-  #define TFT_BUFFER_WORDS                0x4000  // 16384 words = 32KB
+  #define TFT_BUFFER_WORDS                0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
