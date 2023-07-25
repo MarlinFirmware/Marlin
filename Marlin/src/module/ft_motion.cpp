@@ -639,31 +639,19 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
 
   //#define STEPS_ROUNDING
   #if ENABLED(STEPS_ROUNDING)
-    const xyze_float_t steps_tar = LOGICAL_AXIS_ARRAY(
-      trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)] + (trajMod.e[idx] < 0.0f ? -0.5f : 0.5f), // May be eliminated if guaranteed positive.
-      trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS] + (trajMod.x[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS] + (trajMod.y[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS] + (trajMod.z[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.i[idx] * planner.settings.axis_steps_per_mm[I_AXIS] + (trajMod.i[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.j[idx] * planner.settings.axis_steps_per_mm[J_AXIS] + (trajMod.j[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.k[idx] * planner.settings.axis_steps_per_mm[K_AXIS] + (trajMod.k[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.u[idx] * planner.settings.axis_steps_per_mm[U_AXIS] + (trajMod.u[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.v[idx] * planner.settings.axis_steps_per_mm[V_AXIS] + (trajMod.v[idx] < 0.0f ? -0.5f : 0.5f),
-      trajMod.w[idx] * planner.settings.axis_steps_per_mm[W_AXIS] + (trajMod.w[idx] < 0.0f ? -0.5f : 0.5f),
+    const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
+      int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)] + (trajMod.e[idx] < 0.0f ? -0.5f : 0.5f)), // May be eliminated if guaranteed positive.
+      int32_t(trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS] + (trajMod.x[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS] + (trajMod.y[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS] + (trajMod.z[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.i[idx] * planner.settings.axis_steps_per_mm[I_AXIS] + (trajMod.i[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.j[idx] * planner.settings.axis_steps_per_mm[J_AXIS] + (trajMod.j[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.k[idx] * planner.settings.axis_steps_per_mm[K_AXIS] + (trajMod.k[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.u[idx] * planner.settings.axis_steps_per_mm[U_AXIS] + (trajMod.u[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.v[idx] * planner.settings.axis_steps_per_mm[V_AXIS] + (trajMod.v[idx] < 0.0f ? -0.5f : 0.5f)),
+      int32_t(trajMod.w[idx] * planner.settings.axis_steps_per_mm[W_AXIS] + (trajMod.w[idx] < 0.0f ? -0.5f : 0.5f)),
     );
-    xyze_long_t delta = xyze_long_t(steps_tar) - steps;
-    //const xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-    //  int32_t(steps_tar.e) - steps.e,
-    //  int32_t(steps_tar.x) - steps.x,
-    //  int32_t(steps_tar.y) - steps.y,
-    //  int32_t(steps_tar.z) - steps.z,
-    //  int32_t(steps_tar.i) - steps.i,
-    //  int32_t(steps_tar.j) - steps.j,
-    //  int32_t(steps_tar.k) - steps.k,
-    //  int32_t(steps_tar.u) - steps.u,
-    //  int32_t(steps_tar.v) - steps.v,
-    //  int32_t(steps_tar.w) - steps.w
-    //);
+    xyze_long_t delta = steps_tar - steps;
   #else
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
       int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)]) - steps.e,
