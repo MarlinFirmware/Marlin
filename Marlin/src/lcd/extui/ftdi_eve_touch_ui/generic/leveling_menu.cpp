@@ -81,7 +81,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .text(BLTOUCH_TITLE_POS, GET_TEXT_F(MSG_BLTOUCH))
     #endif
        .font(font_medium).colors(normal_btn)
-       .enabled(ANY(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION))
+       .enabled(ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION))
        .tag(2).button(LEVEL_AXIS_POS, GET_TEXT_F(MSG_LEVEL_X_AXIS))
        .enabled(ENABLED(HAS_BED_PROBE))
        .tag(3).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
@@ -103,7 +103,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
 bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
-    #if ANY(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION)
+    #if ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
       case 2: SpinnerDialogBox::enqueueAndWait(F("G34")); break;
     #endif
     #if HAS_BED_PROBE
