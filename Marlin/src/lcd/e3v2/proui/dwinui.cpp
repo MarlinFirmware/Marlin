@@ -297,12 +297,17 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
   uint8_t B, G, R;
   const uint8_t maxB = 28, maxR = 28, maxG = 38;
   const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n = minv >= 0 ? float(val - minv) / (maxv - minv) : (float)val / limv;
+  float n = (minv >= 0) ? (float)(val - minv) / (maxv - minv) : (float)val / limv;
   LIMIT(n, -1, 1);
-  if (n < 0) {
+  if (n <= -0.5) {
     R = 0;
-    G = (1 + n) * maxG;
-    B = (-n) * maxB;
+    G = maxG * (1 + n);
+    B = maxB;
+  }
+  else if (n <= 0) {
+    R = 0;
+    G = maxG;
+    B = maxB * (-n) * 2;
   }
   else if (n < 0.5) {
     R = maxR * n * 2;
