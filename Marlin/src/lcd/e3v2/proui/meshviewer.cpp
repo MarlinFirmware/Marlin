@@ -92,13 +92,13 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
         DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3*fs, py(y) - fs, z);
         break;
       case -99 ... -1:
-        sprintf_P(str_1, PSTR("-.%02i"), -v);
+        sprintf_P(str_1, PSTR("%.2f"), z);
         break;
       case 0:
         dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, py(y) - fs, "0");
         break;
       case 1 ... 99:
-        sprintf_P(str_1, PSTR(".%02i"), v);
+        sprintf_P(str_1, PSTR("%.2f"), z);
         break;
       case 100 ... 999:
         DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3 * fs, py(y) - fs, z);
