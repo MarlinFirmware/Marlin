@@ -853,6 +853,19 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ *  Nonlinear Extrusion requirements
+ */
+#if ENABLED(NONLINEAR_EXTRUSION)
+  #if DISABLED(ADAPTIVE_STEP_SMOOTHING)
+    #error "ADAPTIVE_STEP_SMOOTHING is required for NONLINEAR_EXTRUSION"
+  #endif
+
+  #if EXTRUDERS > 1
+    #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups"
+  #endif
+#endif
+
+/**
  * Special tool-changing options
  */
 #if MANY(SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)

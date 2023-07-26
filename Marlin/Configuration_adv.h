@@ -2264,6 +2264,15 @@
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
 #endif
 
+/**
+ * Nonlinear Extrusion Control
+ *
+ * Enables control over extrusion rate based on instantaneous extruder velocity. This can be used
+ * to correct for underextrusion at high extruder speeds that are otherwise well-behaved (e.g.
+ * not yet skipping).
+*/
+//#define NONLINEAR_EXTRUSION
+
 // @section leveling
 
 /**

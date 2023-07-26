@@ -245,6 +245,17 @@ uint32_t Stepper::advance_divisor = 0,
   bool        Stepper::la_active = false;
 #endif
 
+#if ENABLED(NONLINEAR_EXTRUSION)
+  int32_t Stepper::ne_edividend;
+  float Stepper::ne_A = 0;
+  float Stepper::ne_B = 0;
+  float Stepper::ne_C = 1;
+  uint32_t Stepper::ne_Afix;
+  uint32_t Stepper::ne_Bfix;
+  uint32_t Stepper::ne_Cfix;
+  uint32_t Stepper::ne_scale;
+#endif
+
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
   #if ANY(MCU_LPC1768, MCU_LPC1769) && DISABLED(NO_LPC_ETHERNET_BUFFER)
@@ -2194,6 +2205,11 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    uint32_t velocity = ne_scale * step_rate; // scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    advance_dividend.e = STEP_MULTIPLY(ne_Cfix + STEP_MULTIPLY(velocity, ne_Afix) + STEP_MULTIPLY(velocity, STEP_MULTIPLY(velocity, ne_Bfix)), ne_edividend);
+  #endif
+
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
 
     #if MULTISTEPPING_LIMIT == 1
@@ -2636,15 +2652,16 @@ hal_timer_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
+        oversampling_factor = 0;                          // Assume no axis smoothing (via oversampling)
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          oversampling_factor = 1;                        // We need at least 2x oversampling to ensure we can increase extruder step rate
+        #endif
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
-        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
-          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
-            max_rate <<= 1;                                 // Try to double the rate
-            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
-              ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
-          }
+        uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
+        while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+          max_rate <<= 1;                                 // Try to double the rate
+          if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+            ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
         }
       #endif
 
@@ -2753,6 +2770,21 @@ hal_timer_t Stepper::block_phase_isr() {
       #else
         // Set as deceleration point the initial rate of the block
         acc_step_rate = current_block->initial_rate;
+      #endif
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        ne_edividend = advance_dividend.e;
+        float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        ne_scale = (1L << 24) * scale;
+        if (current_block->direction_bits.e) {
+          ne_Afix = (1L << 24) * ne_A;
+          ne_Bfix = (1L << 24) * ne_B;
+          ne_Cfix = (1L << 24) * ne_C;
+        } else {
+          ne_Afix = 0;
+          ne_Bfix = 0;
+          ne_Cfix = (1L << 24);
+        }
       #endif
 
       // Calculate the initial timer interval

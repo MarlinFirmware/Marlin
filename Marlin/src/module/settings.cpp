@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V88"
+#define EEPROM_VERSION "V89"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -632,6 +632,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(HOTEND_IDLE_TIMEOUT)
     hotend_idle_settings_t hotend_idle_config;          // M86 S T E B
+  #endif
+
+  //
+  // NONLINEAR_EXTRUSION
+  //
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    float ne_A, ne_B, ne_C;                             // M592 A B C
   #endif
 
 } SettingsData;
@@ -1730,6 +1737,15 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // NONLINEAR_EXTRUSION
+    //
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EEPROM_WRITE(stepper.ne_A);
+      EEPROM_WRITE(stepper.ne_B);
+      EEPROM_WRITE(stepper.ne_C);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (eeprom_error == ERR_EEPROM_NOERR) {
@@ -2801,6 +2817,15 @@ void MarlinSettings::postprocess() {
       //
       #if ENABLED(HOTEND_IDLE_TIMEOUT)
         EEPROM_READ(hotend_idle.cfg);
+      #endif
+
+      //
+      // NONLINEAR_EXTRUSION
+      //
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        EEPROM_READ(stepper.ne_A);
+        EEPROM_READ(stepper.ne_B);
+        EEPROM_READ(stepper.ne_C);
       #endif
 
       //

@@ -326,6 +326,12 @@ class Stepper {
       static bool frozen;                 // Set this flag to instantly freeze motion
     #endif
 
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      static float ne_A;
+      static float ne_B;
+      static float ne_C;
+    #endif
+
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -414,6 +420,14 @@ class Stepper {
                          la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
                          la_advance_steps; // Count of steps added to increase nozzle pressure
       static bool        la_active;        // Whether linear advance is used on the present segment.
+    #endif
+
+    #if ENABLED(NONLINEAR_EXTRUSION)
+        static int32_t ne_edividend;
+        static uint32_t ne_Afix;
+        static uint32_t ne_Bfix;
+        static uint32_t ne_Cfix;
+        static uint32_t ne_scale;
     #endif
 
     #if ENABLED(BABYSTEPPING)
