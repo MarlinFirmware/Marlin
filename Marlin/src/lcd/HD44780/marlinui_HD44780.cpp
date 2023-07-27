@@ -1212,7 +1212,8 @@ void MarlinUI::draw_status_screen() {
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_lchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vlen);
+    uint8_t n = LCD_WIDTH - 2 - vlen;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     if (vlen) {
       lcd_put_u8str(F(":"));
       for (; n; --n) lcd_put_u8str(F(" "));
