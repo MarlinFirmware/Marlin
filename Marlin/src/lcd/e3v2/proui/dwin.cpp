@@ -1255,7 +1255,7 @@ void eachMomentUpdate() {
   
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     if (ui.backlight_off_ms && ELAPSED(ms, ui.backlight_off_ms)) {
-      TurnOffBacklight(); // Backlight off
+      turnOffBacklight(); // Backlight off
       ui.backlight_off_ms = 0;
     }
   #endif
@@ -2266,19 +2266,19 @@ void setSpeed() { setPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
   void setFanSpeed() { setIntOnClick(0, 255, thermalManager.fan_speed[0], applyFanSpeed); }
 #endif
 
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  void parkHead() {
+    LCD_MESSAGE(MSG_FILAMENT_PARK_ENABLED);
+    queue.inject(F("G28O\nG27"));
+  }
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   void changeFilament() {
     hmiSaveProcessID(ID_NothingToDo);
     queue.inject(F("M600 B2"));
   }
-
-  #if ENABLED(NOZZLE_PARK_FEATURE)
-    void parkHead() {
-      LCD_MESSAGE(MSG_FILAMENT_PARK_ENABLED);
-      queue.inject(F("G28O\nG27"));
-    }
-  #endif
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     void unloadFilament() {
@@ -2987,9 +2987,7 @@ void drawPrepareMenu() {
   checkkey = ID_Menu;
   if (SET_MENU_R(prepareMenu, selrect({133, 1, 28, 13}), MSG_PREPARE, 10 + PREHEAT_COUNT)) {
     BACK_ITEM(gotoMainMenu);
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      MENU_ITEM(ICON_FilMan, MSG_FILAMENT_MAN, onDrawSubMenu, drawFilamentManMenu);
-    #endif
+    MENU_ITEM(ICON_FilMan, MSG_FILAMENT_MAN, onDrawSubMenu, drawFilamentManMenu);
     MENU_ITEM(ICON_Axis, MSG_MOVE_AXIS, onDrawMoveSubMenu, drawMoveMenu);
     #if ENABLED(LCD_BED_TRAMMING)
       MENU_ITEM(ICON_Tram, MSG_BED_TRAMMING, onDrawSubMenu, drawTrammingMenu);
@@ -3454,9 +3452,7 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-
-  #if HAS_PREHEAT
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && HAS_PREHEAT
 
     void drawPreheatHotendMenu() {
       checkkey = ID_Menu;
@@ -3468,7 +3464,7 @@ void drawMotionMenu() {
       updateMenu(preheatHotendMenu);
     }
 
-  #endif
+#endif
 
   void drawFilamentManMenu() {
     checkkey = ID_Menu;
@@ -3477,10 +3473,12 @@ void drawMotionMenu() {
       #if ENABLED(NOZZLE_PARK_FEATURE)
         MENU_ITEM(ICON_Park, MSG_FILAMENT_PARK_ENABLED, onDrawMenuItem, parkHead);
       #endif
-      #if HAS_PREHEAT
-        MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if HAS_PREHEAT
+          MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
+        #endif
+        MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
       #endif
-      MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         MENU_ITEM(ICON_FilUnload, MSG_FILAMENTUNLOAD, onDrawMenuItem, unloadFilament);
         MENU_ITEM(ICON_FilLoad, MSG_FILAMENTLOAD, onDrawMenuItem, loadFilament);
@@ -3488,8 +3486,6 @@ void drawMotionMenu() {
     }
     updateMenu(filamentMenu);
   }
-
-#endif
 
 #if ENABLED(MESH_BED_LEVELING)
 
