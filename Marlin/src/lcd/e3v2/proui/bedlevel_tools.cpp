@@ -74,6 +74,7 @@ uint8_t BedLevelTools::mesh_y = 0;
 uint8_t BedLevelTools::tilt_grid = 1;
 
 bool drawing_mesh = false;
+char str_1[16];
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
