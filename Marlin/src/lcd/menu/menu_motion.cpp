@@ -354,12 +354,12 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back();});
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back();});
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back();});
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
       #endif
 
       END_MENU();
