@@ -247,10 +247,6 @@ void Touch::touch(touch_control_t *control) {
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
 
-    case MOVE_AXIS:
-      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
-      break;
-
     // TODO: TOUCH could receive data to pass to the callback
     case BUTTON: ((screenFunc_t)control->data)(); break;
 
@@ -321,13 +317,6 @@ Touch touch;
 
 bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
-}
-
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-  const uint16_t width = images[image].width, height = images[image].height;
-  tft.canvas(x, y, width, height);
-  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-  if (is_enabled) touch.add_control(control_type, x, y, width, height, data);
 }
 
 #endif // TOUCH_SCREEN

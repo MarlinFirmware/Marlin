@@ -47,7 +47,7 @@ bool FilamentMonitorBase::enabled = true,
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
-  volatile countdown_t RunoutResponseDelayed::mm_countdown;
+  countdown_t RunoutResponseDelayed::mm_countdown;
   #if ENABLED(FILAMENT_MOTION_SENSOR)
     uint8_t FilamentSensorEncoder::motion_detected;
   #endif
@@ -101,15 +101,16 @@ void event_filament_runout(const uint8_t extruder) {
 
   const bool run_runout_script = !runout.host_handling;
 
-  const bool park_or_pause = (false
-    #ifdef FILAMENT_RUNOUT_SCRIPT
-      || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
-      || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-      || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
-    #endif
-  );
-
   #if ENABLED(HOST_ACTION_COMMANDS)
+
+    const bool park_or_pause = (false
+      #ifdef FILAMENT_RUNOUT_SCRIPT
+        || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+        || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
+        || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
+      #endif
+    );
+
     if (run_runout_script && park_or_pause) {
       hostui.paused(false);
     }
@@ -127,6 +128,7 @@ void event_filament_runout(const uint8_t extruder) {
     SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
     SERIAL_CHAR(tool);
     SERIAL_EOL();
+
   #endif // HOST_ACTION_COMMANDS
 
   #ifdef FILAMENT_RUNOUT_SCRIPT
