@@ -411,27 +411,26 @@ void menu_move() {
 
       EDIT_ITEM_FAST(float42_52, MSG_FTM_ZETA, &c.zeta, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
 
-      if WITHIN(c.mode, ftMotionMode_EI, ftMotionMode_3HEI)
+      if (WITHIN(c.mode, ftMotionMode_EI, ftMotionMode_3HEI))
         EDIT_ITEM_FAST(float42_52, MSG_FTM_VTOL, &c.vtol, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
 
       #if HAS_DYNAMIC_FREQ
-        if (c.modeHasShaper()) {
-          SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-          MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
-          if(c.dynFreqMode != dynFreqMode_DISABLED) {
-            #if HAS_X_AXIS
-              EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
-            #endif
-            #if HAS_Y_AXIS
-              EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
-            #endif
-          }
+        SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+        if (c.dynFreqMode != dynFreqMode_DISABLED) {
+          #if HAS_X_AXIS
+            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
+          #endif
+          #if HAS_Y_AXIS
+            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
+          #endif
         }
       #endif
     }
+
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      if(c.linearAdvEna)
+      if (c.linearAdvEna)
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 

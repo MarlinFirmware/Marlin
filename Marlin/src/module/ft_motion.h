@@ -49,7 +49,7 @@ typedef struct FTConfig {
   #endif
 
   float zeta = FTM_SHAPING_ZETA;                            // Damping factor
-  float vtol = FTM_SHAPING_V_TOL;                          // Vibration Level
+  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
