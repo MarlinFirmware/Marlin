@@ -60,7 +60,7 @@ public:
      * Optionally change the maximum size of the provided value to enable finer PWM duty control [default = 255]
      * The timer must be pre-configured with set_pwm_frequency() if the default frequency is not desired.
      */
-    static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t = 255, const bool = false);
+    static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale = 255, const bool invert = false);
 
     /**
      * Set the frequency of the timer for the given pin.

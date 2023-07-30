@@ -283,14 +283,35 @@ uint16_t MarlinHAL::adc_value()
     return getAnalogReadValue(MarlinHAL::last_adc_pin);
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t a, const bool b)
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale, const bool invert)
 {
-    // TODO stub
+    // invert value if requested
+    uint16_t val = invert ? scale - value : value;
+
+    // if val is 0 or scale, digitalWrite to LOW or HIGH
+    if (val <= 0)
+    {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+    else if (val >= scale)
+    {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, HIGH);
+    }
+    else
+    {
+        // just analogWrite the value, core handles the rest
+        // ensure pin mode is correct
+        pinMode(pin, OUTPUT_PWM);
+        analogWriteScaled(pin, val, scale);
+    }
 }
 
 void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired)
 {
     // TODO stub
+    printf("set_pwm_frequency is not implemented yet\n");
 }
 
 void flashFirmware(const int16_t) { MarlinHAL::reboot(); }

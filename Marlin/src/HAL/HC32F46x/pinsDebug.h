@@ -19,6 +19,7 @@
 #pragma once
 #include "fastio.h"
 #include "../../inc/MarlinConfig.h"
+#include <drivers/timera/timera_pwm.h>
 
 //
 // Translation of routines & variables used by pinsDebug.h
@@ -31,7 +32,6 @@
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
 #define VALID_PIN(pin) IS_GPIO_PIN(pin)
 #define GET_ARRAY_PIN(p) pin_t(pin_array[p].pin)
-#define pwm_status(pin) PWM_PIN(pin)
 #define digitalRead_mod(p) extDigitalRead(p)
 #define PRINT_PIN(p)                                  \
     do                                                \
@@ -86,6 +86,7 @@ static bool IS_ANALOG(pin_t pin)
 {
     if (!VALID_PIN(pin))
         return false;
+
     if (PIN_MAP[pin].adc_info.channel != ADC_PIN_INVALID)
     {
         return _GET_MODE(pin) == INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
@@ -105,9 +106,89 @@ static bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin)
     return (!IS_ANALOG(pin));
 }
 
+/**
+ * @brief print pin PWM status
+ * @return true if pin is currently a PWM pin, false otherwise
+ */
+static bool pwm_status(const pin_t pin)
+{
+    // get timer assignment for pin
+    timera_config_t *unit;
+    en_timera_channel_t channel;
+    en_port_func_t port_function;
+    if (!timera_get_assignment(pin, unit, channel, port_function) || unit == NULL)
+    {
+        // no pwm pin or no unit assigned
+        return false;
+    }
+
+    // a pin that is PWM output is:
+    // - assigned to a timerA unit (tested above)
+    // - unit is initialized
+    // - channel is active
+    // - GPIO function is set to assigned port_function (cannot test this)
+    // TODO: check GPIO function is set to assigned port_function
+    return timera_is_unit_initialized(unit) && timera_is_channel_active(unit, channel);
+}
+
 static void pwm_details(const pin_t pin)
 {
-    // TODO stub
+    // get timer assignment for pin
+    timera_config_t *unit;
+    en_timera_channel_t channel;
+    en_port_func_t port_function;
+    if (!timera_get_assignment(pin, unit, channel, port_function) || unit == NULL)
+    {
+        // no pwm pin or no unit assigned
+        return;
+    }
+
+    // print timer assignment of pin, eg. "TimerA1Ch2 Func4"
+    SERIAL_ECHOPGM("TimerA");
+    SERIAL_ECHO(TIMERA_REG_TO_X(unit->peripheral.register_base));
+    SERIAL_ECHOPGM("Ch");
+    SERIAL_ECHO(TIMERA_CHANNEL_TO_X(channel));
+    SERIAL_ECHOPGM(" Func");
+    SERIAL_ECHO(int(port_function));
+
+    SERIAL_ECHO_SP(3); // 3 spaces
+
+    // print timer unit state, eg. "1/16 PERAR=1234" OR "N/A"
+    if (timera_is_unit_initialized(unit))
+    {
+        // unit initialized, print
+        // - timer clock divider
+        // - timer period value (PERAR)
+        const uint8_t clock_divider = timera_clk_div_to_n(unit->state.base_init->enClkDiv);
+        const uint16_t period = TIMERA_GetPeriodValue(unit->peripheral.register_base);
+        SERIAL_ECHOPGM("1/");
+        SERIAL_ECHO(clock_divider);
+        SERIAL_ECHOPGM(" PERAR=");
+        SERIAL_ECHO(period);
+    }
+    else
+    {
+        // unit not initialized
+        SERIAL_ECHOPGM("N/A");
+        return;
+    }
+
+    SERIAL_ECHO_SP(3); // 3 spaces
+
+    // print timer channel state, e.g. "CMPAR=1234" OR "N/A"
+    if (timera_is_channel_active(unit, channel))
+    {
+        // channel active, print
+        // - channel compare value
+        const uint16_t compare = TIMERA_GetCompareValue(unit->peripheral.register_base, channel);
+        SERIAL_ECHOPGM("CMPAR=");
+        SERIAL_ECHO(compare);
+    }
+    else
+    {
+        // channel inactive
+        SERIAL_ECHOPGM("N/A");
+    }
 }
 
 static void print_port(pin_t pin)
