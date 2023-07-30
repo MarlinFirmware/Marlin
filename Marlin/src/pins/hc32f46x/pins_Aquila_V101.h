@@ -161,7 +161,6 @@
 #ifndef FAN_PIN
   #define FAN0_PIN PA0 // FAN0
 #endif
-#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
