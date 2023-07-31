@@ -3140,15 +3140,15 @@
   #undef MOTOR_CURRENT
 #endif
 
-// Updated G92 behavior shifts the workspace
+// G92 shifts the workspace
 #if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_POSITION_SHIFT 1
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
   #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
-    #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
-    #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
   #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
   #endif
 #endif
 
