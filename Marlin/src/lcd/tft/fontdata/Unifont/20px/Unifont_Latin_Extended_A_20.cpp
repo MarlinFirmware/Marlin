@@ -20,14 +20,11 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
 
-#include <stdint.h>
-
-// Unifont Latin Extended-A 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0100-0x017f
+// Unifont Latin Extended-A 32pt, capital 'A' height: 20px, width: 100%, range: 0x0100-0x017f
 extern const uint8_t Unifont_Latin_Extended_A_20[7160] = {
   129,20,0,1,127,1,28,252, // unifont_t
   // 0x0100  Ā

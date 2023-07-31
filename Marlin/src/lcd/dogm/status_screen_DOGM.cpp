@@ -773,7 +773,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)){
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       ui.rotate_progress();
       lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
     }

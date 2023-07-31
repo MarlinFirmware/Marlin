@@ -361,8 +361,8 @@
       #define LCD_PINS_EN                  -1
       #define LCD_PINS_RS                  -1
 
-      #ifndef TFT_BUFFER_SIZE
-        #define TFT_BUFFER_SIZE             1200
+      #ifndef TFT_BUFFER_WORDS
+        #define TFT_BUFFER_WORDS            1200
       #endif
       #ifndef TFT_QUEUE_SIZE
         #define TFT_QUEUE_SIZE              6144

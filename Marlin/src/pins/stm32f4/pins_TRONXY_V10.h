@@ -209,7 +209,7 @@
   //#define TFT_PIXEL_OFFSET_X                48
   //#define TFT_PIXEL_OFFSET_Y                32
   //#define TFT_DRIVER                   ILI9488
-  //#define TFT_BUFFER_SIZE                14400
+  //#define TFT_BUFFER_WORDS               14400
 
   #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PD11  // SPI1_NSS
