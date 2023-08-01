@@ -786,6 +786,10 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
+      #ifndef HUGE_VALF
+        #define HUGE_VALF (10e100F)
+      #endif
+
       best = do_furthest // points with valid data and with HUGE_VALF will be skipped
         ? find_furthest_invalid_mesh_point()
         : find_closest_mesh_point_of_type(INVALID, nearby, true);
