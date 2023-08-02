@@ -80,6 +80,8 @@ void TFT_SPI::init() {
     if (TFT_MISO_PIN != TFT_MOSI_PIN) pinmap_pinout(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO);
   #endif
 
+  //pin_PullConfig(get_GPIO_Port(STM_PORT(digitalPinToPinName(TFT_SCK_PIN))), STM_LL_GPIO_PIN(digitalPinToPinName(TFT_SCK_PIN)), GPIO_PULLDOWN);
+
   #ifdef SPI1_BASE
     if (SPIx.Instance == SPI1) {
       __HAL_RCC_SPI1_CLK_ENABLE();
@@ -174,6 +176,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     const uint32_t oldPrescaler = SPIx.Init.BaudRatePrescaler;
 
     SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+    //SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
     dataTransferBegin(DATASIZE_8BIT);
     writeReg(inReg);
 
@@ -236,8 +239,8 @@ bool TFT_SPI::isBusy() {
       // Check if SPI data transfer is completed
       if (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_EOT)) return true;
     #else
-      // Check if SPI is idle
-      if (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) return true;
+      // Check if SPI transmit butter is empty and SPI is idle
+      if ((!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) || (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY))) return true;
     #endif
   }
 
@@ -289,9 +292,7 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
   DMAtx.Init.MemInc = memoryIncrease;
   HAL_DMA_Init(&DMAtx);
 
-  #if TFT_MISO_PIN == TFT_MOSI_PIN
-    SPI_1LINE_TX(&SPIx);
-  #endif
+  if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_TX(&SPIx);
 
   dataTransferBegin();
 
@@ -320,6 +321,7 @@ void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) 
   #ifdef STM32H7xx
     while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_SR_EOT)) {}
   #else
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
     while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
   #endif
   abort();
@@ -331,8 +333,7 @@ void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) 
     DMAtx.Init.MemInc = memoryIncrease;
     HAL_DMA_Init(&DMAtx);
 
-    if (TFT_MISO_PIN == TFT_MOSI_PIN)
-      SPI_1LINE_TX(&SPIx);
+    if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_TX(&SPIx);
 
     dataTransferBegin();
 
