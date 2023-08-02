@@ -252,7 +252,7 @@ typedef struct SettingsDataStruct {
   // Extruder Flow %
   //
   #if HAS_EXTRUDERS
-    uint16_t flow_percentage[EXTRUDERS];                // M221 T S
+    uint16_t planner_flow_percentage[EXTRUDERS];                // M221 T S
   #endif
 
   //
@@ -898,7 +898,7 @@ void MarlinSettings::postprocess() {
     // Extruder Flow %
     //
     #if HAS_EXTRUDERS
-      _FIELD_TEST(flow_percentage);
+      _FIELD_TEST(planner_flow_percentage);
       EEPROM_WRITE(planner.flow_percentage);
     #endif
 
@@ -1922,7 +1922,7 @@ void MarlinSettings::postprocess() {
       // Extruder Flow %
       //
       #if HAS_EXTRUDERS
-        _FIELD_TEST(flow_percentage);
+        _FIELD_TEST(planner_flow_percentage);
         EEPROM_READ(planner.flow_percentage);
       #endif
 
