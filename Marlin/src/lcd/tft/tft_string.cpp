@@ -58,7 +58,7 @@ void TFT_String::set_font(const uint8_t *font) {
     for (glyph = 0; glyph < EXTRA_GLYPHS; glyph++) glyphs_extra[glyph] = nullptr;
   #endif
 
-  DEBUG_ECHOLNPGM("Format: ",            ((unifont_t *)font_header)->format);
+  DEBUG_ECHOLNPGM("format: ",            ((unifont_t *)font_header)->format);
   DEBUG_ECHOLNPGM("capitalAHeight: ",    ((unifont_t *)font_header)->capitalAHeight);
   DEBUG_ECHOLNPGM("fontStartEncoding: ", ((unifont_t *)font_header)->fontStartEncoding);
   DEBUG_ECHOLNPGM("fontEndEncoding: ",   ((unifont_t *)font_header)->fontEndEncoding);
