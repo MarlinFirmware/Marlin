@@ -160,7 +160,7 @@ void setup_endstop_interrupts() {
       pciSetup(Z_MAX_PIN);
     #endif
   #endif
-  #if HAS_Z_MIN_PIN
+  #if USE_Z_MIN
     #if (digitalPinToInterrupt(Z_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z_MIN_PIN);
     #else
