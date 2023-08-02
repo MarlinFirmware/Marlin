@@ -183,13 +183,13 @@ void MarlinHAL::idletask()
             char tempStr[10];
             dtostrf(temp, 8, 1, tempStr);
 #endif
-            printf("SoC temperature %s is above 60C", tempStr);
+            printf("SoC temperature %s is above 60C\n", tempStr);
         }
 
         // panic after reaching 80C
         if (temp > 80)
         {
-            printf("SoC overheat! temperature is > 80C");
+            printf("SoC overheat! temperature is > 80C\n");
             MarlinHAL::reboot();
         }
     }
