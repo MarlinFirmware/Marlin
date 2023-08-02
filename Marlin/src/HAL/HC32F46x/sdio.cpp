@@ -88,7 +88,7 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst)
 		}
 		else
 		{
-			printf("SDIO_ReadBlock error (rc=%u)\n", rc);
+			printf("SDIO_ReadBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
 		}
 	})
 
@@ -108,7 +108,7 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src)
 		}
 		else
 		{
-			printf("SDIO_WriteBlock error (rc=%u)\n", rc);
+			printf("SDIO_WriteBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
 		}
 	})
 
@@ -124,7 +124,7 @@ bool SDIO_IsReady()
 uint32_t SDIO_GetCardSize()
 {
 	CORE_ASSERT(handle != NULL, "SDIO not initialized");
-	
+
 	// multiply number of blocks with block size to get size in bytes
 	uint64_t cardSizeBytes = uint64_t(handle->stcSdCardInfo.u32LogBlockNbr) * uint64_t(handle->stcSdCardInfo.u32LogBlockSize);
 
