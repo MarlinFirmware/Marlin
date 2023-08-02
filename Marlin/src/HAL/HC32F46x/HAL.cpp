@@ -1,5 +1,6 @@
 #include "HAL.h"
 #include <core_hooks.h>
+#include <drivers/panic/panic.h>
 
 //
 // Emergency Parser
@@ -28,3 +29,16 @@ extern "C" void core_hook_usart_rx_irq(uint8_t ch, uint8_t usart)
         emergency_parser.update(MYSERIAL1.emergency_state, ch);
 }
 #endif
+
+//
+// panic hook
+//
+extern "C" void core_hook_panic_end()
+{
+    // print '!!' to signal error to host
+    // do it 10x so it's not missed
+    for (int i = 0; i < 10; i++)
+    {
+        panic_printf("\n!!\n");
+    }
+}
