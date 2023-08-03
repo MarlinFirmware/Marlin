@@ -414,7 +414,7 @@
     #define SD_MISO_PIN              EXP2_01_PIN
     #define SD_MOSI_PIN              EXP2_06_PIN
 
-    #define TFT_BUFFER_SIZE                 2400
+    #define TFT_BUFFER_WORDS                2400
 
   #elif IS_TFTGLCD_PANEL
 

@@ -67,9 +67,9 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(SENSORLESS_HOMING, endstops.set_homing_current(true));
+  TERN_(SENSORLESS_HOMING, endstops.set_z_sensorless_current(true));
   home_delta();
-  TERN_(SENSORLESS_HOMING, endstops.set_homing_current(false));
+  TERN_(SENSORLESS_HOMING, endstops.set_z_sensorless_current(false));
   endstops.not_homing();
 }
 
@@ -649,7 +649,7 @@ void GcodeSuite::G33() {
         SERIAL_ECHOLNPGM("Save with M500 and/or copy to Configuration.h");
       }
       else { // !end iterations
-        SString<14> msg;
+        SString<15> msg;
         if (iterations < 31)
           msg.setf(F("Iteration : %02i"), (unsigned int)iterations);
         else
