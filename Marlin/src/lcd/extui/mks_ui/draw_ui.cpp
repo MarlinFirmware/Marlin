@@ -631,7 +631,7 @@ char *creat_title_text() {
         p_index = (uint16_t *)(&bmp_public_buf[i]);
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
-      SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
+      SPI_TFT.tftio.writeSequence((uint16_t*)bmp_public_buf, 200);
       #if HAS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_QUARTER_SPEED);
         if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
@@ -692,7 +692,7 @@ char *creat_title_text() {
       #endif
 
       SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
-      SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
+      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
       y_off++;
     }
@@ -1377,7 +1377,7 @@ void LV_TASK_HANDLER() {
   if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
     lv_task_handler();
 
-  #if BOTH(MKS_TEST, HAS_MEDIA)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

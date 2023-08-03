@@ -37,7 +37,7 @@ void BaseMoveAxisScreen::onEntry() {
   // ourselves. The relative distances are reset to zero whenever this
   // screen is entered.
 
-  LOOP_L_N(i, ExtUI::extruderCount) {
+  for (uint8_t i = 0; i < ExtUI::extruderCount; ++i) {
     mydata.e_rel[i] = 0;
   }
   BaseNumericAdjustmentScreen::onEntry();

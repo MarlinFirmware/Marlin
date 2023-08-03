@@ -168,7 +168,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
+    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
       report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(
           PSTR("  M201 T"), i
@@ -224,7 +224,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
+    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
       if (!forReplay) SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i

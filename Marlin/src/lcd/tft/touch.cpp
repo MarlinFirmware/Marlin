@@ -58,7 +58,7 @@ TouchControlType Touch::touch_control_type = NONE;
 void Touch::init() {
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
-  io.Init();
+  io.init();
   TERN_(HAS_TOUCH_SLEEP, wakeUp());
   enable();
 }
@@ -222,15 +222,19 @@ void Touch::touch(touch_control_t *control) {
       ui.clear_lcd();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, 10, 999);
       break;
-    case FLOWRATE:
-      ui.clear_lcd();
-      MenuItemBase::itemIndex = control->data;
-      #if EXTRUDERS == 1
-        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-      #else
-        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-      #endif
-      break;
+
+    #if HAS_EXTRUDERS
+      case FLOWRATE:
+        ui.clear_lcd();
+        MenuItemBase::itemIndex = control->data;
+        #if EXTRUDERS == 1
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+        #else
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+        #endif
+        break;
+    #endif
+
     case STOP:
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
@@ -242,10 +246,6 @@ void Touch::touch(touch_control_t *control) {
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
-
-    case MOVE_AXIS:
-      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
-      break;
 
     // TODO: TOUCH could receive data to pass to the callback
     case BUTTON: ((screenFunc_t)control->data)(); break;
@@ -317,15 +317,6 @@ Touch touch;
 
 bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
-}
-
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-  uint16_t width = Images[image].width;
-  uint16_t height = Images[image].height;
-  tft.canvas(x, y, width, height);
-  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-  if (is_enabled)
-    touch.add_control(control_type, x, y, width, height, data);
 }
 
 #endif // TOUCH_SCREEN

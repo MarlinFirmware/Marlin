@@ -97,22 +97,23 @@ void GcodeSuite::G35() {
   bool err_break = false;
 
   // Probe all positions
-  LOOP_L_N(i, G35_PROBE_COUNT) {
+  for (uint8_t i = 0; i < G35_PROBE_COUNT; ++i) {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
-      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_CHAR(')');
-      SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
+      SERIAL_ECHO(
+        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y
+      );
       err_break = true;
       break;
     }
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
-      DEBUG_CHAR(')');
-      DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
+      DEBUG_ECHOLN(
+        F("Probing point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y,
+        FPSTR(SP_Z_STR), z_probed_height
+      );
     }
 
     z_measured[i] = z_probed_height;
@@ -122,7 +123,7 @@ void GcodeSuite::G35() {
     const float threads_factor[] = { 0.5, 0.7, 0.8 };
 
     // Calculate adjusts
-    LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
+    for (uint8_t i = 1; i < G35_PROBE_COUNT; ++i) {
       const float diff = z_measured[0] - z_measured[i],
                   adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
 
@@ -144,7 +145,7 @@ void GcodeSuite::G35() {
   // Restore the active tool after homing
   probe.use_probing_tool(false);
 
-  #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
+  #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 
