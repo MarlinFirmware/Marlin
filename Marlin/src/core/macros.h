@@ -375,6 +375,8 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class N> static constexpr N _MIN(const N val) { return val; }
+      template <class N> static constexpr N _MAX(const N val) { return val; }
       template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
@@ -394,9 +396,9 @@
     FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+    FORCE_INLINE T & operator&=(T &x, T y) { x = x & y; return x; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { x = x | y; return x; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { x = x ^ y; return x; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {

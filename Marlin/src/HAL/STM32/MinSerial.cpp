@@ -45,7 +45,7 @@ struct USARTMin {
   volatile uint32_t CR2;
 };
 
-#if WITHIN(SERIAL_PORT, 1, 6)
+#if WITHIN(SERIAL_PORT, 1, 9)
   // Depending on the CPU, the serial port is different for USART1
   static const uintptr_t regsAddr[] = {
     TERN(STM32F1xx, 0x40013800, 0x40011000), // USART1
@@ -54,6 +54,9 @@ struct USARTMin {
     0x40004C00, // UART4_BASE
     0x40005000, // UART5_BASE
     0x40011400  // USART6
+    0x40007800  // UART7_BASE
+    0x40007C00  // UART8_BASE
+    0x40011800  // UART9_BASE
   };
   static USARTMin * regs = (USARTMin*)regsAddr[SERIAL_PORT - 1];
 #endif
@@ -116,7 +119,7 @@ static void TXBegin() {
 // A SW memory barrier, to ensure GCC does not overoptimize loops
 #define sw_barrier() __asm__ volatile("": : :"memory");
 static void TX(char c) {
-  #if WITHIN(SERIAL_PORT, 1, 6)
+  #if WITHIN(SERIAL_PORT, 1, 9)
     constexpr uint32_t usart_sr_txe = _BV(7);
     while (!(regs->SR & usart_sr_txe)) {
       hal.watchdog_refresh();

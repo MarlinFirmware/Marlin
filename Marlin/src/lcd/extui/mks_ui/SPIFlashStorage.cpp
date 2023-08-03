@@ -59,7 +59,7 @@ uint32_t SPIFlashStorage::m_startAddress;
       while (index < inputLength && index - count < max && input[index] == pixel)
         index++;
       if (index - count == 1) {
-        /*
+        /**
          * Failed to "replicate" the current pixel. See how many to copy.
          * Avoid a replicate run of only 2-pixels after a literal run. There
          * is no gain in this, and there is a risK of loss if the run after
@@ -68,7 +68,7 @@ uint32_t SPIFlashStorage::m_startAddress;
          */
         while (index < inputLength && index - count < max && (input[index] != input[index - 1] || (index > 1 && input[index] != input[index - 2])))
           index++;
-        /*
+        /**
          * Check why this run stopped. If it found two identical pixels, reset
          * the index so we can add a run. Do this twice: the previous run
          * tried to detect a replicate run of at least 3 pixels. So we may be
