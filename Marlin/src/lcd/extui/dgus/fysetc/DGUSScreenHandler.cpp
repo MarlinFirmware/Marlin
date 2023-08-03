@@ -77,20 +77,18 @@
 
     if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
     switch (swap16(*(uint16_t*)val_ptr)) {
-      case 0: { // Resume
-        if (ExtUI::isPrintingFromMediaPaused()) {
-          ExtUI::resumePrint();
-        }
-      } break;
+      case 0:   // Resume
+        if (ExtUI::isPrintingFromMediaPaused()) ExtUI::resumePrint();
+        break;
 
       case 1: // Pause
-
         gotoScreen(DGUS_SCREEN_SDPRINTMANIPULATION);
         if (!ExtUI::isPrintingFromMediaPaused()) {
           ExtUI::pausePrint();
           //ExtUI::mks_pausePrint();
         }
         break;
+
       case 2: // Abort
         handleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
         break;

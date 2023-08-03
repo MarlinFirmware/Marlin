@@ -106,10 +106,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPGM("Current position is ", pos);
           SERIAL_ECHOLNPGM("Position in encoder ticks is ", positionInTicks);
           SERIAL_ECHOLNPGM("New zero-offset of ", zeroOffset);
-          SERIAL_ECHOPGM("New position reads as ", get_position());
-          SERIAL_CHAR('(');
-          SERIAL_DECIMAL(mm_from_count(get_position()));
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLN(F("New position reads as "), get_position(), AS_CHAR('('), mm_from_count(get_position()), AS_CHAR(')'));
         #endif
       }
     #endif

@@ -45,11 +45,6 @@
 #define SERVO0_PIN                          PB6
 
 //
-// Misc. Functions
-//
-#define LED_PIN                             PA13
-
-//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                          PG6   // X-STOP
@@ -60,13 +55,6 @@
 #define E1_DIAG_PIN                         PG13  // E1DET
 #define E2_DIAG_PIN                         PG14  // E2DET
 #define E3_DIAG_PIN                         PG15  // E3DET
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
-#endif
 
 //
 // Limit Switches
@@ -126,6 +114,13 @@
 #endif
 
 //
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB7
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PG12  // E0DET
@@ -146,6 +141,11 @@
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PC0   // PWRDET
 #endif
+
+//
+// Misc. Functions
+//
+#define LED_PIN                             PA13
 
 //
 // Steppers

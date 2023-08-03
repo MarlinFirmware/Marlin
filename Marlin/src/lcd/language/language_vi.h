@@ -27,7 +27,7 @@
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
-namespace Language_vi {
+namespace LanguageNarrow_vi {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -63,23 +63,23 @@ namespace Language_vi {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Chiều cao mờ dần");                     // Fade Height
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Đặt bù đắp nhà");                       // Set home offsets
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");     // All
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");        // Bed -- using vietnamese term for 'table' instead
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");   // Conf
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Làm nóng $ trước");                     // Preheat
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Làm nóng $ trước ~");                   // Preheat
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Làm nóng $ Đầu");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Làm nóng $ Đầu ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Làm nóng $ Tất cả");                    // All
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Làm nóng $ Bàn");                       // Bed -- using vietnamese term for 'table' instead
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Làm nóng $ Cấu hình");                  // Conf
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");     // All
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");        // Bed -- using vietnamese term for 'table' instead
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");   // Conf
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Làm nóng $ trước");                     // Preheat
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Làm nóng $ trước ~");                   // Preheat
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Làm nóng $ Đầu");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Làm nóng $ Đầu ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Làm nóng $ Tất cả");                    // All
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Làm nóng $ Bàn");                       // Bed -- using vietnamese term for 'table' instead
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Làm nóng $ Cấu hình");                  // Conf
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Sự nóng trước tự chọn");                // Preheat Custom
   LSTR MSG_COOLDOWN                       = _UxGT("Nguội xuống");                          // Cooldown
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Bật nguồn");                            // Switch power on
@@ -125,10 +125,8 @@ namespace Language_vi {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Chỉnh sửa xong lưới");                  // Done Editing Mesh
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Xây dựng lưới");                        // Build Mesh
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Xây dựng lưới ($)");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Thẩm tra lưới ($)");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Xây dựng lưới ($)");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Thẩm tra lưới ($)");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Xây dựng lưới lạnh");                   // Build cold mesh
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Điều chỉnh chiều cao lưới");            // Adjust Mesh Height
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Số lượng chiều cao");                   // Height Amount
@@ -438,4 +436,21 @@ namespace Language_vi {
   LSTR MSG_SHORT_DAY                      = _UxGT("n");                                   // d - ngày - One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("g");                                   // h - giờ  - One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("p");                                   // m - phút - One character only
+}
+
+namespace LanguageWide_vi {
+  using namespace LanguageNarrow_vi;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+  #endif
+}
+
+namespace LanguageTall_vi {
+  using namespace LanguageWide_vi;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_vi {
+  using namespace LanguageTall_vi;
 }

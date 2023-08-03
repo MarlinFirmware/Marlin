@@ -53,8 +53,6 @@
   #include "e3v2/proui/dwin.h"
 #endif
 
-#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-
 typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
@@ -297,16 +295,17 @@ public:
     }
   #endif
 
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    typedef uint16_t progress_t;
+    #define PROGRESS_SCALE 100U
+    #define PROGRESS_MASK 0x7FFF
+  #else
+    typedef uint8_t progress_t;
+    #define PROGRESS_SCALE 1U
+    #define PROGRESS_MASK 0x7F
+  #endif
+
   #if HAS_PRINT_PROGRESS
-    #if HAS_PRINT_PROGRESS_PERMYRIAD
-      typedef uint16_t progress_t;
-      #define PROGRESS_SCALE 100U
-      #define PROGRESS_MASK 0x7FFF
-    #else
-      typedef uint8_t progress_t;
-      #define PROGRESS_SCALE 1U
-      #define PROGRESS_MASK 0x7F
-    #endif
     #if ENABLED(SET_PROGRESS_PERCENT)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
@@ -359,6 +358,10 @@ public:
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
 
+  static void host_notify_P(PGM_P const fstr);
+  static void host_notify(FSTR_P const fstr) { host_notify_P(FTOP(fstr)); }
+  static void host_notify(const char * const cstr);
+
   #if HAS_STATUS_MESSAGE
 
     #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
@@ -371,7 +374,7 @@ public:
       #define MAX_MESSAGE_LENGTH 63
     #endif
 
-    static char status_message[];
+    static MString<MAX_MESSAGE_LENGTH> status_message;
     static uint8_t alert_level; // Higher levels block lower levels
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
@@ -384,24 +387,115 @@ public:
       static char* status_and_len(uint8_t &len);
     #endif
 
-    static bool has_status();
+    static bool has_status() { return !status_message.empty(); }
+
+    /**
+     * Try to set the alert level.
+     * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+     * @return      TRUE if the level could NOT be set.
+     */
+    static bool set_alert_level(int8_t &level);
+
     static void reset_status(const bool no_welcome=false);
-    static void set_alert_status(FSTR_P const fstr);
     static void reset_alert_level() { alert_level = 0; }
 
     static statusResetFunc_t status_reset_callback;
     static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { status_reset_callback = fn; }
+
   #else
+
+    #define MAX_MESSAGE_LENGTH 1
     static constexpr bool has_status() { return false; }
+
+    static bool set_alert_level(int8_t) { return false; }
+
     static void reset_status(const bool=false) {}
-    static void set_alert_status(FSTR_P const) {}
     static void reset_alert_level() {}
+
     static void set_status_reset_fn(const statusResetFunc_t=nullptr) {}
+
   #endif
 
-  static void set_status(const char * const cstr, const bool persist=false);
-  static void set_status(FSTR_P const fstr, const int8_t level=0);
-  static void status_printf(int8_t level, FSTR_P const fmt, ...);
+  /**
+   * @brief Set Status with a C- or P-string and alert level.
+   *
+   * @param ustr  A C- or P-string, according to pgm.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   * @param pgm   Program string flag. Only relevant on AVR.
+   */
+  static void _set_status_and_level(const char * const ustr, int8_t level, const bool pgm=false);
+
+  /**
+   * @brief Set Status with a C- or P-string and persistence flag.
+   *
+   * @param ustr    A C- or P-string, according to pgm.
+   * @param persist Don't expire (Requires STATUS_EXPIRE_SECONDS) - and set alert level to 1.
+   * @param pgm     Program string flag. Only relevant on AVR.
+   */
+  static void _set_status(const char * const ustr, const bool persist, const bool pgm=false);
+
+  /**
+   * @brief Set Alert with a C- or P-string and alert level.
+   *
+   * @param ustr  A C- or P-string, according to pgm.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   * @param pgm   Program string flag. Only relevant on AVR.
+   */
+  static void _set_alert(const char * const ustr, int8_t level, const bool pgm=false);
+
+  static void set_status(const char * const cstr, const bool persist=false) { _set_status(cstr, persist, false); }
+  static void set_status_P(PGM_P const pstr, const bool persist=false)      { _set_status(pstr, persist, true);  }
+  static void set_status(FSTR_P const fstr, const bool persist=false)       { set_status_P(FTOP(fstr), persist); }
+
+  static void set_alert(const char * const cstr, const int8_t level=1) { _set_alert(cstr, level, false); }
+  static void set_alert_P(PGM_P const pstr, const int8_t level=1)      { _set_alert(pstr, level, true);  }
+  static void set_alert(FSTR_P const fstr, const int8_t level=1)       { set_alert_P(FTOP(fstr), level); }
+
+  /**
+   * @brief Set Status with a C-string and alert level.
+   *
+   * @param fstr  A constant F-string to set as the status.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
+  static void set_status_and_level(const char * const cstr, const int8_t level) { _set_status_and_level(cstr, level, false); }
+
+  /**
+   * @brief Set Status with a P-string and alert level.
+   *
+   * @param ustr  A C- or P-string, according to pgm.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
+  static void set_status_and_level_P(PGM_P const pstr, const int8_t level) { _set_status_and_level(pstr, level, true); }
+
+  /**
+   * @brief Set Status with a fixed string and alert level.
+   *
+   * @param fstr  A constant F-string to set as the status.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
+  static void set_status_and_level(FSTR_P const fstr, const int8_t level) { set_status_and_level_P(FTOP(fstr), level); }
+
+  static void set_max_status(FSTR_P const fstr) { set_status_and_level(fstr, 127); }
+  static void set_min_status(FSTR_P const fstr) { set_status_and_level(fstr,  -1); }
+
+  /**
+   * @brief Set a persistent status with a C-string.
+   *
+   * @param cstr    A C-string to set as the status.
+   */
+  static void set_status_no_expire_P(PGM_P const pstr)      { set_status_P(pstr, true); }
+  static void set_status_no_expire(const char * const cstr) { set_status(cstr, true); }
+  static void set_status_no_expire(FSTR_P const fstr)       { set_status(fstr, true); }
+
+  /**
+   * @brief Set a status with a format string and parameters.
+   *
+   * @param pfmt    A constant format P-string
+   */
+  static void status_printf_P(int8_t level, PGM_P const pfmt, ...);
+
+  template<typename... Args>
+  static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
   #if HAS_DISPLAY
 
@@ -410,7 +504,10 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-    static void flow_fault();
+
+    #if ENABLED(FLOWMETER_SAFETY)
+      static void flow_fault();
+    #endif
 
     #if ALL(HAS_MARLINUI_MENU, PSU_CONTROL)
       static void poweroff();
@@ -808,7 +905,7 @@ private:
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
-#define LCD_MESSAGE_MIN(M)     ui.set_status(GET_TEXT_F(M), -1)
-#define LCD_MESSAGE_MAX(M)     ui.set_status(GET_TEXT_F(M), 99)
-#define LCD_ALERTMESSAGE_F(S)  ui.set_alert_status(F(S))
-#define LCD_ALERTMESSAGE(M)    ui.set_alert_status(GET_TEXT_F(M))
+#define LCD_MESSAGE_MIN(M)     ui.set_min_status(GET_TEXT_F(M))
+#define LCD_MESSAGE_MAX(M)     ui.set_max_status(GET_TEXT_F(M))
+#define LCD_ALERTMESSAGE_F(S)  ui.set_alert(F(S))
+#define LCD_ALERTMESSAGE(M)    ui.set_alert(GET_TEXT_F(M))
