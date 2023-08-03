@@ -96,12 +96,13 @@ extern "C" {
 
 // Timer Definitions
 #define TIMER_TONE              TIM2
-#define TIMER_SERVO             TIM11
-#define TIMER_SERIAL            TIM5
+#define TIMER_SERVO             TIM5
+#define TIMER_SERIAL            TIM11
 
 // UART Definitions
 //#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
 #define ENABLE_HWSERIAL2
+#define ENABLE_HWSERIAL6
 
 
 // Define here Serial instance number to map on Serial generic name (if not already used by SerialUSB)
@@ -112,13 +113,15 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-// Used when user instanciate a hardware Serial using its peripheral name.
+// Used when the user instantiates a hardware Serial using its peripheral name.
 // Example: HardwareSerial mySerial(USART3);
 // will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
 #define PIN_SERIAL1_RX          PA10
 #define PIN_SERIAL1_TX          PA9
 #define PIN_SERIAL2_RX          PA3
 #define PIN_SERIAL2_TX          PA2
+#define PIN_SERIAL6_RX          PC7
+#define PIN_SERIAL6_TX          PC6
 
 #ifdef __cplusplus
 } // extern "C"

@@ -16,7 +16,7 @@
     ],
     "ldscript": "ldscript.ld",
     "mcu": "stm32f401ret6",
-    "variant": "MARLIN_CREALITY_STM32F401RE"
+    "variant": "MARLIN_STM32F401RE_FREERUNS"
   },
   "debug": {
     "jlink_device": "STM32F401RE",
@@ -45,11 +45,11 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32F401RE (64k RAM. 512k Flash)",
+  "name": "STM32F401RE (96k RAM. 512k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 65536,
-    "maximum_size": 514288,
+    "maximum_ram_size": 98304,
+    "maximum_size": 524288,
     "protocol": "stlink",
     "protocols": [
       "stlink",
