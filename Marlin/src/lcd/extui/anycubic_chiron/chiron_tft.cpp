@@ -88,14 +88,9 @@ void ChironTFT::startup() {
   // So we need to know what we are working with.
   // Panel type can be defined otherwise detect it automatically
   switch (panel_type) {
-    case AC_panel_new:
-      SERIAL_ECHOLNF(AC_msg_new_panel_set);
-      break;
-    case AC_panel_standard:
-      SERIAL_ECHOLNF(AC_msg_old_panel_set);
-      break;
-    default:
-      SERIAL_ECHOLNF(AC_msg_auto_panel_detection);
+    case AC_panel_new: SERIAL_ECHOLN(AC_msg_new_panel_set); break;
+    case AC_panel_standard: SERIAL_ECHOLN(AC_msg_old_panel_set); break;
+    default: SERIAL_ECHOLN(AC_msg_auto_panel_detection);
       detectPanelType();
       break;
   }
@@ -108,7 +103,7 @@ void ChironTFT::startup() {
   injectCommands(AC_cmnd_enable_leveling);
 
   // startup tunes are defined in Tunes.h
-  PlayTune(TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn));
+  playTune(TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn));
 
   #if ACDEBUGLEVEL
     DEBUG_ECHOLNPGM("AC Debug Level ", ACDEBUGLEVEL);
@@ -196,7 +191,7 @@ void ChironTFT::filamentRunout()  {
   // 1 Signal filament out
   last_error = AC_error_filament_runout;
   tftSendLn(isPrintingFromMedia() ? AC_msg_filament_out_alert : AC_msg_filament_out_block);
-  PlayTune(FilamentOut);
+  playTune(FilamentOut);
 }
 
 void ChironTFT::confirmationRequest(const char * const msg)  {
@@ -219,7 +214,7 @@ void ChironTFT::confirmationRequest(const char * const msg)  {
       if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
         pause_state = AC_paused_heater_timed_out;
         tftSendLn(AC_msg_paused); // enable continue button
-        PlayTune(HeaterTimeout);
+        playTune(HeaterTimeout);
       }
       // Reheat finished, send acknowledgement
       else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
@@ -257,7 +252,7 @@ void ChironTFT::statusChange(const char * const msg)  {
       }
       // If probing fails don't save the mesh raise the probe above the bad point
       if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
-        PlayTune(BeepBeepBeeep);
+        playTune(BeepBeepBeeep);
         injectCommands(F("G1 Z50 F500"));
         tftSendLn(AC_msg_probing_complete);
         printer_state = AC_printer_idle;
@@ -311,8 +306,8 @@ void ChironTFT::statusChange(const char * const msg)  {
 void ChironTFT::powerLossRecovery()  {
   printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
   last_error = AC_error_powerloss;
-  PlayTune(SOS);
-  SERIAL_ECHOLNF(AC_msg_powerloss_recovery);
+  playTune(SOS);
+  SERIAL_ECHOLN(AC_msg_powerloss_recovery);
 }
 
 void ChironTFT::printComplete() {
@@ -323,7 +318,7 @@ void ChironTFT::printComplete() {
 
 void ChironTFT::tftSend(FSTR_P const fstr/*=nullptr*/) {  // A helper to print PROGMEM string to the panel
   #if ACDEBUG(AC_SOME)
-    DEBUG_ECHOF(fstr);
+    DEBUG_ECHO(fstr);
   #endif
   PGM_P str = FTOP(fstr);
   while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
@@ -447,7 +442,7 @@ void ChironTFT::selectFile() {
     selectedfile[command_len - 5] = '\0';
   }
   #if ACDEBUG(AC_FILE)
-    DEBUG_ECHOLNPGM(" Selected File: ",selectedfile);
+    DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
   switch (selectedfile[0]) {
     case '/':   // Valid file selected
@@ -494,7 +489,7 @@ void ChironTFT::processPanelRequest() {
         if (tpos >= 0) {
           if (panel_command[tpos + 1] == 'X' && panel_command[tpos + 2] =='Y') {
             panel_type = AC_panel_standard;
-            SERIAL_ECHOLNF(AC_msg_old_panel_detected);
+            SERIAL_ECHOLN(AC_msg_old_panel_detected);
           }
         }
         else {
@@ -504,7 +499,7 @@ void ChironTFT::processPanelRequest() {
           if (tpos >= 0) {
             if (panel_command[tpos + 1] == '0' && panel_command[tpos + 2] ==']') {
               panel_type = AC_panel_new;
-              SERIAL_ECHOLNF(AC_msg_new_panel_detected);
+              SERIAL_ECHOLN(AC_msg_new_panel_detected);
             }
           }
         }
@@ -828,7 +823,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         if (!isPrinting()) {
           injectCommands(F("M501\nM420 S1"));
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
-          SERIAL_ECHOLNF(AC_msg_mesh_changes_abandoned);
+          SERIAL_ECHOLN(AC_msg_mesh_changes_abandoned);
         }
       }
 
@@ -836,7 +831,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands(F("M500"));
-          SERIAL_ECHOLNF(AC_msg_mesh_changes_saved);
+          SERIAL_ECHOLN(AC_msg_mesh_changes_saved);
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
         }
       }

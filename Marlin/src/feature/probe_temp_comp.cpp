@@ -87,14 +87,9 @@ void ProbeTempComp::print_offsets() {
   for (uint8_t s = 0; s < TSI_COUNT; ++s) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOF(
-        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :)
-        TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :)
-        F("Probe")
-      );
-      SERIAL_ECHOLNPGM(
-        " temp: ", temp,
-        "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
+      SERIAL_ECHOLN(
+        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :) TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :) F("Probe"),
+        F(" temp: "), temp, F("C; Offset: "), i < 0 ? 0.0f : sensor_z_offsets[s][i], F(" um")
       );
       temp += cali_info[s].temp_resolution;
     }

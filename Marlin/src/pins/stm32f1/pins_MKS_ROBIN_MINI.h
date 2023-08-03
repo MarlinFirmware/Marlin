@@ -172,7 +172,7 @@
 
 #if ENABLED(TFT_320x240)                          // TFT32/28
   #define TFT_DRIVER                     ILI9341
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
   #define ILI9341_COLOR_RGB
   // YV for normal screen mounting
   #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV

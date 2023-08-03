@@ -305,7 +305,7 @@
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
 #elif ENABLED(TFT_COLOR_UI)
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 #if HAS_WIRED_LCD && !HAS_SPI_TFT

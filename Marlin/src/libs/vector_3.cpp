@@ -76,10 +76,11 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
 }
 
 void vector_3::debug(FSTR_P const title) {
-  SERIAL_ECHOF(title);
-  SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
-  SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
-  SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
+  SERIAL_ECHOLN(title,
+    FPSTR(SP_X_STR), p_float_t(x, 6),
+    FPSTR(SP_Y_STR), p_float_t(y, 6),
+    FPSTR(SP_Z_STR), p_float_t(z, 6)
+  );
 }
 
 /**
@@ -138,7 +139,7 @@ matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
 }
 
 void matrix_3x3::debug(FSTR_P const title) {
-  if (title) SERIAL_ECHOLNF(title);
+  if (title) SERIAL_ECHOLN(title);
   for (uint8_t i = 0; i < 3; ++i) {
     for (uint8_t j = 0; j < 3; ++j) {
       serial_offset(vectors[i][j], 2);

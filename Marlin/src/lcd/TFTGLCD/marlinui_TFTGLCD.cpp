@@ -419,7 +419,7 @@ void MarlinUI::draw_kill_screen() {
   if (!PanelDetected) return;
   lcd.clear_buffer();
   lcd_moveto(0, 3); lcd.write(COLOR_ERROR);
-  lcd_moveto((LCD_WIDTH - utf8_strlen(status_message)) / 2 + 1, 3);
+  lcd_moveto((LCD_WIDTH - status_message.glyphs()) / 2 + 1, 3);
   lcd_put_u8str(status_message);
   center_text(GET_TEXT_F(MSG_HALTED), 5);
   center_text(GET_TEXT_F(MSG_PLEASE_RESET), 6);
@@ -596,8 +596,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 #endif // HAS_CUTTER
 
-
 #if HAS_PRINT_PROGRESS   // UNTESTED!!!
+
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
 
@@ -648,6 +648,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       }
     }
   #endif
+
 #endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -692,7 +693,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif // FILAMENT_LCD_DISPLAY && HAS_MEDIA
 
   // Get the UTF8 character count of the string
-  uint8_t slen = utf8_strlen(status_message);
+  uint8_t slen = status_message.glyphs();
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
