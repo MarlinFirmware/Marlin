@@ -150,7 +150,7 @@
   #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
-  #define TFT_BUFFER_SIZE                   3200
+  #define TFT_BUFFER_WORDS                  3200
 #endif
 
 #if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)

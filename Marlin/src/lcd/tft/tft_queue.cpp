@@ -86,9 +86,9 @@ void TFT_Queue::fill(queueTask_t *task) {
     task->state = TASK_STATE_IN_PROGRESS;
   }
 
-  if (task_parameters->count > DMA_MAX_SIZE) {
-    count = DMA_MAX_SIZE;
-    task_parameters->count -= DMA_MAX_SIZE;
+  if (task_parameters->count > DMA_MAX_WORDS) {
+    count = DMA_MAX_WORDS;
+    task_parameters->count -= DMA_MAX_WORDS;
   }
   else {
     count = task_parameters->count;

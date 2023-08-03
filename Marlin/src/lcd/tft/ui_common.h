@@ -109,7 +109,7 @@ void disable_steppers();
   bool lcd_sleep_task();
 #endif
 
-void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
+void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater);
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 
 void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);

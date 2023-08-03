@@ -313,7 +313,7 @@
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
 #elif HAS_GRAPHICAL_TFT
 

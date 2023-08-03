@@ -695,7 +695,7 @@ void menu_advanced_settings() {
       }
     #endif
 
-    #if HAS_M206_COMMAND
+    #if HAS_HOME_OFFSET
       // M428 - Set Home Offsets
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif

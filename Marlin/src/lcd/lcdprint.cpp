@@ -41,6 +41,8 @@
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
+ *
+ * Return the given maxlen minus the number of characters emitted, i.e., the number of unused columns
  */
 lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   const uint8_t prop = USE_WIDE_GLYPH ? 2 : 1;
