@@ -113,7 +113,7 @@
       if (isnan(measured_z))
         SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
       else {
-        SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
+        SERIAL_ECHOLNPGM("Measured: ", p_float_t(measured_z, 2));
         if (targ == ProbeTempComp::cali_info[sid].start_temp)
           ptc.prepare_new_calibration(measured_z);
         else

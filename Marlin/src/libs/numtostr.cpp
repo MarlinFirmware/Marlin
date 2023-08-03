@@ -31,7 +31,7 @@ template <typename T1, typename T2>
 constexpr char DIGIMOD(const T1 n, const T2 f) { return DIGIT((n / f) % 10); }
 
 template <typename T1, typename T2>
-constexpr char RJDIGIT(const T1 n, const T2 f) { return (n >= f ? DIGIMOD(n, f) : ' '); }
+constexpr char RJDIGIT(const T1 n, const T2 f) { return (n >= (T1)f ? DIGIMOD(n, f) : ' '); }
 
 template <typename T>
 constexpr char MINUSOR(T &n, const char alt) { return (n >= 0) ? alt : (n = -n) ? '-' : '-'; }

@@ -23,7 +23,7 @@
 
 #include "tft_queue.h"
 #include "canvas.h"
-#include "tft_color.h"
+#include "ui_theme.h"
 #include "tft_string.h"
 #include "tft_image.h"
 #include "../tft_io/tft_io.h"
@@ -37,21 +37,21 @@
   #define ENDIAN_COLOR(C) (C)
 #endif
 
-#ifndef TFT_BUFFER_SIZE
+#ifndef TFT_BUFFER_WORDS
   #ifdef STM32F103xB
-    #define TFT_BUFFER_SIZE       1024
+    #define TFT_BUFFER_WORDS      1024
   #elif defined(STM32F103xE)
-    #define TFT_BUFFER_SIZE       19200 // 320 * 60
+    #define TFT_BUFFER_WORDS      19200 // 320 * 60
   #elif defined(STM32F1)
-    #define TFT_BUFFER_SIZE       8192
+    #define TFT_BUFFER_WORDS      8192
   #else
-    #define TFT_BUFFER_SIZE       19200 // 320 * 60
+    #define TFT_BUFFER_WORDS      19200 // 320 * 60
   #endif
 #endif
 
-#if TFT_BUFFER_SIZE > DMA_MAX_SIZE
+#if TFT_BUFFER_WORDS > DMA_MAX_WORDS
   // DMA Count parameter is uint16_t
-  #error "TFT_BUFFER_SIZE can not exceed DMA_MAX_SIZE"
+  #error "TFT_BUFFER_WORDS can not exceed DMA_MAX_WORDS"
 #endif
 
 class TFT {
@@ -62,17 +62,17 @@ class TFT {
   public:
     static TFT_Queue queue;
 
-    static uint16_t buffer[TFT_BUFFER_SIZE];
+    static uint16_t buffer[TFT_BUFFER_WORDS];
 
     static void init();
     static void set_font(const uint8_t *Font) { string.set_font(Font); }
     static void add_glyphs(const uint8_t *Font) { string.add_glyphs(Font); }
 
     static bool is_busy() { return io.isBusy(); }
-    static void abort() { io.Abort(); }
-    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultipleDMA(Data, Count); }
-    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequenceDMA(Data, Count); }
-    static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
+    static void abort() { io.abort(); }
+    static void write_multiple(uint16_t data, uint16_t count) { io.WriteMultipleDMA(data, count); }
+    static void write_sequence(uint16_t *data, uint16_t count) { io.writeSequenceDMA(data, count); }
+    static void set_window(uint16_t xMin, uint16_t yMin, uint16_t xMax, uint16_t yMax) { io.set_window(xMin, yMin, xMax, yMax); }
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }
     static void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) { queue.canvas(x, y, width, height); }

@@ -26,7 +26,8 @@ genpages.exe
 marlin_config.json
 mczip.h
 language*.csv
-csv-out/
+out-csv/
+out-language/
 *.gen
 *.sublime-workspace
 
@@ -132,7 +133,9 @@ spi_flash.bin
 fs.img
 
 # CMake
+buildroot/share/cmake/*
 CMakeLists.txt
+!buildroot/share/cmake/CMakeLists.txt
 src/CMakeLists.txt
 CMakeListsPrivate.txt
 build/

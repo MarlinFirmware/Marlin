@@ -45,6 +45,7 @@
 
 #include "planner.h"
 #include "stepper/indirection.h"
+#include "stepper/cycles.h"
 #ifdef __AVR__
   #include "stepper/speed_lookuptable.h"
 #endif
@@ -82,6 +83,9 @@ typedef struct {
     };
   };
 } stepper_flags_t;
+
+typedef bits_t(NUM_AXES + E_STATES) e_axis_bits_t;
+constexpr e_axis_bits_t e_axis_mask = (_BV(E_STATES) - 1) << NUM_AXES;
 
 // All the stepper enable pins
 constexpr pin_t ena_pins[] = {
@@ -412,7 +416,7 @@ class Stepper {
       static bool        la_active;        // Whether linear advance is used on the present segment.
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       static constexpr hal_timer_t BABYSTEP_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextBabystepISR;
     #endif
@@ -471,7 +475,7 @@ class Stepper {
       static void advance_isr();
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       // The Babystepping ISR phase
       static hal_timer_t babystepping_isr();
       FORCE_INLINE static void initiateBabystepping() {

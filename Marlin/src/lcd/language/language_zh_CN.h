@@ -27,7 +27,7 @@
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
-namespace Language_zh_CN {
+namespace LanguageNarrow_zh_CN {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 3;
@@ -68,23 +68,23 @@ namespace Language_zh_CN {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("淡出高度"); // "Fade Height"
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("设置原点偏移"); // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已启用"); // "Offsets applied"
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("预热 ") PREHEAT_1_LABEL; // "Preheat PREHEAT_2_LABEL"
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("预热 ") PREHEAT_1_LABEL " ~"; // "Preheat PREHEAT_2_LABEL"
-    LSTR MSG_PREHEAT_1_END                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴"); //MSG_PREHEAT_1 " "
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~"); //MSG_PREHEAT_1 " "
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部"); //MSG_PREHEAT_1 " All"
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床"); //MSG_PREHEAT_1 " Bed"
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置"); //MSG_PREHEAT_1 " conf"
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("预热 $"); // "Preheat PREHEAT_2_LABEL"
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("预热 $ ~"); // "Preheat PREHEAT_2_LABEL"
-    LSTR MSG_PREHEAT_M_END                = _UxGT("预热 $ 喷嘴"); //MSG_PREHEAT_1 " "
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("预热 $ 喷嘴 ~"); //MSG_PREHEAT_1 " "
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("预热 $ 全部"); //MSG_PREHEAT_1 " All"
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("预热 $ 热床"); //MSG_PREHEAT_1 " Bed"
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("预热 $ 设置"); //MSG_PREHEAT_1 " conf"
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("预热 ") PREHEAT_1_LABEL; // "Preheat PREHEAT_2_LABEL"
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("预热 ") PREHEAT_1_LABEL " ~"; // "Preheat PREHEAT_2_LABEL"
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴"); //MSG_PREHEAT_1 " "
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~"); //MSG_PREHEAT_1 " "
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部"); //MSG_PREHEAT_1 " All"
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床"); //MSG_PREHEAT_1 " Bed"
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置"); //MSG_PREHEAT_1 " conf"
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("预热 $"); // "Preheat PREHEAT_2_LABEL"
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("预热 $ ~"); // "Preheat PREHEAT_2_LABEL"
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("预热 $ 喷嘴"); //MSG_PREHEAT_1 " "
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("预热 $ 喷嘴 ~"); //MSG_PREHEAT_1 " "
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("预热 $ 全部"); //MSG_PREHEAT_1 " All"
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("预热 $ 热床"); //MSG_PREHEAT_1 " Bed"
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("预热 $ 设置"); //MSG_PREHEAT_1 " conf"
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("预热自定义");
   LSTR MSG_COOLDOWN                       = _UxGT("降温"); // "Cooldown"
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("切割频率");
@@ -142,10 +142,8 @@ namespace Language_zh_CN {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格"); // "Done Editing Mesh"
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("创设客户网格"); // "Build Custom Mesh"
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("创设网格"); // "Build Mesh"
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("创设 $ 网格"); // "Build PREHEAT_1_LABEL Mesh"
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("批准 $ 网格"); // "Validate PREHEAT_1_LABEL Mesh"
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("创设 $ 网格"); // "Build PREHEAT_1_LABEL Mesh"
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("批准 $ 网格"); // "Validate PREHEAT_1_LABEL Mesh"
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("创设冷网格"); // "Build Cold Mesh"
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("调整网格高度"); // "Adjust Mesh Height"
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("高度合计"); // "Height Amount"
@@ -476,19 +474,11 @@ namespace Language_zh_CN {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("打印机不正确"); // "The printer is incorrect"
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印计数"); // "Print Count"
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成了"); // "Completed"
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("总打印时间"); // "Total print time"
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("最长工作时间"); // "Longest job time"
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("总计挤出"); // "Extruded total"
-  #else
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印数"); // "Prints"
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成"); // "Completed"
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("总共"); // "Total"
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("最长"); // "Longest"
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("已挤出"); // "Extruded"
-  #endif
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("打印数"); // "Prints"
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("完成"); // "Completed"
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("总共"); // "Total"
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("最长"); // "Longest"
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("已挤出"); // "Extruded"
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("最低温度"); // "Min Temp"
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("最高温度"); // "Max Temp"
@@ -560,34 +550,20 @@ namespace Language_zh_CN {
   LSTR MSG_BAD_PAGE_SPEED                 = _UxGT("错误页面速度");
 
   //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
+  // Filament Change screens show up to 2 lines on a 3-line display
   //
-  #if LCD_HEIGHT >= 4
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("按下按钮", "恢复打印"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("停靠中..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更")); // "Wait for start of the filament change"
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("插入料", "并按下", "以继续"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("按下按钮来", "加热喷嘴.")); // "Press button to heat nozzle."
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("加热喷嘴", "请等待 ...")); // "Heating nozzle Please wait..."
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("等待", "卸下丝料")); // "Wait for filament unload"
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("等待", "进料")); // "Wait for filament load"
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("等待", "丝料清除")); // "Wait for filament purge"
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("按下已完成", "料的清洗"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("等待打印", "恢复")); // "Wait for print to resume"
-  #else
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("按下继续"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("停靠中..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_1_LINE("请等待 ...")); // "Please wait..."
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_1_LINE("插入并单击")); // "Insert and Click"
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_1_LINE("按下加热"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_1_LINE("加热中 ...")); // "Heating..."
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_1_LINE("退出中 ...")); // "Ejecting..."
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_1_LINE("装载中 ...")); // "Loading..."
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("清除中 ...")); // "Purging..."
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("按下完成"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("恢复中 ...")); // "Resuming..."
-  #endif
+  LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("按下继续"));
+  LSTR MSG_PAUSE_PRINT_PARKING            = _UxGT(MSG_1_LINE("停靠中..."));
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("请等待 ...")); // "Please wait..."
+  LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("插入并单击")); // "Insert and Click"
+  LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("按下加热"));
+  LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_1_LINE("加热中 ...")); // "Heating..."
+  LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_1_LINE("退出中 ...")); // "Ejecting..."
+  LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_1_LINE("装载中 ...")); // "Loading..."
+  LSTR MSG_FILAMENT_CHANGE_PURGE          = _UxGT(MSG_1_LINE("清除中 ...")); // "Purging..."
+  LSTR MSG_FILAMENT_CHANGE_CONT_PURGE     = _UxGT(MSG_1_LINE("按下完成"));
+  LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_1_LINE("恢复中 ...")); // "Resuming..."
+
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC驱动器");
   LSTR MSG_TMC_CURRENT                    = _UxGT("驱动电流");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("混合阈值");
@@ -609,4 +585,37 @@ namespace Language_zh_CN {
   LSTR MSG_SHORT_DAY                      = _UxGT("天"); // "d" // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("时"); // "h" // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("分"); // "m" // One character only
+}
+
+namespace LanguageWide_zh_CN {
+  using namespace LanguageNarrow_zh_CN;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印计数"); // "Print Count"
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成了"); // "Completed"
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("总打印时间"); // "Total print time"
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("最长工作时间"); // "Longest job time"
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("总计挤出"); // "Extruded total"
+  #endif
+}
+
+namespace LanguageTall_zh_CN {
+  using namespace LanguageWide_zh_CN;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("按下按钮", "恢复打印"));
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("停靠中..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更")); // "Wait for start of the filament change"
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("插入料", "并按下", "以继续"));
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("按下按钮来", "加热喷嘴.")); // "Press button to heat nozzle."
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("加热喷嘴", "请等待 ...")); // "Heating nozzle Please wait..."
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("等待", "卸下丝料")); // "Wait for filament unload"
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("等待", "进料")); // "Wait for filament load"
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("等待", "丝料清除")); // "Wait for filament purge"
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("按下已完成", "料的清洗"));
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("等待打印", "恢复")); // "Wait for print to resume"
+  #endif
+}
+
+namespace Language_zh_CN {
+  using namespace LanguageTall_zh_CN;
 }
