@@ -34,69 +34,56 @@
 
 enum processID : uint8_t {
   // Process ID
-  MainMenu,
-  SelectFile,
-  Prepare,
-  Control,
-  Leveling,
-  PrintProcess,
-  AxisMove,
-  TemperatureID,
-  Motion,
-  Info,
-  Tune,
+  ID_MainMenu,
+  ID_SelectFile,
+  ID_Prepare,
+  ID_Control,
+  ID_Leveling,
+  ID_PrintProcess,
+  ID_AxisMove,
+  ID_TemperatureID,
+  ID_Motion,
+  ID_Info,
+  ID_Tune,
   #if HAS_PREHEAT
-    PLAPreheat,
+    ID_PLAPreheat,
     #if PREHEAT_COUNT > 1
-      ABSPreheat,
+      ID_ABSPreheat,
     #endif
   #endif
-  MaxSpeed,
-  MaxSpeed_value,
-  MaxAcceleration,
-  MaxAcceleration_value,
-  MaxJerk,
-  MaxJerk_value,
-  Step,
-  Step_value,
-  HomeOff,
-  HomeOffX,
-  HomeOffY,
-  HomeOffZ,
+  ID_MaxSpeed, ID_MaxSpeedValue,
+  ID_MaxAcceleration, ID_MaxAccelerationValue,
+  ID_MaxJerk, ID_MaxJerkValue,
+  ID_Step, ID_StepValue,
+  ID_HomeOff, ID_HomeOffX, ID_HomeOffY, ID_HomeOffZ,
 
   // Last Process ID
-  Last_Prepare,
+  ID_LastPrepare,
 
   // Advance Settings
-  AdvSet,
-  ProbeOff,
-  ProbeOffX,
-  ProbeOffY,
+  ID_AdvSet,
+  ID_ProbeOff, ID_ProbeOffX, ID_ProbeOffY,
 
   // Back Process ID
-  Back_Main,
-  Back_Print,
+  ID_BackMain, ID_BackPrint,
 
   // Date variable ID
-  Move_X,
-  Move_Y,
-  Move_Z,
+  ID_MoveX, ID_MoveY, ID_MoveZ,
   #if HAS_HOTEND
-    Extruder,
-    ETemp,
+    ID_Extruder,
+    ID_ETemp,
   #endif
-  Homeoffset,
+  ID_HomeOffset,
   #if HAS_HEATED_BED
-    BedTemp,
+    ID_BedTemp,
   #endif
   #if HAS_FAN
-    FanSpeed,
+    ID_FanSpeed,
   #endif
-  PrintSpeed,
+  ID_PrintSpeed,
 
   // Window ID
-  Print_window,
-  Popup_Window
+  ID_PrintWindow, ID_PopupWindow
 };
 
 extern uint8_t checkkey;
@@ -107,32 +94,54 @@ extern millis_t dwin_heat_time;
 
 typedef struct {
   #if HAS_HOTEND
-    celsius_t E_Temp = 0;
+    celsius_t tempE = 0;
   #endif
   #if HAS_HEATED_BED
-    celsius_t Bed_Temp = 0;
+    celsius_t tempBed = 0;
   #endif
   #if HAS_FAN
-    int16_t Fan_speed = 0;
+    int16_t fanSpeed = 0;
   #endif
-  int16_t print_speed     = 100;
-  float Max_Feedspeed     = 0;
-  float Max_Acceleration  = 0;
-  float Max_Jerk_scaled   = 0;
-  float Max_Step_scaled   = 0;
-  float Move_X_scaled     = 0;
-  float Move_Y_scaled     = 0;
-  float Move_Z_scaled     = 0;
-  #if HAS_HOTEND
-    float Move_E_scaled   = 0;
-  #endif
-  float offset_value      = 0;
-  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
-  float Home_OffX_scaled  = 0;
-  float Home_OffY_scaled  = 0;
-  float Home_OffZ_scaled  = 0;
-  float Probe_OffX_scaled = 0;
-  float Probe_OffY_scaled = 0;
+  int16_t printSpeed    = 100;
+  float maxFeedSpeed    = 0;
+  float maxAcceleration = 0;
+  float maxJerkScaled   = 0;
+  float maxStepScaled   = 0;
+  float offset_value    = 0;
+  int8_t show_mode      = 0; // -1: Temperature control    0: Printing temperature
+  struct {
+    #if HAS_X_AXIS
+      float x = 0;
+    #endif
+    #if HAS_Y_AXIS
+      float y = 0;
+    #endif
+    #if HAS_Z_AXIS
+      float z = 0;
+    #endif
+    #if HAS_HOTEND
+      float e = 0;
+    #endif
+  } moveScaled;
+  struct {
+    #if HAS_X_AXIS
+      float x = 0;
+    #endif
+    #if HAS_Y_AXIS
+      float y = 0;
+    #endif
+    #if HAS_Z_AXIS
+      float z = 0;
+    #endif
+  } homeOffsScaled;
+  struct {
+    #if HAS_X_AXIS
+      float x = 0;
+    #endif
+    #if HAS_Y_AXIS
+      float y = 0;
+    #endif
+  } probeOffsScaled;
 } hmi_value_t;
 
 #define DWIN_CHINESE 123
@@ -198,18 +207,12 @@ void hmiMaxJerkXYZE();
 void hmiStepXYZE();
 void hmiSetLanguageCache();
 
-void update_variable();
-void dwinDrawSigned_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+void updateVariable();
+void dwinDrawSignedFloat(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 // SD Card
 void hmiSDCardInit();
 void hmiSDCardUpdate();
-
-// Main Process
-void Icon_print(bool value);
-void Icon_control(bool value);
-void Icon_temperature(bool value);
-void Icon_leveling(bool value);
 
 // Other
 void drawStatusArea(const bool with_update); // Status Area

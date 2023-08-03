@@ -38,58 +38,87 @@
 //#define DWIN_CREALITY_LCD_CUSTOM_ICONS
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
+  Proc_Main, Proc_Print, Proc_Menu, Proc_Value, Proc_Option,
+  Proc_File, Proc_Popup, Proc_Confirm, Proc_Wait
 };
 
 enum PopupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
-  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming, ManualProbing,
-  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom
+  Popup_Pause,
+  Popup_Stop,
+  Popup_Resume,
+  Popup_SaveLevel,
+  Popup_ETemp,
+  Popup_ConfFilChange,
+  Popup_PurgeMore,
+  Popup_MeshSlot,
+  Popup_Level,
+  Popup_Home,
+  Popup_MoveWait,
+  Popup_Heating,
+  Popup_FilLoad,
+  Popup_FilChange,
+  Popup_TempWarn,
+  Popup_Runout,
+  Popup_PIDWait,
+  Popup_MPCWait,
+  Popup_Resuming,
+  Popup_ManualProbing,
+  Popup_FilInsert,
+  Popup_HeaterTime,
+  Popup_UserInput,
+  Popup_LevelError,
+  Popup_InvalidMesh,
+  Popup_UI,
+  Popup_Complete,
+  Popup_Custom
 };
 
 enum menuID : uint8_t {
-  MainMenu,
-    Prepare,
-      Move,
-      HomeMenu,
-      ManualLevel,
-      ZOffset,
-      Preheat,
-      ChangeFilament,
-      MenuCustom,
-    Control,
-      TempMenu,
-        PID,
-          HotendPID,
-          BedPID,
+  ID_MainMenu,
+    ID_Prepare,
+      ID_Move,
+      ID_HomeMenu,
+      ID_ManualLevel,
+      ID_ZOffset,
+      ID_Preheat,
+      ID_ChangeFilament,
+      ID_MenuCustom,
+    ID_Control,
+      ID_TempMenu,
+        ID_PID,
+          ID_HotendPID,
+          ID_BedPID,
         #if HAS_PREHEAT
-          #define _PREHEAT_ID(N) Preheat##N,
+          #define _PREHEAT_ID(N) ID_Preheat##N,
           REPEAT_1(PREHEAT_COUNT, _PREHEAT_ID)
         #endif
-      Motion,
-        HomeOffsets,
-        MaxSpeed,
-        MaxAcceleration,
-        MaxJerk,
-        Steps,
-      Visual,
-        ColorSettings,
-      Advanced,
-        ProbeMenu,
-      #if HAS_TRINAMIC_CONFIG
-        TMCMenu,
-      #endif
-      Info,
-    Leveling,
-      LevelManual,
-      LevelView,
-      MeshViewer,
-      LevelSettings,
-      ManualMesh,
-      UBLMesh,
-    InfoMain,
-  Tune,
-  PreheatHotend
+        #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+          ID_MPC,
+        #endif
+      ID_Motion,
+        ID_HomeOffsets,
+        ID_MaxSpeed,
+        ID_MaxAcceleration,
+        ID_MaxJerk,
+        ID_Steps,
+      ID_Visual,
+        ID_ColorSettings,
+      ID_Advanced,
+        ID_ProbeMenu,
+        #if HAS_TRINAMIC_CONFIG
+          ID_TMCMenu,
+        #endif
+      ID_Info,
+    ID_Leveling,
+      ID_LevelManual,
+      ID_LevelView,
+      ID_MeshViewer,
+      ID_LevelSettings,
+      ID_ManualMesh,
+      ID_UBLMesh,
+    ID_InfoMain,
+  ID_Tune,
+  ID_PreheatHotend
 };
 
 // Custom icons
@@ -126,29 +155,29 @@ enum colorID : uint8_t {
 };
 
 #define Custom_Colors       10
-#define Color_Aqua          RGB(0x00,0x3F,0x1F)
-#define Color_Light_White   0xBDD7
-#define Color_Green         RGB(0x00,0x3F,0x00)
-#define Color_Light_Green   0x3460
-#define Color_Cyan          0x07FF
-#define Color_Light_Cyan    0x04F3
-#define Color_Blue          0x015F
-#define Color_Light_Blue    0x3A6A
-#define Color_Magenta       0xF81F
-#define Color_Light_Magenta 0x9813
-#define Color_Light_Red     0x8800
-#define Color_Orange        0xFA20
-#define Color_Light_Orange  0xFBC0
-#define Color_Light_Yellow  0x8BE0
-#define Color_Brown         0xCC27
-#define Color_Light_Brown   0x6204
-#define Color_Black         0x0000
-#define Color_Grey          0x18E3
-#define Check_Color         0x4E5C  // Check-box check color
-#define Confirm_Color       0x34B9
-#define Cancel_Color        0x3186
+#define COLOR_AQUA          RGB(0x00,0x3F,0x1F)
+#define COLOR_LIGHT_WHITE   0xBDD7
+#define COLOR_GREEN         RGB(0x00,0x3F,0x00)
+#define COLOR_LIGHT_GREEN   0x3460
+#define COLOR_CYAN          0x07FF
+#define COLOR_LIGHT_CYAN    0x04F3
+#define COLOR_BLUE          0x015F
+#define COLOR_LIGHT_BLUE    0x3A6A
+#define COLOR_MAGENTA       0xF81F
+#define COLOR_LIGHT_MAGENTA 0x9813
+#define COLOR_LIGHT_RED     0x8800
+#define COLOR_ORANGE        0xFA20
+#define COLOR_LIGHT_ORANGE  0xFBC0
+#define COLOR_LIGHT_YELLOW  0x8BE0
+#define COLOR_BROWN         0xCC27
+#define COLOR_LIGHT_BROWN   0x6204
+#define COLOR_BLACK         0x0000
+#define COLOR_GREY          0x18E3
+#define COLOR_CHECKBOX      0x4E5C  // Check-box check color
+#define COLOR_CONFIRM       0x34B9
+#define COLOR_CANCEL        0x3186
 
-class CrealityDWIN {
+class JyersDWIN {
 public:
   static constexpr size_t eeprom_data_size = 48;
   static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
@@ -204,10 +233,6 @@ public:
   static void popupSelect();
   static void updateStatusBar(const bool refresh=false);
 
-  #if HAS_MESH
-    static void setMeshViewerStatus();
-  #endif
-
   static FSTR_P getMenuTitle(const uint8_t menu);
   static uint8_t getMenuSize(const uint8_t menu);
   static void menuItemHandler(const uint8_t menu, const uint8_t item, bool draw=true);
@@ -245,4 +270,4 @@ public:
   static void resetSettings();
 };
 
-extern CrealityDWIN crealityDWIN;
+extern JyersDWIN jyersDWIN;
