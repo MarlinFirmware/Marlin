@@ -38,7 +38,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-namespace Language_it {
+namespace LanguageNarrow_it {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 1;
@@ -81,11 +81,11 @@ namespace Language_it {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Impostaz.filamento");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Gestione filamento");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Livel.manuale");
-  LSTR MSG_LEVBED_FL                      = _UxGT("Davanti Sinistra");
-  LSTR MSG_LEVBED_FR                      = _UxGT("Davanti Destra");
-  LSTR MSG_LEVBED_C                       = _UxGT("Centro");
-  LSTR MSG_LEVBED_BL                      = _UxGT("Dietro Sinistra");
-  LSTR MSG_LEVBED_BR                      = _UxGT("Dietro Destra");
+  LSTR MSG_TRAM_FL                        = _UxGT("Davanti Sinistra");
+  LSTR MSG_TRAM_FR                        = _UxGT("Davanti Destra");
+  LSTR MSG_TRAM_C                         = _UxGT("Centro");
+  LSTR MSG_TRAM_BL                        = _UxGT("Dietro Sinistra");
+  LSTR MSG_TRAM_BR                        = _UxGT("Dietro Destra");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Mesh Manuale");
   LSTR MSG_AUTO_MESH                      = _UxGT("Generaz.Autom.Mesh");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Allineam.automat. Z");
@@ -106,30 +106,23 @@ namespace Language_it {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Wizard Tramming");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Selez. origine");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ultimo valore ");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
-    #ifdef PREHEAT_2_LABEL
-      LSTR MSG_PREHEAT_2                  = _UxGT("Preris.") PREHEAT_2_LABEL;
-      LSTR MSG_PREHEAT_2_SETTINGS         = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" conf");
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      LSTR MSG_PREHEAT_3                  = _UxGT("Preris.") PREHEAT_3_LABEL;
-      LSTR MSG_PREHEAT_3_SETTINGS         = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" conf");
-    #endif
-    LSTR MSG_PREHEAT_M                    = _UxGT("Preriscalda $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Preriscalda $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Preris.$ Ugello");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Preris.$ Ugello ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Preris.$ Tutto");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preris.$ Piatto");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preris.$ conf");
-  #endif
+
+  LSTR MSG_PREHEAT_1                      = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Preriscalda $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Preriscalda $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Preris.$ Ugello");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Preris.$ Ugello ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Preris.$ Tutto");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Preris.$ Piatto");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Preris.$ conf");
+
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Prerisc.Hotend");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Prerisc.personal.");
   LSTR MSG_COOLDOWN                       = _UxGT("Raffredda");
@@ -221,10 +214,8 @@ namespace Language_it {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Modif.Mesh fatta");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crea Mesh personal.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crea Mesh");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crea Mesh ($)");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valida Mesh ($)");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("Crea Mesh ($)");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Valida Mesh ($)");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Crea Mesh a freddo");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Aggiusta Alt. Mesh");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Altezza");
@@ -364,7 +355,7 @@ namespace Language_it {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Calibr.PID fallito!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Estrusore invalido.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temp.troppo alta.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Tempo scaduto.");
+  LSTR MSG_TIMEOUT                        = _UxGT("Tempo scaduto");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Calibrazione fallita! Estrusore errato.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Calibrazione fallita! Temperatura troppo alta.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Calibrazione fallita! Tempo scaduto.");
@@ -672,22 +663,12 @@ namespace Language_it {
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll x sbloccare.");
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Attendere fino al riavvio.");
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Si prega di preriscaldare l'hot end.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Azzera contatori stampa");
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Contatori stampa");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo totale");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Lavoro più lungo");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Totale estruso");
-  #else
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No Supporto");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prerisc. hot end.");
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Stampe");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Durata");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Più lungo");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estruso");
-  #endif
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Supporto");
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prerisc. hot end.");
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Stampe");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Durata");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Più lungo");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Estruso");
 
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completate");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp min");
@@ -778,33 +759,18 @@ namespace Language_it {
   LSTR MSG_PASSWORD_REMOVED               = _UxGT("Password eliminata");
 
   //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
+  // Filament Change screens show up to 2 lines on a 3-line display
   //
-  #if LCD_HEIGHT >= 4
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_3_LINE("Premi per", "riprendere", "la stampa"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Sto parcheggiando..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Attendere avvio", "del cambio", "di filamento"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Inserisci il", "filamento e premi", "per continuare"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Premi per", "riscaldare ugello"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Riscaldam. ugello", "Attendere prego..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Attendere", "l'espulsione", "del filamento"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Attendere", "il caricamento", "del filamento"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Attendere", "lo spurgo", "del filamento"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Premi x terminare", "lo spurgo", "del filamento"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_3_LINE("Attendere", "la ripresa", "della stampa..."));
-  #else // LCD_HEIGHT < 4
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Premi x continuare"));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_1_LINE("Attendere..."));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_1_LINE("Inserisci e premi"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_1_LINE("Riscalda ugello"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_1_LINE("Riscaldamento..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_1_LINE("Espulsione..."));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_1_LINE("Caricamento..."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("Spurgo filamento"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Premi x terminare"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Ripresa..."));
-  #endif // LCD_HEIGHT < 4
+  LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("Premi x continuare"));
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("Attendere..."));
+  LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("Inserisci e premi"));
+  LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("Riscalda ugello"));
+  LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_1_LINE("Riscaldamento..."));
+  LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_1_LINE("Espulsione..."));
+  LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_1_LINE("Caricamento..."));
+  LSTR MSG_FILAMENT_CHANGE_PURGE          = _UxGT(MSG_1_LINE("Spurgo filamento"));
+  LSTR MSG_FILAMENT_CHANGE_CONT_PURGE     = _UxGT(MSG_1_LINE("Premi x terminare"));
+  LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_1_LINE("Ripresa..."));
 
   LSTR MSG_TMC_DRIVERS                    = _UxGT("Driver TMC");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Correnti driver");
@@ -838,11 +804,8 @@ namespace Language_it {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Livello asse X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibra");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Timeout inattività, temperatura diminuita. Premere OK per riscaldare e riprendere di nuovo.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Timeout riscaldatore");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Timeout inattività, temperatura diminuita. Premere OK per riscaldare e riprendere di nuovo.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Timeout riscaldatore");
   LSTR MSG_REHEAT                         = _UxGT("Riscalda");
   LSTR MSG_REHEATING                      = _UxGT("Riscaldando...");
   LSTR MSG_REHEATDONE                     = _UxGT("Riscaldato");
@@ -894,4 +857,39 @@ namespace Language_it {
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Lettura EEPROM fallita");
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E%d");
 
+}
+
+namespace LanguageWide_it {
+  using namespace LanguageNarrow_it;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Si prega di preriscaldare l'hot end.");
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Azzera contatori stampa");
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Contatori stampa");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo totale");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Lavoro più lungo");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Totale estruso");
+  #endif
+}
+
+namespace LanguageTall_it {
+  using namespace LanguageWide_it;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_3_LINE("Premi per", "riprendere", "la stampa"));
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Sto parcheggiando..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Attendere avvio", "del cambio", "di filamento"));
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Inserisci il", "filamento e premi", "per continuare"));
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Premi per", "riscaldare ugello"));
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Riscaldam. ugello", "Attendere prego..."));
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Attendere", "l'espulsione", "del filamento"));
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Attendere", "il caricamento", "del filamento"));
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Attendere", "lo spurgo", "del filamento"));
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Premi x terminare", "lo spurgo", "del filamento"));
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_3_LINE("Attendere", "la ripresa", "della stampa..."));
+  #endif
+}
+
+namespace Language_it {
+  using namespace LanguageTall_it;
 }
