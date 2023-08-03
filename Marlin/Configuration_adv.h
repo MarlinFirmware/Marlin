@@ -1088,14 +1088,13 @@
   #define TRAMMING_POINT_NAME_4 "Back-Left"
 
   #define RESTORE_LEVELING_AFTER_G35    // Enable to restore leveling setup after operation
-  //#define REPORT_TRAMMING_MM          NOT USED, CAN BE REMOVED. Milimeters are shown by default. Screw turns are shown only if user defines proper screw thread
 
   //#define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
 
   //#define ASSISTED_TRAMMING_WAIT_POSITION { X_CENTER, Y_CENTER, 30 } // Move the nozzle out of the way for adjustment
 
   /**
-   * For tramming instructions to also be shown as a number of screw turns, define your thread properties.
+   * For tramming instructions in terms of screw turns, define thread properties.
    *
    * Screw thread and direction of bed lowering:
    *   M3: 30 = CW, 31 = CCW

@@ -305,7 +305,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -352,7 +352,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char * vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
@@ -392,7 +392,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
 
       dwin_string.add(post_char);
-      
+
       lcd_moveto(1, row);
       lcd_put_dwin_string();
     }

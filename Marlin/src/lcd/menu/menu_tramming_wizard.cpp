@@ -122,9 +122,9 @@ static bool _probe_single_point() {
 
   if (probing_reference)
     ui.goto_message_screen(GET_TEXT_F(MSG_TW_MEASURING_REF), nullptr, FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));
-    
-    
-    
+
+
+
   #if HAS_LEVELING
     const bool leveling_prev_state = planner.leveling_active;
     set_bed_leveling_enabled(false);
@@ -221,7 +221,7 @@ static void menu_tramming_wizard() {
     );
 
     if (!reference_valid || menu_mode_measure)
-      
+
         ACTION_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[t])), []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } }, SS_FULL, tram_val);
     else
       SUBMENU_F(

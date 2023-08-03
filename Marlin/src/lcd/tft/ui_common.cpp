@@ -319,7 +319,7 @@ void lcd_put_int(const int i) {
 //
 
 // Draw a generic menu item with pre_char (if selected) and post_char
-void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/, const uint8_t minFstr/*=0*/) {
+void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/, const uint8_t minFstr/*=0*/) {
   menu_item(row, sel);
 
   const char *string = FTOP(fstr);
@@ -336,7 +336,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
-  image = noImage;  
+  image = noImage;
   switch (post_char) {
     case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
     case LCD_STR_UPLEVEL[0]: image = imgBack; break;
@@ -353,11 +353,11 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
-    
+
     tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
     if (vstr) tft_string.add(vstr);
     tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-    
+
   } else {
 
     uint16_t max_width;
@@ -388,7 +388,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 }
 
 // Draw a static item with no left-right margin required. Centered by default.
-void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
+void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
   menu_item(row);
 
   if (fstr) {
@@ -459,13 +459,13 @@ void MarlinUI::clear_lcd() {
 
 
 uint8_t _get_word(const char * const string, read_byte_cb_t cb_read_byte, lchar_t &last_char) {
-        
+
   if (!string) return 0;
 
   const uint8_t *p = (uint8_t*)string;
   lchar_t wc;
   uint8_t c = 0;
-  
+
   // find the end of the part
   for (;;) {
     p = get_utf8_value_cb(p, cb_read_byte, wc);
@@ -487,13 +487,13 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
       menu_line(row++);
       tft_string.trim();
       tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set();  
+      tft_string.set();
   };
 
   const uint8_t *p;
   uint8_t wrd_len = 0;
   p = (uint8_t*)string;
-  
+
   lchar_t last_char;
   p = &p[wrd_len];
   bool eol = !p;
@@ -502,7 +502,7 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
     const uint8_t len = tft_string.length;
     tft_string.add((T)p, wrd_len);
     const uint32_t wid = tft_string.width();
-    
+
     if (wid > TFT_WIDTH) {
       tft_string.truncate(len);
       print_str();
@@ -517,14 +517,14 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
     eol = !*p;
   }
   if (flush && tft_string.length > 0) {
-      print_str();  
+      print_str();
   }
 }
 void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    
+
     const uint8_t plen = utf8_strlen(pref), strlen = string ? utf8_strlen(string) : 0, slen = suff ? utf8_strlen(suff) : 0;
     uint8_t row = _MAX(0, (LCD_HEIGHT - CEIL(((plen + strlen + slen) / LCD_WIDTH)+0.5f))/2);
-    
+
     tft_string.set();
 
     if (plen) _wrap_string<FSTR_P>(row, pref, read_byte_rom);

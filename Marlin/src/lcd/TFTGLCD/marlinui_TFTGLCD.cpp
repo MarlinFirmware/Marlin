@@ -969,7 +969,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
 
@@ -1008,7 +1008,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style, const char * vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
 

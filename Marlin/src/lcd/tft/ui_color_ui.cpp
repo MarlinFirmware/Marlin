@@ -458,7 +458,7 @@ void TFT::draw_edit_screen_buttons() {
 
 // The Select Screen presents a prompt and two "buttons"
 void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-  
+
   ui.draw_message_on_screen(pref, string, suff);
 
   #if ENABLED(TOUCH_SCREEN)

@@ -410,7 +410,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
@@ -447,12 +447,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char * vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
     if (mark_as_selected(row, sel)) {
       const pixel_len_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
       const uint8_t post_char_len = post_char != ' ' ? 1 : 0;
       pixel_len_t n = _MAX(LCD_WIDTH - rlen - post_char_len, 0);
-      
+
       const bool full = bool(style & SS_FULL), center = bool(style & SS_CENTER);
 
       if (!full || !vstr) {

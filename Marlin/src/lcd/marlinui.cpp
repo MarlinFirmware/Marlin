@@ -474,7 +474,7 @@ void MarlinUI::init() {
         }
       }
 
-      
+
       void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
           const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
           uint8_t col = 0, row = 0;

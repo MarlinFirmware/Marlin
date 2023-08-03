@@ -57,9 +57,8 @@
  *               41 - Counter-Clockwise M4
  *               50 - Clockwise M5
  *               51 - Counter-Clockwise M5
- * 
- * (Counter-)Clockwise-ness is the direction of bed lowering.
- **/
+ *
+ */
 void GcodeSuite::G35() {
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
 

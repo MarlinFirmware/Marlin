@@ -248,7 +248,7 @@ void menu_main() {
   BACK_ITEM(MSG_INFO_SCREEN);
 
 /*
-  
+
   For testing purposes
 
   ACTION_ITEM_N_S_F(1, "Sbs", F("1 Testing $ {"), ui.pause_print, SS_FULL, "Val", 5);
@@ -263,7 +263,7 @@ void menu_main() {
   GCODES_ITEM_N_S_F(1, "Sbs", F("GC 1 Testing $ {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
   GCODES_ITEM_N_S(1, "GC Sbs", MSG_PREHEAT_M_END_E, FPSTR(G28_STR), SS_FULL, "Val", 5);
   GCODES_ITEM_S_F("Sbs", F("3 GC Testing Another $"), FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_S("GC Self 4", MSG_PREHEAT_M, FPSTR(G28_STR), SS_FULL, "Val", 5);         
+  GCODES_ITEM_S("GC Self 4", MSG_PREHEAT_M, FPSTR(G28_STR), SS_FULL, "Val", 5);
   GCODES_ITEM_N_F(5, F("GC Next {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
   GCODES_ITEM_N(6, MSG_LED_CHANNEL_N, FPSTR(G28_STR), SS_FULL, "Val", 5);
   GCODES_ITEM_F(F("GC Next pause 7 NOT"), FPSTR(G28_STR), SS_FULL, "Val", 5);
@@ -278,7 +278,7 @@ void menu_main() {
   SUBMENU_F(F("SM Next pause 7 NOT"), menu_temperature, SS_FULL, "Val", 5);
   SUBMENU(MSG_PAUSE_PRINT, menu_temperature, SS_FULL, "Val", 5);
 
-*/  
+*/
 
   #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
     #define MEDIA_MENU_AT_TOP
