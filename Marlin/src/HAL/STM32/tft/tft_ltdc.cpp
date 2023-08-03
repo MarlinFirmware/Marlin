@@ -267,7 +267,7 @@ uint32_t TFT_LTDC::getID() {
   return 0xABAB;
 }
 
-uint32_t TFT_LTDC::readID(tft_data_t reg) {
+uint32_t TFT_LTDC::readID(const tft_data_t inReg) {
   return 0xABAB;
 }
 
@@ -350,10 +350,6 @@ void TFT_LTDC::transmit(tft_data_t data) {
     y_cur++;
     if (y_cur > y_max) y_cur = y_min;
   }
-}
-
-void TFT_LTDC::writeReg(uint16_t reg) {
-  reg = reg;
 }
 
 void TFT_LTDC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {

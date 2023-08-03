@@ -26,7 +26,8 @@ genpages.exe
 marlin_config.json
 mczip.h
 language*.csv
-csv-out/
+out-csv/
+out-language/
 *.gen
 *.sublime-workspace
 

@@ -79,7 +79,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #else
     PIN_DISABLED(3, 3, PSTR(STR_Y_MIN), Y_MIN)
   #endif
-  #if HAS_Z_MIN_PIN
+  #if USE_Z_MIN
     PIN_ENABLED (5, 3, PSTR(STR_Z_MIN), Z_MIN, Z_MIN_ENDSTOP_HIT_STATE)
   #else
     PIN_DISABLED(5, 3, PSTR(STR_Z_MIN), Z_MIN)

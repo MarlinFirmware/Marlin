@@ -773,7 +773,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)){
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       ui.rotate_progress();
       lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
     }
@@ -915,7 +915,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Get the UTF8 character count of the string
   uint8_t lcd_width = LCD_WIDTH, pixel_width = LCD_PIXEL_WIDTH,
-          slen = utf8_strlen(status_message);
+          slen = status_message.glyphs();
 
   #if HAS_POWER_MONITOR
     if (power_monitor.display_enabled()) {

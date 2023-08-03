@@ -41,6 +41,6 @@ private:
     SERIAL_ECHO(fpre);
     if (the_msg) SERIAL_ECHO(AS_CHAR(' '), the_msg);
     SERIAL_CHAR(' ');
-    print_pos(current_position);
+    print_xyz(xyz_pos_t(current_position));
   }
 };
