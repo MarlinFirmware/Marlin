@@ -111,7 +111,7 @@
  *    B - Y offset to the return position
  *    F - Override the XY movement feedrate
  *    R - Retract/recover length (current units)
- *    S - Retract/recover feedrate (mm/m)
+ *    S - Retract/recover feedrate (mm/min)
  *    X - Move to X before triggering the shutter
  *    Y - Move to Y before triggering the shutter
  *    Z - Raise Z by a distance before triggering the shutter

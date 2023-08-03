@@ -103,10 +103,10 @@ bool TouchCalibration::handleTouch(const uint16_t x, const uint16_t y) {
   }
 
   switch (calibration_state) {
-    case CALIBRATION_TOP_LEFT: calibration_state = CALIBRATION_BOTTOM_LEFT; break;
-    case CALIBRATION_BOTTOM_LEFT: calibration_state = CALIBRATION_TOP_RIGHT; break;
+    case CALIBRATION_TOP_LEFT: calibration_state = CALIBRATION_TOP_RIGHT; break;
     case CALIBRATION_TOP_RIGHT: calibration_state = CALIBRATION_BOTTOM_RIGHT; break;
-    case CALIBRATION_BOTTOM_RIGHT: validate_calibration(); break;
+    case CALIBRATION_BOTTOM_RIGHT: calibration_state = CALIBRATION_BOTTOM_LEFT; break;
+    case CALIBRATION_BOTTOM_LEFT: validate_calibration(); break;
     default: break;
   }
 

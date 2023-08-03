@@ -130,7 +130,7 @@
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
 
-  /*
+  /**
    * Adafruit Grand Central M4 has a lot of PWMs the availables are listed here.
    * Some of these share the same source and so can't be used in the same time
    */
@@ -176,7 +176,7 @@
 
   #define digitalPinToAnalogInput(P) (WITHIN(P, 67, 74) ? (P) - 67 : WITHIN(P, 54, 61) ? 8 + (P) - 54 : WITHIN(P, 12, 13) ? 16 + (P) - 12 : P == 9 ? 18 : -1)
 
-  /*
+  /**
    * pins
    */
 
