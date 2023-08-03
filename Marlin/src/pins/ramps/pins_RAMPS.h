@@ -320,14 +320,16 @@
 //
 // TMC software SPI
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                        66
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                        44
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                         64
+#if HAS_TMC_SPI
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                      66
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                      44
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                       64
+  #endif
 #endif
 
 #if HAS_TMC_UART

@@ -453,7 +453,7 @@ namespace Anycubic {
       static void tftSend(FSTR_P const=nullptr);
       static void tftSendLn(FSTR_P const=nullptr);
       static bool readTFTCommand();
-      static int8_t Findcmndpos(const char *, const char);
+      static int8_t findCmdPos(const char *, const char);
       static void checkHeaters();
       static void sendFileList(int8_t);
       static void selectFile();
@@ -475,5 +475,5 @@ namespace Anycubic {
 
   };
 
-  extern DgusTFT Dgus;
+  extern DgusTFT dgus;
 }

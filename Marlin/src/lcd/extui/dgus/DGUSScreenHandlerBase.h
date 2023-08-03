@@ -207,7 +207,7 @@ public:
   static void sendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
-      DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
+      DEBUG_ECHOLNPGM(" >> ", p_float_t(f, 6));
       f *= cpow(10, decimals);
       dgus.writeVariable(var.VP, (int16_t)f);
     }

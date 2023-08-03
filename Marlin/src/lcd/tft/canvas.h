@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include "tft_color.h"
 #include "tft_string.h"
 #include "tft_image.h"
 #include "tft.h"
