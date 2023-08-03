@@ -109,6 +109,9 @@ typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(13) // beta25 = 4100 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Hisens"
   #include "thermistor_13.h"
 #endif
+#if ANY_THERMISTOR_IS(14) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "EPCOS" for hot bed
+  #include "thermistor_14.h"
+#endif
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
 #endif

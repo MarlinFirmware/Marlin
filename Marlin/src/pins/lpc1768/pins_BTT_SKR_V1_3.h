@@ -186,8 +186,11 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**
  *                 ------                                     ------
@@ -308,28 +311,15 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
-    #define TFT_A0_PIN               EXP1_08_PIN
-    #define TFT_DC_PIN               EXP1_08_PIN
-    #define TFT_CS_PIN               EXP1_07_PIN
-    #define TFT_RESET_PIN            EXP1_04_PIN
-    #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
-
-    //#define TFT_RST_PIN            EXP2_07_PIN
-    #define TFT_MOSI_PIN             EXP2_06_PIN
-    #define TFT_SCK_PIN              EXP2_02_PIN
-    #define TFT_MISO_PIN             EXP2_01_PIN
-
-    #define BTN_EN2                  EXP2_05_PIN
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define BEEPER_PIN               EXP1_01_PIN
     #define SDCARD_CONNECTION            ONBOARD
 
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+    #define BEEPER_PIN               EXP1_01_PIN
 
-    #define TFT_BUFFER_SIZE                 2400
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
+
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #ifndef TFT_WIDTH
       #define TFT_WIDTH                      480
@@ -338,8 +328,63 @@
       #define TFT_HEIGHT                     320
     #endif
 
-    #define LCD_READ_ID                     0xD3
-    #define LCD_USE_DMA_SPI
+    #if ENABLED(BTT_TFT35_SPI_V1_0)
+
+      /**
+       *            ------                       ------
+       *    BEEPER | 1  2 | LCD-BTN        MISO | 1  2 | CLK
+       *    T_MOSI | 3  4 | T_CS       LCD-ENCA | 3  4 | TFTCS
+       *     T_CLK | 5  6   T_MISO     LCD-ENCB | 5  6   MOSI
+       *    PENIRQ | 7  8 | F_CS             RS | 7  8 | RESET
+       *       GND | 9 10 | VCC             GND | 9 10 | NC
+       *            ------                       ------
+       *             EXP1                         EXP2
+       *
+       * 480x320, 3.5", SPI Display with Rotary Encoder.
+       * Stock Display for the BIQU B1 SE Series.
+       * Schematic: https://github.com/bigtreetech/TFT35-SPI/blob/master/v1/Hardware/BTT%20TFT35-SPI%20V1-SCH.pdf
+       */
+      #define TFT_CS_PIN             EXP2_04_PIN
+      #define TFT_DC_PIN             EXP2_07_PIN
+
+      #define TOUCH_CS_PIN           EXP1_04_PIN
+      #define TOUCH_SCK_PIN          EXP1_05_PIN
+      #define TOUCH_MISO_PIN         EXP1_06_PIN
+      #define TOUCH_MOSI_PIN         EXP1_03_PIN
+      #define TOUCH_INT_PIN          EXP1_07_PIN
+
+    #elif ENABLED(MKS_TS35_V2_0)
+
+      /**                      ------                                   ------
+       *               BEEPER | 1  2 | BTN_ENC               SPI1_MISO | 1  2 | SPI1_SCK
+       *     TFT_BKL / LCD_EN | 3  4 | TFT_RESET / LCD_RS      BTN_EN1 | 3  4 | SPI1_CS
+       *    TOUCH_CS / LCD_D4 | 5  6   TOUCH_INT / LCD_D5      BTN_EN2 | 5  6   SPI1_MOSI
+       *     SPI1_CS / LCD_D6 | 7  8 | SPI1_RS / LCD_D7       SPI1_RS  | 7  8 | RESET
+       *                  GND | 9 10 | VCC                         GND | 9 10 | VCC
+       *                       ------                                   ------
+       *                        EXP1                                     EXP2
+       */
+      #define TFT_CS_PIN             EXP1_07_PIN
+      #define TFT_DC_PIN             EXP1_08_PIN
+
+      #define TFT_RESET_PIN          EXP1_04_PIN
+
+      #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
+
+      #define TOUCH_BUTTONS_HW_SPI
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+
+      //#define TFT_RST_PIN          EXP2_07_PIN
+      #define TFT_SCK_PIN            EXP2_02_PIN
+      #define TFT_MISO_PIN           EXP2_01_PIN
+      #define TFT_MOSI_PIN           EXP2_06_PIN
+
+      #define LCD_READ_ID                   0xD3
+      #define LCD_USE_DMA_SPI
+
+      #define TFT_BUFFER_WORDS              2400
+
+    #endif
 
     #if ENABLED(TFT_CLASSIC_UI)
       #ifndef TOUCH_CALIBRATION_X
@@ -367,7 +412,7 @@
       #ifndef TOUCH_OFFSET_Y
         #define TOUCH_OFFSET_Y              -367
       #endif
-      #define TFT_BUFFER_SIZE               2400
+      #define TFT_BUFFER_WORDS              2400
     #endif
 
   #elif IS_TFTGLCD_PANEL
@@ -377,7 +422,7 @@
 
     #define SD_DETECT_PIN            EXP2_07_PIN
 
-  #else                                           // !CR10_STOCKDISPLAY
+  #else // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS              EXP1_04_PIN
 
@@ -404,7 +449,7 @@
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
@@ -418,7 +463,7 @@
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
 

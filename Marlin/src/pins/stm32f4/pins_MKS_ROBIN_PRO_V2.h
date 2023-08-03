@@ -160,7 +160,10 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -268,19 +271,19 @@
 #endif
 */
 
-//
-// LCD / Controller
 #define SPI_FLASH
-#define SPI_FLASH
-#define SPI_DEVICE                             2
-#define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
+  #define SPI_DEVICE                           2  // Maple
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
+//
+// LCD / Controller
+//
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
@@ -333,7 +336,7 @@
   #define LCD_USE_DMA_SPI
 
   //#define TFT_DRIVER                    ST7796
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
 #elif HAS_WIRED_LCD
 

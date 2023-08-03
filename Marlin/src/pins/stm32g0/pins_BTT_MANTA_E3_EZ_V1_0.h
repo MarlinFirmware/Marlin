@@ -35,7 +35,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #undef NO_EEPROM_SELECTED
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
@@ -53,10 +53,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -172,8 +170,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -235,20 +236,35 @@
 #define EXP1_10_PIN                         -1
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  /**
+   *              ------                   ------            ---
+   *  (PC1) BEEP | 1  2 |                 | 1  2 |          | 1 |    (5V)
+   *             | 3  4 |              RX | 3  4 | TX       | 2 |    (GND)
+   *  (PC0)  ENT   5  6 |             ENT   5  6 | BEEP     | 3 | RX (PD8)
+   *  (PA2)    B | 7  8 | A  (PA1)      B | 7  8 | A        | 4 | TX (PD9)
+   *         GND | 9 10 | 5V          GND | 9 10 | VCC      | 5 |    (RST)
+   *              ------                   ------            ---
+   *               EXP1                     DWIN             TFT
+   *
+   * DWIN pins are labeled as printed on DWIN PCB. GND, VCC, A, B, ENT & BEEP can be connected in the same orientation as the
+   * existing plug/DWIN to EXP1. DWIN TX/RX need to be connected to the Manta E3 EZ's TFT port, with DWIN TX->PD9, DWIN RX->PD8.
+   *
+   * Needs custom cable:
+   *
+   *     Board        Adapter       Display
+   * ------------------------------------------
+   *  (EXP1-1) PC1 <-----------> BEEP (DWIN-6)
+   *  (EXP1-5) PC0 <-----------> ENT  (DWIN-5)
+   *   (TFT-4) PD9 <-----------> RX   (DWIN-3)
+   *   (TFT-3) PD8 <-----------> TX   (DWIN-4)
+   *  (EXP1-7) PA2 <-----------> B    (DWIN-7)
+   *  (EXP1-9) GND <-----------> GND  (DWIN-9)
+   *  (EXP1-8) PA1 <-----------> A    (DWIN-8)
+   * (EXP1-10)  5V <-----------> VCC  (DWIN-10)
+   */
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! Ender-3 V2 display requires a custom cable with TX = PA0, RX = PC2. See 'pins_BTT_MANTA_E3_EZ_V1_0.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
-
- /**
-  *            Ender-3 V2 display                        Manta E3 EZ V1.0               Ender-3 V2 display --> Manta E3 EZ V1.0
-  *                  ------                                   ------                                 RX  3 -->  5  P0_15
-  *             --  | 1  2 | --                (BEEPER)  PC1 | 1  2 | PC2  (BTN_ENC)                 TX  4 -->  9  P0_16
-  * (MANTA TX1) RX  | 3  4 | TX (MANTA RX1)    (BTN_EN1) PC3 | 3  4 | RESET                      BEEPER  6 --> 10  P2_08
-  *   (BTN_ENC) ENT   5  6 | BEEPER            (BTN_EN2) PC0   5  6 | PA0  (LCD_D4)
-  *   (BTN_E2)  B   | 7  8 | A  (BTN_E1)       (LCD_RS)  PA2 | 7  8 | PA1  (LCD_EN)
-  *             GND | 9 10 | 5V                          GND | 9 10 | 5V
-  *                  ------                                   ------
-  */
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -283,7 +299,7 @@
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA7   // Repurpose default SERVO0_PIN for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
@@ -307,14 +323,13 @@
 //
 // SD Support
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SD_DETECT_PIN                       -1
 
-#if SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
+#if SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_SS_PIN                  EXP1_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with Manta E3 EZ."

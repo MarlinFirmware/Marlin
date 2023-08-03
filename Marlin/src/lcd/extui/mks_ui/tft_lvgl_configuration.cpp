@@ -36,10 +36,11 @@
 #include <lvgl.h>
 
 #include "../../../MarlinCore.h"
+#include "../../marlinui.h"
+
 #include "../../../inc/MarlinConfig.h"
 
 #include HAL_PATH(../../.., tft/xpt2046.h)
-#include "../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -50,7 +51,7 @@ XPT2046 touch;
   #include "../../../module/servo.h"
 #endif
 
-#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+#if ANY(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "../../../module/probe.h"
 #endif
 
@@ -128,16 +129,18 @@ void tft_lvgl_init() {
   hal.watchdog_refresh();     // LVGL init takes time
 
   // Init TFT first!
-  SPI_TFT.spi_init(SPI_FULL_SPEED);
-  SPI_TFT.LCD_init();
+  SPI_TFT.spiInit(SPI_FULL_SPEED);
+  SPI_TFT.lcdInit();
 
   hal.watchdog_refresh();     // LVGL init takes time
 
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     uint16_t usb_flash_loop = 1000;
     #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
-      card.changeMedia(IS_SD_INSERTED() ? &card.media_driver_sdcard : &card.media_driver_usbFlash);
+      if (IS_SD_INSERTED())
+        card.changeMedia(&card.media_driver_sdcard);
+      else
+        card.changeMedia(&card.media_driver_usbFlash);
     #endif
     do {
       card.media_driver_usbFlash.idle();
@@ -159,7 +162,7 @@ void tft_lvgl_init() {
     TERN_(MKS_TEST, mks_test_get());
   #endif
 
-  touch.Init();
+  touch.init();
 
   lv_init();
 
@@ -246,7 +249,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if BOTH(MKS_TEST, HAS_MEDIA)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }
@@ -261,7 +264,7 @@ void dmc_tc_handler(struct __DMA_HandleTypeDef * hdma) {
   #if ENABLED(USE_SPI_DMA_TC)
     lv_disp_flush_ready(disp_drv_p);
     lcd_dma_trans_lock = false;
-    TFT_SPI::Abort();
+    TFT_SPI::abort();
   #endif
 }
 
@@ -275,10 +278,10 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   #if ENABLED(USE_SPI_DMA_TC)
     lcd_dma_trans_lock = true;
-    SPI_TFT.tftio.WriteSequenceIT((uint16_t*)color_p, width * height);
+    SPI_TFT.tftio.writeSequenceIT((uint16_t*)color_p, width * height);
     TFT_SPI::DMAtx.XferCpltCallback = dmc_tc_handler;
   #else
-    SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
+    SPI_TFT.tftio.writeSequence((uint16_t*)color_p, width * height);
     lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
   #endif
 
@@ -294,7 +297,7 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   width = x2 - x1 + 1;
   height = y2 - y1 + 1;
   SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
-  SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
+  SPI_TFT.tftio.writeMultiple(bk_color.full, width * height);
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
@@ -307,7 +310,7 @@ static bool get_point(int16_t *x, int16_t *y) {
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
-    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+    if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
       if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
       return false;
     }

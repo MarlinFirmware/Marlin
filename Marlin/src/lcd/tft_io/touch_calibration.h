@@ -21,13 +21,11 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
-#include "tft_io.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
   #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
 #endif
-
 #ifndef TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS
   #define TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS   2500
 #endif
@@ -45,9 +43,9 @@ typedef struct __attribute__((__packed__)) {
 
 enum calibrationState : uint8_t {
   CALIBRATION_TOP_LEFT = 0x00,
-  CALIBRATION_BOTTOM_LEFT,
   CALIBRATION_TOP_RIGHT,
   CALIBRATION_BOTTOM_RIGHT,
+  CALIBRATION_BOTTOM_LEFT,
   CALIBRATION_SUCCESS,
   CALIBRATION_FAIL,
   CALIBRATION_NONE,
@@ -75,12 +73,12 @@ public:
     calibration_state = CALIBRATION_TOP_LEFT;
     calibration_points[CALIBRATION_TOP_LEFT].x = 30;
     calibration_points[CALIBRATION_TOP_LEFT].y = 30;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].x = 30;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].y = TFT_HEIGHT - 31;
     calibration_points[CALIBRATION_TOP_RIGHT].x = TFT_WIDTH - 31;
     calibration_points[CALIBRATION_TOP_RIGHT].y = 30;
     calibration_points[CALIBRATION_BOTTOM_RIGHT].x = TFT_WIDTH - 31;
     calibration_points[CALIBRATION_BOTTOM_RIGHT].y = TFT_HEIGHT - 31;
+    calibration_points[CALIBRATION_BOTTOM_LEFT].x = 30;
+    calibration_points[CALIBRATION_BOTTOM_LEFT].y = TFT_HEIGHT - 31;
     failed_count = 0;
     return calibration_state;
   }

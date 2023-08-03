@@ -21,39 +21,38 @@
  */
 #pragma once
 
-#include "tft_color.h"
 #include "tft_string.h"
 #include "tft_image.h"
 #include "tft.h"
 
 #include "../../inc/MarlinConfig.h"
 
-class CANVAS {
+class Canvas {
   private:
     static uint16_t background_color;
     static uint16_t width, height;
     static uint16_t startLine, endLine;
     static uint16_t *buffer;
 
-    inline static glyph_t *Glyph(uint16_t *character) { return TFT_String::glyph(character); }
-    inline static uint16_t GetFontType() { return TFT_String::font_type(); }
-    inline static uint16_t GetFontAscent() { return TFT_String::font_ascent(); }
-    inline static uint16_t GetFontHeight() { return TFT_String::font_height(); }
+    inline static glyph_t *glyph(uint16_t *character) { return TFT_String::glyph(character); }
+    inline static uint16_t getFontType() { return TFT_String::font_type(); }
+    inline static uint16_t getFontAscent() { return TFT_String::font_ascent(); }
+    inline static uint16_t getFontHeight() { return TFT_String::font_height(); }
 
-    static void AddImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors);
-    static void AddImage(uint16_t x, uint16_t y, uint16_t imageWidth, uint16_t imageHeight, uint16_t color, uint16_t bgColor, uint8_t *image);
+    static void addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors);
+    static void addImage(uint16_t x, uint16_t y, uint16_t imageWidth, uint16_t imageHeight, uint16_t color, uint16_t bgColor, uint8_t *image);
 
   public:
-    static void New(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-    static void Continue();
-    static bool ToScreen();
+    static void instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+    static void next();
+    static bool toScreen();
 
-    static void SetBackground(uint16_t color);
-    static void AddText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, uint16_t maxWidth);
-    static void AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors);
+    static void setBackground(uint16_t color);
+    static void addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, uint16_t maxWidth);
+    static void addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors);
 
-    static void AddRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
-    static void AddBar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
+    static void addRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
+    static void addBar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
 };
 
-extern CANVAS Canvas;
+extern Canvas tftCanvas;

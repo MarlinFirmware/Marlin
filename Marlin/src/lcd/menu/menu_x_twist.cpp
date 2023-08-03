@@ -112,9 +112,9 @@ void xatc_wizard_menu() {
 //
 void xatc_wizard_moving() {
   if (ui.should_draw()) {
-    char msg[10];
-    sprintf_P(msg, PSTR("%i / %u"), manual_probe_index + 1, XATC_MAX_POINTS);
-    MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), msg);
+    MString<9> msg;
+    msg.setf(F("%i / %u"), manual_probe_index + 1, XATC_MAX_POINTS);
+    MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), &msg);
   }
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
   if (!ui.wait_for_move) ui.goto_screen(xatc_wizard_menu);
@@ -150,12 +150,12 @@ void xatc_wizard_goto_next_point() {
   else {
     // Compute the z-offset by averaging the values found with this wizard
     z_offset = 0;
-    LOOP_L_N(i, XATC_MAX_POINTS) z_offset += xatc.z_offset[i];
+    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) z_offset += xatc.z_offset[i];
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
     // This way they are indipendent from the z-offset
-    LOOP_L_N(i, XATC_MAX_POINTS) xatc.z_offset[i] -= z_offset;
+    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);
   }
@@ -170,7 +170,7 @@ void xatc_wizard_homing_done() {
     MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
 
     // Color UI needs a control to detect a touch
-    #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+    #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
       touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     #endif
   }
