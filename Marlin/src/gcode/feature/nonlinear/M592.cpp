@@ -34,7 +34,7 @@
  *  C<factor>   Constant coefficient (default 1.0)
  *
  *  Adjusts the amount of extrusion based on the instantaneous velocity of extrusion, as a multiplier.
- *  The amount of extrusion is multiplied by (C + A*v + B*v^2) where v is extruder velocity in mm/s.
+ *  The amount of extrusion is multiplied by max(C, C + A*v + B*v^2) where v is extruder velocity in mm/s.
  *  Only adjusts forward extrusions, since those are the ones affected by backpressure.
  */
 void GcodeSuite::M592() {

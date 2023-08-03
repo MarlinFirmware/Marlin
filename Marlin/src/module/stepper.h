@@ -424,9 +424,9 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
         static int32_t ne_edividend;
-        static uint32_t ne_Afix;
-        static uint32_t ne_Bfix;
-        static uint32_t ne_Cfix;
+        static int32_t ne_Afix;
+        static int32_t ne_Bfix;
+        static int32_t ne_Cfix;
         static uint32_t ne_scale;
     #endif
 

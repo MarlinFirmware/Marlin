@@ -250,9 +250,9 @@ uint32_t Stepper::advance_divisor = 0,
   float Stepper::ne_A = 0;
   float Stepper::ne_B = 0;
   float Stepper::ne_C = 1;
-  uint32_t Stepper::ne_Afix;
-  uint32_t Stepper::ne_Bfix;
-  uint32_t Stepper::ne_Cfix;
+  int32_t Stepper::ne_Afix;
+  int32_t Stepper::ne_Bfix;
+  int32_t Stepper::ne_Cfix;
   uint32_t Stepper::ne_scale;
 #endif
 
@@ -2207,7 +2207,10 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
   #if ENABLED(NONLINEAR_EXTRUSION)
     uint32_t velocity = ne_scale * step_rate; // scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    advance_dividend.e = STEP_MULTIPLY(ne_Cfix + STEP_MULTIPLY(velocity, ne_Afix) + STEP_MULTIPLY(velocity, STEP_MULTIPLY(velocity, ne_Bfix)), ne_edividend);
+    int32_t vd = (((int64_t)ne_Afix * velocity) >> 24) + (((((int64_t)ne_Bfix * velocity) >> 24) * velocity) >> 24);
+    if (vd < 0) vd = 0;
+
+    advance_dividend.e = ((uint64_t)(ne_Cfix + vd) * ne_edividend) >> 24;
   #endif
 
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)

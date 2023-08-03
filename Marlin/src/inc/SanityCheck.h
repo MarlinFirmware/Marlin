@@ -863,6 +863,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if EXTRUDERS > 1
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups"
   #endif
+
+  #if DISABLED(CPU_32_BIT)
+    #error "NONLINEAR_EXTRUSION requires 32-bit CPU"
+  #endif
 #endif
 
 /**
