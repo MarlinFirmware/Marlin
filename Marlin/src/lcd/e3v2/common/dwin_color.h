@@ -27,18 +27,18 @@
 #define GetGColor(color) ((color >>  5) & 0x3F)
 #define GetBColor(color) ((color >>  0) & 0x1F)
 
-#define Color_White         0xFFFF
-#define Color_Yellow        RGB(0x1F,0x3F,0x00)
-#define Color_Red           RGB(0x1F,0x00,0x00)
-#define Color_Error_Red     0xB000  // Error!
-#define Color_Bg_Red        0xF00F  // Red background color
-#define Color_Bg_Window     0x31E8  // Popup background color
-#define Color_Bg_Blue       0x1125  // Dark blue background color
-#define Color_Bg_Black      0x0841  // Black background color
-#define Color_IconBlue      0x45FA  // Lighter blue that matches icons/accents
-#define Popup_Text_Color    0xD6BA  // Popup font background color
-#define Line_Color          0x3A6A  // Split line color
-#define Rectangle_Color     0xEE2F  // Blue square cursor color
-#define Percent_Color       0xFE29  // Percentage color
-#define BarFill_Color       0x10E4  // Fill color of progress bar
-#define Select_Color        0x33BB  // Selected color
+#define COLOR_WHITE         0xFFFF
+#define COLOR_YELLOW        RGB(0x1F,0x3F,0x00)
+#define COLOR_RED           RGB(0x1F,0x00,0x00)
+#define COLOR_ERROR_RED     0xB000  // Error!
+#define COLOR_BG_RED        0xF00F  // Red background color
+#define COLOR_BG_WINDOW     0x31E8  // Popup background color
+#define COLOR_BG_BLUE       0x1125  // Dark blue background color
+#define COLOR_BG_BLACK      0x0841  // Black background color
+#define COLOR_ICONBLUE      0x45FA  // Lighter blue that matches icons/accents
+#define COLOR_POPUP_TEXT    0xD6BA  // Popup font background color
+#define COLOR_LINE          0x3A6A  // Split line color
+#define COLOR_RECTANGLE     0xEE2F  // Blue square cursor color
+#define COLOR_PERCENT       0xFE29  // Percentage color
+#define COLOR_BARFILL       0x10E4  // Fill color of progress bar
+#define COLOR_SELECT        0x33BB  // Selected color

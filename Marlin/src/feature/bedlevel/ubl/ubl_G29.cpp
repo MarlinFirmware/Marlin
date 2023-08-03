@@ -310,8 +310,14 @@ void unified_bed_leveling::G29() {
   // Check for commands that require the printer to be homed
   if (may_move) {
     planner.synchronize();
-    // Send 'N' to force homing before G29 (internal only)
-    if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+      save_ubl_active_state_and_disable();
+      gcode.process_subcommands_now(F("G28Z"));
+      restore_ubl_active_state_and_leave();
+    #else
+      // Send 'N' to force homing before G29 (internal only)
+      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+    #endif
     probe.use_probing_tool();
 
     // Position bed horizontally and Z probe vertically.
@@ -753,7 +759,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
     TERN_(HAS_MARLINUI_MENU, ui.capture());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
     grid_count_t count = GRID_MAX_POINTS;
@@ -814,7 +820,7 @@ void unified_bed_leveling::shift_mesh_height() {
     );
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingDone());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
   }
 
 #endif // HAS_BED_PROBE

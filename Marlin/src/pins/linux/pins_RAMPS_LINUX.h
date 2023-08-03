@@ -377,9 +377,9 @@
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
-  #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
   #define TFT_DC_PIN                          43
+  #define TFT_A0_PIN                  TFT_DC_PIN
   #define TFT_SCK_PIN                 SD_SCK_PIN
   #define TFT_MISO_PIN               SD_MISO_PIN
   #define TFT_MOSI_PIN               SD_MOSI_PIN
@@ -404,7 +404,7 @@
     #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
   #endif
 
-  #define TFT_BUFFER_SIZE                 0xFFFF
+  #define TFT_BUFFER_WORDS                0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif

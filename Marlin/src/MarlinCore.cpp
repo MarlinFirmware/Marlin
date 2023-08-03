@@ -356,9 +356,7 @@ void startOrResumeJob() {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
-    #if ENABLED(SET_REMAINING_TIME)
-      ui.reset_remaining_time();
-    #endif
+    TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   }
   print_job_timer.start();
 }
@@ -1139,7 +1137,7 @@ void setup() {
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
+      TSS('[', millis(), F("] ")).echo();
       SERIAL_ECHOLNPGM_P(msg);
     };
     #define SETUP_LOG(M) log_current_ms(PSTR(M))
@@ -1339,7 +1337,7 @@ void setup() {
     SETUP_RUN(touchBt.init());
   #endif
 
-  TERN_(HAS_M206_COMMAND, current_position += home_offset); // Init current position based on home_offset
+  TERN_(HAS_HOME_OFFSET, current_position += home_offset); // Init current position based on home_offset
 
   sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
 

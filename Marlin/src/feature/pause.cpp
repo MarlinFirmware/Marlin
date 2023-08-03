@@ -546,7 +546,11 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_HEATER_TIMEOUT), GET_TEXT_F(MSG_REHEAT)));
 
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_HEATER_TIMEOUT)));
+      #if ENABLED(TOUCH_UI_FTDI_EVE)
+        ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FTDI_HEATER_TIMEOUT));
+      #elif ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_HEATER_TIMEOUT));
+      #endif
 
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(0, true)); // Wait for LCD click or M108
 

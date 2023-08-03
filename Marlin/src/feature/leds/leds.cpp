@@ -105,7 +105,7 @@ void LEDLights::setup() {
     PCA9632_set_led_color(curColor);      // blackout
     delay(200);
 
-    /*
+    /**
      * LED Pin Counter steps -> events
      * | 0-100 | 100-200 | 200-300 | 300-400 |
      *  fade in   steady |           fade out
