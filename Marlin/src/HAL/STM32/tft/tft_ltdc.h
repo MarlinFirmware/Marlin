@@ -32,7 +32,7 @@
 #define DATASIZE_8BIT  SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_LTDC
-#define DMA_MAX_SIZE   0xFFFF
+#define DMA_MAX_WORDS  0xFFFF
 
 #define TFT_DATASIZE DATASIZE_16BIT
 typedef uint16_t tft_data_t;
@@ -43,7 +43,7 @@ class TFT_LTDC {
     static uint16_t x_min, x_max, y_min, y_max, x_cur, y_cur;
     static uint8_t reg;
 
-    static uint32_t readID(tft_data_t reg);
+    static uint32_t readID(const tft_data_t inReg);
 
     static uint16_t readPoint(uint16_t x, uint16_t y);
     static void drawPoint(uint16_t x, uint16_t y, uint16_t color);
@@ -62,7 +62,7 @@ class TFT_LTDC {
     static void dataTransferEnd() {};
 
     static void writeData(uint16_t data);
-    static void writeReg(uint16_t reg);
+    static void writeReg(const uint16_t inReg) { reg = inReg; }
 
     // Non-blocking DMA data transfer is not implemented for LTDC interface
     inline static void writeSequence_DMA(uint16_t *data, uint16_t count) { writeSequence(data, count); }
@@ -71,8 +71,8 @@ class TFT_LTDC {
     static void writeSequence(uint16_t *data, uint16_t count) { transmit(DMA_PINC_ENABLE, data, count); }
     static void writeMultiple(uint16_t color, uint32_t count) {
       while (count > 0) {
-        transmit(DMA_PINC_DISABLE, &color, count > DMA_MAX_SIZE ? DMA_MAX_SIZE : count);
-        count = count > DMA_MAX_SIZE ? count - DMA_MAX_SIZE : 0;
+        transmit(DMA_PINC_DISABLE, &color, count > DMA_MAX_WORDS ? DMA_MAX_WORDS : count);
+        count = count > DMA_MAX_WORDS ? count - DMA_MAX_WORDS : 0;
       }
     }
 };

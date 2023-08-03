@@ -277,42 +277,21 @@ void GcodeSuite::G34() {
           );
         #endif
 
-        SERIAL_ECHOLNPGM("\n"
-          "Z2-Z1=", ABS(z_measured[1] - z_measured[0])
-          #if TRIPLE_Z
-            , " Z3-Z2=", ABS(z_measured[2] - z_measured[1])
-            , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
-            #if QUAD_Z
-              , " Z4-Z3=", ABS(z_measured[3] - z_measured[2])
-              , " Z4-Z2=", ABS(z_measured[3] - z_measured[1])
-              , " Z4-Z1=", ABS(z_measured[3] - z_measured[0])
-            #endif
-          #endif
-        );
+        SERIAL_EOL();
 
-        #if HAS_STATUS_MESSAGE
-          char fstr1[10];
-          char msg[6 + (6 + 5) * NUM_Z_STEPPERS + 1]
-            #if TRIPLE_Z
-              , fstr2[10], fstr3[10]
-              #if QUAD_Z
-                , fstr4[10], fstr5[10], fstr6[10]
-              #endif
-            #endif
-          ;
-          sprintf_P(msg,
-            PSTR("1:2=%s" TERN_(TRIPLE_Z, " 3-2=%s 3-1=%s") TERN_(QUAD_Z, " 4-3=%s 4-2=%s 4-1=%s")),
-            dtostrf(ABS(z_measured[1] - z_measured[0]), 1, 3, fstr1)
-            OPTARG(TRIPLE_Z,
-              dtostrf(ABS(z_measured[2] - z_measured[1]), 1, 3, fstr2),
-              dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3))
-            OPTARG(QUAD_Z,
-              dtostrf(ABS(z_measured[3] - z_measured[2]), 1, 3, fstr4),
-              dtostrf(ABS(z_measured[3] - z_measured[1]), 1, 3, fstr5),
-              dtostrf(ABS(z_measured[3] - z_measured[0]), 1, 3, fstr6))
-          );
-          ui.set_status(msg);
+        SString<15 + TERN0(TRIPLE_Z, 30) + TERN0(QUAD_Z, 45)> msg(F("1:2="), p_float_t(ABS(z_measured[1] - z_measured[0]), 3));
+        #if TRIPLE_Z
+          msg.append(F(" 3-2="), p_float_t(ABS(z_measured[2] - z_measured[1]), 3))
+             .append(F(" 3-1="), p_float_t(ABS(z_measured[2] - z_measured[0]), 3));
         #endif
+        #if QUAD_Z
+          msg.append(F(" 4-3="), p_float_t(ABS(z_measured[3] - z_measured[2]), 3))
+             .append(F(" 4-2="), p_float_t(ABS(z_measured[3] - z_measured[1]), 3))
+             .append(F(" 4-1="), p_float_t(ABS(z_measured[3] - z_measured[0]), 3));
+        #endif
+
+        msg.echoln();
+        ui.set_status(msg);
 
         auto decreasing_accuracy = [](const_float_t v1, const_float_t v2) {
           if (v1 < v2 * 0.7f) {

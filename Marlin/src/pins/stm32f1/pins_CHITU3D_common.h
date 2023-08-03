@@ -155,7 +155,7 @@
   #define HAS_LOGO_IN_FLASH                    0
 #elif ENABLED(TFT_COLOR_UI)
   // Color UI
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available

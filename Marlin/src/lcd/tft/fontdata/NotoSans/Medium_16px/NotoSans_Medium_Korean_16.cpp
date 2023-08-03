@@ -20,14 +20,11 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define NOTOSANS 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
-#include <stdint.h>
-
-// NotoSans Medium Korean 22pt, capital 'A' heigth: 16px, width: 100%, range: 0xac70-0xd788, glyphs: 110
+// NotoSans Medium Korean 22pt, capital 'A' height: 16px, width: 100%, range: 0xac70-0xd788, glyphs: 110
 extern const uint8_t NotoSans_Medium_Korean_16[11557] = {
   162,16,112,172,136,215,21,250, // unifont_t
   // 0xac70  거
