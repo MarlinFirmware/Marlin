@@ -287,7 +287,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
         // Draw hotend bitmap, either whole or split by the heating percent
         const uint8_t hx = STATUS_HOTEND_X(heater_id),
                       bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
-        #if EITHER(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
+        #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
           uint8_t tall = 0;
           #if ENABLED(STATUS_HEAT_POWER)
             // Rounded int. At least 1 pixel tall on minimal PWM.
@@ -352,7 +352,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     const celsius_t temp = thermalManager.wholeDegBed(),
                   target = thermalManager.degTargetBed();
 
-    #if EITHER(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER) || DISABLED(STATUS_BED_ANIM)
+    #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER) || DISABLED(STATUS_BED_ANIM)
       const bool isHeat = BED_ALT();
     #endif
 
@@ -365,7 +365,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
 
       // Draw a heating progress bar, if specified
-      #if EITHER(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
+      #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
         uint8_t tall = 0;
         #if ENABLED(STATUS_HEAT_POWER)
           const uint16_t power = thermalManager.getHeaterPower(H_BED);
