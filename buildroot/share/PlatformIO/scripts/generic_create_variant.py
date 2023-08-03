@@ -5,8 +5,7 @@
 # the appropriate framework variants folder, so that its contents
 # will be picked up by PlatformIO just like any other variant.
 #
-import pioutil
-import re
+import pioutil, re
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
     import shutil,marlin
@@ -47,7 +46,7 @@ if pioutil.is_pio_build():
     #series = mcu_type[:7].upper() + "xx"
 
     # Only prepare a new variant if the PlatformIO configuration provides it (board_build.variant).
-    # This check is important so that we do not delete any official board config variants.
+    # This check is important to avoid deleting official board config variants.
     if marlin_variant_pattern.match(str(variant).lower()):
         # Prepare a new empty folder at the destination
         variant_dir = FRAMEWORK_DIR / "variants" / variant
