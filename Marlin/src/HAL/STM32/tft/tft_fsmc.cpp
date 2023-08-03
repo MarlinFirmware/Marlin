@@ -35,17 +35,17 @@ SRAM_HandleTypeDef TFT_FSMC::SRAMx;
 DMA_HandleTypeDef TFT_FSMC::DMAtx;
 LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 
-void TFT_FSMC::Init() {
+void TFT_FSMC::init() {
   uint32_t controllerAddress;
-  FSMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
+  FSMC_NORSRAM_TimingTypeDef timing, extTiming;
 
-  uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+  uint32_t nsBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), pinMap_FSMC_CS);
 
   // Perform the SRAM1 memory initialization sequence
   SRAMx.Instance = FSMC_NORSRAM_DEVICE;
   SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
   // SRAMx.Init
-  SRAMx.Init.NSBank = NSBank;
+  SRAMx.Init.NSBank = nsBank;
   SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
   SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
@@ -63,42 +63,42 @@ void TFT_FSMC::Init() {
   #endif
   // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
   // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
-  Timing.AddressSetupTime = 15;
-  Timing.AddressHoldTime = 15;
-  Timing.DataSetupTime = 24;
-  Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision = 16;
-  Timing.DataLatency = 17;
-  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+  timing.AddressSetupTime = 15;
+  timing.AddressHoldTime = 15;
+  timing.DataSetupTime = 24;
+  timing.BusTurnAroundDuration = 0;
+  timing.CLKDivision = 16;
+  timing.DataLatency = 17;
+  timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
   // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
-  ExtTiming.AddressSetupTime = 8;
-  ExtTiming.AddressHoldTime = 15;
-  ExtTiming.DataSetupTime = 8;
-  ExtTiming.BusTurnAroundDuration = 0;
-  ExtTiming.CLKDivision = 16;
-  ExtTiming.DataLatency = 17;
-  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+  extTiming.AddressSetupTime = 8;
+  extTiming.AddressHoldTime = 15;
+  extTiming.DataSetupTime = 8;
+  extTiming.BusTurnAroundDuration = 0;
+  extTiming.CLKDivision = 16;
+  extTiming.DataLatency = 17;
+  extTiming.AccessMode = FSMC_ACCESS_MODE_A;
 
   __HAL_RCC_FSMC_CLK_ENABLE();
 
-  for (uint16_t i = 0; PinMap_FSMC[i].pin != NC; i++)
-    pinmap_pinout(PinMap_FSMC[i].pin, PinMap_FSMC);
-  pinmap_pinout(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
-  pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
+  for (uint16_t i = 0; pinMap_FSMC[i].pin != NC; i++)
+    pinmap_pinout(pinMap_FSMC[i].pin, pinMap_FSMC);
+  pinmap_pinout(digitalPinToPinName(TFT_CS_PIN), pinMap_FSMC_CS);
+  pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), pinMap_FSMC_RS);
 
   controllerAddress = FSMC_BANK1_1;
   #ifdef PF0
-    switch (NSBank) {
+    switch (nsBank) {
       case FSMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2 ; break;
       case FSMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3 ; break;
       case FSMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4 ; break;
     }
   #endif
 
-  controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
+  controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), pinMap_FSMC_RS);
 
-  HAL_SRAM_Init(&SRAMx, &Timing, &ExtTiming);
+  HAL_SRAM_Init(&SRAMx, &timing, &extTiming);
 
   #ifdef STM32F1xx
     __HAL_RCC_DMA1_CLK_ENABLE();
@@ -123,23 +123,23 @@ void TFT_FSMC::Init() {
   LCD = (LCD_CONTROLLER_TypeDef *)controllerAddress;
 }
 
-uint32_t TFT_FSMC::GetID() {
+uint32_t TFT_FSMC::getID() {
   uint32_t id;
-  WriteReg(0);
+  writeReg(0);
   id = LCD->RAM;
 
   if (id == 0)
-    id = ReadID(LCD_READ_ID);
+    id = readID(LCD_READ_ID);
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
-    id = ReadID(LCD_READ_ID4);
+    id = readID(LCD_READ_ID4);
   return id;
 }
 
-uint32_t TFT_FSMC::ReadID(tft_data_t Reg) {
+uint32_t TFT_FSMC::readID(const tft_data_t inReg) {
   uint32_t id;
-  WriteReg(Reg);
+  writeReg(inReg);
   id = LCD->RAM; // dummy read
-  id = Reg << 24;
+  id = inReg << 24;
   id |= (LCD->RAM & 0x00FF) << 16;
   id |= (LCD->RAM & 0x00FF) << 8;
   id |= LCD->RAM & 0x00FF;
@@ -161,30 +161,30 @@ bool TFT_FSMC::isBusy() {
   if ((__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) == 0) && (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) == 0)) return true;
 
   __DSB();
-  Abort();
+  abort();
   return false;
 }
 
-void TFT_FSMC::Abort() {
+void TFT_FSMC::abort() {
   HAL_DMA_Abort(&DMAtx);  // Abort DMA transfer if any
   HAL_DMA_DeInit(&DMAtx); // Deconfigure DMA
 }
 
-void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
-  DMAtx.Init.PeriphInc = MemoryIncrease;
+void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
+  DMAtx.Init.PeriphInc = memoryIncrease;
   HAL_DMA_Init(&DMAtx);
-  HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(LCD->RAM), Count);
+  HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
 
   TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
-void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
-  DMAtx.Init.PeriphInc = MemoryIncrease;
+void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
+  DMAtx.Init.PeriphInc = memoryIncrease;
   HAL_DMA_Init(&DMAtx);
-  DataTransferBegin();
-  HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(LCD->RAM), Count);
+  dataTransferBegin();
+  HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
-  Abort();
+  abort();
 }
 
 #endif // HAS_FSMC_TFT

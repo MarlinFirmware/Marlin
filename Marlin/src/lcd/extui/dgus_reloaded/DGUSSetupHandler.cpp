@@ -32,7 +32,7 @@
 #include "../../../gcode/queue.h"
 
 #if HAS_MEDIA
-  bool DGUSSetupHandler::Print() {
+  bool DGUSSetupHandler::print() {
     screen.filelist.refresh();
 
     while (!screen.filelist.isAtRootDir()) {
@@ -46,7 +46,7 @@
   }
 #endif
 
-bool DGUSSetupHandler::PrintStatus() {
+bool DGUSSetupHandler::printStatus() {
   if (ExtUI::isPrinting() || ExtUI::isPrintingPaused()) {
     return true;
   }
@@ -55,7 +55,7 @@ bool DGUSSetupHandler::PrintStatus() {
   return false;
 }
 
-bool DGUSSetupHandler::PrintAdjust() {
+bool DGUSSetupHandler::printAdjust() {
   if (ExtUI::isPrinting() || ExtUI::isPrintingPaused()) {
     return true;
   }
@@ -64,7 +64,7 @@ bool DGUSSetupHandler::PrintAdjust() {
   return false;
 }
 
-bool DGUSSetupHandler::LevelingMenu() {
+bool DGUSSetupHandler::levelingMenu() {
   ExtUI::setLevelingActive(screen.leveling_active);
 
   if (!screen.isPrinterIdle()) {
@@ -87,7 +87,7 @@ bool DGUSSetupHandler::LevelingMenu() {
   return false;
 }
 
-bool DGUSSetupHandler::LevelingManual() {
+bool DGUSSetupHandler::levelingManual() {
   ExtUI::setLevelingActive(false);
 
   if (ExtUI::isPositionKnown()) {
@@ -106,7 +106,7 @@ bool DGUSSetupHandler::LevelingManual() {
   return false;
 }
 
-bool DGUSSetupHandler::LevelingOffset() {
+bool DGUSSetupHandler::levelingOffset() {
   screen.offset_steps = DGUS_Data::StepSize::MMP1;
 
   if (!screen.isPrinterIdle()) {
@@ -135,7 +135,7 @@ bool DGUSSetupHandler::LevelingOffset() {
   return false;
 }
 
-bool DGUSSetupHandler::LevelingAutomatic() {
+bool DGUSSetupHandler::levelingAutomatic() {
   if (ExtUI::getLevelingIsValid()) {
     screen.leveling_active = true;
 
@@ -145,21 +145,21 @@ bool DGUSSetupHandler::LevelingAutomatic() {
   return true;
 }
 
-bool DGUSSetupHandler::LevelingProbing() {
+bool DGUSSetupHandler::levelingProbing() {
   screen.probing_icons[0] = 0;
   screen.probing_icons[1] = 0;
 
   return true;
 }
 
-bool DGUSSetupHandler::Filament() {
+bool DGUSSetupHandler::filament() {
   screen.filament_extruder = DGUS_Data::Extruder::CURRENT;
   screen.filament_length = DGUS_DEFAULT_FILAMENT_LEN;
 
   return true;
 }
 
-bool DGUSSetupHandler::Move() {
+bool DGUSSetupHandler::move() {
   screen.move_steps = DGUS_Data::StepSize::MM10;
 
   if (!screen.isPrinterIdle()) {
@@ -170,7 +170,7 @@ bool DGUSSetupHandler::Move() {
   return true;
 }
 
-bool DGUSSetupHandler::Gcode() {
+bool DGUSSetupHandler::gcode() {
   ZERO(screen.gcode);
 
   if (dgus.gui_version < 0x30 || dgus.os_version < 0x21) {
@@ -181,14 +181,14 @@ bool DGUSSetupHandler::Gcode() {
   return true;
 }
 
-bool DGUSSetupHandler::PID() {
+bool DGUSSetupHandler::pid() {
   screen.pid_heater = DGUS_Data::Heater::H0;
   screen.pid_temp = DGUS_PLA_TEMP_HOTEND;
 
   return true;
 }
 
-bool DGUSSetupHandler::Infos() {
+bool DGUSSetupHandler::infos() {
   screen.debug_count = 0;
 
   return true;
