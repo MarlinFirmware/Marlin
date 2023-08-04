@@ -35,7 +35,7 @@
 // Inline laser power
 #include "../module/planner.h"
 
-#if EITHER(SPINDLE_LASER_USE_PWM, SPINDLE_STEPPER)
+#if ANY(SPINDLE_LASER_USE_PWM, SPINDLE_STEPPER)
   #define PWM_ABLE_SPINDLE 1
 #endif
 
