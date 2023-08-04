@@ -42,6 +42,8 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
+#define T_COMMAND_NO_CODE_NUMBER INT8_MAX // Reserved tool index to indicate no tool index passed. T() takes int8 tool index.
+
 /**
  * GCode parser
  *
