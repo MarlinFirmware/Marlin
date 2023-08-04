@@ -36,6 +36,7 @@ jobs:
 
         # Native
         - linux_native
+        - linux_native_sdl
 
         # AVR
         - mega2560
