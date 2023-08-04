@@ -188,34 +188,49 @@ void GCodeParser::parse(char *p) {
         }
       #endif
 
-      // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      if (letter != 'T') {
+        // Bail if there's no command code number
+        if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      }
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      #if ENABLED(SIGNED_CODENUM)
-        int sign = 1; // Allow for a negative code like D-1 or T-1
-        if (*p == '-') { sign = -1; ++p; }
-      #endif
-
       // Get the code number - integer digits only
-      codenum = 0;
-
-      do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
-
-      // Apply the sign, if any
-      TERN_(SIGNED_CODENUM, codenum *= sign);
-
-      // Allow for decimal point in command
-      #if USE_GCODE_SUBCODES
-        if (*p == '.') {
-          p++;
-          while (NUMERIC(*p))
-            subcode = subcode * 10 + *p++ - '0';
+      if (!NUMERIC(*p)) { // Special cases when no number is found
+        if (letter == 'T') { // Allow for T command without numbers. Use 0xFF to represent no code number because 0 has meaning for T. Normal T tool indices can range between [0,255) unsigned or [-128,-1),(-1,127] when SIGNED_CODENUM enabled
+        codenum = T_COMMAND_NO_CODE_NUMBER;
         }
-      #endif
+      } else {
+        #if ENABLED(SIGNED_CODENUM)
+          int sign = 1; // Allow for a negative code like D-1 or T-1
+          if (*p == '-') { sign = -1; ++p; }
+        #endif
+
+        codenum = 0;
+
+        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+
+        //Error if T command has reserved code number
+        if (letter == 'T' && codenum == T_COMMAND_NO_CODE_NUMBER) {
+          SERIAL_ECHO(codenum);
+          SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
+          return;
+        }
+
+        // Apply the sign, if any
+        TERN_(SIGNED_CODENUM, codenum *= sign);
+
+        // Allow for decimal point in command
+        #if USE_GCODE_SUBCODES
+          if (*p == '.') {
+            p++;
+            while (NUMERIC(*p))
+              subcode = subcode * 10 + *p++ - '0';
+          }
+        #endif
+      }
 
       // Skip all spaces to get to the first argument, or nul
       while (*p == ' ') p++;
