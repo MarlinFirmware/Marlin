@@ -1495,8 +1495,7 @@ void Temperature::_temp_error(
       OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break)
       OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED);     break)
       default:
-        if (real_heater_id >= 0)
-          SERIAL_ECHOPGM("E", real_heater_id);
+        if (real_heater_id >= 0) SERIAL_ECHO('E', real_heater_id);
     }
     #if ENABLED(ERR_INCLUDE_TEMP)
       SERIAL_ECHOLNPGM(STR_DETECTED_TEMP_B, deg, STR_DETECTED_TEMP_E);
@@ -1766,7 +1765,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-            _TEMP_ERROR((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD), temp);
+            _TEMP_ERROR(e, FPSTR(str_t_heating_failed), MSG_HEATING_FAILED_LCD, temp);
           }
         }
       #endif
@@ -1796,7 +1795,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
           TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-          _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD), deg);
+          _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), MSG_HEATING_FAILED_LCD, deg);
         }
       }
     }
