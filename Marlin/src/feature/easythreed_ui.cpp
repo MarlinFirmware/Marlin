@@ -131,7 +131,7 @@ void EasythreedUI::loadButton() {
       break;
 
     case FS_PROCEED: {
-      // Feed or Retract just once. Hard abort all moves and return to idle on swicth release.
+      // Feed or Retract just once. Hard abort all moves and return to idle on switch release.
       static bool flag = false;
       if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         flag = false;                                               // Restore flag to false
@@ -142,7 +142,7 @@ void EasythreedUI::loadButton() {
       }
       else if (!flag) {
         flag = true;
-        queue.inject(!READ(BTN_RETRACT) ? F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0") : F("G91\nG0 E100 F120\nM104 S0"));
+        queue.inject(!READ(BTN_RETRACT) ? F("G91\nG0 E10 F180\nG0 E-220 F180\nM104 S0") : F("G91\nG0 E200 F120\nM104 S0"));
       }
     } break;
   }
@@ -200,7 +200,7 @@ void EasythreedUI::printButton() {
             card.selectFileByIndex(filecnt);                        // Select the last file according to current sort options
             card.openAndPrintFile(card.filename);                   // Start printing it
           } break;
-          case PF_PAUSE: {                                          // Pause printing (not currently firing)
+          case PF_PAUSE: {                                          // Pause printing
             if (!printingIsActive()) break;
             blink_interval_ms = LED_ON;                             // Set indicator to steady ON
             queue.inject(F("M25"));                                 // Queue Pause
@@ -226,6 +226,7 @@ void EasythreedUI::printButton() {
         planner.synchronize();                                      // Wait for commands already in the planner to finish
         TERN_(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
         print_key_flag = PF_START;                                  // The "Print" button now starts a new print
+        blink_interval_ms = LED_ON;                                 // Update Status LED
       }
       break;
   }
