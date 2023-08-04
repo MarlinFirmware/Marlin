@@ -221,13 +221,16 @@ static void menu_tramming_wizard() {
     );
 
     if (!reference_valid || menu_mode_measure)
-
-        ACTION_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[t])), []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } }, SS_FULL, tram_val);
+      ACTION_ITEM_F(
+        FPSTR(pgm_read_ptr(&tramming_point_name[t])),
+        []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } },
+        SS_FULL, tram_val
+      );
     else
       SUBMENU_F(
-          FPSTR(pgm_read_ptr(&tramming_point_name[t])),
-          []{ tram_target = t; menu_tram_point(); }
-        , SS_FULL, tram_val
+        FPSTR(pgm_read_ptr(&tramming_point_name[t])),
+        []{ tram_target = t; menu_tram_point(); },
+        SS_FULL, tram_val
       );
   }
 

@@ -342,7 +342,6 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     case LCD_STR_UPLEVEL[0]: image = imgBack; break;
   }
 
-
   uint16_t r_offset = TFT_WIDTH;
   if (image != noImage) {
     r_offset -= MENU_ITEM_ICON_SPACE;
@@ -358,7 +357,8 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     if (vstr) tft_string.add(vstr);
     tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
-  } else {
+  }
+  else {
 
     uint16_t max_width;
     if (vstr) {
@@ -391,11 +391,10 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
   menu_item(row);
 
-  if (fstr) {
+  if (fstr)
     tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
-  } else {
+  else
     tft_string.set();
-  }
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
@@ -457,9 +456,7 @@ void MarlinUI::clear_lcd() {
   cursor.set(0, 0);
 }
 
-
 uint8_t _get_word(const char * const string, read_byte_cb_t cb_read_byte, lchar_t &last_char) {
-
   if (!string) return 0;
 
   const uint8_t *p = (uint8_t*)string;
@@ -484,10 +481,10 @@ template<typename T>
 void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool flush=false) {
 
   auto print_str = [&row] () {
-      menu_line(row++);
-      tft_string.trim();
-      tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set();
+    menu_line(row++);
+    tft_string.trim();
+    tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
+    tft_string.set();
   };
 
   const uint8_t *p;
@@ -516,20 +513,19 @@ void _wrap_string(uint8_t &row, T string, read_byte_cb_t cb_read_byte, const boo
     p = &p[wrd_len];
     eol = !*p;
   }
-  if (flush && tft_string.length > 0) {
-      print_str();
-  }
+
+  if (flush && tft_string.length > 0) print_str();
 }
+
 void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
+  const uint8_t plen = utf8_strlen(pref), strlen = string ? utf8_strlen(string) : 0, slen = suff ? utf8_strlen(suff) : 0;
+  uint8_t row = _MAX(0, (LCD_HEIGHT - CEIL(((plen + strlen + slen) / LCD_WIDTH)+0.5f))/2);
 
-    const uint8_t plen = utf8_strlen(pref), strlen = string ? utf8_strlen(string) : 0, slen = suff ? utf8_strlen(suff) : 0;
-    uint8_t row = _MAX(0, (LCD_HEIGHT - CEIL(((plen + strlen + slen) / LCD_WIDTH)+0.5f))/2);
+  tft_string.set();
 
-    tft_string.set();
-
-    if (plen) _wrap_string<FSTR_P>(row, pref, read_byte_rom);
-    if (string) _wrap_string<const char * const>(row, string, read_byte_ram);
-    if (slen) _wrap_string<FSTR_P>(row, suff, read_byte_rom, true);
+  if (plen) _wrap_string<FSTR_P>(row, pref, read_byte_rom);
+  if (string) _wrap_string<const char * const>(row, string, read_byte_ram);
+  if (slen) _wrap_string<FSTR_P>(row, suff, read_byte_rom, true);
 }
 
 #if HAS_LCD_BRIGHTNESS
@@ -596,6 +592,5 @@ void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const stri
   }
 
 #endif // TOUCH_SCREEN_CALIBRATION
-
 
 #endif // HAS_GRAPHICAL_TFT

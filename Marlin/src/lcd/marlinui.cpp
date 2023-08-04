@@ -491,7 +491,7 @@ void MarlinUI::init() {
           if (suff) wrap_string_P(col, row, FTOP(suff));
       }
 
-    #endif // EITHER(!HAS_GRAPHICAL_TFT, ASSISTED_TRAMMING_WIZARD)
+    #endif // !HAS_GRAPHICAL_TFT
 
   #endif // HAS_MARLINUI_MENU
 

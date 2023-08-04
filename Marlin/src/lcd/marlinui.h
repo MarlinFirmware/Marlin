@@ -684,7 +684,7 @@ public:
     static bool update_selection();
 
     static void synchronize(FSTR_P const msg=nullptr);
-    static void goto_message_screen(FSTR_P const fstr1, const char * const string = nullptr, FSTR_P const fstr2=nullptr, bool synchronize = false);
+    static void goto_message_screen(FSTR_P const fstr1, const char * const string = nullptr, FSTR_P const fstr2=nullptr, bool synchronize=false);
 
     static screenFunc_t currentScreen;
     static bool screen_changed;

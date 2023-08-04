@@ -65,10 +65,10 @@ class MenuItemBase {
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
     // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
-    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style=SS_LEFT, const char *vstr=nullptr, const uint8_t minFstr = 0);
+    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style=SS_LEFT, const char *vstr=nullptr, const uint8_t minFstr=0);
 
     // Draw an item either selected ('>') or not (space) with post_char
-    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char,  const uint8_t style=SS_LEFT, const char *vstr=nullptr, const uint8_t minFstr = 0) {
+    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char,  const uint8_t style=SS_LEFT, const char *vstr=nullptr, const uint8_t minFstr=0) {
       _draw(sel, row, fstr, '>', post_char, style, vstr, minFstr);
     }
 };
