@@ -466,7 +466,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         if (vstr) lcd_put_u8str_max(vstr, n);
         while (n > 0) n -= lcd_put_u8str(F(" "));
 
-      } else {
+      }
+      else {
 
         n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
         n *= MENU_FONT_WIDTH;
