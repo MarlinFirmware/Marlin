@@ -27,7 +27,7 @@
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
-namespace Language_ko_KR {
+namespace LanguageNarrow_ko_KR {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 1;
@@ -54,17 +54,17 @@ namespace Language_ko_KR {
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("누르면 시작합니다");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("다음 Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("레벨링 완료!");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("예열하기 - $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("예열하기 - $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("예열하기 - $ 노즐");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("예열하기 - $ 노즐 ~");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("예열하기 - $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("예열하기 - $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("예열하기 - $ 노즐");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("예열하기 - $ 노즐 ~");
+
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Custom 예열");
   LSTR MSG_COOLDOWN                       = _UxGT("식히기");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("스위치 전원 켜기");
@@ -88,7 +88,7 @@ namespace Language_ko_KR {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("설정 읽어오기");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("설정 되돌리기");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM 초기화");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("새로고침");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("새로고침");
   LSTR MSG_INFO_SCREEN                    = _UxGT("처음으로");
   LSTR MSG_PREPARE                        = _UxGT("준비하기");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("일시정지");
@@ -103,4 +103,21 @@ namespace Language_ko_KR {
   LSTR MSG_KILLED                         = _UxGT("죽음. ");
   LSTR MSG_STOPPED                        = _UxGT("멈춤. ");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("잘못된 프린터");
+}
+
+namespace LanguageWide_ko_KR {
+  using namespace LanguageNarrow_ko_KR;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+  #endif
+}
+
+namespace LanguageTall_ko_KR {
+  using namespace LanguageWide_ko_KR;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_ko_KR {
+  using namespace LanguageTall_ko_KR;
 }

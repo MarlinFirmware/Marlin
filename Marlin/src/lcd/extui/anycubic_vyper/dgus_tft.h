@@ -356,19 +356,19 @@ namespace Anycubic {
       static lcd_info_t lcd_info, lcd_info_back;
       static uint16_t page_index_now;
 
-      static void Startup();
-      static void ParamInit();
-      static void IdleLoop();
-      static void PrinterKilled(FSTR_P,FSTR_P);
-      static void MediaEvent(media_event_t);
-      static void TimerEvent(timer_event_t);
-      static void FilamentRunout();
-      static void ConfirmationRequest(const char * const);
-      static void StatusChange(const char * const);
-      static void PowerLoss();
-      static void PowerLossRecovery();
-      static void HomingStart();
-      static void HomingComplete();
+      static void startup();
+      static void paramInit();
+      static void idleLoop();
+      static void printerKilled(FSTR_P,FSTR_P);
+      static void mediaEvent(media_event_t);
+      static void timerEvent(timer_event_t);
+      static void filamentRunout();
+      static void confirmationRequest(const char * const);
+      static void statusChange(const char * const);
+      static void powerLoss();
+      static void powerLossRecovery();
+      static void homingStart();
+      static void homingComplete();
 
       static void set_descript_color(const uint16_t color, const uint8_t index=lcd_txtbox_index);
       static void set_language(language_t);
@@ -450,30 +450,30 @@ namespace Anycubic {
 
       static void pop_up_manager();
 
-      static void SendtoTFT(FSTR_P const=nullptr);
-      static void SendtoTFTLN(FSTR_P const=nullptr);
-      static bool ReadTFTCommand();
-      static int8_t Findcmndpos(const char *, const char);
-      static void CheckHeaters();
-      static void SendFileList(int8_t);
-      static void SelectFile();
-      static void ProcessPanelRequest();
-      static void PanelInfo(uint8_t);
-      static void PanelAction(uint8_t);
-      static void PanelProcess(uint8_t);
+      static void tftSend(FSTR_P const=nullptr);
+      static void tftSendLn(FSTR_P const=nullptr);
+      static bool readTFTCommand();
+      static int8_t findCmdPos(const char *, const char);
+      static void checkHeaters();
+      static void sendFileList(int8_t);
+      static void selectFile();
+      static void processPanelRequest();
+      static void panelInfo(uint8_t);
+      static void panelAction(uint8_t);
+      static void panelProcess(uint8_t);
 
-      static void SendValueToTFT(const uint16_t value, const uint16_t address);
-      static void RequestValueFromTFT(const uint16_t address);
-      static void SendTxtToTFT(const char *pdata, const uint16_t address);
-      static void SendColorToTFT(const uint16_t color, const uint16_t address);
-      static void SendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
-      static void ChangePageOfTFT(const uint16_t page_index, const bool no_send=false);
-      static void FakeChangePageOfTFT(const uint16_t page_index);
-      static void LcdAudioSet(const bool audio_on);
+      static void sendValueToTFT(const uint16_t value, const uint16_t address);
+      static void requestValueFromTFT(const uint16_t address);
+      static void sendTxtToTFT(const char *pdata, const uint16_t address);
+      static void sendColorToTFT(const uint16_t color, const uint16_t address);
+      static void sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
+      static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
+      static void fakeChangePageOfTFT(const uint16_t page_index);
+      static void lcdAudioSet(const bool audio_on);
 
     private:
 
   };
 
-  extern DgusTFT Dgus;
+  extern DgusTFT dgus;
 }

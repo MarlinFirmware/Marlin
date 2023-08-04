@@ -79,7 +79,7 @@ void GcodeSuite::M7219() {
   }
 
   if (parser.seen('P')) {
-    LOOP_L_N(r, MAX7219_LINES) {
+    for (uint8_t r = 0; r < MAX7219_LINES; ++r) {
       SERIAL_ECHOPGM("led_line[");
       if (r < 10) SERIAL_CHAR(' ');
       SERIAL_ECHO(r);

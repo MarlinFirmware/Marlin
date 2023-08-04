@@ -21,7 +21,7 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, MULTI_VOLUME)
+#if ALL(HAS_TFT_LVGL_UI, MULTI_VOLUME)
 
 #include "draw_ui.h"
 #include <lv_conf.h>

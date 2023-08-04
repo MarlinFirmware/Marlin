@@ -501,7 +501,7 @@ enum StealthIndex : uint8_t {
       struct {
         const void *ptr[TMCAxis::TOTAL];
         bool began(const TMCAxis a, const void * const p) {
-          LOOP_L_N(i, a) if (p == ptr[i]) return true;
+          for (uint8_t i = 0; i < a; ++i) if (p == ptr[i]) return true;
           ptr[a] = p; return false;
         };
       } sp_helper;
@@ -514,154 +514,154 @@ enum StealthIndex : uint8_t {
       #ifdef X_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(X);
       #else
-        stepperX.beginSerial(TMC_BAUD_RATE);
+        stepperX.beginSerial(TMC_X_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(X2)
       #ifdef X2_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(X2);
       #else
-        stepperX2.beginSerial(TMC_BAUD_RATE);
+        stepperX2.beginSerial(TMC_X2_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Y)
       #ifdef Y_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Y);
       #else
-        stepperY.beginSerial(TMC_BAUD_RATE);
+        stepperY.beginSerial(TMC_Y_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Y2)
       #ifdef Y2_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Y2);
       #else
-        stepperY2.beginSerial(TMC_BAUD_RATE);
+        stepperY2.beginSerial(TMC_Y2_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z)
       #ifdef Z_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Z);
       #else
-        stepperZ.beginSerial(TMC_BAUD_RATE);
+        stepperZ.beginSerial(TMC_Z_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z2)
       #ifdef Z2_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Z2);
       #else
-        stepperZ2.beginSerial(TMC_BAUD_RATE);
+        stepperZ2.beginSerial(TMC_Z2_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z3)
       #ifdef Z3_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Z3);
       #else
-        stepperZ3.beginSerial(TMC_BAUD_RATE);
+        stepperZ3.beginSerial(TMC_Z3_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z4)
       #ifdef Z4_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(Z4);
       #else
-        stepperZ4.beginSerial(TMC_BAUD_RATE);
+        stepperZ4.beginSerial(TMC_Z4_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(I)
       #ifdef I_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(I);
       #else
-        stepperI.beginSerial(TMC_BAUD_RATE);
+        stepperI.beginSerial(TMC_I_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(J)
       #ifdef J_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(J);
       #else
-        stepperJ.beginSerial(TMC_BAUD_RATE);
+        stepperJ.beginSerial(TMC_J_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(K)
       #ifdef K_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(K);
       #else
-        stepperK.beginSerial(TMC_BAUD_RATE);
+        stepperK.beginSerial(TMC_K_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(U)
       #ifdef U_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(U);
       #else
-        stepperU.beginSerial(TMC_BAUD_RATE);
+        stepperU.beginSerial(TMC_U_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(V)
       #ifdef V_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(V);
       #else
-        stepperV.beginSerial(TMC_BAUD_RATE);
+        stepperV.beginSerial(TMC_V_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(W)
       #ifdef W_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(W);
       #else
-        stepperW.beginSerial(TMC_BAUD_RATE);
+        stepperW.beginSerial(TMC_W_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E0);
       #else
-        stepperE0.beginSerial(TMC_BAUD_RATE);
+        stepperE0.beginSerial(TMC_E0_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E1)
       #ifdef E1_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E1);
       #else
-        stepperE1.beginSerial(TMC_BAUD_RATE);
+        stepperE1.beginSerial(TMC_E1_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E2)
       #ifdef E2_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E2);
       #else
-        stepperE2.beginSerial(TMC_BAUD_RATE);
+        stepperE2.beginSerial(TMC_E2_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E3)
       #ifdef E3_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E3);
       #else
-        stepperE3.beginSerial(TMC_BAUD_RATE);
+        stepperE3.beginSerial(TMC_E3_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E4)
       #ifdef E4_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E4);
       #else
-        stepperE4.beginSerial(TMC_BAUD_RATE);
+        stepperE4.beginSerial(TMC_E4_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E5)
       #ifdef E5_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E5);
       #else
-        stepperE5.beginSerial(TMC_BAUD_RATE);
+        stepperE5.beginSerial(TMC_E5_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E6)
       #ifdef E6_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E6);
       #else
-        stepperE6.beginSerial(TMC_BAUD_RATE);
+        stepperE6.beginSerial(TMC_E6_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E7)
       #ifdef E7_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E7);
       #else
-        stepperE7.beginSerial(TMC_BAUD_RATE);
+        stepperE7.beginSerial(TMC_E7_BAUD_RATE);
       #endif
     #endif
   }

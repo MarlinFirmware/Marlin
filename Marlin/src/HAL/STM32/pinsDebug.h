@@ -119,7 +119,6 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PORT(ANUM) port_print(ANUM)
 #define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
 
 // x is a variable used to search pin_array
@@ -187,7 +186,7 @@ bool is_digital(const pin_t Ard_num) {
   return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 }
 
-void port_print(const pin_t Ard_num) {
+void print_port(const pin_t Ard_num) {
   char buffer[16];
   pin_t Index;
   for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)

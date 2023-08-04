@@ -25,7 +25,6 @@
 #if ENABLED(DIRECT_PIN_CONTROL)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
 
 #if HAS_FAN
   #include "../../module/temperature.h"
@@ -37,6 +36,8 @@
   #define INPUT_ANALOG INPUT_ANALOG
   #define OUTPUT_OPEN_DRAIN OUTPUT_OPEN_DRAIN
 #endif
+
+bool pin_is_protected(const pin_t pin);
 
 void protected_pin_err() {
   SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);

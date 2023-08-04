@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -72,11 +72,11 @@
 
 // L6470 or L6474 on SPI
 #if HAS_DRIVER(L6470) || HAS_DRIVER(L6474)        // Shared with SPI on EXP2
-    #define L6470_CHAIN_SCK_PIN             PB3
-    #define L6470_CHAIN_MISO_PIN            PB4
-    #define L6470_CHAIN_MOSI_PIN            PB5
-    #define L6470_CHAIN_SS_PIN              PA15
-	#define ENABLE_RESET_L64XX_CHIPS
+  #define L6470_CHAIN_SCK_PIN               PB3
+  #define L6470_CHAIN_MISO_PIN              PB4
+  #define L6470_CHAIN_MOSI_PIN              PB5
+  #define L6470_CHAIN_SS_PIN                PA15
+  #define ENABLE_RESET_L64XX_CHIPS
 #endif
 
 // TMC2130 on SPI
@@ -190,7 +190,7 @@
     #define BTN_EN1                  EXP1_08_PIN
     #define BTN_EN2                  EXP1_06_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
   #elif IS_TFTGLCD_PANEL
@@ -211,7 +211,7 @@
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_EN2                  EXP2_06_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
 
@@ -228,7 +228,7 @@
       //#define LED_PIN              EXP1_04_PIN  // green
       //#define LED_PIN              EXP1_03_PIN  // blue
 
-      //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       //  #ifndef RGB_LED_R_PIN
       //    #define RGB_LED_R_PIN    EXP1_05_PIN
       //  #endif
@@ -280,7 +280,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SPI_DEVICE                           3
+  #define SPI_DEVICE                           3  // Maple
   #define SD_DETECT_PIN              EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_09_PIN
   #define SD_MISO_PIN                EXP2_10_PIN
