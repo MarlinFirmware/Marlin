@@ -91,24 +91,25 @@ void MarlinHAL::init() {
     #endif
 
     // Flash status LED 3 times to indicate Marlin has started booting
-    LOOP_L_N(i, 6) {
+    for (uint8_t i = 0; i < 6; ++i) {
       TOGGLE(LED_PIN);
       delay(100);
     }
   #endif
 
   // Init Servo Pins
+  #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
   #if HAS_SERVO_0
-    OUT_WRITE(SERVO0_PIN, LOW);
+    INIT_SERVO(0);
   #endif
   #if HAS_SERVO_1
-    OUT_WRITE(SERVO1_PIN, LOW);
+    INIT_SERVO(1);
   #endif
   #if HAS_SERVO_2
-    OUT_WRITE(SERVO2_PIN, LOW);
+    INIT_SERVO(2);
   #endif
   #if HAS_SERVO_3
-    OUT_WRITE(SERVO3_PIN, LOW);
+    INIT_SERVO(3);
   #endif
 
   //debug_frmwrk_init();
