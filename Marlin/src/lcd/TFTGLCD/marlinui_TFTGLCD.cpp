@@ -596,8 +596,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 #endif // HAS_CUTTER
 
-
 #if HAS_PRINT_PROGRESS   // UNTESTED!!!
+
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
 
@@ -648,6 +648,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       }
     }
   #endif
+
 #endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(LCD_PROGRESS_BAR)

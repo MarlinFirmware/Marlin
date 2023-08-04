@@ -784,6 +784,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 }
 
 #if HAS_PRINT_PROGRESS
+
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
   static char buffer[8];
@@ -837,6 +838,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
 #endif // HAS_PRINT_PROGRESS
 
 /**
