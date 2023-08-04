@@ -55,14 +55,15 @@ if pioutil.is_pio_build():
         # Get a reference to the FEATURE_CONFIG under construction
         feat = FEATURE_CONFIG[feature]
 
-        # Split up passed lines on commas or newlines and iterate
-        # Add common options to the features config under construction
-        # For lib_deps replace a previous instance of the same library
-        atoms = re.sub(r',\s*', '\n', flines).strip().split('\n')
+        # Split up passed lines on commas or newlines and iterate.
+        # Take care to convert Windows '\' paths to Unix-style '/'.
+        # Add common options to the features config under construction.
+        # For lib_deps replace a previous instance of the same library.
+        atoms = re.sub(r',\s*', '\n', flines.replace('\\', '/')).strip().split('\n')
         for line in atoms:
             parts = line.split('=')
             name = parts.pop(0)
-            if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
+            if name in ['build_flags', 'extra_scripts', 'build_src_filter', 'lib_ignore']:
                 feat[name] = '='.join(parts)
                 blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
             else:
@@ -93,7 +94,7 @@ if pioutil.is_pio_build():
                     val = None
                 if val:
                     opt = mat[1].upper()
-                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ))
+                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ), 2)
                     add_to_feat_cnf(opt, val)
 
     def get_all_known_libs():
@@ -130,7 +131,7 @@ if pioutil.is_pio_build():
     def apply_features_config():
         load_features()
         blab("========== Apply enabled features...")
-        build_filters = ' '.join(env.GetProjectOption('src_filter'))
+        build_filters = ' '.join(env.GetProjectOption('build_src_filter'))
         for feature in FEATURE_CONFIG:
             if not env.MarlinHas(feature):
                 continue
@@ -175,9 +176,9 @@ if pioutil.is_pio_build():
                 blab("Running extra_scripts for %s... " % feature, 2)
                 env.SConscript(feat['extra_scripts'], exports="env")
 
-            if 'src_filter' in feat:
+            if 'build_src_filter' in feat:
                 blab("========== Adding build_src_filter for %s... " % feature, 2)
-                build_filters = build_filters + ' ' + feat['src_filter']
+                build_filters = build_filters + ' ' + feat['build_src_filter']
                 # Just append the filter in the order that the build environment specifies.
                 # Important here is the order of entries in the "features.ini" file.
 
@@ -186,7 +187,7 @@ if pioutil.is_pio_build():
                 lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
                 set_env_field('lib_ignore', lib_ignore)
 
-        src_filter = ""
+        build_src_filter = ""
         if True:
             # Build the actual equivalent build_src_filter list based on the inclusions by the features.
             # PlatformIO doesn't do it this way, but maybe in the future....
@@ -201,14 +202,14 @@ if pioutil.is_pio_build():
                         relp = os.path.relpath(fullpath, marlinbasedir)
                         if srcfilepattern.match(relp):
                             if info:
-                                blab("Added src file %s (%s)" % (relp, str(info)))
+                                blab("Added src file %s (%s)" % (relp, str(info)), 3)
                             else:
-                                blab("Added src file %s " % relp)
+                                blab("Added src file %s " % relp, 3)
                             cur_srcs.add(relp)
                     # Special rule: If a direct folder is specified add all files within.
                     fullplain = os.path.join(marlinbasedir, plain)
                     if os.path.isdir(fullplain):
-                        blab("Directory content addition for %s " % plain)
+                        blab("Directory content addition for %s " % plain, 3)
                         gpattern = os.path.join(fullplain, "**")
                         for fname in glob.glob(gpattern, recursive=True):
                             addentry(fname, "dca")
@@ -226,12 +227,12 @@ if pioutil.is_pio_build():
                     # Special rule: If a direct folder is specified then remove all files within.
                     def onremove(relp, info=None):
                         if info:
-                            blab("Removed src file %s (%s)" % (relp, str(info)))
+                            blab("Removed src file %s (%s)" % (relp, str(info)), 3)
                         else:
-                            blab("Removed src file %s " % relp)
+                            blab("Removed src file %s " % relp, 3)
                     fullplain = os.path.join(marlinbasedir, plain)
                     if os.path.isdir(fullplain):
-                        blab("Directory content removal for %s " % plain)
+                        blab("Directory content removal for %s " % plain, 2)
                         def filt(x):
                             common = os.path.commonpath([plain, x])
                             if not common == os.path.normpath(plain): return True
@@ -247,16 +248,16 @@ if pioutil.is_pio_build():
                         cur_srcs = set(filter(filt, cur_srcs))
             # Transform the resulting set into a string.
             for x in cur_srcs:
-                if len(src_filter) > 0: src_filter += ' '
-                src_filter += "+<" + x + ">"
+                if build_src_filter != "": build_src_filter += ' '
+                build_src_filter += "+<" + x + ">"
 
-            #blab("Final src_filter: " + src_filter)
+            #blab("Final build_src_filter: " + build_src_filter, 3)
         else:
-            src_filter = build_filters
+            build_src_filter = build_filters
 
         # Update in PlatformIO
-        set_env_field('build_src_filter', [src_filter])
-        env.Replace(SRC_FILTER=src_filter)
+        set_env_field('build_src_filter', [build_src_filter])
+        env.Replace(SRC_FILTER=build_src_filter)
 
     #
     # Use the compiler to get a list of all enabled features
@@ -280,7 +281,7 @@ if pioutil.is_pio_build():
     #
     def MarlinHas(env, feature):
         load_marlin_features()
-        r = re.compile('^' + feature + '$')
+        r = re.compile('^' + feature + '$', re.IGNORECASE)
         found = list(filter(r.match, env['MARLIN_FEATURES']))
 
         # Defines could still be 'false' or '0', so check
@@ -293,7 +294,7 @@ if pioutil.is_pio_build():
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)
 
-        #blab("%s is %s" % (feature, str(some_on)))
+        #blab("%s is %s" % (feature, str(some_on)), 2)
 
         return some_on
 

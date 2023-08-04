@@ -294,7 +294,7 @@ static bool serial_data_available(serial_index_t index) {
 #if NO_TIMEOUTS > 0
   // Multiserial already handles dispatch to/from multiple ports
   static bool any_serial_data_available() {
-    LOOP_L_N(p, NUM_SERIAL)
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p)
       if (serial_data_available(p))
         return true;
     return false;
@@ -313,7 +313,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
    */
   void GCodeQueue::flush_rx() {
     // Flush receive buffer
-    LOOP_L_N(p, NUM_SERIAL) {
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p) {
       if (!serial_data_available(p)) continue; // No data for this port? Skip.
       while (SERIAL_IMPL.available(p)) (void)read_serial(p);
     }
@@ -324,7 +324,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNF(ferr, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLN(ferr, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -441,7 +441,7 @@ void GCodeQueue::get_serial_commands() {
     // Unless a serial port has data, this will exit on next iteration
     hadData = false;
 
-    LOOP_L_N(p, NUM_SERIAL) {
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p) {
       // Check if the queue is full and exit if it is.
       if (ring_buffer.full()) return;
 
@@ -713,8 +713,8 @@ void GCodeQueue::advance() {
 
   void GCodeQueue::report_buffer_statistics() {
     SERIAL_ECHOLNPGM("D576"
-      " P:", planner.moves_free(),         " ", -planner_buffer_underruns, " (", max_planner_buffer_empty_duration, ")"
-      " B:", BUFSIZE - ring_buffer.length, " ", -command_buffer_underruns, " (", max_command_buffer_empty_duration, ")"
+      " P:", planner.moves_free(),         " ", planner_buffer_underruns, " (", max_planner_buffer_empty_duration, ")"
+      " B:", BUFSIZE - ring_buffer.length, " ", command_buffer_underruns, " (", max_command_buffer_empty_duration, ")"
     );
     command_buffer_underruns = planner_buffer_underruns = 0;
     max_command_buffer_empty_duration = max_planner_buffer_empty_duration = 0;

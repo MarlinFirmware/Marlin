@@ -51,7 +51,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -60,22 +60,26 @@
 
 //
 // SPI
-// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
+//
+#define SPI_DEVICE                             2  // Maple
+
+//
+// SD Card SPI
 //
 #define SD_SCK_PIN                          PB13  // SPI2
 #define SD_MISO_PIN                         PB14  // SPI2
 #define SD_MOSI_PIN                         PB15  // SPI2
-#define SPI_DEVICE                             2
 
+//
 // SPI Flash
+//
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  // SPI 2
-  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
-  #define SPI_FLASH_SCK_PIN                 PB13
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
 //
@@ -303,13 +307,13 @@
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #ifdef TFT_CLASSIC_UI
+  #if ENABLED(TFT_CLASSIC_UI)
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
 #elif HAS_GRAPHICAL_TFT
 

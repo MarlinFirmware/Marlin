@@ -35,18 +35,18 @@
 
 #define BOARD_NO_NATIVE_USB
 
-//#define DISABLE_DEBUG                           //  We still want to debug with STLINK...
-#define DISABLE_JTAG                              //  We free the jtag pins (PA15) but keep STLINK
-                                                  //  Release PB4 (STEP_X_PIN) from JTAG NRST role.
+//#define DISABLE_DEBUG                           // Allow debug with STLINK...
+#define DISABLE_JTAG                              // We free the JTAG pins (PA15) but keep STLINK
+                                                  // Release PB4 (STEP_X_PIN) from JTAG NRST role.
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PC1   // pin 16
-#define X_MAX_PIN                           PC0   // pin 15 (Filament sensor on Alfawise setup)
-#define Y_MIN_PIN                           PC15  // pin 9
-#define Y_MAX_PIN                           PC14  // pin 8 (Unused in stock Alfawise setup)
-#define Z_MIN_PIN                           PE6   // pin 5 Standard Endstop or Z_Probe endstop function
-#define Z_MAX_PIN                           PE5   // pin 4 (Unused in stock Alfawise setup)
+#define X_MIN_PIN                           PC1
+#define X_MAX_PIN                           PC0   // (Filament sensor on Alfawise setup)
+#define Y_MIN_PIN                           PC15
+#define Y_MAX_PIN                           PC14  // (Unused in stock Alfawise setup)
+#define Z_MIN_PIN                           PE6   // Standard Endstop or Z_Probe endstop function
+#define Z_MAX_PIN                           PE5   // (Unused in stock Alfawise setup)
                                  // May be used for BLTouch Servo function on older variants (<= V08)
 #define ONBOARD_ENDSTOPPULLUPS
 
@@ -60,35 +60,35 @@
 //
 // Steppers
 //
-#define X_ENABLE_PIN                        PB5   // pin 91
-#define X_STEP_PIN                          PB4   // pin 90
-#define X_DIR_PIN                           PB3   // pin 89
+#define X_ENABLE_PIN                        PB5
+#define X_STEP_PIN                          PB4
+#define X_DIR_PIN                           PB3
 
-#define Y_ENABLE_PIN                        PB8   // pin 95
-#define Y_STEP_PIN                          PB7   // pin 93
-#define Y_DIR_PIN                           PB6   // pin 92
+#define Y_ENABLE_PIN                        PB8
+#define Y_STEP_PIN                          PB7
+#define Y_DIR_PIN                           PB6
 
-#define Z_ENABLE_PIN                        PE1   // pin 98
-#define Z_STEP_PIN                          PE0   // pin 97
-#define Z_DIR_PIN                           PB9   // pin 96
+#define Z_ENABLE_PIN                        PE1
+#define Z_STEP_PIN                          PE0
+#define Z_DIR_PIN                           PB9
 
-#define E0_ENABLE_PIN                       PE4   // pin 3
-#define E0_STEP_PIN                         PE3   // pin 2
-#define E0_DIR_PIN                          PE2   // pin 1
+#define E0_ENABLE_PIN                       PE4
+#define E0_STEP_PIN                         PE3
+#define E0_DIR_PIN                          PE2
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA0   // pin 23 (Nozzle 100K/3950 thermistor)
-#define TEMP_BED_PIN                        PA1   // pin 24 (Hot Bed 100K/3950 thermistor)
+#define TEMP_0_PIN                          PA0   // (Nozzle 100K/3950 thermistor)
+#define TEMP_BED_PIN                        PA1   // (Hot Bed 100K/3950 thermistor)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PD3   // pin 84 (Nozzle Heat Mosfet)
-#define HEATER_BED_PIN                      PA8   // pin 67 (Hot Bed Mosfet)
+#define HEATER_0_PIN                        PD3   // (Nozzle Heat Mosfet)
+#define HEATER_BED_PIN                      PA8   // (Hot Bed Mosfet)
 
-#define FAN0_PIN                            PA15  // pin 77 (4cm Fan)
+#define FAN0_PIN                            PA15  // (4cm Fan)
 
 #if TERN(MAPLE_STM32F1, ENABLED(FAN_SOFT_PWM), ENABLED(FAST_PWM_FAN)) && FAN_MIN_PWM < 5 // Required to avoid issues with heating or STLink
   #error "FAN_MIN_PWM must be 5 or higher."       // Fan will not start in 1-30 range
@@ -104,10 +104,10 @@
   #endif
 #endif
 
-//#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
+//#define BEEPER_PIN                        PD13  // (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                                   // Can drive a PC Buzzer, if connected between PWM and 5V pins
 
-#define LED_PIN                             PC2   // pin 17
+#define LED_PIN                             PC2
 
 // Longer3D board mosfets are passing by default
 // Avoid nozzle heat and fan start before serial init
@@ -136,21 +136,21 @@
 //
 #if HAS_FSMC_TFT
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7   // pin 88 = FSMC_NE1
-  #define FSMC_RS_PIN                       PD11  // pin 58 A16 Register. Only one address needed
+  #define FSMC_CS_PIN                       PD7   // FSMC_NE1
+  #define FSMC_RS_PIN                       PD11  // A16 Register. Only one address needed
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #define TFT_RESET_PIN                     PC4   // pin 33
-  #define TFT_BACKLIGHT_PIN                 PD12  // pin 59
+  #define TFT_RESET_PIN                     PC4
+  #define TFT_BACKLIGHT_PIN                 PD12
   #define TFT_BACKLIGHT_PWM                 150   // Brightness with alt. TIM4 chan 1 (1-255)
 
   #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
-  #define TFT_BUFFER_SIZE                   3200
+  #define TFT_BUFFER_WORDS                  3200
 #endif
 
 #if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)
@@ -168,11 +168,11 @@
  * declared below.
  */
 #if NEED_TOUCH_PINS
-  #define TOUCH_CS_PIN                      PB12  // pin 51 SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // pin 52
-  #define TOUCH_MOSI_PIN                    PB14  // pin 53 (Inverted MOSI/MISO = No HW SPI2)
-  #define TOUCH_MISO_PIN                    PB15  // pin 54
-  #define TOUCH_INT_PIN                     PC6   // pin 63 (PenIRQ coming from ADS7843)
+  #define TOUCH_CS_PIN                      PB12  // SPI2_NSS
+  #define TOUCH_SCK_PIN                     PB13
+  #define TOUCH_MISO_PIN                    PB15  // (Swapped MOSI/MISO = No HW SPI2)
+  #define TOUCH_MOSI_PIN                    PB14
+  #define TOUCH_INT_PIN                     PC6   // (PenIRQ coming from ADS7843)
 #endif
 
 //
@@ -181,25 +181,25 @@
 //
 #if NO_EEPROM_SELECTED
   //#define SPI_EEPROM
-  //#define SPI_FLASH                             // need MARLIN_DEV_MODE for M993/M994 EEPROM backup tests
+  //#define SPI_FLASH                             // Use MARLIN_DEV_MODE for M993/M994 EEPROM backup tests
   #define FLASH_EEPROM_EMULATION
 #endif
 
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS_PIN                PC5   // pin 34
-  #define EEPROM_SCK_PIN      BOARD_SPI1_SCK_PIN  // PA5 pin 30
-  #define EEPROM_MISO_PIN    BOARD_SPI1_MISO_PIN  // PA6 pin 31
-  #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7 pin 32
+  #define SPI_EEPROM1_CS_PIN                PC5
+  #define EEPROM_SCK_PIN      BOARD_SPI1_SCK_PIN  // PA5
+  #define EEPROM_MISO_PIN    BOARD_SPI1_MISO_PIN  // PA6
+  #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7
   #define EEPROM_PAGE_SIZE               0x1000U  // 4K (from datasheet)
-  #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64K for now...
+  #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)  // Limit to 64K for now...
 #elif ENABLED(SPI_FLASH)
-  #define SPI_FLASH_SIZE                0x40000U  // limit to 256K (M993 will reboot with 512)
+  #define SPI_FLASH_SIZE                0x40000U  // Limit to 256K (M993 will reboot with 512)
   #define SPI_FLASH_CS_PIN                  PC5
-  #define SPI_FLASH_MOSI_PIN                PA7
-  #define SPI_FLASH_MISO_PIN                PA6
   #define SPI_FLASH_SCK_PIN                 PA5
+  #define SPI_FLASH_MISO_PIN                PA6
+  #define SPI_FLASH_MOSI_PIN                PA7
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
