@@ -319,7 +319,7 @@ void lcd_put_int(const int i) {
 //
 
 // Draw a generic menu item with pre_char (if selected) and post_char
-void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/, const uint8_t minFstr/*=0*/) {
+void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/, const uint8_t minFstr/*=0*/) {
   menu_item(row, sel);
 
   const char *string = FTOP(fstr);
@@ -329,7 +329,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     case LCD_STR_FOLDER[0]: image = imgDirectory; break;
   }
 
-  uint8_t l_offset = MENU_TEXT_X_OFFSET;
+  uint8_t l_offset = MENU_TEXT_X;
   if (image != noImage) {
     string++;
     l_offset = MENU_ITEM_ICON_SPACE;
@@ -350,13 +350,13 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     tft.add_image(r_offset, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
   else
-    r_offset -= MENU_TEXT_X_OFFSET;
+    r_offset -= MENU_TEXT_X;
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft.add_text(center ? tft_string.center(r_offset - l_offset) : l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   }
   else {
     uint16_t max_width;
@@ -364,12 +364,12 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
       tft_string.set(vstr);
       max_width = r_offset - l_offset;
       r_offset -= _MIN(tft_string.width(), max_width);
-      tft.add_text(r_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
+      tft.add_text(r_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string, max_width);
     }
 
-    max_width = _MAX(r_offset - l_offset - MENU_TEXT_X_OFFSET, 1);
+    max_width = _MAX(r_offset - l_offset - MENU_TEXT_X, 1);
     tft_string.set(string, itemIndex, itemStringC, itemStringF);
-    tft.add_text(l_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
+    tft.add_text(l_offset, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string, max_width);
   }
 }
 
@@ -386,7 +386,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 }
 
 // Draw a static item with no left-right margin required. Centered by default.
-void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * vstr/*=nullptr*/) {
+void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
   menu_item(row);
 
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);

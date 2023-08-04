@@ -242,7 +242,8 @@ public:
       buf[pos] = '\0';
       ++scrollpos;
       return buf;
-    } else {
+    }
+    else {
       pos = len;
       return text;
     }
