@@ -35,7 +35,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #undef NO_EEPROM_SELECTED
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
@@ -53,10 +53,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -158,8 +156,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -284,7 +285,7 @@
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

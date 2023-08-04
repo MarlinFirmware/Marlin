@@ -41,9 +41,9 @@
 #define DISABLE_DEBUG
 
 //
-// Note: MKS Robin board is using SPI2 interface.
+// SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -167,9 +167,9 @@
 #define HEATER_BED_PIN                      PA0   // +HOT-BED-
 #define FAN0_PIN                            PB1   // +FAN-
 
-/**
- * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
- */
+//
+// Note: Using SPI2 interface. Make sure stm32duino is configured accordingly
+//
 //#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
 //#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
@@ -210,7 +210,7 @@
   #define SD_MOSI_PIN                       PB15
   #define SD_SS_PIN                         PG6
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT
+  #define ONBOARD_SDIO
   #define SD_DETECT_PIN                     PD12
   #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
@@ -238,7 +238,7 @@
   #define LCD_RESET_PIN                     PC6
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
   #if NEED_TOUCH_PINS
     #define TOUCH_BUTTONS_HW_SPI
@@ -308,7 +308,7 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

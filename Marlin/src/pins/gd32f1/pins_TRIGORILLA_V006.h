@@ -115,14 +115,14 @@
 //
 #define SD_DETECT_PIN                       PC7
 
-#ifndef SDIO_SUPPORT
-  #define SDIO_SUPPORT
+#ifndef ONBOARD_SDIO
+  #define ONBOARD_SDIO
 #endif
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   //
   // SPI
   //
-  #define SPI_DEVICE                        -1
+  #define SPI_DEVICE                        -1   // Maple
   #define SCK_PIN                           -1
   #define MISO_PIN                          -1
   #define MOSI_PIN                          -1

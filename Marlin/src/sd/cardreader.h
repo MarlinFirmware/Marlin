@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 extern const char M23_STR[], M24_STR[];
 
@@ -129,6 +129,12 @@ public:
     static void autofile_cancel() { autofile_index = 0; }
   #endif
 
+  #if ENABLED(ONE_CLICK_PRINT)
+    static bool one_click_check();  // Check for the newest file and prompt to run it.
+    static void diveToNewestFile(MediaFile parent, uint32_t &compareDateTime, MediaFile &outdir, char * const outname);
+    static bool selectNewestFile();
+  #endif
+
   // Basic file ops
   static void openFileRead(const char * const path, const uint8_t subcall=0);
   static void openFileWrite(const char * const path);
@@ -204,7 +210,7 @@ public:
     }
   #endif
 
-  static void ls(const uint8_t lsflags);
+  static void ls(const uint8_t lsflags=0);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -284,7 +290,7 @@ private:
       static uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
-    #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)
       #define SORTED_LONGNAME_STORAGE (SORTED_LONGNAME_MAXLEN + 1)
     #else
@@ -370,7 +376,7 @@ private:
 
 extern CardReader card;
 
-#else // !SDSUPPORT
+#else // !HAS_MEDIA
 
 #define IS_SD_PRINTING()  false
 #define IS_SD_FETCHING()  false
@@ -379,4 +385,4 @@ extern CardReader card;
 
 #define LONG_FILENAME_LENGTH 0
 
-#endif // !SDSUPPORT
+#endif // !HAS_MEDIA

@@ -33,51 +33,6 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XSTOP_  0x01
-#define _YSTOP_  0x02
-#define _ZSTOP_  0x03
-#define _ISTOP_  0x04
-#define _JSTOP_  0x05
-#define _KSTOP_  0x06
-#define _USTOP_  0x07
-#define _VSTOP_  0x08
-#define _WSTOP_  0x09
-#define _XMIN_   0x11
-#define _YMIN_   0x12
-#define _ZMIN_   0x13
-#define _IMIN_   0x14
-#define _JMIN_   0x15
-#define _KMIN_   0x16
-#define _UMIN_   0x17
-#define _VMIN_   0x18
-#define _WMIN_   0x19
-#define _XMAX_   0x21
-#define _YMAX_   0x22
-#define _ZMAX_   0x23
-#define _IMAX_   0x24
-#define _JMAX_   0x25
-#define _KMAX_   0x26
-#define _UMAX_   0x27
-#define _VMAX_   0x28
-#define _WMAX_   0x29
-#define _XDIAG_  0x31
-#define _YDIAG_  0x32
-#define _ZDIAG_  0x33
-#define _IDIAG_  0x34
-#define _JDIAG_  0x35
-#define _KDIAG_  0x36
-#define _UDIAG_  0x37
-#define _VDIAG_  0x38
-#define _WDIAG_  0x39
-#define _E0DIAG_ 0xE0
-#define _E1DIAG_ 0xE1
-#define _E2DIAG_ 0xE2
-#define _E3DIAG_ 0xE3
-#define _E4DIAG_ 0xE4
-#define _E5DIAG_ 0xE5
-#define _E6DIAG_ 0xE6
-#define _E7DIAG_ 0xE7
-
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
@@ -237,7 +192,11 @@
 #define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define ANY(V...)          !DISABLED(V)
+#define ALL                 ENABLED
+#define NONE                DISABLED
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
@@ -261,15 +220,7 @@
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
-#define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
-
-#define ANY(V...)          !DISABLED(V)
-#define NONE(V...)          DISABLED(V)
-#define ALL(V...)           ENABLED(V)
-#define BOTH(V1,V2)         ALL(V1,V2)
-#define EITHER(V1,V2)       ANY(V1,V2)
-#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
@@ -375,11 +326,6 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
-#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
-#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
-
 #define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
@@ -429,6 +375,8 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class N> static constexpr N _MIN(const N val) { return val; }
+      template <class N> static constexpr N _MAX(const N val) { return val; }
       template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
@@ -448,9 +396,9 @@
     FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+    FORCE_INLINE T & operator&=(T &x, T y) { x = x & y; return x; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { x = x | y; return x; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { x = x ^ y; return x; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
@@ -462,7 +410,41 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // remove const/volatile type qualifiers
+    template<typename T> struct remove_const { typedef T type; };
+    template<typename T> struct remove_const<T const> { typedef T type; };
+
+    template<typename T> struct remove_volatile { typedef T type; };
+    template<typename T> struct remove_volatile<T volatile> { typedef T type; };
+
+    template<typename T> struct remove_cv { typedef typename remove_const<typename remove_volatile<T>::type>::type type; };
+
+    // test if type is integral
+    template<typename>  struct _is_integral { enum { value = false }; };
+    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
+    template<>          struct _is_integral<char> { enum { value = true }; };
+    template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
+    template<>          struct _is_integral<long> { enum { value = true }; };
+    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
   }
+
+  // enum type check and regression to its underlying integral.
+  namespace Private {
+    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+
+    template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
+    template<typename T>                            struct _underlying_type<T, false> { };
+
+    template<typename T> struct underlying_type : public _underlying_type<T> { };
+  }
+
   // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
@@ -766,5 +748,6 @@
 #define _UI_MKS         104
 #define _UI_RELOADED    105
 #define _UI_IA_CREALITY 106
+#define _UI_E3S1PRO     107
 #define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
 #define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))

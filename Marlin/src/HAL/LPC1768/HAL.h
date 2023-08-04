@@ -101,7 +101,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -127,7 +127,7 @@ extern DefaultSerial1 USBSerial;
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
-#define HAL_ADC_VREF            3.3 // ADC voltage reference
+#define HAL_ADC_VREF_MV      3300   // ADC voltage reference
 
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
@@ -165,7 +165,9 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // Defines
 // ------------------------
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment

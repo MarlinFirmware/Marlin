@@ -240,7 +240,7 @@
   #define LCD_SDSS                         P0_28  // EXP2.4
   #define LCD_PINS_EN                      P0_18  // EXP1.3
   #define LCD_PINS_D4                      P0_15  // EXP1.5
-  #if EITHER(VIKI2, miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define DOGLCD_SCK                SD_SCK_PIN
     #define DOGLCD_MOSI              SD_MOSI_PIN
   #endif
@@ -265,7 +265,7 @@
     //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN              P2_12  // J8-4  (LCD_D6 on FYSETC schematic)
       #endif
@@ -336,8 +336,11 @@
   #define E0_SERIAL_RX_PIN                 P0_26  // TH4
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 // UNUSED
 //#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)

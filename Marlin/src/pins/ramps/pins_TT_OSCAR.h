@@ -178,7 +178,7 @@
 #endif
 
 // SPI for MAX Thermocouple
-//#if DISABLED(SDSUPPORT)
+//#if !HAS_MEDIA
 //  #define TEMP_0_CS_PIN    66   // Don't use 53 if using Display/SD card
 //#else
 //  #define TEMP_0_CS_PIN    66   // Don't use 49 (SD_DETECT_PIN)
@@ -228,12 +228,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                                 // Prefer the servo connector
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
-    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
@@ -279,7 +279,7 @@
     #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
-  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
+  #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
     #define LCD_PINS_EN                       42
@@ -312,7 +312,7 @@
 
     #else
 
-      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC                   25  // Set as output on init
         #define LCD_PINS_RS                   27  // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -400,7 +400,7 @@
       #define LCD_SDSS                        53
       #define SD_DETECT_PIN                   49
 
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44

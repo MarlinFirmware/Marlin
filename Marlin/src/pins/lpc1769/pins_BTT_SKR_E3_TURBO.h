@@ -153,8 +153,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // TMC Low Power Standby pins
@@ -171,7 +174,10 @@
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
 #define TEMP_BED_PIN                       P0_25
-#define TEMP_BOARD_PIN                     P1_30  // Onboard thermistor, NTC100K
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                   P1_30  // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -254,7 +260,7 @@
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                 P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN

@@ -375,7 +375,7 @@ namespace ExtUI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return !axis_should_home(X_AXIS);
+        OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
       #else
@@ -773,7 +773,9 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: babystep.add_steps(X_AXIS, steps); break;
+          #if HAS_X_AXIS
+            case X: babystep.add_steps(X_AXIS, steps); break;
+          #endif
           #if HAS_Y_AXIS
             case Y: babystep.add_steps(Y_AXIS, steps); break;
           #endif
@@ -818,7 +820,7 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[e][axis] += mm;
 
-          normalizeNozzleOffset(X);
+          TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
           TERN_(HAS_Z_AXIS, normalizeNozzleOffset(Z));
         }
@@ -917,7 +919,7 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getMeshValid() { return leveling_is_valid(); }
+    bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if HAS_MESH
 
@@ -931,7 +933,7 @@ namespace ExtUI {
       }
 
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
-        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+        #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           REMEMBER(fr, feedrate_mm_s);
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
@@ -1082,14 +1084,14 @@ namespace ExtUI {
   #endif
 
   void printFile(const char *filename) {
-    TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
+    TERN(HAS_MEDIA, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, IS_SD_PAUSED());
+    return TERN0(HAS_MEDIA, IS_SD_PAUSED());
   }
 
-  bool isPrintingFromMedia() { return TERN0(SDSUPPORT, IS_SD_PRINTING() || IS_SD_PAUSED()); }
+  bool isPrintingFromMedia() { return TERN0(HAS_MEDIA, IS_SD_PRINTING() || IS_SD_PAUSED()); }
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
@@ -1099,7 +1101,7 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED()); }
+  bool isMediaInserted() { return TERN0(HAS_MEDIA, IS_SD_INSERTED()); }
 
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
@@ -1138,7 +1140,7 @@ namespace ExtUI {
   void FileList::refresh() { }
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (!skip_range_check && (pos + 1) > count()) return false;
       card.selectFileByIndexSorted(pos);
       return card.filename[0] != '\0';
@@ -1150,35 +1152,35 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return TERN(SDSUPPORT, card.longest_filename(), "");
+    return TERN(HAS_MEDIA, card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
-    return TERN(SDSUPPORT, card.filename, "");
+    return TERN(HAS_MEDIA, card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    return TERN(SDSUPPORT, card.longFilename, "");
+    return TERN(HAS_MEDIA, card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    return TERN0(SDSUPPORT, card.flag.filenameIsDir);
+    return TERN0(HAS_MEDIA, card.flag.filenameIsDir);
   }
 
   uint16_t FileList::count() {
-    return TERN0(SDSUPPORT, card.get_num_items());
+    return TERN0(HAS_MEDIA, card.get_num_items());
   }
 
   bool FileList::isAtRootDir() {
-    return TERN1(SDSUPPORT, card.flag.workDirIsRoot);
+    return TERN1(HAS_MEDIA, card.flag.workDirIsRoot);
   }
 
   void FileList::upDir() {
-    TERN_(SDSUPPORT, card.cdup());
+    TERN_(HAS_MEDIA, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {
-    TERN(SDSUPPORT, card.cd(dirname), UNUSED(dirname));
+    TERN(HAS_MEDIA, card.cd(dirname), UNUSED(dirname));
   }
 
 } // namespace ExtUI

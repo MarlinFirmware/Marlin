@@ -83,6 +83,7 @@ Stepper stepper; // Singleton
 
 #define BABYSTEPPING_EXTRA_DIR_WAIT
 
+#include "stepper/cycles.h"
 #ifdef __AVR__
   #include "stepper/speed_lookuptable.h"
 #endif
@@ -105,7 +106,7 @@ Stepper stepper; // Singleton
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
+#if ENABLED(BABYSTEPPING)
   #include "../feature/babystep.h"
 #endif
 
@@ -147,7 +148,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+#if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
 #endif
 
@@ -165,8 +166,8 @@ stepper_flags_t Stepper::axis_enabled; // {0}
 
 block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
-axis_bits_t Stepper::last_direction_bits, // = 0
-            Stepper::axis_did_move; // = 0
+AxisBits Stepper::last_direction_bits, // = 0
+         Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -181,7 +182,7 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
 
-#if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
     #if NUM_Z_STEPPERS >= 3
       , Stepper::locked_Z3_motor = false
@@ -217,7 +218,7 @@ uint32_t Stepper::advance_divisor = 0,
          Stepper::decelerate_after,          // The count at which to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
-#if EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+#if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
   uint8_t Stepper::stepper_extruder;
 #else
   constexpr uint8_t Stepper::stepper_extruder;
@@ -246,7 +247,13 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
-  shaping_time_t      ShapingQueue::times[shaping_echoes];
+  #if ANY(MCU_LPC1768, MCU_LPC1769) && DISABLED(NO_LPC_ETHERNET_BUFFER)
+    // Use the 16K LPC Ethernet buffer: https://github.com/MarlinFirmware/Marlin/issues/25432#issuecomment-1450420638
+    #define _ATTR_BUFFER __attribute__((section("AHBSRAM1"),aligned))
+  #else
+    #define _ATTR_BUFFER
+  #endif
+  shaping_time_t      ShapingQueue::times[shaping_echoes] _ATTR_BUFFER;
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
@@ -266,7 +273,7 @@ uint32_t Stepper::advance_divisor = 0,
   #endif
 #endif
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
+#if ENABLED(BABYSTEPPING)
   hal_timer_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
 #endif
 
@@ -286,7 +293,7 @@ xyze_int8_t Stepper::count_direction{0};
 #define MINDIR(A) (count_direction[_AXIS(A)] < 0)
 #define MAXDIR(A) (count_direction[_AXIS(A)] > 0)
 
-#define STEPTEST(A,M,I) TERN0(HAS_ ##A## ##I## _ ##M, !(TEST(endstops.state(), A## ##I## _ ##M) && M## DIR(A)) && !locked_ ##A## ##I## _motor)
+#define STEPTEST(A,M,I) TERN0(USE_##A##I##_##M, !(TEST(endstops.state(), A##I##_##M) && M## DIR(A)) && !locked_ ##A##I##_motor)
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)             \
   if (separate_multi_axis) {                     \
@@ -381,103 +388,115 @@ xyze_int8_t Stepper::count_direction{0};
     A##4_STEP_WRITE(V);                           \
   }
 
-#if HAS_DUAL_X_STEPPERS
-  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE(INVERT_DIR(X2_VS_X, v)); }while(0)
+#if HAS_SYNCED_X_STEPPERS
+  #define X_APPLY_DIR(FWD,Q) do{ X_DIR_WRITE(FWD); X2_DIR_WRITE(INVERT_DIR(X2_VS_X, FWD)); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
-    #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
+    #define X_APPLY_STEP(FWD,Q) DUAL_ENDSTOP_APPLY_STEP(X,FWD)
   #else
-    #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
+    #define X_APPLY_STEP(FWD,Q) do{ X_STEP_WRITE(FWD); X2_STEP_WRITE(FWD); }while(0)
   #endif
 #elif ENABLED(DUAL_X_CARRIAGE)
-  #define X_APPLY_DIR(v,ALWAYS) do{ \
-    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ idex_mirrored_mode); } \
-    else if (last_moved_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+  #define X_APPLY_DIR(FWD,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(FWD); X2_DIR_WRITE((FWD) ^ idex_mirrored_mode); } \
+    else if (last_moved_extruder) X2_DIR_WRITE(FWD); else X_DIR_WRITE(FWD); \
   }while(0)
-  #define X_APPLY_STEP(v,ALWAYS) do{ \
-    if (extruder_duplication_enabled || ALWAYS) { X_STEP_WRITE(v); X2_STEP_WRITE(v); } \
-    else if (last_moved_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+  #define X_APPLY_STEP(FWD,ALWAYS) do{ \
+    if (extruder_duplication_enabled || ALWAYS) { X_STEP_WRITE(FWD); X2_STEP_WRITE(FWD); } \
+    else if (last_moved_extruder) X2_STEP_WRITE(FWD); else X_STEP_WRITE(FWD); \
   }while(0)
-#else
-  #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
-  #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
+#elif HAS_X_AXIS
+  #define X_APPLY_DIR(FWD,Q) X_DIR_WRITE(FWD)
+  #define X_APPLY_STEP(FWD,Q) X_STEP_WRITE(FWD)
 #endif
 
-#if HAS_DUAL_Y_STEPPERS
-  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE(INVERT_DIR(Y2_VS_Y, v)); }while(0)
+#if HAS_SYNCED_Y_STEPPERS
+  #define Y_APPLY_DIR(FWD,Q) do{ Y_DIR_WRITE(FWD); Y2_DIR_WRITE(INVERT_DIR(Y2_VS_Y, FWD)); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
+    #define Y_APPLY_STEP(FWD,Q) DUAL_ENDSTOP_APPLY_STEP(Y,FWD)
   #else
-    #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
+    #define Y_APPLY_STEP(FWD,Q) do{ Y_STEP_WRITE(FWD); Y2_STEP_WRITE(FWD); }while(0)
   #endif
 #elif HAS_Y_AXIS
-  #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
-  #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
+  #define Y_APPLY_DIR(FWD,Q) Y_DIR_WRITE(FWD)
+  #define Y_APPLY_STEP(FWD,Q) Y_STEP_WRITE(FWD)
 #endif
 
 #if NUM_Z_STEPPERS == 4
-  #define Z_APPLY_DIR(v,Q) do{ \
-    Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); \
-    Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, v)); Z4_DIR_WRITE(INVERT_DIR(Z4_VS_Z, v)); \
+  #define Z_APPLY_DIR(FWD,Q) do{ \
+    Z_DIR_WRITE(FWD); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, FWD)); \
+    Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, FWD)); Z4_DIR_WRITE(INVERT_DIR(Z4_VS_Z, FWD)); \
   }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    #define Z_APPLY_STEP(v,Q) QUAD_ENDSTOP_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) QUAD_ENDSTOP_APPLY_STEP(Z,FWD)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
-    #define Z_APPLY_STEP(v,Q) QUAD_SEPARATE_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) QUAD_SEPARATE_APPLY_STEP(Z,FWD)
   #else
-    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); Z4_STEP_WRITE(v); }while(0)
+    #define Z_APPLY_STEP(FWD,Q) do{ Z_STEP_WRITE(FWD); Z2_STEP_WRITE(FWD); Z3_STEP_WRITE(FWD); Z4_STEP_WRITE(FWD); }while(0)
   #endif
 #elif NUM_Z_STEPPERS == 3
-  #define Z_APPLY_DIR(v,Q) do{ \
-    Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, v)); \
+  #define Z_APPLY_DIR(FWD,Q) do{ \
+    Z_DIR_WRITE(FWD); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, FWD)); Z3_DIR_WRITE(INVERT_DIR(Z3_VS_Z, FWD)); \
   }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,FWD)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
-    #define Z_APPLY_STEP(v,Q) TRIPLE_SEPARATE_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) TRIPLE_SEPARATE_APPLY_STEP(Z,FWD)
   #else
-    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
+    #define Z_APPLY_STEP(FWD,Q) do{ Z_STEP_WRITE(FWD); Z2_STEP_WRITE(FWD); Z3_STEP_WRITE(FWD); }while(0)
   #endif
 #elif NUM_Z_STEPPERS == 2
-  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, v)); }while(0)
+  #define Z_APPLY_DIR(FWD,Q) do{ Z_DIR_WRITE(FWD); Z2_DIR_WRITE(INVERT_DIR(Z2_VS_Z, FWD)); }while(0)
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) DUAL_ENDSTOP_APPLY_STEP(Z,FWD)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
-    #define Z_APPLY_STEP(v,Q) DUAL_SEPARATE_APPLY_STEP(Z,v)
+    #define Z_APPLY_STEP(FWD,Q) DUAL_SEPARATE_APPLY_STEP(Z,FWD)
   #else
-    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
+    #define Z_APPLY_STEP(FWD,Q) do{ Z_STEP_WRITE(FWD); Z2_STEP_WRITE(FWD); }while(0)
   #endif
 #elif HAS_Z_AXIS
-  #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
-  #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
+  #define Z_APPLY_DIR(FWD,Q) Z_DIR_WRITE(FWD)
+  #define Z_APPLY_STEP(FWD,Q) Z_STEP_WRITE(FWD)
 #endif
 
 #if HAS_I_AXIS
-  #define I_APPLY_DIR(v,Q) I_DIR_WRITE(v)
-  #define I_APPLY_STEP(v,Q) I_STEP_WRITE(v)
+  #define I_APPLY_DIR(FWD,Q) I_DIR_WRITE(FWD)
+  #define I_APPLY_STEP(FWD,Q) I_STEP_WRITE(FWD)
 #endif
 #if HAS_J_AXIS
-  #define J_APPLY_DIR(v,Q) J_DIR_WRITE(v)
-  #define J_APPLY_STEP(v,Q) J_STEP_WRITE(v)
+  #define J_APPLY_DIR(FWD,Q) J_DIR_WRITE(FWD)
+  #define J_APPLY_STEP(FWD,Q) J_STEP_WRITE(FWD)
 #endif
 #if HAS_K_AXIS
-  #define K_APPLY_DIR(v,Q) K_DIR_WRITE(v)
-  #define K_APPLY_STEP(v,Q) K_STEP_WRITE(v)
+  #define K_APPLY_DIR(FWD,Q) K_DIR_WRITE(FWD)
+  #define K_APPLY_STEP(FWD,Q) K_STEP_WRITE(FWD)
 #endif
 #if HAS_U_AXIS
-  #define U_APPLY_DIR(v,Q) U_DIR_WRITE(v)
-  #define U_APPLY_STEP(v,Q) U_STEP_WRITE(v)
+  #define U_APPLY_DIR(FWD,Q) U_DIR_WRITE(FWD)
+  #define U_APPLY_STEP(FWD,Q) U_STEP_WRITE(FWD)
 #endif
 #if HAS_V_AXIS
-  #define V_APPLY_DIR(v,Q) V_DIR_WRITE(v)
-  #define V_APPLY_STEP(v,Q) V_STEP_WRITE(v)
+  #define V_APPLY_DIR(FWD,Q) V_DIR_WRITE(FWD)
+  #define V_APPLY_STEP(FWD,Q) V_STEP_WRITE(FWD)
 #endif
 #if HAS_W_AXIS
-  #define W_APPLY_DIR(v,Q) W_DIR_WRITE(v)
-  #define W_APPLY_STEP(v,Q) W_STEP_WRITE(v)
+  #define W_APPLY_DIR(FWD,Q) W_DIR_WRITE(FWD)
+  #define W_APPLY_STEP(FWD,Q) W_STEP_WRITE(FWD)
 #endif
 
-#if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
+//#define E0_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(0) : REV_E_DIR(0); }while(0)
+//#define E1_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(1) : REV_E_DIR(1); }while(0)
+//#define E2_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(2) : REV_E_DIR(2); }while(0)
+//#define E3_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(3) : REV_E_DIR(3); }while(0)
+//#define E4_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(4) : REV_E_DIR(4); }while(0)
+//#define E5_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(5) : REV_E_DIR(5); }while(0)
+//#define E6_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(6) : REV_E_DIR(6); }while(0)
+//#define E7_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(7) : REV_E_DIR(7); }while(0)
+
+#if ENABLED(MIXING_EXTRUDER)
+  #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { MIXER_STEPPER_LOOP(j) FWD_E_DIR(j); } else { MIXER_STEPPER_LOOP(j) REV_E_DIR(j); } }while(0)
+#else
+  #define E_APPLY_STEP(FWD,Q) E_STEP_WRITE(stepper_extruder, FWD)
+  #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
 #endif
 
 #define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
@@ -591,15 +610,13 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
-#define SET_STEP_DIR(A)                       \
-  if (motor_direction(_AXIS(A))) {            \
-    A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
-    count_direction[_AXIS(A)] = -1;           \
-  }                                           \
-  else {                                      \
-    A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
-    count_direction[_AXIS(A)] = 1;            \
-  }
+// Set a single axis direction based on the last set flags.
+// A direction bit of "1" indicates forward or positive motion.
+#define SET_STEP_DIR(A) do{                     \
+    const bool fwd = motor_direction(_AXIS(A)); \
+    A##_APPLY_DIR(fwd, false);                  \
+    count_direction[_AXIS(A)] = fwd ? 1 : -1;   \
+  }while(0)
 
 /**
  * Set the stepper direction of each axis
@@ -608,40 +625,15 @@ void Stepper::disable_all_steppers() {
  *   COREXZ: X_AXIS=A_AXIS and Z_AXIS=C_AXIS
  *   COREYZ: Y_AXIS=B_AXIS and Z_AXIS=C_AXIS
  */
-void Stepper::set_directions() {
-
+void Stepper::apply_directions() {
   DIR_WAIT_BEFORE();
 
-  TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
-  TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
-  TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
-  TERN_(HAS_I_DIR, SET_STEP_DIR(I));
-  TERN_(HAS_J_DIR, SET_STEP_DIR(J));
-  TERN_(HAS_K_DIR, SET_STEP_DIR(K));
-  TERN_(HAS_U_DIR, SET_STEP_DIR(U));
-  TERN_(HAS_V_DIR, SET_STEP_DIR(V));
-  TERN_(HAS_W_DIR, SET_STEP_DIR(W));
-
-  #if HAS_EXTRUDERS
-     // Because this is valid for the whole block we don't know
-     // what E steppers will step. Likely all. Set all.
-    if (motor_direction(E_AXIS)) {
-      #if ENABLED(MIXING_EXTRUDER)
-        MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-      #else
-        REV_E_DIR(stepper_extruder);
-      #endif
-      count_direction.e = -1;
-    }
-    else {
-      #if ENABLED(MIXING_EXTRUDER)
-        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-      #else
-        NORM_E_DIR(stepper_extruder);
-      #endif
-      count_direction.e = 1;
-    }
-  #endif // HAS_EXTRUDERS
+  LOGICAL_AXIS_CODE(
+    SET_STEP_DIR(E),
+    SET_STEP_DIR(X), SET_STEP_DIR(Y), SET_STEP_DIR(Z), // ABC
+    SET_STEP_DIR(I), SET_STEP_DIR(J), SET_STEP_DIR(K),
+    SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
+  );
 
   DIR_WAIT_AFTER();
 }
@@ -1511,7 +1503,7 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       // NOTE STEPPER_TIMER_RATE is equal to 2000000, not what VSCode shows
-      const bool using_fxtictrl = fxdTiCtrl.cfg_mode;
+      const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
           if (abort_current_block) {
@@ -1551,7 +1543,7 @@ void Stepper::isr() {
         // Define 2.5 msec task for auxilliary functions.
         if (!fxdTiCtrl_nextAuxISR) {
           endstops.update();
-          TERN_(INTEGRATED_BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
           fxdTiCtrl_refreshAxisDidMove();
           fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
         }
@@ -1582,7 +1574,7 @@ void Stepper::isr() {
           nextAdvanceISR = la_interval;
       #endif
 
-      #if ENABLED(INTEGRATED_BABYSTEPPING)
+      #if ENABLED(BABYSTEPPING)
         const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
         if (is_babystep) nextBabystepISR = babystepping_isr();
       #endif
@@ -1591,7 +1583,7 @@ void Stepper::isr() {
 
       if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
-      #if ENABLED(INTEGRATED_BABYSTEPPING)
+      #if ENABLED(BABYSTEPPING)
         if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
           NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
 
@@ -1604,7 +1596,7 @@ void Stepper::isr() {
       TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
-      TERN_(INTEGRATED_BABYSTEPPING, NOMORE(interval, nextBabystepISR));  // Come back early for Babystepping?
+      TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
       //
       // Compute remaining time for each ISR phase
@@ -1616,7 +1608,7 @@ void Stepper::isr() {
       nextMainISR -= interval;
       TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
       TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
-      TERN_(INTEGRATED_BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
+      TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     } // standard motion control
 
@@ -1817,7 +1809,7 @@ void Stepper::pulse_phase_isr() {
         de += step_fwd ? -128 : 128; \
         if ((MAXDIR(AXIS) && step_bak) || (MINDIR(AXIS) && step_fwd)) { \
           { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
-          TBI(last_direction_bits, _AXIS(AXIS)); \
+          last_direction_bits.toggle(_AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
           DIR_WAIT_AFTER(); \
@@ -1849,11 +1841,11 @@ void Stepper::pulse_phase_isr() {
 
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{   \
-                 if ((VALUE) <  7) SBI(dm, _AXIS(AXIS)); \
-            else if ((VALUE) >  7) CBI(dm, _AXIS(AXIS)); \
-            page_step_state.sd[_AXIS(AXIS)] = VALUE;     \
-            page_step_state.bd[_AXIS(AXIS)] += VALUE;    \
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{      \
+                 if ((VALUE) <  7) dm[_AXIS(AXIS)] = false; \
+            else if ((VALUE) >  7) dm[_AXIS(AXIS)] = true;  \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
@@ -1869,15 +1861,14 @@ void Stepper::pulse_phase_isr() {
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
-              axis_bits_t dm = last_direction_bits;
+              const AxisBits dm = last_direction_bits;
 
               PAGE_SEGMENT_UPDATE(X, low >> 4);
               PAGE_SEGMENT_UPDATE(Y, low & 0xF);
               PAGE_SEGMENT_UPDATE(Z, high >> 4);
               PAGE_SEGMENT_UPDATE(E, high & 0xF);
 
-              if (dm != last_direction_bits)
-                set_directions(dm);
+              if (dm != last_direction_bits) set_directions(dm);
 
             } break;
 
@@ -1982,7 +1973,7 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(W);
       #endif
 
-      #if EITHER(HAS_E0_STEP, MIXING_EXTRUDER)
+      #if ANY(HAS_E0_STEP, MIXING_EXTRUDER)
         PULSE_PREP(E);
 
         #if ENABLED(LIN_ADVANCE)
@@ -2401,29 +2392,16 @@ hal_timer_t Stepper::block_phase_isr() {
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
-              bool reverse_e = la_step_rate > step_rate;
-              la_interval = calc_timer_interval((reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) >> current_block->la_scaling);
+              const bool forward_e = la_step_rate < step_rate;
+              la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
 
-              if (reverse_e != motor_direction(E_AXIS)) {
-                TBI(last_direction_bits, E_AXIS);
+              if (forward_e != motor_direction(E_AXIS)) {
+                last_direction_bits.toggle(E_AXIS);
                 count_direction.e = -count_direction.e;
 
                 DIR_WAIT_BEFORE();
 
-                if (reverse_e) {
-                  #if ENABLED(MIXING_EXTRUDER)
-                    MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-                  #else
-                    REV_E_DIR(stepper_extruder);
-                  #endif
-                }
-                else {
-                  #if ENABLED(MIXING_EXTRUDER)
-                    MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-                  #else
-                    NORM_E_DIR(stepper_extruder);
-                  #endif
-                }
+                E_APPLY_DIR(forward_e, false);
 
                 DIR_WAIT_AFTER();
               }
@@ -2433,7 +2411,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif // LIN_ADVANCE
 
-        /*
+        /**
          * Adjust Laser Power - Decelerating
          * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
          */
@@ -2575,7 +2553,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if IS_CORE
         // Define conditions for checking endstops
         #define S_(N) current_block->steps[CORE_AXIS_##N]
-        #define D_(N) TEST(current_block->direction_bits, CORE_AXIS_##N)
+        #define D_(N) current_block->direction_bits[CORE_AXIS_##N]
       #endif
 
       #if CORE_IS_XY || CORE_IS_XZ
@@ -2586,7 +2564,7 @@ hal_timer_t Stepper::block_phase_isr() {
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
          */
-        #if EITHER(COREXY, COREXZ)
+        #if ANY(COREXY, COREXZ)
           #define X_CMP(A,B) ((A)==(B))
         #else
           #define X_CMP(A,B) ((A)!=(B))
@@ -2606,7 +2584,7 @@ hal_timer_t Stepper::block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
          */
-        #if EITHER(COREYX, COREYZ)
+        #if ANY(COREYX, COREYZ)
           #define Y_CMP(A,B) ((A)==(B))
         #else
           #define Y_CMP(A,B) ((A)!=(B))
@@ -2626,7 +2604,7 @@ hal_timer_t Stepper::block_phase_isr() {
          * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
          * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
          */
-        #if EITHER(COREZX, COREZY)
+        #if ANY(COREZX, COREZY)
           #define Z_CMP(A,B) ((A)==(B))
         #else
           #define Z_CMP(A,B) ((A)!=(B))
@@ -2636,23 +2614,23 @@ hal_timer_t Stepper::block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
-      axis_bits_t axis_bits = 0;
+      AxisBits didmove;
       NUM_AXIS_CODE(
-        if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
-        if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
-        if (Z_MOVE_TEST)            SBI(axis_bits, C_AXIS),
-        if (current_block->steps.i) SBI(axis_bits, I_AXIS),
-        if (current_block->steps.j) SBI(axis_bits, J_AXIS),
-        if (current_block->steps.k) SBI(axis_bits, K_AXIS),
-        if (current_block->steps.u) SBI(axis_bits, U_AXIS),
-        if (current_block->steps.v) SBI(axis_bits, V_AXIS),
-        if (current_block->steps.w) SBI(axis_bits, W_AXIS)
+        if (X_MOVE_TEST)            didmove.a = true,
+        if (Y_MOVE_TEST)            didmove.b = true,
+        if (Z_MOVE_TEST)            didmove.c = true,
+        if (current_block->steps.i) didmove.i = true,
+        if (current_block->steps.j) didmove.j = true,
+        if (current_block->steps.k) didmove.k = true,
+        if (current_block->steps.u) didmove.u = true,
+        if (current_block->steps.v) didmove.v = true,
+        if (current_block->steps.w) didmove.w = true
       );
-      //if (current_block->steps.e) SBI(axis_bits, E_AXIS);
-      //if (current_block->steps.a) SBI(axis_bits, X_HEAD);
-      //if (current_block->steps.b) SBI(axis_bits, Y_HEAD);
-      //if (current_block->steps.c) SBI(axis_bits, Z_HEAD);
-      axis_did_move = axis_bits;
+      //if (current_block->steps.e) didmove.e = true;
+      //if (current_block->steps.a) didmove.x = true;
+      //if (current_block->steps.b) didmove.y = true;
+      //if (current_block->steps.c) didmove.z = true;
+      axis_did_move = didmove;
 
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
@@ -2661,10 +2639,12 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
-        while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
-          max_rate <<= 1;                                   // Try to double the rate
-          if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
-            ++oversampling_factor;                          // Increase the oversampling (used for left-shift)
+        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+            max_rate <<= 1;                                 // Try to double the rate
+            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+              ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
+          }
         }
       #endif
 
@@ -2680,24 +2660,24 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(INPUT_SHAPING_X)
         if (shaping_x.enabled) {
-          const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
+          const int64_t steps = current_block->direction_bits.x ? int64_t(current_block->steps.x) : -int64_t(current_block->steps.x);
           shaping_x.last_block_end_pos += steps;
 
           // If there are any remaining echos unprocessed, then direction change must
           // be delayed and processed in PULSE_PREP_SHAPING. This will cause half a step
           // to be missed, which will need recovering and this can be done through shaping_x.remainder.
-          shaping_x.forward = !TEST(current_block->direction_bits, X_AXIS);
-          if (!ShapingQueue::empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS));
+          shaping_x.forward = current_block->direction_bits.x;
+          if (!ShapingQueue::empty_x()) current_block->direction_bits.x = last_direction_bits.x;
         }
       #endif
 
       // Y follows the same logic as X (but the comments aren't repeated)
       #if ENABLED(INPUT_SHAPING_Y)
         if (shaping_y.enabled) {
-          const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
+          const int64_t steps = current_block->direction_bits.y ? int64_t(current_block->steps.y) : -int64_t(current_block->steps.y);
           shaping_y.last_block_end_pos += steps;
-          shaping_y.forward = !TEST(current_block->direction_bits, Y_AXIS);
-          if (!ShapingQueue::empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS));
+          shaping_y.forward = current_block->direction_bits.y;
+          if (!ShapingQueue::empty_y()) current_block->direction_bits.y = last_direction_bits.y;
         }
       #endif
 
@@ -2786,7 +2766,7 @@ hal_timer_t Stepper::block_phase_isr() {
         }
       #endif
     }
-  }
+  } // !current_block
 
   // Return the interval to wait
   return interval;
@@ -2827,7 +2807,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
 #endif // LIN_ADVANCE
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
+#if ENABLED(BABYSTEPPING)
 
   // Timer interrupt for baby-stepping
   hal_timer_t Stepper::babystepping_isr() {
@@ -2870,7 +2850,7 @@ void Stepper::init() {
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
     unsigned int digipot_motor = 0;
-    LOOP_L_N(i, 3 + EXTRUDERS) {
+    for (uint8_t i = 0; i < 3 + EXTRUDERS; ++i) {
       digipot_motor = 255 * (motor_current[i] / 2.5);
       dac084s085::setValue(i, digipot_motor);
     }
@@ -2884,7 +2864,7 @@ void Stepper::init() {
   TERN_(HAS_X2_DIR, X2_DIR_INIT());
   #if HAS_Y_DIR
     Y_DIR_INIT();
-    #if BOTH(HAS_DUAL_Y_STEPPERS, HAS_Y2_DIR)
+    #if ALL(HAS_Y2_STEPPER, HAS_Y2_DIR)
       Y2_DIR_INIT();
     #endif
   #endif
@@ -2900,24 +2880,10 @@ void Stepper::init() {
       Z4_DIR_INIT();
     #endif
   #endif
-  #if HAS_I_DIR
-    I_DIR_INIT();
-  #endif
-  #if HAS_J_DIR
-    J_DIR_INIT();
-  #endif
-  #if HAS_K_DIR
-    K_DIR_INIT();
-  #endif
-  #if HAS_U_DIR
-    U_DIR_INIT();
-  #endif
-  #if HAS_V_DIR
-    V_DIR_INIT();
-  #endif
-  #if HAS_W_DIR
-    W_DIR_INIT();
-  #endif
+  SECONDARY_AXIS_CODE(
+    I_DIR_INIT(), J_DIR_INIT(), K_DIR_INIT(),
+    U_DIR_INIT(), V_DIR_INIT(), W_DIR_INIT()
+  );
   #if HAS_E0_DIR
     E0_DIR_INIT();
   #endif
@@ -2950,7 +2916,7 @@ void Stepper::init() {
     #endif
     X_ENABLE_INIT();
     if (X_ENABLE_INIT_STATE) X_ENABLE_WRITE(X_ENABLE_INIT_STATE);
-    #if BOTH(HAS_X2_STEPPER, HAS_X2_ENABLE)
+    #if ALL(HAS_X2_STEPPER, HAS_X2_ENABLE)
       X2_ENABLE_INIT();
       if (X_ENABLE_INIT_STATE) X2_ENABLE_WRITE(X_ENABLE_INIT_STATE);
     #endif
@@ -2961,7 +2927,7 @@ void Stepper::init() {
     #endif
     Y_ENABLE_INIT();
     if (Y_ENABLE_INIT_STATE) Y_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
-    #if BOTH(HAS_DUAL_Y_STEPPERS, HAS_Y2_ENABLE)
+    #if ALL(HAS_Y2_STEPPER, HAS_Y2_ENABLE)
       Y2_ENABLE_INIT();
       if (Y_ENABLE_INIT_STATE) Y2_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
     #endif
@@ -3090,7 +3056,7 @@ void Stepper::init() {
   #endif
 
   #if HAS_Y_STEP
-    #if HAS_DUAL_Y_STEPPERS
+    #if HAS_Y2_STEPPER
       Y2_STEP_INIT();
       Y2_STEP_WRITE(!STEP_STATE_Y);
     #endif
@@ -3162,20 +3128,8 @@ void Stepper::init() {
     sei();
   #endif
 
-  // Init direction bits for first moves
-  set_directions(0
-    NUM_AXIS_GANG(
-      | TERN0(INVERT_X_DIR, _BV(X_AXIS)),
-      | TERN0(INVERT_Y_DIR, _BV(Y_AXIS)),
-      | TERN0(INVERT_Z_DIR, _BV(Z_AXIS)),
-      | TERN0(INVERT_I_DIR, _BV(I_AXIS)),
-      | TERN0(INVERT_J_DIR, _BV(J_AXIS)),
-      | TERN0(INVERT_K_DIR, _BV(K_AXIS)),
-      | TERN0(INVERT_U_DIR, _BV(U_AXIS)),
-      | TERN0(INVERT_V_DIR, _BV(V_AXIS)),
-      | TERN0(INVERT_W_DIR, _BV(W_AXIS))
-    )
-  );
+  // Init direction states
+  apply_directions();
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
     initialized = true;
@@ -3190,9 +3144,9 @@ void Stepper::init() {
    * when shaping an axis.
    */
   void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
-    // from the damping ratio, get a factor that can be applied to advance_dividend for fixed point maths
-    // for ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * M_PI / sqrt(1.0f - zeta * zeta))
-    // which can be converted to 1:7 fixed point with an excellent fit with a 3rd order polynomial
+    // From the damping ratio, get a factor that can be applied to advance_dividend for fixed-point maths.
+    // For ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * π / sqrt(1.0f - zeta * zeta))
+    // which can be converted to 1:7 fixed point with an excellent fit with a 3rd-order polynomial.
     float factor2;
     if (zeta <= 0.0f) factor2 = 64.0f;
     else if (zeta >= 1.0f) factor2 = 0.0f;
@@ -3425,19 +3379,21 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 #endif
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
-  SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(NUM_AXES),
-      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
-      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-      SP_I_LBL, pos.i,
-      SP_J_LBL, pos.j,
-      SP_K_LBL, pos.k,
-      SP_U_LBL, pos.u,
-      SP_V_LBL, pos.v,
-      SP_W_LBL, pos.w
-    )
-  );
+  #if NUM_AXES
+    SERIAL_ECHOLNPGM_P(
+      LIST_N(DOUBLE(NUM_AXES),
+        TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+        TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+        TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
+        SP_I_LBL, pos.i,
+        SP_J_LBL, pos.j,
+        SP_K_LBL, pos.k,
+        SP_U_LBL, pos.u,
+        SP_V_LBL, pos.v,
+        SP_W_LBL, pos.w
+      )
+    );
+  #endif
 }
 
 void Stepper::report_positions() {
@@ -3463,39 +3419,93 @@ void Stepper::report_positions() {
 
     USING_TIMED_PULSE();
 
-    #if HAS_Z_AXIS
-      // Z is handled differently to update the stepper
-      // counts (needed by Marlin for bed level probing).
-      const bool z_dir = !TEST(command, FT_BIT_DIR_Z),
-                z_step = TEST(command, FT_BIT_STEP_Z);
-    #endif
+    const xyze_bool_t axis_step = LOGICAL_AXIS_ARRAY(
+      TEST(command, FT_BIT_STEP_E),
+      TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
+      TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
+      TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
+    );
 
+    // Apply directions (which will apply to the entire linear move)
+    AxisBits axis_dir = last_direction_bits;
     if (applyDir) {
-      TERN_(HAS_X_AXIS, X_DIR_WRITE(INVERT_DIR(X, TEST(command, FT_BIT_DIR_X))));
-      TERN_(HAS_Y_AXIS, Y_DIR_WRITE(INVERT_DIR(Y, TEST(command, FT_BIT_DIR_Y))));
-      TERN_(HAS_Z_AXIS, Z_DIR_WRITE(INVERT_DIR(Z, z_dir)));
-      TERN_(HAS_EXTRUDERS, E0_DIR_WRITE(INVERT_DIR(E0, TEST(command, FT_BIT_DIR_E))));
+      axis_dir = LOGICAL_AXIS_ARRAY(
+        TEST(command, FT_BIT_DIR_E),
+        TEST(command, FT_BIT_DIR_X), TEST(command, FT_BIT_DIR_Y), TEST(command, FT_BIT_DIR_Z),
+        TEST(command, FT_BIT_DIR_I), TEST(command, FT_BIT_DIR_J), TEST(command, FT_BIT_DIR_K),
+        TEST(command, FT_BIT_DIR_U), TEST(command, FT_BIT_DIR_V), TEST(command, FT_BIT_DIR_W)
+      );
+      LOGICAL_AXIS_CODE(
+        E_APPLY_DIR(axis_dir.e, false),
+        X_APPLY_DIR(axis_dir.x, false), Y_APPLY_DIR(axis_dir.y, false), Z_APPLY_DIR(axis_dir.z, false),
+        I_APPLY_DIR(axis_dir.i, false), J_APPLY_DIR(axis_dir.j, false), K_APPLY_DIR(axis_dir.k, false),
+        U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
+      );
+      last_direction_bits = axis_dir;
       DIR_WAIT_AFTER();
     }
 
-    TERN_(HAS_X_AXIS, X_STEP_WRITE(TEST(command, FT_BIT_STEP_X)));
-    TERN_(HAS_Y_AXIS, Y_STEP_WRITE(TEST(command, FT_BIT_STEP_Y)));
-    TERN_(HAS_Z_AXIS, Z_STEP_WRITE(z_step));
-    TERN_(HAS_EXTRUDERS, E0_STEP_WRITE(TEST(command, FT_BIT_STEP_E)));
+    // Start a step pulse
+    LOGICAL_AXIS_CODE(
+      if (axis_step.e) E_APPLY_STEP(STEP_STATE_E, false),
+      if (axis_step.x) X_APPLY_STEP(STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(STEP_STATE_Y, false),
+      if (axis_step.z) Z_APPLY_STEP(STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(STEP_STATE_I, false),
+      if (axis_step.j) J_APPLY_STEP(STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(STEP_STATE_K, false),
+      if (axis_step.u) U_APPLY_STEP(STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(STEP_STATE_V, false),
+      if (axis_step.w) W_APPLY_STEP(STEP_STATE_W, false)
+    );
 
+    // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
-    #if HAS_Z_AXIS
-      // Update step counts
-      if (z_step) count_position.z += z_dir ? -1 : 1;
+    // Update axis direction adders
+    count_direction = LOGICAL_AXIS_ARRAY(
+      int8_t(axis_dir.e ? 1 : -1),
+      int8_t(axis_dir.x ? 1 : -1), int8_t(axis_dir.y ? 1 : -1), int8_t(axis_dir.z ? 1 : -1),
+      int8_t(axis_dir.i ? 1 : -1), int8_t(axis_dir.j ? 1 : -1), int8_t(axis_dir.k ? 1 : -1),
+      int8_t(axis_dir.u ? 1 : -1), int8_t(axis_dir.v ? 1 : -1), int8_t(axis_dir.w ? 1 : -1)
+    );
+
+    // Update stepper counts - required for various operations
+    LOGICAL_AXIS_CODE(
+      if (axis_step.e) count_position.e += count_direction.e,
+      if (axis_step.x) count_position.x += count_direction.x, if (axis_step.y) count_position.y += count_direction.y,
+      if (axis_step.z) count_position.z += count_direction.z, if (axis_step.i) count_position.i += count_direction.i,
+      if (axis_step.j) count_position.j += count_direction.j, if (axis_step.k) count_position.k += count_direction.k,
+      if (axis_step.u) count_position.u += count_direction.u, if (axis_step.v) count_position.v += count_direction.v,
+      if (axis_step.w) count_position.w += count_direction.w
+    );
+
+    #if HAS_EXTRUDERS
+      #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+        constexpr bool e_axis_has_dedge = AXIS_HAS_DEDGE(E0) && AXIS_HAS_DEDGE(E1);
+      #else
+        #define _EDGE_BIT(N) | (AXIS_HAS_DEDGE(E##N) << TOOL_ESTEPPER(N))
+        constexpr Flags<E_STEPPERS> e_stepper_dedge { 0 REPEAT(EXTRUDERS, _EDGE_BIT) };
+        const bool e_axis_has_dedge = e_stepper_dedge[stepper_extruder];
+      #endif
     #endif
 
-    AWAIT_HIGH_PULSE();
+    // Only wait for axes without edge stepping
+    const bool any_wait = false LOGICAL_AXIS_GANG(
+      || (!e_axis_has_dedge && axis_step.e),
+      || (!AXIS_HAS_DEDGE(X) && axis_step.x), || (!AXIS_HAS_DEDGE(Y) && axis_step.y), || (!AXIS_HAS_DEDGE(Z) && axis_step.z),
+      || (!AXIS_HAS_DEDGE(I) && axis_step.i), || (!AXIS_HAS_DEDGE(J) && axis_step.j), || (!AXIS_HAS_DEDGE(K) && axis_step.k),
+      || (!AXIS_HAS_DEDGE(U) && axis_step.u), || (!AXIS_HAS_DEDGE(V) && axis_step.v), || (!AXIS_HAS_DEDGE(W) && axis_step.w)
+    );
 
-    X_STEP_WRITE(0);
-    TERN_(HAS_Y_AXIS, Y_STEP_WRITE(0));
-    TERN_(HAS_Z_AXIS, Z_STEP_WRITE(0));
-    TERN_(HAS_EXTRUDERS, E0_STEP_WRITE(0));
+    // Allow pulses to be registered by stepper drivers
+    if (any_wait) AWAIT_HIGH_PULSE();
+
+    // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
+    LOGICAL_AXIS_CODE(
+      if (axis_step.e) E_APPLY_STEP(!STEP_STATE_E, false),
+      if (axis_step.x) X_APPLY_STEP(!STEP_STATE_X, false), if (axis_step.y) Y_APPLY_STEP(!STEP_STATE_Y, false),
+      if (axis_step.z) Z_APPLY_STEP(!STEP_STATE_Z, false), if (axis_step.i) I_APPLY_STEP(!STEP_STATE_I, false),
+      if (axis_step.j) J_APPLY_STEP(!STEP_STATE_J, false), if (axis_step.k) K_APPLY_STEP(!STEP_STATE_K, false),
+      if (axis_step.u) U_APPLY_STEP(!STEP_STATE_U, false), if (axis_step.v) V_APPLY_STEP(!STEP_STATE_V, false),
+      if (axis_step.w) W_APPLY_STEP(!STEP_STATE_W, false)
+    );
 
   } // Stepper::fxdTiCtrl_stepper
 
@@ -3505,7 +3515,7 @@ void Stepper::report_positions() {
       // If the current block is not done processing, return right away
       if (!fxdTiCtrl.getBlockProcDn()) return;
 
-      axis_did_move = 0;
+      axis_did_move.reset();
       current_block = nullptr;
       discard_current_block();
     }
@@ -3551,28 +3561,17 @@ void Stepper::report_positions() {
                                 // or the set conditions should be changed from the block to
                                 // the motion trajectory or motor commands.
 
-    uint8_t axis_bits = 0U;
+    AxisBits didmove;
+    static abce_ulong_t debounce{0};
+    auto debounce_axis = [&](const AxisEnum axis) {
+      if (current_block->steps[axis]) debounce[axis] = (AXIS_DID_MOVE_DEB) * 400; // divide by 0.0025f */
+      if (debounce[axis]) { didmove.bset(axis); debounce[axis]--; }
+    };
+    #define _DEBOUNCE(N) debounce_axis(AxisEnum(N));
 
-    static uint32_t a_debounce = 0U;
-    if (!!current_block->steps.a) a_debounce = (AXIS_DID_MOVE_DEB) * 400; // divide by 0.0025f
-    if (a_debounce) { SBI(axis_bits, A_AXIS); a_debounce--; }
-    #if HAS_Y_AXIS
-      static uint32_t b_debounce = 0U;
-      if (!!current_block->steps.b) b_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (b_debounce) { SBI(axis_bits, B_AXIS); b_debounce--; }
-    #endif
-    #if HAS_Z_AXIS
-      static uint32_t c_debounce = 0U;
-      if (!!current_block->steps.c) c_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (c_debounce) { SBI(axis_bits, C_AXIS); c_debounce--; }
-    #endif
-    #if HAS_EXTRUDERS
-      static uint32_t e_debounce = 0U;
-      if (!!current_block->steps.e) e_debounce = (AXIS_DID_MOVE_DEB) * 400;
-      if (e_debounce) { SBI(axis_bits, E_AXIS); e_debounce--; }
-    #endif
+    if (current_block) { REPEAT(LOGICAL_AXES, _DEBOUNCE); }
 
-    axis_did_move = axis_bits;
+    axis_did_move = didmove;
   }
 
 #endif // FT_MOTION
@@ -3581,7 +3580,7 @@ void Stepper::report_positions() {
 
   #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
-  #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
+  #define _APPLY_DIR(AXIS, FWD) AXIS ##_APPLY_DIR(FWD, true)
 
   #if MINIMUM_STEPPER_PULSE
     #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
@@ -3627,31 +3626,31 @@ void Stepper::report_positions() {
 
   #if DISABLED(DELTA)
 
-    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
-      const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE_AXIS(AXIS);                               \
-      DIR_WAIT_BEFORE();                                \
-      _APPLY_DIR(AXIS, INVERT_DIR(AXIS, (DIR)^(INV)));  \
-      DIR_WAIT_AFTER();                                 \
-      _SAVE_START();                                    \
-      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);       \
-      _PULSE_WAIT();                                    \
-      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true);      \
-      EXTRA_DIR_WAIT_BEFORE();                          \
-      _APPLY_DIR(AXIS, old_dir);                        \
-      EXTRA_DIR_WAIT_AFTER();                           \
+    #define BABYSTEP_AXIS(AXIS, FWD, INV) do{      \
+      const bool old_fwd = _READ_DIR(AXIS);        \
+      _ENABLE_AXIS(AXIS);                          \
+      DIR_WAIT_BEFORE();                           \
+      _APPLY_DIR(AXIS, (FWD)^(INV));               \
+      DIR_WAIT_AFTER();                            \
+      _SAVE_START();                               \
+      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);  \
+      _PULSE_WAIT();                               \
+      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true); \
+      EXTRA_DIR_WAIT_BEFORE();                     \
+      _APPLY_DIR(AXIS, old_fwd);                   \
+      EXTRA_DIR_WAIT_AFTER();                      \
     }while(0)
 
   #endif
 
   #if IS_CORE
 
-    #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
-      const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
+    #define BABYSTEP_CORE(A, B, FWD, INV, ALT) do{              \
+      const xy_byte_t old_fwd = { _READ_DIR(A), _READ_DIR(B) }; \
       _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
       DIR_WAIT_BEFORE();                                        \
-      _APPLY_DIR(A, INVERT_DIR(A, (DIR)^(INV));                 \
-      _APPLY_DIR(B, INVERT_DIR(B, (DIR)^(INV)^(ALT));           \
+      _APPLY_DIR(A, (FWD)^(INV));                               \
+      _APPLY_DIR(B, (FWD)^(INV)^(ALT));                         \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
       _APPLY_STEP(A, _STEP_STATE(A), true);                     \
@@ -3660,7 +3659,7 @@ void Stepper::report_positions() {
       _APPLY_STEP(A, !_STEP_STATE(A), true);                    \
       _APPLY_STEP(B, !_STEP_STATE(B), true);                    \
       EXTRA_DIR_WAIT_BEFORE();                                  \
-      _APPLY_DIR(A, old_dir.a); _APPLY_DIR(B, old_dir.b);       \
+      _APPLY_DIR(A, old_fwd.a); _APPLY_DIR(B, old_fwd.b);       \
       EXTRA_DIR_WAIT_AFTER();                                   \
     }while(0)
 
@@ -3670,7 +3669,7 @@ void Stepper::report_positions() {
   // No other ISR should ever interrupt this!
   void Stepper::do_babystep(const AxisEnum axis, const bool direction) {
 
-    IF_DISABLED(INTEGRATED_BABYSTEPPING, cli());
+    IF_DISABLED(BABYSTEPPING, cli());
 
     switch (axis) {
 
@@ -3678,21 +3677,21 @@ void Stepper::report_positions() {
 
         case X_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, 0, direction, 0);
+            BABYSTEP_CORE(X, Y, direction, 0, 0);
           #elif CORE_IS_XZ
-            BABYSTEP_CORE(X, Z, 0, direction, 0);
+            BABYSTEP_CORE(X, Z, direction, 0, 0);
           #else
-            BABYSTEP_AXIS(X, 0, direction);
+            BABYSTEP_AXIS(X, direction, 0);
           #endif
           break;
 
         case Y_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, 1, !direction, (CORESIGN(1)>0));
+            BABYSTEP_CORE(X, Y, direction, 0, (CORESIGN(1)>0));
           #elif CORE_IS_YZ
-            BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
+            BABYSTEP_CORE(Y, Z, direction, 0, (CORESIGN(1)<0));
           #else
-            BABYSTEP_AXIS(Y, 0, direction);
+            BABYSTEP_AXIS(Y, direction, 0);
           #endif
           break;
 
@@ -3701,78 +3700,46 @@ void Stepper::report_positions() {
       case Z_AXIS: {
 
         #if CORE_IS_XZ
-          BABYSTEP_CORE(X, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
+          BABYSTEP_CORE(X, Z, direction, ENABLED(BABYSTEP_INVERT_Z), (CORESIGN(1)>0));
         #elif CORE_IS_YZ
-          BABYSTEP_CORE(Y, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
+          BABYSTEP_CORE(Y, Z, direction, ENABLED(BABYSTEP_INVERT_Z), (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
-          BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction);
+          BABYSTEP_AXIS(Z, direction, ENABLED(BABYSTEP_INVERT_Z));
 
         #else // DELTA
 
-          const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
+          const bool z_direction = TERN_(BABYSTEP_INVERT_Z, !) direction;
 
-          NUM_AXIS_CODE(
-            enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
-            enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS),
-            enable_axis(U_AXIS), enable_axis(V_AXIS), enable_axis(W_AXIS)
-          );
+          enable_axis(A_AXIS); enable_axis(B_AXIS); enable_axis(C_AXIS);
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = NUM_AXIS_ARRAY(
-            X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
-            I_DIR_READ(), J_DIR_READ(), K_DIR_READ(),
-            U_DIR_READ(), V_DIR_READ(), W_DIR_READ()
-          );
+          const bool old_fwd[3] = { X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ() };
 
-          #ifdef X_DIR_WRITE
-            X_DIR_WRITE(INVERT_DIR(X, z_direction));
-          #endif
-          #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(INVERT_DIR(Y, z_direction));
-          #endif
-          #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(INVERT_DIR(Z, z_direction));
-          #endif
+          X_DIR_WRITE(z_direction);
+          Y_DIR_WRITE(z_direction);
+          Z_DIR_WRITE(z_direction);
 
           DIR_WAIT_AFTER();
 
           _SAVE_START();
 
-          #ifdef X_STEP_WRITE
-            X_STEP_WRITE(STEP_STATE_X);
-          #endif
-          #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(STEP_STATE_Y);
-          #endif
-          #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(STEP_STATE_Z);
-          #endif
+          X_STEP_WRITE(STEP_STATE_X);
+          Y_STEP_WRITE(STEP_STATE_Y);
+          Z_STEP_WRITE(STEP_STATE_Z);
 
           _PULSE_WAIT();
 
-          #ifdef X_STEP_WRITE
-            X_STEP_WRITE(!STEP_STATE_X);
-          #endif
-          #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(!STEP_STATE_Y);
-          #endif
-          #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(!STEP_STATE_Z);
-          #endif
+          X_STEP_WRITE(!STEP_STATE_X);
+          Y_STEP_WRITE(!STEP_STATE_Y);
+          Z_STEP_WRITE(!STEP_STATE_Z);
 
           // Restore direction bits
           EXTRA_DIR_WAIT_BEFORE();
 
-          #ifdef X_DIR_WRITE
-            X_DIR_WRITE(old_dir.x);
-          #endif
-          #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(old_dir.y);
-          #endif
-          #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(old_dir.z);
-          #endif
+          X_DIR_WRITE(old_fwd[A_AXIS]);
+          Y_DIR_WRITE(old_fwd[B_AXIS]);
+          Z_DIR_WRITE(old_fwd[C_AXIS]);
 
           EXTRA_DIR_WAIT_AFTER();
 
@@ -3780,29 +3747,10 @@ void Stepper::report_positions() {
 
       } break;
 
-      #if HAS_I_AXIS
-        case I_AXIS: BABYSTEP_AXIS(I, 0, direction); break;
-      #endif
-      #if HAS_J_AXIS
-        case J_AXIS: BABYSTEP_AXIS(J, 0, direction); break;
-      #endif
-      #if HAS_K_AXIS
-        case K_AXIS: BABYSTEP_AXIS(K, 0, direction); break;
-      #endif
-      #if HAS_U_AXIS
-        case U_AXIS: BABYSTEP_AXIS(U, 0, direction); break;
-      #endif
-      #if HAS_V_AXIS
-        case V_AXIS: BABYSTEP_AXIS(V, 0, direction); break;
-      #endif
-      #if HAS_W_AXIS
-        case W_AXIS: BABYSTEP_AXIS(W, 0, direction); break;
-      #endif
-
       default: break;
     }
 
-    IF_DISABLED(INTEGRATED_BABYSTEPPING, sei());
+    IF_DISABLED(BABYSTEPPING, sei());
   }
 
 #endif // BABYSTEPPING
@@ -3828,7 +3776,7 @@ void Stepper::report_positions() {
 
   void Stepper::refresh_motor_power() {
     if (!initialized) return;
-    LOOP_L_N(i, COUNT(motor_current_setting)) {
+    for (uint8_t i = 0; i < COUNT(motor_current_setting); ++i) {
       switch (i) {
         #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
           case 0:
@@ -3924,7 +3872,7 @@ void Stepper::report_positions() {
         SPI.begin();
         SET_OUTPUT(DIGIPOTSS_PIN);
 
-        LOOP_L_N(i, COUNT(motor_current_setting))
+        for (uint8_t i = 0; i < COUNT(motor_current_setting); ++i)
           set_digipot_current(i, motor_current_setting[i]);
 
       #elif HAS_MOTOR_CURRENT_PWM
@@ -3985,7 +3933,7 @@ void Stepper::report_positions() {
 
 #else // PRINTRBOARD_G2
 
-  #include HAL_PATH(../HAL, fastio/G2_PWM.h)
+  #include HAL_PATH(.., fastio/G2_PWM.h)
 
 #endif
 

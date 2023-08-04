@@ -76,10 +76,11 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
 }
 
 void vector_3::debug(FSTR_P const title) {
-  SERIAL_ECHOF(title);
-  SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
-  SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
-  SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
+  SERIAL_ECHOLN(title,
+    FPSTR(SP_X_STR), p_float_t(x, 6),
+    FPSTR(SP_Y_STR), p_float_t(y, 6),
+    FPSTR(SP_Z_STR), p_float_t(z, 6)
+  );
 }
 
 /**
@@ -93,8 +94,8 @@ void matrix_3x3::apply_rotation_xyz(float &_x, float &_y, float &_z) {
 
 // Reset to identity. No rotate or translate.
 void matrix_3x3::set_to_identity() {
-  LOOP_L_N(i, 3)
-    LOOP_L_N(j, 3)
+  for (uint8_t i = 0; i < 3; ++i)
+    for (uint8_t j = 0; j < 3; ++j)
       vectors[i][j] = float(i == j);
 }
 
@@ -131,16 +132,16 @@ matrix_3x3 matrix_3x3::create_look_at(const vector_3 &target) {
 // Get a transposed copy of the matrix
 matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
   matrix_3x3 new_matrix;
-  LOOP_L_N(i, 3)
-    LOOP_L_N(j, 3)
+  for (uint8_t i = 0; i < 3; ++i)
+    for (uint8_t j = 0; j < 3; ++j)
       new_matrix.vectors[i][j] = original.vectors[j][i];
   return new_matrix;
 }
 
 void matrix_3x3::debug(FSTR_P const title) {
-  if (title) SERIAL_ECHOLNF(title);
-  LOOP_L_N(i, 3) {
-    LOOP_L_N(j, 3) {
+  if (title) SERIAL_ECHOLN(title);
+  for (uint8_t i = 0; i < 3; ++i) {
+    for (uint8_t j = 0; j < 3; ++j) {
       serial_offset(vectors[i][j], 2);
       SERIAL_CHAR(' ');
     }

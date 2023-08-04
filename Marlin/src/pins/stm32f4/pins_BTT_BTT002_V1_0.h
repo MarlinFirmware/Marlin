@@ -152,17 +152,23 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
-#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                    PC2   // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -281,7 +287,7 @@
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

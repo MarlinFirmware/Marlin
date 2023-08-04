@@ -45,14 +45,14 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       sound.play(media_inserted, PLAY_ASYNCHRONOUS);
       StatusScreen::onMediaInserted();
     #endif
   }
 
   void onMediaRemoved() {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (isPrintingFromMedia()) {
         stopPrint();
         InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
@@ -117,9 +117,12 @@ namespace ExtUI {
       ConfirmUserRequestAlertBox::hide();
   }
 
-  #if HAS_LEVELING && HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
+
+  #if HAS_MESH
     void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) { BedMeshViewScreen::onMeshUpdate(x, y, val); }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) { BedMeshViewScreen::onMeshUpdate(x, y, state); }
   #endif

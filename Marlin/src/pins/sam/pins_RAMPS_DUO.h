@@ -57,7 +57,7 @@
 
 // SPI for MAX Thermocouple
 #undef TEMP_0_CS_PIN
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       69  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       69  // Don't use 49 (SD_DETECT_PIN)
@@ -68,7 +68,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if BOTH(IS_NEWPANEL, PANEL_ONE)
+  #if ALL(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4                       68
 

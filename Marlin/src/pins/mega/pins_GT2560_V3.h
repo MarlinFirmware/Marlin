@@ -33,6 +33,10 @@
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "GT2560 supports up to 3 hotends / E steppers."
+#endif
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 3.x"
 #endif
@@ -164,18 +168,10 @@
 #define BEEPER_PIN                            18
 
 #if ENABLED(YHCB2004)
-  #ifndef YHCB2004_CLK
-    #define YHCB2004_CLK                       5
-    #define DIO52                   YHCB2004_CLK
-  #endif
-  #ifndef YHCB2004_MOSI
-    #define YHCB2004_MOSI                     21
-    #define DIO50                  YHCB2004_MOSI
-  #endif
-  #ifndef YHCB2004_MISO
-    #define YHCB2004_MISO                     36
-    #define DIO51                  YHCB2004_MISO
-  #endif
+  #define YHCB2004_MOSI_PIN                   21
+  #define YHCB2004_MISO_PIN                   36
+  #define YHCB2004_SCK_PIN                     5
+  #define YHCB2004_SS_PIN                     SS
 #elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS
     #define LCD_PINS_RS                       20

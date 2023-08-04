@@ -28,98 +28,98 @@
 
 namespace DGUSTxHandler {
 
-  #if ENABLED(SDSUPPORT)
-    void SetFileControlState(int16_t, bool);
-    void FileType(DGUS_VP &);
-    void FileName(DGUS_VP &);
-    void ScrollIcons(DGUS_VP &);
-    void SelectedFileName(DGUS_VP &);
+  #if HAS_MEDIA
+    void setFileControlState(int16_t, bool);
+    void fileType(DGUS_VP &);
+    void fileName(DGUS_VP &);
+    void scrollIcons(DGUS_VP &);
+    void selectedFileName(DGUS_VP &);
   #endif
 
-  void PositionZ(DGUS_VP &);
-  void Elapsed(DGUS_VP &);
-  void Percent(DGUS_VP &);
-  void StatusIcons(DGUS_VP &);
+  void zPosition(DGUS_VP &);
+  void elapsed(DGUS_VP &);
+  void percent(DGUS_VP &);
+  void statusIcons(DGUS_VP &);
 
-  void Flowrate(DGUS_VP &);
+  void flowrate(DGUS_VP &);
 
-  void TempMax(DGUS_VP &);
+  void tempMax(DGUS_VP &);
 
-  void StepperStatus(DGUS_VP &);
+  void stepperStatus(DGUS_VP &);
 
-  void StepIcons(DGUS_VP &);
+  void stepIcons(DGUS_VP &);
 
-  void ABLDisableIcon(DGUS_VP &);
-  void ABLGrid(DGUS_VP &);
+  void ablDisableIcon(DGUS_VP &);
+  void ablGrid(DGUS_VP &);
 
-  void FilamentIcons(DGUS_VP &);
+  void filamentIcons(DGUS_VP &);
 
-  void BLTouch(DGUS_VP &);
+  void blTouch(DGUS_VP &);
 
-  void PIDIcons(DGUS_VP &);
-  void PIDKp(DGUS_VP &);
-  void PIDKi(DGUS_VP &);
-  void PIDKd(DGUS_VP &);
+  void pidIcons(DGUS_VP &);
+  void pidKp(DGUS_VP &);
+  void pidKi(DGUS_VP &);
+  void pidKd(DGUS_VP &);
 
-  void BuildVolume(DGUS_VP &);
-  void TotalPrints(DGUS_VP &);
-  void FinishedPrints(DGUS_VP &);
-  void PrintTime(DGUS_VP &);
-  void LongestPrint(DGUS_VP &);
-  void FilamentUsed(DGUS_VP &);
+  void buildVolume(DGUS_VP &);
+  void totalPrints(DGUS_VP &);
+  void finishedPrints(DGUS_VP &);
+  void printTime(DGUS_VP &);
+  void longestPrint(DGUS_VP &);
+  void filamentUsed(DGUS_VP &);
 
-  void WaitIcons(DGUS_VP &);
+  void waitIcons(DGUS_VP &);
 
-  void FanSpeed(DGUS_VP &);
+  void fanSpeed(DGUS_VP &);
 
-  void Volume(DGUS_VP &);
+  void volume(DGUS_VP &);
 
-  void Brightness(DGUS_VP &);
+  void brightness(DGUS_VP &);
 
-  void ExtraToString(DGUS_VP &);
-  void ExtraPGMToString(DGUS_VP &);
+  void extraToString(DGUS_VP &);
+  void extraPGMToString(DGUS_VP &);
 
   template<typename T>
-  void ExtraToInteger(DGUS_VP &vp) {
+  void extraToInteger(DGUS_VP &vp) {
     if (!vp.size || !vp.extra) return;
     switch (vp.size) {
       default: return;
       case 1: {
         const uint8_t data = uint8_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), data);
+        dgus.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
         const uint16_t data = uint16_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
+        dgus.write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
         const uint32_t data = uint32_t(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
+        dgus.write(uint16_t(vp.addr), dgus.swapBytes(data));
         break;
       }
     }
   }
 
   template<typename T, uint8_t decimals>
-  void ExtraToFixedPoint(DGUS_VP &vp) {
+  void extraToFixedPoint(DGUS_VP &vp) {
     if (!vp.size || !vp.extra) return;
     switch (vp.size) {
       default: return;
       case 1: {
-        const uint8_t data = dgus_display.ToFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), data);
+        const uint8_t data = dgus.toFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
-        const uint16_t data = dgus_display.ToFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
+        const uint16_t data = dgus.toFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
-        const uint32_t data = dgus_display.ToFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
+        const uint32_t data = dgus.toFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
+        dgus.write(uint16_t(vp.addr), dgus.swapBytes(data));
         break;
       }
     }

@@ -175,8 +175,11 @@
   #define E4_SERIAL_RX_PIN      E4_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -238,7 +241,7 @@
 #define EXP2_07_PIN                         PB11
 #define EXP2_08_PIN                         -1    // RESET
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #ifndef SDCARD_CONNECTION
     #define SDCARD_CONNECTION            ONBOARD
   #endif
@@ -260,7 +263,7 @@
   #endif
 #endif
 
-#if EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI)
+#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN
   #define TFT_SCK_PIN                EXP2_02_PIN
   #define TFT_MISO_PIN               EXP2_01_PIN
@@ -291,7 +294,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253

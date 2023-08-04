@@ -23,18 +23,15 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include "tft_color.h"
-#include "tft_image.h"
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../tft_io/touch_calibration.h"
 #endif
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
-  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #include HAL_PATH(../.., tft/gt911.h)
   #define TOUCH_DRIVER_CLASS GT911
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #include HAL_PATH(../.., tft/xpt2046.h)
   #define TOUCH_DRIVER_CLASS XPT2046
 #else
   #error "Unknown Touch Screen Type."
@@ -64,16 +61,9 @@ enum TouchControlType : uint16_t {
   FEEDRATE,
   FLOWRATE,
   UBL,
-  MOVE_AXIS,
   STOP,
   BUTTON,
 };
-
-typedef void (*screenFunc_t)();
-
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
-inline void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled); }
-inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled); }
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
@@ -109,7 +99,7 @@ class Touch {
 
     static bool get_point(int16_t *x, int16_t *y);
     static void touch(touch_control_t *control);
-    static void hold(touch_control_t *control, millis_t delay = 0);
+    static void hold(touch_control_t *control, millis_t delay=0);
 
   public:
     static void init();
@@ -131,7 +121,10 @@ class Touch {
       static void sleepTimeout();
       static void wakeUp();
     #endif
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data=0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, void (*handler)()) {
+      add_control(type, x, y, width, height, intptr_t(handler));
+    }
 };
 
 extern Touch touch;

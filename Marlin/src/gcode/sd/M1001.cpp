@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "../gcode.h"
 #include "../../module/planner.h"
@@ -34,7 +34,7 @@
   #include "../queue.h"
 #endif
 
-#if EITHER(SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
+#if ANY(SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/marlinui.h"
 #endif
 
@@ -49,8 +49,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -114,4 +112,4 @@ void GcodeSuite::M1001() {
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

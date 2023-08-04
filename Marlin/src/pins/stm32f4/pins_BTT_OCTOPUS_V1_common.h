@@ -27,7 +27,7 @@
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K (AT24C32)
@@ -45,11 +45,6 @@
 #define SERVO0_PIN                          PB6
 
 //
-// Misc. Functions
-//
-#define LED_PIN                             PA13
-
-//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                          PG6   // X-STOP
@@ -62,30 +57,6 @@
 #define E3_DIAG_PIN                         PG15  // E3DET
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
-#endif
-
-//
-// Check for additional used endstop pins
-//
-#if HAS_EXTRA_ENDSTOPS
-  #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
-  #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX
-  #endif
-  #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX
-  #endif
-  #if _ENDSTOP_IS_ANY(_ZMIN_) || _ENDSTOP_IS_ANY(_ZMAX_)
-    #define NEEDS_Z_MINMAX
-  #endif
-  #undef _ENDSTOP_IS_ANY
-#endif
-
-//
 // Limit Switches
 //
 #ifdef X_STALL_SENSITIVITY
@@ -95,7 +66,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif EITHER(DUAL_X_CARRIAGE, NEEDS_X_MINMAX)
+#elif NEEDS_X_MINMAX
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
@@ -113,7 +84,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif ENABLED(NEEDS_Y_MINMAX)
+#elif NEEDS_Y_MINMAX
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -131,7 +102,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif ENABLED(NEEDS_Z_MINMAX)
+#elif NEEDS_Z_MINMAX
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
@@ -140,6 +111,13 @@
   #endif
 #else
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
+#endif
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
 //
@@ -163,6 +141,11 @@
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PC0   // PWRDET
 #endif
+
+//
+// Misc. Functions
+//
+#define LED_PIN                             PA13
 
 //
 // Steppers
@@ -316,8 +299,11 @@
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**               ------                                      ------
  * (BEEPER) PE8  | 1  2 | PE7  (BTN_ENC)         (MISO) PA6  | 1  2 | PA5  (SCK)
@@ -351,7 +337,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   #ifndef SD_DETECT_STATE
     #define SD_DETECT_STATE HIGH
   #elif SD_DETECT_STATE == LOW
@@ -481,7 +467,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

@@ -153,7 +153,6 @@
   #define LCD_PINS_EN                         15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
-  #undef UI_VOLTAGE_LEVEL
   #define UI_VOLTAGE_LEVEL                     1
 #endif
 

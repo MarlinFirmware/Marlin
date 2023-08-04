@@ -73,9 +73,9 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x200000  // 2MB
   #define SPI_FLASH_CS_PIN                  PG15  // SPI2
-  #define SPI_FLASH_MOSI_PIN                PB5
-  #define SPI_FLASH_MISO_PIN                PB4
   #define SPI_FLASH_SCK_PIN                 PB3
+  #define SPI_FLASH_MISO_PIN                PB4
+  #define SPI_FLASH_MOSI_PIN                PB5
 #endif
 
 //
@@ -209,7 +209,7 @@
   //#define TFT_PIXEL_OFFSET_X                48
   //#define TFT_PIXEL_OFFSET_Y                32
   //#define TFT_DRIVER                   ILI9488
-  //#define TFT_BUFFER_SIZE                14400
+  //#define TFT_BUFFER_WORDS               14400
 
   #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PD11  // SPI1_NSS
@@ -251,14 +251,7 @@
 //
 // SD Card
 //
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SD_DETECT_PIN                       -1    // PF0, but not connected
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
-
-#define SDIO_D0_PIN                         PC8
-#define SDIO_D1_PIN                         PC9
-#define SDIO_D2_PIN                         PC10
-#define SDIO_D3_PIN                         PC11
-#define SDIO_CK_PIN                         PC12
-#define SDIO_CMD_PIN                        PD2

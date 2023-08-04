@@ -59,7 +59,7 @@ void probe_offset_wizard_menu() {
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
   STATIC_ITEM_F(F("Z"), SS_CENTER, ftostr42_52(current_position.z));
-  STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
+  STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_FULL, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
@@ -102,7 +102,7 @@ void prepare_for_probe_offset_wizard() {
 
     // Probe for Z reference
     ui.wait_for_move = true;
-    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_RAISE, 0, true);
+    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_RAISE);
     ui.wait_for_move = false;
 
     // Stow the probe, as the last call to probe.probe_at_point(...) left

@@ -135,7 +135,7 @@
 
 // SPI for MAX Thermocouple
 /*
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49
@@ -217,7 +217,7 @@
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
 
-  #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
+  #if ANY(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS              EXP1_04_PIN
     #define LCD_PINS_EN              EXP1_03_PIN
@@ -244,7 +244,7 @@
 
     #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN        EXP1_06_PIN  // D5
       #endif
