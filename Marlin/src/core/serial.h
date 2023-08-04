@@ -125,8 +125,6 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL         SERIAL_LEAF_1
 #endif
 
-#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
-
 #define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()     _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P) SerialMask::from(P)
@@ -134,65 +132,69 @@ extern uint8_t marlin_debug_flags;
 //
 // SERIAL_CHAR - Print one or more individual chars
 //
-inline void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
+void SERIAL_CHAR(char a);
 template <typename ... Args>
 void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
 
 /**
- * SERIAL_ECHO - Print a single string or value.
+ * SERIAL_ECHO / SERIAL_ECHOLN - Print a single string or value.
  *   Any numeric parameter (including char) is printed as a base-10 number.
  *   A string pointer or literal will be output as a string.
  *
  * NOTE: Use SERIAL_CHAR to print char as a single character.
  */
-template <typename T>
-void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
+template <typename T> void SERIAL_ECHO(T x)   { SERIAL_IMPL.print(x); }
+template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
-typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
-inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
-#define AS_CHAR(C) serial_char_t(C)
+void SERIAL_ECHO(serial_char_t x);
 #define AS_DIGIT(C) AS_CHAR('0' + (C))
 
-template <typename T>
-void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
-
-// SERIAL_PRINT works like SERIAL_ECHO but also takes the numeric base
-template <typename T, typename U>
-void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
-
-template <typename T>
-void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
+// Print an integer with a numeric base such as PrintBase::Hex
+template <typename T> void SERIAL_PRINT(T x, PrintBase y)   { SERIAL_IMPL.print(x, y); }
+template <typename T> void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
 
 // Flush the serial port
-inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
-inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
+void SERIAL_FLUSH();
+void SERIAL_FLUSHTX();
 
-// Serial echo and error prefixes
-#define SERIAL_ECHO_START()           serial_echo_start()
-#define SERIAL_ERROR_START()          serial_error_start()
+// Start an echo: or error: output
+void SERIAL_ECHO_START();
+void SERIAL_ERROR_START();
 
 // Serial end-of-line
-#define SERIAL_EOL()                  SERIAL_CHAR('\n')
+void SERIAL_EOL();
 
 // Print a single PROGMEM, PGM_P, or PSTR() string.
-void serial_print_P(PGM_P str);
-inline void serial_println_P(PGM_P str) { serial_print_P(str); SERIAL_EOL(); }
+void SERIAL_ECHO_P(PGM_P pstr);
+void SERIAL_ECHOLN_P(PGM_P pstr);
 
-// Print a single FSTR_P, F(), or FPSTR() string.
-inline void serial_print(FSTR_P const fstr) { serial_print_P(FTOP(fstr)); }
-inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
+// Specializations for float, p_float_t, and w_float_t
+template<> void SERIAL_ECHO(const float f);
+template<> void SERIAL_ECHO(const p_float_t pf);
+template<> void SERIAL_ECHO(const w_float_t wf);
+
+// Specializations for F-string
+template<> void SERIAL_ECHO(const FSTR_P fstr);
+template<> void SERIAL_ECHOLN(const FSTR_P fstr);
+
+// Print any number of items with arbitrary types (except loose PROGMEM strings)
+template <typename T, typename ... Args>
+void SERIAL_ECHO(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args ...); }
+template <typename T, typename ... Args>
+void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args ...); SERIAL_EOL(); }
 
 //
-// SERIAL_ECHOPGM... macros are used to output string-value pairs.
+// SERIAL_ECHOPGM... macros are used to output string-value pairs, wrapping
+//                   all the odd loose string elements as PROGMEM strings.
 //
 
 // Print up to 20 pairs of values. Odd elements must be literal strings.
 #define __SEP_N(N,V...)           _SEP_##N(V)
 #define _SEP_N(N,V...)            __SEP_N(N,V)
 #define _SEP_N_REF()              _SEP_N
-#define _SEP_1(s)                 serial_print(F(s));
-#define _SEP_2(s,v)               serial_echopair(F(s),v);
+#define _SEP_1(s)                 SERIAL_ECHO(F(s));
+#define _SEP_2(s,v)               SERIAL_ECHO(F(s),v);
 #define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM(V...)      do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
 
@@ -200,8 +202,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SELP_N(N,V...)          _SELP_##N(V)
 #define _SELP_N(N,V...)           __SELP_N(N,V)
 #define _SELP_N_REF()             _SELP_N
-#define _SELP_1(s)                serial_print(F(s "\n"));
-#define _SELP_2(s,v)              serial_echolnpair(F(s),v);
+#define _SELP_1(s)                SERIAL_ECHO(F(s "\n"));
+#define _SELP_2(s,v)              SERIAL_ECHOLN(F(s),v);
 #define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOLNPGM(V...)    do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
 
@@ -209,8 +211,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
 #define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
 #define _SEP_N_P_REF()            _SEP_N_P
-#define _SEP_1_P(p)               serial_print_P(p);
-#define _SEP_2_P(p,v)             serial_echopair_P(p,v);
+#define _SEP_1_P(p)               SERIAL_ECHO(FPSTR(p));
+#define _SEP_2_P(p,v)             SERIAL_ECHO(FPSTR(p),v);
 #define _SEP_3_P(p,v,V...)        _SEP_2_P(p,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM_P(V...)    do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
@@ -218,136 +220,90 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
 #define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
 #define _SELP_N_P_REF()           _SELP_N_P
-#define _SELP_1_P(p)              serial_println_P(p)
-#define _SELP_2_P(p,v)            serial_echolnpair_P(p,v)
+#define _SELP_1_P(p)              SERIAL_ECHOLN(FPSTR(p));
+#define _SELP_2_P(p,v)            SERIAL_ECHOLN(FPSTR(p),v);
 #define _SELP_3_P(p,v,V...)       { _SEP_2_P(p,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
 #define SERIAL_ECHOLNPGM_P(V...)  do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values. Odd elements must be FSTR_P, F(), or FPSTR().
-#define __SEP_N_F(N,V...)         _SEP_##N##_F(V)
-#define _SEP_N_F(N,V...)          __SEP_N_F(N,V)
-#define _SEP_N_F_REF()            _SEP_N_F
-#define _SEP_1_F(p)               serial_print(p);
-#define _SEP_2_F(p,v)             serial_echopair(p,v);
-#define _SEP_3_F(p,v,V...)        _SEP_2_F(p,v); DEFER2(_SEP_N_F_REF)()(TWO_ARGS(V),V);
-#define SERIAL_ECHOF(V...)        do{ EVAL(_SEP_N_F(TWO_ARGS(V),V)); }while(0)
+#define SERIAL_ECHO_MSG(V...)  do{ SERIAL_ECHO_START();  SERIAL_ECHOLNPGM(V); }while(0)
+#define SERIAL_ERROR_MSG(V...) do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(V); }while(0)
 
-// Print up to 20 pairs of values followed by newline. Odd elements must be FSTR_P, F(), or FPSTR().
-#define __SELP_N_F(N,V...)        _SELP_##N##_F(V)
-#define _SELP_N_F(N,V...)         __SELP_N_F(N,V)
-#define _SELP_N_F_REF()           _SELP_N_F
-#define _SELP_1_F(p)              serial_println(p)
-#define _SELP_2_F(p,v)            serial_echolnpair(p,v)
-#define _SELP_3_F(p,v,V...)       { _SEP_2_F(p,v); DEFER2(_SELP_N_F_REF)()(TWO_ARGS(V),V); }
-#define SERIAL_ECHOLNF(V...)      do{ EVAL(_SELP_N_F(TWO_ARGS(V),V)); }while(0)
-
-#ifdef AllowDifferentTypeInList
-
-  inline void SERIAL_ECHOLIST_IMPL() {}
-  template <typename T>
-  void SERIAL_ECHOLIST_IMPL(T && t) { SERIAL_IMPL.print(t); }
-
-  template <typename T, typename ... Args>
-  void SERIAL_ECHOLIST_IMPL(T && t, Args && ... args) {
-    SERIAL_IMPL.print(t);
-    serial_print(F(", "));
-    SERIAL_ECHOLIST_IMPL(args...);
-  }
-
-  template <typename ... Args>
-  void SERIAL_ECHOLIST(FSTR_P const str, Args && ... args) {
-    SERIAL_IMPL.print(FTOP(str));
-    SERIAL_ECHOLIST_IMPL(args...);
-  }
-
-#else // Optimization if the listed type are all the same (seems to be the case in the codebase so use that instead)
-
-  template <typename ... Args>
-  void SERIAL_ECHOLIST(FSTR_P const fstr, Args && ... args) {
-    serial_print(fstr);
-    typename Private::first_type_of<Args...>::type values[] = { args... };
-    constexpr size_t argsSize = sizeof...(args);
-    for (size_t i = 0; i < argsSize; i++) {
-      if (i) serial_print(F(", "));
-      SERIAL_IMPL.print(values[i]);
-    }
-  }
-
-#endif
-
-// SERIAL_ECHO_F prints a floating point value with optional precision
-inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, digit); }
-
-#define SERIAL_ECHOPAIR_F_P(P,V...)   do{ serial_print_P(P); SERIAL_ECHO_F(V); }while(0)
-#define SERIAL_ECHOLNPAIR_F_P(P,V...) do{ SERIAL_ECHOPAIR_F_P(P,V); SERIAL_EOL(); }while(0)
-
-#define SERIAL_ECHOPAIR_F_F(S,V...)   do{ serial_print(S); SERIAL_ECHO_F(V); }while(0)
-#define SERIAL_ECHOLNPAIR_F_F(S,V...) do{ SERIAL_ECHOPAIR_F_F(S,V); SERIAL_EOL(); }while(0)
-
-#define SERIAL_ECHOPAIR_F(S,V...)     SERIAL_ECHOPAIR_F_F(F(S),V)
-#define SERIAL_ECHOLNPAIR_F(V...)     do{ SERIAL_ECHOPAIR_F(V); SERIAL_EOL(); }while(0)
-
-#define SERIAL_ECHO_MSG(V...)         do{ SERIAL_ECHO_START();  SERIAL_ECHOLNPGM(V); }while(0)
-#define SERIAL_ERROR_MSG(V...)        do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(V); }while(0)
-
-#define SERIAL_ECHO_SP(C)             serial_spaces(C)
-
+// Print a prefix, conditional string, and suffix
+void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr);
+// Shorthand to put loose strings in PROGMEM
 #define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(F(PRE), TF, F(ON), F(OFF), F(POST))
 
-#if SERIAL_FLOAT_PRECISION
-  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
-#else
-  #define SERIAL_DECIMAL(V) SERIAL_ECHO(V)
-#endif
+// Print up to 255 spaces
+void SERIAL_ECHO_SP(uint8_t count);
 
-//
-// Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
-//
-inline void serial_echopair_P(PGM_P const pstr, serial_char_t v) { serial_print_P(pstr); SERIAL_CHAR(v.c); }
-inline void serial_echopair_P(PGM_P const pstr, float v)         { serial_print_P(pstr); SERIAL_DECIMAL(v); }
-inline void serial_echopair_P(PGM_P const pstr, double v)        { serial_print_P(pstr); SERIAL_DECIMAL(v); }
-//inline void serial_echopair_P(PGM_P const pstr, const char *v)   { serial_print_P(pstr); SERIAL_ECHO(v); }
-inline void serial_echopair_P(PGM_P const pstr, FSTR_P v)        { serial_print_P(pstr); SERIAL_ECHOF(v); }
-
-// Default implementation for types without a specialization. Handles integers.
-template <typename T>
-inline void serial_echopair_P(PGM_P const pstr, T v) { serial_print_P(pstr); SERIAL_ECHO(v); }
-
-// Add a newline.
-template <typename T>
-inline void serial_echolnpair_P(PGM_P const pstr, T v) { serial_echopair_P(pstr, v); SERIAL_EOL(); }
-
-// Catch-all for __FlashStringHelper *
-template <typename T>
-inline void serial_echopair(FSTR_P const fstr, T v) { serial_echopair_P(FTOP(fstr), v); }
-
-// Add a newline to the serial output
-template <typename T>
-inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP(fstr), v); }
-
-void serial_echo_start();
-void serial_error_start();
-inline void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
-  if (pre) serial_print(pre);
-  if (onoff && on) serial_print(on);
-  if (!onoff && off) serial_print(off);
-  if (post) serial_print(post);
-}
 void serialprint_onoff(const bool onoff);
 void serialprintln_onoff(const bool onoff);
 void serialprint_truefalse(const bool tf);
-void serial_spaces(uint8_t count);
 void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
 
 void print_bin(const uint16_t val);
-void print_pos(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 
-inline void print_pos(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
-  print_pos(NUM_AXIS_ELEM_(xyze) prefix, suffix);
+void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
+  print_xyz(NUM_AXIS_ELEM_(xyz) prefix, suffix);
 }
 
-#define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
-#define SERIAL_XYZ(PREFIX,V...) do { print_pos(V, F(PREFIX)); }while(0)
+void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
+  print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
+}
+
+#define SERIAL_POS(SUFFIX,VAR) do { print_xyz(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
+#define SERIAL_XYZ(PREFIX,V...) do { print_xyz(V, F(PREFIX)); }while(0)
+
+/**
+ * Extended string that can echo itself to serial
+ */
+template <int SIZE=DEFAULT_MSTRING_SIZE>
+class SString : public MString<SIZE> {
+public:
+  typedef MString<SIZE> super;
+  using super::str;
+  using super::debug;
+
+  SString() : super() {}
+
+  template <typename T, typename... Args>
+  SString(T arg1, Args... more) : super(arg1, more...) {}
+
+  SString& set() { super::set(); return *this; }
+
+  template<typename... Args>
+  SString& setf_P(PGM_P const fmt, Args... more) { snprintf_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+
+  template<typename... Args>
+  SString& setf(const char *fmt, Args... more)   { snprintf(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+
+  template<typename... Args>
+  SString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+
+  template <typename T>
+  SString& set(const T &v) { super::set(v); return *this; }
+
+  template <typename T>
+  SString& append(const T &v) { super::append(v); return *this; }
+
+  template<typename T, typename... Args>
+  SString& set(T arg1, Args... more) { set(arg1).append(more...); return *this; }
+
+  template<typename T, typename... Args>
+  SString& append(T arg1, Args... more) { append(arg1).append(more...); return *this; }
+
+  SString& clear() { set(); return *this; }
+  SString& eol() { append('\n'); return *this; }
+  SString& trunc(const int &i) { super::trunc(i); return *this; }
+
+  // Extended with methods to print to serial
+  SString& echo()   { SERIAL_ECHO(str);   return *this; }
+  SString& echoln() { SERIAL_ECHOLN(str); return *this; }
+};
+
+#define TSS(V...) SString<>(V)
 
 //
 // Commonly-used strings in serial output

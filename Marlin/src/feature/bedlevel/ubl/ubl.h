@@ -77,7 +77,6 @@ private:
   static bool G29_parse_parameters() __O0;
   static void shift_mesh_height();
   static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) __O0;
-  static void tilt_mesh_based_on_3pts(const_float_t z1, const_float_t z2, const_float_t z3);
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
   static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
   static bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
@@ -279,10 +278,8 @@ public:
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
 
-    if (DEBUGGING(MESH_ADJUST)) {
-      DEBUG_ECHOPGM("get_z_correction(", rx0, ", ", ry0);
-      DEBUG_ECHOLNPAIR_F(") => ", z0, 6);
-    }
+    if (DEBUGGING(MESH_ADJUST))
+      DEBUG_ECHOLN(F("get_z_correction("), rx0, F(", "), ry0, F(") => "), p_float_t(z0, 6));
 
     return z0;
   }
