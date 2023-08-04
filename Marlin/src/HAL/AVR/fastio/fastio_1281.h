@@ -33,32 +33,29 @@
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO46
-
 // UART
-#define RXD         DIO0
-#define TXD         DIO1
+#define RXD         0
+#define TXD         1
 
 // SPI
-#define SCK         DIO10
-#define MISO        DIO12
-#define MOSI        DIO11
-#define SS          DIO16
+#define SCK         10
+#define MISO        12
+#define MOSI        11
+#define SS          16
 
 // TWI (I2C)
-#define SCL         DIO17
-#define SDA         DIO18
+#define SCL         17
+#define SDA         18
 
 // Timers and PWM
-#define OC0A        DIO9
-#define OC0B        DIO4
-#define OC1A        DIO7
-#define OC1B        DIO8
-#define OC2A        DIO6
-#define OC3A        DIO5
-#define OC3B        DIO2
-#define OC3C        DIO3
+#define OC0A        9
+#define OC0B        4
+#define OC1A        7
+#define OC1B        8
+#define OC2A        6
+#define OC3A        5
+#define OC3B        2
+#define OC3C        3
 
 // Digital I/O
 

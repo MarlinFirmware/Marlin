@@ -25,6 +25,10 @@
 #include "../MarlinCore.h"
 #include "../module/temperature.h"
 
+#if ENABLED(MARLIN_DEV_MODE)
+  MarlinError marlin_error_number;    // Error Number - Marlin can beep X times periodically, display, and emit...
+#endif
+
 void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
@@ -95,9 +99,9 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Aligned With");
 
         if (probe.offset_xy.y > 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Distal", "-Back")));
+          SERIAL_ECHO(F(TERN(IS_SCARA, "-Distal", "-Back")));
         else if (probe.offset_xy.y < 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Proximal", "-Front")));
+          SERIAL_ECHO(F(TERN(IS_SCARA, "-Proximal", "-Front")));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
@@ -105,7 +109,7 @@ void safe_delay(millis_t ms) {
 
       #endif
 
-      SERIAL_ECHOF(probe.offset.z < 0 ? F("Below") : probe.offset.z > 0 ? F("Above") : F("Same Z as"));
+      SERIAL_ECHO(probe.offset.z < 0 ? F("Below") : probe.offset.z > 0 ? F("Above") : F("Same Z as"));
       SERIAL_ECHOLNPGM(" Nozzle)");
 
     #endif

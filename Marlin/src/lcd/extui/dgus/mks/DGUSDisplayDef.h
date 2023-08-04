@@ -124,21 +124,21 @@ typedef struct {
 
 extern NOZZLE_PARK_DEF nozzle_park_mks;
 
-enum DGUSLCD_Screens : uint8_t {
+enum DGUS_ScreenID : uint8_t {
   #if ENABLED(USE_MKS_GREEN_UI)
 
-    DGUSLCD_SCREEN_BOOT                 =  33,
-    DGUSLCD_SCREEN_MAIN                 =  60,
-    DGUSLCD_SCREEN_STATUS               =  60,
-    DGUSLCD_SCREEN_STATUS2              =  60,
-    DGUSLCD_SCREEN_PREHEAT              =  18,
-    DGUSLCD_SCREEN_POWER_LOSS           = 100,
-    DGUSLCD_SCREEN_MANUALMOVE           = 192,
-    DGUSLCD_SCREEN_UTILITY              = 120,
-    DGUSLCD_SCREEN_FILAMENT_UNLOADING   = 158,
-    DGUSLCD_SCREEN_SDFILELIST           =  15,
-    DGUSLCD_SCREEN_SDPRINTMANIPULATION  =  15,
-    DGUSLCD_SCREEN_SDPRINTTUNE          =  17,
+    DGUS_SCREEN_BOOT                 =  33,
+    DGUS_SCREEN_MAIN                 =  60,
+    DGUS_SCREEN_STATUS               =  60,
+    DGUS_SCREEN_STATUS2              =  60,
+    DGUS_SCREEN_PREHEAT              =  18,
+    DGUS_SCREEN_POWER_LOSS           = 100,
+    DGUS_SCREEN_MANUALMOVE           = 192,
+    DGUS_SCREEN_UTILITY              = 120,
+    DGUS_SCREEN_FILAMENT_UNLOADING   = 158,
+    DGUS_SCREEN_SDFILELIST           =  15,
+    DGUS_SCREEN_SDPRINTMANIPULATION  =  15,
+    DGUS_SCREEN_SDPRINTTUNE          =  17,
 
     MKSLCD_SCREEN_BOOT                  =  33,
     MKSLCD_SCREEN_HOME                  =  60,   // MKS main page
@@ -178,19 +178,19 @@ enum DGUSLCD_Screens : uint8_t {
 
   #else
 
-    DGUSLCD_SCREEN_BOOT                 = 120,
-    DGUSLCD_SCREEN_MAIN                 =   1,
+    DGUS_SCREEN_BOOT                 = 120,
+    DGUS_SCREEN_MAIN                 =   1,
 
-    DGUSLCD_SCREEN_STATUS               =   1,
-    DGUSLCD_SCREEN_STATUS2              =   1,
-    DGUSLCD_SCREEN_PREHEAT              =  18,
-    DGUSLCD_SCREEN_POWER_LOSS           = 100,
-    DGUSLCD_SCREEN_MANUALMOVE           = 192,
-    DGUSLCD_SCREEN_UTILITY              = 120,
-    DGUSLCD_SCREEN_FILAMENT_UNLOADING   = 158,
-    DGUSLCD_SCREEN_SDFILELIST           =  15,
-    DGUSLCD_SCREEN_SDPRINTMANIPULATION  =  15,
-    DGUSLCD_SCREEN_SDPRINTTUNE          =  17,
+    DGUS_SCREEN_STATUS               =   1,
+    DGUS_SCREEN_STATUS2              =   1,
+    DGUS_SCREEN_PREHEAT              =  18,
+    DGUS_SCREEN_POWER_LOSS           = 100,
+    DGUS_SCREEN_MANUALMOVE           = 192,
+    DGUS_SCREEN_UTILITY              = 120,
+    DGUS_SCREEN_FILAMENT_UNLOADING   = 158,
+    DGUS_SCREEN_SDFILELIST           =  15,
+    DGUS_SCREEN_SDPRINTMANIPULATION  =  15,
+    DGUS_SCREEN_SDPRINTTUNE          =  17,
 
     MKSLCD_SCREEN_BOOT                  =   0,
     MKSLCD_SCREEN_HOME                  =   1,   // MKS main page
@@ -234,11 +234,11 @@ enum DGUSLCD_Screens : uint8_t {
 
   #endif
 
-  DGUSLCD_SCREEN_CONFIRM                = 240,
-  DGUSLCD_SCREEN_KILL                   = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
-  DGUSLCD_SCREEN_WAITING                = 251,
-  DGUSLCD_SCREEN_POPUP                  = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
-  DGUSLCD_SCREEN_UNUSED                 = 255
+  DGUS_SCREEN_CONFIRM                = 240,
+  DGUS_SCREEN_KILL                   = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_WAITING                = 251,
+  DGUS_SCREEN_POPUP                  = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_UNUSED                 = 255
 };
 
 

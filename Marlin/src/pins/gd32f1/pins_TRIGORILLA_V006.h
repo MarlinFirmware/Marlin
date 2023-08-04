@@ -122,7 +122,7 @@
   //
   // SPI
   //
-  #define SPI_DEVICE                        -1
+  #define SPI_DEVICE                        -1   // Maple
   #define SCK_PIN                           -1
   #define MISO_PIN                          -1
   #define MOSI_PIN                          -1

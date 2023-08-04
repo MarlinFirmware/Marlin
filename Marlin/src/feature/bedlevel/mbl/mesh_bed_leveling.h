@@ -72,18 +72,18 @@ public:
   static float get_mesh_x(const uint8_t i) { return index_to_xpos[i]; }
   static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
 
-  static int8_t cell_index_x(const_float_t x) {
+  static uint8_t cell_index_x(const_float_t x) {
     int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
     return constrain(cx, 0, GRID_MAX_CELLS_X - 1);
   }
-  static int8_t cell_index_y(const_float_t y) {
+  static uint8_t cell_index_y(const_float_t y) {
     int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
     return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
   }
-  static xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
-  static xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+  static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t probe_index_x(const_float_t x) {
     int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
@@ -107,7 +107,7 @@ public:
   static float get_z_offset() { return z_offset; }
 
   static float get_z_correction(const xy_pos_t &pos) {
-    const xy_int8_t ind = cell_indexes(pos);
+    const xy_uint8_t ind = cell_indexes(pos);
     const float x1 = index_to_xpos[ind.x], x2 = index_to_xpos[ind.x+1],
                 y1 = index_to_ypos[ind.y], y2 = index_to_ypos[ind.y+1],
                 z1 = calc_z0(pos.x, x1, z_values[ind.x][ind.y  ], x2, z_values[ind.x+1][ind.y  ]),

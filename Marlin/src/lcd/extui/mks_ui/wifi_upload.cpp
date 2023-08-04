@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -101,15 +101,17 @@ const char *resultMessages[] = {
   "slip data"
 };
 
-// A note on baud rates.
-// The ESP8266 supports 921600, 460800, 230400, 115200, 74880 and some lower baud rates.
-// 921600b is not reliable because even though it sometimes succeeds in connecting, we get a bad response during uploading after a few blocks.
-// Probably our UART ISR cannot receive bytes fast enough, perhaps because of the latency of the system tick ISR.
-// 460800b doesn't always manage to connect, but if it does then uploading appears to be reliable.
-// 230400b always manages to connect.
+/**
+ * Baud Rate Notes:
+ * The ESP8266 supports 921600, 460800, 230400, 115200, 74880 and some lower baud rates.
+ * 921600b is not reliable because even though it sometimes succeeds in connecting, we get a bad response during uploading after a few blocks.
+ * Probably our UART ISR cannot receive bytes fast enough, perhaps because of the latency of the system tick ISR.
+ * 460800b doesn't always manage to connect, but if it does then uploading appears to be reliable.
+ * 230400b always manages to connect.
+ */
 static const uint32_t uploadBaudRates[] = { 460800, 230400, 115200, 74880 };
 
-signed char IsReady() {
+signed char isReady() {
   return esp_upload.state == upload_idle;
 }
 
@@ -170,15 +172,17 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
   }
 }
 
-// Read a byte optionally performing SLIP decoding.  The return values are:
-//
-//  2 - an escaped byte was read successfully
-//  1 - a non-escaped byte was read successfully
-//  0 - no data was available
-//   -1 - the value 0xC0 was encountered (shouldn't happen)
-//   -2 - a SLIP escape byte was found but the following byte wasn't available
-//   -3 - a SLIP escape byte was followed by an invalid byte
-int ReadByte(uint8_t *data, signed char slipDecode) {
+/**
+ * Read a byte optionally performing SLIP decoding.  The return values are:
+ *
+ *  2 - an escaped byte was read successfully
+ *  1 - a non-escaped byte was read successfully
+ *  0 - no data was available
+ *   -1 - the value 0xC0 was encountered (shouldn't happen)
+ *   -2 - a SLIP escape byte was found but the following byte wasn't available
+ *   -3 - a SLIP escape byte was followed by an invalid byte
+ */
+int readByte(uint8_t *data, signed char slipDecode) {
   if (uploadPort_available() == 0) return 0;
 
   // At least one byte is available
@@ -206,31 +210,33 @@ void _writePacketRaw(const uint8_t *buf, size_t len) {
 }
 
 // Write a byte to the serial port optionally SLIP encoding. Return the number of bytes actually written.
-void WriteByteRaw(uint8_t b) {
+void writeByteRaw(uint8_t b) {
   uploadPort_write((const uint8_t *)&b, 1);
 }
 
 // Write a byte to the serial port optionally SLIP encoding. Return the number of bytes actually written.
-void WriteByteSlip(const uint8_t b) {
+void writeByteSlip(const uint8_t b) {
   if (b == 0xC0) {
-    WriteByteRaw(0xDB);
-    WriteByteRaw(0xDC);
+    writeByteRaw(0xDB);
+    writeByteRaw(0xDC);
   }
   else if (b == 0xDB) {
-    WriteByteRaw(0xDB);
-    WriteByteRaw(0xDD);
+    writeByteRaw(0xDB);
+    writeByteRaw(0xDD);
   }
   else
     uploadPort_write((const uint8_t *)&b, 1);
 }
 
-// Wait for a data packet to be returned.  If the body of the packet is
-// non-zero length, return an allocated buffer indirectly containing the
-// data and return the data length. Note that if the pointer for returning
-// the data buffer is nullptr, the response is expected to be two bytes of zero.
-//
-// If an error occurs, return a negative value.  Otherwise, return the number
-// of bytes in the response (or zero if the response was not the standard "two bytes of zero").
+/**
+ * Wait for a data packet to be returned.  If the body of the packet is
+ * non-zero length, return an allocated buffer indirectly containing the
+ * data and return the data length. Note that if the pointer for returning
+ * the data buffer is nullptr, the response is expected to be two bytes of zero.
+ *
+ * If an error occurs, return a negative value.  Otherwise, return the number
+ * of bytes in the response (or zero if the response was not the standard "two bytes of zero").
+ */
 EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t msTimeout) {
   typedef enum {
     begin = 0,
@@ -292,7 +298,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
       case body: {  // reading the response body
         int rslt;
         // retrieve a byte with SLIP decoding
-        rslt = ReadByte(&c, 1);
+        rslt = readByte(&c, 1);
         if (rslt != 1 && rslt != 2) {
           // some error occurred
           stat = (rslt == 0 || rslt == -2) ? slipData : slipFrame;
@@ -370,19 +376,19 @@ void _writePacket(const uint8_t *data, size_t len) {
 // 0xC0 and 0xDB replaced by the two-byte sequences {0xDB, 0xDC} and {0xDB, 0xDD} respectively.
 
 void writePacket(const uint8_t *hdr, size_t hdrLen, const uint8_t *data, size_t dataLen) {
-  WriteByteRaw(0xC0);           // send the packet start character
+  writeByteRaw(0xC0);           // send the packet start character
   _writePacket(hdr, hdrLen);    // send the header
   _writePacket(data, dataLen);  // send the data block
-  WriteByteRaw(0xC0);           // send the packet end character
+  writeByteRaw(0xC0);           // send the packet end character
 }
 
 // Send a packet to the serial port while performing SLIP framing. The packet data comprises a header and an optional data block.
 // This is like writePacket except that it does a fast block write for both the header and the main data with no SLIP encoding. Used to send sync commands.
 void writePacketRaw(const uint8_t *hdr, size_t hdrLen, const uint8_t *data, size_t dataLen) {
-  WriteByteRaw(0xC0);             // send the packet start character
+  writeByteRaw(0xC0);             // send the packet start character
   _writePacketRaw(hdr, hdrLen);   // send the header
   _writePacketRaw(data, dataLen); // send the data block in raw mode
-  WriteByteRaw(0xC0);             // send the packet end character
+  writeByteRaw(0xC0);             // send the packet end character
 }
 
 // Send a command to the attached device together with the supplied data, if any.
@@ -418,7 +424,7 @@ EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint3
 
 // Send a synchronising packet to the serial port in an attempt to induce
 // the ESP8266 to auto-baud lock on the baud rate.
-EspUploadResult Sync(uint16_t timeout) {
+EspUploadResult sync(uint16_t timeout) {
   uint8_t buf[36];
   EspUploadResult stat;
   int i;
@@ -553,7 +559,7 @@ void upload_spin() {
 
     case connecting:
       if ((getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= connectAttemptInterval) && (getWifiTickDiff(esp_upload.lastResetTime, getWifiTick()) >= 500)) {
-        EspUploadResult res = Sync(5000);
+        EspUploadResult res = sync(5000);
         esp_upload.lastAttemptTime = getWifiTick();
         if (res == success)
           esp_upload.state = erasing;
@@ -622,7 +628,7 @@ void upload_spin() {
 }
 
 // Try to upload the given file at the given address
-void SendUpdateFile(const char *file, uint32_t address) {
+void sendUpdateFile(const char *file, uint32_t address) {
   const char * const fname = card.diveToFile(false, update_curDir, ESP_FIRMWARE_FILE);
   if (!update_file.open(update_curDir, fname, O_READ)) return;
 
@@ -640,7 +646,7 @@ void SendUpdateFile(const char *file, uint32_t address) {
 
 static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000;
 
-void ResetWiFiForUpload(int begin_or_end) {
+void resetWiFiForUpload(int begin_or_end) {
   //#if 0
   uint32_t start = getWifiTick();
 
@@ -660,12 +666,12 @@ void ResetWiFiForUpload(int begin_or_end) {
 int32_t wifi_upload(int type) {
   esp_upload.retriesPerBaudRate = 9;
 
-  ResetWiFiForUpload(0);
+  resetWiFiForUpload(0);
 
   switch (type) {
-    case 0: SendUpdateFile(ESP_FIRMWARE_FILE, FirmwareAddress); break;
-    case 1: SendUpdateFile(ESP_WEB_FIRMWARE_FILE, FirmwareAddress); break;
-    case 2: SendUpdateFile(ESP_WEB_FILE, WebFilesAddress); break;
+    case 0: sendUpdateFile(ESP_FIRMWARE_FILE, FirmwareAddress); break;
+    case 1: sendUpdateFile(ESP_WEB_FIRMWARE_FILE, FirmwareAddress); break;
+    case 2: sendUpdateFile(ESP_WEB_FILE, WebFilesAddress); break;
     default: return -1;
   }
 
@@ -674,7 +680,7 @@ int32_t wifi_upload(int type) {
     hal.watchdog_refresh();
   }
 
-  ResetWiFiForUpload(1);
+  resetWiFiForUpload(1);
 
   return esp_upload.uploadResult == success ? 0 : -1;
 }

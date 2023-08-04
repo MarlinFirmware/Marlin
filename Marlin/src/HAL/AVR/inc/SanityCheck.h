@@ -33,13 +33,13 @@
  * Check for common serial pin conflicts
  */
 #define CHECK_SERIAL_PIN(N) ( \
-     X_STOP_PIN == N || Y_STOP_PIN == N || Z_STOP_PIN == N \
-  || X_MIN_PIN  == N || Y_MIN_PIN  == N || Z_MIN_PIN  == N \
-  || X_MAX_PIN  == N || Y_MAX_PIN  == N || Z_MAX_PIN  == N \
-  || X_STEP_PIN == N || Y_STEP_PIN == N || Z_STEP_PIN == N \
-  || X_DIR_PIN  == N || Y_DIR_PIN  == N || Z_DIR_PIN  == N \
-  || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN  == N \
-  || BTN_EN1    == N || BTN_EN2    == N \
+     X_STOP_PIN == N || Y_STOP_PIN == N || Z_STOP_PIN  == N \
+  || X_MIN_PIN  == N || Y_MIN_PIN  == N || Z_MIN_PIN   == N \
+  || X_MAX_PIN  == N || Y_MAX_PIN  == N || Z_MAX_PIN   == N \
+  || X_STEP_PIN == N || Y_STEP_PIN == N || Z_STEP_PIN  == N \
+  || X_DIR_PIN  == N || Y_DIR_PIN  == N || Z_DIR_PIN   == N \
+  || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN   == N \
+  || BTN_EN1    == N || BTN_EN2    == N || LCD_PINS_EN == N \
 )
 #if SERIAL_IN_USE(0)
   // D0-D1. No known conflicts.
@@ -95,11 +95,11 @@
 /**
  * The Trinamic library includes SoftwareSerial.h, leading to a compile error.
  */
-#if BOTH(HAS_TRINAMIC_CONFIG, ENDSTOP_INTERRUPTS_FEATURE)
+#if ALL(HAS_TRINAMIC_CONFIG, ENDSTOP_INTERRUPTS_FEATURE)
   #error "TMCStepper includes SoftwareSerial.h which is incompatible with ENDSTOP_INTERRUPTS_FEATURE. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
 #endif
 
-#if BOTH(HAS_TMC_SW_SERIAL, MONITOR_DRIVER_STATUS)
+#if ALL(HAS_TMC_SW_SERIAL, MONITOR_DRIVER_STATUS)
   #error "MONITOR_DRIVER_STATUS causes performance issues when used with SoftwareSerial-connected drivers. Disable MONITOR_DRIVER_STATUS or use hardware serial to continue."
 #endif
 

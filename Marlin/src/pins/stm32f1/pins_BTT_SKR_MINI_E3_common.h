@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -114,15 +114,15 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2
- *                ------
+ *         SKR Mini E3 V1.0, V1.2
+ *                 ------
  * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
  * (BTN_EN1) PA9  | 3  4 | RESET
  * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
  * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
  *            GND | 9 10 | 5V
- *                ------
- *                 EXP1
+ *                 ------
+ *                  EXP1
  */
 #ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6
@@ -217,7 +217,7 @@
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
@@ -342,7 +342,7 @@
 
 #endif // HAS_WIRED_LCD
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -396,7 +396,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
+#elif SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN              EXP1_01_PIN
   #define SD_SS_PIN                  EXP1_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
