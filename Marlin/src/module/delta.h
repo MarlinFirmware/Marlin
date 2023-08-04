@@ -64,7 +64,7 @@ void recalc_delta_settings();
  *
  * Suggested optimizations include:
  *
- * - Disable the home_offset (M206) and/or position_shift (G92)
+ * - Disable the home_offset (M206) and/or workspace_offset (G92)
  *   features to remove up to 12 float additions.
  *
  * - Use a fast-inverse-sqrt function and add the reciprocal.

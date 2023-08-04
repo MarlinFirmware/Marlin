@@ -61,7 +61,7 @@ n_END=10000 // end of tune marker
 
 namespace Anycubic {
 
-  void PlayTune(const uint16_t *tune, const uint8_t speed=1);
+  void playTune(const uint16_t *tune, const uint8_t speed=1);
 
   // Only uncomment the tunes you are using to save memory
   // This will help you write tunes!

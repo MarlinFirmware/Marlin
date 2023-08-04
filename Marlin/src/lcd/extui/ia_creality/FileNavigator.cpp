@@ -33,23 +33,23 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
-#include "ia_creality_extui.h"
+#include "ia_creality_rts.h"
 #include "FileNavigator.h"
 
-using namespace ExtUI;
+#include <WString.h>
 
-FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
-char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+ExtUI::FileList FileNavigator::filelist;                // ExtUI file API
+char      FileNavigator::currentDirPath[MAX_PATH_LEN];  // Current folder path
 uint16_t  FileNavigator::lastindex;
 uint8_t   FileNavigator::folderdepth;
-uint16_t  FileNavigator::currentindex;                      // override the panel request
+uint16_t  FileNavigator::currentindex;                  // override the panel request
 
 FileNavigator filenavigator;
 
 FileNavigator::FileNavigator() { reset(); }
 
 void FileNavigator::reset() {
-  currentfoldername[0] = '\0';
+  currentDirPath[0] = '\0';
   folderdepth  = 0;
   currentindex = 0;
   lastindex    = 0;
@@ -136,7 +136,7 @@ void FileNavigator::getFiles(uint16_t index) {
         rts.sendData((uint8_t)0, FilenameIcon + (fcnt+1));
         rts.sendData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
       }
-      SERIAL_ECHOLNPGM("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+      SERIAL_ECHOLNPGM("-", seek, " '", filelist.filename(), "' '", currentDirPath, "", filelist.shortFilename(), "'\n");
       fcnt++;
     }
   }
@@ -144,8 +144,8 @@ void FileNavigator::getFiles(uint16_t index) {
 
 void FileNavigator::changeDIR(char *folder) {
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-  strcat(currentfoldername, folder);
-  strcat(currentfoldername, "/");
+  strcat(currentDirPath, folder);
+  strcat(currentDirPath, "/");
   filelist.changeDir(folder);
   refresh();
   folderdepth++;
@@ -159,17 +159,17 @@ void FileNavigator::upDIR() {
   currentindex = 0;
   // Remove the last child folder from the stored path
   if (folderdepth == 0) {
-    currentfoldername[0] = '\0';
+    currentDirPath[0] = '\0';
     reset();
   }
   else {
     char *pos = nullptr;
     for (uint8_t f = 0; f < folderdepth; f++)
-      pos = strchr(currentfoldername, '/');
+      pos = strchr(currentDirPath, '/');
     pos[1] = '\0';
   }
 }
 
-char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
+char* FileNavigator::getCurrentDirPath() { return currentDirPath; }
 
 #endif // DGUS_LCD_UI_IA_CREALITY
