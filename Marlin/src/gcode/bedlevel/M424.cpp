@@ -50,7 +50,7 @@ void GcodeSuite::M424() {
 
 void GcodeSuite::M424_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MESH_Z_OFFSET));
-  SERIAL_ECHOLNPAIR_F("  M424 Z", LINEAR_UNIT(bedlevel.z_base_offset), 3);
+  SERIAL_ECHOLNPGM("  M424 Z", p_float_t(LINEAR_UNIT(bedlevel.z_base_offset), 3));
 }
 
 #endif // GLOBAL_MESH_Z_OFFSET
