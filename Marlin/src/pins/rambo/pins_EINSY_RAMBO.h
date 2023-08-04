@@ -118,9 +118,12 @@
 //
 #define TEMP_0_PIN                             0  // Analog Input, Header J2
 #define TEMP_1_PIN                             1  // Analog Input, Header J3
-#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
 #define TEMP_BED_PIN                           2  // Analog Input, Header J6
 #define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                      91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
+#endif
 
 //
 // Heaters / Fans
@@ -186,10 +189,12 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-// use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN        EXP1_02_PIN  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#if HAS_CUTTER
+  // Use P1 connector for spindle pins
+  #define SPINDLE_LASER_PWM_PIN      EXP1_02_PIN  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
+  #define SPINDLE_DIR_PIN                     19
+#endif
 
 //
 // Průša i3 MK2 Multiplexer Support

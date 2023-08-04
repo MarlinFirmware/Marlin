@@ -30,7 +30,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-namespace Language_sv {
+namespace LanguageNarrow_sv {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -77,23 +77,21 @@ namespace Language_sv {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");
 
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Alla");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Bädd");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Konf");
+  LSTR MSG_PREHEAT_1                      = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Alla");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Bädd");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Konf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Förvärmning $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Förvärmning $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Förvärmning $ Stoppa");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Förvärmning $ Stoppa ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Förvärmning $ Alla");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Förvärmning $ Bädd");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Förvärmning $ Donf");
-  #endif
+  LSTR MSG_PREHEAT_M                      = _UxGT("Förvärmning $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Förvärmning $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Förvärmning $ Stoppa");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Förvärmning $ Stoppa ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Förvärmning $ Alla");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Förvärmning $ Bädd");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Förvärmning $ Donf");
 
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Förvärmning Anpassad");
   LSTR MSG_COOLDOWN                       = _UxGT("Nedkylning");
@@ -348,7 +346,7 @@ namespace Language_sv {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Återställ Standard");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initiera EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Fel");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Fel");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM Storlek Fel");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Fel");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Inställningar Lagrad");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Media Uppdatera");
@@ -513,19 +511,11 @@ namespace Language_sv {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Ljus ljusstyrka");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INKORREKT SKRIVARE");
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskriftsantal");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdiga");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Utskriftstid");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längsta Jobbtid");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruderade Totalt");
-  #else
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskrift");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdig");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längsta");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruderad");
-  #endif
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Utskrift");
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Färdig");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Längsta");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extruderad");
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
@@ -608,34 +598,20 @@ namespace Language_sv {
   LSTR MSG_PASSWORD_REMOVED               = _UxGT("Lösenord Bort taget");
 
   //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
+  // Filament Change screens show up to 2 lines on a 3-line display
   //
-  #if LCD_HEIGHT >= 4
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Tryck på knappen", "för att fortsätta utskrift"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parkera..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Vänta på", "trådbyte", "att börja"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Sätt in tråd", "och tryck på knappen", "för att fortsätta"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Tryck på knappen", "för att värma munstycke"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Munstycke värms", "Var snäll och vänta..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Väntar på", "trådlossning"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Väntar på", "trådladdning"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Väntar på", "tråd utrensning"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Klicka för att slutföra", "tråd utrensning"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Väntar på utskrift", "att återstarta..."));
-  #else
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Klick för att fortsätta"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parkera..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_1_LINE("Vänta..."));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_1_LINE("Sätt in och klicka"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_1_LINE("Klicka för att värma"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_1_LINE("Värmer..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_1_LINE("Lossar..."));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_1_LINE("Laddar..."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("Rensar..."));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Klicka för att slutföra"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Återgår..."));
-  #endif
+  LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Klick för att fortsätta"));
+  LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parkera..."));
+  LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_1_LINE("Vänta..."));
+  LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_1_LINE("Sätt in och klicka"));
+  LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_1_LINE("Klicka för att värma"));
+  LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_1_LINE("Värmer..."));
+  LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_1_LINE("Lossar..."));
+  LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_1_LINE("Laddar..."));
+  LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("Rensar..."));
+  LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Klicka för att slutföra"));
+  LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Återgår..."));
+
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Ström");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Tröskelvärde");
@@ -650,11 +626,8 @@ namespace Language_sv {
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Nivå X Axel");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Kalibrera");
-  #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Overksam tidsgräns, temperatur minskning. Tryck ok för att återvärma och igen för att fortsätta.");
-  #else
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Värmare Tidsgräns");
-  #endif
+  LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Overksam tidsgräns, temperatur minskning. Tryck ok för att återvärma och igen för att fortsätta.");
+  LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Värmare Tidsgräns");
   LSTR MSG_REHEAT                         = _UxGT("Återvärm");
   LSTR MSG_REHEATING                      = _UxGT("Återvärmning...");
 
@@ -670,4 +643,36 @@ namespace Language_sv {
   LSTR MSG_BOTTOM_RIGHT                   = _UxGT("Nere Höger");
   LSTR MSG_CALIBRATION_COMPLETED          = _UxGT("Kalibrering Färdig");
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Kalibrering Misslyckad");
+}
+
+namespace LanguageWide_sv {
+  using namespace LanguageNarrow_sv;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskriftsantal");
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdiga");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Utskriftstid");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längsta Jobbtid");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruderade Totalt");
+  #endif
+}
+
+namespace LanguageTall_sv {
+  using namespace LanguageWide_sv;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Tryck på knappen", "för att fortsätta utskrift"));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Vänta på", "trådbyte", "att börja"));
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Sätt in tråd", "och tryck på knappen", "för att fortsätta"));
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Tryck på knappen", "för att värma munstycke"));
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Munstycke värms", "Var snäll och vänta..."));
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Väntar på", "trådlossning"));
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Väntar på", "trådladdning"));
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Väntar på", "tråd utrensning"));
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Klicka för att slutföra", "tråd utrensning"));
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Väntar på utskrift", "att återstarta..."));
+  #endif
+}
+
+namespace Language_sv {
+  using namespace LanguageTall_sv;
 }

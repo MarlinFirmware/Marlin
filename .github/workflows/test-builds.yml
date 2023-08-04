@@ -33,90 +33,109 @@ jobs:
     strategy:
       matrix:
         test-platform:
-        # Base Environments
 
-        - DUE
-        - DUE_archim
-        - esp32
+        # Native
         - linux_native
+
+        # AVR
         - mega2560
-        - at90usb1286_dfu
-        - teensy31
-        - teensy35
-        - teensy41
-        - SAMD21_minitronics20
-        - SAMD51_grandcentral_m4
-        - PANDA_PI_V29
-
-        # Extended AVR Environments
-
-        - FYSETC_F6
         - mega1280
+        - at90usb1286_dfu
+
+        # AVR Extended
+        - FYSETC_F6
+        - melzi_optiboot
         - rambo
         - sanguino1284p
         - sanguino644p
-        - melzi_optiboot
 
-        # STM32F1 (Maple) Environments
+        # SAM3X8E
+        - DUE
+        - DUE_archim
 
-        #- STM32F103RC_btt_maple
-        - STM32F103RC_btt_USB_maple
-        - STM32F103RC_fysetc_maple
-        - STM32F103RC_meeb_maple
-        - jgaurora_a5s_a1_maple
-        - STM32F103VE_longer_maple
-        #- mks_robin_maple
-        - mks_robin_lite_maple
-        - mks_robin_pro_maple
-        #- mks_robin_nano_v1v2_maple
-        #- STM32F103RE_creality_maple
-        - STM32F103VE_ZM3E4V2_USB_maple
+        # SAMD21
+        - SAMD51_grandcentral_m4
+        - SAMD21_minitronics20
 
-        # STM32 (ST) Environments
+        # ESP32
+        - esp32
+        - mks_tinybee
 
+        # Teensy 2
+        #- at90usb1286_cdc
+
+        # Teensy MK20DX256
+        - teensy31
+
+        # Teensy MK64FX512, MK66FX1M0
+        - teensy35
+
+        # Teensy IMXRT1062DVx6A
+        - teensy41
+
+        # STM32F0
+        - malyan_M300
+        - STM32F070CB_malyan
+        - STM32F070RB_malyan
+
+        # STM32F1
+        - chitu_f103
+        - mks_robin
+        - mks_robin_nano_v1v2
+        - PANDA_PI_V29
         - STM32F103RC_btt
-        #- STM32F103RC_btt_USB
+        - STM32F103RC_fysetc
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
-        - STM32F401RC_creality
         - STM32F103VE_longer
-        - STM32F407VE_black
-        - BIGTREE_BTT002
-        - BIGTREE_SKR_PRO
-        - BIGTREE_GTR_V1_0
-        - mks_robin
-        - ARMED
-        - FYSETC_S6
-        - STM32F070CB_malyan
-        - STM32F070RB_malyan
-        - malyan_M300
-        - FLYF407ZG
-        - rumba32
-        - LERDGEX
-        - LERDGEK
-        - mks_robin_nano_v1v2
-        #- mks_robin_nano_v1v2_usbmod
+        #- mks_robin_mini
         #- mks_robin_nano_v1_3_f4_usbmod
+        #- mks_robin_nano_v1v2_usbmod
+        #- STM32F103CB_malyan
+        #- STM32F103RC_btt_USB
+        #- STM32F103RE
+
+        # STM32F4
+        - ARMED
+        - BIGTREE_BTT002
+        - BIGTREE_GTR_V1_0
+        - BIGTREE_SKR_PRO
+        - FLYF407ZG
+        - FYSETC_S6
+        - LERDGEK
+        - LERDGEX
+        - mks_robin_pro2
+        - Opulo_Lumen_REV3
+        - rumba32
+        - STM32F401RC_creality
+        - STM32F407VE_black
+        - I3DBEEZ9_V1
+
+        # STM32F7
         - NUCLEO_F767ZI
         - REMRAM_V1
+
+        # STM32H7
         - BTT_SKR_SE_BX
-        - chitu_f103
-        - Opulo_Lumen_REV3
 
-        # ESP32 environments
-        - mks_tinybee
+        # STM32F1 (Maple)
+        - jgaurora_a5s_a1_maple
+        - mks_robin_lite_maple
+        - mks_robin_pro_maple
+        - STM32F103RC_btt_USB_maple
+        - STM32F103RC_fysetc_maple
+        - STM32F103RC_meeb_maple
+        - STM32F103VE_longer_maple
+        - STM32F103VE_ZM3E4V2_USB_maple
+        #- mks_robin_maple
+        #- mks_robin_nano_v1v2_maple
+        #- STM32F103RC_btt_maple
+        #- STM32F103RE_creality_maple
 
-        # Put lengthy tests last
-
+        # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769
-
-        # Non-working environment tests
-        #- at90usb1286_cdc
-        #- STM32F103CB_malyan
-        #- STM32F103RE
-        #- mks_robin_mini
 
     steps:
 

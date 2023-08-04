@@ -57,32 +57,32 @@ class ChironTFT {
   static float            live_Zoffset;
   static file_menu_t      file_menu;
   public:
-    static void Startup();
-    static void IdleLoop();
-    static void PrinterKilled(FSTR_P, FSTR_P);
-    static void MediaEvent(media_event_t);
-    static void TimerEvent(timer_event_t);
-    static void FilamentRunout();
-    static void ConfirmationRequest(const char * const);
-    static void StatusChange(const char * const);
-    static void PowerLossRecovery();
-    static void PrintComplete();
-    static void SendtoTFT(FSTR_P const=nullptr);
-    static void SendtoTFTLN(FSTR_P const=nullptr);
+    static void startup();
+    static void idleLoop();
+    static void printerKilled(FSTR_P, FSTR_P);
+    static void mediaEvent(media_event_t);
+    static void timerEvent(timer_event_t);
+    static void filamentRunout();
+    static void confirmationRequest(const char * const);
+    static void statusChange(const char * const);
+    static void powerLossRecovery();
+    static void printComplete();
+    static void tftSend(FSTR_P const=nullptr);
+    static void tftSendLn(FSTR_P const=nullptr);
   private:
-    static void DetectPanelType();
-    static bool ReadTFTCommand();
-    static int8_t FindToken(char);
-    static void CheckHeaters();
-    static void SendFileList(int8_t);
-    static void SelectFile();
-    static void ProcessPanelRequest();
-    static void PanelInfo(uint8_t);
-    static void PanelAction(uint8_t);
-    static void PanelProcess(uint8_t);
-    static bool GetLastError();
+    static void detectPanelType();
+    static bool readTFTCommand();
+    static int8_t findToken(char);
+    static void checkHeaters();
+    static void sendFileList(int8_t);
+    static void selectFile();
+    static void processPanelRequest();
+    static void panelInfo(uint8_t);
+    static void panelAction(uint8_t);
+    static void panelProcess(uint8_t);
+    static bool getLastError();
 };
 
-extern ChironTFT Chiron;
+extern ChironTFT chiron;
 
 } // Anycubic namespace

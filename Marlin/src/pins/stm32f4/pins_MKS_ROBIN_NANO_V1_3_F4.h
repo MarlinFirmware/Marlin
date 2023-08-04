@@ -40,6 +40,4 @@
   //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
 #endif
 
-#define LED_PIN                             PB1
-
 #include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"

@@ -168,7 +168,7 @@
   #define EXP3_07_PIN                       PB12
   #define EXP3_08_PIN                       PB15
 
-#elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
+#elif ANY(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
 
   /**
    *    VET6 12864 LCD
@@ -218,9 +218,4 @@
     #define BEEPER_PIN               EXP3_06_PIN
   #endif
 
-#endif
-
-// DGUS LCDs
-#if HAS_DGUS_LCD
-  #define LCD_SERIAL_PORT                      3
 #endif

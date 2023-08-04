@@ -37,17 +37,17 @@ using namespace Anycubic;
 
 namespace ExtUI {
 
-  void onStartup() { Dgus.Startup(); }
+  void onStartup() { dgus.startup(); }
 
-  void onIdle() { Dgus.IdleLoop(); }
+  void onIdle() { dgus.idleLoop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    Dgus.PrinterKilled(error, component);
+    dgus.printerKilled(error, component);
   }
 
-  void onMediaInserted() { Dgus.MediaEvent(AC_media_inserted); }
-  void onMediaError()    { Dgus.MediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { Dgus.MediaEvent(AC_media_removed);  }
+  void onMediaInserted() { dgus.mediaEvent(AC_media_inserted); }
+  void onMediaError()    { dgus.mediaEvent(AC_media_error);    }
+  void onMediaRemoved()  { dgus.mediaEvent(AC_media_removed);  }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     #if ENABLED(SPEAKER)
@@ -55,22 +55,22 @@ namespace ExtUI {
     #endif
   }
 
-  void onPrintTimerStarted() { Dgus.TimerEvent(AC_timer_started); }
-  void onPrintTimerPaused()  { Dgus.TimerEvent(AC_timer_paused);  }
-  void onPrintTimerStopped() { Dgus.TimerEvent(AC_timer_stopped); }
+  void onPrintTimerStarted() { dgus.timerEvent(AC_timer_started); }
+  void onPrintTimerPaused()  { dgus.timerEvent(AC_timer_paused);  }
+  void onPrintTimerStopped() { dgus.timerEvent(AC_timer_stopped); }
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { Dgus.FilamentRunout();             }
+  void onFilamentRunout(const extruder_t)            { dgus.filamentRunout();         }
 
-  void onUserConfirmRequired(const char * const msg) { Dgus.ConfirmationRequest(msg);     }
-  void onStatusChanged(const char * const msg)       { Dgus.StatusChange(msg);            }
+  void onUserConfirmRequired(const char * const msg) { dgus.confirmationRequest(msg); }
+  void onStatusChanged(const char * const msg)       { dgus.statusChange(msg);        }
 
-  void onHomingStart()    { Dgus.HomingStart(); }
-  void onHomingDone()     { Dgus.HomingComplete(); }
+  void onHomingStart()    { dgus.homingStart(); }
+  void onHomingDone()     { dgus.homingComplete(); }
 
   void onFactoryReset() {
-    Dgus.page_index_now = 121;
-    Dgus.lcd_info.audio_on = DISABLED(SPEAKER);
+    dgus.page_index_now = 121;
+    dgus.lcd_info.audio_on = DISABLED(SPEAKER);
   }
 
   void onStoreSettings(char *buff) {
@@ -78,8 +78,8 @@ namespace ExtUI {
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
-    static_assert(sizeof(Dgus.lcd_info) <= ExtUI::eeprom_data_size);
-    memcpy(buff, &Dgus.lcd_info, sizeof(Dgus.lcd_info));
+    static_assert(sizeof(dgus.lcd_info) <= ExtUI::eeprom_data_size);
+    memcpy(buff, &dgus.lcd_info, sizeof(dgus.lcd_info));
   }
 
   void onLoadSettings(const char *buff) {
@@ -87,15 +87,15 @@ namespace ExtUI {
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
-    static_assert(sizeof(Dgus.lcd_info) <= ExtUI::eeprom_data_size);
-    memcpy(&Dgus.lcd_info, buff, sizeof(Dgus.lcd_info));
-    memcpy(&Dgus.lcd_info_back, buff, sizeof(Dgus.lcd_info_back));
+    static_assert(sizeof(dgus.lcd_info) <= ExtUI::eeprom_data_size);
+    memcpy(&dgus.lcd_info, buff, sizeof(dgus.lcd_info));
+    memcpy(&dgus.lcd_info_back, buff, sizeof(dgus.lcd_info_back));
   }
 
   void onPostprocessSettings() {
     // Called after loading or resetting stored settings
-    Dgus.ParamInit();
-    Dgus.PowerLoss();
+    dgus.paramInit();
+    dgus.powerLoss();
   }
 
   void onSettingsStored(const bool success) {
@@ -108,10 +108,12 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
@@ -125,11 +127,11 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Called when power-loss is enabled/disabled
-    void onSetPowerLoss(const bool) { Dgus.PowerLoss(); }
+    void onSetPowerLoss(const bool) { dgus.powerLoss(); }
     // Called when power-loss state is detected
     void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss
-    void onPowerLossResume() { Dgus.PowerLossRecovery(); }
+    void onPowerLossResume() { dgus.powerLossRecovery(); }
   #endif
 
   #if HAS_PID_HEATING

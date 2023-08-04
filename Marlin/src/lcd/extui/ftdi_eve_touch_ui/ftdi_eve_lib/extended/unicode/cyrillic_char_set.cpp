@@ -58,11 +58,11 @@
     cyrillic_fm.stride = 20;
     cyrillic_fm.width  = 40;
     cyrillic_fm.height = 49;
-    LOOP_L_N(i, 127)
+    for (uint8_t i = 0; i < 127; ++i)
       cyrillic_fm.char_widths[i] = 0;
 
     // For cyrillic characters, copy the character widths from the widths tables
-    LOOP_L_N(i, NUM_ELEMENTS(cyrillic_font_widths)) {
+    for (uint8_t i = 0; i < NUM_ELEMENTS(cyrillic_font_widths); ++i) {
       cyrillic_fm.char_widths[i] = cyrillic_font_widths[i];
     }
     CLCD::mem_write_bulk(addr, &cyrillic_fm,  148);

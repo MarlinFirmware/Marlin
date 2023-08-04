@@ -40,7 +40,7 @@
   #error "TMC220x Software Serial is not supported on ESP32."
 #endif
 
-#if BOTH(WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
 
@@ -52,18 +52,14 @@
   #error "FAST_PWM_FAN is not available on TinyBee."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
-  #error "BABYSTEPPING on I2S stream requires INTEGRATED_BABYSTEPPING."
-#endif
-
 #if USING_PULLDOWNS
   #error "PULLDOWN pin mode is not available on ESP32 boards."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
+#if ALL(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
   #error "I2S stream is currently incompatible with LIN_ADVANCE."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
+#if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
   #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif

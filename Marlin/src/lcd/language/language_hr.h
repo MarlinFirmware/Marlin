@@ -30,7 +30,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 
-namespace Language_hr {
+namespace LanguageNarrow_hr {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -53,23 +53,23 @@ namespace Language_hr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Niveliranje gotovo!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Postavi home offsete");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets postavljeni");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Predgrij ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Predgrij $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Predgrij $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Predgrij $ Dizna");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Predgrij $ Dizna ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Predgrij $ Sve");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Predgrij $ Bed");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Predgrij $ conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Predgrij ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Predgrij $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Predgrij $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Predgrij $ Dizna");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Predgrij $ Dizna ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Predgrij $ Sve");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Predgrij $ Bed");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Predgrij $ conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Hlađenje");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Uključi napajanje");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Isključi napajanje");
@@ -105,7 +105,7 @@ namespace Language_hr {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Pohrani u memoriju");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Učitaj memoriju");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Učitaj Defaults");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Osvježi");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Osvježi");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info screen");
   LSTR MSG_PREPARE                        = _UxGT("Pripremi");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pauziraj print");
@@ -140,19 +140,11 @@ namespace Language_hr {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Neispravan pisač");
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Broj printova");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Završeni");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Ukupno printanja");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najduži print");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrudirano ukupno");
-  #else
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Printovi");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Završeni");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Ukupno");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najduži");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrudirano");
-  #endif
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Printovi");
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Završeni");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Ukupno");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Najduži");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extrudirano");
 
   LSTR MSG_INFO_PSU                       = _UxGT("Napajanje");
 
@@ -162,12 +154,30 @@ namespace Language_hr {
   LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_2_LINE("Pričekaj", "filament load"));
   LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_1_LINE("Nastavljam..."));
 
+  // Up to 2 lines allowed
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT("Pričekaj...");
+}
+
+namespace LanguageWide_hr {
+  using namespace LanguageNarrow_hr;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Broj printova");
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Završeni");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Ukupno printanja");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najduži print");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrudirano ukupno");
+  #endif
+}
+
+namespace LanguageTall_hr {
+  using namespace LanguageWide_hr;
   #if LCD_HEIGHT >= 4
-    // Up to 3 lines allowed
+    // Filament Change screens show up to 3 lines on a 4-line display
     LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Čekaj početak", "filamenta", "promijeni"));
     LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Umetni filament", "i pritisni tipku", "za nastavak..."));
-  #else
-    // Up to 2 lines allowed
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT("Pričekaj...");
   #endif
+}
+
+namespace Language_hr {
+  using namespace LanguageTall_hr;
 }

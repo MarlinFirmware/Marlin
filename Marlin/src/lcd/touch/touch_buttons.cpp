@@ -28,10 +28,10 @@
 #include "../scaled_tft.h"
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
-  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #include HAL_PATH(../.., tft/gt911.h)
   GT911 touchIO;
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #include HAL_PATH(../.., tft/xpt2046.h)
   XPT2046 touchIO;
 #else
   #error "Unknown Touch Screen Type."
@@ -60,12 +60,12 @@
 TouchButtons touchBt;
 
 void TouchButtons::init() {
-  touchIO.Init();
+  touchIO.init();
   TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
 }
 
 uint8_t TouchButtons::read_buttons() {
-  #ifdef HAS_WIRED_LCD
+  #if HAS_WIRED_LCD
     int16_t x, y;
 
     #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
@@ -80,7 +80,7 @@ uint8_t TouchButtons::read_buttons() {
 
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
-        if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_RIGHT)) {
+        if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
           if (touch_calibration.handleTouch(x, y)) ui.refresh();
           return 0;
         }

@@ -29,7 +29,7 @@ public:
   static constexpr uint8_t all_on = 0xFF, all_off = 0x00;
 
 private:
-  static axis_bits_t last_direction_bits;
+  static AxisBits last_direction_bits;
   static xyz_long_t residual_error;
 
   #if ENABLED(BACKLASH_GCODE)
@@ -72,7 +72,7 @@ public:
     return has_measurement(X_AXIS) || has_measurement(Y_AXIS) || has_measurement(Z_AXIS);
   }
 
-  static void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const axis_bits_t dm, block_t * const block);
+  static void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const AxisBits dm, block_t * const block);
   static int32_t get_applied_steps(const AxisEnum axis);
 
   #if ENABLED(BACKLASH_GCODE)

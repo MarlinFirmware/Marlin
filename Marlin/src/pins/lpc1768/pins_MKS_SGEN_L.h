@@ -184,7 +184,10 @@
   #define Z2_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -292,8 +295,8 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
     #define TFT_CS_PIN               EXP1_07_PIN
-    #define TFT_A0_PIN               EXP1_08_PIN
     #define TFT_DC_PIN               EXP1_08_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
     #define TFT_MISO_PIN             EXP2_01_PIN
     #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
     #define TFT_RESET_PIN            EXP1_04_PIN
@@ -309,8 +312,8 @@
     #define LCD_PINS_EN                    -1
     #define LCD_PINS_RS                    -1
 
-    #ifndef TFT_BUFFER_SIZE
-      #define TFT_BUFFER_SIZE               1200
+    #ifndef TFT_BUFFER_WORDS
+      #define TFT_BUFFER_WORDS              1200
     #endif
     #ifndef TFT_QUEUE_SIZE
       #define TFT_QUEUE_SIZE                6144
@@ -368,7 +371,7 @@
 
         #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             #define RGB_LED_R_PIN    EXP1_06_PIN
           #endif

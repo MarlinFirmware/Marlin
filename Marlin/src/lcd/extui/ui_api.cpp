@@ -375,7 +375,7 @@ namespace ExtUI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return !axis_should_home(X_AXIS);
+        OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
       #else
@@ -773,7 +773,9 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: babystep.add_steps(X_AXIS, steps); break;
+          #if HAS_X_AXIS
+            case X: babystep.add_steps(X_AXIS, steps); break;
+          #endif
           #if HAS_Y_AXIS
             case Y: babystep.add_steps(Y_AXIS, steps); break;
           #endif
@@ -818,7 +820,7 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[e][axis] += mm;
 
-          normalizeNozzleOffset(X);
+          TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
           TERN_(HAS_Z_AXIS, normalizeNozzleOffset(Z));
         }
@@ -917,7 +919,7 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getMeshValid() { return leveling_is_valid(); }
+    bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if HAS_MESH
 
@@ -931,7 +933,7 @@ namespace ExtUI {
       }
 
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
-        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+        #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           REMEMBER(fr, feedrate_mm_s);
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);

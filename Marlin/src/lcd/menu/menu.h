@@ -168,7 +168,7 @@ class MenuEditItemBase : public MenuItemBase {
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
-      const uint16_t ep,      // Initial encoder value
+      const uint32_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
       const screenFunc_t cb,  // Callback after edit
       const bool le           // Flag to call cb() during editing
@@ -242,21 +242,14 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
-
-  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
-    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
-    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
-    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
-  #else
-    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
-  #endif
-
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void touch_screen_calibration();
+#endif
+
+#if ENABLED(ONE_CLICK_PRINT)
+  void one_click_print();
 #endif
 
 extern uint8_t screen_history_depth;

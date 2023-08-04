@@ -43,7 +43,7 @@
   #endif
 #endif
 
-#if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -53,7 +53,7 @@
   //
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
+  constexpr grid_count_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -138,9 +138,9 @@
   //
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
-      char msg[10];
-      sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
-      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), msg);
+      MString<9> msg;
+      msg.setf(F("%i / %u"), int(manual_probe_index + 1), total_probe_points);
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), &msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_move) ui.goto_screen(_lcd_level_bed_get_z);
@@ -169,7 +169,7 @@
     if (ui.should_draw()) {
       MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
       // Color UI needs a control to detect a touch
-      #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+      #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
         touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
       #endif
     }
@@ -249,7 +249,7 @@ void menu_bed_leveling() {
   #endif
 
   // Level Bed
-  #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+  #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
     // Manual leveling uses a guided procedure
     SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else
@@ -290,6 +290,10 @@ void menu_bed_leveling() {
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
+
+  #if ENABLED(PROBE_OFFSET_WIZARD)
+    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING)
