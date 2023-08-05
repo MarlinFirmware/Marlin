@@ -90,6 +90,14 @@
 
 #elif STATUS_HOTEND_BITMAPS > 1
 
+  const unsigned char status_active_extruder_indicator_bmp[] PROGMEM = {
+    B00110000,
+    B00011000,
+    B00001100,
+    B00011000,
+    B00110000
+  };
+
   #ifdef STATUS_HOTEND_ANIM
 
     const unsigned char status_hotend1_a_bmp[] PROGMEM = {
