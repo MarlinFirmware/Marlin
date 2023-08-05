@@ -1431,9 +1431,6 @@ void MarlinUI::host_notify_P(PGM_P const pstr) {
 void MarlinUI::host_notify(const char * const cstr) {
   TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(cstr));
 }
-void MarlinUI::host_status() {
-  TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
-}
 
 #include <stdarg.h>
 
@@ -1562,7 +1559,7 @@ void MarlinUI::host_status() {
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
     va_end(args);
 
-    host_status();
+    host_notify(status_message);
 
     finish_status(level > 0);
   }
@@ -1644,7 +1641,7 @@ void MarlinUI::host_status() {
     vsnprintf_P(&msg, 30, fmt, args);
     va_end(args);
 
-    host_status();
+    host_notify(msg);
   }
 
 #endif // !HAS_STATUS_MESSAGE

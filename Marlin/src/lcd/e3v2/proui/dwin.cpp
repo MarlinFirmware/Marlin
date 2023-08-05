@@ -129,9 +129,6 @@
   #include "lockscreen.h"
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_DWIN)
-#include "../../../core/debug_out.h"
-
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
@@ -2203,10 +2200,14 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void setProbeOffsetX() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
   void setProbeOffsetY() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
   void setProbeOffsetZ() { setPFloatOnClick(-10, 10, 2); }
-  void probeTest() {
-    LCD_MESSAGE(MSG_M48_TEST);
-    queue.inject(F("G28O\nM48 P10"));
-  }
+
+  #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+    void probeTest() {
+      LCD_MESSAGE(MSG_M48_TEST);
+      queue.inject(F("G28O\nM48 P10"));
+    }
+  #endif
+
   void probeStow() { probe.stow(); }
   void probeDeploy() { probe.deploy(); }
 
@@ -2357,7 +2358,7 @@ void setFlow() { setPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, []{ planner.refr
         if (isnan(zval))
           LCD_MESSAGE(MSG_ZPROBE_OUT);
         else
-          ui.set_status(TS(F("X:"), p_float_t(xpos, 1), F(" Y:"), p_float_t(ypos, 1), F(" Z:")));
+          ui.set_status(TS(F("X:"), p_float_t(xpos, 1), F(" Y:"), p_float_t(ypos, 1), F(" Z:"), p_float_t(zval, 2)));
         inLev = false;
       }
       return zval;
@@ -2375,14 +2376,6 @@ void setFlow() { setPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, []{ planner.refr
 
   #endif
 
-  inline void tramFL() { tram(0); }
-  inline void tramFR() { tram(1); }
-  inline void tramBR() { tram(2); }
-  inline void tramBL() { tram(3); }
-  #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-    inline void tramC() { tram(4); }
-  #endif
-
   #if HAS_BED_PROBE && HAS_MESH
 
     void trammingwizard() {
@@ -2391,14 +2384,14 @@ void setFlow() { setPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, []{ planner.refr
         return;
       }
       bed_mesh_t zval = {0};
-      zval[0][0] = tramFL();
+      zval[0][0] = tram(0);
       checkkey = ID_NothingToDo;
       meshViewer.drawMesh(zval, 2, 2);
-      zval[1][0] = tramFR();
+      zval[1][0] = tram(1);
       meshViewer.drawMesh(zval, 2, 2);
-      zval[1][1] = tramBR();
+      zval[1][1] = tram(2);
       meshViewer.drawMesh(zval, 2, 2);
-      zval[0][1] = tramBL();
+      zval[0][1] = tram(3);
       meshViewer.drawMesh(zval, 2, 2);
 
       DWINUI::drawCenteredString(140, F("Calculating average"));
@@ -3031,12 +3024,12 @@ void drawPrepareMenu() {
       #elif !HAS_BED_PROBE && HAS_ZOFFSET_ITEM
         MENU_ITEM_F(ICON_MoveZ0, "Home Z and disable", onDrawMenuItem, homeZAndDisable);
       #endif
-      MENU_ITEM(ICON_Axis, MSG_TRAM_FL, onDrawMenuItem, tramFL);
-      MENU_ITEM(ICON_Axis, MSG_TRAM_FR, onDrawMenuItem, tramFR);
-      MENU_ITEM(ICON_Axis, MSG_TRAM_BR, onDrawMenuItem, tramBR);
-      MENU_ITEM(ICON_Axis, MSG_TRAM_BL, onDrawMenuItem, tramBL);
+      MENU_ITEM(ICON_Axis, MSG_TRAM_FL, onDrawMenuItem, []{ (void)tram(0); });
+      MENU_ITEM(ICON_Axis, MSG_TRAM_FR, onDrawMenuItem, []{ (void)tram(1); });
+      MENU_ITEM(ICON_Axis, MSG_TRAM_BR, onDrawMenuItem, []{ (void)tram(2); });
+      MENU_ITEM(ICON_Axis, MSG_TRAM_BL, onDrawMenuItem, []{ (void)tram(3); });
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-        MENU_ITEM(ICON_Axis, MSG_TRAM_C, onDrawMenuItem, tramC);
+        MENU_ITEM(ICON_Axis, MSG_TRAM_C, onDrawMenuItem, []{ (void)tram(4); });
       #endif
     }
     updateMenu(trammingMenu);
@@ -3046,7 +3039,7 @@ void drawPrepareMenu() {
 
 void drawControlMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(ControlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 10)) {
+  if (SET_MENU_R(ControlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 11)) {
     BACK_ITEM(gotoMainMenu);
     MENU_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawTempSubMenu, drawTemperatureMenu);
     MENU_ITEM(ICON_Motion, MSG_MOTION, onDrawMotionSubMenu, drawMotionMenu);
@@ -3074,7 +3067,7 @@ void drawControlMenu() {
 
 void drawAdvancedSettingsMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU(AdvancedSettings, MSG_ADVANCED_SETTINGS, 22)) {
+  if (SET_MENU(AdvancedSettings, MSG_ADVANCED_SETTINGS, 23)) {
     BACK_ITEM(gotoMainMenu);
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, writeEEPROM);
@@ -3084,6 +3077,9 @@ void drawAdvancedSettingsMenu() {
     #endif
     #if HAS_BED_PROBE
       MENU_ITEM(ICON_ProbeSet, MSG_ZPROBE_SETTINGS, onDrawSubMenu, drawProbeSetMenu);
+    #endif
+    #if HAS_HOME_OFFSET
+      MENU_ITEM(ICON_ProbeSet, MSG_SET_HOME_OFFSETS, onDrawSubMenu, drawHomeOffsetMenu);
     #endif
     MENU_ITEM(ICON_FilSet, MSG_FILAMENT_SET, onDrawSubMenu, drawFilSetMenu);
     #if ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
@@ -3164,7 +3160,7 @@ void drawMoveMenu() {
   void drawHomeOffsetMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(homeOffsetMenu, MSG_SET_HOME_OFFSETS, 4)) {
-      BACK_ITEM(drawPhySetMenu);
+      BACK_ITEM(drawAdvancedSettingsMenu);
       #if HAS_X_AXIS
         EDIT_ITEM(ICON_HomeOffsetX, MSG_HOME_OFFSET_X, onDrawPFloatMenu, setHomeOffsetX, &home_offset.x);
       #endif
@@ -3203,7 +3199,9 @@ void drawMoveMenu() {
           EDIT_ITEM(ICON_HSMode, MSG_ENABLE_HS_MODE, onDrawChkbMenu, setHSMode, &bltouch.high_speed_mode);
         #endif
       #endif
-      MENU_ITEM(ICON_ProbeTest, MSG_M48_TEST, onDrawMenuItem, probeTest);
+      #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+        MENU_ITEM(ICON_ProbeTest, MSG_M48_TEST, onDrawMenuItem, probeTest);
+      #endif
     }
     updateMenu(ProbeSetMenu);
   }
@@ -3439,19 +3437,21 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if HAS_PREHEAT
-  void drawPreheatHotendMenu() {
-    checkkey = ID_Menu;
-    if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
-      BACK_ITEM(drawFilamentManMenu);
-      #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheatHotend##N);
-      REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT_HE)
-    }
-    updateMenu(preheatHotendMenu);
-  }
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+  #if HAS_PREHEAT
+
+    void drawPreheatHotendMenu() {
+      checkkey = ID_Menu;
+      if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
+        BACK_ITEM(drawFilamentManMenu);
+        #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheatHotend##N);
+        REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT_HE)
+      }
+      updateMenu(preheatHotendMenu);
+    }
+
+  #endif
 
   void drawFilamentManMenu() {
     checkkey = ID_Menu;
@@ -3802,9 +3802,9 @@ void drawStepsMenu() {
         EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPidCycles, &hmiData.pidCycles);
       #endif
       #if ENABLED(PID_EDIT_MENU)
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KP, onDrawPFloat2Menu, SetKp, &thermalManager.temp_hotend[0].pid.Kp);
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KI, onDrawPIDi, SetKi, &thermalManager.temp_hotend[0].pid.Ki);
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KD, onDrawPIDd, SetKd, &thermalManager.temp_hotend[0].pid.Kd);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KP, onDrawPFloat2Menu, setKp, &thermalManager.temp_hotend[0].pid.Kp);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KI, onDrawPIDi, setKi, &thermalManager.temp_hotend[0].pid.Ki);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KD, onDrawPIDd, setKd, &thermalManager.temp_hotend[0].pid.Kd);
       #endif
       #if ENABLED(EEPROM_SETTINGS)
         MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, writeEEPROM);
@@ -3832,9 +3832,9 @@ void drawStepsMenu() {
         EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPidCycles, &hmiData.pidCycles);
       #endif
       #if ENABLED(PID_EDIT_MENU)
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KP, onDrawPFloat2Menu, SetKp, &thermalManager.temp_bed.pid.Kp);
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KI, onDrawPIDi, SetKi, &thermalManager.temp_bed.pid.Ki);
-        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KD, onDrawPIDd, SetKd, &thermalManager.temp_bed.pid.Kd);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KP, onDrawPFloat2Menu, setKp, &thermalManager.temp_bed.pid.Kp);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KI, onDrawPIDi, setKi, &thermalManager.temp_bed.pid.Ki);
+        EDIT_ITEM_F(ICON_PIDValue, "Set" STR_KD, onDrawPIDd, setKd, &thermalManager.temp_bed.pid.Kd);
       #endif
       #if ENABLED(EEPROM_SETTINGS)
         MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, writeEEPROM);

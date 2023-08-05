@@ -207,7 +207,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
-    TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
+    TERN_(HAS_WORKSPACE_OFFSET, info.workspace_offset = workspace_offset);
     E_TERN_(info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -552,10 +552,7 @@ void PrintJobRecovery::resume() {
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
-  TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
-  #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_NUM_AXES(i) update_workspace_offset((AxisEnum)i);
-  #endif
+  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset = info.workspace_offset);
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
@@ -600,11 +597,11 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
         #endif
 
-        #if HAS_POSITION_SHIFT
-          DEBUG_ECHOPGM("position_shift: ");
+        #if HAS_WORKSPACE_OFFSET
+          DEBUG_ECHOPGM("workspace_offset: ");
           LOOP_NUM_AXES(i) {
             if (i) DEBUG_CHAR(',');
-            DEBUG_ECHO(info.position_shift[i]);
+            DEBUG_ECHO(info.workspace_offset[i]);
           }
           DEBUG_EOL();
         #endif
