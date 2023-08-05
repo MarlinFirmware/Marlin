@@ -51,11 +51,13 @@ void GcodeSuite::T(const int8_t tool_index) {
   DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("...(", tool_index, ")");
 
-  // If T command has no tool index, send the current active tool index.
-  if (tool_index == T_COMMAND_NO_CODE_NUMBER) {
-    SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
-    return;
-  }
+  #if HAS_MULTI_EXTRUDER
+    // If T command has no tool index, send the current active tool index.
+    if (tool_index == T_COMMAND_NO_CODE_NUMBER) {
+      SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
+      return;
+    }
+  #endif
   
   // Count this command as movement / activity
   reset_stepper_timeout();
