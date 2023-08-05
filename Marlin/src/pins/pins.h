@@ -348,6 +348,8 @@
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"    // ATmega2560                           env:mega2560
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
+#elif MB(GT2560_V41B)
+  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560
 
 //
 // ATmega1281, ATmega2561
