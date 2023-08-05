@@ -3220,11 +3220,13 @@ void Temperature::init() {
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
         _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_THERMAL_RUNAWAY, current);
+        break;
 
       #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
         case TRMalfunction:
           TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
           _TEMP_ERROR(heater_id, FPSTR(str_t_temp_malfunction), MSG_TEMP_MALFUNCTION, current);
+          break;
       #endif
     }
   }
