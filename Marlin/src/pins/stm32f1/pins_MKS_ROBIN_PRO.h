@@ -238,7 +238,7 @@
   #define LCD_RESET_PIN                     PC6
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
   #if NEED_TOUCH_PINS
     #define TOUCH_BUTTONS_HW_SPI

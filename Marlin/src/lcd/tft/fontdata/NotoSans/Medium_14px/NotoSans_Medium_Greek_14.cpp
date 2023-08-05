@@ -20,14 +20,11 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define NOTOSANS 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
-#include <stdint.h>
-
-// NotoSans Medium Greek 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
+// NotoSans Medium Greek 19pt, capital 'A' height: 14px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
 extern const uint8_t NotoSans_Medium_Greek_14[3253] = {
   130,14,134,3,206,3,18,251, // unifont_t
   // 0x0386  Ά

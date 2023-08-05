@@ -29,47 +29,47 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_LOCKSCREEN)
+#if ALL(DWIN_LCD_PROUI, HAS_LOCKSCREEN)
 
 #include "dwin_defines.h"
 #include "dwinui.h"
 #include "dwin.h"
 #include "lockscreen.h"
 
-LockScreenClass lockScreen;
+LockScreen lockScreen;
 
-uint8_t LockScreenClass::lock_pos = 0;
-bool LockScreenClass::unlocked = false;
-uint8_t LockScreenClass::rprocess = 0;
+uint8_t LockScreen::lock_pos = 0;
+bool LockScreen::unlocked = false;
+uint8_t LockScreen::rprocess = 0;
 
-void LockScreenClass::init() {
+void LockScreen::init() {
   lock_pos = 0;
   unlocked = false;
   draw();
 }
 
-void LockScreenClass::draw() {
-  Title.SetCaption(GET_TEXT_F(MSG_LOCKSCREEN));
-  DWINUI::ClearMainArea();
-  DWINUI::Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
-  DWINUI::Draw_CenteredString(Color_White, 180, GET_TEXT_F(MSG_LOCKSCREEN_LOCKED));
-  DWINUI::Draw_CenteredString(Color_White, 200, GET_TEXT_F(MSG_LOCKSCREEN_UNLOCK));
-  DWINUI::Draw_CenteredString(Color_White, 240, F("-> | <-"));
-  DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
-  DWIN_UpdateLCD();
+void LockScreen::draw() {
+  title.setCaption(GET_TEXT_F(MSG_LOCKSCREEN));
+  DWINUI::clearMainArea();
+  DWINUI::drawIcon(ICON_LOGO, 71, 120);  // CREALITY logo
+  DWINUI::drawCenteredString(COLOR_WHITE, 180, GET_TEXT_F(MSG_LOCKSCREEN_LOCKED));
+  DWINUI::drawCenteredString(COLOR_WHITE, 200, GET_TEXT_F(MSG_LOCKSCREEN_UNLOCK));
+  DWINUI::drawCenteredString(COLOR_WHITE, 240, F("-> | <-"));
+  dwinDrawBox(1, hmiData.colorBarfill, 0, 260, DWIN_WIDTH, 20);
+  dwinDrawVLine(COLOR_YELLOW, lock_pos * DWIN_WIDTH / 255, 260, 20);
+  dwinUpdateLCD();
 }
 
-void LockScreenClass::onEncoder(EncoderState encoder_diffState) {
+void LockScreen::onEncoder(EncoderState encoder_diffState) {
   switch (encoder_diffState) {
     case ENCODER_DIFF_CW:    lock_pos += 8; break;
     case ENCODER_DIFF_CCW:   lock_pos -= 8; break;
     case ENCODER_DIFF_ENTER: unlocked = (lock_pos == 128); break;
     default: break;
   }
-  DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
-  DWIN_UpdateLCD();
+  dwinDrawBox(1, hmiData.colorBarfill, 0, 260, DWIN_WIDTH, 20);
+  dwinDrawVLine(COLOR_YELLOW, lock_pos * DWIN_WIDTH / 255, 260, 20);
+  dwinUpdateLCD();
 }
 
 #endif // DWIN_LCD_PROUI && HAS_LOCKSCREEN

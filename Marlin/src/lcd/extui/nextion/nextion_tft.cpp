@@ -112,7 +112,7 @@ void NextionTFT::statusChange(const char * const msg) {
 
 void NextionTFT::tftSend(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
-    DEBUG_ECHOF(fstr);
+    DEBUG_ECHO(fstr);
   #endif
   PGM_P str = FTOP(fstr);
   while (const char c = pgm_read_byte(str++)) LCD_SERIAL.write(c);
@@ -161,20 +161,20 @@ void NextionTFT::selectFile() {
   strncpy(selectedfile, nextion_command + 4, command_len - 4);
   selectedfile[command_len - 5] = '\0';
   #if NEXDEBUG(N_FILE)
-    DEBUG_ECHOLNPAIR_F(" Selected File: ", selectedfile);
+    DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
   switch (selectedfile[0]) {
-  case '/': // Valid file selected
-    //SEND_TXT("tmppage.M117", msg_sd_file_open_success);
-    break;
-  case '<': // .. (go up folder level)
-    filenavigator.upDIR();
-    sendFileList(0);
-    break;
-  default: // enter sub folder
-    filenavigator.changeDIR(selectedfile);
-    sendFileList(0);
-    break;
+    case '/': // Valid file selected
+      //SEND_TXT("tmppage.M117", msg_sd_file_open_success);
+      break;
+    case '<': // .. (go up folder level)
+      filenavigator.upDIR();
+      sendFileList(0);
+      break;
+    default: // enter sub folder
+      filenavigator.changeDIR(selectedfile);
+      sendFileList(0);
+      break;
   }
 }
 
@@ -294,7 +294,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 26: // TMC Hybrid Threshold Speed
-    #if 0 && BOTH(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
+    #if 0 && ALL(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
       #define SEND_TRINAMIC_THRS(A, B) SEND_VALasTXT(A, getAxisPWMthrs(B))
     #else
       #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
@@ -451,7 +451,7 @@ void NextionTFT::panelInfo(uint8_t req) {
       SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE
-      //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      //SEND_VALasTXT("bltouch", PROBE_TRIGGERED() ? "triggered" : "open");
     #else
       SEND_NA("bltouch");
     #endif
@@ -463,7 +463,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     #else
       #define SEND_PID_INFO_0(A, B) SEND_NA(A)
     #endif
-    #if BOTH(PIDTEMP, HAS_MULTI_EXTRUDER)
+    #if ALL(PIDTEMP, HAS_MULTI_EXTRUDER)
       #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
       #define SEND_PID_INFO_1(A, B) SEND_NA(A)
