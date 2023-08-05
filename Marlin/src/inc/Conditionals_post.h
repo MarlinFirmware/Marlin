@@ -1424,12 +1424,12 @@
   #if AXIS_IS_TMC(X)
     #if defined(X_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X)
       #define X_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(X)
+        #define X_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(X)
       #define X_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define X_SPI_SENSORLESS X_SENSORLESS
     #endif
     #ifndef X_INTERPOLATE
       #define X_INTERPOLATE INTERPOLATE
@@ -1462,12 +1462,12 @@
   #if AXIS_IS_TMC(Y)
     #if defined(Y_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y)
       #define Y_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(Y)
+        #define Y_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
       #define Y_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define Y_SPI_SENSORLESS Y_SENSORLESS
     #endif
     #ifndef Y_INTERPOLATE
       #define Y_INTERPOLATE INTERPOLATE
@@ -1500,12 +1500,12 @@
   #if AXIS_IS_TMC(Z)
     #if defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z)
       #define Z_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(Z)
+        #define Z_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
       #define Z_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define Z_SPI_SENSORLESS Z_SENSORLESS
     #endif
     #ifndef Z_INTERPOLATE
       #define Z_INTERPOLATE INTERPOLATE
@@ -1572,12 +1572,12 @@
   #if AXIS_IS_TMC(I)
     #if defined(I_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(I)
       #define I_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(I)
+        #define I_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(I)
       #define I_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define I_SPI_SENSORLESS I_SENSORLESS
     #endif
     #ifndef I_INTERPOLATE
       #define I_INTERPOLATE INTERPOLATE
@@ -1593,12 +1593,12 @@
   #if AXIS_IS_TMC(J)
     #if defined(J_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(J)
       #define J_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(J)
+        #define J_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(J)
       #define J_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define J_SPI_SENSORLESS J_SENSORLESS
     #endif
     #ifndef J_INTERPOLATE
       #define J_INTERPOLATE INTERPOLATE
@@ -1614,12 +1614,12 @@
   #if AXIS_IS_TMC(K)
     #if defined(K_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(K)
       #define K_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(K)
+        #define K_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(K)
       #define K_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define K_SPI_SENSORLESS K_SENSORLESS
     #endif
     #ifndef K_INTERPOLATE
       #define K_INTERPOLATE INTERPOLATE
@@ -1635,12 +1635,12 @@
   #if AXIS_IS_TMC(U)
     #if defined(U_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(U)
       #define U_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(U)
+        #define U_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(U)
       #define U_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define U_SPI_SENSORLESS U_SENSORLESS
     #endif
     #ifndef U_INTERPOLATE
       #define U_INTERPOLATE INTERPOLATE
@@ -1656,12 +1656,12 @@
   #if AXIS_IS_TMC(V)
     #if defined(V_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(V)
       #define V_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(V)
+        #define V_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(V)
       #define V_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define V_SPI_SENSORLESS V_SENSORLESS
     #endif
     #ifndef V_INTERPOLATE
       #define V_INTERPOLATE INTERPOLATE
@@ -1677,12 +1677,12 @@
   #if AXIS_IS_TMC(W)
     #if defined(W_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(W)
       #define W_SENSORLESS 1
+      #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(W)
+        #define W_SPI_SENSORLESS 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(W)
       #define W_HAS_STEALTHCHOP 1
-    #endif
-    #if ENABLED(SPI_ENDSTOPS)
-      #define W_SPI_SENSORLESS W_SENSORLESS
     #endif
     #ifndef W_INTERPOLATE
       #define W_INTERPOLATE INTERPOLATE
@@ -1948,11 +1948,18 @@
   #endif
 #endif
 
-//
-// Endstops and bed probe
-//
-
-#define _USE_STOP(A,N,M,C) ((A##_HOME_TO_##M || (C+0)) && PIN_EXISTS(A##N##_##M))
+/**
+ * Endstop and probe flags
+ * - Set USE_(AXIS)_(MIN|MAX) flags for each used endstop that has a pin, including those for DIAG0 state.
+ *   - Note: Dual X Carriage uses "X" and "X2" steppers, but X_MIN and X_MAX endstop states (i.e., not X2_MAX).
+ * - Set a HAS_(AXIS)_(MIN|MAX)_STATE flag for each endstop that has a state, including SPI Sensorless which don't use a pin.
+ * - Set a HAS_(AXIS)_STATE flag for each axis that has at least one state.
+ * - Consider (AXIS)_SAFETY_STOP for the case where the axis has a second endstop.
+ *   Currently this must be distinct, but we can add a mechanism to use the same pin for sensorless
+ *   or switches wired to the same pin, or for the single SPI stall state on the axis.
+ */
+#define _USE_STOP(A,N,M,C) ((ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
+#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) && A##_SPI_SENSORLESS))
 
 #if _USE_STOP(X,,MIN,)
   #define USE_X_MIN 1
@@ -1960,137 +1967,237 @@
 #if _USE_STOP(X,,MAX,ENABLED(DUAL_X_CARRIAGE))
   #define USE_X_MAX 1
 #endif
-#if USE_X_MIN || USE_X_MAX
-  #define HAS_X_ENDSTOP 1
+#if _HAS_STATE(X,,MIN)
+  #define HAS_X_MIN_STATE 1
+#endif
+#if _HAS_STATE(X,,MAX)
+  #define HAS_X_MAX_STATE 1
+#endif
+#if HAS_X_MIN_STATE || HAS_X_MAX_STATE
+  #define HAS_X_STATE 1
 #endif
 
 #if _USE_STOP(Y,,MIN,)
   #define USE_Y_MIN 1
-#elif _USE_STOP(Y,,MAX,)
+#endif
+#if _USE_STOP(Y,,MAX,)
   #define USE_Y_MAX 1
 #endif
-#if USE_Y_MIN || USE_Y_MAX
-  #define HAS_Y_ENDSTOP 1
+#if _HAS_STATE(Y,,MIN)
+  #define HAS_Y_MIN_STATE 1
+#endif
+#if _HAS_STATE(Y,,MAX)
+  #define HAS_Y_MAX_STATE 1
+#endif
+#if HAS_Y_MIN_STATE || HAS_Y_MAX_STATE
+  #define HAS_Y_STATE 1
 #endif
 
-#if _USE_STOP(Z,,MIN,ANY(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING))
+#if _USE_STOP(Z,,MIN,ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
   #define USE_Z_MIN 1
-  #if !HAS_DELTA_SENSORLESS_PROBING
-    #define HAS_Z_MIN_PIN 1
-  #endif
 #endif
 #if _USE_STOP(Z,,MAX,)
   #define USE_Z_MAX 1
 #endif
-#if USE_Z_MIN || USE_Z_MAX
-  #define HAS_Z_ENDSTOP 1
+#if _HAS_STATE(Z,,MIN)
+  #define HAS_Z_MIN_STATE 1
+#endif
+#if _HAS_STATE(Z,,MAX)
+  #define HAS_Z_MAX_STATE 1
+#endif
+#if HAS_Z_MIN_STATE || HAS_Z_MAX_STATE
+  #define HAS_Z_STATE 1
 #endif
 
 #if _USE_STOP(I,,MIN,)
   #define USE_I_MIN 1
-#elif _USE_STOP(I,,MAX,)
+#endif
+#if _USE_STOP(I,,MAX,)
   #define USE_I_MAX 1
 #endif
-#if USE_I_MIN || USE_I_MAX
-  #define HAS_I_ENDSTOP 1
+#if _HAS_STATE(I,,MIN)
+  #define HAS_I_MIN_STATE 1
+#endif
+#if _HAS_STATE(I,,MAX)
+  #define HAS_I_MAX_STATE 1
+#endif
+#if HAS_I_MIN_STATE || HAS_I_MAX_STATE
+  #define HAS_I_STATE 1
 #endif
 
 #if _USE_STOP(J,,MIN,)
   #define USE_J_MIN 1
-#elif _USE_STOP(J,,MAX,)
+#endif
+#if _USE_STOP(J,,MAX,)
   #define USE_J_MAX 1
 #endif
-#if USE_J_MIN || USE_J_MAX
-  #define HAS_J_ENDSTOP 1
+#if _HAS_STATE(J,,MIN)
+  #define HAS_J_MIN_STATE 1
+#endif
+#if _HAS_STATE(J,,MAX)
+  #define HAS_J_MAX_STATE 1
+#endif
+#if HAS_J_MIN_STATE || HAS_J_MAX_STATE
+  #define HAS_J_STATE 1
 #endif
 
 #if _USE_STOP(K,,MIN,)
   #define USE_K_MIN 1
-#elif _USE_STOP(K,,MAX,)
+#endif
+#if _USE_STOP(K,,MAX,)
   #define USE_K_MAX 1
 #endif
-#if USE_K_MIN || USE_K_MAX
-  #define HAS_K_ENDSTOP 1
+#if _HAS_STATE(K,,MIN)
+  #define HAS_K_MIN_STATE 1
+#endif
+#if _HAS_STATE(K,,MAX)
+  #define HAS_K_MAX_STATE 1
+#endif
+#if HAS_K_MIN_STATE || HAS_K_MAX_STATE
+  #define HAS_K_STATE 1
 #endif
 
 #if _USE_STOP(U,,MIN,)
   #define USE_U_MIN 1
-#elif _USE_STOP(U,,MAX,)
+#endif
+#if _USE_STOP(U,,MAX,)
   #define USE_U_MAX 1
 #endif
-#if USE_U_MIN || USE_U_MAX
-  #define HAS_U_ENDSTOP 1
+#if _HAS_STATE(U,,MIN)
+  #define HAS_U_MIN_STATE 1
+#endif
+#if _HAS_STATE(U,,MAX)
+  #define HAS_U_MAX_STATE 1
+#endif
+#if HAS_U_MIN_STATE || HAS_U_MAX_STATE
+  #define HAS_U_STATE 1
 #endif
 
 #if _USE_STOP(V,,MIN,)
   #define USE_V_MIN 1
-#elif _USE_STOP(V,,MAX,)
+#endif
+#if _USE_STOP(V,,MAX,)
   #define USE_V_MAX 1
 #endif
-#if USE_V_MIN || USE_V_MAX
-  #define HAS_V_ENDSTOP 1
+#if _HAS_STATE(V,,MIN)
+  #define HAS_V_MIN_STATE 1
+#endif
+#if _HAS_STATE(V,,MAX)
+  #define HAS_V_MAX_STATE 1
+#endif
+#if HAS_V_MIN_STATE || HAS_V_MAX_STATE
+  #define HAS_V_STATE 1
 #endif
 
 #if _USE_STOP(W,,MIN,)
   #define USE_W_MIN 1
-#elif _USE_STOP(W,,MAX,)
+#endif
+#if _USE_STOP(W,,MAX,)
   #define USE_W_MAX 1
 #endif
-#if USE_W_MIN || USE_W_MAX
-  #define HAS_W_ENDSTOP 1
+#if _HAS_STATE(W,,MIN)
+  #define HAS_W_MIN_STATE 1
+#endif
+#if _HAS_STATE(W,,MAX)
+  #define HAS_W_MAX_STATE 1
+#endif
+#if HAS_W_MIN_STATE || HAS_W_MAX_STATE
+  #define HAS_W_STATE 1
 #endif
 
-#if ANY(DUAL_X_CARRIAGE, X_DUAL_ENDSTOPS)
+#if ENABLED(X_DUAL_ENDSTOPS)
   #if _USE_STOP(X,2,MIN,)
     #define USE_X2_MIN 1
-  #elif _USE_STOP(X,2,MAX,)
+  #endif
+  #if _USE_STOP(X,2,MAX,)
     #define USE_X2_MAX 1
   #endif
-  #if USE_X2_MIN || USE_X2_MAX
-    #define HAS_X2_ENDSTOP 1
+  #if _HAS_STATE(X,2,MIN) || HAS_X_MIN_STATE
+    #define HAS_X2_MIN_STATE 1
+  #endif
+  #if _HAS_STATE(X,2,MAX) || HAS_X_MAX_STATE
+    #define HAS_X2_MAX_STATE 1
+  #endif
+  #if HAS_X2_MIN_STATE || HAS_X2_MAX_STATE
+    #define HAS_X2_STATE 1
   #endif
 #endif
 
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if _USE_STOP(Y,2,MIN,)
     #define USE_Y2_MIN 1
-  #elif _USE_STOP(Y,2,MAX,)
+  #endif
+  #if _USE_STOP(Y,2,MAX,)
     #define USE_Y2_MAX 1
   #endif
-  #if USE_Y2_MIN || USE_Y2_MAX
-    #define HAS_Y2_ENDSTOP 1
+  #if _HAS_STATE(Y,2,MIN) || HAS_Y_MIN_STATE
+    #define HAS_Y2_MIN_STATE 1
+  #endif
+  #if _HAS_STATE(Y,2,MAX) || HAS_Y_MAX_STATE
+    #define HAS_Y2_MAX_STATE 1
+  #endif
+  #if HAS_Y2_MIN_STATE || HAS_Y2_MAX_STATE
+    #define HAS_Y2_STATE 1
   #endif
 #endif
 
 #if ENABLED(Z_MULTI_ENDSTOPS)
   #if _USE_STOP(Z,2,MIN,)
     #define USE_Z2_MIN 1
-  #elif _USE_STOP(Z,2,MAX,)
+  #endif
+  #if _USE_STOP(Z,2,MAX,)
     #define USE_Z2_MAX 1
   #endif
-  #if USE_Z2_MIN || USE_Z2_MAX
-    #define HAS_Z2_ENDSTOP 1
+  #if _HAS_STATE(Z,2,MIN) || HAS_Z_MIN_STATE
+    #define HAS_Z2_MIN_STATE 1
+  #endif
+  #if _HAS_STATE(Z,2,MAX) || HAS_Z_MAX_STATE
+    #define HAS_Z2_MAX_STATE 1
+  #endif
+  #if HAS_Z2_MIN_STATE || HAS_Z2_MAX_STATE
+    #define HAS_Z2_STATE 1
   #endif
   #if NUM_Z_STEPPERS >= 3
     #if _USE_STOP(Z,3,MIN,)
       #define USE_Z3_MIN 1
-    #elif _USE_STOP(Z,3,MAX,)
+    #endif
+    #if _USE_STOP(Z,3,MAX,)
       #define USE_Z3_MAX 1
     #endif
-    #if USE_Z3_MIN || USE_Z3_MAX
-      #define HAS_Z3_ENDSTOP 1
+    #if _HAS_STATE(Z,3,MIN) || HAS_Z_MIN_STATE
+      #define HAS_Z3_MIN_STATE 1
+    #endif
+    #if _HAS_STATE(Z,3,MAX) || HAS_Z_MAX_STATE
+      #define HAS_Z3_MAX_STATE 1
+    #endif
+    #if HAS_Z3_MIN_STATE || HAS_Z3_MAX_STATE
+      #define HAS_Z3_STATE 1
     #endif
   #endif
   #if NUM_Z_STEPPERS >= 4
     #if _USE_STOP(Z,4,MIN,)
       #define USE_Z4_MIN 1
-    #elif _USE_STOP(Z,4,MAX,)
+    #endif
+    #if _USE_STOP(Z,4,MAX,)
       #define USE_Z4_MAX 1
     #endif
-    #if USE_Z4_MIN || USE_Z4_MAX
-      #define HAS_Z4_ENDSTOP 1
+    #if _HAS_STATE(Z,4,MIN) || HAS_Z_MIN_STATE
+      #define HAS_Z4_MIN_STATE 1
+    #endif
+    #if _HAS_STATE(Z,4,MAX) || HAS_Z_MAX_STATE
+      #define HAS_Z4_MAX_STATE 1
+    #endif
+    #if HAS_Z4_MIN_STATE || HAS_Z4_MAX_STATE
+      #define HAS_Z4_STATE 1
     #endif
   #endif
+#endif
+
+#if NEED_Z_MIN_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
+  #define USE_Z_MIN_PROBE 1
+#endif
+#if HAS_REAL_BED_PROBE
+  #define HAS_Z_PROBE_STATE 1
 #endif
 
 #undef _USE_STOP
@@ -2111,7 +2218,7 @@
   #if USE_Y_MAX
     #define ENDSTOPPULLUP_YMAX
   #endif
-  #if HAS_Z_MIN_PIN
+  #if USE_Z_MIN
     #define ENDSTOPPULLUP_ZMIN
   #endif
   #if USE_Z_MAX
@@ -2515,6 +2622,9 @@
 #endif
 #if !HAS_AUTO_COOLER_FAN || AUTO_COOLER_IS_E
   #undef AUTO_POWER_COOLER_FAN
+#endif
+#if !HAS_CUTTER
+  #undef AUTO_POWER_SPINDLE_LASER
 #endif
 
 /**
@@ -3140,15 +3250,15 @@
   #undef MOTOR_CURRENT
 #endif
 
-// Updated G92 behavior shifts the workspace
+// G92 shifts the workspace
 #if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_POSITION_SHIFT 1
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
   #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
-    #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
-    #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
   #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
   #endif
 #endif
 

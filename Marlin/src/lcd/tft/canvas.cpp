@@ -37,12 +37,14 @@ void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height
   startLine = 0;
   endLine = 0;
 
+  // The TFT handles DMA within the given canvas rectangle
+  // so whatever is drawn will be offset on the screen by x,y.
   tft.set_window(x, y, x + width - 1, y + height - 1);
 }
 
 void Canvas::next() {
   startLine = endLine;
-  endLine = TFT_BUFFER_SIZE < width * (height - startLine) ? startLine + TFT_BUFFER_SIZE / width : height;
+  endLine = (TFT_BUFFER_WORDS) < width * (height - startLine) ? startLine + (TFT_BUFFER_WORDS) / width : height;
 }
 
 bool Canvas::toScreen() {
@@ -99,28 +101,84 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
   uint16_t *data = (uint16_t *)images[image].data;
   if (!data) return;
 
-  uint16_t image_width = images[image].width,
-           image_height = images[image].height;
+  const uint16_t image_width = images[image].width,
+                image_height = images[image].height;
   colorMode_t color_mode = images[image].colorMode;
 
-  if (color_mode != HIGHCOLOR)
-    return addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
-
-  // HIGHCOLOR - 16 bits per pixel
-
-  for (int16_t i = 0; i < image_height; i++) {
-    int16_t line = y + i;
-    if (line >= startLine && line < endLine) {
-      uint16_t *pixel = buffer + x + (line - startLine) * width;
-      for (int16_t j = 0; j < image_width; j++) {
-        if ((x + j >= 0) && (x + j < width)) *pixel = ENDIAN_COLOR(*data);
-        pixel++;
-        data++;
+  if (color_mode == HIGHCOLOR) {
+    // HIGHCOLOR - 16 bits per pixel
+    int16_t line = y;
+    for (int16_t i = 0; i < image_height; i++, line++) {
+      if (WITHIN(line, startLine, endLine - 1)) {
+        uint16_t *pixel = buffer + x + (line - startLine) * width;
+        uint16_t cx = x;
+        for (int16_t j = 0; j < image_width; j++, cx++) {
+          if (WITHIN(cx, 0, width - 1)) {
+            uint16_t color = ENDIAN_COLOR(*data);
+            if (color == 0x0001) color = COLOR_BACKGROUND;
+            *pixel = color;
+          }
+          pixel++;
+          data++;
+        }
       }
+      else
+        data += image_width;
     }
-    else
-      data += image_width;
+    return;
   }
+
+  #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
+    // RLE16 HIGHCOLOR - 16 bits per pixel
+    if (color_mode == RLE16) {
+      uint8_t *bytedata = (uint8_t *)images[image].data;
+      if (!bytedata) return;
+
+      // Loop through the image data advancing the row and column as needed
+      int16_t srcy = 0, srcx = 0,                   // Image data line / column index
+              dsty = y, dstx = x;                   // Destination line / column index
+
+      uint16_t color = 0;                           // Persist the last fetched color value
+      bool done = false;
+      while (!done) {
+        uint8_t count = *bytedata++;                // Get the count byte
+        const bool uniq = bool(count & 0x80);       // >= 128 is a distinct run; < 128 is a repeat run
+        count = (count & 0x7F) + 1;                 // Actual count is 7-bit plus 1
+
+        bool getcol = true;                         // Get at least one color word
+        while (count--) {                           // Emit 'count' pixels
+
+          if (getcol) {
+            getcol = uniq;                          // Keep getting colors if not RLE
+            const uint16_t msb = *bytedata++,       // Color most-significant bits
+                           lsb = *bytedata++;       // Color least-significant bits
+            color = ENDIAN_COLOR((msb << 8) | lsb); // Color with proper endianness
+            if (color == 0x0001) color = COLOR_BACKGROUND; // 0x0001 is "transparent"
+          }
+
+          if (WITHIN(dsty, startLine, endLine - 1)) { // Dest pixel Y within the segment?
+            if (WITHIN(dstx, 0, width - 1)) {       // Dest pixel X within the canvas?
+              uint16_t * const pixel = buffer + dstx + (dsty - startLine) * width;
+              *pixel = color;                       // Store the color in the pixel
+            }
+          }
+
+          ++srcx; ++dstx;                           // Advance the pixel column
+          if (srcx >= image_width) {                // Past the right edge of the source image?
+            ++srcy; ++dsty;                         // Advance to the next line
+            srcx = 0; dstx = x;                     // May be shifted within the canvas, but usually not
+            if (dsty >= endLine || srcy >= image_height) { // Done with the segment or the image?
+              done = true;                          // Set a flag to end the loop...
+              break;                                // ...and break out of while(count--)
+            }
+          }
+        }
+      }
+      return;
+    }
+  #endif // COMPACT_MARLIN_BOOT_LOGO
+
+  addImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
 }
 
 void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors) {
@@ -138,8 +196,8 @@ void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_h
   colors--;
 
   for (int16_t i = 0; i < image_height; i++) {
-    int16_t line = y + i;
-    if (line >= startLine && line < endLine) {
+    const int16_t line = y + i;
+    if (WITHIN(line, startLine, endLine - 1)) {
       uint16_t *pixel = buffer + x + (line - startLine) * width;
       uint8_t offset = 8 - bitsPerPixel;
       for (int16_t j = 0; j < image_width; j++) {
@@ -147,7 +205,7 @@ void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_h
           data++;
           offset = 8 - bitsPerPixel;
         }
-        if ((x + j >= 0) && (x + j < width)) {
+        if (WITHIN(x + j, 0, width - 1)) {
           const uint8_t color = ((*data) >> offset) & mask;
           if (color) *pixel = *(colors + color);
         }
@@ -165,8 +223,8 @@ void Canvas::addRect(uint16_t x, uint16_t y, uint16_t rectangleWidth, uint16_t r
   if (endLine < y || startLine > y + rectangleHeight) return;
 
   for (uint16_t i = 0; i < rectangleHeight; i++) {
-    uint16_t line = y + i;
-    if (line >= startLine && line < endLine) {
+    const uint16_t line = y + i;
+    if (WITHIN(line, startLine, endLine - 1)) {
       uint16_t *pixel = buffer + x + (line - startLine) * width;
       if (i == 0 || i == rectangleHeight - 1) {
         for (uint16_t j = 0; j < rectangleWidth; j++) *pixel++ = color;
@@ -184,8 +242,8 @@ void Canvas::addBar(uint16_t x, uint16_t y, uint16_t barWidth, uint16_t barHeigh
   if (endLine < y || startLine > y + barHeight) return;
 
   for (uint16_t i = 0; i < barHeight; i++) {
-    uint16_t line = y + i;
-    if (line >= startLine && line < endLine) {
+    const uint16_t line = y + i;
+    if (WITHIN(line, startLine, endLine - 1)) {
       uint16_t *pixel = buffer + x + (line - startLine) * width;
       for (uint16_t j = 0; j < barWidth; j++) *pixel++ = color;
     }

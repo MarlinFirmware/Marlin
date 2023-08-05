@@ -121,12 +121,24 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void _print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix) {
   if (prefix) SERIAL_ECHO(prefix);
   #if NUM_AXES
     SERIAL_ECHOPGM_P(
       LIST_N(DOUBLE(NUM_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k, SP_U_STR, u, SP_V_STR, v, SP_W_STR, w)
     );
+  #endif
+}
+
+void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+  _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
+  if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
+}
+
+void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+  _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM_P(SP_E_STR, e);
   #endif
   if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
 }
