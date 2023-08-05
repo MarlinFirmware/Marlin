@@ -319,7 +319,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(MENU_ICON_X, MENU_ICON_Y, menu_main, imgSettings);
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
