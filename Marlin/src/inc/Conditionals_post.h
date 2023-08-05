@@ -2623,6 +2623,9 @@
 #if !HAS_AUTO_COOLER_FAN || AUTO_COOLER_IS_E
   #undef AUTO_POWER_COOLER_FAN
 #endif
+#if !HAS_CUTTER
+  #undef AUTO_POWER_SPINDLE_LASER
+#endif
 
 /**
  * Controller Fan Settings
