@@ -42,7 +42,7 @@ volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
 #endif
 int16_t Babystep::accum;
 
-#if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+#if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
   int16_t Babystep::ep_babysteps;
 #endif
 
@@ -66,7 +66,7 @@ void Babystep::add_mm(const AxisEnum axis, const_float_t mm) {
     steps[BS_AXIS_IND(axis)] = distance;
     TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] = distance);
     TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
-    TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+    TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
   }
 #endif
 
@@ -77,7 +77,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
   steps[BS_AXIS_IND(axis)] += distance;
   TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] += distance);
   TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
-  TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+  TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
 }
 
 #if ENABLED(EP_BABYSTEPPING)

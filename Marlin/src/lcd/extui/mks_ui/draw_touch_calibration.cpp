@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, TOUCH_SCREEN_CALIBRATION)
+#if ALL(HAS_TFT_LVGL_UI, TOUCH_SCREEN_CALIBRATION)
 
 #include "draw_ui.h"
 #include "draw_touch_calibration.h"
@@ -47,9 +47,9 @@ enum {
 
 static void drawCross(uint16_t x, uint16_t y, uint16_t color) {
   SPI_TFT.tftio.set_window(x - 15, y, x + 15, y);
-  SPI_TFT.tftio.WriteMultiple(color, 31);
+  SPI_TFT.tftio.writeMultiple(color, 31);
   SPI_TFT.tftio.set_window(x, y - 15, x, y + 15);
-  SPI_TFT.tftio.WriteMultiple(color, 31);
+  SPI_TFT.tftio.writeMultiple(color, 31);
 }
 
 void lv_update_touch_calibration_screen() {
@@ -62,8 +62,8 @@ void lv_update_touch_calibration_screen() {
   }
   else {
     // clear last cross
-    x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
-    y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+    x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_LEFT)].x;
+    y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_LEFT)].y;
     drawCross(x, y, LV_COLOR_BACKGROUND.full);
   }
 
@@ -72,9 +72,9 @@ void lv_update_touch_calibration_screen() {
     // handle current state
     switch (stage) {
       case CALIBRATION_TOP_LEFT:     str = GET_TEXT(MSG_TOP_LEFT); break;
-      case CALIBRATION_BOTTOM_LEFT:  str = GET_TEXT(MSG_BOTTOM_LEFT); break;
       case CALIBRATION_TOP_RIGHT:    str = GET_TEXT(MSG_TOP_RIGHT); break;
       case CALIBRATION_BOTTOM_RIGHT: str = GET_TEXT(MSG_BOTTOM_RIGHT); break;
+      case CALIBRATION_BOTTOM_LEFT:  str = GET_TEXT(MSG_BOTTOM_LEFT); break;
       default: break;
     }
 

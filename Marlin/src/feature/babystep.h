@@ -23,15 +23,10 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
-  #define BABYSTEPS_PER_SEC 1000UL
-  #define BABYSTEP_TICKS ((STEPPER_TIMER_RATE) / (BABYSTEPS_PER_SEC))
-#else
-  #define BABYSTEPS_PER_SEC 976UL
-  #define BABYSTEP_TICKS ((TEMP_TIMER_RATE) / (BABYSTEPS_PER_SEC))
-#endif
+#define BABYSTEPS_PER_SEC 1000UL
+#define BABYSTEP_TICKS ((STEPPER_TIMER_RATE) / (BABYSTEPS_PER_SEC))
 
-#if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
+#if ANY(IS_CORE, BABYSTEP_XY, I2C_POSITION_ENCODERS)
   #define BS_AXIS_IND(A) A
   #define BS_AXIS(I) AxisEnum(I)
 #else
@@ -52,7 +47,7 @@ public:
   static volatile int16_t steps[BS_AXIS_IND(Z_AXIS) + 1];
   static int16_t accum;                                     // Total babysteps in current edit
 
-  #if BOTH(EP_BABYSTEPPING, EMERGENCY_PARSER)
+  #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
     static int16_t ep_babysteps;
   #endif
 
@@ -95,7 +90,7 @@ public:
   // apply accumulated babysteps to the axes.
   //
   static void task() {
-    LOOP_LE_N(i, BS_AXIS_IND(Z_AXIS)) step_axis(BS_AXIS(i));
+    for (uint8_t i = 0; i <= BS_AXIS_IND(Z_AXIS); ++i) step_axis(BS_AXIS(i));
   }
 
 private:

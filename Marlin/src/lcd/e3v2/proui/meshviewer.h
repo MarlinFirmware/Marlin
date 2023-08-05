@@ -24,17 +24,19 @@
 /**
  * Mesh Viewer for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * version: 3.14.1
- * Date: 2022/04/11
+ * version: 4.2.1
+ * Date: 2023/05/05
  */
 
-class MeshViewerClass {
+class MeshViewer {
 public:
-  float max, min;
-  void Draw(bool withsave = false);
-  void DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8_t sizey);
+  static float max, min;
+  static void drawMeshGrid(const uint8_t csizex, const uint8_t csizey);
+  static void drawMeshPoint(const uint8_t x, const uint8_t y, const float z);
+  static void draw(const bool withsave=false, const bool redraw=true);
+  static void drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
 };
 
-extern MeshViewerClass MeshViewer;
+extern MeshViewer meshViewer;
 
-void Goto_MeshViewer();
+void gotoMeshViewer(const bool redraw);

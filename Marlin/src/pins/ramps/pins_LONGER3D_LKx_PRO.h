@@ -127,7 +127,7 @@
 //    Aux-1 | D19 D18 GND 5V |    J21 | D4 D5 D6 GND |    J17 | D11 GND 24V |    J18 | D7 GND 5V |
 //          ------------------        ----------------        ---------------        -------------
 
-#if BOTH(CR10_STOCKDISPLAY, LONGER_LK5)
+#if ALL(CR10_STOCKDISPLAY, LONGER_LK5)
   /**       CR-10 Stock Display
    *             ------
    * BEEPER D11 | 1  2 | D15 ENC
