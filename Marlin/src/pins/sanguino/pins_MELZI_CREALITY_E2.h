@@ -56,9 +56,9 @@
 //
 // LCD / Controller
 //
-#if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+#if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
   #if ENABLED(CR10_STOCKDISPLAY)
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
     #endif
     #define LCD_PINS_RS              EXP1_07_PIN  // ST9720 CS

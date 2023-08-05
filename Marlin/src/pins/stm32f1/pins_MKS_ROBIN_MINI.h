@@ -43,7 +43,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE              (0x800U)  // 2K
   #define EEPROM_START_ADDRESS      (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -172,7 +172,7 @@
 
 #if ENABLED(TFT_320x240)                          // TFT32/28
   #define TFT_DRIVER                     ILI9341
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
   #define ILI9341_COLOR_RGB
   // YV for normal screen mounting
   #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV

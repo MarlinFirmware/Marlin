@@ -361,8 +361,8 @@
       #define LCD_PINS_EN                  -1
       #define LCD_PINS_RS                  -1
 
-      #ifndef TFT_BUFFER_SIZE
-        #define TFT_BUFFER_SIZE             1200
+      #ifndef TFT_BUFFER_WORDS
+        #define TFT_BUFFER_WORDS            1200
       #endif
       #ifndef TFT_QUEUE_SIZE
         #define TFT_QUEUE_SIZE              6144
@@ -389,7 +389,7 @@
 
         #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             #define RGB_LED_R_PIN    EXP1_06_PIN
           #endif

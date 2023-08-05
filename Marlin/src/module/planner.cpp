@@ -795,7 +795,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+  #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
     uint32_t cruise_rate = block->nominal_rate;
   #endif
@@ -829,7 +829,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
       decelerate_steps = block->step_event_count - accelerate_steps;
 
-      #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+      #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
         cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
       #endif
@@ -1349,7 +1349,7 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if EITHER(HAS_TAIL_FAN_SPEED, BARICUDA)
+    #if ANY(HAS_TAIL_FAN_SPEED, BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
@@ -1520,7 +1520,7 @@ void Planner::check_axes_activity() {
    * The multiplier converts a given E value into a length.
    */
   void Planner::calculate_volumetric_multipliers() {
-    LOOP_L_N(i, COUNT(filament_size)) {
+    for (uint8_t i = 0; i < COUNT(filament_size); ++i) {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
@@ -1773,7 +1773,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
-  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
+  #elif ANY(MARKFORGED_XY, MARKFORGED_YX)
 
     // Requesting one of the joined axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
@@ -1925,7 +1925,7 @@ bool Planner::_populate_block(
     );
   //*/
 
-  #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
+  #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
     if (dist.e) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
@@ -2260,7 +2260,7 @@ bool Planner::_populate_block(
       #if ENABLED(DISABLE_OTHER_EXTRUDERS) // Enable only the selected extruder
 
         // Count down all steppers that were recently moved
-        LOOP_L_N(i, E_STEPPERS)
+        for (uint8_t i = 0; i < E_STEPPERS; ++i)
           if (extruder_last_move[i]) extruder_last_move[i]--;
 
         // Switching Extruder uses one E stepper motor per two nozzles
@@ -2299,7 +2299,7 @@ bool Planner::_populate_block(
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
   float inverse_secs = inverse_millimeters * (
-    #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+    #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
       cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
     #else
       fr_mm_s
@@ -2310,7 +2310,7 @@ bool Planner::_populate_block(
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if EITHER(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if ANY(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time in microseconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2419,8 +2419,8 @@ bool Planner::_populate_block(
         xs2 = xs1; xs1 = xs0;
         ys2 = ys1; ys1 = ys0;
       }
-      xs0 = TEST(direction_change, X_AXIS) ? segment_time_us : xy_freq_min_interval_us;
-      ys0 = TEST(direction_change, Y_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+      xs0 = direction_change.x ? segment_time_us : xy_freq_min_interval_us;
+      ys0 = direction_change.y ? segment_time_us : xy_freq_min_interval_us;
 
       if (segment_time_us < xy_freq_min_interval_us) {
         const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));
@@ -2907,7 +2907,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   #if ENABLED(BACKLASH_COMPENSATION)
     LOOP_NUM_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
   #endif
-  #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
+  #if ALL(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 

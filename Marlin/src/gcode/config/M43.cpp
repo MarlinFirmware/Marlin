@@ -61,7 +61,7 @@ inline void toggle_pins() {
             end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
-  LOOP_S_LE_N(i, start, end) {
+  for (uint8_t i = start; i <= end; ++i) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
@@ -139,17 +139,15 @@ inline void servo_probe_test() {
     bool deploy_state = false, stow_state;
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      constexpr bool probe_hit_state = Z_MIN_ENDSTOP_HIT_STATE;
       #define PROBE_TEST_PIN Z_MIN_PIN
       #define _PROBE_PREF "Z_MIN"
     #else
-      constexpr bool probe_hit_state = Z_MIN_PROBE_ENDSTOP_HIT_STATE;
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       #define _PROBE_PREF "Z_MIN_PROBE"
     #endif
 
     SERIAL_ECHOLNPGM(". Probe " _PROBE_PREF "_PIN: ", PROBE_TEST_PIN);
-    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), probe_hit_state, F("HIGH"), F("LOW"));
+    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), PROBE_HIT_STATE, F("HIGH"), F("LOW"));
     SERIAL_EOL();
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
@@ -166,11 +164,11 @@ inline void servo_probe_test() {
       SERIAL_ECHOLNPGM(". Check for BLTOUCH");
       bltouch._reset();
       bltouch._stow();
-      if (READ(PROBE_TEST_PIN) != probe_hit_state) {
+      if (!PROBE_TRIGGERED()) {
         bltouch._set_SW_mode();
-        if (READ(PROBE_TEST_PIN) == probe_hit_state) {
+        if (PROBE_TRIGGERED()) {
           bltouch._deploy();
-          if (READ(PROBE_TEST_PIN) != probe_hit_state) {
+          if (!PROBE_TRIGGERED()) {
             bltouch._stow();
             SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
             // Check for a 3.1 by letting the user trigger it, later
@@ -189,7 +187,7 @@ inline void servo_probe_test() {
       // DEPLOY and STOW 4 times and see if the signal follows
       // Then it is a mechanical switch
       SERIAL_ECHOLNPGM(". Deploy & stow 4 times");
-      LOOP_L_N(i, 4) {
+      for (uint8_t i = 0; i < 4; ++i) {
         servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
         safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
@@ -198,7 +196,7 @@ inline void servo_probe_test() {
         stow_state = READ(PROBE_TEST_PIN);
       }
 
-      if (probe_hit_state == deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_HIT_STATE is probably wrong.");
+      if (PROBE_HIT_STATE == deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_HIT_STATE is probably wrong.");
 
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
@@ -294,9 +292,7 @@ void GcodeSuite::M43() {
   // 'E' Enable or disable endstop monitoring and return
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
-    SERIAL_ECHOPGM("endstop monitor ");
-    SERIAL_ECHOF(endstops.monitor_flag ? F("en") : F("dis"));
-    SERIAL_ECHOLNPGM("abled");
+    SERIAL_ECHOLN(F("endstop monitor "), endstops.monitor_flag ? F("en") : F("dis"), F("abled"));
     return;
   }
 
@@ -328,7 +324,7 @@ void GcodeSuite::M43() {
     const uint8_t pin_count = last_pin - first_pin + 1;
     uint8_t pin_state[pin_count];
     bool can_watch = false;
-    LOOP_S_LE_N(i, first_pin, last_pin) {
+    for (uint8_t i = first_pin; i <= last_pin; ++i) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -371,7 +367,7 @@ void GcodeSuite::M43() {
     #endif
 
     for (;;) {
-      LOOP_S_LE_N(i, first_pin, last_pin) {
+      for (uint8_t i = first_pin; i <= last_pin; ++i) {
         const pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -400,7 +396,7 @@ void GcodeSuite::M43() {
   }
   else {
     // Report current state of selected pin(s)
-    LOOP_S_LE_N(i, first_pin, last_pin) {
+    for (uint8_t i = first_pin; i <= last_pin; ++i) {
       const pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }

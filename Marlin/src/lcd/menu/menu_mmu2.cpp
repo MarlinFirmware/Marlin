@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_MARLINUI_MENU, MMU2_MENUS)
+#if ALL(HAS_MARLINUI_MENU, MMU2_MENUS)
 
 #include "../../MarlinCore.h"
 #include "../../feature/mmu/mmu2.h"

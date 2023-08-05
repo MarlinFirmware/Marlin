@@ -24,7 +24,6 @@
 
 #include "tool_change.h"
 
-#include "probe.h"
 #include "motion.h"
 #include "planner.h"
 #include "temperature.h"
@@ -90,6 +89,10 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "probe.h"
 #endif
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -250,7 +253,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    LOOP_LE_N(n, 1) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+    for (uint8_t n = 0; n <= 1; ++n) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
   }
 
   void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state) {
@@ -1165,7 +1168,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+      #if ALL(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
         // Store and stop fan. Restored on any exit.
         REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
       #endif
@@ -1277,7 +1280,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
-      #elif EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #elif ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         if (!no_move) {
           current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
           fast_line_to_current(Z_AXIS);
@@ -1308,7 +1311,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+        #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
           thermalManager.singlenozzle_change(old_tool, new_tool);
         #endif
 
@@ -1414,19 +1417,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
         // G0/G1/G2/G3/G5 moves are relative to the active tool.
         // Shift the workspace to make custom moves relative to T0.
-        xyz_pos_t old_position_shift;
+        xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
-          old_position_shift = position_shift;
+          old_workspace_offset = workspace_offset;
           const xyz_pos_t &he = hotend_offset[new_tool];
-          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
-            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
-            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
-            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
-          #endif
+          TERN_(TC_GCODE_USE_GLOBAL_X, workspace_offset.x -= he.x);
+          TERN_(TC_GCODE_USE_GLOBAL_Y, workspace_offset.y -= he.y);
+          TERN_(TC_GCODE_USE_GLOBAL_Z, workspace_offset.z -= he.z);
         }
       #endif
 
@@ -1459,17 +1456,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
 
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
-        if (new_tool > 0) {
-          position_shift = old_position_shift;
-          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
-        }
+        if (new_tool > 0) workspace_offset = old_workspace_offset;
       #endif
 
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
       // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
-      #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);
