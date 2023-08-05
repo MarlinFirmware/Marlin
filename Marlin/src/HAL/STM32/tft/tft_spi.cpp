@@ -31,6 +31,10 @@
 #include "tft_spi.h"
 #include "pinconfig.h"
 
+#define DEBUG_TFT_IO
+#define DEBUG_OUT ENABLED(DEBUG_TFT_IO)
+#include "../../../core/debug_out.h"
+
 SPI_HandleTypeDef TFT_SPI::SPIx;
 DMA_HandleTypeDef TFT_SPI::DMAtx;
 
@@ -158,13 +162,31 @@ void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
 #endif
 
 uint32_t TFT_SPI::getID() {
+  DEBUG_ECHOLNPGM("TFT_SPI::getID()");
   uint32_t id;
   id = readID(LCD_READ_ID);
+  #if ENABLED(DEBUG_TFT_IO)
+    char debug_register[3], debug_value[5];
+    sprintf(debug_register, "%02X", LCD_READ_ID);
+    sprintf(debug_value, "%04X", uint16_t(id));
+    DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
+  #endif
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
     id = readID(LCD_READ_ID4);
+    #if ENABLED(DEBUG_TFT_IO)
+      sprintf(debug_register, "%02X", LCD_READ_ID);
+      sprintf(debug_value, "%04X", uint16_t(id));
+      DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
+      id = 0;
+    #endif
     #ifdef TFT_DEFAULT_DRIVER
-      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
         id = TFT_DEFAULT_DRIVER;
+        #if ENABLED(DEBUG_TFT_IO)
+          sprintf(debug_value, "%04X", uint16_t(id));
+          DEBUG_ECHOLNPGM("  Fallback to TFT_DEFAULT_DRIVER : 0x", debug_value);
+        #endif
+      }
     #endif
    }
   return id;
@@ -211,6 +233,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     SPIx.Init.BaudRatePrescaler = oldPrescaler;
   #endif
 
+  DEBUG_ECHOLNPGM("  raw data : ", data);
   return data >> 7;
 }
 
