@@ -177,7 +177,6 @@ uint32_t TFT_SPI::getID() {
       sprintf(debug_register, "%02X", LCD_READ_ID4);
       sprintf(debug_value, "%04X", uint16_t(id));
       DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
-      id = 0;
     #endif
     #ifdef TFT_DEFAULT_DRIVER
       if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
