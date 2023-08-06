@@ -270,11 +270,13 @@ typedef struct SettingsDataStruct {
   //
   // MESH_BED_LEVELING
   //
-  float mbl_z_offset;                                   // bedlevel.z_offset
-  uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
-  uint16_t mesh_check;                                  // Hash to check against X/Y
-  float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
-                    [TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3)];
+  #if ENABLED(MESH_BED_LEVELING)
+    float mbl_z_offset;                                   // bedlevel.z_offset
+    uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
+    uint16_t mesh_check;                                  // Hash to check against X/Y
+    float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
+                      [TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3)];
+  #endif
 
   //
   // HAS_BED_PROBE
@@ -463,11 +465,12 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC_CONFIG
   //
-  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
-  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
-  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
-  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
-
+  #if HAS_TRINAMIC_CONFIG
+    per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
+    per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+    mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
+    per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
+  #endif
   //
   // LIN_ADVANCE
   //
@@ -493,7 +496,9 @@ typedef struct SettingsDataStruct {
   // CNC_COORDINATE_SYSTEMS
   //
   #if NUM_AXES
-    xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS]; // G54-G59.3
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)  
+      xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS]; // G54-G59.3
+    #endif
   #endif
 
   //
@@ -931,31 +936,23 @@ void MarlinSettings::postprocess() {
     // Mesh Bed Leveling
     //
     {
-      #if ENABLED(MESH_BED_LEVELING)
-        static_assert(
-          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
-          "MBL Z array is the wrong size."
-        );
-      #else
-        dummyf = 0;
-      #endif
+    #if ENABLED(MESH_BED_LEVELING)
+      static_assert(
+        sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
+        "MBL Z array is the wrong size."
+      );
 
       const uint8_t mesh_num_x = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3),
                     mesh_num_y = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3);
 
-      EEPROM_WRITE(TERN(MESH_BED_LEVELING, bedlevel.z_offset, dummyf));
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
 
       // Check value for the X/Y values
       const uint16_t mesh_check = TWO_BYTE_HASH(mesh_num_x, mesh_num_y);
       EEPROM_WRITE(mesh_check);
-
-      #if ENABLED(MESH_BED_LEVELING)
-        EEPROM_WRITE(bedlevel.z_values);
-      #else
-        for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummyf);
-      #endif
+      EEPROM_WRITE(bedlevel.z_values);
+    #endif
     }
 
     //
@@ -1319,180 +1316,189 @@ void MarlinSettings::postprocess() {
     // TMC Configuration
     //
     {
-      _FIELD_TEST(tmc_stepper_current);
+      #if HAS_TRINAMIC_CONFIG      
+        _FIELD_TEST(tmc_stepper_current);
 
-      per_stepper_uint16_t tmc_stepper_current{0};
+        per_stepper_uint16_t tmc_stepper_current{0};
 
-      #if HAS_TRINAMIC_CONFIG
-        #if AXIS_IS_TMC(X)
-          tmc_stepper_current.X = stepperX.getMilliamps();
+        #if HAS_TRINAMIC_CONFIG
+          #if AXIS_IS_TMC(X)
+            tmc_stepper_current.X = stepperX.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Y)
+            tmc_stepper_current.Y = stepperY.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Z)
+            tmc_stepper_current.Z = stepperZ.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(I)
+            tmc_stepper_current.I = stepperI.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(J)
+            tmc_stepper_current.J = stepperJ.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(K)
+            tmc_stepper_current.K = stepperK.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(U)
+            tmc_stepper_current.U = stepperU.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(V)
+            tmc_stepper_current.V = stepperV.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(W)
+            tmc_stepper_current.W = stepperW.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(X2)
+            tmc_stepper_current.X2 = stepperX2.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            tmc_stepper_current.Y2 = stepperY2.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(Z4)
+            tmc_stepper_current.Z4 = stepperZ4.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E0)
+            tmc_stepper_current.E0 = stepperE0.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E1)
+            tmc_stepper_current.E1 = stepperE1.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E2)
+            tmc_stepper_current.E2 = stepperE2.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E3)
+            tmc_stepper_current.E3 = stepperE3.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E4)
+            tmc_stepper_current.E4 = stepperE4.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E5)
+            tmc_stepper_current.E5 = stepperE5.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E6)
+            tmc_stepper_current.E6 = stepperE6.getMilliamps();
+          #endif
+          #if AXIS_IS_TMC(E7)
+            tmc_stepper_current.E7 = stepperE7.getMilliamps();
+          #endif
         #endif
-        #if AXIS_IS_TMC(Y)
-          tmc_stepper_current.Y = stepperY.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z)
-          tmc_stepper_current.Z = stepperZ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(I)
-          tmc_stepper_current.I = stepperI.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(J)
-          tmc_stepper_current.J = stepperJ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(K)
-          tmc_stepper_current.K = stepperK.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(U)
-          tmc_stepper_current.U = stepperU.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(V)
-          tmc_stepper_current.V = stepperV.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(W)
-          tmc_stepper_current.W = stepperW.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc_stepper_current.X2 = stepperX2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc_stepper_current.Y2 = stepperY2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          tmc_stepper_current.Z4 = stepperZ4.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E0)
-          tmc_stepper_current.E0 = stepperE0.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E1)
-          tmc_stepper_current.E1 = stepperE1.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E2)
-          tmc_stepper_current.E2 = stepperE2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E3)
-          tmc_stepper_current.E3 = stepperE3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E4)
-          tmc_stepper_current.E4 = stepperE4.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E5)
-          tmc_stepper_current.E5 = stepperE5.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E6)
-          tmc_stepper_current.E6 = stepperE6.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E7)
-          tmc_stepper_current.E7 = stepperE7.getMilliamps();
-        #endif
+        EEPROM_WRITE(tmc_stepper_current);
       #endif
-      EEPROM_WRITE(tmc_stepper_current);
     }
 
     //
     // TMC Hybrid Threshold, and placeholder values
     //
     {
-      _FIELD_TEST(tmc_hybrid_threshold);
+      #if HAS_TRINAMIC_CONFIG         
+        _FIELD_TEST(tmc_hybrid_threshold);
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        per_stepper_uint32_t tmc_hybrid_threshold{0};
-        TERN_(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
-        TERN_(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
-        TERN_(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
-        TERN_(I_HAS_STEALTHCHOP,  tmc_hybrid_threshold.I =  stepperI.get_pwm_thrs());
-        TERN_(J_HAS_STEALTHCHOP,  tmc_hybrid_threshold.J =  stepperJ.get_pwm_thrs());
-        TERN_(K_HAS_STEALTHCHOP,  tmc_hybrid_threshold.K =  stepperK.get_pwm_thrs());
-        TERN_(U_HAS_STEALTHCHOP,  tmc_hybrid_threshold.U =  stepperU.get_pwm_thrs());
-        TERN_(V_HAS_STEALTHCHOP,  tmc_hybrid_threshold.V =  stepperV.get_pwm_thrs());
-        TERN_(W_HAS_STEALTHCHOP,  tmc_hybrid_threshold.W =  stepperW.get_pwm_thrs());
-        TERN_(X2_HAS_STEALTHCHOP, tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs());
-        TERN_(Y2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs());
-        TERN_(Z2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs());
-        TERN_(Z3_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs());
-        TERN_(Z4_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs());
-        TERN_(E0_HAS_STEALTHCHOP, tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs());
-        TERN_(E1_HAS_STEALTHCHOP, tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs());
-        TERN_(E2_HAS_STEALTHCHOP, tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs());
-        TERN_(E3_HAS_STEALTHCHOP, tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs());
-        TERN_(E4_HAS_STEALTHCHOP, tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs());
-        TERN_(E5_HAS_STEALTHCHOP, tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs());
-        TERN_(E6_HAS_STEALTHCHOP, tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs());
-        TERN_(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
-      #else
-        #define _EN_ITEM(N) , .E##N =  30
-        const per_stepper_uint32_t tmc_hybrid_threshold = {
-          NUM_AXIS_LIST_(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .U = 3, .V = 3, .W = 3)
-          .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
-          REPEAT(E_STEPPERS, _EN_ITEM)
-        };
-        #undef _EN_ITEM
+        #if ENABLED(HYBRID_THRESHOLD)
+          per_stepper_uint32_t tmc_hybrid_threshold{0};
+          TERN_(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
+          TERN_(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
+          TERN_(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
+          TERN_(I_HAS_STEALTHCHOP,  tmc_hybrid_threshold.I =  stepperI.get_pwm_thrs());
+          TERN_(J_HAS_STEALTHCHOP,  tmc_hybrid_threshold.J =  stepperJ.get_pwm_thrs());
+          TERN_(K_HAS_STEALTHCHOP,  tmc_hybrid_threshold.K =  stepperK.get_pwm_thrs());
+          TERN_(U_HAS_STEALTHCHOP,  tmc_hybrid_threshold.U =  stepperU.get_pwm_thrs());
+          TERN_(V_HAS_STEALTHCHOP,  tmc_hybrid_threshold.V =  stepperV.get_pwm_thrs());
+          TERN_(W_HAS_STEALTHCHOP,  tmc_hybrid_threshold.W =  stepperW.get_pwm_thrs());
+          TERN_(X2_HAS_STEALTHCHOP, tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs());
+          TERN_(Y2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs());
+          TERN_(Z2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs());
+          TERN_(Z3_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs());
+          TERN_(Z4_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs());
+          TERN_(E0_HAS_STEALTHCHOP, tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs());
+          TERN_(E1_HAS_STEALTHCHOP, tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs());
+          TERN_(E2_HAS_STEALTHCHOP, tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs());
+          TERN_(E3_HAS_STEALTHCHOP, tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs());
+          TERN_(E4_HAS_STEALTHCHOP, tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs());
+          TERN_(E5_HAS_STEALTHCHOP, tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs());
+          TERN_(E6_HAS_STEALTHCHOP, tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs());
+          TERN_(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
+        #else
+          #define _EN_ITEM(N) , .E##N =  30
+          const per_stepper_uint32_t tmc_hybrid_threshold = {
+            NUM_AXIS_LIST_(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .U = 3, .V = 3, .W = 3)
+            .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
+            REPEAT(E_STEPPERS, _EN_ITEM)
+          };
+          #undef _EN_ITEM
+        #endif
+        EEPROM_WRITE(tmc_hybrid_threshold);
       #endif
-      EEPROM_WRITE(tmc_hybrid_threshold);
     }
 
     //
     // TMC StallGuard threshold
     //
     {
-      mot_stepper_int16_t tmc_sgt{0};
-      #if USE_SENSORLESS
-        NUM_AXIS_CODE(
-          TERN_(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold()),
-          TERN_(Y_SENSORLESS, tmc_sgt.Y = stepperY.homing_threshold()),
-          TERN_(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold()),
-          TERN_(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
-          TERN_(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
-          TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
-          TERN_(U_SENSORLESS, tmc_sgt.U = stepperU.homing_threshold()),
-          TERN_(V_SENSORLESS, tmc_sgt.V = stepperV.homing_threshold()),
-          TERN_(W_SENSORLESS, tmc_sgt.W = stepperW.homing_threshold())
-        );
-        TERN_(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
-        TERN_(Y2_SENSORLESS, tmc_sgt.Y2 = stepperY2.homing_threshold());
-        TERN_(Z2_SENSORLESS, tmc_sgt.Z2 = stepperZ2.homing_threshold());
-        TERN_(Z3_SENSORLESS, tmc_sgt.Z3 = stepperZ3.homing_threshold());
-        TERN_(Z4_SENSORLESS, tmc_sgt.Z4 = stepperZ4.homing_threshold());
+      #if HAS_TRINAMIC_CONFIG   
+        mot_stepper_int16_t tmc_sgt{0};
+        #if USE_SENSORLESS
+          NUM_AXIS_CODE(
+            TERN_(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold()),
+            TERN_(Y_SENSORLESS, tmc_sgt.Y = stepperY.homing_threshold()),
+            TERN_(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold()),
+            TERN_(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
+            TERN_(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
+            TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
+            TERN_(U_SENSORLESS, tmc_sgt.U = stepperU.homing_threshold()),
+            TERN_(V_SENSORLESS, tmc_sgt.V = stepperV.homing_threshold()),
+            TERN_(W_SENSORLESS, tmc_sgt.W = stepperW.homing_threshold())
+          );
+          TERN_(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
+          TERN_(Y2_SENSORLESS, tmc_sgt.Y2 = stepperY2.homing_threshold());
+          TERN_(Z2_SENSORLESS, tmc_sgt.Z2 = stepperZ2.homing_threshold());
+          TERN_(Z3_SENSORLESS, tmc_sgt.Z3 = stepperZ3.homing_threshold());
+          TERN_(Z4_SENSORLESS, tmc_sgt.Z4 = stepperZ4.homing_threshold());
+        #endif
+        EEPROM_WRITE(tmc_sgt);
       #endif
-      EEPROM_WRITE(tmc_sgt);
     }
 
     //
     // TMC stepping mode
     //
     {
-      _FIELD_TEST(tmc_stealth_enabled);
+      #if HAS_TRINAMIC_CONFIG         
+        _FIELD_TEST(tmc_stealth_enabled);
 
-      per_stepper_bool_t tmc_stealth_enabled = { false };
-      TERN_(X_HAS_STEALTHCHOP,  tmc_stealth_enabled.X  = stepperX.get_stored_stealthChop());
-      TERN_(Y_HAS_STEALTHCHOP,  tmc_stealth_enabled.Y  = stepperY.get_stored_stealthChop());
-      TERN_(Z_HAS_STEALTHCHOP,  tmc_stealth_enabled.Z  = stepperZ.get_stored_stealthChop());
-      TERN_(I_HAS_STEALTHCHOP,  tmc_stealth_enabled.I  = stepperI.get_stored_stealthChop());
-      TERN_(J_HAS_STEALTHCHOP,  tmc_stealth_enabled.J  = stepperJ.get_stored_stealthChop());
-      TERN_(K_HAS_STEALTHCHOP,  tmc_stealth_enabled.K  = stepperK.get_stored_stealthChop());
-      TERN_(U_HAS_STEALTHCHOP,  tmc_stealth_enabled.U  = stepperU.get_stored_stealthChop());
-      TERN_(V_HAS_STEALTHCHOP,  tmc_stealth_enabled.V  = stepperV.get_stored_stealthChop());
-      TERN_(W_HAS_STEALTHCHOP,  tmc_stealth_enabled.W  = stepperW.get_stored_stealthChop());
-      TERN_(X2_HAS_STEALTHCHOP, tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop());
-      TERN_(Y2_HAS_STEALTHCHOP, tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop());
-      TERN_(Z2_HAS_STEALTHCHOP, tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop());
-      TERN_(Z3_HAS_STEALTHCHOP, tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop());
-      TERN_(Z4_HAS_STEALTHCHOP, tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop());
-      TERN_(E0_HAS_STEALTHCHOP, tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop());
-      TERN_(E1_HAS_STEALTHCHOP, tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop());
-      TERN_(E2_HAS_STEALTHCHOP, tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop());
-      TERN_(E3_HAS_STEALTHCHOP, tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop());
-      TERN_(E4_HAS_STEALTHCHOP, tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop());
-      TERN_(E5_HAS_STEALTHCHOP, tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop());
-      TERN_(E6_HAS_STEALTHCHOP, tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop());
-      TERN_(E7_HAS_STEALTHCHOP, tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop());
-      EEPROM_WRITE(tmc_stealth_enabled);
+        per_stepper_bool_t tmc_stealth_enabled = { false };
+        TERN_(X_HAS_STEALTHCHOP,  tmc_stealth_enabled.X  = stepperX.get_stored_stealthChop());
+        TERN_(Y_HAS_STEALTHCHOP,  tmc_stealth_enabled.Y  = stepperY.get_stored_stealthChop());
+        TERN_(Z_HAS_STEALTHCHOP,  tmc_stealth_enabled.Z  = stepperZ.get_stored_stealthChop());
+        TERN_(I_HAS_STEALTHCHOP,  tmc_stealth_enabled.I  = stepperI.get_stored_stealthChop());
+        TERN_(J_HAS_STEALTHCHOP,  tmc_stealth_enabled.J  = stepperJ.get_stored_stealthChop());
+        TERN_(K_HAS_STEALTHCHOP,  tmc_stealth_enabled.K  = stepperK.get_stored_stealthChop());
+        TERN_(U_HAS_STEALTHCHOP,  tmc_stealth_enabled.U  = stepperU.get_stored_stealthChop());
+        TERN_(V_HAS_STEALTHCHOP,  tmc_stealth_enabled.V  = stepperV.get_stored_stealthChop());
+        TERN_(W_HAS_STEALTHCHOP,  tmc_stealth_enabled.W  = stepperW.get_stored_stealthChop());
+        TERN_(X2_HAS_STEALTHCHOP, tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop());
+        TERN_(Y2_HAS_STEALTHCHOP, tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop());
+        TERN_(Z2_HAS_STEALTHCHOP, tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop());
+        TERN_(Z3_HAS_STEALTHCHOP, tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop());
+        TERN_(Z4_HAS_STEALTHCHOP, tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop());
+        TERN_(E0_HAS_STEALTHCHOP, tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop());
+        TERN_(E1_HAS_STEALTHCHOP, tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop());
+        TERN_(E2_HAS_STEALTHCHOP, tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop());
+        TERN_(E3_HAS_STEALTHCHOP, tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop());
+        TERN_(E4_HAS_STEALTHCHOP, tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop());
+        TERN_(E5_HAS_STEALTHCHOP, tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop());
+        TERN_(E6_HAS_STEALTHCHOP, tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop());
+        TERN_(E7_HAS_STEALTHCHOP, tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop());
+        EEPROM_WRITE(tmc_stealth_enabled);
+      #endif
     }
+    #endif
 
     //
     // Linear Advance
@@ -1526,11 +1532,10 @@ void MarlinSettings::postprocess() {
     // CNC Coordinate Systems
     //
     #if NUM_AXES
-      _FIELD_TEST(coordinate_system);
-      #if DISABLED(CNC_COORDINATE_SYSTEMS)
-        const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        _FIELD_TEST(coordinate_system);
+        EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
       #endif
-      EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
     #endif
 
     //
@@ -1945,20 +1950,20 @@ void MarlinSettings::postprocess() {
       // Mesh (Manual) Bed Leveling
       //
       {
-        uint8_t mesh_num_x, mesh_num_y;
-        uint16_t mesh_check;
-        EEPROM_READ(dummyf);
-        EEPROM_READ_ALWAYS(mesh_num_x);
-        EEPROM_READ_ALWAYS(mesh_num_y);
+        #if ENABLED(MESH_BED_LEVELING)        
+          uint8_t mesh_num_x, mesh_num_y;
+          uint16_t mesh_check;
+          EEPROM_READ(dummyf);
+          EEPROM_READ_ALWAYS(mesh_num_x);
+          EEPROM_READ_ALWAYS(mesh_num_y);
 
-        // Check value must correspond to the X/Y values
-        EEPROM_READ_ALWAYS(mesh_check);
-        if (mesh_check != TWO_BYTE_HASH(mesh_num_x, mesh_num_y)) {
-          eeprom_error = ERR_EEPROM_CORRUPT;
-          break;
-        }
+          // Check value must correspond to the X/Y values
+          EEPROM_READ_ALWAYS(mesh_check);
+          if (mesh_check != TWO_BYTE_HASH(mesh_num_x, mesh_num_y)) {
+            eeprom_error = ERR_EEPROM_CORRUPT;
+            break;
+          }
 
-        #if ENABLED(MESH_BED_LEVELING)
           if (!validating) bedlevel.z_offset = dummyf;
           if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
@@ -1973,9 +1978,6 @@ void MarlinSettings::postprocess() {
             if (!validating) bedlevel.reset();
             for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummyf);
           }
-        #else
-          // MBL is disabled - skip the stored data
-          for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummyf);
         #endif
       }
 
@@ -2351,190 +2353,187 @@ void MarlinSettings::postprocess() {
       //
       // TMC Stepper Settings
       //
+      #if HAS_TRINAMIC_CONFIG
+        if (!validating) reset_stepper_drivers();
 
-      if (!validating) reset_stepper_drivers();
+        // TMC Stepper Current
+        {
+          _FIELD_TEST(tmc_stepper_current);
 
-      // TMC Stepper Current
-      {
-        _FIELD_TEST(tmc_stepper_current);
+          per_stepper_uint16_t currents;
+          EEPROM_READ(currents);
 
-        per_stepper_uint16_t currents;
-        EEPROM_READ(currents);
+            #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
+            if (!validating) {
+              #if AXIS_IS_TMC(X)
+                SET_CURR(X);
+              #endif
+              #if AXIS_IS_TMC(Y)
+                SET_CURR(Y);
+              #endif
+              #if AXIS_IS_TMC(Z)
+                SET_CURR(Z);
+              #endif
+              #if AXIS_IS_TMC(X2)
+                SET_CURR(X2);
+              #endif
+              #if AXIS_IS_TMC(Y2)
+                SET_CURR(Y2);
+              #endif
+              #if AXIS_IS_TMC(Z2)
+                SET_CURR(Z2);
+              #endif
+              #if AXIS_IS_TMC(Z3)
+                SET_CURR(Z3);
+              #endif
+              #if AXIS_IS_TMC(Z4)
+                SET_CURR(Z4);
+              #endif
+              #if AXIS_IS_TMC(I)
+                SET_CURR(I);
+              #endif
+              #if AXIS_IS_TMC(J)
+                SET_CURR(J);
+              #endif
+              #if AXIS_IS_TMC(K)
+                SET_CURR(K);
+              #endif
+              #if AXIS_IS_TMC(U)
+                SET_CURR(U);
+              #endif
+              #if AXIS_IS_TMC(V)
+                SET_CURR(V);
+              #endif
+              #if AXIS_IS_TMC(W)
+                SET_CURR(W);
+              #endif
+              #if AXIS_IS_TMC(E0)
+                SET_CURR(E0);
+              #endif
+              #if AXIS_IS_TMC(E1)
+                SET_CURR(E1);
+              #endif
+              #if AXIS_IS_TMC(E2)
+                SET_CURR(E2);
+              #endif
+              #if AXIS_IS_TMC(E3)
+                SET_CURR(E3);
+              #endif
+              #if AXIS_IS_TMC(E4)
+                SET_CURR(E4);
+              #endif
+              #if AXIS_IS_TMC(E5)
+                SET_CURR(E5);
+              #endif
+              #if AXIS_IS_TMC(E6)
+                SET_CURR(E6);
+              #endif
+              #if AXIS_IS_TMC(E7)
+                SET_CURR(E7);
+              #endif
+            }
+        }
 
-        #if HAS_TRINAMIC_CONFIG
+        // TMC Hybrid Threshold
+        {
+          per_stepper_uint32_t tmc_hybrid_threshold;
+          _FIELD_TEST(tmc_hybrid_threshold);
+          EEPROM_READ(tmc_hybrid_threshold);
 
-          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
-          if (!validating) {
-            #if AXIS_IS_TMC(X)
-              SET_CURR(X);
-            #endif
-            #if AXIS_IS_TMC(Y)
-              SET_CURR(Y);
-            #endif
-            #if AXIS_IS_TMC(Z)
-              SET_CURR(Z);
-            #endif
-            #if AXIS_IS_TMC(X2)
-              SET_CURR(X2);
-            #endif
-            #if AXIS_IS_TMC(Y2)
-              SET_CURR(Y2);
-            #endif
-            #if AXIS_IS_TMC(Z2)
-              SET_CURR(Z2);
-            #endif
-            #if AXIS_IS_TMC(Z3)
-              SET_CURR(Z3);
-            #endif
-            #if AXIS_IS_TMC(Z4)
-              SET_CURR(Z4);
-            #endif
-            #if AXIS_IS_TMC(I)
-              SET_CURR(I);
-            #endif
-            #if AXIS_IS_TMC(J)
-              SET_CURR(J);
-            #endif
-            #if AXIS_IS_TMC(K)
-              SET_CURR(K);
-            #endif
-            #if AXIS_IS_TMC(U)
-              SET_CURR(U);
-            #endif
-            #if AXIS_IS_TMC(V)
-              SET_CURR(V);
-            #endif
-            #if AXIS_IS_TMC(W)
-              SET_CURR(W);
-            #endif
-            #if AXIS_IS_TMC(E0)
-              SET_CURR(E0);
-            #endif
-            #if AXIS_IS_TMC(E1)
-              SET_CURR(E1);
-            #endif
-            #if AXIS_IS_TMC(E2)
-              SET_CURR(E2);
-            #endif
-            #if AXIS_IS_TMC(E3)
-              SET_CURR(E3);
-            #endif
-            #if AXIS_IS_TMC(E4)
-              SET_CURR(E4);
-            #endif
-            #if AXIS_IS_TMC(E5)
-              SET_CURR(E5);
-            #endif
-            #if AXIS_IS_TMC(E6)
-              SET_CURR(E6);
-            #endif
-            #if AXIS_IS_TMC(E7)
-              SET_CURR(E7);
-            #endif
-          }
-        #endif
-      }
+          #if ENABLED(HYBRID_THRESHOLD)
+            if (!validating) {
+              TERN_(X_HAS_STEALTHCHOP,  stepperX.set_pwm_thrs(tmc_hybrid_threshold.X));
+              TERN_(Y_HAS_STEALTHCHOP,  stepperY.set_pwm_thrs(tmc_hybrid_threshold.Y));
+              TERN_(Z_HAS_STEALTHCHOP,  stepperZ.set_pwm_thrs(tmc_hybrid_threshold.Z));
+              TERN_(X2_HAS_STEALTHCHOP, stepperX2.set_pwm_thrs(tmc_hybrid_threshold.X2));
+              TERN_(Y2_HAS_STEALTHCHOP, stepperY2.set_pwm_thrs(tmc_hybrid_threshold.Y2));
+              TERN_(Z2_HAS_STEALTHCHOP, stepperZ2.set_pwm_thrs(tmc_hybrid_threshold.Z2));
+              TERN_(Z3_HAS_STEALTHCHOP, stepperZ3.set_pwm_thrs(tmc_hybrid_threshold.Z3));
+              TERN_(Z4_HAS_STEALTHCHOP, stepperZ4.set_pwm_thrs(tmc_hybrid_threshold.Z4));
+              TERN_(I_HAS_STEALTHCHOP,  stepperI.set_pwm_thrs(tmc_hybrid_threshold.I));
+              TERN_(J_HAS_STEALTHCHOP,  stepperJ.set_pwm_thrs(tmc_hybrid_threshold.J));
+              TERN_(K_HAS_STEALTHCHOP,  stepperK.set_pwm_thrs(tmc_hybrid_threshold.K));
+              TERN_(U_HAS_STEALTHCHOP,  stepperU.set_pwm_thrs(tmc_hybrid_threshold.U));
+              TERN_(V_HAS_STEALTHCHOP,  stepperV.set_pwm_thrs(tmc_hybrid_threshold.V));
+              TERN_(W_HAS_STEALTHCHOP,  stepperW.set_pwm_thrs(tmc_hybrid_threshold.W));
+              TERN_(E0_HAS_STEALTHCHOP, stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0));
+              TERN_(E1_HAS_STEALTHCHOP, stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1));
+              TERN_(E2_HAS_STEALTHCHOP, stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2));
+              TERN_(E3_HAS_STEALTHCHOP, stepperE3.set_pwm_thrs(tmc_hybrid_threshold.E3));
+              TERN_(E4_HAS_STEALTHCHOP, stepperE4.set_pwm_thrs(tmc_hybrid_threshold.E4));
+              TERN_(E5_HAS_STEALTHCHOP, stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5));
+              TERN_(E6_HAS_STEALTHCHOP, stepperE6.set_pwm_thrs(tmc_hybrid_threshold.E6));
+              TERN_(E7_HAS_STEALTHCHOP, stepperE7.set_pwm_thrs(tmc_hybrid_threshold.E7));
+            }
+          #endif
+        }
 
-      // TMC Hybrid Threshold
-      {
-        per_stepper_uint32_t tmc_hybrid_threshold;
-        _FIELD_TEST(tmc_hybrid_threshold);
-        EEPROM_READ(tmc_hybrid_threshold);
+        //
+        // TMC StallGuard threshold.
+        //
+        {
+          mot_stepper_int16_t tmc_sgt;
+          _FIELD_TEST(tmc_sgt);
+          EEPROM_READ(tmc_sgt);
+          #if USE_SENSORLESS
+            if (!validating) {
+              NUM_AXIS_CODE(
+                TERN_(X_SENSORLESS, stepperX.homing_threshold(tmc_sgt.X)),
+                TERN_(Y_SENSORLESS, stepperY.homing_threshold(tmc_sgt.Y)),
+                TERN_(Z_SENSORLESS, stepperZ.homing_threshold(tmc_sgt.Z)),
+                TERN_(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
+                TERN_(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
+                TERN_(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
+                TERN_(U_SENSORLESS, stepperU.homing_threshold(tmc_sgt.U)),
+                TERN_(V_SENSORLESS, stepperV.homing_threshold(tmc_sgt.V)),
+                TERN_(W_SENSORLESS, stepperW.homing_threshold(tmc_sgt.W))
+              );
+              TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
+              TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
+              TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(tmc_sgt.Z2));
+              TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(tmc_sgt.Z3));
+              TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(tmc_sgt.Z4));
+            }
+          #endif
+        }
 
-        #if ENABLED(HYBRID_THRESHOLD)
-          if (!validating) {
-            TERN_(X_HAS_STEALTHCHOP,  stepperX.set_pwm_thrs(tmc_hybrid_threshold.X));
-            TERN_(Y_HAS_STEALTHCHOP,  stepperY.set_pwm_thrs(tmc_hybrid_threshold.Y));
-            TERN_(Z_HAS_STEALTHCHOP,  stepperZ.set_pwm_thrs(tmc_hybrid_threshold.Z));
-            TERN_(X2_HAS_STEALTHCHOP, stepperX2.set_pwm_thrs(tmc_hybrid_threshold.X2));
-            TERN_(Y2_HAS_STEALTHCHOP, stepperY2.set_pwm_thrs(tmc_hybrid_threshold.Y2));
-            TERN_(Z2_HAS_STEALTHCHOP, stepperZ2.set_pwm_thrs(tmc_hybrid_threshold.Z2));
-            TERN_(Z3_HAS_STEALTHCHOP, stepperZ3.set_pwm_thrs(tmc_hybrid_threshold.Z3));
-            TERN_(Z4_HAS_STEALTHCHOP, stepperZ4.set_pwm_thrs(tmc_hybrid_threshold.Z4));
-            TERN_(I_HAS_STEALTHCHOP,  stepperI.set_pwm_thrs(tmc_hybrid_threshold.I));
-            TERN_(J_HAS_STEALTHCHOP,  stepperJ.set_pwm_thrs(tmc_hybrid_threshold.J));
-            TERN_(K_HAS_STEALTHCHOP,  stepperK.set_pwm_thrs(tmc_hybrid_threshold.K));
-            TERN_(U_HAS_STEALTHCHOP,  stepperU.set_pwm_thrs(tmc_hybrid_threshold.U));
-            TERN_(V_HAS_STEALTHCHOP,  stepperV.set_pwm_thrs(tmc_hybrid_threshold.V));
-            TERN_(W_HAS_STEALTHCHOP,  stepperW.set_pwm_thrs(tmc_hybrid_threshold.W));
-            TERN_(E0_HAS_STEALTHCHOP, stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0));
-            TERN_(E1_HAS_STEALTHCHOP, stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1));
-            TERN_(E2_HAS_STEALTHCHOP, stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2));
-            TERN_(E3_HAS_STEALTHCHOP, stepperE3.set_pwm_thrs(tmc_hybrid_threshold.E3));
-            TERN_(E4_HAS_STEALTHCHOP, stepperE4.set_pwm_thrs(tmc_hybrid_threshold.E4));
-            TERN_(E5_HAS_STEALTHCHOP, stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5));
-            TERN_(E6_HAS_STEALTHCHOP, stepperE6.set_pwm_thrs(tmc_hybrid_threshold.E6));
-            TERN_(E7_HAS_STEALTHCHOP, stepperE7.set_pwm_thrs(tmc_hybrid_threshold.E7));
-          }
-        #endif
-      }
+        // TMC stepping mode
+        {
+          _FIELD_TEST(tmc_stealth_enabled);
 
-      //
-      // TMC StallGuard threshold.
-      //
-      {
-        mot_stepper_int16_t tmc_sgt;
-        _FIELD_TEST(tmc_sgt);
-        EEPROM_READ(tmc_sgt);
-        #if USE_SENSORLESS
-          if (!validating) {
-            NUM_AXIS_CODE(
-              TERN_(X_SENSORLESS, stepperX.homing_threshold(tmc_sgt.X)),
-              TERN_(Y_SENSORLESS, stepperY.homing_threshold(tmc_sgt.Y)),
-              TERN_(Z_SENSORLESS, stepperZ.homing_threshold(tmc_sgt.Z)),
-              TERN_(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
-              TERN_(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
-              TERN_(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
-              TERN_(U_SENSORLESS, stepperU.homing_threshold(tmc_sgt.U)),
-              TERN_(V_SENSORLESS, stepperV.homing_threshold(tmc_sgt.V)),
-              TERN_(W_SENSORLESS, stepperW.homing_threshold(tmc_sgt.W))
-            );
-            TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
-            TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
-            TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(tmc_sgt.Z2));
-            TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(tmc_sgt.Z3));
-            TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(tmc_sgt.Z4));
-          }
-        #endif
-      }
+          per_stepper_bool_t tmc_stealth_enabled;
+          EEPROM_READ(tmc_stealth_enabled);
 
-      // TMC stepping mode
-      {
-        _FIELD_TEST(tmc_stealth_enabled);
+          #if HAS_TRINAMIC_CONFIG
 
-        per_stepper_bool_t tmc_stealth_enabled;
-        EEPROM_READ(tmc_stealth_enabled);
-
-        #if HAS_TRINAMIC_CONFIG
-
-          #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
-          if (!validating) {
-            TERN_(X_HAS_STEALTHCHOP,  SET_STEPPING_MODE(X));
-            TERN_(Y_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Y));
-            TERN_(Z_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Z));
-            TERN_(I_HAS_STEALTHCHOP,  SET_STEPPING_MODE(I));
-            TERN_(J_HAS_STEALTHCHOP,  SET_STEPPING_MODE(J));
-            TERN_(K_HAS_STEALTHCHOP,  SET_STEPPING_MODE(K));
-            TERN_(U_HAS_STEALTHCHOP,  SET_STEPPING_MODE(U));
-            TERN_(V_HAS_STEALTHCHOP,  SET_STEPPING_MODE(V));
-            TERN_(W_HAS_STEALTHCHOP,  SET_STEPPING_MODE(W));
-            TERN_(X2_HAS_STEALTHCHOP, SET_STEPPING_MODE(X2));
-            TERN_(Y2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Y2));
-            TERN_(Z2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z2));
-            TERN_(Z3_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z3));
-            TERN_(Z4_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z4));
-            TERN_(E0_HAS_STEALTHCHOP, SET_STEPPING_MODE(E0));
-            TERN_(E1_HAS_STEALTHCHOP, SET_STEPPING_MODE(E1));
-            TERN_(E2_HAS_STEALTHCHOP, SET_STEPPING_MODE(E2));
-            TERN_(E3_HAS_STEALTHCHOP, SET_STEPPING_MODE(E3));
-            TERN_(E4_HAS_STEALTHCHOP, SET_STEPPING_MODE(E4));
-            TERN_(E5_HAS_STEALTHCHOP, SET_STEPPING_MODE(E5));
-            TERN_(E6_HAS_STEALTHCHOP, SET_STEPPING_MODE(E6));
-            TERN_(E7_HAS_STEALTHCHOP, SET_STEPPING_MODE(E7));
-          }
-        #endif
-      }
-
+            #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
+            if (!validating) {
+              TERN_(X_HAS_STEALTHCHOP,  SET_STEPPING_MODE(X));
+              TERN_(Y_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Y));
+              TERN_(Z_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Z));
+              TERN_(I_HAS_STEALTHCHOP,  SET_STEPPING_MODE(I));
+              TERN_(J_HAS_STEALTHCHOP,  SET_STEPPING_MODE(J));
+              TERN_(K_HAS_STEALTHCHOP,  SET_STEPPING_MODE(K));
+              TERN_(U_HAS_STEALTHCHOP,  SET_STEPPING_MODE(U));
+              TERN_(V_HAS_STEALTHCHOP,  SET_STEPPING_MODE(V));
+              TERN_(W_HAS_STEALTHCHOP,  SET_STEPPING_MODE(W));
+              TERN_(X2_HAS_STEALTHCHOP, SET_STEPPING_MODE(X2));
+              TERN_(Y2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Y2));
+              TERN_(Z2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z2));
+              TERN_(Z3_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z3));
+              TERN_(Z4_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z4));
+              TERN_(E0_HAS_STEALTHCHOP, SET_STEPPING_MODE(E0));
+              TERN_(E1_HAS_STEALTHCHOP, SET_STEPPING_MODE(E1));
+              TERN_(E2_HAS_STEALTHCHOP, SET_STEPPING_MODE(E2));
+              TERN_(E3_HAS_STEALTHCHOP, SET_STEPPING_MODE(E3));
+              TERN_(E4_HAS_STEALTHCHOP, SET_STEPPING_MODE(E4));
+              TERN_(E5_HAS_STEALTHCHOP, SET_STEPPING_MODE(E5));
+              TERN_(E6_HAS_STEALTHCHOP, SET_STEPPING_MODE(E6));
+              TERN_(E7_HAS_STEALTHCHOP, SET_STEPPING_MODE(E7));
+            }
+          #endif
+        }
+      #endif
       //
       // Linear Advance
       //
@@ -2576,13 +2575,15 @@ void MarlinSettings::postprocess() {
       //
       #if NUM_AXES
       {
-        _FIELD_TEST(coordinate_system);
         #if ENABLED(CNC_COORDINATE_SYSTEMS)
-          if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
-          EEPROM_READ(gcode.coordinate_system);
-        #else
-          xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
-          EEPROM_READ(coordinate_system);
+          _FIELD_TEST(coordinate_system);
+          #if ENABLED(CNC_COORDINATE_SYSTEMS)
+            if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
+            EEPROM_READ(gcode.coordinate_system);
+          #else
+            xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
+            EEPROM_READ(coordinate_system);
+          #endif
         #endif
       }
       #endif
