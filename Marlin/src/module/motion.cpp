@@ -1718,38 +1718,36 @@ void prepare_line_to_destination() {
         #endif
       }
 
-      #if ENABLED(SPI_ENDSTOPS)
-        switch (axis) {
-          #if HAS_X_AXIS
-            case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
-          #endif
-          #if HAS_Y_AXIS
-            case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
-          #endif
-          #if HAS_I_AXIS
-            case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = true; break;
-          #endif
-          #if HAS_J_AXIS
-            case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = true; break;
-          #endif
-          #if HAS_K_AXIS
-            case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = true; break;
-          #endif
-          #if HAS_U_AXIS
-            case U_AXIS: if (ENABLED(U_SPI_SENSORLESS)) endstops.tmc_spi_homing.u = true; break;
-          #endif
-          #if HAS_V_AXIS
-            case V_AXIS: if (ENABLED(V_SPI_SENSORLESS)) endstops.tmc_spi_homing.v = true; break;
-          #endif
-          #if HAS_W_AXIS
-            case W_AXIS: if (ENABLED(W_SPI_SENSORLESS)) endstops.tmc_spi_homing.w = true; break;
-          #endif
-          default: break;
-        }
-      #endif
+      switch (axis) {
+        #if X_SPI_SENSORLESS
+          case X_AXIS: endstops.tmc_spi_homing.x = true; break;
+        #endif
+        #if Y_SPI_SENSORLESS
+          case Y_AXIS: endstops.tmc_spi_homing.y = true; break;
+        #endif
+        #if Z_SPI_SENSORLESS
+          case Z_AXIS: endstops.tmc_spi_homing.z = true; break;
+        #endif
+        #if I_SPI_SENSORLESS
+          case I_AXIS: endstops.tmc_spi_homing.i = true; break;
+        #endif
+        #if J_SPI_SENSORLESS
+          case J_AXIS: endstops.tmc_spi_homing.j = true; break;
+        #endif
+        #if K_SPI_SENSORLESS
+          case K_AXIS: endstops.tmc_spi_homing.k = true; break;
+        #endif
+        #if U_SPI_SENSORLESS
+          case U_AXIS: endstops.tmc_spi_homing.u = true; break;
+        #endif
+        #if V_SPI_SENSORLESS
+          case V_AXIS: endstops.tmc_spi_homing.v = true; break;
+        #endif
+        #if W_SPI_SENSORLESS
+          case W_AXIS: endstops.tmc_spi_homing.w = true; break;
+        #endif
+        default: break;
+      }
 
       TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_period = millis() + default_sg_guard_duration);
 
@@ -1814,38 +1812,36 @@ void prepare_line_to_destination() {
         #endif
       }
 
-      #if ENABLED(SPI_ENDSTOPS)
-        switch (axis) {
-          #if HAS_X_AXIS
-            case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
-          #endif
-          #if HAS_Y_AXIS
-            case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
-          #endif
-          #if HAS_I_AXIS
-            case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = false; break;
-          #endif
-          #if HAS_J_AXIS
-            case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = false; break;
-          #endif
-          #if HAS_K_AXIS
-            case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = false; break;
-          #endif
-          #if HAS_U_AXIS
-            case U_AXIS: if (ENABLED(U_SPI_SENSORLESS)) endstops.tmc_spi_homing.u = false; break;
-          #endif
-          #if HAS_V_AXIS
-            case V_AXIS: if (ENABLED(V_SPI_SENSORLESS)) endstops.tmc_spi_homing.v = false; break;
-          #endif
-          #if HAS_W_AXIS
-            case W_AXIS: if (ENABLED(W_SPI_SENSORLESS)) endstops.tmc_spi_homing.w = false; break;
-          #endif
-          default: break;
-        }
-      #endif
+      switch (axis) {
+        #if X_SPI_SENSORLESS
+          case X_AXIS: endstops.tmc_spi_homing.x = false; break;
+        #endif
+        #if Y_SPI_SENSORLESS
+          case Y_AXIS: endstops.tmc_spi_homing.y = false; break;
+        #endif
+        #if Z_SPI_SENSORLESS
+          case Z_AXIS: endstops.tmc_spi_homing.z = false; break;
+        #endif
+        #if I_SPI_SENSORLESS
+          case I_AXIS: endstops.tmc_spi_homing.i = false; break;
+        #endif
+        #if J_SPI_SENSORLESS
+          case J_AXIS: endstops.tmc_spi_homing.j = false; break;
+        #endif
+        #if K_SPI_SENSORLESS
+          case K_AXIS: endstops.tmc_spi_homing.k = false; break;
+        #endif
+        #if U_SPI_SENSORLESS
+          case U_AXIS: endstops.tmc_spi_homing.u = false; break;
+        #endif
+        #if V_SPI_SENSORLESS
+          case V_AXIS: endstops.tmc_spi_homing.v = false; break;
+        #endif
+        #if W_SPI_SENSORLESS
+          case W_AXIS: endstops.tmc_spi_homing.w = false; break;
+        #endif
+        default: break;
+      }
     }
 
   #endif // SENSORLESS_HOMING
@@ -2118,7 +2114,7 @@ void prepare_line_to_destination() {
       // Only Z homing (with probe) is permitted
       if (axis != Z_AXIS) { BUZZ(100, 880); return; }
     #else
-      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_ENDSTOP) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
+      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
       #define _ANDCANT(N) && !_CAN_HOME(N)
       if (true MAIN_AXIS_MAP(_ANDCANT)) return;
     #endif
