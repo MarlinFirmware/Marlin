@@ -104,7 +104,7 @@ public:
     int abl_probe_index;
   #endif
 
-  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+  #if ENABLED(VARIABLE_GRID_POINTS)
     grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
@@ -126,7 +126,7 @@ public:
     #endif
 
     // Grid points can be specified for Linear and (optionally) Bilinear
-    #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    #if ENABLED(VARIABLE_GRID_POINTS)
       xy_uint8_t grid_points;
     #else
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
@@ -147,13 +147,11 @@ public:
 };
 
 #if ABL_USES_GRID    
-  #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-    #if !ENABLED(VARIABLE_GRID_POINTS)
+  #if !ENABLED(VARIABLE_GRID_POINTS)
+    constexpr xy_uint8_t G29_State::grid_points;
+    #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
       constexpr grid_count_t G29_State::abl_points;
     #endif
-  #endif
-  #if NONE(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
-    constexpr xy_uint8_t G29_State::grid_points;
   #endif
 #endif
 
@@ -367,13 +365,13 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_USES_GRID
       // set defaults
-      #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+      #if ENABLED(VARIABLE_GRID_POINTS)
         abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
       #endif
       abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
     #endif
 
-    #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    #if ENABLED(VARIABLE_GRID_POINTS)
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         incremental_LSF_reset(&lsf_results);
@@ -448,7 +446,7 @@ G29_TYPE GcodeSuite::G29() {
       xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
 
     
-      #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+      #if ENABLED(VARIABLE_GRID_POINTS)
         
         // Reduce the number of points if cells are too small
         if (spacing.x < abl.gridSpacing.x) {

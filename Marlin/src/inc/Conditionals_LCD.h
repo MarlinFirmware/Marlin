@@ -1510,6 +1510,10 @@
   #define PROBE_SELECTED 1
 #endif
 
+#ifdef AUTO_BED_LEVELING_LINEAR
+  #define VARIABLE_GRID_POINTS
+#endif
+
 #ifdef GRID_MIN_SPACING
   #ifndef GRID_MAX_POINTS_X
     #define GRID_MAX_POINTS_X ((X_BED_SIZE) / (GRID_MIN_SPACING))
@@ -1520,7 +1524,7 @@
 #endif
 
 #ifdef GRID_MAX_POINTS_X
-  #if ENABLED(VARIABLE_GRID_POINTS)
+  #if ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
     #define GRID_USED_POINTS_X bedlevel.nr_grid_points.x
     #define GRID_USED_POINTS_Y bedlevel.nr_grid_points.y
   #else
