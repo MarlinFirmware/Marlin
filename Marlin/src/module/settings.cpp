@@ -1498,7 +1498,6 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(tmc_stealth_enabled);
       #endif
     }
-    #endif
 
     //
     // Linear Advance
