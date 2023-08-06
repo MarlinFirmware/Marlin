@@ -45,35 +45,55 @@
   #if PIN_EXISTS(MT_DET_2)
     bool mt_det2_sta;
   #endif
-  #if HAS_X_ENDSTOP
-    bool endstopx1_sta;
+  #if USE_X_MIN
+    bool endstopx1_min;
   #else
-    constexpr static bool endstopx1_sta = true;
+    constexpr static bool endstopx1_min = true;
   #endif
-  #if HAS_X2_ENDSTOP
+  #if USE_X_MAX
+    bool endstopx1_max;
+  #else
+    constexpr static bool endstopx1_max = true;
+  #endif
+  #if USE_X2_MIN
     bool endstopx2_sta;
   #else
     constexpr static bool endstopx2_sta = true;
   #endif
-  #if HAS_Y_ENDSTOP
+  #if USE_Y_MIN
     bool endstopy1_sta;
   #else
     constexpr static bool endstopy1_sta = true;
   #endif
-  #if HAS_Y2_ENDSTOP
+  #if USE_Y2_MIN
     bool endstopy2_sta;
   #else
     constexpr static bool endstopy2_sta = true;
   #endif
-  #if HAS_Z_ENDSTOP
-    bool endstopz1_sta;
+  #if USE_Z_MIN
+    bool endstopz1_min;
   #else
-    constexpr static bool endstopz1_sta = true;
+    constexpr static bool endstopz1_min = true;
   #endif
-  #if HAS_Z2_ENDSTOP
+  #if USE_Z_MAX
+    bool endstopz1_max;
+  #else
+    constexpr static bool endstopz1_max = true;
+  #endif
+  #if USE_Z2_MIN || USE_Z2_MAX
     bool endstopz2_sta;
   #else
     constexpr static bool endstopz2_sta = true;
+  #endif
+  #if USE_Z3_MIN || USE_Z3_MAX
+    bool endstopz3_sta;
+  #else
+    constexpr static bool endstopz3_sta = true;
+  #endif
+  #if USE_Z4_MIN || USE_Z4_MAX
+    bool endstopz4_sta;
+  #else
+    constexpr static bool endstopz4_sta = true;
   #endif
 
   #define ESTATE(S) (READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
@@ -87,12 +107,28 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = ESTATE(TERN(USE_X_MIN,      X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = ESTATE(TERN(USE_X2_MIN,    X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = ESTATE(TERN(USE_Y_MIN,      Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = ESTATE(TERN(USE_Y2_MIN,    Y2_MIN, Y2_MAX)));
-    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = ESTATE(TERN(HAS_Z_MIN_PIN,  Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = ESTATE(TERN(USE_Z2_MIN,    Z2_MIN, Z2_MAX)));
+    TERN_(USE_X_MIN, endstopx1_min = ESTATE(X_MIN));
+    TERN_(USE_X_MAX, endstopx1_max = ESTATE(X_MAX));
+    #if USE_X2_MIN || USE_X2_MAX
+      endstopx2_sta = ESTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
+    #endif
+    #if USE_Y_MIN || USE_Y_MAX
+      endstopy1_sta = ESTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
+    #endif
+    #if USE_Y2_MIN || USE_Y2_MAX
+      endstopy2_sta = ESTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
+    #endif
+    TERN_(USE_Z_MIN, endstopz1_min = ESTATE(Z_MIN));
+    TERN_(USE_Z_MAX, endstopz1_max = ESTATE(Z_MAX));
+    #if USE_Z2_MIN || USE_Z2_MAX
+      endstopz2_sta = ESTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
+    #endif
+    #if USE_Z3_MIN || USE_Z3_MAX
+      endstopz3_sta = ESTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
+    #endif
+    #if USE_Z4_MIN || USE_Z4_MAX
+      endstopz4_sta = ESTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
+    #endif
   }
 
   void test_gpio_readlevel_H() {
@@ -104,12 +140,28 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
     #endif
-    TERN_(HAS_X_ENDSTOP,  endstopx1_sta = !ESTATE(TERN(USE_X_MIN,     X_MIN,  X_MAX)));
-    TERN_(HAS_X2_ENDSTOP, endstopx2_sta = !ESTATE(TERN(USE_X2_MIN,   X2_MIN, X2_MAX)));
-    TERN_(HAS_Y_ENDSTOP,  endstopy1_sta = !ESTATE(TERN(USE_Y_MIN,     Y_MIN,  Y_MAX)));
-    TERN_(HAS_Y2_ENDSTOP, endstopy2_sta = !ESTATE(TERN(USE_Y2_MIN,   Y2_MIN, Y2_MAX)));
-    TERN_(HAS_Z_ENDSTOP,  endstopz1_sta = !ESTATE(TERN(HAS_Z_MIN_PIN, Z_MIN,  Z_MAX)));
-    TERN_(HAS_Z2_ENDSTOP, endstopz2_sta = !ESTATE(TERN(USE_Z2_MIN,   Z2_MIN, Z2_MAX)));
+    TERN_(USE_X_MIN, endstopx1_min = !ESTATE(X_MIN));
+    TERN_(USE_X_MAX, endstopx1_max = !ESTATE(X_MAX));
+    #if USE_X2_MIN || USE_X2_MAX
+      endstopx2_sta = !ESTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
+    #endif
+    #if USE_Y_MIN || USE_Y_MAX
+      endstopy1_sta = !ESTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
+    #endif
+    #if USE_Y2_MIN || USE_Y2_MAX
+      endstopy2_sta = !ESTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
+    #endif
+    TERN_(USE_Z_MIN, endstopz1_min = !ESTATE(Z_MIN));
+    TERN_(USE_Z_MAX, endstopz1_max = !ESTATE(Z_MAX));
+    #if USE_Z2_MIN || USE_Z2_MAX
+      endstopz2_sta = !ESTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
+    #endif
+    #if USE_Z3_MIN || USE_Z3_MAX
+      endstopz3_sta = !ESTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
+    #endif
+    #if USE_Z4_MIN || USE_Z4_MAX
+      endstopz4_sta = !ESTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
+    #endif
   }
 
   #include "../../../libs/buzzer.h"
@@ -185,7 +237,7 @@
       else
         disp_det_error();
 
-      if (endstopx1_sta && endstopy1_sta && endstopz1_sta && endstopz2_sta)
+      if (endstopx1_min && endstopx1_max && endstopy1_sta && endstopz1_min && endstopz1_max && endstopz2_sta && endstopz3_sta && endstopz4_sta)
         disp_Limit_ok();
       else
         disp_Limit_error();
@@ -247,7 +299,9 @@
         #endif
       }
 
-      if (endstopx1_sta && endstopx2_sta && endstopy1_sta && endstopy2_sta && endstopz1_sta && endstopz2_sta) {
+      if ( endstopx1_min && endstopx1_max && endstopx2_sta && endstopy1_sta && endstopy2_sta
+        && endstopz1_min && endstopz1_max && endstopz2_sta && endstopz3_sta && endstopz4_sta
+      ) {
         // nothing here
       }
       else {

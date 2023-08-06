@@ -179,6 +179,7 @@
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
 #define BOARD_WEEDO_62A               1330  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
+#define BOARD_GT2560_V41B             1331  // Geeetech GT2560 V4.1B for A10(M/T/D)
 
 //
 // ATmega1281, ATmega2561
@@ -489,6 +490,7 @@
 #define BOARD_MKS_TINYBEE             7008  // MKS TinyBee based on ESP32 (with I2S stepper stream)
 #define BOARD_ENWI_ESPNP              7009  // enwi ESPNP based on ESP32 (with I2S stepper stream)
 #define BOARD_GODI_CONTROLLER_V1_0    7010  // Godi Controller based on ESP32 32-Bit V1.0
+#define BOARD_MM_JOKER                7011  // MagicMaker JOKER based on ESP32 (with I2S stepper stream)
 
 //
 // SAMD51 ARM Cortex-M4

@@ -3437,19 +3437,21 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if HAS_PREHEAT
-  void drawPreheatHotendMenu() {
-    checkkey = ID_Menu;
-    if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
-      BACK_ITEM(drawFilamentManMenu);
-      #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheatHotend##N);
-      REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT_HE)
-    }
-    updateMenu(preheatHotendMenu);
-  }
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+  #if HAS_PREHEAT
+
+    void drawPreheatHotendMenu() {
+      checkkey = ID_Menu;
+      if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
+        BACK_ITEM(drawFilamentManMenu);
+        #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheatHotend##N);
+        REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT_HE)
+      }
+      updateMenu(preheatHotendMenu);
+    }
+
+  #endif
 
   void drawFilamentManMenu() {
     checkkey = ID_Menu;

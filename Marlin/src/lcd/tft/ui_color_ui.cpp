@@ -67,7 +67,7 @@ void MarlinUI::tft_idle() {
     tft.queue.reset();
 
     tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
-    TERN_(BOOT_MARLIN_LOGO_SMALL, tft.set_background(COLOR_BACKGROUND));
+    tft.set_background(COLOR_BACKGROUND);
     tft.add_image(BOOTSCREEN_LOGO_X, BOOTSCREEN_LOGO_Y, imgBootScreen);
     #ifdef WEBSITE_URL
       tft_string.set(WEBSITE_URL);
@@ -319,7 +319,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(MENU_ICON_X, MENU_ICON_Y, menu_main, imgSettings);
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       const bool cm = card.isMounted(), pa = printingIsActive();
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
