@@ -2136,11 +2136,14 @@ bool Planner::_populate_block(
       && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT
     )
   ) {
+    //TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block)); //set backlash before calculating block->millimeters, so that acceleration is calculated for the whole segment
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
   }
   else {
-    if (hints.millimeters)
+    if (hints.millimeters) {
+      //TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block)); //set backlash before calculating block->millimeters, so that acceleration is calculated for the whole segment. Can this line be dropped?
       block->millimeters = hints.millimeters;
+      }
     else {
       const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
         dist_mm.e,
@@ -2156,7 +2159,7 @@ bool Planner::_populate_block(
         dist_mm.i, dist_mm.j, dist_mm.k,
         dist_mm.u, dist_mm.v, dist_mm.w
       );
-
+      //TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block));  //set backlash before calculating block->millimeters, so that acceleration is calculated for the whole segment
       block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
@@ -2169,7 +2172,30 @@ bool Planner::_populate_block(
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
      */
+
+
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block));
+/*
+// Recalculate block->millimeters to ensure acceleration is calculated correctly for the whole segment
+    #if ENABLED(BACKLASH_COMPENSATION)
+    const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
+        dist_mm.e,
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+          dist_mm.head.x, dist_mm.head.y, dist_mm.z,
+        #elif CORE_IS_XZ
+          dist_mm.head.x, dist_mm.y, dist_mm.head.z,
+        #elif CORE_IS_YZ
+          dist_mm.x, dist_mm.head.y, dist_mm.head.z,
+        #else
+          dist_mm.x, dist_mm.y, dist_mm.z,
+        #endif
+        dist_mm.i, dist_mm.j, dist_mm.k,
+        dist_mm.u, dist_mm.v, dist_mm.w
+      );
+
+      block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+    #endif
+//*/
   }
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
