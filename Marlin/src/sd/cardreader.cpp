@@ -1291,23 +1291,18 @@ void CardReader::cdroot() {
             const int16_t o2 = sort_order[j + 1];
 
             // Compare names from the array or just the two buffered names
-            auto _SORT_CMP_NODIR = () => bool {
-              const bool sort = (0 < strcasecmp(
-                #if ENABLED(SDSORT_USES_RAM)
-                  sortnames[o1], sortnames[o2]
-                #else
-                  name1, name2
-                #endif
-              ));
-              return (sort_alpha == AS_REV) ? !sort : sort;
+            auto _sort_cmp_file = [](char * const n1, char * const n2) -> bool {
+              const bool sort = strcasecmp(n1, n2) > 0;
+              return (TERN(SDSORT_GCODE, card.sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
             };
+            #define _SORT_CMP_FILE() _sort_cmp_file(TERN(SDSORT_USES_RAM, sortnames[o1], name1), TERN(SDSORT_USES_RAM, sortnames[o2], name2))
 
             #if HAS_FOLDER_SORTING
               #if ENABLED(SDSORT_USES_RAM)
                 // Folder sorting needs an index and bit to test for folder-ness.
-                #define _SORT_CMP_DIR(fs) (IS_DIR(o1) == IS_DIR(o2) ? _SORT_CMP_NODIR() : IS_DIR(fs > 0 ? o1 : o2))
+                #define _SORT_CMP_DIR(fs) (IS_DIR(o1) == IS_DIR(o2) ? _SORT_CMP_FILE() : IS_DIR(fs > 0 ? o1 : o2))
               #else
-                #define _SORT_CMP_DIR(fs) ((dir1 == flag.filenameIsDir) ? _SORT_CMP_NODIR() : (fs > 0 ? dir1 : !dir1))
+                #define _SORT_CMP_DIR(fs) ((dir1 == flag.filenameIsDir) ? _SORT_CMP_FILE() : (fs > 0 ? dir1 : !dir1))
               #endif
             #endif
 
@@ -1323,12 +1318,12 @@ void CardReader::cdroot() {
             if (
               #if HAS_FOLDER_SORTING
                 #if ENABLED(SDSORT_GCODE)
-                  sort_folders ? _SORT_CMP_DIR(sort_folders) : _SORT_CMP_NODIR()
+                  sort_folders ? _SORT_CMP_DIR(sort_folders) : _SORT_CMP_FILE()
                 #else
                   _SORT_CMP_DIR(FOLDER_SORTING)
                 #endif
               #else
-                _SORT_CMP_NODIR()
+                _SORT_CMP_FILE()
               #endif
             ) {
               // Reorder the index, indicate that sorting happened
