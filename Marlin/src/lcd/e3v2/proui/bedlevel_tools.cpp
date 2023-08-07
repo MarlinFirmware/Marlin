@@ -74,7 +74,6 @@ uint8_t BedLevelTools::mesh_y = 0;
 uint8_t BedLevelTools::tilt_grid = 1;
 
 bool drawing_mesh = false;
-char str_1[16];
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -252,7 +251,6 @@ bool BedLevelTools::meshValidate() {
       LCD_SERIAL.flushTX();
 
       // Draw value text on
-      char buf[8];
       const uint8_t fs = DWINUI::fontWidth(meshfont);
       if (viewer_print_value) {
         int8_t offset_x, offset_y = cell_height_px / 2 - fs;
@@ -260,14 +258,15 @@ bool BedLevelTools::meshValidate() {
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
         }
         else {                          // has value
-          if (GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10))
-            sprintf_P(buf, PSTR("%s"), dtostrf(abs(bedlevel.z_values[x][y]), 1, 2, str_1));
+          MString<12> msg;
+          if ((GRID_MAX_POINTS_X) < TERN(TJC_DISPLAY, 8, 10))
+            msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
           else
-            sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
-          offset_x = cell_width_px / 2 - (fs/2) * (strlen(buf)) - 2;
-          if (!(GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10)))
+            msg.setf_P(PSTR("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
+          offset_x = cell_width_px / 2 - (fs / 2) * strlen(buf) - 2;
+          if ((GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10))
             dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
-          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, buf);
+          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);
         }
         safe_delay(10);
         LCD_SERIAL.flushTX();

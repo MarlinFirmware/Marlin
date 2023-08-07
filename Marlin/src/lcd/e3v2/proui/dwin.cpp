@@ -3466,26 +3466,26 @@ void drawMotionMenu() {
 
 #endif
 
-  void drawFilamentManMenu() {
-    checkkey = ID_Menu;
-    if (SET_MENU(filamentMenu, MSG_FILAMENT_MAN, 6)) {
-      BACK_ITEM(drawPrepareMenu);
-      #if ENABLED(NOZZLE_PARK_FEATURE)
-        MENU_ITEM(ICON_Park, MSG_FILAMENT_PARK_ENABLED, onDrawMenuItem, parkHead);
+void drawFilamentManMenu() {
+  checkkey = ID_Menu;
+  if (SET_MENU(filamentMenu, MSG_FILAMENT_MAN, 6)) {
+    BACK_ITEM(drawPrepareMenu);
+    #if ENABLED(NOZZLE_PARK_FEATURE)
+      MENU_ITEM(ICON_Park, MSG_FILAMENT_PARK_ENABLED, onDrawMenuItem, parkHead);
+    #endif
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if HAS_PREHEAT
+        MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
       #endif
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        #if HAS_PREHEAT
-          MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
-        #endif
-        MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
-      #endif
-      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-        MENU_ITEM(ICON_FilUnload, MSG_FILAMENTUNLOAD, onDrawMenuItem, unloadFilament);
-        MENU_ITEM(ICON_FilLoad, MSG_FILAMENTLOAD, onDrawMenuItem, loadFilament);
-      #endif
-    }
-    updateMenu(filamentMenu);
+      MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
+    #endif
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      MENU_ITEM(ICON_FilUnload, MSG_FILAMENTUNLOAD, onDrawMenuItem, unloadFilament);
+      MENU_ITEM(ICON_FilLoad, MSG_FILAMENTLOAD, onDrawMenuItem, loadFilament);
+    #endif
   }
+  updateMenu(filamentMenu);
+}
 
 #if ENABLED(MESH_BED_LEVELING)
 

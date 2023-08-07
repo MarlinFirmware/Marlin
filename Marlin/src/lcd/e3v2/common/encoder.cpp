@@ -84,11 +84,11 @@ EncoderState encoderReceiveAnalyze() {
     if (ELAPSED(now, next_click_update_ms)) {
       next_click_update_ms = millis() + 300;
       Encoder_tick();
-      #if LCD_BACKLIGHT_TIMEOUT_MINS
-        ui.refresh_backlight_timeout(); //reset timer on click
-      #endif
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
+      #endif
+      #if LCD_BACKLIGHT_TIMEOUT_MINS
+        ui.refresh_backlight_timeout(); // Reset timer on click
       #endif
       if (!ui.backlight) ui.refresh_brightness();
       const bool was_waiting = wait_for_user;
@@ -125,8 +125,8 @@ EncoderState encoderReceiveAnalyze() {
 
     #if LCD_BACKLIGHT_TIMEOUT_MINS
       if (temp_diffState > 0) {
-        ui.refresh_backlight_timeout(); //reset timer after encoder +- (this can be changed -> added to an all in one if statement)
-        if (!ui.backlight) { ui.refresh_brightness(); }
+        ui.refresh_backlight_timeout(); // Reset timer after encoder +- (this can be changed -> added to an all in one if statement)
+        if (!ui.backlight) ui.refresh_brightness();
       }
     #endif
 
@@ -174,9 +174,9 @@ EncoderState encoderReceiveAnalyze() {
 
   // LED light operation
   void LED_Action() {
-    LED_Control(RGB_SCALE_WARM_WHITE,0x0F);
+    LED_Control(RGB_SCALE_WARM_WHITE, 0x0F);
     delay(30);
-    LED_Control(RGB_SCALE_WARM_WHITE,0x00);
+    LED_Control(RGB_SCALE_WARM_WHITE, 0x00);
   }
 
   // LED initialization
