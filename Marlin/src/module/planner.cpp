@@ -2172,8 +2172,6 @@ bool Planner::_populate_block(
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
      */
-
-
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block));
 /*
 // Recalculate block->millimeters to ensure acceleration is calculated correctly for the whole segment
