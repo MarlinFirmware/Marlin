@@ -1422,23 +1422,25 @@
  * Conditionals based on the type of Bed Probe
  */
 #if HAS_BED_PROBE
+  #if ALL(DELTA, SENSORLESS_PROBING)
+    #define HAS_DELTA_SENSORLESS_PROBING 1
+  #else
+    #define HAS_REAL_BED_PROBE 1
+  #endif
+  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
+    #define NEED_Z_MIN_PROBE_PIN 1
+  #endif
+  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+    #define HOMING_Z_WITH_PROBE 1
+  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
-  #if ALL(DELTA, SENSORLESS_PROBING)
-    #define HAS_DELTA_SENSORLESS_PROBING 1
-  #endif
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING)
-    #define USE_Z_MIN_PROBE 1
-  #endif
-  #if Z_HOME_TO_MIN && (DISABLED(USE_Z_MIN_PROBE) || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
+  #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
+    #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
-  #endif
-  #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
-    #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
@@ -1781,14 +1783,23 @@
 #elif ANY(TFT_1024x600_LTDC, TFT_1024x600_SIM)
   #define HAS_UI_1024x600 1
 #endif
-#if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
+
+// Number of text lines the screen can display (may depend on font used)
+// Touch screens leave space for extra buttons at the bottom
+#if ANY(HAS_UI_320x240, HAS_UI_480x272)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9)
   #else
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+  #endif
+#elif HAS_UI_480x320
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 9, 10)
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

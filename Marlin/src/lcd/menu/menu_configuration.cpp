@@ -102,9 +102,10 @@ void menu_advanced_settings();
 
 #if ENABLED(LCD_ENDSTOP_TEST)
 
-  #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL)
+  #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL);
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
-  #define STOP_ITEM(A,I) _STOP_ITEM(STRINGIFY(A) STRINGIFY(I) " " TERN(A##_HOME_TO_MAX, "Max", "Min"), A##I##_ENDSTOP)
+  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) " " STRINGIFY(L), A##I##_##M)
+  #define STOP_MINMAX(A,I) STOP_ITEM(A,,MIN,"Min") STOP_ITEM(A,,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
 
   static void endstop_test() {
@@ -120,48 +121,12 @@ void menu_advanced_settings();
     START_SCREEN();
     STATIC_ITEM_F(GET_TEXT_F(MSG_ENDSTOP_TEST), SS_DEFAULT|SS_INVERT);
 
-    #if HAS_X_ENDSTOP
-      STOP_ITEM(X,);
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        STOP_ITEM(X,2);
-      #endif
-    #endif
-    #if HAS_Y_ENDSTOP
-      STOP_ITEM(Y,);
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        STOP_ITEM(Y,2);
-      #endif
-    #endif
-    #if HAS_Z_ENDSTOP
-      STOP_ITEM(Z,);
-      #if ENABLED(Z_MULTI_ENDSTOPS)
-        STOP_ITEM(Z,2);
-        #if NUM_Z_STEPPERS >= 3
-          STOP_ITEM(Z,3);
-          #if NUM_Z_STEPPERS >= 4
-            STOP_ITEM(Z,4);
-          #endif
-        #endif
-      #endif
-    #endif
-    #if HAS_I_ENDSTOP
-      STOP_ITEM(I,);
-    #endif
-    #if HAS_J_ENDSTOP
-      STOP_ITEM(J,);
-    #endif
-    #if HAS_K_ENDSTOP
-      STOP_ITEM(K,);
-    #endif
-    #if HAS_U_ENDSTOP
-      STOP_ITEM(U,);
-    #endif
-    #if HAS_V_ENDSTOP
-      STOP_ITEM(V,);
-    #endif
-    #if HAS_W_ENDSTOP
-      STOP_ITEM(W,);
-    #endif
+    STOP_MINMAX(X,) STOP_MINMAX(X,2)
+    STOP_MINMAX(Y,) STOP_MINMAX(Y,2)
+    STOP_MINMAX(Z,) STOP_MINMAX(Z,2) STOP_MINMAX(Z,3) STOP_MINMAX(Z,4)
+    STOP_MINMAX(I,) STOP_MINMAX(J,) STOP_MINMAX(K,)
+    STOP_MINMAX(U,) STOP_MINMAX(V,) STOP_MINMAX(W,)
+
     #if HAS_BED_PROBE && !HAS_DELTA_SENSORLESS_PROBING
       __STOP_ITEM(GET_TEXT_F(MSG_Z_PROBE), Z_MIN_PROBE);
     #endif

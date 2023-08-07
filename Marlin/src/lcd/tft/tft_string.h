@@ -27,7 +27,7 @@
 
 #define NO_GLYPH  0xFF
 
-/*
+/**
  * Marlin fonts with optional antialiasing. Fonts use unifont_t font header and glyph_t glyphs headers.
  * Number of glyphs (fontEndEncoding - fontStartEncoding) can not exceed 256 (TBD).
  * Some glyphs may be left undefined with NO_GLYPH
@@ -37,7 +37,7 @@
 #define FONT_MARLIN_GLYPHS_2BPP 0x82
 #define FONT_MARLIN_GLYPHS_4BPP 0x84
 
-/*
+/**
  * TFT fonts with optional antialiasing. Fonts use unifont_t font header and uniglyph_t glyphs headers.
  * Each glyph is prepended with its unicode.
  * Designed to be used for Japanese, Korean, Simplified Chinese and Traditional Chinese glyphs.
@@ -51,98 +51,7 @@
 #define FONT_MARLIN_HIEROGLYPHS_2BPP 0xA2
 #define FONT_MARLIN_HIEROGLYPHS_4BPP 0xA4
 
-#define _LATIN_EXTENDED_A     1
-#define _CYRILLIC             2
-#define _GREEK                3
-#define _KATAKANA             4
-#define _KOREAN               5
-#define _VIETNAMESE           6
-#define _SIMPLIFIED_CHINESE   7
-#define _TRADITIONAL_CHINESE  8
-
-#define LCODE_cz      _LATIN_EXTENDED_A
-#define LCODE_hr      _LATIN_EXTENDED_A
-#define LCODE_pl      _LATIN_EXTENDED_A
-#define LCODE_sk      _LATIN_EXTENDED_A
-#define LCODE_tr      _LATIN_EXTENDED_A
-#define LCODE_bg      _CYRILLIC
-#define LCODE_ru      _CYRILLIC
-#define LCODE_uk      _CYRILLIC
-#define LCODE_el      _GREEK
-#define LCODE_el_CY   _GREEK
-#define LCODE_jp_kana _KATAKANA
-#define LCODE_ko_KR   _KOREAN
-#define LCODE_vi      _VIETNAMESE
-#define LCODE_zh_CN   _SIMPLIFIED_CHINESE
-#define LCODE_zh_TW   _TRADITIONAL_CHINESE
-
-#define _LCODE(N) (CAT(LCODE_, LCD_LANGUAGE) == N)
-
-#if _LCODE(_LATIN_EXTENDED_A)
-  #define FONT_EXTRA    Latin_Extended_A
-  #define EXTRA_GLYPHS  128
-#elif _LCODE(_CYRILLIC)
-  #define FONT_EXTRA    Cyrillic
-  #define EXTRA_GLYPHS  145
-#elif _LCODE(_GREEK)
-  #define FONT_EXTRA    Greek
-  #define EXTRA_GLYPHS  73
-#elif _LCODE(_KATAKANA)
-  #define FONT_EXTRA    Katakana
-  #define EXTRA_GLYPHS  102
-#elif _LCODE(_KOREAN)
-  #define FONT_EXTRA    Korean
-  #define EXTRA_GLYPHS  110
-#elif _LCODE(_VIETNAMESE)
-  #define FONT_EXTRA    Vietnamese
-  #define EXTRA_GLYPHS  107
-#elif _LCODE(_SIMPLIFIED_CHINESE)
-  #define FONT_EXTRA    Simplified_Chinese
-  #define EXTRA_GLYPHS  373
-#elif _LCODE(_TRADITIONAL_CHINESE)
-  #define FONT_EXTRA    Traditional_Chinese
-  #define EXTRA_GLYPHS  307
-#else // Basin Latin (0x0020 - 0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only
-  #define EXTRA_GLYPHS  0
-#endif
-
-#undef _LCODE
-#undef LCODE_cz
-#undef LCODE_hr
-#undef LCODE_pl
-#undef LCODE_sk
-#undef LCODE_tr
-#undef LCODE_bg
-#undef LCODE_ru
-#undef LCODE_uk
-#undef LCODE_el
-#undef LCODE_el_CY
-#undef LCODE_jp_kana
-#undef LCODE_ko_KR
-#undef LCODE_vi
-#undef LCODE_zh_CN
-#undef LCODE_zh_TW
-
-#define NOTOSANS      1
-#define UNIFONT       2
-#define HELVETICA     3
-
-#ifndef TFT_FONT
-  #define TFT_FONT NOTOSANS
-#endif
-
-#if TFT_FONT == NOTOSANS
-  #define FONT_FAMILY       NotoSans_Medium
-#elif TFT_FONT == UNIFONT
-  #define FONT_FAMILY       Unifont
-#elif TFT_FONT == HELVETICA
-  #define FONT_FAMILY       Helvetica
-  #ifdef FONT_EXTRA
-    #error "Helvetica font does not have symbols required for selected LCD_LANGUAGE."
-  #endif
-#else
-  #error "Invalid TFT_FONT value."
-#endif
+#include "fontdata/fontdata.h"
 
 // TFT font with unicode support
 typedef struct __attribute__((__packed__)) {
@@ -264,7 +173,10 @@ class TFT_String {
     static uint16_t *string() { return data; }
     static uint16_t width() { return span; }
     static uint16_t center(const uint16_t width) { return span > width ? 0 : (width - span) / 2; }
-    static uint16_t vcenter(const uint16_t height) { return (height + font_header->capitalAHeight + 1) / 2 > font_header->fontAscent ? (height + font_header->capitalAHeight + 1) / 2 - font_header->fontAscent : 0 ; }
+    static uint16_t vcenter(const uint16_t height) {
+      const uint16_t mid = (height + font_header->capitalAHeight + 1) / 2;
+      return mid > font_header->fontAscent ? mid - font_header->fontAscent : 0;
+    }
 };
 
 extern TFT_String tft_string;

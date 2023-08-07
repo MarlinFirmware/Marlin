@@ -233,10 +233,6 @@ public:
   static void popupSelect();
   static void updateStatusBar(const bool refresh=false);
 
-  #if HAS_MESH
-    static void setMeshViewerStatus();
-  #endif
-
   static FSTR_P getMenuTitle(const uint8_t menu);
   static uint8_t getMenuSize(const uint8_t menu);
   static void menuItemHandler(const uint8_t menu, const uint8_t item, bool draw=true);
