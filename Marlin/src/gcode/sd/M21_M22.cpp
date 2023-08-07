@@ -41,7 +41,7 @@ void GcodeSuite::M21() {
     static int8_t vol = 0; // VOLUME0 is the default
     const int8_t newvol = (
                                      parser.seen_test('S')  ? 0 : // "S" for SD Card
-      TERN0(HAS_USB_FLASH_DRIVE, parser.seen_test('U')) ? 1 : // "U" for USB
+      TERN0(HAS_USB_FLASH_DRIVE,     parser.seen_test('U')) ? 1 : // "U" for USB
       TERN0(ONBOARD_SDIO,            parser.seen_test('O')) ? 2 : // "O" for SDIO (usually onboard)
                                      parser.intval('P', vol)      // "P" for integer volume number
     );
@@ -51,10 +51,10 @@ void GcodeSuite::M21() {
       switch (newvol + 1) {
         default: card.changeMedia(&card.media_driver_sdcard); break;
         #if HAS_USB_FLASH_DRIVE
-          case SV_USB_FLASH_DRIVE: card.changeMedia(&card.media_driver_usbFlash); break;
+          case 1: card.changeMedia(&card.media_driver_usbFlash); break;
         #endif
         #if ENABLED(ONBOARD_SDIO)
-          case SV_SDIO_ONBOARD: card.changeMedia(&card.media_driver_sdiocard); break;
+          case 2: card.changeMedia(&card.media_driver_sdiocard); break;
         #endif
       }
     }

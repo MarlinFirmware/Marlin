@@ -43,7 +43,7 @@
   #define _VOLUME_USBFD   3
   #define _VOLUME_CUSTOM  4
   #define _VOLUME_ID(V) _CAT(_VOLUME_, V)
-  #define VOLUME_IS(N,V) (_DRIVE_ID(VOLUME##N) == _DRIVE_ID(V))
+  #define VOLUME_IS(N,V) (_VOLUME_ID(VOLUME##N) == _VOLUME_ID(V))
 #else
   #define VOLUME_IS(...) 0
 #endif

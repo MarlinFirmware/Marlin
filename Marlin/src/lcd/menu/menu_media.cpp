@@ -145,19 +145,28 @@ void menu_media_filelist() {
 #if HAS_MULTI_VOLUME
 
   void menu_media_select() {
+    auto _select_media = [&](DiskIODriver *driver) {
+      card.changeMedia(driver);
+      card.mount();
+      ui.goto_screen(menu_media_filelist);
+    };
     START_MENU();
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
-    // TODO: For justa single SD Card, "SD Card"
-    #if ENABLED(VOLUME_SD_ONBOARD)
-      #if HAS_MEDIA
-        ACTION_ITEM(TERN(SPI_IS_EXTERNAL, MSG_SD_CARD_EXTERNAL, MSG_SD_CARD), []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #if ANY_VOLUME_IS(ONBOARD)
+      #if ANY_VOLUME_IS(LCD)
+        ACTION_ITEM(MSG_SD_CARD_EXTERNAL, []{ _select_media(&card.media_driver_sdcard); });
+        #define SDCARD_LABEL MSG_SD_CARD_ONBOARD
+      #else
+        #define SDCARD_LABEL MSG_SD_CARD
       #endif
       #if ENABLED(ONBOARD_SDIO)
-        ACTION_ITEM(TERN(SDIO_IS_ONBOARD, MSG_SD_CARD_ONBOARD, MSG_SD_CARD_SDIO), []{ card.changeMedia(&card.media_driver_sdiocard); card.mount(); ui.goto_screen(menu_media_filelist); });
+        ACTION_ITEM(SDCARD_LABEL, []{ _select_media(&card.media_driver_sdiocard); });
+      #else
+        ACTION_ITEM(SDCARD_LABEL, []{ _select_media(&card.media_driver_sdcard); });
       #endif
     #endif
-    #if ENABLED(VOLUME_USB_FLASH_DRIVE)
-      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #if HAS_USB_FLASH_DRIVE
+      ACTION_ITEM(MSG_USB_DISK, []{ _select_media(&card.media_driver_usbFlash); });
     #endif
     END_MENU();
   }

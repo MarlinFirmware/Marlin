@@ -100,17 +100,17 @@
 // Encoder pins
 //
 #if ENABLED(OLED_PANEL_TINYBOY2)
-#define BTN_EN1                             PB12
-#define BTN_EN2                             PB13
-#define BTN_ENC                             PB14
-#define BEEPER_PIN                          PC15
+  #define BTN_EN1                           PB12
+  #define BTN_EN2                           PB13
+  #define BTN_ENC                           PB14
+  #define BEEPER_PIN                        PC15
 #endif
 
 //
 // SD Card
 //
 #define ONBOARD_SPI_DEVICE                     1
-// #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
+//#define ONBOARD_SD_CS_PIN                 PA4   // SDSS
 
 #define SD_DETECT_PIN                       -1
 #define VOLUME0                          ONBOARD

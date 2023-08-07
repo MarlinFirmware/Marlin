@@ -132,10 +132,12 @@ int16_t CardReader::nrItems = -1;
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
+// Onboard and/or external SPI SD Card
 #if NEED_SD2CARD_SPI
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
 #endif
 
+// Onboard SDIO SD Card
 #if NEED_SD2CARD_SDIO
   CardReader::sdiocard_driver_t CardReader::media_driver_sdiocard;
 #endif
@@ -154,7 +156,7 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
+    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(ONBOARD)
       media_driver_usbFlash
     #else
       media_driver_sdcard

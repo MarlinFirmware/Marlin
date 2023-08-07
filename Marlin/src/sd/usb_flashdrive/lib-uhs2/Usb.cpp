@@ -792,4 +792,4 @@ uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
   return ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, 0x0000, nullptr, nullptr);
 }
 
-#endif // HAS_USB_FLASH_DRIVE
+#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB

@@ -1206,4 +1206,4 @@ uint8_t BulkOnly::Read(uint8_t lun __attribute__((unused)), uint32_t addr __attr
   #endif
 }
 
-#endif // HAS_USB_FLASH_DRIVE
+#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB

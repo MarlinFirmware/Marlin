@@ -28,7 +28,7 @@
 #if HAS_USB_FLASH_DRIVE && DISABLED(USE_UHS3_USB)
 
 #if !PINS_EXIST(USB_CS, USB_INTR)
-  #error "HAS_USB_FLASH_DRIVE requires USB_CS_PIN and USB_INTR_PIN to be defined."
+  #error "SB_CS_PIN and USB_INTR_PIN are required for VOLUME# USBFD."
 #endif
 
 #include "Usb.h"
@@ -203,4 +203,4 @@ uint8_t MAX3421e::IntHandler() {
   return HIRQ_sendback;
 }
 
-#endif // HAS_USB_FLASH_DRIVE
+#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB

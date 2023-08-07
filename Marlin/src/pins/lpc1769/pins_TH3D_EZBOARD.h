@@ -142,6 +142,7 @@
 #ifndef VOLUME0
   #define VOLUME0                        ONBOARD
 #endif
+
 #if ANY_VOLUME_IS(ONBOARD)
   #define SD_DETECT_PIN                    P0_27  // SD_CD
   #define SD_SCK_PIN                       P0_07

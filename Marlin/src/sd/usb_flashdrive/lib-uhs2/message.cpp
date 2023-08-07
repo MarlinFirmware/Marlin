@@ -125,4 +125,4 @@ void E_Notify(double d, int lvl) {
 
 #endif // DEBUG_USB_HOST
 
-#endif // HAS_USB_FLASH_DRIVE
+#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB

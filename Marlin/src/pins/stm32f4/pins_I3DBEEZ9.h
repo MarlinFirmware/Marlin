@@ -417,8 +417,8 @@
   #define SD_MOSI_PIN                       PB5
   #define SD_DETECT_PIN                     PB11
 
-#elif ANY_VOLUME_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported VOLUMEn for this board"
+#elif ANY_VOLUME_IS(CUSTOM)
+  #error "CUSTOM is not a supported VOLUME for this board"
 #endif
 
 #if ENABLED(MOTOR_EXPANSION)
