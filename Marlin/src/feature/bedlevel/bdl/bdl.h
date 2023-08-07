@@ -23,6 +23,10 @@
 
 #include <stdint.h>
 
+#ifndef BD_SENSOR_HOME_Z_POSITION
+  #define BD_SENSOR_HOME_Z_POSITION 0.5
+#endif
+
 enum BDS_State : int8_t {
   BDS_IDLE,
   BDS_VERSION         = -1,
