@@ -48,6 +48,9 @@ typedef struct FTConfig {
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
   #endif
 
+  float zeta = FTM_SHAPING_ZETA;                            // Damping factor
+  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
+
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
     float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };     // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
@@ -73,6 +76,9 @@ class FxdTiCtrl {
 
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
+
+      cfg.zeta = FTM_SHAPING_ZETA;
+      cfg.vtol = FTM_SHAPING_V_TOL;
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -112,11 +118,11 @@ class FxdTiCtrl {
     #if HAS_X_AXIS
       // Refresh the gains used by shaping functions.
       // To be called on init or mode or zeta change.
-      static void updateShapingA(const_float_t zeta=FTM_SHAPING_ZETA, const_float_t vtol=FTM_SHAPING_V_TOL);
+      static void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
 
       // Refresh the indices used by shaping functions.
       // To be called when frequencies change.
-      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=FTM_SHAPING_ZETA);
+      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=cfg.zeta);
 
       static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
 
@@ -181,7 +187,7 @@ class FxdTiCtrl {
           axis_shaping_t y;
         #endif
 
-        void updateShapingA(const_float_t zeta=FTM_SHAPING_ZETA, const_float_t vtol=FTM_SHAPING_V_TOL);
+        void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
 
       } shaping_t;
 
