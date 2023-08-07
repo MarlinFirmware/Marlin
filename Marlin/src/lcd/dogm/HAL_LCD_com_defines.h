@@ -42,7 +42,7 @@
     #define U8G_COM_ST7920_HAL_HW_SPI u8g_com_samd51_st7920_hw_spi_fn
 
   #elif defined(__SAMD21__)
-  
+
     uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
     #define U8G_COM_ST7920_HAL_HW_SPI u8g_com_samd21_st7920_hw_spi_fn
 
