@@ -173,7 +173,10 @@ class TFT_String {
     static uint16_t *string() { return data; }
     static uint16_t width() { return span; }
     static uint16_t center(const uint16_t width) { return span > width ? 0 : (width - span) / 2; }
-    static uint16_t vcenter(const uint16_t height) { return (height + font_header->capitalAHeight + 1) / 2 > font_header->fontAscent ? (height + font_header->capitalAHeight + 1) / 2 - font_header->fontAscent : 0 ; }
+    static uint16_t vcenter(const uint16_t height) {
+      const uint16_t mid = (height + font_header->capitalAHeight + 1) / 2;
+      return mid > font_header->fontAscent ? mid - font_header->fontAscent : 0;
+    }
 };
 
 extern TFT_String tft_string;

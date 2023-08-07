@@ -58,7 +58,7 @@
     #define BOOTSCREEN_LOGO         MarlinLogo480x320x16
     #define BOOTSCREEN_LOGO_W       TFT_WIDTH
     #define BOOTSCREEN_LOGO_H       TFT_HEIGHT
-    #define BOOTSCREEN_SITE_URL_Y   (TFT_HEIGHT - 90)
+    #define BOOTSCREEN_SITE_URL_Y   (TFT_HEIGHT - 36)
   #endif
 #endif
 

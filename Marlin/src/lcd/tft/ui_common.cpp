@@ -440,8 +440,8 @@ void MarlinUI::clear_lcd() {
       stage = touch_calibration.calibration_start();
     }
     else {
-      x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
-      y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+      x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_LEFT)].x;
+      y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_LEFT)].y;
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
     }
@@ -450,10 +450,10 @@ void MarlinUI::clear_lcd() {
 
     if (stage < CALIBRATION_SUCCESS) {
       switch (stage) {
-        case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
-        case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
-        case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
+        case CALIBRATION_TOP_LEFT:     tft_string.set(GET_TEXT(MSG_TOP_LEFT));     break;
+        case CALIBRATION_TOP_RIGHT:    tft_string.set(GET_TEXT(MSG_TOP_RIGHT));    break;
         case CALIBRATION_BOTTOM_RIGHT: tft_string.set(GET_TEXT(MSG_BOTTOM_RIGHT)); break;
+        case CALIBRATION_BOTTOM_LEFT:  tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT));  break;
         default: break;
       }
 
