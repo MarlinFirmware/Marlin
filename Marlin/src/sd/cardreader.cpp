@@ -91,7 +91,7 @@ int16_t CardReader::nrItems = -1;
 
   int16_t CardReader::sort_count;
   #if ENABLED(SDSORT_GCODE)
-    bool CardReader::sort_alpha;
+    SortFlag CardReader::sort_alpha;
     int CardReader::sort_folders;
     //bool CardReader::sort_reverse;
   #endif
@@ -160,7 +160,7 @@ CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
-      sort_alpha = true;
+      sort_alpha = TERN(SDSORT_REVERSE, AS_REV, AS_FWD);
       sort_folders = FOLDER_SORTING;
       //sort_reverse = false;
     #endif
@@ -1163,7 +1163,7 @@ void CardReader::cdroot() {
    * Get the name of a file in the working directory by sort-index
    */
   void CardReader::selectFileByIndexSorted(const int16_t nr) {
-    selectFileByIndex(TERN1(SDSORT_GCODE, sort_alpha) && (nr < sort_count) ? sort_order[nr] : nr);
+    selectFileByIndex(SortFlag(TERN1(SDSORT_GCODE, sort_alpha != AS_OFF)) && (nr < sort_count) ? sort_order[nr] : nr);
   }
 
   #if ENABLED(SDSORT_USES_RAM)
@@ -1210,7 +1210,7 @@ void CardReader::cdroot() {
     int16_t fileCnt = get_num_items();
 
     // Sorting may be turned off
-    if (TERN0(SDSORT_GCODE, !sort_alpha)) return;
+    if (TERN0(SDSORT_GCODE, sort_alpha == AS_OFF)) return;
 
     // If there are files, sort up to the limit
     if (fileCnt > 0) {
@@ -1291,11 +1291,16 @@ void CardReader::cdroot() {
             const int16_t o2 = sort_order[j + 1];
 
             // Compare names from the array or just the two buffered names
-            #if ENABLED(SDSORT_USES_RAM)
-              #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) TERN(SDSORT_REVERSE, <, >) 0)
-            #else
-              #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) TERN(SDSORT_REVERSE, <, >) 0)
-            #endif
+            auto _SORT_CMP_NODIR = () => bool {
+              const bool sort = (0 < strcasecmp(
+                #if ENABLED(SDSORT_USES_RAM)
+                  sortnames[o1], sortnames[o2]
+                #else
+                  name1, name2
+                #endif
+              ));
+              return (sort_alpha == AS_REV) ? !sort : sort;
+            };
 
             #if HAS_FOLDER_SORTING
               #if ENABLED(SDSORT_USES_RAM)
