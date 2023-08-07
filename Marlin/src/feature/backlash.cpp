@@ -122,19 +122,18 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
 
-// Recalculate block->millimeters so that acceleration is calculated correctly
-//   From module/planner.cpp
+        // Recalculate block->millimeters so that acceleration is calculated correctly
+        // (Relocated from module/planner.cpp)
         if (true NUM_AXIS_GANG(
           && block->steps.a < MIN_STEPS_PER_SEGMENT, && block->steps.b < MIN_STEPS_PER_SEGMENT, && block->steps.c < MIN_STEPS_PER_SEGMENT,
           && block->steps.i < MIN_STEPS_PER_SEGMENT, && block->steps.j < MIN_STEPS_PER_SEGMENT, && block->steps.k < MIN_STEPS_PER_SEGMENT,
-          && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT
-          )
+          && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT)
         ) {
-        block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
+          block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
         }
-        else {
-          if (hints.millimeters)
-            block->millimeters = hints.millimeters;
+        else if (hints.millimeters) {
+          block->millimeters = hints.millimeters;
+        }
         else {
           const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
             dist_mm.e,
@@ -150,10 +149,9 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
             dist_mm.i, dist_mm.j, dist_mm.k,
             dist_mm.u, dist_mm.v, dist_mm.w
           );
-
           block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
         }
-//-----
+
         #if ENABLED(CORE_BACKLASH)
           switch (axis) {
             case CORE_AXIS_1:
