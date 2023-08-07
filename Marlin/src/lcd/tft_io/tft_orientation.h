@@ -52,7 +52,7 @@
 
 // Set TFT_COLOR_UI_PORTRAIT flag, if needed
 #if ((TFT_ORIENTATION) & TFT_EXCHANGE_XY) == 0
-  #define TFT_COLOR_UI_PORTRAIT 1
+  #define TFT_COLOR_UI_PORTRAIT
 #endif
 
 #define TFT_COLOR_RGB   _BV32(3)
