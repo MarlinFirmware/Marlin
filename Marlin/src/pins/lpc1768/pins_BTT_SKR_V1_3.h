@@ -382,7 +382,7 @@
       #define LCD_READ_ID                   0xD3
       #define LCD_USE_DMA_SPI
 
-      #define TFT_BUFFER_SIZE               2400
+      #define TFT_BUFFER_WORDS              2400
 
     #endif
 
@@ -412,7 +412,7 @@
       #ifndef TOUCH_OFFSET_Y
         #define TOUCH_OFFSET_Y              -367
       #endif
-      #define TFT_BUFFER_SIZE               2400
+      #define TFT_BUFFER_WORDS              2400
     #endif
 
   #elif IS_TFTGLCD_PANEL

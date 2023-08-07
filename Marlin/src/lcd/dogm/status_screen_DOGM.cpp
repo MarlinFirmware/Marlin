@@ -247,13 +247,12 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     const celsius_t temp = thermalManager.wholeDegHotend(heater_id),
                   target = thermalManager.degTargetHotend(heater_id);
 
-    #if DISABLED(STATUS_HOTEND_ANIM)
-      #define STATIC_HOTEND true
-      #define HOTEND_DOT    isHeat
-    #else
-      #define STATIC_HOTEND false
-      #define HOTEND_DOT    false
+    #if ENABLED(STATUS_HEAT_POWER)
+      const uint16_t power = thermalManager.getHeaterPower(heater_id);
     #endif
+
+    #define STATIC_HOTEND DISABLED(STATUS_HOTEND_ANIM)
+    #define HOTEND_DOT TERN(STATUS_HOTEND_ANIM, false, isHeat)
 
     #if ENABLED(STATUS_HOTEND_NUMBERLESS)
       #define OFF_BMP(N) TERN(STATUS_HOTEND_INVERTED, status_hotend_b_bmp, status_hotend_a_bmp)
@@ -285,23 +284,34 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
         #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
 
-        const float prop = target - 20,
-                    perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-        uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
-        NOMORE(tall, BAR_TALL);
-
         // Draw hotend bitmap, either whole or split by the heating percent
         const uint8_t hx = STATUS_HOTEND_X(heater_id),
                       bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
-        #if ENABLED(STATUS_HEAT_PERCENT)
-          if (isHeat && tall <= BAR_TALL) {
+        #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
+          uint8_t tall = 0;
+          #if ENABLED(STATUS_HEAT_POWER)
+            // Rounded int. At least 1 pixel tall on minimal PWM.
+            tall = power ? (power >= 127 ? BAR_TALL : (uint16_t((uint8_t(power) * BAR_TALL) + 127U) / 128U)) : 0;
+          #elif ENABLED(STATUS_HEAT_PERCENT)
+            const float prop = target - 20,
+                        perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+            tall = uint8_t(perc * BAR_TALL + 0.5f);
+          #endif
+
+          NOMORE(tall, BAR_TALL);
+
+          const bool draw_partial = isHeat && tall < BAR_TALL;
+          if (draw_partial) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
           }
-          else
+        #else
+          constexpr bool draw_partial = false;
         #endif
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+
+        if (!draw_partial)
+          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
 
       } // PAGE_CONTAINS
 
@@ -342,29 +352,31 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     const celsius_t temp = thermalManager.wholeDegBed(),
                   target = thermalManager.degTargetBed();
 
-    #if ENABLED(STATUS_HEAT_PERCENT) || DISABLED(STATUS_BED_ANIM)
+    #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER) || DISABLED(STATUS_BED_ANIM)
       const bool isHeat = BED_ALT();
     #endif
 
-    #if DISABLED(STATUS_BED_ANIM)
-      #define STATIC_BED    true
-      #define BED_DOT       isHeat
-    #else
-      #define STATIC_BED    false
-      #define BED_DOT       false
-    #endif
+    #define STATIC_BED DISABLED(STATUS_BED_ANIM)
+    #define BED_DOT TERN(STATUS_BED_ANIM, false, isHeat)
 
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
       #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
 
-      const float prop = target - 20,
-                  perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-      uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
-      NOMORE(tall, BAR_TALL);
 
       // Draw a heating progress bar, if specified
-      #if ENABLED(STATUS_HEAT_PERCENT)
+      #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
+        uint8_t tall = 0;
+        #if ENABLED(STATUS_HEAT_POWER)
+          const uint16_t power = thermalManager.getHeaterPower(H_BED);
+          tall = power ? (power >= 127) ? BAR_TALL : uint16_t((uint8_t(power) * BAR_TALL) + 127U) / 128U : 0;
+        #elif ENABLED(STATUS_HEAT_PERCENT)
+          const float prop = target - 20,
+                      perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+          tall = uint8_t(perc * BAR_TALL + 0.5f);
+        #endif
+
+        NOMORE(tall, BAR_TALL);
 
         if (isHeat) {
           const uint8_t bx = STATUS_BED_X + STATUS_BED_WIDTH;
@@ -538,9 +550,11 @@ void MarlinUI::draw_status_screen() {
     #if ANIM_HBCC
       uint8_t new_bits = 0;
       #if ANIM_HOTEND
-        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, DRAWBIT_HOTEND + e);
+        HOTEND_LOOP() if (thermalManager.TERN(STATUS_HEAT_POWER, getHeaterPower(heater_id_t(e)), isHeatingHotend(e))) SBI(new_bits, DRAWBIT_HOTEND + e);
       #endif
-      if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, DRAWBIT_BED);
+      #if ANIM_BED
+        if (TERN(STATUS_HEAT_POWER, (thermalManager.degTargetBed() || thermalManager.getHeaterPower(H_BED)), thermalManager.isHeatingBed())) SBI(new_bits, DRAWBIT_BED);
+      #endif
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, DRAWBIT_CHAMBER);
       #endif
@@ -773,7 +787,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)){
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       ui.rotate_progress();
       lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
     }

@@ -74,7 +74,7 @@ void setup_endstop_interrupts() {
     #endif
     _ATTACH(Z_MAX_PIN);
   #endif
-  #if HAS_Z_MIN_PIN
+  #if USE_Z_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_PIN)
       #error "Z_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
