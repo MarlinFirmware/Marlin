@@ -31,7 +31,7 @@
 #include "tft_spi.h"
 #include "pinconfig.h"
 
-#define DEBUG_TFT_IO
+//#define DEBUG_TFT_IO
 #define DEBUG_OUT ENABLED(DEBUG_TFT_IO)
 #include "../../../core/debug_out.h"
 
