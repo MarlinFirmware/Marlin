@@ -429,7 +429,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  if (ui.can_show_slider()) {
+  if (ui.can_show_slider() && maxEditValue > 0) {
     tft.canvas((TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y, SLIDER_W, 16);
     tft.set_background(COLOR_BACKGROUND);
 
