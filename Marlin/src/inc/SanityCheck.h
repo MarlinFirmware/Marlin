@@ -404,6 +404,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a 128x64 DOGM B/W Graphical LCD."
 #endif
 
+#if ALL(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
+  #error "Only enable STATUS_HEAT_PERCENT or STATUS_HEAT_POWER, but not both."
+#endif
+
 /**
  * LCD Lightweight Screen Style
  */
@@ -644,10 +648,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if HAS_MULTI_EXTRUDER
 
-  #if HAS_EXTENDABLE_MMU
-    #define MAX_EXTRUDERS 15
-  #else
-    #define MAX_EXTRUDERS  8
+  #ifndef MAX_EXTRUDERS
+    #if HAS_EXTENDABLE_MMU
+      #define MAX_EXTRUDERS 15
+    #else
+      #define MAX_EXTRUDERS  8
+    #endif
   #endif
   static_assert(EXTRUDERS <= MAX_EXTRUDERS, "Marlin supports a maximum of " STRINGIFY(MAX_EXTRUDERS) " EXTRUDERS.");
   #undef MAX_EXTRUDERS
@@ -1388,19 +1394,13 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   /**
    * Require pin options and pins to be defined
    */
-  #if ENABLED(SENSORLESS_PROBING)
-    #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
-      #error "SENSORLESS_PROBING requires TMC2130/2160/2209/5130/5160 drivers on X, Y, and Z and {X|Y|Z}_STALL_SENSITIVITY."
-    #elif !Z_SENSORLESS
-      #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z and Z_STALL_SENSITIVITY."
-    #endif
-  #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if !HAS_Z_MIN_PIN
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #if !USE_Z_MIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
     #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != Z_MIN_ENDSTOP_HIT_STATE
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_HIT_STATE to match Z_MIN_PROBE_ENDSTOP_HIT_STATE."
     #endif
-  #elif !USE_Z_MIN_PROBE
+  #elif !PIN_EXISTS(Z_MIN_PROBE)
     #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
@@ -2323,53 +2323,53 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Endstop Tests
  */
-#if HAS_ENDSTOPS
-  // Delta and Cartesian use 3 homing endstops
-  #if NONE(IS_SCARA, SPI_ENDSTOPS)
-    #if X_HOME_TO_MIN && !PIN_EXISTS(X_MIN)
-      #error "X_MIN_PIN (or X_STOP_PIN) is required for X axis homing."
-    #elif X_HOME_TO_MAX && !PIN_EXISTS(X_MAX)
-      #error "X_MAX_PIN (or X_STOP_PIN) is required for X axis homing."
-    #elif Y_HOME_TO_MIN && !PIN_EXISTS(Y_MIN)
-      #error "Y_MIN_PIN (or Y_STOP_PIN) is required for Y axis homing."
-    #elif Y_HOME_TO_MAX && !PIN_EXISTS(Y_MAX)
-      #error "Y_MAX_PIN (or Y_STOP_PIN) is required for Y axis homing."
-    #elif I_HOME_TO_MIN && !PIN_EXISTS(I_MIN)
-      #error "I_MIN_PIN (or I_STOP_PIN) is required for I axis homing."
-    #elif I_HOME_TO_MAX && !PIN_EXISTS(I_MAX)
-      #error "I_MAX_PIN (or I_STOP_PIN) is required for I axis homing."
-    #elif J_HOME_TO_MIN && !PIN_EXISTS(J_MIN)
-      #error "J_MIN_PIN (or J_STOP_PIN) is required for J axis homing."
-    #elif J_HOME_TO_MAX && !PIN_EXISTS(J_MAX)
-      #error "J_MAX_PIN (or J_STOP_PIN) is required for J axis homing."
-    #elif K_HOME_TO_MIN && !PIN_EXISTS(K_MIN)
-      #error "K_MIN_PIN (or K_STOP_PIN) is required for K axis homing."
-    #elif K_HOME_TO_MAX && !PIN_EXISTS(K_MAX)
-      #error "K_MAX_PIN (or K_STOP_PIN) is required for K axis homing."
-    #elif U_HOME_TO_MIN && !PIN_EXISTS(U_MIN)
-      #error "U_MIN_PIN (or U_STOP_PIN) is required for U axis homing."
-    #elif U_HOME_TO_MAX && !PIN_EXISTS(U_MAX)
-      #error "U_MAX_PIN (or U_STOP_PIN) is required for U axis homing."
-    #elif V_HOME_TO_MIN && !PIN_EXISTS(V_MIN)
-      #error "V_MIN_PIN (or V_STOP_PIN) is required for V axis homing."
-    #elif V_HOME_TO_MAX && !PIN_EXISTS(V_MAX)
-      #error "V_MAX_PIN (or V_STOP_PIN) is required for V axis homing."
-    #elif W_HOME_TO_MIN && !PIN_EXISTS(W_MIN)
-      #error "W_MIN_PIN (or W_STOP_PIN) is required for W axis homing."
-    #elif W_HOME_TO_MAX && !PIN_EXISTS(W_MAX)
-      #error "W_MAX_PIN (or W_STOP_PIN) is required for W axis homing."
-    #endif
-  #endif
-
-  // Z homing requirements
-  #if Z_HOME_TO_MAX && ENABLED(USE_PROBE_FOR_Z_HOMING)
-    #error "Z_HOME_DIR must be -1 when homing Z with the probe."
-  #elif ALL(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
-    #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
+#if !IS_SCARA
+  // Delta and Cartesian require some kind of endstop
+  #if   X_HOME_TO_MIN && !HAS_X_MIN_STATE
+    #error "X_MIN_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X axis homing."
+  #elif X_HOME_TO_MAX && !HAS_X_MAX_STATE
+    #error "X_MAX_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X axis homing."
+  #elif Y_HOME_TO_MIN && !HAS_Y_MIN_STATE
+    #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
+  #elif Y_HOME_TO_MAX && !HAS_Y_MAX_STATE
+    #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
+  #elif Z_HOME_TO_MIN && !HAS_Z_MIN_STATE
+    #error "Z_MIN_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Y axis homing."
+  #elif Z_HOME_TO_MAX && !HAS_Z_MAX_STATE
+    #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Y axis homing."
+  #elif I_HOME_TO_MIN && !HAS_I_MIN_STATE
+    #error "I_MIN_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I axis homing."
+  #elif I_HOME_TO_MAX && !HAS_I_MAX_STATE
+    #error "I_MAX_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I axis homing."
+  #elif J_HOME_TO_MIN && !HAS_J_MIN_STATE
+    #error "J_MIN_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J axis homing."
+  #elif J_HOME_TO_MAX && !HAS_J_MAX_STATE
+    #error "J_MAX_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J axis homing."
+  #elif K_HOME_TO_MIN && !HAS_K_MIN_STATE
+    #error "K_MIN_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K axis homing."
+  #elif K_HOME_TO_MAX && !HAS_K_MAX_STATE
+    #error "K_MAX_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K axis homing."
+  #elif U_HOME_TO_MIN && !HAS_U_MIN_STATE
+    #error "U_MIN_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U axis homing."
+  #elif U_HOME_TO_MAX && !HAS_U_MAX_STATE
+    #error "U_MAX_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U axis homing."
+  #elif V_HOME_TO_MIN && !HAS_V_MIN_STATE
+    #error "V_MIN_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V axis homing."
+  #elif V_HOME_TO_MAX && !HAS_V_MAX_STATE
+    #error "V_MAX_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V axis homing."
+  #elif W_HOME_TO_MIN && !HAS_W_MIN_STATE
+    #error "W_MIN_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W axis homing."
+  #elif W_HOME_TO_MAX && !HAS_W_MAX_STATE
+    #error "W_MAX_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W axis homing."
   #endif
 #endif
 
-#if ALL(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
+// Z homing with probe requirements
+#if ALL(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
+  #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING (i.e., Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)."
+#elif ALL(USE_PROBE_FOR_Z_HOMING, Z_HOME_TO_MAX)
+  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
+#elif ALL(USE_PROBE_FOR_Z_HOMING, HOME_Z_FIRST)
   #error "HOME_Z_FIRST can't be used when homing Z with a probe."
 #endif
 
@@ -2381,26 +2381,32 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "X_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !HAS_X2_ENDSTOP
-    #error "X2 Endstop Pin must be defined for X_DUAL_ENDSTOPS."
+  #elif !HAS_X2_STATE
+    #error "Some kind of X2 Endstop must be defined for X_DUAL_ENDSTOPS."
+  #elif X_SPI_SENSORLESS && !AXIS_HAS_SPI(X2)
+    #error "All X Stepper Drivers must be SPI-capable to use SPI Endstops on X."
   #endif
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Y_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !HAS_Y2_ENDSTOP
-    #error "Y2 Endstop Pin must be defined for Y_DUAL_ENDSTOPS."
+  #elif !HAS_Y2_STATE
+    #error "Some kind of Y2 Endstop must be defined for Y_DUAL_ENDSTOPS."
+  #elif Y_SPI_SENSORLESS && !AXIS_HAS_SPI(Y2)
+    #error "All Y Stepper Drivers must be SPI-capable to use SPI Endstops on Y."
   #endif
 #endif
 #if ENABLED(Z_MULTI_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
-  #elif !HAS_Z2_ENDSTOP
-    #error "Z2 Endstop Pin must be defined for Z_MULTI_ENDSTOPS."
-  #elif NUM_Z_STEPPERS >= 3 && !HAS_Z3_ENDSTOP
-    #error "Z3 Endstop Pin must be defined for Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
-  #elif NUM_Z_STEPPERS >= 4 && !HAS_Z4_ENDSTOP
-    #error "Z4 Endstop Pin must be defined for Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
+  #elif !HAS_Z2_STATE
+    #error "Some kind of Z2 Endstop must be defined for Z_MULTI_ENDSTOPS."
+  #elif NUM_Z_STEPPERS >= 3 && !HAS_Z3_STATE
+    #error "Some kind of Z3 Endstop must be defined for Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
+  #elif NUM_Z_STEPPERS >= 4 && !HAS_Z4_STATE
+    #error "Some kind of Z4 Endstop must be defined for Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
+  #elif Z_SPI_SENSORLESS && !(AXIS_HAS_SPI(Z2) && (NUM_Z_STEPPERS < 3 || AXIS_HAS_SPI(Z3)) && (NUM_Z_STEPPERS < 4 || AXIS_HAS_SPI(Z4)))
+    #error "All Z Stepper Drivers must be SPI-capable to use SPI Endstops on Z."
   #endif
 #endif
 
@@ -3804,12 +3810,20 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Sanity check WiFi options
  */
-#if ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
-  #error "ESP3D_WIFISUPPORT requires an ESP32 MOTHERBOARD."
-#elif ENABLED(WEBSUPPORT) && NONE(ARDUINO_ARCH_ESP32, WIFISUPPORT)
-  #error "WEBSUPPORT requires WIFISUPPORT and an ESP32 MOTHERBOARD."
-#elif ALL(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "Enable only one of ESP3D_WIFISUPPORT or WIFISUPPORT."
+#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
+#elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
+  #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
+#elif ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT)
+  #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
+    #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+  #endif
+#elif ENABLED(WIFI_CUSTOM_COMMAND)
+  #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
+#elif ENABLED(OTASUPPORT)
+  #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
+#elif defined(WIFI_SSID) || defined(WIFI_PWD)
+  #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
 /**
