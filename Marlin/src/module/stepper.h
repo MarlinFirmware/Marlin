@@ -284,6 +284,11 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // HAS_ZV_SHAPING
 
+#if ENABLED(NONLINEAR_EXTRUSION)
+  typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
+  typedef struct { int32_t A, B, C; } ne_fix_t;
+#endif
+
 //
 // Stepper class definition
 //
@@ -327,9 +332,7 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static float ne_A;
-      static float ne_B;
-      static float ne_C;
+      static ne_coeff_t nla;
     #endif
 
   private:
@@ -423,11 +426,9 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-        static int32_t ne_edividend;
-        static int32_t ne_Afix;
-        static int32_t ne_Bfix;
-        static int32_t ne_Cfix;
-        static uint32_t ne_scale;
+      static int32_t ne_edividend;
+      static uint32_t ne_scale;
+      static ne_fix_t ne_fix;
     #endif
 
     #if ENABLED(BABYSTEPPING)

@@ -246,13 +246,9 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if ENABLED(NONLINEAR_EXTRUSION)
+  ne_coeff_t Stepper::ne;
+  ne_fix_t Stepper::ne_fix;
   int32_t Stepper::ne_edividend;
-  float Stepper::ne_A = 0;
-  float Stepper::ne_B = 0;
-  float Stepper::ne_C = 1;
-  int32_t Stepper::ne_Afix;
-  int32_t Stepper::ne_Bfix;
-  int32_t Stepper::ne_Cfix;
   uint32_t Stepper::ne_scale;
 #endif
 
@@ -2206,11 +2202,11 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
   #if ENABLED(NONLINEAR_EXTRUSION)
-    uint32_t velocity = ne_scale * step_rate; // scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd = (((int64_t)ne_Afix * velocity) >> 24) + (((((int64_t)ne_Bfix * velocity) >> 24) * velocity) >> 24);
-    if (vd < 0) vd = 0;
+    const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    int32_t vd = (((int64_t)nefix.A * velocity) >> 24) + (((((int64_t)nefix.B * velocity) >> 24) * velocity) >> 24);
+    NOLESS(vd, 0);
 
-    advance_dividend.e = ((uint64_t)(ne_Cfix + vd) * ne_edividend) >> 24;
+    advance_dividend.e = (uint64_t(nefix.C + vd) * ne_edividend) >> 24;
   #endif
 
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
@@ -2655,9 +2651,10 @@ hal_timer_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        oversampling_factor = 0;                          // Assume no axis smoothing (via oversampling)
         #if ENABLED(NONLINEAR_EXTRUSION)
-          oversampling_factor = 1;                        // We need at least 2x oversampling to ensure we can increase extruder step rate
+          oversampling_factor = 1;                        // Need at least 2x oversampling to permit increase of E step rate
+        #else
+          oversampling_factor = 0;                        // Assume no axis smoothing (via oversampling)
         #endif
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
@@ -2777,16 +2774,16 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(NONLINEAR_EXTRUSION)
         ne_edividend = advance_dividend.e;
-        float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
         ne_scale = (1L << 24) * scale;
         if (current_block->direction_bits.e) {
-          ne_Afix = (1L << 24) * ne_A;
-          ne_Bfix = (1L << 24) * ne_B;
-          ne_Cfix = (1L << 24) * ne_C;
-        } else {
-          ne_Afix = 0;
-          ne_Bfix = 0;
-          ne_Cfix = (1L << 24);
+          ne_fix.A = (1L << 24) * ne.A;
+          ne_fix.B = (1L << 24) * ne.B;
+          ne_fix.C = (1L << 24) * ne.C;
+        }
+        else {
+          ne_fix.A = ne_fix.B = 0;
+          ne_fix.C = (1L << 24);
         }
       #endif
 

@@ -2267,10 +2267,9 @@
 /**
  * Nonlinear Extrusion Control
  *
- * Enables control over extrusion rate based on instantaneous extruder velocity. This can be used
- * to correct for underextrusion at high extruder speeds that are otherwise well-behaved (e.g.
- * not yet skipping).
-*/
+ * Control extrusion rate based on instantaneous extruder velocity. Can be used to correct for
+ * underextrusion at high extruder speeds that are otherwise well-behaved (i.e., not skipping).
+ */
 //#define NONLINEAR_EXTRUSION
 
 // @section leveling

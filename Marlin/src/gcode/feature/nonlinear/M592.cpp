@@ -27,28 +27,25 @@
 #include "../../gcode.h"
 #include "../../../module/stepper.h"
 
+void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
+  report_heading(forReplay, F(STR_NONLINEAR_EXTRUSION));
+  SERIAL_ECHOLNPGM("  M593 A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
+}
+
 /**
  * M592: Get or set nonlinear extrusion parameters
  *  A<factor>   Linear coefficient (default 0.0)
  *  B<factor>   Quadratic coefficient (default 0.0)
  *  C<factor>   Constant coefficient (default 1.0)
  *
- *  Adjusts the amount of extrusion based on the instantaneous velocity of extrusion, as a multiplier.
- *  The amount of extrusion is multiplied by max(C, C + A*v + B*v^2) where v is extruder velocity in mm/s.
- *  Only adjusts forward extrusions, since those are the ones affected by backpressure.
+ * Adjusts the amount of extrusion based on the instantaneous velocity of extrusion, as a multiplier.
+ * The amount of extrusion is multiplied by max(C, C + A*v + B*v^2) where v is extruder velocity in mm/s.
+ * Only adjusts forward extrusions, since those are the ones affected by backpressure.
  */
 void GcodeSuite::M592() {
-  if (parser.seenval('A')) {
-    stepper.ne_A = parser.value_float();
-  }
-
-  if (parser.seenval('B')) {
-    stepper.ne_B = parser.value_float();
-  }
-
-  if (parser.seenval('C')) {
-    stepper.ne_C = parser.value_float();
-  }
+  if (parser.seenval('A')) stepper.ne.A = parser.value_float();
+  if (parser.seenval('B')) stepper.ne.B = parser.value_float();
+  if (parser.seenval('C')) stepper.ne.C = parser.value_float();
 }
 
 #endif // NONLINEAR_EXTRUSION

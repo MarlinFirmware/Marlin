@@ -635,10 +635,10 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // NONLINEAR_EXTRUSION
+  // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    float ne_A, ne_B, ne_C;                             // M592 A B C
+    ne_coeff_t stepper_ne;                              // M592 A B C
   #endif
 
 } SettingsData;
@@ -1737,12 +1737,10 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // NONLINEAR_EXTRUSION
+    // Nonlinear Extrusion
     //
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EEPROM_WRITE(stepper.ne_A);
-      EEPROM_WRITE(stepper.ne_B);
-      EEPROM_WRITE(stepper.ne_C);
+      EEPROM_WRITE(stepper.ne);
     #endif
 
     //
@@ -2820,12 +2818,10 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // NONLINEAR_EXTRUSION
+      // Nonlinear Extrusion
       //
       #if ENABLED(NONLINEAR_EXTRUSION)
-        EEPROM_READ(stepper.ne_A);
-        EEPROM_READ(stepper.ne_B);
-        EEPROM_READ(stepper.ne_C);
+        EEPROM_READ(stepper.ne);
       #endif
 
       //
@@ -3421,7 +3417,6 @@ void MarlinSettings::reset() {
   //
   // Heated Bed PID
   //
-
   #if ENABLED(PIDTEMPBED)
     thermalManager.temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
   #endif
@@ -3429,7 +3424,6 @@ void MarlinSettings::reset() {
   //
   // Heated Chamber PID
   //
-
   #if ENABLED(PIDTEMPCHAMBER)
     thermalManager.temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
   #endif
@@ -3481,7 +3475,6 @@ void MarlinSettings::reset() {
   //
   // Volumetric & Filament Size
   //
-
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     for (uint8_t q = 0; q < COUNT(planner.filament_size); ++q)
@@ -3622,6 +3615,11 @@ void MarlinSettings::reset() {
   // Fixed-Time Motion
   //
   TERN_(FT_MOTION, fxdTiCtrl.set_defaults());
+
+  //
+  // Nonlinear Extrusion
+  //
+  TERN_(NONLINEAR_EXTRUSION, stepper.ne.reset());
 
   //
   // Input Shaping
@@ -3891,6 +3889,11 @@ void MarlinSettings::reset() {
     // Fixed-Time Motion
     //
     TERN_(FT_MOTION, gcode.M493_report(forReplay));
+
+    //
+    // Nonlinear Extrusion
+    //
+    TERN_(NONLINEAR_EXTRUSION, gcode.M592_report(forReplay));
 
     //
     // Input Shaping

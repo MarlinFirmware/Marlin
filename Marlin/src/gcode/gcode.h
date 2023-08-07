@@ -1109,6 +1109,7 @@ private:
 
   #if ENABLED(NONLINEAR_EXTRUSION)
     static void M592();
+    static void M592_report(const bool forReplay=true);
   #endif
 
   #if HAS_ZV_SHAPING
