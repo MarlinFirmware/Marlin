@@ -191,9 +191,9 @@ void GCodeParser::parse(char *p) {
       // Bail if there's no command code number
       if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
         if (TERN0(HAS_MULTI_EXTRUDER, letter == 'T')) {
-          p[0] = '2'; p[1] = '5'; p[2] = '5'; p[3] = '\0'; // Convert 'T' alone into T255
+          p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
         }
-        else return;
+        return;
       }
 
       // Save the command letter at this point
