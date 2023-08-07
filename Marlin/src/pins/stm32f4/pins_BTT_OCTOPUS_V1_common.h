@@ -26,11 +26,10 @@
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
 
-// allocate Z2 on motor 3, either autmatically or deliberately in config using the LEGACY_ALLOCATE_Z2 define.
-#ifdef Z2_DRIVER_TYPE
+#ifdef Z2_DRIVER_TYPE                             // Allocate Z2 on Motor 3 if the Z2 axis driver is specified
   #define LEGACY_ALLOCATE_Z2
   #define BTT_Z2_DRIVER_WARNING                1
-#elif DISABLED(LEGACY_ALLOCATE_Z2)
+#elif DISABLED(LEGACY_ALLOCATE_Z2)                // Config may also specify LEGACY_ALLOCATE_Z2
   #define BTT_NO_Z2_DRIVER_WARNING             1
 #endif
 

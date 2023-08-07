@@ -792,8 +792,8 @@
  * BTT Octopus motor allocation warnings
  */
 #if ANY(LEGACY_ALLOCATE_Z2, BTT_Z2_DRIVER_WARNING)
-  #warning "Z2 is on MOTOR 3, E0 is on MOTOR 4, E1 is on MOTOR 5, E2 is on MOTOR 6, E3 is on MOTOR 7"
+  #warning "Axis Z2 = MOTOR 3, E0 = MOTOR 4, E1 = MOTOR 5, E2 = MOTOR 6, E3 = MOTOR 7."
 #endif
 #if BTT_NO_Z2_DRIVER_WARNING
-  #warning "No Z2_DRIVER detected. E0 is on MOTOR 3, E1 is on MOTOR 4, E2 is on MOTOR 5, E3 is on MOTOR 6, E4 is on MOTOR 7"
+  #warning "No Z2_DRIVER_TYPE defined. E0 = MOTOR 3, E1 = MOTOR 4, E2 = MOTOR 5, E3 = MOTOR 6, E4 = MOTOR 7."
 #endif
