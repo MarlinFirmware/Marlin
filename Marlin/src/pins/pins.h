@@ -348,6 +348,8 @@
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"    // ATmega2560                           env:mega2560
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
+#elif MB(GT2560_V41B)
+  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560
 
 //
 // ATmega1281, ATmega2561
@@ -854,6 +856,8 @@
   #include "esp32/pins_ENWI_ESPNP.h"                // ESP32                                env:esp32
 #elif MB(GODI_CONTROLLER_V1_0)
   #include "esp32/pins_GODI_CONTROLLER_V1_0.h"      // ESP32                                env:godi_esp32
+#elif MB(MM_JOKER)
+  #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
