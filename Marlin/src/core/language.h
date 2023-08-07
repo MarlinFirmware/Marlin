@@ -249,6 +249,8 @@
 #define STR_LASER_TEMP                      "laser temperature"
 
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
+#define STR_DETECTED_TEMP_B                 " (temp: "
+#define STR_DETECTED_TEMP_E                 ")"
 #define STR_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define STR_T_HEATING_FAILED                "Heating failed"
 #define STR_T_THERMAL_RUNAWAY               "Thermal Runaway"
