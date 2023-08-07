@@ -122,8 +122,8 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
 
-#----
-        #block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move)); #
+// Recalculate block->millimeters so that acceleration is calculated correctly
+//   From module/planner.cpp
         if (true NUM_AXIS_GANG(
           && block->steps.a < MIN_STEPS_PER_SEGMENT, && block->steps.b < MIN_STEPS_PER_SEGMENT, && block->steps.c < MIN_STEPS_PER_SEGMENT,
           && block->steps.i < MIN_STEPS_PER_SEGMENT, && block->steps.j < MIN_STEPS_PER_SEGMENT, && block->steps.k < MIN_STEPS_PER_SEGMENT,
@@ -153,7 +153,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
           block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
         }
-#-----
+//-----
         #if ENABLED(CORE_BACKLASH)
           switch (axis) {
             case CORE_AXIS_1:
