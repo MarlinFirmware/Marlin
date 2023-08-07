@@ -111,8 +111,9 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/toolchain/Arduin
 #  Setup Project                                                     #
 #                                                                    #
 #  If you receive this error:                                        #
-#  'Unknown CMake command "_cmake_record_install_prefix".'           #
-#  go to the file in your CMake directory.                           #
+#   'Unknown CMake command "_cmake_record_install_prefix".'          #
+#                                                                    #
+#   Go to the file in your CMake directory.                          #
 #                                                                    #
 #   For Windows: cmake\Modules\Platform\WindowsPaths.cmake           #
 #   For Linux: cmake/Modules/Platform/UnixPaths.cmake                #
