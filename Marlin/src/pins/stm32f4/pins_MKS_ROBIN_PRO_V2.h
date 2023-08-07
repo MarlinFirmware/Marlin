@@ -336,7 +336,7 @@
   #define LCD_USE_DMA_SPI
 
   //#define TFT_DRIVER                    ST7796
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
 #elif HAS_WIRED_LCD
 

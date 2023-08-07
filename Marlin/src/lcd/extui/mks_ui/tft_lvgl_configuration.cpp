@@ -310,7 +310,7 @@ static bool get_point(int16_t *x, int16_t *y) {
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
-    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+    if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
       if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
       return false;
     }

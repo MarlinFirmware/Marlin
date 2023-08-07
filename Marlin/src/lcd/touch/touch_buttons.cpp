@@ -80,7 +80,7 @@ uint8_t TouchButtons::read_buttons() {
 
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
-        if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_RIGHT)) {
+        if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
           if (touch_calibration.handleTouch(x, y)) ui.refresh();
           return 0;
         }

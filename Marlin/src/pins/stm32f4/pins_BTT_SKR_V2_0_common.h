@@ -137,10 +137,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -516,21 +514,62 @@
 
 #if HAS_SPI_TFT
 
+  #define TFT_SCK_PIN                EXP2_02_PIN
+  #define TFT_MISO_PIN               EXP2_01_PIN
+  #define TFT_MOSI_PIN               EXP2_06_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
 
+  #ifndef TFT_WIDTH
+    #define TFT_WIDTH                      480
+  #endif
+  #ifndef TFT_HEIGHT
+    #define TFT_HEIGHT                     320
+  #endif
+
   #if ENABLED(BTT_TFT35_SPI_V1_0)
-    // 480x320, 3.5", SPI Display with Rotary Encoder.
-    // Stock Display for the BIQU B1 SE.
+
+    /**
+     *            ------                       ------
+     *    BEEPER | 1  2 | LCD-BTN        MISO | 1  2 | CLK
+     *    T_MOSI | 3  4 | T_CS       LCD-ENCA | 3  4 | TFTCS
+     *     T_CLK | 5  6   T_MISO     LCD-ENCB | 5  6   MOSI
+     *    PENIRQ | 7  8 | F_CS             RS | 7  8 | RESET
+     *       GND | 9 10 | VCC             GND | 9 10 | NC
+     *            ------                       ------
+     *             EXP1                         EXP2
+     *
+     * 480x320, 3.5", SPI Display with Rotary Encoder.
+     * Stock Display for the BIQU B1 SE Series.
+     * Schematic: https://github.com/bigtreetech/TFT35-SPI/blob/master/v1/Hardware/BTT%20TFT35-SPI%20V1-SCH.pdf
+     */
     #define TFT_CS_PIN               EXP2_04_PIN
-    #define TFT_A0_PIN               EXP2_07_PIN
+    #define TFT_DC_PIN               EXP2_07_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #define TOUCH_CS_PIN             EXP1_04_PIN
     #define TOUCH_SCK_PIN            EXP1_05_PIN
     #define TOUCH_MISO_PIN           EXP1_06_PIN
     #define TOUCH_MOSI_PIN           EXP1_03_PIN
     #define TOUCH_INT_PIN            EXP1_07_PIN
+
+    #ifndef TOUCH_CALIBRATION_X
+      #define TOUCH_CALIBRATION_X          17540
+    #endif
+    #ifndef TOUCH_CALIBRATION_Y
+      #define TOUCH_CALIBRATION_Y         -11388
+    #endif
+    #ifndef TOUCH_OFFSET_X
+      #define TOUCH_OFFSET_X                 -21
+    #endif
+    #ifndef TOUCH_OFFSET_Y
+      #define TOUCH_OFFSET_Y                 337
+    #endif
+    #ifndef TOUCH_ORIENTATION
+      #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+    #endif
 
   #elif ENABLED(MKS_TS35_V2_0)
 
@@ -544,8 +583,8 @@
      *                        EXP1                                     EXP2
      */
     #define TFT_CS_PIN               EXP1_07_PIN  // SPI1_CS
-    #define TFT_A0_PIN               EXP1_08_PIN  // SPI1_RS
-    #define TFT_DC_PIN                TFT_DC_PIN
+    #define TFT_DC_PIN               EXP1_08_PIN  // SPI1_RS
+    #define TFT_A0_PIN                TFT_DC_PIN
 
     #define TFT_RESET_PIN            EXP1_04_PIN
 
@@ -563,7 +602,23 @@
     #define LCD_READ_ID                     0xD3
     #define LCD_USE_DMA_SPI
 
-    #define TFT_BUFFER_SIZE                14400
+    #define TFT_BUFFER_WORDS               14400
+
+    #ifndef TOUCH_CALIBRATION_X
+      #define TOUCH_CALIBRATION_X         -17253
+    #endif
+    #ifndef TOUCH_CALIBRATION_Y
+      #define TOUCH_CALIBRATION_Y          11579
+    #endif
+    #ifndef TOUCH_OFFSET_X
+      #define TOUCH_OFFSET_X                 514
+    #endif
+    #ifndef TOUCH_OFFSET_Y
+      #define TOUCH_OFFSET_Y                 -24
+    #endif
+    #ifndef TOUCH_ORIENTATION
+      #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+    #endif
 
   #endif
 

@@ -596,10 +596,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     thermalManager.wait_for_hotend_heating(active_extruder);
   #endif
 
-  #if ENABLED(BLTOUCH)
-    if (!bltouch.high_speed_mode && bltouch.deploy())
-      return true; // Deploy in LOW SPEED MODE on every probe action
-  #endif
+  // Ensure the BLTouch is deployed. Does nothing if already deployed.
+  if (TERN0(BLTOUCH, bltouch.deploy())) return true;
 
   #if HAS_Z_SERVO_PROBE && (ENABLED(Z_SERVO_INTERMEDIATE_STOW) || defined(Z_SERVO_MEASURE_ANGLE))
     probe_specific_action(true);  //  Always re-deploy in this case
@@ -612,8 +610,19 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX); // Delta watches all DIAG pins for a stall
       if (test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);   // All machines will check Z-DIAG for stall
-    endstops.set_homing_current(true);                                            // The "homing" current also applies to probing
+    if (test_sensitivity.z) {
+      stealth_states.z = tmc_enable_stallguard(stepperZ);                         // All machines will check Z-DIAG for stall
+      #if ENABLED(Z_MULTI_ENDSTOPS)
+        stealth_states.z2 = tmc_enable_stallguard(stepperZ2);
+        #if NUM_Z_STEPPERS >= 3
+          stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
+          #if NUM_Z_STEPPERS >= 4
+            stealth_states.z4 = tmc_enable_stallguard(stepperZ4);
+          #endif
+        #endif
+      #endif
+    }
+    endstops.set_z_sensorless_current(true);                                            // The "homing" current also applies to probing
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
@@ -645,9 +654,20 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       if (test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
       if (test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
-    if (test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
-    endstops.set_homing_current(false);
-  #endif
+    if (test_sensitivity.z) {
+      tmc_disable_stallguard(stepperZ, stealth_states.z);
+      #if ENABLED(Z_MULTI_ENDSTOPS)
+        tmc_disable_stallguard(stepperZ2, stealth_states.z2);
+        #if NUM_Z_STEPPERS >= 3
+          tmc_disable_stallguard(stepperZ3, stealth_states.z3);
+          #if NUM_Z_STEPPERS >= 4
+            tmc_disable_stallguard(stepperZ4, stealth_states.z4);
+          #endif
+        #endif
+      #endif
+    }
+    endstops.set_z_sensorless_current(false);
+  #endif // SENSORLESS_PROBING
 
   #if ENABLED(BLTOUCH)
     if (probe_triggered && !bltouch.high_speed_mode && bltouch.stow())
@@ -960,6 +980,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   #if ENABLED(BD_SENSOR)
 
+    safe_delay(4);
     return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
