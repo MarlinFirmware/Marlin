@@ -1420,7 +1420,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
         case MLEVEL_BL:
           if (draw)
-            drawMenuItem(row, ICON_AxisBL, F("Bottom Left"));
+            drawMenuItem(row, ICON_AxisBL, GET_TEXT_F(MSG_BOTTOM_LEFT));
           else {
             popupHandler(Popup_MoveWait);
             if (use_probe) {
@@ -1443,7 +1443,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           break;
         case MLEVEL_TL:
           if (draw)
-            drawMenuItem(row, ICON_AxisTL, F("Top Left"));
+            drawMenuItem(row, ICON_AxisTL, GET_TEXT_F(MSG_TOP_LEFT));
           else {
             popupHandler(Popup_MoveWait);
             if (use_probe) {
@@ -1466,7 +1466,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           break;
         case MLEVEL_TR:
           if (draw)
-            drawMenuItem(row, ICON_AxisTR, F("Top Right"));
+            drawMenuItem(row, ICON_AxisTR, GET_TEXT_F(MSG_TOP_RIGHT));
           else {
             popupHandler(Popup_MoveWait);
             if (use_probe) {
@@ -1489,7 +1489,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           break;
         case MLEVEL_BR:
           if (draw)
-            drawMenuItem(row, ICON_AxisBR, F("Bottom Right"));
+            drawMenuItem(row, ICON_AxisBR, GET_TEXT_F(MSG_BOTTOM_RIGHT));
           else {
             popupHandler(Popup_MoveWait);
             if (use_probe) {
