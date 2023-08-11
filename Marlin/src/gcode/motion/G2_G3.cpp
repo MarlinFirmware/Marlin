@@ -315,7 +315,6 @@ void plan_arc(
     const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
                 limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_feedrate_mm_s[axis_q]),
                 limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius, sq(scaled_fr_mm_s));
-    float arc_mm_remaining = flat_mm;
 
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
@@ -370,7 +369,7 @@ void plan_arc(
       #endif
 
       // calculate safe speed for stopping by the end of the arc
-      arc_mm_remaining -= segment_mm;
+      const float arc_mm_remaining = flat_mm - segment_mm * i;
       hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
