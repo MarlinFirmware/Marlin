@@ -262,8 +262,8 @@ bool BedLevelTools::meshValidate() {
           if ((GRID_MAX_POINTS_X) < TERN(TJC_DISPLAY, 8, 10))
             msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
           else
-            msg.setf_P(PSTR("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
-          offset_x = cell_width_px / 2 - (fs / 2) * strlen(buf) - 2;
+            msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
+          offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
           if ((GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10))
             dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);
