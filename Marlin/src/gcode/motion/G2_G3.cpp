@@ -82,14 +82,15 @@ void plan_arc(
               rt_X = cart[axis_p] - center_P,
               rt_Y = cart[axis_q] - center_Q;
 
-  ARC_LIJKUVW_CODE(
-    const float start_L = current_position[axis_l],
-    const float start_I = current_position.i,
-    const float start_J = current_position.j,
-    const float start_K = current_position.k,
-    const float start_U = current_position.u,
-    const float start_V = current_position.v,
-    const float start_W = current_position.w
+  ARC_LIJKUVWE_CODE(
+    float start_L = current_position[axis_l],
+    float start_I = current_position.i,
+    float start_J = current_position.j,
+    float start_K = current_position.k,
+    float start_U = current_position.u,
+    float start_V = current_position.v,
+    float start_W = current_position.w,
+    float start_E = current_position.e
   );
 
   // Angle of rotation between position and target from the circle center.
@@ -133,7 +134,7 @@ void plan_arc(
     float travel_U = cart.u       - start_U,
     float travel_V = cart.v       - start_V,
     float travel_W = cart.w       - start_W,
-    float travel_E = cart.e       - current_position.e
+    float travel_E = cart.e       - start_E
   );
 
   // If "P" specified circles, call plan_arc recursively then continue with the rest of the arc
@@ -166,15 +167,27 @@ void plan_arc(
       );
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }
+
+    // Update starting coordinates for the remaining part
     ARC_LIJKUVWE_CODE(
-      travel_L = cart[axis_l] - current_position[axis_l],       // Linear X, Y, or Z
-      travel_I = cart.i       - current_position.i,             // The rest are also non-arc
-      travel_J = cart.j       - current_position.j,
-      travel_K = cart.k       - current_position.k,
-      travel_U = cart.u       - current_position.u,
-      travel_V = cart.v       - current_position.v,
-      travel_W = cart.w       - current_position.w,
-      travel_E = cart.e       - current_position.e
+      start_L = current_position[axis_l],
+      start_I = current_position.i,
+      start_J = current_position.j,
+      start_K = current_position.k,
+      start_U = current_position.u,
+      start_V = current_position.v,
+      start_W = current_position.w,
+      start_E = current_position.e
+    );
+    ARC_LIJKUVWE_CODE(
+      travel_L = cart[axis_l] - start_L,                        // Linear X, Y, or Z
+      travel_I = cart.i       - start_I,                        // The rest are also non-arc
+      travel_J = cart.j       - start_J,
+      travel_K = cart.k       - start_K,
+      travel_U = cart.u       - start_U,
+      travel_V = cart.v       - start_V,
+      travel_W = cart.w       - start_W,
+      travel_E = cart.e       - start_E
     );
   }
 
@@ -264,30 +277,27 @@ void plan_arc(
                 sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
                 cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
-    #if DISABLED(AUTO_BED_LEVELING_UBL)
-      ARC_LIJKUVW_CODE(
-        const float per_segment_L = travel_L / segments,
-        const float per_segment_I = travel_I / segments,
-        const float per_segment_J = travel_J / segments,
-        const float per_segment_K = travel_K / segments,
-        const float per_segment_U = travel_U / segments,
-        const float per_segment_V = travel_V / segments,
-        const float per_segment_W = travel_W / segments
-      );
-    #endif
-
-    CODE_ITEM_E(const float extruder_per_segment = travel_E / segments);
+    ARC_LIJKUVWE_CODE(
+      const float per_segment_L = travel_L / segments,
+      const float per_segment_I = travel_I / segments,
+      const float per_segment_J = travel_J / segments,
+      const float per_segment_K = travel_K / segments,
+      const float per_segment_U = travel_U / segments,
+      const float per_segment_V = travel_V / segments,
+      const float per_segment_W = travel_W / segments,
+      const float per_segment_E = travel_E / segments
+    );
 
     // Initialize all linear axes and E
     ARC_LIJKUVWE_CODE(
-      raw[axis_l] = current_position[axis_l],
-      raw.i       = current_position.i,
-      raw.j       = current_position.j,
-      raw.k       = current_position.k,
-      raw.u       = current_position.u,
-      raw.v       = current_position.v,
-      raw.w       = current_position.w,
-      raw.e       = current_position.e
+      raw[axis_l] = start_L,
+      raw.i       = start_I,
+      raw.j       = start_J,
+      raw.k       = start_K,
+      raw.u       = start_U,
+      raw.v       = start_V,
+      raw.w       = start_W,
+      raw.e       = start_E
     );
 
     millis_t next_idle_ms = millis() + 200UL;
@@ -343,16 +353,14 @@ void plan_arc(
       raw[axis_p] = center_P + rvec.a;
       raw[axis_q] = center_Q + rvec.b;
       ARC_LIJKUVWE_CODE(
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          raw[axis_l] = start_L,
-          raw.i = start_I, raw.j = start_J, raw.k = start_K,
-          raw.u = start_U, raw.v = start_V, raw.w = start_V
-        #else
-          raw[axis_l] += per_segment_L,
-          raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
-          raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
-        #endif
-        , raw.e += extruder_per_segment
+        raw[axis_l] = start_L + per_segment_L * i,
+        raw.i       = start_I + per_segment_I * i,
+        raw.j       = start_J + per_segment_J * i,
+        raw.k       = start_K + per_segment_K * i,
+        raw.u       = start_U + per_segment_U * i,
+        raw.v       = start_V + per_segment_V * i,
+        raw.w       = start_W + per_segment_W * i,
+        raw.e       = start_E + per_segment_E * i
       );
 
       apply_motion_limits(raw);
@@ -374,13 +382,6 @@ void plan_arc(
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKUVW_CODE(
-      raw[axis_l] = start_L,
-      raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.u = start_U, raw.v = start_V, raw.w = start_W
-    );
-  #endif
 
   apply_motion_limits(raw);
 
@@ -392,14 +393,7 @@ void plan_arc(
   hints.safe_exit_speed_sqr = 0.0f;
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKUVW_CODE(
-      raw[axis_l] = start_L,
-      raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.u = start_U, raw.v = start_V, raw.w = start_W
-    );
-  #endif
-  current_position = raw;
+  current_position = cart;
 
 } // plan_arc
 
