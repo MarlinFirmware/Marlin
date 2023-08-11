@@ -1147,7 +1147,9 @@
 
   // This value may be configured to adjust duration to consume the command buffer.
   // Try increasing this value if stepper motion is not smooth.
-  #define FTM_STEPPERCMD_BUFF_SIZE 1000                 // Size of the stepper command buffers.
+  #define FTM_STEPPERCMD_BUFF_SIZE 3000                 // Size of the stepper command buffers.
+                                                        // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP)/2, give the best results.
+                                                        // If you run out of memory, fallback to 1000
 
   //#define FT_MOTION_MENU                              // Provide a MarlinUI menu to set M493 parameters.
 #endif
