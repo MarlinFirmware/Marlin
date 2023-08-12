@@ -675,6 +675,10 @@ class Stepper {
     // Calculate timing interval and steps-per-ISR for the given step rate
     static hal_timer_t calc_multistep_timer_interval(uint32_t step_rate);
 
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      static void calc_nonlinear_e(uint32_t step_rate);
+    #endif
+
     #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
       static int32_t _eval_bezier_curve(const uint32_t curr_step);

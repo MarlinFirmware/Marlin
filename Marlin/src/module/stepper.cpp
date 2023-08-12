@@ -2198,16 +2198,18 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #endif // !CPU_32_BIT
 }
 
-// Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
-
-  #if ENABLED(NONLINEAR_EXTRUSION)
+#if ENABLED(NONLINEAR_EXTRUSION)
+  void Stepper::calc_nonlinear_e(uint32_t step_rate) {
     const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
     int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
     NOLESS(vd, 0);
 
     advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
-  #endif
+  }
+#endif
+
+// Get the timer interval and the number of loops to perform per tick
+hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
 
@@ -2333,6 +2335,10 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
 
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          calc_nonlinear_e(acc_step_rate << oversampling_factor);
+        #endif
+
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
@@ -2403,6 +2409,10 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          calc_nonlinear_e(step_rate << oversampling_factor);
+        #endif
+
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
@@ -2450,6 +2460,10 @@ hal_timer_t Stepper::block_phase_isr() {
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+
+          #if ENABLED(NONLINEAR_EXTRUSION)
+            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
+          #endif
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
@@ -2790,6 +2804,10 @@ hal_timer_t Stepper::block_phase_isr() {
       // Calculate the initial timer interval
       interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
       acceleration_time += interval;
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
+      #endif
 
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
