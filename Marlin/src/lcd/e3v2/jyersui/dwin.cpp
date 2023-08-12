@@ -341,7 +341,7 @@ private:
     }
 
     float getMaxValue() {
-      float max = __FLT_MIN__;
+      float max = __FLT_MAX__ * -1;
       GRID_LOOP(x, y) {
         if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
           max = bedlevel.z_values[x][y];
