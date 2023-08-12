@@ -2203,10 +2203,10 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
   #if ENABLED(NONLINEAR_EXTRUSION)
     const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd = (((int64_t)nefix.A * velocity) >> 24) + (((((int64_t)nefix.B * velocity) >> 24) * velocity) >> 24);
+    int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
     NOLESS(vd, 0);
 
-    advance_dividend.e = (uint64_t(nefix.C + vd) * ne_edividend) >> 24;
+    advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
   #endif
 
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)

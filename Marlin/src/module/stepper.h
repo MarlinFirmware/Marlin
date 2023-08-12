@@ -332,7 +332,7 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static ne_coeff_t nla;
+      static ne_coeff_t ne;
     #endif
 
   private:
