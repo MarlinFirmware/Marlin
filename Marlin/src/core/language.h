@@ -81,11 +81,16 @@
   #define SOURCE_CODE_URL DEFAULT_SOURCE_CODE_URL
 #endif
 
-#ifdef CUSTOM_MACHINE_NAME
-  #undef  MACHINE_NAME
-  #define MACHINE_NAME CUSTOM_MACHINE_NAME
-#elif defined(DEFAULT_MACHINE_NAME)
-  #undef  MACHINE_NAME
+/**
+ * Define a generic printer name to be output to the LCD after booting Marlin.
+ */
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "3D Printer"
+#endif
+#ifndef CUSTOM_MACHINE_NAME
+  #define CUSTOM_MACHINE_NAME DEFAULT_MACHINE_NAME
+#endif
+#ifndef MACHINE_NAME
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
 
