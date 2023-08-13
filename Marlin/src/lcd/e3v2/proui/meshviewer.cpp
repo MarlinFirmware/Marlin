@@ -87,25 +87,20 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
   else {
     char str_1[9];
     str_1[0] = '\0';
+    MString<12> msg;
     switch (v) {
-      case -999 ... -100:
-        DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3*fs, py(y) - fs, z);
-        break;
-      case -99 ... -1:
-        sprintf_P(str_1, PSTR("%.2f"), z);
+      case -999 ... -1:  // -9.99 .. -0.01 mm
+        msg.setf_P(PSTR("%.2f"), p_float_t(z, 2));
         break;
       case 0:
-        dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, py(y) - fs, "0");
+        DWIN_Draw_String(false, meshfont, DWINUI::textcolor, DWINUI::backcolor, px(x) - 4, py(y) - fs, "0");
         break;
-      case 1 ... 99:
-        sprintf_P(str_1, PSTR("%.2f"), z);
-        break;
-      case 100 ... 999:
-        DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3 * fs, py(y) - fs, z);
+      case 1 ... 999:  // 0.01 .. 9.99 mm
+        msg.setf_P(PSTR("%.2f"), p_float_t(z, 2));
         break;
     }
     if (str_1[0])
-      dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 2 * fs, py(y) - fs, str_1);
+      DWIN_Draw_String(false, meshfont, DWINUI::textcolor, DWINUI::backcolor, px(x) - 2 * fs, py(y) - fs, msg);
   }
 }
 
