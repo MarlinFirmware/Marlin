@@ -93,14 +93,14 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
         msg.setf_P(PSTR("%.2f"), p_float_t(z, 2));
         break;
       case 0:
-        DWIN_Draw_String(false, meshfont, DWINUI::textcolor, DWINUI::backcolor, px(x) - 4, py(y) - fs, "0");
+        dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, py(y) - fs, "0");
         break;
       case 1 ... 999:  // 0.01 .. 9.99 mm
         msg.setf_P(PSTR("%.2f"), p_float_t(z, 2));
         break;
     }
     if (str_1[0])
-      DWIN_Draw_String(false, meshfont, DWINUI::textcolor, DWINUI::backcolor, px(x) - 2 * fs, py(y) - fs, msg);
+      dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 2 * fs, py(y) - fs, msg);
   }
 }
 
