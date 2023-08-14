@@ -70,13 +70,6 @@
 #endif
 
 /**
- * Define a generic printer name to be output to the LCD after booting Marlin.
- */
-#ifndef MACHINE_NAME
-  #define MACHINE_NAME DEFAULT_MACHINE_NAME
-#endif
-
-/**
  * Website where users can find Marlin source code for the binary installed on the
  * device. Override this if you provide public source code download. (GPLv3 requires
  * providing the source code to your customers.)
