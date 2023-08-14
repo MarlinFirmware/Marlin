@@ -69,12 +69,12 @@
   #define PROTOCOL_VERSION "1.0"
 #endif
 
-/** 
-  * Define a generic printer name to be output to the LCD after booting Marlin. 
-  */ 
- #ifndef MACHINE_NAME 
-   #define MACHINE_NAME "3D Printer" 
- #endif
+/**
+* Define a generic printer name to be output to the LCD after booting Marlin.
+*/
+#ifndef MACHINE_NAME
+  #define MACHINE_NAME "3D Printer"
+#endif
 
 /**
  * Website where users can find Marlin source code for the binary installed on the
