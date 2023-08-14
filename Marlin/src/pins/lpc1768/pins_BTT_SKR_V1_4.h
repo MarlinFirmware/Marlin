@@ -578,16 +578,6 @@
 
 #endif // HAS_WIRED_LCD
 
-#if NEED_TOUCH_PINS
-  #define TOUCH_CS_PIN               EXP1_05_PIN
-  #define TOUCH_SCK_PIN              EXP2_02_PIN
-  #define TOUCH_MOSI_PIN             EXP2_06_PIN
-  #define TOUCH_MISO_PIN             EXP2_01_PIN
-  #define TOUCH_INT_PIN              EXP1_06_PIN
-#endif
-
-
-
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodified on SKR 1.4, The ADC ports cannot take more than 3.3v."
 #endif
