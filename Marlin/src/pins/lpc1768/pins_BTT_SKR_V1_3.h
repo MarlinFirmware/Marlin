@@ -355,6 +355,10 @@
 
     #elif ENABLED(MKS_TS35_V2_0)
 
+      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+        #error "CAUTION! MKS_TS35_V2_0 requires wiring modifications. The SKR 1.3 EXP ports are rotated 180° from what the MKS_TS35_V2_0 expects. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this error.)"
+      #endif
+
       /**                      ------                                   ------
        *               BEEPER | 1  2 | BTN_ENC               SPI1_MISO | 1  2 | SPI1_SCK
        *     TFT_BKL / LCD_EN | 3  4 | TFT_RESET / LCD_RS      BTN_EN1 | 3  4 | SPI1_CS
@@ -379,7 +383,6 @@
       #define TFT_MISO_PIN           EXP2_01_PIN
       #define TFT_MOSI_PIN           EXP2_06_PIN
 
-      #define LCD_READ_ID                   0xD3
       #define LCD_USE_DMA_SPI
 
       #define TFT_BUFFER_WORDS              2400
