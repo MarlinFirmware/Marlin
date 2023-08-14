@@ -370,9 +370,8 @@
        */
       #define TFT_CS_PIN             EXP1_07_PIN
       #define TFT_DC_PIN             EXP1_08_PIN
-
+      #define TOUCH_CS_PIN           EXP1_05_PIN
       #define TFT_RESET_PIN          EXP1_04_PIN
-
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
@@ -391,16 +390,16 @@
 
     #if ENABLED(TFT_CLASSIC_UI)
       #ifndef TOUCH_CALIBRATION_X
-        #define TOUCH_CALIBRATION_X       -11386
+        #define TOUCH_CALIBRATION_X       -16794
       #endif
       #ifndef TOUCH_CALIBRATION_Y
-        #define TOUCH_CALIBRATION_Y         8684
+        #define TOUCH_CALIBRATION_Y        11000
       #endif
       #ifndef TOUCH_OFFSET_X
-        #define TOUCH_OFFSET_X               689
+        #define TOUCH_OFFSET_X              1024
       #endif
       #ifndef TOUCH_OFFSET_Y
-        #define TOUCH_OFFSET_Y              -273
+        #define TOUCH_OFFSET_Y              -352
       #endif
     #elif ENABLED(TFT_COLOR_UI)
       #ifndef TOUCH_CALIBRATION_X
