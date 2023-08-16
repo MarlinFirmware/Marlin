@@ -993,7 +993,7 @@ void CardReader::selectFileByIndex(const int16_t nr) {
     if (nr < sort_count) {
       strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
-      flag.filenameIsDir = IS_DIR(nr);
+      TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
       setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
       return;
     }
@@ -1011,7 +1011,7 @@ void CardReader::selectFileByName(const char * const match) {
       if (strcasecmp(match, sortshort[nr]) == 0) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
-        flag.filenameIsDir = IS_DIR(nr);
+        TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
         setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
         return;
       }
@@ -1239,9 +1239,9 @@ void CardReader::cdroot() {
         // Folder sorting needs 1 bit per entry for flags.
         #if HAS_FOLDER_SORTING
           #if ENABLED(SDSORT_DYNAMIC_RAM)
-            isDir = new uint8_t[(fileCnt + 7) >> 3];
+            isDir = new uint8_t[(fileCnt + 7) >> 3];  // Allocate space with 'new'
           #elif ENABLED(SDSORT_USES_STACK)
-            uint8_t isDir[(fileCnt + 7) >> 3];
+            uint8_t isDir[(fileCnt + 7) >> 3];        // Use stack in this scope
           #endif
         #endif
 
@@ -1357,12 +1357,14 @@ void CardReader::cdroot() {
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortshort = new char*[1];
-            isDir = new uint8_t[1];
           #endif
           selectFileByIndex(0);
           SET_SORTNAME(0);
           SET_SORTSHORT(0);
-          isDir[0] = flag.filenameIsDir;
+          #if ALL(HAS_FOLDER_SORTING, SDSORT_DYNAMIC_RAM)
+            isDir = new uint8_t[1];
+            isDir[0] = flag.filenameIsDir;
+          #endif
         #endif
       }
 
