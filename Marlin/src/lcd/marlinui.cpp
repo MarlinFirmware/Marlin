@@ -821,8 +821,11 @@ void MarlinUI::init() {
 
         const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
  
-        // For a rotational axis convert the "inch" feedrate to "mm" before applying it
-        // TODO: Assert that all units on a rotational axis are expressed in degrees, not by distance
+        /**
+         * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G1 G-code 
+         * implementation. For moves involving only rotational axes, the planner will convert back to the feedrate#
+         * in degrees per time unit.
+         */
         feedRate_t fr = fr_mm_s;
         #if ENABLED(INCH_MODE_SUPPORT) && HAS_ROTATIONAL_AXES
           if (parser.axis_is_rotational(axis) && parser.using_inch_units()) fr = IN_TO_MM(fr);
