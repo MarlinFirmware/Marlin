@@ -84,7 +84,7 @@ typedef struct {
 } card_flags_t;
 
 enum ListingFlags : uint8_t { LS_LONG_FILENAME, LS_ONLY_BIN, LS_TIMESTAMP };
-enum SortFlag : uint8_t { AS_OFF, AS_FWD, AS_REV };
+enum SortFlag : int8_t { AS_REV = -1, AS_OFF, AS_FWD, AS_ALSO_REV };
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
   #include "../libs/autoreport.h"
@@ -200,7 +200,7 @@ public:
     static void presort();
     static void selectFileByIndexSorted(const int16_t nr);
     #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE static void setSortOn(const SortFlag f) { sort_alpha = f; presort(); }
+      FORCE_INLINE static void setSortOn(const SortFlag f) { sort_alpha = (f == AS_ALSO_REV) ? AS_REV : f; presort(); }
       FORCE_INLINE static void setSortFolders(const int i) { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
@@ -273,12 +273,12 @@ private:
   #if ENABLED(SDCARD_SORT_ALPHA)
     static int16_t sort_count;    // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
-      static SortFlag sort_alpha; // Sorting: OFF, FWD, REV
+      static SortFlag sort_alpha; // Sorting: REV, OFF, FWD
       static int sort_folders;    // Folder sorting before/none/after
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // By default the sort index is static
+    // By default the sort index is statically allocated
     #if ENABLED(SDSORT_DYNAMIC_RAM)
       static uint8_t *sort_order;
     #else

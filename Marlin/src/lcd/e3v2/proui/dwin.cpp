@@ -850,7 +850,7 @@ bool DWIN_lcd_sd_status = false;
 #if ENABLED(MEDIASORT_MENU_ITEM)
   void setMediaSort() {
     toggleCheckboxLine(hmiData.mediaSort);
-    card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD));
+    card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD) : AS_OFF);
   }
 #endif
 
