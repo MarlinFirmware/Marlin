@@ -201,7 +201,7 @@ public:
     static void selectFileByIndexSorted(const int16_t nr);
     #if ENABLED(SDSORT_GCODE)
       FORCE_INLINE static void setSortOn(const SortFlag f) { sort_alpha = (f == AS_ALSO_REV) ? AS_REV : f; presort(); }
-      FORCE_INLINE static void setSortFolders(const int i) { sort_folders = i; presort(); }
+      FORCE_INLINE static void setSortFolders(const int8_t i) { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
@@ -274,7 +274,7 @@ private:
     static int16_t sort_count;    // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
       static SortFlag sort_alpha; // Sorting: REV, OFF, FWD
-      static int sort_folders;    // Folder sorting before/none/after
+      static int8_t sort_folders; // Folder sorting before/none/after
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 

@@ -92,7 +92,7 @@ int16_t CardReader::nrItems = -1;
   int16_t CardReader::sort_count;
   #if ENABLED(SDSORT_GCODE)
     SortFlag CardReader::sort_alpha;
-    int CardReader::sort_folders;
+    int8_t CardReader::sort_folders;
     //bool CardReader::sort_reverse;
   #endif
 
