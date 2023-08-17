@@ -11,7 +11,7 @@
 
 #ifndef BASE64_H_INCLUDED
 #define BASE64_H_INCLUDED
-#include <stdint.h>
+
 /* binary_to_base64:
  *   Description:
  *     Converts a single byte from a binary value to the corresponding base64 character
