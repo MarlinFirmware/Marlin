@@ -2498,6 +2498,9 @@
   #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
     #define PROUI_TUNING_GRAPH 1
   #endif
+  #if HAS_MESH
+    #define GRID_MESH_VIEWER 1 // Enable two types of mesh viewers
+  #endif
 #endif
 
 // Thermal protection
