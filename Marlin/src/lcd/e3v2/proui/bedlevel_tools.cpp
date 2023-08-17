@@ -276,14 +276,12 @@ bool BedLevelTools::meshValidate() {
   }
 
   void BedLevelTools::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
-    float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
-    //if (v_min > 3e+10f) v_min = 0.0000001;
-    //if (v_max > 3e+10f) v_max = 0.0000001;
+    float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max), range2 = _MIN(v_min, v_max);
     if (range > 3e+10f) range = 0.0000001;
     ui.set_status(
       &MString<47>(
         F("Red "),  p_float_t(-range, 3),
-        F("..0.."), p_float_t(range, 3),
+        F("..0.."), p_float_t(range2, 3),
         F("+ Green")
       )
     );
