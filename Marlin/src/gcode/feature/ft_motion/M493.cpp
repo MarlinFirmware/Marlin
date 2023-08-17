@@ -152,7 +152,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    H<Hz> Set frequency scaling for the Y axis
  */
 void GcodeSuite::M493() {
-  struct { bool update_n:1, update_a:1, report_h:1; } flag = { false };
+  struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
 
   if (!parser.seen_any())
     flag.report_h = true;
@@ -177,13 +177,7 @@ void GcodeSuite::M493() {
           //case ftMotionMode_DISCTF:
             flag.update_n = flag.update_a = true;
         #endif
-        case ftMotionMode_DISABLED: LOGICAL_AXIS_CODE( // Tell the world where we are
-          stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
-          stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
-          stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
-          stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
-          stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w)
-        );
+        case ftMotionMode_DISABLED: flag.reset_ft = true;
         case ftMotionMode_ENABLED:
           fxdTiCtrl.cfg.mode = newmm;
           flag.report_h = true;
@@ -258,7 +252,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[X_AXIS] = val;
-          flag.update_n = flag.report_h = true;
+          flag.update_n = flag.report_h = flag.reset_ft = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
@@ -289,7 +283,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[Y_AXIS] = val;
-          flag.update_n = flag.report_h = true;
+          flag.update_n = flag.report_h = flag.reset_ft = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");
@@ -316,8 +310,15 @@ void GcodeSuite::M493() {
     if (flag.update_n) fxdTiCtrl.refreshShapingN();
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
+  if (flag.reset_ft) {
+        LOGICAL_AXIS_CODE( // Tell the world where we are
+            stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
+            stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
+            stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
+            stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
+            stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w));
+        fxdTiCtrl.reset();
+  }
   if (flag.report_h) say_shaping();
-
 }
-
 #endif // FT_MOTION
