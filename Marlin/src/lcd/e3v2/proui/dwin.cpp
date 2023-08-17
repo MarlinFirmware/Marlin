@@ -1949,7 +1949,6 @@ void dwinRedrawScreen() {
   void onClickConfirmToPrint() {
     dwinResetStatusLine();
     if (hmiFlag.select_flag) {     // Confirm
-      gotoMainMenu();
       return card.openAndPrintFile(card.filename);
     }
     else
@@ -2186,6 +2185,12 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #if ENABLED(SOUND_MENU_ITEM)
   void setEnableSound() {
     toggleCheckboxLine(ui.sound_on);
+  }
+#endif
+
+#if HAS_MESH && USE_GRID_MESHVIEWER
+  void setViewMesh() {
+    toggleCheckboxLine(bedLevelTools.view_mesh);
   }
 #endif
 
@@ -3478,12 +3483,15 @@ void drawMotionMenu() {
 
   void drawManualMeshMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(manualMesh, MSG_UBL_MANUAL_MESH, 6)) {
+    if (SET_MENU(manualMesh, MSG_UBL_MANUAL_MESH, 7)) {
       BACK_ITEM(drawPrepareMenu);
       MENU_ITEM(ICON_ManualMesh, MSG_LEVEL_BED, onDrawMenuItem, manualMeshStart);
       mMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MOVE_Z, onDrawMMeshMoveZ, setMMeshMoveZ, &current_position.z);
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
+      #if USE_GRID_MESHVIEWER
+        EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+      #endif
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
     }
     updateMenu(manualMesh);
@@ -3983,7 +3991,7 @@ void drawStepsMenu() {
 
   void drawMeshSetMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 14)) {
+    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 15)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
@@ -4006,6 +4014,9 @@ void drawStepsMenu() {
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
+      #if USE_GRID_MESHVIEWER
+        EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+      #endif
     }
     updateMenu(meshMenu);
   }
@@ -4020,7 +4031,7 @@ void drawStepsMenu() {
         BACK_ITEM(drawMeshSetMenu);
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
-        editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
+        editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat3Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
       }
       updateMenu(editMeshMenu);
     }
