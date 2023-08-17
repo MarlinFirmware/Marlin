@@ -584,7 +584,7 @@ typedef struct SettingsDataStruct {
   // Toggle the meshviwer
   //
   #if ENABLED(USE_GRID_MESHVIEWER)
-   bool view_mesh;
+    bool view_mesh;
   #endif
 
 
