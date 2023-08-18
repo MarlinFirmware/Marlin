@@ -77,8 +77,12 @@ typedef struct {
        filenameIsDir:1,
        workDirIsRoot:1,
        abort_sd_printing:1
-       OPTARG(DO_LIST_BIN_FILES, filenameIsBin:1)
-       OPTARG(BINARY_FILE_TRANSFER, binary_mode:1)
+       #if DO_LIST_BIN_FILES
+         , filenameIsBin:1
+       #endif
+       #if ENABLED(BINARY_FILE_TRANSFER)
+         , binary_mode:1
+       #endif
     ;
 } card_flags_t;
 
