@@ -850,7 +850,7 @@ bool DWIN_lcd_sd_status = false;
 #if ENABLED(MEDIASORT_MENU_ITEM)
   void setMediaSort() {
     toggleCheckboxLine(hmiData.mediaSort);
-    card.setSortOn(hmiData.mediaSort);
+    card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD) : AS_OFF);
   }
 #endif
 
@@ -1754,7 +1754,7 @@ void dwinSetDataDefaults() {
   #endif
   #if ENABLED(MEDIASORT_MENU_ITEM)
     hmiData.mediaSort = true;
-    card.setSortOn(true);
+    card.setSortOn(TERN(SDSORT_REVERSE, AS_REV, AS_FWD));
   #endif
   hmiData.mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
