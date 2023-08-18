@@ -120,18 +120,15 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
 
-  #if USE_GRID_MESHVIEWER
-    const bool see_mesh = bedLevelTools.view_mesh;
-    if (see_mesh) {
+  const bool see_mesh = TERN0(USE_GRID_MESHVIEWER, bedLevelTools.view_mesh);
+  if (see_mesh) {
+    #if USE_GRID_MESHVIEWER
       DWINUI::clearMainArea();
       bedLevelTools.viewer_print_value = true;
       bedLevelTools.drawBedMesh(-1, 1, 8, 10 + TITLE_HEIGHT);
-    }
-  #else
-    constexpr bool see_mesh = false;
-  #endif
-
-  if (!see_mesh) {
+    #endif
+  }
+  else {
     if (redraw) drawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
     else DWINUI::drawBox(1, hmiData.colorBackground, { 89, 305, 99, 38 });
   }
@@ -144,12 +141,11 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
   else
     DWINUI::drawButton(BTN_Continue, 86, 305);
 
-  #if USE_GRID_MESHVIEWER
-    if (see_mesh) bedLevelTools.setMeshViewerStatus();
-  #endif
-
-  if (!see_mesh)
-    ui.set_status_and_level(MString<30>(F("Mesh Z min: "), p_float_t(min, 2), F(", max: "), p_float_t(max, 2)), 0);
+  if (see_mesh) {
+    TERN_(USE_GRID_MESHVIEWER, bedLevelTools.setMeshViewerStatus());
+  }
+  else
+    ui.set_status_and_level(MString<30>(F("Mesh Z min: "), p_float_t(min, 2), F(", max: "), p_float_t(max, 2)));
 }
 
 void drawMeshViewer() { meshViewer.draw(true, meshredraw); }
