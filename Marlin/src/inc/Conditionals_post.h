@@ -2499,7 +2499,7 @@
     #define PROUI_TUNING_GRAPH 1
   #endif
   #if HAS_MESH
-    #define GRID_MESH_VIEWER 1 // Enable two types of mesh viewers
+    #define GRID_MESH_VIEWER 1
   #endif
 #endif
 
