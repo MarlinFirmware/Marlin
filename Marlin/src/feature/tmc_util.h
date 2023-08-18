@@ -27,6 +27,11 @@
 #if HAS_TRINAMIC_CONFIG
 
 #include <TMCStepper.h>
+
+#if HAS_TMC2240
+#include <TMC2240XStepper.h>
+#endif
+
 #include "../module/planner.h"
 
 #define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
@@ -320,6 +325,72 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
 
       #if USE_SENSORLESS
         void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
+      #endif
+    #endif
+
+    static constexpr int8_t sgt_min = -64,
+                            sgt_max =  63;
+};
+
+template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2240Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
+      TMC2240Stepper(cs_pin, RS)
+      {}
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
+      TMC2240Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    inline uint16_t rms_current() { return TMC2240Stepper::rms_current(); }
+    inline void rms_current(const uint16_t mA) {
+      this->val_mA = mA;
+      TMC2240Stepper::rms_current(mA);
+    }
+    #if ENABLED(HYBRID_THRESHOLD)
+      uint32_t get_pwm_thrs() {
+        return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
+      }
+      void set_pwm_thrs(const uint32_t thrs) {
+        TMC2240Stepper::TPWMTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
+        TERN_(HAS_LCD_MENU, this->stored.hybrid_thrs = thrs);
+      }
+    #endif
+    inline uint16_t get_microstep_counter() { return TMC2240Stepper::mstep(); }
+    #if HAS_STEALTHCHOP
+      inline bool get_stealthChop()                { return this->en_pwm_mode(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_pwm_mode(this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
+    #endif
+    // #if USE_SENSORLESS
+    //   inline int16_t homing_threshold() { return TMC2240Stepper::SG4_THRS(); }
+    //   void homing_threshold(int16_t sgt_val) {
+    //     sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
+    //     TMC2240Stepper::SG4_THRS(sgt_val);
+    //     TERN_(HAS_LCD_MENU, this->stored.homing_thrs = sgt_val);
+    //   }
+    // #endif
+
+    void set_chopper_times(const chopper_timing_t &ct) {
+      TMC2240Stepper::toff(ct.toff);
+      TMC2240Stepper::hysteresis_end(ct.hend);
+      TMC2240Stepper::hysteresis_start(ct.hstrt);
+    }
+
+    #if USE_SENSORLESS
+      inline int16_t homing_threshold() { return TMC2240Stepper::SG4_THRS(); }
+      void homing_threshold(int16_t sgt_val) {
+        sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
+        TMC2240Stepper::SG4_THRS(sgt_val);
+        TERN_(HAS_LCD_MENU, this->stored.homing_thrs = sgt_val);
+      }
+    #endif
+    #if HAS_LCD_MENU
+      inline void refresh_stepper_current() { rms_current(this->val_mA); }
+
+      #if USE_SENSORLESS
+        inline void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
       #endif
     #endif
 

@@ -41,6 +41,7 @@
 #define CLASS_TMC2660 TMC2660Stepper
 #define CLASS_TMC5130 TMC5130Stepper
 #define CLASS_TMC5160 TMC5160Stepper
+#define CLASS_TMC2240 TMC2240Stepper
 
 #define TMC_X_LABEL 'X', '0'
 #define TMC_Y_LABEL 'Y', '0'
