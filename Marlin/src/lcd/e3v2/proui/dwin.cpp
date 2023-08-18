@@ -2188,7 +2188,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   }
 #endif
 
-#if HAS_MESH && USE_GRID_MESHVIEWER
+#if HAS_MESH
   void setViewMesh() {
     toggleCheckboxLine(bedLevelTools.view_mesh);
   }
@@ -3489,7 +3489,7 @@ void drawMotionMenu() {
       mMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MOVE_Z, onDrawMMeshMoveZ, setMMeshMoveZ, &current_position.z);
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
-      #if USE_GRID_MESHVIEWER
+      #if HAS_MESH
         EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
       #endif
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
@@ -4014,7 +4014,7 @@ void drawStepsMenu() {
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
-      #if USE_GRID_MESHVIEWER
+      #if HAS_MESH
         EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
       #endif
     }

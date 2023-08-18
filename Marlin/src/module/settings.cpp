@@ -583,10 +583,9 @@ typedef struct SettingsDataStruct {
   //
   // Toggle the meshviwer
   //
-  #if ENABLED(USE_GRID_MESHVIEWER)
+  #if HAS_MESH
     bool view_mesh;
   #endif
-
 
   //
   // Fan tachometer check
@@ -1680,7 +1679,7 @@ void MarlinSettings::postprocess() {
     //
     // Toggle the meshviewer
     //
-    #if ENABLED(USE_GRID_MESHVIEWER)
+    #if HAS_MESH
       EEPROM_WRITE(bedLevelTools.view_mesh);
     #endif
 
@@ -2747,7 +2746,7 @@ void MarlinSettings::postprocess() {
       //
       // Toggle the meshviewer
       //
-      #if ENABLED(USE_GRID_MESHVIEWER)
+      #if HAS_MESH
         _FIELD_TEST(view_mesh);
         EEPROM_READ(bedLevelTools.view_mesh);
       #endif
@@ -3214,7 +3213,7 @@ void MarlinSettings::reset() {
   //
   // Toggle the meshviewer
   //
-  #if ENABLED(USE_GRID_MESHVIEWER)
+  #if HAS_MESH
     bedLevelTools.view_mesh = false;
   #endif
 
