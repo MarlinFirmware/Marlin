@@ -120,7 +120,7 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
   #if HAS_MESH
-    if(bedLevelTools.view_mesh) {
+    if (bedLevelTools.view_mesh) {
       DWINUI::clearMainArea();
       bedLevelTools.viewer_print_value = true;
       bedLevelTools.drawBedMesh(-1, 1, 8, 10 + TITLE_HEIGHT);
@@ -142,7 +142,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
     DWINUI::drawButton(BTN_Continue, 86, 305);
 
   #if HAS_MESH
-    if(bedLevelTools.view_mesh) {
+    if (bedLevelTools.view_mesh) {
       bedLevelTools.setMeshViewerStatus();
     }
     else {
