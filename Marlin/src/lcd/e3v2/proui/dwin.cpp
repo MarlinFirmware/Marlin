@@ -3490,7 +3490,7 @@ void drawMotionMenu() {
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if HAS_MESH
-        EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH_VIEWER, onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
       #endif
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
     }
@@ -4015,7 +4015,7 @@ void drawStepsMenu() {
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if HAS_MESH
-        EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH_VIEWER, onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
       #endif
     }
     updateMenu(meshMenu);
