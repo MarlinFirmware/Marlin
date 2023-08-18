@@ -39,7 +39,7 @@
   inline void report_linear_axis_pos(const xyze_pos_t &pos) { report_all_axis_pos(pos, XYZ); }
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
-    LOOP_NUM_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), p_float_t(pos[a], precision));
+    LOOP_NUM_AXES(a) SERIAL_ECHO(FPSTR(pgm_read_ptr(&SP_AXIS_LBL[a])), p_float_t(pos[a], precision));
     SERIAL_EOL();
   }
 
