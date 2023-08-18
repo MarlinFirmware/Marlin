@@ -65,7 +65,7 @@
 
 BedLevelTools bedLevelTools;
 
-#if HAS_MESH
+#if USE_GRID_MESHVIEWER
   bool BedLevelTools::view_mesh = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
@@ -212,7 +212,7 @@ bool BedLevelTools::meshValidate() {
   return true;
 }
 
-#if HAS_MESH
+#if USE_GRID_MESHVIEWER
 
   constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
 
@@ -290,6 +290,6 @@ bool BedLevelTools::meshValidate() {
     drawing_mesh = false;
   }
 
-#endif // HAS_MESH
+#endif // USE_GRID_MESHVIEWER
 
 #endif // DWIN_LCD_PROUI && HAS_LEVELING

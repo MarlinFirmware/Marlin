@@ -52,7 +52,7 @@
 
 class BedLevelTools {
 public:
-  #if HAS_MESH
+  #if USE_GRID_MESHVIEWER
     static bool view_mesh;
     static bool viewer_print_value;
   #endif
@@ -75,7 +75,7 @@ public:
   static float getMaxValue();
   static float getMinValue();
   static bool meshValidate();
-  #if HAS_MESH
+  #if USE_GRID_MESHVIEWER
     static void drawBedMesh(int16_t selected=-1, uint8_t gridline_width=1, uint16_t padding_x=8, uint16_t padding_y_top=(40 + 53 - 7));
     static void setMeshViewerStatus();
   #endif

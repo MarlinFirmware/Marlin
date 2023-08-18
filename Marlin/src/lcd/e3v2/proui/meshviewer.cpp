@@ -38,7 +38,7 @@
 #include "../../../feature/bedlevel/bedlevel.h"
 #include "meshviewer.h"
 
-#if HAS_MESH
+#if USE_GRID_MESHVIEWER
   #include "bedlevel_tools.h"
 #endif
 
@@ -119,8 +119,10 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
 
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
-  #if HAS_MESH
+
+  #if USE_GRID_MESHVIEWER
     if (bedLevelTools.view_mesh) {
+
       DWINUI::clearMainArea();
       bedLevelTools.viewer_print_value = true;
       bedLevelTools.drawBedMesh(-1, 1, 8, 10 + TITLE_HEIGHT);
@@ -133,6 +135,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
     if (redraw) drawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
     else DWINUI::drawBox(1, hmiData.colorBackground, { 89, 305, 99, 38 });
   #endif
+
   if (withsave) {
     DWINUI::drawButton(BTN_Save, 26, 305);
     DWINUI::drawButton(BTN_Continue, 146, 305);
@@ -141,7 +144,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
   else
     DWINUI::drawButton(BTN_Continue, 86, 305);
 
-  #if HAS_MESH
+  #if USE_GRID_MESHVIEWER
     if (bedLevelTools.view_mesh) {
       bedLevelTools.setMeshViewerStatus();
     }

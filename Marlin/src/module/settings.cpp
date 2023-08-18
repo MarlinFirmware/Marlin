@@ -583,7 +583,7 @@ typedef struct SettingsDataStruct {
   //
   // Toggle the meshviwer
   //
-  #if HAS_MESH
+  #if USE_GRID_MESHVIEWER
     bool view_mesh;
   #endif
 
@@ -1679,7 +1679,7 @@ void MarlinSettings::postprocess() {
     //
     // Toggle the meshviewer
     //
-    #if HAS_MESH
+    #if USE_GRID_MESHVIEWER
       EEPROM_WRITE(bedLevelTools.view_mesh);
     #endif
 
@@ -2746,7 +2746,7 @@ void MarlinSettings::postprocess() {
       //
       // Toggle the meshviewer
       //
-      #if HAS_MESH
+      #if USE_GRID_MESHVIEWER
         _FIELD_TEST(view_mesh);
         EEPROM_READ(bedLevelTools.view_mesh);
       #endif
@@ -3213,7 +3213,7 @@ void MarlinSettings::reset() {
   //
   // Toggle the meshviewer
   //
-  #if HAS_MESH
+  #if USE_GRID_MESHVIEWER
     bedLevelTools.view_mesh = false;
   #endif
 
