@@ -66,6 +66,7 @@
 BedLevelTools bedLevelTools;
 
 #if USE_GRID_MESHVIEWER
+  bool BedLevelTools::viewer_asymmetric_range = false;
   bool BedLevelTools::view_mesh = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
