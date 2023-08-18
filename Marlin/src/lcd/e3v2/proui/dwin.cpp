@@ -214,13 +214,13 @@ Menu *prepareMenu = nullptr;
   Menu *trammingMenu = nullptr;
 #endif
 Menu *moveMenu = nullptr;
-Menu *ControlMenu = nullptr;
-Menu *AdvancedSettings = nullptr;
+Menu *controlMenu = nullptr;
+Menu *advancedSettingsMenu = nullptr;
 #if HAS_HOME_OFFSET
   Menu *homeOffsetMenu = nullptr;
 #endif
 #if HAS_BED_PROBE
-  Menu *ProbeSetMenu = nullptr;
+  Menu *probeSettingsMenu = nullptr;
 #endif
 Menu *filSetMenu = nullptr;
 Menu *selectColorMenu = nullptr;
@@ -229,7 +229,7 @@ Menu *tuneMenu = nullptr;
 Menu *motionMenu = nullptr;
 Menu *filamentMenu = nullptr;
 #if ENABLED(MESH_BED_LEVELING)
-  Menu *manualMesh = nullptr;
+  Menu *manualMeshMenu = nullptr;
 #endif
 #if HAS_PREHEAT
   Menu *preheatMenu = nullptr;
@@ -251,7 +251,7 @@ Menu *stepsMenu = nullptr;
 #if ENABLED(PIDTEMPBED) && ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
   Menu *bedPIDMenu = nullptr;
 #endif
-#if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+#if CASELIGHT_USES_BRIGHTNESS
   Menu *caseLightMenu = nullptr;
 #endif
 #if ENABLED(LED_CONTROL_MENU)
@@ -2152,10 +2152,10 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
     toggleCheckboxLine(caselight.on);
     caselight.update_enabled();
   }
-  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+  #if CASELIGHT_USES_BRIGHTNESS
     bool enableLiveCaseLightBrightness = true;
     void liveCaseLightBrightness() { caselight.brightness = menuData.value; caselight.update_brightness(); }
-    void setCaseLightBrightness() { setIntOnClick(0, 255, caselight.brightness, liveCaseLightBrightness, !enableLiveCaseLightBrightness ? nullptr : liveCaseLightBrightness); }
+    void setCaseLightBrightness() { setIntOnClick(0, 255, caselight.brightness, liveCaseLightBrightness, enableLiveCaseLightBrightness ? liveCaseLightBrightness : nullptr); }
   #endif
 #endif
 
@@ -3042,22 +3042,20 @@ void drawPrepareMenu() {
 
 void drawControlMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(ControlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 11)) {
+  if (SET_MENU_R(controlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, 11)) {
     BACK_ITEM(gotoMainMenu);
     MENU_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawTempSubMenu, drawTemperatureMenu);
     MENU_ITEM(ICON_Motion, MSG_MOTION, onDrawMotionSubMenu, drawMotionMenu);
     #if ENABLED(CASE_LIGHT_MENU)
-      // Allow live update of brightness in control menu
-      enableLiveCaseLightBrightness = true;
-      #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+      #if CASELIGHT_USES_BRIGHTNESS
+        enableLiveCaseLightBrightness = true;  // Allow live update of brightness in control menu
         MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawSubMenu, drawCaseLightMenu);
       #else
         MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
       #endif
     #endif
     #if ENABLED(LED_CONTROL_MENU)
-      // Allow live update of color in control menu
-      enableLiveLedColor = true;
+      enableLiveLedColor = true;  // Allow live update of color in control menu
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
@@ -3069,12 +3067,12 @@ void drawControlMenu() {
     MENU_ITEM(ICON_Info, MSG_INFO_SCREEN, onDrawInfoSubMenu, gotoInfoMenu);
   }
   ui.reset_status(true);
-  updateMenu(ControlMenu);
+  updateMenu(controlMenu);
 }
 
 void drawAdvancedSettingsMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU(AdvancedSettings, MSG_ADVANCED_SETTINGS, 23)) {
+  if (SET_MENU(advancedSettingsMenu, MSG_ADVANCED_SETTINGS, 23)) {
     BACK_ITEM(gotoMainMenu);
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, writeEEPROM);
@@ -3136,7 +3134,7 @@ void drawAdvancedSettingsMenu() {
     #endif
   }
   ui.reset_status(true);
-  updateMenu(AdvancedSettings);
+  updateMenu(advancedSettingsMenu);
 }
 
 void drawMoveMenu() {
@@ -3187,7 +3185,7 @@ void drawMoveMenu() {
 
   void drawProbeSetMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(ProbeSetMenu, MSG_ZPROBE_SETTINGS, 9)) {
+    if (SET_MENU(probeSettingsMenu, MSG_ZPROBE_SETTINGS, 9)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if HAS_X_AXIS
         EDIT_ITEM(ICON_ProbeOffsetX, MSG_ZPROBE_XOFFSET, onDrawPFloatMenu, setProbeOffsetX, &probe.offset.x);
@@ -3210,7 +3208,7 @@ void drawMoveMenu() {
         MENU_ITEM(ICON_ProbeTest, MSG_M48_TEST, onDrawMenuItem, probeTest);
       #endif
     }
-    updateMenu(ProbeSetMenu);
+    updateMenu(probeSettingsMenu);
   }
 
 #endif // HAS_BED_PROBE
@@ -3334,7 +3332,7 @@ void drawTuneMenu() {
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
       EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
-      #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+      #if CASELIGHT_USES_BRIGHTNESS
         // Avoid heavy interference with print job disabling live update of brightness in tune menu
         enableLiveCaseLightBrightness = false;
         EDIT_ITEM(ICON_Brightness, MSG_CASE_LIGHT_BRIGHTNESS, onDrawPInt8Menu, setCaseLightBrightness, &caselight.brightness);
@@ -3495,7 +3493,7 @@ void drawMotionMenu() {
 
   void drawManualMeshMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(manualMesh, MSG_UBL_MANUAL_MESH, 6)) {
+    if (SET_MENU(manualMeshMenu, MSG_UBL_MANUAL_MESH, 6)) {
       BACK_ITEM(drawPrepareMenu);
       MENU_ITEM(ICON_ManualMesh, MSG_LEVEL_BED, onDrawMenuItem, manualMeshStart);
       mMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MOVE_Z, onDrawMMeshMoveZ, setMMeshMoveZ, &current_position.z);
@@ -3503,7 +3501,7 @@ void drawMotionMenu() {
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
     }
-    updateMenu(manualMesh);
+    updateMenu(manualMeshMenu);
   }
 
 #endif // MESH_BED_LEVELING
