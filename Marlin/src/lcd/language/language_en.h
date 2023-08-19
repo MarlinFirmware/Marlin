@@ -824,6 +824,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
   LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Dyn. Freq.");
+  LSTR MSG_FTM_ZETA                       = _UxGT("Damping");
+  LSTR MSG_FTM_VTOL                       = _UxGT("Vib. Level");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
