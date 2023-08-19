@@ -28,25 +28,6 @@
  * Date: 2022/09/03
  */
 
-typedef struct {
-  char name[13] = "";   //8.3 + null
-  uint32_t thumbstart = 0;
-  int thumbsize = 0;
-  int thumbheight = 0;
-  int thumbwidth = 0;
-  uint8_t *thumbdata = nullptr;
-  float time = 0;
-  float filament = 0;
-  float layer = 0;
-  float width = 0;
-  float height = 0;
-  float length = 0;
-  void setname(const char * const fn);
-  void clear();
-} fileprop_t;
-
-extern fileprop_t fileprop;
-
 void Preview_DrawFromSD();
 void Preview_Invalidate();
 bool Preview_Valid();
