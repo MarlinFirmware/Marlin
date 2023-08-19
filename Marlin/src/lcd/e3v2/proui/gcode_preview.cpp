@@ -67,6 +67,21 @@ void fileprop_t::setname(const char * const fn) {
   name[len] = '\0';
 }
 
+void fileprop_t::clear() {
+  fileprop.name[0] = '\0';
+  fileprop.thumbstart = 0;
+  fileprop.thumbsize = 0;
+  fileprop.thumbheight = 0;
+  fileprop.thumbwidth = 0;
+  fileprop.thumbdata = nullptr;
+  fileprop.time = 0;
+  fileprop.filament = 0;
+  fileprop.layer = 0;
+  fileprop.height = 0;
+  fileprop.width = 0;
+  fileprop.length = 0;
+}
+
 void Get_Value(char *buf, const char * const key, float &value) {
   char num[10] = "";
   char * posptr = 0;
