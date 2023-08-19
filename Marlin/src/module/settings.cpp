@@ -3206,16 +3206,12 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  #if ENABLED(SOUND_MENU_ITEM)
-    ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
-  #endif
+  TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
 
   //
   // Toggle the meshviewer
   //
-  #if USE_GRID_MESHVIEWER
-    bedLevelTools.view_mesh = false;
-  #endif
+  TERN_(USE_GRID_MESHVIEWER, bedLevelTools.view_mesh = false);
 
   //
   // Magnetic Parking Extruder

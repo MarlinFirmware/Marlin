@@ -2186,15 +2186,11 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
-  void setEnableSound() {
-    toggleCheckboxLine(ui.sound_on);
-  }
+  void setEnableSound() { toggleCheckboxLine(ui.sound_on); }
 #endif
 
 #if HAS_MESH && USE_GRID_MESHVIEWER
-  void setViewMesh() {
-    toggleCheckboxLine(bedLevelTools.view_mesh);
-  }
+  void setViewMesh() { toggleCheckboxLine(bedLevelTools.view_mesh); }
 #endif
 
 #if HAS_HOME_OFFSET
