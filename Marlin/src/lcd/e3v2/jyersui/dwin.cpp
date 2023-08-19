@@ -4022,7 +4022,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
 FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
   switch (menu) {
-    case ID_MainMenu:       return GET_TEXT_F(MSG_MAIN_MENU);
+    case ID_MainMenu:       return GET_TEXT_F(MSG_MAIN);
     case ID_Prepare:        return GET_TEXT_F(MSG_PREPARE);
     case ID_HomeMenu:       return F("Homing Menu");
     case ID_Move:           return GET_TEXT_F(MSG_MOVE_AXIS);
