@@ -60,12 +60,34 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
 #if ENABLED(QUICK_HOME)
 
   static void quick_home_xy() {
+
+    #if ENABLED(FT_MOTION)
+    // Disable ft-motion for homing
+    struct OnExit
+    {
+      ftMotionMode_t oldmm;
+      OnExit()
+      {
+        oldmm = fxdTiCtrl.cfg.mode;
+        fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+      }
+      ~OnExit()
+      {
+        fxdTiCtrl.cfg.mode = oldmm;
+        fxdTiCtrl.init();
+      }
+    } on_exit;
+    #endif
 
     // Pretend the current position is 0,0
     current_position.set(0.0, 0.0);
