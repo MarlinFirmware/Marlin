@@ -837,6 +837,7 @@ class Planner {
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
+      , float &minimum_planner_speed_sqr
     );
 
     /**
