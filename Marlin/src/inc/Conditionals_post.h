@@ -3337,8 +3337,8 @@
     #define SDSORT_CACHE_NAMES true
     #define SDSORT_CACHE_LPC1768_WARNING 1
   #endif
-  #ifndef FOLDER_SORTING
-    #define FOLDER_SORTING     -1
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS     -1
   #endif
   #ifndef SDSORT_GCODE
     #define SDSORT_GCODE       false
