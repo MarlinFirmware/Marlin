@@ -82,6 +82,8 @@ void plan_arc(
               rt_X = cart[axis_p] - center_P,
               rt_Y = cart[axis_q] - center_Q;
 
+  // Starting position of the move for all non-arc axes
+  // i.e., only one of X, Y, or Z, plus the rest.
   ARC_LIJKUVWE_CODE(
     float start_L = current_position[axis_l],
     float start_I = current_position.i,
@@ -126,6 +128,7 @@ void plan_arc(
     min_segments = CEIL((MIN_CIRCLE_SEGMENTS) * portion_of_circle);     // Minimum segments for the arc
   }
 
+  // Total travel on all the non-arc axes
   ARC_LIJKUVWE_CODE(
     float travel_L = cart[axis_l] - start_L,
     float travel_I = cart.i       - start_I,
@@ -168,7 +171,7 @@ void plan_arc(
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }
 
-    // Update starting coordinates for the remaining part
+    // Get starting coordinates for the remainder from the current position
     ARC_LIJKUVWE_CODE(
       start_L = current_position[axis_l],
       start_I = current_position.i,
@@ -179,6 +182,8 @@ void plan_arc(
       start_W = current_position.w,
       start_E = current_position.e
     );
+
+    // Update travel distance for the remainder
     ARC_LIJKUVWE_CODE(
       travel_L = cart[axis_l] - start_L,                        // Linear X, Y, or Z
       travel_I = cart.i       - start_I,                        // The rest are also non-arc
@@ -269,7 +274,7 @@ void plan_arc(
 
   xyze_pos_t raw;
 
-  // do not calculate rotation parameters for trivial single-segment arcs
+  // Don't calculate rotation parameters for trivial single-segment arcs
   if (segments > 1) {
     // Vector rotation matrix values
     const float theta_per_segment = angular_travel / segments,
