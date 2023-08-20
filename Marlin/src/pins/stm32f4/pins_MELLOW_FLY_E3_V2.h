@@ -518,3 +518,5 @@
   #define ESP_WIFI_MODULE_GPIO0_PIN         PE10
   #define ESP_WIFI_MODULE_GPIO4_PIN         PE12
 #endif
+
+//#define POWER_MONITOR_VOLTAGE_PIN PC3
