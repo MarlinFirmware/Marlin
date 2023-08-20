@@ -310,7 +310,17 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-#define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+FORCE_INLINE uint8_t block_dec_mod(uint8_t v1, uint8_t v2) {
+  uint8_t result = v1 - v2;
+  if (v1 < v2) result += BLOCK_BUFFER_SIZE;
+  return result;
+}
+
+FORCE_INLINE uint8_t block_inc_mod(uint8_t v1, uint8_t v2) {
+  uint8_t result = v1 + v2;
+  if (result >= BLOCK_BUFFER_SIZE) result -= BLOCK_BUFFER_SIZE;
+  return result;
+}
 
 #if ENABLED(LASER_FEATURE)
   typedef struct {
@@ -773,10 +783,10 @@ class Planner {
     #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
-    FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail); }
+    FORCE_INLINE static uint8_t movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_tail); }
 
     // Number of nonbusy moves currently in the planner
-    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_nonbusy); }
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
     FORCE_INLINE static void clear_block_buffer() { block_buffer_nonbusy = block_buffer_planned = block_buffer_head = block_buffer_tail = 0; }
@@ -1035,8 +1045,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr uint8_t next_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static const uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
+    static const uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order
