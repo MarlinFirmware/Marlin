@@ -735,6 +735,15 @@ void Max7219::idle_tasks() {
     }
   #endif
 
+  #ifdef MAX7219_DEBUG_SLOWDOWN
+    static uint8_t last_slowdown_count = 0;
+    const uint8_t slowdown_count = Planner::slowdown_count;
+    if (slowdown_count != last_slowdown_count) {
+      mark16(MAX7219_DEBUG_SLOWDOWN, last_slowdown_count, slowdown_count, &row_change_mask);
+      last_slowdown_count = slowdown_count;
+    }
+  #endif
+
   // batch line updates
   suspended--;
   if (!suspended)

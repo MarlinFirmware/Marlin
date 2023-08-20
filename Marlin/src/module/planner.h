@@ -546,6 +546,11 @@ class Planner {
      */
     static uint32_t acceleration_long_cutoff;
 
+    #ifdef MAX7219_DEBUG_SLOWDOWN
+      friend class Max7219;
+      static uint8_t slowdown_count;
+    #endif
+
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       static float last_fade_z;
     #endif

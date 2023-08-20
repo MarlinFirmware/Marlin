@@ -188,6 +188,10 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
         Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
+#ifdef MAX7219_DEBUG_SLOWDOWN
+  uint8_t Planner::slowdown_count = 0;
+#endif
+
 #if HAS_LEVELING
   bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
   #if ABL_PLANAR
@@ -2327,6 +2331,9 @@ bool Planner::_populate_block(
       #define SLOWDOWN_DIVISOR 2
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
+      #ifdef MAX7219_DEBUG_SLOWDOWN
+        slowdown_count = (slowdown_count + 1) & 0x0f;
+      #endif
       const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
       if (time_diff > 0) {
         // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
