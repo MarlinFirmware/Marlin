@@ -1068,15 +1068,15 @@ class Planner {
 
     static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor);
 
-    static void reverse_pass_kernel(block_t * const current, const block_t * const next OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
+    static void reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr);
     static void forward_pass_kernel(const block_t * const previous, block_t * const current, uint8_t block_index);
 
-    static void reverse_pass(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
+    static void reverse_pass(const_float_t safe_exit_speed_sqr);
     static void forward_pass();
 
-    static void recalculate_trapezoids(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
+    static void recalculate_trapezoids(const_float_t safe_exit_speed_sqr);
 
-    static void recalculate(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
+    static void recalculate(const_float_t safe_exit_speed_sqr);
 
     #if HAS_JUNCTION_DEVIATION
 
