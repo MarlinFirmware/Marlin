@@ -293,7 +293,7 @@ namespace Anycubic {
       DEBUG_ECHOLNPGM("printerKilled()\nerror: ", error, "\ncomponent: ", component);
     #endif
 
-    if (strcmp_P(error, PSTR("Heating Failed")) == 0) {
+    if (strcmp_P(error, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0) {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
@@ -305,7 +305,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Err: MINTEMP")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
@@ -317,7 +317,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Err: MAXTEMP")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0) {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
@@ -329,7 +329,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("THERMAL RUNAWAY")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0) {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
@@ -341,7 +341,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Homing Failed")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_KILL_HOMING_FAILED)) == 0) {
 
       if (strcmp_P(component, PSTR("X")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_X_ENDSTOP);

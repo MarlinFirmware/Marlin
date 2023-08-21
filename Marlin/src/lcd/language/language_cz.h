@@ -397,11 +397,9 @@ namespace LanguageNarrow_cz {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Celkem");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop abort");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Chyba zahřívání");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Chyba zahřívání");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("REDUND. TEPLOTA");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TEPLOTNÍ ÚNIK");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("TEPL. ÚNIK PODL.");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("TEPL. ÚNIK KOMORA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("TEPLOTNÍ ÚNIK");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("VYSOKÁ TEPLOTA");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("NÍZKA TEPLOTA");
   LSTR MSG_HALTED                         = _UxGT("TISK. ZASTAVENA");
