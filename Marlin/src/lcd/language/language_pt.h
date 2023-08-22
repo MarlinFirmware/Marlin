@@ -148,7 +148,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Aquecimento falhou");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: T Máxima");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: T Mínima");
   LSTR MSG_HEATING                        = _UxGT("Aquecendo...");
