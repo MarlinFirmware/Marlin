@@ -192,6 +192,7 @@ void GCodeParser::parse(char *p) {
       if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
         if (TERN0(HAS_MULTI_EXTRUDER, letter == 'T')) {
           p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
+          command_letter = letter;
         }
         return;
       }
