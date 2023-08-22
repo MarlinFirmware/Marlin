@@ -127,7 +127,7 @@ void dwinWriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) 
     dwinWord(i, addr + indx); // start address of the data block
     ++i;
     for (uint8_t j = 0; j < i; ++j) { LCD_SERIAL.write(dwinSendBuf[j]); delayMicroseconds(1); }  // Buf header
-    for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
+    for (uint16_t j = indx; j <= indx + to_send - 1; j++) { LCD_SERIAL.write(*(data + j)); delayMicroseconds(1); } // write block of data
     for (uint8_t j = 0; j < 4; ++j) { LCD_SERIAL.write(dwinBufTail[j]); delayMicroseconds(1); }
     block++;
     pending -= to_send;
