@@ -78,7 +78,7 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
   NOLESS(max, z); NOMORE(min, z);
 
   const uint16_t color = DWINUI::RainbowInt(v, zmin, zmax);
-  DWINUI::drawFillCircle(color, px(x), py(y), r(_MAX(_MIN(v,zmax),zmin)));
+  DWINUI::drawFillCircle(color, px(x), py(y), r(_MAX(_MIN(v, zmax), zmin)));
   TERN_(TJC_DISPLAY, delay(100));
 
   const uint16_t fy = py(y) - fs;
@@ -91,8 +91,8 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
     switch (v) {
       case -999 ... -100:
       case  100 ...  999: DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3 * fs, fy, z); break;
-      case -99 ... -1:  sprintf_P(msg, PSTR("-.%02i"), -v); break;
-      case   1 ... 99:  sprintf_P(msg, PSTR( ".%02i"),  v); break;
+      case  -99 ...   -1: sprintf_P(msg, PSTR("-.%02i"), -v); break;
+      case    1 ...   99: sprintf_P(msg, PSTR( ".%02i"),  v); break;
       default:
         dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, fy, "0");
         return;
