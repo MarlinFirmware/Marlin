@@ -357,7 +357,7 @@ private:
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
                      cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
                      cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
-      const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max), rmin = _MIN(v_min, v_max);
+      const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
@@ -379,7 +379,7 @@ private:
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (                                                           // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
               (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 : // red if mesh point value is negative
-              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmin : v_max)) << 5) | // green if mesh point value is positive
+              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) | // green if mesh point value is positive
                 _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
