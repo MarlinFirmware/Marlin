@@ -424,9 +424,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
 
       // Draw as much of the label as fits
-      if (pwide) {
-        n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-      }
+      if (pwide) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
 
       if (vlen) {
         // SS_FULL: Pad with enough space to justify the value
@@ -449,7 +447,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (mark_as_selected(row, sel)) {
       uint8_t n = LCD_WIDTH - 1;
       n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-      for (;n;--n) lcd_put_u8str(F(" "));
+      for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_u8str(F(" "));
     }
@@ -466,7 +464,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
       if (vallen) {
         lcd_put_u8str(F(":"));
-        for (;n;--n) lcd_put_u8str(F(" "));
+        for (; n; --n) lcd_put_u8str(F(" "));
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
         if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
       }
@@ -552,7 +550,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
         const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
         pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        for (;n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
+        for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
       }
     }
 
