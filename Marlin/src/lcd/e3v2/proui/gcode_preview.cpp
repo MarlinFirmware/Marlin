@@ -191,7 +191,7 @@ bool Has_Preview() {
   fileprop.thumbwidth = THUMBWIDTH;
   fileprop.thumbheight = THUMBHEIGHT;
   fileprop.thumbsize = decode_base64(buf64, fileprop.thumbdata);  card.closefile();
-  DWINUI::WriteToSRAM(0x00, fileprop.thumbsize, fileprop.thumbdata);
+  DWINUI::writeToSRAM(0x00, fileprop.thumbsize, fileprop.thumbdata);
   delete[] fileprop.thumbdata;
   return true;
 }
