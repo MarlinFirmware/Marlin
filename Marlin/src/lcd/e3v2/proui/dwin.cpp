@@ -3452,7 +3452,7 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && HAS_PREHEAT
+#if ALL(ADVANCED_PAUSE_FEATURE, HAS_PREHEAT)
 
     void drawPreheatHotendMenu() {
       checkkey = ID_Menu;
