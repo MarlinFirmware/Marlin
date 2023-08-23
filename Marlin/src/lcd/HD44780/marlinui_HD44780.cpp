@@ -1178,9 +1178,7 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd_put_u8str(F(" ")); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
-    }
+    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
