@@ -479,13 +479,10 @@ namespace LanguageNarrow_hu {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Mikrolépés @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Teljes");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Végállás megszakítva!");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Fütés hiba!");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Fütés hiba!");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Hiba: SZÜKSÉGTELEN HÖFOK");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("FÜTÉS KIMARADÁS");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("ÁGY FÜTÉS KIMARADÁS");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("KAMRA FÜTÉS KIMARADÁS");
-  LSTR MSG_THERMAL_RUNAWAY_COOLER         = _UxGT("Hütés kimaradás");
-  LSTR MSG_COOLING_FAILED                 = _UxGT("Hütés sikertelen");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("FÜTÉS KIMARADÁS");
+  LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Hütés sikertelen");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Hiba: MAX höfok");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Hiba: MIN höfok");
   LSTR MSG_HALTED                         = _UxGT("A NYOMTATÓ LEÁLLT");

@@ -490,13 +490,10 @@ namespace LanguageNarrow_uk {
   LSTR MSG_BABYSTEP_N                       = _UxGT("Мікрокрок @");
   LSTR MSG_BABYSTEP_TOTAL                   = _UxGT("Сумарно");
   LSTR MSG_ENDSTOP_ABORT                    = _UxGT("Кінцевик спрацював");
-  LSTR MSG_HEATING_FAILED_LCD               = _UxGT("Збій нагріву");
+  LSTR MSG_ERR_HEATING_FAILED               = _UxGT("Збій нагріву");
   LSTR MSG_ERR_REDUNDANT_TEMP               = _UxGT("ЗАВИЩЕНА Т") LCD_STR_DEGREE;
-  LSTR MSG_THERMAL_RUNAWAY                  = _UxGT("ВИТІК ТЕПЛА");
-  LSTR MSG_THERMAL_RUNAWAY_BED              = _UxGT("ВИТІК ТЕПЛА СТОЛУ");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER          = _UxGT("ВИТІК ТЕПЛА КАМЕРИ");
-  LSTR MSG_THERMAL_RUNAWAY_COOLER           = _UxGT("ВИТІК ОХОЛОДЖЕННЯ");
-  LSTR MSG_COOLING_FAILED                   = _UxGT("ОХОЛОДЖ. НЕ ВДАЛОСЬ");
+  LSTR MSG_ERR_THERMAL_RUNAWAY              = _UxGT("ВИТІК ТЕПЛА");
+  LSTR MSG_ERR_COOLING_FAILED               = _UxGT("ОХОЛОДЖ. НЕ ВДАЛОСЬ");
   LSTR MSG_ERR_MAXTEMP                      = _UxGT("МАКСИМАЛЬНА Т") LCD_STR_DEGREE;
   LSTR MSG_ERR_MINTEMP                      = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE;
   LSTR MSG_HALTED                           = _UxGT("ПРИНТЕР ЗУПИНЕНО");
@@ -754,7 +751,7 @@ namespace LanguageWide_uk {
     LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Швидкість втягув.");
     LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Оберти вентилятора");
     LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Час вентилятора");
-    LSTR MSG_COOLING_FAILED                 = _UxGT("ОХОЛОДЖЕННЯ НЕ ВДАЛОСЬ");
+    LSTR MSG_ERR_COOLING_FAILED             = _UxGT("ОХОЛОДЖЕННЯ НЕ ВДАЛОСЬ");
     LSTR MSG_BED_COOLING                    = _UxGT("Охолодження столу...");
     LSTR MSG_PROBE_COOLING                  = _UxGT("Охолодження зонду...");
     LSTR MSG_CHAMBER_COOLING                = _UxGT("Охолодження камери...");
