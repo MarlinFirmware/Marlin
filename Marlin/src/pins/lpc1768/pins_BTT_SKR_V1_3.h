@@ -372,6 +372,8 @@
       #define TFT_DC_PIN             EXP1_08_PIN
       #define TOUCH_CS_PIN           EXP1_05_PIN
       #define TFT_RESET_PIN          EXP1_04_PIN
+      #define TOUCH_INT_PIN          EXP1_06_PIN
+
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
