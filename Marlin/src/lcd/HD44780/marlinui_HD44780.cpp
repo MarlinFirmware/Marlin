@@ -1178,11 +1178,7 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd_put_u8str(F(" ")); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      const int8_t expl = n;
-      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-      pad -= (expl - n - plen); // Reduce the padding
-    }
+    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
@@ -1203,7 +1199,8 @@ void MarlinUI::draw_status_screen() {
   // Draw a generic menu item with pre_char (if selected) and post_char
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
     lcd_put_lchar(0, row, sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2);
+    uint8_t n = LCD_WIDTH - 2;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd_put_u8str(F(" "));
     lcd_put_lchar(post_char);
   }
@@ -1224,7 +1221,8 @@ void MarlinUI::draw_status_screen() {
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-    uint8_t n = lcd_put_u8str(0, 1, ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1);
+    uint8_t n = LCD_WIDTH - 1;
+    n -= lcd_put_u8str(0, 1, ftpl, itemIndex, itemStringC, itemStringF, n);
     if (value) {
       lcd_put_u8str(F(":")); n--;
       const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
@@ -1251,8 +1249,8 @@ void MarlinUI::draw_status_screen() {
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       lcd_put_lchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-      constexpr uint8_t maxlen = LCD_WIDTH - 2;
-      uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = LCD_WIDTH - 2;
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
       for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(isDir ? LCD_STR_FOLDER[0] : ' ');
     }
