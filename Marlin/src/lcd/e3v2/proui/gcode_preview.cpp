@@ -39,7 +39,7 @@
 #include "../../../MarlinCore.h" // for wait_for_user
 #include "dwin.h"
 #include "dwin_popup.h"
-#include "base64.hpp"
+#include "base64.h"
 
 #define THUMBWIDTH 230
 #define THUMBHEIGHT 180
@@ -160,7 +160,7 @@ bool Preview::hasPreview() {
     return false;
   }
 
-  uint8_t buf64[fileprop.thumbsize];
+  uint8_t buf64[fileprop.thumbsize + 1];
   uint16_t nread = 0;
   while (nread < fileprop.thumbsize) {
     const uint8_t c = card.get();
