@@ -375,14 +375,7 @@ void FxdTiCtrl::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  for (uint32_t i = 0U; i < (FTM_WINDOW_SIZE - FTM_BATCH_SIZE); i++) { // Reset trajectory history
-    NUM_AXIS_CODE(
-      traj.e[i] = 0.0f,
-      traj.x[i] = 0.0f, traj.y[i] = 0.0f, traj.z[i] = 0.0f,
-      traj.i[i] = 0.0f, traj.j[i] = 0.0f, traj.k[i] = 0.0f,
-      traj.u[i] = 0.0f, traj.v[i] = 0.0f, traj.w[i] = 0.0f
-    );
-  }
+  traj.reset(); // Reset trajectory history
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
   batchRdy = batchRdyForInterp = false;
