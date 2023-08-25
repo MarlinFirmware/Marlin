@@ -507,16 +507,15 @@
   #endif
 #endif
 
-#if ENABLED(WIFISUPPORT)
-  //
-  // WIFI
-  //
+//#define POWER_MONITOR_VOLTAGE_PIN         PC3
 
+//
+// WiFi
+//
+#if ENABLED(WIFISUPPORT)
   #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
   #define ESP_WIFI_MODULE_RESET_PIN         PE11
   #define ESP_WIFI_MODULE_GPIO0_PIN         PE10
   #define ESP_WIFI_MODULE_GPIO4_PIN         PE12
 #endif
-
-//#define POWER_MONITOR_VOLTAGE_PIN PC3
