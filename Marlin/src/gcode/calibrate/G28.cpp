@@ -71,24 +71,6 @@
 
   static void quick_home_xy() {
 
-    #if ENABLED(FT_MOTION)
-    // Disable ft-motion for homing
-    struct OnExit
-    {
-      ftMotionMode_t oldmm;
-      OnExit()
-      {
-        oldmm = fxdTiCtrl.cfg.mode;
-        fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit()
-      {
-        fxdTiCtrl.cfg.mode = oldmm;
-        fxdTiCtrl.init();
-      }
-    } on_exit;
-    #endif
-
     // Pretend the current position is 0,0
     current_position.set(0.0, 0.0);
     sync_plan_position();
@@ -362,6 +344,21 @@ void GcodeSuite::G28() {
     TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
     remember_feedrate_scaling_off();
+
+    #if ENABLED(FT_MOTION)
+      // Disable ft-motion for homing
+      struct OnExit {
+        ftMotionMode_t oldmm;
+        OnExit() {
+          oldmm = fxdTiCtrl.cfg.mode;
+          fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+        }
+        ~OnExit() {
+          fxdTiCtrl.cfg.mode = oldmm;
+          fxdTiCtrl.init();
+        }
+      } on_exit;
+    #endif
 
     endstops.enable(true); // Enable endstops for next homing move
 
