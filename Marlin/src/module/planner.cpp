@@ -2873,7 +2873,7 @@ bool Planner::_populate_block(
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
 
-  // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
+  // Initialize block entry speed. Compute based on deceleration to sqrt(minimum_planner_speed_sqr).
   const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, minimum_planner_speed_sqr, block->millimeters);
 
   // Start with the minimum allowed speed
