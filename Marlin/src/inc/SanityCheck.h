@@ -1504,46 +1504,26 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Bed Leveling Requirements
  */
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-
-  /**
-   * Unified Bed Leveling
-   */
-
-  #if IS_SCARA
-    #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
-  #elif ENABLED(POLAR)
+#if IS_SCARA && ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
+  #error "SCARA machines can only use AUTO_BED_LEVELING_BILINEAR or MESH_BED_LEVELING leveling."
+#elif ENABLED(AUTO_BED_LEVELING_LINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 2, 255) && WITHIN(GRID_MAX_POINTS_Y, 2, 255))
+  #error "GRID_MAX_POINTS_[XY] must be between 2 and 255 with AUTO_BED_LEVELING_LINEAR."
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
+  #error "GRID_MAX_POINTS_[XY] must be between 3 and 255 with AUTO_BED_LEVELING_BILINEAR."
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ENABLED(POLAR)
     #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
   #elif DISABLED(EEPROM_SETTINGS)
     #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
   #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
     #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
   #endif
-
-#elif HAS_ABL_NOT_UBL
-
-  /**
-   * Auto Bed Leveling
-   */
-
-  /**
-   * Delta and SCARA have limited bed leveling options
-   */
-  #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
-  #elif ABL_USES_GRID && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
-    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
-  #endif
-
 #elif ENABLED(MESH_BED_LEVELING)
-
-  // Mesh Bed Leveling
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING is not compatible with DELTA printers."
   #elif (GRID_MAX_POINTS_X) > 9 || (GRID_MAX_POINTS_Y) > 9
     #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
   #endif
-
 #endif
 
 #define _POINT_COUNT (defined(PROBE_PT_1) + defined(PROBE_PT_2) + defined(PROBE_PT_3))
@@ -2742,7 +2722,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if LCD_BACKLIGHT_TIMEOUT_MINS
-  #if !HAS_ENCODER_ACTION
+  #if !HAS_ENCODER_ACTION && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
@@ -2750,8 +2730,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
       #error "LCD_BACKLIGHT_TIMEOUT is not compatible with NEOPIXEL_BKGD_ALWAYS_ON."
     #endif
-  #elif !PIN_EXISTS(LCD_BACKLIGHT)
-    #error "LCD_BACKLIGHT_TIMEOUT_MINS requires either LCD_BACKLIGHT_PIN or NEOPIXEL_BKGD_INDEX_FIRST."
+  #elif !PIN_EXISTS(LCD_BACKLIGHT) && DISABLED(HAS_DWIN_E3V2)
+    #error "LCD_BACKLIGHT_TIMEOUT_MINS requires LCD_BACKLIGHT_PIN, NEOPIXEL_BKGD_INDEX_FIRST, or an Ender-3 V2 DWIN LCD."
   #endif
 #endif
 
