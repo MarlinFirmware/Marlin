@@ -416,7 +416,12 @@ void FxdTiCtrl::init() {
 
 // Loads / converts block data from planner to fixed-time control variables.
 void FxdTiCtrl::loadBlockData(block_t * const current_block) {
-
+  #ifdef COREXY
+  const float max_feedrate = (0.707106 * FTM_STEPPER_FS) / MAX(planner.settings.axis_steps_per_mm[X_AXIS], FTM_STEPPER_FS / planner.settings.axis_steps_per_mm[Y_AXIS]);
+  #else
+  const float max_feedrate = FTM_STEPPER_FS / MAX(planner.settings.axis_steps_per_mm[X_AXIS], FTM_STEPPER_FS / planner.settings.axis_steps_per_mm[Y_AXIS]);
+  #endif
+  
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
@@ -451,24 +456,25 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
 
   ratio = moveDist * oneOverLength;
 
-  const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
-              f_s = spm * current_block->initial_rate;  // (steps/s) Start feedrate
-  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
+  const float spm = totalLength / current_block->step_event_count;      // (steps/mm) Distance for each step
+  f_s = MIN(spm * current_block->initial_rate, max_feedrate);           // (steps/s) Start feedrate
+  const float f_e = MIN(spm * current_block->final_rate, max_feedrate); // (steps/s) End feedrate
 
-  const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
-              oneby2a = 1.0f / (2.0f * a),              // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-              oneby2d = -oneby2a;                       // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-  const float fsSqByTwoA = sq(f_s) * oneby2a,           // (mm) Distance to accelerate from start speed to nominal speed
-              feSqByTwoD = sq(f_e) * oneby2d;           // (mm) Distance to decelerate from nominal speed to end speed
+  const float a = current_block->acceleration, // (mm/s^2) Same magnitude for acceleration or deceleration
+      oneby2a = 1.0f / (2.0f * a),             // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+      oneby2d = -oneby2a;                      // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+  const float fsSqByTwoA = sq(f_s) * oneby2a,  // (mm) Distance to accelerate from start speed to nominal speed
+      feSqByTwoD = sq(f_e) * oneby2d;          // (mm) Distance to decelerate from nominal speed to end speed
 
-  float F_n = current_block->nominal_speed;             // (mm/s) Speed we hope to achieve, if possible
-  const float fdiff = feSqByTwoD - fsSqByTwoA,          // (mm) Coasting distance if nominal speed is reached
-              odiff = oneby2a - oneby2d,                // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
-              ldiff = totalLength - fdiff;              // (mm) Distance to travel if nominal speed is reached
-  float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));  // (s) Coasting duration after nominal speed reached
-  if (T2 < 0.0f) {
+  float F_n = MIN(current_block->nominal_speed, max_feedrate); // (mm/s) Speed we hope to achieve, if possible
+  const float fdiff = feSqByTwoD - fsSqByTwoA,                 // (mm) Coasting distance if nominal speed is reached
+      odiff = oneby2a - oneby2d,                               // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
+      ldiff = totalLength - fdiff;                             // (mm) Distance to travel if nominal speed is reached
+  float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));         // (s) Coasting duration after nominal speed reached
+  if (T2 < 0.0f)
+  {
     T2 = 0.0f;
-    F_n = SQRT(ldiff / odiff);                          // Clip by intersection if nominal speed can't be reached.
+    F_n = MIN(SQRT(ldiff / odiff), max_feedrate); // Clip by intersection if nominal speed can't be reached.
   }
 
   const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
