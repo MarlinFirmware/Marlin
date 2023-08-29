@@ -240,9 +240,9 @@ namespace LanguageNarrow_eu {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Mikro-urratsa Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Mikro-urratsa @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop deusezta.");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Err: Beroketa");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Err: Beroketa");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: Tenperatura");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TENP. KONTROL EZA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("TENP. KONTROL EZA");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: Tenp Maximoa");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Tenp Minimoa");
   LSTR MSG_HALTED                         = _UxGT("INPRIMA. GELDIRIK");

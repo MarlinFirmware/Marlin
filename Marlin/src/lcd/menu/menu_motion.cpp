@@ -396,7 +396,7 @@ void menu_move() {
     #endif
 
     START_MENU();
-    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+    BACK_ITEM(MSG_MOTION);
 
     SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
     MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
