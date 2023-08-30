@@ -452,7 +452,7 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   ratio = moveDist * oneOverLength;
 
   const float spm = totalLength / current_block->step_event_count;      // (steps/mm) Distance for each step
-  f_s = spm * current_block->initial_rate, max_feedrate;                // (steps/s) Start feedrate
+  f_s = spm * current_block->initial_rate;                              // (steps/s) Start feedrate
   const float f_e = spm * current_block->final_rate;                   // (steps/s) End feedrate
 
   const float a = current_block->acceleration, // (mm/s^2) Same magnitude for acceleration or deceleration
