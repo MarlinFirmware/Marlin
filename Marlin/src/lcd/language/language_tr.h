@@ -148,6 +148,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MESH_VIEWER                    = _UxGT("Mesh görüntüleyici");
   LSTR MSG_EDIT_MESH                      = _UxGT("Mesh Düzenle");
   LSTR MSG_MESH_VIEW                      = _UxGT("Mesh Göster");
+  LSTR MSG_CHANGE_MESH                    = _UxGT("Normal Mesh Göster");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Mesh Düzenleme Durdu");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Geçerli Mesh yok");
   LSTR MSG_ACTIVATE_MESH                  = _UxGT("Seviyeleme Aç");

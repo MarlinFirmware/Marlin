@@ -145,6 +145,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_MESH_VIEWER                    = _UxGT("Netzbetrachter");
   LSTR MSG_EDIT_MESH                      = _UxGT("Netz bearbeiten");
   LSTR MSG_MESH_VIEW                      = _UxGT("Netz ansehen");
+  LSTR MSG_CHANGE_MESH                    = _UxGT("Normale Netzbetrachter");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Netzbearb. angeh.");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Kein gültiges Netz");
   LSTR MSG_ACTIVATE_MESH                  = _UxGT("Nivellierung aktiv.");

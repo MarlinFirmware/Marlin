@@ -160,6 +160,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MESH_VIEWER                    = _UxGT("Visualiz. Mesh");
   LSTR MSG_EDIT_MESH                      = _UxGT("Modifica Mesh");
   LSTR MSG_MESH_VIEW                      = _UxGT("Visualizza Mesh");
+  LSTR MSG_CHANGE_MESH                    = _UxGT("Normale visualiz. Mesh");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Modif. Mesh Fermata");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Mesh non valida");
   LSTR MSG_ACTIVATE_MESH                  = _UxGT("Attiva livellamento");

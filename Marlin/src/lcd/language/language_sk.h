@@ -161,6 +161,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MESH_VIEWER                    = _UxGT("Zobraz. sieťe bodov");
   LSTR MSG_EDIT_MESH                      = _UxGT("Upraviť sieť bodov");
   LSTR MSG_MESH_VIEW                      = _UxGT("Zobraz. sieť bodov");
+  LSTR MSG_CHANGE_MESH                    = _UxGT("Normálne zobraz. sieť");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Koniec úprav siete");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Neplatná sieť bodov");
   LSTR MSG_ACTIVATE_MESH                  = _UxGT("Zapnúť vyrovnanie");
