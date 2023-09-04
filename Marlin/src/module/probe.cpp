@@ -747,7 +747,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
 
   auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
-    constexpr float error_tolerance = 2.0f;
+    constexpr float error_tolerance = Z_CLEARANCE_MULTI_PROBE;
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM_P(plbl);
       DEBUG_ECHOLNPGM("> try_to_probe(..., ", z_probe_low_point, ", ", fr_mm_s, ", ...)");
