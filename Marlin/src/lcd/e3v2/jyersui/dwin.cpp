@@ -91,7 +91,7 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 352
 
-#define MAX_PRINT_SPEED   500
+#define MAX_PRINT_SPEED   999
 #define MIN_PRINT_SPEED   10
 
 #if HAS_FAN
@@ -111,7 +111,7 @@
 #endif
 
 #if HAS_HOTEND
-  #define MAX_FLOW_RATE   200
+  #define MAX_FLOW_RATE   299
   #define MIN_FLOW_RATE   10
 
   #define MAX_E_TEMP    (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
@@ -119,7 +119,7 @@
 #endif
 
 #if HAS_HEATED_BED
-  #define MAX_BED_TEMP  BED_MAXTEMP
+  #define MAX_BED_TEMP  BED_MAX_TARGET
   #define MIN_BED_TEMP  0
 #endif
 
@@ -400,7 +400,7 @@ private:
             else
               msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
             offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
-            if (!(GRID_MAX_POINTS_X < 10))
+            if (GRID_MAX_POINTS_X >= 10)
               dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, msg);
           }
@@ -1067,7 +1067,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ANY(HAS_HOTEND, HAS_HEATED_BED))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define PREPARE_CUSTOM_MENU (PREPARE_CHANGEFIL + ENABLED(HAS_CUSTOM_MENU))
-      #define PREPARE_TOTAL PREPARE_CUSTOM_MENU
+      #define PREPARE_FWRETRACT (PREPARE_CUSTOM_MENU + ENABLED(FWRETRACT))
+      #define PREPARE_TOTAL PREPARE_FWRETRACT
 
       switch (item) {
         case PREPARE_BACK:
@@ -1158,9 +1159,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case PREPARE_CHANGEFIL:
             if (draw) {
               drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
-                #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-                  , nullptr, true
-                #endif
+                OPTARG(FILAMENT_LOAD_UNLOAD_GCODES, nullptr, true)
               );
             }
             else {
@@ -1179,6 +1178,15 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 }
               #endif
             }
+            break;
+        #endif
+
+        #if ENABLED(FWRETRACT)
+          case PREPARE_FWRETRACT:
+            if (draw) 
+              drawMenuItem(row, ICON_SetHome, GET_TEXT_F(MSG_FWRETRACT), nullptr, true);
+            else
+              drawMenu(ID_FWMenu);
             break;
         #endif
       }
@@ -1681,7 +1689,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               drawMenu(ID_Prepare, PREPARE_PREHEAT);
             break;
-
           case PREHEAT_MODE:
             if (draw) {
               drawMenuItem(row, ICON_Homing, F("Preheat Mode"));
@@ -1776,7 +1783,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
     #endif // FILAMENT_LOAD_UNLOAD_GCODES
 
     #if HAS_CUSTOM_MENU
-
       case ID_MenuCustom:
 
         #define CUSTOM_MENU_BACK 0
@@ -1892,7 +1898,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           #endif // Custom Menu
         }
         break;
-
     #endif // HAS_CUSTOM_MENU
 
     case ID_Control:
@@ -2329,7 +2334,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define MOTION_JERK (MOTION_ACCEL + ENABLED(HAS_CLASSIC_JERK))
       #define MOTION_STEPS (MOTION_JERK + 1)
       #define MOTION_FLOW (MOTION_STEPS + ENABLED(HAS_HOTEND))
-      #define MOTION_TOTAL MOTION_FLOW
+      #define MOTION_LA (MOTION_FLOW + ENABLED(LIN_ADVANCE))
+      #define MOTION_TOTAL MOTION_LA
 
       switch (item) {
         case MOTION_BACK:
@@ -2378,6 +2384,16 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             }
             else
               modifyValue(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
+            break;
+        #endif
+        #if ENABLED(LIN_ADVANCE)
+          case MOTION_LA:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccelerated, F("Lin Advance K"));
+              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+            }
+            else
+              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
             break;
         #endif
       }
@@ -3796,8 +3812,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define TUNE_ZOFFSET (TUNE_FAN + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_ZUP (TUNE_ZOFFSET + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_ZDOWN (TUNE_ZUP + ENABLED(HAS_ZOFFSET_ITEM))
-      #define TUNE_CHANGEFIL (TUNE_ZDOWN + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
-      #define TUNE_FILSENSORENABLED (TUNE_CHANGEFIL + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define TUNE_LA (TUNE_ZDOWN + ENABLED(LIN_ADVANCE))
+      #define TUNE_CHANGEFIL (TUNE_LA + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
+      #define TUNE_FWRETRACT (TUNE_CHANGEFIL + ENABLED(FWRETRACT))
+      #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(FILAMENT_RUNOUT_SENSOR))
       #define TUNE_BACKLIGHT_OFF (TUNE_FILSENSORENABLED + 1)
       #define TUNE_BACKLIGHT (TUNE_BACKLIGHT_OFF + 1)
       #define TUNE_TOTAL TUNE_BACKLIGHT
@@ -3888,12 +3906,32 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
+        #if ENABLED(LIN_ADVANCE)
+          case TUNE_LA:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
+              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+            }
+            else
+              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            break;
+        #endif
+
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           case TUNE_CHANGEFIL:
             if (draw)
               drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else
               popupHandler(Popup_ConfFilChange);
+            break;
+        #endif
+
+        #if ENABLED(FWRETRACT)
+          case TUNE_FWRETRACT:
+            if (draw) 
+              drawMenuItem(row, ICON_SetHome, GET_TEXT_F(MSG_FWRETRACT), nullptr, true);
+            else
+              drawMenu(ID_FWMenu);
             break;
         #endif
 
@@ -3991,7 +4029,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             }
             break;
 
-
           #define _PREHEAT_HOTEND_CASE(N) \
             case PREHEATHOTEND_##N: \
               if (draw) drawMenuItem(row, ICON_Temperature, F(PREHEAT_## N ##_LABEL)); \
@@ -4012,6 +4049,71 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         break;
 
     #endif // HAS_PREHEAT && HAS_HOTEND
+
+    #if ENABLED(FWRETRACT)
+      case ID_FWMenu:
+        #define FWRETRACT_BACK 0
+        #define FWRETRACT_RETLEN (FWRETRACT_BACK + 1)
+        #define FWRETRACT_RETSPD (FWRETRACT_RETLEN + 1)
+        #define FWRETRACT_RETZHOP (FWRETRACT_RETSPD + 1)
+        #define FWRETRACT_RECSPD (FWRETRACT_RETZHOP + 1)
+        #define FWRETRACT_RECLEN (FWRETRACT_RECSPD + 1)
+        #define FWRETRACT_TOTAL (FWRETRACT_RECLEN + 1)
+
+        switch (item) {
+          case FWRETRACT_BACK:
+            if (draw)
+              drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK));
+            else {
+              if (last_menu == ID_Prepare)
+                drawMenu(ID_Prepare, PREPARE_FWRETRACT);
+              else if (last_menu == ID_Tune)
+                drawMenu(ID_Tune, TUNE_FWRETRACT);
+            }
+            break;
+          case FWRETRACT_RETLEN:
+            if (draw) {
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_CONTROL_RETRACT));
+              drawFloat(fwretract.settings.retract_length, row, false, 10);
+            }
+            else
+              modifyValue(fwretract.settings.retract_length, 0, 10, 10);
+            break;
+          case FWRETRACT_RETSPD:
+            if (draw) {
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_SINGLENOZZLE_RETRACT_SPEED));
+              drawFloat(fwretract.settings.retract_feedrate_mm_s, row, false, 1);
+            }
+            else
+              modifyValue(fwretract.settings.retract_feedrate_mm_s, 1, 90, 1);
+            break;
+          case FWRETRACT_RETZHOP:
+            if (draw) {
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_CONTROL_RETRACT_ZHOP));
+              drawFloat(fwretract.settings.retract_zraise, row, false, 100);
+            }
+            else
+              modifyValue(fwretract.settings.retract_zraise, 0, 2, 100);
+            break;
+          case FWRETRACT_RECSPD:
+            if (draw) {
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_SINGLENOZZLE_UNRETRACT_SPEED));
+              drawFloat(fwretract.settings.retract_recover_feedrate_mm_s, row, false, 1);
+            }
+            else
+              modifyValue(fwretract.settings.retract_recover_feedrate_mm_s, 1, 90, 1);
+            break;
+          case FWRETRACT_RECLEN:
+            if (draw) {
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_CONTROL_RETRACT_RECOVER));
+              drawFloat(fwretract.settings.retract_recover_extra, row, false, 10);
+            }
+            else
+              modifyValue(fwretract.settings.retract_recover_extra, -5, 5, 10);
+            break;
+        }
+        break;
+    #endif
   }
 }
 
@@ -4038,6 +4140,9 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
         #else
           return GET_TEXT_F(MSG_CUSTOM_COMMANDS);
         #endif
+    #endif
+    #if ENABLED(FWRETRACT)
+      case ID_FWMenu:       return GET_TEXT_F(MSG_FWRETRACT);
     #endif
     case ID_Control:        return GET_TEXT_F(MSG_CONTROL);
     case ID_TempMenu:       return GET_TEXT_F(MSG_TEMPERATURE);
@@ -4113,6 +4218,9 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #if HAS_CUSTOM_MENU
       case ID_MenuCustom:   return CUSTOM_MENU_TOTAL;
     #endif
+    #if ENABLED(FWRETRACT)
+      case ID_FWMenu:       return FWRETRACT_TOTAL;
+    #endif
     case ID_Control:        return CONTROL_TOTAL;
     case ID_TempMenu:       return TEMP_TOTAL;
     #if ANY(PIDTEMP, PIDTEMPBED)
@@ -4145,7 +4253,6 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
       case ID_ProbeMenu:    return PROBE_TOTAL;
     #endif
     #if HAS_TRINAMIC_CONFIG
-      case ID_TMCMenu:      return TMC_TOTAL;
       case ID_TMCMenu:      return TMC_TOTAL;
     #endif
     case ID_Info:           return INFO_TOTAL;
