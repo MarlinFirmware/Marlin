@@ -146,7 +146,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2:a Munstycke @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Verktyg");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Enad Bädd Nivellering (UBL)");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Lutningspunkt");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Manuellt skapa nät");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Placera Shim & Mät");

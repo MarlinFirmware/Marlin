@@ -123,7 +123,6 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("第二喷头是@");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("执行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("统一热床调平(UBL)"); // "Unified Bed Leveling"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("倾斜點");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("手工创设网格"); // "Manually Build Mesh"
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("放置垫片并测量"); // "Place shim & measure"

@@ -129,7 +129,6 @@ namespace LanguageNarrow_cz {
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnání bodu");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Manuální síť bodů");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Vložte kartu, změřte");

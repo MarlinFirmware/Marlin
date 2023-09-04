@@ -192,7 +192,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2° ugello @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 in corso");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Strumenti UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Livel.letto unificato");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto inclinaz.");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Inclina Mesh");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Dim.griglia inclin.");
@@ -628,7 +627,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_3POINT_LEVELING                = _UxGT("Livel. a 3 punti");
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Livel. Lineare");
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Livel. Bilineare");
-  LSTR MSG_UBL_LEVELING                   = _UxGT("Livel.piatto unific.");
+  LSTR MSG_UBL_LEVELING                   = _UxGT("Livel.letto unificato");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Livel. Mesh");
   LSTR MSG_MESH_DONE                      = _UxGT("Sond.mesh eseguito");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Statistiche");
