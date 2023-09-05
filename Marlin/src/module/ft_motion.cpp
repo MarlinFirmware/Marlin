@@ -651,28 +651,28 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
   #endif
 
   // Commands are written in a bitmask with step and dir as single bits
-    auto COMMAND_SET = [&](auto &d, auto &e, auto &s, auto &b, auto bd, auto bs) {
-      if (d >= 0) {
-        if (e + d < (FTM_CTS_COMPARE_VAL)) {
-          e += d;
-        }
-        else {
-          s++;
-          b |= bd | bs;
-          e += d - (FTM_STEPS_PER_UNIT_TIME);
-        }
+  auto COMMAND_SET = [&](auto &d, auto &e, auto &s, auto &b, auto bd, auto bs) {
+    if (d >= 0) {
+      if (e + d < (FTM_CTS_COMPARE_VAL)) {
+        e += d;
       }
       else {
-        if ((e + d) > -(FTM_CTS_COMPARE_VAL)) {
-          e += d;
-        }
-        else {
-          s--;
-          b |= bs;
-          e += d + (FTM_STEPS_PER_UNIT_TIME);
-        }
+        s++;
+        b |= bd | bs;
+        e += d - (FTM_STEPS_PER_UNIT_TIME);
       }
-    };
+    }
+    else {
+      if ((e + d) > -(FTM_CTS_COMPARE_VAL)) {
+        e += d;
+      }
+      else {
+        s--;
+        b |= bs;
+        e += d + (FTM_STEPS_PER_UNIT_TIME);
+      }
+    }
+  };
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
 
