@@ -198,11 +198,11 @@ void menu_tune() {
   // Flow:
   //
   #if HAS_EXTRUDERS
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
+    EDIT_ITEM(uint16_3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER
       EXTRUDER_LOOP()
-        EDIT_ITEM_N(int3, e, MSG_FLOW_N, &planner.flow_percentage[e], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+        EDIT_ITEM_N(uint16_3, e, MSG_FLOW_N, &planner.flow_percentage[e], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif
   #endif
 
