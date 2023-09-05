@@ -37,6 +37,11 @@
  *  D<linear> : Extra distance to continue after runout is triggered
  */
 void GcodeSuite::M412() {
+
+  #if NUM_RUNOUT_SENSORS == 2
+    if (parser.seen('I')) runout.pin_inversion = parser.value_bool();
+  #endif
+
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
     TERN_(HOST_ACTION_COMMANDS, "H")
@@ -63,6 +68,16 @@ void GcodeSuite::M412() {
       serialprint_onoff(runout.host_handling);
     #endif
     SERIAL_EOL();
+
+    #if NUM_RUNOUT_SENSORS == 2
+      SERIAL_ECHOPGM(
+        "  Filament Inversion : "
+      );
+      serialprintln_onoff(runout.pin_inversion);
+
+      SERIAL_EOL();
+    #endif
+
   }
 }
 
@@ -76,6 +91,14 @@ void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
     , " ; Sensor "
   );
   serialprintln_onoff(runout.enabled);
+
+  #if NUM_RUNOUT_SENSORS == 2
+    SERIAL_ECHOPGM(
+    "  Filament Inversion : "
+    );
+    serialprintln_onoff(runout.pin_inversion);
+  #endif
+
 }
 
 #endif // HAS_FILAMENT_SENSOR

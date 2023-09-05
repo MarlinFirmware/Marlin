@@ -630,6 +630,9 @@ void menu_configuration() {
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    #if NUM_RUNOUT_SENSORS == 2
+      EDIT_ITEM(bool, MSG_RUNOUT_INVERSION, &runout.pin_inversion);
+    #endif
   #endif
 
   #if HAS_FANCHECK
