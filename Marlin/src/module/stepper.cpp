@@ -1502,7 +1502,7 @@ void Stepper::isr() {
       const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
-          nextMainISR = (STEPPER_TIMER_RATE/FTM_STEPPER_FS);
+          nextMainISR = FTM_MIN_TICKS;
           fxdTiCtrl_stepper();
 
           // Define 2.5 msec task for auxilliary functions.
