@@ -1,11 +1,10 @@
-/*******************************
- * cocoa_press/status_screen.h *
- *******************************/
+/***********************
+ * z_offset_screen.h *
+ ***********************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2019 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -23,41 +22,22 @@
 
 #pragma once
 
-#define COCOA_STATUS_SCREEN
-#define COCOA_STATUS_SCREEN_CLASS StatusScreen
+#define COCOA_Z_OFFSET_WIZARD
+#define COCOA_Z_OFFSET_WIZARD_CLASS ZOffsetWizard
 
-struct StatusScreenData {
-  bool gotMessage;
+struct ZOffsetWizardData : public BaseNumericAdjustmentScreenData {
+  uint8_t increment;
+  bool softEndstopState;
 };
 
-class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE, STATUS_SCREEN_DL_SIZE> {
+class ZOffsetWizard : public BaseScreen, public UncachedScreen {
   private:
-    static void _format_time(char *outstr, uint32_t time);
-
-    static void draw_time(draw_mode_t what);
-    static void draw_percent(draw_mode_t what);
-    static void draw_temperature(draw_mode_t what);
-    static void draw_buttons(draw_mode_t what);
-    static void draw_file(draw_mode_t what);
-    static void draw_message(draw_mode_t what, const char *message);
-    static void draw_bkgnd(draw_mode_t what);
-    
-    static void send_buffer(CommandProcessor &cmd, const void *data, uint16_t len);
-    static void load_background(const void *data, uint16_t len);
-
-    static bool isFileSelected();
+    static float getIncrement();
   public:
-    static void loadBitmaps();
-
-    static void setStatusMessage(const char *);
-    static void setStatusMessage(FSTR_P);
-
-    static void onRedraw(draw_mode_t);
-
+    static void runWizard();
     static void onEntry();
+    static void onExit();
+    static void onRedraw(draw_mode_t);
     static bool onTouchHeld(uint8_t tag);
     static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
-    static void onMediaInserted();
-    static void onMediaRemoved();
 };

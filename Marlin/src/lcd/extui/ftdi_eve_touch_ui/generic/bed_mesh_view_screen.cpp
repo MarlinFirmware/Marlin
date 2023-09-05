@@ -158,7 +158,9 @@ void BedMeshViewScreen::doProbe() {
 }
 
 void BedMeshViewScreen::show() {
-  injectCommands(F("G29 L1"));
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    injectCommands(F("G29 L1"));
+  #endif
   GOTO_SCREEN(BedMeshViewScreen);
 }
 

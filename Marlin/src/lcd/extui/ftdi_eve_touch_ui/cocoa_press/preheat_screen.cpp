@@ -116,7 +116,9 @@ void PreheatTimerScreen::onRedraw(draw_mode_t what) {
   draw_interaction_buttons(what);
   draw_adjuster(what, 2, GET_TEXT_F(MSG_NOZZLE),  getTargetTemp_celsius(E0),      NOZZLE_ADJ_POS);
   draw_adjuster(what, 4, GET_TEXT_F(MSG_BODY),    getTargetTemp_celsius(E1),      BODY_ADJ_POS);
-  draw_adjuster(what, 6, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER), CHAMBER_ADJ_POS);
+  #if HAS_HEATED_CHAMBER
+    draw_adjuster(what, 6, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER), CHAMBER_ADJ_POS);
+  #endif
 }
 
 bool PreheatTimerScreen::onTouchHeld(uint8_t tag) {
@@ -126,8 +128,10 @@ bool PreheatTimerScreen::onTouchHeld(uint8_t tag) {
     case 3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     case 4: UI_DECREMENT(TargetTemp_celsius, E1); break;
     case 5: UI_INCREMENT(TargetTemp_celsius, E1); break;
-    case 6: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
-    case 7: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
+    #if HAS_HEATED_CHAMBER
+        case 6: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
+        case 7: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
+    #endif
     default:
       return false;
   }
