@@ -437,7 +437,7 @@ class Planner {
     #endif
 
     #if HAS_EXTRUDERS
-      static uint16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
+      static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
     #endif
 
@@ -604,7 +604,7 @@ class Planner {
         e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
       }
 
-      static void set_flow(const uint8_t e, const uint16_t flow) {
+      static void set_flow(const uint8_t e, const int16_t flow) {
         flow_percentage[e] = flow;
         refresh_e_factor(e);
       }

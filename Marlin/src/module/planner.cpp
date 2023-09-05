@@ -173,7 +173,7 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
 #endif
 
 #if HAS_EXTRUDERS
-  uint16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
+  int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
   float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
 #endif
 
