@@ -1,1 +1,2 @@
 To build use: env:STM32F103RE_btt
+output: .pio\build\STM32F103RE_btt\firmware.bin
