@@ -191,31 +191,21 @@ void FxdTiCtrl::loop() {
     // Call Ulendo FBS here.
 
     // Copy the uncompensated vectors. (XY done, other axes uncompensated)
+    #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
     LOGICAL_AXIS_CODE(
-      memcpy(trajMod.e, traj.e, sizeof(trajMod.e)),
-      memcpy(trajMod.x, traj.x, sizeof(trajMod.x)),
-      memcpy(trajMod.y, traj.y, sizeof(trajMod.y)),
-      memcpy(trajMod.z, traj.z, sizeof(trajMod.z)),
-      memcpy(trajMod.i, traj.i, sizeof(trajMod.i)),
-      memcpy(trajMod.j, traj.j, sizeof(trajMod.j)),
-      memcpy(trajMod.k, traj.k, sizeof(trajMod.k)),
-      memcpy(trajMod.u, traj.u, sizeof(trajMod.u)),
-      memcpy(trajMod.v, traj.v, sizeof(trajMod.v)),
-      memcpy(trajMod.w, traj.w, sizeof(trajMod.w))
+      TCOPY(e),
+      TCOPY(x), TCOPY(y), TCOPY(z),
+      TCOPY(i), TCOPY(j), TCOPY(k),
+      TCOPY(u), TCOPY(v), TCOPY(w)
     );
 
     // Shift the time series back in the window for (shaped) X and Y
-     LOGICAL_AXIS_CODE(
-      memcpy(traj.e, &traj.e[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.e[0])),
-      memcpy(traj.x, &traj.x[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.x[0])),
-      memcpy(traj.y, &traj.y[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.y[0])),
-      memcpy(traj.z, &traj.z[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.z[0])),
-      memcpy(traj.i, &traj.i[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.i[0])),
-      memcpy(traj.j, &traj.j[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.j[0])),
-      memcpy(traj.k, &traj.k[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.k[0])),
-      memcpy(traj.u, &traj.u[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.u[0])),
-      memcpy(traj.v, &traj.v[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.v[0])),
-      memcpy(traj.w, &traj.w[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.w[0]))
+    #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
+    LOGICAL_AXIS_CODE(
+      TSHIFT(e),
+      TSHIFT(x), TSHIFT(y), TSHIFT(z),
+      TSHIFT(i), TSHIFT(j), TSHIFT(k),
+      TSHIFT(u), TSHIFT(v), TSHIFT(w)
     );
     //TERN_(HAS_X_AXIS, memcpy(traj.x, &traj.x[FTM_BATCH_SIZE], sizeof(traj.x) / 2));
     //TERN_(HAS_Y_AXIS, memcpy(traj.y, &traj.y[FTM_BATCH_SIZE], sizeof(traj.y) / 2));
@@ -452,19 +442,20 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   ratio = moveDist * oneOverLength;
 
   const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
-  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
+              f_s = spm * current_block->initial_rate;  // (steps/s) Start feedrate
   const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
 
   const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
-      oneby2a = 1.0f / (2.0f * a),                      // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-      oneby2d = -oneby2a;                               // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+              oneby2a = 1.0f / (2.0f * a),              // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+              oneby2d = -oneby2a;                       // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
   const float fsSqByTwoA = sq(f_s) * oneby2a,           // (mm) Distance to accelerate from start speed to nominal speed
-      feSqByTwoD = sq(f_e) * oneby2d;                   // (mm) Distance to decelerate from nominal speed to end speed
+              feSqByTwoD = sq(f_e) * oneby2d;           // (mm) Distance to decelerate from nominal speed to end speed
 
   float F_n = current_block->nominal_speed;             // (mm/s) Speed we hope to achieve, if possible
   const float fdiff = feSqByTwoD - fsSqByTwoA,          // (mm) Coasting distance if nominal speed is reached
-      odiff = oneby2a - oneby2d,                        // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
-      ldiff = totalLength - fdiff;                      // (mm) Distance to travel if nominal speed is reached
+              odiff = oneby2a - oneby2d,                // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
+              ldiff = totalLength - fdiff;              // (mm) Distance to travel if nominal speed is reached
+
   float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));  // (s) Coasting duration after nominal speed reached
   if (T2 < 0.0f) {
     T2 = 0.0f;
