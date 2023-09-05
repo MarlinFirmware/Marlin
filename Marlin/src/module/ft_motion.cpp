@@ -73,7 +73,7 @@ bool FxdTiCtrl::batchRdy = false;                 // Indicates a batch of the fi
 bool FxdTiCtrl::batchRdyForInterp = false;        // Indicates the batch is done being post processed,
                                                   //  if applicable, and is ready to be converted to step commands.
 bool FxdTiCtrl::runoutEna = false;                // True if runout of the block hasn't been done and is allowed.
-bool FxdTiCtrl::blockDataIsRunout = false;      // Indicates the last loaded block variables are for a runout.
+bool FxdTiCtrl::blockDataIsRunout = false;        // Indicates the last loaded block variables are for a runout.
 
 // Trapezoid data variables.
 xyze_pos_t   FxdTiCtrl::startPosn,                    // (mm) Start position of block
@@ -177,7 +177,7 @@ void FxdTiCtrl::loop() {
   if (!blockProcRdy) stepper.fxdTiCtrl_BlockQueueUpdate();
 
   if (blockProcRdy) {
-   if (!blockProcRdy_z1) { // One-shot.
+    if (!blockProcRdy_z1) { // One-shot.
       if (!blockDataIsRunout) loadBlockData(current_block_cpy);
       else blockDataIsRunout = false;
     }
@@ -416,7 +416,7 @@ void FxdTiCtrl::init() {
 
 // Loads / converts block data from planner to fixed-time control variables.
 void FxdTiCtrl::loadBlockData(block_t * const current_block) {
-  
+
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
@@ -451,37 +451,36 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
 
   ratio = moveDist * oneOverLength;
 
-  const float spm = totalLength / current_block->step_event_count;      // (steps/mm) Distance for each step
-  f_s = spm * current_block->initial_rate;                              // (steps/s) Start feedrate
-  const float f_e = spm * current_block->final_rate;                   // (steps/s) End feedrate
+  const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
+  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
+  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
 
-  const float a = current_block->acceleration, // (mm/s^2) Same magnitude for acceleration or deceleration
-      oneby2a = 1.0f / (2.0f * a),             // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-      oneby2d = -oneby2a;                      // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-  const float fsSqByTwoA = sq(f_s) * oneby2a,  // (mm) Distance to accelerate from start speed to nominal speed
-      feSqByTwoD = sq(f_e) * oneby2d;          // (mm) Distance to decelerate from nominal speed to end speed
+  const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
+      oneby2a = 1.0f / (2.0f * a),                      // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+      oneby2d = -oneby2a;                               // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
+  const float fsSqByTwoA = sq(f_s) * oneby2a,           // (mm) Distance to accelerate from start speed to nominal speed
+      feSqByTwoD = sq(f_e) * oneby2d;                   // (mm) Distance to decelerate from nominal speed to end speed
 
-  float F_n = current_block->nominal_speed;                    // (mm/s) Speed we hope to achieve, if possible
-  const float fdiff = feSqByTwoD - fsSqByTwoA,                 // (mm) Coasting distance if nominal speed is reached
-      odiff = oneby2a - oneby2d,                               // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
-      ldiff = totalLength - fdiff;                             // (mm) Distance to travel if nominal speed is reached
-  float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));         // (s) Coasting duration after nominal speed reached
-  if (T2 < 0.0f)
-  {
+  float F_n = current_block->nominal_speed;             // (mm/s) Speed we hope to achieve, if possible
+  const float fdiff = feSqByTwoD - fsSqByTwoA,          // (mm) Coasting distance if nominal speed is reached
+      odiff = oneby2a - oneby2d,                        // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
+      ldiff = totalLength - fdiff;                      // (mm) Distance to travel if nominal speed is reached
+  float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));  // (s) Coasting duration after nominal speed reached
+  if (T2 < 0.0f) {
     T2 = 0.0f;
-    F_n = SQRT(ldiff / odiff);                   // Clip by intersection if nominal speed can't be reached.
+    F_n = SQRT(ldiff / odiff);                          // Clip by intersection if nominal speed can't be reached.
   }
 
-  const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
-              T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
+  const float T1 = (F_n - f_s) / a, // (s) Accel Time = difference in feedrate over acceleration
+              T3 = (F_n - f_e) / a; // (s) Decel Time = difference in feedrate over acceleration
 
-  N1 = ceil(T1 * (FTM_FS));                       // Accel datapoints based on Hz frequency
-  N2 = ceil(T2 * (FTM_FS));                       // Coast
-  N3 = ceil(T3 * (FTM_FS));                       // Decel
+  N1 = ceil(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
+  N2 = ceil(T2 * (FTM_FS));         // Coast
+  N3 = ceil(T3 * (FTM_FS));         // Decel
 
-  const float T1_P = N1 * (FTM_TS),               // (s) Accel datapoints x timestep resolution
-              T2_P = N2 * (FTM_TS),               // (s) Coast
-              T3_P = N3 * (FTM_TS);               // (s) Decel
+  const float T1_P = N1 * (FTM_TS), // (s) Accel datapoints x timestep resolution
+              T2_P = N2 * (FTM_TS), // (s) Coast
+              T3_P = N3 * (FTM_TS); // (s) Decel
 
   // Calculate the reachable feedrate at the end of the accel phase
   // totalLength is the total distance to travel in mm
@@ -616,7 +615,7 @@ void FxdTiCtrl::makeVector() {
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == (FTM_WINDOW_SIZE)) {
-    makeVector_batchIdx = (FTM_WINDOW_SIZE - FTM_BATCH_SIZE);
+    makeVector_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
     batchRdy = true;
   }
 
@@ -633,31 +632,21 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
 
   //#define STEPS_ROUNDING
   #if ENABLED(STEPS_ROUNDING)
+    #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] + (trajMod.A[idx] < 0.0f ? -0.5f : 0.5f))
     const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
-      int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)] + (trajMod.e[idx] < 0.0f ? -0.5f : 0.5f)), // May be eliminated if guaranteed positive.
-      int32_t(trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS] + (trajMod.x[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS] + (trajMod.y[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS] + (trajMod.z[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.i[idx] * planner.settings.axis_steps_per_mm[I_AXIS] + (trajMod.i[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.j[idx] * planner.settings.axis_steps_per_mm[J_AXIS] + (trajMod.j[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.k[idx] * planner.settings.axis_steps_per_mm[K_AXIS] + (trajMod.k[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.u[idx] * planner.settings.axis_steps_per_mm[U_AXIS] + (trajMod.u[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.v[idx] * planner.settings.axis_steps_per_mm[V_AXIS] + (trajMod.v[idx] < 0.0f ? -0.5f : 0.5f)),
-      int32_t(trajMod.w[idx] * planner.settings.axis_steps_per_mm[W_AXIS] + (trajMod.w[idx] < 0.0f ? -0.5f : 0.5f)),
+      TOSTEPS(e, E_AXIS_N(current_block->extruder)), // May be eliminated if guaranteed positive.
+      TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+      TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+      TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
     );
     xyze_long_t delta = steps_tar - steps;
   #else
+    #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B]) - steps.A
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      int32_t(trajMod.e[idx] * planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)]) - steps.e,
-      int32_t(trajMod.x[idx] * planner.settings.axis_steps_per_mm[X_AXIS]) - steps.x,
-      int32_t(trajMod.y[idx] * planner.settings.axis_steps_per_mm[Y_AXIS]) - steps.y,
-      int32_t(trajMod.z[idx] * planner.settings.axis_steps_per_mm[Z_AXIS]) - steps.z,
-      int32_t(trajMod.i[idx] * planner.settings.axis_steps_per_mm[I_AXIS]) - steps.i,
-      int32_t(trajMod.j[idx] * planner.settings.axis_steps_per_mm[J_AXIS]) - steps.j,
-      int32_t(trajMod.k[idx] * planner.settings.axis_steps_per_mm[K_AXIS]) - steps.k,
-      int32_t(trajMod.u[idx] * planner.settings.axis_steps_per_mm[U_AXIS]) - steps.u,
-      int32_t(trajMod.v[idx] * planner.settings.axis_steps_per_mm[V_AXIS]) - steps.v,
-      int32_t(trajMod.w[idx] * planner.settings.axis_steps_per_mm[W_AXIS]) - steps.w
+      TOSTEPS(e, E_AXIS_N(current_block->extruder)),
+      TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+      TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+      TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
     );
   #endif
 

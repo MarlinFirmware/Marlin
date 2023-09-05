@@ -215,7 +215,7 @@ void GcodeSuite::M493() {
     if (parser.seenval('D')) {
       if (fxdTiCtrl.cfg.modeHasShaper()) {
         const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
-        switch (val) {          
+        switch (val) {
           #if HAS_DYNAMIC_FREQ_MM
             case dynFreqMode_Z_BASED:
           #endif
@@ -252,7 +252,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[X_AXIS] = val;
-          flag.update_n = flag.report_h = flag.reset_ft = true;
+          flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
@@ -283,7 +283,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           fxdTiCtrl.cfg.baseFreq[Y_AXIS] = val;
-          flag.update_n = flag.report_h = flag.reset_ft = true;
+          flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");
@@ -311,14 +311,15 @@ void GcodeSuite::M493() {
     if (flag.update_a) fxdTiCtrl.updateShapingA();
   #endif
   if (flag.reset_ft) {
-        LOGICAL_AXIS_CODE( // Tell the world where we are
-            stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
-            stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
-            stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
-            stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
-            stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w));
-        fxdTiCtrl.reset();
+    LOGICAL_AXIS_CODE( // Tell the world where we are
+      stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
+      stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
+      stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
+      stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
+      stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w));
+    fxdTiCtrl.reset();
   }
   if (flag.report_h) say_shaping();
 }
+
 #endif // FT_MOTION

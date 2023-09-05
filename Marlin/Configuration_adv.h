@@ -1121,58 +1121,49 @@
   #define FTM_SHAPING_ZETA            0.1f              // Zeta used by input shapers.
   #define FTM_SHAPING_V_TOL           0.05f             // Vibration tolerance used by EI input shapers.
 
+  //#define FT_MOTION_MENU                              // Provide a MarlinUI menu to set M493 parameters.
+
   /**
    * Advanced configuration
    */
-  #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation;
-  #define FTM_WINDOW_SIZE           200                 // Window size for trajectory generation.
+  #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation
+  #define FTM_WINDOW_SIZE           200                 // Window size for trajectory generation
   #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
   #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
-  /**
- * Advanced configuration
- */
-  #define FTM_BATCH_SIZE 100                                      // Batch size for trajectory generation;
-  #define FTM_WINDOW_SIZE 200                                     // Window size for trajectory generation.
-  #define FTM_FS 1000                                             // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
-  #define FTM_TS 0.001f                                           // (s) Time step for trajectory generation. (1 / FTM_FS)
+
+  // These values may be configured to adjust duration of loop().
+  #define FTM_STEPS_PER_LOOP         60                 // Number of stepper commands to generate each loop()
+  #define FTM_POINTS_PER_LOOP       100                 // Number of trajectory points to generate each loop()
+
   #if ENABLED(COREXY)
-    #define FTM_STEPPER_FS 40000                              // (Hz) Frequency for stepper I/O update.
-    #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS) // Interpolated stepper commands per unit time.
-
-    #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2) // Comparison value used in interpolation algorithm.
+    #define FTM_STEPPER_FS          40000               // (Hz) Frequency for stepper I/O update.
 
     // This value may be configured to adjust duration to consume the command buffer.
     // Try increasing this value if stepper motion is not smooth.
-    #define FTM_STEPPERCMD_BUFF_SIZE 6000                     // Size of the stepper command buffers.
-                                                              // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP) is a good start
-                                                              // If you run out of memory, fallback to 3000 and increase progressively
+    #define FTM_STEPPERCMD_BUFF_SIZE 6000               // Size of the stepper command buffers.
+                                                        // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP) is a good start
+                                                        // If you run out of memory, fall back to 3000 and increase progressively.
   #else
-    #define FTM_STEPPER_FS 20000                              // (Hz) Frequency for stepper I/O update.
-    #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS) // Interpolated stepper commands per unit time.
-
-    #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2) // Comparison value used in interpolation algorithm.
+    #define FTM_STEPPER_FS          20000               // (Hz) Frequency for stepper I/O update.
 
     // This value may be configured to adjust duration to consume the command buffer.
     // Try increasing this value if stepper motion is not smooth.
-    #define FTM_STEPPERCMD_BUFF_SIZE 3000                     // Size of the stepper command buffers.
-                                                              // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP)/2, give the best results.
-                                                              // If you run out of memory, fallback to 1000 and increase progressively
+    #define FTM_STEPPERCMD_BUFF_SIZE 3000               // Size of the stepper command buffers.
+                                                        // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP) / 2 gives best results.
+                                                        // If you run out of memory, fall back to 1000 and increase progressively.
   #endif
 
-#define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps.
-#define FTM_MIN_SHAPE_FREQ 10                                   // Minimum shaping frequency.
-#define FTM_ZMAX 100                                            // Maximum delays for shaping functions (even numbers only!).
-                                                                // Calculate as:
-                                                                //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
-                                                                //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
-                                                                //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
-                                                                //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
+  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time.
+  #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2)       // Comparison value used in interpolation algorithm.
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps.
 
-// These values may be configured to adjust duration of loop().
-#define FTM_STEPS_PER_LOOP 60   // Number of stepper commands to generate each loop().
-#define FTM_POINTS_PER_LOOP 100 // Number of trajectory points to generate each loop().
-
-  //#define FT_MOTION_MENU                              // Provide a MarlinUI menu to set M493 parameters.
+  #define FTM_MIN_SHAPE_FREQ         10                 // Minimum shaping frequency.
+  #define FTM_ZMAX                  100                 // Maximum delays for shaping functions (even numbers only!).
+                                                        // Calculate as:
+                                                        //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
+                                                        //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
+                                                        //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
+                                                        //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
 #endif
 
 /**
