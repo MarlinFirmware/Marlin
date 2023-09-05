@@ -39,6 +39,13 @@ void GcodeSuite::M105() {
 
     SERIAL_EOL();
 
+    #if FAN_COUNT > 0 && ENABLED(REPORT_FAN_CHANGE)
+      FANS_LOOP(i) {
+        thermalManager.report_fan_speed(i);
+        SERIAL_EOL();
+      }
+    #endif
+
   #else
 
     SERIAL_ECHOLNPGM(" T:0"); // Some hosts send M105 to test the serial connection
