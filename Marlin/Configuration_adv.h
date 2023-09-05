@@ -1309,6 +1309,11 @@
 
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
+  //#define CALIBRATION_ALLOW_CORE_AXES  // Experimental
+  //#define CALIBRATION_TOOLCHANGE_SETTINGS_DISABLED // Disable prime, swap, moves and park during calibration
+  #if SWITCHING_NOZZLE_TWO_SERVOS
+    //#define CALIBRATION_TOOLS_LOW //Lower all tools during calibration and restore when finish
+  #endif
 
   #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
 
