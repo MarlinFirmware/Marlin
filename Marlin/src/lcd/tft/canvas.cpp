@@ -155,7 +155,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
         dsty = rle_state.dsty;                      // restore dstx
         srcx = rle_state.srcx;                      // restore dstx
         srcy = rle_state.srcy;                      // restore dstx
-        bytedata = (uint8_t *)images[image].data + rle_state.rle_offset;  // restart decode from here instead of teh start of data
+        bytedata = (uint8_t *)images[image].data + rle_state.rle_offset;  // restart decode from here instead of the start of data
         rle_state.has_rle_state = false;            // invalidate stored rle state         // Invalidate date
       }
 
