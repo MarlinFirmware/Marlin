@@ -1559,8 +1559,35 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migrate Linear Advance K factor to the new extruder
     TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
 
+    #if ENABLED(MIGRATION_SETTINGS)
+      REMEMBER(tmp_mig_settings, toolchange_settings);
+      #if ALL(TOOLCHANGE_MIGRATION_ALWAYS_PARK,TOOLCHANGE_PARK)
+        toolchange_settings.enable_park = true;
+      #endif
+      #ifdef MIGRATION_FS_EXTRA_PRIME
+        toolchange_settings.extra_prime = MIGRATION_FS_EXTRA_PRIME;
+      #endif
+      #ifdef MIGRATION_FS_WIPE_RETRACT
+        toolchange_settings.wipe_retract = MIGRATION_FS_WIPE_RETRACT;
+      #endif
+      #ifdef MIGRATION_FS_FAN_SPEED
+        toolchange_settings.fan_speed = MIGRATION_FS_FAN_SPEED;
+      #endif
+      #ifdef MIGRATION_FS_FAN_TIME
+        toolchange_settings.fan_time = MIGRATION_FS_FAN_TIME;
+      #endif
+      #ifdef MIGRATION_ZRAISE
+        toolchange_settings.z_raise = MIGRATION_ZRAISE;
+      #endif
+
+    #endif
+
     // Perform the tool change
     tool_change(migration_extruder);
+
+    #if ENABLED(MIGRATION_SETTINGS)
+      RESTORE(tmp_mig_settings);
+    #endif
 
     // Retract if previously retracted
     #if ENABLED(FWRETRACT)
