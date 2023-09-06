@@ -125,13 +125,17 @@
 
   #if SWITCHING_NOZZLE_TWO_SERVOS
 
-    inline void _move_nozzle_servo(const uint8_t e, const uint8_t angle_index) {
-      constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
+  inline void _move_nozzle_servo(const uint8_t e, const uint8_t angle_index) {
+    constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
+    #if ENABLED(EDITABLE_SERVO_ANGLES)
+      const uint16_t sns_angles[2] = {servo_angles[SWITCHING_NOZZLE_SERVO_NR][0], servo_angles[SWITCHING_NOZZLE_SERVO_NR][1]};
+    #else
       constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-      planner.synchronize();
-      servo[sns_index[e]].move(sns_angles[angle_index]);
-      safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
-    }
+    #endif
+    planner.synchronize();
+    servo[sns_index[e]].move(sns_angles[angle_index]);
+    safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
+  }
 
     void lower_nozzle(const uint8_t e) { _move_nozzle_servo(e, 0); }
     void raise_nozzle(const uint8_t e) { _move_nozzle_servo(e, 1); }
@@ -1174,7 +1178,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Z raise before retraction
-      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && !HAS_SWITCHING_NOZZLE
+      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1218,7 +1222,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
-      #if NONE(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, HAS_SWITCHING_NOZZLE)
+      #if NONE(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1228,7 +1232,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Toolchange park
-      #if ENABLED(TOOLCHANGE_PARK) && !HAS_SWITCHING_NOZZLE
+      #if ENABLED(TOOLCHANGE_PARK)
         if (can_move_away && toolchange_settings.enable_park) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
@@ -1384,8 +1388,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
 
       #if HAS_SWITCHING_NOZZLE
+
         // Move back down. (Including when the new tool is higher.)
-        if (!should_move)
+        // If (no PARK + NO_RETURN) then SWITCHING_NOZZLE_TWO_SERVOS must be lowered here in all cases
+        if (!should_move || SWITCHING_NOZZLE_TWO_SERVOS)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
       #endif
 
