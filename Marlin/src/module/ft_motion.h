@@ -46,8 +46,8 @@ typedef struct FTConfig {
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
   #endif
 
-  float zeta = FTM_SHAPING_ZETA;                            // Damping factor
-  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
+    float zeta = FTM_SHAPING_ZETA;
+    float vtol = FTM_SHAPING_V_TOL;
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
@@ -75,8 +75,8 @@ class FxdTiCtrl {
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
 
-      cfg.zeta = FTM_SHAPING_ZETA;
-      cfg.vtol = FTM_SHAPING_V_TOL;
+      cfg.zeta = FTM_SHAPING_ZETA;  // Damping factor
+      cfg.vtol = FTM_SHAPING_V_TOL; // Vibration Level
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -110,19 +110,18 @@ class FxdTiCtrl {
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                     // Controller main, to be invoked from non-isr task.
 
+  #if HAS_X_AXIS
+                        // Refresh the gains used by shaping functions.
+    // To be called on init or mode or zeta change.
+    static void updateShapingA(const_float_t zeta = cfg.zeta, const_float_t vtol = cfg.vtol);
 
-    #if HAS_X_AXIS
-      // Refresh the gains used by shaping functions.
-      // To be called on init or mode or zeta change.
-      static void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+    // Refresh the indices used by shaping functions.
+    // To be called when frequencies change.
+    static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta = cfg.zeta);
 
-      // Refresh the indices used by shaping functions.
-      // To be called when frequencies change.
-      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=cfg.zeta);
+    static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
 
-      static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
-
-    #endif
+  #endif
 
     static void reset();                                    // Resets all states of the fixed time conversion to defaults.
 
@@ -138,9 +137,11 @@ class FxdTiCtrl {
     static bool blockDataIsRunout;
 
     // Trapezoid data variables.
-    static xyze_pos_t   startPosn,          // (mm) Start position of block
-                        endPosn_prevBlock;  // (mm) End position of previous block
-    static xyze_float_t ratio;              // (ratio) Axis move ratio of block
+    static xyze_pos_t startPosn, // (mm) Start position of block
+                      endPosn_prevBlock;       // (mm) End position of previous block
+
+    static xyze_float_t ratio; // (ratio) Axis move ratio of block
+
     static float accel_P, decel_P,
                  F_P,
                  f_s,
@@ -161,43 +162,43 @@ class FxdTiCtrl {
 
     static xyze_long_t steps;
 
-    #if HAS_X_AXIS
+    // Shaping variables.
+  #if HAS_X_AXIS
+    typedef struct AxisShaping
+    {
+      float d_zi[FTM_ZMAX] = {0.0f}; // Data point delay vector.
+      float Ai[5];                   // Shaping gain vector.
+      uint32_t Ni[5];                // Shaping time index vector.
 
-      typedef struct AxisShaping {
-        float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
-        float Ai[5];                      // Shaping gain vector.
-        uint32_t Ni[5];                   // Shaping time index vector.
+      void updateShapingN(const_float_t f, const_float_t df);
 
-        void updateShapingN(const_float_t f, const_float_t df);
+    } axis_shaping_t;
 
-      } axis_shaping_t;
+    typedef struct Shaping
+    {
+      uint32_t zi_idx, // Index of storage in the data point delay vectors.
+          max_i;       // Vector length for the selected shaper.
+      axis_shaping_t x;
+  #if HAS_Y_AXIS
+      axis_shaping_t y;
+  #endif
+      void updateShapingA(const_float_t zeta = cfg.zeta, const_float_t vtol = cfg.vtol);
+    } shaping_t;
 
-      typedef struct Shaping {
-        uint32_t zi_idx,           // Index of storage in the data point delay vectors.
-                 max_i;            // Vector length for the selected shaper.
-        axis_shaping_t x;
-        #if HAS_Y_AXIS
-          axis_shaping_t y;
-        #endif
+    static shaping_t shaping; // Shaping data
 
-        void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+  #endif // HAS_X_AXIS
 
-      } shaping_t;
+// Linear advance variables.
+#if HAS_EXTRUDERS
+  static float e_raw_z1, e_advanced_z1;
+#endif
 
-      static shaping_t shaping; // Shaping data
-
-    #endif // HAS_X_AXIS
-
-    // Linear advance variables.
-    #if HAS_EXTRUDERS
-      static float e_raw_z1, e_advanced_z1;
-    #endif
-
-    // Private methods
-    static uint32_t stepperCmdBuffItems();
-    static void loadBlockData(block_t * const current_block);
-    static void makeVector();
-    static void convertToSteps(const uint32_t idx);
+  // Private methods
+  static uint32_t stepperCmdBuffItems();
+  static void loadBlockData(block_t *const current_block);
+  static void makeVector();
+  static void convertToSteps(const uint32_t idx);
 
 }; // class fxdTiCtrl
 
