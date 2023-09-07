@@ -341,20 +341,14 @@ private:
     }
 
     float getMaxValue() {
-      float max = __FLT_MIN__;
-      GRID_LOOP(x, y) {
-        if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
-          max = bedlevel.z_values[x][y];
-      }
+      float max = -(__FLT_MAX__);
+      GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
       return max;
     }
 
     float getMinValue() {
       float min = __FLT_MAX__;
-      GRID_LOOP(x, y) {
-        if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
-          min = bedlevel.z_values[x][y];
-      }
+      GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
       return min;
     }
 
@@ -363,7 +357,7 @@ private:
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
                      cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
                      cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
-      const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
+      const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
@@ -381,11 +375,11 @@ private:
         const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
         const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
-        dwinDrawRectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
-          isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (                                                           // gray if undefined
+        dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
+          isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
-              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 :  // red if mesh point value is negative
+              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) |  // green if mesh point value is positive
                 _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
@@ -421,16 +415,17 @@ private:
             v_min = abs(getMinValue()),
             v_max = abs(getMaxValue());
       if (viewer_asymmetric_range) {
-        if (v_min > 3e+10F) v_min = 0.0000001;
-        if (v_max > 3e+10F) v_max = 0.0000001;
+        if (v_min > 3e+10f) v_min = 0.0000001;
+        if (v_max > 3e+10f) v_max = 0.0000001;
         v1 = -v_min;
         v2 =  v_max;
       }
       else {
-        float range = _MAX(v_min, v_max);
-        if (range > 3e+10F) range = 0.0000001;
-        v1 = -range;
-        v2 =  range;
+        float rmax = _MAX(v_min, v_max), rmin = _MIN(v_min, v_max);
+        if (rmax > 3e+10f) rmax = 0.0000001;
+        if (rmin > 3e+10f) rmin = 0.0000001;
+        v1 = -rmax;
+        v2 =  rmin;
       }
       jyersDWIN.updateStatus(TS(F("Red "), p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), F(" Green")));
       drawing_mesh = false;
