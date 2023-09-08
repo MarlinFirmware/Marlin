@@ -46,8 +46,8 @@ typedef struct FTConfig {
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
   #endif
 
-    float zeta = FTM_SHAPING_ZETA;
-    float vtol = FTM_SHAPING_V_TOL;
+  float zeta = FTM_SHAPING_ZETA;                            // Damping factor
+  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
@@ -96,7 +96,7 @@ class FxdTiCtrl {
       reset();
     }
 
-    static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE];               // Buffer of stepper commands.
+    static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of stepper commands.
     static uint32_t stepperCmdBuff_produceIdx,              // Index of next stepper command write to the buffer.
                     stepperCmdBuff_consumeIdx;              // Index of next stepper command read from the buffer.
 
@@ -162,10 +162,9 @@ class FxdTiCtrl {
 
     static xyze_long_t steps;
 
-    // Shaping variables.
+  // Shaping variables.
   #if HAS_X_AXIS
-    typedef struct AxisShaping
-    {
+    typedef struct AxisShaping {
       float d_zi[FTM_ZMAX] = {0.0f}; // Data point delay vector.
       float Ai[5];                   // Shaping gain vector.
       uint32_t Ni[5];                // Shaping time index vector.
@@ -174,25 +173,24 @@ class FxdTiCtrl {
 
     } axis_shaping_t;
 
-    typedef struct Shaping
-    {
+    typedef struct Shaping {
       uint32_t zi_idx, // Index of storage in the data point delay vectors.
           max_i;       // Vector length for the selected shaper.
       axis_shaping_t x;
-  #if HAS_Y_AXIS
-      axis_shaping_t y;
-  #endif
-      void updateShapingA(const_float_t zeta = cfg.zeta, const_float_t vtol = cfg.vtol);
+      #if HAS_Y_AXIS
+        axis_shaping_t y;
+      #endif
+      void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
     } shaping_t;
 
     static shaping_t shaping; // Shaping data
 
   #endif // HAS_X_AXIS
 
-// Linear advance variables.
-#if HAS_EXTRUDERS
-  static float e_raw_z1, e_advanced_z1;
-#endif
+  // Linear advance variables.
+  #if HAS_EXTRUDERS
+    static float e_raw_z1, e_advanced_z1;
+  #endif
 
   // Private methods
   static uint32_t stepperCmdBuffItems();

@@ -1506,18 +1506,18 @@ void Stepper::isr() {
           fxdTiCtrl_stepper();
         }
 
-          // Define 2.5 msec task for auxilliary functions.
-          if (!fxdTiCtrl_nextAuxISR) {
-            endstops.update();
-            TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-            fxdTiCtrl_refreshAxisDidMove();
-            fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
-          }
-
-          interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
-          nextMainISR -= interval;
-          fxdTiCtrl_nextAuxISR -= interval;
+        // Define 2.5 msec task for auxilliary functions.
+        if (!fxdTiCtrl_nextAuxISR) {
+          endstops.update();
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+          fxdTiCtrl_refreshAxisDidMove();
+          fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
         }
+
+        interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
+        nextMainISR -= interval;
+        fxdTiCtrl_nextAuxISR -= interval;
+      }
 
     #else
 
@@ -3385,17 +3385,16 @@ void Stepper::report_positions() {
 
     // Check if the buffer is empty.
     fxdTiCtrl.sts_stepperBusy = (fxdTiCtrl.stepperCmdBuff_produceIdx != fxdTiCtrl.stepperCmdBuff_consumeIdx);
-
     if (!fxdTiCtrl.sts_stepperBusy) return;
 
-    // "Pop" one command from current motion buffer            
+    // "Pop" one command from current motion buffer
     // Use one byte to restore one stepper command in the format:
     // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
-    ft_command_t command = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx++];
-    if (fxdTiCtrl.stepperCmdBuff_consumeIdx == FTM_STEPPERCMD_BUFF_SIZE) { fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U; }
+    const ft_command_t command = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx];
+    if (++fxdTiCtrl.stepperCmdBuff_consumeIdx == FTM_STEPPERCMD_BUFF_SIZE) fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U;
 
     if (abort_current_block) return;
-    
+
     USING_TIMED_PULSE();
 
     const xyze_bool_t axis_step = LOGICAL_AXIS_ARRAY(
@@ -3475,7 +3474,7 @@ void Stepper::report_positions() {
       discard_current_block();
     }
 
-      // Check the buffer for a new block
+    // Check the buffer for a new block
     current_block = planner.get_current_block();
 
     if (current_block) {
@@ -3489,8 +3488,8 @@ void Stepper::report_positions() {
           return; // No more queued movements!image.png
       }
 
-      // this is needed by motor_direction() and subsequently bed leveling (somehow)
-      // update it here, even though it will may be out of sync with step commands
+      // This is needed by motor_direction() and subsequently bed leveling (somehow).
+      // Update it here, even though it will may be out of sync with step commands.
       last_direction_bits = current_block->direction_bits;
 
       fxdTiCtrl.startBlockProc(current_block);

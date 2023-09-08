@@ -93,9 +93,7 @@ public:
     return true;
   }
 
-  bool IsReady() {
-    return diskIODriver()->isReady();
-  }
+  bool IsReady() { return diskIODriver()->isReady(); }
 };
 
 Sd2CardUSBMscHandler usbMscHandler;
