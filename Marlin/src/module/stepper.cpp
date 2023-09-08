@@ -3470,7 +3470,6 @@ void Stepper::report_positions() {
       if (!fxdTiCtrl.getBlockProcDn()) return;
 
       axis_did_move.reset();
-      current_block = nullptr;
       discard_current_block();
     }
 
