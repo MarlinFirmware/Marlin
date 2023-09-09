@@ -1498,7 +1498,6 @@ void Stepper::isr() {
 
     #if ENABLED(FT_MOTION)
 
-      // NOTE STEPPER_TIMER_RATE is equal to 2000000, not what VSCode shows
       const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
@@ -3431,7 +3430,14 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    TERN_(HAS_Z_AXIS, if (axis_step.z) count_position.z += axis_dir.z ? 1 : -1;);
+    LOGICAL_AXIS_CODE(
+      if (axis_step.e) count_position.z += axis_dir.e ? 1 : -1,
+      if (axis_step.x) count_position.x += axis_dir.x ? 1 : -1, if (axis_step.y) count_position.y += axis_dir.y ? 1 : -1,
+      if (axis_step.z) count_position.z += axis_dir.z ? 1 : -1, if (axis_step.i) count_position.i += axis_dir.i ? 1 : -1,
+      if (axis_step.j) count_position.j += axis_dir.j ? 1 : -1, if (axis_step.k) count_position.k += axis_dir.k ? 1 : -1,
+      if (axis_step.u) count_position.u += axis_dir.u ? 1 : -1, if (axis_step.v) count_position.v += axis_dir.v ? 1 : -1,
+      if (axis_step.w) count_position.w += axis_dir.w ? 1 : -1
+    );
 
     #if HAS_EXTRUDERS
       #if ENABLED(E_DUAL_STEPPER_DRIVERS)
@@ -3484,7 +3490,7 @@ void Stepper::report_positions() {
 
         // Try to get a new block
         if (!(current_block = planner.get_current_block()))
-          return; // No more queued movements!image.png
+          return; // No queued blocks.
       }
 
       // This is needed by motor_direction() and subsequently bed leveling (somehow).
@@ -3496,7 +3502,7 @@ void Stepper::report_positions() {
     }
     else {
       fxdTiCtrl.runoutBlock();
-      return; // No queued blocks
+      return; // No queued blocks.
     }
 
   } // Stepper::fxdTiCtrl_BlockQueueUpdate()
@@ -3521,6 +3527,7 @@ void Stepper::report_positions() {
     if (current_block) { REPEAT(LOGICAL_AXES, _DEBOUNCE); }
 
     axis_did_move = didmove;
+    
   }
 
 #endif // FT_MOTION
