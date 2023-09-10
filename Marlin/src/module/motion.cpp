@@ -983,6 +983,13 @@ void restore_feedrate_and_scaling() {
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
             NOMORE(target.x, soft_endstop.max.x);
           #endif
+
+          #if HAS_HOME_OFFSET
+            if (home_dir(X_AXIS) < 0)
+              NOLESS(target.x, base_min_pos(X_AXIS) + home_offset.x);
+            else
+              NOMORE(target.x, base_max_pos(X_AXIS) - home_offset.x);
+          #endif
         }
       #endif
 
@@ -993,6 +1000,13 @@ void restore_feedrate_and_scaling() {
           #endif
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
             NOMORE(target.y, soft_endstop.max.y);
+          #endif
+
+          #if HAS_HOME_OFFSET
+            if (home_dir(Y_AXIS) < 0)
+              NOLESS(target.y, base_min_pos(Y_AXIS) + home_offset.y);
+            else
+              NOMORE(target.y, base_max_pos(Y_AXIS) - home_offset.y);
           #endif
         }
       #endif
@@ -1007,8 +1021,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
           NOMORE(target.z, soft_endstop.max.z);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(Z_AXIS) < 0)
+            NOLESS(target.z, base_min_pos(Z_AXIS) + home_offset.z);
+          else
+            NOMORE(target.z, base_max_pos(Z_AXIS) - home_offset.z);
+        #endif
       }
     #endif
+
     #if HAS_I_AXIS
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
@@ -1017,8 +1039,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_I)
           NOMORE(target.i, soft_endstop.max.i);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(I_AXIS) < 0)
+            NOLESS(target.i, base_min_pos(I_AXIS) + home_offset.i);
+          else
+            NOMORE(target.i, base_max_pos(I_AXIS) - home_offset.i);
+        #endif
       }
     #endif
+
     #if HAS_J_AXIS
       if (axis_was_homed(J_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_J)
@@ -1027,8 +1057,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_J)
           NOMORE(target.j, soft_endstop.max.j);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(J_AXIS) < 0)
+            NOLESS(target.j, base_min_pos(J_AXIS) + home_offset.j);
+          else
+            NOMORE(target.j, base_max_pos(J_AXIS) - home_offset.j);
+        #endif
       }
     #endif
+
     #if HAS_K_AXIS
       if (axis_was_homed(K_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_K)
@@ -1037,8 +1075,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_K)
           NOMORE(target.k, soft_endstop.max.k);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(K_AXIS) < 0)
+            NOLESS(target.k, base_min_pos(K_AXIS) + home_offset.k);
+          else
+            NOMORE(target.k, base_max_pos(K_AXIS) - home_offset.k);
+        #endif
       }
     #endif
+
     #if HAS_U_AXIS
       if (axis_was_homed(U_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_U)
@@ -1047,8 +1093,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_U)
           NOMORE(target.u, soft_endstop.max.u);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(U_AXIS) < 0)
+            NOLESS(target.u, base_min_pos(U_AXIS) + home_offset.u);
+          else
+            NOMORE(target.u, base_max_pos(U_AXIS) - home_offset.u);
+        #endif
       }
     #endif
+
     #if HAS_V_AXIS
       if (axis_was_homed(V_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_V)
@@ -1057,8 +1111,16 @@ void restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_V)
           NOMORE(target.v, soft_endstop.max.v);
         #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(V_AXIS) < 0)
+            NOLESS(target.v, base_min_pos(V_AXIS) + home_offset.v);
+          else
+            NOMORE(target.v, base_max_pos(V_AXIS) - home_offset.v);
+        #endif
       }
     #endif
+
     #if HAS_W_AXIS
       if (axis_was_homed(W_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_W)
@@ -1066,6 +1128,13 @@ void restore_feedrate_and_scaling() {
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_W)
           NOMORE(target.w, soft_endstop.max.w);
+        #endif
+
+        #if HAS_HOME_OFFSET
+          if (home_dir(W_AXIS) < 0)
+            NOLESS(target.w, base_min_pos(W_AXIS) + home_offset.w);
+          else
+            NOMORE(target.w, base_max_pos(W_AXIS) - home_offset.w);
         #endif
       }
     #endif
