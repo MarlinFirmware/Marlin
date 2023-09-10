@@ -107,6 +107,7 @@ namespace Anycubic {
   int16_t DgusTFT::feedrate_back;
   lcd_info_t DgusTFT::lcd_info, DgusTFT::lcd_info_back;
   language_t DgusTFT::ui_language;
+  uint8_t DgusTFT::language;
   uint16_t page_index_saved;          // flags to keep from bombing the host display
   uint8_t pop_up_index_saved;
   uint32_t key_value_saved;
@@ -115,6 +116,8 @@ namespace Anycubic {
   void DEBUG_PRINT_PRINTER_STATE(const printer_state_t state, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_TIMER_EVENT(const timer_event_t event, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_MEDIA_EVENT(const media_event_t event, FSTR_P const msg=nullptr);
+
+  void set_brightness(void);
 
   DgusTFT dgus;
 
@@ -200,6 +203,16 @@ namespace Anycubic {
         DEBUG_ECHOLNPGM("key: ", key_value);
       }
     #endif
+
+    // periodically update main page
+    if (((page_index_now == 121) || (page_index_now == 1)) && ((millis() % 500) == 0)) {
+      #if defined(HAS_HOTEND) || defined(HAS_HEATED_BED)
+        TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+        TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      #endif
+      set_brightness();
+      delay(5);
+    }
 
     switch (page_index_now) {
       case 115: page115(); break;
@@ -1124,12 +1137,18 @@ namespace Anycubic {
     }
   #endif
 
-  void DgusTFT::set_language(language_t language) {
-    lcd_info.language = ui_language = lcd_info_back.language = language;
+  void set_brightness(void) {
+    uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x82, 0x64, 0x32, 0x03, 0xE8};
+    for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
+  }
+
+  void DgusTFT::set_language(language_t language_) {
+    lcd_info.language = lcd_info_back.language = language_;
+    language = ui_language = (language == CHS ? CHS : ENG);
   }
 
   void DgusTFT::toggle_language() {
-    lcd_info.language = ui_language = (lcd_info.language == CHS ? ENG : CHS);
+    language = lcd_info.language = ui_language = (lcd_info.language == CHS ? ENG : CHS);
   }
 
   void DgusTFT::goto_system_page() {
