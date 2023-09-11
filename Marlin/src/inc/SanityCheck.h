@@ -1419,6 +1419,19 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
 
+  #define static_assert_within(varname, x, min, max) static_assert(WITHIN(x, min, max), #varname " must be within " #min " and " #max)
+
+  static_assert_within("Z_PROBE_OFFSET_XRANGE_MIN", Z_PROBE_OFFSET_XRANGE_MIN, -(X_BED_SIZE), X_BED_SIZE);
+  static_assert_within("Z_PROBE_OFFSET_XRANGE_MAX", Z_PROBE_OFFSET_XRANGE_MAX, -(X_BED_SIZE), X_BED_SIZE);
+  static_assert_within("Z_PROBE_OFFSET_YRANGE_MIN", Z_PROBE_OFFSET_YRANGE_MIN, -(Y_BED_SIZE), Y_BED_SIZE);
+  static_assert_within("Z_PROBE_OFFSET_YRANGE_MAX", Z_PROBE_OFFSET_YRANGE_MAX, -(Y_BED_SIZE), Y_BED_SIZE);
+  static_assert_within("Z_PROBE_OFFSET_RANGE_MIN", Z_PROBE_OFFSET_RANGE_MIN, -(Z_MAX_POS), Z_MAX_POS);
+  static_assert_within("Z_PROBE_OFFSET_RANGE_MAX", Z_PROBE_OFFSET_RANGE_MAX, -(Z_MAX_POS), Z_MAX_POS);
+
+  static_assert_within("NOZZLE_TO_PROBE_OFFSET.x", sanity_nozzle_to_probe_offset.x, Z_PROBE_OFFSET_XRANGE_MIN, Z_PROBE_OFFSET_XRANGE_MAX);
+  static_assert_within("NOZZLE_TO_PROBE_OFFSET.y", sanity_nozzle_to_probe_offset.y, Z_PROBE_OFFSET_YRANGE_MIN, Z_PROBE_OFFSET_YRANGE_MAX);
+  static_assert_within("NOZZLE_TO_PROBE_OFFSET.z", sanity_nozzle_to_probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+
   #define _MARGIN(A) TERN(IS_KINEMATIC, PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))
   static_assert(PROBING_MARGIN       < _MARGIN(X), "PROBING_MARGIN is too large.");
   static_assert(PROBING_MARGIN_BACK  < _MARGIN(Y), "PROBING_MARGIN_BACK is too large.");
