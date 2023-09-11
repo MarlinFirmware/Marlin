@@ -1075,6 +1075,9 @@
 //
 // Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
 //
+#if DISABLED(PROBE_MANUALLY)
+  #error PROBE_MANUALLY must be enabled as we configured it in Configuration.h
+#endif
 //#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
