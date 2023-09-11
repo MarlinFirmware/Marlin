@@ -205,14 +205,13 @@ namespace Anycubic {
     #endif
 
     // periodically update main page
-    if (((page_index_now == 121) || (page_index_now == 1)) && ((millis() % 500) == 0)) {
-      #if defined(HAS_HOTEND) || defined(HAS_HEATED_BED)
+    #if defined(HAS_HOTEND) || defined(HAS_HEATED_BED)
+      if (((page_index_now == 121) || (page_index_now == 1)) && ((millis() % 500) == 0)) {
         TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
         TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
-      #endif
-      set_brightness();
-      delay(5);
-    }
+        delay(5);  // wait for millis() to advance so this clause isn't repeated
+      }
+    #endif
 
     switch (page_index_now) {
       case 115: page115(); break;
@@ -684,8 +683,8 @@ namespace Anycubic {
     void DgusTFT::powerLoss() {
       // On:  5A A5 05 82 00 82 00 00
       // Off: 5A A5 05 82 00 82 00 64
-      uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, uint8_t(recovery.enabled ? 0x00 : 0x64) };
-      for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
+      //uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, uint8_t(recovery.enabled ? 0x00 : 0x64) };
+      //for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);  // never turn off backlight
     }
 
     void DgusTFT::powerLossRecovery() {
