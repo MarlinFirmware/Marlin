@@ -1505,8 +1505,12 @@
   #undef ENABLE_LEVELING_AFTER_G28
   #undef G29_RETRY_AND_RECOVER
 #endif
-#if !HAS_LEVELING || ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
-  #undef PROBE_MANUALLY
+#if ENABLED(PROBE_MANUALLY)
+  #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+    #error MESH_BED_LEVELING and AUTO_BED_LEVELING_UBL have their own manual probing procedures, so PROBE_MANUALLY is not needed for them. Please remove PROBE_MANUALLY, or use a different leveling type like AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_LINEAR, or AUTO_BED_LEVELING_BILINEAR.
+  #elif !HAS_LEVELING
+    #error No leveling type is selected, so PROBE_MANUALLY has no use. Please select leveling type, for example AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_LINEAR, or AUTO_BED_LEVELING_BILINEAR
+  #endif
 #endif
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
