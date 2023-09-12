@@ -33,7 +33,8 @@ if pioutil.is_pio_build():
     else:
         platform_name = PackageSpec(platform_packages[0]).name
 
-    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
+    # 8b3522051ac21809c4e76146bbbc546970271039 stands for biqu-bx-workaround branch in thisiskeithb/Arduino_Core_STM32
+    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "8b3522051ac21809c4e76146bbbc546970271039", "main" ]:
         platform_name = "framework-arduinoststm32"
 
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
