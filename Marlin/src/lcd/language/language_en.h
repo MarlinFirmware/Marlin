@@ -219,6 +219,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_M48_POINT                      = _UxGT("M48 Point");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Probe out of bounds");
   LSTR MSG_M48_DEVIATION                  = _UxGT("Deviation");
+  LSTR MSG_M48_MAX_DELTA                  = _UxGT("Max delta");
   LSTR MSG_IDEX_MENU                      = _UxGT("IDEX Mode");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Tool Offsets");
   LSTR MSG_IDEX_MODE_AUTOPARK             = _UxGT("Auto-Park");
