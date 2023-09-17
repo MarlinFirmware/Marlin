@@ -94,16 +94,22 @@ static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BE
 constexpr int nr_edge_points = tramming_3_points ? 3 : 4;
 constexpr int available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER);
 constexpr int center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
-constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
-constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
+#if DISABLED(BED_TRAMMING_USE_PROBE)
+  constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
                    rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
-
+#endif
 static int8_t bed_corner;
 
 /**
  * Move to the next corner coordinates
  */
 static void _lcd_goto_next_corner() {
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
+    xy_pos_t lf = {X_MIN_BED + probe.min_x(), Y_MIN_BED + probe.min_y() },
+             rb = {X_MAX_BED - probe.max_x(), Y_MAX_BED - probe.max_y() };
+  #endif
+
   xy_pos_t corner_point = lf;                     // Left front
 
   if (tramming_3_points) {
@@ -164,11 +170,6 @@ static void _lcd_goto_next_corner() {
 }
 
 #if ENABLED(BED_TRAMMING_USE_PROBE)
-
-  #define VALIDATE_POINT(X, Y, STR) static_assert(Probe::build_time::can_reach((X), (Y)), \
-    "BED_TRAMMING_INSET_LFRB " STR " inset is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
-  VALIDATE_POINT(lf.x, Y_CENTER, "left"); VALIDATE_POINT(X_CENTER, lf.y, "front");
-  VALIDATE_POINT(rb.x, Y_CENTER, "right"); VALIDATE_POINT(X_CENTER, rb.y, "back");
 
   #ifndef PAGE_CONTAINS
     #define PAGE_CONTAINS(...) true

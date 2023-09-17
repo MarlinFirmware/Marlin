@@ -395,7 +395,12 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
 }
 
 static void _gotoTrammingPoint(unsigned char point) {
-  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
+      float lfrb[4] = {X_MIN_BED + probe.min_x(), Y_MIN_BED + probe.min_y(),
+             X_MAX_BED - probe.max_x(), Y_MAX_BED - probe.max_y() };
+  #else
+    constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #endif
   float x, y;
 
   switch (point) {

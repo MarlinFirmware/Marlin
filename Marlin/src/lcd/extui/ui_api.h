@@ -367,6 +367,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
+    float[4] getBedProbeLimits();
   #endif
 
   // Backlash Control
