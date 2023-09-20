@@ -156,8 +156,6 @@ void GcodeSuite::M493() {
 
   if (!parser.seen_any())
     flag.report_h = true;
-  else
-    planner.synchronize();
 
   // Parse 'S' mode parameter.
   if (parser.seenval('S')) {
@@ -306,19 +304,17 @@ void GcodeSuite::M493() {
 
   #endif // HAS_Y_AXIS
 
-  #if HAS_X_AXIS
-    if (flag.update_n) fxdTiCtrl.refreshShapingN();
-    if (flag.update_a) fxdTiCtrl.updateShapingA();
-  #endif
+  planner.synchronize();
+
+  if (flag.update_n) fxdTiCtrl.refreshShapingN();
+    
+  if (flag.update_a) fxdTiCtrl.updateShapingA();
+
   if (flag.reset_ft) {
-    LOGICAL_AXIS_CODE( // Tell the world where we are
-      stepper.set_axis_position(X_AXIS, planner.position.x), stepper.set_axis_position(Y_AXIS, planner.position.y),
-      stepper.set_axis_position(Z_AXIS, planner.position.z), stepper.set_axis_position(E_AXIS, planner.position.e),
-      stepper.set_axis_position(I_AXIS, planner.position.i), stepper.set_axis_position(J_AXIS, planner.position.j),
-      stepper.set_axis_position(K_AXIS, planner.position.k), stepper.set_axis_position(U_AXIS, planner.position.u),
-      stepper.set_axis_position(V_AXIS, planner.position.v), stepper.set_axis_position(W_AXIS, planner.position.w));
+    stepper.set_ft_axis_position();
     fxdTiCtrl.reset();
   }
+  
   if (flag.report_h) say_shaping();
 }
 

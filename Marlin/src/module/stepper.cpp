@@ -3282,6 +3282,30 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   #endif
 }
 
+#if ENABLED(FT_MOTION)
+  void Stepper::set_ft_axis_position() {
+    //planner.synchronize(); planner already synchronized in M493
+
+    #ifdef __AVR__
+      // Protect the access to the position. Only required for AVR, as
+      //  any 32bit CPU offers atomic access to 32bit variables
+      const bool was_enabled = suspend();
+    #endif
+
+    LOGICAL_AXIS_CODE( // Tell the world where we are
+        count_position[X_AXIS] = planner.position.x, count_position[Y_AXIS] = planner.position.y,
+        count_position[Z_AXIS] = planner.position.z, count_position[E_AXIS] = planner.position.e,
+        count_position[I_AXIS] = planner.position.i, count_position[J_AXIS] = planner.position.j,
+        count_position[K_AXIS] = planner.position.k, count_position[U_AXIS] = planner.position.u,
+        count_position[V_AXIS] = planner.position.v, count_position[W_AXIS] = planner.position.w);
+
+    #ifdef __AVR__
+      // Reenable Stepper ISR
+      if (was_enabled) wake_up();
+    #endif
+}
+#endif
+
 // Signal endstops were triggered - This function can be called from
 // an ISR context  (Temperature, Stepper or limits ISR), so we must
 // be very careful here. If the interrupt being preempted was the
