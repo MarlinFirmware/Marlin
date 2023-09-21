@@ -4113,6 +4113,13 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
   #endif
 #endif
 
+/**
+  * HILBERT_CURVE limitation
+ */
+#if ENABLED(UBL_HILBERT_CURVE) && ANY(DELTA, SCARA, POLARGRAPH, MORGAN_SCARA, MP_SCARA)
+  #error "ERROR: UBL_HILBERT_CURVE can only be used with rectangular bed shapes."
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _NUM_AXES_STR
