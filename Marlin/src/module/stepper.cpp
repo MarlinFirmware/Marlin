@@ -3455,7 +3455,7 @@ void Stepper::report_positions() {
 
     // Update step counts
     LOGICAL_AXIS_CODE(
-      if (axis_step.e) count_position.z += axis_dir.e ? 1 : -1,
+      if (axis_step.e) count_position.e += axis_dir.e ? 1 : -1,
       if (axis_step.x) count_position.x += axis_dir.x ? 1 : -1, if (axis_step.y) count_position.y += axis_dir.y ? 1 : -1,
       if (axis_step.z) count_position.z += axis_dir.z ? 1 : -1, if (axis_step.i) count_position.i += axis_dir.i ? 1 : -1,
       if (axis_step.j) count_position.j += axis_dir.j ? 1 : -1, if (axis_step.k) count_position.k += axis_dir.k ? 1 : -1,
