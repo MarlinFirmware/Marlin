@@ -2,7 +2,7 @@
 
   Marlin Firmware
 
-  (c) 2011-2020 MarlinFirmware
+  (c) 2011-2023 MarlinFirmware
   Portions of Marlin are (c) by their respective authors.
   All code complies with GPLv2 and/or GPLv3
 

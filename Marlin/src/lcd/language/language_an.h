@@ -167,11 +167,11 @@ namespace LanguageNarrow_an {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropaso Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Micropaso @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancelado - Endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Error: en calentar");
-  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Error: temperatura");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Error de temperatura");
-  LSTR MSG_ERR_MAXTEMP                    = _UxGT("Error: Temp Max");
-  LSTR MSG_ERR_MINTEMP                    = _UxGT("Error: Temp Min");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Error en calentar");
+  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Error temp adicional");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Error de temperatura");
+  LSTR MSG_ERR_MAXTEMP                    = _UxGT("Error Temp Max");
+  LSTR MSG_ERR_MINTEMP                    = _UxGT("Error Temp Min");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA ATURADA");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Per favor reinic.");
   LSTR MSG_HEATING                        = _UxGT("Calentando...");
