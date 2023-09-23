@@ -45,10 +45,14 @@
 
   #if ENABLED(SWITCHING_NOZZLE)
     constexpr uint16_t sasn[][2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-    static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 sets of angles.");
+    #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 sets of angles: { {s1_lower, s1_raise}, {s2_lower, s2_raise} }.");
+    #else
+      static_assert(COUNT(sasn) == 1, "SWITCHING_NOZZLE_SERVO_ANGLES needs 1 set of angles: { {lower, raise} }.");
+    #endif
     static_assert(COUNT(sasn[0]) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 angles.");
   #else
-    constexpr uint16_t sasn[2] = { 0 };
+    constexpr uint16_t sasn[][2] = { { 0 } };
   #endif
 
   #ifdef Z_PROBE_SERVO_NR
