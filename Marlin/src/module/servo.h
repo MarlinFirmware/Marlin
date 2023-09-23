@@ -80,12 +80,19 @@
     #define Z_PROBE_SERVO_NR -1
   #endif
 
-  #define ASRC(N,I) (                                  \
-      N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]   \
-    : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2] \
-    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[N][I]   \
-    : N == Z_PROBE_SERVO_NR                ? sazp[I]   \
-    : 0                                                )
+  #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+    #define SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I) : N == SWITCHING_NOZZLE_E1_SERVO_NR ? sasn[1][I]
+  #else
+    #define SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I)
+  #endif
+
+  #define ASRC(N,I) (                                   \
+      N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]    \
+    : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2]  \
+    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[0][I] \
+      SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I)             \
+    : N == Z_PROBE_SERVO_NR                ? sazp[I]    \
+    : 0                                                 )
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
     extern uint16_t servo_angles[NUM_SERVOS][2];
