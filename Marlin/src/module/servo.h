@@ -44,8 +44,9 @@
   #endif
 
   #if ENABLED(SWITCHING_NOZZLE)
-    constexpr uint16_t sasn[] = SWITCHING_NOZZLE_SERVO_ANGLES;
-    static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 angles.");
+    constexpr uint16_t sasn[][2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+    static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 sets of angles.");
+    static_assert(COUNT(sasn[0]) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 angles.");
   #else
     constexpr uint16_t sasn[2] = { 0 };
   #endif
@@ -78,7 +79,7 @@
   #define ASRC(N,I) (                                  \
       N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]   \
     : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2] \
-    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[I]   \
+    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[N][I]   \
     : N == Z_PROBE_SERVO_NR                ? sazp[I]   \
     : 0                                                )
 
