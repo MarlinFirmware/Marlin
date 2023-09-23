@@ -3499,7 +3499,6 @@ void Stepper::report_positions() {
       // If the current block is not done processing, return right away
       if (!fxdTiCtrl.getBlockProcDn()) return;
 
-      axis_did_move.reset();
       discard_current_block();
     }
 
@@ -3526,7 +3525,6 @@ void Stepper::report_positions() {
     }
     else {
       fxdTiCtrl.runoutBlock();
-      return; // No queued blocks.
     }
 
   } // Stepper::fxdTiCtrl_BlockQueueUpdate()
