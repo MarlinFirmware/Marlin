@@ -1507,10 +1507,10 @@ void Stepper::isr() {
 
         // Define 2.5 msec task for auxilliary functions.
         if (!fxdTiCtrl_nextAuxISR) {
+          fxdTiCtrl_refreshAxisDidMove();
           endstops.update();
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-          fxdTiCtrl_refreshAxisDidMove();
-          fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
+          fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE); // Aux task magic number
         }
 
         interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
@@ -3428,10 +3428,11 @@ void Stepper::report_positions() {
     );
 
     const xyze_bool_t axis_dir = LOGICAL_AXIS_ARRAY(
-      TEST(command, FT_BIT_DIR_E),
-      TEST(command, FT_BIT_DIR_X), TEST(command, FT_BIT_DIR_Y), TEST(command, FT_BIT_DIR_Z),
-      TEST(command, FT_BIT_DIR_I), TEST(command, FT_BIT_DIR_J), TEST(command, FT_BIT_DIR_K),
-      TEST(command, FT_BIT_DIR_U), TEST(command, FT_BIT_DIR_V), TEST(command, FT_BIT_DIR_W)
+      axis_step.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e, axis_step.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
+      axis_step.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y, axis_step.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
+      axis_step.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i, axis_step.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
+      axis_step.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k, axis_step.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
+      axis_step.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v, axis_step.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
     );
 
     // Apply directions (which will apply to the entire linear move)
@@ -3516,10 +3517,6 @@ void Stepper::report_positions() {
           return; // No queued blocks.
       }
 
-      // This is needed by motor_direction() and subsequently bed leveling (somehow).
-      // Update it here, even though it will may be out of sync with step commands.
-      last_direction_bits = current_block->direction_bits;
-
       fxdTiCtrl.startBlockProc(current_block);
 
     }
@@ -3534,7 +3531,7 @@ void Stepper::report_positions() {
   void Stepper::fxdTiCtrl_refreshAxisDidMove() {
 
     // Set the debounce time in seconds.
-    #define AXIS_DID_MOVE_DEB 5 // TODO: The debounce time should be calculated if possible,
+    #define AXIS_DID_MOVE_DEB_TI 0.05 // TODO: The debounce time should be calculated if possible,
                                 // or the set conditions should be changed from the block to
                                 // the motion trajectory or motor commands.
 
@@ -3546,9 +3543,12 @@ void Stepper::report_positions() {
     };
     #define _DEBOUNCE(N) debounce_axis(AxisEnum(N));
 
-    if (current_block) { REPEAT(LOGICAL_AXES, _DEBOUNCE); }
+    REPEAT(LOGICAL_AXES, _DEBOUNCE);
 
     axis_did_move = didmove;
+
+    // This is needed by motor_direction() and subsequently bed leveling (somehow).
+    last_direction_bits = current_block->direction_bits;
     
   }
 
