@@ -3531,14 +3531,14 @@ void Stepper::report_positions() {
   void Stepper::fxdTiCtrl_refreshAxisDidMove() {
 
     // Set the debounce time in seconds.
-    #define AXIS_DID_MOVE_DEB_TI 0.05 // TODO: The debounce time should be calculated if possible,
-                                // or the set conditions should be changed from the block to
-                                // the motion trajectory or motor commands.
+    #define AXIS_MOVE_DEBOUNCE_SEC 0.05f  // TODO: Calculate the debounce time, if possible,
+                                          // or the set conditions should be changed from the
+                                          // block to the motion trajectory or motor commands.
 
     AxisBits didmove;
     static abce_ulong_t debounce{0};
     auto debounce_axis = [&](const AxisEnum axis) {
-      if (current_block->steps[axis]) debounce[axis] = (AXIS_DID_MOVE_DEB_TI) * 400; // divide by 0.0025f */
+      if (current_block->steps[axis]) debounce[axis] = (AXIS_MOVE_DEBOUNCE_SEC) * 400; // divide by 0.0025f
       if (debounce[axis]) { didmove.bset(axis); debounce[axis]--; }
     };
     #define _DEBOUNCE(N) debounce_axis(AxisEnum(N));
