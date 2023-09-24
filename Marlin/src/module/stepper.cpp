@@ -3538,7 +3538,7 @@ void Stepper::report_positions() {
     AxisBits didmove;
     static abce_ulong_t debounce{0};
     auto debounce_axis = [&](const AxisEnum axis) {
-      if (current_block->steps[axis]) debounce[axis] = (AXIS_DID_MOVE_DEB) * 400; // divide by 0.0025f */
+      if (current_block->steps[axis]) debounce[axis] = (AXIS_DID_MOVE_DEB_TI) * 400; // divide by 0.0025f */
       if (debounce[axis]) { didmove.bset(axis); debounce[axis]--; }
     };
     #define _DEBOUNCE(N) debounce_axis(AxisEnum(N));
