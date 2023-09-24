@@ -525,7 +525,7 @@ class Stepper {
         if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
       #endif
       current_block = nullptr;
-      axis_did_move = 0;
+      axis_did_move.reset();
       planner.release_current_block();
       TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
