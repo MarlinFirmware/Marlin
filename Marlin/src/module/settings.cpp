@@ -2865,10 +2865,10 @@ void MarlinSettings::postprocess() {
         DEBUG_ECHO_MSG("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
         break;
       case ERR_EEPROM_CORRUPT:
-        DEBUG_ERROR_MSG(STR_ERR_EEPROM_CORRUPT);
+        DEBUG_ECHO_MSG("Warning:" STR_ERR_EEPROM_CORRUPT);
         break;
       case ERR_EEPROM_CRC:
-        DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        DEBUG_ECHO_MSG("Warning: EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
         break;
       default: break;
