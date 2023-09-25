@@ -2389,8 +2389,8 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 
   void tramXY(const uint8_t point, float &x, float &y) {
     #if ENABLED(BED_TRAMMING_USE_PROBE)
-      float bed_tramming_inset_lfbr[] = {X_MIN_BED + probe.min_x(), Y_MIN_BED + probe.min_y(),
-             X_MAX_BED - probe.max_x(), Y_MAX_BED - probe.max_y() };
+      float bed_tramming_inset_lfbr[] = {X_MIN_BED + probe.min_x() + 0.01f, Y_MIN_BED + probe.min_y() + 0.01f,
+             X_MAX_BED - probe.max_x() - 0.01f, Y_MAX_BED - probe.max_y() - 0.01f };
     #endif
 
     switch (point) {

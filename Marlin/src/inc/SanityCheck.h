@@ -1543,6 +1543,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #else
     #ifndef BED_TRAMMING_INSET_LFRB
       #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+    #endif
   #endif
 #endif
 

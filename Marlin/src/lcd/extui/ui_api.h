@@ -74,6 +74,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
   #endif
+  struct probe_limits { float pos[4];};
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -367,7 +368,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
-    float[4] getBedProbeLimits();
+    probe_limits getBedProbeLimits();
   #endif
 
   // Backlash Control

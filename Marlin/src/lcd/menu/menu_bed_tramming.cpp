@@ -106,8 +106,8 @@ static int8_t bed_corner;
  */
 static void _lcd_goto_next_corner() {
   #if ENABLED(BED_TRAMMING_USE_PROBE)
-    xy_pos_t lf = {X_MIN_BED + probe.min_x(), Y_MIN_BED + probe.min_y() },
-             rb = {X_MAX_BED - probe.max_x(), Y_MAX_BED - probe.max_y() };
+    xy_pos_t lf = {X_MIN_BED + probe.min_x() + 0.01f, Y_MIN_BED + probe.min_y() + 0.01f },
+             rb = {X_MAX_BED - probe.max_x() - 0.01f, Y_MAX_BED - probe.max_y() - 0.01f };
   #endif
 
   xy_pos_t corner_point = lf;                     // Left front
