@@ -38,9 +38,6 @@
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
-  #define FLASH_SECTOR          1
-  #define FLASH_UNIT_SIZE       0x4000      // 16k
-  #define FLASH_ADDRESS_START   0x8004000
 #endif
 
 //
