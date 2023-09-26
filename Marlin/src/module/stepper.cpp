@@ -3443,8 +3443,6 @@ void Stepper::report_positions() {
       U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
     );
 
-    last_direction_bits = axis_dir;
-
     DIR_WAIT_AFTER();
 
     LOGICAL_AXIS_CODE(
@@ -3548,6 +3546,9 @@ void Stepper::report_positions() {
     REPEAT(LOGICAL_AXES, _DEBOUNCE);
 
     axis_did_move = didmove;
+
+    // This is needed by motor_direction() and subsequently bed leveling (somehow).
+    last_direction_bits = current_block->direction_bits;
     
   }
 
