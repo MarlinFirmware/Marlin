@@ -233,6 +233,8 @@
 #define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
+#define CONFIG_VERSION(V)
+
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
 #define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')

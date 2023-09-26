@@ -7,9 +7,16 @@ SED=$(which gsed sed | head -n1)
 
 for opt in "$@" ; do
   DID=0 ; FOUND=0
+  PATT="/^\(\s*\)\/\/\(\s*\)\(#define\s\+${opt}\b\)\( \?\)/{s//\1\2\3\4\4\4/;h};\${x;/./{x;q0};x;q9}"
   for FN in Configuration Configuration_adv; do
-    "${SED}" -i "/^\(\s*\)\/\/\(\s*\)\(#define\s\+${opt}\b\)\( \?\)/{s//\1\2\3\4\4\4/;h};\${x;/./{x;q0};x;q9}" Marlin/$FN.h && DID=1
+    "${SED}" -i "$PATT" "Marlin/$FN.h" && DID=1
     ((DID||FOUND)) || { grep -E "^\s*#define\s+${opt}\b" Marlin/$FN.h >/dev/null && FOUND=1 ; }
   done
-  ((DID||FOUND)) || (echo "ERROR: $(basename $0) Can't find ${opt}" >&2 && exit 9)
+  if [[ -d Marlin/config ]]; then
+    for FN in Marlin/config/*.h; do
+      "${SED}" -i "$PATT" $FN && DID=1
+      ((DID||FOUND)) || { grep -E "^\s*#define\s+${opt}\b" $FN >/dev/null && FOUND=1 ; }
+    done
+  fi
+  ((DID||FOUND)) || { echo "ERROR: $(basename $0) Can't find ${opt}" >&2 ; exit 9 ; }
 done

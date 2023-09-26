@@ -46,21 +46,6 @@
 #endif
 
 /**
- * Minimum Configuration.h and Configuration_adv.h file versions.
- * Set based on the release version number. Used to catch an attempt to use
- * older configurations. Override these if using a custom versioning scheme
- * to alert users to major changes.
- */
-
-#define MARLIN_HEX_VERSION 02010300
-#ifndef REQUIRED_CONFIGURATION_H_VERSION
-  #define REQUIRED_CONFIGURATION_H_VERSION MARLIN_HEX_VERSION
-#endif
-#ifndef REQUIRED_CONFIGURATION_ADV_H_VERSION
-  #define REQUIRED_CONFIGURATION_ADV_H_VERSION MARLIN_HEX_VERSION
-#endif
-
-/**
  * The protocol for communication to the host. Protocol indicates communication
  * standards such as the use of ASCII, "echo:" and "error:" line prefixes, etc.
  * (Other behaviors are given by the firmware version and capabilities report.)

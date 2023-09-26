@@ -10,8 +10,13 @@ while [[ $# > 1 ]]; do
   for FN in Configuration Configuration_adv; do
     "${SED}" -i "/^\(\s*\)\/*\s*\(#define\s\+${1}\b\) *\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q9}" Marlin/$FN.h && DID=1
   done
+  if [[ -d Marlin/config ]]; then
+    for FN in Marlin/config/*.h; do
+      "${SED}" -i "/^\(\s*\)\/*\s*\(#define\s\+${1}\b\) *\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q9}" $FN && DID=1
+    done
+  fi
   ((DID)) ||
     eval "echo '#define ${1} ${2}' >>Marlin/Configuration.h" ||
-      (echo "ERROR: opt_set Can't set or add ${1}" >&2 && exit 9)
+      { echo "WARNING: opt_set Can't set or add ${1}" >&2 ; exit 0 ; }
   shift 2
 done

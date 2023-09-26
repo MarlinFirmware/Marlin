@@ -1439,9 +1439,6 @@
   #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
-  #ifndef Z_PROBE_LOW_POINT
-    #define Z_PROBE_LOW_POINT -5
-  #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
@@ -1454,6 +1451,10 @@
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
+#endif
+
+#ifndef Z_PROBE_LOW_POINT
+  #define Z_PROBE_LOW_POINT -5
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
