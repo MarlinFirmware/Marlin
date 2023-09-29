@@ -1716,7 +1716,6 @@ void dwinPrintFinished() {
 // Print was aborted
 void dwinPrintAborted() {
   #ifdef EVENT_GCODE_SD_ABORT
-    queue.inject(EVENT_GCODE_SD_ABORT);
   #else
     #if ENABLED(NOZZLE_PARK_FEATURE)
       const xyz_pos_t park_point = NOZZLE_PARK_POINT;
