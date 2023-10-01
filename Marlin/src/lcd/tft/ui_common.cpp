@@ -524,7 +524,7 @@ void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const stri
   tft_string.set();
 
   if (plen) _wrap_string<FSTR_P>(row, pref, read_byte_rom);
-  if (string) _wrap_string<const char * const>(row, string, read_byte_ram);
+  if (strlen) _wrap_string<const char * const>(row, string, read_byte_ram);
   if (slen) _wrap_string<FSTR_P>(row, suff, read_byte_rom, true);
 }
 
