@@ -1486,6 +1486,9 @@ void Stepper::isr() {
 
   #if ENABLED(FT_MOTION)
     static uint32_t fxdTiCtrl_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
+    const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
+  #else
+    constexpr bool using_fxtictrl = false;
   #endif
 
   // We need this variable here to be able to use it in the following loop
@@ -1498,7 +1501,6 @@ void Stepper::isr() {
 
     #if ENABLED(FT_MOTION)
 
-      const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
       if (using_fxtictrl) {
         if (!nextMainISR) {
           nextMainISR = FTM_MIN_TICKS;
@@ -1517,10 +1519,6 @@ void Stepper::isr() {
         nextMainISR -= interval;
         fxdTiCtrl_nextAuxISR -= interval;
       }
-
-    #else
-
-      constexpr bool using_fxtictrl = false;
 
     #endif
 
