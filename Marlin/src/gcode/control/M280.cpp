@@ -32,11 +32,39 @@
  * M280: Get or set servo position.
  *  P<index> - Servo index
  *  S<angle> - Angle to set, omit to read current angle, or use -1 to detach
+ *  H<0/1>   - All tools high(1) or Low(0) for two servos configuration only
+ *  C        - Active tool positionning (active tool lowered & inactive upped)
  *
  * With POLARGRAPH:
  *  T<ms>    - Duration of servo move
  */
 void GcodeSuite::M280() {
+
+  //---------------------------------------
+  #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+    if (parser.seenval('H')) {
+      const int anew = parser.value_int();
+      if (anew > 0) {
+        servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][1]);
+        servo[SWITCHING_NOZZLE_E1_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][1]);
+      }
+      else {
+        servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][0]);
+        servo[SWITCHING_NOZZLE_E1_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][0]);
+      }
+      return;
+    }
+  #endif
+
+  #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+    if (parser.seen('C')) {
+      servo[active_extruder? SWITCHING_NOZZLE_SERVO_NR : SWITCHING_NOZZLE_E1_SERVO_NR ].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][1]);
+      servo[active_extruder? SWITCHING_NOZZLE_E1_SERVO_NR : SWITCHING_NOZZLE_SERVO_NR ].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][0]);
+      return;
+    }
+  #endif
+
+  //-----------------------------------------------------------
 
   if (!parser.seenval('P')) return;
 
