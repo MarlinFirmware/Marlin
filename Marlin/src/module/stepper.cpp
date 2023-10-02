@@ -3401,6 +3401,8 @@ void Stepper::report_positions() {
 
 #if ENABLED(FT_MOTION)
 
+  xyze_bool_t Stepper::didMoveReport;
+
   // Set stepper I/O for fixed time controller.
   void Stepper::fxdTiCtrl_stepper() {
 
@@ -3425,22 +3427,40 @@ void Stepper::report_positions() {
       TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
     );
 
-    const xyze_bool_t axis_dir = LOGICAL_AXIS_ARRAY(
-      axis_step.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e, axis_step.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
-      axis_step.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y, axis_step.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
-      axis_step.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i, axis_step.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
-      axis_step.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k, axis_step.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
-      axis_step.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v, axis_step.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
+    LOGICAL_AXIS_CODE(
+    if (axis_step.e) { didMoveReport.e = true; },
+    if (axis_step.x) { didMoveReport.x = true; },
+    if (axis_step.y) { didMoveReport.y = true; },
+    if (axis_step.z) { didMoveReport.z = true; },
+    if (axis_step.i) { didMoveReport.i = true; },
+    if (axis_step.j) { didMoveReport.j = true; },
+    if (axis_step.k) { didMoveReport.k = true; },
+    if (axis_step.u) { didMoveReport.u = true; },
+    if (axis_step.v) { didMoveReport.v = true; },
+    if (axis_step.w) { didMoveReport.w = true; }
+    );
+
+    last_direction_bits = LOGICAL_AXIS_ARRAY(
+      axis_step.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e,
+      axis_step.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
+      axis_step.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y,
+      axis_step.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
+      axis_step.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i,
+      axis_step.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
+      axis_step.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k,
+      axis_step.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
+      axis_step.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v,
+      axis_step.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
     );
 
     // Apply directions (which will apply to the entire linear move)
     LOGICAL_AXIS_CODE(
-      E_APPLY_DIR(axis_dir.e, false),
-      X_APPLY_DIR(axis_dir.x, false), Y_APPLY_DIR(axis_dir.y, false), Z_APPLY_DIR(axis_dir.z, false),
-      I_APPLY_DIR(axis_dir.i, false), J_APPLY_DIR(axis_dir.j, false), K_APPLY_DIR(axis_dir.k, false),
-      U_APPLY_DIR(axis_dir.u, false), V_APPLY_DIR(axis_dir.v, false), W_APPLY_DIR(axis_dir.w, false)
+      E_APPLY_DIR(last_direction_bits.e, false),
+      X_APPLY_DIR(last_direction_bits.x, false), Y_APPLY_DIR(last_direction_bits.y, false), Z_APPLY_DIR(last_direction_bits.z, false),
+      I_APPLY_DIR(last_direction_bits.i, false), J_APPLY_DIR(last_direction_bits.j, false), K_APPLY_DIR(last_direction_bits.k, false),
+      U_APPLY_DIR(last_direction_bits.u, false), V_APPLY_DIR(last_direction_bits.v, false), W_APPLY_DIR(last_direction_bits.w, false)
     );
-
+    
     DIR_WAIT_AFTER();
 
     LOGICAL_AXIS_CODE(
@@ -3454,12 +3474,11 @@ void Stepper::report_positions() {
 
     // Update step counts
     LOGICAL_AXIS_CODE(
-      if (axis_step.e) count_position.e += axis_dir.e ? 1 : -1,
-      if (axis_step.x) count_position.x += axis_dir.x ? 1 : -1, if (axis_step.y) count_position.y += axis_dir.y ? 1 : -1,
-      if (axis_step.z) count_position.z += axis_dir.z ? 1 : -1, if (axis_step.i) count_position.i += axis_dir.i ? 1 : -1,
-      if (axis_step.j) count_position.j += axis_dir.j ? 1 : -1, if (axis_step.k) count_position.k += axis_dir.k ? 1 : -1,
-      if (axis_step.u) count_position.u += axis_dir.u ? 1 : -1, if (axis_step.v) count_position.v += axis_dir.v ? 1 : -1,
-      if (axis_step.w) count_position.w += axis_dir.w ? 1 : -1
+      if (axis_step.e) count_position.e += last_direction_bits.e ? 1 : -1, if (axis_step.x) count_position.x += last_direction_bits.x ? 1 : -1,
+      if (axis_step.y) count_position.y += last_direction_bits.y ? 1 : -1, if (axis_step.z) count_position.z += last_direction_bits.z ? 1 : -1,
+      if (axis_step.i) count_position.i += last_direction_bits.i ? 1 : -1, if (axis_step.j) count_position.j += last_direction_bits.j ? 1 : -1,
+      if (axis_step.k) count_position.k += last_direction_bits.k ? 1 : -1, if (axis_step.u) count_position.u += last_direction_bits.u ? 1 : -1,
+      if (axis_step.v) count_position.v += last_direction_bits.v ? 1 : -1, if (axis_step.w) count_position.w += last_direction_bits.w ? 1 : -1
     );
 
     #if HAS_EXTRUDERS
@@ -3498,7 +3517,8 @@ void Stepper::report_positions() {
       // If the current block is not done processing, return right away
       if (!fxdTiCtrl.getBlockProcDn()) return;
 
-      discard_current_block();
+      current_block = nullptr;
+      planner.release_current_block();
     }
 
     // Check the buffer for a new block
@@ -3508,7 +3528,8 @@ void Stepper::report_positions() {
       // Sync block? Sync the stepper counts and return
       while (current_block->is_sync()) {
         if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
-        discard_current_block();
+        current_block = nullptr;
+        planner.release_current_block();
 
         // Try to get a new block
         if (!(current_block = planner.get_current_block()))
@@ -3520,6 +3541,7 @@ void Stepper::report_positions() {
     }
     else {
       fxdTiCtrl.runoutBlock();
+      return; // No queued blocks.
     }
 
   } // Stepper::fxdTiCtrl_BlockQueueUpdate()
@@ -3528,26 +3550,48 @@ void Stepper::report_positions() {
   // delay between the block information and the stepper commands
   void Stepper::fxdTiCtrl_refreshAxisDidMove() {
 
-    // Set the debounce time in seconds.
-    #define AXIS_MOVE_DEBOUNCE_SEC 0.05f  // TODO: Calculate the debounce time, if possible,
-                                          // or the set conditions should be changed from the
-                                          // block to the motion trajectory or motor commands.
+    static xyze_ulong_t didMoveDeb;
 
     AxisBits didmove;
-    static abce_ulong_t debounce{0};
-    auto debounce_axis = [&](const AxisEnum axis) {
-      if (current_block->steps[axis]) debounce[axis] = (AXIS_MOVE_DEBOUNCE_SEC) * 400; // divide by 0.0025f
-      if (debounce[axis]) { didmove.bset(axis); debounce[axis]--; }
-    };
-    #define _DEBOUNCE(N) debounce_axis(AxisEnum(N));
 
-    REPEAT(LOGICAL_AXES, _DEBOUNCE);
+    // // TODO: This needs the CORE logic from block_phase_isr in the section:
+    // // #if CORE_IS_XY || CORE_IS_XZ
+    // // #else
+    // //   #define X_MOVE_TEST !!current_block->steps.a
+    // // #endif
+
+    #define FTM_AXIS_MOVE_DEB_TI 0.05
+
+    LOGICAL_AXIS_CODE(
+    if (didMoveReport.e) { didMoveDeb.e = (int)(FTM_AXIS_MOVE_DEB_TI*400); }, // TODO: aux rate magic number
+    if (didMoveReport.x) { didMoveDeb.x = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.y) { didMoveDeb.y = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.z) { didMoveDeb.z = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.i) { didMoveDeb.i = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.j) { didMoveDeb.j = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.k) { didMoveDeb.k = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.u) { didMoveDeb.u = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.v) { didMoveDeb.v = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
+    if (didMoveReport.w) { didMoveDeb.w = (int)(FTM_AXIS_MOVE_DEB_TI*400); }
+    );
+
+    LOGICAL_AXIS_CODE(
+    if (didMoveDeb.e) { didmove.bset(E_AXIS); didMoveDeb.e--; },
+    if (didMoveDeb.x) { didmove.bset(X_AXIS); didMoveDeb.x--; },
+    if (didMoveDeb.y) { didmove.bset(Y_AXIS); didMoveDeb.y--; },
+    if (didMoveDeb.z) { didmove.bset(Z_AXIS); didMoveDeb.z--; },
+    if (didMoveDeb.i) { didmove.bset(I_AXIS); didMoveDeb.i--; },
+    if (didMoveDeb.j) { didmove.bset(J_AXIS); didMoveDeb.j--; },
+    if (didMoveDeb.k) { didmove.bset(K_AXIS); didMoveDeb.k--; },
+    if (didMoveDeb.u) { didmove.bset(U_AXIS); didMoveDeb.u--; },
+    if (didMoveDeb.v) { didmove.bset(V_AXIS); didMoveDeb.v--; },
+    if (didMoveDeb.w) { didmove.bset(W_AXIS); didMoveDeb.w--; }
+    );
 
     axis_did_move = didmove;
 
-    // This is needed by motor_direction() and subsequently bed leveling (somehow).
-    last_direction_bits = current_block->direction_bits;
-    
+    didMoveReport.reset();
+
   }
 
 #endif // FT_MOTION

@@ -199,7 +199,7 @@ void FxdTiCtrl::loop() {
     );
 
     // Shift the time series back in the window
-    #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], ((FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE)) * sizeof(traj.A[0]))
+    #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
     LOGICAL_AXIS_CODE(
       TSHIFT(e),
       TSHIFT(x), TSHIFT(y), TSHIFT(z),
