@@ -3281,7 +3281,8 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
 }
 
 #if ENABLED(FT_MOTION)
-  void Stepper::set_ft_axis_position() {
+
+  void Stepper::fxdTiCtrl_syncPosition() {
     //planner.synchronize(); planner already synchronized in M493
 
     #ifdef __AVR__
@@ -3301,8 +3302,9 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
       // Reenable Stepper ISR
       if (was_enabled) wake_up();
     #endif
-}
-#endif
+  }
+
+#endif // FT_MOTION
 
 // Signal endstops were triggered - This function can be called from
 // an ISR context  (Temperature, Stepper or limits ISR), so we must
@@ -3511,7 +3513,7 @@ void Stepper::report_positions() {
 
   } // Stepper::fxdTiCtrl_stepper
 
-  void Stepper::fxdTiCtrl_BlockQueueUpdate() {
+  void Stepper::fxdTiCtrl_blockQueueUpdate() {
 
     if (current_block) {
       // If the current block is not done processing, return right away
@@ -3542,7 +3544,7 @@ void Stepper::report_positions() {
 
     fxdTiCtrl.runoutBlock();
 
-  } // Stepper::fxdTiCtrl_BlockQueueUpdate()
+  } // Stepper::fxdTiCtrl_blockQueueUpdate()
 
   // Debounces the axis move indication to account for potential
   // delay between the block information and the stepper commands

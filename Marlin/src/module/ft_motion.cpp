@@ -173,7 +173,7 @@ void FxdTiCtrl::loop() {
   }
 
   // Planner processing and block conversion.
-  if (!blockProcRdy) stepper.fxdTiCtrl_BlockQueueUpdate();
+  if (!blockProcRdy) stepper.fxdTiCtrl_blockQueueUpdate();
 
   if (blockProcRdy) {
     if (!blockProcRdy_z1) { // One-shot.

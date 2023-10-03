@@ -311,7 +311,7 @@ void GcodeSuite::M493() {
   if (flag.update_a) fxdTiCtrl.updateShapingA();
 
   if (flag.reset_ft) {
-    stepper.set_ft_axis_position();
+    stepper.fxdTiCtrl_syncPosition();
     fxdTiCtrl.reset();
   }
 
