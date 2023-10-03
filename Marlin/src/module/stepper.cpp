@@ -3401,7 +3401,7 @@ void Stepper::report_positions() {
 
 #if ENABLED(FT_MOTION)
 
-  xyze_bool_t Stepper::didMoveReport;
+  AxisBits Stepper::didMoveReport;
 
   // Set stepper I/O for fixed time controller.
   void Stepper::fxdTiCtrl_stepper() {
