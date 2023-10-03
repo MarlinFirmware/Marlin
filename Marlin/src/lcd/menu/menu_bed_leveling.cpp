@@ -219,11 +219,11 @@
     EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, GRID_USED_POINTS_X - 1);
     EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, GRID_USED_POINTS_Y - 1);
     #if LCD_HEIGHT > 4
-      STATIC_ITEM(MSG_MESH_XY, SS_FULL, &msg);
+      STATIC_ITEM(MSG_MESH_XY_INDEX, SS_FULL, &msg);
     #endif
     EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &bedlevel.z_values[xind][yind], -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f, refresh_planner);
     #if LCD_HEIGHT <= 4
-      STATIC_ITEM(MSG_MESH_XY, SS_FULL, &msg);
+      STATIC_ITEM(MSG_MESH_XY_INDEX, SS_FULL, &msg);
     #endif
     END_MENU();
   }

@@ -177,7 +177,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_PROBING_POINT                  = _UxGT("Probing Point");
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
-  LSTR MSG_MESH_XY                        = _UxGT("X/Y");
+  LSTR MSG_MESH_XY_INDEX                  = _UxGT("XY Index");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z Value");
   LSTR MSG_MESH_RESET                     = _UxGT("Mesh reset");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Custom Commands");
