@@ -352,7 +352,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;

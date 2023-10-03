@@ -38,7 +38,7 @@
 // SUBMENU(LABEL, screen_handler)
 class MenuItem_submenu : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const screenFunc_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr = 0) {
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const screenFunc_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr=0) {
       _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0], style, vstr, minFstr);
     }
     static void action(FSTR_P const, const screenFunc_t func, ...) { ui.push_current_screen(); ui.goto_screen(func); }
@@ -54,7 +54,7 @@ class MenuItem_button : public MenuItemBase {
 // ACTION_ITEM(LABEL, FUNC)
 class MenuItem_function : public MenuItem_button {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const menuAction_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr = 0) {
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const menuAction_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr=0) {
       _draw(sel, row, fstr, '>', ' ',  style, vstr, minFstr);
     }
     //static void action(FSTR_P const, const uint8_t, const menuAction_t func) { (*func)(); };
@@ -64,7 +64,7 @@ class MenuItem_function : public MenuItem_button {
 // GCODES_ITEM(LABEL, GCODES)
 class MenuItem_gcode : public MenuItem_button {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const FSTR_P, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr = 0) {
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const FSTR_P, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr=0) {
       _draw(sel, row, fstr, '>', ' ',  style, vstr, minFstr);
     }
     static void action(FSTR_P const, FSTR_P const fgcode, ...) { queue.inject(fgcode); }
@@ -397,7 +397,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // V... can differ based on its context
 // For all items except for EDIT_ITEMS, up to 3 arguments are expected
-// const uint8_t style = SS_DEFAULT, const char * const vstr = nullptr, const uint8_t minFstr = 0
+// const uint8_t style = SS_DEFAULT, const char * const vstr = nullptr, const uint8_t minFstr=0
 
 #define PSTRING_ITEM_N_P(N, LABEL, V...)          PSTRING_ITEM_N_F_P(N, GET_TEXT_F(LABEL), ##V)
 #define PSTRING_ITEM_P(LABEL, V...)                 PSTRING_ITEM_F_P(GET_TEXT_F(LABEL), ##V)
