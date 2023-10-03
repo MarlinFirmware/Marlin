@@ -167,15 +167,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PROBING_POINT                  = _UxGT("Skúšam bod");
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
-  LSTR MSG_MESH_INSET                     = _UxGT("Vložiť sieť");
-  LSTR MSG_MESH_MIN_X                     = _UxGT("Min. X sieťe");
-  LSTR MSG_MESH_MAX_X                     = _UxGT("Max. X sieťe");
-  LSTR MSG_MESH_MIN_Y                     = _UxGT("Min. Y sieťe");
-  LSTR MSG_MESH_MAX_Y                     = _UxGT("Max. Y sieťe");
-  LSTR MSG_MESH_AMAX                      = _UxGT("Maximál. oblasť");
-  LSTR MSG_MESH_CENTER                    = _UxGT("Stredová oblasť");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Hodnota Z");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mriežka zrušená");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Vlastné príkazy");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Test sondy");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Bod");
