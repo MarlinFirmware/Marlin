@@ -133,21 +133,25 @@ void reset_bed_level() {
   //#define SCAD_MESH_OUTPUT
 
   #ifdef VARIABLE_GRID_POINTS
-    // how many values in each array dimension to print dependes on fn argument
+    // The number of values to print in each dimension depends on fn argument
     #define PRINT_X print_x
     #define PRINT_Y print_y
   #else
-    // how many values in each array dimension to print dependes on array size (print all)
+    // The number of values to print in each dimension depends on array size (print all)
     #define PRINT_X sx
     #define PRINT_Y sy
   #endif
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, uint8_t print_x) OPTARG(VARIABLE_GRID_POINTS, uint8_t print_y)) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      , uint8_t print_x/*=0*/, uint8_t print_y/*=0*/
+    #endif
+  ) {
 
     #if ENABLED(VARIABLE_GRID_POINTS)
-      // if show_[xy] not supplied, print all in respective dimension
+      // If print_[xy] not supplied, print all in respective dimension
       if (print_x == 0) print_x = sx;
       if (print_y == 0) print_y = sy;
     #endif

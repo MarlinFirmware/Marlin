@@ -370,7 +370,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
   // Right-justified value, after spaces
-  while (*vstr == ' ') vstr++; 
+  while (*vstr == ' ') vstr++;
   tft_string.set(vstr);
   tft.add_text(TFT_WIDTH - MENU_TEXT_X - 1 - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 }

@@ -146,7 +146,7 @@ public:
   #endif
 };
 
-#if ABL_USES_GRID    
+#if ABL_USES_GRID
   #if !ENABLED(VARIABLE_GRID_POINTS)
     constexpr xy_uint8_t G29_State::grid_points;
     #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
@@ -382,7 +382,7 @@ G29_TYPE GcodeSuite::G29() {
       // U specifies GRID_MIN_SPACING
       // X and Y specify points in each direction, overriding the default
       // These values may be saved with the completed mesh
-      if (parser.seenval('U')) { 
+      if (parser.seenval('U')) {
         abl.gridSpacing.set(parser.value_linear_units(), parser.value_linear_units()); // override GRID_MIN_SPACING
       }
 
@@ -392,8 +392,8 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       if (parser.seenval('X')) { // same as for P but affects X only
-        abl.grid_points.x = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_X)); 
-        abl.gridSpacing.x = 0; 
+        abl.grid_points.x = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_X));
+        abl.gridSpacing.x = 0;
       }
       if (parser.seenval('Y')) { // same as for P but affects Y only
         abl.grid_points.y = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_Y));
@@ -405,7 +405,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
 
     #endif
-    
+
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       abl.Z_offset = parser.linearval('Z');
@@ -445,9 +445,8 @@ G29_TYPE GcodeSuite::G29() {
       // Spacing between grid lines
       xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
 
-    
       #if ENABLED(VARIABLE_GRID_POINTS)
-        
+
         // Reduce the number of points if cells are too small
         if (spacing.x < abl.gridSpacing.x) {
           abl.grid_points.x = _MIN((_MAX(round(size.x / (abl.gridSpacing.x)) + 1, 2)), abl.gridSpacing.x);
@@ -460,7 +459,8 @@ G29_TYPE GcodeSuite::G29() {
         }
 
         abl.abl_points = abl.grid_points.x * abl.grid_points.y;
-      #endif
+
+      #endif // VARIABLE_GRID_POINTS
 
       abl.gridSpacing = spacing;
 

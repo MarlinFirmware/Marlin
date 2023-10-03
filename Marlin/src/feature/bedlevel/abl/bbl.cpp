@@ -127,7 +127,7 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
     constexpr uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
   #else
-    TERN(VARIABLE_GRID_POINTS,, constexpr) uint8_t
+    IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t
       ctrx1 = (nr_grid_points.x - 1) / 2, // left-of-center
       ctrx2 = nr_grid_points.x / 2,       // right-of-center
       xend = ctrx1;
@@ -136,7 +136,7 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_Y
     constexpr uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
   #else
-    TERN(VARIABLE_GRID_POINTS,, constexpr) uint8_t
+    IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t
       ctry1 = (nr_grid_points.y - 1) / 2, // top-of-center
       ctry2 = nr_grid_points.y / 2,       // bottom-of-center
       yend = ctry1;
@@ -162,22 +162,21 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
     }
 }
 
-void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/ OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points/* = nullptr*/)) {
-  // print internal grid(s) or just the one passed as a parameter
+void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/ OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points/*=nullptr*/)) {
+  // Print the passed mesh grid(s) or the current mesh
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  print_2d_array(
-    GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0] 
-    OPTARG(VARIABLE_GRID_POINTS, _grid_points ? _grid_points->x : nr_grid_points.x)
-    OPTARG(VARIABLE_GRID_POINTS, _grid_points ? _grid_points->y : nr_grid_points.y)
+  PRINT_2D_ARRAY(
+    GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0],
+    _grid_points ? _grid_points->x : nr_grid_points.x,
+    _grid_points ? _grid_points->y : nr_grid_points.y
   );
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      print_2d_array(
-        ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y, 5, z_values_virt[0]
-        OPTARG(VARIABLE_GRID_POINTS, nr_grid_points_virt.x)
-        OPTARG(VARIABLE_GRID_POINTS, nr_grid_points_virt.y)
+      PRINT_2D_ARRAY(
+        ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y, 5, z_values_virt[0],
+        nr_grid_points_virt.x, nr_grid_points_virt.y
       );
     }
   #endif
@@ -280,7 +279,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
 // Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {
   #if ENABLED(VARIABLE_GRID_POINTS)
-    GRID_LOOP(x, y) if (!(x < nr_grid_points.x && y < nr_grid_points.y)) z_values[x][y] = NAN;
+    // Fill the unused grid area with NaN
+    GRID_LOOP(x, y) if (x >= nr_grid_points.x || y >= nr_grid_points.y) z_values[x][y] = NAN;
   #endif
   TERN_(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
   cached_rel.x = cached_rel.y = -999.999;
