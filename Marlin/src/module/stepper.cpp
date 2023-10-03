@@ -3290,12 +3290,12 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
       const bool was_enabled = suspend();
     #endif
 
-    LOGICAL_AXIS_CODE( // Tell the world where we are
-        count_position[X_AXIS] = planner.position.x, count_position[Y_AXIS] = planner.position.y,
-        count_position[Z_AXIS] = planner.position.z, count_position[E_AXIS] = planner.position.e,
-        count_position[I_AXIS] = planner.position.i, count_position[J_AXIS] = planner.position.j,
-        count_position[K_AXIS] = planner.position.k, count_position[U_AXIS] = planner.position.u,
-        count_position[V_AXIS] = planner.position.v, count_position[W_AXIS] = planner.position.w);
+    LOGICAL_AXIS_CODE( // Update stepper positions from the planner
+      count_position.e = planner.position.e,
+      count_position.x = planner.position.x, count_position.y = planner.position.y, count_position.z = planner.position.z,
+      count_position.i = planner.position.i, count_position.j = planner.position.j, count_position.k = planner.position.k,
+      count_position.u = planner.position.u, count_position.v = planner.position.v, count_position.w = planner.position.w
+    );
 
     #ifdef __AVR__
       // Reenable Stepper ISR
