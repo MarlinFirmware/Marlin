@@ -331,10 +331,9 @@ namespace LanguageNarrow_vi {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Nhít Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Nhít @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Hủy bỏ công tắc");                     // Endstop abort
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Sưởi đầu phun không thành công");      // Heating failed
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Sưởi đầu phun không thành công");      // Heating failed
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Điều sai: nhiệt độ dư");               // Err: REDUNDANT TEMP
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Vấn đề nhiệt");                        // THERMAL RUNAWAY | problem
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("Vấn đề nhiệt bàn");                    // BED THERMAL RUNAWAY
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Vấn đề nhiệt");                        // THERMAL RUNAWAY | problem
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Điều sai: nhiệt độ tối đa");           // Err: MAXTEMP
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Điều sai: nhiệt độ tối thiểu");        // Err: MINTEMP
   LSTR MSG_HALTED                         = _UxGT("MÁY IN ĐÃ DỪNG LẠI");                  // PRINTER HALTED

@@ -187,8 +187,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_MESH_LOADED                    = _UxGT("Malla %i Cargada");
   LSTR MSG_MESH_SAVED                     = _UxGT("Malla %i Guardada");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Sin guardar");
-  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Error: Guardar UBL");
-  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Error: Restaurar UBL");
+  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Error Guardar UBL");
+  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Error Restaurar UBL");
   LSTR MSG_UBL_Z_OFFSET                   = _UxGT("Desfase de Z: ");
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Desfase de Z Parado");
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("UBL Paso a Paso");
@@ -407,11 +407,9 @@ namespace LanguageNarrow_es {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Micropaso @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancelado - Endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Calent. fallido");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Calent. fallido");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP. REDUN.");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("FUGA TÉRMICA");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("FUGA TÉRMICA CAMA");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("FUGA TÉRMICA CAMARA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("FUGA TÉRMICA");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err:TEMP. MÁX");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err:TEMP. MIN");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA DETENIDA");

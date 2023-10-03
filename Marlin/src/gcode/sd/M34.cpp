@@ -29,9 +29,19 @@
 
 /**
  * M34: Set SD Card Sorting Options
+ *
+ * S   - Default sorting (i.e., SDSORT_REVERSE)
+ * S-1 - Reverse alpha sorting
+ * S0  - FID Order (not always newest)
+ * S1  - Forward alpha sorting
+ * S2  - Alias for S-1 [deprecated]
+ *
+ * F-1 - Folders above files
+ * F0  - Sort According to 'S'
+ * F1  - Folders after files
  */
 void GcodeSuite::M34() {
-  if (parser.seen('S')) card.setSortOn(parser.value_bool());
+  if (parser.seen('S')) card.setSortOn(SortFlag(parser.ushortval('S', TERN(SDSORT_REVERSE, AS_REV, AS_FWD))));
   if (parser.seenval('F')) {
     const int v = parser.value_long();
     card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);

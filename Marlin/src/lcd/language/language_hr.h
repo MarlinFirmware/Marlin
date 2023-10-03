@@ -120,7 +120,7 @@ namespace LanguageNarrow_hr {
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Promijeni filament *");
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD karticu");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Promijeni SD karticu");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Grijanje neuspješno");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Grijanje neuspješno");
   LSTR MSG_HEATING                        = _UxGT("Grijanje...");
   LSTR MSG_BED_HEATING                    = _UxGT("Grijanje Bed-a...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Kalibracija");
