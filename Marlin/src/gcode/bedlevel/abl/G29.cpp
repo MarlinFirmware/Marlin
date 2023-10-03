@@ -364,10 +364,7 @@ G29_TYPE GcodeSuite::G29() {
     abl.dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ABL_USES_GRID
-      // set defaults
-      #if ENABLED(VARIABLE_GRID_POINTS)
-        abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
-      #endif
+      TERN_(VARIABLE_GRID_POINTS, abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
       abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
     #endif
 
@@ -400,9 +397,7 @@ G29_TYPE GcodeSuite::G29() {
         abl.gridSpacing.y = 0;
       }
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-        abl.mean = 0;
-      #endif
+      TERN_(AUTO_BED_LEVELING_LINEAR, abl.mean = 0);
 
     #endif
 
@@ -897,7 +892,7 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bedlevel.print_leveling_grid(&abl.z_values OPTARG(VARIABLE_GRID_POINTS, &abl.grid_points)); // we are just using the bedlevel's print algo with our data, therefore have to supply grid_point limits
+        bedlevel.print_leveling_grid(&abl.z_values OPTARG(VARIABLE_GRID_POINTS, &abl.grid_points));
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf OPTARG(VARIABLE_GRID_POINTS, abl.grid_points));
         COPY(bedlevel.z_values, abl.z_values);

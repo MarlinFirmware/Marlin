@@ -2039,11 +2039,11 @@ void MarlinSettings::postprocess() {
 
             #if ENABLED(VARIABLE_GRID_POINTS)
               xy_uint8_t points;
-              EEPROM_READ(points);                         // 2 uint8_t
+              EEPROM_READ(points);                      // 2 uint8_t
             #endif
 
             bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, points));
-            EEPROM_READ(bedlevel.z_values);                 // 9 to 256 floats
+            EEPROM_READ(bedlevel.z_values);             // 9 to 256 floats
           }
           else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
             eeprom_error = ERR_EEPROM_CORRUPT;
