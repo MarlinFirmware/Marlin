@@ -408,16 +408,16 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
 
   startPosn = endPosn_prevBlock;
   xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
-    current_block->steps.e / planner.settings.axis_steps_per_mm[E_AXIS_N(current_block->extruder)],
-    current_block->steps.x / planner.settings.axis_steps_per_mm[X_AXIS],
-    current_block->steps.y / planner.settings.axis_steps_per_mm[Y_AXIS],
-    current_block->steps.z / planner.settings.axis_steps_per_mm[Z_AXIS],
-    current_block->steps.i / planner.settings.axis_steps_per_mm[I_AXIS],
-    current_block->steps.j / planner.settings.axis_steps_per_mm[J_AXIS],
-    current_block->steps.k / planner.settings.axis_steps_per_mm[K_AXIS],
-    current_block->steps.u / planner.settings.axis_steps_per_mm[U_AXIS],
-    current_block->steps.v / planner.settings.axis_steps_per_mm[V_AXIS],
-    current_block->steps.w / planner.settings.axis_steps_per_mm[W_AXIS]
+    current_block->steps.e * planner.mm_per_step[E_AXIS_N(current_block->extruder)],
+    current_block->steps.x * planner.mm_per_step[X_AXIS],
+    current_block->steps.y * planner.mm_per_step[Y_AXIS],
+    current_block->steps.z * planner.mm_per_step[Z_AXIS],
+    current_block->steps.i * planner.mm_per_step[I_AXIS],
+    current_block->steps.j * planner.mm_per_step[J_AXIS],
+    current_block->steps.k * planner.mm_per_step[K_AXIS],
+    current_block->steps.u * planner.mm_per_step[U_AXIS],
+    current_block->steps.v * planner.mm_per_step[V_AXIS],
+    current_block->steps.w * planner.mm_per_step[W_AXIS]
   );
 
   LOGICAL_AXIS_CODE(
