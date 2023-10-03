@@ -147,7 +147,7 @@ public:
 };
 
 #if ABL_USES_GRID
-  #if !ENABLED(VARIABLE_GRID_POINTS)
+  #if DISABLED(VARIABLE_GRID_POINTS)
     constexpr xy_uint8_t G29_State::grid_points;
     #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
       constexpr grid_count_t G29_State::abl_points;
