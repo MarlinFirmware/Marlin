@@ -307,14 +307,14 @@ void GcodeSuite::M493() {
   planner.synchronize();
 
   if (flag.update_n) fxdTiCtrl.refreshShapingN();
-    
+
   if (flag.update_a) fxdTiCtrl.updateShapingA();
 
   if (flag.reset_ft) {
     stepper.set_ft_axis_position();
     fxdTiCtrl.reset();
   }
-  
+
   if (flag.report_h) say_shaping();
 }
 

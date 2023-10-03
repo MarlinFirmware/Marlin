@@ -199,7 +199,7 @@ void FxdTiCtrl::loop() {
     );
 
     // Shift the time series back in the window
-    #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
+    #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], ((FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE)) * sizeof(traj.A[0]))
     LOGICAL_AXIS_CODE(
       TSHIFT(e),
       TSHIFT(x), TSHIFT(y), TSHIFT(z),
@@ -216,8 +216,8 @@ void FxdTiCtrl::loop() {
 
   // Interpolation.
   while ( batchRdyForInterp
-          && ( stepperCmdBuffItems() < ((FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME)) )
-          && ( (interpIdx - interpIdx_z1) < (FTM_STEPS_PER_LOOP) )
+          && ( stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME) )
+          && ( interpIdx - interpIdx_z1 < (FTM_STEPS_PER_LOOP) )
   ) {
     convertToSteps(interpIdx);
 

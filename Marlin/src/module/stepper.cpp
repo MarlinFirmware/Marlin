@@ -3428,16 +3428,16 @@ void Stepper::report_positions() {
     );
 
     LOGICAL_AXIS_CODE(
-    if (axis_step.e) { didMoveReport.e = true; },
-    if (axis_step.x) { didMoveReport.x = true; },
-    if (axis_step.y) { didMoveReport.y = true; },
-    if (axis_step.z) { didMoveReport.z = true; },
-    if (axis_step.i) { didMoveReport.i = true; },
-    if (axis_step.j) { didMoveReport.j = true; },
-    if (axis_step.k) { didMoveReport.k = true; },
-    if (axis_step.u) { didMoveReport.u = true; },
-    if (axis_step.v) { didMoveReport.v = true; },
-    if (axis_step.w) { didMoveReport.w = true; }
+      if (axis_step.e) { didMoveReport.e = true; },
+      if (axis_step.x) { didMoveReport.x = true; },
+      if (axis_step.y) { didMoveReport.y = true; },
+      if (axis_step.z) { didMoveReport.z = true; },
+      if (axis_step.i) { didMoveReport.i = true; },
+      if (axis_step.j) { didMoveReport.j = true; },
+      if (axis_step.k) { didMoveReport.k = true; },
+      if (axis_step.u) { didMoveReport.u = true; },
+      if (axis_step.v) { didMoveReport.v = true; },
+      if (axis_step.w) { didMoveReport.w = true; }
     );
 
     last_direction_bits = LOGICAL_AXIS_ARRAY(
@@ -3460,7 +3460,7 @@ void Stepper::report_positions() {
       I_APPLY_DIR(last_direction_bits.i, false), J_APPLY_DIR(last_direction_bits.j, false), K_APPLY_DIR(last_direction_bits.k, false),
       U_APPLY_DIR(last_direction_bits.u, false), V_APPLY_DIR(last_direction_bits.v, false), W_APPLY_DIR(last_direction_bits.w, false)
     );
-    
+
     DIR_WAIT_AFTER();
 
     LOGICAL_AXIS_CODE(
@@ -3537,12 +3537,10 @@ void Stepper::report_positions() {
       }
 
       fxdTiCtrl.startBlockProc(current_block);
+      return;
+    }
 
-    }
-    else {
-      fxdTiCtrl.runoutBlock();
-      return; // No queued blocks.
-    }
+    fxdTiCtrl.runoutBlock();
 
   } // Stepper::fxdTiCtrl_BlockQueueUpdate()
 
@@ -3554,44 +3552,43 @@ void Stepper::report_positions() {
 
     AxisBits didmove;
 
-    // // TODO: This needs the CORE logic from block_phase_isr in the section:
-    // // #if CORE_IS_XY || CORE_IS_XZ
-    // // #else
-    // //   #define X_MOVE_TEST !!current_block->steps.a
-    // // #endif
+    // TODO: This needs the CORE logic from block_phase_isr in the section:
+    //#if CORE_IS_XY || CORE_IS_XZ
+    //#else
+    //  #define X_MOVE_TEST !!current_block->steps.a
+    //#endif
 
     #define FTM_AXIS_MOVE_DEB_TI 0.05
 
     LOGICAL_AXIS_CODE(
-    if (didMoveReport.e) { didMoveDeb.e = (int)(FTM_AXIS_MOVE_DEB_TI*400); }, // TODO: aux rate magic number
-    if (didMoveReport.x) { didMoveDeb.x = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.y) { didMoveDeb.y = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.z) { didMoveDeb.z = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.i) { didMoveDeb.i = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.j) { didMoveDeb.j = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.k) { didMoveDeb.k = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.u) { didMoveDeb.u = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.v) { didMoveDeb.v = (int)(FTM_AXIS_MOVE_DEB_TI*400); },
-    if (didMoveReport.w) { didMoveDeb.w = (int)(FTM_AXIS_MOVE_DEB_TI*400); }
+      if (didMoveReport.e) { didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400); }, // TODO: aux rate magic number
+      if (didMoveReport.x) { didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.y) { didMoveDeb.y = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.z) { didMoveDeb.z = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.i) { didMoveDeb.i = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.j) { didMoveDeb.j = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.k) { didMoveDeb.k = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.u) { didMoveDeb.u = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.v) { didMoveDeb.v = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
+      if (didMoveReport.w) { didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400); }
     );
 
     LOGICAL_AXIS_CODE(
-    if (didMoveDeb.e) { didmove.bset(E_AXIS); didMoveDeb.e--; },
-    if (didMoveDeb.x) { didmove.bset(X_AXIS); didMoveDeb.x--; },
-    if (didMoveDeb.y) { didmove.bset(Y_AXIS); didMoveDeb.y--; },
-    if (didMoveDeb.z) { didmove.bset(Z_AXIS); didMoveDeb.z--; },
-    if (didMoveDeb.i) { didmove.bset(I_AXIS); didMoveDeb.i--; },
-    if (didMoveDeb.j) { didmove.bset(J_AXIS); didMoveDeb.j--; },
-    if (didMoveDeb.k) { didmove.bset(K_AXIS); didMoveDeb.k--; },
-    if (didMoveDeb.u) { didmove.bset(U_AXIS); didMoveDeb.u--; },
-    if (didMoveDeb.v) { didmove.bset(V_AXIS); didMoveDeb.v--; },
-    if (didMoveDeb.w) { didmove.bset(W_AXIS); didMoveDeb.w--; }
+      if (didMoveDeb.e) { didmove.bset(E_AXIS); didMoveDeb.e--; },
+      if (didMoveDeb.x) { didmove.bset(X_AXIS); didMoveDeb.x--; },
+      if (didMoveDeb.y) { didmove.bset(Y_AXIS); didMoveDeb.y--; },
+      if (didMoveDeb.z) { didmove.bset(Z_AXIS); didMoveDeb.z--; },
+      if (didMoveDeb.i) { didmove.bset(I_AXIS); didMoveDeb.i--; },
+      if (didMoveDeb.j) { didmove.bset(J_AXIS); didMoveDeb.j--; },
+      if (didMoveDeb.k) { didmove.bset(K_AXIS); didMoveDeb.k--; },
+      if (didMoveDeb.u) { didmove.bset(U_AXIS); didMoveDeb.u--; },
+      if (didMoveDeb.v) { didmove.bset(V_AXIS); didMoveDeb.v--; },
+      if (didMoveDeb.w) { didmove.bset(W_AXIS); didMoveDeb.w--; }
     );
 
     axis_did_move = didmove;
 
     didMoveReport.reset();
-
   }
 
 #endif // FT_MOTION
