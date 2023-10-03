@@ -1024,9 +1024,8 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(bedlevel.z_values);              // 9-256 floats
       #else
         dummyf = 0;
-        uint8_t dummyUint8 = 0;
-        EEPROM_WRITE(dummyUint8);
-        EEPROM_WRITE(dummyUint8);
+        xy_uint8_t dummyXY{0};
+        EEPROM_WRITE(dummyXY);
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
@@ -2053,9 +2052,8 @@ void MarlinSettings::postprocess() {
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
-            uint8_t dummyUint8 = 0;
-            EEPROM_READ(dummyUint8);
-            EEPROM_READ(dummyUint8);
+            xy_uint8_t dummyXY;
+            EEPROM_READ(dummyXY);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }
