@@ -3451,6 +3451,7 @@ void Stepper::report_positions() {
 
     DIR_WAIT_AFTER();
 
+    // Start a step pulse
     LOGICAL_AXIS_CODE(
       E_APPLY_STEP(axis_step.e, false),
       X_APPLY_STEP(axis_step.x, false), Y_APPLY_STEP(axis_step.y, false), Z_APPLY_STEP(axis_step.z, false),
@@ -3458,6 +3459,7 @@ void Stepper::report_positions() {
       U_APPLY_STEP(axis_step.u, false), V_APPLY_STEP(axis_step.v, false), W_APPLY_STEP(axis_step.w, false)
     );
 
+    // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
     // Update step counts
@@ -3490,6 +3492,7 @@ void Stepper::report_positions() {
     // Allow pulses to be registered by stepper drivers
     if (any_wait) AWAIT_HIGH_PULSE();
 
+    // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     LOGICAL_AXIS_CODE(
       E_APPLY_STEP(!STEP_STATE_E, false),
       X_APPLY_STEP(!STEP_STATE_X, false), Y_APPLY_STEP(!STEP_STATE_Y, false), Z_APPLY_STEP(!STEP_STATE_Z, false),
@@ -3536,10 +3539,6 @@ void Stepper::report_positions() {
   // delay between the block information and the stepper commands
   void Stepper::fxdTiCtrl_refreshAxisDidMove() {
 
-    static xyze_ulong_t didMoveDeb;
-
-    AxisBits didmove;
-
     // TODO: This needs the CORE logic from block_phase_isr in the section:
     //#if CORE_IS_XY || CORE_IS_XZ
     //#else
@@ -3548,6 +3547,7 @@ void Stepper::report_positions() {
 
     #define FTM_AXIS_MOVE_DEB_TI 0.05
 
+    static xyze_ulong_t didMoveDeb;
     LOGICAL_AXIS_CODE(
       if (didMoveReport.e) didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400), // TODO: aux rate magic number
       if (didMoveReport.x) didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400),
@@ -3561,17 +3561,18 @@ void Stepper::report_positions() {
       if (didMoveReport.w) didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400)
     );
 
+    AxisBits didmove;
     LOGICAL_AXIS_CODE(
-      if (didMoveDeb.e) { didmove.bset(E_AXIS); didMoveDeb.e--; },
-      if (didMoveDeb.x) { didmove.bset(X_AXIS); didMoveDeb.x--; },
-      if (didMoveDeb.y) { didmove.bset(Y_AXIS); didMoveDeb.y--; },
-      if (didMoveDeb.z) { didmove.bset(Z_AXIS); didMoveDeb.z--; },
-      if (didMoveDeb.i) { didmove.bset(I_AXIS); didMoveDeb.i--; },
-      if (didMoveDeb.j) { didmove.bset(J_AXIS); didMoveDeb.j--; },
-      if (didMoveDeb.k) { didmove.bset(K_AXIS); didMoveDeb.k--; },
-      if (didMoveDeb.u) { didmove.bset(U_AXIS); didMoveDeb.u--; },
-      if (didMoveDeb.v) { didmove.bset(V_AXIS); didMoveDeb.v--; },
-      if (didMoveDeb.w) { didmove.bset(W_AXIS); didMoveDeb.w--; }
+      if (didMoveDeb.e) { didmove.e = true; --didMoveDeb.e; },
+      if (didMoveDeb.x) { didmove.x = true; --didMoveDeb.x; },
+      if (didMoveDeb.y) { didmove.y = true; --didMoveDeb.y; },
+      if (didMoveDeb.z) { didmove.z = true; --didMoveDeb.z; },
+      if (didMoveDeb.i) { didmove.i = true; --didMoveDeb.i; },
+      if (didMoveDeb.j) { didmove.j = true; --didMoveDeb.j; },
+      if (didMoveDeb.k) { didmove.k = true; --didMoveDeb.k; },
+      if (didMoveDeb.u) { didmove.u = true; --didMoveDeb.u; },
+      if (didMoveDeb.v) { didmove.v = true; --didMoveDeb.v; },
+      if (didMoveDeb.w) { didmove.w = true; --didMoveDeb.w; }
     );
 
     axis_did_move = didmove;
