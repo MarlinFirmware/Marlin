@@ -3426,16 +3426,10 @@ void Stepper::report_positions() {
     );
 
     LOGICAL_AXIS_CODE(
-      if (axis_step.e) { didMoveReport.e = true; },
-      if (axis_step.x) { didMoveReport.x = true; },
-      if (axis_step.y) { didMoveReport.y = true; },
-      if (axis_step.z) { didMoveReport.z = true; },
-      if (axis_step.i) { didMoveReport.i = true; },
-      if (axis_step.j) { didMoveReport.j = true; },
-      if (axis_step.k) { didMoveReport.k = true; },
-      if (axis_step.u) { didMoveReport.u = true; },
-      if (axis_step.v) { didMoveReport.v = true; },
-      if (axis_step.w) { didMoveReport.w = true; }
+      didMoveReport.e |= axis_step.e,
+      didMoveReport.x |= axis_step.x, didMoveReport.y |= axis_step.y, didMoveReport.z |= axis_step.z,
+      didMoveReport.i |= axis_step.i, didMoveReport.j |= axis_step.j, didMoveReport.k |= axis_step.k,
+      didMoveReport.u |= axis_step.u, didMoveReport.v |= axis_step.v, didMoveReport.w |= axis_step.w
     );
 
     last_direction_bits = LOGICAL_AXIS_ARRAY(
