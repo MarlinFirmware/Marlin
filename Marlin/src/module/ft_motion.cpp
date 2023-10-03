@@ -682,7 +682,7 @@ void FxdTiCtrl::convertToSteps(const uint32_t idx) {
       COMMAND_SET(delta.w, err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
     );
 
-    if (++stepperCmdBuff_produceIdx == FTM_STEPPERCMD_BUFF_SIZE)
+    if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       stepperCmdBuff_produceIdx = 0;
 
   } // FTM_STEPS_PER_UNIT_TIME loop

@@ -3374,12 +3374,8 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
         TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
         TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
         TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-        SP_I_LBL, pos.i,
-        SP_J_LBL, pos.j,
-        SP_K_LBL, pos.k,
-        SP_U_LBL, pos.u,
-        SP_V_LBL, pos.v,
-        SP_W_LBL, pos.w
+        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
       )
     );
   #endif
@@ -3416,7 +3412,7 @@ void Stepper::report_positions() {
     // Use one byte to restore one stepper command in the format:
     // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
     const ft_command_t command = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx];
-    if (++fxdTiCtrl.stepperCmdBuff_consumeIdx == FTM_STEPPERCMD_BUFF_SIZE) fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U;
+    if (++fxdTiCtrl.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE)) fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U;
 
     if (abort_current_block) return;
 
@@ -3563,16 +3559,16 @@ void Stepper::report_positions() {
     #define FTM_AXIS_MOVE_DEB_TI 0.05
 
     LOGICAL_AXIS_CODE(
-      if (didMoveReport.e) { didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400); }, // TODO: aux rate magic number
-      if (didMoveReport.x) { didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.y) { didMoveDeb.y = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.z) { didMoveDeb.z = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.i) { didMoveDeb.i = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.j) { didMoveDeb.j = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.k) { didMoveDeb.k = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.u) { didMoveDeb.u = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.v) { didMoveDeb.v = int((FTM_AXIS_MOVE_DEB_TI) * 400); },
-      if (didMoveReport.w) { didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400); }
+      if (didMoveReport.e) didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400), // TODO: aux rate magic number
+      if (didMoveReport.x) didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.y) didMoveDeb.y = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.z) didMoveDeb.z = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.i) didMoveDeb.i = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.j) didMoveDeb.j = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.k) didMoveDeb.k = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.u) didMoveDeb.u = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.v) didMoveDeb.v = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (didMoveReport.w) didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400)
     );
 
     LOGICAL_AXIS_CODE(
