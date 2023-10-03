@@ -211,9 +211,8 @@
   }
 
   void menu_edit_mesh() {
-    static uint8_t xind, yind; // =0
-    MString<13> msg;
-    msg.setf(F("%.0f / %.0f"), bedlevel.get_mesh_x(xind), bedlevel.get_mesh_y(yind));
+    static uint8_t xind, yind; // = 0
+    MString<13> msg(bedlevel.get_mesh_x(xind), F(" / "), bedlevel.get_mesh_y(yind));
 
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
