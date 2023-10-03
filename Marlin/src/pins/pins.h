@@ -555,8 +555,8 @@
   #include "stm32g0/pins_BTT_EBB42_V1_1.h"          // STM32G0                              env:BTT_EBB42_V1_1_filament_extruder
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M4P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+#elif MB(BTT_MANTA_M4P_V2_1)
+  #include "stm32g0/pins_BTT_MANTA_M4P_V2_1.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_M5P_V1_0)
   #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_E3_EZ_V1_0)
@@ -927,6 +927,7 @@
   #define BOARD_BTT_SKR_SE_BX           99924
   #define BOARD_MKS_MONSTER8            99925
   #define BOARD_LINUX_RAMPS             99926
+  #define BOARD_BTT_MANTA_M4P_V1_0      99927
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -984,6 +985,8 @@
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
   #elif MB(LINUX_RAMPS)
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
+  #elif MB(BTT_MANTA_M4P_V1_0)
+    #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1018,6 +1021,7 @@
   #undef BOARD_BTT_SKR_SE_BX
   #undef BOARD_MKS_MONSTER8
   #undef BOARD_LINUX_RAMPS
+  #undef BOARD_BTT_MANTA_M4P_V1_0
 
 #endif
 
