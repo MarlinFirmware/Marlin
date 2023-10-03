@@ -32,7 +32,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1F400  // 16K
 #endif

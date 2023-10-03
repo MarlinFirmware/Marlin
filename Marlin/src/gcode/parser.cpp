@@ -189,7 +189,13 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
+        if (TERN0(HAS_MULTI_EXTRUDER, letter == 'T')) {
+          p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
+          command_letter = letter;
+        }
+        return;
+      }
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
@@ -229,11 +235,11 @@ void GCodeParser::parse(char *p) {
         }
       #endif
 
-      } break;
+    } break;
 
     #if ENABLED(GCODE_MOTION_MODES)
 
-      #if EITHER(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
+      #if ANY(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
         case 'I' ... 'J': case 'P':
           if (TERN1(BEZIER_CURVE_SUPPORT, motion_mode_codenum != 5)
             && TERN1(ARC_P_CIRCLES, !WITHIN(motion_mode_codenum, 2, 3))

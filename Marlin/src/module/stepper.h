@@ -45,6 +45,7 @@
 
 #include "planner.h"
 #include "stepper/indirection.h"
+#include "stepper/cycles.h"
 #ifdef __AVR__
   #include "stepper/speed_lookuptable.h"
 #endif
@@ -82,6 +83,9 @@ typedef struct {
     };
   };
 } stepper_flags_t;
+
+typedef bits_t(NUM_AXES + E_STATES) e_axis_bits_t;
+constexpr e_axis_bits_t e_axis_mask = (_BV(E_STATES) - 1) << NUM_AXES;
 
 // All the stepper enable pins
 constexpr pin_t ena_pins[] = {
@@ -290,7 +294,7 @@ class Stepper {
 
   public:
 
-    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
 
@@ -337,7 +341,7 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool locked_Z_motor, locked_Z2_motor
                   #if NUM_Z_STEPPERS >= 3
                     , locked_Z3_motor
@@ -375,7 +379,7 @@ class Stepper {
                     decelerate_after,       // The point from where we need to start decelerating
                     step_event_count;       // The total event count for the current block
 
-    #if EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+    #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
       static uint8_t stepper_extruder;
     #else
       static constexpr uint8_t stepper_extruder = 0;
@@ -412,7 +416,7 @@ class Stepper {
       static bool        la_active;        // Whether linear advance is used on the present segment.
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       static constexpr hal_timer_t BABYSTEP_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextBabystepISR;
     #endif
@@ -471,7 +475,7 @@ class Stepper {
       static void advance_isr();
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(BABYSTEPPING)
       // The Babystepping ISR phase
       static hal_timer_t babystepping_isr();
       FORCE_INLINE static void initiateBabystepping() {
@@ -547,7 +551,7 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -558,7 +562,7 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_z1_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
       #if NUM_Z_STEPPERS >= 3

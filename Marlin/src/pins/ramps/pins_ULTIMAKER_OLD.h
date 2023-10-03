@@ -116,7 +116,7 @@
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#if !defined(Z_MIN_PROBE_PIN) && !BOTH(HAS_CUTTER, BOARD_REV_1_0)
+#if !defined(Z_MIN_PROBE_PIN) && !ALL(HAS_CUTTER, BOARD_REV_1_0)
   #define Z_MIN_PROBE_PIN              Z_MAX_PIN
 #endif
 
@@ -135,7 +135,7 @@
 #define Z_DIR_PIN                             39
 #define Z_ENABLE_PIN                          35
 
-#if BOTH(HAS_CUTTER, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
+#if ALL(HAS_CUTTER, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
   // Move E0 to the spare and get Spindle/Laser signals from E0
   #define E0_STEP_PIN                         49
   #define E0_DIR_PIN                          47
@@ -166,7 +166,7 @@
 //
 // LCD / Controller
 //
-#if EITHER(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
+#if ANY(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
 
   #define LCD_PINS_RS                         24
   #define LCD_PINS_EN                         22
@@ -175,7 +175,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif BOTH(BOARD_REV_1_5, HAS_WIRED_LCD)
+#elif ALL(BOARD_REV_1_5, HAS_WIRED_LCD)
 
   #define BEEPER_PIN                          18
 
@@ -225,7 +225,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if EITHER(BOARD_REV_1_0, BOARD_REV_1_5)        // Use the last three SW positions
+  #if ANY(BOARD_REV_1_0, BOARD_REV_1_5)           // Use the last three SW positions
     #define SPINDLE_LASER_PWM_PIN              9  // 1.0: SW5  1.5: EXP3-7 ( "9") .. MUST BE HARDWARE PWM
     #define SPINDLE_LASER_ENA_PIN              8  // 1.0: SW6  1.5: EXP3-8 ( "8") .. Pin should have a pullup!
     #define SPINDLE_DIR_PIN                   10  // 1.0: SW4  1.5: EXP3-6 ("10")

@@ -310,7 +310,11 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-#define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+#if IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
+  #define BLOCK_MOD(n) ((n)&((BLOCK_BUFFER_SIZE)-1))
+#else
+  #define BLOCK_MOD(n) ((n)%(BLOCK_BUFFER_SIZE))
+#endif
 
 #if ENABLED(LASER_FEATURE)
   typedef struct {
@@ -366,7 +370,7 @@ typedef struct {
 #endif
 
 #if ENABLED(DISABLE_OTHER_EXTRUDERS)
-  typedef uvalue_t(BLOCK_BUFFER_SIZE * 2) last_move_t;
+  typedef uvalue_t((BLOCK_BUFFER_SIZE) * 2) last_move_t;
 #endif
 
 #if ENABLED(ARC_SUPPORT)
@@ -650,7 +654,7 @@ class Planner {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
-        LOOP_L_N(i, COUNT(filament_size))
+        for (uint8_t i = 0; i < COUNT(filament_size); ++i)
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -780,7 +784,7 @@ class Planner {
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Get count of movement slots free
-    FORCE_INLINE static uint8_t moves_free() { return BLOCK_BUFFER_SIZE - 1 - movesplanned(); }
+    FORCE_INLINE static uint8_t moves_free() { return (BLOCK_BUFFER_SIZE) - 1 - movesplanned(); }
 
     /**
      * Planner::get_next_free_block
@@ -938,7 +942,7 @@ class Planner {
     }
 
     // SCARA AB and Polar YB axes are in degrees, not mm
-    #if EITHER(IS_SCARA, POLAR)
+    #if ANY(IS_SCARA, POLAR)
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
@@ -1041,7 +1045,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+    #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */

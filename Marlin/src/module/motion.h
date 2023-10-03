@@ -147,12 +147,6 @@ inline float home_bump_mm(const AxisEnum axis) {
   return pgm_read_any(&home_bump_mm_P[axis]);
 }
 
-#if HAS_WORKSPACE_OFFSET
-  void update_workspace_offset(const AxisEnum axis);
-#else
-  inline void update_workspace_offset(const AxisEnum) {}
-#endif
-
 #if HAS_HOTEND_OFFSET
   extern xyz_pos_t hotend_offset[HOTENDS];
   void reset_hotend_offsets();
@@ -271,7 +265,7 @@ void report_current_position_projected();
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
    * Machine states for GRBL or TinyG
@@ -413,7 +407,7 @@ void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
   #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    #define Z_POST_CLEARANCE HMI_data.z_after_homing
+    #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #elif defined(Z_AFTER_HOMING)
     #define Z_POST_CLEARANCE Z_AFTER_HOMING
   #else
@@ -433,9 +427,6 @@ void restore_feedrate_and_scaling();
  */
 typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
-
-typedef bits_t(NUM_AXES + EXTRUDERS) e_axis_bits_t;
-constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
 
@@ -487,32 +478,23 @@ void home_if_needed(const bool keeplev=false);
 
 #define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()))
 
+#if HAS_HOME_OFFSET
+  extern xyz_pos_t home_offset;
+#endif
+
 /**
  * Workspace offsets
  */
-#if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-  #if HAS_HOME_OFFSET
-    extern xyz_pos_t home_offset;
-  #endif
-  #if HAS_POSITION_SHIFT
-    extern xyz_pos_t position_shift;
-  #endif
-  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-    extern xyz_pos_t workspace_offset;
-    #define _WS workspace_offset
-  #elif HAS_HOME_OFFSET
-    #define _WS home_offset
-  #else
-    #define _WS position_shift
-  #endif
-  #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + _WS[AXIS])
-  #define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - _WS[AXIS])
-  FORCE_INLINE void toLogical(xy_pos_t &raw)   { raw += _WS; }
-  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { raw += _WS; }
-  FORCE_INLINE void toLogical(xyze_pos_t &raw) { raw += _WS; }
-  FORCE_INLINE void toNative(xy_pos_t &raw)    { raw -= _WS; }
-  FORCE_INLINE void toNative(xyz_pos_t &raw)   { raw -= _WS; }
-  FORCE_INLINE void toNative(xyze_pos_t &raw)  { raw -= _WS; }
+#if HAS_WORKSPACE_OFFSET
+  extern xyz_pos_t workspace_offset;
+  #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + workspace_offset[AXIS])
+  #define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - workspace_offset[AXIS])
+  FORCE_INLINE void toLogical(xy_pos_t &raw)   { raw += workspace_offset; }
+  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { raw += workspace_offset; }
+  FORCE_INLINE void toLogical(xyze_pos_t &raw) { raw += workspace_offset; }
+  FORCE_INLINE void toNative(xy_pos_t &raw)    { raw -= workspace_offset; }
+  FORCE_INLINE void toNative(xyz_pos_t &raw)   { raw -= workspace_offset; }
+  FORCE_INLINE void toNative(xyze_pos_t &raw)  { raw -= workspace_offset; }
 #else
   #define NATIVE_TO_LOGICAL(POS, AXIS) (POS)
   #define LOGICAL_TO_NATIVE(POS, AXIS) (POS)
@@ -636,7 +618,7 @@ void home_if_needed(const bool keeplev=false);
 
 #endif
 
-#if HAS_M206_COMMAND
+#if HAS_HOME_OFFSET
   void set_home_offset(const AxisEnum axis, const_float_t v);
 #endif
 

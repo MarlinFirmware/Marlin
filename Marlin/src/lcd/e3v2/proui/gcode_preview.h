@@ -28,7 +28,14 @@
  * Date: 2022/09/03
  */
 
-void Preview_DrawFromSD();
-void Preview_Invalidate();
-bool Preview_Valid();
-void Preview_Reset();
+class Preview {
+public:
+  static void drawFromSD();
+  static void invalidate();
+  static bool valid();
+  static void show();
+private:
+  static bool hasPreview();
+};
+
+extern Preview preview;

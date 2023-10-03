@@ -27,7 +27,7 @@
  * (bypassing U8G), it will allow the LIGHTWEIGHT_UI to operate.
  */
 
-#if BOTH(HAS_MARLINUI_U8GLIB, LIGHTWEIGHT_UI)
+#if ALL(HAS_MARLINUI_U8GLIB, LIGHTWEIGHT_UI)
   void ST7920_cs();
   void ST7920_ncs();
   void ST7920_set_cmd();

@@ -33,7 +33,7 @@
 //
 #if ENABLED(SR_LCD_3W_NL)
   // Feature checks for SR_LCD_3W_NL
-#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+#elif ANY(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
   #define USES_LIQUIDTWI2
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
   #define USES_LIQUIDCRYSTAL_I2C
@@ -59,10 +59,10 @@
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
   #endif
-  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
     #define HAS_MENU_DELTA_CALIBRATE
   #endif
-  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+  #if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
     #define HAS_MENU_LED
   #endif
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -110,14 +110,219 @@
 #endif
 
 #if HAS_GRAPHICAL_TFT
-  #define NOTOSANS 1
-  #define UNIFONT 2
-  #define HELVETICA 3
+  #include "../../../../Marlin/src/lcd/tft/fontdata/fontdata.h"
+  #define UI_INCL_(W, H) STRINGIFY_(../../../../Marlin/src/lcd/tft/ui_##W##x##H.h)
+  #define UI_INCL(W, H) UI_INCL_(W, H)
+  #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+
+  #define Latin_Extended_A 1
+  #define Cyrillic 2
+  #define Greek 3
+  #define Katakana 4
+  #define Korean 5
+  #define Vietnamese 6
+  #define Simplified_Chinese 7
+  #define Traditional_Chinese 8
+
   #if TFT_FONT == NOTOSANS
-    #define TFT_FONT_NOTOSANS
+    #if FONT_SIZE == 14
+      #define TFT_FONT_NOTOSANS_14
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_14_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_14_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_14_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_14_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_14_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_14_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_14_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_14_ZH_TW
+      #endif
+    #elif FONT_SIZE == 16
+      #define TFT_FONT_NOTOSANS_16
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_16_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_16_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_16_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_16_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_16_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_16_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_16_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_16_ZH_TW
+      #endif
+    #elif FONT_SIZE == 19
+      #define TFT_FONT_NOTOSANS_19
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_19_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_19_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_19_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_19_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_19_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_19_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_19_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_19_ZH_TW
+      #endif
+    #elif FONT_SIZE == 26
+      #define TFT_FONT_NOTOSANS_26
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_26_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_26_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_26_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_26_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_26_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_26_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_26_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_26_ZH_TW
+      #endif
+    #elif FONT_SIZE == 27
+      #define TFT_FONT_NOTOSANS_27
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_27_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_27_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_27_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_27_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_27_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_27_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_27_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_27_ZH_TW
+      #endif
+    #elif FONT_SIZE == 28
+      #define TFT_FONT_NOTOSANS_28
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_28_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_28_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_28_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_28_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_28_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_28_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_28_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_28_ZH_TW
+      #endif
+    #elif FONT_SIZE == 29
+      #define TFT_FONT_NOTOSANS_29
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_NOTOSANS_29_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_NOTOSANS_29_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_NOTOSANS_29_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_NOTOSANS_29_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_NOTOSANS_29_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_NOTOSANS_29_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_NOTOSANS_29_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_NOTOSANS_29_ZH_TW
+      #endif
+    #endif
   #elif TFT_FONT == UNIFONT
-    #define TFT_FONT_UNIFONT
+    #if FONT_SIZE == 10
+      #define TFT_FONT_UNIFONT_10
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_UNIFONT_10_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_UNIFONT_10_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_UNIFONT_10_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_UNIFONT_10_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_UNIFONT_10_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_UNIFONT_10_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_UNIFONT_10_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_UNIFONT_10_ZH_TW
+      #endif
+    #elif FONT_SIZE == 20
+      #define TFT_FONT_UNIFONT_20
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_UNIFONT_20_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_UNIFONT_20_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_UNIFONT_20_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_UNIFONT_20_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_UNIFONT_20_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_UNIFONT_20_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_UNIFONT_20_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_UNIFONT_20_ZH_TW
+      #endif
+    #elif FONT_SIZE == 30
+      #define TFT_FONT_UNIFONT_30
+      #if FONT_EXTRA == Latin_Extended_A
+        #define TFT_FONT_UNIFONT_30_LATIN
+      #elif FONT_EXTRA == Cyrillic
+        #define TFT_FONT_UNIFONT_30_CYRIL
+      #elif FONT_EXTRA == Greek
+        #define TFT_FONT_UNIFONT_30_GREEK
+      #elif FONT_EXTRA == Katakana
+        #define TFT_FONT_UNIFONT_30_KATA
+      #elif FONT_EXTRA == Korean
+        #define TFT_FONT_UNIFONT_30_KO
+      #elif FONT_EXTRA == Vietnamese
+        #define TFT_FONT_UNIFONT_30_VI
+      #elif FONT_EXTRA == Simplified_Chinese
+        #define TFT_FONT_UNIFONT_30_ZH_CN
+      #elif FONT_EXTRA == Traditional_Chinese
+        #define TFT_FONT_UNIFONT_30_ZH_TW
+      #endif
+    #endif
   #elif TFT_FONT == HELVETICA
-    #define TFT_FONT_HELVETICA
+    #if FONT_SIZE == 14
+      #define TFT_FONT_HELVETICA_14
+    #elif FONT_SIZE == 19
+      #define TFT_FONT_HELVETICA_19
+    #endif
   #endif
 #endif
