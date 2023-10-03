@@ -1178,11 +1178,7 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd_put_u8str(F(" ")); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      const int8_t expl = n;
-      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-      pad -= (expl - n - plen); // Reduce the padding
-    }
+    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
@@ -1201,16 +1197,15 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
     const uint8_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
-    int8_t post_char_len = post_char == ' ' ? 0 : 1;
+    const int8_t post_char_len = post_char == ' ' ? 0 : 1;
     uint8_t n = _MAX(LCD_WIDTH - 1 - post_char_len - rlen, 0);
     const bool full = bool(style & SS_FULL), center = bool(style & SS_CENTER);
 
     lcd_put_lchar(0, row, sel ? pre_char : ' ');
 
     if (!full || !vstr) {
-
       const uint8_t totalLen = rlen + utf8_strlen(ftpl);
       uint8_t padLeft = center ? _MAX(0, (LCD_WIDTH - post_char_len - totalLen) / 2) : 0;
       n = LCD_WIDTH - 1 - post_char_len - padLeft;
@@ -1218,14 +1213,11 @@ void MarlinUI::draw_status_screen() {
       n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
       if (vstr) n -= lcd_put_u8str_max(vstr, n);
       for (; n; --n) lcd_put_u8str(F(" "));
-
     }
     else {
-
+      n = LCD_WIDTH - 2;
       n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
       for (; n; --n) lcd_put_u8str(F(" "));
-      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(vstr, LCD_WIDTH - 2 - post_char_len); };
-
     }
 
     if (post_char_len) lcd_put_lchar(post_char);
@@ -1275,8 +1267,8 @@ void MarlinUI::draw_status_screen() {
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       lcd_put_lchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-      constexpr uint8_t maxlen = LCD_WIDTH - 2;
-      uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = LCD_WIDTH - 2;
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
       for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(isDir ? LCD_STR_FOLDER[0] : ' ');
     }

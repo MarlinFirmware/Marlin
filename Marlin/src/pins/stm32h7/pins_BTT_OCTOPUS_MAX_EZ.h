@@ -449,7 +449,7 @@
 #endif
 
 //
-// WIFI
+// WiFi
 //
 #if ENABLED(WIFISUPPORT)
   /**

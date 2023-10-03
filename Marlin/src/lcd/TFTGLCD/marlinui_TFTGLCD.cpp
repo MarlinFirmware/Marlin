@@ -983,13 +983,9 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      const int8_t expl = n;
-      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-      pad -= (expl - n - plen); // Reduce the padding
-    }
+    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
 
-    if (vlen && n > 0) {
+    if (vlen && n) {
       // SS_FULL: Pad with enough space to justify the value
       if (full && !center) {
         // Move the leading colon from the value to the label
@@ -1002,13 +998,13 @@ void MarlinUI::draw_status_screen() {
       n -= lcd_put_u8str_max(vstr, n);
     }
 
-    for (; n > 0; --n) lcd.write(' ');
+    for (; n; --n) lcd.write(' ');
 
     lcd.print_line();
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
 
@@ -1042,7 +1038,7 @@ void MarlinUI::draw_status_screen() {
       n -= lcd_put_u8str_max(vstr, n);
     }
 
-    for (; n > 0; --n) lcd.write(' ');
+    for (; n; --n) lcd.write(' ');
 
     lcd.write(post_char);
     lcd.print_line();
@@ -1054,7 +1050,8 @@ void MarlinUI::draw_status_screen() {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_moveto(0, row);
     lcd.write(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vlen);
+    uint8_t n = LCD_WIDTH - 2 - vlen;
+    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     if (vlen) {
       lcd.write(':');
       for (; n; --n) lcd.write(' ');
@@ -1104,8 +1101,8 @@ void MarlinUI::draw_status_screen() {
       if (!PanelDetected) return;
       lcd_moveto(0, row);
       lcd.write(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-      constexpr uint8_t maxlen = LCD_WIDTH - 2;
-      uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = LCD_WIDTH - 2;
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
       for (; n; --n) lcd.write(' ');
       lcd.write(isDir ? LCD_STR_FOLDER[0] : ' ');
       lcd.print_line();
