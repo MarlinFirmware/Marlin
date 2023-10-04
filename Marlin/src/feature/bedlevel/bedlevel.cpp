@@ -132,15 +132,10 @@ void reset_bed_level() {
    */
   //#define SCAD_MESH_OUTPUT
 
-  #ifdef VARIABLE_GRID_POINTS
-    // The number of values to print in each dimension depends on fn argument
-    #define PRINT_X print_x
-    #define PRINT_Y print_y
-  #else
-    // The number of values to print in each dimension depends on array size (print all)
-    #define PRINT_X sx
-    #define PRINT_Y sy
-  #endif
+  // The number of values to print in each dimension depends on fn argument or array size (all)
+  #define PRINT_X TERN(VARIABLE_GRID_POINTS, print_x, sx)
+  #define PRINT_Y TERN(VARIABLE_GRID_POINTS, print_y, sy)
+
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
@@ -152,8 +147,8 @@ void reset_bed_level() {
 
     #if ENABLED(VARIABLE_GRID_POINTS)
       // If print_[xy] not supplied, print all in respective dimension
-      if (print_x == 0) print_x = sx;
-      if (print_y == 0) print_y = sy;
+      if (!print_x) print_x = sx;
+      if (!print_y) print_y = sy;
     #endif
 
     #ifndef SCAD_MESH_OUTPUT
