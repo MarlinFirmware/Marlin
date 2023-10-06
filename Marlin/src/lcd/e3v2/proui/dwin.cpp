@@ -1720,19 +1720,12 @@ void dwinPrintAborted() {
       const xyz_pos_t park_point = NOZZLE_PARK_POINT;
     #endif
     if (all_axes_homed()) {
-      const int16_t zpos = current_position.z + TERN(NOZZLE_PARK_FEATURE,
-      NOZZLE_PARK_Z_RAISE_MIN, Z_POST_CLEARANCE);
-      _MIN(zpos, Z_MAX_POS);
-      const int16_t ypos = TERN(NOZZLE_PARK_FEATURE, park_pos.y, Y_MAX_POS);
-      MString<25> cmd;
-      cmd.setf(cmd, F("G0Z%i\nG0F2000Y%i"), zpos, ypos);
-      queue.inject(&cmd);
+      float zpos = current_position.z + TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_Z_RAISE_MIN, Z_POST_CLEARANCE);
+      NOMORE(zpos, Z_MAX_POS);
+      const float ypos = TERN(NOZZLE_PARK_FEATURE, park_point.y, Y_MAX_POS);
+      queue.inject(TS(F("G0Z"), zpos, F("\nG0F2000Y"), ypos));
     }
   #endif
-  #ifdef SD_FINISHED_RELEASECOMMAND
-    queue.inject(SD_FINISHED_RELEASECOMMAND);
-  #endif
-  
   hostui.notify("Print Aborted");
   dwinPrintFinished();
 }
