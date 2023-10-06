@@ -21,10 +21,6 @@
  */
 #pragma once
 
-/**
- * Test HC32F46x-specific configuration values for errors at compile-time.
- */
-
 #if ENABLED(FAST_PWM_FAN)
 #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif

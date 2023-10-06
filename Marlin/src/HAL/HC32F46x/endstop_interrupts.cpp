@@ -1,39 +1,41 @@
 #include "endstop_interrupts.h"
 #include "../../module/endstops.h"
-#include "interrupts.h"
+#include <Arduino.h>
+
+#define ENDSTOP_IRQ_PRIORITY DDL_IRQ_PRIORITY_06
 
 //
 // IRQ handler
 //
 void endstopIRQHandler()
 {
-    bool flag = false;
+  bool flag = false;
 
 // check all irq flags
-#define CHECK(name) TERN_(USE_##name, flag |= checkAndClearExtIRQFlag(name##_PIN))
+#define CHECK(name) TERN_(USE_##name, flag |= checkIRQFlag(name##_PIN, /*clear*/ true))
 
-    CHECK(X_MAX);
-    CHECK(X_MIN);
+  CHECK(X_MAX);
+  CHECK(X_MIN);
 
-    CHECK(Y_MAX);
-    CHECK(Y_MIN);
+  CHECK(Y_MAX);
+  CHECK(Y_MIN);
 
-    CHECK(Z_MAX);
-    CHECK(Z_MIN);
+  CHECK(Z_MAX);
+  CHECK(Z_MIN);
 
-    CHECK(Z2_MAX);
-    CHECK(Z2_MIN);
+  CHECK(Z2_MAX);
+  CHECK(Z2_MIN);
 
-    CHECK(Z3_MAX);
-    CHECK(Z3_MIN);
+  CHECK(Z3_MAX);
+  CHECK(Z3_MIN);
 
-    CHECK(Z_MIN_PROBE);
+  CHECK(Z_MIN_PROBE);
 
-    // update endstops
-    if (flag)
-    {
-        endstops.update();
-    }
+  // update endstops
+  if (flag)
+  {
+    endstops.update();
+  }
 }
 
 //
@@ -41,24 +43,24 @@ void endstopIRQHandler()
 //
 void setup_endstop_interrupts()
 {
-#define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE))
+#define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE); setInterruptPriority(name##_PIN, ENDSTOP_IRQ_PRIORITY))
 
-    SETUP(X_MAX);
-    SETUP(X_MIN);
+  SETUP(X_MAX);
+  SETUP(X_MIN);
 
-    SETUP(Y_MAX);
-    SETUP(Y_MIN);
+  SETUP(Y_MAX);
+  SETUP(Y_MIN);
 
-    SETUP(Z_MAX);
-    SETUP(Z_MIN);
+  SETUP(Z_MAX);
+  SETUP(Z_MIN);
 
-    SETUP(Z2_MAX);
-    SETUP(Z2_MIN);
+  SETUP(Z2_MAX);
+  SETUP(Z2_MIN);
 
-    SETUP(Z3_MAX);
-    SETUP(Z3_MIN);
+  SETUP(Z3_MAX);
+  SETUP(Z3_MIN);
 
-    SETUP(Z_MIN_PROBE);
+  SETUP(Z_MIN_PROBE);
 }
 
 // ensure max. 10 irqs are registered

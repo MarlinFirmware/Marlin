@@ -24,16 +24,18 @@
 
 /**
  * Fast I/O interfaces for HC32F46x
- * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
+ * These use GPIO functions instead of Direct Port Manipulation.
  */
-#include "io.h"
+#include <wiring_digital.h>
+#include <wiring_analog.h>
+#include <gpio/gpio.h>
 
-#define READ(IO) (PORT_GetBitGPIO(IO) ? HIGH : LOW)
-#define WRITE(IO, V) (((V) > 0) ? PORT_SetBitsGPIO(IO) : PORT_ResetBitsGPIO(IO))
-#define TOGGLE(IO) (PORT_ToggleGPIO(IO))
+#define READ(IO) (GPIO_GetBit(IO) ? HIGH : LOW)
+#define WRITE(IO, V) (((V) > 0) ? GPIO_SetBits(IO) : GPIO_ResetBits(IO))
+#define TOGGLE(IO) (GPIO_Toggle(IO))
 
-#define _GET_MODE(IO) gpio_get_mode(IO)
-#define _SET_MODE(IO, M) gpio_set_mode(IO, M)
+#define _GET_MODE(IO) getPinMode(IO)
+#define _SET_MODE(IO, M) pinMode(IO, M)
 #define _SET_OUTPUT(IO) _SET_MODE(IO, OUTPUT)
 
 #define OUT_WRITE(IO, V) \
@@ -47,12 +49,13 @@
 #define SET_INPUT_PULLUP(IO) _SET_MODE(IO, INPUT_PULLUP)
 #define SET_INPUT_PULLDOWN(IO) _SET_MODE(IO, INPUT_PULLDOWN)
 #define SET_OUTPUT(IO) OUT_WRITE(IO, LOW)
+#define SET_PWM(IO) _SET_MODE(IO, OUTPUT_PWM)
 
 #define IS_INPUT(IO) (_GET_MODE(IO) == INPUT || _GET_MODE(IO) == INPUT_FLOATING || _GET_MODE(IO) == INPUT_ANALOG || _GET_MODE(IO) == INPUT_PULLUP ||  _GET_MODE(IO) == INPUT_PULLDOWN)
-#define IS_OUTPUT(IO) (_GET_MODE(IO) == OUTPUT || _GET_MODE(IO) == OUTPUT_OPEN_DRAIN)
+#define IS_OUTPUT(IO) (_GET_MODE(IO) == OUTPUT || || _GET_MODE(IO) == OUTPUT_PWM || _GET_MODE(IO) == OUTPUT_OPEN_DRAIN)
 
-// TODO: #warning "PWM_PIN(IO) is not implemented"
-#define PWM_PIN(IO) (false)
+#define PWM_PIN(IO) isAnalogWritePin(IO)
+#define NO_COMPILE_TIME_PWM // cannot check for PWM at compile time
 
 #define extDigitalRead(IO) digitalRead(IO)
 #define extDigitalWrite(IO, V) digitalWrite(IO, V)

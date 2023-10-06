@@ -29,7 +29,7 @@
 #include "../../../inc/MarlinConfig.h"
 
 #if defined(TARGET_HC32F46x) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
-#warning "'u8g_com_stm32duino_fsmc' has not been tested to work as expected. Proceed at your own risk"
+#warning "'u8g_com_stm32duino_fsmc' has not been adapted to HC32F46x. Proceed at your own risk"
 
 #if HAS_GRAPHICAL_LCD
 
@@ -320,8 +320,8 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs)
   gpio_set_mode(GPIOD, 4, GPIO_AF_OUTPUT_PP); // FSMC_NOE
   gpio_set_mode(GPIOD, 5, GPIO_AF_OUTPUT_PP); // FSMC_NWE
 
-  gpio_set_mode(PIN_MAP[cs].gpio_device, PIN_MAP[cs].gpio_bit, GPIO_AF_OUTPUT_PP); // FSMC_CS_NEx
-  gpio_set_mode(PIN_MAP[rs].gpio_device, PIN_MAP[rs].gpio_bit, GPIO_AF_OUTPUT_PP); // FSMC_RS_Ax
+  gpio_set_mode(PIN_MAP[cs].gpio_device, PIN_MAP[cs].bit_pos, GPIO_AF_OUTPUT_PP); // FSMC_CS_NEx
+  gpio_set_mode(PIN_MAP[rs].gpio_device, PIN_MAP[rs].bit_pos, GPIO_AF_OUTPUT_PP); // FSMC_RS_Ax
 
 #if ENABLED(STM32_XL_DENSITY)
   FSMC_NOR_PSRAM4_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;

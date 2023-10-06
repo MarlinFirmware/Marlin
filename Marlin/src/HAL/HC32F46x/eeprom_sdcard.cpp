@@ -21,7 +21,6 @@
  */
 
 /**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  * Implementation of EEPROM settings in SD Card
  */
 
@@ -55,7 +54,7 @@ bool PersistentStore::access_start()
     return false;
   }
 
-  SdFile file, root = card.getroot();
+  MediaFile file, root = card.getroot();
   if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
   {
     return true; // false aborts the save
@@ -83,7 +82,7 @@ bool PersistentStore::access_finish()
     return false;
   }
 
-  SdFile file, root = card.getroot();
+  MediaFile file, root = card.getroot();
   int bytes_written = 0;
   if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC))
   {

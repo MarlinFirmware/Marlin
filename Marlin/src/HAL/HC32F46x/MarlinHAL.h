@@ -1,8 +1,8 @@
 #pragma once
-
 #include <stdint.h>
+#include <core_types.h>
 
-typedef int8_t pin_t;
+typedef gpio_pin_t pin_t;
 
 class MarlinHAL
 {
@@ -39,8 +39,6 @@ public:
     // ADC Methods
     //
 
-    static uint16_t adc_result;
-
     // Called by Temperature::init once at startup
     static void adc_init();
 
@@ -62,13 +60,19 @@ public:
      * Optionally change the maximum size of the provided value to enable finer PWM duty control [default = 255]
      * The timer must be pre-configured with set_pwm_frequency() if the default frequency is not desired.
      */
-    static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t = 255, const bool = false);
+    static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale = 255, const bool invert = false);
 
     /**
      * Set the frequency of the timer for the given pin.
      * All Timer PWM pins run at the same frequency.
      */
     static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+
+private:
+    /**
+     * pin number of the last pin that was used with adc_start()
+     */
+    static pin_t last_adc_pin;
 };
 
 // M997: trigger firmware update from sd card (after upload)

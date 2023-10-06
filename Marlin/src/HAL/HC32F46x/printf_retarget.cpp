@@ -1,50 +1,40 @@
 #ifdef REDIRECT_PRINTF_TO_SERIAL
-#include <stdio.h>
-#include <stdarg.h>
+#if !defined(__GNUC__)
+#error "only GCC is supported"
+#endif
+
 #include "../../inc/MarlinConfig.h"
 
-// do printf retargeting using stdio hooks (_write or fputc)
-// #define PRINTF_STDIO_RETARGET
-
-// target for printf retargeting
-#ifndef PRINTF_TARGET
-#define PRINTF_TARGET MYSERIAL1
-#endif
-
-#ifdef PRINTF_STDIO_RETARGET
-#if defined(__GNUC__) && !defined(__CC_ARM)
-extern "C" int _write(int fd, char *pBuffer, int size)
+/**
+ * @brief implementation of _write that redirects everything to the host serial(s)
+ * @param file file descriptor. don't care
+ * @param ptr pointer to the data to write
+ * @param len length of the data to write
+ * @return number of bytes written
+ *
+ * @note
+ * i'm not sure if ptr is guaranteed to be null-terminated, so i'm copying the data to a buffer
+ * and adding a null terminator just in case
+ */
+extern "C" int _write(int file, char *ptr, int len)
 {
-    for (int i = 0; i < size; i++)
+    //SERIAL_ECHO_START(); // echo:
+    for(int i = 0; i < len; i++)
     {
-        PRINTF_TARGET.write(pBuffer[i]);
+        SERIAL_CHAR(ptr[i]);
     }
 
-    return size;
-}
-#else
-extern "C" int32_t fputc(int32_t ch, FILE *f)
-{
-    PRINTF_TARGET.write(pBuffer[i]);
-    return ch;
-}
-#endif
-#else
-extern "C" int printf(const char *fmt, ...)
-{
-    va_list argv;
-    va_start(argv, fmt);
-
-// format using vsprintf
-#define PRINTF_BUFFER_SIZE 512
-    char buffer[PRINTF_BUFFER_SIZE];
-    int len = vsnprintf(buffer, PRINTF_BUFFER_SIZE, fmt, argv);
-
-    // print to target
-    PRINTF_TARGET.print(buffer);
-
-    va_end(argv);
     return len;
 }
-#endif
-#endif
+
+/**
+ * @brief implementation of _isatty that always returns 1
+ * @param file file descriptor. don't care
+ * @return everything is a tty. there are no files to be had
+ */
+extern "C" int _isatty(int file)
+{
+    return 1;
+}
+
+#endif // REDIRECT_PRINTF_TO_SERIAL

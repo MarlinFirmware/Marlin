@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Voxelab Aquila V1.0.1 (HC32F460) as found in the Voxelab Aquila X2
+// Voxelab Aquila V1.0.1 and V1.0.2 (HC32F460) as found in the Voxelab Aquila X2
 //
 #include "env_validate.h"
 
@@ -35,6 +35,13 @@
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "Aquila"
+#endif
+
+//
+// on-board crystal oscillator
+//
+#ifndef BOARD_XTAL_FREQUENCY
+  #define BOARD_XTAL_FREQUENCY 8000000 // 8 MHz XTAL
 #endif
 
 //
@@ -154,7 +161,6 @@
 #ifndef FAN_PIN
   #define FAN0_PIN PA0 // FAN0
 #endif
-#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
@@ -167,32 +173,47 @@
 //
 // Screen Pins
 //
-// Screen Port Pinout:
-// TODO: check screen port pinout
-//    ------
-// ? | 1  2 | ?
-// ? | 3  4 | ?
-// ?   5  6 | ?
-// ? | 7  8 | ?
-// ? | 9 10 | ?
-//    ------
+//       ------
+// PC6  | 1  2 | PB2
+// PC0  | 3  4 | PC1
+// PB14   5  6 | PB13
+// PB12 | 7  8 | PB15
+// GND  | 9 10 | +5V
+//       ------
+#define EXP_01_PIN PC6
+#define EXP_02_PIN PB2
+#define EXP_03_PIN PC0
+#define EXP_04_PIN PC1
+#define EXP_05_PIN PB14
+#define EXP_06_PIN PB13
+#define EXP_07_PIN PB12
+#define EXP_08_PIN PB15
 
 #if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)  
-  #define BTN_ENC PB14
-  #define BTN_EN1 PB15
-  #define BTN_EN2 PB12
+  // screen pinout (screen side, so RX/TX are swapped)
+  //       ------
+  // NC   | 1  2 | NC
+  // RX   | 3  4 | TX
+  // EN     5  6 | BEEP
+  // B    | 7  8 | A
+  // GND  | 9 10 | +5V
+  //       ------
+
+  #define BTN_ENC EXP_05_PIN // EN
+  #define BTN_EN1 EXP_08_PIN // A
+  #define BTN_EN2 EXP_07_PIN // B
   
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN PB13
+    #define BEEPER_PIN EXP_06_PIN // BEEP
   #endif
+
+  #define BOARD_USART1_RX_PIN EXP_04_PIN // screen TX
+  #define BOARD_USART1_TX_PIN EXP_03_PIN // screen RX
 #endif
 
 //
-// Pins for documentation and sanity checks
-// Changing these will NOT change the pin they are on
-//
-
 // SDIO Pins
+//
 #define BOARD_SDIO_D0 PC8
 #define BOARD_SDIO_D1 PC9
 #define BOARD_SDIO_D2 PC10
@@ -201,15 +222,26 @@
 #define BOARD_SDIO_CMD PD2
 #define BOARD_SDIO_DET PA10
 
-// USARTS
-#define BOARD_USART1_TX_PIN PC0
-#define BOARD_USART1_RX_PIN PC1
+//
+// USART Pins
+//
+// Screen
+#ifndef BOARD_USART1_TX_PIN
+  #define BOARD_USART1_TX_PIN PC0
+#endif
+#ifndef BOARD_USART1_RX_PIN
+  #define BOARD_USART1_RX_PIN PC1
+#endif
 
+// Host
 #define BOARD_USART2_TX_PIN PA9
 #define BOARD_USART2_RX_PIN PA15
 
+// Unused / Debug
 #define BOARD_USART3_TX_PIN PE5
 #define BOARD_USART3_RX_PIN PE4
 
-// on-board LED (?)
-// #define LED PA3
+// on-board LED (HIGH = off, LOW = on)
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN PA3
+#endif
