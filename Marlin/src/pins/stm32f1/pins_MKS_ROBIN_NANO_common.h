@@ -42,14 +42,14 @@
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #undef NO_EEPROM_SELECTED
 #endif
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -203,14 +203,14 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

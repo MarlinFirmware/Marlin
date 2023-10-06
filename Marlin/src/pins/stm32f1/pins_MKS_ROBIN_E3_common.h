@@ -38,7 +38,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -253,7 +253,7 @@
 // SD Card
 //
 #define SDCARD_CONNECTION                ONBOARD
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 #define ONBOARD_SPI_DEVICE                     2
 #define SDSS                           SD_SS_PIN
 #define ONBOARD_SD_CS_PIN              SD_SS_PIN

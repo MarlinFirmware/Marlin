@@ -155,7 +155,7 @@ bool MarlinUI::detected() { return true; }
         #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
           constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
-        LOOP_L_N(f, COUNT(custom_bootscreen_animation))
+        for (uint8_t f = 0; f < COUNT(custom_bootscreen_animation); ++f)
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
@@ -228,7 +228,7 @@ bool MarlinUI::detected() { return true; }
       draw_bootscreen_bmp(start_bmp);
     #else
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
-      LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
+      for (uint8_t f = 0; f < COUNT(marlin_bootscreen_animation); ++f) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
         if (frame_time) safe_delay(frame_time);
       }
@@ -424,11 +424,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
 
       // Draw as much of the label as fits
-      if (pwide) {
-        const pixel_len_t expw = n;
-        n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-        pad -= (expw - n - pwide) / (MENU_FONT_WIDTH);  // Reduce the padding
-      }
+      if (pwide) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
 
       if (vlen) {
         // SS_FULL: Pad with enough space to justify the value
@@ -449,8 +445,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+      uint8_t n = LCD_WIDTH - 1;
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_u8str(F(" "));
     }
@@ -463,10 +460,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
                     pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
       const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
 
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
+      uint8_t n = LCD_WIDTH - 2 - vallen * prop;
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
       if (vallen) {
         lcd_put_u8str(F(":"));
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+        for (; n; --n) lcd_put_u8str(F(" "));
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
         if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
       }
@@ -552,7 +550,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
         const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
         pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+        for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
       }
     }
 
@@ -645,7 +643,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     //
     // Draw knob rotation => Z motion key for:

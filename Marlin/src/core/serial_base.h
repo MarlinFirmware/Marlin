@@ -79,7 +79,7 @@ struct EnsureDouble {
   operator double() { return a; }
   // If the compiler breaks on ambiguity here, it's likely because print(X, base) is called with X not a double/float, and
   // a base that's not a PrintBase value. This code is made to detect the error. You MUST set a base explicitly like this:
-  // SERIAL_PRINT(v, PrintBase::Hex)
+  //SERIAL_PRINT(v, PrintBase::Hex)
   EnsureDouble(double a) : a(a) {}
   EnsureDouble(float a) : a(a) {}
 };
@@ -169,7 +169,6 @@ struct SerialBase {
   FORCE_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, base); }
   FORCE_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, base); }
 
-
   void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
 
   // Forward the call to the former's method
@@ -180,7 +179,7 @@ struct SerialBase {
   void print(T c)    { print(c, PrintBase::Dec); }
 
   void print(float c)    { print(c, 2); }
-  void print(double c)    { print(c, 2); }
+  void print(double c)   { print(c, 2); }
 
   void println(char *s)               { print(s); println(); }
   void println(const char *s)         { print(s); println(); }
@@ -234,7 +233,7 @@ struct SerialBase {
 
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    LOOP_L_N(i, digits) rounding *= 0.1;
+    for (uint8_t i = 0; i < digits; ++i) rounding *= 0.1;
     number += rounding;
 
     // Extract the integer part of the number and print it

@@ -126,7 +126,7 @@
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
-  #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
     #define LCD_PINS_DC                     PB8   // Set as output on init
     #define LCD_PINS_RS                     PB9   // Pull low for 1s to init
     // DOGM SPI LCD Support
@@ -143,7 +143,7 @@
 
     #define LCD_RESET_PIN                   PB5   // Must be high or open for LCD to operate normally.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN               PB9
       #endif

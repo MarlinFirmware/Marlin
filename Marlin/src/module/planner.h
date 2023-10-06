@@ -88,6 +88,18 @@
                               MMM_TO_MMS(manual_feedrate_mm_m.u), MMM_TO_MMS(manual_feedrate_mm_m.v), MMM_TO_MMS(manual_feedrate_mm_m.w));
 #endif
 
+#if ENABLED(BABYSTEPPING)
+  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
+    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
+    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
+  #else
+    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
+  #endif
+#endif
+
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
   #define HAS_DIST_MM_ARG 1
 #endif
@@ -298,7 +310,11 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-#define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+#if IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
+  #define BLOCK_MOD(n) ((n)&((BLOCK_BUFFER_SIZE)-1))
+#else
+  #define BLOCK_MOD(n) ((n)%(BLOCK_BUFFER_SIZE))
+#endif
 
 #if ENABLED(LASER_FEATURE)
   typedef struct {
@@ -354,7 +370,7 @@ typedef struct {
 #endif
 
 #if ENABLED(DISABLE_OTHER_EXTRUDERS)
-  typedef uvalue_t(BLOCK_BUFFER_SIZE * 2) last_move_t;
+  typedef uvalue_t((BLOCK_BUFFER_SIZE) * 2) last_move_t;
 #endif
 
 #if ENABLED(ARC_SUPPORT)
@@ -417,7 +433,7 @@ class Planner {
 
     #if ENABLED(DIRECT_STEPPING)
       static uint32_t last_page_step_rate;          // Last page step rate given
-      static xyze_bool_t last_page_dir;             // Last page direction given
+      static AxisBits last_page_dir;                // Last page direction given, where 1 represents forward or positive motion
     #endif
 
     #if HAS_EXTRUDERS
@@ -638,7 +654,7 @@ class Planner {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
-        LOOP_L_N(i, COUNT(filament_size))
+        for (uint8_t i = 0; i < COUNT(filament_size); ++i)
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -768,7 +784,7 @@ class Planner {
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Get count of movement slots free
-    FORCE_INLINE static uint8_t moves_free() { return BLOCK_BUFFER_SIZE - 1 - movesplanned(); }
+    FORCE_INLINE static uint8_t moves_free() { return (BLOCK_BUFFER_SIZE) - 1 - movesplanned(); }
 
     /**
      * Planner::get_next_free_block
@@ -926,7 +942,7 @@ class Planner {
     }
 
     // SCARA AB and Polar YB axes are in degrees, not mm
-    #if EITHER(IS_SCARA, POLAR)
+    #if ANY(IS_SCARA, POLAR)
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
@@ -1029,7 +1045,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+    #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */

@@ -154,7 +154,7 @@
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
-#define STR_ERR_M428_TOO_FAR                "Too far from reference point"
+#define STR_ERR_M428_TOO_FAR                "Too far from MIN/MAX"
 #define STR_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define STR_M119_REPORT                     "Reporting endstop status"
 #define STR_ON                              "ON"
@@ -193,6 +193,7 @@
 #define STR_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define STR_ERR_HOTEND_TOO_COLD             "Hotend too cold"
 #define STR_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
+#define STR_ERR_EEPROM_CORRUPT              "EEPROM Corrupt"
 
 #define STR_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define STR_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
@@ -248,10 +249,12 @@
 #define STR_LASER_TEMP                      "laser temperature"
 
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
+#define STR_DETECTED_TEMP_B                 " (temp: "
+#define STR_DETECTED_TEMP_E                 ")"
 #define STR_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define STR_T_HEATING_FAILED                "Heating failed"
 #define STR_T_THERMAL_RUNAWAY               "Thermal Runaway"
-#define STR_T_MALFUNCTION                   "Thermal Malfunction"
+#define STR_T_THERMAL_MALFUNCTION           "Thermal Malfunction"
 #define STR_T_MAXTEMP                       "MAXTEMP triggered"
 #define STR_T_MINTEMP                       "MINTEMP triggered"
 #define STR_ERR_PROBING_FAILED              "Probing Failed"
@@ -277,6 +280,7 @@
 // Settings Report Strings
 #define STR_Z_AUTO_ALIGN                    "Z Auto-Align"
 #define STR_BACKLASH_COMPENSATION           "Backlash compensation"
+#define STR_FT_MOTION                       "Fixed-Time Motion"
 #define STR_S_SEG_PER_SEC                   "S<seg-per-sec>"
 #define STR_DELTA_SETTINGS                  "Delta (L<diagonal-rod> R<radius> H<height> S<seg-per-sec> XYZ<tower-angle-trim> ABC<rod-trim>)"
 #define STR_SCARA_SETTINGS                  "SCARA"
@@ -506,7 +510,7 @@
   #define STR_W   ""
 #endif
 
-#if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
+#if ANY(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
   // Custom characters defined in the first 8 characters of the LCD
   #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!

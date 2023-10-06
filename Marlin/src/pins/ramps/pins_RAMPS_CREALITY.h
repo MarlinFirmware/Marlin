@@ -57,6 +57,8 @@
   #define CASE_LIGHT_PIN                      65
 #endif
 
+#define SERVO1_PIN                            12
+
 #include "pins_RAMPS.h"
 
 #ifndef BEEPER_PIN

@@ -60,13 +60,17 @@
 
 #ifdef __SAMD21__
 
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_MARLINUI_U8GLIB
+
 #include <U8glib-HAL.h>
 #include "SPI.h"
 
 #include "../../shared/HAL_SPI.h"
 
 #ifndef LCD_SPI_SPEED
-  #define LCD_SPI_SPEED SPI_QUARTER_SPEED
+  #define LCD_SPI_SPEED SPI_HALF_SPEED
 #endif
 
 void u8g_SetPIOutput(u8g_t *u8g, uint8_t pin_index) {
@@ -81,7 +85,6 @@ void u8g_SetPILevel(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
 
 uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
 
-  static SPISettings lcdSPIConfig;
 
   switch (msg) {
     case U8G_COM_MSG_STOP:
@@ -95,7 +98,6 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       u8g_SetPILevel(u8g, U8G_PI_CS, LOW);
 
       spiBegin();
-      lcdSPIConfig = SPISettings(900000, MSBFIRST, SPI_MODE0);
       u8g->pin_list[U8G_PI_A0_STATE] = 0;
       break;
 
@@ -113,7 +115,7 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-      SPI.beginTransaction(lcdSPIConfig);
+      spiBeginTransaction(LCD_SPI_SPEED, MSBFIRST, SPI_MODE0);
 
       if (u8g->pin_list[U8G_PI_A0_STATE] == 0) { // command
         SPI.transfer(0x0f8); u8g->pin_list[U8G_PI_A0_STATE] = 2;
@@ -128,7 +130,7 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       break;
 
     case U8G_COM_MSG_WRITE_SEQ:
-      SPI.beginTransaction(lcdSPIConfig);
+      spiBeginTransaction(LCD_SPI_SPEED, MSBFIRST, SPI_MODE0);
 
       if (u8g->pin_list[U8G_PI_A0_STATE] == 0 ) { // command
         SPI.transfer(0x0f8); u8g->pin_list[U8G_PI_A0_STATE] = 2;
@@ -150,5 +152,7 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
   }
   return 1;
 }
+
+#endif // HAS_MARLINUI_U8GLIB
 
 #endif // __SAMD21__

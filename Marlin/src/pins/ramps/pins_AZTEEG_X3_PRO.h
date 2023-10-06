@@ -145,7 +145,7 @@
 #undef BEEPER_PIN
 #define BEEPER_PIN                            33
 
-#if EITHER(VIKI2, miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       49  // For easy adapter board
   #undef BEEPER_PIN
@@ -172,7 +172,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER                                    // EXP2 header
-  #if EITHER(VIKI2, miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define BTN_EN2                           31  // Pin 7 needed for Spindle PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN                7  // Hardware PWM
