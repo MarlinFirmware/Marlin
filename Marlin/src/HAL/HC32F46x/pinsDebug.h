@@ -110,7 +110,7 @@ static bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin)
  * @brief print pin PWM status
  * @return true if pin is currently a PWM pin, false otherwise
  */
-static bool pwm_status(const pin_t pin)
+bool pwm_status(const pin_t pin)
 {
     // get timer assignment for pin
     timera_config_t *unit;
@@ -131,7 +131,7 @@ static bool pwm_status(const pin_t pin)
     return timera_is_unit_initialized(unit) && timera_is_channel_active(unit, channel);
 }
 
-static void pwm_details(const pin_t pin)
+void pwm_details(const pin_t pin)
 {
     // get timer assignment for pin
     timera_config_t *unit;
@@ -191,7 +191,7 @@ static void pwm_details(const pin_t pin)
     }
 }
 
-static void print_port(pin_t pin)
+void print_port(pin_t pin)
 {
     const char port = 'A' + char(pin >> 4); // pin div 16
     const int16_t gbit = PIN_MAP[pin].bit_pos;

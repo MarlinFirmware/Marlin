@@ -21,9 +21,9 @@
  *
  */
 
-/** 
+/**
  * HAL for HC32F46x based boards
- * 
+ *
  * Note: MarlinHAL class is in MarlinHAL.h/cpp
  */
 
@@ -91,7 +91,7 @@ static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) "."
         static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
 #endif
 #if HAS_DGUS_LCD
-#define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+#define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
 #endif
 #endif
 
@@ -118,7 +118,7 @@ extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 #define analogInputToDigitalPin(p) (p)
 #endif
 
-//TODO: digitalPinHasPWM is not implemented
+// TODO: digitalPinHasPWM is not implemented
 #ifndef digitalPinHasPWM
 #define digitalPinHasPWM(P) (P) //(PIN_MAP[P].timer_device != nullptr)
 #endif
@@ -147,7 +147,7 @@ extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 //
 // ADC
 //
-#define HAL_ADC_VREF 3.3
+#define HAL_ADC_VREF_MV 3300
 #define HAL_ADC_RESOLUTION 10
 
 #define GET_PIN_MAP_PIN(index) index
