@@ -1448,7 +1448,6 @@ void Stepper::apply_directions() {
  *
  * Directly pulses the stepper motors at high frequency.
  */
-
 HAL_STEP_TIMER_ISR() {
   HAL_timer_isr_prologue(MF_TIMER_STEP);
 

@@ -692,6 +692,8 @@
   #include "stm32f1/pins_ERYONE_ERY32_MINI.h"       // STM32F1                              env:ERYONE_ERY32_MINI_maple
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"            // STM32F1                              env:PANDA_PI_V29
+#elif MB(AQUILA_V101)
+  #include "hc32f46x/pins_Aquila_V101.h"        // HC32F46x                               env:HC32F460xCxx_AQUILA_V101
 #elif MB(SOVOL_V131)
   #include "gd32f1/pins_SOVOL_V131.h"               // GD32F1                               env:GD32F103RET6_sovol_maple
 #elif MB(TRIGORILLA_V006)
