@@ -597,18 +597,14 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      // Ensure the BLTouch is deployed. Does nothing if already deployed.
-      if (bltouch.deploy())
-        return true; // Deploy in LOW SPEED MODE on every probe action
-    #else
-      if (!bltouch.high_speed_mode && bltouch.deploy())
-        return true; // Deploy in LOW SPEED MODE on every probe action
-    #endif
+    // Ensure the BLTouch is deployed. (Does nothing if already deployed.)
+    // Don't deploy with high_speed_mode enabled. The probe already re-deploys itself.
+    if (TERN(MEASURE_BACKLASH_WHEN_PROBING, true, !bltouch.high_speed_mode) && bltouch.deploy())
+      return true;
   #endif
 
   #if HAS_Z_SERVO_PROBE && (ENABLED(Z_SERVO_INTERMEDIATE_STOW) || defined(Z_SERVO_MEASURE_ANGLE))
-    probe_specific_action(true);  //  Always re-deploy in this case
+    probe_specific_action(true);  // Always re-deploy in this case
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
