@@ -23,10 +23,6 @@
 
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
 
-//#define ANYCUBIC_LCD_DEBUG
-#define DEBUG_OUT ENABLED(ANYCUBIC_LCD_DEBUG)
-#include "../../../core/debug_out.h"
-
 #include "anycubic_i3mega_lcd.h"
 #include "../ui_api.h"
 
@@ -42,8 +38,13 @@
 #define SEND_PGM_VAL(x,y) (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
 #define SEND(x)           send(x)
 #define SENDLINE(x)       sendLine(x)
-#define SENDLINE_DBG_PGM(x,y)       do{ sendLine_P(PSTR(x)); DEBUG_ECHOLNPGM(y); }while(0)
-#define SENDLINE_DBG_PGM_VAL(x,y,z) do{ sendLine_P(PSTR(x)); DEBUG_ECHOLNPGM(y, z); }while(0)
+#if ENABLED(ANYCUBIC_LCD_DEBUG)
+  #define SENDLINE_DBG_PGM(x,y)       do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y); }while(0)
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y, z); }while(0)
+#else
+  #define SENDLINE_DBG_PGM(x,y)       sendLine_P(PSTR(x))
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
+#endif
 
 // Append ".gcode" to filename, if requested. Used for some DGUS-clone displays with built-in filter.
 // Filenames are limited to 26 characters, so the actual name for the FILENAME can be 20 characters at most.
@@ -51,19 +52,21 @@
 #define SPECIAL_MENU_FILENAME(A) A TERN_(ANYCUBIC_LCD_GCODE_EXT, ".gcode")
 #define SPECIAL_MENU_ALTNAME(A, B) TERN(ANYCUBIC_LCD_GCODE_EXT, A ".gcode", B)
 
-AnycubicTFT anycubicTFT;
+AnycubicTFTClass AnycubicTFT;
 
-char AnycubicTFT::tftCommands[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
-int AnycubicTFT::tftBufLen = 0,
-    AnycubicTFT::tftBufIndR = 0,
-    AnycubicTFT::tftBufIndW = 0;
-char* AnycubicTFT::tftStrchrPtr;
-uint8_t AnycubicTFT::specialMenu = false;
-AnycubicMediaPrintState AnycubicTFT::mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-AnycubicMediaPauseState AnycubicTFT::mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+char AnycubicTFTClass::TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
+int AnycubicTFTClass::TFTbuflen = 0,
+    AnycubicTFTClass::TFTbufindr = 0,
+    AnycubicTFTClass::TFTbufindw = 0;
+char AnycubicTFTClass::serial3_char;
+int AnycubicTFTClass::serial3_count = 0;
+char* AnycubicTFTClass::TFTstrchr_pointer;
+uint8_t AnycubicTFTClass::SpecialMenu = false;
+AnycubicMediaPrintState AnycubicTFTClass::mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+AnycubicMediaPauseState AnycubicTFTClass::mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
 
-char AnycubicTFT::selectedDirectory[30];
-char AnycubicTFT::selectedFile[FILENAME_LENGTH];
+char AnycubicTFTClass::SelectedDirectory[30];
+char AnycubicTFTClass::SelectedFile[FILENAME_LENGTH];
 
 // Serial helpers
 static void sendNewLine() { LCD_SERIAL.write('\r'); LCD_SERIAL.write('\n'); }
@@ -77,9 +80,9 @@ static void sendLine_P(PGM_P str) { send_P(str); sendNewLine(); }
 
 using namespace ExtUI;
 
-AnycubicTFT::AnycubicTFT() {}
+AnycubicTFTClass::AnycubicTFTClass() {}
 
-void AnycubicTFT::onSetup() {
+void AnycubicTFTClass::OnSetup() {
   #ifndef LCD_BAUDRATE
     #define LCD_BAUDRATE 115200
   #endif
@@ -89,6 +92,9 @@ void AnycubicTFT::onSetup() {
   delay_ms(10);
 
   // Init the state of the key pins running on the TFT
+  #if BOTH(SDSUPPORT, HAS_SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
+  #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
   #endif
@@ -96,26 +102,30 @@ void AnycubicTFT::onSetup() {
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
   mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
 
-  // doSDCardStateCheck();
+  // DoSDCardStateCheck();
   SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Ready... J12"); // J12 Ready
   delay_ms(10);
 
-  doFilamentRunoutCheck();
-  selectedFile[0] = 0;
+  DoFilamentRunoutCheck();
+  SelectedFile[0] = 0;
 
   #if ENABLED(STARTUP_CHIME)
     injectCommands(F("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
   #endif
-  DEBUG_ECHOLNPGM("TFT Serial Debug: Finished startup");
+  #if ENABLED(ANYCUBIC_LCD_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: Finished startup");
+  #endif
 }
 
-void AnycubicTFT::onCommandScan() {
+void AnycubicTFTClass::OnCommandScan() {
   static millis_t nextStopCheck = 0; // used to slow the stopped print check down to reasonable times
   const millis_t ms = millis();
   if (ELAPSED(ms, nextStopCheck)) {
     nextStopCheck = ms + 1000UL;
-    if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && isNozzleHomed()) {
-      DEBUG_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
+    if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
+      #if ENABLED(ANYCUBIC_LCD_DEBUG)
+        SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
+      #endif
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       injectCommands(F("M84\nM27")); // disable stepper motors and force report of SD status
@@ -125,38 +135,46 @@ void AnycubicTFT::onCommandScan() {
     }
   }
 
-  if (tftBufLen < (TFTBUFSIZE) - 1)
-    getCommandFromTFT();
+  if (TFTbuflen < (TFTBUFSIZE - 1))
+    GetCommandFromTFT();
 
-  if (tftBufLen) {
-    --tftBufLen;
-    tftBufIndR = (tftBufIndR + 1) % (TFTBUFSIZE);
+  if (TFTbuflen) {
+    TFTbuflen  = (TFTbuflen - 1);
+    TFTbufindr = (TFTbufindr + 1) % TFTBUFSIZE;
   }
 }
 
-void AnycubicTFT::onKillTFT() {
+void AnycubicTFTClass::OnKillTFT() {
   SENDLINE_DBG_PGM("J11", "TFT Serial Debug: Kill command... J11");
 }
 
-void AnycubicTFT::onSDCardStateChange(bool isInserted) {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardStateChange event triggered...", isInserted);
-  doSDCardStateCheck();
+void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
+  #if ENABLED(ANYCUBIC_LCD_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
+  #endif
+  DoSDCardStateCheck();
 }
 
-void AnycubicTFT::onSDCardError() {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardError event triggered...");
+void AnycubicTFTClass::OnSDCardError() {
+  #if ENABLED(ANYCUBIC_LCD_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnSDCardError event triggered...");
+  #endif
   SENDLINE_DBG_PGM("J21", "TFT Serial Debug: On SD Card Error ... J21");
 }
 
-void AnycubicTFT::onFilamentRunout() {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onFilamentRunout triggered...");
-  doFilamentRunoutCheck();
+void AnycubicTFTClass::OnFilamentRunout() {
+  #if ENABLED(ANYCUBIC_LCD_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: FilamentRunout triggered...");
+  #endif
+  DoFilamentRunoutCheck();
 }
 
-void AnycubicTFT::onUserConfirmRequired(const char * const msg) {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onUserConfirmRequired triggered... ", msg);
+void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
+  #if ENABLED(ANYCUBIC_LCD_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
+  #endif
 
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     /**
      * Need to handle the process of following states
      * "Nozzle Parked"
@@ -205,188 +223,190 @@ void AnycubicTFT::onUserConfirmRequired(const char * const msg) {
   #endif
 }
 
-float AnycubicTFT::codeValue() {
-  return (strtod(&tftCommands[tftBufIndR][tftStrchrPtr - tftCommands[tftBufIndR] + 1], nullptr));
+float AnycubicTFTClass::CodeValue() {
+  return (strtod(&TFTcmdbuffer[TFTbufindr][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindr] + 1], nullptr));
 }
 
-bool AnycubicTFT::codeSeen(char code) {
-  tftStrchrPtr = strchr(tftCommands[tftBufIndR], code);
-  return !!tftStrchrPtr; // Return True if a character was found
+bool AnycubicTFTClass::CodeSeen(char code) {
+  TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindr], code);
+  return !!TFTstrchr_pointer; // Return True if a character was found
 }
 
-bool AnycubicTFT::isNozzleHomed() {
+bool AnycubicTFTClass::IsNozzleHomed() {
   const float xPosition = getAxisPosition_mm((axis_t) X);
   const float yPosition = getAxisPosition_mm((axis_t) Y);
   return WITHIN(xPosition, X_MIN_POS - 0.1, X_MIN_POS + 0.1) &&
          WITHIN(yPosition, Y_MIN_POS - 0.1, Y_MIN_POS + 0.1);
 }
 
-void AnycubicTFT::handleSpecialMenu() {
+void AnycubicTFTClass::HandleSpecialMenu() {
   /**
    * NOTE: that the file selection command actual lowercases the entire selected file/foldername, so charracter comparisons need to be lowercase.
    */
-  if (selectedDirectory[0] != '<') {
-    DEBUG_ECHOLNPGM("TFT Serial Debug: Attempted to handleSpecialMenu on non-special menu... ", selectedDirectory);
-    return;
+  if (SelectedDirectory[0] == '<') {
+    switch (SelectedDirectory[1]) {
+      case 'e': // "<exit>"
+        SpecialMenu = false;
+        return;
+        break;
+
+        #if ENABLED(PROBE_MANUALLY)
+          case '0':
+            switch (SelectedDirectory[2]) {
+              case '1': // "<01ZUp0.1>"
+                SERIAL_ECHOLNPGM("Special Menu: Z Up 0.1");
+                injectCommands(F("G91\nG1 Z+0.1\nG90"));
+                break;
+
+              case '2': // "<02ZUp0.02>"
+                SERIAL_ECHOLNPGM("Special Menu: Z Up 0.02");
+                injectCommands(F("G91\nG1 Z+0.02\nG90"));
+                break;
+
+              case '3': // "<03ZDn0.02>"
+                SERIAL_ECHOLNPGM("Special Menu: Z Down 0.02");
+                injectCommands(F("G91\nG1 Z-0.02\nG90"));
+                break;
+
+              case '4': // "<04ZDn0.1>"
+                SERIAL_ECHOLNPGM("Special Menu: Z Down 0.1");
+                injectCommands(F("G91\nG1 Z-0.1\nG90"));
+                break;
+
+              case '5': // "<05PrehtBed>"
+                SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
+                injectCommands(F("M140 S65"));
+                break;
+
+              case '6': // "<06SMeshLvl>"
+                SERIAL_ECHOLNPGM("Special Menu: Start Mesh Leveling");
+                injectCommands(F("G29S1"));
+                break;
+
+              case '7': // "<07MeshNPnt>"
+                SERIAL_ECHOLNPGM("Special Menu: Next Mesh Point");
+                injectCommands(F("G29S2"));
+                break;
+
+              case '8': // "<08HtEndPID>"
+                SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
+                // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
+                injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                break;
+
+              case '9': // "<09HtBedPID>"
+                SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
+                injectCommands(F("M303 E-1 S65 C6 U1"));
+                break;
+
+              default:
+                break;
+            }
+            break;
+
+          case '1':
+            switch (SelectedDirectory[2]) {
+              case '0': // "<10FWDeflts>"
+                SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
+                injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                break;
+
+              case '1': // "<11SvEEPROM>"
+                SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
+                injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                break;
+
+              default:
+                break;
+            }
+            break;
+        #else // if ENABLED(PROBE_MANUALLY)
+          case '0':
+            switch (SelectedDirectory[2]) {
+              case '1': // "<01PrehtBed>"
+                SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
+                injectCommands(F("M140 S65"));
+                break;
+
+              case '2': // "<02ABL>"
+                SERIAL_ECHOLNPGM("Special Menu: Auto Bed Leveling");
+                injectCommands(F("G29N"));
+                break;
+
+              case '3': // "<03HtendPID>"
+                SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
+                // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
+                injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                break;
+
+              case '4': // "<04HtbedPID>"
+                SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
+                injectCommands(F("M303 E-1 S65 C6 U1"));
+                break;
+
+              case '5': // "<05FWDeflts>"
+                SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
+                injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                break;
+
+              case '6': // "<06SvEEPROM>"
+                SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
+                injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                break;
+
+              case '7': // <07SendM108>
+                SERIAL_ECHOLNPGM("Special Menu: Send User Confirmation");
+                injectCommands(F("M108"));
+                break;
+
+              default:
+                break;
+            }
+            break;
+            #endif  // PROBE_MANUALLY
+
+          default:
+            break;
+    }
+    #if ENABLED(ANYCUBIC_LCD_DEBUG)
   }
-
-  switch (selectedDirectory[1]) {
-    default: break;
-
-    case 'e': specialMenu = false; return; // "<exit>"
-
-    #if ENABLED(PROBE_MANUALLY)
-
-      case '0':
-        switch (selectedDirectory[2]) {
-          default: break;
-
-          case '1': // "<01ZUp0.1>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Z Up 0.1"));
-            injectCommands(F("G91\nG1 Z+0.1\nG90"));
-            break;
-
-          case '2': // "<02ZUp0.02>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Z Up 0.02"));
-            injectCommands(F("G91\nG1 Z+0.02\nG90"));
-            break;
-
-          case '3': // "<03ZDn0.02>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Z Down 0.02"));
-            injectCommands(F("G91\nG1 Z-0.02\nG90"));
-            break;
-
-          case '4': // "<04ZDn0.1>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Z Down 0.1"));
-            injectCommands(F("G91\nG1 Z-0.1\nG90"));
-            break;
-
-          case '5': // "<05PrehtBed>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Preheat Bed"));
-            injectCommands(F("M140 S65"));
-            break;
-
-          case '6': // "<06SMeshLvl>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Start Mesh Leveling"));
-            injectCommands(F("G29S1"));
-            break;
-
-          case '7': // "<07MeshNPnt>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Next Mesh Point"));
-            injectCommands(F("G29S2"));
-            break;
-
-          case '8': // "<08HtEndPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotend PID"));
-            // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-            injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
-            break;
-
-          case '9': // "<09HtBedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
-            injectCommands(F("M303 E-1 S65 C6 U1"));
-            break;
-        }
-        break;
-
-      case '1':
-        switch (selectedDirectory[2]) {
-          default: break;
-
-          case '0': // "<10FWDeflts>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Load FW Defaults"));
-            injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
-            break;
-
-          case '1': // "<11SvEEPROM>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Save EEPROM"));
-            injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
-            break;
-        }
-        break;
-
-    #else // !PROBE_MANUALLY
-
-      case '0':
-        switch (selectedDirectory[2]) {
-          default: break;
-
-          case '1': // "<01PrehtBed>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Preheat Bed"));
-            injectCommands(F("M140 S65"));
-            break;
-
-          case '2': // "<02ABL>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Bed Leveling"));
-            injectCommands(F("G29N"));
-            break;
-
-          case '3': // "<03HtendPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotend PID"));
-            // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-            injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
-            break;
-
-          case '4': // "<04HtbedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
-            injectCommands(F("M303 E-1 S65 C6 U1"));
-            break;
-
-          case '5': // "<05FWDeflts>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Load FW Defaults"));
-            injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
-            break;
-
-          case '6': // "<06SvEEPROM>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Save EEPROM"));
-            injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
-            break;
-
-          case '7': // <07SendM108>
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Send User Confirmation"));
-            injectCommands(F("M108"));
-            break;
-        }
-        break;
-
-    #endif // !PROBE_MANUALLY
+  else {
+    SERIAL_ECHOPGM("TFT Serial Debug: Attempted to HandleSpecialMenu on non-special menu... ");
+    SERIAL_ECHOLN(SelectedDirectory);
+    #endif
   }
-
 }
 
-void AnycubicTFT::renderCurrentFileList() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::RenderCurrentFileList() {
+  #if ENABLED(SDSUPPORT)
     uint16_t selectedNumber = 0;
-    selectedDirectory[0] = 0;
-    selectedFile[0] = 0;
+    SelectedDirectory[0] = 0;
+    SelectedFile[0] = 0;
     FileList currentFileList;
 
     SENDLINE_PGM("FN "); // Filelist start
 
-    if (!isMediaInserted() && !specialMenu) {
+    if (!isMediaInserted() && !SpecialMenu) {
       SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
       SENDLINE_PGM("<SPECI~1.GCO");
       SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Special Menu>"));
     }
     else {
-      if (codeSeen('S'))
-        selectedNumber = codeValue();
+      if (CodeSeen('S'))
+        selectedNumber = CodeValue();
 
-      if (specialMenu)
-        renderSpecialMenu(selectedNumber);
+      if (SpecialMenu)
+        RenderSpecialMenu(selectedNumber);
       else if (selectedNumber <= currentFileList.count())
-        renderCurrentFolder(selectedNumber);
+        RenderCurrentFolder(selectedNumber);
     }
     SENDLINE_PGM("END"); // Filelist stop
-  #endif // HAS_MEDIA
+  #endif // SDSUPPORT
 }
 
-void AnycubicTFT::renderSpecialMenu(uint16_t selectedNumber) {
-
+void AnycubicTFTClass::RenderSpecialMenu(uint16_t selectedNumber) {
   switch (selectedNumber) {
-    default: break;
-
     #if ENABLED(PROBE_MANUALLY)
       case 0: // First Page
         SENDLINE_PGM("<01ZUP~1.GCO");
@@ -420,9 +440,7 @@ void AnycubicTFT::renderSpecialMenu(uint16_t selectedNumber) {
         SENDLINE_PGM("<EXIT_~1.GCO");
         SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Exit>"));
         break;
-
-    #else // !PROBE_MANUALLY
-
+    #else
       case 0: // First Page
         SENDLINE_PGM("<01PRE~1.GCO");
         SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Preheat Bed>"));
@@ -445,16 +463,25 @@ void AnycubicTFT::renderSpecialMenu(uint16_t selectedNumber) {
         SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Exit>"));
         break;
 
-    #endif // !PROBE_MANUALLY
+        #endif // PROBE_MANUALLY
+
+      default:
+        break;
   }
 }
 
-void AnycubicTFT::renderCurrentFolder(uint16_t selectedNumber) {
+void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
   FileList currentFileList;
-  const uint16_t dir_files = currentFileList.count(),
-                 max_files = (dir_files - selectedNumber) < 4 ? dir_files : selectedNumber + 3;
+  uint16_t cnt = selectedNumber;
+  uint16_t max_files;
+  uint16_t dir_files = currentFileList.count();
 
-  for (uint16_t cnt = selectedNumber; cnt <= max_files; cnt++) {
+  if ((dir_files - selectedNumber) < 4)
+    max_files = dir_files;
+  else
+    max_files = selectedNumber + 3;
+
+  for (cnt = selectedNumber; cnt <= max_files; cnt++) {
     if (cnt == 0) { // Special Entry
       if (currentFileList.isAtRootDir()) {
         SENDLINE_PGM("<SPECI~1.GCO");
@@ -468,7 +495,9 @@ void AnycubicTFT::renderCurrentFolder(uint16_t selectedNumber) {
     else {
       currentFileList.seek(cnt - 1, false);
 
-      DEBUG_ECHOLN(currentFileList.filename());
+      #if ENABLED(ANYCUBIC_LCD_DEBUG)
+        SERIAL_ECHOLN(currentFileList.filename());
+      #endif
       if (currentFileList.isDir()) {
         SEND_PGM("/");
         SENDLINE(currentFileList.shortFilename());
@@ -484,15 +513,16 @@ void AnycubicTFT::renderCurrentFolder(uint16_t selectedNumber) {
   }
 }
 
-void AnycubicTFT::onPrintTimerStarted() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::OnPrintTimerStarted() {
+  #if ENABLED(SDSUPPORT)
     if (mediaPrintingState == AMPRINTSTATE_PRINTING)
       SENDLINE_DBG_PGM("J04", "TFT Serial Debug: Starting SD Print... J04"); // J04 Starting Print
+
   #endif
 }
 
-void AnycubicTFT::onPrintTimerPaused() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::OnPrintTimerPaused() {
+  #if ENABLED(SDSUPPORT)
     if (isPrintingFromMedia()) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState    = AMPAUSESTATE_PARKING;
@@ -500,8 +530,8 @@ void AnycubicTFT::onPrintTimerPaused() {
   #endif
 }
 
-void AnycubicTFT::onPrintTimerStopped() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::OnPrintTimerStopped() {
+  #if ENABLED(SDSUPPORT)
     if (mediaPrintingState == AMPRINTSTATE_PRINTING) {
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
@@ -513,378 +543,386 @@ void AnycubicTFT::onPrintTimerStopped() {
 
 #define ROUND(val) int((val)+0.5f)
 
-void AnycubicTFT::getCommandFromTFT() {
-  static int serial_count = 0;
-
+void AnycubicTFTClass::GetCommandFromTFT() {
   char *starpos = nullptr;
-  while (LCD_SERIAL.available() > 0 && tftBufLen < (TFTBUFSIZE)) {
-    char c = LCD_SERIAL.read();
-    if (c != '\n' && c != '\r' && c != ':' && serial_count < (TFT_MAX_CMD_SIZE - 1)) {
-      tftCommands[tftBufIndW][serial_count++] = c;
-      continue;
-    }
+  while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
+    serial3_char = LCD_SERIAL.read();
+    if (serial3_char == '\n' ||
+        serial3_char == '\r' ||
+        serial3_char == ':'  ||
+        serial3_count >= (TFT_MAX_CMD_SIZE - 1)
+    ) {
 
-    if (!serial_count) return; // if empty line
+      if (!serial3_count) return; // if empty line
 
-    tftCommands[tftBufIndW][serial_count] = 0; // terminate string
+      TFTcmdbuffer[TFTbufindw][serial3_count] = 0; // terminate string
 
-    if ((strchr(tftCommands[tftBufIndW], 'A') != nullptr)) {
-      int16_t a_command;
-      tftStrchrPtr = strchr(tftCommands[tftBufIndW], 'A');
-      a_command = ((int)((strtod(&tftCommands[tftBufIndW][tftStrchrPtr - tftCommands[tftBufIndW] + 1], nullptr))));
+      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != nullptr)) {
+        int16_t a_command;
+        TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindw], 'A');
+        a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], nullptr))));
 
-      if (a_command > 7 && a_command != 20) { // No debugging of status polls, please!
-        DEBUG_ECHOLNPGM("TFT Serial Command: ", tftCommands[tftBufIndW]);
-      }
+        #if ENABLED(ANYCUBIC_LCD_DEBUG)
+          if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
+            SERIAL_ECHOLNPGM("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
+        #endif
 
-      switch (a_command) {
-        case 0: { // A0 GET HOTEND TEMP
-          const celsius_float_t hotendActualTemp = getActualTemp_celsius(E0);
-          SEND_PGM_VAL("A0V ", ROUND(hotendActualTemp));
-        }
-        break;
+        switch (a_command) {
+          case 0: { // A0 GET HOTEND TEMP
+            const celsius_float_t hotendActualTemp = getActualTemp_celsius(E0);
+            SEND_PGM_VAL("A0V ", ROUND(hotendActualTemp));
+          }
+          break;
 
-        case 1: { // A1  GET HOTEND TARGET TEMP
-          const celsius_float_t hotendTargetTemp = getTargetTemp_celsius(E0);
-          SEND_PGM_VAL("A1V ", ROUND(hotendTargetTemp));
-        }
-        break;
+          case 1: { // A1  GET HOTEND TARGET TEMP
+            const celsius_float_t hotendTargetTemp = getTargetTemp_celsius(E0);
+            SEND_PGM_VAL("A1V ", ROUND(hotendTargetTemp));
+          }
+          break;
 
-        case 2: { // A2 GET HOTBED TEMP
-          const celsius_float_t heatedBedActualTemp = getActualTemp_celsius(BED);
-          SEND_PGM_VAL("A2V ", ROUND(heatedBedActualTemp));
-        }
-        break;
+          case 2: { // A2 GET HOTBED TEMP
+            const celsius_float_t heatedBedActualTemp = getActualTemp_celsius(BED);
+            SEND_PGM_VAL("A2V ", ROUND(heatedBedActualTemp));
+          }
+          break;
 
-        case 3: { // A3 GET HOTBED TARGET TEMP
-          const celsius_float_t heatedBedTargetTemp = getTargetTemp_celsius(BED);
-          SEND_PGM_VAL("A3V ", ROUND(heatedBedTargetTemp));
-        } break;
+          case 3: { // A3 GET HOTBED TARGET TEMP
+            const celsius_float_t heatedBedTargetTemp = getTargetTemp_celsius(BED);
+            SEND_PGM_VAL("A3V ", ROUND(heatedBedTargetTemp));
+          } break;
 
-        case 4: { // A4 GET FAN SPEED
-          SEND_PGM_VAL("A4V ", int(getActualFan_percent(FAN0)));
-        } break;
+          case 4: { // A4 GET FAN SPEED
+            SEND_PGM_VAL("A4V ", int(getActualFan_percent(FAN0)));
+          } break;
 
-        case 5: { // A5 GET CURRENT COORDINATE
-          const float xPosition = getAxisPosition_mm(X),
-                      yPosition = getAxisPosition_mm(Y),
-                      zPosition = getAxisPosition_mm(Z);
-          SEND_PGM("A5V X: "); LCD_SERIAL.print(xPosition);
-          SEND_PGM(   " Y: "); LCD_SERIAL.print(yPosition);
-          SEND_PGM(   " Z: "); LCD_SERIAL.print(zPosition);
-          SENDLINE_PGM("");
-        } break;
+          case 5: { // A5 GET CURRENT COORDINATE
+            const float xPosition = getAxisPosition_mm(X),
+                        yPosition = getAxisPosition_mm(Y),
+                        zPosition = getAxisPosition_mm(Z);
+            SEND_PGM("A5V X: "); LCD_SERIAL.print(xPosition);
+            SEND_PGM(   " Y: "); LCD_SERIAL.print(yPosition);
+            SEND_PGM(   " Z: "); LCD_SERIAL.print(zPosition);
+            SENDLINE_PGM("");
+          } break;
 
-        case 6: // A6 GET SD CARD PRINTING STATUS
-          #if HAS_MEDIA
-            if (isPrintingFromMedia()) {
-              SEND_PGM("A6V ");
-              if (isMediaInserted())
-                SENDLINE(ui8tostr3rj(getProgress_percent()));
+          case 6: // A6 GET SD CARD PRINTING STATUS
+            #if ENABLED(SDSUPPORT)
+              if (isPrintingFromMedia()) {
+                SEND_PGM("A6V ");
+                if (isMediaInserted())
+                  SENDLINE(ui8tostr3rj(getProgress_percent()));
+                else
+                  SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
+              }
               else
-                SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
+                SENDLINE_PGM("A6V ---");
+            #endif
+            break;
+
+          case 7: { // A7 GET PRINTING TIME
+            const uint32_t elapsedSeconds = getProgress_seconds_elapsed();
+            SEND_PGM("A7V ");
+            if (elapsedSeconds != 0) {  // print time
+              const uint32_t elapsedMinutes = elapsedSeconds / 60;
+              SEND(ui8tostr2(elapsedMinutes / 60));
+              SEND_PGM(" H ");
+              SEND(ui8tostr2(elapsedMinutes % 60));
+              SENDLINE_PGM(" M");
             }
             else
-              SENDLINE_PGM("A6V ---");
-          #endif
-          break;
-
-        case 7: { // A7 GET PRINTING TIME
-          const uint32_t elapsedSeconds = getProgress_seconds_elapsed();
-          SEND_PGM("A7V ");
-          if (elapsedSeconds != 0) {  // print time
-            const uint32_t elapsedMinutes = elapsedSeconds / 60;
-            SEND(ui8tostr2(elapsedMinutes / 60));
-            SEND_PGM(" H ");
-            SEND(ui8tostr2(elapsedMinutes % 60));
-            SENDLINE_PGM(" M");
-          }
-          else
-            SENDLINE_PGM(" 999:999");
-        }
-        break;
-
-        case 8: // A8 GET  SD LIST
-          #if HAS_MEDIA
-            selectedFile[0] = 0;
-            renderCurrentFileList();
-          #endif
-          break;
-
-        case 9: // A9 pause sd print
-          TERN_(HAS_MEDIA, if (isPrintingFromMedia()) pausePrint());
-          break;
-
-        case 10: // A10 resume sd print
-          #if HAS_MEDIA
-            if (isPrintingFromMediaPaused())
-              resumePrint();
-          #endif
-          break;
-
-        case 11: // A11 STOP SD PRINT
-          TERN_(HAS_MEDIA, stopPrint());
-          break;
-
-        case 12: // A12 kill
-          kill(F(STR_ERR_KILLED));
-          break;
-
-        case 13: // A13 SELECTION FILE
-          #if HAS_MEDIA
-            if (isMediaInserted()) {
-              starpos = (strchr(tftStrchrPtr + 4, '*'));
-              if (tftStrchrPtr[4] == '/') {
-                strcpy(selectedDirectory, tftStrchrPtr + 5);
-                selectedFile[0] = 0;
-                SENDLINE_DBG_PGM("J21", "TFT Serial Debug: Clear file selection... J21 "); // J21 Not File Selected
-                SENDLINE_PGM("");
-              }
-              else if (tftStrchrPtr[4] == '<') {
-                strcpy(selectedDirectory, tftStrchrPtr + 4);
-                specialMenu = true;
-                selectedFile[0] = 0;
-                SENDLINE_DBG_PGM("J21", "TFT Serial Debug: Clear file selection... J21 "); // J21 Not File Selected
-                SENDLINE_PGM("");
-              }
-              else {
-                selectedDirectory[0] = 0;
-
-                if (starpos) *(starpos - 1) = '\0';
-
-                strcpy(selectedFile, tftStrchrPtr + 4);
-                SENDLINE_DBG_PGM_VAL("J20", "TFT Serial Debug: File Selected... J20 ", selectedFile); // J20 File Selected
-              }
-            }
-          #endif
-          break;
-
-        case 14: // A14 START PRINTING
-          #if HAS_MEDIA
-            if (!isPrinting() && strlen(selectedFile) > 0)
-              startPrint();
-          #endif
-          break;
-
-        case 15: // A15 RESUMING FROM OUTAGE
-          // TODO: JBA implement resume form outage
-          break;
-
-        case 16: { // A16 set hotend temp
-          uint16_t tempvalue;
-          if (codeSeen('S')) {
-            tempvalue = constrain(codeValue(), 0, 275);
-            setTargetTemp_celsius(tempvalue, (extruder_t)E0);
-          }
-          else if (codeSeen('C') && !isPrinting()) {
-            if (getAxisPosition_mm(Z) < 10)
-              injectCommands(F("G1 Z10")); // RASE Z AXIS
-            tempvalue = constrain(codeValue(), 0, 275);
-            setTargetTemp_celsius(tempvalue, (extruder_t)E0);
-          }
-        }
-        break;
-
-        case 17: { // A17 set heated bed temp
-          uint16_t tempbed;
-          if (codeSeen('S')) {
-            tempbed = constrain(codeValue(), 0, 100);
-            setTargetTemp_celsius(tempbed, (heater_t)BED);
-          }
-        }
-        break;
-
-        case 18: { // A18 set fan speed
-          float fanPercent;
-          if (codeSeen('S')) {
-            fanPercent = codeValue();
-            fanPercent = constrain(fanPercent, 0, 100);
-            setTargetFan_percent(fanPercent, FAN0);
-          }
-          else
-            fanPercent = 100;
-
-          setTargetFan_percent(fanPercent, FAN0);
-          SENDLINE_PGM("");
-        }
-        break;
-
-        case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
-          if (!isPrinting()) {
-            quickstop_stepper();
-            stepper.disable_all_steppers();
-          }
-
-          SENDLINE_PGM("");
-          break;
-
-        case 20: // A20 read printing speed
-          if (codeSeen('S'))
-            feedrate_percentage = constrain(codeValue(), 40, 999);
-          else
-            SEND_PGM_VAL("A20V ", feedrate_percentage);
-          break;
-
-        case 21: // A21 all home
-          if (!isPrinting() && !isPrintingFromMediaPaused()) {
-            if (codeSeen('X') || codeSeen('Y') || codeSeen('Z')) {
-              if (codeSeen('X'))
-                injectCommands(F("G28X"));
-              if (codeSeen('Y'))
-                injectCommands(F("G28Y"));
-              if (codeSeen('Z'))
-                injectCommands(F("G28Z"));
-            }
-            else if (codeSeen('C')) {
-              injectCommands_P(G28_STR);
-            }
+              SENDLINE_PGM(" 999:999");
           }
           break;
 
-        case 22: // A22 move X/Y/Z or extrude
-          if (!isPrinting()) {
-            float coorvalue;
-            uint16_t movespeed = 0;
-            char commandStr[30];
-            char fullCommandStr[38];
+          case 8: // A8 GET  SD LIST
+            #if ENABLED(SDSUPPORT)
+              SelectedFile[0] = 0;
+              RenderCurrentFileList();
+            #endif
+            break;
 
-            commandStr[0] = 0; // empty string
-            if (codeSeen('F'))  // Set feedrate
-              movespeed = codeValue();
+          case 9: // A9 pause sd print
+            #if ENABLED(SDSUPPORT)
+              if (isPrintingFromMedia())
+                PausePrint();
+            #endif
+            break;
 
-            if (codeSeen('X')) { // Move in X direction
-              coorvalue = codeValue();
-              if ((coorvalue <= 0.2) && coorvalue > 0)
-                sprintf_P(commandStr, PSTR("G1 X0.1F%i"), movespeed);
-              else if ((coorvalue <= -0.1) && coorvalue > -1)
-                sprintf_P(commandStr, PSTR("G1 X-0.1F%i"), movespeed);
-              else
-                sprintf_P(commandStr, PSTR("G1 X%iF%i"), int(coorvalue), movespeed);
-            }
-            else if (codeSeen('Y')) {  // Move in Y direction
-              coorvalue = codeValue();
-              if ((coorvalue <= 0.2) && coorvalue > 0)
-                sprintf_P(commandStr, PSTR("G1 Y0.1F%i"), movespeed);
-              else if ((coorvalue <= -0.1) && coorvalue > -1)
-                sprintf_P(commandStr, PSTR("G1 Y-0.1F%i"), movespeed);
-              else
-                sprintf_P(commandStr, PSTR("G1 Y%iF%i"), int(coorvalue), movespeed);
-            }
-            else if (codeSeen('Z')) {  // Move in Z direction
-              coorvalue = codeValue();
-              if ((coorvalue <= 0.2) && coorvalue > 0)
-                sprintf_P(commandStr, PSTR("G1 Z0.1F%i"), movespeed);
-              else if ((coorvalue <= -0.1) && coorvalue > -1)
-                sprintf_P(commandStr, PSTR("G1 Z-0.1F%i"), movespeed);
-              else
-                sprintf_P(commandStr, PSTR("G1 Z%iF%i"), int(coorvalue), movespeed);
-            }
-            else if (codeSeen('E')) { // Extrude
-              coorvalue = codeValue();
-              if ((coorvalue <= 0.2) && coorvalue > 0)
-                sprintf_P(commandStr, PSTR("G1 E0.1F%i"), movespeed);
-              else if ((coorvalue <= -0.1) && coorvalue > -1)
-                sprintf_P(commandStr, PSTR("G1 E-0.1F%i"), movespeed);
-              else
-                sprintf_P(commandStr, PSTR("G1 E%iF500"), int(coorvalue));
-            }
+          case 10: // A10 resume sd print
+            #if ENABLED(SDSUPPORT)
+              if (isPrintingFromMediaPaused())
+                ResumePrint();
+            #endif
+            break;
 
-            if (strlen(commandStr) > 0) {
-              sprintf_P(fullCommandStr, PSTR("G91\n%s\nG90"), commandStr);
-              DEBUG_ECHOPGM("TFT Serial Debug: A22 Move final request with gcode... ");
-              DEBUG_ECHOLN(fullCommandStr);
-              injectCommands(fullCommandStr);
-            }
-          }
-          SENDLINE_PGM("");
-          break;
+          case 11: // A11 STOP SD PRINT
+            TERN_(SDSUPPORT, StopPrint());
+            break;
 
-        case 23: // A23 preheat pla
-          if (!isPrinting()) {
-            if (getAxisPosition_mm(Z) < 10)
-              injectCommands(F("G1 Z10")); // RASE Z AXIS
+          case 12: // A12 kill
+            kill(F(STR_ERR_KILLED));
+            break;
 
-            setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
-            setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
-            SENDLINE_PGM("OK");
-          }
-          break;
-
-        case 24:// A24 preheat abs
-          if (!isPrinting()) {
-            if (getAxisPosition_mm(Z) < 10)
-              injectCommands(F("G1 Z10")); // RASE Z AXIS
-
-            setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
-            setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
-            SENDLINE_PGM("OK");
-          }
-          break;
-
-        case 25: // A25 cool down
-          if (!isPrinting()) {
-            setTargetTemp_celsius(0, (heater_t) BED);
-            setTargetTemp_celsius(0, (extruder_t) E0);
-
-            SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Cooling down... J12"); // J12 cool down
-          }
-          break;
-
-        case 26: // A26 refresh SD
-          #if HAS_MEDIA
-            if (isMediaInserted()) {
-              if (strlen(selectedDirectory) > 0) {
-                FileList currentFileList;
-                if ((selectedDirectory[0] == '.') && (selectedDirectory[1] == '.')) {
-                  currentFileList.upDir();
+          case 13: // A13 SELECTION FILE
+            #if ENABLED(SDSUPPORT)
+              if (isMediaInserted()) {
+                starpos = (strchr(TFTstrchr_pointer + 4, '*'));
+                if (TFTstrchr_pointer[4] == '/') {
+                  strcpy(SelectedDirectory, TFTstrchr_pointer + 5);
+                  SelectedFile[0] = 0;
+                  SENDLINE_DBG_PGM("J21", "TFT Serial Debug: Clear file selection... J21 "); // J21 Not File Selected
+                  SENDLINE_PGM("");
+                }
+                else if (TFTstrchr_pointer[4] == '<') {
+                  strcpy(SelectedDirectory, TFTstrchr_pointer + 4);
+                  SpecialMenu = true;
+                  SelectedFile[0] = 0;
+                  SENDLINE_DBG_PGM("J21", "TFT Serial Debug: Clear file selection... J21 "); // J21 Not File Selected
+                  SENDLINE_PGM("");
                 }
                 else {
-                  if (selectedDirectory[0] == '<')
-                    handleSpecialMenu();
-                  else
-                    currentFileList.changeDir(selectedDirectory);
+                  SelectedDirectory[0] = 0;
+
+                  if (starpos) *(starpos - 1) = '\0';
+
+                  strcpy(SelectedFile, TFTstrchr_pointer + 4);
+                  SENDLINE_DBG_PGM_VAL("J20", "TFT Serial Debug: File Selected... J20 ", SelectedFile); // J20 File Selected
                 }
               }
+            #endif
+            break;
+
+          case 14: // A14 START PRINTING
+            #if ENABLED(SDSUPPORT)
+              if (!isPrinting() && strlen(SelectedFile) > 0)
+                StartPrint();
+            #endif
+            break;
+
+          case 15: // A15 RESUMING FROM OUTAGE
+            // TODO: JBA implement resume form outage
+            break;
+
+          case 16: { // A16 set hotend temp
+            unsigned int tempvalue;
+            if (CodeSeen('S')) {
+              tempvalue = constrain(CodeValue(), 0, 275);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
-            else {
-              SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to refresh SD A26... J02");
+            else if (CodeSeen('C') && !isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
+              tempvalue = constrain(CodeValue(), 0, 275);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
+            }
+          }
+          break;
+
+          case 17: { // A17 set heated bed temp
+            unsigned int tempbed;
+            if (CodeSeen('S')) {
+              tempbed = constrain(CodeValue(), 0, 100);
+              setTargetTemp_celsius(tempbed, (heater_t)BED);
+            }
+          }
+          break;
+
+          case 18: { // A18 set fan speed
+            float fanPercent;
+            if (CodeSeen('S')) {
+              fanPercent = CodeValue();
+              fanPercent = constrain(fanPercent, 0, 100);
+              setTargetFan_percent(fanPercent, FAN0);
+            }
+            else
+              fanPercent = 100;
+
+            setTargetFan_percent(fanPercent, FAN0);
+            SENDLINE_PGM("");
+          }
+          break;
+
+          case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
+            if (!isPrinting()) {
+              quickstop_stepper();
+              stepper.disable_all_steppers();
             }
 
-            selectedDirectory[0] = 0;
-          #endif
-          break;
+            SENDLINE_PGM("");
+            break;
 
-          #if ENABLED(SERVO_ENDSTOPS)
-            case 27: break; // A27 servos angles adjust
-          #endif
+          case 20: // A20 read printing speed
+            if (CodeSeen('S'))
+              feedrate_percentage = constrain(CodeValue(), 40, 999);
+            else
+              SEND_PGM_VAL("A20V ", feedrate_percentage);
+            break;
 
-        case 28: // A28 filament test
-          if (codeSeen('O'))
-            NOOP;
-          else if (codeSeen('C'))
-            NOOP;
-          SENDLINE_PGM("");
-          break;
+          case 21: // A21 all home
+            if (!isPrinting() && !isPrintingFromMediaPaused()) {
+              if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
+                if (CodeSeen('X'))
+                  injectCommands(F("G28X"));
+                if (CodeSeen('Y'))
+                  injectCommands(F("G28Y"));
+                if (CodeSeen('Z'))
+                  injectCommands(F("G28Z"));
+              }
+              else if (CodeSeen('C')) {
+                injectCommands_P(G28_STR);
+              }
+            }
+            break;
 
-        case 33: // A33 get version info
-          SEND_PGM("J33 ");
-          SENDLINE_PGM(DETAILED_BUILD_VERSION);
-          break;
+          case 22: // A22 move X/Y/Z or extrude
+            if (!isPrinting()) {
+              float coorvalue;
+              unsigned int movespeed = 0;
+              char commandStr[30];
+              char fullCommandStr[38];
 
-        default:
-          break;
+              commandStr[0] = 0; // empty string
+              if (CodeSeen('F'))  // Set feedrate
+                movespeed = CodeValue();
+
+              if (CodeSeen('X')) { // Move in X direction
+                coorvalue = CodeValue();
+                if ((coorvalue <= 0.2) && coorvalue > 0)
+                  sprintf_P(commandStr, PSTR("G1 X0.1F%i"), movespeed);
+                else if ((coorvalue <= -0.1) && coorvalue > -1)
+                  sprintf_P(commandStr, PSTR("G1 X-0.1F%i"), movespeed);
+                else
+                  sprintf_P(commandStr, PSTR("G1 X%iF%i"), int(coorvalue), movespeed);
+              }
+              else if (CodeSeen('Y')) {  // Move in Y direction
+                coorvalue = CodeValue();
+                if ((coorvalue <= 0.2) && coorvalue > 0)
+                  sprintf_P(commandStr, PSTR("G1 Y0.1F%i"), movespeed);
+                else if ((coorvalue <= -0.1) && coorvalue > -1)
+                  sprintf_P(commandStr, PSTR("G1 Y-0.1F%i"), movespeed);
+                else
+                  sprintf_P(commandStr, PSTR("G1 Y%iF%i"), int(coorvalue), movespeed);
+              }
+              else if (CodeSeen('Z')) {  // Move in Z direction
+                coorvalue = CodeValue();
+                if ((coorvalue <= 0.2) && coorvalue > 0)
+                  sprintf_P(commandStr, PSTR("G1 Z0.1F%i"), movespeed);
+                else if ((coorvalue <= -0.1) && coorvalue > -1)
+                  sprintf_P(commandStr, PSTR("G1 Z-0.1F%i"), movespeed);
+                else
+                  sprintf_P(commandStr, PSTR("G1 Z%iF%i"), int(coorvalue), movespeed);
+              }
+              else if (CodeSeen('E')) { // Extrude
+                coorvalue = CodeValue();
+                if ((coorvalue <= 0.2) && coorvalue > 0)
+                  sprintf_P(commandStr, PSTR("G1 E0.1F%i"), movespeed);
+                else if ((coorvalue <= -0.1) && coorvalue > -1)
+                  sprintf_P(commandStr, PSTR("G1 E-0.1F%i"), movespeed);
+                else
+                  sprintf_P(commandStr, PSTR("G1 E%iF500"), int(coorvalue));
+              }
+
+              if (strlen(commandStr) > 0) {
+                sprintf_P(fullCommandStr, PSTR("G91\n%s\nG90"), commandStr);
+                #if ENABLED(ANYCUBIC_LCD_DEBUG)
+                  SERIAL_ECHOPGM("TFT Serial Debug: A22 Move final request with gcode... ");
+                  SERIAL_ECHOLN(fullCommandStr);
+                #endif
+                injectCommands(fullCommandStr);
+              }
+            }
+            SENDLINE_PGM("");
+            break;
+
+          case 23: // A23 preheat pla
+            if (!isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
+
+              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
+              SENDLINE_PGM("OK");
+            }
+            break;
+
+          case 24:// A24 preheat abs
+            if (!isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
+
+              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
+              SENDLINE_PGM("OK");
+            }
+            break;
+
+          case 25: // A25 cool down
+            if (!isPrinting()) {
+              setTargetTemp_celsius(0, (heater_t) BED);
+              setTargetTemp_celsius(0, (extruder_t) E0);
+
+              SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Cooling down... J12"); // J12 cool down
+            }
+            break;
+
+          case 26: // A26 refresh SD
+            #if ENABLED(SDSUPPORT)
+              if (isMediaInserted()) {
+                if (strlen(SelectedDirectory) > 0) {
+                  FileList currentFileList;
+                  if ((SelectedDirectory[0] == '.') && (SelectedDirectory[1] == '.')) {
+                    currentFileList.upDir();
+                  }
+                  else {
+                    if (SelectedDirectory[0] == '<')
+                      HandleSpecialMenu();
+                    else
+                      currentFileList.changeDir(SelectedDirectory);
+                  }
+                }
+              }
+              else {
+                SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to refresh SD A26... J02");
+              }
+
+              SelectedDirectory[0] = 0;
+            #endif
+            break;
+
+            #if ENABLED(SERVO_ENDSTOPS)
+              case 27: break; // A27 servos angles adjust
+            #endif
+
+          case 28: // A28 filament test
+            if (CodeSeen('O'))
+              NOOP;
+            else if (CodeSeen('C'))
+              NOOP;
+            SENDLINE_PGM("");
+            break;
+
+          case 33: // A33 get version info
+            SEND_PGM("J33 ");
+            SENDLINE_PGM(DETAILED_BUILD_VERSION);
+            break;
+
+          default:
+            break;
+        }
       }
+
+      TFTbufindw = (TFTbufindw + 1) % TFTBUFSIZE;
+      TFTbuflen += 1;
+      serial3_count = 0; // clear buffer
     }
-
-    tftBufIndW = (tftBufIndW + 1) % (TFTBUFSIZE);
-    tftBufLen++;
-    serial_count = 0; // clear buffer
-
-  } // while
+    else {
+      TFTcmdbuffer[TFTbufindw][serial3_count++] = serial3_char;
+    }
+  }
 }
 
-void AnycubicTFT::doSDCardStateCheck() {
-  #if ALL(HAS_MEDIA, HAS_SD_DETECT)
+void AnycubicTFTClass::DoSDCardStateCheck() {
+  #if BOTH(SDSUPPORT, HAS_SD_DETECT)
     bool isInserted = isMediaInserted();
     if (isInserted)
       SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isInserted");
@@ -894,7 +932,7 @@ void AnycubicTFT::doSDCardStateCheck() {
   #endif
 }
 
-void AnycubicTFT::doFilamentRunoutCheck() {
+void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     // NOTE: getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
@@ -913,19 +951,24 @@ void AnycubicTFT::doFilamentRunoutCheck() {
   #endif // FILAMENT_RUNOUT_SENSOR
 }
 
-void AnycubicTFT::startPrint() {
-  #if HAS_MEDIA
-    if (!isPrinting() && strlen(selectedFile) > 0) {
-      DEBUG_ECHOLNPGM("TFT Serial Debug: About to print file ... ", isPrinting(), " ", selectedFile);
+void AnycubicTFTClass::StartPrint() {
+  #if ENABLED(SDSUPPORT)
+    if (!isPrinting() && strlen(SelectedFile) > 0) {
+      #if ENABLED(ANYCUBIC_LCD_DEBUG)
+        SERIAL_ECHOPGM("TFT Serial Debug: About to print file ... ");
+        SERIAL_ECHO(isPrinting());
+        SERIAL_ECHOPGM(" ");
+        SERIAL_ECHOLN(SelectedFile);
+      #endif
       mediaPrintingState = AMPRINTSTATE_PRINTING;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
-      printFile(selectedFile);
+      printFile(SelectedFile);
     }
   #endif // SDUPPORT
 }
 
-void AnycubicTFT::pausePrint() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::PausePrint() {
+  #if ENABLED(SDSUPPORT)
     if (isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
       mediaPrintingState = AMPRINTSTATE_PAUSE_REQUESTED;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
@@ -938,14 +981,16 @@ void AnycubicTFT::pausePrint() {
   #endif
 }
 
-void AnycubicTFT::resumePrint() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::ResumePrint() {
+  #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       if (READ(FIL_RUNOUT1_PIN)) {
-        DEBUG_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
+        #if ENABLED(ANYCUBIC_LCD_DEBUG)
+          SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
+        #endif
 
         // trigger the user message box
-        doFilamentRunoutCheck();
+        DoFilamentRunoutCheck();
 
         // re-enable the continue button
         SENDLINE_DBG_PGM("J18", "TFT Serial Debug: Resume Print with filament sensor still tripped... J18");
@@ -972,8 +1017,8 @@ void AnycubicTFT::resumePrint() {
   #endif
 }
 
-void AnycubicTFT::stopPrint() {
-  #if HAS_MEDIA
+void AnycubicTFTClass::StopPrint() {
+  #if ENABLED(SDSUPPORT)
     mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
     mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
     SENDLINE_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");

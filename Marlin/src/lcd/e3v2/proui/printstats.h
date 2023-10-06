@@ -24,17 +24,17 @@
 /**
  * Print Stats page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.4.0
+ * Version: 1.4.2
  * Date: 2022/12/03
  */
 
-class PrintStats {
+class PrintStatsClass {
 public:
-  static void draw();
-  static void reset();
+  static void Draw();
+  static void Reset();
 };
 
-extern PrintStats printStats;
+extern PrintStatsClass PrintStats;
 
-void gotoPrintStats();
-void printStatsReset();
+void Goto_PrintStats();
+void PrintStatsReset();

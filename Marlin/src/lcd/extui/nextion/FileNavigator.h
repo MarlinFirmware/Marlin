@@ -41,10 +41,10 @@ class FileNavigator {
     static void  upDIR();
     static void  changeDIR(char *);
     static void  refresh();
-    static char* getCurrentDirPath();
+    static char* getCurrentFolderName();
   private:
     static FileList filelist;
-    static char     currentDirPath[MAX_PATH_LEN];
+    static char     currentfoldername[MAX_PATH_LEN];
     static uint16_t lastindex;
     static uint8_t  folderdepth;
     static uint16_t currentindex;

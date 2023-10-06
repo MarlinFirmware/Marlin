@@ -140,8 +140,8 @@
 #define HEATER_2_PIN                           6
 #define HEATER_BED_PIN                         3
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             8
+#ifndef FAN_PIN
+  #define FAN_PIN                              8
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             6
@@ -168,11 +168,9 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER
-  #define SPINDLE_LASER_PWM_PIN               45  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               31  // Pullup!
-  #define SPINDLE_DIR_PIN                     32
-#endif
+#define SPINDLE_LASER_PWM_PIN                 45  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 31  // Pullup!
+#define SPINDLE_DIR_PIN                       32
 
 //
 // SPI for MAX Thermocouple
@@ -206,13 +204,13 @@
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #define LCD_PINS_RS                       70
-    #define LCD_PINS_EN                       71
+    #define LCD_PINS_ENABLE                   71
     #define LCD_PINS_D4                       72
     #define LCD_PINS_D5                       73
     #define LCD_PINS_D6                       74
     #define LCD_PINS_D7                       75
 
-    #if ANY(VIKI2, miniVIKI)
+    #if EITHER(VIKI2, miniVIKI)
       #define BEEPER_PIN                      44
       // NB: Panucatt's Viki 2.0 wiring diagram (v1.2) indicates that the
       //     beeper/buzzer is connected to pin 33; however, the pin used in the
@@ -266,7 +264,7 @@
     //#define SHIFT_EN_PIN                    17
 
     #define LCD_PINS_RS                       75
-    #define LCD_PINS_EN                       17
+    #define LCD_PINS_ENABLE                   17
     #define LCD_PINS_D4                       23
     #define LCD_PINS_D5                       25
     #define LCD_PINS_D6                       27

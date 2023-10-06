@@ -30,7 +30,7 @@
 
 #include "leds.h"
 
-#if ANY(NEOPIXEL_STARTUP_TEST, NEOPIXEL2_STARTUP_TEST)
+#if EITHER(NEOPIXEL_STARTUP_TEST, NEOPIXEL2_STARTUP_TEST)
   #include "../../core/utility.h"
 #endif
 
@@ -54,15 +54,7 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
     set_background_color(background_color);
   }
 
-  void Marlin_NeoPixel::set_background_off() {
-    #ifndef NEOPIXEL_BKGD_TIMEOUT_COLOR
-      #define NEOPIXEL_BKGD_TIMEOUT_COLOR { 0, 0, 0, 0 }
-    #endif
-    constexpr uint8_t background_color_off[4] = NEOPIXEL_BKGD_TIMEOUT_COLOR;
-    set_background_color(background_color_off);
-  }
-
-#endif // NEOPIXEL_BKGD_INDEX_FIRST
+#endif
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
   if (neoindex >= 0) {

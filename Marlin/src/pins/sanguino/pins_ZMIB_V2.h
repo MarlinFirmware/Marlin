@@ -79,7 +79,7 @@
  * PIN:  25   Port: A6   FIL_RUNOUT_PIN
  * PIN:  26   Port: A5   E0_DIR_PIN
  * PIN:  27   Port: A4   E0_STEP_PIN
- * PIN:  28   Port: A3   FAN0_PIN
+ * PIN:  28   Port: A3   FAN_PIN
  * PIN:  29   Port: A2   EXP1_3(BTN_ENC)
  *                       ADC_KEY_PIN
  * PIN:  30   Port: A1   TEMP_0_PIN
@@ -92,7 +92,7 @@
 #define X_MIN_PIN                             21
 #define Y_MIN_PIN                             18
 
-#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_MIN_PIN                           25
 #else
   #define Z_MIN_PIN                           13
@@ -109,7 +109,7 @@
 #define Y_DIR_PIN                             19
 #define Y_ENABLE_PIN                          24
 
-#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_STEP_PIN                          27
   #define Z_DIR_PIN                           26
 #else
@@ -119,7 +119,7 @@
 
 #define Z_ENABLE_PIN                          24
 
-#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define E0_STEP_PIN                         15
   #define E0_DIR_PIN                          14
 #else
@@ -144,13 +144,13 @@
 //
 #define HEATER_0_PIN                           0
 #define HEATER_BED_PIN                         1
-#define FAN0_PIN                              28
+#define FAN_PIN                               28
 #define FAN1_PIN                              -1
 
 //
 // Filament Runout Sensor
 //
-#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define FIL_RUNOUT_PIN                      13
 #else
   #define FIL_RUNOUT_PIN                      25  // Z-MIN
@@ -159,7 +159,7 @@
 //
 // SD card
 //
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
@@ -194,14 +194,14 @@
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS                 EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_03_PIN  // ST7920_CS_PIN  (LCD module pin 4)
-  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
+  #define LCD_PINS_ENABLE            EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
   #define LCD_PINS_D4                EXP1_04_PIN  // ST7920_CLK_PIN (LCD module pin 6)
 
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_2       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_3       DELAY_2_NOP
 
-#elif ANY(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
+#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   //
   // OLED 128x64
   //

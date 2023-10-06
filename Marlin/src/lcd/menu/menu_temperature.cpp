@@ -35,7 +35,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -162,7 +162,7 @@ void menu_temperature() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN_MENU);
+  BACK_ITEM(MSG_MAIN);
 
   //
   // Nozzle:
@@ -179,7 +179,7 @@ void menu_temperature() {
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-    for (uint8_t e = 1; e < EXTRUDERS; ++e)
+    LOOP_S_L_N(e, 1, EXTRUDERS)
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 
@@ -221,40 +221,40 @@ void menu_temperature() {
 
     DEFINE_SINGLENOZZLE_ITEM();
 
-    #if FAN_IS_M106ABLE(0)
-      _FAN_EDIT_ITEMS(0, FIRST_FAN_SPEED);
+    #if HAS_FAN0
+      _FAN_EDIT_ITEMS(0,FIRST_FAN_SPEED);
     #endif
-    #if FAN_IS_M106ABLE(1)
+    #if HAS_FAN1 && REDUNDANT_PART_COOLING_FAN != 1
       FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
-    #if FAN_IS_M106ABLE(2)
+    #if HAS_FAN2 && REDUNDANT_PART_COOLING_FAN != 2
       FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
       singlenozzle_item(2);
     #endif
-    #if FAN_IS_M106ABLE(3)
+    #if HAS_FAN3 && REDUNDANT_PART_COOLING_FAN != 3
       FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
       singlenozzle_item(3);
     #endif
-    #if FAN_IS_M106ABLE(4)
+    #if HAS_FAN4 && REDUNDANT_PART_COOLING_FAN != 4
       FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
       singlenozzle_item(4);
     #endif
-    #if FAN_IS_M106ABLE(5)
+    #if HAS_FAN5 && REDUNDANT_PART_COOLING_FAN != 5
       FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
       singlenozzle_item(5);
     #endif
-    #if FAN_IS_M106ABLE(6)
+    #if HAS_FAN6 && REDUNDANT_PART_COOLING_FAN != 6
       FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
       singlenozzle_item(6);
     #endif
-    #if FAN_IS_M106ABLE(7)
+    #if HAS_FAN7 && REDUNDANT_PART_COOLING_FAN != 7
       FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
       singlenozzle_item(7);
@@ -266,7 +266,7 @@ void menu_temperature() {
     //
     // Preheat for all Materials
     //
-    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m) {
+    LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
       #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_f(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
@@ -291,9 +291,9 @@ void menu_temperature() {
 
   void menu_preheat_only() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN_MENU);
+    BACK_ITEM(MSG_MAIN);
 
-    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m) {
+    LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
       #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_f(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);

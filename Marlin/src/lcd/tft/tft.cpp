@@ -33,8 +33,8 @@
 uint16_t TFT::buffer[];
 
 void TFT::init() {
-  io.init();
-  io.initTFT();
+  io.Init();
+  io.InitTFT();
 }
 
 TFT tft;

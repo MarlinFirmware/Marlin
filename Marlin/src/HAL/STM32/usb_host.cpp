@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(USE_OTG_USB_HOST, USBHOST)
+#if BOTH(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
 #include "../shared/Marduino.h"

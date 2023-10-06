@@ -87,7 +87,7 @@
 #define HEATER_0_PIN                       P2_06  // (H2: 10A shared)
 #define HEATER_1_PIN                       P2_07  // (H3: 10A shared)
 
-#define FAN0_PIN                           P2_11  // (FAN0: 1A)
+#define FAN_PIN                            P2_11  // (FAN0: 1A)
 #define FAN1_PIN                           P2_13  // (FAN1: 1A)
 
 //

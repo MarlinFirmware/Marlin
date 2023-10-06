@@ -29,7 +29,7 @@
 BLTouch bltouch;
 
 bool BLTouch::od_5v_mode;         // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-#if HAS_BLTOUCH_HS_MODE
+#ifdef BLTOUCH_HS_MODE
   bool BLTouch::high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
 #else
   constexpr bool BLTouch::high_speed_mode;

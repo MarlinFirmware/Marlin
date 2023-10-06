@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(EXTUI_EXAMPLE, EXTENSIBLE_UI)
+#if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
 #include "../ui_api.h"
 
@@ -88,22 +88,20 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onSettingsStored(const bool success) {
+  void onSettingsStored(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(const bool success) {
+  void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
-  #if HAS_LEVELING
+  #if HAS_MESH
     void onLevelingStart() {}
     void onLevelingDone() {}
-  #endif
 
-  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
@@ -114,12 +112,6 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
     void onPowerLossResume() {
       // Called on resume from power-loss
     }
@@ -129,11 +121,11 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        case PID_STARTED:        break;
-        case PID_BAD_HEATER_ID:  break;
-        case PID_TEMP_TOO_HIGH:  break;
-        case PID_TUNING_TIMEOUT: break;
-        case PID_DONE:           break;
+        case PID_STARTED:          break;
+        case PID_BAD_EXTRUDER_NUM: break;
+        case PID_TEMP_TOO_HIGH:    break;
+        case PID_TUNING_TIMEOUT:   break;
+        case PID_DONE:             break;
       }
     }
   #endif

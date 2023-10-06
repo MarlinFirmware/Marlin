@@ -20,8 +20,6 @@
  *
  */
 
-#ifdef TARGET_LPC1768
-
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -30,7 +28,7 @@
 
 SPIClass TFT_SPI::SPIx(TFT_SPI_DEVICE);
 
-void TFT_SPI::init() {
+void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
     OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(100);
@@ -49,21 +47,21 @@ void TFT_SPI::init() {
   SPIx.setDataMode(SPI_MODE0);
 }
 
-void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
-  SPIx.setDataSize(dataSize);
+void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
+  SPIx.setDataSize(DataSize);
   SPIx.begin();
   WRITE(TFT_CS_PIN, LOW);
 }
 
-uint32_t TFT_SPI::getID() {
+uint32_t TFT_SPI::GetID() {
   uint32_t id;
-  id = readID(LCD_READ_ID);
+  id = ReadID(LCD_READ_ID);
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
-    id = readID(LCD_READ_ID4);
+    id = ReadID(LCD_READ_ID4);
   return id;
 }
 
-uint32_t TFT_SPI::readID(const uint16_t inReg) {
+uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   uint32_t data = 0;
 
   #if PIN_EXISTS(TFT_MISO)
@@ -72,14 +70,14 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     SPIx.setClock(SPI_CLOCK_DIV64);
     SPIx.begin();
     WRITE(TFT_CS_PIN, LOW);
-    writeReg(inReg);
+    WriteReg(Reg);
 
-    for (uint8_t i = 0; i < 4; ++i) {
+    LOOP_L_N(i, 4) {
       SPIx.read((uint8_t*)&d, 1);
       data = (data << 8) | d;
     }
 
-    dataTransferEnd();
+    DataTransferEnd();
     SPIx.setClock(SPI_CLOCK_MAX_TFT);
   #endif
 
@@ -103,11 +101,11 @@ bool TFT_SPI::isBusy() {
     if ((SSP_GetStatus(LPC_SSPx, SSP_STAT_TXFIFO_EMPTY) == RESET) || (SSP_GetStatus(LPC_SSPx, SSP_STAT_BUSY) == SET)) return true;
   }
 
-  abort();
+  Abort();
   return false;
 }
 
-void TFT_SPI::abort() {
+void TFT_SPI::Abort() {
   // DMA Channel 0 is hardcoded in dmaSendAsync() and dmaSend()
 
   // Disable DMA
@@ -126,23 +124,22 @@ void TFT_SPI::abort() {
   LPC_GPDMACH0->DMACCSrcAddr  = 0U;
   LPC_GPDMACH0->DMACCDestAddr = 0U;
 
-  dataTransferEnd();
+  DataTransferEnd();
 }
 
-void TFT_SPI::transmit(uint16_t data) { SPIx.transfer(data); }
+void TFT_SPI::Transmit(uint16_t Data) { SPIx.transfer(Data); }
 
-void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  dataTransferBegin(DATASIZE_16BIT);
-  SPIx.dmaSend(data, count, memoryIncrease);
-  abort();
+void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  DataTransferBegin(DATASIZE_16BIT);
+  SPIx.dmaSend(Data, Count, MemoryIncrease);
+  Abort();
 }
 
-void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  dataTransferBegin(DATASIZE_16BIT);
-  SPIx.dmaSendAsync(data, count, memoryIncrease);
+void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  DataTransferBegin(DATASIZE_16BIT);
+  SPIx.dmaSendAsync(Data, Count, MemoryIncrease);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
 #endif // HAS_SPI_TFT
-#endif // TARGET_LPC1768

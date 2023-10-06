@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifndef ENV_VALIDATE_H
-#define ENV_VALIDATE_H
+#pragma once
 
 #if NOT_TARGET(__AVR_ATmega2560__)
   #if DISABLED(ALLOW_MEGA1280)
@@ -31,5 +30,3 @@
 #endif
 
 #undef ALLOW_MEGA1280
-
-#endif

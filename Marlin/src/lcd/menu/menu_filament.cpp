@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_MARLINUI_MENU, ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -96,7 +96,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   if (LCD_HEIGHT >= 4) STATIC_ITEM_F(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if HAS_PREHEAT
-    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
+    LOOP_L_N(m, PREHEAT_COUNT)
       ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
@@ -130,7 +130,7 @@ void menu_change_filament() {
     #endif
 
     START_MENU();
-    BACK_ITEM(MSG_MAIN_MENU);
+    BACK_ITEM(MSG_MAIN);
 
     // Change filament
     #if E_STEPPERS == 1
@@ -141,7 +141,7 @@ void menu_change_filament() {
         GCODES_ITEM_F(fmsg, F("M600 B0"));
     #else
       FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
-      for (uint8_t s = 0; s < E_STEPPERS; ++s) {
+      LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_F(s, fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
@@ -166,7 +166,7 @@ void menu_change_filament() {
             GCODES_ITEM_F(msg_load, F("M701"));
         #else
           FSTR_P const msg_load = GET_TEXT_F(MSG_FILAMENTLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; ++s) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_F(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
@@ -194,7 +194,7 @@ void menu_change_filament() {
               GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, F("M702"));
           #endif
           FSTR_P const msg_unload = GET_TEXT_F(MSG_FILAMENTUNLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; ++s) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_F(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {

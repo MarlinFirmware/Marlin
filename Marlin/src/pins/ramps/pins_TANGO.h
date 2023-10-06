@@ -30,7 +30,7 @@
 
 #define BOARD_INFO_NAME "Tango"
 
-#define FAN0_PIN                               8
+#define FAN_PIN                                8
 #define FAN1_PIN                              -1
 
 #ifndef E0_AUTO_FAN_PIN

@@ -52,8 +52,8 @@
 #endif
 #define E0_ENABLE_PIN                         14
 
-#if !defined(FAN0_PIN) && ENABLED(LCD_I2C_PANELOLU2)
-  #define FAN0_PIN                             4  // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
+#if !defined(FAN_PIN) && ENABLED(LCD_I2C_PANELOLU2)
+  #define FAN_PIN                              4  // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
 #endif
 
 #define SANGUINOLOLU_V_1_2

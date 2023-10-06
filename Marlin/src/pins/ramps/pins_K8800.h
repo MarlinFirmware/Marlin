@@ -74,7 +74,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                          10
-#define FAN0_PIN                               8
+#define FAN_PIN                                8
 #define CONTROLLER_FAN_PIN                     9
 
 //
@@ -102,7 +102,7 @@
   #define DOGLCD_A0                           27
 
   #define LCD_PINS_RS                         27
-  #define LCD_PINS_EN                         29
+  #define LCD_PINS_ENABLE                     29
   #define LCD_PINS_D4                         37
   #define LCD_PINS_D5                         35
   #define LCD_PINS_D6                         33

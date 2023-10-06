@@ -19,11 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifndef ENV_VALIDATE_H
-#define ENV_VALIDATE_H
+#pragma once
 
 #if NOT_TARGET(ARDUINO_ARCH_ESP32)
   #error "Oops! Select an ESP32 board in 'Tools > Board.'"
-#endif
-
 #endif

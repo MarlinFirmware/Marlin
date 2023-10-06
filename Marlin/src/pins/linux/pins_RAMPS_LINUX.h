@@ -136,7 +136,7 @@
 #define TEMP_BED_PIN                           2  // Analog Input
 
 // SPI for MAX Thermocouple
-#if !HAS_MEDIA
+#if DISABLED(SDSUPPORT)
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -161,21 +161,21 @@
 #define HEATER_0_PIN                MOSFET_A_PIN
 
 #if FET_ORDER_EFB                                 // Hotend, Fan, Bed
-  #define FAN0_PIN                  MOSFET_B_PIN
+  #define FAN_PIN                   MOSFET_B_PIN
   #define HEATER_BED_PIN            MOSFET_C_PIN
 #elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
   #define HEATER_1_PIN              MOSFET_B_PIN
-  #define FAN0_PIN                  MOSFET_C_PIN
+  #define FAN_PIN                   MOSFET_C_PIN
 #elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
   #define HEATER_1_PIN              MOSFET_B_PIN
   #define HEATER_BED_PIN            MOSFET_C_PIN
 #elif FET_ORDER_EFF                               // Hotend, Fan, Fan
-  #define FAN0_PIN                  MOSFET_B_PIN
+  #define FAN_PIN                   MOSFET_B_PIN
   #define FAN1_PIN                  MOSFET_C_PIN
 #elif FET_ORDER_SF                                // Spindle, Fan
-  #define FAN0_PIN                  MOSFET_C_PIN
+  #define FAN_PIN                   MOSFET_C_PIN
 #else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-  #define FAN0_PIN                  MOSFET_B_PIN
+  #define FAN_PIN                   MOSFET_B_PIN
   #define HEATER_BED_PIN            MOSFET_C_PIN
   #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
@@ -184,8 +184,8 @@
   #endif
 #endif
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             4  // IO pin. Buffer needed
+#ifndef FAN_PIN
+  #define FAN_PIN                              4  // IO pin. Buffer needed
 #endif
 
 //
@@ -221,12 +221,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0     // Prefer the servo connector
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS                        // try to use AUX 2
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
     #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
@@ -247,16 +247,18 @@
 #endif
 
 /**
- * Default pins for TMC SPI
+ * Default pins for TMC software SPI
  */
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                        66
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                        44
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                         64
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                       66
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                       44
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                        64
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -377,12 +379,12 @@
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
+  #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
   #define TFT_DC_PIN                          43
-  #define TFT_A0_PIN                  TFT_DC_PIN
   #define TFT_SCK_PIN                 SD_SCK_PIN
-  #define TFT_MISO_PIN               SD_MISO_PIN
   #define TFT_MOSI_PIN               SD_MOSI_PIN
+  #define TFT_MISO_PIN               SD_MISO_PIN
   #define LCD_USE_DMA_SPI
 
   #define BTN_EN1                             40
@@ -396,19 +398,19 @@
 
   #define SPI_FLASH
   #if ENABLED(SPI_FLASH)
-    #define SPI_DEVICE                         1  // Maple
+    #define SPI_DEVICE                         1
     #define SPI_FLASH_SIZE             0x1000000  // 16MB
     #define SPI_FLASH_CS_PIN                  31
-    #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
-    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
     #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
+    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
+    #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
   #endif
 
-  #define TFT_BUFFER_WORDS                0xFFFF
+  #define TFT_BUFFER_SIZE                 0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #if DISABLED(TOUCH_SCREEN_CALIBRATION)
+  #ifndef TOUCH_SCREEN_CALIBRATION
     #if ENABLED(TFT_RES_320x240)
       #ifndef TOUCH_CALIBRATION_X
         #define TOUCH_CALIBRATION_X        20525
@@ -474,13 +476,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_EN                       51  // SID (MOSI)
+    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
-  #elif ALL(IS_NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_EN                       42
+    #define LCD_PINS_ENABLE                   42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -491,7 +493,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_EN                     29
+      #define LCD_PINS_ENABLE                 29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -501,7 +503,7 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       #define LCD_PINS_RS                     64
-      #define LCD_PINS_EN                     44
+      #define LCD_PINS_ENABLE                 44
       #define LCD_PINS_D4                     63
       #define LCD_PINS_D5                     40
       #define LCD_PINS_D6                     42
@@ -509,7 +511,7 @@
 
     #else
 
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC                   25  // Set as output on init
         #define LCD_PINS_RS                   27  // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -519,7 +521,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_EN                   17
+        #define LCD_PINS_ENABLE               17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27
@@ -593,7 +595,7 @@
       #define LCD_SDSS                      SDSS
       #define SD_DETECT_PIN                   49
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44

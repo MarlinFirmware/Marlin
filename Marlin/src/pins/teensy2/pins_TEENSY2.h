@@ -149,8 +149,8 @@
 //
 #define HEATER_0_PIN                          15  // C5 PWM3B  Extruder
 #define HEATER_BED_PIN                        14  // C4 PWM3C
-#ifndef FAN0_PIN
-  #define FAN0_PIN                            16  // C6 PWM3A  Fan
+#ifndef FAN_PIN
+  #define FAN_PIN                             16  // C6 PWM3A  Fan
 #endif
 
 //
@@ -169,7 +169,7 @@
 //
 #if IS_ULTIPANEL
   #define LCD_PINS_RS                          8  // E0
-  #define LCD_PINS_EN                          9  // E1
+  #define LCD_PINS_ENABLE                      9  // E1
   #define LCD_PINS_D4                         10  // C0
   #define LCD_PINS_D5                         11  // C1
   #define LCD_PINS_D6                         12  // C2
@@ -182,8 +182,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER
-  #define SPINDLE_LASER_PWM_PIN                0  // D0 PWM0B   MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENA_PIN                5  // D5  Pin should have a pullup!
-  #define SPINDLE_DIR_PIN                      7  // D7
-#endif
+#define SPINDLE_LASER_ENA_PIN                  5  // D5  Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN                  0  // D0 PWM0B   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN                        7  // D7

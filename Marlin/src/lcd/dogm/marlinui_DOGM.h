@@ -36,19 +36,17 @@
 
   // RepRapWorld Graphical LCD
 
-  #if HAS_MEDIA
-    #ifdef __SAMD21__
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
-    #else
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X
-    #endif
-    #define U8G_PARAM LCD_PINS_RS
-  #elif (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+
+  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+    #define U8G_PARAM LCD_PINS_RS
+  #elif ENABLED(SDSUPPORT) && __SAMD21__
+
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
     #define U8G_PARAM LCD_PINS_RS
   #else
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
   #endif
 
 #elif IS_U8GLIB_ST7920
@@ -56,7 +54,7 @@
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
 
-  #if !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
@@ -65,7 +63,7 @@
     #else
       #define U8G_CLASS U8GLIB_ST7920_128X64_RRD                // Adjust stripes with PAGE_HEIGHT in ultralcd_st7920_u8glib_rrd.h
     #endif
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS     // AVR version ignores these pin settings
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS // AVR version ignores these pin settings
                                                                 // HAL version uses these pin settings
   #endif
 
@@ -131,7 +129,7 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
   #endif
 
-#elif ANY(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
+#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
   // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
   // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
@@ -155,7 +153,7 @@
     #define U8G_CLASS U8GLIB_SH1306_128X64                      // 8 stripes
   #endif
 
-#elif ANY(MKS_12864OLED, ZONESTAR_12864OLED)
+#elif EITHER(MKS_12864OLED, ZONESTAR_12864OLED)
 
   // MKS 128x64 (SH1106) OLED I2C LCD
   // - or -

@@ -156,7 +156,6 @@
 #define Y_MAX_PIN                           PB14
 #define Z_MAX_PIN                           PB13
 
-// TODO: Use different pin names for auto-remapping
 #ifdef OPTION_Z2_ENDSTOP
   #define Z2_MIN_PIN                        PD1
   #define Z2_MAX_PIN                        PB12
@@ -250,7 +249,7 @@
 //
 // Fans
 //
-#define FAN0_PIN                            PB1   // FAN1
+#define FAN_PIN                             PB1   // FAN1
 #define FAN1_PIN                            PB8   // FAN2
 
 //
@@ -278,7 +277,7 @@
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_ENABLE            EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_04_PIN  // 8 SCK make sure for zonestar zm3e4!
   #define BEEPER_PIN                 EXP1_02_PIN
   #define KILL_PIN                          -1    // EXP1_01_PIN
@@ -288,7 +287,7 @@
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
   #define LCD_PINS_RS                EXP2_03_PIN  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_EN                EXP2_06_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_ENABLE            EXP2_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP2_04_PIN  // 8 SCK make sure for zonestar zm3e4!
   #define BEEPER_PIN                 EXP2_01_PIN
   #define KILL_PIN                   EXP2_02_PIN

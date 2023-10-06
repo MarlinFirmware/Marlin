@@ -73,16 +73,18 @@
 #endif
 
 //
-// Default pins for TMC software SPI
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     P0_18  // ETH
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     P0_17  // ETH
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      P0_15  // ETH
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                    P0_18  // ETH
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                    P0_17  // ETH
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                     P0_15  // ETH
+  #endif
 #endif
 
 //
@@ -97,8 +99,8 @@
 //
 #define HEATER_0_PIN                       P2_07
 #define HEATER_BED_PIN                     P2_05
-#ifndef FAN0_PIN
-  #define FAN0_PIN                         P2_04
+#ifndef FAN_PIN
+  #define FAN_PIN                          P2_04
 #endif
 
 //
@@ -127,14 +129,14 @@
 
   #define SD_DETECT_PIN                    P0_27  // EXP2-7
   #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_PINS_EN                      P0_18  // (MOSI) EXP1-3
+  #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
-  #if ALL(HAS_MARLINUI_HD44780, IS_RRD_SC)
+  #if BOTH(HAS_MARLINUI_HD44780, IS_RRD_SC)
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER displays aren't supported by the BIQU B300 v1.0"
   #endif
 
-  #if HAS_MEDIA
+  #if ENABLED(SDSUPPORT)
     #error "SDSUPPORT is not supported by the BIQU B300 v1.0 when an LCD controller is used"
   #endif
 
@@ -146,7 +148,7 @@
  * Software SPI is used to interface with a stand-alone SD card reader connected to EXP1.
  * Hardware SPI can't be used because P0_17 (MISO) is not brought out on this board.
  */
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #define SD_SCK_PIN                       P0_15  // EXP1-5
   #define SD_MISO_PIN                      P0_16  // EXP1-4
   #define SD_MOSI_PIN                      P0_18  // EXP1-3
@@ -159,7 +161,7 @@
  *
  *  There are 6 PWMS.  Each PWM can be assigned to one of two pins.
  *
- *  PWM1.1   P0_18   LCD_PINS_EN
+ *  PWM1.1   P0_18   LCD_PINS_ENABLE
  *  PWM1.1   P2_0    X_STEP_PIN
  *  PWM1.2   P1_20   <none>
  *  PWM1.2   P2_1    Y_STEP_PIN
@@ -168,7 +170,7 @@
  *  PWM1.4   P1_23   <none>
  *  PWM1.4   P2_3    E0_STEP_PIN
  *  PWM1.5   P1_24   X_MIN_PIN
- *  PWM1.5   P2_4    FAN0_PIN
+ *  PWM1.5   P2_4    FAN_PIN
  *  PWM1.6   P1_26   Y_MIN_PIN
  *  PWM1.6   P2_5    HEATER_BED_PIN
  */

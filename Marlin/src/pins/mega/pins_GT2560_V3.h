@@ -33,10 +33,6 @@
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "GT2560 supports up to 3 hotends / E steppers."
-#endif
-
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 3.x"
 #endif
@@ -95,7 +91,7 @@
 #endif
 
 //
-// Power Loss Detection
+// Power Recovery
 //
 #define POWER_LOSS_PIN                        69  // Pin to detect power loss
 #define POWER_LOSS_STATE                     LOW
@@ -142,7 +138,7 @@
 #define HEATER_1_PIN                           3
 #define HEATER_2_PIN                           2
 #define HEATER_BED_PIN                         4
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 #define FAN1_PIN                               8
 #define FAN2_PIN                               7
 
@@ -168,24 +164,24 @@
 #define BEEPER_PIN                            18
 
 #if ENABLED(YHCB2004)
-  #ifndef YHCB2004_MOSI_PIN
-    #define YHCB2004_MOSI_PIN                 21
+  #ifndef YHCB2004_CLK
+    #define YHCB2004_CLK                       5
+    #define DIO52                   YHCB2004_CLK
   #endif
-  #ifndef YHCB2004_MISO_PIN
-    #define YHCB2004_MISO_PIN                 36
+  #ifndef YHCB2004_MOSI
+    #define YHCB2004_MOSI                     21
+    #define DIO50                  YHCB2004_MOSI
   #endif
-  #ifndef YHCB2004_SCK_PIN
-    #define YHCB2004_SCK_PIN                   5
-  #endif
-  #ifndef YHCB2004_SS_PIN
-    #define YHCB2004_SS_PIN                   SS
+  #ifndef YHCB2004_MISO
+    #define YHCB2004_MISO                     36
+    #define DIO51                  YHCB2004_MISO
   #endif
 #elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS
     #define LCD_PINS_RS                       20
   #endif
-  #ifndef LCD_PINS_EN
-    #define LCD_PINS_EN                       17
+  #ifndef LCD_PINS_ENABLE
+    #define LCD_PINS_ENABLE                   17
   #endif
   #ifndef LCD_PINS_D4
     #define LCD_PINS_D4                       16

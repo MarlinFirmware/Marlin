@@ -95,7 +95,7 @@ void BedMeshEditScreen::setHighlightedValue(float value) {
 }
 
 void BedMeshEditScreen::moveToHighlightedValue() {
-  if (ExtUI::getLevelingIsValid()) {
+  if (ExtUI::getMeshValid()) {
     ExtUI::setLevelingActive(true);
     ExtUI::setSoftEndstopState(false);
     ExtUI::moveToMeshPoint(mydata.highlight, gaugeThickness + mydata.zAdjustment);

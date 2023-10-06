@@ -86,8 +86,8 @@
 #define HEATER_1_PIN                           7
 #define HEATER_2_PIN                           8
 #define HEATER_BED_PIN                         9
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             3
+#ifndef FAN_PIN
+  #define FAN_PIN                              3
 #endif
 #define FAN2_PIN                              58  // additional fan or light control output
 
@@ -113,7 +113,7 @@
 // LCD / Controller
 //
 #define LCD_PINS_RS                           19
-#define LCD_PINS_EN                           42
+#define LCD_PINS_ENABLE                       42
 #define LCD_PINS_D4                           18
 #define LCD_PINS_D5                           38
 #define LCD_PINS_D6                           41
@@ -128,7 +128,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

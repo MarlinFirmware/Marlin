@@ -70,7 +70,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         uiCfg.extruderIndexBak = active_extruder;
       #endif
       if (uiCfg.print_state == WORKING) {
-        #if HAS_MEDIA
+        #if ENABLED(SDSUPPORT)
           card.pauseSDPrint();
           stop_print_time();
           uiCfg.print_state = PAUSING;

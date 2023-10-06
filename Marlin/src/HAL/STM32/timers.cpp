@@ -292,9 +292,9 @@ static constexpr int get_timer_num_from_base_address(uintptr_t base_address) {
 // constexpr doesn't like using the base address pointers that timers evaluate to.
 // We can get away with casting them to uintptr_t, if we do so inside an array.
 // GCC will not currently do it directly to a uintptr_t.
-TERN_(HAS_TMC_SW_SERIAL, static constexpr uintptr_t timer_serial[] = {uintptr_t(TIMER_SERIAL)});
-TERN_(SPEAKER,           static constexpr uintptr_t timer_tone[]   = {uintptr_t(TIMER_TONE)});
-TERN_(HAS_SERVOS,        static constexpr uintptr_t timer_servo[]  = {uintptr_t(TIMER_SERVO)});
+IF_ENABLED(HAS_TMC_SW_SERIAL, static constexpr uintptr_t timer_serial[] = {uintptr_t(TIMER_SERIAL)});
+IF_ENABLED(SPEAKER,           static constexpr uintptr_t timer_tone[]   = {uintptr_t(TIMER_TONE)});
+IF_ENABLED(HAS_SERVOS,        static constexpr uintptr_t timer_servo[]  = {uintptr_t(TIMER_SERVO)});
 
 enum TimerPurpose { TP_SERIAL, TP_TONE, TP_SERVO, TP_STEP, TP_TEMP };
 
@@ -316,8 +316,8 @@ static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
 };
 
 static constexpr bool verify_no_timer_conflicts() {
-  for (uint8_t i = 0; i < COUNT(timers_in_use); ++i)
-    for (uint8_t j = i + 1; j < COUNT(timers_in_use); ++j)
+  LOOP_L_N(i, COUNT(timers_in_use))
+    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
       if (timers_in_use[i].t == timers_in_use[j].t) return false;
   return true;
 }

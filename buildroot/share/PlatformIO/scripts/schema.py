@@ -190,7 +190,7 @@ def extract():
                     elif state == Parse.BLOCK_COMMENT:
 
                         # Look for temperature sensors
-                        if re.match(r'temperature sensors.*:', cline, re.IGNORECASE):
+                        if cline == "Temperature sensors available:":
                             state, cline = Parse.GET_SENSORS, "Temperature Sensors"
 
                         options_json, section = use_comment(cline, options_json, section, comment_buff)

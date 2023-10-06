@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_MENU && ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if HAS_MARLINUI_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
 #include "menu_item.h"
 #include "../../module/delta.h"
@@ -92,7 +92,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _goto_tower_a(const_float_t a) {
-    float dcr = PRINTABLE_RADIUS - PROBING_MARGIN;
+    float dcr = DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
     TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
     TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
@@ -132,7 +132,7 @@ void menu_delta_calibrate() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN_MENU);
+  BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, F("G33"));

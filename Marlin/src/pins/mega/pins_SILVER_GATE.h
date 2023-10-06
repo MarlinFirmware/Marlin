@@ -57,8 +57,8 @@
   #define FIL_RUNOUT_PIN                      34  // X_MAX unless overridden
 #endif
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             5
+#ifndef FAN_PIN
+  #define FAN_PIN                              5
 #endif
 
 #define HEATER_0_PIN                           7
@@ -75,9 +75,9 @@
 #define TEMP_BED_PIN                           6
 
 #if HAS_WIRED_LCD
-  #if IS_U8GLIB_ST7920                            // SPI GLCD 12864 ST7920
+  #if IS_U8GLIB_ST7920                      // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS                       30
-    #define LCD_PINS_EN                       20
+    #define LCD_PINS_ENABLE                   20
     #define LCD_PINS_D4                       25
     #define BEEPER_PIN                        29
     #define BTN_EN1                           19

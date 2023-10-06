@@ -281,7 +281,7 @@ public:
     uint8_t data = 0;
     millis_t transfer_window = millis() + RX_TIMESLICE;
 
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
     #endif
 

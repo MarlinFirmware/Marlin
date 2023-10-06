@@ -45,14 +45,14 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       sound.play(media_inserted, PLAY_ASYNCHRONOUS);
       StatusScreen::onMediaInserted();
     #endif
   }
 
   void onMediaRemoved() {
-    #if HAS_MEDIA
+    #if ENABLED(SDSUPPORT)
       if (isPrintingFromMedia()) {
         stopPrint();
         InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
@@ -97,7 +97,7 @@ namespace ExtUI {
   void onLoadSettings(const char *buff) { InterfaceSettingsScreen::loadSettings(buff); }
   void onPostprocessSettings() {} // Called after loading or resetting stored settings
 
-  void onSettingsStored(const bool success) {
+  void onSettingsStored(bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {
         SERIAL_ECHOLNPGM("EEPROM backed up to SPI Flash");
@@ -106,7 +106,7 @@ namespace ExtUI {
       UNUSED(success);
     #endif
   }
-  void onSettingsLoaded(const bool) {}
+  void onSettingsLoaded(bool) {}
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) { sound.play_tone(frequency, duration); }
 
@@ -117,26 +117,15 @@ namespace ExtUI {
       ConfirmUserRequestAlertBox::hide();
   }
 
-  #if HAS_LEVELING
+  #if HAS_LEVELING && HAS_MESH
     void onLevelingStart() {}
     void onLevelingDone() {}
-  #endif
-
-  #if HAS_MESH
     void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) { BedMeshViewScreen::onMeshUpdate(x, y, val); }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) { BedMeshViewScreen::onMeshUpdate(x, y, state); }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
+    void onPowerLossResume() {} // Called on resume from power-loss
   #endif
 
   #if HAS_PID_HEATING
@@ -147,8 +136,8 @@ namespace ExtUI {
         case PID_STARTED:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
-        case PID_BAD_HEATER_ID:
-          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
+        case PID_BAD_EXTRUDER_NUM:
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));

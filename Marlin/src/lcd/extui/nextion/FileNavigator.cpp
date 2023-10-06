@@ -39,18 +39,18 @@ using namespace ExtUI;
 #define DEBUG_OUT NEXDEBUGLEVEL
 #include "../../../core/debug_out.h"
 
-FileList  FileNavigator::filelist;                      // ExtUI file API
-char      FileNavigator::currentDirPath[MAX_PATH_LEN];  // Current folder path
+FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
+char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
 uint16_t  FileNavigator::lastindex;
 uint8_t   FileNavigator::folderdepth;
-uint16_t  FileNavigator::currentindex;                  // override the panel request
+uint16_t  FileNavigator::currentindex;                      // override the panel request
 
 FileNavigator filenavigator;
 
 FileNavigator::FileNavigator() { reset(); }
 
 void FileNavigator::reset() {
-  currentDirPath[0] = '\0';
+  currentfoldername[0] = '\0';
   folderdepth  = 0;
   currentindex = 0;
   lastindex    = 0;
@@ -83,51 +83,51 @@ void FileNavigator::getFiles(uint16_t index) {
   #endif
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
-    nextion.tftSend(F("vis p0,1"));
-    nextion.tftSend(F("\xFF\xFF\xFF"));
+    nextion.SendtoTFT(F("vis p0,1"));
+    nextion.SendtoTFT(F("\xFF\xFF\xFF"));
     SEND_VAL("tmpUP", "0");
     files--;
   }
   else {
-    nextion.tftSend(F("vis p0,0"));
-    nextion.tftSend(F("\xFF\xFF\xFF"));
+    nextion.SendtoTFT(F("vis p0,0"));
+    nextion.SendtoTFT(F("\xFF\xFF\xFF"));
   }
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
     if (filelist.seek(seek)) {
-      nextion.tftSend(F("s"));
+      nextion.SendtoTFT(F("s"));
       LCD_SERIAL.print(fcnt);
-      nextion.tftSend(F(".txt=\""));
+      nextion.SendtoTFT(F(".txt=\""));
       if (filelist.isDir()) {
         LCD_SERIAL.print(filelist.shortFilename());
-        nextion.tftSend(F("/\""));
-        nextion.tftSend(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(F("/\""));
+        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
 
-        nextion.tftSend(F("l"));
+        nextion.SendtoTFT(F("l"));
         LCD_SERIAL.print(fcnt);
-        nextion.tftSend(F(".txt=\""));
+        nextion.SendtoTFT(F(".txt=\""));
         LCD_SERIAL.print(filelist.filename());
-        nextion.tftSend(F("\""));
-        nextion.tftSend(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(F("\""));
+        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
         SEND_PCO2("l", fcnt, "1055");
       }
       else {
-        LCD_SERIAL.print(currentDirPath);
+        LCD_SERIAL.print(currentfoldername);
         LCD_SERIAL.print(filelist.shortFilename());
-        nextion.tftSend(F("\""));
-        nextion.tftSend(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(F("\""));
+        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
 
-        nextion.tftSend(F("l"));
+        nextion.SendtoTFT(F("l"));
         LCD_SERIAL.print(fcnt);
-        nextion.tftSend(F(".txt=\""));
+        nextion.SendtoTFT(F(".txt=\""));
         LCD_SERIAL.print(filelist.longFilename());
-        nextion.tftSend(F("\""));
-        nextion.tftSend(F("\xFF\xFF\xFF"));
+        nextion.SendtoTFT(F("\""));
+        nextion.SendtoTFT(F("\xFF\xFF\xFF"));
       }
       fcnt++;
       fseek = seek;
       #if NEXDEBUG(AC_FILE)
-        DEBUG_ECHOLNPGM("-", seek, " '", filelist.longFilename(), "' '", currentDirPath, "", filelist.shortFilename(), "'\n");
+        DEBUG_ECHOLNPGM("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       #endif
     }
   }
@@ -137,11 +137,11 @@ void FileNavigator::getFiles(uint16_t index) {
 
 void FileNavigator::changeDIR(char *folder) {
   #if NEXDEBUG(AC_FILE)
-    DEBUG_ECHOLNPGM("currentfolder: ", currentDirPath, "  New: ", folder);
+    DEBUG_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
   #endif
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-  strcat(currentDirPath, folder);
-  strcat(currentDirPath, "/");
+  strcat(currentfoldername, folder);
+  strcat(currentfoldername, "/");
   filelist.changeDir(folder);
   refresh();
   folderdepth++;
@@ -155,20 +155,20 @@ void FileNavigator::upDIR() {
   currentindex = 0;
   // Remove the last child folder from the stored path
   if (folderdepth == 0) {
-    currentDirPath[0] = '\0';
+    currentfoldername[0] = '\0';
     reset();
   }
   else {
     char *pos = nullptr;
     for (uint8_t f = 0; f < folderdepth; f++)
-      pos = strchr(currentDirPath, '/');
+      pos = strchr(currentfoldername, '/');
     pos[1] = '\0';
   }
   #if NEXDEBUG(AC_FILE)
-    DEBUG_ECHOLNPGM("depth: ", folderdepth, " currentDirPath: ", currentDirPath);
+    DEBUG_ECHOLNPGM("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
   #endif
 }
 
-char* FileNavigator::getCurrentDirPath() { return currentDirPath; }
+char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
 
 #endif // NEXTION_TFT

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
+#if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
 
 #include "menu_item.h"
 #include "../marlinui.h"

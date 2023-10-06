@@ -117,7 +117,7 @@
     #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
     #define SPINDLE_DIR_PIN                   48
-  #elif !ALL(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
+  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
     #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   17
     #if !NUM_SERVOS                               // Use servo connector if possible
@@ -136,7 +136,7 @@
 
   // TODO: Remap EXP1/2 based on adapter
   #define LCD_PINS_RS                         27
-  #define LCD_PINS_EN                         29
+  #define LCD_PINS_ENABLE                     29
   #define LCD_PINS_D4                         37
   #define LCD_PINS_D5                         35
   #define LCD_PINS_D6                         33

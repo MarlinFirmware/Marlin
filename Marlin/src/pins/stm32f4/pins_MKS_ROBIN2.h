@@ -90,7 +90,7 @@
 #define HEATER_0_PIN                        PF3   // Heater0
 #define HEATER_1_PIN                        PF2   // Heater1
 #define HEATER_BED_PIN                      PF4   // Hotbed
-#define FAN0_PIN                            PA7   // Fan0
+#define FAN_PIN                             PA7   // Fan0
 
 //
 // Misc. Functions
@@ -121,7 +121,7 @@
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #define TFT_BUFFER_WORDS                 14400
+  #define TFT_BUFFER_SIZE                  14400
 
   #define BEEPER_PIN                        PG2
 

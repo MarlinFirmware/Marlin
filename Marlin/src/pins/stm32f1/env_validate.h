@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifndef ENV_VALIDATE_H
-#define ENV_VALIDATE_H
+#pragma once
 
 #if NOT_TARGET(__STM32F1__, STM32F1)
   #if DISABLED(ALLOW_STM32F4)
@@ -31,5 +30,3 @@
 #endif
 
 #undef ALLOW_STM32F4
-
-#endif

@@ -45,19 +45,24 @@
 
 #define BOARD_INFO_NAME "RAMPS Duo"
 
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN                             9  // Analog Input
-#define TEMP_1_PIN                            11  // Analog Input
-#define TEMP_BED_PIN                          10  // Analog Input
-
 #define ALLOW_SAM3X8E
 #include "../ramps/pins_RAMPS.h"
 
+//
+// Temperature Sensors
+//
+#undef TEMP_0_PIN
+#define TEMP_0_PIN                             9  // Analog Input
+
+#undef TEMP_1_PIN
+#define TEMP_1_PIN                            11  // Analog Input
+
+#undef TEMP_BED_PIN
+#define TEMP_BED_PIN                          10  // Analog Input
+
 // SPI for MAX Thermocouple
 #undef TEMP_0_CS_PIN
-#if !HAS_MEDIA
+#if DISABLED(SDSUPPORT)
   #define TEMP_0_CS_PIN                       69  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       69  // Don't use 49 (SD_DETECT_PIN)
@@ -68,7 +73,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ALL(IS_NEWPANEL, PANEL_ONE)
+  #if BOTH(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4                       68
 

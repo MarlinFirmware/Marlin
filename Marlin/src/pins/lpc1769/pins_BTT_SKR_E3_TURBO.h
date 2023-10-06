@@ -153,11 +153,8 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // TMC Low Power Standby pins
@@ -174,10 +171,7 @@
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
 #define TEMP_BED_PIN                       P0_25
-
-#ifndef TEMP_BOARD_PIN
-  #define TEMP_BOARD_PIN                   P1_30  // Onboard thermistor, NTC100K
-#endif
+#define TEMP_BOARD_PIN                     P1_30  // Onboard thermistor, NTC100K
 
 //
 // Heaters / Fans
@@ -185,7 +179,7 @@
 #define HEATER_0_PIN                       P2_03  // EXTRUDER 0
 #define HEATER_1_PIN                       P2_04  // EXTRUDER 1
 #define HEATER_BED_PIN                     P2_05  // BED
-#define FAN0_PIN                           P2_01
+#define FAN_PIN                            P2_01
 #define FAN1_PIN                           P2_02
 
 #ifndef CONTROLLER_FAN_PIN
@@ -243,7 +237,7 @@
     #define BTN_ENC                  EXP1_02_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -253,14 +247,14 @@
     #endif
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
+    #define LCD_PINS_ENABLE          EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                 P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN

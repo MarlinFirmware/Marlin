@@ -31,7 +31,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -68,42 +68,40 @@
 #define E0_DIR_PIN                          PB0
 #define E0_ENABLE_PIN                       PC4
 
-// Shared with EXP2
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB3
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB4
-#endif
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB5
+#if ENABLED(TMC_USE_SW_SPI)                       // Shared with EXP2
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PB3
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PB4
+  #endif
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PB5
+  #endif
 #endif
 
 #if HAS_TMC_UART                                  // Shared with EXP1
-  #define X_SERIAL_TX_PIN                   PC10
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
+  #define X_SERIAL_TX_PIN                  PC10
+  #define X_SERIAL_RX_PIN       X_SERIAL_TX_PIN
 
-  #define Y_SERIAL_TX_PIN                   PC11
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
+  #define Y_SERIAL_TX_PIN                  PC11
+  #define Y_SERIAL_RX_PIN       Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                   PC12
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+  #define Z_SERIAL_TX_PIN                  PC12
+  #define Z_SERIAL_RX_PIN       Z_SERIAL_TX_PIN
 
-  #define E0_SERIAL_TX_PIN                  PC14
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
+  #define E0_SERIAL_TX_PIN                 PC14
+  #define E0_SERIAL_RX_PIN     E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                   19200
+#endif
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA8
-#define FAN0_PIN                            PC8
+#define FAN_PIN                             PC8
 #define HEATER_BED_PIN                      PC9
 
 //
@@ -142,7 +140,7 @@
 //
 // LCD / Controller
 //
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
+#if EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
@@ -171,7 +169,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  #define TFT_BUFFER_WORDS                  9600
+  #define TFT_BUFFER_SIZE                   9600
 
 #elif HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
@@ -183,7 +181,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif IS_TFTGLCD_PANEL
@@ -204,7 +202,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
 
@@ -217,11 +215,11 @@
 
       #define FORCE_SOFT_SPI                      // SPI MODE3
 
-      #define LED_PIN                EXP1_06_PIN  // red pwm
+      #define LED_PIN                EXP1_06_PIN   // red pwm
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 
-      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       //  #ifndef RGB_LED_R_PIN
       //    #define RGB_LED_R_PIN    EXP1_06_PIN
       //  #endif
@@ -273,7 +271,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SPI_DEVICE                           3  // Maple
+  #define SPI_DEVICE                           3
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
@@ -289,4 +287,4 @@
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                           SD_SS_PIN
+#define SDSS                          SD_SS_PIN

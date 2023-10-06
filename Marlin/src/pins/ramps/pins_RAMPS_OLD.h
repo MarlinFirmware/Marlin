@@ -76,7 +76,7 @@
 #define TEMP_BED_PIN                           1  // Analog Input
 
 // SPI for MAX Thermocouple
-#if !HAS_MEDIA
+#if DISABLED(SDSUPPORT)
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -88,14 +88,14 @@
 #if ENABLED(RAMPS_V_1_0)
   #define HEATER_0_PIN                        12
   #define HEATER_BED_PIN                      -1
-  #ifndef FAN0_PIN
-    #define FAN0_PIN                          11
+  #ifndef FAN_PIN
+    #define FAN_PIN                           11
   #endif
 #else                                             // RAMPS_V_1_1 or RAMPS_V_1_2
   #define HEATER_0_PIN                        10
   #define HEATER_BED_PIN                       8
-  #ifndef FAN0_PIN
-    #define FAN0_PIN                           9
+  #ifndef FAN_PIN
+    #define FAN_PIN                            9
   #endif
 #endif
 
@@ -113,8 +113,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER
-  #define SPINDLE_LASER_PWM_PIN               45  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               41  // Pullup or pulldown!
-  #define SPINDLE_DIR_PIN                     43
-#endif
+#define SPINDLE_LASER_ENA_PIN                 41  // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN                 45  // Hardware PWM
+#define SPINDLE_DIR_PIN                       43

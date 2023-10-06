@@ -100,7 +100,7 @@ const PinInfo pin_array[] PROGMEM = {
    */
 
   #if SERIAL_IN_USE(0)
-    #if ANY(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_0, 0, true },
       { TXD_NAME_0, 1, true },
     #elif AVR_ATmega1284_FAMILY
@@ -113,7 +113,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #if SERIAL_IN_USE(1)
-    #if ANY(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_1, 19, true },
       { TXD_NAME_1, 18, true },
     #elif AVR_ATmega1284_FAMILY
@@ -131,7 +131,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #if SERIAL_IN_USE(2)
-    #if ANY(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_2, 17, true },
       { TXD_NAME_2, 16, true },
     #elif defined(TARGET_LPC1768)
@@ -146,7 +146,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #if SERIAL_IN_USE(3)
-    #if ANY(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_3, 15, true },
       { TXD_NAME_3, 14, true },
     #elif defined(TARGET_LPC1768)
@@ -174,14 +174,12 @@ const PinInfo pin_array[] PROGMEM = {
   #define M43_NEVER_TOUCH(Q) false
 #endif
 
-bool pin_is_protected(const pin_t pin);
-
 static void print_input_or_output(const bool isout) {
-  SERIAL_ECHO(isout ? F("Output ") : F("Input  "));
+  SERIAL_ECHOF(isout ? F("Output ") : F("Input  "));
 }
 
 static void print_pin_state(const bool state) {
-  SERIAL_ECHO(state ? F("HIGH") : F("LOW"));
+  SERIAL_ECHOF(state ? F("HIGH") : F("LOW"));
 }
 
 // pretty report with PWM info
@@ -206,13 +204,13 @@ inline void report_pin_state_extended(const pin_t pin, const bool ignore, const 
     return true;
   };
 
-  for (uint8_t x = 0; x < COUNT(pin_array); ++x)  {    // scan entire array and report all instances of this pin
+  LOOP_L_N(x, COUNT(pin_array))  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
-        if (start_string) SERIAL_ECHO(start_string);
+        if (start_string) SERIAL_ECHOF(start_string);
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
-        print_port(pin);
+        PRINT_PORT(pin);
         if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
         else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
       }
@@ -257,10 +255,10 @@ inline void report_pin_state_extended(const pin_t pin, const bool ignore, const 
   } // end of for loop
 
   if (!found) {
-    if (start_string) SERIAL_ECHO(start_string);
+    if (start_string) SERIAL_ECHOF(start_string);
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
-    print_port(pin);
+    PRINT_PORT(pin);
     if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
     else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");

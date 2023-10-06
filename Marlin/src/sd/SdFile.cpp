@@ -31,7 +31,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
 
 #include "SdFile.h"
 
@@ -95,4 +95,4 @@ void SdFile::writeln_P(PGM_P const str) {
   write_P(PSTR("\r\n"));
 }
 
-#endif // HAS_MEDIA
+#endif // SDSUPPORT

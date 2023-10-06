@@ -6,7 +6,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
 
 #include "../../../sd/cardreader.h"
 extern "C" {
@@ -138,5 +138,5 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
 
 #endif // ACCESS_USB == true
 
-#endif // HAS_MEDIA
+#endif // SDSUPPORT
 #endif // ARDUINO_ARCH_SAM

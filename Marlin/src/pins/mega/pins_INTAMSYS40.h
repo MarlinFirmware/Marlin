@@ -99,7 +99,7 @@
 #define HEATER_0_PIN                           2  // PWM
 #define HEATER_BED_PIN                         4  // PWM
 #define HEATER_CHAMBER_PIN                     3  // PWM
-#define FAN0_PIN                               7  // PWM
+#define FAN_PIN                                7  // PWM
 
 //
 // Misc. Functions
@@ -123,7 +123,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         20
-  #define LCD_PINS_EN                         30
+  #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         14
   #define LCD_PINS_D5                         21
   #define LCD_PINS_D6                          5

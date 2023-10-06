@@ -26,7 +26,7 @@
 
 #include "babystep.h"
 #include "../MarlinCore.h"
-#include "../module/motion.h"   // for axes_should_home(), BABYSTEP_ALLOWED
+#include "../module/motion.h"   // for axes_should_home()
 #include "../module/planner.h"  // for axis_steps_per_mm[]
 #include "../module/stepper.h"
 
@@ -41,10 +41,6 @@ volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
   int16_t Babystep::axis_total[BS_TOTAL_IND(Z_AXIS) + 1];
 #endif
 int16_t Babystep::accum;
-
-#if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
-  int16_t Babystep::ep_babysteps;
-#endif
 
 void Babystep::step_axis(const AxisEnum axis) {
   const int16_t curTodo = steps[BS_AXIS_IND(axis)]; // get rid of volatile for performance
@@ -66,7 +62,7 @@ void Babystep::add_mm(const AxisEnum axis, const_float_t mm) {
     steps[BS_AXIS_IND(axis)] = distance;
     TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] = distance);
     TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
-    TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+    TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
   }
 #endif
 
@@ -77,13 +73,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
   steps[BS_AXIS_IND(axis)] += distance;
   TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] += distance);
   TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
-  TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+  TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
 }
-
-#if ENABLED(EP_BABYSTEPPING)
-  // Step Z for M293 / M294
-  void Babystep::z_up()   { if (BABYSTEP_ALLOWED()) add_steps(Z_AXIS, +BABYSTEP_SIZE_Z); }
-  void Babystep::z_down() { if (BABYSTEP_ALLOWED()) add_steps(Z_AXIS, -BABYSTEP_SIZE_Z); }
-#endif
 
 #endif // BABYSTEPPING

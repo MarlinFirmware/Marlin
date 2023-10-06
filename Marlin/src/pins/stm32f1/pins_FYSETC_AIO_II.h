@@ -38,7 +38,7 @@
 //
 // Flash EEPROM Emulation
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -118,11 +118,8 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Stepper current PWM
@@ -137,8 +134,8 @@
 //
 #define HEATER_0_PIN                        PC7
 #define HEATER_BED_PIN                      PC6
-#ifndef FAN0_PIN
-  #define FAN0_PIN                          PC8
+#ifndef FAN_PIN
+  #define FAN_PIN                           PC8
 #endif
 
 //

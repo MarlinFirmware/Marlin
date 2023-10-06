@@ -39,7 +39,7 @@
 
 float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
-#if ANY(MORGAN_SCARA, MP_SCARA)
+#if EITHER(MORGAN_SCARA, MP_SCARA)
 
   static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
 

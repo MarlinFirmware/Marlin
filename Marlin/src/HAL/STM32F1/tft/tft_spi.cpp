@@ -20,8 +20,6 @@
  *
  */
 
-#ifdef __STM32F1__
-
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -30,7 +28,7 @@
 
 SPIClass TFT_SPI::SPIx(TFT_SPI_DEVICE);
 
-void TFT_SPI::init() {
+void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
     OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(100);
@@ -70,8 +68,8 @@ void TFT_SPI::init() {
   SPIx.setDataMode(SPI_MODE0);
 }
 
-void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
-  SPIx.setDataSize(dataSize);
+void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
+  SPIx.setDataSize(DataSize);
   SPIx.begin();
   WRITE(TFT_CS_PIN, LOW);
 }
@@ -80,11 +78,11 @@ void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
   #include "../../../lcd/tft_io/tft_ids.h"
 #endif
 
-uint32_t TFT_SPI::getID() {
+uint32_t TFT_SPI::GetID() {
   uint32_t id;
-  id = readID(LCD_READ_ID);
+  id = ReadID(LCD_READ_ID);
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
-    id = readID(LCD_READ_ID4);
+    id = ReadID(LCD_READ_ID4);
     #ifdef TFT_DEFAULT_DRIVER
       if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
         id = TFT_DEFAULT_DRIVER;
@@ -93,25 +91,26 @@ uint32_t TFT_SPI::getID() {
   return id;
 }
 
-uint32_t TFT_SPI::readID(const uint16_t inReg) {
-  uint32_t data = 0;
-
-  #if PIN_EXISTS(TFT_MISO)
+uint32_t TFT_SPI::ReadID(uint16_t Reg) {
+  #if !PIN_EXISTS(TFT_MISO)
+    return 0;
+  #else
+    uint8_t d = 0;
+    uint32_t data = 0;
     SPIx.setClockDivider(SPI_CLOCK_DIV16);
-    dataTransferBegin(DATASIZE_8BIT);
-    writeReg(inReg);
+    DataTransferBegin(DATASIZE_8BIT);
+    WriteReg(Reg);
 
-    for (uint8_t i = 0; i < 4; ++i) {
-      uint8_t d;
-      SPIx.read(&d, 1);
+    LOOP_L_N(i, 4) {
+      SPIx.read((uint8_t*)&d, 1);
       data = (data << 8) | d;
     }
 
-    dataTransferEnd();
+    DataTransferEnd();
     SPIx.setClockDivider(SPI_CLOCK_MAX);
-  #endif
 
-  return data >> 7;
+    return data >> 7;
+  #endif
 }
 
 bool TFT_SPI::isBusy() {
@@ -130,11 +129,11 @@ bool TFT_SPI::isBusy() {
     if (!(SPIdev->regs->SR & SPI_SR_TXE) || (SPIdev->regs->SR & SPI_SR_BSY)) return true;
   }
 
-  abort();
+  Abort();
   return false;
 }
 
-void TFT_SPI::abort() {
+void TFT_SPI::Abort() {
   dma_channel_reg_map *channel_regs = dma_channel_regs(DMAx, DMA_CHx);
 
   dma_disable(DMAx, DMA_CHx); // Abort DMA transfer if any
@@ -146,25 +145,23 @@ void TFT_SPI::abort() {
   channel_regs->CMAR  = 0U;
   channel_regs->CPAR  = 0U;
 
-  dataTransferEnd();
+  DataTransferEnd();
 }
 
-void TFT_SPI::transmit(uint16_t data) { SPIx.send(data); }
+void TFT_SPI::Transmit(uint16_t Data) { SPIx.send(Data); }
 
-void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  dataTransferBegin();
-  SPIx.dmaSendAsync(data, count, memoryIncrease == DMA_MINC_ENABLE);
+void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  DataTransferBegin();
+  SPIx.dmaSendAsync(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
-void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
+void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   WRITE(TFT_DC_PIN, HIGH);
-  dataTransferBegin();
-  SPIx.dmaSend(data, count, memoryIncrease == DMA_MINC_ENABLE);
-  dataTransferEnd();
+  DataTransferBegin();
+  SPIx.dmaSend(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
+  DataTransferEnd();
 }
 
 #endif // HAS_SPI_TFT
-
-#endif // __STM32F1__

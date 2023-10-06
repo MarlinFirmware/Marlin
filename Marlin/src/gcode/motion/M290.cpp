@@ -131,10 +131,4 @@ void GcodeSuite::M290() {
   }
 }
 
-#if ENABLED(EP_BABYSTEPPING) && DISABLED(EMERGENCY_PARSER)
-  // Without Emergency Parser M293/M294 will be added to the queue
-  void GcodeSuite::M293() { babystep.z_up(); }
-  void GcodeSuite::M294() { babystep.z_down(); }
-#endif
-
 #endif // BABYSTEPPING

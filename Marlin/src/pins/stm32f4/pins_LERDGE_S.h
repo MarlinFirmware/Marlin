@@ -122,7 +122,7 @@
 #define HEATER_1_PIN                        PA1
 #define HEATER_BED_PIN                      PA3
 
-#define FAN0_PIN                            PA15  // heater 0 fan 1
+#define FAN_PIN                             PA15  // heater 0 fan 1
 #define FAN1_PIN                            PB10  // heater 1 fan 2
 #define FAN2_PIN                            PF5   // heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together)
 
@@ -160,10 +160,10 @@
 //
 // SD support
 //
-#define ONBOARD_SDIO
+#define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
 #define SD_DETECT_PIN                       PG15
-#if DISABLED(ONBOARD_SDIO)
+#if DISABLED(SDIO_SUPPORT)
   #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8

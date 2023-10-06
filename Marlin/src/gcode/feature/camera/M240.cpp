@@ -84,7 +84,7 @@
 
     inline void spin_photo_pin() {
       static constexpr uint32_t sequence[] = PHOTO_PULSES_US;
-      for (uint8_t i = 0; i < COUNT(sequence); ++i)
+      LOOP_L_N(i, COUNT(sequence))
         pulse_photo_pin(sequence[i], !(i & 1));
     }
 
@@ -111,7 +111,7 @@
  *    B - Y offset to the return position
  *    F - Override the XY movement feedrate
  *    R - Retract/recover length (current units)
- *    S - Retract/recover feedrate (mm/min)
+ *    S - Retract/recover feedrate (mm/m)
  *    X - Move to X before triggering the shutter
  *    Y - Move to Y before triggering the shutter
  *    Z - Raise Z by a distance before triggering the shutter

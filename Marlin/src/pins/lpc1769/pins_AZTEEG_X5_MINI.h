@@ -104,8 +104,8 @@
 //
 #define HEATER_BED_PIN                     P2_07
 #define HEATER_0_PIN                       P2_05
-#ifndef FAN0_PIN
-  #define FAN0_PIN                         P0_26
+#ifndef FAN_PIN
+  #define FAN_PIN                          P0_26
 #endif
 #define FAN1_PIN                           P1_25
 
@@ -128,7 +128,7 @@
     #define BTN_ENC                        P3_25  // J3-4 & AUX-4
 
     #define LCD_PINS_RS                    P0_15  // J3-9 & AUX-4 (CS)
-    #define LCD_PINS_EN                    P0_18  // J3-10 & AUX-3 (SID, MOSI)
+    #define LCD_PINS_ENABLE                P0_18  // J3-10 & AUX-3 (SID, MOSI)
     #define LCD_PINS_D4                    P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
   #else
@@ -142,7 +142,7 @@
     #define LCD_PINS_RS                    P0_16  // (16) J3-7 & AUX-4
     #define LCD_SDSS                       P0_16  // (16) J3-7 & AUX-4
     #define LCD_BACKLIGHT_PIN              P0_16  // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_EN                    P0_18  // (51) (MOSI) J3-10 & AUX-3
+    #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
 
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
@@ -158,7 +158,7 @@
       //#define SHIFT_EN_PIN               P1_22  // (41)  J5-4 & AUX-4
     #endif
 
-    #if ANY(VIKI2, miniVIKI)
+    #if EITHER(VIKI2, miniVIKI)
       #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
       #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
       #define DOGLCD_SCK              SD_SCK_PIN

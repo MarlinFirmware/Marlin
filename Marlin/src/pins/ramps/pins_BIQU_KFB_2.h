@@ -35,6 +35,7 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_D_PIN                           7
+// Power outputs BEEF or BEFF
+#define MOSFET_D_PIN        7
 
 #include "pins_RAMPS.h"

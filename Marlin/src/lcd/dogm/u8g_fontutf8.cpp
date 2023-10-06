@@ -12,7 +12,7 @@
 #if HAS_MARLINUI_U8GLIB
 
 #include <string.h>
-#include "../utf8.h"
+#include "../fontutils.h"
 #include "u8g_fontutf8.h"
 
 typedef void font_t;

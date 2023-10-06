@@ -46,7 +46,7 @@ float measured_z, z_offset;
 void xatc_wizard_done() {
   if (!ui.wait_for_move) {
     xatc.print_points();
-    set_bed_leveling_enabled(menu_leveling_was_active);
+    set_bed_leveling_enabled(leveling_was_active);
     SET_SOFT_ENDSTOP_LOOSE(false);
     ui.goto_screen(menu_advanced_settings);
   }
@@ -112,9 +112,9 @@ void xatc_wizard_menu() {
 //
 void xatc_wizard_moving() {
   if (ui.should_draw()) {
-    MString<9> msg;
-    msg.setf(F(" %i / %u"), manual_probe_index + 1, XATC_MAX_POINTS);
-    MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
+    char msg[10];
+    sprintf_P(msg, PSTR("%i / %u"), manual_probe_index + 1, XATC_MAX_POINTS);
+    MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), msg);
   }
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
   if (!ui.wait_for_move) ui.goto_screen(xatc_wizard_menu);
@@ -141,7 +141,7 @@ void xatc_wizard_goto_next_point() {
       xatc.set_enabled(true);
       current_position += probe.offset_xy;
       current_position.z = (XATC_START_Z) - probe.offset.z + measured_z;
-      line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+      line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
       ui.wait_for_move = false;
     }
     else
@@ -150,12 +150,12 @@ void xatc_wizard_goto_next_point() {
   else {
     // Compute the z-offset by averaging the values found with this wizard
     z_offset = 0;
-    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) z_offset += xatc.z_offset[i];
+    LOOP_L_N(i, XATC_MAX_POINTS) z_offset += xatc.z_offset[i];
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
     // This way they are indipendent from the z-offset
-    for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
+    LOOP_L_N(i, XATC_MAX_POINTS) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);
   }
@@ -170,7 +170,7 @@ void xatc_wizard_homing_done() {
     MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
 
     // Color UI needs a control to detect a touch
-    #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+    #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
       touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     #endif
   }
@@ -199,7 +199,7 @@ void xatc_wizard_homing() {
 void xatc_wizard_continue() {
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    menu_leveling_was_active = planner.leveling_active;
+    leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 

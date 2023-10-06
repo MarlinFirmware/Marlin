@@ -152,14 +152,16 @@
 //
 // Default pins for TMC software SPI
 //
-//#ifndef TMC_SPI_MOSI
-//  #define TMC_SPI_MOSI                      66
-//#endif
-//#ifndef TMC_SPI_MISO
-//  #define TMC_SPI_MISO                      44
-//#endif
-//#ifndef TMC_SPI_SCK
-//  #define TMC_SPI_SCK                       64
+//#if ENABLED(TMC_USE_SW_SPI)
+//  #ifndef TMC_SW_MOSI
+//    #define TMC_SW_MOSI    66
+//  #endif
+//  #ifndef TMC_SW_MISO
+//    #define TMC_SW_MISO    44
+//  #endif
+//  #ifndef TMC_SW_SCK
+//    #define TMC_SW_SCK     64
+//  #endif
 //#endif
 
 //
@@ -178,7 +180,7 @@
 #endif
 
 // SPI for MAX Thermocouple
-//#if !HAS_MEDIA
+//#if DISABLED(SDSUPPORT)
 //  #define TEMP_0_CS_PIN    66   // Don't use 53 if using Display/SD card
 //#else
 //  #define TEMP_0_CS_PIN    66   // Don't use 49 (SD_DETECT_PIN)
@@ -192,7 +194,7 @@
 #define HEATER_2_PIN                          44
 #define HEATER_BED_PIN                         8
 
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 
 #if EXTRUDERS >= 5
   #define HEATER_4_PIN                         6
@@ -228,12 +230,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                                 // Prefer the servo connector
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
     #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
@@ -276,13 +278,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_EN                       51  // SID (MOSI)
+    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
-  #elif ALL(IS_NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_EN                       42
+    #define LCD_PINS_ENABLE                   42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -291,7 +293,7 @@
   #elif ENABLED(ZONESTAR_LCD)
 
     #define LCD_PINS_RS                       64
-    #define LCD_PINS_EN                       44
+    #define LCD_PINS_ENABLE                   44
     #define LCD_PINS_D4                       63
     #define LCD_PINS_D5                       40
     #define LCD_PINS_D6                       42
@@ -303,7 +305,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_EN                     29
+      #define LCD_PINS_ENABLE                 29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -312,7 +314,7 @@
 
     #else
 
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_DC                   25  // Set as output on init
         #define LCD_PINS_RS                   27  // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -322,7 +324,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_EN                   17
+        #define LCD_PINS_ENABLE               17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27
@@ -400,7 +402,7 @@
       #define LCD_SDSS                        53
       #define SD_DETECT_PIN                   49
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44

@@ -74,7 +74,7 @@
 //
 #define HEATER_0_PIN                          10  // EXTRUDER 1
 #define HEATER_BED_PIN                         8  // BED
-#define FAN0_PIN                               4  // IO pin. Buffer needed
+#define FAN_PIN                                4  // IO pin. Buffer needed
 
 //
 // Misc. Functions
@@ -85,7 +85,7 @@
 //
 // SD Support
 //
-#if HAS_MEDIA
+#if ENABLED(SDSUPPORT)
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

@@ -27,9 +27,7 @@
 
 #include "MarlinConfigPre.h"
 
-#ifdef __MARLIN_DEPS__
-  #include "../HAL/shared/fauxpins.h"
-#else
+#ifndef __MARLIN_DEPS__
   #include "../HAL/HAL.h"
 #endif
 
@@ -48,16 +46,13 @@
 
   #include "../core/types.h"  // Ahead of sanity-checks
 
-  #include "Changes.h"
   #include "SanityCheck.h"
   #include HAL_PATH(.., inc/SanityCheck.h)
 
   // Include all core headers
   #include "../core/language.h"
   #include "../core/utility.h"
-  #include "../core/mstring.h"
   #include "../core/serial.h"
-  #include "../core/endianness.h"
 
 #endif
 

@@ -54,16 +54,16 @@
 
 #define Y_STEP_PIN                             3
 #define Y_DIR_PIN                              6
-#define Y_ENABLE_PIN                X_ENABLE_PIN
+#define Y_ENABLE_PIN                 X_ENABLE_PIN
 
 #define Z_STEP_PIN                             4
 #define Z_DIR_PIN                              7
-#define Z_ENABLE_PIN                X_ENABLE_PIN
+#define Z_ENABLE_PIN                 X_ENABLE_PIN
 
 // Designated with letter "A" on BOARD
 #define E0_STEP_PIN                           12
 #define E0_DIR_PIN                            13
-#define E0_ENABLE_PIN               X_ENABLE_PIN
+#define E0_ENABLE_PIN                X_ENABLE_PIN
 
 //
 // Temperature sensors - These could be any analog output not hidden by board

@@ -97,8 +97,13 @@
 #define HEATER_0_PIN                           4
 #define HEATER_BED_PIN                         3
 
-#if !defined(FAN0_PIN) && GEN7_VERSION < 13       // Gen7 v1.3 removed the fan pin
-  #define FAN0_PIN                            31
+#ifndef FAN_PIN
+  #if GEN7_VERSION >= 13
+    // Gen7 v1.3 removed the fan pin
+    #define FAN_PIN                           -1
+  #else
+    #define FAN_PIN                           31
+  #endif
 #endif
 
 //

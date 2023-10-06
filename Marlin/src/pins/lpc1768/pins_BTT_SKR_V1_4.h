@@ -196,16 +196,18 @@
 #define TEMP_BED_PIN                    P0_25_A2  // A2 (T2) - (69) - TEMP_BED_PIN
 
 //
-// Default pins for TMC software SPI
+// Software SPI pins for TMC2130 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     P1_17
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     P0_05
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      P0_04
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                    P1_17
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                    P0_05
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                     P0_04
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -243,11 +245,8 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
-#endif // HAS_TMC_UART
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 /**       ------                ------
  *  1.30 | 1  2 | 0.28    0.17 | 1  2 | 0.15
@@ -319,7 +318,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_01_PIN
 
-    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
     #define BEEPER_PIN               EXP1_08_PIN
 
@@ -355,7 +354,7 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_03_PIN
 
-    #define LCD_PINS_EN              EXP1_06_PIN
+    #define LCD_PINS_ENABLE          EXP1_06_PIN
     #define LCD_PINS_D4              EXP1_04_PIN
 
     #define BEEPER_PIN               EXP1_01_PIN
@@ -367,7 +366,7 @@
     #define BTN_EN2                  EXP1_05_PIN
     #define BTN_ENC                  EXP1_02_PIN
 
-    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ENDER2_STOCKDISPLAY)
@@ -396,8 +395,8 @@
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
     #define TFT_CS_PIN               EXP1_07_PIN
+    #define TFT_A0_PIN               EXP1_08_PIN
     #define TFT_DC_PIN               EXP1_08_PIN
-    #define TFT_A0_PIN                TFT_DC_PIN
     #define TFT_MISO_PIN             EXP2_01_PIN
     #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
     #define TFT_RESET_PIN            EXP1_04_PIN
@@ -414,7 +413,7 @@
     #define SD_MISO_PIN              EXP2_01_PIN
     #define SD_MOSI_PIN              EXP2_06_PIN
 
-    #define TFT_BUFFER_WORDS                2400
+    #define TFT_BUFFER_SIZE                 2400
 
   #elif IS_TFTGLCD_PANEL
 
@@ -432,7 +431,7 @@
     #define BTN_EN1                  EXP2_03_PIN  // (31) J3-2 & AUX-4
     #define BTN_EN2                  EXP2_05_PIN  // (33) J3-4 & AUX-4
 
-    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #define LCD_SDSS                 EXP2_04_PIN  // (16) J3-7 & AUX-4
@@ -450,7 +449,7 @@
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

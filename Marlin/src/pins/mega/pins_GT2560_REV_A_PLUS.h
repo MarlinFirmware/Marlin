@@ -30,6 +30,8 @@
 
 #define BOARD_INFO_NAME "GT2560 Rev.A+"
 
-#define SERVO0_PIN  11
-
 #include "pins_GT2560_REV_A.h"
+
+#if DISABLED(BLTOUCH)
+  #define SERVO0_PIN  32
+#endif

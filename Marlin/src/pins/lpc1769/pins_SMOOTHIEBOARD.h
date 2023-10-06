@@ -85,15 +85,15 @@
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
 #define HEATER_1_PIN                       P1_23
-#ifndef FAN0_PIN
-  #define FAN0_PIN                         P2_06
+#ifndef FAN_PIN
+  #define FAN_PIN                          P2_06
 #endif
 #define FAN1_PIN                           P2_04
 
 //
 // LCD / Controller
 //
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
 
   #define BEEPER_PIN                       P1_31
   #define DOGLCD_A0                        P2_11
@@ -142,7 +142,7 @@
     //  EXP1 Pins
     #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
     #define BTN_ENC                        P1_30  // EXP1 Pin 2
-    #define LCD_PINS_EN                    P0_18  // EXP1 Pin 3 (MOSI)
+    #define LCD_PINS_ENABLE                P0_18  // EXP1 Pin 3 (MOSI)
     #define LCD_PINS_RS                    P0_16  // EXP1 Pin 4 (CS)
     #define LCD_PINS_D4                    P0_15  // EXP1 Pin 5 (SCK)
     //  EXP2 Pins

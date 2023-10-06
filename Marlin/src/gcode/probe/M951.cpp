@@ -46,7 +46,7 @@ void mpe_settings_init() {
   mpe_settings.parking_xpos[0]      = pex[0];                         // M951 L
   mpe_settings.parking_xpos[1]      = pex[1];                         // M951 R
   mpe_settings.grab_distance        = PARKING_EXTRUDER_GRAB_DISTANCE; // M951 I
-  TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, -mpe_settings.grab_distance));
+  TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, mpe_settings.grab_distance * -1));
   mpe_settings.slow_feedrate        = MMM_TO_MMS(MPE_SLOW_SPEED);     // M951 J
   mpe_settings.fast_feedrate        = MMM_TO_MMS(MPE_FAST_SPEED);     // M951 H
   mpe_settings.travel_distance      = MPE_TRAVEL_DISTANCE;            // M951 D
@@ -59,7 +59,7 @@ void GcodeSuite::M951() {
   if (parser.seenval('R')) mpe_settings.parking_xpos[1] = parser.value_linear_units();
   if (parser.seenval('I')) {
     mpe_settings.grab_distance = parser.value_linear_units();
-    TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, -mpe_settings.grab_distance));
+    TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, mpe_settings.grab_distance * -1));
   }
   if (parser.seenval('J')) mpe_settings.slow_feedrate       = MMM_TO_MMS(parser.value_linear_units());
   if (parser.seenval('H')) mpe_settings.fast_feedrate       = MMM_TO_MMS(parser.value_linear_units());

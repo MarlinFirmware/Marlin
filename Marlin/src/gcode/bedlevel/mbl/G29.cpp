@@ -103,8 +103,9 @@ void GcodeSuite::G29() {
       bedlevel.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        if (parser.seen_test('N'))
-          queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
+        queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
 
         // Position bed horizontally and Z probe vertically.
         #if HAS_SAFE_BED_LEVELING
@@ -140,11 +141,6 @@ void GcodeSuite::G29() {
           do_blocking_move_to(safe_position);
         #endif // HAS_SAFE_BED_LEVELING
 
-        queue.inject(F("G29S2"));
-
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-        TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
-
         return;
       }
       state = MeshNext;
@@ -169,11 +165,11 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
-        TERN_(DWIN_LCD_PROUI, dwinMeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_MAX_POINTS) {
+      if (mbl_probe_index < (GRID_MAX_POINTS)) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);
@@ -236,7 +232,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         bedlevel.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
-        TERN_(DWIN_LCD_PROUI, dwinMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

@@ -42,8 +42,10 @@
 //
 // Heaters / Fans
 //
+// Power outputs EFBF or EFBE
+//
 #define MOSFET_B_PIN                           7
-#define FAN0_PIN                               9
+#define FAN_PIN                                9
 
 //
 // PSU / SERVO
@@ -63,7 +65,7 @@
 //
 // LCD / Controller
 //
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...
    *

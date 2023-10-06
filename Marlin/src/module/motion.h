@@ -30,14 +30,8 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #include "../lcd/e3v2/proui/dwin.h"
-#endif
-
 #if IS_SCARA
   #include "scara.h"
-#elif ENABLED(POLAR)
-  #include "polar.h"
 #endif
 
 // Error margin to work around float imprecision
@@ -147,13 +141,19 @@ inline float home_bump_mm(const AxisEnum axis) {
   return pgm_read_any(&home_bump_mm_P[axis]);
 }
 
+#if HAS_WORKSPACE_OFFSET
+  void update_workspace_offset(const AxisEnum axis);
+#else
+  inline void update_workspace_offset(const AxisEnum) {}
+#endif
+
 #if HAS_HOTEND_OFFSET
   extern xyz_pos_t hotend_offset[HOTENDS];
   void reset_hotend_offsets();
 #elif HOTENDS
-  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { 0 } };
 #else
-  constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -167,12 +167,10 @@ inline float home_bump_mm(const AxisEnum axis) {
       amin = -100000; amax = 100000; // "No limits"
       #if HAS_SOFTWARE_ENDSTOPS
         if (enabled()) switch (axis) {
-          #if HAS_X_AXIS
-            case X_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
-              TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
-              break;
-          #endif
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
           #if HAS_Y_AXIS
             case Y_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
@@ -259,13 +257,11 @@ void report_current_position_projected();
 
 #if ENABLED(AUTO_REPORT_POSITION)
   #include "../libs/autoreport.h"
-  struct PositionReport { static void report() {
-    TERN(AUTO_REPORT_REAL_POSITION, report_real_position(), report_current_position_projected());
-  } };
+  struct PositionReport { static void report() { report_current_position_projected(); } };
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
    * Machine states for GRBL or TinyG
@@ -303,8 +299,6 @@ void report_current_position_projected();
     void quickresume_stepper();
   #endif
 #endif
-
-float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move));
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -350,14 +344,12 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 
-#if HAS_X_AXIS
-  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
-#endif
+void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -402,31 +394,24 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
+void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    #define Z_POST_CLEARANCE hmiData.zAfterHoming
-  #elif defined(Z_AFTER_HOMING)
-    #define Z_POST_CLEARANCE Z_AFTER_HOMING
-  #else
-    #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
-  #endif
-  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
-  void do_z_clearance_by(const_float_t zclear);
-  void do_move_after_z_homing();
-  inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
+  void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
 #else
-  inline void do_z_clearance(float, bool=true, bool=false) {}
-  inline void do_z_clearance_by(float) {}
+  inline void do_z_clearance(float, bool=false) {}
 #endif
 
 /**
  * Homing and Trusted Axes
  */
-typedef bits_t(NUM_AXES) main_axes_bits_t;
+typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
+
+typedef IF<(NUM_AXES + EXTRUDERS > 8), uint16_t, uint8_t>::type e_axis_bits_t;
+constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
 
@@ -445,20 +430,25 @@ void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
   bool homing_needed_error(main_axes_bits_t axes_mask=main_axes_mask);
+  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axes_homed, axis); }
+  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axes_trusted, axis); }
+  inline void set_all_unhomed()                       { axes_homed = axes_trusted = 0; }
+  inline void set_axis_homed(const AxisEnum axis)     { SBI(axes_homed, axis); }
+  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axes_trusted, axis); }
+  inline void set_all_homed()                         { axes_homed = axes_trusted = main_axes_mask; }
 #else
   constexpr main_axes_bits_t axes_homed = main_axes_mask, axes_trusted = main_axes_mask; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
   inline main_axes_bits_t axes_should_home(main_axes_bits_t=main_axes_mask) { return 0; }
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
+  inline void set_axis_unhomed(const AxisEnum axis)   {}
+  inline void set_axis_untrusted(const AxisEnum axis) {}
+  inline void set_all_unhomed()                       {}
+  inline void set_axis_homed(const AxisEnum axis)     {}
+  inline void set_axis_trusted(const AxisEnum axis)   {}
+  inline void set_all_homed()                         {}
 #endif
-
-inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
-inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
-inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
-inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
-inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
-inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
@@ -478,23 +468,32 @@ void home_if_needed(const bool keeplev=false);
 
 #define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()))
 
-#if HAS_HOME_OFFSET
-  extern xyz_pos_t home_offset;
-#endif
-
 /**
  * Workspace offsets
  */
-#if HAS_WORKSPACE_OFFSET
-  extern xyz_pos_t workspace_offset;
-  #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + workspace_offset[AXIS])
-  #define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - workspace_offset[AXIS])
-  FORCE_INLINE void toLogical(xy_pos_t &raw)   { raw += workspace_offset; }
-  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { raw += workspace_offset; }
-  FORCE_INLINE void toLogical(xyze_pos_t &raw) { raw += workspace_offset; }
-  FORCE_INLINE void toNative(xy_pos_t &raw)    { raw -= workspace_offset; }
-  FORCE_INLINE void toNative(xyz_pos_t &raw)   { raw -= workspace_offset; }
-  FORCE_INLINE void toNative(xyze_pos_t &raw)  { raw -= workspace_offset; }
+#if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
+  #if HAS_HOME_OFFSET
+    extern xyz_pos_t home_offset;
+  #endif
+  #if HAS_POSITION_SHIFT
+    extern xyz_pos_t position_shift;
+  #endif
+  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+    extern xyz_pos_t workspace_offset;
+    #define _WS workspace_offset
+  #elif HAS_HOME_OFFSET
+    #define _WS home_offset
+  #else
+    #define _WS position_shift
+  #endif
+  #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + _WS[AXIS])
+  #define LOGICAL_TO_NATIVE(POS, AXIS) ((POS) - _WS[AXIS])
+  FORCE_INLINE void toLogical(xy_pos_t &raw)   { raw += _WS; }
+  FORCE_INLINE void toLogical(xyz_pos_t &raw)  { raw += _WS; }
+  FORCE_INLINE void toLogical(xyze_pos_t &raw) { raw += _WS; }
+  FORCE_INLINE void toNative(xy_pos_t &raw)    { raw -= _WS; }
+  FORCE_INLINE void toNative(xyz_pos_t &raw)   { raw -= _WS; }
+  FORCE_INLINE void toNative(xyze_pos_t &raw)  { raw -= _WS; }
 #else
   #define NATIVE_TO_LOGICAL(POS, AXIS) (POS)
   #define LOGICAL_TO_NATIVE(POS, AXIS) (POS)
@@ -505,10 +504,8 @@ void home_if_needed(const bool keeplev=false);
   FORCE_INLINE void toNative(xyz_pos_t&)   {}
   FORCE_INLINE void toNative(xyze_pos_t&)  {}
 #endif
-#if HAS_X_AXIS
-  #define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
-  #define RAW_X_POSITION(POS)     LOGICAL_TO_NATIVE(POS, X_AXIS)
-#endif
+#define LOGICAL_X_POSITION(POS) NATIVE_TO_LOGICAL(POS, X_AXIS)
+#define RAW_X_POSITION(POS)     LOGICAL_TO_NATIVE(POS, X_AXIS)
 #if HAS_Y_AXIS
   #define LOGICAL_Y_POSITION(POS) NATIVE_TO_LOGICAL(POS, Y_AXIS)
   #define RAW_Y_POSITION(POS)     LOGICAL_TO_NATIVE(POS, Y_AXIS)
@@ -561,9 +558,9 @@ void home_if_needed(const bool keeplev=false);
 #else
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry));
+  bool position_is_reachable(const_float_t rx, const_float_t ry);
   inline bool position_is_reachable(const xy_pos_t &pos) {
-    return position_is_reachable(TERN_(HAS_X_AXIS, pos.x) OPTARG(HAS_Y_AXIS, pos.y));
+    return position_is_reachable(pos.x, pos.y);
   }
 
 #endif
@@ -600,7 +597,7 @@ void home_if_needed(const bool keeplev=false);
 
   float x_home_pos(const uint8_t extruder);
 
-  #define TOOL_X_HOME_DIR(T) ((T) ? 1 : -1)
+  #define TOOL_X_HOME_DIR(T) ((T) ? X2_HOME_DIR : X_HOME_DIR)
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
   void idex_set_mirrored_mode(const bool mirr);
@@ -618,7 +615,7 @@ void home_if_needed(const bool keeplev=false);
 
 #endif
 
-#if HAS_HOME_OFFSET
+#if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const_float_t v);
 #endif
 

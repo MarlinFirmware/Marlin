@@ -92,8 +92,8 @@
 #define HEATER_2_PIN                          17  // 12V PWM3
 #define HEATER_BED_PIN                        44  // DOUBLE 12V PWM
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                            16  // 5V PWM
+#ifndef FAN_PIN
+  #define FAN_PIN                             16  // 5V PWM
 #endif
 
 //

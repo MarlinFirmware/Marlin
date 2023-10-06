@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, PROBE_OFFSET_WIZARD)
+#if BOTH(HAS_TFT_LVGL_UI, PROBE_OFFSET_WIZARD)
 
 #include "draw_ui.h"
 #include <lv_conf.h>
@@ -36,7 +36,7 @@
 
 #if HAS_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
-  bool mks_leveling_was_active;
+  bool leveling_was_active;
 #endif
 
 extern lv_group_t *g;
@@ -102,20 +102,20 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
       probe.offset.z = calculated_z_offset;
       sync_plan_position();
-      do_z_post_clearance();
+      // Raise Z as if it was homed
+      do_z_clearance(Z_POST_CLEARANCE);
       hal.watchdog_refresh();
       draw_return_ui();
       return;
     case ID_M_RETURN:
       probe.offset.z = z_offset_backup;
       SET_SOFT_ENDSTOP_LOOSE(false);
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(mks_leveling_was_active));
-      // On cancel the Z position needs correction
+      TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
       #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
-        set_axis_never_homed(Z_AXIS);
+        set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
         queue.inject_P(PSTR("G28Z"));
-      #else
-        do_z_post_clearance();
+      #else // Otherwise do a Z clearance move like after Homing
+        do_z_clearance(Z_POST_CLEARANCE);
       #endif
       hal.watchdog_refresh();
       draw_return_ui();
@@ -149,8 +149,8 @@ void lv_draw_z_offset_wizard() {
 
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    mks_leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(mks_leveling_was_active);
+    leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(leveling_was_active);
   #endif
 
   queue.inject_P(PSTR("G28"));

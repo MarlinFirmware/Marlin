@@ -66,13 +66,13 @@ float ProbeTempComp::init_measurement; // = 0.0
 bool ProbeTempComp::enabled = true;
 
 void ProbeTempComp::reset() {
-  TERN_(PTC_PROBE, for (uint8_t i = 0; i < PTC_PROBE_COUNT; ++i) z_offsets_probe[i] = z_offsets_probe_default[i]);
-  TERN_(PTC_BED, for (uint8_t i = 0; i < PTC_BED_COUNT; ++i) z_offsets_bed[i] = z_offsets_bed_default[i]);
-  TERN_(PTC_HOTEND, for (uint8_t i = 0; i < PTC_HOTEND_COUNT; ++i) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
+  TERN_(PTC_PROBE, LOOP_L_N(i, PTC_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
+  TERN_(PTC_BED, LOOP_L_N(i, PTC_BED_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
+  TERN_(PTC_HOTEND, LOOP_L_N(i, PTC_HOTEND_COUNT) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
 }
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {
-  for (uint8_t i = 0; i < cali_info[tsi].measurements; ++i)
+  LOOP_L_N(i, cali_info[tsi].measurements)
     sensor_z_offsets[tsi][i] = 0;
   calib_idx = 0;
 }
@@ -84,12 +84,17 @@ bool ProbeTempComp::set_offset(const TempSensorID tsi, const uint8_t idx, const 
 }
 
 void ProbeTempComp::print_offsets() {
-  for (uint8_t s = 0; s < TSI_COUNT; ++s) {
+  LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOLN(
-        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :) TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :) F("Probe"),
-        F(" temp: "), temp, F("C; Offset: "), i < 0 ? 0.0f : sensor_z_offsets[s][i], F(" um")
+      SERIAL_ECHOF(
+        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :)
+        TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :)
+        F("Probe")
+      );
+      SERIAL_ECHOLNPGM(
+        " temp: ", temp,
+        "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
       );
       temp += cali_info[s].temp_resolution;
     }
@@ -227,7 +232,7 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
         sum_xy = 0, sum_y = 0;
 
   float xi = static_cast<float>(start_temp);
-  for (uint8_t i = 0; i < calib_idx; ++i) {
+  LOOP_L_N(i, calib_idx) {
     const float yi = static_cast<float>(data[i]);
     xi += res_temp;
     sum_x += xi;

@@ -172,12 +172,12 @@
 
 #if MB(RAMPS_S_12_EEFB)                           // Hotend0, Hotend1, Fan, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
-  #define FAN0_PIN                  RAMPS_S_HE_2
+  #define FAN_PIN                   RAMPS_S_HE_2
 #elif MB(RAMPS_S_12_EEEB)                         // Hotend0, Hotend1, Hotend2, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
   #define HEATER_2_PIN              RAMPS_S_HE_2
 #elif MB(RAMPS_S_12_EFFB)                         // Hotend, Fan0, Fan1, Bed
-  #define FAN0_PIN                  RAMPS_S_HE_1
+  #define FAN_PIN                   RAMPS_S_HE_1
   #define FAN1_PIN                  RAMPS_S_HE_2
 #endif
 
@@ -211,22 +211,24 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
   #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
+  #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
   #define SPINDLE_DIR_PIN                      5
 #endif
 
 //
 // TMC software SPI
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                        51
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                        50
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                         53
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                       51
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                       50
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                        53
+  #endif
 #endif
 
 //
@@ -254,7 +256,7 @@
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          45
   #define LCD_PINS_RS                         19
-  #define LCD_PINS_EN                         49
+  #define LCD_PINS_ENABLE                     49
   #define LCD_PINS_D4                         18
   #define LCD_PINS_D5                         30
   #define LCD_PINS_D6                         41

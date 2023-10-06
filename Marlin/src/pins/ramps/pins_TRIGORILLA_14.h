@@ -46,7 +46,7 @@
 //
 // Heaters / Fans
 //
-#define FAN0_PIN                               9  // FAN0
+#define FAN_PIN                                9  // FAN0
 #define FAN1_PIN                               7  // FAN1
 #define FAN2_PIN                              44  // FAN2
 #ifndef E0_AUTO_FAN_PIN
@@ -69,7 +69,6 @@
  *       IIC : 12V GND D21 D20 GND 5V
  *                    (SCL SDA)
  *
- *             TX2 RX2 RX3 TX3
  * END STOPS : D19 D18 D15 D14 D2  D3
  *             GND GND GND GND GND GND
  *             5V  5V  5V  5V  5V  5V
@@ -115,13 +114,11 @@
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43  // AUX (2)
   #define Y_STOP_PIN                          19  // Z+
-#elif ANY(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
+#elif EITHER(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
   // Chiron uses AUX header for Y and Z endstops
   #define Y_STOP_PIN                          42  // AUX (1)
   #define Z_STOP_PIN                          43  // AUX (2)
-  #ifndef Z2_STOP_PIN
-     #define Z2_STOP_PIN                      18  // Z-
-  #endif
+  #define Z2_MIN_PIN                          18  // Z-
 
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2  // X+
@@ -145,7 +142,7 @@
     #define FIL_RUNOUT_PIN                    19  // Z+
   #endif
 
-  #if ANY(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
+  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
     // Chiron and some Anycubic i3 MEGAs swap Z steppers
     #define Z_STEP_PIN                        36
     #define Z_DIR_PIN                         34
@@ -159,7 +156,7 @@
   #endif
 #endif
 
-#if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
+#if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #ifndef BEEPER_PIN
     #define BEEPER_PIN               EXP2_03_PIN  // Chiron Standard Adapter
   #endif

@@ -58,6 +58,7 @@
 #define E0_DIR_PIN                         P2_13
 #define E0_ENABLE_PIN                      P2_12
 
+
 /**        ------                  ------
  *   1.30 | 1  2 | 2.11      0.17 | 1  2 | 0.15
  *   0.18 | 3  4 | 0.16      3.26 | 3  4 | 1.23
@@ -112,7 +113,7 @@
 
   #define LCD_SDSS                   EXP2_04_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_EN                EXP2_06_PIN
+  #define LCD_PINS_ENABLE            EXP2_06_PIN
   #define LCD_PINS_D4                EXP2_02_PIN
 
   #if ENABLED(MKS_MINI_12864)
@@ -166,12 +167,12 @@
   // When using any TMC SPI-based drivers, software SPI is used
   // because pins may be shared with the display or SD card.
   #define TMC_USE_SW_SPI
-  #define TMC_SPI_MOSI               EXP2_06_PIN
-  #define TMC_SPI_MISO               EXP2_01_PIN
+  #define TMC_SW_MOSI                EXP2_06_PIN
+  #define TMC_SW_MISO                EXP2_01_PIN
   // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
-  #define TMC_SPI_SCK                EXP2_02_PIN
+  #define TMC_SW_SCK                 EXP2_02_PIN
   // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
-  //#define TMC_SPI_SCK                    P2_06
+  //#define TMC_SW_SCK                     P2_06
 
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
 

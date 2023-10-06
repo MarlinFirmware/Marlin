@@ -42,7 +42,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
@@ -60,7 +60,10 @@ void Mixer::normalize(const uint8_t tool_index) {
   }
   #ifdef MIXER_NORMALIZER_DEBUG
     SERIAL_ECHOPGM("Mixer: Old relation : [ ");
-    MIXER_STEPPER_LOOP(i) SERIAL_ECHO(collector[i] / csum, AS_CHAR(' '));
+    MIXER_STEPPER_LOOP(i) {
+      SERIAL_DECIMAL(collector[i] / csum);
+      SERIAL_CHAR(' ');
+    }
     SERIAL_ECHOLNPGM("]");
   #endif
 
@@ -72,12 +75,16 @@ void Mixer::normalize(const uint8_t tool_index) {
     csum = 0;
     SERIAL_ECHOPGM("Mixer: Normalize to : [ ");
     MIXER_STEPPER_LOOP(i) {
-      SERIAL_ECHO(uint16_t(color[tool_index][i]), AS_CHAR(' '));
+      SERIAL_ECHO(uint16_t(color[tool_index][i]));
+      SERIAL_CHAR(' ');
       csum += color[tool_index][i];
     }
     SERIAL_ECHOLNPGM("]");
     SERIAL_ECHOPGM("Mixer: New relation : [ ");
-    MIXER_STEPPER_LOOP(i) SERIAL_ECHO(p_float_t(uint16_t(color[tool_index][i]) / csum, 3), AS_CHAR(' '));
+    MIXER_STEPPER_LOOP(i) {
+      SERIAL_ECHO_F(uint16_t(color[tool_index][i]) / csum, 3);
+      SERIAL_CHAR(' ');
+    }
     SERIAL_ECHOLNPGM("]");
   #endif
 
@@ -87,13 +94,13 @@ void Mixer::normalize(const uint8_t tool_index) {
 void Mixer::reset_vtools() {
   // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
   // Every virtual tool gets a pure filament
-  for (uint8_t t = 0; t < _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS); ++t)
+  LOOP_L_N(t, _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS))
     MIXER_STEPPER_LOOP(i)
       color[t][i] = (t == i) ? COLOR_A_MASK : 0;
 
   // Remaining virtual tools are 100% filament 1
   #if MIXING_VIRTUAL_TOOLS > MIXING_STEPPERS
-    for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; ++t)
+    LOOP_S_L_N(t, MIXING_STEPPERS, MIXING_VIRTUAL_TOOLS)
       MIXER_STEPPER_LOOP(i)
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
@@ -131,7 +138,7 @@ void Mixer::init() {
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
 
-  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
     update_mix_from_vtool();
   #endif
 

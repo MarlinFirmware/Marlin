@@ -29,7 +29,7 @@
 inline void report_workspace_plane() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Workspace Plane ");
-  SERIAL_ECHO(
+  SERIAL_ECHOF(
       gcode.workspace_plane == GcodeSuite::PLANE_YZ ? F("YZ\n")
     : gcode.workspace_plane == GcodeSuite::PLANE_ZX ? F("ZX\n")
                                                     : F("XY\n")

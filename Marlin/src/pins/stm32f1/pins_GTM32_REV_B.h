@@ -51,7 +51,7 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
@@ -110,7 +110,7 @@
 //
 // These are FAN PWM pins on EXT0..EXT2 connectors.
 //
-//#define FAN0_PIN                          PB9   // EXT0 port
+//#define FAN_PIN                           PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
 
@@ -146,7 +146,7 @@
     //
     #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
     // RW is hardwired to VSS
-    #define LCD_PINS_EN                     PC7   // SID (MOSI)
+    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
     #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD4
     #define LCD_PINS_D6                     PD5

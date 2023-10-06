@@ -185,7 +185,7 @@
 #define HEATER_2_PIN                           7
 #define HEATER_BED_PIN                         8
 
-#define FAN0_PIN                              44
+#define FAN_PIN                               44
 #define FAN1_PIN                              45
 #define FAN2_PIN                              46
 
@@ -249,7 +249,7 @@
     #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
                                   // Seems to work best if left open.
 
-    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN                 25
       #endif
@@ -266,7 +266,7 @@
   #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_EN                       17
+    #define LCD_PINS_ENABLE                   17
     #define LCD_PINS_D4                       23
     #define LCD_PINS_D5                       25
     #define LCD_PINS_D6                       27

@@ -39,6 +39,8 @@
 //
 // Heaters / Fans
 //
+#define HEATER_1_PIN                           7
+#define FAN_PIN                                9  // PH6 ** Pin18 ** PWM9
 #define FAN1_PIN                               6
 
 //

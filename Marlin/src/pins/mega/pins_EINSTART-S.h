@@ -70,7 +70,7 @@
 #define HEATER_0_PIN                          83
 #define HEATER_BED_PIN                        38
 
-#define FAN0_PIN                              82
+#define FAN_PIN                               82
 
 //
 // Misc. Functions

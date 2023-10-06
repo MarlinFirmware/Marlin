@@ -33,8 +33,8 @@
 
 #define IS_MELZI 1
 
-#ifndef FAN0_PIN
-  #define FAN0_PIN                             4
+#ifndef FAN_PIN
+  #define FAN_PIN                              4
 #endif
 
 // Alter timing for graphical display

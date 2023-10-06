@@ -144,7 +144,7 @@ if [[ $ACTION == "init" ]]; then
     find config -name "Conf*.h" -print0 | while read -d $'\0' fn ; do
       fldr=$(dirname "$fn")
       blank_line=$(awk '/^\s*$/ {print NR; exit}' "$fn")
-      $SED -i~ "${blank_line}i\\\n#define CONFIG_EXAMPLES_DIR \"$fldr\"" "$fn"
+      $SED -i~ "${blank_line}i\\\n#define CONFIG_EXAMPLES_DIR \"$fldr\"\\ " "$fn"
       rm -f "$fn~"
     done
   }

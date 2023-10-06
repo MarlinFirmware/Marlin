@@ -118,12 +118,9 @@
 //
 #define TEMP_0_PIN                             0  // Analog Input, Header J2
 #define TEMP_1_PIN                             1  // Analog Input, Header J3
+#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
 #define TEMP_BED_PIN                           2  // Analog Input, Header J6
 #define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
-
-#ifndef TEMP_BOARD_PIN
-  #define TEMP_BOARD_PIN                      91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
-#endif
 
 //
 // Heaters / Fans
@@ -131,11 +128,11 @@
 #define HEATER_0_PIN                           3
 #define HEATER_BED_PIN                         4
 
-#ifndef FAN0_PIN
+#ifndef FAN_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN0_PIN                           6
+    #define FAN_PIN                            6
   #else
-    #define FAN0_PIN                           8
+    #define FAN_PIN                            8
   #endif
 #endif
 
@@ -189,12 +186,10 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if HAS_CUTTER
-  // Use P1 connector for spindle pins
-  #define SPINDLE_LASER_PWM_PIN      EXP1_02_PIN  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
-  #define SPINDLE_DIR_PIN                     19
-#endif
+// use P1 connector for spindle pins
+#define SPINDLE_LASER_PWM_PIN        EXP1_02_PIN  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
+#define SPINDLE_DIR_PIN                       19
 
 //
 // Průša i3 MK2 Multiplexer Support
@@ -216,13 +211,13 @@
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_EN            EXP1_08_PIN
+      #define LCD_PINS_ENABLE        EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
       #define BTN_EN1                EXP1_03_PIN
       #define BTN_EN2                EXP1_05_PIN
     #else
       #define LCD_PINS_RS            EXP1_04_PIN
-      #define LCD_PINS_EN            EXP1_03_PIN
+      #define LCD_PINS_ENABLE        EXP1_03_PIN
       #define LCD_PINS_D4            EXP1_05_PIN
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
