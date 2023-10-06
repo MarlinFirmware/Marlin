@@ -42,7 +42,7 @@ extern Timer0 step_timer;
 // TODO: some calculations (step irq min_step_rate) require the timer rate to be known at compile time
 //       this is not possible with the HC32F46x, as the timer rate depends on PCLK1
 //       as a workaround, PCLK1 = 50MHz is assumed (check with clock dump in MarlinHAL::init())
-// #define HAL_TIMER_RATE 50000000 // 50MHz
+#define HAL_TIMER_RATE 50000000 // 50MHz
 // #define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
 
 // temperature timer
@@ -57,11 +57,8 @@ extern Timer0 step_timer;
 #define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
 #define STEPPER_TIMER_PRESCALE 16ul
 
-// FIXME: this manually sets the stepper rate to 2MHz, even tho it actually runs at 3.125MHz
-//        this is a workaround because otherwise, prints fail with weird print artifacts...
-//        this could probably be solved by adjusting the steps/mm values, but idk how to do that yet...
-#define STEPPER_TIMER_RATE 2000000
-// #define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
+// TODO: STEPPER_TIMER_RATE seems to work fine like this, but requires further testing...
+#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
 #define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
 
 // pulse timer (== stepper timer)
