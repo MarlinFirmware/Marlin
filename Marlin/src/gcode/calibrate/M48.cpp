@@ -258,11 +258,7 @@ void GcodeSuite::M48() {
   if (probing_good) {
     SERIAL_ECHOLNPGM("Finished!");
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
-
-    #if HAS_STATUS_MESSAGE
-      // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
-    #endif
+    ui.set_status(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 3), F(", "), GET_TEXT_F(MSG_M48_MAX_DELTA), ':', w_float_t(MAX(mean - min, max - mean), 2, 3));
   }
 
   restore_feedrate_and_scaling();
