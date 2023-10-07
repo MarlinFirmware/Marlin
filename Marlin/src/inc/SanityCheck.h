@@ -1517,6 +1517,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
   #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
     #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
+  #elif ALL(UBL_HILBERT_CURVE, DELTA)
+    #error "UBL_HILBERT_CURVE can only be used with a square / rectangular printable area."
   #endif
 #elif ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
@@ -4111,13 +4113,6 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
   #elif !defined(HAS_MARLINUI_MENU)
     #error "ONE_CLICK_PRINT needs a display that has Marlin UI menus."
   #endif
-#endif
-
-/**
-  * HILBERT_CURVE limitation
- */
-#if ENABLED(UBL_HILBERT_CURVE) && ANY(DELTA, SCARA, POLARGRAPH, MORGAN_SCARA, MP_SCARA)
-  #error "ERROR: UBL_HILBERT_CURVE can only be used with rectangular bed shapes."
 #endif
 
 // Misc. Cleanup
