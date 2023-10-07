@@ -3017,27 +3017,26 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
 #endif
 
-#ifdef TMC_HOME_PHASE
-  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    constexpr float phases[] = TMC_HOME_PHASE;
-    static_assert(COUNT(phases) == NUM_AXES, "TMC_HOME_PHASE must have " _NUM_AXES_STR " elements (and no others).");
-    NUM_AXIS_CODE(
-      static_assert(phases[X_AXIS] == -1 || NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX), "TMC_HOME_PHASE.X is incompatible with CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX. Set TMC_HOME_PHASE.X to -1"),
-      static_assert(phases[Y_AXIS] == -1 || NONE(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX), "TMC_HOME_PHASE.Y is incompatible with CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX. Set TMC_HOME_PHASE.Y to -1"),
-      static_assert(phases[Z_AXIS] == -1 || NONE(CORE_IS_XZ, CORE_IS_YZ), "TMC_HOME_PHASE.Z is incompatible with CORE_IS_XZ, CORE_IS_YZ. Set TMC_HOME_PHASE.Z to -1")
-    );
-    NUM_AXIS_CODE(
-      static_assert(phases[X_AXIS] >= -1 || phases[X_AXIS] <= 1023, "TMC_HOME_PHASE.X must be between -1 and 1023"),
-      static_assert(phases[Y_AXIS] >= -1 || phases[Y_AXIS] <= 1023, "TMC_HOME_PHASE.Y must be between -1 and 1023"),
-      static_assert(phases[Z_AXIS] >= -1 || phases[Z_AXIS] <= 1023, "TMC_HOME_PHASE.Z must be between -1 and 1023"),
-      static_assert(phases[I_AXIS] >= -1 || phases[I_AXIS] <= 1023, "TMC_HOME_PHASE.I must be between -1 and 1023"),
-      static_assert(phases[J_AXIS] >= -1 || phases[J_AXIS] <= 1023, "TMC_HOME_PHASE.J must be between -1 and 1023"),
-      static_assert(phases[K_AXIS] >= -1 || phases[K_AXIS] <= 1023, "TMC_HOME_PHASE.K must be between -1 and 1023"),
-      static_assert(phases[U_AXIS] >= -1 || phases[U_AXIS] <= 1023, "TMC_HOME_PHASE.U must be between -1 and 1023"),
-      static_assert(phases[V_AXIS] >= -1 || phases[V_AXIS] <= 1023, "TMC_HOME_PHASE.V must be between -1 and 1023"),
-      static_assert(phases[W_AXIS] >= -1 || phases[W_AXIS] <= 1023, "TMC_HOME_PHASE.W must be between -1 and 1023")
-    );
- #endif
+// H-Bot kinematic axes can't use homing phases
+#if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX) && defined(TMC_HOME_PHASE)
+  constexpr float phases[] = TMC_HOME_PHASE;
+  static_assert(COUNT(phases) == NUM_AXES, "TMC_HOME_PHASE must have " _NUM_AXES_STR " elements (and no others).");
+  XYZ_CODE(
+    static_assert(phases[X_AXIS] == -1 || NORMAL_AXIS != X_AXIS, "TMC_HOME_PHASE.x must be set to -1 with H-bot kinematics."),
+    static_assert(phases[Y_AXIS] == -1 || NORMAL_AXIS != Y_AXIS, "TMC_HOME_PHASE.y must be set to -1 with H-bot kinematics."),
+    static_assert(phases[Z_AXIS] == -1 || NORMAL_AXIS != Z_AXIS, "TMC_HOME_PHASE.z must be set to -1 with H-bot kinematics.")
+  );
+  NUM_AXIS_CODE(
+    static_assert(WITHIN(phases[X_AXIS], -1, 1023), "TMC_HOME_PHASE.x must be between -1 and 1023."),
+    static_assert(WITHIN(phases[Y_AXIS], -1, 1023), "TMC_HOME_PHASE.y must be between -1 and 1023."),
+    static_assert(WITHIN(phases[Z_AXIS], -1, 1023), "TMC_HOME_PHASE.z must be between -1 and 1023."),
+    static_assert(WITHIN(phases[I_AXIS], -1, 1023), "TMC_HOME_PHASE.i must be between -1 and 1023."),
+    static_assert(WITHIN(phases[J_AXIS], -1, 1023), "TMC_HOME_PHASE.j must be between -1 and 1023."),
+    static_assert(WITHIN(phases[K_AXIS], -1, 1023), "TMC_HOME_PHASE.k must be between -1 and 1023."),
+    static_assert(WITHIN(phases[U_AXIS], -1, 1023), "TMC_HOME_PHASE.u must be between -1 and 1023."),
+    static_assert(WITHIN(phases[V_AXIS], -1, 1023), "TMC_HOME_PHASE.v must be between -1 and 1023."),
+    static_assert(WITHIN(phases[W_AXIS], -1, 1023), "TMC_HOME_PHASE.w must be between -1 and 1023.")
+  );
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
