@@ -260,6 +260,7 @@ void GcodeSuite::M48() {
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
 
     #if HAS_STATUS_MESSAGE
+      // Display M48 results in the status bar
       ui.set_status(TS(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 6)
         #if STATUS_MESSAGE_WIDTH_LCD > 24
           , F(", "), GET_TEXT_F(MSG_M48_MAX_DELTA), ':', w_float_t(MAX(mean - min, max - mean), 2, 3)
