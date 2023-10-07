@@ -114,7 +114,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Home Offset Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MAX Too Far");
-  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Preheat ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";

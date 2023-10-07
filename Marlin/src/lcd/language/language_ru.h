@@ -78,6 +78,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Смещ. дома Z");
 
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
+  LSTR MSG_TRAMMING_WIZARD                  = _UxGT("Помощник выравнив.");
   LSTR MSG_TW_SELECT_TRAM_REF               = _UxGT("Выберите ноль");
 
   LSTR MSG_PREHEAT_1                        = _UxGT("Нагрев ") PREHEAT_1_LABEL;
@@ -686,7 +687,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MANUAL_MESH                      = _UxGT("Сетка вручную");
   LSTR MSG_AUTO_MESH                        = _UxGT("Сетка автоматически");
   LSTR MSG_ERR_M428_TOO_FAR                 = _UxGT("Ошибка: слишком далеко!");
-  LSTR MSG_TRAMMING_WIZARD                  = _UxGT("Помощник выравнив.");
   LSTR MSG_PREHEAT_HOTEND                   = _UxGT("Нагреть сопло");
   LSTR MSG_BED_TRAMMING_MANUAL              = _UxGT("Ручное выравнив.");
   LSTR MSG_MESH_VIEWER                      = _UxGT("Просмотр сетки");
