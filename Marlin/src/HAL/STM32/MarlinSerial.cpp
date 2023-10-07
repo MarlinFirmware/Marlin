@@ -87,11 +87,12 @@
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
-  HardwareSerial::begin(baud, config);
+  HardwareSerial2::begin(baud, config); // IRON, MODIFIED TO "HardwareSerial2"
   // Replace the IRQ callback with the one we have defined
   TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
 }
 
+// IRON, IT SEEMS THIS CODE IS NEVER USED (STM32)??????????
 // This function is Copyright (c) 2006 Nicholas Zambetti.
 void MarlinSerial::_rx_complete_irq(serial_t *obj) {
   // No Parity error, read byte and store it in the buffer if there is room
