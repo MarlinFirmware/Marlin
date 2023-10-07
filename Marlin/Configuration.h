@@ -1418,6 +1418,15 @@
   //#define TOUCH_MI_MANUAL_DEPLOY                // For manual deploy (LCD menu)
 #endif
 
+/**
+ * Bed Distance Sensor
+ *
+ * Measures the distance from bed to nozzle with accuracy of 0.01mm.
+ * For information about this sensor https://github.com/markniu/Bed_Distance_sensor
+ * Uses I2C port, so it requires I2C library markyue/Panda_SoftMasterI2C.
+ */
+//#define BD_SENSOR
+
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
 
@@ -1997,6 +2006,12 @@
 //#define MESH_BED_LEVELING
 
 /**
+ * Commands to execute at the end of G29 probing.
+ * Useful to retract or move the Z probe out of the way.
+ */
+//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+
+/**
  * Normally G28 leaves leveling disabled on completion. Enable one of
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
@@ -2012,15 +2027,6 @@
   #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
   #define LEVELING_BED_TEMP     50
 #endif
-
-/**
- * Bed Distance Sensor
- *
- * Measures the distance from bed to nozzle with accuracy of 0.01mm.
- * For information about this sensor https://github.com/markniu/Bed_Distance_sensor
- * Uses I2C port, so it requires I2C library markyue/Panda_SoftMasterI2C.
- */
-//#define BD_SENSOR
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -2200,12 +2206,6 @@
    */
   #define BED_TRAMMING_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
-
-/**
- * Commands to execute at the end of G29 probing.
- * Useful to retract or move the Z probe out of the way.
- */
-//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
 
 // @section homing
 
