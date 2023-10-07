@@ -258,7 +258,14 @@ void GcodeSuite::M48() {
   if (probing_good) {
     SERIAL_ECHOLNPGM("Finished!");
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
-    ui.set_status(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 3), F(", "), GET_TEXT_F(MSG_M48_MAX_DELTA), ':', w_float_t(MAX(mean - min, max - mean), 2, 3));
+
+    #if HAS_STATUS_MESSAGE
+      ui.set_status(TS(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 6)
+        #if STATUS_MESSAGE_WIDTH_LCD > 24
+          , F(", "), GET_TEXT_F(MSG_M48_MAX_DELTA), ':', w_float_t(MAX(mean - min, max - mean), 2, 3)
+        #endif
+      ));
+    #endif
   }
 
   restore_feedrate_and_scaling();
