@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(USE_OTG_USB_HOST, USBHOST)
+#if ALL(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
 #include "usb_msc.h"
@@ -36,7 +36,7 @@ USBHost usb;
 BulkStorage bulk(&usb);
 
 bool USBHost::start() {
-  udisk.Init(0,0,false);
+  udisk.Init(0, 0, false);
   return true;
 }
 
@@ -45,9 +45,9 @@ void USBHost::Task() {
 }
 
 uint8_t USBHost::getUsbTaskState() {
-  if((udisk.LUNIsGood(0))){
+  if (udisk.LUNIsGood(0))
     usb.setUsbTaskState(USB_STATE_RUNNING);
-  }
+
   return u sb_task_state;
 }
 
@@ -62,7 +62,7 @@ void USBHost::setUsbTaskState(uint8_t state) {
     block_size = udisk.GetSectorSize(0);
     block_count = udisk.GetCapacity(0);
   }
-};
+}
 
 uint32_t BulkStorage::GetCapacity(uint8_t lun) {
   return usb->block_count;
@@ -73,13 +73,11 @@ uint16_t BulkStorage::GetSectorSize(uint8_t lun) {
 }
 
 uint8_t BulkStorage::Read(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, uint8_t *buf) {
-  uint8_t status = udisk.Read(lun,addr,bsize,blocks,buf);
-  return status;
+  return udisk.Read(lun, addr, bsize, blocks, buf);
 }
 
 uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, const uint8_t * buf) {
-  uint8_t status = udisk.Write(lun,addr,bsize,blocks,buf);
-  return status;
+  return udisk.Write(lun, addr, bsize, blocks, buf);
 }
 
 #endif // USE_OTG_USB_HOST && USBHOST
