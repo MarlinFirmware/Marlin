@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <HardwareSerial.h>
+#include <HardwareSerial2.h>
 #include <libmaple/usart.h>
 #include <WString.h>
 
@@ -31,8 +31,8 @@
 // Increase priority of serial interrupts, to reduce overflow errors
 #define UART_IRQ_PRIO 1
 
-struct MarlinSerial : public HardwareSerial {
-  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) : HardwareSerial(usart_device, tx_pin, rx_pin) { }
+struct MarlinSerial : public HardwareSerial2 {
+  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) : HardwareSerial2(usart_device, tx_pin, rx_pin) { }
 
   #ifdef UART_IRQ_PRIO
     // Shadow the parent methods to set IRQ priority after begin()
@@ -41,7 +41,7 @@ struct MarlinSerial : public HardwareSerial {
     }
 
     void begin(uint32 baud, uint8_t config) {
-      HardwareSerial::begin(baud, config);
+      HardwareSerial2::begin(baud, config);
       nvic_irq_set_priority(c_dev()->irq_num, UART_IRQ_PRIO);
     }
   #endif
