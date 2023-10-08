@@ -1719,7 +1719,7 @@ void dwinPrintAborted() {
     if (all_axes_homed()) {
       queue.inject(
         #if ENABLED(NOZZLE_PARK_FEATURE)
-          F("G27");
+          F("G27")
         #else
           TS(F("G0Z"), float(_MIN(current_position.z + (Z_POST_CLEARANCE), Z_MAX_POS)), F("\nG0F2000Y"), Y_MAX_POS);
         #endif
