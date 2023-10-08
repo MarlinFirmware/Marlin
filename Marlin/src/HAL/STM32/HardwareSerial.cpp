@@ -37,14 +37,14 @@
 // USART/UART PIN MAPPING FOR STM32F1/F2/F4
 #define PIN_SERIAL1_TX          PA9
 #define PIN_SERIAL1_RX          PA10
-#define PIN_SERIAL2_TX          2 // PIN_A2
-#define PIN_SERIAL2_RX          3 // PIN_A3
-#define PIN_SERIAL3_TX          26// PIN_PB10
-#define PIN_SERIAL3_RX          27// PIN_PB11
-#define PIN_SERIAL4_TX          42// PIN_PC10
-#define PIN_SERIAL4_RX          43// PIN_PC11
-#define PIN_SERIAL5_TX          44// PIN_PC12
-#define PIN_SERIAL5_RX          50// PIN_PD2
+#define PIN_SERIAL2_TX          2   // PIN_A2
+#define PIN_SERIAL2_RX          3   // PIN_A3
+#define PIN_SERIAL3_TX          26  // PIN_PB10
+#define PIN_SERIAL3_RX          27  // PIN_PB11
+#define PIN_SERIAL4_TX          42  // PIN_PC10
+#define PIN_SERIAL4_RX          43  // PIN_PC11
+#define PIN_SERIAL5_TX          44  // PIN_PC12
+#define PIN_SERIAL5_RX          50  // PIN_PD2
 
 // GET FROM INCLUDE FILE!!!
 #define RCC_AHB1Periph_DMA1 ((uint32_t)0x00200000)

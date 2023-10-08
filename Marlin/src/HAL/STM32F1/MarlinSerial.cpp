@@ -126,7 +126,7 @@ DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
 // so this case will fail the static assert. All other classes are assumed to be ok.
 template <typename T>
 constexpr bool IsSerialClassAllowed(const T&) { return true; }
-constexpr bool IsSerialClassAllowed(const HAL_HardwareSerial&) { return false; }
+constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 
 #define CHECK_CFG_SERIAL(A) static_assert(IsSerialClassAllowed(A), STRINGIFY(A) " is defined incorrectly");
 #define CHECK_AXIS_SERIAL(A) static_assert(IsSerialClassAllowed(A##_HARDWARE_SERIAL), STRINGIFY(A) "_HARDWARE_SERIAL must be defined in the form MSerial1, rather than Serial1");
