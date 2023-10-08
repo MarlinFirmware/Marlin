@@ -58,7 +58,7 @@ void TFT_String::set_font(const uint8_t *font) {
     for (glyph = 0; glyph < EXTRA_GLYPHS; glyph++) glyphs_extra[glyph] = nullptr;
   #endif
 
-  DEBUG_ECHOLNPGM("Format: ",            ((unifont_t *)font_header)->Format);
+  DEBUG_ECHOLNPGM("Format: ",            ((unifont_t *)font_header)->format);
   DEBUG_ECHOLNPGM("capitalAHeight: ",    ((unifont_t *)font_header)->capitalAHeight);
   DEBUG_ECHOLNPGM("fontStartEncoding: ", ((unifont_t *)font_header)->fontStartEncoding);
   DEBUG_ECHOLNPGM("fontEndEncoding: ",   ((unifont_t *)font_header)->fontEndEncoding);
@@ -129,7 +129,7 @@ glyph_t *TFT_String::glyph(uint16_t character) {
   #if EXTRA_GLYPHS
     if (font_header_extra == nullptr || character < font_header_extra->fontStartEncoding || character > font_header_extra->fontEndEncoding) return glyphs['?'];
 
-    if ((font_header_extra->Format & 0xF0) == FONT_MARLIN_GLYPHS) {
+    if ((font_header_extra->format & 0xF0) == FONT_MARLIN_GLYPHS) {
       if (glyphs_extra[character - font_header_extra->fontStartEncoding])
         return (glyph_t *)glyphs_extra[character - font_header_extra->fontStartEncoding];
     }
