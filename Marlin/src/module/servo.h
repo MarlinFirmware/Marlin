@@ -44,9 +44,9 @@
   #endif
 
   #if ENABLED(SWITCHING_NOZZLE)
-    #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+    #if SWITCHING_NOZZLE_TWO_SERVOS
       constexpr uint16_t sasn[][2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES (with SWITCHING_NOZZLE_TWO_SERVOS) needs 2 sets of angles: { { lower, raise }, { lower, raise } }.");
+      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES (with SWITCHING_NOZZLE_E1_SERVO_NR) needs 2 sets of angles: { { lower, raise }, { lower, raise } }.");
     #else
       constexpr uint16_t sasn[] = SWITCHING_NOZZLE_SERVO_ANGLES;
       static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs two angles: { E0, E1 }.");
