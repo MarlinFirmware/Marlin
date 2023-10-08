@@ -29,7 +29,7 @@ typedef struct {
   DMA_Stream_TypeDef * dma_streamRX;
 } DMA_CFG;
 
-class HardwareSerial2 : public Stream {
+class HAL_HardwareSerial : public Stream {
   protected:
     // Don't put any members after these buffers, since only the first
     // 32 bytes of this struct can be accessed quickly using the ldd instruction.
@@ -39,7 +39,7 @@ class HardwareSerial2 : public Stream {
     serial_t _serial;
 
   public:
-    HardwareSerial2(void *peripheral);
+    HAL_HardwareSerial(void *peripheral);
 
     void begin(unsigned long, uint8_t);
     void end();

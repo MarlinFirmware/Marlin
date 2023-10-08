@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 #include "Arduino.h"
-#include "HardwareSerial2.h"
+#include "HardwareSerial.h"
 #include "uart.h"
 
 #define PIN_SERIAL1_TX          PA9
@@ -63,41 +63,41 @@ void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState) {
 // SerialEvent functions are weak, so when the user doesn't define them,
 // the linker just sets their address to 0 (which is checked below).
 #ifdef USING_HW_SERIAL1
-  HardwareSerial2 HSerial1(USART1);
+  HAL_HardwareSerial HSerial1(USART1);
   void serialEvent1() __attribute__((weak));
 #endif
 
 #ifdef USING_HW_SERIAL2
-  HardwareSerial2 HSerial2(USART2);
+  HAL_HardwareSerial HSerial2(USART2);
   void serialEvent2() __attribute__((weak));
 #endif
 
 #ifdef USING_HW_SERIAL3
-  HardwareSerial2 Serial3(USART3);
+  HAL_HardwareSerial Serial3(USART3);
   void serialEvent3() __attribute__((weak));
 #endif
 
 #ifdef USING_HW_SERIAL4
   #ifdef USART4
-    HardwareSerial2 HSerial4(USART4);
+    HAL_HardwareSerial HSerial4(USART4);
   #else
-    HardwareSerial2 HSerial4(UART4);
+    HAL_HardwareSerial HSerial4(UART4);
   #endif
   void serialEvent4() __attribute__((weak));
 #endif
 
 #ifdef USING_HW_SERIAL5
   #ifdef USART5
-    HardwareSerial2 HSerial5(USART5);
+    HAL_HardwareSerial HSerial5(USART5);
   #else
-    HardwareSerial2 HSerial5(UART5);
+    HAL_HardwareSerial HSerial5(UART5);
   #endif
   void serialEvent5() __attribute__((weak));
 #endif
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-HardwareSerial2::HardwareSerial2(void *peripheral) {
+HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
   if (peripheral == USART1) {
     setRx(PIN_SERIAL1_RX);
     setTx(PIN_SERIAL1_TX);
@@ -143,15 +143,15 @@ HardwareSerial2::HardwareSerial2(void *peripheral) {
   init(_serial.pin_rx, _serial.pin_tx);
 }
 
-void HardwareSerial2::setRx(uint32_t _rx) {
+void HAL_HardwareSerial::setRx(uint32_t _rx) {
   _serial.pin_rx = digitalPinToPinName(_rx);
 }
 
-void HardwareSerial2::setTx(uint32_t _tx) {
+void HAL_HardwareSerial::setTx(uint32_t _tx) {
   _serial.pin_tx = digitalPinToPinName(_tx);
 }
 
-void HardwareSerial2::init(PinName _rx, PinName _tx) {
+void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
   _serial.pin_rx  = _rx;
   _serial.rx_buff = _rx_buffer;
   _serial.rx_head = _serial.rx_tail = 0;
@@ -169,7 +169,7 @@ void HardwareSerial2::init(PinName _rx, PinName _tx) {
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-int HardwareSerial2::_tx_complete_irq(serial_t *obj) {
+int HAL_HardwareSerial::_tx_complete_irq(serial_t *obj) {
   // If interrupts are enabled, there must be more data in the output buffer. Send the next byte
   obj->tx_tail = (obj->tx_tail + 1) % TX_BUFFER_SIZE;
 
@@ -180,7 +180,7 @@ int HardwareSerial2::_tx_complete_irq(serial_t *obj) {
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void HardwareSerial2::begin(unsigned long baud, uint8_t config) {
+void HAL_HardwareSerial::begin(unsigned long baud, uint8_t config) {
   uint32_t databits = 0, stopbits = 0, parity = 0;
 
   _baud   = baud;
@@ -225,7 +225,7 @@ void HardwareSerial2::begin(unsigned long baud, uint8_t config) {
   Serial_DMA_Read_Enable(); // IRON, START THE DMA READING PROCESS
 }
 
-void HardwareSerial2::end() {
+void HAL_HardwareSerial::end() {
   flush();                              // Wait for transmission of outgoing data
 
   uart_deinit(&_serial);
@@ -233,7 +233,7 @@ void HardwareSerial2::end() {
   _serial.rx_head = _serial.rx_tail;    // Clear any received data
 }
 
-void HardwareSerial2::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+void HAL_HardwareSerial::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
 
   #if ENABLED(EMERGENCY_PARSER)
     static uint32_t flag = 0;
@@ -246,18 +246,18 @@ void HardwareSerial2::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA PR
   _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
 }
 
-int HardwareSerial2::available() {
+int HAL_HardwareSerial::available() {
   update_rx_head();  // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
   return ((unsigned int)(RX_BUFFER_SIZE + _serial.rx_head - _serial.rx_tail)) % RX_BUFFER_SIZE;
 }
 
-int HardwareSerial2::peek() {
+int HAL_HardwareSerial::peek() {
   update_rx_head();  // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
   if (_serial.rx_head == _serial.rx_tail) return -1;
   return _serial.rx_buff[_serial.rx_tail];
 }
 
-int HardwareSerial2::read() {
+int HAL_HardwareSerial::read() {
   update_rx_head();                                   // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
   if (_serial.rx_head == _serial.rx_tail) return -1;  // No chars if the head isn't ahead of the tail
 
@@ -266,7 +266,7 @@ int HardwareSerial2::read() {
   return c;
 }
 
-size_t HardwareSerial2::write(uint8_t c) { // Interrupt based writing
+size_t HAL_HardwareSerial::write(uint8_t c) { // Interrupt based writing
   tx_buffer_index_t i = (_serial.tx_head + 1) % TX_BUFFER_SIZE;
 
   // If the output buffer is full, there's nothing for it other than to
@@ -282,7 +282,7 @@ size_t HardwareSerial2::write(uint8_t c) { // Interrupt based writing
   return 1;
 }
 
-void HardwareSerial2::Serial_DMA_Read_Enable() {
+void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RCC_AHB1PeriphClockCmd(RX_DMA.dma_rcc, ENABLE);                   // enable DMA clock
 
   RX_DMA.dma_streamRX->PAR  = (uint32_t)(&RX_DMA.uart->DR);         // RX peripheral address (usart)

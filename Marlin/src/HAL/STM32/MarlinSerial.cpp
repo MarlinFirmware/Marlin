@@ -87,7 +87,7 @@
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
-  HardwareSerial2::begin(baud, config); // IRON, MODIFIED TO "HardwareSerial2"
+  HAL_HardwareSerial::begin(baud, config); // IRON, MODIFIED TO "HAL_HardwareSerial"
   // Replace the IRQ callback with the one we have defined
   TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
 }
