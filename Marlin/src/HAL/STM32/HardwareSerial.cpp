@@ -131,7 +131,6 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     #if defined(STM32F2xx) || defined(STM32F4xx)
       RX_DMA = { USART3, RCC_AHB1Periph_DMA1, 4, DMA1_Stream1 };
     #endif
-
     #ifdef STM32F1xx
       RX_DMA = { USART3, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel3 };
     #endif
@@ -139,9 +138,6 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
 
   #ifdef USART4
     else if (peripheral == USART4) {
-      #if defined(STM32F2xx) || defined(STM32F4xx)
-        RX_DMA = { USART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
-      #endif
       // STM32F1 has UART4
       RX_DMA = { USART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
       setRx(PIN_SERIAL4_RX);

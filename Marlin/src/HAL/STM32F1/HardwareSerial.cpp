@@ -127,6 +127,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL3_RX);
     setTx(PIN_SERIAL3_TX);
     _uart_index = 2;
+
     #if defined(STM32F2xx) || defined(STM32F4xx)
       RX_DMA = { USART3, RCC_AHB1Periph_DMA1, 4, DMA1_Stream1 };
     #endif
@@ -137,6 +138,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
 
   #ifdef USART4
     else if (peripheral == USART4) {
+      // STM32F1 has UART4
       RX_DMA = { USART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
       setRx(PIN_SERIAL4_RX);
       setTx(PIN_SERIAL4_TX);
@@ -150,7 +152,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
         RX_DMA = { UART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
       #endif
       #ifdef STM32F1xx
-        RX_DMA = { USART3, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel3 };
+        RX_DMA = { UART4, RCC_AHBPeriph_DMA2, DMA2, DMA2_Channel3 };
       #endif
       setRx(PIN_SERIAL4_RX);
       setTx(PIN_SERIAL4_TX);
@@ -184,14 +186,13 @@ void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
   _serial.tx_head = _serial.tx_tail = 0;
 }
 
+// Actual interrupt handlers //////////////////////////////////////////////////////////////
+
 /**
  * @brief  Read receive byte from uart
  * @param  obj : pointer to serial_t structure
  * @retval last character received
  */
-
-// Actual interrupt handlers //////////////////////////////////////////////////////////////
-
 int HAL_HardwareSerial::_tx_complete_irq(serial_t *obj) {
   // If interrupts are enabled, there must be more data in the output buffer. Send the next byte
   obj->tx_tail = (obj->tx_tail + 1) % TX_BUFFER_SIZE;
@@ -267,11 +268,13 @@ void HAL_HardwareSerial::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA
   #endif
 
   #if defined(STM32F2xx) || defined(STM32F4xx)
-    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR;   // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
-  #endif
+    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+  #endif // STM32F2xx || STM32F4xx
+
   #ifdef STM32F1xx
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
   #endif
+
 }
 
 int HAL_HardwareSerial::available() {
