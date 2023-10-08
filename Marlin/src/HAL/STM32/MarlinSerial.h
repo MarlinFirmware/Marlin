@@ -33,7 +33,6 @@
 typedef void (*usart_rx_callback_t)(serial_t * obj);
 
 struct MarlinSerial : public HAL_HardwareSerial {
-protected:
   MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
     HAL_HardwareSerial(peripheral), _rx_callback(rx_callback)
     { }
@@ -43,6 +42,7 @@ protected:
 
   void _rx_complete_irq(serial_t *obj);
 
+ protected:
   usart_rx_callback_t _rx_callback;
 };
 
