@@ -28,25 +28,26 @@
 #endif
 
 #include "../../core/serial_hook.h"
-#include "HardwareSerial2.h" // IRON, ADDED FOR DMA SERIAL READING
+#include "HardwareSerial.h" // IRON, ADDED FOR DMA SERIAL READING
 
 typedef void (*usart_rx_callback_t)(serial_t * obj);
 
-struct MarlinSerial : public HardwareSerial2 {
+struct MarlinSerial : public HAL_HardwareSerial {
+protected:
   MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
-      HardwareSerial2(peripheral), _rx_callback(rx_callback)
-  { }
+    HAL_HardwareSerial(peripheral), _rx_callback(rx_callback)
+    { }
 
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
   void _rx_complete_irq(serial_t *obj);
 
-protected:
   usart_rx_callback_t _rx_callback;
 };
 
 typedef Serial1Class<MarlinSerial> MSerialT;
+
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;
