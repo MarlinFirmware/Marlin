@@ -44,15 +44,15 @@
   #endif
 
   #if ENABLED(SWITCHING_NOZZLE)
-    constexpr uint16_t sasn[][2] = SWITCHING_NOZZLE_SERVO_ANGLES;
     #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
-      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 sets of angles: { {s1_lower, s1_raise}, {s2_lower, s2_raise} }.");
+      constexpr uint16_t sasn[][2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES (with SWITCHING_NOZZLE_TWO_SERVOS) needs 2 sets of angles: { { lower, raise }, { lower, raise } }.");
     #else
-      static_assert(COUNT(sasn) == 1, "SWITCHING_NOZZLE_SERVO_ANGLES needs 1 set of angles: { {lower, raise} }.");
+      constexpr uint16_t sasn[] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs two angles: { E0, E1 }.");
     #endif
-    static_assert(COUNT(sasn[0]) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 angles.");
   #else
-    constexpr uint16_t sasn[][2] = { { 0 } };
+    constexpr uint16_t sasn[2] = { 0 };
   #endif
 
   #ifdef Z_PROBE_SERVO_NR
@@ -80,19 +80,15 @@
     #define Z_PROBE_SERVO_NR -1
   #endif
 
-  #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
-    #define SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I) : N == SWITCHING_NOZZLE_E1_SERVO_NR ? sasn[1][I]
-  #else
-    #define SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I)
-  #endif
+  #define SASN(J,I) TERN(SWITCHING_NOZZLE_TWO_SERVOS, sasn[J][I], sasn[I])
 
-  #define ASRC(N,I) (                                   \
-      N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]    \
-    : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2]  \
-    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[0][I] \
-      SWITCHING_NOZZLE_E1_SERVO_ANGLE(N, I)             \
-    : N == Z_PROBE_SERVO_NR                ? sazp[I]    \
-    : 0                                                 )
+  #define ASRC(N,I) ( \
+                                         N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]     \
+                                       : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2]   \
+                                       : N == SWITCHING_NOZZLE_SERVO_NR       ? SASN(0,I)   \
+    TERN_(SWITCHING_NOZZLE_TWO_SERVOS, : N == SWITCHING_NOZZLE_E1_SERVO_NR    ? SASN(1,I))  \
+                                       : N == Z_PROBE_SERVO_NR                ? sazp[I]     \
+                                       : 0                                                  )
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
     extern uint16_t servo_angles[NUM_SERVOS][2];
