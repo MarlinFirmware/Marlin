@@ -105,6 +105,9 @@
         , { ASRC(2,0), ASRC(2,1) }
         #if NUM_SERVOS > 3
           , { ASRC(3,0), ASRC(3,1) }
+          #if NUM_SERVOS > 4
+            , { ASRC(4,0), ASRC(4,1) }
+          #endif
         #endif
       #endif
     #endif
