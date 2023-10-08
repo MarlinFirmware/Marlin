@@ -273,7 +273,7 @@ void HAL_HardwareSerial::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA
 
   #if defined(STM32F2xx) || defined(STM32F4xx)
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
-  #endif // STM32F2xx or STM32F4xx
+  #endif // STM32F2xx || STM32F4xx
 
   #ifdef STM32F1xx
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
@@ -341,7 +341,7 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RX_DMA.dma_streamRX->CR |= (1 << 0);                              // RX enable DMA
 }
 
-#endif // STM32F2xx or STM32F4xx
+#endif // STM32F2xx || STM32F4xx
 
 #ifdef STM32F1xx
 
