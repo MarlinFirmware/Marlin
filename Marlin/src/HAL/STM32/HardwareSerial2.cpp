@@ -7,18 +7,16 @@
 
 #if defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
 
-#define HAVE_HWSERIAL1          // SELECT THE SERIAL PORT HERE!!!
-
 #define PIN_SERIAL1_TX          PA9
 #define PIN_SERIAL1_RX          PA10
 #define PIN_SERIAL2_TX          2   // PIN_A2
 #define PIN_SERIAL2_RX          3   // PIN_A3
-#define PIN_SERIAL3_TX          26  // PB10
-#define PIN_SERIAL3_RX          27  // PB11
-#define PIN_SERIAL4_TX          42  // PC10
-#define PIN_SERIAL4_RX          43  // PC11
-#define PIN_SERIAL5_TX          44  // PC12
-#define PIN_SERIAL5_RX          50  // PD2
+#define PIN_SERIAL3_TX          26  // PIN_PB10
+#define PIN_SERIAL3_RX          27  // PIN_PB11
+#define PIN_SERIAL4_TX          42  // PIN_PC10
+#define PIN_SERIAL4_RX          43  // PIN_PC11
+#define PIN_SERIAL5_TX          44  // PIN_PC12
+#define PIN_SERIAL5_RX          50  // PIN_PD2
 
 // GET FROM INCLUDE FILE!!!
 #define RCC_AHB1Periph_DMA1              ((uint32_t)0x00200000)
@@ -43,22 +41,22 @@ void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState)
 
   // SerialEvent functions are weak, so when the user doesn't define them,
   // the linker just sets their address to 0 (which is checked below).
-  #if defined(HAVE_HWSERIAL1)
+  #if defined(USING_HW_SERIAL1)
     HardwareSerial2 HSerial1(USART1);
     void serialEvent1() __attribute__((weak));
   #endif
 
-  #if defined(HAVE_HWSERIAL2)
+  #if defined(USING_HW_SERIAL2)
     HardwareSerial2 HSerial2(USART2);
     void serialEvent2() __attribute__((weak));
   #endif
 
-  #if defined(HAVE_HWSERIAL3)
+  #if defined(USING_HW_SERIAL3)
     HardwareSerial2 Serial3(USART3);
     void serialEvent3() __attribute__((weak));
   #endif
 
-  #if defined(HAVE_HWSERIAL4)
+  #if defined(USING_HW_SERIAL4)
     #if defined(USART4)
       HardwareSerial2 HSerial4(USART4);
     #else
@@ -67,18 +65,13 @@ void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState)
     void serialEvent4() __attribute__((weak));
   #endif
 
-  #if defined(HAVE_HWSERIAL5)
+  #if defined(USING_HW_SERIAL5)
     #if defined(USART5)
       HardwareSerial2 HSerial5(USART5);
     #else
       HardwareSerial2 HSerial5(UART5);
     #endif
     void serialEvent5() __attribute__((weak));
-  #endif
-
-  #if defined(HAVE_HWSERIALLP1)
-    HardwareSerial2 SerialLP1(LPUART1);
-    void serialEventLP1() __attribute__((weak));
   #endif
 
 // Constructors ////////////////////////////////////////////////////////////////
