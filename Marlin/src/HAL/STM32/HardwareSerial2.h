@@ -1,8 +1,28 @@
-#ifndef HardwareSerial2_h
-#define HardwareSerial2_h
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
-typedef struct
-{
+typedef struct {
   USART_TypeDef * uart;
   uint32_t dma_rcc;
   uint32_t dma_channel;
@@ -23,9 +43,9 @@ class HardwareSerial2 : public Stream {
 
     void begin(unsigned long, uint8_t);
     void end();
-    virtual int available(void);
-    virtual int read(void);
-    virtual int peek(void);
+    virtual int available();
+    virtual int read();
+    virtual int peek();
     virtual size_t write(uint8_t);
 
     operator bool() { return true; }
@@ -41,9 +61,7 @@ class HardwareSerial2 : public Stream {
     uint8_t _config;
     unsigned long _baud;
     void init(PinName _rx, PinName _tx);
-    void update_rx_head(void);
+    void update_rx_head();
     DMA_CFG RX_DMA;
-    void Serial_DMA_Read_Enable(void);
+    void Serial_DMA_Read_Enable();
 };
-
-#endif
