@@ -266,24 +266,24 @@ int HAL_HardwareSerial::read() {
   return c;
 }
 
-size_t HAL_HardwareSerial::write(uint8_t c) { // Interrupt based writing
+size_t HAL_HardwareSerial::write(uint8_t c) {             // Interrupt based writing
   tx_buffer_index_t i = (_serial.tx_head + 1) % TX_BUFFER_SIZE;
 
   // If the output buffer is full, there's nothing for it other than to
   // wait for the interrupt handler to empty it a bit
-  while (i == _serial.tx_tail) { /* nada */ } // nop, the interrupt handler will free up space for us
+  while (i == _serial.tx_tail) { /* nada */ }             // NOP, let the interrupt free up space for us
 
   _serial.tx_buff[_serial.tx_head] = c;
   _serial.tx_head = i;
 
   if (!serial_tx_active(&_serial))
-    uart_attach_tx_callback(&_serial, _tx_complete_irq); // write next byte, launch interrupt
+    uart_attach_tx_callback(&_serial, _tx_complete_irq);  // Write next byte, launch interrupt
 
   return 1;
 }
 
 void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
-  RCC_AHB1PeriphClockCmd(RX_DMA.dma_rcc, ENABLE);                   // enable DMA clock
+  RCC_AHB1PeriphClockCmd(RX_DMA.dma_rcc, ENABLE);                   // Enable DMA clock
 
   RX_DMA.dma_streamRX->PAR  = (uint32_t)(&RX_DMA.uart->DR);         // RX peripheral address (usart)
   RX_DMA.dma_streamRX->M0AR = (uint32_t)_serial.rx_buff;            // RX destination address (memory)
@@ -291,16 +291,16 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
 
   RX_DMA.dma_streamRX->CR = (RX_DMA.dma_channel << 25);             // RX channel selection, set to 0 all the other CR bits
 
-  // primary serial port priority at highest level (TX higher than RX)
+  // Primary serial port priority at highest level (TX higher than RX)
   RX_DMA.dma_streamRX->CR |= (3 << 16);                             // RX priority level: Very High
 
-  // RX_DMA.dma_streamRX->CR &= ~(3 << 13);                         // RX memory data size: 8 bit
-  // RX_DMA.dma_streamRX->CR &= ~(3 << 11);                         // RX peripheral data size: 8 bit
+  //RX_DMA.dma_streamRX->CR &= ~(3 << 13);                          // RX memory data size: 8 bit
+  //RX_DMA.dma_streamRX->CR &= ~(3 << 11);                          // RX peripheral data size: 8 bit
   RX_DMA.dma_streamRX->CR |= (1 << 10);                             // RX memory increment mode
-  // RX_DMA.dma_streamRX->CR &= ~(1 << 9);                          // RX peripheral no increment mode
+  //RX_DMA.dma_streamRX->CR &= ~(1 << 9);                           // RX peripheral no increment mode
   RX_DMA.dma_streamRX->CR |= (1 << 8);                              // RX circular mode enabled
-  // RX_DMA.dma_streamRX->CR &= ~(1 << 6);                          // RX data transfer direction: Peripheral-to-memory
-  RX_DMA.uart->CR3        |= (1 << 6);                              // enable DMA receiver (DMAR)
+  //RX_DMA.dma_streamRX->CR &= ~(1 << 6);                           // RX data transfer direction: Peripheral-to-memory
+  RX_DMA.uart->CR3        |= (1 << 6);                              // Enable DMA receiver (DMAR)
   RX_DMA.dma_streamRX->CR |= (1 << 0);                              // RX enable DMA
 }
 
