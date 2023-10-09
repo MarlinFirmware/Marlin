@@ -125,7 +125,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
       if (error_correction) {
         changed = true;
         block->steps[axis] += ABS(error_correction);
-        millimeters_delta += (dist[axis] + (error_correction >> 1)) * error_correction * sq(planner.mm_per_step[axis]);
+        millimeters_delta += dist[axis] * error_correction * sq(planner.mm_per_step[axis]);
         #if ENABLED(CORE_BACKLASH)
           switch (axis) {
             case CORE_AXIS_1:
@@ -148,7 +148,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
     }
   }
 
-  // if backlash correction steps were added, modify block->millimeters with a 2nd order Taylor polynomial approximation
+  // if backlash correction steps were added, modify block->millimeters with a linear approximation
   if (changed)
     block->millimeters += millimeters_delta / block->millimeters;
 }
