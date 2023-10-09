@@ -280,8 +280,6 @@
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD."
 #elif defined(LCD_I2C_SAINSMART_YWROBOT)
   #error "LCD_I2C_SAINSMART_YWROBOT is now LCD_SAINSMART_I2C_(1602|2004)."
-#elif defined(BTT_MINI_12864_V1)
-  #error "BTT_MINI_12864_V1 is now BTT_MINI_12864."
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN."
 #elif defined(HAVE_TMCDRIVER)
@@ -665,6 +663,8 @@
   #error "INTEGRATED_BABYSTEPPING is no longer needed and should be removed."
 #elif defined(FOLDER_SORTING)
   #error "FOLDER_SORTING is now SDSORT_FOLDERS."
+#elif defined(BTT_MINI_12864_V1)
+  #error "BTT_MINI_12864_V1 is now BTT_MINI_12864."
 #endif
 
 // L64xx stepper drivers have been removed
