@@ -53,10 +53,7 @@ constexpr static float gaugeThickness = 0.25;
 #endif
 
 static float meshGetter(uint8_t x, uint8_t y, void*) {
-  xy_uint8_t pos;
-  pos.x = x;
-  pos.y = y;
-  return ExtUI::getMeshPoint(pos);
+  return ExtUI::getMeshPoint(xy_uint8_t(x, y));
 }
 
 void BedMeshViewScreen::onEntry() {
@@ -158,9 +155,7 @@ void BedMeshViewScreen::doProbe() {
 }
 
 void BedMeshViewScreen::show() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    injectCommands(F("G29 L1"));
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, injectCommands(F("G29 L1")));
   GOTO_SCREEN(BedMeshViewScreen);
 }
 

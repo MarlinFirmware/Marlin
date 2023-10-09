@@ -97,10 +97,10 @@ void ZOffsetWizard::onRedraw(draw_mode_t what) {
 
 float ZOffsetWizard::getIncrement() {
   switch (mydata.increment) {
-    case 241: return   0.01;
-    case 242: return   0.1;
-    case 243: return   1.0;
-    default:  return   0.0;
+    case 241: return 0.01;
+    case 242: return 0.1;
+    case 243: return 1.0;
+    default:  return 0.0;
   }
 }
 
@@ -130,16 +130,14 @@ void ZOffsetWizard::runWizard() {
 bool ZOffsetWizard::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-        GOTO_PREVIOUS();
-        break;
+      GOTO_PREVIOUS();
+      break;
     case 4:
     case 5:
-        return onTouchHeld(tag);
-    case 241:
-    case 242:
-    case 243:
-        mydata.increment = tag;
-        break;
+      return onTouchHeld(tag);
+    case 241 ... 243:
+      mydata.increment = tag;
+      break;
     default:
       return false;
   }

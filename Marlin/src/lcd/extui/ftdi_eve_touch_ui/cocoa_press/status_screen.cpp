@@ -83,7 +83,7 @@ void StatusScreen::draw_bkgnd(draw_mode_t what) {
     constexpr float scale_h = float(FTDI::display_height)/bitmap_h;
     uint16_t linestride;
     uint32_t color;
-    switch(format) {
+    switch (format) {
       case RGB565: linestride = bitmap_w * 2; color = 0xFFFFFF; break;
       case RGB332: linestride = bitmap_w    ; color = 0xFFFFFF; break;
       case L1:     linestride = bitmap_w/8  ; color = 0x000000; break;
@@ -111,7 +111,7 @@ void StatusScreen::send_buffer(CommandProcessor &cmd, const void *data, uint16_t
   const char *ptr = (const char*) data;
   constexpr uint16_t block_size = 512;
   char               block[block_size];
-  for(;len > 0;) {
+  for (;len > 0;) {
     const uint16_t nBytes = min(len, block_size);
     memcpy_P(block, ptr, nBytes);
     cmd.write((const void*)block, nBytes);
@@ -266,9 +266,8 @@ void StatusScreen::draw_buttons(draw_mode_t what) {
 // When visible, the file name occupies the same space as the status
 // message and must be drawn opaque.
 void StatusScreen::draw_file(draw_mode_t what) {
-  if (mydata.gotMessage) {
-      return;
-  }
+  if (mydata.gotMessage) return;
+
   if (what & FOREGROUND) {
     int16_t x, y, w, h;
 
@@ -415,9 +414,8 @@ void StatusScreen::setStatusMessage(const char * const message) {
 
   mydata.gotMessage = true;
 
-  if (AT_SCREEN(StatusScreen)) {
+  if (AT_SCREEN(StatusScreen))
     current_screen.onRefresh();
-  }
 }
 
 void StatusScreen::onEntry() {
