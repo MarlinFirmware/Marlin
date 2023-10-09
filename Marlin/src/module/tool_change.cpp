@@ -941,19 +941,20 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    *  sync_plan_position_e();
    */
   void extruder_cutting_recover(const_float_t e) {
-    if (!too_cold(active_extruder)) {
-      const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
-      FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
-      unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
-      planner.synchronize();
-      FS_DEBUG("Set position to: ", e);
-      current_position.e = e;
-      sync_plan_position_e(); // Resume new E Position
-    }
+    if (too_cold(active_extruder)) return;
+
+    const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
+    FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
+    unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
+
+    FS_DEBUG("Set E position: ", e);
+    current_position.e = e;
+    sync_plan_position_e(); // Resume new E Position
   }
 
   /**
    * Prime the currently selected extruder (Filament loading only)
+   * Leave the E position unchanged so subsequent extrusion works properly.
    *
    * If too_cold(toolID) returns TRUE -> returns without moving extruder.
    * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
@@ -1062,6 +1063,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
       #endif
 
+      // Prime without changing E
       extruder_prime();
 
       // Move back
