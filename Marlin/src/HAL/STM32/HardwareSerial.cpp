@@ -35,31 +35,71 @@
 #include "uart.h"
 
 // USART/UART PIN MAPPING FOR STM32F1/F2/F4
-#define PIN_SERIAL1_TX          PA9
-#define PIN_SERIAL1_RX          PA10
-#define PIN_SERIAL2_TX          2   // PIN_A2
-#define PIN_SERIAL2_RX          3   // PIN_A3
-#define PIN_SERIAL3_TX          26  // PIN_PB10
-#define PIN_SERIAL3_RX          27  // PIN_PB11
-#define PIN_SERIAL4_TX          42  // PIN_PC10
-#define PIN_SERIAL4_RX          43  // PIN_PC11
-#define PIN_SERIAL5_TX          44  // PIN_PC12
-#define PIN_SERIAL5_RX          50  // PIN_PD2
+#if !defined PIN_SERIAL1_TX
+  #define PIN_SERIAL1_TX          PA9
+#endif
+#if !defined PIN_SERIAL1_RX
+  #define PIN_SERIAL1_RX          PA10
+#endif
+#if !defined PIN_SERIAL2_TX
+  #define PIN_SERIAL2_TX          2   // A2
+#endif
+#if !defined PIN_SERIAL2_RX
+  #define PIN_SERIAL2_RX          3   // A3
+#endif
+#if !defined PIN_SERIAL3_TX
+  #define PIN_SERIAL3_TX          26  // PB10
+#endif
+#if !defined PIN_SERIAL3_RX
+  #define PIN_SERIAL3_RX          27  // PB11
+#endif
+#if !defined PIN_SERIAL4_TX
+  #define PIN_SERIAL4_TX          42  // PC10
+#endif
+#if !defined PIN_SERIAL4_RX
+  #define PIN_SERIAL4_RX          43  // PC11
+#endif
+#if !defined PIN_SERIAL5_TX
+  #define PIN_SERIAL5_TX          44  // PC12
+#endif
+#if !defined PIN_SERIAL5_RX
+  #define PIN_SERIAL5_RX          50  // PD2
+#endif
 
 // TODO: GET FROM INCLUDE FILE!!!
-#define RCC_AHB1Periph_DMA1 ((uint32_t)0x00200000)
-#define RCC_AHB1Periph_DMA2 ((uint32_t)0x00400000)
+#if defined(STM32F2xx) || defined(STM32F4xx)
 
-void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState) {
-  // Check the parameters
-  assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));
+  #define RCC_AHB1Periph_DMA1 ((uint32_t)0x00200000)
+  #define RCC_AHB1Periph_DMA2 ((uint32_t)0x00400000)
 
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  if (NewState != DISABLE)
-    RCC->AHB1ENR |= RCC_AHB1Periph;
-  else
-    RCC->AHB1ENR &= ~RCC_AHB1Periph;
-}
+  void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState) {
+    // Check the parameters
+    assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));
+
+    assert_param(IS_FUNCTIONAL_STATE(NewState));
+    if (NewState != DISABLE)
+      RCC->AHB1ENR |= RCC_AHB1Periph;
+    else
+      RCC->AHB1ENR &= ~RCC_AHB1Periph;
+  }
+#endif
+
+#ifdef STM32F1xx
+
+  #define RCC_AHBPeriph_DMA1 ((uint32_t)0x00000001)
+  #define RCC_AHBPeriph_DMA2 ((uint32_t)0x00000002)
+
+  void RCC_AHBPeriphClockCmd(uint32_t RCC_AHBPeriph, FunctionalState NewState) {
+    /* Check the parameters */
+    assert_param(IS_RCC_AHB_PERIPH(RCC_AHBPeriph));
+    assert_param(IS_FUNCTIONAL_STATE(NewState));
+
+    if (NewState != DISABLE)
+      RCC->AHBENR |= RCC_AHBPeriph;
+    else
+      RCC->AHBENR &= ~RCC_AHBPeriph;
+  }
+#endif
 
 // END OF TODO------------------------------------------------------
 
@@ -314,6 +354,10 @@ size_t HAL_HardwareSerial::write(uint8_t c) {             // Interrupt based wri
   return 1;
 }
 
+void HAL_HardwareSerial::flush() {
+  while ((_serial.tx_head != _serial.tx_tail)) { /* nada */ } // nop, the interrupt handler will free up space for us
+}
+
 #if defined(STM32F2xx) || defined(STM32F4xx)
 
 void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
@@ -352,7 +396,7 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RX_DMA.dma_channelRX->CCR = 0;                                     // RX channel selection, set to 0 all the other CR bits
 
   // primary serial port priority at highest level (TX higher than RX)
-  RX_DMA.dma_channelRX->CR  |= (3<<12);                              // RX priority level: Very High
+  RX_DMA.dma_channelRX->CCR  |= (3<<12);                              // RX priority level: Very High
 
   //RX_DMA.dma_channelRX->CCR &= ~(0<<10);                           // RX memory data size: 8 bit
   //RX_DMA.dma_channelRX->CCR &= ~(0<<8);                            // RX peripheral data size: 8 bit

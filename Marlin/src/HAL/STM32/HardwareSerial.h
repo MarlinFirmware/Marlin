@@ -22,14 +22,15 @@
  */
 #pragma once
 
-#if !defined(RX_BUFFER_SIZE)
+#if !defined(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE == 0)
+  #undef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 64
 #endif
 
-#if !defined(TX_BUFFER_SIZE)
+#if !defined(TX_BUFFER_SIZE) || (TX_BUFFER_SIZE== 0)
+  #undef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 64
 #endif
-
 
 #if defined(STM32F2xx) || defined(STM32F4xx)
 typedef struct {
@@ -67,7 +68,7 @@ class HAL_HardwareSerial : public Stream {
     virtual int read();
     virtual int peek();
     virtual size_t write(uint8_t);
-
+     virtual void flush();
     operator bool() { return true; }
 
     void setRx(uint32_t _rx);
