@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,8 +23,6 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "3D Printer"
-
 #define BOARD_INFO_NAME   "FYSETC Cheetah V3.0"
 #define BOARD_WEBSITE_URL "fysetc.com"
 
@@ -43,12 +41,12 @@
 //
 // Z Probe
 //
-// #if ENABLED(BLTOUCH)
-//   #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
-//   #define SERVO0_PIN                        PA0
-// #elif !defined(Z_MIN_PROBE_PIN)
-//   #define Z_MIN_PROBE_PIN                   PA0
-// #endif
+//#if ENABLED(BLTOUCH)
+//  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
+//  #define SERVO0_PIN                      PA0
+//#elif !defined(Z_MIN_PROBE_PIN)
+//  #define Z_MIN_PROBE_PIN                 PA0
+//#endif
 
 //
 // Limit Switches
@@ -57,22 +55,17 @@
 #define Y_STOP_PIN                          PA3
 #define Z_STOP_PIN                          PC4
 
-//#define X_MAX_PIN                           PA0
-// #define Y_MAX_PIN                           PA0
-// #define Z_MAX_PIN                           PA1
-
-
 #if 1
-#define test_io1 PA0        //PROBE
-#define test_io2 PA1        //FIL-D
-// #define test_io3 PA9
-// #define test_io4 PA10
+#define TEST_IO1                            PA0   // PROBE
+#define TEST_IO2                            PA1   // FIL-D
+//#define TEST_IO3                          PA9
+//#define TEST_IO4                          PA10
 #endif
 
 //
 // Filament runout
 //
-//#define FIL_RUNOUT_PIN                      PA1
+//#define FIL_RUNOUT_PIN                    PA1
 
 //
 // Steppers
@@ -96,30 +89,30 @@
 #if HAS_TMC_UART
  #if 1
     #ifndef X_SERIAL_TX_PIN
-      #define X_SERIAL_TX_PIN                 PB3
+      #define X_SERIAL_TX_PIN               PB3
     #endif
     #ifndef X_SERIAL_RX_PIN
-      #define X_SERIAL_RX_PIN                 X_SERIAL_TX_PIN
+      #define X_SERIAL_RX_PIN    X_SERIAL_TX_PIN
     #endif
 
     #ifndef Y_SERIAL_TX_PIN
-      #define Y_SERIAL_TX_PIN                 PB3
+      #define Y_SERIAL_TX_PIN               PB3
     #endif
     #ifndef Y_SERIAL_RX_PIN
-      #define Y_SERIAL_RX_PIN                 Y_SERIAL_TX_PIN
+      #define Y_SERIAL_RX_PIN    Y_SERIAL_TX_PIN
     #endif
 
     #ifndef Z_SERIAL_TX_PIN
-      #define Z_SERIAL_TX_PIN                 PB3
+      #define Z_SERIAL_TX_PIN               PB3
     #endif
     #ifndef Z_SERIAL_RX_PIN
-      #define Z_SERIAL_RX_PIN                 Z_SERIAL_TX_PIN
+      #define Z_SERIAL_RX_PIN    Z_SERIAL_TX_PIN
     #endif
     #ifndef E0_SERIAL_TX_PIN
-      #define E0_SERIAL_TX_PIN                PB3
+      #define E0_SERIAL_TX_PIN              PB3
     #endif
     #ifndef E0_SERIAL_RX_PIN
-      #define E0_SERIAL_RX_PIN                E0_SERIAL_TX_PIN
+      #define E0_SERIAL_RX_PIN  E0_SERIAL_TX_PIN
     #endif
 
     #ifndef X_SLAVE_ADDRESS
@@ -159,28 +152,28 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC7   //PWM
-#define HEATER_BED_PIN                      PC8   //PWM
+#define HEATER_0_PIN                        PC7   // PWM
+#define HEATER_BED_PIN                      PC8   // PWM
 
 #ifndef FAN0_PIN
-  #define FAN0_PIN                           PA14  //
+  #define FAN0_PIN                          PA14
 #endif
-#define FAN1_PIN                            PA13  //
-#define FAN2_PIN                            PA8   //
+#define FAN1_PIN                            PA13
+#define FAN2_PIN                            PA8
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC5   // Analog Input  T0  ADC
-#define TEMP_BED_PIN                        PB1   // Analog Input      ADC 
-#define TEMP_CHAMBER_PIN                    PB0   // Analog Input  T1  ADC  
+#define TEMP_0_PIN                          PC5   // Analog Input T0 ADC
+#define TEMP_BED_PIN                        PB1   // Analog Input    ADC
+#define TEMP_CHAMBER_PIN                    PB0   // Analog Input T1 ADC
 
 //
 // Misc. Functions
 //
 #if 0
-#define SDSS                                PA4
-#define SD_DETECT_PIN                       PC3
+  #define SDSS                              PA4
+  #define SD_DETECT_PIN                     PC3
 #endif
 
 #ifndef RGB_LED_R_PIN
@@ -192,7 +185,6 @@
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                     PB6
 #endif
-
 
 /**
  *                    -----                                                      -----
@@ -206,15 +198,15 @@
  */
 
 /**
-*                 -----
-*  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
-* (BTN_EN1) PC10 | 3 4 | PB14 (LCD_D5/MISO)
-* (BTN_EN2) PC11   5 6 | PB13 (LCD_D4/SCK)
-*  (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN/MOSI)
-*            GND | 9 10| 5V
-*                 -----
-*                 EXP3
-*/
+ *                 -----
+ *  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
+ * (BTN_EN1) PC10 | 3 4 | PB14 (LCD_D5/MISO)
+ * (BTN_EN2) PC11   5 6 | PB13 (LCD_D4/SCK)
+ *  (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN/MOSI)
+ *            GND | 9 10| 5V
+ *                 -----
+ *                 EXP3
+ */
 
 #define EXP1_03_PIN                         PB7
 #define EXP1_04_PIN                         PB6
@@ -273,7 +265,7 @@
     #define BTN_EN1                  EXP2_06_PIN
     #define BTN_EN2                  EXP2_08_PIN
 
-    #define LCD_PINS_EN          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -318,13 +310,10 @@
   #define BOARD_ST7920_DELAY_3               600
 #endif
 
-
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   #define BEEPER_PIN                 EXP1_10_PIN
   #define CLCD_MOD_RESET             EXP2_08_PIN
   #define CLCD_SPI_CS                EXP2_06_PIN
 #endif
 
-#define NEOPIXEL2_PIN                    PC9
-
-
+#define NEOPIXEL2_PIN                       PC9
