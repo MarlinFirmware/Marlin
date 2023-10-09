@@ -34,7 +34,7 @@ typedef void (*usart_rx_callback_t)(serial_t * obj);
 
 struct MarlinSerial : public HAL_HardwareSerial {
   MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
-      HardwareSerial(peripheral), _rx_callback(rx_callback)
+      HAL_HardwareSerial(peripheral), _rx_callback(rx_callback)
   { }
 
   void begin(unsigned long baud, uint8_t config);
