@@ -968,6 +968,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     feedRate_t fr_mm_s = MMM_TO_MMS(toolchange_settings.unretract_speed); // Set default speed for unretract
 
+    const float resume_current_e = current_position.e;
+
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
       /**
        * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
@@ -1011,6 +1013,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       FS_DEBUG("Performing Cutting Retraction | Distance: ", -toolchange_settings.wipe_retract, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
       unscaled_e_move(-toolchange_settings.wipe_retract, MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
+
+    // Leave E unchanged when priming
+    current_position.e = resume_current_e;
+    sync_plan_position_e();
 
     // Cool down with fan
     filament_swap_cooling();
@@ -1079,9 +1085,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
       #endif
 
-      // Previous position applied
-      current_position.e = destination.e;
-      sync_plan_position_e();
       extruder_cutting_recover(destination.e); // Cutting recover
     }
 
