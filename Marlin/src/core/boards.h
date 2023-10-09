@@ -320,7 +320,7 @@
 #define BOARD_BTT_EBB42_V1_1          4000  // BigTreeTech EBB42 V1.1 (STM32G0B1CB)
 #define BOARD_BTT_SKR_MINI_E3_V3_0    4001  // BigTreeTech SKR Mini E3 V3.0 (STM32G0B0RE / STM32G0B1RE)
 #define BOARD_BTT_MANTA_E3_EZ_V1_0    4002  // BigTreeTech Manta E3 EZ V1.0 (STM32G0B1RE)
-#define BOARD_BTT_MANTA_M4P_V1_0      4003  // BigTreeTech Manta M4P V1.0 (STM32G0B0RE)
+#define BOARD_BTT_MANTA_M4P_V2_1      4003  // BigTreeTech Manta M4P V2.1 (STM32G0B0RE)
 #define BOARD_BTT_MANTA_M5P_V1_0      4004  // BigTreeTech Manta M5P V1.0 (STM32G0B1RE)
 #define BOARD_BTT_MANTA_M8P_V1_0      4005  // BigTreeTech Manta M8P V1.0 (STM32G0B1VE)
 #define BOARD_BTT_MANTA_M8P_V1_1      4006  // BigTreeTech Manta M8P V1.1 (STM32G0B1VE)
@@ -460,6 +460,7 @@
 #define BOARD_BLACKPILL_CUSTOM        5246  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1             5247  // I3DBEEZ9 V1 (STM32F407ZG)
 #define BOARD_MELLOW_FLY_E3_V2        5248  // Mellow Fly E3 V2 (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V30      5249  // FYSETC Cheetah V3.0 (STM32F446RC)
 
 //
 // ARM Cortex-M7
