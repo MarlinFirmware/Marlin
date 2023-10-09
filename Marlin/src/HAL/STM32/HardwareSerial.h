@@ -22,6 +22,14 @@
  */
 #pragma once
 
+#if !defined(RX_BUFFER_SIZE)
+  #define RX_BUFFER_SIZE 64
+#endif
+
+#if !defined(TX_BUFFER_SIZE)
+  #define TX_BUFFER_SIZE 64
+#endif
+
 typedef struct {
   USART_TypeDef * uart;
   uint32_t dma_rcc;
