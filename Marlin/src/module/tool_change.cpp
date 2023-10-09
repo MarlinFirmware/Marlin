@@ -127,9 +127,8 @@
 
     inline void _move_nozzle_servo(const uint8_t e, const uint8_t angle_index) {
       constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
-      constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
       planner.synchronize();
-      servo[sns_index[e]].move(sns_angles[angle_index]);
+      servo[sns_index[e]].move(servo_angles[sns_index[e]][angle_index]);
       safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
     }
 
