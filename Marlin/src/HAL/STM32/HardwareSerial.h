@@ -30,12 +30,24 @@
   #define TX_BUFFER_SIZE 64
 #endif
 
+
+#if defined(STM32F2xx) || defined(STM32F4xx)
 typedef struct {
   USART_TypeDef * uart;
   uint32_t dma_rcc;
   uint32_t dma_channel;
   DMA_Stream_TypeDef * dma_streamRX;
 } DMA_CFG;
+#endif
+#ifdef STM32F1xx
+typedef struct
+{
+  USART_TypeDef * uart;
+  uint32_t dma_rcc;
+  DMA_TypeDef * dma_controller;
+  DMA_Channel_TypeDef * dma_channelRX;
+} DMA_CFG;
+#endif
 
 class HAL_HardwareSerial : public Stream {
   protected:
