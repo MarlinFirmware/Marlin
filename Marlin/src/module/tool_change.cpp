@@ -1071,20 +1071,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
             destination.x = current_position.x;
             destination.y = current_position.y;
           #endif
-          do_blocking_move_to_xy(destination,  MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          do_blocking_move_to_xy(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
           planner.synchronize();
         }
       #endif
 
-      //Previous position applied
+      // Previous position applied
       current_position.e = destination.e;
       sync_plan_position_e();
       extruder_cutting_recover(destination.e); // Cutting recover
-
-      #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-        RESTORE(fan);
-      #endif
     }
 
     FS_DEBUG("<<< tool_change_prime");
