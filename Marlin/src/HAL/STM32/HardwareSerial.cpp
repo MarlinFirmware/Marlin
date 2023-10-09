@@ -405,7 +405,7 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RX_DMA.dma_channelRX->CCR |=  (1<<5);                              // RX circular mode enabled
   //RX_DMA.dma_channelRX->CCR &= ~(1<<4);                            // RX data transfer direction: Peripheral-to-memory
 
-  RX_DMA.uart->CR3          |=  (1<<7);                              // enable DMA receiver (DMAR)
+  RX_DMA.uart->CR3          |=  (1<<6);                              // enable DMA receiver (DMAR)
   RX_DMA.dma_channelRX->CCR |=  (1<<0);                              // RX enable DMA
 }
 
