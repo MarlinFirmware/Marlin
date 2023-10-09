@@ -46,7 +46,7 @@
 #define PIN_SERIAL5_TX          44  // PIN_PC12
 #define PIN_SERIAL5_RX          50  // PIN_PD2
 
-// GET FROM INCLUDE FILE!!!
+// TODO: GET FROM INCLUDE FILE!!!
 #define RCC_AHB1Periph_DMA1 ((uint32_t)0x00200000)
 #define RCC_AHB1Periph_DMA2 ((uint32_t)0x00400000)
 
@@ -61,7 +61,7 @@ void RCC_AHB1PeriphClockCmd(uint32_t RCC_AHB1Periph, FunctionalState NewState) {
     RCC->AHB1ENR &= ~RCC_AHB1Periph;
 }
 
-// ------------------------------------------------------------------------
+// END OF TODO------------------------------------------------------
 
 // SerialEvent functions are weak, so when the user doesn't define them,
 // the linker just sets their address to 0 (which is checked below).
@@ -243,9 +243,10 @@ void HAL_HardwareSerial::begin(unsigned long baud, uint8_t config) {
 
   uart_init(&_serial, (uint32_t)baud, databits, parity, stopbits);
 
-  // IRON, USING FREE RUNNING DMA READING, NO CALLBACK NEEDED
-  //uart_attach_rx_callback(&_serial, _rx_complete_irq); // IRON, start the interrupt reading, indicate where to callback
-
+// IRON, USING FREE RUNNING DMA READING, NO CALLBACK NEEDED
+#if !ANY(STM32F1xx, STM32F2xx, STM32F4xx)
+  uart_attach_rx_callback(&_serial, _rx_complete_irq);
+#endif  
   Serial_DMA_Read_Enable(); // IRON, START THE DMA READING PROCESS
 }
 
