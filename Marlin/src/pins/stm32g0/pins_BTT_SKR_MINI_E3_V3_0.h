@@ -338,7 +338,7 @@
        *                Neopixel                               EXP2
        *
        * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
-       * Note: The RESET line is connected to 3 pins. 
+       * Note: The RESET line is connected to 3 pins.
        *
        * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
