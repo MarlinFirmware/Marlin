@@ -41,7 +41,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
     static void draw_file(draw_mode_t what);
     static void draw_message(draw_mode_t what, const char *message);
     static void draw_bkgnd(draw_mode_t what);
-    
+
     static void send_buffer(CommandProcessor &cmd, const void *data, uint16_t len);
     static void load_background(const void *data, uint16_t len);
 

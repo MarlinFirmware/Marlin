@@ -40,7 +40,7 @@ using namespace Theme;
     #define BACK_POS           BTN_POS(1,6), BTN_SIZE(3,1)
 #else
     #define GRID_COLS 2
-    #define GRID_ROWS 6    
+    #define GRID_ROWS 6
     #define BED_MESH_TITLE_POS BTN_POS(1,1), BTN_SIZE(2,1)
     #define WARNING_POS        BTN_POS(1,2), BTN_SIZE(2,2)
     #define PROBE_BED_POS      BTN_POS(1,4), BTN_SIZE(1,1)

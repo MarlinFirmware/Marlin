@@ -252,7 +252,7 @@ class SVGParser(HTMLParser):
     for attr, value in attrs:
       if attr == what:
          return value
-         
+
   def layer_matches(self):
     """ Are we in the correct layer?"""
     if not self.args.layer:
@@ -261,7 +261,7 @@ class SVGParser(HTMLParser):
       if l and l.find(self.args.layer) != -1:
         return True
     return False
-                    
+
   def handle_starttag(self, tag, attrs):
     self.tags.append(tag)
     if tag == 'svg':
@@ -283,7 +283,7 @@ class SVGParser(HTMLParser):
         if self.op:
           self.op.path_finished(id)
         self.restart()
-     
+
   def handle_endtag(self, tag):
     if tag == 'g':
       self.groups.pop()
@@ -299,7 +299,7 @@ if __name__ == "__main__":
   f = open(args.filename, "r")
   data = f.read()
 
-  # First pass to grab viewbox  
+  # First pass to grab viewbox
   p = SVGParser(args)
   p.feed(data)
 
