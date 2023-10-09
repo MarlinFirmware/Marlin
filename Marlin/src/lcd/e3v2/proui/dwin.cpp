@@ -1716,23 +1716,16 @@ void dwinPrintFinished() {
 // Print was aborted
 void dwinPrintAborted() {
   #ifndef EVENT_GCODE_SD_ABORT
-    #if ENABLED(NOZZLE_PARK_FEATURE)
-      const xyz_pos_t park_point = NOZZLE_PARK_POINT;
-    #endif
     if (all_axes_homed()) {
-      const int16_t zpos = current_position.z + TERN(NOZZLE_PARK_FEATURE,
-      NOZZLE_PARK_Z_RAISE_MIN, Z_POST_CLEARANCE);
-      _MIN(zpos, Z_MAX_POS);
-      const int16_t ypos = TERN(NOZZLE_PARK_FEATURE, park_pos.y, Y_MAX_POS);
-      MString<25> cmd;
-      cmd.setf(cmd, F("G0Z%i\nG0F2000Y%i"), zpos, ypos);
-      queue.inject(&cmd);
+      queue.inject(
+        #if ENABLED(NOZZLE_PARK_FEATURE)
+          F("G27")
+        #else
+          TS(F("G0Z"), float(_MIN(current_position.z + (Z_POST_CLEARANCE), Z_MAX_POS)), F("\nG0F2000Y"), Y_MAX_POS);
+        #endif
+      );
     }
   #endif
-  #ifdef SD_FINISHED_RELEASECOMMAND
-    queue.inject(SD_FINISHED_RELEASECOMMAND);
-  #endif
-  
   hostui.notify("Print Aborted");
   dwinPrintFinished();
 }
