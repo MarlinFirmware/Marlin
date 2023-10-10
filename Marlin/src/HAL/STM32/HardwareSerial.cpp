@@ -30,7 +30,6 @@
 #if defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
 
 #include <stdio.h>
-#include "Arduino.h"
 #include "HardwareSerial.h"
 #include "uart.h"
 
