@@ -404,8 +404,6 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
-  const AxisBits direction = current_block->direction_bits;
-
   startPosn = endPosn_prevBlock;
   xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
     current_block->steps.e * planner.mm_per_step[E_AXIS_N(current_block->extruder)],
@@ -421,16 +419,16 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   );
 
   LOGICAL_AXIS_CODE(
-    if (!direction.e) moveDist.e *= -1.0f,
-    if (!direction.x) moveDist.x *= -1.0f,
-    if (!direction.y) moveDist.y *= -1.0f,
-    if (!direction.z) moveDist.z *= -1.0f,
-    if (!direction.i) moveDist.i *= -1.0f,
-    if (!direction.j) moveDist.j *= -1.0f,
-    if (!direction.k) moveDist.k *= -1.0f,
-    if (!direction.u) moveDist.u *= -1.0f,
-    if (!direction.v) moveDist.v *= -1.0f,
-    if (!direction.w) moveDist.w *= -1.0f
+    if (!current_block->direction_bits.e) moveDist.e *= -1.0f,
+    if (!current_block->direction_bits.x) moveDist.x *= -1.0f,
+    if (!current_block->direction_bits.y) moveDist.y *= -1.0f,
+    if (!current_block->direction_bits.z) moveDist.z *= -1.0f,
+    if (!current_block->direction_bits.i) moveDist.i *= -1.0f,
+    if (!current_block->direction_bits.j) moveDist.j *= -1.0f,
+    if (!current_block->direction_bits.k) moveDist.k *= -1.0f,
+    if (!current_block->direction_bits.u) moveDist.u *= -1.0f,
+    if (!current_block->direction_bits.v) moveDist.v *= -1.0f,
+    if (!current_block->direction_bits.w) moveDist.w *= -1.0f
   );
 
   ratio = moveDist * oneOverLength;
@@ -535,12 +533,13 @@ void FxdTiCtrl::makeVector() {
   }
   else {
     // Deceleration phase
-    const float tau_ = tau - (N1 + N2) * (FTM_TS);        // (s) Time since start of decel phase
-    dist = s_2e + F_P * tau_ + 0.5f * decel_P * sq(tau_); // (mm) Distance traveled for deceleration phase
-    accel_k = decel_P;                                    // (mm/s^2) Acceleration K factor from Decel phase
+    tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
+    dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase
+    accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
   }
 
-  NUM_AXIS_CODE(
+  LOGICAL_AXIS_CODE(
+    traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
     traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
     traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
     traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
@@ -553,35 +552,26 @@ void FxdTiCtrl::makeVector() {
   );
 
   #if HAS_EXTRUDERS
-    const float new_raw_z1 = startPosn.e + ratio.e * dist;
     if (cfg.linearAdvEna) {
-      float dedt_adj = (new_raw_z1 - e_raw_z1) * (FTM_FS);
+      float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
       if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK;
 
+      e_raw_z1 = traj.e[makeVector_batchIdx];
       e_advanced_z1 += dedt_adj * (FTM_TS);
       traj.e[makeVector_batchIdx] = e_advanced_z1;
-
-      e_raw_z1 = new_raw_z1;
-    }
-    else {
-      traj.e[makeVector_batchIdx] = new_raw_z1;
-      // Alternatively: ed[makeVector_batchIdx] = startPosn.e + (ratio.e * dist) / (N1 + N2 + N3);
     }
   #endif
 
   // Update shaping parameters if needed.
-  #if HAS_DYNAMIC_FREQ_MM
-    static float zd_z1 = 0.0f;
-  #endif
+
   switch (cfg.dynFreqMode) {
 
     #if HAS_DYNAMIC_FREQ_MM
       case dynFreqMode_Z_BASED:
-        if (traj.z[makeVector_batchIdx] != zd_z1) { // Only update if Z changed.
+        if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
           const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx],
                       yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
           updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ), _MAX(yf, FTM_MIN_SHAPE_FREQ));
-          zd_z1 = traj.z[makeVector_batchIdx];
         }
         break;
     #endif
