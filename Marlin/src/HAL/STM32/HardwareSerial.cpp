@@ -21,9 +21,11 @@
  *
  */
 
-// IRON, HARDWARESERIAL2 CLASS, ADAPTATION FROM ARDUINO'S HARDWARESERIAL
+// HAL_HARDWARESERIAL CLASS, ADAPTATION FROM ARDUINO'S HARDWARESERIAL
 
 #include "../../inc/MarlinConfig.h"
+
+#ifdef SERIAL_DMA
 
 #ifdef HAL_STM32
 
@@ -281,12 +283,7 @@ void HAL_HardwareSerial::begin(unsigned long baud, uint8_t config) {
   }
 
   uart_init(&_serial, (uint32_t)baud, databits, parity, stopbits);
-
-// IRON, USING FREE RUNNING DMA READING, NO CALLBACK NEEDED
-#if !ANY(STM32F1xx, STM32F2xx, STM32F4xx)
-  uart_attach_rx_callback(&_serial, _rx_complete_irq);
-#endif  
-  Serial_DMA_Read_Enable(); // IRON, START THE DMA READING PROCESS
+  Serial_DMA_Read_Enable(); // Start the circular DMA serial reading process, no callback needed
 }
 
 void HAL_HardwareSerial::end() {
@@ -297,7 +294,7 @@ void HAL_HardwareSerial::end() {
   _serial.rx_head = _serial.rx_tail;    // Clear any received data
 }
 
-void HAL_HardwareSerial::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+void HAL_HardwareSerial::update_rx_head() { // update buffer head for DMA progress
 
   #if ENABLED(EMERGENCY_PARSER)
     static uint32_t flag = 0;
@@ -308,28 +305,28 @@ void HAL_HardwareSerial::update_rx_head() { // IRON, ADDED, UPDATE HEAD FROM DMA
   #endif
 
   #if defined(STM32F2xx) || defined(STM32F4xx)
-    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR; 
   #endif // STM32F2xx || STM32F4xx
 
   #ifdef STM32F1xx
-    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR; // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+    _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR;
   #endif
 
 }
 
 int HAL_HardwareSerial::available() {
-  update_rx_head();  // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+  update_rx_head();
   return ((unsigned int)(RX_BUFFER_SIZE + _serial.rx_head - _serial.rx_tail)) % RX_BUFFER_SIZE;
 }
 
 int HAL_HardwareSerial::peek() {
-  update_rx_head();  // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+  update_rx_head();
   if (_serial.rx_head == _serial.rx_tail) return -1;
   return _serial.rx_buff[_serial.rx_tail];
 }
 
 int HAL_HardwareSerial::read() {
-  update_rx_head();                                   // IRON, ADDED, UPDATE HEAD FROM DMA PROGRESS
+  update_rx_head();
   if (_serial.rx_head == _serial.rx_tail) return -1;  // No chars if the head isn't ahead of the tail
 
   unsigned char c = _serial.rx_buff[_serial.rx_tail];
@@ -368,7 +365,6 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
 
   RX_DMA.dma_streamRX->CR = (RX_DMA.dma_channel << 25);             // RX channel selection, set to 0 all the other CR bits
 
-  // Primary serial port priority at highest level (TX higher than RX)
   RX_DMA.dma_streamRX->CR |= (3 << 16);                             // RX priority level: Very High
 
   //RX_DMA.dma_streamRX->CR &= ~(3 << 13);                          // RX memory data size: 8 bit
@@ -394,11 +390,10 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
 
   RX_DMA.dma_channelRX->CCR = 0;                                     // RX channel selection, set to 0 all the other CR bits
 
-  // primary serial port priority at highest level (TX higher than RX)
   RX_DMA.dma_channelRX->CCR  |= (3<<12);                              // RX priority level: Very High
 
-  //RX_DMA.dma_channelRX->CCR &= ~(0<<10);                           // RX memory data size: 8 bit
-  //RX_DMA.dma_channelRX->CCR &= ~(0<<8);                            // RX peripheral data size: 8 bit
+  //RX_DMA.dma_channelRX->CCR &= ~(1<<10);                           // RX memory data size: 8 bit
+  //RX_DMA.dma_channelRX->CCR &= ~(1<<8);                            // RX peripheral data size: 8 bit
   RX_DMA.dma_channelRX->CCR |=  (1<<7);                              // RX memory increment mode
   //RX_DMA.dma_channelRX->CCR &= ~(1<<6);                            // RX peripheral no increment mode
   RX_DMA.dma_channelRX->CCR |=  (1<<5);                              // RX circular mode enabled
@@ -412,3 +407,4 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
 
 #endif // HAL_UART_MODULE_ENABLED && !HAL_UART_MODULE_ONLY
 #endif // HAL_STM32
+#endif // SERIAL_DMA

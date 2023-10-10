@@ -28,14 +28,26 @@
 #endif
 
 #include "../../core/serial_hook.h"
-#include "HardwareSerial.h" // IRON, ADDED FOR DMA SERIAL READING
 
-typedef void (*usart_rx_callback_t)(serial_t * obj);
+#ifdef SERIAL_DMA
+  #include "HardwareSerial.h"
 
-struct MarlinSerial : public HAL_HardwareSerial {
-  MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
+  typedef void (*usart_rx_callback_t)(serial_t * obj);
+
+  struct MarlinSerial : public HAL_HardwareSerial {
+    MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
       HAL_HardwareSerial(peripheral), _rx_callback(rx_callback)
-  { }
+      { }
+
+#else // use Arduino platform
+
+  typedef void (*usart_rx_callback_t)(serial_t * obj);
+
+  struct MarlinSerial : public HardwareSerial {
+    MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
+      HardwareSerial(peripheral), _rx_callback(rx_callback)
+      { }
+#endif
 
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }

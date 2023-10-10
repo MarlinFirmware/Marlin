@@ -20,6 +20,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifdef SERIAL_DMA
+
+// TODO: Move to more appropriate place
+#if !ANY(STM32F1xx, STM32F2xx, STM32F4xx)
+  #error "SERIAL_DMA is currently only supported on STM32F1 STM32F2xx and STM32F4xx."
+#endif
+
 #pragma once
 
 #if !defined(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE == 0)
@@ -50,7 +57,7 @@ typedef struct
 } DMA_CFG;
 #endif
 
-class HAL_HardwareSerial : public Stream {
+  class HAL_HardwareSerial : public Stream {
   protected:
     // Don't put any members after these buffers, since only the first
     // 32 bytes of this struct can be accessed quickly using the ldd instruction.
@@ -60,8 +67,7 @@ class HAL_HardwareSerial : public Stream {
     serial_t _serial;
 
   public:
-    HAL_HardwareSerial(void *peripheral);
-
+  HAL_HardwareSerial(void *peripheral);
     void begin(unsigned long, uint8_t);
     void end();
     virtual int available();
@@ -86,3 +92,5 @@ class HAL_HardwareSerial : public Stream {
     DMA_CFG RX_DMA;
     void Serial_DMA_Read_Enable();
 };
+
+#endif // SERIAL_DMA
