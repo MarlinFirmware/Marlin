@@ -110,8 +110,6 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
 
       // Decide how much of the residual error to correct in this segment
       int32_t error_correction = residual_error[axis];
-      if (forward == (error_correction < 0))
-        error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
 
       #ifdef BACKLASH_SMOOTHING_MM
         if (error_correction && smoothing_mm != 0) {
@@ -120,6 +118,13 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
           error_correction = CEIL(segment_proportion * error_correction);
         }
       #endif
+
+      // Don't correct backlash in the opposite direction to movement on this axis and for accuracy in
+      // updating block->millimeters, don't add too many steps to the movement on this axis
+      if (forward)
+        LIMIT(error_correction, 0, dist[axis]);
+      else
+        LIMIT(error_correction, dist[axis], 0);
 
       // This correction reduces the residual error and adds block steps
       if (error_correction) {
