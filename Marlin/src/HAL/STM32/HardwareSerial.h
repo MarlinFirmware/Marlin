@@ -23,8 +23,8 @@
 #ifdef SERIAL_DMA
 
 // TODO: Move to more appropriate place
-#if !ANY(STM32F1xx, STM32F2xx, STM32F4xx)
-  #error "SERIAL_DMA is currently only supported on STM32F1 STM32F2xx and STM32F4xx."
+#if !ANY(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+  #error "SERIAL_DMA is currently only supported on STM32F0xx, STM32F1xx STM32F2xx, STM32F4xx and STM32F7xx."
 #endif
 
 #pragma once
@@ -39,21 +39,20 @@
   #define TX_BUFFER_SIZE 64
 #endif
 
-#if defined(STM32F2xx) || defined(STM32F4xx)
+#if defined(STM32F0xx) || defined(STM32F1xx)
+typedef struct
+{ // F0 / F1
+  USART_TypeDef * uart;
+  uint32_t dma_rcc;
+  DMA_TypeDef * dma_controller;
+  DMA_Channel_TypeDef * dma_channelRX;
+} DMA_CFG;
+#else // F2 / F4 / F7
 typedef struct {
   USART_TypeDef * uart;
   uint32_t dma_rcc;
   uint32_t dma_channel;
   DMA_Stream_TypeDef * dma_streamRX;
-} DMA_CFG;
-#endif
-#ifdef STM32F1xx
-typedef struct
-{
-  USART_TypeDef * uart;
-  uint32_t dma_rcc;
-  DMA_TypeDef * dma_controller;
-  DMA_Channel_TypeDef * dma_channelRX;
 } DMA_CFG;
 #endif
 

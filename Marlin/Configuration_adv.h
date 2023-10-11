@@ -2634,6 +2634,15 @@
 // For serial echo, the number of digits after the decimal point
 //#define SERIAL_FLOAT_PRECISION 4
 
+/* This feature is an EXPERIMENTAL feature so it shall not be used on production
+ * machines. Enabling this will allow the reception of serial data on the serial
+ * ports to be handled by the onboard DMA controller. This allows for more stable
+ * and reliable serial data reception at higher speeds. Currently only
+ * STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx are supported.
+ * This feature does not affect emulated USB serial ports.
+ */
+//#define SERIAL_DMA
+
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
  * This can help to better align the output of commands like `G29 O` Mesh Output.
