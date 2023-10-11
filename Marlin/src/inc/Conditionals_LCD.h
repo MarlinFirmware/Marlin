@@ -35,8 +35,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
-#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
+// MKS_MINI_12864_V3 and BTT_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
+#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -490,7 +490,7 @@
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
-  #define IS_EXTUI 1
+  #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
 #endif
 
@@ -1422,23 +1422,25 @@
  * Conditionals based on the type of Bed Probe
  */
 #if HAS_BED_PROBE
+  #if ALL(DELTA, SENSORLESS_PROBING)
+    #define HAS_DELTA_SENSORLESS_PROBING 1
+  #else
+    #define HAS_REAL_BED_PROBE 1
+  #endif
+  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
+    #define NEED_Z_MIN_PROBE_PIN 1
+  #endif
+  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+    #define HOMING_Z_WITH_PROBE 1
+  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
-  #if ALL(DELTA, SENSORLESS_PROBING)
-    #define HAS_DELTA_SENSORLESS_PROBING 1
-  #endif
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING)
-    #define USE_Z_MIN_PROBE 1
-  #endif
-  #if Z_HOME_TO_MIN && (DISABLED(USE_Z_MIN_PROBE) || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
+  #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
+    #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
-  #endif
-  #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
-    #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0

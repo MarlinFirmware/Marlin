@@ -983,11 +983,7 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      const int8_t expl = n;
-      n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
-      pad -= (expl - n - plen); // Reduce the padding
-    }
+    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
@@ -1012,7 +1008,8 @@ void MarlinUI::draw_status_screen() {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
     lcd.write(sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2);
+    uint8_t n = LCD_WIDTH - 2;
+    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd.write(' ');
     lcd.write(post_char);
     lcd.print_line();
@@ -1024,7 +1021,8 @@ void MarlinUI::draw_status_screen() {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_moveto(0, row);
     lcd.write(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vlen);
+    uint8_t n = LCD_WIDTH - 2 - vlen;
+    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     if (vlen) {
       lcd.write(':');
       for (; n; --n) lcd.write(' ');
@@ -1074,8 +1072,8 @@ void MarlinUI::draw_status_screen() {
       if (!PanelDetected) return;
       lcd_moveto(0, row);
       lcd.write(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-      constexpr uint8_t maxlen = LCD_WIDTH - 2;
-      uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = LCD_WIDTH - 2;
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
       for (; n; --n) lcd.write(' ');
       lcd.write(isDir ? LCD_STR_FOLDER[0] : ' ');
       lcd.print_line();
