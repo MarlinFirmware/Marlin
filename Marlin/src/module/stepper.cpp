@@ -2665,17 +2665,18 @@ hal_timer_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        #if ENABLED(NONLINEAR_EXTRUSION)
-          oversampling_factor = 1;                        // Need at least 2x oversampling to permit increase of E step rate
-        #else
-          oversampling_factor = 0;                        // Assume no axis smoothing (via oversampling)
-        #endif
+        // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
+        // Otherwise assume no axis smoothing (via oversampling)
+        oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
+
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
-        while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
-          max_rate <<= 1;                                 // Try to double the rate
-          if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
-            ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
+        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+          uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
+          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+            max_rate <<= 1;                                 // Try to double the rate
+            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+              ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
+          }
         }
       #endif
 
