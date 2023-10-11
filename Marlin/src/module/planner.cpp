@@ -2005,7 +2005,7 @@ bool Planner::_populate_block(
   #if HAS_EXTRUDERS
     dm.e = (dist.e > 0);
     const float esteps_float = dist.e * e_factor[extruder];
-    const uint32_t esteps = ABS(esteps_float) + 0.5f;
+    const uint32_t esteps = ABS(esteps_float);
   #else
     constexpr uint32_t esteps = 0;
   #endif

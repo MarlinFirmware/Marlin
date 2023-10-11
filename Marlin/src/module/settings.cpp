@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V88"
+#define EEPROM_VERSION "V89"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -632,6 +632,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(HOTEND_IDLE_TIMEOUT)
     hotend_idle_settings_t hotend_idle_config;          // M86 S T E B
+  #endif
+
+  //
+  // Nonlinear Extrusion
+  //
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    ne_coeff_t stepper_ne;                              // M592 A B C
   #endif
 
 } SettingsData;
@@ -1730,6 +1737,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Nonlinear Extrusion
+    //
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EEPROM_WRITE(stepper.ne);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (eeprom_error == ERR_EEPROM_NOERR) {
@@ -2804,6 +2818,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Nonlinear Extrusion
+      //
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        EEPROM_READ(stepper.ne);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3396,7 +3417,6 @@ void MarlinSettings::reset() {
   //
   // Heated Bed PID
   //
-
   #if ENABLED(PIDTEMPBED)
     thermalManager.temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
   #endif
@@ -3404,7 +3424,6 @@ void MarlinSettings::reset() {
   //
   // Heated Chamber PID
   //
-
   #if ENABLED(PIDTEMPCHAMBER)
     thermalManager.temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
   #endif
@@ -3456,7 +3475,6 @@ void MarlinSettings::reset() {
   //
   // Volumetric & Filament Size
   //
-
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     for (uint8_t q = 0; q < COUNT(planner.filament_size); ++q)
@@ -3597,6 +3615,11 @@ void MarlinSettings::reset() {
   // Fixed-Time Motion
   //
   TERN_(FT_MOTION, fxdTiCtrl.set_defaults());
+
+  //
+  // Nonlinear Extrusion
+  //
+  TERN_(NONLINEAR_EXTRUSION, stepper.ne.reset());
 
   //
   // Input Shaping
@@ -3866,6 +3889,11 @@ void MarlinSettings::reset() {
     // Fixed-Time Motion
     //
     TERN_(FT_MOTION, gcode.M493_report(forReplay));
+
+    //
+    // Nonlinear Extrusion
+    //
+    TERN_(NONLINEAR_EXTRUSION, gcode.M592_report(forReplay));
 
     //
     // Input Shaping

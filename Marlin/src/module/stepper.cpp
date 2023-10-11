@@ -245,6 +245,13 @@ uint32_t Stepper::advance_divisor = 0,
   bool        Stepper::la_active = false;
 #endif
 
+#if ENABLED(NONLINEAR_EXTRUSION)
+  ne_coeff_t Stepper::ne;
+  ne_fix_t Stepper::ne_fix;
+  int32_t Stepper::ne_edividend;
+  uint32_t Stepper::ne_scale;
+#endif
+
 #if HAS_ZV_SHAPING
   shaping_time_t      ShapingQueue::now = 0;
   #if ANY(MCU_LPC1768, MCU_LPC1769) && DISABLED(NO_LPC_ETHERNET_BUFFER)
@@ -2191,6 +2198,16 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #endif // !CPU_32_BIT
 }
 
+#if ENABLED(NONLINEAR_EXTRUSION)
+  void Stepper::calc_nonlinear_e(uint32_t step_rate) {
+    const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
+    NOLESS(vd, 0);
+
+    advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
+  }
+#endif
+
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
@@ -2318,6 +2335,10 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
 
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          calc_nonlinear_e(acc_step_rate << oversampling_factor);
+        #endif
+
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
@@ -2388,6 +2409,10 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          calc_nonlinear_e(step_rate << oversampling_factor);
+        #endif
+
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
@@ -2435,6 +2460,10 @@ hal_timer_t Stepper::block_phase_isr() {
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+
+          #if ENABLED(NONLINEAR_EXTRUSION)
+            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
+          #endif
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
@@ -2636,10 +2665,13 @@ hal_timer_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
+        // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
+        // Otherwise assume no axis smoothing (via oversampling)
+        oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
+
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
         if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+          uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
             if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
@@ -2755,9 +2787,28 @@ hal_timer_t Stepper::block_phase_isr() {
         acc_step_rate = current_block->initial_rate;
       #endif
 
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        ne_edividend = advance_dividend.e;
+        const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        ne_scale = (1L << 24) * scale;
+        if (current_block->direction_bits.e) {
+          ne_fix.A = (1L << 24) * ne.A;
+          ne_fix.B = (1L << 24) * ne.B;
+          ne_fix.C = (1L << 24) * ne.C;
+        }
+        else {
+          ne_fix.A = ne_fix.B = 0;
+          ne_fix.C = (1L << 24);
+        }
+      #endif
+
       // Calculate the initial timer interval
       interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
       acceleration_time += interval;
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
+      #endif
 
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {

@@ -935,6 +935,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        case 592: M592(); break;                                  // M592: Nonlinear Extrusion control
+      #endif
+
       #if HAS_ZV_SHAPING
         case 593: M593(); break;                                  // M593: Input Shaping control
       #endif
