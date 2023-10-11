@@ -33,6 +33,12 @@
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
 
+#ifndef SD_MULTIBLOCK_RETRY_CNT
+  #define SD_MULTIBLOCK_RETRY_CNT 1
+#elif SD_MULTIBLOCK_RETRY_CNT < 1
+  #error "SD_MULTIBLOCK_RETRY_CNT must be greater than or equal to 1."
+#endif
+
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
   DiskIODriver* diskIODriver() {
@@ -58,8 +64,7 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->writeBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->writeBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
@@ -79,8 +84,9 @@ public:
       }
       done = okay;                        // Done if no error occurred
     }
-    sd2card->writeStop();
-    return true;
+
+    if (done) sd2card->writeStop();
+    return done;
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
@@ -88,8 +94,7 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->readBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->readBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
@@ -109,8 +114,9 @@ public:
       }
       done = okay;                        // Done if no error occurred
     }
-    sd2card->readStop();
-    return true;
+
+    if (done) sd2card->readStop();
+    return done;
   }
 
   bool IsReady() { return diskIODriver()->isReady(); }
