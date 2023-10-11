@@ -63,11 +63,21 @@ public:
     }
 
     // multi block optimization
-    sd2card->writeStart(blkAddr, blkLen);
-    while (blkLen--) {
-      hal.watchdog_refresh();
-      sd2card->writeData(pBuf);
-      pBuf += BLOCK_SIZE;
+    bool done = false;
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
+      uint8_t *cBuf = pBuf;
+      sd2card->writeStart(blkAddr, blkLen);
+      bool okay = true;                   // Assume success
+      for (uint32_t i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->writeData(cBuf)) {  // Write. Did it fail?
+          sd2card->writeStop();           // writeStop for new writeStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
+      }
+      done = okay;                        // Done if no error occurred
     }
     sd2card->writeStop();
     return true;
@@ -83,11 +93,21 @@ public:
     }
 
     // multi block optimization
-    sd2card->readStart(blkAddr);
-    while (blkLen--) {
-      hal.watchdog_refresh();
-      sd2card->readData(pBuf);
-      pBuf += BLOCK_SIZE;
+    bool done = false;
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
+      uint8_t *cBuf = pBuf;
+      sd2card->readStart(blkAddr);
+      bool okay = true;                   // Assume success
+      for (uint32_t i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->readData(cBuf)) {   // Read. Did it fail?
+          sd2card->readStop();            // readStop for new readStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
+      }
+      done = okay;                        // Done if no error occurred
     }
     sd2card->readStop();
     return true;
