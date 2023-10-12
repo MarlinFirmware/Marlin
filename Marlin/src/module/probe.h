@@ -71,10 +71,6 @@
   #endif
 #endif
 
-#ifndef Z_PROBE_LOW_POINT
-  #define Z_PROBE_LOW_POINT -5
-#endif
-
 #if ENABLED(SENSORLESS_PROBING)
   extern abc_float_t offset_sensorless_adj;
 #endif
