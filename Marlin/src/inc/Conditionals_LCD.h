@@ -35,8 +35,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
-#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
+// MKS_MINI_12864_V3 and BTT_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
+#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -490,7 +490,7 @@
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
-  #define IS_EXTUI 1
+  #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
 #endif
 
