@@ -31,7 +31,7 @@
 
 #if !defined(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE == 0)
   #undef RX_BUFFER_SIZE
-  #define RX_BUFFER_SIZE 64
+  #define RX_BUFFER_SIZE 128
 #endif
 
 #if !defined(TX_BUFFER_SIZE) || (TX_BUFFER_SIZE== 0)
