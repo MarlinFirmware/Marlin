@@ -47,10 +47,15 @@
   #define USART9 UART9
 #endif
 
-#define DECLARE_SERIAL_PORT(ser_num) \
-  void _rx_complete_irq_ ## ser_num (serial_t * obj); \
-  MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
-  void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
+#ifdef SERIAL_DMA
+  #define DECLARE_SERIAL_PORT(ser_num) \
+    MSerialT MSerial ## ser_num (true, USART ## ser_num);
+#else
+  #define DECLARE_SERIAL_PORT(ser_num) \
+    void _rx_complete_irq_ ## ser_num (serial_t * obj); \
+    MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
+    void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
+#endif // SERIAL_DMA
 
 #if USING_HW_SERIAL1
   DECLARE_SERIAL_PORT(1)
@@ -92,9 +97,14 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
 #else
   HardwareSerial::begin(baud, config);
 #endif
+
+#ifndef SERIAL_DMA
   // Replace the IRQ callback with the one we have defined
   TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
+#endif
 }
+
+#ifndef SERIAL_DMA
 
 // This function is Copyright (c) 2006 Nicholas Zambetti.
 void MarlinSerial::_rx_complete_irq(serial_t *obj) {
@@ -119,5 +129,7 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj) {
     #endif
   }
 }
+
+#endif // SERIAL_DMA
 
 #endif // HAL_STM32

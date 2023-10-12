@@ -32,12 +32,13 @@
 #ifdef SERIAL_DMA
   #include "HardwareSerial.h"
 
-  typedef void (*usart_rx_callback_t)(serial_t * obj);
-
   struct MarlinSerial : public HAL_HardwareSerial {
-    MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
-      HAL_HardwareSerial(peripheral), _rx_callback(rx_callback)
+    MarlinSerial(void *peripheral) :
+      HAL_HardwareSerial(peripheral)
       { }
+
+  void begin(unsigned long baud, uint8_t config);
+  inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
 #else // use Arduino platform
 
@@ -47,7 +48,6 @@
     MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
       HardwareSerial(peripheral), _rx_callback(rx_callback)
       { }
-#endif
 
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
@@ -56,6 +56,9 @@
 
 protected:
   usart_rx_callback_t _rx_callback;
+
+#endif
+
 };
 
 typedef Serial1Class<MarlinSerial> MSerialT;
