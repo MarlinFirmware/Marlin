@@ -62,12 +62,13 @@ typedef struct FTConfig {
   #endif
 } ft_config_t;
 
-class FxdTiCtrl {
+class FTMotion {
 
   public:
 
     // Public variables
     static ft_config_t cfg;
+    static bool busy;
 
     static void set_defaults() {
       cfg.mode = FTM_DEFAULT_MODE;
@@ -110,18 +111,18 @@ class FxdTiCtrl {
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                     // Controller main, to be invoked from non-isr task.
 
-  #if HAS_X_AXIS
-                        // Refresh the gains used by shaping functions.
-    // To be called on init or mode or zeta change.
-    static void updateShapingA(const_float_t zeta = cfg.zeta, const_float_t vtol = cfg.vtol);
+    #if HAS_X_AXIS
+      // Refresh the gains used by shaping functions.
+      // To be called on init or mode or zeta change.
+      static void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
 
-    // Refresh the indices used by shaping functions.
-    // To be called when frequencies change.
-    static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta = cfg.zeta);
+      // Refresh the indices used by shaping functions.
+      // To be called when frequencies change.
+      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=cfg.zeta);
 
-    static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
+      static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
 
-  #endif
+    #endif
 
     static void reset();                                    // Resets all states of the fixed time conversion to defaults.
 
@@ -162,42 +163,42 @@ class FxdTiCtrl {
 
     static xyze_long_t steps;
 
-  // Shaping variables.
-  #if HAS_X_AXIS
-    typedef struct AxisShaping {
-      float d_zi[FTM_ZMAX] = {0.0f}; // Data point delay vector.
-      float Ai[5];                   // Shaping gain vector.
-      uint32_t Ni[5];                // Shaping time index vector.
+    // Shaping variables.
+    #if HAS_X_AXIS
+      typedef struct AxisShaping {
+        float d_zi[FTM_ZMAX] = {0.0f}; // Data point delay vector.
+        float Ai[5];                   // Shaping gain vector.
+        uint32_t Ni[5];                // Shaping time index vector.
 
-      void updateShapingN(const_float_t f, const_float_t df);
+        void updateShapingN(const_float_t f, const_float_t df);
 
-    } axis_shaping_t;
+      } axis_shaping_t;
 
-    typedef struct Shaping {
-      uint32_t zi_idx, // Index of storage in the data point delay vectors.
-          max_i;       // Vector length for the selected shaper.
-      axis_shaping_t x;
-      #if HAS_Y_AXIS
-        axis_shaping_t y;
-      #endif
-      void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
-    } shaping_t;
+      typedef struct Shaping {
+        uint32_t zi_idx, // Index of storage in the data point delay vectors.
+            max_i;       // Vector length for the selected shaper.
+        axis_shaping_t x;
+        #if HAS_Y_AXIS
+          axis_shaping_t y;
+        #endif
+        void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+      } shaping_t;
 
-    static shaping_t shaping; // Shaping data
+      static shaping_t shaping; // Shaping data
 
-  #endif // HAS_X_AXIS
+    #endif // HAS_X_AXIS
 
-  // Linear advance variables.
-  #if HAS_EXTRUDERS
-    static float e_raw_z1, e_advanced_z1;
-  #endif
+    // Linear advance variables.
+    #if HAS_EXTRUDERS
+      static float e_raw_z1, e_advanced_z1;
+    #endif
 
-  // Private methods
-  static uint32_t stepperCmdBuffItems();
-  static void loadBlockData(block_t *const current_block);
-  static void makeVector();
-  static void convertToSteps(const uint32_t idx);
+    // Private methods
+    static uint32_t stepperCmdBuffItems();
+    static void loadBlockData(block_t *const current_block);
+    static void makeVector();
+    static void convertToSteps(const uint32_t idx);
 
-}; // class fxdTiCtrl
+}; // class FTMotion
 
-extern FxdTiCtrl fxdTiCtrl;
+extern FTMotion ftMotion;

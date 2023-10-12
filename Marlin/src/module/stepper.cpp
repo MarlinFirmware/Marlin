@@ -1492,10 +1492,10 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t fxdTiCtrl_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
-    const bool using_fxtictrl = fxdTiCtrl.cfg.mode;
+    static uint32_t ftMotion_nextAuxISR = 0U;   // Storage for the next ISR of the auxiliary tasks.
+    const bool using_ftMotion = ftMotion.cfg.mode;
   #else
-    constexpr bool using_fxtictrl = false;
+    constexpr bool using_ftMotion = false;
   #endif
 
   // We need this variable here to be able to use it in the following loop
@@ -1508,28 +1508,28 @@ void Stepper::isr() {
 
     #if ENABLED(FT_MOTION)
 
-      if (using_fxtictrl) {
+      if (using_ftMotion) {
         if (!nextMainISR) {
           nextMainISR = FTM_MIN_TICKS;
-          fxdTiCtrl_stepper();
+          ftMotion_stepper();
         }
 
-        // Define 2.5 msec task for auxilliary functions.
-        if (!fxdTiCtrl_nextAuxISR) {
-          fxdTiCtrl_refreshAxisDidMove();
+        // Define 2.5 msec task for auxiliary functions.
+        if (!ftMotion_nextAuxISR) {
+          ftMotion_refreshAxisDidMove();
           endstops.update();
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-          fxdTiCtrl_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE); // Aux task magic number
+          ftMotion_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE); // Aux task magic number
         }
 
-        interval = _MIN(nextMainISR, fxdTiCtrl_nextAuxISR);
+        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
         nextMainISR -= interval;
-        fxdTiCtrl_nextAuxISR -= interval;
+        ftMotion_nextAuxISR -= interval;
       }
 
     #endif
 
-    if (!using_fxtictrl) {
+    if (!using_ftMotion) {
 
       TERN_(HAS_ZV_SHAPING, shaping_isr());               // Do Shaper stepping, if needed
 
@@ -3333,7 +3333,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
 
 #if ENABLED(FT_MOTION)
 
-  void Stepper::fxdTiCtrl_syncPosition() {
+  void Stepper::ftMotion_syncPosition() {
     //planner.synchronize(); planner already synchronized in M493
 
     #ifdef __AVR__
@@ -3449,17 +3449,17 @@ void Stepper::report_positions() {
   AxisBits Stepper::didMoveReport;
 
   // Set stepper I/O for fixed time controller.
-  void Stepper::fxdTiCtrl_stepper() {
+  void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    fxdTiCtrl.sts_stepperBusy = (fxdTiCtrl.stepperCmdBuff_produceIdx != fxdTiCtrl.stepperCmdBuff_consumeIdx);
-    if (!fxdTiCtrl.sts_stepperBusy) return;
+    ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
+    if (!ftMotion.sts_stepperBusy) return;
 
     // "Pop" one command from current motion buffer
     // Use one byte to restore one stepper command in the format:
     // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
-    const ft_command_t command = fxdTiCtrl.stepperCmdBuff[fxdTiCtrl.stepperCmdBuff_consumeIdx];
-    if (++fxdTiCtrl.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE)) fxdTiCtrl.stepperCmdBuff_consumeIdx = 0U;
+    const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
+    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE)) ftMotion.stepperCmdBuff_consumeIdx = 0U;
 
     if (abort_current_block) return;
 
@@ -3551,13 +3551,13 @@ void Stepper::report_positions() {
       U_APPLY_STEP(!STEP_STATE_U, false), V_APPLY_STEP(!STEP_STATE_V, false), W_APPLY_STEP(!STEP_STATE_W, false)
     );
 
-  } // Stepper::fxdTiCtrl_stepper
+  } // Stepper::ftMotion_stepper
 
-  void Stepper::fxdTiCtrl_blockQueueUpdate() {
+  void Stepper::ftMotion_blockQueueUpdate() {
 
     if (current_block) {
       // If the current block is not done processing, return right away
-      if (!fxdTiCtrl.getBlockProcDn()) return;
+      if (!ftMotion.getBlockProcDn()) return;
 
       current_block = nullptr;
       planner.release_current_block();
@@ -3578,17 +3578,17 @@ void Stepper::report_positions() {
           return; // No queued blocks.
       }
 
-      fxdTiCtrl.startBlockProc(current_block);
+      ftMotion.startBlockProc(current_block);
       return;
     }
 
-    fxdTiCtrl.runoutBlock();
+    ftMotion.runoutBlock();
 
-  } // Stepper::fxdTiCtrl_blockQueueUpdate()
+  } // Stepper::ftMotion_blockQueueUpdate()
 
   // Debounces the axis move indication to account for potential
   // delay between the block information and the stepper commands
-  void Stepper::fxdTiCtrl_refreshAxisDidMove() {
+  void Stepper::ftMotion_refreshAxisDidMove() {
 
     // TODO: This needs the CORE logic from block_phase_isr in the section:
     //#if CORE_IS_XY || CORE_IS_XZ

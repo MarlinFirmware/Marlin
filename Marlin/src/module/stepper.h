@@ -294,7 +294,7 @@ constexpr ena_mask_t enable_overlap[] = {
 //
 class Stepper {
   friend class Max7219;
-  friend class FxdTiCtrl;
+  friend class FTMotion;
   friend void stepperTask(void *);
 
   public:
@@ -658,9 +658,9 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       // Manage the planner
-      static void fxdTiCtrl_blockQueueUpdate();
+      static void ftMotion_blockQueueUpdate();
       // Set current position in steps when reset flag is set in M493 and planner already synchronized
-      static void fxdTiCtrl_syncPosition();
+      static void ftMotion_syncPosition();
     #endif
 
     #if HAS_ZV_SHAPING
@@ -699,8 +699,8 @@ class Stepper {
     #endif
 
     #if ENABLED(FT_MOTION)
-      static void fxdTiCtrl_stepper();
-      static void fxdTiCtrl_refreshAxisDidMove();
+      static void ftMotion_stepper();
+      static void ftMotion_refreshAxisDidMove();
     #endif
 
 };

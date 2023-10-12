@@ -350,12 +350,12 @@ void GcodeSuite::G28() {
       struct OnExit {
         ftMotionMode_t oldmm;
         OnExit() {
-          oldmm = fxdTiCtrl.cfg.mode;
-          fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+          oldmm = ftMotion.cfg.mode;
+          ftMotion.cfg.mode = ftMotionMode_DISABLED;
         }
         ~OnExit() {
-          fxdTiCtrl.cfg.mode = oldmm;
-          fxdTiCtrl.init();
+          ftMotion.cfg.mode = oldmm;
+          ftMotion.init();
         }
       } on_exit;
     #endif
