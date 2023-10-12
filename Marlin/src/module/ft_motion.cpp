@@ -498,6 +498,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   }
 
   const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
+              T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
 
   N1 = ceil(T1 * (FTM_FS));                       // Accel datapoints based on Hz frequency
   N2 = ceil(T2 * (FTM_FS));                       // Coast
