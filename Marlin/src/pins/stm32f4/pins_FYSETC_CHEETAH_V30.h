@@ -126,7 +126,7 @@
     #endif
     #ifndef E0_SLAVE_ADDRESS
       #define E0_SLAVE_ADDRESS 3
-    #endif  
+    #endif
  #else
   #define X_HARDWARE_SERIAL  Serial2
   #define Y_HARDWARE_SERIAL  Serial2

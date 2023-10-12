@@ -456,8 +456,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
     F_n = SQRT(ldiff / odiff);                          // Clip by intersection if nominal speed can't be reached.
   }
 
-  const float T1 = (F_n - f_s) / a, // (s) Accel Time = difference in feedrate over acceleration
-              T3 = (F_n - f_e) / a; // (s) Decel Time = difference in feedrate over acceleration
+  const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
+              T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
   */
 
   const float spm = totalLength / current_block->step_event_count;
