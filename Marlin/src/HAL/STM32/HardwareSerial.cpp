@@ -186,7 +186,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
       RX_DMA = { USART3, RCC_AHB1Periph_DMA1, 4, DMA1_Stream1 };
     #endif
-    #ifdef STM32F1xx // F0 requires system remapping to support USART3 RX
+    #ifdef STM32F1xx // F0 has no support for UART3, requires system remapping
       RX_DMA = { USART3, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel3 };
     #endif
   }
@@ -330,16 +330,16 @@ void HAL_HardwareSerial::update_rx_head() { // update buffer head for DMA progre
   #if ENABLED(EMERGENCY_PARSER)
     static uint32_t flag = 0;
     while (flag != _serial.rx_head) { // send all available data to emergency parser immediately
-      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, _serial.rx_buff[flag++]);
-      flag = flag % RX_BUFFER_SIZE;
+      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, _serial.rx_buff[flag]);
+      flag = (flag + 1) % RX_BUFFER_SIZE;
     }
   #endif
 
   #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR;
-#endif // STM32F2xx || STM32F4xx || STM32F7xx
+  #endif // STM32F2xx || STM32F4xx || STM32F7xx
 
-  #if STM32F1xx
+  #if defined(STM32F0xx) || defined(STM32F1xx)
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR;
   #endif
 
