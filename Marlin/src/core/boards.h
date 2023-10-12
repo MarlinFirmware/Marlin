@@ -460,6 +460,7 @@
 #define BOARD_BLACKPILL_CUSTOM        5246  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1             5247  // I3DBEEZ9 V1 (STM32F407ZG)
 #define BOARD_MELLOW_FLY_E3_V2        5248  // Mellow Fly E3 V2 (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V30      5249  // FYSETC Cheetah V3.0 (STM32F446RC)
 
 //
 // ARM Cortex-M7
