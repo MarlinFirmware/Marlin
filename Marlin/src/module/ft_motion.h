@@ -138,11 +138,9 @@ class FTMotion {
     static bool blockDataIsRunout;
 
     // Trapezoid data variables.
-    static xyze_pos_t startPosn, // (mm) Start position of block
-                      endPosn_prevBlock;       // (mm) End position of previous block
-
-    static xyze_float_t ratio; // (ratio) Axis move ratio of block
-
+    static xyze_pos_t   startPosn,          // (mm) Start position of block
+                        endPosn_prevBlock;  // (mm) End position of previous block
+    static xyze_float_t ratio;              // (ratio) Axis move ratio of block
     static float accel_P, decel_P,
                  F_P,
                  f_s,
@@ -165,23 +163,26 @@ class FTMotion {
 
     // Shaping variables.
     #if HAS_X_AXIS
+
       typedef struct AxisShaping {
-        float d_zi[FTM_ZMAX] = {0.0f}; // Data point delay vector.
-        float Ai[5];                   // Shaping gain vector.
-        uint32_t Ni[5];                // Shaping time index vector.
+        float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
+        float Ai[5];                      // Shaping gain vector.
+        uint32_t Ni[5];                   // Shaping time index vector.
 
         void updateShapingN(const_float_t f, const_float_t df);
 
       } axis_shaping_t;
 
       typedef struct Shaping {
-        uint32_t zi_idx, // Index of storage in the data point delay vectors.
-            max_i;       // Vector length for the selected shaper.
+        uint32_t zi_idx,           // Index of storage in the data point delay vectors.
+                 max_i;            // Vector length for the selected shaper.
         axis_shaping_t x;
         #if HAS_Y_AXIS
           axis_shaping_t y;
         #endif
+
         void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+
       } shaping_t;
 
       static shaping_t shaping; // Shaping data

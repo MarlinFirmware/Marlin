@@ -53,8 +53,8 @@ FTMotion ftMotion;
 ft_config_t FTMotion::cfg;
 bool FTMotion::busy; // = false
 ft_command_t FTMotion::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U}; // Stepper commands buffer.
-uint32_t FTMotion::stepperCmdBuff_produceIdx = 0,  // Index of next stepper command write to the buffer.
-         FTMotion::stepperCmdBuff_consumeIdx = 0;  // Index of next stepper command read from the buffer.
+uint32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
+         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
@@ -77,32 +77,32 @@ bool FTMotion::runoutEna = false;               // True if runout of the block h
 bool FTMotion::blockDataIsRunout = false;       // Indicates the last loaded block variables are for a runout.
 
 // Trapezoid data variables.
-xyze_pos_t   FTMotion::startPosn,                    // (mm) Start position of block
-             FTMotion::endPosn_prevBlock = { 0.0f }; // (mm) End position of previous block
-xyze_float_t FTMotion::ratio;                        // (ratio) Axis move ratio of block
-float FTMotion::accel_P,                       // Acceleration prime of block. [mm/sec/sec]
-      FTMotion::decel_P,                       // Deceleration prime of block. [mm/sec/sec]
-      FTMotion::F_P,                           // Feedrate prime of block. [mm/sec]
-      FTMotion::f_s,                           // Starting feedrate of block. [mm/sec]
-      FTMotion::s_1e,                          // Position after acceleration phase of block.
-      FTMotion::s_2e;                          // Position after acceleration and coasting phase of block.
+xyze_pos_t   FTMotion::startPosn,                     // (mm) Start position of block
+             FTMotion::endPosn_prevBlock = { 0.0f };  // (mm) End position of previous block
+xyze_float_t FTMotion::ratio;                         // (ratio) Axis move ratio of block
+float FTMotion::accel_P,                        // Acceleration prime of block. [mm/sec/sec]
+      FTMotion::decel_P,                        // Deceleration prime of block. [mm/sec/sec]
+      FTMotion::F_P,                            // Feedrate prime of block. [mm/sec]
+      FTMotion::f_s,                            // Starting feedrate of block. [mm/sec]
+      FTMotion::s_1e,                           // Position after acceleration phase of block.
+      FTMotion::s_2e;                           // Position after acceleration and coasting phase of block.
 
-uint32_t FTMotion::N1,                         // Number of data points in the acceleration phase.
-         FTMotion::N2,                         // Number of data points in the coasting phase.
-         FTMotion::N3;                         // Number of data points in the deceleration phase.
+uint32_t FTMotion::N1,                          // Number of data points in the acceleration phase.
+         FTMotion::N2,                          // Number of data points in the coasting phase.
+         FTMotion::N3;                          // Number of data points in the deceleration phase.
 
-uint32_t FTMotion::max_intervals;              // Total number of data points that will be generated from block.
+uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
 
 // Make vector variables.
-uint32_t FTMotion::makeVector_idx = 0,                     // Index of fixed time trajectory generation of the overall block.
-         FTMotion::makeVector_idx_z1 = 0,                  // Storage for the previously calculated index above.
-         FTMotion::makeVector_batchIdx = FTM_BATCH_SIZE;   // Index of fixed time trajectory generation within the batch.
+uint32_t FTMotion::makeVector_idx = 0,                    // Index of fixed time trajectory generation of the overall block.
+         FTMotion::makeVector_idx_z1 = 0,                 // Storage for the previously calculated index above.
+         FTMotion::makeVector_batchIdx = FTM_BATCH_SIZE;  // Index of fixed time trajectory generation within the batch.
 
 // Interpolation variables.
-xyze_long_t FTMotion::steps = { 0 };                                            // Step count accumulator.
+xyze_long_t FTMotion::steps = { 0 };                  // Step count accumulator.
 
-uint32_t FTMotion::interpIdx = 0,                    // Index of current data point being interpolated.
-         FTMotion::interpIdx_z1 = 0;                 // Storage for the previously calculated index above.
+uint32_t FTMotion::interpIdx = 0,                     // Index of current data point being interpolated.
+         FTMotion::interpIdx_z1 = 0;                  // Storage for the previously calculated index above.
 
 // Shaping variables.
 #if HAS_X_AXIS
@@ -117,8 +117,8 @@ uint32_t FTMotion::interpIdx = 0,                    // Index of current data po
 
 #if HAS_EXTRUDERS
   // Linear advance variables.
-  float FTMotion::e_raw_z1 = 0.0f;             // (ms) Unit delay of raw extruder position.
-  float FTMotion::e_advanced_z1 = 0.0f;        // (ms) Unit delay of advanced extruder position.
+  float FTMotion::e_raw_z1 = 0.0f;        // (ms) Unit delay of raw extruder position.
+  float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
 //-----------------------------------------------------------------//
@@ -135,7 +135,7 @@ void FTMotion::startBlockProc(block_t * const current_block) {
   runoutEna = true;
 }
 
-// Moves any free data points to the stepper buffer even if a full batch isn't ready.
+// Move any free data points to the stepper buffer even if a full batch isn't ready.
 void FTMotion::runoutBlock() {
 
   if (!runoutEna) return;
