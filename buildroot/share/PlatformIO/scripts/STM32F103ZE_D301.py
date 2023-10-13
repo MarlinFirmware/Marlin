@@ -7,4 +7,3 @@ if pioutil.is_pio_build():
 
     # Relocate firmware from 0x08000000 to 0x08007000
     marlin.relocate_firmware("0x08007000")
-    
