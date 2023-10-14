@@ -524,18 +524,18 @@ void FTMotion::makeVector() {
 
   if (makeVector_idx < N1) {
     // Acceleration phase
-    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));      // (mm) Distance traveled for acceleration phase
+    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));      // (mm) Distance traveled for acceleration phase since start of block
     accel_k = accel_P;                                    // (mm/s^2) Acceleration K factor from Accel phase
   }
-  else if (makeVector_idx >= N1 && makeVector_idx < (N1 + N2)) {
+  else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
-    dist = s_1e + F_P * (tau - N1 * (FTM_TS));            // (mm) Distance traveled for coasting phase
+    dist = s_1e + F_P * (tau - N1 * (FTM_TS));            // (mm) Distance traveled for coasting phase since start of block
     //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
     tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
-    dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase
+    dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
     accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
   }
 
@@ -570,9 +570,9 @@ void FTMotion::makeVector() {
     #if HAS_DYNAMIC_FREQ_MM
       case dynFreqMode_Z_BASED:
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
-          const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx],
-                      yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
-          updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ), _MAX(yf, FTM_MIN_SHAPE_FREQ));
+                 const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx]
+          OPTARG(HAS_Y_AXIS, yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx]);
+          updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ) OPTARG(HAS_Y_AXIS, _MAX(yf, FTM_MIN_SHAPE_FREQ)));
         }
         break;
     #endif
