@@ -1453,7 +1453,9 @@
     #endif
   #endif
 #else
-  // Clear probe pin settings when no probe is selected
+  #ifndef AUTO_BED_LEVELING_UBL
+    #undef Z_CLEARANCE_DEPLOY_PROBE
+  #endif
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
@@ -1461,7 +1463,6 @@
   #undef Z_CLEARANCE_MULTI_PROBE
   #undef MULTIPLE_PROBING
   #undef EXTRA_PROBING
-  #undef Z_CLEARANCE_DEPLOY_PROBE
   #undef Z_PROBE_OFFSET_RANGE_MIN
   #undef Z_PROBE_OFFSET_RANGE_MAX
   #undef PAUSE_BEFORE_DEPLOY_STOW
