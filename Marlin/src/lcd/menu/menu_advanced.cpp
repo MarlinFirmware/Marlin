@@ -371,7 +371,7 @@ void menu_backlash();
 
       #define _MPC_EDIT_ITEMS(N) \
         MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
         EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0, 40); \
         EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0, 1); \
         EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &mpc.ambient_xfer_coeff_fan0, 0, 1)
@@ -628,8 +628,8 @@ void menu_backlash();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
       #if HAS_PROBE_XY_OFFSET
-        EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(X_BED_SIZE), X_BED_SIZE);
-        EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
+        EDIT_ITEM(float41sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(_MIN(999,X_BED_SIZE)), _MIN(999,X_BED_SIZE));
+        EDIT_ITEM(float41sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(_MIN(999,-Y_BED_SIZE)), _MIN(999,Y_BED_SIZE));
       #endif
       EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
 
