@@ -612,7 +612,7 @@ typedef struct SettingsDataStruct {
   // Fixed-Time Motion
   //
   #if ENABLED(FT_MOTION)
-    ft_config_t fxdTiCtrl_cfg;                          // M493
+    ft_config_t ftMotion_cfg;                          // M493
   #endif
 
   //
@@ -1711,8 +1711,8 @@ void MarlinSettings::postprocess() {
     // Fixed-Time Motion
     //
     #if ENABLED(FT_MOTION)
-      _FIELD_TEST(fxdTiCtrl_cfg);
-      EEPROM_WRITE(fxdTiCtrl.cfg);
+      _FIELD_TEST(ftMotion_cfg);
+      EEPROM_WRITE(ftMotion.cfg);
     #endif
 
     //
@@ -2785,8 +2785,8 @@ void MarlinSettings::postprocess() {
       // Fixed-Time Motion
       //
       #if ENABLED(FT_MOTION)
-        _FIELD_TEST(fxdTiCtrl_cfg);
-        EEPROM_READ(fxdTiCtrl.cfg);
+        _FIELD_TEST(ftMotion_cfg);
+        EEPROM_READ(ftMotion.cfg);
       #endif
 
       //
@@ -3614,7 +3614,7 @@ void MarlinSettings::reset() {
   //
   // Fixed-Time Motion
   //
-  TERN_(FT_MOTION, fxdTiCtrl.set_defaults());
+  TERN_(FT_MOTION, ftMotion.set_defaults());
 
   //
   // Nonlinear Extrusion

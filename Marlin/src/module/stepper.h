@@ -294,7 +294,7 @@ constexpr ena_mask_t enable_overlap[] = {
 //
 class Stepper {
   friend class Max7219;
-  friend class FxdTiCtrl;
+  friend class FTMotion;
   friend void stepperTask(void *);
 
   public:
@@ -535,7 +535,7 @@ class Stepper {
         if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
       #endif
       current_block = nullptr;
-      axis_did_move = 0;
+      axis_did_move.reset();
       planner.release_current_block();
       TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
@@ -654,7 +654,7 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       // Manage the planner
-      static void fxdTiCtrl_BlockQueueUpdate();
+      static void ftMotion_BlockQueueUpdate();
     #endif
 
     #if HAS_ZV_SHAPING
@@ -693,8 +693,8 @@ class Stepper {
     #endif
 
     #if ENABLED(FT_MOTION)
-      static void fxdTiCtrl_stepper(const bool applyDir, const ft_command_t command);
-      static void fxdTiCtrl_refreshAxisDidMove();
+      static void ftMotion_stepper(const bool applyDir, const ft_command_t command);
+      static void ftMotion_refreshAxisDidMove();
     #endif
 
 };
