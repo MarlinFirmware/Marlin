@@ -166,6 +166,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
   if (parser.using_inch_units()) {
+    if (HAS_VERY_LARGE_MOVES) {
+      SUBMENU(MSG_MOVE_5IN, []{ _goto_manual_move(IN_TO_MM(5.000f)); });
+    }
     if (HAS_LARGE_MOVES) {
       SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });
       SUBMENU(MSG_MOVE_05IN, []{ _goto_manual_move(IN_TO_MM(0.500f)); });
