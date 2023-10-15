@@ -322,6 +322,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MOVE_10MM                      = _UxGT("Move 10mm");
   LSTR MSG_MOVE_50MM                      = _UxGT("Move 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Move 100mm");
+  LSTR MSG_MOVE_500MM                     = _UxGT("Move 500mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Move 0.001in");
   LSTR MSG_MOVE_001IN                     = _UxGT("Move 0.01in");
   LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");

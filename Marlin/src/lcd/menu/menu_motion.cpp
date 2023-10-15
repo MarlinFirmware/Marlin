@@ -37,6 +37,15 @@
   #define HAS_LARGE_MOVES HAS_LARGE_AREA
 #endif
 
+#define HAS_VERY_LARGE_AREA (TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 2000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 2000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 2000))
+#if ENABLED(VERY_LARGE_MOVE_ITEMS)
+  #define HAS_VERY_LARGE_MOVES true
+#elif ENABLED(SLIM_LCD_MENUS)
+  #define HAS_VERY_LARGE_MOVES false
+#else
+  #define HAS_VERY_LARGE_MOVES HAS_VERY_LARGE_AREA
+#endif
+
 #include "menu_item.h"
 #include "menu_addon.h"
 
@@ -166,6 +175,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
   }
   else {
+    if (HAS_VERY_LARGE_MOVES) {
+      SUBMENU(MSG_MOVE_500MM, []{ _goto_manual_move(500); });
+    }
     if (HAS_LARGE_MOVES) {
       SUBMENU(MSG_MOVE_100MM, []{ _goto_manual_move(100); });
       SUBMENU(MSG_MOVE_50MM, []{ _goto_manual_move(50); });

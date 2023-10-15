@@ -1526,6 +1526,9 @@
   // Add 50/100mm moves to MarlinUI even with a smaller bed
   //#define LARGE_MOVE_ITEMS
 
+  // Add 500mm moves to MarlinUI even with a smaller bed
+  //#define VERY_LARGE_MOVE_ITEMS
+
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
 
