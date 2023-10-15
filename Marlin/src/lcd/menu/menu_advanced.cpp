@@ -629,7 +629,7 @@ void menu_backlash();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
       #if HAS_PROBE_XY_OFFSET
         EDIT_ITEM(float41sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(_MIN(999,X_BED_SIZE)), _MIN(999,X_BED_SIZE));
-        EDIT_ITEM(float41sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(_MIN(999,-Y_BED_SIZE)), _MIN(999,Y_BED_SIZE));
+        EDIT_ITEM(float41sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(_MIN(999,Y_BED_SIZE)), _MIN(999,Y_BED_SIZE));
       #endif
       EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
 
