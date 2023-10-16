@@ -1968,27 +1968,27 @@ bool Planner::_populate_block(
   #endif
   #if IS_CORE
     #if CORE_IS_XY
-      dm.a = (dist.a + dist.b > 0);             // Motor A direction
-      dm.b = (CORESIGN(dist.a - dist.b) > 0);   // Motor B direction
+      dm.ja = (dist.a + dist.b > 0);             // Motor A direction
+      dm.jb = (CORESIGN(dist.a - dist.b) > 0);   // Motor B direction
     #elif CORE_IS_XZ
       dm.hx = (dist.a > 0);                     // Save the toolhead's true direction in X
       dm.y  = (dist.b > 0);
       dm.hz = (dist.c > 0);                     // ...and Z
-      dm.a  = (dist.a + dist.c > 0);            // Motor A direction
-      dm.c  = (CORESIGN(dist.a - dist.c) > 0);  // Motor C direction
+      dm.ja  = (dist.a + dist.c > 0);            // Motor A direction
+      dm.jc  = (CORESIGN(dist.a - dist.c) > 0);  // Motor C direction
     #elif CORE_IS_YZ
       dm.x  = (dist.a > 0);
       dm.hy = (dist.b > 0);                     // Save the toolhead's true direction in Y
       dm.hz = (dist.c > 0);                     // ...and Z
-      dm.b  = (dist.b + dist.c > 0);            // Motor B direction
-      dm.c  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
+      dm.jb  = (dist.b + dist.c > 0);            // Motor B direction
+      dm.jc  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    dm.a = (dist.a + dist.b > 0);               // Motor A direction
-    dm.b = (dist.b > 0);                        // Motor B direction
+    dm.ja = (dist.a + dist.b > 0);               // Motor A direction
+    dm.jb = (dist.b > 0);                        // Motor B direction
   #elif ENABLED(MARKFORGED_YX)
-    dm.a = (dist.a > 0);                        // Motor A direction
-    dm.b = (dist.b + dist.a > 0);               // Motor B direction
+    dm.ja = (dist.a > 0);                        // Motor A direction
+    dm.jb = (dist.b + dist.a > 0);               // Motor B direction
   #else
     XYZ_CODE(
       dm.x = (dist.a > 0),
@@ -2069,11 +2069,11 @@ bool Planner::_populate_block(
 
   /**
    * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
-   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
-   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
-   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
-   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
+   * For cartesian bots, the distance along the X axis equals the X_AXIS joint displacement and same holds true for Y_AXIS.
+   * But for geometries like CORE_XY that is not true. For these machines we need to create 2 additional variables, named X_HEAD and Y_HEAD, to store the displacent of the head along the X and Y axes in a cartesian coordinate system.
+   * The displacement of the head along the axes of the cartesian coordinate system has to be calculated from "X_AXIS" and "Y_AXIS" (should be renamed to A_JOINT and B_JOINT) 
+   * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
+   * Next we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
     #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)

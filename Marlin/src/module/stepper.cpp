@@ -2616,15 +2616,15 @@ hal_timer_t Stepper::block_phase_isr() {
 
       AxisBits didmove;
       NUM_AXIS_CODE(
-        if (X_MOVE_TEST)            didmove.a = true,
-        if (Y_MOVE_TEST)            didmove.b = true,
-        if (Z_MOVE_TEST)            didmove.c = true,
-        if (current_block->steps.i) didmove.i = true,
-        if (current_block->steps.j) didmove.j = true,
-        if (current_block->steps.k) didmove.k = true,
-        if (current_block->steps.u) didmove.u = true,
-        if (current_block->steps.v) didmove.v = true,
-        if (current_block->steps.w) didmove.w = true
+        if (X_MOVE_TEST)            didmove.ja = true,
+        if (Y_MOVE_TEST)            didmove.jb = true,
+        if (Z_MOVE_TEST)            didmove.jc = true,
+        if (current_block->steps.i) didmove.ji = true,
+        if (current_block->steps.j) didmove.jj = true,
+        if (current_block->steps.k) didmove.jk = true,
+        if (current_block->steps.u) didmove.ju = true,
+        if (current_block->steps.v) didmove.jv = true,
+        if (current_block->steps.w) didmove.jw = true
       );
       //if (current_block->steps.e) didmove.e = true;
       //if (current_block->steps.a) didmove.x = true;
