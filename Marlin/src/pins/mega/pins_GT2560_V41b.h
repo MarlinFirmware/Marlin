@@ -204,7 +204,7 @@
  *   (LCM_D5) 21 | 5  6 | GND
  *   (LCM_D4) 16 | 7  8 | 17 (LCM_EN)
  * (EC_PRESS) 19 | 9 10 | GND
- *       (RESET) |11 12 | 19 (BEEP)
+ *       (RESET) |11 12 | 18 (BEEP)
  *                ------
  *                  H2
  */
