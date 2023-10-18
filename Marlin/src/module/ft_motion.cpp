@@ -623,6 +623,30 @@ void FTMotion::makeVector() {
   }
 }
 
+/* Convert to steps : commands are written in a bitmask with step and dir as single bits.
+   Tests for delta are moved outside the loop
+   2 functions are created for command compute with an array of pointers to functions
+*/
+void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t &, int32_t &, int32_t &, ft_command_t &, int32_t, int32_t);
+
+inline void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
+  e += d;
+  if (e >= FTM_CTS_COMPARE_VAL) {
+    s++;
+    b |= bd | bs;
+    e -= FTM_STEPS_PER_UNIT_TIME;
+    }
+}
+
+inline void command_set_neg(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
+  e += d;
+  if (e <= -(FTM_CTS_COMPARE_VAL)) {
+        s--;
+        b |= bs;
+        e += FTM_STEPS_PER_UNIT_TIME;
+      }
+}
+
 // Interpolates single data point to stepper commands.
 void FTMotion::convertToSteps(const uint32_t idx) {
   xyze_long_t err_P = { 0 };
@@ -647,51 +671,36 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     );
   #endif
 
-  // Commands are written in a bitmask with step and dir as single bits
-  auto COMMAND_SET = [&](auto &d, auto &e, auto &s, auto &b, auto bd, auto bs) {
-    if (d >= 0) {
-      if (e + d < (FTM_CTS_COMPARE_VAL)) {
-        e += d;
-      }
-      else {
-        s++;
-        b |= bd | bs;
-        e += d - (FTM_STEPS_PER_UNIT_TIME);
-      }
-    }
-    else {
-      if ((e + d) > -(FTM_CTS_COMPARE_VAL)) {
-        e += d;
-      }
-      else {
-        s--;
-        b |= bs;
-        e += d + (FTM_STEPS_PER_UNIT_TIME);
-      }
-    }
-  };
+  LOGICAL_AXIS_CODE(
+  command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ?  command_set_pos : command_set_neg,
+  command_set[X_AXIS] = delta.x >= 0 ?  command_set_pos : command_set_neg,
+  command_set[Y_AXIS] = delta.y >= 0 ?  command_set_pos : command_set_neg,
+  command_set[Z_AXIS] = delta.z >= 0 ?  command_set_pos : command_set_neg,
+  command_set[I_AXIS] = delta.i >= 0 ?  command_set_pos : command_set_neg,
+  command_set[J_AXIS] = delta.j >= 0 ?  command_set_pos : command_set_neg,
+  command_set[K_AXIS] = delta.k >= 0 ?  command_set_pos : command_set_neg,
+  command_set[U_AXIS] = delta.u >= 0 ?  command_set_pos : command_set_neg,
+  command_set[V_AXIS] = delta.v >= 0 ?  command_set_pos : command_set_neg,
+  command_set[W_AXIS] = delta.w >= 0 ?  command_set_pos : command_set_neg
+  );
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
-
-    // TODO: (?) Since the *delta variables will not change,
-    // the comparison may be done once before iterating at
-    // expense of storage and lines of code.
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
 
     // Set up step/dir bits for all axes
     LOGICAL_AXIS_CODE(
-      COMMAND_SET(delta.e, err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      COMMAND_SET(delta.x, err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      COMMAND_SET(delta.y, err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      COMMAND_SET(delta.z, err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      COMMAND_SET(delta.i, err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      COMMAND_SET(delta.j, err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      COMMAND_SET(delta.k, err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      COMMAND_SET(delta.u, err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      COMMAND_SET(delta.v, err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      COMMAND_SET(delta.w, err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
+      command_set[E_AXIS_N(current_block->extruder)](delta.e, err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
+      command_set[X_AXIS](delta.x, err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
+      command_set[Y_AXIS](delta.y, err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
+      command_set[Z_AXIS](delta.z, err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
+      command_set[I_AXIS](delta.i, err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
+      command_set[J_AXIS](delta.j, err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
+      command_set[K_AXIS](delta.k, err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
+      command_set[U_AXIS](delta.u, err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
+      command_set[V_AXIS](delta.v, err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
+      command_set[W_AXIS](delta.w, err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
     );
 
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
