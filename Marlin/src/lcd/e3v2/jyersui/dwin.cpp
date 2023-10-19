@@ -4201,7 +4201,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
     case Popup_PIDWait:       drawPopup(F("PID Autotune"), F("in process"), F("Please wait until done."), Proc_Wait, ICON_BLTouch); break;
     case Popup_MPCWait:       drawPopup(F("MPC Autotune"), F("in process"), F("Please wait until done."), Proc_Wait, ICON_BLTouch); break;
     case Popup_Resuming:      drawPopup(F("Resuming Print"), F("Please wait until done."), F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_Custom:        drawPopup(F("Running Custom GCode"), F("Please wait until done."), F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_Custom:        drawPopup(F("Running Custom G-Code"), F("Please wait until done."), F(""), Proc_Wait, ICON_BLTouch); break;
     default: break;
   }
 }
@@ -4480,7 +4480,7 @@ void JyersDWIN::printScreenControl() {
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
-              TERN_(HAS_MEDIA, queue.inject(F("M24")));
+              TERN_(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
             #endif
           }
           else {

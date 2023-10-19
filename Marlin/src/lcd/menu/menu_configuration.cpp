@@ -104,8 +104,8 @@ void menu_advanced_settings();
 
   #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL);
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
-  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) " " STRINGIFY(L), A##I##_##M)
-  #define STOP_MINMAX(A,I) STOP_ITEM(A,,MIN,"Min") STOP_ITEM(A,,MAX,"Max")
+  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) " " STRINGIFY(L), A##I##_##M)
+  #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
 
   static void endstop_test() {
@@ -235,10 +235,10 @@ void menu_advanced_settings();
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
