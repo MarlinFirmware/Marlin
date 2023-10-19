@@ -2808,7 +2808,7 @@
     //#define TOOLCHANGE_PARK_X_ONLY          // X axis only move
     //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      //#define TOOLCHANGE_MIGRATION_ALWAYS_PARK  // Force park on migration
+      //#define TOOLCHANGE_MIGRATION_DO_PARK  // Force park (or no-park) on migration
     #endif
   #endif
 #endif // HAS_MULTI_EXTRUDER

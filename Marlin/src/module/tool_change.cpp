@@ -1566,7 +1566,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
      || defined(MIGRATION_FS_FAN_SPEED) \
      || defined(MIGRATION_FS_FAN_TIME) \
      || defined(MIGRATION_ZRAISE) \
-     || defined(TOOLCHANGE_MIGRATION_ALWAYS_PARK)
+     || defined(TOOLCHANGE_MIGRATION_DO_PARK)
       REMEMBER(tmp_mig_settings, toolchange_settings);
       #ifdef MIGRATION_FS_EXTRA_PRIME
         toolchange_settings.extra_prime = MIGRATION_FS_EXTRA_PRIME;
@@ -1583,8 +1583,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #ifdef MIGRATION_ZRAISE
         toolchange_settings.z_raise = MIGRATION_ZRAISE;
       #endif
-      #ifdef TOOLCHANGE_MIGRATION_ALWAYS_PARK
-        toolchange_settings.enable_park = ENABLED(TOOLCHANGE_MIGRATION_ALWAYS_PARK);
+      #ifdef TOOLCHANGE_MIGRATION_DO_PARK
+        toolchange_settings.enable_park = ENABLED(TOOLCHANGE_MIGRATION_DO_PARK);
       #endif
     #endif
 
