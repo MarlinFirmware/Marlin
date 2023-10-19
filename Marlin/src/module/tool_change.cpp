@@ -1023,7 +1023,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    */
   void tool_change_prime() {
 
-    DEBUG_ECHOLNPGM(">>> tool_change_prime()");
+    DEBUG_SECTION(tcp, "tool_change_prime", true);
 
     if (!too_cold(active_extruder)) {
       destination = current_position; // Remember the old position
@@ -1082,9 +1082,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       extruder_cutting_recover(destination.e); // Cutting recover
     }
-
-    DEBUG_ECHOLNPGM("<<< tool_change_prime");
-
   }
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
