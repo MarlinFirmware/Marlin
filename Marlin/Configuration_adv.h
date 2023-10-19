@@ -482,21 +482,21 @@
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
     #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
-    #define AUTOTEMP_MIN          210
+    #define AUTOTEMP_MIN          190
     #define AUTOTEMP_MAX          350
     #define AUTOTEMP_FACTOR       0.1f
     // Turn on AUTOTEMP on M104/M109 by default using proportions set here
     #define AUTOTEMP_PROPORTIONAL
     #if ENABLED(AUTOTEMP_PROPORTIONAL)
-        #define AUTOTEMP_MIN_P      2 // (°C) Added to the target temperature
-        #define AUTOTEMP_MAX_P      15 // (°C) Added to the target temperature
+        #define AUTOTEMP_MIN_P      1 // (°C) Added to the target temperature
+        #define AUTOTEMP_MAX_P      20 // (°C) Added to the target temperature
         #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
     #endif
 #endif
 
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
-//#define SHOW_TEMP_ADC_VALUES
+#define SHOW_TEMP_ADC_VALUES
 
 /**
  * High Temperature Thermistor Support
@@ -549,7 +549,7 @@
  */
 #define HOTEND_IDLE_TIMEOUT
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
-    #define HOTEND_IDLE_TIMEOUT_SEC (10*60)    // (seconds) Time without extruder movement to trigger protection
+    #define HOTEND_IDLE_TIMEOUT_SEC (20*60)    // (seconds) Time without extruder movement to trigger protection
     #define HOTEND_IDLE_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
     #define HOTEND_IDLE_NOZZLE_TARGET   150     // (°C) Safe temperature for the nozzle after timeout
     #define HOTEND_IDLE_BED_TARGET      70     // (°C) Safe temperature for the bed after timeout
@@ -681,7 +681,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN PB5 //PB5 is FAN 2 on SKR 3, default value is -1
+#define E0_AUTO_FAN_PIN PB7 //PB5 is FAN 2 on SKR 3, default value is -1
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
