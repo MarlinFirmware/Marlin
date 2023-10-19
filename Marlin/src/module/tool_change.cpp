@@ -1580,10 +1580,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Perform the tool change
     tool_change(migration_extruder);
 
-    #if ENABLED(MIGRATION_SETTINGS)
-      RESTORE(tmp_mig_settings);
-    #endif
-
     // Retract if previously retracted
     #if ENABLED(FWRETRACT)
       if (fwretract.retracted[active_extruder])
