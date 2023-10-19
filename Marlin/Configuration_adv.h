@@ -2784,20 +2784,16 @@
       // Override toolchange settings
       // By default tool migration uses regular toolchange settings.
       // With a prime tower, tool-change swapping/priming occur inside the bed.
-      // When migrating to a new unprimed tool you can instead use the values below.
-      //#define MIGRATION_SETTINGS
-      #if ENABLED(MIGRATION_SETTINGS)
-        //#define MIGRATION_ZRAISE            0 // (mm)
+      // When migrating to a new unprimed tool you can set override values below.
+      //#define MIGRATION_ZRAISE            0 // (mm)
 
-        // Longer prime to clean out
-        //#define MIGRATION_FS_EXTRA_PRIME    0 // (mm) Extra priming length
-        //#define MIGRATION_FS_WIPE_RETRACT   0 // (mm) Retract before cooling for less stringing, better wipe, etc.
+      // Longer prime to clean out
+      //#define MIGRATION_FS_EXTRA_PRIME    0 // (mm) Extra priming length
+      //#define MIGRATION_FS_WIPE_RETRACT   0 // (mm) Retract before cooling for less stringing, better wipe, etc.
 
-        // Cool after prime to reduce stringing
-        //#define MIGRATION_FS_FAN_SPEED    255 // 0-255
-        //#define MIGRATION_FS_FAN_TIME       0 // (seconds)
-
-      #endif
+      // Cool after prime to reduce stringing
+      //#define MIGRATION_FS_FAN_SPEED    255 // 0-255
+      //#define MIGRATION_FS_FAN_TIME       0 // (seconds)
     #endif
   #endif
 

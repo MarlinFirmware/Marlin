@@ -1560,10 +1560,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migrate Linear Advance K factor to the new extruder
     TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
 
-    #if ENABLED(MIGRATION_SETTINGS)
-      // Temporary toolchange_settings restored on exit. i.e., before next tool_change().
+    // Temporary migration toolchange_settings restored on exit. i.e., before next tool_change().
+    #if defined(MIGRATION_FS_EXTRA_PRIME) \
+     || defined(MIGRATION_FS_WIPE_RETRACT) \
+     || defined(MIGRATION_FS_FAN_SPEED) \
+     || defined(MIGRATION_FS_FAN_TIME) \
+     || defined(MIGRATION_ZRAISE) \
+     || defined(TOOLCHANGE_MIGRATION_ALWAYS_PARK)
       REMEMBER(tmp_mig_settings, toolchange_settings);
-      TERN_(TOOLCHANGE_MIGRATION_ALWAYS_PARK, toolchange_settings.enable_park = true);
       #ifdef MIGRATION_FS_EXTRA_PRIME
         toolchange_settings.extra_prime = MIGRATION_FS_EXTRA_PRIME;
       #endif
@@ -1578,6 +1582,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
       #ifdef MIGRATION_ZRAISE
         toolchange_settings.z_raise = MIGRATION_ZRAISE;
+      #endif
+      #ifdef TOOLCHANGE_MIGRATION_ALWAYS_PARK
+        toolchange_settings.enable_park = ENABLED(TOOLCHANGE_MIGRATION_ALWAYS_PARK);
       #endif
     #endif
 
