@@ -735,7 +735,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  *
  * @param sanity_check Flag to compare the probe result with the expected result
  *                     based on the probe Z offset. If the result is too far away
- *                     (more than 2mm too early) then consider it an error.
+ *                     (more than Z_PROBE_ERROR_TOLERANCE too early) then throw an error.
  * @param z_min_point Override the minimum probing height (-2mm), to allow deeper probing.
  * @param z_clearance Z clearance to apply on probe failure.
  *
@@ -747,7 +747,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
 
   auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
-    constexpr float error_tolerance = 2.0f;
+    constexpr float error_tolerance = Z_PROBE_ERROR_TOLERANCE;
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM_P(plbl);
       DEBUG_ECHOLNPGM("> try_to_probe(..., ", z_probe_low_point, ", ", fr_mm_s, ", ...)");

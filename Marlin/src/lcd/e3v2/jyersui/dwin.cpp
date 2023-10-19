@@ -1185,7 +1185,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
         #if ENABLED(FWRETRACT)
           case PREPARE_FWRETRACT:
-            if (draw) 
+            if (draw)
               drawMenuItem(row, ICON_SetHome, GET_TEXT_F(MSG_FWRETRACT), nullptr, true);
             else
               drawMenu(ID_FWMenu);
@@ -3932,7 +3932,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
         #if ENABLED(FWRETRACT)
           case TUNE_FWRETRACT:
-            if (draw) 
+            if (draw)
               drawMenuItem(row, ICON_SetHome, GET_TEXT_F(MSG_FWRETRACT), nullptr, true);
             else
               drawMenu(ID_FWMenu);
@@ -4321,7 +4321,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
       case Popup_MPCWait:     drawPopup(GET_TEXT_F(MSG_MPC_AUTOTUNE), F("in progress"), PWID, Proc_Wait, ICON_BLTouch); break;
     #endif
     case Popup_Resuming:      drawPopup(F("Resuming Print"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_Custom:        drawPopup(F("Running Custom GCode"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_Custom:        drawPopup(F("Running Custom G-Code"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
     default: break;
   }
 }
