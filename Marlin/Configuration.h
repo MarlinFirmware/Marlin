@@ -56,8 +56,7 @@
  * Calibration Objects: https://www.thingiverse.com/thing:5573
  *                      https://www.thingiverse.com/thing:1278865
  */
-//Surpress Warning of mc.zip
-#define NO_CONFIGURATION_EMBEDDING_WARNING
+
 
 // @section info
 

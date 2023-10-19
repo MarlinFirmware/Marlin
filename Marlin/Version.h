@@ -20,7 +20,9 @@
  *
  */
 #pragma once
-
+//Surpress Warning of mc.zip
+#define NO_CONFIGURATION_EMBEDDING_WARNING
+#define NO_AUTO_ASSIGN_WARNING
 ////////////////////////////
 // VENDOR VERSION EXAMPLE //
 ////////////////////////////
