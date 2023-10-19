@@ -2758,20 +2758,23 @@
      */
     #define TOOLCHANGE_MIGRATION_FEATURE
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      //Override toolchange settings
-      //Migration use toolchange settings, when prime tower used, toolchange swapping and priming are made inside the bed
-      //Migrate to a new tool not primed, can now have MIGRATION_SETTINGS without modifying current toolchange settings
+      // Override toolchange settings
+      // Migration use toolchange settings, when prime tower used, toolchange swapping and priming are made inside the bed
+      // Migrate to a new tool not primed, can now have MIGRATION_SETTINGS without modifying current toolchange settings
       //#define MIGRATION_SETTINGS
       #if ENABLED(MIGRATION_SETTINGS)
         //#define MIGRATION_ZRAISE                  0 // (mm)
+
         // Longer prime to clean out
-        //#define MIGRATION_FS_EXTRA_PRIME          0  // (mm) Extra priming length
-        //#define MIGRATION_FS_WIPE_RETRACT         0  // (mm) Retract before cooling for less stringing, better wipe, etc.
+        //#define MIGRATION_FS_EXTRA_PRIME          0 // (mm) Extra priming length
+        //#define MIGRATION_FS_WIPE_RETRACT         0 // (mm) Retract before cooling for less stringing, better wipe, etc.
+
         // Cool after prime to reduce stringing
-        //#define MIGRATION_FS_FAN_SPEED          255  // 0-255
-        //#define MIGRATION_FS_FAN_TIME             0  // (seconds)
-      #endif // MIGRATION_SETTINGS
-    #endif //ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+        //#define MIGRATION_FS_FAN_SPEED          255 // 0-255
+        //#define MIGRATION_FS_FAN_TIME             0 // (seconds)
+
+      #endif
+    #endif
   #endif
 
   /**
@@ -2785,8 +2788,7 @@
     //#define TOOLCHANGE_PARK_X_ONLY          // X axis only move
     //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      // Force park on migration
-      //#define TOOLCHANGE_MIGRATION_ALWAYS_PARK
+      //#define TOOLCHANGE_MIGRATION_ALWAYS_PARK  // Force park on migration
     #endif
   #endif
 #endif // HAS_MULTI_EXTRUDER
