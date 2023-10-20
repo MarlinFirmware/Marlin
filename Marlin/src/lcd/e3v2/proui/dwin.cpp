@@ -2240,7 +2240,8 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if LCD_BACKLIGHT_TIMEOUT_MINS
-  void setTimer() { setPIntOnClick(ui.backlight_timeout_min, ui.backlight_timeout_max); }
+  void applyTimer() { ui.backlight_timeout_minutes = menuData.value; }
+  void setTimer() { setIntOnClick(ui.backlight_timeout_min, ui.backlight_timeout_max, ui.backlight_timeout_minutes, applyTimer); }
 #endif
 
 #if HAS_FILAMENT_SENSOR
