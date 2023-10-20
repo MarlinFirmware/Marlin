@@ -323,8 +323,6 @@ void MarlinUI::draw_status_message(const bool blink) {
     // Value length, if any
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " olen=",olen, " vstr=",vstr, " vlen=",vlen);
-
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below
@@ -336,8 +334,6 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
 
     int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
-
-    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " plen=",plen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad) dwin_string.add(' ');

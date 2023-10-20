@@ -982,8 +982,6 @@ void MarlinUI::draw_status_screen() {
     char estr[utf8_strlen(ftpl) + 3] = "\0";
     int8_t lwide = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " lwide=",lwide, " vstr=",vstr, " vlen=",vlen);
-
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below

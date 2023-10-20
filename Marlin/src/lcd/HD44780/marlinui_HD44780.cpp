@@ -1178,8 +1178,6 @@ void MarlinUI::draw_status_screen() {
     char estr[calculateWidth(ftpl) + 3] = "\0";
     int8_t llen = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " llen=",llen, " vstr=",vstr, " vlen=",vlen);
-
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below
@@ -1192,8 +1190,6 @@ void MarlinUI::draw_status_screen() {
 
     // Padding for center or full justification
     int8_t pad = (center || full) ? n - llen - vlen : 0;
-
-    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " llen=",llen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad, --n) lcd_put_u8str(F(" "));

@@ -422,8 +422,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     // Value length, if any
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " lwide=",lwide, " vstr=",vstr, " vlen=",vlen);
-
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below
@@ -436,8 +434,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Padding for center or full justification
     int8_t pad = (center || full) ? ((LCD_PIXEL_WIDTH) - lwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
-
-    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
