@@ -982,8 +982,6 @@ void MarlinUI::draw_status_screen() {
     char estr[utf8_strlen(ftpl) + 3] = "\0";
     int8_t lwide = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
-    int8_t pad = (center || full) ? n - lwide - vlen : 0;
-
     //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " lwide=",lwide, " vstr=",vstr, " vlen=",vlen);
 
     bool mv_colon = false;
@@ -995,6 +993,8 @@ void MarlinUI::draw_status_screen() {
       // Remove leading spaces from the value and shorten
       while (*vstr == ' ') { vstr++; vlen--; }
     }
+
+    int8_t pad = (center || full) ? n - lwide - vlen : 0;
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
