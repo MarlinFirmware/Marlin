@@ -980,25 +980,25 @@ void MarlinUI::draw_status_screen() {
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
     char estr[utf8_strlen(ftpl) + 3] = "\0";
-    int8_t lwide = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
+    int8_t llen = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below
       mv_colon = (*vstr == ':');
       // Shorter value, wider label
-      if (mv_colon) { vstr++; vlen--; lwide++; }
+      if (mv_colon) { vstr++; vlen--; llen++; }
       // Remove leading spaces from the value and shorten
       while (*vstr == ' ') { vstr++; vlen--; }
     }
 
-    int8_t pad = (center || full) ? n - lwide - vlen : 0;
+    int8_t pad = (center || full) ? n - llen - vlen : 0;
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
 
     // Draw as much of the label as fits
-    if (lwide) n -= lcd_put_u8str_max(estr, n - vlen);
+    if (llen) n -= lcd_put_u8str_max(estr, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
