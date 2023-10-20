@@ -418,10 +418,10 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     int pwide = ftpl ? calculateWidth(ftpl) : 0;
     const int owide = pwide;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " vstr=",vstr, " pwide=",pwide);
-
     // Value length, if any
     int vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " owide=",owide, " vstr=",vstr, " vlen=",vlen);
 
     bool mv_colon = false;
     if (vlen) {

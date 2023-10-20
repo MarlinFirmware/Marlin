@@ -317,26 +317,43 @@ void MarlinUI::draw_status_message(const bool blink) {
     dwin_string.set();
 
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
-                 vlen = vstr ? utf8_strlen(vstr) : 0;
+    int8_t plen = ftpl ? utf8_strlen(ftpl) : 0;
+    const int8_t olen = plen;
+
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " olen=",olen, " vstr=",vstr, " vlen=",vlen);
+
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; plen++; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
+    }
+
     int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
+
+    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " plen=",plen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
 
-    // Append the templated label string
     if (plen) {
+      // Append the templated label string
       dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+      // Remove padding if the string was expanded
       pad -= dwin_string.length - plen;
     }
 
     // SS_FULL: Pad with enough space to justify the value
     if (vlen) {
       if (full && !center) {
-        // Move the leading colon from the value to the label
-        if (*vstr == ':') { dwin_string.add(':'); vstr++; }
-        // Move spaces to the padding
-        while (*vstr == ' ') { vstr++; pad++; }
+        // Append the leading colon moved from the value to the label
+        if (mv_colon) dwin_string.add(':');
         // Pad in-between
         for (; pad > 0; --pad) dwin_string.add(' ');
       }
