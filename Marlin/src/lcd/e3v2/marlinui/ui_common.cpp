@@ -367,6 +367,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (!mark_as_selected(row, sel)) return;
+
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;
     dwin_font.fg = COLOR_WHITE;
@@ -387,6 +388,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   //
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (!mark_as_selected(row, sel)) return;
+
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;
     dwin_font.fg = COLOR_WHITE;
@@ -475,21 +477,21 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
-      if (mark_as_selected(row, sel)) {
-        dwin_string.set();
+      if (!mark_as_selected(row, sel)) return;
 
-        uint8_t maxlen = LCD_WIDTH - 1;
-        if (isDir) {
-          dwin_string.add(LCD_STR_FOLDER " ");
-          maxlen -= 2;
-        }
+      dwin_string.set();
 
-        dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
-        uint8_t n = maxlen - dwin_string.length;
-        while (n > 0) { dwin_string.add(' '); --n; }
-        lcd_moveto(1, row);
-        lcd_put_dwin_string();
+      uint8_t maxlen = LCD_WIDTH - 1;
+      if (isDir) {
+        dwin_string.add(LCD_STR_FOLDER " ");
+        maxlen -= 2;
       }
+
+      dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = maxlen - dwin_string.length;
+      while (n > 0) { dwin_string.add(' '); --n; }
+      lcd_moveto(1, row);
+      lcd_put_dwin_string();
     }
 
   #endif // HAS_MEDIA

@@ -460,6 +460,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (!mark_as_selected(row, sel)) return;
+
     uint8_t n = LCD_WIDTH - 1;
     n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd_put_u8str(F(" "));
@@ -470,6 +471,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a menu item with an editable value
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (!mark_as_selected(row, sel)) return;
+
     const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
                   pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
     const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
@@ -558,13 +560,13 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
-      if (mark_as_selected(row, sel)) {
-        const uint8_t maxlen = LCD_WIDTH - isDir;
-        if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
-        const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-        pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
-      }
+      if (!mark_as_selected(row, sel)) return;
+
+      const uint8_t maxlen = LCD_WIDTH - isDir;
+      if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
+      const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 
   #endif // HAS_MEDIA
