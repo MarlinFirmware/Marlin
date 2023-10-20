@@ -411,35 +411,60 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   // Draw a static line of text in the same idiom as a menu item
   void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+    if (!mark_as_selected(row, style & SS_INVERT)) return;
 
-    if (mark_as_selected(row, style & SS_INVERT)) {
-      pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
+    pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
+    const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+    int pwide = ftpl ? calculateWidth(ftpl) : 0;
+    const int owide = pwide;
 
-      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-      const int pwide = ftpl ? calculateWidth(ftpl) : 0,
-                vlen = vstr ? utf8_strlen(vstr) : 0;
-      int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
+    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " vstr=",vstr, " pwide=",pwide);
 
-      // SS_CENTER: Pad with half of the unused space first
-      if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
+    // Value length, if any
+    int vlen = vstr ? utf8_strlen(vstr) : 0;
 
-      // Draw as much of the label as fits
-      if (pwide) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-
-      if (vlen) {
-        // SS_FULL: Pad with enough space to justify the value
-        if (full && !center && n > MENU_FONT_WIDTH) {
-          // Move the leading colon from the value to the label
-          if (*vstr == ':') { n -= lcd_put_u8str(F(":")); vstr++; }
-          // Move spaces to the padding
-          while (*vstr == ' ') { vstr++; pad++; }
-          // Pad in-between
-          for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
-        }
-        n -= lcd_put_u8str_max(vstr, n);
-      }
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; pwide += MENU_FONT_WIDTH; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
     }
+
+    // Padding for center or full justification
+    int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
+
+    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " vstr=",vstr, " pwide=",pwide, " vlen=",vlen, " pad=",pad);
+
+    // SS_CENTER: Pad with half of the unused space first
+    if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
+
+    // Draw as much of the label as fits (without the relocated colon, drawn below)
+    // The label may be up to 2 chars wider than the assumed width
+    // which may skew center padding to the right.
+    if (owide) {
+      // TODO: Add get_lcd_u8str(...) so this can be done earlier
+      const int lwide = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      n -= lwide;
+      pad -= (lwide - owide) / (MENU_FONT_WIDTH);
+    }
+
+    // Value string?
+    if (vlen) {
+      // SS_FULL: Pad with enough space to justify the value
+      if (full && !center && n > MENU_FONT_WIDTH) {
+        // Draw the leading colon moved from the value to the label
+        if (mv_colon) n -= lcd_put_u8str(F(":"));
+        // Pad in-between
+        for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
+      }
+      // Draw the value string
+      n -= lcd_put_u8str_max(vstr, n);
+    }
+    // Always fill out the rest with spaces
+    while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
   }
 
   // Draw a generic menu item
