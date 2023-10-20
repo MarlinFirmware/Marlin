@@ -319,13 +319,13 @@ void menu_move() {
   #include "../../gcode/gcode.h"
 
   void ftm_menu_setShaping(const ftMotionMode_t s) {
-    fxdTiCtrl.cfg.mode = s;
-    fxdTiCtrl.refreshShapingN();
+    ftMotion.cfg.mode = s;
+    ftMotion.refreshShapingN();
     ui.go_back();
   }
 
   inline void menu_ftm_mode() {
-    const ftMotionMode_t mode = fxdTiCtrl.cfg.mode;
+    const ftMotionMode_t mode = ftMotion.cfg.mode;
 
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
@@ -349,17 +349,17 @@ void menu_move() {
   #if HAS_DYNAMIC_FREQ
 
     inline void menu_ftm_dyn_mode() {
-      const dynFreqMode_t dmode = fxdTiCtrl.cfg.dynFreqMode;
+      const dynFreqMode_t dmode = ftMotion.cfg.dynFreqMode;
 
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ fxdTiCtrl.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
       #endif
 
       END_MENU();
@@ -368,7 +368,7 @@ void menu_move() {
   #endif // HAS_DYNAMIC_FREQ
 
   void menu_ft_motion() {
-    ft_config_t &c = fxdTiCtrl.cfg;
+    ft_config_t &c = ftMotion.cfg;
 
     FSTR_P ftmode;
     switch (c.mode) {
@@ -403,16 +403,16 @@ void menu_move() {
 
     if (c.modeHasShaper()) {
       #if HAS_X_AXIS
-        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.refreshShapingN);
       #endif
       #if HAS_Y_AXIS
-        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, fxdTiCtrl.refreshShapingN);
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.refreshShapingN);
       #endif
 
-      EDIT_ITEM_FAST(float42_52, MSG_FTM_ZETA, &c.zeta, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
+      EDIT_ITEM_FAST(float42_52, MSG_FTM_ZETA, &c.zeta, 0.0f, 1.0f, ftMotion.refreshShapingN);
 
       if (WITHIN(c.mode, ftMotionMode_EI, ftMotionMode_3HEI))
-        EDIT_ITEM_FAST(float42_52, MSG_FTM_VTOL, &c.vtol, 0.0f, 1.0f, fxdTiCtrl.refreshShapingN);
+        EDIT_ITEM_FAST(float42_52, MSG_FTM_VTOL, &c.vtol, 0.0f, 1.0f, ftMotion.refreshShapingN);
 
       #if HAS_DYNAMIC_FREQ
         SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
