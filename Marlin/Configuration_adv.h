@@ -2780,7 +2780,21 @@
      *   - Switch to a different nozzle on an extruder jam
      */
     #define TOOLCHANGE_MIGRATION_FEATURE
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      // Override toolchange settings
+      // By default tool migration uses regular toolchange settings.
+      // With a prime tower, tool-change swapping/priming occur inside the bed.
+      // When migrating to a new unprimed tool you can set override values below.
+      //#define MIGRATION_ZRAISE            0 // (mm)
 
+      // Longer prime to clean out
+      //#define MIGRATION_FS_EXTRA_PRIME    0 // (mm) Extra priming length
+      //#define MIGRATION_FS_WIPE_RETRACT   0 // (mm) Retract before cooling for less stringing, better wipe, etc.
+
+      // Cool after prime to reduce stringing
+      //#define MIGRATION_FS_FAN_SPEED    255 // 0-255
+      //#define MIGRATION_FS_FAN_TIME       0 // (seconds)
+    #endif
   #endif
 
   /**
@@ -2793,6 +2807,9 @@
     #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/min)
     //#define TOOLCHANGE_PARK_X_ONLY          // X axis only move
     //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      //#define TOOLCHANGE_MIGRATION_DO_PARK  // Force park (or no-park) on migration
+    #endif
   #endif
 #endif // HAS_MULTI_EXTRUDER
 
