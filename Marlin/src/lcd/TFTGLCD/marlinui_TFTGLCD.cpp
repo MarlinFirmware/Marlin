@@ -980,7 +980,7 @@ void MarlinUI::draw_status_screen() {
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
     char estr[utf8_strlen(ftpl) + 3] = "\0";
-    int8_t lwide = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
+    int8_t lwide = ftpl ? (MENU_FONT_WIDTH) * expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
     bool mv_colon = false;
     if (vlen) {
