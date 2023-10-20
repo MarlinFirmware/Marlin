@@ -26,31 +26,35 @@
 #define COCOA_STATUS_SCREEN
 #define COCOA_STATUS_SCREEN_CLASS StatusScreen
 
-class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE> {
+struct StatusScreenData {
+  bool gotMessage;
+};
+
+class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE, STATUS_SCREEN_DL_SIZE> {
   private:
     static void _format_time(char *outstr, uint32_t time);
 
-    static float increment;
-    static bool  jog_xy;
-    static bool  fine_motion;
-
     static void draw_time(draw_mode_t what);
-    static void draw_progress(draw_mode_t what);
+    static void draw_percent(draw_mode_t what);
     static void draw_temperature(draw_mode_t what);
     static void draw_buttons(draw_mode_t what);
     static void draw_file(draw_mode_t what);
+    static void draw_message(draw_mode_t what, const char *message);
+    static void draw_bkgnd(draw_mode_t what);
+
+    static void send_buffer(CommandProcessor &cmd, const void *data, uint16_t len);
+    static void load_background(const void *data, uint16_t len);
 
     static bool isFileSelected();
   public:
     static void loadBitmaps();
-    static void unlockMotors();
 
     static void setStatusMessage(const char *);
     static void setStatusMessage(FSTR_P);
 
     static void onRedraw(draw_mode_t);
 
-    static bool onTouchStart(uint8_t tag);
+    static void onEntry();
     static bool onTouchHeld(uint8_t tag);
     static bool onTouchEnd(uint8_t tag);
     static void onIdle();
