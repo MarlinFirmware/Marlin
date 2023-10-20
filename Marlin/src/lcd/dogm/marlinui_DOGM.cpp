@@ -436,7 +436,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     // Padding for center or full justification
     int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " vstr=",vstr, " pwide=",pwide, " vlen=",vlen, " pad=",pad);
+    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " pwide=",pwide, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
