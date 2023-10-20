@@ -444,30 +444,28 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
-    if (mark_as_selected(row, sel)) {
-      uint8_t n = LCD_WIDTH - 1;
-      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-      for (; n; --n) lcd_put_u8str(F(" "));
-      lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
-      lcd_put_u8str(F(" "));
-    }
+    if (!mark_as_selected(row, sel)) return;
+    uint8_t n = LCD_WIDTH - 1;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+    for (; n; --n) lcd_put_u8str(F(" "));
+    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+    lcd_put_u8str(F(" "));
   }
 
   // Draw a menu item with an editable value
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
-    if (mark_as_selected(row, sel)) {
-      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
-      const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
+    if (!mark_as_selected(row, sel)) return;
+    const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
+                  pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
+    const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
 
-      uint8_t n = LCD_WIDTH - 2 - vallen * prop;
-      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-      if (vallen) {
-        lcd_put_u8str(F(":"));
-        for (; n; --n) lcd_put_u8str(F(" "));
-        lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
-        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
-      }
+    uint8_t n = LCD_WIDTH - 2 - vallen * prop;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+    if (vallen) {
+      lcd_put_u8str(F(":"));
+      for (; n; --n) lcd_put_u8str(F(" "));
+      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
+      if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
     }
   }
 
