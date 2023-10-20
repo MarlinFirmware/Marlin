@@ -1194,10 +1194,16 @@ void MarlinUI::draw_status_screen() {
     //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " plen=",plen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
-    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd_put_u8str(F(" ")); n--; }
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad, --n) lcd_put_u8str(F(" "));
 
-    // Draw as much of the label as fits
-    if (plen) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n - vlen);
+    // Draw as much of the label as fits (without the relocated colon, drawn below)
+    // The label may be up to 2 chars wider than the assumed width
+    // which may skew center padding to the right.
+    if (olen) {
+      const int8_t llen = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n - vlen);
+      n -= llen;
+      pad -= llen - olen;
+    }
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value

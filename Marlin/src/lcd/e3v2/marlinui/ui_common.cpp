@@ -340,13 +340,13 @@ void MarlinUI::draw_status_message(const bool blink) {
     //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " plen=",plen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
-    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad) dwin_string.add(' ');
 
     if (plen) {
       // Append the templated label string
       dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
       // Remove padding if the string was expanded
-      pad -= dwin_string.length - plen;
+      pad -= dwin_string.length - olen;
     }
 
     // SS_FULL: Pad with enough space to justify the value
@@ -362,7 +362,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
 
     // SS_CENTER: Pad the rest of the string
-    if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
+    if (center) while (pad--) dwin_string.add(' ');
 
     lcd_moveto(1, row);
     lcd_put_dwin_string();
