@@ -1170,40 +1170,36 @@ void MarlinUI::draw_status_screen() {
 
     int8_t n = LCD_WIDTH;
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    int8_t plen = ftpl ? utf8_strlen(ftpl) : 0;
-    const int8_t olen = plen;
 
     // Value length, if any
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " olen=",olen, " vstr=",vstr, " vlen=",vlen);
+    // Expanded label string and width in chars
+    char estr[calculateWidth(ftpl) + 3] = "\0";
+    int8_t llen = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
+
+    //if (full) SERIAL_ECHOLNPGM("A: (", row, ") ftpl=",ftpl, " llen=",llen, " vstr=",vstr, " vlen=",vlen);
 
     bool mv_colon = false;
     if (vlen) {
       // Move the leading colon from the value to the label below
       mv_colon = (*vstr == ':');
       // Shorter value, wider label
-      if (mv_colon) { vstr++; vlen--; plen++; }
+      if (mv_colon) { vstr++; vlen--; llen++; }
       // Remove leading spaces from the value and shorten
       while (*vstr == ' ') { vstr++; vlen--; }
     }
 
     // Padding for center or full justification
-    int8_t pad = (center || full) ? n - plen - vlen : 0;
+    int8_t pad = (center || full) ? n - llen - vlen : 0;
 
-    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " plen=",plen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
+    //if (full) SERIAL_ECHOLNPGM("B: (", row, ") ftpl=",ftpl, " llen=",llen, " vstr=",vstr, " vlen=",vlen, " pad=",pad);
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad, --n) lcd_put_u8str(F(" "));
 
     // Draw as much of the label as fits (without the relocated colon, drawn below)
-    // The label may be up to 2 chars wider than the assumed width
-    // which may skew center padding to the right.
-    if (olen) {
-      const int8_t llen = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n - vlen);
-      n -= llen;
-      pad -= llen - olen;
-    }
+    if (llen) n -= lcd_put_u8str_max(estr, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
