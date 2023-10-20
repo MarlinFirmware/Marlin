@@ -29,6 +29,6 @@
 #endif
 
 // Allow SDSUPPORT to be disabled
-#if DISABLED(SDSUPPORT)
-#undef SDIO_SUPPORT
+#if !HAS_MEDIA
+#undef ONBOARD_SDIO
 #endif
