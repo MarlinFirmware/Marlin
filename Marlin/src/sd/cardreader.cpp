@@ -588,6 +588,10 @@ void CardReader::release() {
   flag.workDirIsRoot = true;
   nrItems = -1;
   SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
+
+  #if ENABLED(NO_SD_DETECT)
+  ui.refresh();
+  #endif
 }
 
 /**
