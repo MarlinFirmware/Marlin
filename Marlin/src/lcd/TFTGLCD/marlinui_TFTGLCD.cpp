@@ -969,7 +969,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
 
@@ -1004,25 +1004,25 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
     if (!PanelDetected) return;
     lcd_moveto(0, row);
     lcd.write(sel ? pre_char : ' ');
     uint8_t n = LCD_WIDTH - 2;
-    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd.write(' ');
     lcd.write(post_char);
     lcd.print_line();
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (!PanelDetected) return;
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_moveto(0, row);
     lcd.write(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     uint8_t n = LCD_WIDTH - 2 - vlen;
-    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     if (vlen) {
       lcd.write(':');
       for (; n; --n) lcd.write(' ');

@@ -1165,12 +1165,12 @@ void MarlinUI::draw_status_screen() {
   #endif // ADVANCED_PAUSE_FEATURE
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     lcd_moveto(0, row);
 
     int8_t n = LCD_WIDTH;
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
+    const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
                  vlen = vstr ? utf8_strlen(vstr) : 0;
     int8_t pad = (center || full) ? n - plen - vlen : 0;
 
@@ -1178,7 +1178,7 @@ void MarlinUI::draw_status_screen() {
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd_put_u8str(F(" ")); n--; }
 
     // Draw as much of the label as fits
-    if (plen) n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n - vlen);
+    if (plen) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
