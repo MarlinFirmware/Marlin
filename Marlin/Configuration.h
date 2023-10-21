@@ -722,7 +722,7 @@
   //#define FILAMENT_HEAT_CAPACITY_PERMM { 5.15e-3f } // 0.00515 J/K/mm for 1.75mm ABS (0.0137 J/K/mm for 2.85mm ABS).
 
   // Advanced options
-  #define MPC_SMOOTHING_FACTOR 0.1f                   // (0.0...1.0) A lower value than 1 will result in greater stability in MPC output power but also in decreased responsiveness. A value around 0.25 seems to work quite well
+  #define MPC_SMOOTHING_FACTOR 0.25f                   // (0.0...1.0) A lower value than 1 will result in greater stability in MPC output power but also in decreased responsiveness. A value around 0.25 seems to work quite well
   #define MPC_MIN_AMBIENT_CHANGE 1.0f                 // (K/s) Modeled ambient temperature rate of change, when correcting model inaccuracies.
   #define MPC_STEADYSTATE 0.5f                        // (K/s) Temperature change rate for steady state logic to be enforced.
 
