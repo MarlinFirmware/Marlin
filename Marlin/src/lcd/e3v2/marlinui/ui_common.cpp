@@ -317,26 +317,39 @@ void MarlinUI::draw_status_message(const bool blink) {
     dwin_string.set();
 
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
-                 vlen = vstr ? utf8_strlen(vstr) : 0;
+    int8_t plen = ftpl ? utf8_strlen(ftpl) : 0;
+    const int8_t olen = plen;
+
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; plen++; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
+    }
+
     int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
 
     // SS_CENTER: Pad with half of the unused space first
-    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad) dwin_string.add(' ');
 
-    // Append the templated label string
     if (plen) {
+      // Append the templated label string
       dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
-      pad -= dwin_string.length - plen;
+      // Remove padding if the string was expanded
+      pad -= dwin_string.length - olen;
     }
 
     // SS_FULL: Pad with enough space to justify the value
     if (vlen) {
       if (full && !center) {
-        // Move the leading colon from the value to the label
-        if (*vstr == ':') { dwin_string.add(':'); vstr++; }
-        // Move spaces to the padding
-        while (*vstr == ' ') { vstr++; pad++; }
+        // Append the leading colon moved from the value to the label
+        if (mv_colon) dwin_string.add(':');
         // Pad in-between
         for (; pad > 0; --pad) dwin_string.add(' ');
       }
@@ -345,7 +358,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
 
     // SS_CENTER: Pad the rest of the string
-    if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
+    if (center) while (pad--) dwin_string.add(' ');
 
     lcd_moveto(1, row);
     lcd_put_dwin_string();
