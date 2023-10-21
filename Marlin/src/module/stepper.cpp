@@ -3569,7 +3569,7 @@ void Stepper::report_positions() {
     if (current_block) {
       // Sync block? Sync the stepper counts and return
       while (current_block->is_sync()) {
-        if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
+        TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
         current_block = nullptr;
         planner.release_current_block();
 
