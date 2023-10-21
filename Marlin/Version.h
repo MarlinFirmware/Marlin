@@ -20,7 +20,7 @@
  *
  */
 #pragma once
-//Surpress Warning of mc.zip
+//Surpress Warnings, for mc.zip and Z2 auto assign 
 #define NO_CONFIGURATION_EMBEDDING_WARNING
 #define NO_AUTO_ASSIGN_WARNING
 ////////////////////////////
@@ -29,32 +29,34 @@
 /**
 * Editor release version identifer
 */
-#define STRING_CONFIG_H_AUTHOR "(Hammer)" // Bradford A. Adams 
-#define VENDOR_VERSION    "Release_Candidate_V1.8"
-#define DETAILED_BUILD_VERSION "SKR_3.0"
+//#define STRING_CONFIG_H_AUTHOR "(Hammer)" // Bradford A. Adams 
+//#define VENDOR_VERSION    "Release_Candidate_V1.8"
+//#define DETAILED_BUILD_VERSION "SKR_3.0"
 
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "bugfix-2.1.x"
+#define SHORT_BUILD_VERSION "RC_V2.1"
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION VENDOR_VERSION
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BTT_SKR_V3_0, based on bugfix-2.1.x"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2023-10-15"
+//#define STRING_DISTRIBUTION_DATE "2023-10-15"
+#define STRING_DISTRIBUTION_DATE __DATE__
+#define STRING_DISTRIBUTION_TIME __TIME__
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-//#define MACHINE_NAME "3D Printer"
+#define MACHINE_NAME "Ender5+"
 //#define CUSTOM_MACHINE_NAME "Ender5+_Punisher" //Listed in Configuration.h
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
