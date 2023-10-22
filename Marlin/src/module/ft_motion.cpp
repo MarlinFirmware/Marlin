@@ -629,7 +629,7 @@ void FTMotion::makeVector() {
 */
 void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t &, int32_t &, int32_t &, ft_command_t &, int32_t, int32_t);
 
-inline void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
+void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
   e += d;
   if (e >= FTM_CTS_COMPARE_VAL) {
     s++;
@@ -638,7 +638,7 @@ inline void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b,
     }
 }
 
-inline void command_set_neg(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
+void command_set_neg(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
   e += d;
   if (e <= -(FTM_CTS_COMPARE_VAL)) {
         s--;
