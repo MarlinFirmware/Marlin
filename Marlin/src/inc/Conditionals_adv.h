@@ -1230,7 +1230,7 @@
   #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
-  #define HAS_USER_ITEM(N) 0
+  #define HAS_USER_ITEM(...) 0
 #endif
 
 /**
