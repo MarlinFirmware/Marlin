@@ -401,7 +401,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = resume_pos.z,
+  const float z_print = current_position.z,
               z_raised = z_print + info.zraise;
 
   //
