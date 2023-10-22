@@ -78,7 +78,7 @@ void menu_advanced_settings();
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
-  static void progress_bar_test() {
+  static void screen_progress_bar_test() {
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
@@ -93,8 +93,8 @@ void menu_advanced_settings();
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
-  void _progress_bar_test() {
-    ui.goto_screen(progress_bar_test);
+  void _goto_progress_bar_test() {
+    ui.goto_screen(screen_progress_bar_test);
     TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
   }
 
@@ -108,7 +108,7 @@ void menu_advanced_settings();
   #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
 
-  static void endstop_test() {
+  static void screen_endstop_test() {
     if (ui.use_click()) {
       ui.goto_previous_screen();
       //endstops.enable_globally(false);
@@ -148,11 +148,11 @@ void menu_advanced_settings();
     BACK_ITEM(MSG_CONFIGURATION);
 
     #if ENABLED(LCD_PROGRESS_BAR_TEST)
-      SUBMENU(MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+      SUBMENU(MSG_PROGRESS_BAR_TEST, _goto_progress_bar_test);
     #endif
 
     #if ENABLED(LCD_ENDSTOP_TEST)
-      SUBMENU(MSG_ENDSTOP_TEST, endstop_test);
+      SUBMENU(MSG_ENDSTOP_TEST, screen_endstop_test);
     #endif
 
     END_MENU();
