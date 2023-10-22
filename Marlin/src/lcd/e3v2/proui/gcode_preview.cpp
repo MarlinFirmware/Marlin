@@ -63,14 +63,14 @@ typedef struct {
   }
 
   void clear() {
-    fileprop.name[0] = '\0';
-    fileprop.thumbstart = 0;
-    fileprop.thumbsize = 0;
-    fileprop.thumbheight = fileprop.thumbwidth = 0;
-    fileprop.time = 0;
-    fileprop.filament = 0;
-    fileprop.layer = 0;
-    fileprop.height = fileprop.width = fileprop.length = 0;
+    name[0] = '\0';
+    thumbstart = 0;
+    thumbsize = 0;
+    thumbheight = thumbwidth = 0;
+    time = 0;
+    filament = 0;
+    layer = 0;
+    height = width = length = 0;
   }
 
 } fileprop_t;
