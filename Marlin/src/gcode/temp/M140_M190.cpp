@@ -36,7 +36,7 @@
 
 /**
  * M140 - Set Bed Temperature target and return immediately
- * M190 - Set Bed Temperature target and wait, or cool down within certain time
+ * M190 - Set Bed Temperature target and wait
  *
  *  I<index>  : Preset index (if material presets are defined)
  *  S<target> : The target temperature in current units
@@ -47,22 +47,22 @@
  *
  * M190 Parameters
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
- * 
+ *
  * Examples
  *  M140 S60 : Set target to 60° and return right away.
  *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
- * 
+ *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
  *
  * With BED_ANNEALING_GCODE:
  *
  * M190 Parameters
- *     T<seconds>: Optional limited time to wait during cooling. Use with R parameter.
- *                 M190 R T - Wait for cooldown up to a limited period of time.
+ *     T<seconds>: Cooldown time, for more gradual cooling. Use with R parameter.
+ *                 M190 R T - Cool the bed down over a given period of time.
  *
  * Examples
- *  M190 R70 T600: Cool down to 70 ° within ten minutes.
+ *  M190 R70 T600: Cool down to 70°C over a period of ten minutes.
  *
  */
 void GcodeSuite::M140_M190(const bool isM190) {
@@ -91,21 +91,40 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   if (!got_temp) return;
 
-  thermalManager.setTargetBed(temp);
-  thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
+  #if ENABLED(BED_ANNEALING_GCODE)
+    const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
+    const millis_t anneal_ms = anneal ? millis() + parser.value_millis_from_seconds() : 0UL;
+  #else
+    constexpr bool anneal = false;
+  #endif
+
+  if (!anneal) {
+    thermalManager.setTargetBed(temp);
+    thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
+  }
 
   // With PRINTJOB_TIMER_AUTOSTART, M190 can start the timer, and M140 can stop it
   TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(isM190, !isM190));
 
   if (isM190) {
     #if ENABLED(BED_ANNEALING_GCODE)
-      if (!no_wait_for_cooling && parser.seenval('T')) {
+      if (anneal) {
         LCD_MESSAGE(MSG_BED_ANNEALING);
-        const millis_t final_time = millis() + parser.value_millis_from_seconds();
-        while (thermalManager.isCoolingBed() && PENDING(millis(), final_time)) idle();
+        celsius_t cool_temp = thermalManager.degBed() - 1;  // Aim at current temp minus one
+        while (cool_temp >= temp) {                         // Still over the coolest temp?
+          thermalManager.setTargetBed(cool_temp);           // Cool by one degree
+          thermalManager.wait_for_bed(false);               // Could this wait forever?
+          const millis_t ms = millis();
+          if (PENDING(ms, anneal_ms) && cool_temp > temp) { // Still warmer and waiting?
+            const millis_t remain = anneal_ms - ms;
+            dwell(remain / (cool_temp - temp));             // Wait for a fraction of remaining time
+          }
+          --cool_temp;
+        }
         return;
       }
     #endif
+
     thermalManager.wait_for_bed(no_wait_for_cooling);
   }
   else {
