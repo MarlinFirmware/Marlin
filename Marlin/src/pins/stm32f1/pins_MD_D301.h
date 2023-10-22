@@ -50,7 +50,7 @@
 #define SERVO0_PIN                          PB0
 
 //
-// Z Probe must be this pins
+// Z Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PB1
 
@@ -67,9 +67,6 @@
   #define Z_MIN_PIN                         PG0
 #endif
 #define Z_MAX_PIN                           PF15
-
-#define LED_BLUE_PIN                        PF11
-#define LED_RED_PIN                         PF13
 
 //
 // Filament Sensor
@@ -160,7 +157,25 @@
 #define USB_CONNECT_PIN                     PA15
 #define USB_CONNECT_INVERTING false
 
+//
+// SD Support
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION LCD
+#endif
+
 #define SD_DETECT_PIN                       PE3
+
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
+#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
+#define SDSS                   ONBOARD_SD_CS_PIN
+
+//
+// Misc. Functions
+//
+#define LED_BLUE_PIN                        PF11
+#define LED_RED_PIN                         PF13
+
 #define BEEPER_PIN                          PG11
 #define LED_PIN                             PG9
 
@@ -176,23 +191,9 @@
 #define DOGLCD_SCK                          -1
 
 //
-// SD Support
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
-#endif
-
-#define ONBOARD_SPI_DEVICE                     1  // SPI1
-#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                   ONBOARD_SD_CS_PIN
-
-//
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
   #define TOUCH_CS_PIN                      PB6   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB3   // SPI2_SCK
   #define TOUCH_MOSI_PIN                    PB5   // SPI2_MOSI
