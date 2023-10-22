@@ -89,9 +89,6 @@ PrintJobRecovery recovery;
     gcode.process_subcommands_now(cmd); \
   }while(0)
 
-xyze_pos_t resume_pos;
-uint32_t resume_sdpos;
-
 /**
  * Clear the recovery info
  */
@@ -152,8 +149,6 @@ void PrintJobRecovery::load() {
   if (exists()) {
     open(true);
     (void)file.read(&info, sizeof(info));
-    resume_pos = info.current_position;
-    resume_sdpos = info.sdpos;
     close();
   }
   debug(F("Load"));
@@ -361,6 +356,8 @@ void PrintJobRecovery::write() {
  * Resume the saved print job
  */
 void PrintJobRecovery::resume() {
+  const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
+
   // Apply the dry-run flag if enabled
   if (info.flag.dryrun) marlin_debug_flags |= MARLIN_DEBUG_DRYRUN;
 
@@ -401,13 +398,14 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = current_position.z,
+  const float z_print = info.current_position.z,
               z_raised = z_print + info.zraise;
 
   //
   // Home the axes that can safely be homed, and
   // establish the current position as best we can.
   //
+
   PROCESS_SUBCOMMANDS_NOW(F("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
@@ -540,17 +538,17 @@ void PrintJobRecovery::resume() {
 
   // Move back over to the saved XY
   PROCESS_SUBCOMMANDS_NOW(TS(
-    F("G1F3000X"), p_float_t(resume_pos.x, 3), 'Y', p_float_t(resume_pos.y, 3)
+    F("G1F3000X"), p_float_t(info.current_position.x, 3), 'Y', p_float_t(info.current_position.y, 3)
   ));
 
   // Move back down to the saved Z for printing
-  PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(resume_pos.z, 3)));
+  PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(z_print, 3)));
 
   // Restore the feedrate
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
 
   // Restore E position with G92.9
-  PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
+  PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(info.current_position.e, 3)));
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
@@ -578,12 +576,6 @@ void PrintJobRecovery::resume() {
           if (i) DEBUG_CHAR(',');
           DEBUG_ECHO(info.current_position[i]);
         }
-        DEBUG_EOL();        
-        DEBUG_ECHOPGM("resume_pos: ");
-        LOOP_LOGICAL_AXES(i) {
-          if (i) DEBUG_CHAR(',');
-          DEBUG_ECHO(resume_pos[i]);
-        }        
         DEBUG_EOL();
 
         DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
@@ -667,7 +659,6 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPGM("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPGM("sdpos: ", info.sdpos);
-        DEBUG_ECHOLNPGM("resume_sdpos: ", resume_sdpos);        
         DEBUG_ECHOLNPGM("print_job_elapsed: ", info.print_job_elapsed);
 
         DEBUG_ECHOPGM("axis_relative:");
