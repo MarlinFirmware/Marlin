@@ -44,7 +44,7 @@ void protected_pin_err() {
 }
 
 /**
- * M42: Change pin status via GCode
+ * M42: Change pin status via G-Code
  *
  *  P<pin>  Pin number (LED if omitted)
  *          For LPC1768 specify pin P1_02 as M42 P102,

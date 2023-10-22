@@ -308,91 +308,104 @@ void MarlinUI::draw_status_message(const bool blink) {
   void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
-    if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
-      ui.set_font(DWIN_FONT_MENU);
-      dwin_font.solid = false;
-      dwin_font.fg = COLOR_WHITE;
+    if (!mark_as_selected(row, (bool)(style & SS_INVERT), true)) return;
 
-      dwin_string.set();
+    ui.set_font(DWIN_FONT_MENU);
+    dwin_font.solid = false;
+    dwin_font.fg = COLOR_WHITE;
 
-      const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-      const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
-                   vlen = vstr ? utf8_strlen(vstr) : 0;
-      int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
+    dwin_string.set();
 
-      // SS_CENTER: Pad with half of the unused space first
-      if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) dwin_string.add(' ');
+    const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
+    int8_t plen = ftpl ? utf8_strlen(ftpl) : 0;
+    const int8_t olen = plen;
 
-      // Append the templated label string
-      if (plen) {
-        dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
-        pad -= dwin_string.length - plen;
-      }
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
-      // SS_FULL: Pad with enough space to justify the value
-      if (vlen) {
-        if (full && !center) {
-          // Move the leading colon from the value to the label
-          if (*vstr == ':') { dwin_string.add(':'); vstr++; }
-          // Move spaces to the padding
-          while (*vstr == ' ') { vstr++; pad++; }
-          // Pad in-between
-          for (; pad > 0; --pad) dwin_string.add(' ');
-        }
-        // Append the value
-        dwin_string.add(vstr);
-      }
-
-      // SS_CENTER: Pad the rest of the string
-      if (center) for (int8_t rpad = pad - (pad / 2); rpad > 0; --rpad) dwin_string.add(' ');
-
-      lcd_moveto(1, row);
-      lcd_put_dwin_string();
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; plen++; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
     }
+
+    int8_t pad = (center || full) ? (LCD_WIDTH) - 1 - plen - vlen : 0;
+
+    // SS_CENTER: Pad with half of the unused space first
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad, --pad) dwin_string.add(' ');
+
+    if (plen) {
+      // Append the templated label string
+      dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+      // Remove padding if the string was expanded
+      pad -= dwin_string.length - olen;
+    }
+
+    // SS_FULL: Pad with enough space to justify the value
+    if (vlen) {
+      if (full && !center) {
+        // Append the leading colon moved from the value to the label
+        if (mv_colon) dwin_string.add(':');
+        // Pad in-between
+        for (; pad > 0; --pad) dwin_string.add(' ');
+      }
+      // Append the value
+      dwin_string.add(vstr);
+    }
+
+    // SS_CENTER: Pad the rest of the string
+    if (center) while (pad--) dwin_string.add(' ');
+
+    lcd_moveto(1, row);
+    lcd_put_dwin_string();
   }
 
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
-    if (mark_as_selected(row, sel)) {
-      ui.set_font(DWIN_FONT_MENU);
-      dwin_font.solid = false;
-      dwin_font.fg = COLOR_WHITE;
+    if (!mark_as_selected(row, sel)) return;
 
-      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+    ui.set_font(DWIN_FONT_MENU);
+    dwin_font.solid = false;
+    dwin_font.fg = COLOR_WHITE;
 
-      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
-      while (--n > 1) dwin_string.add(' ');
+    dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
 
-      dwin_string.add(post_char);
+    pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
+    while (--n > 1) dwin_string.add(' ');
 
-      lcd_moveto(1, row);
-      lcd_put_dwin_string();
-    }
+    dwin_string.add(post_char);
+
+    lcd_moveto(1, row);
+    lcd_put_dwin_string();
   }
 
   //
   // Draw a menu item with an editable value
   //
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
-    if (mark_as_selected(row, sel)) {
-      ui.set_font(DWIN_FONT_MENU);
-      dwin_font.solid = false;
-      dwin_font.fg = COLOR_WHITE;
+    if (!mark_as_selected(row, sel)) return;
 
-      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(S(inStr)));
+    ui.set_font(DWIN_FONT_MENU);
+    dwin_font.solid = false;
+    dwin_font.fg = COLOR_WHITE;
 
-      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
-      if (vallen) dwin_string.add(':');
+    const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(S(inStr)));
 
-      lcd_moveto(1, row);
+    dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+    if (vallen) dwin_string.add(':');
+
+    lcd_moveto(1, row);
+    lcd_put_dwin_string();
+
+    if (vallen) {
+      dwin_font.fg = COLOR_YELLOW;
+      dwin_string.set(inStr);
+      lcd_moveto(LCD_WIDTH - vallen - 1, row);
       lcd_put_dwin_string();
-
-      if (vallen) {
-        dwin_font.fg = COLOR_YELLOW;
-        dwin_string.set(inStr);
-        lcd_moveto(LCD_WIDTH - vallen - 1, row);
-        lcd_put_dwin_string();
-      }
     }
   }
 
@@ -464,21 +477,21 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
-      if (mark_as_selected(row, sel)) {
-        dwin_string.set();
+      if (!mark_as_selected(row, sel)) return;
 
-        uint8_t maxlen = LCD_WIDTH - 1;
-        if (isDir) {
-          dwin_string.add(LCD_STR_FOLDER " ");
-          maxlen -= 2;
-        }
+      dwin_string.set();
 
-        dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
-        uint8_t n = maxlen - dwin_string.length;
-        while (n > 0) { dwin_string.add(' '); --n; }
-        lcd_moveto(1, row);
-        lcd_put_dwin_string();
+      uint8_t maxlen = LCD_WIDTH - 1;
+      if (isDir) {
+        dwin_string.add(LCD_STR_FOLDER " ");
+        maxlen -= 2;
       }
+
+      dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      uint8_t n = maxlen - dwin_string.length;
+      while (n > 0) { dwin_string.add(' '); --n; }
+      lcd_moveto(1, row);
+      lcd_put_dwin_string();
     }
 
   #endif // HAS_MEDIA
