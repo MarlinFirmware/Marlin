@@ -104,7 +104,14 @@ void menu_advanced_settings();
 
   #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL);
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
-  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) " " STRINGIFY(L), A##I##_##M)
+  #if HAS_X2_STATE || HAS_Y2_STATE || HAS_Z2_STATE
+    #define _S1_EXP_  ~,
+    #define _S1_SP_(I) THIRD(I, " ", "")
+    #define S1_SPACE(I) _S1_SP_(_CAT(_S1_EXP_,I))
+  #else
+    #define S1_SPACE(I)
+  #endif
+  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) S1_SPACE(I) " " L, A##I##_##M)
   #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
 
