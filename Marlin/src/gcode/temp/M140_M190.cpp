@@ -47,15 +47,23 @@
  *
  * M190 Parameters
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
- *  T<seconds>: Optional time to reach target temperature during cooling only. Use with R parameter.
  * 
  * Examples
  *  M140 S60 : Set target to 60° and return right away.
  *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
- *  M190 R70 T600: Cool down to 70 ° within ten minutes.
  * 
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
+ *
+ * With BED_ANNEALING_GCODE:
+ *
+ * M190 Parameters
+ *     T<seconds>: Optional limited time to wait during cooling. Use with R parameter.
+ *                 M190 R T - Wait for cooldown up to a limited period of time.
+ *
+ * Examples
+ *  M190 R70 T600: Cool down to 70 ° within ten minutes.
+ *
  */
 void GcodeSuite::M140_M190(const bool isM190) {
 
@@ -90,22 +98,17 @@ void GcodeSuite::M140_M190(const bool isM190) {
   TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(isM190, !isM190));
 
   if (isM190) {
-    if (!no_wait_for_cooling && parser.seenval('T')) {
-      LCD_MESSAGE(MSG_BED_ANNEALING);
-      millis_t final_time = millis() + parser.value_millis_from_seconds();
-
-      for (celsius_t next_temp = thermalManager.degBed() - 1; next_temp >= temp; --next_temp) {
-        thermalManager.setTargetBed(next_temp);
-        thermalManager.wait_for_bed(false);
-        int remain = final_time - millis();
-        if (remain > 0 && next_temp > temp)
-          dwell(remain / (next_temp - temp));
+    #if ENABLED(BED_ANNEALING_GCODE)
+      if (!no_wait_for_cooling && parser.seenval('T')) {
+        LCD_MESSAGE(MSG_BED_ANNEALING);
+        const millis_t final_time = millis() + parser.value_millis_from_seconds();
+        while (thermalManager.isCoolingBed() && PENDING(millis(), final_time)) idle();
+        return;
       }
-      return;
-    }
-
+    #endif
     thermalManager.wait_for_bed(no_wait_for_cooling);
-  } else {
+  }
+  else {
     ui.set_status_reset_fn([]{
       const celsius_t c = thermalManager.degTargetBed();
       return c < 30 || thermalManager.degBedNear(c);

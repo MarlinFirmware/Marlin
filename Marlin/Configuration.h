@@ -2502,6 +2502,9 @@
  */
 #define PRINTJOB_TIMER_AUTOSTART
 
+// Add 'M190 R T' to set a limited time to wait for M190 R bed cooling.
+//#define BED_ANNEALING_GCODE
+
 // @section stats
 
 /**
