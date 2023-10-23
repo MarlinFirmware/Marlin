@@ -293,9 +293,9 @@ namespace Anycubic {
       DEBUG_ECHOLNPGM("printerKilled()\nerror: ", error, "\ncomponent: ", component);
     #endif
 
-    if (strcmp_P(error, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0) {
+    if (strcmp_P(error, Language_en::MSG_ERR_HEATING_FAILED) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, Language_en::MSG_BED) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed heater");
       }
@@ -305,9 +305,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
+    else if (strcmp_P(error, Language_en::MSG_ERR_MINTEMP) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, Language_en::MSG_BED) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -317,9 +317,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0) {
+    else if (strcmp_P(error, Language_en::MSG_ERR_MAXTEMP) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, Language_en::MSG_BED) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -329,9 +329,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0) {
+    else if (strcmp_P(error, Language_en::MSG_ERR_THERMAL_RUNAWAY) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, Language_en::MSG_BED) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed thermal runaway");
       }
@@ -341,7 +341,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, GET_TEXT(MSG_KILL_HOMING_FAILED)) == 0) {
+    else if (strcmp_P(error, Language_en::MSG_KILL_HOMING_FAILED) == 0) {
 
       if (strcmp_P(component, PSTR("X")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_X_ENDSTOP);
