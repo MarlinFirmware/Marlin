@@ -49,8 +49,8 @@ public:
   static void loop();
   static void cancel();
   static uint8_t get_index() { return index; }
-  static uint8_t get_marker_sdpos(uint8_t i) { return marker[i].sdpos; }
-  static uint8_t get_marker_counter(uint8_t i) { return marker[i].counter; }
+  static int16_t get_marker_counter(uint8_t i) { return marker[i].counter; }
+  static uint32_t get_marker_sdpos(uint8_t i) { return marker[i].sdpos; }
 };
 
 extern Repeat repeat;
