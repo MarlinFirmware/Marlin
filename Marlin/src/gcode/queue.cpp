@@ -104,7 +104,7 @@ char GCodeQueue::injected_commands[64]; // = { 0 }
  * also setting its origin info.
  */
 void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
-  OPTARG(POWER_LOSS_RECOVERY, is_sd_cmd/*=false*/)
+  OPTARG(POWER_LOSS_RECOVERY, const bool is_sd_cmd/*=false*/)
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
