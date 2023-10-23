@@ -607,7 +607,7 @@ void GCodeQueue::get_serial_commands() {
           #endif
 
           // Put the new command into the buffer (no "ok" sent)
-          ring_buffer.commit_command(true, true);
+          ring_buffer.commit_command(true OPTARG(POWER_LOSS_RECOVERY, true));
 
           // Prime Power-Loss Recovery for the NEXT commit_command
           TERN_(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
