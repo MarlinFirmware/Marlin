@@ -583,9 +583,9 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
         #if ENABLED(GCODE_REPEAT_MARKERS)
-          DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.index);
-          for (uint8_t i = 0; i < info.stored_repeat.index; ++i)
-            DEBUG_ECHOLNPGM("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
+          DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.get_index());
+          for (uint8_t i = 0; i < info.stored_repeat.get_index(); ++i)
+            DEBUG_ECHOLNPGM("..... marker[", i, "] sdpos: ", info.stored_repeat.get_marker_sdpos(i), " count: ", info.stored_repeat.get_marker_counter(i));
         #endif
 
         #if HAS_HOME_OFFSET
