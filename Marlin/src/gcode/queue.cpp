@@ -99,12 +99,17 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
+/**
+ * Commit the accumulated G-code command to the ring buffer,
+ * also setting its origin info.
+ */
 void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
+  OPTARG(POWER_LOSS_RECOVERY, is_sd_cmd/*=false*/)
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
-  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
+  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w, is_sd_cmd));
   advance_pos(index_w, 1);
 }
 
@@ -118,7 +123,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, const bool skip_ok/*=true*
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(commands[index_w].buffer, cmd);
-  commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
+  commit_command(skip_ok OPTARG(POWER_LOSS_RECOVERY, false) OPTARG(HAS_MULTI_SERIAL, serial_ind));
   return true;
 }
 
@@ -602,7 +607,7 @@ void GCodeQueue::get_serial_commands() {
           #endif
 
           // Put the new command into the buffer (no "ok" sent)
-          ring_buffer.commit_command(true);
+          ring_buffer.commit_command(true, true);
 
           // Prime Power-Loss Recovery for the NEXT commit_command
           TERN_(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
