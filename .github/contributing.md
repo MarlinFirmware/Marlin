@@ -26,7 +26,7 @@ The following is a set of guidelines for contributing to Marlin, hosted by the [
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Marlin Code of Conduct](code_of_conduct.md). By participating, you are expected to uphold this code. Please report unacceptable behavior by messaging @MarlinFirmware/moderators on the relevant issue, [or privately](//github.com/orgs/MarlinFirmware/teams/moderators).
+This project and everyone participating in it is governed by the [Marlin Code of Conduct](code_of_conduct.md). By participating, you are expected to uphold this code. Please report unacceptable behavior by emailing [marlin-firmware@thinkyhead.com](mailto:marlin-firmware@thinkyhead.com).
 
 ## I don't want to read this whole thing I just have a question!!!
 

@@ -30,7 +30,7 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by messaging @MarlinFirmware/moderators on the relevant issue, [or privately](//github.com/orgs/MarlinFirmware/teams/moderators). All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by emailing [marlin-firmware@thinkyhead.com](mailto:marlin-firmware@thinkyhead.com). All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.
 
 ## Attribution
 
