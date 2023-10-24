@@ -233,7 +233,7 @@
   #define BTN_EN2                      H2_08_PIN
   #define BTN_ENC                      H2_09_PIN
   #define BEEPER_PIN                   H2_12_PIN
-#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b 
+#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b
   #define LCD_PINS_RS                  H2_04_PIN  // DOGLCD_CS
   #define LCD_PINS_D4                  H2_05_PIN  // DOGLCD_SCK
   #define LCD_PINS_EN                  H2_03_PIN  // DOGLCD_MOSI
