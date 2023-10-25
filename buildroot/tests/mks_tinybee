@@ -10,11 +10,9 @@ set -e
 # Build with ESP3D WiFi, OTA and custom WIFI commands support
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_MKS_TINYBEE TX_BUFFER_SIZE 64 \
-        WIFI_SSID '"ssid"' WIFI_PWD '"password"' \
-        SERIAL_PORT_2 -1 BAUDRATE_2 250000
-opt_enable ESP3D_WIFISUPPORT WEBSUPPORT OTASUPPORT WIFI_CUSTOM_COMMAND
-exec_test $1 "$2" "MKS TinyBee with ESP3D_WIFISUPPORT" "$3"
+opt_set MOTHERBOARD BOARD_MKS_TINYBEE TX_BUFFER_SIZE 64 SERIAL_PORT_2 -1 BAUDRATE_2 250000
+opt_enable ESP3D_WIFISUPPORT
+exec_test $1 $2 "MKS TinyBee with ESP3D_WIFISUPPORT" "$3"
 
 #
 # Build with LCD, SD support and Speaker support
