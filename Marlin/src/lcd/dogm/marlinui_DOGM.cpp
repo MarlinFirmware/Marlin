@@ -461,11 +461,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
     if (!mark_as_selected(row, sel)) return;
 
-    //uint8_t n = LCD_WIDTH - 1;
-    //n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-    //for (; n; --n) lcd_put_u8str(F(" "));
-    //lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
-
     const pixel_len_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
     const uint8_t post_char_len = post_char != ' ' ? 1 : 0;
     pixel_len_t n = _MAX(LCD_WIDTH - rlen - post_char_len, 0);
@@ -577,8 +572,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (inv) u8g.setColorIndex(1);
   }
 
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    ui.draw_message_on_screen(fpre, string, suff);
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+    ui.draw_message_on_screen(fpre, string, fsuf);
     if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }

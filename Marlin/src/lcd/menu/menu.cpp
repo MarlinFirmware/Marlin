@@ -255,7 +255,7 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
  *   Takes up to 2 FSTR_P and 1 RAM string that are seamlessly joined
  *   Message can be synchronized with planner to stay visible untill all moves are fnished.
  */
-void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string /*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize /*=false*/) {
+void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string /*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize/*=false*/) {
 
   _fstr1 = fstr1;
   _cstr = string;
@@ -383,13 +383,13 @@ bool MarlinUI::update_selection() {
 void MenuItem_confirm::select_screen(
   FSTR_P const yes, FSTR_P const no,
   selectFunc_t yesFunc, selectFunc_t noFunc,
-  FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/
+  FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
 ) {
   ui.defer_status_screen();
   const bool ui_selection = !yes ? false : !no || ui.update_selection(),
              got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
-    draw_select_screen(yes, no, ui_selection, pref, string, suff);
+    draw_select_screen(yes, no, ui_selection, fpre, string, fsuf);
     if (got_click) {
       selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
       if (callFunc) callFunc(); else ui.goto_previous_screen();

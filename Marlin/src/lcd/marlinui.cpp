@@ -474,21 +474,20 @@ void MarlinUI::init() {
         }
       }
 
-
-      void MarlinUI::draw_message_on_screen(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-          const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
-          uint8_t col = 0, row = 0;
-          if (!string && plen + slen <= LCD_WIDTH) {
-            col = (LCD_WIDTH - plen - slen) / 2;
-            row = LCD_HEIGHT > 3 ? 1 : 0;
-          }
-          if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
-          wrap_string_P(col, row, FTOP(pref), true);
-          if (string) {
-            if (col) { col = 0; row++; } // Move to the start of the next line
-            wrap_string(col, row, string);
-          }
-          if (suff) wrap_string_P(col, row, FTOP(suff));
+      void MarlinUI::draw_message_on_screen(FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+        const uint8_t plen = utf8_strlen_P(FTOP(fpre)), slen = fsuf ? utf8_strlen_P(FTOP(fsuf)) : 0;
+        uint8_t col = 0, row = 0;
+        if (!string && plen + slen <= LCD_WIDTH) {
+          col = (LCD_WIDTH - plen - slen) / 2;
+          row = LCD_HEIGHT > 3 ? 1 : 0;
+        }
+        if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
+        wrap_string_P(col, row, FTOP(fpre), true);
+        if (string) {
+          if (col) { col = 0; row++; } // Move to the start of the next line
+          wrap_string(col, row, string);
+        }
+        if (fsuf) wrap_string_P(col, row, FTOP(fsuf));
       }
 
     #endif // !HAS_GRAPHICAL_TFT

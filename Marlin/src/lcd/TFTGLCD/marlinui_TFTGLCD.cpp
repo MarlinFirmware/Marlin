@@ -1000,20 +1000,18 @@ void MarlinUI::draw_status_screen() {
     // Draw as much of the label as fits
     if (llen) n -= lcd_put_u8str_max(estr, n - vlen);
 
-    if (vlen && n) {
+    if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
       if (full && !center) {
         // Move the leading colon from the value to the label
-        if (*vstr == ':') { lcd.write(':'); vstr++; n--; }
-        // Move spaces to the padding
-        while (*vstr == ' ') { vstr++; pad++; }
+        if (mv_colon) { lcd.write(':'); n--; }
         // Pad in-between
         for (; pad > 0; --pad) { lcd.write(' '); n--; }
       }
       n -= lcd_put_u8str_max(vstr, n);
     }
 
-    for (; n; --n) lcd.write(' ');
+    for (; n > 0; --n) lcd.write(' ');
 
     lcd.print_line();
   }
@@ -1026,19 +1024,31 @@ void MarlinUI::draw_status_screen() {
     lcd.write(sel ? pre_char : ' ');
     uint8_t n = LCD_WIDTH - 2;
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
-                 vlen = vstr ? utf8_strlen(vstr) : 0;
-    int8_t pad = (center || full) ? n - plen - vlen : 0;
+    const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0;
+
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    char estr[utf8_strlen(ftpl) + 3] = "\0";
+    int8_t llen = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
+
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; llen++; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
+    }
+
+    int8_t pad = (center || full) ? n - llen - vlen : 0;
 
     // SS_CENTER: Pad with half of the unused space first
     if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) { lcd.write(' '); n--; }
 
     // Draw as much of the label as fits
-    if (plen) {
-      const int8_t expl = n;
-      n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-      pad -= (expl - n - plen); // Reduce the padding
-    }
+    if (llen) n -= lcd_put_u8str_max(estr, n - vlen);
 
     if (vlen && n > 0) {
       // SS_FULL: Pad with enough space to justify the value
@@ -1093,9 +1103,9 @@ void MarlinUI::draw_status_screen() {
   }
 
   // The Select Screen presents a prompt and two "buttons"
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string, FSTR_P const suff) {
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string, FSTR_P const fsuf) {
     if (!PanelDetected) return;
-    ui.draw_message_on_screen(pref, string, suff);
+    ui.draw_message_on_screen(fpre, string, fsuf);
     lcd.write(COLOR_EDIT);
     if (no) {
       lcd_moveto(0, MIDDLE_Y);

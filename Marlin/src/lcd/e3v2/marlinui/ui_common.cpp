@@ -495,12 +495,12 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   void MenuItem_confirm::draw_select_screen(
     FSTR_P const yes, FSTR_P const no, const bool yesno,
-    FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/
+    FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
   ) {
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;
     dwin_font.fg = COLOR_WHITE;
-    ui.draw_message_on_screen(pref, string, suff);
+    ui.draw_message_on_screen(fpre, string, fsuf);
     if (no)  draw_boxed_string(false, no, !yesno);
     if (yes) draw_boxed_string(true, yes,  yesno);
   }

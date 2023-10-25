@@ -38,8 +38,8 @@
 // SUBMENU(LABEL, screen_handler)
 class MenuItem_submenu : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const screenFunc_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr=0) {
-      _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0], style, vstr, minFstr);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const screenFunc_t, const uint8_t style = SS_LEFT, const char *vstr = nullptr, const uint8_t minFstr=0) {
+      _draw(sel, row, ftpl, '>', LCD_STR_ARROW_RIGHT[0], style, vstr, minFstr);
     }
     static void action(FSTR_P const, const screenFunc_t func, ...) { ui.push_current_screen(); ui.goto_screen(func); }
 };
@@ -378,7 +378,7 @@ class MenuItem_bool : public MenuEditItemBase {
 // PSTRING_ITEM is like STATIC_ITEM
 // but also takes a PSTR and style.
 
-#define PSTRING_ITEM_F_P(FLABEL, PVAL, STYLE) do{ \
+#define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
   char msg[m+1];                                 \
   if (_menuLineNr == _thisItemNr) {              \
@@ -386,7 +386,7 @@ class MenuItem_bool : public MenuEditItemBase {
     strncpy_P(msg+2, PVAL, m-2);                 \
     if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
   }                                              \
-  STATIC_ITEM_F(FLABEL, STYLE, msg);              \
+  STATIC_ITEM_F(FLABEL, STYL, msg);              \
 }while(0)
 
 #define PSTRING_ITEM_N_F_P(N, V...) do{ \
