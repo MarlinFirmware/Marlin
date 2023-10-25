@@ -349,11 +349,9 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Passinho @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Abortar Fim de Curso");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Aquecimento falhou");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Erro:Temp Redundante");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ESCAPE TÉRMICO");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("ESCAPE TÉRMICO MESA");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("ESCAPE TÉRMICO CAMARA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ESCAPE TÉRMICO");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Erro:Temp Máxima");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Erro:Temp Mínima");
   LSTR MSG_HALTED                         = _UxGT("IMPRESSORA PAROU");

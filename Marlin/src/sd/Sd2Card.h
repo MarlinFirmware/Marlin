@@ -39,11 +39,6 @@
 
 #include <stdint.h>
 
-uint16_t const SD_INIT_TIMEOUT  = 2000,  // (ms) Init timeout
-               SD_ERASE_TIMEOUT = 10000, // (ms) Erase timeout
-               SD_READ_TIMEOUT  = 300,   // (ms) Read timeout
-               SD_WRITE_TIMEOUT = 600;   // (ms) Write timeout
-
 // SD card errors
 typedef enum : uint8_t {
   SD_CARD_ERROR_CMD0               = 0x01, // Timeout error for command CMD0 (initialize card in SPI mode)
