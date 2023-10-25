@@ -145,3 +145,9 @@
 #define ICON_ProbeOffsetZ ICON_StepZ
 #define ICON_PIDNozzle    ICON_SetEndTemp
 #define ICON_PIDbed       ICON_SetBedTemp
+#define ICON_FWRetract    ICON_StepE
+#define ICON_FWRetLength  ICON_StepE
+#define ICON_FWRetSpeed   ICON_Setspeed
+#define ICON_FWRetZRaise  ICON_MoveZ
+#define ICON_FWRecSpeed   ICON_Setspeed
+#define ICON_FWRecExtra   ICON_StepE
