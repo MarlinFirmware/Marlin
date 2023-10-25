@@ -2619,6 +2619,9 @@
 #if !HAS_AUTO_COOLER_FAN || AUTO_COOLER_IS_E
   #undef AUTO_POWER_COOLER_FAN
 #endif
+#if !HAS_CUTTER
+  #undef AUTO_POWER_SPINDLE_LASER
+#endif
 
 /**
  * Controller Fan Settings
@@ -2953,9 +2956,6 @@
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
-#else
-  #undef NOZZLE_TO_PROBE_OFFSET
-  #undef PROBING_STEPPERS_OFF
 #endif
 
 /**
@@ -3210,10 +3210,10 @@
   #endif
 #endif
 
+#ifndef Z_CLEARANCE_BETWEEN_PROBES
+  #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
+#endif
 #if PROBE_SELECTED
-  #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
-  #endif
   #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
     #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
   #else
@@ -3330,8 +3330,8 @@
     #define SDSORT_CACHE_NAMES true
     #define SDSORT_CACHE_LPC1768_WARNING 1
   #endif
-  #ifndef FOLDER_SORTING
-    #define FOLDER_SORTING     -1
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS     -1
   #endif
   #ifndef SDSORT_GCODE
     #define SDSORT_GCODE       false

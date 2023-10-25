@@ -462,11 +462,9 @@ namespace LanguageNarrow_sv {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Småsteg @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Slutstopp Avbrott");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Värma Misslyckad");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Värma Misslyckad");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fel: REDUNDANT TEMP");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TERMISK ÖVERDRIFT");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("BÄDD TERMISK ÖVERDRIFT");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("KAMMARE T. ÖVERDRIFT");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("TERMISK ÖVERDRIFT");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Fel: MAXTEMP");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Fel: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("Utskrift stoppad");

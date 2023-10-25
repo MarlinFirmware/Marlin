@@ -182,9 +182,9 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Μικρό βήμα Υ");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Μικρό βήμα Ζ");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Ματαίωση endstop ");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Ανεπιτυχής θέρμανση");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Ανεπιτυχής θέρμανση");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Λάθος: ΠΛΕΟΝΑΖΟΥΣΑ ΘΕΡΜΟΤΗΤΑ");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΤΗΤΑΣ");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΤΗΤΑΣ");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
   LSTR MSG_HEATING                        = _UxGT("Θερμαίνεται…");
