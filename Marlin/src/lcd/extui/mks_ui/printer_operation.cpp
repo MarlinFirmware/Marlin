@@ -39,6 +39,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../../../feature/runout.h"
+#endif
+
 extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
@@ -142,71 +146,34 @@ void printer_state_polling() {
     }
   #endif
 
-  if (uiCfg.print_state == WORKING) filament_check();
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    if (uiCfg.print_state == WORKING) filament_check();
+  #endif
 
   TERN_(MKS_WIFI_MODULE, wifi_looping());
 }
 
-void filament_pin_setup() {
-  #if PIN_EXISTS(FIL_RUNOUT)
-    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
-  #endif
-  #if PIN_EXISTS(FIL_RUNOUT2)
-    SET_INPUT_PULLUP(FIL_RUNOUT2_PIN);
-  #endif
-  #if PIN_EXISTS(FIL_RUNOUT3)
-    SET_INPUT_PULLUP(FIL_RUNOUT3_PIN);
-  #endif
-}
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-void filament_check() {
-  #if PIN_EXISTS(FIL_RUNOUT)
-    static int fil_det_count_1 = 0;
-    if (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT1_STATE)
-      fil_det_count_1++;
-    else if (fil_det_count_1 > 0)
-      fil_det_count_1--;
-  #endif
+  void filament_check() {
+    static bool ranout = false;
+    if (runout.filament_ran_out != ranout) {
+      ranout = runout.filament_ran_out;
+      if (ranout) {
+        clear_cur_ui();
+        stop_print_time();
+        uiCfg.print_state = PAUSING;
 
-  #if PIN_EXISTS(FIL_RUNOUT2)
-    static int fil_det_count_2 = 0;
-    if (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE)
-      fil_det_count_2++;
-    else if (fil_det_count_2 > 0)
-      fil_det_count_2--;
-  #endif
+        if (gCfgItems.from_flash_pic)
+          flash_preview_begin = true;
+        else
+          default_preview_flg = true;
 
-  #if PIN_EXISTS(FIL_RUNOUT3)
-    static int fil_det_count_3 = 0;
-    if (READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT3_STATE)
-      fil_det_count_3++;
-    else if (fil_det_count_3 > 0)
-      fil_det_count_3--;
-  #endif
-
-  if (false
-    #if PIN_EXISTS(FIL_RUNOUT)
-      || fil_det_count_1 >= FILAMENT_RUNOUT_THRESHOLD
-    #endif
-    #if PIN_EXISTS(FIL_RUNOUT2)
-      || fil_det_count_2 >= FILAMENT_RUNOUT_THRESHOLD
-    #endif
-    #if PIN_EXISTS(FIL_RUNOUT3)
-      || fil_det_count_3 >= FILAMENT_RUNOUT_THRESHOLD
-    #endif
-  ) {
-    clear_cur_ui();
-    card.pauseSDPrint();
-    stop_print_time();
-    uiCfg.print_state = PAUSING;
-
-    if (gCfgItems.from_flash_pic)
-      flash_preview_begin = true;
-    else
-      default_preview_flg = true;
-
-    lv_draw_printing();
+        lv_draw_printing();
+      }
+    }
   }
-}
+
+#endif // FILAMENT_RUNOUT_SENSOR
 
 #endif // HAS_TFT_LVGL_UI
