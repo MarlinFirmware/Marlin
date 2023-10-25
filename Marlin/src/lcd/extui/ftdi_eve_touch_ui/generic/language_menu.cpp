@@ -53,6 +53,8 @@ void LanguageMenu::onRedraw(draw_mode_t) {
   #endif
 }
 
+extern uint8_t ftdi_language;
+
 bool LanguageMenu::onTouchEnd(uint8_t tag) {
 
   if (tag > 0 && tag <= NUM_LANGUAGES) {

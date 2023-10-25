@@ -66,14 +66,6 @@
    *          character (this is not the unicode codepoint)
    */
 
-  utf8_char_t FTDI::get_utf8_char_and_inc(char *&c) {
-    utf8_char_t val = *(uint8_t*)c++;
-    if ((val & 0xC0) == 0xC0)
-      while ((*c & 0xC0) == 0x80)
-        val = (val << 8) | *(uint8_t*)c++;
-    return val;
-  }
-
   utf8_char_t FTDI::get_utf8_char_and_inc(const char *&c) {
     utf8_char_t val = *(uint8_t*)c++;
     if ((val & 0xC0) == 0xC0)
