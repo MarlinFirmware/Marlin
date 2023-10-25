@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/dgus_reloaded/dgus_reloaded_extui.cpp
+ * lcd/extui/dgus_e3s1pro/dgus_e3s1pro_extui.cpp
  */
 
 #include "../../../inc/MarlinConfigPre.h"

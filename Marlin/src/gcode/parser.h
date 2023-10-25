@@ -22,8 +22,8 @@
 #pragma once
 
 /**
- * parser.h - Parser for a GCode line, providing a parameter interface.
- *           Codes like M149 control the way the GCode parser behaves,
+ * parser.h - Parser for a G-Code line, providing a parameter interface.
+ *           Codes like M149 control the way the G-Code parser behaves,
  *           so settings for these codes are located in this class.
  */
 
@@ -47,7 +47,7 @@
 #endif
 
 /**
- * GCode parser
+ * G-Code parser
  *
  *  - Parse a single G-code line for its letter, code, subcode, and parameters
  *  - FASTER_GCODE_PARSER:
@@ -72,7 +72,7 @@ private:
 
 public:
 
-  // Global states for GCode-level units features
+  // Global states for G-Code-level units features
 
   static bool volumetric_enabled;
 
@@ -250,7 +250,7 @@ public:
   //  FORCE_INLINE static char* logic_string(char* &src) { return src; }
   //#endif
 
-  // Populate all fields by parsing a single line of GCode
+  // Populate all fields by parsing a single line of G-Code
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
 
