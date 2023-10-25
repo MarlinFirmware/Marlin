@@ -89,20 +89,20 @@ void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, FSTR_P lab
     cmd.tag(0)
        .font(font_small);
     if (what & BACKGROUND) {
-        cmd.text(  SUB_POS(1,1), SUB_SIZE(9,1), label)
-           .button(SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
+      cmd.text(  SUB_POS(1,1), SUB_SIZE(9,1), label)
+         .button(SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
     }
 
     if (what & FOREGROUND) {
-        char str[32];
-        dtostrf(value, 5, 1, str);
-        strcat_P(str, PSTR(" "));
-        strcat_P(str, (const char*) GET_TEXT_F(MSG_UNITS_C));
+      char str[32];
+      dtostrf(value, 5, 1, str);
+      strcat_P(str, PSTR(" "));
+      strcat_P(str, (const char*) GET_TEXT_F(MSG_UNITS_C));
 
-        cmd.text(SUB_POS(1,2), SUB_SIZE(5,1), str)
-           .font(font_medium)
-           .tag(tag  ).button(SUB_POS(6,2), SUB_SIZE(2,1), F("-"))
-           .tag(tag+1).button(SUB_POS(8,2), SUB_SIZE(2,1), F("+"));
+      cmd.text(SUB_POS(1,2), SUB_SIZE(5,1), str)
+         .font(font_medium)
+         .tag(tag  ).button(SUB_POS(6,2), SUB_SIZE(2,1), F("-"))
+         .tag(tag+1).button(SUB_POS(8,2), SUB_SIZE(2,1), F("+"));
     }
 }
 
@@ -116,7 +116,9 @@ void PreheatTimerScreen::onRedraw(draw_mode_t what) {
   draw_interaction_buttons(what);
   draw_adjuster(what, 2, GET_TEXT_F(MSG_NOZZLE),  getTargetTemp_celsius(E0),      NOZZLE_ADJ_POS);
   draw_adjuster(what, 4, GET_TEXT_F(MSG_BODY),    getTargetTemp_celsius(E1),      BODY_ADJ_POS);
-  draw_adjuster(what, 6, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER), CHAMBER_ADJ_POS);
+  #if HAS_HEATED_CHAMBER
+    draw_adjuster(what, 6, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER), CHAMBER_ADJ_POS);
+  #endif
 }
 
 bool PreheatTimerScreen::onTouchHeld(uint8_t tag) {
@@ -126,8 +128,10 @@ bool PreheatTimerScreen::onTouchHeld(uint8_t tag) {
     case 3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     case 4: UI_DECREMENT(TargetTemp_celsius, E1); break;
     case 5: UI_INCREMENT(TargetTemp_celsius, E1); break;
-    case 6: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
-    case 7: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
+    #if HAS_HEATED_CHAMBER
+      case 6: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
+      case 7: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
+    #endif
     default:
       return false;
   }

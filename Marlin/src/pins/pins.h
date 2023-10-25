@@ -774,6 +774,8 @@
   #include "stm32f4/pins_ANET_ET4P.h"               // STM32F4                              env:Anet_ET4_no_bootloader env:Anet_ET4_OpenBLT
 #elif MB(FYSETC_CHEETAH_V20)
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"      // STM32F4                              env:FYSETC_CHEETAH_V20
+#elif MB(FYSETC_CHEETAH_V30)
+  #include "stm32f4/pins_FYSETC_CHEETAH_V30.h"      // STM32F4                              env:FYSETC_CHEETAH_V30
 #elif MB(MKS_MONSTER8_V1)
   #include "stm32f4/pins_MKS_MONSTER8_V1.h"         // STM32F4                              env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(MKS_MONSTER8_V2)
@@ -785,7 +787,7 @@
 #elif MB(MKS_ROBIN_NANO_V1_3_F4)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h"  // STM32F4                              env:mks_robin_nano_v1_3_f4 env:mks_robin_nano_v1_3_f4_usbmod
 #elif MB(MKS_EAGLE)
-  #include "stm32f4/pins_MKS_EAGLE.h"               // STM32F4                              env:mks_eagle
+  #include "stm32f4/pins_MKS_EAGLE.h"               // STM32F4                              env:mks_eagle env:mks_eagle_usb_flash_drive env:mks_eagle_usb_flash_drive_msc
 #elif MB(ARTILLERY_RUBY)
   #include "stm32f4/pins_ARTILLERY_RUBY.h"          // STM32F4                              env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
