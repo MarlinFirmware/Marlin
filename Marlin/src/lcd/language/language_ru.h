@@ -484,12 +484,9 @@ namespace LanguageNarrow_ru {
   LSTR MSG_BABYSTEP_N                       = _UxGT("Микрошаг @");
   LSTR MSG_BABYSTEP_TOTAL                   = _UxGT("Суммарно");
   LSTR MSG_ENDSTOP_ABORT                    = _UxGT("Сработал концевик");
-  LSTR MSG_HEATING_FAILED_LCD               = _UxGT("Разогрев не удался");
-  LSTR MSG_THERMAL_RUNAWAY                  = _UxGT("УТЕЧКА ТЕМПЕРАТУРЫ");
-  LSTR MSG_THERMAL_RUNAWAY_BED              = _UxGT("УТЕЧКА ТЕМП. СТОЛА");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER          = _UxGT("УТЕЧКА ТЕМП. КАМЕРЫ");
-  LSTR MSG_THERMAL_RUNAWAY_COOLER           = _UxGT("УТЕЧКА ТЕМП. КУЛЕРА");
-  LSTR MSG_COOLING_FAILED                   = _UxGT("НЕ УДАЛОСЬ ОХЛАДИТЬ");
+  LSTR MSG_ERR_HEATING_FAILED               = _UxGT("Разогрев не удался");
+  LSTR MSG_ERR_THERMAL_RUNAWAY              = _UxGT("УТЕЧКА ТЕМПЕРАТУРЫ");
+  LSTR MSG_ERR_COOLING_FAILED               = _UxGT("НЕ УДАЛОСЬ ОХЛАДИТЬ");
   LSTR MSG_ERR_MAXTEMP                      = _UxGT("Ошибка: Т макс.");
   LSTR MSG_ERR_MINTEMP                      = _UxGT("Ошибка: Т мин.");
   LSTR MSG_ERR_REDUNDANT_TEMP               = _UxGT("Ошибка: Т контр.");
@@ -784,7 +781,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ZPROBE_MARGIN                    = _UxGT("Отступы зонда");
   LSTR MSG_Z_FEED_RATE                      = _UxGT("Скорость Z");
   LSTR MSG_ENABLE_HS_MODE                   = _UxGT("Включить режим ВС");
-  LSTR MSG_TEMP_MALFUNCTION                 = _UxGT("СБОЙ ТЕМПЕРАТУРЫ");
+  LSTR MSG_ERR_TEMP_MALFUNCTION             = _UxGT("СБОЙ ТЕМПЕРАТУРЫ");
   LSTR MSG_PLEASE_WAIT                      = _UxGT("Ожидайте...");
   LSTR MSG_PREHEATING                       = _UxGT("Нагреваю...");
   LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS    = _UxGT("Делаю дельта-калибровку");

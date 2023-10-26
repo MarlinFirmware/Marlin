@@ -159,9 +159,9 @@ namespace LanguageNarrow_nl {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystap @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop afbr.");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Voorverw. fout");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Voorverw. fout");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Redun. temp fout");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Therm. wegloop");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Therm. wegloop");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: Max. temp");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Min. temp");
   LSTR MSG_HALTED                         = _UxGT("PRINTER GESTOPT");

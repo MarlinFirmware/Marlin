@@ -48,6 +48,9 @@ typedef struct FTConfig {
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
   #endif
 
+  float zeta = FTM_SHAPING_ZETA;                            // Damping factor
+  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
+
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
     float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };     // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
@@ -61,18 +64,22 @@ typedef struct FTConfig {
   #endif
 } ft_config_t;
 
-class FxdTiCtrl {
+class FTMotion {
 
   public:
 
     // Public variables
     static ft_config_t cfg;
+    static bool busy;
 
     static void set_defaults() {
       cfg.mode = FTM_DEFAULT_MODE;
 
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
+
+      cfg.zeta = FTM_SHAPING_ZETA;  // Damping factor
+      cfg.vtol = FTM_SHAPING_V_TOL; // Vibration Level
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -108,15 +115,14 @@ class FxdTiCtrl {
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                     // Controller main, to be invoked from non-isr task.
 
-
     #if HAS_X_AXIS
       // Refresh the gains used by shaping functions.
       // To be called on init or mode or zeta change.
-      static void updateShapingA(const_float_t zeta=FTM_SHAPING_ZETA, const_float_t vtol=FTM_SHAPING_V_TOL);
+      static void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
 
       // Refresh the indices used by shaping functions.
       // To be called when frequencies change.
-      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=FTM_SHAPING_ZETA);
+      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=cfg.zeta);
 
       static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
 
@@ -162,6 +168,7 @@ class FxdTiCtrl {
 
     static hal_timer_t nextStepTicks;
 
+    // Shaping variables.
     #if HAS_X_AXIS
 
       typedef struct AxisShaping {
@@ -181,7 +188,7 @@ class FxdTiCtrl {
           axis_shaping_t y;
         #endif
 
-        void updateShapingA(const_float_t zeta=FTM_SHAPING_ZETA, const_float_t vtol=FTM_SHAPING_V_TOL);
+        void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
 
       } shaping_t;
 
@@ -196,10 +203,10 @@ class FxdTiCtrl {
 
     // Private methods
     static uint32_t stepperCmdBuffItems();
-    static void loadBlockData(block_t * const current_block);
+    static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
 
-}; // class fxdTiCtrl
+}; // class FTMotion
 
-extern FxdTiCtrl fxdTiCtrl;
+extern FTMotion ftMotion;

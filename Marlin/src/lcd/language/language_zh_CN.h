@@ -427,11 +427,9 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("微量调整Z轴"); // "Babystep Z"
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("总计");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("挡块终止"); // "Endstop abort"
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("加热失败"); // "Heating failed"
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("加热失败"); // "Heating failed"
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("错误：冗余温度"); // "Err: REDUNDANT TEMP"
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("温控失控"); // "THERMAL RUNAWAY"
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("热床热量失控");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("机箱热量失控");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("温控失控"); // "THERMAL RUNAWAY"
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("错误：最高温度"); // "Err: MAXTEMP"
   LSTR MSG_ERR_MINTEMP                    = _UxGT("错误：最低温度"); // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("打印停机"); // "PRINTER HALTED"
