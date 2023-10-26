@@ -377,11 +377,9 @@ namespace LanguageNarrow_pl {
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Błąd krańcówki");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Rozgrz. nieudane");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Rozgrz. nieudane");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Błąd temperatury");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ZANIK TEMPERATURY");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("ZANIK TEMP. STOŁU");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("ZANIK TEMP.KOMORY");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ZANIK TEMPERATURY");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Błąd: MAXTEMP");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Błąd: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("Drukarka zatrzym.");
