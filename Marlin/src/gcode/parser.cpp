@@ -21,7 +21,7 @@
  */
 
 /**
- * parser.cpp - Parser for a GCode line, providing a parameter interface.
+ * parser.cpp - Parser for a G-Code line, providing a parameter interface.
  */
 
 #include "parser.h"
@@ -66,7 +66,7 @@ uint16_t GCodeParser::codenum;
   char *GCodeParser::command_args; // start of parameters
 #endif
 
-// Create a global instance of the GCode parser singleton
+// Create a global instance of the G-Code parser singleton
 GCodeParser parser;
 
 /**
@@ -108,7 +108,7 @@ void GCodeParser::reset() {
 
 /**
  * Populate the command line state (command_letter, codenum, subcode, and string_arg)
- * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
+ * by parsing a single line of G-Code. 58 bytes of SRAM are used to speed up seen/value.
  */
 void GCodeParser::parse(char *p) {
 
@@ -189,7 +189,13 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
+        if (TERN0(HAS_MULTI_EXTRUDER, letter == 'T')) {
+          p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
+          command_letter = letter;
+        }
+        return;
+      }
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
@@ -311,7 +317,7 @@ void GCodeParser::parse(char *p) {
     #endif
 
     #if ENABLED(FASTER_GCODE_PARSER)
-      // Arguments MUST be uppercase for fast GCode parsing
+      // Arguments MUST be uppercase for fast G-Code parsing
       #define PARAM_OK(P) WITHIN((P), 'A', 'Z')
     #else
       #define PARAM_OK(P) true
