@@ -133,6 +133,9 @@ jobs:
         #- STM32F103RC_btt_maple
         #- STM32F103RE_creality_maple
 
+        # STM32G0
+        - STM32G0B1RE_btt
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769
