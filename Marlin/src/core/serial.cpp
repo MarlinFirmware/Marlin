@@ -27,7 +27,8 @@
   #include "../feature/ethernet.h"
 #endif
 
-uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
+// Echo commands to the terminal by default in dev mode
+uint8_t marlin_debug_flags = TERN(MARLIN_DEV_MODE, MARLIN_DEBUG_ECHO, MARLIN_DEBUG_NONE);
 
 // Commonly-used strings in serial output
 PGMSTR(SP_A_STR, " A"); PGMSTR(SP_B_STR, " B"); PGMSTR(SP_C_STR, " C");

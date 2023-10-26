@@ -414,30 +414,46 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (!mark_as_selected(row, style & SS_INVERT)) return;
 
     pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
-
     const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
-    const int pwide = ftpl ? calculateWidth(ftpl) : 0,
-              vlen = vstr ? utf8_strlen(vstr) : 0;
-    int pad = (center || full) ? ((LCD_PIXEL_WIDTH) - pwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
+
+    char estr[calculateWidth(ftpl) + 3] = "\0";
+    pixel_len_t lwide = ftpl ? (MENU_FONT_WIDTH) * expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, (LCD_PIXEL_WIDTH) / (MENU_FONT_WIDTH)) : 0;
+
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    bool mv_colon = false;
+    if (vlen) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; lwide += MENU_FONT_WIDTH; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
+    }
+
+    // Padding for center or full justification
+    int8_t pad = (center || full) ? ((LCD_PIXEL_WIDTH) - lwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
 
     // SS_CENTER: Pad with half of the unused space first
-    if (center) for (int lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
 
-    // Draw as much of the label as fits
-    if (pwide) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+    // Draw as much of the label as fits (without the relocated colon, drawn below)
+    if (lwide) lcd_put_u8str_max(estr, n);
 
+    // Value string?
     if (vlen) {
       // SS_FULL: Pad with enough space to justify the value
       if (full && !center && n > MENU_FONT_WIDTH) {
-        // Move the leading colon from the value to the label
-        if (*vstr == ':') { n -= lcd_put_u8str(F(":")); vstr++; }
-        // Move spaces to the padding
-        while (*vstr == ' ') { vstr++; pad++; }
+        // Draw the leading colon moved from the value to the label
+        if (mv_colon) n -= lcd_put_u8str(F(":"));
         // Pad in-between
         for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
       }
+      // Draw the value string
       n -= lcd_put_u8str_max(vstr, n);
     }
+    // Always fill out the rest with spaces
     while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
   }
 
@@ -535,8 +551,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (inv) u8g.setColorIndex(1);
   }
 
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    ui.draw_select_screen_prompt(fpre, string, suff);
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
