@@ -453,8 +453,8 @@ void RTS::init() {
   languagedisplayUpdate();
   delay(500);
 
-  last_target_temperature[0]  = thermalManager.temp_hotend[0].target;
-  last_target_temperature_bed = thermalManager.temp_bed.target;
+  last_target_temperature[0]  = thermalManager.degTargetHotend(0);
+  last_target_temperature_bed = thermalManager.degTargetBed();
   feedrate_percentage         = 100;
   sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
 
@@ -464,8 +464,8 @@ void RTS::init() {
   /***************transmit temperature to screen*****************/
   sendData(0, HEAD_SET_TEMP_VP);
   sendData(0, BED_SET_TEMP_VP);
-  sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-  sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+  sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+  sendData(thermalManager.degBed(), BED_CURRENT_TEMP_VP);
   sendData(ui.material_preset[0].hotend_temp, PREHEAT_PLA_SET_NOZZLE_TEMP_VP);
   sendData(ui.material_preset[0].bed_temp, PREHEAT_PLA_SET_BED_TEMP_VP);
   sendData(ui.material_preset[1].hotend_temp, PREHEAT_ABS_SET_NOZZLE_TEMP_VP);
@@ -960,17 +960,12 @@ void RTS::sdCard_Stop() {
   if (home_flag) planner.synchronize();
   quickstop_stepper();
   print_job_timer.stop();
-  #if DISABLED(SD_ABORT_NO_COOLDOWN)
-    thermalManager.disable_all_heaters();
-  #endif
   TERN_(HOST_PAUSE_M76, hostui.cancel());
   print_job_timer.reset();
-  thermalManager.setTargetHotend(0, 0);
+  thermalManager.cooldown(0);
   sendData(0, HEAD_SET_TEMP_VP);
-  thermalManager.setTargetBed(0);
   sendData(0, BED_SET_TEMP_VP);
   temphot = 0;
-  thermalManager.zero_fan_speeds();
   wait_for_heatup  = wait_for_user = false;
   poweroffContinue = false;
 
@@ -1136,7 +1131,7 @@ void RTS::handleData() {
         sendData(1, AUTO_BED_LEVEL_TITLE_VP);
         sendData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
         rts.sendData(0, AUTO_LEVELING_PERCENT_DATA_VP);
-        if (thermalManager.temp_hotend[0].celsius < (AUTO_BED_LEVEL_PREHEAT - 5))
+        if (thermalManager.degHotend(0) < (AUTO_BED_LEVEL_PREHEAT - (TEMP_HYSTERESIS)))
           queue.enqueue_now(F("G4 S40"));
 
         if (axes_should_home()) queue.enqueue_one(F("G28"));
@@ -1245,7 +1240,7 @@ void RTS::handleData() {
 
     case AdjustEnterKey:
       if (recdat.data[0] == 1) {
-        // thermalManager.fan_speed[0] ? sendData(1, PRINTER_FANOPEN_TITLE_VP) : sendData(0, PRINTER_FANOPEN_TITLE_VP);
+        //thermalManager.fan_speed[0] ? sendData(1, PRINTER_FANOPEN_TITLE_VP) : sendData(0, PRINTER_FANOPEN_TITLE_VP);
         sendData(exchangePageBase + 14, exchangePageAddr);
         change_page_font = 14;
       }
@@ -1353,13 +1348,7 @@ void RTS::handleData() {
             print_job_timer.abort();
             // delay(10);
             while (planner.has_blocks_queued()) idle();
-            thermalManager.setTargetHotend(0, 0);
-            thermalManager.setTargetBed(0);
-            thermalManager.zero_fan_speeds();
-            while (thermalManager.temp_hotend[0].target > 0) {
-              thermalManager.setTargetHotend(0, 0);
-              idle();
-            }
+            thermalManager.cooldown();
             sdCard_Stop();
 
           }
@@ -1387,13 +1376,7 @@ void RTS::handleData() {
             print_job_timer.abort();
             // delay(10);
             while (planner.has_blocks_queued()) idle();
-            thermalManager.setTargetHotend(0, 0);
-            thermalManager.setTargetBed(0);
-            thermalManager.zero_fan_speeds();
-            while (thermalManager.temp_hotend[0].target > 0) {
-              thermalManager.setTargetHotend(0, 0);
-              idle();
-            }
+            thermalManager.cooldown();
             sdCard_Stop();
 
             poweroffContinue = false;
@@ -1412,12 +1395,10 @@ void RTS::handleData() {
           waitway          = 7;
           sendData(0, PRINT_TIME_HOUR_VP);
           sendData(0, PRINT_TIME_MIN_VP);
-          thermalManager.setTargetHotend(0, 0);
+          thermalManager.cooldown(0);
           sendData(0, HEAD_SET_TEMP_VP);
-          thermalManager.setTargetBed(0);
           sendData(0, BED_SET_TEMP_VP);
           temphot = 0;
-          thermalManager.zero_fan_speeds();
           updateTimeValue = 0;
           sdCard_Stop();
         }
@@ -1426,7 +1407,10 @@ void RTS::handleData() {
 
     case PausePrintKey:
       if (recdat.data[0] == 1) {
-        if (card.isPrinting() && (thermalManager.temp_hotend[0].celsius > (thermalManager.temp_hotend[0].target - 5)) && (thermalManager.temp_bed.celsius > (thermalManager.temp_bed.target - 3))) {
+        if (card.isPrinting()
+          && thermalManager.degHotendNear(0, thermalManager.degTargetHotend(0))
+          && thermalManager.degBedNear(thermalManager.degTargetBed())
+        ) {
           sendData(exchangePageBase + 11, exchangePageAddr);
           change_page_font = 11;
         }
@@ -1436,7 +1420,11 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 2) {
-        if (card.isPrinting() && (thermalManager.temp_hotend[0].celsius > (thermalManager.temp_hotend[0].target - 5)) && (thermalManager.temp_bed.celsius > (thermalManager.temp_bed.target - 3))) {
+        if (card.isPrinting()
+          && thermalManager.degHotendNear(0, thermalManager.degTargetHotend(0))
+          && thermalManager.degBedNear(thermalManager.degTargetBed())
+        ) {
+          // do nothing
         }
         else {
           sendData(exchangePageBase + 10, exchangePageAddr);
@@ -1446,10 +1434,9 @@ void RTS::handleData() {
 
         waitway = 1;
 
-        if (!temphot)
-          temphot = thermalManager.temp_hotend[0].target;
-        // card.pauseSDPrint();
-        // print_job_timer.pause();
+        if (!temphot) temphot = thermalManager.degTargetHotend(0);
+        //card.pauseSDPrint();
+        //print_job_timer.pause();
         queue.inject(F("M25"));
         TERN_(HOST_PAUSE_M76, hostui.pause());
         pause_action_flag = true;
@@ -1503,9 +1490,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 2) {
-        if (thermalManager.temp_hotend[0].target >= EXTRUDE_MINTEMP)
-          thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        else
+        if (thermalManager.tooColdToExtrude(0))
           thermalManager.setTargetHotend(200, 0);
 
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1643,20 +1628,16 @@ void RTS::handleData() {
         change_page_font = 23;
       }
       else if (recdat.data[0] == 5) {
-        thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-        thermalManager.temp_bed.target = ui.material_preset[0].bed_temp;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
+        sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+        thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+        sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       }
       else if (recdat.data[0] == 6) {
-        thermalManager.temp_hotend[0].target = ui.material_preset[1].hotend_temp;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-        thermalManager.temp_bed.target = ui.material_preset[1].bed_temp;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
+        sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+        thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
+        sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       }
       else if (recdat.data[0] == 7) {
         sendData(exchangePageBase + 21, exchangePageAddr);
@@ -1689,30 +1670,25 @@ void RTS::handleData() {
         change_page_font = 91;
       }
       else if (recdat.data[0] == 163) {
-        thermalManager.temp_hotend[0].target = ui.material_preset[2].hotend_temp;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-        thermalManager.temp_bed.target = ui.material_preset[2].bed_temp;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
+        sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+        thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
+        sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       }
       else if (recdat.data[0] == 164) {
-        thermalManager.temp_hotend[0].target = ui.material_preset[3].hotend_temp;
-        thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-        thermalManager.temp_bed.target = ui.material_preset[3].bed_temp;
-        thermalManager.setTargetBed(thermalManager.temp_bed.target);
-        sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+        thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
+        sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+        thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
+        sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       }
       break;
 
     case CoolDownKey:
       if (recdat.data[0] == 1) {
-        thermalManager.setTargetHotend(0, 0);
+        thermalManager.cooldown(0);
         sendData(0, HEAD_SET_TEMP_VP);
-        thermalManager.setTargetBed(0);
         sendData(0, BED_SET_TEMP_VP);
-        thermalManager.fan_speed[0] = 255;
+        thermalManager.set_fan_speed(0, 255);
         //sendData(0, PRINTER_FANOPEN_TITLE_VP);
       }
       else if (recdat.data[0] == 2) {
@@ -1737,8 +1713,8 @@ void RTS::handleData() {
         g_uiAutoPIDFlag = true;
         thermalManager.setTargetBed(0);
         thermalManager.setTargetHotend(0, 0);
-        last_target_temperature[0]  = thermalManager.temp_hotend[0].target;
-        last_target_temperature_bed = thermalManager.temp_bed.target;
+        last_target_temperature[0]  = 0;
+        last_target_temperature_bed = 0;
         sendData(g_autoPIDHeaterTempTarget, HEAD_SET_TEMP_VP);
         sendData(g_autoPIDHotBedTempTarget, BED_SET_TEMP_VP);
       }
@@ -1748,7 +1724,7 @@ void RTS::handleData() {
       if (!g_uiAutoPIDFlag) {
         temphot = recdat.data[0];
         thermalManager.setTargetHotend(temphot, 0);
-        sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+        sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
       }
       else { // è‡ªåŠ¨PID
         if (g_uiAutoPIDNozzleRuningFlag || (recdat.data[0] < AUTO_PID_NOZZLE_TARGET_TEMP_MIN)) {
@@ -2499,18 +2475,17 @@ void RTS::handleData() {
         #endif
         current_position[E_AXIS] += filamentLoad;
 
-        if ((thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (thermalManager.temp_hotend[0].celsius - 5))) {
-          thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-          sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+        if (thermalManager.targetHotEnoughToExtrude(0)) {
+          sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
           // break;
         }
-        else if ((thermalManager.temp_hotend[0].target < EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (ChangeFilamentTemp - 5))) {
+        else if (thermalManager.degHotend(0) < ChangeFilamentTemp - 5) {
           thermalManager.setTargetHotend(ChangeFilamentTemp, 0);
           sendData(ChangeFilamentTemp, HEAD_SET_TEMP_VP);
           // break;
         }
 
-        while (ABS(thermalManager.degHotend(0) - thermalManager.degTargetHotend(0)) > TEMP_WINDOW) idle();
+        while (thermalManager.still_heating(0)) idle();
 
         // else
         {
@@ -2535,19 +2510,19 @@ void RTS::handleData() {
 
         current_position[E_AXIS] -= filamentUnload;
 
-        if ((thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (thermalManager.temp_hotend[0].celsius - 5))) {
-          thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-          sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+        if (thermalManager.targetHotEnoughToExtrude(0)) {
+          sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
           // break;
         }
-        else if ((thermalManager.temp_hotend[0].target < EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (ChangeFilamentTemp - 5))) {
+        else if (thermalManager.degHotend(0) < ChangeFilamentTemp - 5) {
           thermalManager.setTargetHotend(ChangeFilamentTemp, 0);
           sendData(ChangeFilamentTemp, HEAD_SET_TEMP_VP);
           // break;
         }
-        // else
-        while (ABS(thermalManager.degHotend(0) - thermalManager.degTargetHotend(0)) > TEMP_WINDOW) idle();
 
+        while (thermalManager.still_heating(0)) idle();
+
+        // else
         {
           RTS_line_to_current(E_AXIS);
           sendData(10 * filamentUnload, HEAD_FILAMENT_UNLOAD_DATA_VP);
@@ -2572,12 +2547,11 @@ void RTS::handleData() {
             }
           #endif
 
-          if ((thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (thermalManager.temp_hotend[0].celsius - 5))) {
-            thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-            sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+          if (thermalManager.targetHotEnoughToExtrude(0)) {
+            sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
             break;
           }
-          else if ((thermalManager.temp_hotend[0].target < EXTRUDE_MINTEMP) && (thermalManager.temp_hotend[0].celsius < (ChangeFilamentTemp - 5))) {
+          else if (thermalManager.degHotend(0) < ChangeFilamentTemp - 5) {
             thermalManager.setTargetHotend(ChangeFilamentTemp, 0);
             sendData(ChangeFilamentTemp, HEAD_SET_TEMP_VP);
             break;
@@ -2861,10 +2835,11 @@ void RTS::handleData() {
       }
       break;
 
-    case FanSpeedEnterKey:
-      thermalManager.fan_speed[0] = recdat.data[0];
-      sendData(thermalManager.fan_speed[0], FAN_SPEED_CONTROL_DATA_VP);
-      break;
+    case FanSpeedEnterKey: {
+      const uint8_t fan_speed = (uint8_t)recdat.data[0];
+      thermalManager.set_fan_speed(0, fan_speed);
+      sendData(fan_speed, FAN_SPEED_CONTROL_DATA_VP);
+    } break;
 
     case VelocityXaxisEnterKey:
       float velocity_xaxis;
@@ -3037,12 +3012,11 @@ void RTS::handleData() {
       thermalManager.temp_bed.pid.set_Kd(hotbed_dtemp);
       break;
 
-    case PrintFanSpeedkey:
-      uint8_t fan_speed;
-      fan_speed = (uint8_t)recdat.data[0];
+    case PrintFanSpeedkey: {
+      const uint8_t fan_speed = (uint8_t)recdat.data[0];
       sendData(fan_speed, PRINTER_FAN_SPEED_DATA_VP);
       thermalManager.set_fan_speed(0, fan_speed);
-      break;
+    } break;
 
     case AutopidSetNozzleTemp:
       g_autoPIDHeaterTempTargetset = recdat.data[0];
@@ -3622,24 +3596,22 @@ void EachMomentUpdate() {
           rts.sendData(0, HEAD_SET_TEMP_VP);
         }
 
-        rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-        rts.sendData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
+        rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+        rts.sendData(thermalManager.degBed(), BED_CURRENT_TEMP_VP);
 
         #if ENABLED(SDSUPPORT)
           if (!sdcard_pause_check && !card.isPrinting() && !planner.has_blocks_queued())
             rts.sendData(card.flag.mounted ? 1 : 0, CHANGE_SDCARD_ICON_VP);
         #endif
 
-        if ((last_target_temperature[0] != thermalManager.temp_hotend[0].target) || (last_target_temperature_bed != thermalManager.temp_bed.target)) {
-          thermalManager.setTargetHotend(thermalManager.temp_hotend[0].target, 0);
-          thermalManager.setTargetBed(thermalManager.temp_bed.target);
-          rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-          rts.sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
-          last_target_temperature[0]  = thermalManager.temp_hotend[0].target;
-          last_target_temperature_bed = thermalManager.temp_bed.target;
+        if (last_target_temperature[0] != thermalManager.degTargetHotend(0) || last_target_temperature_bed != thermalManager.degTargetBed()) {
+          last_target_temperature[0]  = thermalManager.degTargetHotend(0);
+          last_target_temperature_bed = thermalManager.degTargetBed();
+          rts.sendData(last_target_temperature[0], HEAD_SET_TEMP_VP);
+          rts.sendData(last_target_temperature_bed, BED_SET_TEMP_VP);
         }
 
-        if ((thermalManager.temp_hotend[0].celsius >= thermalManager.temp_hotend[0].target) && (heatway == 1)) {
+        if (thermalManager.degHotendNear(0, thermalManager.degTargetHotend(0)) && heatway == 1) {
           rts.sendData(exchangePageBase + 19, exchangePageAddr);
           change_page_font = 19;
           heatway = 0;

@@ -153,8 +153,8 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
 
   #if ENABLED(E3S1PRO_RTS)
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
   #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
@@ -286,8 +286,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
           #if ENABLED(E3S1PRO_RTS)
-            rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-            rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+            rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+            rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
           #endif
         }
 
@@ -371,8 +371,8 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
     ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
 
     #if ENABLED(E3S1PRO_RTS)
-      rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-      rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+      rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+      rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
     #endif
 
   }
@@ -496,8 +496,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
 
   #if ENABLED(E3S1PRO_RTS)
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -538,8 +538,8 @@ void show_continue_prompt(const bool is_reload) {
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
 
   #if ENABLED(E3S1PRO_RTS)
-    rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-    rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
     //rts.sendData(beepSound, soundAddr);
   #endif
 
@@ -588,8 +588,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
       #if ENABLED(E3S1PRO_RTS)
         rts.sendData(exchangePageBase + 7, exchangePageAddr);
-        rts.sendData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
-        rts.sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+        rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+        rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
       #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 

@@ -224,7 +224,7 @@ void RTS::handleDataLaser(void) {
         rts.sendData(0, AUTO_LEVELING_PERCENT_DATA_VP);
         thermalManager.setTargetHotend(AUTO_BED_LEVEL_PREHEAT, 0);
         sendData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
-        if (thermalManager.temp_hotend[0].celsius < (AUTO_BED_LEVEL_PREHEAT - 5))
+        if (thermalManager.degHotend(0) < (AUTO_BED_LEVEL_PREHEAT - 5))
           queue.enqueue_now_P(PSTR("G4 S40"));
 
         if (axes_should_home()) queue.enqueue_one_P(PSTR("G28"));
@@ -318,7 +318,7 @@ void RTS::handleDataLaser(void) {
 
     case PausePrintKey:
       if (recdat.data[0] == 1) {
-        if (card.isPrinting()) {  // && (thermalManager.temp_hotend[0].celsius > (thermalManager.temp_hotend[0].target - 5)) && (thermalManager.temp_bed.celsius > (thermalManager.temp_bed.target - 3)))
+        if (card.isPrinting()) {  // && (thermalManager.degHotend(0) > (thermalManager.degTargetHotend(0) - 5)) && (thermalManager.degBed() > (thermalManager.degTargetBed() - 3)))
           sendData(exchangePageBase + 62, exchangePageAddr);
           change_page_font = 62;
         }
@@ -1062,8 +1062,8 @@ void RTS::handleDataLaser(void) {
       sendData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
       sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
-      sendData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
-      sendData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+      sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+      sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       languagedisplayUpdate();
 
       sendData(change_page_font + exchangePageBase, exchangePageAddr);

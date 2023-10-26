@@ -457,7 +457,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if NUM_REDUNDANT_FANS
       if (fan == 0) {
         for (uint8_t f = REDUNDANT_PART_COOLING_FAN; f < REDUNDANT_PART_COOLING_FAN + NUM_REDUNDANT_FANS; ++f)
-          thermalManager.set_fan_speed(f, speed);
+          set_fan_speed(f, speed);
       }
     #endif
 
@@ -857,13 +857,13 @@ volatile bool Temperature::raw_temps_ready = false;
           ui_next_temp_ms = ms + 1000UL;
           uint16_t uiTemp[1];
           if (g_uiAutoPIDRuningDiff == 1) {
-            uiTemp[0] = thermalManager.temp_hotend[0].celsius;
+            uiTemp[0] = degHotend(0);
             rts.sendCurveData(6, uiTemp, 1);
             rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
             SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
           }
           else if (g_uiAutoPIDRuningDiff == 2) {
-            uiTemp[0] = thermalManager.temp_bed.celsius;
+            uiTemp[0] = degBed();
             rts.sendCurveData(5, uiTemp, 1);
             rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
             SERIAL_ECHOLNPGM("Autopid hotbed running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
@@ -2143,7 +2143,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       temp_cooler.soft_pwm_amount = 0;
       if (flag_cooler_state) {
         flag_cooler_state = false;
-        thermalManager.set_fan_speed(COOLER_FAN_INDEX, 0);
+        set_fan_speed(COOLER_FAN_INDEX, 0);
       }
       WRITE_HEATER_COOLER(LOW);
     }
