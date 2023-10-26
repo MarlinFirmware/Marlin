@@ -1064,9 +1064,9 @@ void MarlinUI::draw_status_screen() {
   }
 
   // The Select Screen presents a prompt and two "buttons"
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string, FSTR_P const suff) {
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string, FSTR_P const fsuf) {
     if (!PanelDetected) return;
-    ui.draw_select_screen_prompt(pref, string, suff);
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     lcd.write(COLOR_EDIT);
     if (no) {
       lcd_moveto(0, MIDDLE_Y);

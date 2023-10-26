@@ -316,14 +316,14 @@ void lcd_put_int(const int i) {
 //
 
 // Draw a generic menu item with pre_char (if selected) and post_char
-void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
+void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
   menu_item(row, sel);
 
-  const char *string = FTOP(fstr);
+  const char *string = FTOP(ftpl);
   MarlinImage image = noImage;
   switch (*string) {
-    case 0x01: image = imgRefresh; break;  // LCD_STR_REFRESH
-    case 0x02: image = imgDirectory; break;  // LCD_STR_FOLDER
+    case LCD_STR_REFRESH[0]: image = imgRefresh; break;
+    case LCD_STR_FOLDER[0]: image = imgDirectory; break;
   }
 
   uint8_t offset = MENU_TEXT_X;
@@ -354,7 +354,10 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl
 void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
   menu_item(row);
 
-  tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+  if (ftpl)
+    tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+  else
+    tft_string.set();
 
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
