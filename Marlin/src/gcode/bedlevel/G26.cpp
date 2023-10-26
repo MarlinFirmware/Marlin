@@ -346,9 +346,7 @@ typedef struct {
     // Start heating the active nozzle
     LCD_MESSAGE_MAX(MSG_G26_HEATING_NOZZLE);
 
-    #if DISABLED(E3S1PRO_RTS)
-    ui.quick_feedback();
-    #endif
+    IF_DISABLED(E3S1PRO_RTS, ui.quick_feedback());
 
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
@@ -358,9 +356,7 @@ typedef struct {
 
     ui.reset_status();
 
-    #if DISABLED(E3S1PRO_RTS)
-    ui.completion_feedback();
-    #endif
+    IF_DISABLED(E3S1PRO_RTS, ui.completion_feedback());
 
     return G26_OK;
   }
@@ -413,9 +409,7 @@ typedef struct {
     #endif
     {
       LCD_MESSAGE_MAX(MSG_G26_FIXED_LENGTH);
-      #if DISABLED(E3S1PRO_RTS)
-        ui.quick_feedback();
-      #endif
+      IF_DISABLED(E3S1PRO_RTS, ui.quick_feedback());
       destination = current_position;
       destination.e += prime_length;
       prepare_internal_move_to_destination(fr_slow_e);

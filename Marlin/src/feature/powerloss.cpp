@@ -26,10 +26,6 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_LASER_E3S1PRO
-  #include "../module/stepper.h"
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "powerloss.h"
@@ -78,6 +74,7 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #endif
 
 #if HAS_LASER_E3S1PRO
+  #include "../module/stepper.h"
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -144,18 +141,19 @@ bool PrintJobRecovery::check() {
     #endif
 
     #if HAS_LASER_E3S1PRO
-        if (laser_device.is_laser_device()) {
-        purge();
-        } else
+      const bool is_laser = laser_device.is_laser_device();
+      if (is_laser) purge();
+    #else
+      constexpr bool is_laser = false;
     #endif
-        {
-          success = valid();
-          if (!success)
-            cancel();
-          else
-            queue.inject(F("M1000S"));
-        }
 
+    if (!is_laser) {
+      success = valid();
+      if (!success)
+        cancel();
+      else
+        queue.inject(F("M1000S"));
+    }
   }
   return success;
 }
@@ -195,9 +193,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()) return;
-  #endif
+  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -279,9 +275,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
 
-    #if ENABLED(E3S1PRO_RTS)
-      info.recovery_flag = poweroffContinue;
-    #endif
+    TERN_(E3S1PRO_RTS, info.recovery_flag = poweroffContinue);
 
     write();
   }

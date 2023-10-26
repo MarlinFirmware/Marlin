@@ -1317,11 +1317,7 @@ void setup() {
     );
   #endif
 
-  #if ENABLED(E3S1PRO_RTS)
-    SERIAL_ECHO_MSG(" Compiled: " __DATE__" " __TIME__);
-  #else
-    SERIAL_ECHO_MSG(" Compiled: " __DATE__);
-  #endif
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__ TERN_(E3S1PRO_RTS, " " __TIME__));
 
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
@@ -1376,13 +1372,7 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if ENABLED(E3S1PRO_RTS)
-  lang = language_change_font;
-  #else
-    #if HAS_MULTI_LANGUAGE
-      TERN_(HAS_M414_COMMAND, lang = language_change_font);
-    #endif
-  #endif
+  TERN_(HAS_M414_COMMAND, lang = language_change_font);
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
@@ -1649,8 +1639,8 @@ void setup() {
   #endif
 
   #if ENABLED(E3S1PRO_RTS)
-      delay(500);
-      SETUP_RUN(rts.init());
+    delay(500);
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
@@ -1666,9 +1656,9 @@ void setup() {
   #endif
 
   #if HAS_LASER_E3S1PRO
-      laser_device.get_device_form_eeprom(); // 107011
-      laser_device.get_z_axis_high_form_eeprom();
-      if (laser_device.is_laser_device()) laser_device.laser_power_open();
+    laser_device.get_device_from_eeprom(); // 107011
+    laser_device.get_z_axis_high_from_eeprom();
+    if (laser_device.is_laser_device()) laser_device.laser_power_open();
   #endif
 
   #if HAS_TFT_LVGL_UI

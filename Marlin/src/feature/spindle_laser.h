@@ -379,17 +379,17 @@ class spindle_laser_soft_pwm {
     cutter.apply_power(0);
   }
 
-  void get_device_form_eeprom() {
+  void get_device_from_eeprom() {
     uint8_t buff[2]={0};
     BL24CXX::read(LASER_FDM_ADDR, &buff[0], 1);
-    //SERIAL_ECHOLNPGM("get_device_form_eeprom", buff[0]);
+    //SERIAL_ECHOLNPGM("get_device_from_eeprom", buff[0]);
     if ((device_header)buff[0] == DEVICE_LASER || (device_header)buff[0] == DEVICE_FDM)
       current_device = (device_header)buff[0];
     else
       current_device = DEVICE_UNKNOWN;
   }
 
-  double get_z_axis_high_form_eeprom() {
+  double get_z_axis_high_from_eeprom() {
     uint8_t buff[3]={0};
     uint16_t data=0;
     BL24CXX::read(LASER_Z_AXIS_HIGH_ADDR, &buff[0], 2);

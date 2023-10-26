@@ -1420,9 +1420,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
   void Temperature::update_autofans() {
 
-    #if HAS_LASER_E3S1PRO
-        if (laser_device.is_laser_device()) return;
-    #endif
+    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
     #define _EFAN(I,N) _EFANOVERLAP(I,N) ? I :
     static const uint8_t fanBit[] PROGMEM = {

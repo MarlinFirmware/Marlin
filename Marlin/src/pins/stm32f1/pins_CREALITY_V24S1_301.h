@@ -30,13 +30,11 @@
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Creality v24S1 only supports 1 hotend / E stepper."
-  #define E_ERROR 1
+  #define E_ERROR                              1
 #endif
 
-#if DISABLED(E3S1PRO_RTS)
-  #if ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #error "Disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN when using BLTOUCH with Creality V24S1-301."
-  #endif
+#if DISABLED(E3S1PRO_RTS) && ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #error "Disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN when using BLTOUCH with Creality V24S1-301."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -88,16 +86,16 @@
 
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                    PA11
-    #define IIC_EEPROM_SCL                    PA12
-    #define MARLIN_EEPROM_SIZE                0x800  // 2Kb (24C16)
+    #define IIC_EEPROM_SDA                  PA11
+    #define IIC_EEPROM_SCL                  PA12
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
-    #define MARLIN_EEPROM_SIZE                0x800  // 2Kb
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
   #endif
 
   #define EEPROM_PLR
   #if ENABLED(EEPROM_PLR)
-    #define PLR_ADDR 800
+    #define PLR_ADDR                         800
   #endif
 
   //#define HEATER_0_PIN                    -1
