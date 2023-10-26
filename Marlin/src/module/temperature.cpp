@@ -77,6 +77,9 @@
 
 #if ENABLED(E3S1PRO_RTS)
   #include "../lcd/rts/e3s1pro/lcd_rts.h"
+  #define E3S1PRO_RTS_PAGE(N) do{ rts.sendData(exchangePageBase + N, exchangePageAddr); change_page_font = N; }while(0)
+#else
+  #define E3S1PRO_RTS_PAGE(...) NOOP
 #endif
 
 // MAX TC related macros
@@ -665,8 +668,7 @@ volatile bool Temperature::raw_temps_ready = false;
       //char textRep_cycles[25];
       //int repT = 1; // added for updating the running icon
       rts.sendData(0, PID_TUNING_RUNNING_VP);
-      if (heater_id == 0)
-        rts.sendData(1, PID_ICON_MODE_VP);
+      if (heater_id == 0) rts.sendData(1, PID_ICON_MODE_VP);
       const bool isHeater_autopid = (heater_id == H_E0);
       const bool isBed_autopid = (heater_id == H_BED);
     #endif
@@ -722,14 +724,14 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(PROUI_PID_TUNE, dwinPidTuning(isbed ? PIDTEMPBED_START : PIDTEMP_START));
 
     #if ENABLED(E3S1PRO_RTS)
-            if (isBed_autopid){
-              rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
-              rts.sendData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
-            }
-            if (isHeater_autopid){
-              rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
-              rts.sendData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
-            }
+      if (isBed_autopid) {
+        rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
+        rts.sendData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
+      }
+      if (isHeater_autopid) {
+        rts.sendData(0, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
+        rts.sendData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
+      }
     #endif
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
@@ -824,11 +826,11 @@ volatile bool Temperature::raw_temps_ready = false;
           cycles++;
 
           #if ENABLED(E3S1PRO_RTS)
-            if (isBed_autopid){
+            if (isBed_autopid) {
               rts.sendData(cycles, PID_TEXT_OUT_CUR_CYCLE_HOTBED_VP);
               rts.sendData(ncycles, AUTO_PID_SET_HOTBED_CYCLES);
             }
-            if (isHeater_autopid){
+            if (isHeater_autopid) {
               rts.sendData(cycles, PID_TEXT_OUT_CUR_CYCLE_NOZZLE_VP);
               rts.sendData(ncycles, AUTO_PID_SET_NOZZLE_CYCLES);
             }
@@ -850,23 +852,24 @@ volatile bool Temperature::raw_temps_ready = false;
         break;
       }
 
-#if ENABLED(E3S1PRO_RTS)
-      if (ELAPSED(ms, ui_next_temp_ms)) { // æ›²çº¿
-        ui_next_temp_ms = ms + 1000UL;
-        uint16_t uiTemp[1];
-        if (g_uiAutoPIDRuningDiff == 1) {
-          uiTemp[0] = thermalManager.temp_hotend[0].celsius;
-          rts.sendCurveData(6, uiTemp, 1);
-          rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
-          SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
-        } else if (g_uiAutoPIDRuningDiff == 2) {
-          uiTemp[0] = thermalManager.temp_bed.celsius;
-          rts.sendCurveData(5, uiTemp, 1);
-          rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
-          SERIAL_ECHOLNPGM("Autopid hotbed running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
+      #if ENABLED(E3S1PRO_RTS)
+        if (ELAPSED(ms, ui_next_temp_ms)) { // æ›²çº¿
+          ui_next_temp_ms = ms + 1000UL;
+          uint16_t uiTemp[1];
+          if (g_uiAutoPIDRuningDiff == 1) {
+            uiTemp[0] = thermalManager.temp_hotend[0].celsius;
+            rts.sendCurveData(6, uiTemp, 1);
+            rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
+            SERIAL_ECHOLNPGM("Autopid hotend running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
+          }
+          else if (g_uiAutoPIDRuningDiff == 2) {
+            uiTemp[0] = thermalManager.temp_bed.celsius;
+            rts.sendCurveData(5, uiTemp, 1);
+            rts.sendData(g_uiCurveDataCnt++, WRITE_CURVE_DDR_CMD);
+            SERIAL_ECHOLNPGM("Autopid hotbed running. Temp: ", uiTemp[0], " Cycle: ", cycles, "/", ncycles);
+          }
         }
-      }
-#endif
+      #endif
 
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
@@ -885,21 +888,11 @@ volatile bool Temperature::raw_temps_ready = false;
                 temp_change_ms = ms + SEC_TO_MS(watch_temp_period);   // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms)) {                 // Watch timer expired
-                #if ENABLED(E3S1PRO_RTS)
-                  rts.sendData(exchangePageBase + 31, exchangePageAddr);
-                  change_page_font = 31;
-                #endif
+              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
                 _TEMP_ERROR(heater_id, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, current_temp);
-              }
             }
-            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
-              #if ENABLED(E3S1PRO_RTS)
-                rts.sendData(exchangePageBase + 31, exchangePageAddr);
-                change_page_font = 31;
-              #endif
+            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE))   // Heated, then temperature fell too far?
               _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current_temp);
-            }
           }
         #endif
       } // every 2 seconds
@@ -913,11 +906,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
-
-        #if ENABLED(E3S1PRO_RTS)
-          rts.sendData(exchangePageBase + 31, exchangePageAddr);
-          change_page_font = 31;
-        #endif
+        E3S1PRO_RTS_PAGE(31);
 
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -1565,6 +1554,8 @@ void Temperature::_temp_error(
 ) {
   static uint8_t killed = 0;
 
+  E3S1PRO_RTS_PAGE(31);
+
   if (IsRunning() && TERN1(BOGUS_TEMPERATURE_GRACE_PERIOD, killed == 2)) {
     SERIAL_ERROR_START();
     SERIAL_ECHO(serial_msg);
@@ -1623,26 +1614,16 @@ void Temperature::_temp_error(
 }
 
 void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
-    dwinPopupTemperature(1);
-  #endif
-
-  #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
-    rts.sendData(exchangePageBase + 31, exchangePageAddr);
-    change_page_font = 31;
+  #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(1));
   #endif
 
   _TEMP_ERROR(heater_id, F(STR_T_MAXTEMP), MSG_ERR_MAXTEMP, deg);
 }
 
 void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
-    dwinPopupTemperature(0);
-  #endif
-
-  #if ENABLED(E3S1PRO_RTS) && (HAS_HOTEND || HAS_HEATED_BED)
-    rts.sendData(exchangePageBase + 31, exchangePageAddr);
-    change_page_font = 31;
+  #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
   #endif
 
   _TEMP_ERROR(heater_id, F(STR_T_MINTEMP), MSG_ERR_MINTEMP, deg);
@@ -1849,8 +1830,6 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         const auto deg = degHotend(e);
         if (deg > temp_range[e].maxtemp) {
           #if ENABLED(E3S1PRO_RTS)
-            rts.sendData(exchangePageBase + 31, exchangePageAddr);
-            change_page_font = 31;
             SERIAL_ECHOLNPGM("HOTEND MAXTEMP E:", e, " T:", degHotend(e), " MAX:", temp_range[e].maxtemp);
           #endif
           MAXTEMP_ERROR(e, deg);
@@ -1876,10 +1855,6 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-            #if ENABLED(E3S1PRO_RTS)
-              rts.sendData(exchangePageBase + 31, exchangePageAddr);
-              change_page_font = 31;
-            #endif
             _TEMP_ERROR(e, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, temp);
           }
         }
@@ -1897,13 +1872,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
       const auto deg = degBed();
-      if (deg > BED_MAXTEMP) {
-        #if ENABLED(E3S1PRO_RTS)
-          rts.sendData(exchangePageBase + 31, exchangePageAddr);
-          change_page_font = 31;
-        #endif
-        MAXTEMP_ERROR(H_BED, deg);
-      }
+      if (deg > BED_MAXTEMP) MAXTEMP_ERROR(H_BED, deg);
     }
     #endif
 
@@ -1916,10 +1885,6 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
           TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-          #if ENABLED(E3S1PRO_RTS)
-            rts.sendData(exchangePageBase + 31, exchangePageAddr);
-            change_page_font = 31;
-          #endif
           _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, deg);
         }
       }
@@ -3349,20 +3314,12 @@ void Temperature::init() {
 
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-        #if ENABLED(E3S1PRO_RTS)
-          rts.sendData(exchangePageBase + 31, exchangePageAddr);
-          change_page_font = 31;
-        #endif
         _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current);
         break;
 
       #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
         case TRMalfunction:
           TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
-          #if ENABLED(E3S1PRO_RTS)
-            rts.sendData(exchangePageBase + 31, exchangePageAddr);
-            change_page_font = 31;
-          #endif
           _TEMP_ERROR(heater_id, F(STR_T_THERMAL_MALFUNCTION), MSG_ERR_TEMP_MALFUNCTION, current);
           break;
       #endif

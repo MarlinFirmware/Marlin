@@ -191,11 +191,11 @@ timer_dev* HAL_get_timer_dev(int number) {
 
     if (pwm <= 0x00) { //
       timer_pause(LASER_TIMER_DEV);
-      WRITE(LASER_SOFT_PWM_PIN, 0); //WRITE(PC0, 0);
+      WRITE(LASER_SOFT_PWM_PIN, LOW); //WRITE(PC0, 0);
     }
     else if (pwm >= 0xFE) {
       timer_pause(LASER_TIMER_DEV);
-      WRITE(LASER_SOFT_PWM_PIN, 1); //WRITE(PC0, 0);
+      WRITE(LASER_SOFT_PWM_PIN, HIGH); //WRITE(PC0, 0);
     }
     else {
       timer_pause(LASER_TIMER_DEV);
