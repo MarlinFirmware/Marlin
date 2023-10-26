@@ -30,7 +30,8 @@ This project and everyone participating in it is governed by the [Marlin Code of
 
 ## I don't want to read this whole thing I just have a question!!!
 
-> **Note:** Please don't file an issue to ask a question. You'll get faster results by using the resources below.
+> [!NOTE]
+> Please don't file an issue to ask a question. You'll get faster results by using the resources below.
 
 We have a Message Board and a Facebook group where our knowledgable user community can provide helpful advice if you have questions.
 
@@ -55,7 +56,8 @@ This section guides you through submitting a Bug Report for Marlin. Following th
 
 Before creating a Bug Report, please test the "nightly" development branch, as you might find out that you don't need to create one. When you are creating a Bug Report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report). Fill out [the required template](ISSUE_TEMPLATE/bug_report.yml), the information it asks for helps us resolve issues faster.
 
-> **Note:** Regressions can happen. If you find a **Closed** issue that seems like your issue, go ahead and open a new issue and include a link to the original issue in the body of your new one. All you need to create a link is the issue number, preceded by #. For example, #8888.
+> [!NOTE]
+> Regressions can happen. If you find a **Closed** issue that seems like your issue, go ahead and open a new issue and include a link to the original issue in the body of your new one. All you need to create a link is the issue number, preceded by #. For example, #8888.
 
 #### How Do I Submit A (Good) Bug Report?
 
