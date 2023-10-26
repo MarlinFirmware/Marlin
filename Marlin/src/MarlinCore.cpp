@@ -380,7 +380,7 @@ void startOrResumeJob() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
-    if (TERN1(HAS_LASER_E3S1PRO, !laser_device.is_laser_device()))
+    if (TERN0(HAS_LASER_E3S1PRO, !laser_device.is_laser_device()))
       thermalManager.cooldown();
 
     queue.clear();
@@ -1316,9 +1316,7 @@ void setup() {
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-
   SERIAL_ECHO_MSG(" Compiled: " __DATE__ TERN_(E3S1PRO_RTS, " " __TIME__));
-
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment

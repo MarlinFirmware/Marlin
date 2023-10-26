@@ -214,7 +214,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(LASER_FEATURE)
-    if (laser_device.is_laser_device()){
+    if (laser_device.is_laser_device()) {
       if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
         // Set the cutter power in the planner to configure this move
         cutter.last_feedrate_mm_m = 0;

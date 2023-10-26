@@ -374,7 +374,6 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
       rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
       rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
     #endif
-
   }
 
   // Retract filament
@@ -604,7 +603,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, GET_TEXT_F(MSG_REHEATING)));
 
-      TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(GET_TEXT_F(MSG_REHEATING)));
+      LCD_MESSAGE(MSG_REHEATING);
+      //TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(GET_TEXT_F(MSG_REHEATING)));
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -621,7 +621,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_REHEATDONE)));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Reheat finished.")));
+
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_REHEATDONE));
+      #else
+        LCD_MESSAGE(MSG_REHEATDONE);
+      #endif
 
       IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
 

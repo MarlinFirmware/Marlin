@@ -109,13 +109,10 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  #if HAS_LASER_E3S1PRO && defined(SD_FINISHED_RELEASECOMMAND_LASER)
-    const bool is_laser = laser_device.is_laser_device();
+  const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
+  #ifdef SD_FINISHED_RELEASECOMMAND_LASER
     if (is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
-  #else
-    constexpr bool is_laser = false;
   #endif
-
   #ifdef SD_FINISHED_RELEASECOMMAND
     if (!is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif
@@ -124,7 +121,6 @@ void GcodeSuite::M1001() {
 
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
-
 
   #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device()) {

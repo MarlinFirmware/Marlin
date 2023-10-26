@@ -752,7 +752,6 @@ void RTS::handleDataLaser(void) {
       }
       break;
 
-
     case VelocityXaxisEnterKey: {
       const float velocity_xaxis = recdat.data[0];
       sendData(velocity_xaxis, MAX_VELOCITY_XAXIS_DATA_VP);

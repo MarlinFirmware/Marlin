@@ -672,13 +672,16 @@ void GCodeQueue::get_serial_commands() {
           delay(1);
 
           #if HAS_CUTTER
-            if (laser_device.is_laser_device()){
-              // rts.sendData(exchangePageBase + 60, exchangePageAddr);
-              //  change_page_font = 60;
+            const bool is_laser = laser_device.is_laser_device();
+            if (is_laser) {
+              //rts.sendData(exchangePageBase + 60, exchangePageAddr);
+              //change_page_font = 60;
             }
-            else
+          #else
+            constexpr bool is_laser = false;
           #endif
-          {
+
+          if (!is_laser) {
             rts.sendData(exchangePageBase + 9, exchangePageAddr);
             change_page_font = 9;
           }
