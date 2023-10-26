@@ -40,7 +40,7 @@
 
 #include "../platforms.h"
 
-#if defined(HAL_STM32)
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 

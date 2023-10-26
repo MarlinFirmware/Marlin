@@ -2641,8 +2641,8 @@ void Temperature::updateTemperaturesFromRawValues() {
     HOTEND_LOOP() {
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
-      //if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
-      //  MAXTEMP_ERROR(e, temp_hotend[e].celsius);
+      if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
+        MAXTEMP_ERROR(e, temp_hotend[e].celsius);
 
       /**
       // DEBUG PREHEATING TIME
