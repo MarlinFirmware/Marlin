@@ -85,9 +85,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
 
   if (DEBUGGING(DRYRUN)) return;
 
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()) return;
-  #endif
+  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     constexpr int8_t target_extruder = 0;
@@ -123,10 +121,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 
-    #if ENABLED(E3S1PRO_RTS)
-      // to be fixed
-      //temphot = temp;
-    #endif
+    //TERN_(E3S1PRO_RTS, temphot = temp); // to be fixed
 
     #if ENABLED(DUAL_X_CARRIAGE)
       if (idex_is_duplicating() && target_extruder == 0)

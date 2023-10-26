@@ -121,9 +121,8 @@ void GcodeSuite::M25() {
     print_job_timer.pause();
 
     #if HAS_LASER_E3S1PRO
-      if (laser_device.is_laser_device()){
-        laser_device.pause_before_position_x = current_position.x;
-        laser_device.pause_before_position_y = current_position.y;
+      if (laser_device.is_laser_device()) {
+        laser_device.pause_before_position = current_position;
         laser_device.power = cutter.power;
       }
     #endif

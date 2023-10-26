@@ -673,16 +673,12 @@ G29_TYPE GcodeSuite::G29() {
       bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
       #if ENABLED(E3S1PRO_RTS)
-       uint8_t showcount = 0;
+        uint8_t showcount = 0;
       #endif
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
-      #if ENABLED(E3S1PRO_RTS)
-      for (PR_OUTER_VAR = 0, showcount = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
-      #else
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
-      #endif
 
         int8_t inStart, inStop, inInc;
 
@@ -804,20 +800,20 @@ G29_TYPE GcodeSuite::G29() {
           #if ENABLED(E3S1PRO_RTS)
             if (!IS_SD_PRINTING()) {
               if (old_leveling == 1) {
-                rts.sendData((uint16_t)((100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index) / 2), AUTO_BED_LEVEL_TITLE_VP);
-                rts.sendData((uint16_t)(100.0 / (GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) * pt_index), AUTO_LEVELING_PERCENT_DATA_VP);
+                rts.sendData((uint16_t)((100.0 / GRID_MAX_POINTS * pt_index) / 2), AUTO_BED_LEVEL_TITLE_VP);
+                rts.sendData((uint16_t)(100.0 / GRID_MAX_POINTS * pt_index), AUTO_LEVELING_PERCENT_DATA_VP);
                 rts.sendData(exchangePageBase + 26, exchangePageAddr);
                 change_page_font = 26;
               }
               else {
                 rts.sendData(showcount + 1, AUTO_BED_LEVEL_CUR_POINT_VP);
-                rts.sendData(z*1000, AUTO_BED_LEVEL_1POINT_NEW_VP + showcount * 2);
+                rts.sendData(z * 1000, AUTO_BED_LEVEL_1POINT_NEW_VP + showcount * 2);
                 showcount ++;
                 rts.sendData(exchangePageBase + 81, exchangePageAddr);
                 change_page_font = 81;
               }
             }
-            #endif
+          #endif // E3S1PRO_RTS
 
           abl.reenable = false; // Don't re-enable after modifying the mesh
           idle_no_sleep();
@@ -1043,8 +1039,8 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
-  #if ENABLED(E3S1PRO_RTS)
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  #if ALL(E3S1PRO_RTS, FULL_REPORT_TO_HOST_FEATURE)
+    set_and_report_grblstate(M_IDLE);
   #endif
 
   G29_RETURN(isnan(abl.measured_z), true);

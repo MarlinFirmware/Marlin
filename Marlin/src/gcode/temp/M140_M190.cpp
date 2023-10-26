@@ -63,9 +63,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   if (DEBUGGING(DRYRUN)) return;
 
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()) return;
-  #endif
+  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   bool got_temp = false;
   celsius_t temp = 0;

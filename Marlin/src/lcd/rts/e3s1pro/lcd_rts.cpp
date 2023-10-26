@@ -970,11 +970,9 @@ void RTS::sdCard_Stop() {
   poweroffContinue = false;
 
   sd_printing_autopause = false;
-  if (card.flag.mounted) {
-    #if ENABLED(SDSUPPORT) && ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
-    #endif
-  }
+
+  TERN_(POWER_LOSS_RECOVERY, if (card.flag.mounted) card.removeJobRecoveryFile());
+
   // shut down the stepper motor.
   // queue.enqueue_now(F("M84"));
   sendData(1, MOTOR_FREE_ICON_VP);
@@ -3599,7 +3597,7 @@ void EachMomentUpdate() {
         rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
         rts.sendData(thermalManager.degBed(), BED_CURRENT_TEMP_VP);
 
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           if (!sdcard_pause_check && !card.isPrinting() && !planner.has_blocks_queued())
             rts.sendData(card.flag.mounted ? 1 : 0, CHANGE_SDCARD_ICON_VP);
         #endif
@@ -3829,9 +3827,7 @@ void RTSUpdate() {
 }
 
 void RTS_PauseMoveAxisPage() {
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()) return;
-  #endif
+  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   if (waitway == 1) {
     rts.sendData(exchangePageBase + 12, exchangePageAddr);

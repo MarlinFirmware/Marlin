@@ -30,10 +30,6 @@
 #include "../../../module/printcounter.h"
 #include "../../../lcd/marlinui.h"
 
-#if ENABLED(E3S1PRO_RTS)
-#include "../../../module/temperature.h"
-#endif
-
 #if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
 #endif
@@ -47,6 +43,7 @@
 
 #if ENABLED(E3S1PRO_RTS)
   #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
+  #include "../../../module/temperature.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)

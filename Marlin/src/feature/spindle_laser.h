@@ -364,10 +364,10 @@ class spindle_laser_soft_pwm {
 
   public:
     const char laser_cmp_info[4][6]={"MINX:", "MINY:", "MAXX:", "MAXY:"};
-    float pause_before_position_x=0, pause_before_position_y=0;
-    bool  remove_card_before_is_printing = false;
-    bool  already_show_warning = false;
-    bool  laser_printing = false;
+    xy_pos_t pause_before_position = { 0, 0 };
+    bool remove_card_before_is_printing = false;
+    bool already_show_warning = false;
+    bool laser_printing = false;
     uint16_t remain_time = 0;
     double laser_z_axis_high = 0;
     uint8_t power = 0;

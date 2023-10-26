@@ -99,11 +99,8 @@ void RTS::sdCardStopLaser(void) {
 
   poweroffContinue = false;
   //sd_printing_autopause = false;
-  if (CardReader::flag.mounted) {
-    #if ENABLED(SDSUPPORT) && ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
-    #endif
-  }
+
+  TERN_(POWER_LOSS_RECOVERY, if (card.flag.mounted) card.removeJobRecoveryFile());
 
   sendData(1, MOTOR_FREE_ICON_VP);
   sendData(0, PRINT_PROCESS_ICON_VP);
@@ -189,7 +186,7 @@ void RTS::handleDataLaser(void) {
         sendData(exchangePageBase + 25, exchangePageAddr);
         change_page_font = 25;
         planner.synchronize();
-        queue.enqueue_now_P(PSTR("G28\nG1 F200 Z0.0"));
+        queue.enqueue_now(F("G28\nG1 F200 Z0.0"));
         //sendData(1, AUTO_BED_LEVEL_TITLE_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
       }
@@ -225,10 +222,10 @@ void RTS::handleDataLaser(void) {
         thermalManager.setTargetHotend(AUTO_BED_LEVEL_PREHEAT, 0);
         sendData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
         if (thermalManager.degHotend(0) < (AUTO_BED_LEVEL_PREHEAT - 5))
-          queue.enqueue_now_P(PSTR("G4 S40"));
+          queue.enqueue_now(F("G4 S40"));
 
-        if (axes_should_home()) queue.enqueue_one_P(PSTR("G28"));
-        queue.enqueue_one_P(PSTR("G29"));
+        if (axes_should_home()) queue.enqueue_one(F("G28"));
+        queue.enqueue_one(F("G29"));
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 7) {
@@ -440,7 +437,7 @@ void RTS::handleDataLaser(void) {
         EEPROM_SAVE_LANGUAGE();
       }
       else if (recdat.data[0] == 6) {
-        queue.enqueue_now_P(PSTR("M84"));
+        queue.enqueue_now(F("M84"));
         sendData(1, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 7) {
@@ -526,13 +523,13 @@ void RTS::handleDataLaser(void) {
       }
       else if (recdat.data[0] == 4) {
         waitway = 4;
-        queue.enqueue_now_P(PSTR("G28 X Y"));
+        queue.enqueue_now(F("G28 X Y"));
         updateTimeValue = 0;
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 5) {
         waitway = 4;
-        queue.enqueue_now_P(PSTR("G28 Z"));
+        queue.enqueue_now(F("G28 Z"));
         sendData(0, MOTOR_FREE_ICON_VP);
         updateTimeValue = 0;
       }
@@ -540,9 +537,9 @@ void RTS::handleDataLaser(void) {
 
     case XaxismoveKey:
       float x_min, x_max;
-      waitway                  = 4;
-      x_min                    = 0;
-      x_max                    = X_MAX_POS;
+      waitway = 4;
+      x_min = 0;
+      x_max = X_MAX_POS;
       current_position[X_AXIS] = ((float)recdat.data[0]) / 10;
       if (current_position[X_AXIS] < x_min)
         current_position[X_AXIS] = x_min;
@@ -557,9 +554,9 @@ void RTS::handleDataLaser(void) {
 
     case YaxismoveKey:
       float y_min, y_max;
-      waitway                  = 4;
-      y_min                    = 0;
-      y_max                    = Y_MAX_POS;
+      waitway = 4;
+      y_min = 0;
+      y_max = Y_MAX_POS;
       current_position[Y_AXIS] = ((float)recdat.data[0]) / 10;
       if (current_position[Y_AXIS] < y_min)
         current_position[Y_AXIS] = y_min;
@@ -575,8 +572,8 @@ void RTS::handleDataLaser(void) {
     case ZaxismoveKey:
       float z_min, z_max;
       waitway = 4;
-      z_min   = Z_MIN_POS;
-      z_max   = Z_MAX_POS;
+      z_min = Z_MIN_POS;
+      z_max = Z_MAX_POS;
 
       current_position[Z_AXIS] = ((float)recdat.data[0]) / 10;
       if (current_position[Z_AXIS] < z_min)
@@ -592,8 +589,7 @@ void RTS::handleDataLaser(void) {
       break;
 
     case SelectLanguageKey:
-      if (recdat.data[0] != 0)
-        lang = recdat.data[0];
+      if (recdat.data[0] != 0) lang = recdat.data[0];
       language_change_font = lang;
       for (int i = 0; i < 9; i++) sendData(0, LANGUAGE_CHINESE_TITLE_VP + i);
       sendData(1, LANGUAGE_CHINESE_TITLE_VP + (language_change_font - 1));
@@ -612,7 +608,7 @@ void RTS::handleDataLaser(void) {
             sendData(exchangePageBase + 10, exchangePageAddr);
             change_page_font = 10;
             //recovery.resume();
-            queue.enqueue_now_P(PSTR("M1000"));
+            queue.enqueue_now(F("M1000"));
 
             poweroffContinue   = true;
             sdcard_pause_check = true;
@@ -627,7 +623,7 @@ void RTS::handleDataLaser(void) {
             sendData(exchangePageBase + 10, exchangePageAddr);
             change_page_font = 10;
             pre01_power_loss.resume(); // �ָ�SD����ӡ
-            //queue.enqueue_now_P(PSTR("M1000"));
+            //queue.enqueue_now(F("M1000"));
 
             poweroffContinue   = true;
             sdcard_pause_check = true;
@@ -654,7 +650,7 @@ void RTS::handleDataLaser(void) {
         change_page_font = 37;
       }
       if (recdat.data[0] == 2) {
-        queue.enqueue_now_P(PSTR("M502"));
+        queue.enqueue_now(F("M502"));
         rts.sendData(exchangePageBase + 33, exchangePageAddr);
         change_page_font = 33;
         settings.save();
@@ -757,183 +753,143 @@ void RTS::handleDataLaser(void) {
       break;
 
 
-    case VelocityXaxisEnterKey:
-      float velocity_xaxis;
-      velocity_xaxis = planner.settings.max_feedrate_mm_s[0];
-      velocity_xaxis = recdat.data[0];
+    case VelocityXaxisEnterKey: {
+      const float velocity_xaxis = recdat.data[0];
       sendData(velocity_xaxis, MAX_VELOCITY_XAXIS_DATA_VP);
       planner.set_max_feedrate(X_AXIS, velocity_xaxis);
-      break;
+    } break;
 
-    case VelocityYaxisEnterKey:
-      float velocity_yaxis;
-      velocity_yaxis = planner.settings.max_feedrate_mm_s[1];
-      velocity_yaxis = recdat.data[0];
+    case VelocityYaxisEnterKey: {
+      const float velocity_yaxis = recdat.data[0];
       sendData(velocity_yaxis, MAX_VELOCITY_YAXIS_DATA_VP);
       planner.set_max_feedrate(Y_AXIS, velocity_yaxis);
-      break;
+    } break;
 
-    case VelocityZaxisEnterKey:
-      float velocity_zaxis;
-      velocity_zaxis = planner.settings.max_feedrate_mm_s[2];
-      velocity_zaxis = recdat.data[0];
+    case VelocityZaxisEnterKey: {
+      const float velocity_zaxis = recdat.data[0];
       sendData(velocity_zaxis, MAX_VELOCITY_ZAXIS_DATA_VP);
       planner.set_max_feedrate(Z_AXIS, velocity_zaxis);
-      break;
+    } break;
 
-    case VelocityEaxisEnterKey:
-      float velocity_eaxis;
-      velocity_eaxis = planner.settings.max_feedrate_mm_s[3];
-      velocity_eaxis = recdat.data[0];
+    case VelocityEaxisEnterKey: {
+      const float velocity_eaxis = = recdat.data[0];
       sendData(velocity_eaxis, MAX_VELOCITY_EAXIS_DATA_VP);
       planner.set_max_feedrate(E_AXIS, velocity_eaxis);
-      break;
+    } break;
 
-
-    case AccelXaxisEnterKey:
-      float accel_xaxis;
-      accel_xaxis = planner.settings.max_acceleration_mm_per_s2[0];
-      accel_xaxis = recdat.data[0];
+    case AccelXaxisEnterKey: {
+      const float accel_xaxis = recdat.data[0];
       sendData(accel_xaxis, MAX_ACCEL_XAXIS_DATA_VP);
       planner.set_max_acceleration(X_AXIS, accel_xaxis);
-      break;
+    } break;
 
-    case AccelYaxisEnterKey:
-      float accel_yaxis;
-      accel_yaxis = planner.settings.max_acceleration_mm_per_s2[1];
-      accel_yaxis = recdat.data[0];
+    case AccelYaxisEnterKey: {
+      const float accel_yaxis = recdat.data[0];
       sendData(accel_yaxis, MAX_ACCEL_YAXIS_DATA_VP);
       planner.set_max_acceleration(Y_AXIS, accel_yaxis);
-      break;
+    } break;
 
-    case AccelZaxisEnterKey:
-      float accel_zaxis;
-      accel_zaxis = planner.settings.max_acceleration_mm_per_s2[2];
-      accel_zaxis = recdat.data[0];
+    case AccelZaxisEnterKey: {
+      const float accel_zaxis = recdat.data[0];
       sendData(accel_zaxis, MAX_ACCEL_ZAXIS_DATA_VP);
       planner.set_max_acceleration(Z_AXIS, accel_zaxis);
-      break;
+    } break;
 
-    case AccelEaxisEnterKey:
-      float accel_eaxis;
-      accel_eaxis = planner.settings.max_acceleration_mm_per_s2[3];
-      accel_eaxis = recdat.data[0];
+    case AccelEaxisEnterKey: {
+      const float accel_eaxis = recdat.data[0];
       sendData(accel_eaxis, MAX_ACCEL_EAXIS_DATA_VP);
       planner.set_max_acceleration(E_AXIS, accel_eaxis);
-      break;
+    } break;
 
-    case JerkXaxisEnterKey:
-      float jerk_xaxis;
-      jerk_xaxis = planner.max_jerk.x;
-      jerk_xaxis = (float)recdat.data[0] / 100;
+    case JerkXaxisEnterKey: {
+      const float jerk_xaxis = (float)recdat.data[0] / 100;
       sendData(jerk_xaxis * 100, MAX_JERK_XAXIS_DATA_VP);
       planner.set_max_jerk(X_AXIS, jerk_xaxis);
-      break;
+    } break;
 
-    case JerkYaxisEnterKey:
-      float jerk_yaxis;
-      jerk_yaxis = planner.max_jerk.y;
-      jerk_yaxis = (float)recdat.data[0] / 100;
+    case JerkYaxisEnterKey: {
+      const float jerk_yaxis = (float)recdat.data[0] / 100;
       sendData(jerk_yaxis * 100, MAX_JERK_YAXIS_DATA_VP);
       planner.set_max_jerk(Y_AXIS, jerk_yaxis);
-      break;
+    } break;
 
-    case JerkZaxisEnterKey:
-      float jerk_zaxis;
-      jerk_zaxis = planner.max_jerk.z;
-      jerk_zaxis = (float)recdat.data[0] / 100;
+    case JerkZaxisEnterKey: {
+      const float jerk_zaxis = (float)recdat.data[0] / 100;
       sendData(jerk_zaxis * 100, MAX_JERK_ZAXIS_DATA_VP);
       planner.set_max_jerk(Z_AXIS, jerk_zaxis);
-      break;
+    } break;
 
-    case JerkEaxisEnterKey:
-      float jerk_eaxis;
-      jerk_eaxis = planner.max_jerk.e;
-      jerk_eaxis = (float)recdat.data[0] / 100;
+    case JerkEaxisEnterKey: {
+      const float jerk_eaxis = (float)recdat.data[0] / 100;
       sendData(jerk_eaxis * 100, MAX_JERK_EAXIS_DATA_VP);
       planner.set_max_jerk(E_AXIS, jerk_eaxis);
-      break;
+    } break;
 
-    case StepsmmXaxisEnterKey:
-      float stepsmm_xaxis;
-      stepsmm_xaxis = planner.settings.axis_steps_per_mm[0];
-      stepsmm_xaxis = (float)recdat.data[0] / 10;
+    case StepsmmXaxisEnterKey: {
+      const float stepsmm_xaxis = (float)recdat.data[0] / 10;
       sendData(stepsmm_xaxis * 10, MAX_STEPSMM_XAXIS_DATA_VP);
       planner.settings.axis_steps_per_mm[X_AXIS] = stepsmm_xaxis;
-      break;
+    } break;
 
-    case StepsmmYaxisEnterKey:
-      float stepsmm_yaxis;
-      stepsmm_yaxis = planner.settings.axis_steps_per_mm[1];
-      stepsmm_yaxis = (float)recdat.data[0] / 10;
+    case StepsmmYaxisEnterKey: {
+      const float stepsmm_yaxis = (float)recdat.data[0] / 10;
       sendData(stepsmm_yaxis * 10, MAX_STEPSMM_YAXIS_DATA_VP);
       planner.settings.axis_steps_per_mm[Y_AXIS] = stepsmm_yaxis;
-      break;
+    } break;
 
-    case StepsmmZaxisEnterKey:
-      float stepsmm_zaxis;
-      stepsmm_zaxis = planner.settings.axis_steps_per_mm[2];
-      stepsmm_zaxis = (float)recdat.data[0] / 10;
+    case StepsmmZaxisEnterKey: {
+      const float stepsmm_zaxis = (float)recdat.data[0] / 10;
       sendData(stepsmm_zaxis * 10, MAX_STEPSMM_ZAXIS_DATA_VP);
       planner.settings.axis_steps_per_mm[Z_AXIS] = stepsmm_zaxis;
-      break;
+    } break;
 
-    case StepsmmEaxisEnterKey:
-      float stepsmm_eaxis;
-      stepsmm_eaxis = planner.settings.axis_steps_per_mm[3];
-      stepsmm_eaxis = (float)recdat.data[0] / 10;
+    case StepsmmEaxisEnterKey: {
+      const float stepsmm_eaxis = (float)recdat.data[0] / 10;
       sendData(stepsmm_eaxis * 10, MAX_STEPSMM_EAXIS_DATA_VP);
       planner.settings.axis_steps_per_mm[E_AXIS] = stepsmm_eaxis;
-      break;
+    } break;
 
-    case NozzlePTempEnterKey:
-      float nozzle_ptemp;
-      nozzle_ptemp = (float)recdat.data[0] / 100;
+    case NozzlePTempEnterKey: {
+      const float nozzle_ptemp = (float)recdat.data[0] / 100;
       sendData(nozzle_ptemp * 100, NOZZLE_TEMP_P_DATA_VP);
       PID_PARAM(Kp, 0) = nozzle_ptemp;
-      break;
+    } break;
 
-    case NozzleITempEnterKey:
-      float nozzle_itemp;
-      nozzle_itemp = (float)recdat.data[0] / 100;
+    case NozzleITempEnterKey: {
+      const float nozzle_itemp = (float)recdat.data[0] / 100;
       sendData(nozzle_itemp * 100, NOZZLE_TEMP_I_DATA_VP);
       PID_PARAM(Ki, 0) = scalePID_i(nozzle_itemp);
-      break;
+    } break;
 
-    case NozzleDTempEnterKey:
-      float nozzle_dtemp;
-      nozzle_dtemp = (float)recdat.data[0] / 100;
+    case NozzleDTempEnterKey: {
+      const float nozzle_dtemp = (float)recdat.data[0] / 100;
       sendData(nozzle_dtemp * 100, NOZZLE_TEMP_D_DATA_VP);
       PID_PARAM(Kd, 0) = scalePID_d(nozzle_dtemp);
-      break;
+    } break;
 
-    case HotbedPTempEnterKey:
-      float hotbed_ptemp;
-      hotbed_ptemp = (float)recdat.data[0] / 100;
+    case HotbedPTempEnterKey: {
+      const float hotbed_ptemp = (float)recdat.data[0] / 100;
       sendData(hotbed_ptemp * 100, HOTBED_TEMP_P_DATA_VP);
       thermalManager.temp_bed.pid.Kp = hotbed_ptemp;
-      break;
+    } break;
 
-    case HotbedITempEnterKey:
-      float hotbed_itemp;
-      hotbed_itemp = (float)recdat.data[0] / 100;
+    case HotbedITempEnterKey: {
+      const float hotbed_itemp = (float)recdat.data[0] / 100;
       sendData(hotbed_itemp * 100, HOTBED_TEMP_I_DATA_VP);
       thermalManager.temp_bed.pid.Ki = scalePID_i(hotbed_itemp);
-      break;
+    } break;
 
-    case HotbedDTempEnterKey:
-      float hotbed_dtemp;
-      hotbed_dtemp = (float)recdat.data[0] / 10;
+    case HotbedDTempEnterKey: {
+      const float hotbed_dtemp = (float)recdat.data[0] / 10;
       sendData(hotbed_dtemp * 10, HOTBED_TEMP_D_DATA_VP);
       thermalManager.temp_bed.pid.Kd = scalePID_d(hotbed_dtemp);
-      break;
+    } break;
 
-    case PrintFanSpeedkey:
-      uint8_t fan_speed;
-      fan_speed = (uint8_t)recdat.data[0];
+    case PrintFanSpeedkey: {
+      const uint8_t fan_speed = (uint8_t)recdat.data[0];
       sendData(fan_speed, PRINTER_FAN_SPEED_DATA_VP);
       thermalManager.set_fan_speed(0, fan_speed);
-      break;
+    } break;
 
     case SelectFileKey:
       if (sdDetected()) {
@@ -960,7 +916,7 @@ void RTS::handleDataLaser(void) {
       break;
 
     case StartFileKey:
-      if ((recdat.data[0] == 1) && sdDetected()) {
+      if (recdat.data[0] == 1 && sdDetected()) {
         if (cardRecBuf.recordcount < 0)
           break;
         if (!rts_start_print)
@@ -1069,17 +1025,15 @@ void RTS::handleDataLaser(void) {
       sendData(change_page_font + exchangePageBase, exchangePageAddr);
       break;
 
-    case FocusZAxisKey:
-    {
-      waitway                  = 4;
+    case FocusZAxisKey: {
+      waitway = 4;
       current_position[Z_AXIS] = ((signed short)recdat.data[0]) / 10.0;
       RTS_line_to_current(Z_AXIS);
       sendData(10 * current_position[Z_AXIS], AXIS_Z_COORD_VP);
       delay(1);
       sendData(0, MOTOR_FREE_ICON_VP);
       waitway = 0;
-    }
-    break;
+    } break;
 
     case AdjustFocusKey:
       if (recdat.data[0] == 1) {// 调节激光焦距
@@ -1123,19 +1077,15 @@ void RTS::handleDataLaser(void) {
       }
       else if (recdat.data[0] == 2) {// 轴移动
         AxisUnitMode = 1;
-        axis_unit    = 10.0;
+        axis_unit = 10.0;
         sendData(exchangePageBase + 78, exchangePageAddr);
         change_page_font = 78;
       }
       else if (recdat.data[0] == 3) { // 直接雕刻
-        char cmd[30];
         laser_device.laser_printing = true; // 雕刻中
-        strcat_P(cmd, M24_STR);
-        queue.inject((char*)"M24");// cmd);
-
+        queue.inject_P(M24_STR);
         sendData(exchangePageBase + 59, exchangePageAddr);
         change_page_font = 59;
-
       }
       else if (recdat.data[0] == 4) { // 跑边框
         HMI_Area_Move();
@@ -1161,13 +1111,11 @@ void RTS::handleDataLaser(void) {
         //sendData(exchangePageBase + 51, exchangePageAddr);
         //change_page_font = 51;
 
-        CardUpdate             = true;
+        CardUpdate = true;
         cardRecBuf.recordcount = -1;
         sdCardUpate();
         sendData(exchangePageBase + 52, exchangePageAddr);
         change_page_font = 52;
-
-
       }
       break;
 
@@ -1275,7 +1223,7 @@ void RTS::handleDataLaser(void) {
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 6) {// 雕刻警告界面z home
-        queue.enqueue_now_P(PSTR("G0 Z0"));
+        queue.enqueue_now(F("G0 Z0"));
       }
       else if (recdat.data[0] == 7) {// 激光 xy home
         waitway = 9;
@@ -1290,17 +1238,14 @@ void RTS::handleDataLaser(void) {
         sendData(0, MOTOR_FREE_ICON_VP);
       }
       else if (recdat.data[0] == 8) {// 激光 z home
-        queue.enqueue_now_P(PSTR("G0 Z0"));
+        queue.enqueue_now(F("G0 Z0"));
         sendData(0, AXIS_Z_COORD_VP);
         delay(1);
         sendData(0, MOTOR_FREE_ICON_VP);
       }
-
-
       break;
 
     case ErrorKey:
-    {
       if (recdat.data[0] == 1) {
         if (printingIsActive()) {
           sendData(exchangePageBase + 10, exchangePageAddr);
@@ -1315,18 +1260,14 @@ void RTS::handleDataLaser(void) {
           change_page_font = 1;
         }
 
-        if (errorway == 4)
-          // reboot
-          hal.reboot();
+        if (errorway == 4) hal.reboot();
       }
-    }
-    break;
-
-    default:
       break;
+
+    default: break;
   }
 
-  memset(&recdat, 0, sizeof(recdat));
+  ZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 
@@ -1426,7 +1367,7 @@ void EachMomentUpdateLaser(void) {
 
         if (pause_action_flag && (false == sdcard_pause_check) && printingIsPaused() && !planner.has_blocks_queued()) {
           pause_action_flag = false;
-          //queue.enqueue_now_P(PSTR("G0 F3000 X0 Y0"));
+          //queue.enqueue_now(F("G0 F3000 X0 Y0"));
           laser_device.power = cutter.power;
           //SERIAL_ECHOPGM("laser_device.power=", laser_device.power);
           cutter.apply_power(0);
@@ -1436,7 +1377,7 @@ void EachMomentUpdateLaser(void) {
           waitway          = 0;
         }
 
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           if ((false == sdcard_pause_check) && (false == card.isPrinting()) && !planner.has_blocks_queued()) {
             if (CardReader::flag.mounted)
               rts.sendData(51, CHANGE_SDCARD_ICON_VP);
@@ -1506,31 +1447,27 @@ void EachMomentUpdateLaser(void) {
           rts.sendData(10 * current_position[Z_AXIS], AXIS_Z_COORD_VP);
         }
 
-        if (pause_action_flag && (false == sdcard_pause_check) && printingIsPaused() && !planner.has_blocks_queued()) {
+        if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
           pause_action_flag = false;
-          //queue.enqueue_now_P(PSTR("G0 F3000 X0 Y0"));
+          //queue.enqueue_now(F("G0 F3000 X0 Y0"));
           laser_device.power = cutter.power;
           //SERIAL_ECHOPGM("laser_device.power=", laser_device.power);
           cutter.apply_power(0);
 
           rts.sendData(exchangePageBase + 61, exchangePageAddr);
           change_page_font = 61;
-          waitway          = 0;
+          waitway = 0;
         }
 
-        #if ENABLED(SDSUPPORT)
-          if ((false == sdcard_pause_check) && (false == card.isPrinting()) && !planner.has_blocks_queued()) {
-            if (CardReader::flag.mounted)
-              rts.sendData(51, CHANGE_SDCARD_ICON_VP);
-            else
-              rts.sendData(0, CHANGE_SDCARD_ICON_VP);
-          }
+        #if HAS_MEDIA
+          if (!sdcard_pause_check && !card.isPrinting() && !planner.has_blocks_queued())
+            rts.sendData(CardReader::flag.mounted ? 51 : 0, CHANGE_SDCARD_ICON_VP);
         #endif
 
-        if (marlin_state == MF_RUNNING && first_start_laser == true) {
+        if (marlin_state == MF_RUNNING && first_start_laser) {
           char str_1[7], cmd[20] = {0};
           first_start_laser = false;
-          sprintf_P(cmd, "G92.9 Z%s\n",  dtostrf(laser_device.laser_z_axis_high, 1, 2, str_1));
+          sprintf_P(cmd, PSTR("G92.9 Z%s\n"),  dtostrf(laser_device.laser_z_axis_high, 1, 2, str_1));
           //SERIAL_ECHOPGM(cmd);
           queue.inject(cmd);
 
@@ -1538,12 +1475,12 @@ void EachMomentUpdateLaser(void) {
           delay(1);
 
         }
-        else if (laser_device.laser_z_axis_high != current_position.z && first_start_laser == false) {
+        else if (laser_device.laser_z_axis_high != current_position.z && !first_start_laser) {
           laser_device.save_z_axis_high_to_eeprom(current_position.z);
         }
 
       }
-    #endif // if ENABLED(POWER_LOSS_RECOVERY)
+    #endif // POWER_LOSS_RECOVERY
 
     next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + updateTimeValue;
   }
@@ -1562,88 +1499,83 @@ void RTSUpdateLaser(void) {
 // 激光模式，跑边框
 void HMI_Area_Move(void) {
   static uint8_t MINUNITMULT = 10;
-  uint16_t Move_X_scaled = 0, Move_Y_scaled = 0;
+  xy_uint_t move_scaled = { 0, 0 };
 
   laser_device.is_run_range = true; // 标志正在跑边框
 
-  float y = laser_device.get_laser_range(LASER_MAX_Y) - laser_device.get_laser_range(LASER_MIN_Y);
-  float x = laser_device.get_laser_range(LASER_MAX_X) - laser_device.get_laser_range(LASER_MIN_X);
-  float origin_position_x = current_position.x, origin_position_y = current_position.y; // 记录当前位置
+  float x = laser_device.get_laser_range(LASER_MAX_X) - laser_device.get_laser_range(LASER_MIN_X),
+        y = laser_device.get_laser_range(LASER_MAX_Y) - laser_device.get_laser_range(LASER_MIN_Y);
 
+  xy_pos_t origin = current_position; // 记录当前位置
 
-  Move_X_scaled = current_position.x * MINUNITMULT;
-  Move_Y_scaled = current_position.y * MINUNITMULT;
+  move_scaled = current_position * MINUNITMULT;
 
-  Move_X_scaled += laser_device.get_laser_range(LASER_MIN_X) * MINUNITMULT;
-  Move_Y_scaled += laser_device.get_laser_range(LASER_MIN_Y) * MINUNITMULT;
+  move_scaled.x += laser_device.get_laser_range(LASER_MIN_X) * MINUNITMULT;
+  move_scaled.y += laser_device.get_laser_range(LASER_MIN_Y) * MINUNITMULT;
 
-  LIMIT(Move_X_scaled, (X_MIN_POS)*MINUNITMULT, (X_MAX_POS)*MINUNITMULT);
-  LIMIT(Move_Y_scaled, (Y_MIN_POS)*MINUNITMULT, (Y_MAX_POS)*MINUNITMULT);
-  current_position.x = Move_X_scaled / MINUNITMULT;
-  current_position.y = Move_Y_scaled / MINUNITMULT;
+  LIMIT(move_scaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
+  LIMIT(move_scaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
+  current_position = move_scaled / MINUNITMULT;
 
   // 超出打印区域
-  if (current_position.x + x > X_MAX_POS) x = X_MAX_POS - current_position.x;
-  if (current_position.y + y > Y_MAX_POS) y = Y_MAX_POS - current_position.y;
+  NOMORE(x, X_MAX_POS - current_position.x);
+  NOMORE(y, Y_MAX_POS - current_position.y);
 
   // 先跑到最小位置
   //current_position.x += laser_device.get_laser_range(LASER_MIN_X);
   //current_position.y += laser_device.get_laser_range(LASER_MIN_Y);
 
-  // HMI_Plan_Move(homing_feedrate(Y_AXIS));
+  //HMI_Plan_Move(homing_feedrate(Y_AXIS));
   RTS_line_to_current(Y_AXIS);
   planner.synchronize();
 
   //current_position.y += y;
-  Move_Y_scaled += y * MINUNITMULT;
-  LIMIT(Move_Y_scaled, (Y_MIN_POS)*MINUNITMULT, (Y_MAX_POS)*MINUNITMULT);
-  current_position.y = Move_Y_scaled / MINUNITMULT;
+  move_scaled.y += y * MINUNITMULT;
+  LIMIT(move_scaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
+  current_position.y = move_scaled.y / MINUNITMULT;
 
   laser_device.laser_power_start(5);
-  RTS_line_to_current(Y_AXIS);// HMI_Plan_Move(homing_feedrate(Y_AXIS));
+  RTS_line_to_current(Y_AXIS);  //HMI_Plan_Move(homing_feedrate(Y_AXIS));
   planner.synchronize();
 
   //current_position.x += x;
-  Move_X_scaled += x * MINUNITMULT;
-  LIMIT(Move_X_scaled, (X_MIN_POS)*MINUNITMULT, (X_MAX_POS)*MINUNITMULT);
-  current_position.x = Move_X_scaled / MINUNITMULT;
+  move_scaled.x += x * MINUNITMULT;
+  LIMIT(move_scaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
+  current_position.x = move_scaled.x / MINUNITMULT;
 
-  RTS_line_to_current(X_AXIS);// HMI_Plan_Move(homing_feedrate(X_AXIS));
+  RTS_line_to_current(X_AXIS);  //HMI_Plan_Move(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   //current_position.y -= y;
-  Move_Y_scaled -= y * MINUNITMULT;
-  LIMIT(Move_Y_scaled, (Y_MIN_POS)*MINUNITMULT, (Y_MAX_POS)*MINUNITMULT);
-  current_position.y = Move_Y_scaled / MINUNITMULT;
+  move_scaled.y -= y * MINUNITMULT;
+  LIMIT(move_scaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
+  current_position.y = move_scaled.y / MINUNITMULT;
 
-  RTS_line_to_current(Y_AXIS);// HMI_Plan_Move(homing_feedrate(Y_AXIS));
+  RTS_line_to_current(Y_AXIS);  //HMI_Plan_Move(homing_feedrate(Y_AXIS));
   planner.synchronize();
 
   //current_position.x -= x;
-  Move_X_scaled -= x * MINUNITMULT;
-  LIMIT(Move_X_scaled, (X_MIN_POS)*MINUNITMULT, (X_MAX_POS)*MINUNITMULT);
-  current_position.x = Move_X_scaled / MINUNITMULT;
+  move_scaled.x -= x * MINUNITMULT;
+  LIMIT(move_scaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
+  current_position.x = move_scaled.x / MINUNITMULT;
 
-  RTS_line_to_current(X_AXIS);// HMI_Plan_Move(homing_feedrate(X_AXIS));
+  RTS_line_to_current(X_AXIS);  //HMI_Plan_Move(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   laser_device.laser_power_stop(); // 关闭激光
 
   // 回到原点位置 107011 -20211009
-  //current_position.x = origin_position_x;
-  //current_position.y = origin_position_y;
-  Move_X_scaled = origin_position_x * MINUNITMULT;
-  Move_Y_scaled = origin_position_y * MINUNITMULT;
-  LIMIT(Move_X_scaled, (X_MIN_POS)*MINUNITMULT, (X_MAX_POS)*MINUNITMULT);
-  LIMIT(Move_Y_scaled, (Y_MIN_POS)*MINUNITMULT, (Y_MAX_POS)*MINUNITMULT);
+  //current_position = origin;
+  move_scaled = origin * MINUNITMULT;
+  LIMIT(move_scaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
+  LIMIT(move_scaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
 
-  current_position.x = Move_X_scaled / MINUNITMULT;
-  current_position.y = Move_Y_scaled / MINUNITMULT;
+  current_position = move_scaled / MINUNITMULT;
 
-  RTS_line_to_current(X_AXIS);// HMI_Plan_Move(homing_feedrate(X_AXIS));
+  RTS_line_to_current(X_AXIS);  //HMI_Plan_Move(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   laser_device.is_run_range = false;
 }
 
-#endif // E3S1PRO_RTS && LASER_FEATURE
+#endif // HAS_LASER_E3S1PRO

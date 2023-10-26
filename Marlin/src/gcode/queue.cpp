@@ -149,23 +149,6 @@ bool GCodeQueue::enqueue_one(const char * const cmd) {
   return false;
 }
 
-#if ENABLED(E3S1PRO_RTS)
-/**
- * Attempt to enqueue a single G-code command
- * and return 'true' if successful.
- */
-bool GCodeQueue::enqueue_one_P(PGM_P const pgcode) {
-  size_t i = 0;
-  PGM_P p = pgcode;
-  char c;
-  while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
-  char cmd[i + 1];
-  memcpy_P(cmd, p, i);
-  cmd[i] = '\0';
-  return ring_buffer.enqueue(cmd);
-}
-#endif
-
 /**
  * Process the next "immediate" command from PROGMEM.
  * Return 'true' if any commands were processed.
@@ -367,7 +350,7 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
 
   void get_gcode_comment() {
     char *p;
-    unsigned char i, inc = 0, buf[30] = {0};
+    unsigned char i, inc = 0, buf[30] = { 0 };
     for (;;) {
       const int16_t n = card.get();
       const bool card_eof = card.eof();
@@ -385,7 +368,7 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
           else if ((p = strstr((char*)&buf[0], "estimated_time")) != NULL) {
             p += strlen("estimated_time(s):");
             while (*p==' ') p++;
-            laser_device.remain_time = atof(p)+59;
+            laser_device.remain_time = atof(p) + 59;
             //SERIAL_ECHOLNPGM("laser_device.remain_time=", laser_device.remain_time);
             break;
           }
@@ -395,7 +378,7 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
       }
 
       buf[inc] = n;
-      if (inc < 29) inc++;
+      if (inc < COUNT(buf) - 1) inc++;
     }
   }
 

@@ -22,9 +22,11 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+
 #if ENABLED(E3S1PRO_RTS)
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
+
 /**
  * M220: Set speed percentage factor, aka "Feed Rate"
  *
@@ -49,9 +51,7 @@ void GcodeSuite::M220() {
     SERIAL_ECHOLNPGM("M220 S", feedrate_percentage);
   #endif
 
-  if (!parser.seen_any()) {
+  if (!parser.seen_any())
     SERIAL_ECHOLNPGM("FR:", feedrate_percentage, "%");
-    return;
-  }
 
 }

@@ -109,20 +109,16 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()) {
-      #ifdef SD_FINISHED_RELEASECOMMAND_LASER
-        process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
-      #endif
-    }
-    else
+  #if HAS_LASER_E3S1PRO && defined(SD_FINISHED_RELEASECOMMAND_LASER)
+    const bool is_laser = laser_device.is_laser_device();
+    if (is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
+  #else
+    constexpr bool is_laser = false;
   #endif
-    {
-      // Inject SD_FINISHED_RELEASECOMMAND, if any
-      #ifdef SD_FINISHED_RELEASECOMMAND
-        process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
-      #endif
-    }
+
+  #ifdef SD_FINISHED_RELEASECOMMAND
+    if (!is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
+  #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintDone());
 

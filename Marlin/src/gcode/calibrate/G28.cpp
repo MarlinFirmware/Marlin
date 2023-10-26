@@ -655,25 +655,26 @@ void GcodeSuite::G28() {
   TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
-  TERN_(E3S1PRO_RTS, RTS_MoveAxisHoming());
-  TERN_(E3S1PRO_RTS, rts.sendData(0, MOTOR_FREE_ICON_VP));
-
   #if ENABLED(E3S1PRO_RTS)
-    home_flag  = false;
+    RTS_MoveAxisHoming();
+    rts.sendData(0, MOTOR_FREE_ICON_VP);
+    home_flag = false;
   #endif
 
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
- #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device()){
-      do_blocking_move_to_xy(0, 10, homing_feedrate(X_AXIS));
-      sync_plan_position();
-    }else
+  #if ENABLED(E3S1PRO_RTS)
+    #if HAS_LASER_E3S1PRO
+      const bool is_laser = laser_device.is_laser_device();
+      if (is_laser) do_blocking_move_to_xy(0, 10, homing_feedrate(X_AXIS));
+    #else
+      constexpr bool is_laser = false;
+    #endif
+    if (!is_laser) {
+      RTS_MoveAxisHoming();
+      rts.sendData(0, MOTOR_FREE_ICON_VP);
+    }
   #endif
-  {
-  TERN_(E3S1PRO_RTS, RTS_MoveAxisHoming());
-  TERN_(E3S1PRO_RTS, rts.sendData(0, MOTOR_FREE_ICON_VP));
-  }
 }

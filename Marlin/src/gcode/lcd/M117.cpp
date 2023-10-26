@@ -37,8 +37,8 @@
 void GcodeSuite::M117() {
 
   #if ENABLED(E3S1PRO_RTS)
-    // clear out our status areas
-    for(int j = 0 ; j < TEXTBYTELEN ; j ++) {
+    // Clear out RTS status areas
+    for (int j = 0 ; j < TEXTBYTELEN ; j++) {
       rts.sendData(0, PRINT_FILE_TEXT_VP + j);
       rts.sendData(0, SELECT_FILE_TEXT_VP + j);
     }
@@ -49,9 +49,9 @@ void GcodeSuite::M117() {
       if (strlen(parser.string_arg) >= TEXTBYTELEN) {
         strncpy(msg, parser.string_arg, TEXTBYTELEN - 1);
         msg[TEXTBYTELEN - 1] = '\0';
-      } else {
-        strcpy(msg, parser.string_arg);
       }
+      else
+        strcpy(msg, parser.string_arg);
 
       rts.sendData(msg, PRINT_FILE_TEXT_VP);
       rts.sendData(msg, SELECT_FILE_TEXT_VP);

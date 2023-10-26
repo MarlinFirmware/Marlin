@@ -91,33 +91,32 @@ void GcodeSuite::G30() {
         F(  " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
+
       #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, E3S1PRO_RTS)
         ui.set_status(msg);
       #endif
+
       #if ENABLED(E3S1PRO_RTS)
-        struct TrammingPoint {
-          float x;
-          float y;
-          int vp;
-        };
+        struct TrammingPoint { xy_pos_t xy; int vp; };
 
+        // TODO: Get this from configuration and use
+        //       Marlin-supplied tramming procedures.
         TrammingPoint trammingPoints[] = {
-          {117.50, 117.50, CRTOUCH_TRAMMING_POINT_1_VP},
-          {155.00, 157.50, CRTOUCH_TRAMMING_POINT_1_VP},
-          {45.00, 45.00, CRTOUCH_TRAMMING_POINT_6_VP},
-          {190.00, 45.00, CRTOUCH_TRAMMING_POINT_7_VP},
-          {265.00, 45.00, CRTOUCH_TRAMMING_POINT_7_VP},
-          {45.00, 190.00, CRTOUCH_TRAMMING_POINT_8_VP},
-          {45.00, 270.00, CRTOUCH_TRAMMING_POINT_8_VP},
-          {190.00, 190.00, CRTOUCH_TRAMMING_POINT_9_VP},
-          {265.00, 270.00, CRTOUCH_TRAMMING_POINT_9_VP}
+          { { 117.50, 117.50 }, CRTOUCH_TRAMMING_POINT_1_VP },
+          { { 155.00, 157.50 }, CRTOUCH_TRAMMING_POINT_1_VP },
+          { {  45.00,  45.00 }, CRTOUCH_TRAMMING_POINT_6_VP },
+          { { 190.00,  45.00 }, CRTOUCH_TRAMMING_POINT_7_VP },
+          { { 265.00,  45.00 }, CRTOUCH_TRAMMING_POINT_7_VP },
+          { {  45.00, 190.00 }, CRTOUCH_TRAMMING_POINT_8_VP },
+          { {  45.00, 270.00 }, CRTOUCH_TRAMMING_POINT_8_VP },
+          { { 190.00, 190.00 }, CRTOUCH_TRAMMING_POINT_9_VP },
+          { { 265.00, 270.00 }, CRTOUCH_TRAMMING_POINT_9_VP }
         };
 
-        for (const auto& point : trammingPoints) {
-          if (probepos.x == point.x && probepos.y == point.y) {
+        for (const auto& point : trammingPoints)
+          if (probepos == point.xy)
             rts.sendData(measured_z * 1000, point.vp);
-          }
-        }
+
       #endif
 
     }

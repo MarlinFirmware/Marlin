@@ -33,7 +33,6 @@
 #endif
 
 /**
- *
  * M414: Set the language for the UI
  *
  * Parameters
@@ -41,14 +40,12 @@
  */
 void GcodeSuite::M414() {
 
-  if (parser.seenval('S'))
+  if (parser.seenval('S')) {
+    TERN_(E3S1PRO_RTS, language_change_font = parser.value_byte());
     ui.set_language(parser.value_byte());
+  }
   else
     M414_report();
-
-  #if ENABLED(E3S1PRO_RTS)
-    language_change_font = parser.seenval('S');
-  #endif
 
 }
 

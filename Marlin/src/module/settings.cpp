@@ -2729,19 +2729,10 @@ void MarlinSettings::postprocess() {
       #if ENABLED(E3S1PRO_RTS)
         EEPROM_READ(g_soundSetOffOn);
 
-        if ((language_change_font != 1) &&
-            (language_change_font != 2) &&
-            (language_change_font != 3) &&
-            (language_change_font != 4) &&
-            (language_change_font != 5) &&
-            (language_change_font != 6) &&
-            (language_change_font != 7) &&
-            (language_change_font != 8) &&
-            (language_change_font != 9)
-        ) {
-          language_change_font = 2;
-        }
         EEPROM_READ(language_change_font);
+        if (!WITHIN(language_change_font, 1, 9))
+          language_change_font = 2;
+
         //EEPROM_READ(x_min_pos_eeprom);
         //EEPROM_READ(y_min_pos_eeprom);
       #endif
@@ -3997,7 +3988,7 @@ void MarlinSettings::reset() {
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
 
     #if ENABLED(E3S1PRO_RTS)
-      SERIAL_ECHO_MSG("  Display sound OffOn ", int(g_soundSetOffOn));
+      SERIAL_ECHOLNPGM("  Display sound OffOn ", g_soundSetOffOn);
     #endif
 
     //
