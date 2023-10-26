@@ -555,8 +555,8 @@
   #include "stm32g0/pins_BTT_EBB42_V1_1.h"          // STM32G0                              env:BTT_EBB42_V1_1_filament_extruder
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M4P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+#elif MB(BTT_MANTA_M4P_V2_1)
+  #include "stm32g0/pins_BTT_MANTA_M4P_V2_1.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_M5P_V1_0)
   #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_E3_EZ_V1_0)
@@ -739,11 +739,11 @@
 #elif MB(BTT_SKR_V2_0_REV_B)
   #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug env:BIGTREE_SKR_2_F429 env:BIGTREE_SKR_2_F429_USB env:BIGTREE_SKR_2_F429_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive
 #elif MB(BTT_OCTOPUS_V1_1)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_USB env:STM32F429ZG_btt env:STM32F429ZG_btt_USB env:STM32F407ZE_btt env:STM32F407ZE_btt_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive env:STM32F429ZG_btt env:STM32F429ZG_btt_usb_flash_drive env:STM32F407ZE_btt env:STM32F407ZE_btt_usb_flash_drive
 #elif MB(BTT_OCTOPUS_PRO_V1_0)
-  #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h"    // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_USB env:STM32F429ZG_btt env:STM32F429ZG_btt_USB env:STM32H723ZE_btt
+  #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h"    // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive env:STM32F429ZG_btt env:STM32F429ZG_btt_usb_flash_drive env:STM32H723ZE_btt
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"                // STM32F4                              env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)
@@ -774,6 +774,8 @@
   #include "stm32f4/pins_ANET_ET4P.h"               // STM32F4                              env:Anet_ET4_no_bootloader env:Anet_ET4_OpenBLT
 #elif MB(FYSETC_CHEETAH_V20)
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"      // STM32F4                              env:FYSETC_CHEETAH_V20
+#elif MB(FYSETC_CHEETAH_V30)
+  #include "stm32f4/pins_FYSETC_CHEETAH_V30.h"      // STM32F4                              env:FYSETC_CHEETAH_V30
 #elif MB(MKS_MONSTER8_V1)
   #include "stm32f4/pins_MKS_MONSTER8_V1.h"         // STM32F4                              env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(MKS_MONSTER8_V2)
@@ -785,7 +787,7 @@
 #elif MB(MKS_ROBIN_NANO_V1_3_F4)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h"  // STM32F4                              env:mks_robin_nano_v1_3_f4 env:mks_robin_nano_v1_3_f4_usbmod
 #elif MB(MKS_EAGLE)
-  #include "stm32f4/pins_MKS_EAGLE.h"               // STM32F4                              env:mks_eagle
+  #include "stm32f4/pins_MKS_EAGLE.h"               // STM32F4                              env:mks_eagle env:mks_eagle_usb_flash_drive env:mks_eagle_usb_flash_drive_msc
 #elif MB(ARTILLERY_RUBY)
   #include "stm32f4/pins_ARTILLERY_RUBY.h"          // STM32F4                              env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
@@ -804,6 +806,8 @@
   #include "stm32f4/pins_BLACKPILL_CUSTOM.h"        // STM32F4                              env:STM32F401CD_blackpill_stlink
 #elif MB(I3DBEEZ9_V1)
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
+#elif MB(MELLOW_FLY_E3_V2)
+  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
 
 //
 // ARM Cortex-M7
@@ -927,6 +931,7 @@
   #define BOARD_BTT_SKR_SE_BX           99924
   #define BOARD_MKS_MONSTER8            99925
   #define BOARD_LINUX_RAMPS             99926
+  #define BOARD_BTT_MANTA_M4P_V1_0      99927
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -984,6 +989,8 @@
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
   #elif MB(LINUX_RAMPS)
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
+  #elif MB(BTT_MANTA_M4P_V1_0)
+    #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1018,6 +1025,7 @@
   #undef BOARD_BTT_SKR_SE_BX
   #undef BOARD_MKS_MONSTER8
   #undef BOARD_LINUX_RAMPS
+  #undef BOARD_BTT_MANTA_M4P_V1_0
 
 #endif
 

@@ -393,14 +393,14 @@ void MarlinUI::draw_status_screen() {
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
+void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
   TERN_(TOUCH_SCREEN, touch.clear());
 
   uint16_t line = 1;
 
   menu_line(line++);
-  tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
+  tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
@@ -429,7 +429,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  if (ui.can_show_slider()) {
+  if (ui.can_show_slider() && maxEditValue > 0) {
     tft.canvas((TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y, SLIDER_W, 16);
     tft.set_background(COLOR_BACKGROUND);
 
@@ -457,13 +457,13 @@ void TFT::draw_edit_screen_buttons() {
 }
 
 // The Select Screen presents a prompt and two "buttons"
-void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
+void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
   uint16_t line = 1;
 
   if (!string) line++;
 
   menu_line(line++);
-  tft_string.set(pref);
+  tft_string.set(fpre);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
@@ -474,9 +474,9 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   }
 
-  if (suff) {
+  if (fsuf) {
     menu_line(line);
-    tft_string.set(suff);
+    tft_string.set(fsuf);
     tft_string.trim();
     tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
   }
