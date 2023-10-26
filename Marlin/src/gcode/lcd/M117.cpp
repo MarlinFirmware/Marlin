@@ -58,7 +58,7 @@ void GcodeSuite::M117() {
     }
   #else
     if (parser.string_arg && parser.string_arg[0])
-      ui.set_status(parser.string_arg, true);
+      ui.set_status_no_expire(parser.string_arg);
     else
       ui.reset_status();
   #endif

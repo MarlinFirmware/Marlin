@@ -35,8 +35,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
-#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
+// MKS_MINI_12864_V3 and BTT_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
+#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -53,6 +53,8 @@
   #define DGUS_LCD_UI_RELOADED 1
 #elif DGUS_UI_IS(IA_CREALITY)
   #define DGUS_LCD_UI_IA_CREALITY 1
+#elif DGUS_UI_IS(E3S1PRO)
+  #define DGUS_LCD_UI_E3S1PRO 1
 #endif
 
 /**
@@ -452,7 +454,7 @@
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+// https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
   #define IS_ULTIPANEL 1
@@ -488,7 +490,7 @@
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
-  #define IS_EXTUI 1
+  #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
 #endif
 
@@ -531,6 +533,20 @@
 #endif
 
 #if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  /**
+   * HAS_DISPLAY indicates the display uses these MarlinUI methods...
+   *  - update
+   *  - abort_print
+   *  - pause_print
+   *  - resume_print
+   *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
+   *
+   *  ...and implements these MarlinUI methods:
+   *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
+   *  - draw_kill_screen
+   *  - kill_screen
+   *  - draw_status_message
+   */
   #define HAS_DISPLAY 1
 #endif
 
@@ -1406,23 +1422,31 @@
  * Conditionals based on the type of Bed Probe
  */
 #if HAS_BED_PROBE
+  #if ALL(DELTA, SENSORLESS_PROBING)
+    #define HAS_DELTA_SENSORLESS_PROBING 1
+  #else
+    #define HAS_REAL_BED_PROBE 1
+  #endif
+  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
+    #define NEED_Z_MIN_PROBE_PIN 1
+  #endif
+  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+    #define HOMING_Z_WITH_PROBE 1
+  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
-  #if ALL(DELTA, SENSORLESS_PROBING)
-    #define HAS_DELTA_SENSORLESS_PROBING 1
-  #endif
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING)
-    #define USE_Z_MIN_PROBE 1
-  #endif
-  #if Z_HOME_TO_MIN && (DISABLED(USE_Z_MIN_PROBE) || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
-  #endif
-  #ifndef Z_PROBE_LOW_POINT
-    #define Z_PROBE_LOW_POINT -5
-  #endif
   #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
+  #endif
+  #ifndef Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_BETWEEN_PROBES 5
+  #endif
+  #ifndef Z_CLEARANCE_MULTI_PROBE
+    #define Z_CLEARANCE_MULTI_PROBE 5
+  #endif
+  #ifndef Z_PROBE_ERROR_TOLERANCE
+    #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
   #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
@@ -1436,6 +1460,31 @@
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
+  #undef HOMING_Z_WITH_PROBE
+  #undef Z_CLEARANCE_MULTI_PROBE
+  #undef Z_PROBE_ERROR_TOLERANCE
+  #undef MULTIPLE_PROBING
+  #undef EXTRA_PROBING
+  #undef Z_PROBE_OFFSET_RANGE_MIN
+  #undef Z_PROBE_OFFSET_RANGE_MAX
+  #undef PAUSE_BEFORE_DEPLOY_STOW
+  #undef PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED
+  #undef PROBING_HEATERS_OFF
+  #undef WAIT_FOR_BED_HEATER
+  #undef WAIT_FOR_HOTEND
+  #undef PROBING_STEPPERS_OFF
+  #undef DELAY_BEFORE_PROBING
+  #undef PREHEAT_BEFORE_PROBING
+  #undef PROBING_NOZZLE_TEMP
+  #undef PROBING_BED_TEMP
+  #undef NOZZLE_TO_PROBE_OFFSET
+#endif
+
+#ifndef Z_CLEARANCE_DEPLOY_PROBE
+  #define Z_CLEARANCE_DEPLOY_PROBE 10
+#endif
+#ifndef Z_PROBE_LOW_POINT
+  #define Z_PROBE_LOW_POINT -5
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -1765,14 +1814,23 @@
 #elif ANY(TFT_1024x600_LTDC, TFT_1024x600_SIM)
   #define HAS_UI_1024x600 1
 #endif
-#if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
+
+// Number of text lines the screen can display (may depend on font used)
+// Touch screens leave space for extra buttons at the bottom
+#if ANY(HAS_UI_320x240, HAS_UI_480x272)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9)
   #else
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+  #endif
+#elif HAS_UI_480x320
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 9, 10)
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

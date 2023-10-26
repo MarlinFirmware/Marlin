@@ -138,9 +138,9 @@
   //
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
-      char msg[10];
-      sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
-      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), msg);
+      MString<9> msg;
+      msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
+      MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_move) ui.goto_screen(_lcd_level_bed_get_z);

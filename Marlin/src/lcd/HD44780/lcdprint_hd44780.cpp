@@ -1043,7 +1043,7 @@ int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
  * @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
  * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
  *
- * @return the number of pixels advanced
+ * @return the number of characters emitted
  *
  * Draw a UTF-8 string
  */

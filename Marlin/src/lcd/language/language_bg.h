@@ -30,7 +30,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_5
 
-namespace Language_bg {
+namespace LanguageNarrow_bg {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -44,23 +44,23 @@ namespace Language_bg {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Изкл. двигатели");
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Задай Начало");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Подгряване ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Настройки ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Подгряване $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Подгряване $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Подгряване $ Дюза");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Подгряване $ Дюза ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Подгр. $ Всички");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Подгр. $ Легло");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Настройки $");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Подгряване ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Настройки ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Подгряване $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Подгряване $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Подгряване $ Дюза");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Подгряване $ Дюза ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Подгр. $ Всички");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Подгр. $ Легло");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Настройки $");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Охлаждане");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Вкл. захранване");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Изкл. захранване");
@@ -156,4 +156,21 @@ namespace Language_bg {
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Калибровка Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Калибровка Център");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Неправилен принтер");
+}
+
+namespace LanguageWide_bg {
+  using namespace LanguageNarrow_bg;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+  #endif
+}
+
+namespace LanguageTall_bg {
+  using namespace LanguageWide_bg;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_bg {
+  using namespace LanguageTall_bg;
 }

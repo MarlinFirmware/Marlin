@@ -160,7 +160,7 @@ void MMU2::mmu_loop() {
         MMU2_SEND("S1");    // Read Version
         state = -2;
       }
-      else if (millis() > 30000) { // 30sec after reset disable MMU
+      else if (ELAPSED(millis(), prev_request + 30000)) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
@@ -286,7 +286,7 @@ void MMU2::mmu_loop() {
         sscanf(rx_buffer, "%hhuok\n", &finda);
 
         // This is super annoying. Only activate if necessary
-        // if (finda_runout_valid) DEBUG_ECHOLNPAIR_F("MMU <= 'P0'\nMMU => ", finda, 6);
+        //if (finda_runout_valid) DEBUG_ECHOLNPGM("MMU <= 'P0'\nMMU => ", p_float_t(finda, 6));
 
         if (!finda && finda_runout_valid) filament_runout();
         if (cmd == MMU_CMD_NONE) ready = true;

@@ -52,8 +52,7 @@ void menu_job_recovery();
 inline void plr_error(FSTR_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    DEBUG_ECHOF(prefix);
-    DEBUG_ECHOLNPGM(" Job Recovery Data");
+    DEBUG_ECHOLN(prefix, F(" Job Recovery Data"));
   #else
     UNUSED(prefix);
   #endif
@@ -79,7 +78,7 @@ void GcodeSuite::M1000() {
       #elif ENABLED(E3S1PRO_RTS)
         recovery.info.print_job_elapsed = print_job_timer.duration() + recovery.info.print_job_elapsed;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
-        CrealityDWIN.Popup_Handler(Resume);
+        jyersDWIN.popupHandler(Popup_Resume);
       #elif ENABLED(EXTENSIBLE_UI)
         ExtUI::onPowerLossResume();
       #else
