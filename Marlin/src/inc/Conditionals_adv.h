@@ -1230,7 +1230,7 @@
   #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
-  #define HAS_USER_ITEM(N) 0
+  #define HAS_USER_ITEM(...) 0
 #endif
 
 /**
@@ -1273,6 +1273,24 @@
   #undef TC_GCODE_USE_GLOBAL_X
   #undef TC_GCODE_USE_GLOBAL_Y
   #undef TC_GCODE_USE_GLOBAL_Z
+#endif
+
+// TOOLCHANGE_MIGRATION_FEATURE - Clean up after sloppy auto config
+#if DISABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #undef MIGRATION_ZRAISE
+  #undef MIGRATION_FS_EXTRA_PRIME
+  #undef MIGRATION_FS_WIPE_RETRACT
+  #undef MIGRATION_FS_FAN_SPEED
+  #undef MIGRATION_FS_FAN_TIME
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#endif
+// TOOLCHANGE_PARK - Clean up after sloppy auto config
+#if DISABLED(TOOLCHANGE_PARK)
+  #undef TOOLCHANGE_PARK_XY
+  #undef TOOLCHANGE_PARK_XY_FEEDRATE
+  #undef TOOLCHANGE_PARK_X_ONLY
+  #undef TOOLCHANGE_PARK_Y_ONLY
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
 #endif
 
 // Multi-Stepping Limit

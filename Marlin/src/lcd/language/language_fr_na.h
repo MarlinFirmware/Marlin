@@ -433,9 +433,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Butee abandon");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Err de chauffe");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Err de chauffe");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err TEMP. REDONDANTE");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Err THERMIQUE");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Err THERMIQUE");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err TEMP. MAX");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err TEMP. MIN");
 
