@@ -412,12 +412,12 @@ void MarlinUI::draw_status_message(const bool blink) {
   //
   // Draw an edit screen with label and current value
   //
-  void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
-    const dwin_coord_t labellen = utf8_strlen(fstr), vallen = utf8_strlen(value);
+    const dwin_coord_t labellen = utf8_strlen(ftpl), vallen = utf8_strlen(value);
 
-    dwin_string.set(FTOP(fstr), itemIndex);
+    dwin_string.set(FTOP(ftpl), itemIndex);
     if (vallen) dwin_string.add(':');  // If a value is included, add a colon
 
     // Assume the label is alpha-numeric (with a descender)
@@ -453,7 +453,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   inline void draw_boxed_string(const bool yesopt, FSTR_P const fstr, const bool inv) {
-    const uint8_t len = utf8_strlen(fstr),
+    const uint8_t len = utf8_strlen_P(FTOP(fstr)),
                   mar = TERN(DWIN_MARLINUI_PORTRAIT, 1, 4),
                   col = yesopt ? LCD_WIDTH - mar - len : mar,
                   row = (LCD_HEIGHT >= 8 ? LCD_HEIGHT / 2 + 3 : LCD_HEIGHT - 1);
@@ -464,12 +464,12 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   void MenuItem_confirm::draw_select_screen(
     FSTR_P const yes, FSTR_P const no, const bool yesno,
-    FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/
+    FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
   ) {
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;
     dwin_font.fg = COLOR_WHITE;
-    ui.draw_select_screen_prompt(pref, string, suff);
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     if (no)  draw_boxed_string(false, no, !yesno);
     if (yes) draw_boxed_string(true, yes,  yesno);
   }
