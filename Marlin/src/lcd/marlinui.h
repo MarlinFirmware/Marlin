@@ -729,7 +729,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
+    static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
   #else
 

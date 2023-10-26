@@ -30,4 +30,5 @@ class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
   public:
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
+    static void onIdle();
 };
