@@ -66,7 +66,6 @@
 BedLevelTools bedLevelTools;
 
 #if ENABLED(USE_GRID_MESHVIEWER)
-  bool BedLevelTools::viewer_asymmetric_range = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
 bool BedLevelTools::goto_mesh_value = false;
@@ -186,20 +185,14 @@ void BedLevelTools::meshReset() {
 
 // Accessors
 float BedLevelTools::getMaxValue() {
-  float max = __FLT_MAX__ * -1;
-  GRID_LOOP(x, y) {
-    if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
-      max = bedlevel.z_values[x][y];
-  }
+  float max = -(__FLT_MAX__);
+  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
   return max;
 }
 
 float BedLevelTools::getMinValue() {
   float min = __FLT_MAX__;
-  GRID_LOOP(x, y) {
-    if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
-      min = bedlevel.z_values[x][y];
-  }
+  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
   return min;
 }
 
@@ -221,7 +214,7 @@ bool BedLevelTools::meshValidate() {
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
     const uint16_t cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
-    const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
+    const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
     dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
@@ -242,8 +235,8 @@ bool BedLevelTools::meshValidate() {
       dwinDrawRectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
         isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (                                                           // gray if undefined
           (bedlevel.z_values[x][y] < 0 ?
-            (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-            (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+            (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / rmax) << 11 : // red if mesh point value is negative
+            (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / rmax) << 5) | // green if mesh point value is positive
               _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
         start_x_px, start_y_px, end_x_px, end_y_px
       );
@@ -252,7 +245,6 @@ bool BedLevelTools::meshValidate() {
       LCD_SERIAL.flushTX();
 
       // Draw value text on
-      char buf[8];
       const uint8_t fs = DWINUI::fontWidth(meshfont);
       if (viewer_print_value) {
         int8_t offset_x, offset_y = cell_height_px / 2 - fs;
@@ -260,14 +252,15 @@ bool BedLevelTools::meshValidate() {
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
         }
         else {                          // has value
-          if (GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10))
-            sprintf_P(buf, PSTR("%s"), dtostrf(abs(bedlevel.z_values[x][y]), 1, 2, str_1));
+          MString<12> msg;
+          if ((GRID_MAX_POINTS_X) < TERN(TJC_DISPLAY, 8, 10))
+            msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
           else
-            sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
-          offset_x = cell_width_px / 2 - (fs/2) * (strlen(buf)) - 2;
-          if (!(GRID_MAX_POINTS_X < (ENABLED(TJC_DISPLAY) ? 8 : 10)))
+            msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
+          offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
+          if ((GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10))
             dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
-          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, buf);
+          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);
         }
         safe_delay(10);
         LCD_SERIAL.flushTX();
@@ -276,17 +269,10 @@ bool BedLevelTools::meshValidate() {
   }
 
   void BedLevelTools::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead
-    float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), range = _MAX(v_min, v_max);
-    if (v_min > 3e+10f) v_min = 0.0000001;
-    if (v_max > 3e+10f) v_max = 0.0000001;
-    if (range > 3e+10f) range = 0.0000001;
-    ui.set_status(
-      &MString<45>(
-        F("Red "),  p_float_t(viewer_asymmetric_range ? -v_min : -range, 3),
-        F("..0.."), p_float_t(viewer_asymmetric_range ?  v_max :  range, 3),
-        F(" Green")
-      )
-    );
+    float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max), rmin = _MIN(v_min, v_max);
+    if (rmax > 3e+10f) rmax = 0.0000001;
+    if (rmin > 3e+10f) rmin = 0.0000001;
+    ui.set_status(&MString<47>(F("Red "),  p_float_t(-rmax, 3), F("..0.."), p_float_t(rmin, 3), F(" Green")));
     drawing_mesh = false;
   }
 

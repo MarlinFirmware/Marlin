@@ -139,9 +139,9 @@ namespace LanguageNarrow_da {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Probe udenfor plade");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Selv-Test");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s først");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Opvarmning fejlet");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Opvarmning fejlet");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fejl: reserve temp");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Temp løber løbsk");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Temp løber løbsk");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Fejl: Maks temp");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Fejl: Min temp");
   LSTR MSG_HALTED                         = _UxGT("PRINTER STOPPET");

@@ -8,9 +8,7 @@
  * Changed unsigned int to uint16_t for use in the professional Ender-3V2/S1 firmware
  * Url: https://www.arduino.cc/reference/en/libraries/base64/
  */
-
-#ifndef BASE64_H_INCLUDED
-#define BASE64_H_INCLUDED
+#pragma once
 
 /* binary_to_base64:
  *   Description:
@@ -135,11 +133,11 @@ uint16_t decode_base64_length(unsigned char input[], uint16_t input_length) {
   }
 
   input_length = input - start;
-  return input_length/4*3 + (input_length % 4 ? input_length % 4 - 1 : 0);
+  return input_length / 4 * 3 + (input_length % 4 ? input_length % 4 - 1 : 0);
 }
 
 uint16_t encode_base64(unsigned char input[], uint16_t input_length, unsigned char output[]) {
-  uint16_t full_sets = input_length/3;
+  uint16_t full_sets = input_length / 3;
 
   // While there are still full sets of 24 bits...
   for (uint16_t i = 0; i < full_sets; ++i) {
@@ -152,7 +150,7 @@ uint16_t encode_base64(unsigned char input[], uint16_t input_length, unsigned ch
     output += 4;
   }
 
-  switch(input_length % 3) {
+  switch (input_length % 3) {
     case 0:
       output[0] = '\0';
       break;
@@ -192,7 +190,7 @@ uint16_t decode_base64(unsigned char input[], uint16_t input_length, unsigned ch
     output += 3;
   }
 
-  switch(output_length % 3) {
+  switch (output_length % 3) {
     case 1:
       output[0] = base64_to_binary(input[0]) << 2 | base64_to_binary(input[1]) >> 4;
       break;
@@ -204,5 +202,3 @@ uint16_t decode_base64(unsigned char input[], uint16_t input_length, unsigned ch
 
   return output_length;
 }
-
-#endif // ifndef
