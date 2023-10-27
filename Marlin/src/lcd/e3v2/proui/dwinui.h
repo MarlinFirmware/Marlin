@@ -162,14 +162,12 @@
 #define ICON_MPCFan            ICON_FanSpeed
 
 // Buttons
-enum Button {
-    BTN_Continue = 1,
-    BTN_Cancel,
-    BTN_Confirm,
-    BTN_Print,
-    BTN_Save,
-    BTN_Purge
-};
+#define BTN_Continue          85
+#define BTN_Cancel            87
+#define BTN_Confirm           89
+#define BTN_Print             90
+#define BTN_Save              91
+#define BTN_Purge             92
 
 // Extended and default UI Colors
 #define COLOR_BLACK           0
