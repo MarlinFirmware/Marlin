@@ -78,7 +78,7 @@ void menu_advanced_settings();
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
-  static void progress_bar_test() {
+  static void screen_progress_bar_test() {
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
@@ -93,8 +93,8 @@ void menu_advanced_settings();
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
-  void _progress_bar_test() {
-    ui.goto_screen(progress_bar_test);
+  void _goto_progress_bar_test() {
+    ui.goto_screen(screen_progress_bar_test);
     TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
   }
 
@@ -102,12 +102,20 @@ void menu_advanced_settings();
 
 #if ENABLED(LCD_ENDSTOP_TEST)
 
-  #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL)
+  #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL);
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
-  #define STOP_ITEM(A,I) _STOP_ITEM(STRINGIFY(A) STRINGIFY(I) " " TERN(A##_HOME_TO_MAX, "Max", "Min"), A##I##_ENDSTOP)
+  #if HAS_X2_STATE || HAS_Y2_STATE || HAS_Z2_STATE
+    #define _S1_EXP_  ~,
+    #define _S1_SP_(I) THIRD(I, " ", "")
+    #define S1_SPACE(I) _S1_SP_(_CAT(_S1_EXP_,I))
+  #else
+    #define S1_SPACE(I)
+  #endif
+  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) S1_SPACE(I) " " L, A##I##_##M)
+  #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
 
-  static void endstop_test() {
+  static void screen_endstop_test() {
     if (ui.use_click()) {
       ui.goto_previous_screen();
       //endstops.enable_globally(false);
@@ -120,48 +128,12 @@ void menu_advanced_settings();
     START_SCREEN();
     STATIC_ITEM_F(GET_TEXT_F(MSG_ENDSTOP_TEST), SS_DEFAULT|SS_INVERT);
 
-    #if HAS_X_ENDSTOP
-      STOP_ITEM(X,);
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        STOP_ITEM(X,2);
-      #endif
-    #endif
-    #if HAS_Y_ENDSTOP
-      STOP_ITEM(Y,);
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        STOP_ITEM(Y,2);
-      #endif
-    #endif
-    #if HAS_Z_ENDSTOP
-      STOP_ITEM(Z,);
-      #if ENABLED(Z_MULTI_ENDSTOPS)
-        STOP_ITEM(Z,2);
-        #if NUM_Z_STEPPERS >= 3
-          STOP_ITEM(Z,3);
-          #if NUM_Z_STEPPERS >= 4
-            STOP_ITEM(Z,4);
-          #endif
-        #endif
-      #endif
-    #endif
-    #if HAS_I_ENDSTOP
-      STOP_ITEM(I,);
-    #endif
-    #if HAS_J_ENDSTOP
-      STOP_ITEM(J,);
-    #endif
-    #if HAS_K_ENDSTOP
-      STOP_ITEM(K,);
-    #endif
-    #if HAS_U_ENDSTOP
-      STOP_ITEM(U,);
-    #endif
-    #if HAS_V_ENDSTOP
-      STOP_ITEM(V,);
-    #endif
-    #if HAS_W_ENDSTOP
-      STOP_ITEM(W,);
-    #endif
+    STOP_MINMAX(X,) STOP_MINMAX(X,2)
+    STOP_MINMAX(Y,) STOP_MINMAX(Y,2)
+    STOP_MINMAX(Z,) STOP_MINMAX(Z,2) STOP_MINMAX(Z,3) STOP_MINMAX(Z,4)
+    STOP_MINMAX(I,) STOP_MINMAX(J,) STOP_MINMAX(K,)
+    STOP_MINMAX(U,) STOP_MINMAX(V,) STOP_MINMAX(W,)
+
     #if HAS_BED_PROBE && !HAS_DELTA_SENSORLESS_PROBING
       __STOP_ITEM(GET_TEXT_F(MSG_Z_PROBE), Z_MIN_PROBE);
     #endif
@@ -183,11 +155,11 @@ void menu_advanced_settings();
     BACK_ITEM(MSG_CONFIGURATION);
 
     #if ENABLED(LCD_PROGRESS_BAR_TEST)
-      SUBMENU(MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+      SUBMENU(MSG_PROGRESS_BAR_TEST, _goto_progress_bar_test);
     #endif
 
     #if ENABLED(LCD_ENDSTOP_TEST)
-      SUBMENU(MSG_ENDSTOP_TEST, endstop_test);
+      SUBMENU(MSG_ENDSTOP_TEST, screen_endstop_test);
     #endif
 
     END_MENU();
@@ -270,10 +242,10 @@ void menu_advanced_settings();
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif

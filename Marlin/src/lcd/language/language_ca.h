@@ -158,9 +158,9 @@ namespace LanguageNarrow_ca {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropas Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Micropas @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancel. Endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Error al escalfar");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Error al escalfar");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP REDUNDANT");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("THERMAL RUNAWAY");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("THERMAL RUNAWAY");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: TEMP MAXIMA");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: TEMP MINIMA");
   LSTR MSG_HALTED                         = _UxGT("IMPRESSORA PARADA");
