@@ -188,6 +188,10 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
         Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
+#ifdef MAX7219_DEBUG_SLOWDOWN
+  uint8_t Planner::slowdown_count = 0;
+#endif
+
 #if HAS_LEVELING
   bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
   #if ABL_PLANAR
@@ -985,9 +989,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
  */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next
-  OPTARG(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)
-) {
+void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr) {
   if (current) {
     // If entry speed is already at the maximum entry speed, and there was no change of speed
     // in the next block, there is no need to recheck. Block is cruising and there is no need to
@@ -1007,7 +1009,7 @@ void Planner::reverse_pass_kernel(block_t * const current, const block_t * const
       // the reverse and forward planners, the corresponding block junction speed will always be at the
       // the maximum junction speed and may always be ignored for any speed reduction checks.
 
-      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : _MAX(TERN0(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr), sq(float(MINIMUM_PLANNER_SPEED))),
+      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : safe_exit_speed_sqr,
                   new_entry_speed_sqr = current->flag.nominal_length
                     ? max_entry_speed_sqr
                     : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next_entry_speed_sqr, current->millimeters));
@@ -1039,7 +1041,7 @@ void Planner::reverse_pass_kernel(block_t * const current, const block_t * const
  * recalculate() needs to go over the current plan twice.
  * Once in reverse and once forward. This implements the reverse pass.
  */
-void Planner::reverse_pass(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
+void Planner::reverse_pass(const_float_t safe_exit_speed_sqr) {
   // Initialize block index to the last block in the planner buffer.
   uint8_t block_index = prev_block_index(block_buffer_head);
 
@@ -1063,7 +1065,7 @@ void Planner::reverse_pass(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_
 
     // Only process movement blocks
     if (current->is_move()) {
-      reverse_pass_kernel(current, next OPTARG(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
+      reverse_pass_kernel(current, next, safe_exit_speed_sqr);
       next = current;
     }
 
@@ -1176,7 +1178,7 @@ void Planner::forward_pass() {
  * according to the entry_factor for each junction. Must be called by
  * recalculate() after updating the blocks.
  */
-void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
+void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
   // The tail may be changed by the ISR so get a local copy.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
@@ -1243,8 +1245,7 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
 
   // Last/newest block in buffer. Always recalculated.
   if (block) {
-    // Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
-    next_entry_speed = _MAX(TERN0(HINTS_SAFE_EXIT_SPEED, SQRT(safe_exit_speed_sqr)), float(MINIMUM_PLANNER_SPEED));
+    next_entry_speed = SQRT(safe_exit_speed_sqr);
 
     // Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
     // As the last block is always recalculated here, there is a chance the block isn't
@@ -1267,15 +1268,15 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
   }
 }
 
-void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
+void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
   // Initialize block index to the last block in the planner buffer.
   const uint8_t block_index = prev_block_index(block_buffer_head);
   // If there is just one block, no planning can be done. Avoid it!
   if (block_index != block_buffer_planned) {
-    reverse_pass(TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
+    reverse_pass(safe_exit_speed_sqr);
     forward_pass();
   }
-  recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
+  recalculate_trapezoids(safe_exit_speed_sqr);
 }
 
 /**
@@ -1829,10 +1830,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   if (cleaning_buffer_counter) return false;
 
   // Fill the block with the specified movement
+  float minimum_planner_speed_sqr;
   if (!_populate_block(block, target
         OPTARG(HAS_POSITION_FLOAT, target_float)
         OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
         , fr_mm_s, extruder, hints
+        , minimum_planner_speed_sqr
       )
   ) {
     // Movement was not queued, probably because it was too short.
@@ -1853,8 +1856,14 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   // Move buffer head
   block_buffer_head = next_buffer_head;
 
+  // find a speed from which the new block can stop safely
+  const float safe_exit_speed_sqr = _MAX(
+    TERN0(HINTS_SAFE_EXIT_SPEED, hints.safe_exit_speed_sqr),
+    minimum_planner_speed_sqr
+  );
+
   // Recalculate and optimize trapezoidal speed profiles
-  recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, hints.safe_exit_speed_sqr));
+  recalculate(safe_exit_speed_sqr);
 
   // Movement successfully queued!
   return true;
@@ -1882,6 +1891,7 @@ bool Planner::_populate_block(
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
+  , float &minimum_planner_speed_sqr
 ) {
   xyze_long_t dist = target - position;
 
@@ -2316,6 +2326,9 @@ bool Planner::_populate_block(
       #define SLOWDOWN_DIVISOR 2
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
+      #ifdef MAX7219_DEBUG_SLOWDOWN
+        slowdown_count = (slowdown_count + 1) & 0x0F;
+      #endif
       const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
       if (time_diff > 0) {
         // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
@@ -2548,6 +2561,10 @@ bool Planner::_populate_block(
     }
   #endif
 
+  // The minimum possible speed is the average speed for
+  // the first / last step at current acceleration limit
+  minimum_planner_speed_sqr = 0.5f * block->acceleration / steps_per_mm;
+
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
   #if HAS_JUNCTION_DEVIATION
@@ -2630,7 +2647,7 @@ bool Planner::_populate_block(
       // NOTE: Computed without any expensive trig, sin() or acos(), by trig half angle identity of cos(theta).
       if (junction_cos_theta > 0.999999f) {
         // For a 0 degree acute junction, just set minimum junction speed.
-        vmax_junction_sqr = sq(float(MINIMUM_PLANNER_SPEED));
+        vmax_junction_sqr = minimum_planner_speed_sqr;
       }
       else {
         // Convert delta vector to unit vector
@@ -2838,6 +2855,8 @@ bool Planner::_populate_block(
 
     previous_safe_speed = safe_speed;
 
+    NOLESS(minimum_planner_speed_sqr, sq(safe_speed));
+
     #if HAS_JUNCTION_DEVIATION
       NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
     #else
@@ -2849,11 +2868,11 @@ bool Planner::_populate_block(
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
 
-  // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, sq(float(MINIMUM_PLANNER_SPEED)), block->millimeters);
+  // Initialize block entry speed. Compute based on deceleration to sqrt(minimum_planner_speed_sqr).
+  const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, minimum_planner_speed_sqr, block->millimeters);
 
   // Start with the minimum allowed speed
-  block->entry_speed_sqr = sq(float(MINIMUM_PLANNER_SPEED));
+  block->entry_speed_sqr = minimum_planner_speed_sqr;
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
