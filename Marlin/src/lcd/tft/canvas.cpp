@@ -31,17 +31,6 @@ uint16_t Canvas::startLine, Canvas::endLine;
 uint16_t Canvas::background_color;
 uint16_t *Canvas::buffer = TFT::buffer;
 
-struct rle_state_struct {
-  bool has_rle_state = false;
-  uint16_t dstx;                              // store dstx
-  uint16_t dsty;                              // store dsty
-  uint16_t srcx;                              // store srcx
-  uint16_t srcy;                              // store srcy
-  uint32_t rle_offset;
-};
-
-struct rle_state_struct rle_state;
-
 void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
   Canvas::width = width;
   Canvas::height = height;
@@ -140,6 +129,13 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
   }
 
   #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
+
+    static struct {
+      bool has_rle_state = false;
+      uint16_t dstx, dsty, srcx, srcy;
+      uint32_t rle_offset;
+    } rle_state;
+
     // RLE16 HIGHCOLOR - 16 bits per pixel
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
@@ -150,13 +146,13 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
               dsty = y, dstx = x;                   // Destination line / column index
 
       uint16_t color = 0;                           // Persist the last fetched color value
-      if (rle_state.has_rle_state) {                                // do we have rle position data
-        dstx = rle_state.dstx;                      // restore dstx
-        dsty = rle_state.dsty;                      // restore dstx
-        srcx = rle_state.srcx;                      // restore dstx
-        srcy = rle_state.srcy;                      // restore dstx
+      if (rle_state.has_rle_state) {                // do we have rle position data
+        dstx = rle_state.dstx;                      // restore required states
+        dsty = rle_state.dsty;
+        srcx = rle_state.srcx;
+        srcy = rle_state.srcy;
         bytedata = (uint8_t *)images[image].data + rle_state.rle_offset;  // restart decode from here instead of the start of data
-        rle_state.has_rle_state = false;            // invalidate stored rle state         // Invalidate date
+        rle_state.has_rle_state = false;            // invalidate stored rle state
       }
 
       bool done = false;
