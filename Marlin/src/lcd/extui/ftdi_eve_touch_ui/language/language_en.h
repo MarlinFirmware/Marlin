@@ -171,8 +171,6 @@ namespace Language_en {
     LSTR MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     LSTR MSG_PREHEAT_FINISHED       = u8"Preheat finished";
     LSTR MSG_PREHEAT                = u8"Preheat";
-    LSTR MSG_BUTTON_PAUSE           = u8"Pause";
-    LSTR MSG_BUTTON_RESUME          = u8"Resume";
     LSTR MSG_ELAPSED_PRINT          = u8"Elapsed Print";
     LSTR MSG_XYZ_MOVE               = u8"XYZ Move";
     LSTR MSG_E_MOVE                 = u8"Extrusion Move";
