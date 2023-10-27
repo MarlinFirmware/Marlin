@@ -989,8 +989,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
  */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next,
-  const_float_t safe_exit_speed_sqr) {
+void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr) {
   if (current) {
     // If entry speed is already at the maximum entry speed, and there was no change of speed
     // in the next block, there is no need to recheck. Block is cruising and there is no need to
@@ -2328,7 +2327,7 @@ bool Planner::_populate_block(
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
       #ifdef MAX7219_DEBUG_SLOWDOWN
-        slowdown_count = (slowdown_count + 1) & 0x0f;
+        slowdown_count = (slowdown_count + 1) & 0x0F;
       #endif
       const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
       if (time_diff > 0) {
@@ -2562,9 +2561,9 @@ bool Planner::_populate_block(
     }
   #endif
 
-  // the minimum possible speed is the average speed for the first / last step
-  // at current acceleration limit
-  minimum_planner_speed_sqr = 0.5 * block->acceleration / steps_per_mm;
+  // The minimum possible speed is the average speed for
+  // the first / last step at current acceleration limit
+  minimum_planner_speed_sqr = 0.5f * block->acceleration / steps_per_mm;
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 

@@ -1043,8 +1043,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static const uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
-    static const uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order
