@@ -322,7 +322,7 @@
        *                 ------                               ------
        *    (EN2)  PB5  | 1  2 | PA15(BTN_ENC)            5V |10  9 | GND
        *  (LCD_CS) PA9  | 3  4 | RST (RESET)              -- | 8  7 | --
-       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET)
+       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET) LCD_RESET
        *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
        *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
        *                 ------                               ------
@@ -330,7 +330,7 @@
        *
        *                                                      ------
        *                                                  -- |10  9 | --
-       *                   ---                       (RESET) | 8  7 | --
+       *                   ---          RESET_BUTTON (RESET) | 8  7 | --
        *                  | 3 |                      (MOSI)  | 6  5   (EN2)
        *                  | 2 | (DIN)                     -- | 4  3 | (EN1)
        *                  | 1 |                     (LCD_SCK)| 2  1 | --
@@ -338,6 +338,7 @@
        *                Neopixel                               EXP2
        *
        * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
+       * Note: The RESET line is connected to 3 pins.
        *
        * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
