@@ -157,37 +157,56 @@ void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
   WRITE(TFT_CS_PIN, LOW);
 }
 
-#ifdef TFT_DEFAULT_DRIVER
-  #include "../../../lcd/tft_io/tft_ids.h"
-#endif
+#include "../../../lcd/tft_io/tft_ids.h"
+
+inline bool known_tft_id(const uint32_t &id) {
+  switch (id & 0xFFFF) {
+    case LTDC_RGB:
+    case SSD1963:
+    case ST7735:
+    case ST7789:
+    case ST7796:
+    case R61505:
+    case ILI9328:
+    case ILI9341:
+    case ILI9488:
+    case ILI9488_ID1:
+      return true;
+    default:
+  }
+  return false;
+}
 
 uint32_t TFT_SPI::getID() {
   DEBUG_ECHOLNPGM("TFT_SPI::getID()");
-  uint32_t id;
-  id = readID(LCD_READ_ID);
+
+  uint32_t id = readID(LCD_READ_ID);
   #if ENABLED(DEBUG_TFT_IO)
     char debug_register[3], debug_value[5];
-    sprintf(debug_register, "%02X", LCD_READ_ID);
-    sprintf(debug_value, "%04X", uint16_t(id));
+    sprintf_P(debug_register, PSTR("%02X"), LCD_READ_ID);
+    sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
     DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
   #endif
-  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
+
+  if (!known_tft_id(id)) {
     id = readID(LCD_READ_ID4);
     #if ENABLED(DEBUG_TFT_IO)
-      sprintf(debug_register, "%02X", LCD_READ_ID4);
-      sprintf(debug_value, "%04X", uint16_t(id));
+      sprintf_P(debug_register, PSTR("%02X"), LCD_READ_ID4);
+      sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
       DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
     #endif
-    #ifdef TFT_DEFAULT_DRIVER
-      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
-        id = TFT_DEFAULT_DRIVER;
-        #if ENABLED(DEBUG_TFT_IO)
-          sprintf(debug_value, "%04X", uint16_t(id));
-          DEBUG_ECHOLNPGM("  Fallback to TFT_DEFAULT_DRIVER : 0x", debug_value);
-        #endif
-      }
-    #endif
-   }
+  }
+
+  #ifdef TFT_DEFAULT_DRIVER
+    if (!known_tft_id(id)) {
+      id = TFT_DEFAULT_DRIVER;
+      #if ENABLED(DEBUG_TFT_IO)
+        sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
+        DEBUG_ECHOLNPGM("  Fallback to TFT_DEFAULT_DRIVER : 0x", debug_value);
+      #endif
+    }
+  #endif
+
   return id;
 }
 
