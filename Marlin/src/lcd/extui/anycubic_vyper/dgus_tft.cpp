@@ -116,7 +116,7 @@ namespace Anycubic {
   void DEBUG_PRINT_TIMER_EVENT(const timer_event_t event, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_MEDIA_EVENT(const media_event_t event, FSTR_P const msg=nullptr);
 
-  void set_brightness(void);
+  void set_brightness();
 
   DgusTFT dgus;
 
@@ -203,9 +203,9 @@ namespace Anycubic {
       }
     #endif
 
-    // periodically update main page
-    #if defined(HAS_HOTEND) || defined(HAS_HEATED_BED)
-      if (((page_index_now == 121) || (page_index_now == 1)) && ((millis() % 500) == 0)) {
+    // Periodically update main page
+    #if HAS_HOTEND || HAS_HEATED_BED
+      if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
         TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
         TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
         delay(5);  // wait for millis() to advance so this clause isn't repeated
@@ -1138,8 +1138,8 @@ namespace Anycubic {
     }
   #endif
 
-  void set_brightness(void) {
-    uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x82, 0x64, 0x32, 0x03, 0xE8};
+  void set_brightness() {
+    uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x82, 0x64, 0x32, 0x03, 0xE8 };
     for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
   }
 
