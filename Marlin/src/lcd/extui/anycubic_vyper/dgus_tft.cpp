@@ -107,7 +107,6 @@ namespace Anycubic {
   int16_t DgusTFT::feedrate_back;
   lcd_info_t DgusTFT::lcd_info, DgusTFT::lcd_info_back;
   language_t DgusTFT::ui_language;
-  uint8_t DgusTFT::language;
   uint16_t page_index_saved;          // flags to keep from bombing the host display
   uint8_t pop_up_index_saved;
   uint32_t key_value_saved;
@@ -1144,13 +1143,12 @@ namespace Anycubic {
     for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
   }
 
-  void DgusTFT::set_language(language_t language_) {
-    lcd_info.language = lcd_info_back.language = language_;
-    language = ui_language = (language == CHS ? CHS : ENG);
+  void DgusTFT::set_language(language_t language) {
+    lcd_info.language = ui_language = lcd_info_back.language = language;
   }
 
   void DgusTFT::toggle_language() {
-    language = lcd_info.language = ui_language = (lcd_info.language == CHS ? ENG : CHS);
+    lcd_info.language = ui_language = (lcd_info.language == CHS ? ENG : CHS);
   }
 
   void DgusTFT::goto_system_page() {

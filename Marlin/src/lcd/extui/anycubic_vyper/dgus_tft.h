@@ -349,7 +349,6 @@ namespace Anycubic {
     static uint8_t      lcd_txtbox_page;
     static int16_t      feedrate_back;
     static language_t   ui_language;
-    static uint8_t      language;
 
     public:
       DgusTFT();
