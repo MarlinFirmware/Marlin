@@ -173,8 +173,8 @@ inline bool known_tft_id(const uint32_t &id) {
     case ILI9488_ID1:
       return true;
     default:
+      return false;
   }
-  return false;
 }
 
 uint32_t TFT_SPI::getID() {
@@ -213,10 +213,9 @@ uint32_t TFT_SPI::getID() {
 uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
   #if PIN_EXISTS(TFT_MISO)
-    const uint32_t oldPrescaler = SPIx.Init.BaudRatePrescaler;
+    REMEMBER(oldPS, SPIx.Init.BaudRatePrescaler, SPI_BAUDRATEPRESCALER_64);
+    //REMEMBER(oldPS, SPIx.Init.BaudRatePrescaler, SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4);
 
-    SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
-    //SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
     dataTransferBegin(DATASIZE_8BIT);
     writeReg(inReg);
 
@@ -248,7 +247,6 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     #endif
 
     dataTransferEnd();
-    SPIx.Init.BaudRatePrescaler = oldPrescaler;
   #endif
 
   DEBUG_ECHOLNPGM("  raw data : ", data);
