@@ -1419,14 +1419,14 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
 
-  #define static_assert_within(varname, x, min, max) static_assert(WITHIN(x, min, max), #varname " must be within " #min " and " #max)
+  #define static_assert_within(varname, x, min, max) static_assert(WITHIN(x, min, max), varname " must be within " #min " and " #max)
 
   static_assert_within("PROBE_OFFSET_XMIN", PROBE_OFFSET_XMIN, -(X_BED_SIZE), X_BED_SIZE);
   static_assert_within("PROBE_OFFSET_XMAX", PROBE_OFFSET_XMAX, -(X_BED_SIZE), X_BED_SIZE);
   static_assert_within("PROBE_OFFSET_YMIN", PROBE_OFFSET_YMIN, -(Y_BED_SIZE), Y_BED_SIZE);
   static_assert_within("PROBE_OFFSET_YMAX", PROBE_OFFSET_YMAX, -(Y_BED_SIZE), Y_BED_SIZE);
-  static_assert_within("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -(Z_MAX_POS), Z_MAX_POS);
-  static_assert_within("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -(Z_MAX_POS), Z_MAX_POS);
+  static_assert_within("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -20, 20);
+  static_assert_within("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -20, 20);
 
   static_assert_within("NOZZLE_TO_PROBE_OFFSET.x", sanity_nozzle_to_probe_offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
   static_assert_within("NOZZLE_TO_PROBE_OFFSET.y", sanity_nozzle_to_probe_offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
