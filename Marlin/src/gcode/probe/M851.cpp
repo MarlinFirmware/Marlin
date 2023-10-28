@@ -44,10 +44,10 @@ void GcodeSuite::M851() {
   if (parser.seenval('X')) {
     const float x = parser.value_float();
     #if HAS_PROBE_XY_OFFSET
-      if (WITHIN(x, Z_PROBE_OFFSET_XRANGE_MIN, Z_PROBE_OFFSET_XRANGE_MAX))
+      if (WITHIN(x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX))
         offs.x = x;
       else {
-        SERIAL_ECHOLNPGM("?X out of range (", Z_PROBE_OFFSET_XRANGE_MIN, " to ", Z_PROBE_OFFSET_XRANGE_MAX, ")");
+        SERIAL_ECHOLNPGM("?X out of range (", PROBE_OFFSET_XMIN, " to ", PROBE_OFFSET_XMAX, ")");
         ok = false;
       }
     #else
@@ -58,10 +58,10 @@ void GcodeSuite::M851() {
   if (parser.seenval('Y')) {
     const float y = parser.value_float();
     #if HAS_PROBE_XY_OFFSET
-      if (WITHIN(y, Z_PROBE_OFFSET_YRANGE_MIN, Z_PROBE_OFFSET_YRANGE_MAX))
+      if (WITHIN(y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX))
         offs.y = y;
       else {
-        SERIAL_ECHOLNPGM("?Y out of range (", Z_PROBE_OFFSET_YRANGE_MIN, " to ", Z_PROBE_OFFSET_YRANGE_MAX, ")");
+        SERIAL_ECHOLNPGM("?Y out of range (", PROBE_OFFSET_YMIN, " to ", PROBE_OFFSET_YMAX, ")");
         ok = false;
       }
     #else
@@ -71,10 +71,10 @@ void GcodeSuite::M851() {
 
   if (parser.seenval('Z')) {
     const float z = parser.value_float();
-    if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+    if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
       offs.z = z;
     else {
-      SERIAL_ECHOLNPGM("?Z out of range (", Z_PROBE_OFFSET_RANGE_MIN, " to ", Z_PROBE_OFFSET_RANGE_MAX, ")");
+      SERIAL_ECHOLNPGM("?Z out of range (", PROBE_OFFSET_ZMIN, " to ", PROBE_OFFSET_ZMAX, ")");
       ok = false;
     }
   }

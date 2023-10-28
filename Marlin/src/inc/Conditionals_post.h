@@ -2943,11 +2943,11 @@
  * Bed Probe dependencies
  */
 #if ANY(MESH_BED_LEVELING, HAS_BED_PROBE)
-  #ifndef Z_PROBE_OFFSET_RANGE_MIN
-    #define Z_PROBE_OFFSET_RANGE_MIN -20
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
   #endif
-  #ifndef Z_PROBE_OFFSET_RANGE_MAX
-    #define Z_PROBE_OFFSET_RANGE_MAX 20
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX 20
   #endif
 #endif
 #if HAS_BED_PROBE
