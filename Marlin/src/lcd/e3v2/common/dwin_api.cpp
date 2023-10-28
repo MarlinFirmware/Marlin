@@ -317,7 +317,7 @@ void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
   //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
   #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
-    dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * (iNum+fNum+1), y + fontHeight(size));
+    dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * (iNum + fNum + 1), y + fontHeight(size));
   #endif
   dwinByte(i, 0x14);
   dwinByte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
