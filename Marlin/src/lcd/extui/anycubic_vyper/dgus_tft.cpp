@@ -204,13 +204,12 @@ namespace Anycubic {
     #endif
 
     // Periodically update main page
-    #if HAS_HOTEND || HAS_HEATED_BED
-      if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
-        TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-        TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
-        delay(5);  // wait for millis() to advance so this clause isn't repeated
-      }
-    #endif
+    if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
+      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      set_brightness();
+      delay(1);  // wait for millis() to advance so this clause isn't repeated
+    }
 
     switch (page_index_now) {
       case 115: page115(); break;
