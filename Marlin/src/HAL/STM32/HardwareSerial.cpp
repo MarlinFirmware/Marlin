@@ -74,7 +74,7 @@
 #endif
 
 // TODO: GET FROM INCLUDE FILE
-#if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+#if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
 
   #define RCC_AHB1Periph_DMA1 ((uint32_t)0x00200000)
   #define RCC_AHB1Periph_DMA2 ((uint32_t)0x00400000)
@@ -91,7 +91,7 @@
   }
 #endif
 
-#if defined(STM32F0xx) || defined(STM32F1xx)
+#if ANY(STM32F0xx, STM32F1xx)
 
   #define RCC_AHBPeriph_DMA1 ((uint32_t)0x00000001)
   #define RCC_AHBPeriph_DMA2 ((uint32_t)0x00000002)
@@ -160,10 +160,10 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL1_RX);
     setTx(PIN_SERIAL1_TX);
     _uart_index = 0;
-    #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
       RX_DMA = { USART1, RCC_AHB1Periph_DMA2, 4, DMA2_Stream2 };
     #endif
-    #if defined(STM32F0xx) || defined(STM32F1xx)
+    #if ANY(STM32F0xx, STM32F1xx)
       RX_DMA = { USART1, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel5 };
     #endif
   }
@@ -171,10 +171,10 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL2_RX);
     setTx(PIN_SERIAL2_TX);
     _uart_index = 1;
-    #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
       RX_DMA = { USART2, RCC_AHB1Periph_DMA1, 4, DMA1_Stream5 };
     #endif
-    #if defined(STM32F0xx) || defined(STM32F1xx)
+    #if ANY(STM32F0xx, STM32F1xx)
       RX_DMA = { USART2, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel6 };
     #endif
   }
@@ -183,7 +183,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setTx(PIN_SERIAL3_TX);
     _uart_index = 2;
 
-    #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
       RX_DMA = { USART3, RCC_AHB1Periph_DMA1, 4, DMA1_Stream1 };
     #endif
     #ifdef STM32F1xx // F0 has no support for UART3, requires system remapping
@@ -202,7 +202,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
 
   #ifdef UART4
     else if (peripheral == UART4) {
-      #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+      #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
         RX_DMA = { UART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
       #endif
       #ifdef STM32F1xx // STM32F0xx has only 3 UARTs
@@ -214,23 +214,25 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     }
   #endif
 
-  #ifdef UART5 // must be F2 / F4 /F7
-    else if (peripheral == UART5) {
-      RX_DMA = { UART5, RCC_AHB1Periph_DMA1, 4, DMA1_Stream0 };
-      setRx(PIN_SERIAL5_RX);
-      setTx(PIN_SERIAL5_TX);
-      _uart_index = 4;
-    }
-  #endif
+  #if !ANY(STM32F0xx, STM32F1xx) // exclude UART4 for F0 / F1, no DMA connectivity
+    #ifdef UART5 // must be F2 / F4 /F7
+      else if (peripheral == UART5) {
+        RX_DMA = { UART5, RCC_AHB1Periph_DMA1, 4, DMA1_Stream0 };
+        setRx(PIN_SERIAL5_RX);
+        setTx(PIN_SERIAL5_TX);
+        _uart_index = 4;
+      }
+    #endif
 
-  #ifdef USART6 // must be F2 / F4 /F7
-    else if (peripheral == USART6) {
-      RX_DMA = { USART6, RCC_AHB1Periph_DMA2, 4, DMA2_Stream1 };
-      setRx(PIN_SERIAL6_RX);
-      setTx(PIN_SERIAL6_TX);
-      _uart_index = 5;
-    }
-  #endif
+    #ifdef USART6 // must be F2 / F4 /F7
+      else if (peripheral == USART6) {
+        RX_DMA = { USART6, RCC_AHB1Periph_DMA2, 4, DMA2_Stream1 };
+        setRx(PIN_SERIAL6_RX);
+        setTx(PIN_SERIAL6_TX);
+        _uart_index = 5;
+      }
+    #endif
+  #endif // !ANY(STM32F0xx, STM32F1xx)
 
   else { // else get the pins of the first peripheral occurence in PinMap
     _serial.pin_rx = pinmap_pin(peripheral, PinMap_UART_RX);
@@ -335,11 +337,11 @@ void HAL_HardwareSerial::update_rx_head() { // update buffer head for DMA progre
     }
   #endif
 
-  #if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+  #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_streamRX->NDTR;
-  #endif // STM32F2xx || STM32F4xx || STM32F7xx
+  #endif
 
-  #if defined(STM32F0xx) || defined(STM32F1xx)
+  #if ANY(STM32F0xx, STM32F1xx)
     _serial.rx_head = RX_BUFFER_SIZE - RX_DMA.dma_channelRX->CNDTR;
   #endif
 
@@ -385,7 +387,7 @@ void HAL_HardwareSerial::flush() {
   while ((_serial.tx_head != _serial.tx_tail)) { /* nada */ } // nop, the interrupt handler will free up space for us
 }
 
-#if defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx)
+#if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
 
 void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RCC_AHB1PeriphClockCmd(RX_DMA.dma_rcc, ENABLE);                   // Enable DMA clock
@@ -412,9 +414,9 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RX_DMA.dma_streamRX->CR |= (1 << 0);                              // RX enable DMA
 }
 
-#endif // STM32F2xx || STM32F4xx || defined(STM32F7xx)
+#endif // ANY(STM32F2xx, STM32F4xx, STM32F7xx)
 
-#if defined(STM32F0xx) || defined(STM32F1xx)
+#if ANY(STM32F0xx, STM32F1xx)
 
 void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RCC_AHBPeriphClockCmd(RX_DMA.dma_rcc, ENABLE);                    // enable DMA clock
@@ -438,7 +440,7 @@ void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
   RX_DMA.dma_channelRX->CCR |=  (1<<0);                             // RX enable DMA
 }
 
-#endif // STM32F0xx || STM32F1xx
+#endif // ANY(STM32F0xx, STM32F1xx)
 
 #endif // HAL_UART_MODULE_ENABLED && !HAL_UART_MODULE_ONLY
 #endif // HAL_STM32

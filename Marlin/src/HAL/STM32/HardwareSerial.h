@@ -34,26 +34,26 @@
   #define RX_BUFFER_SIZE 128
 #endif
 
-#if !defined(TX_BUFFER_SIZE) || (TX_BUFFER_SIZE== 0)
+#if !defined(TX_BUFFER_SIZE) || (TX_BUFFER_SIZE == 0)
   #undef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 64
 #endif
 
-#if defined(STM32F0xx) || defined(STM32F1xx)
-typedef struct
-{ // F0 / F1
-  USART_TypeDef * uart;
-  uint32_t dma_rcc;
-  DMA_TypeDef * dma_controller;
-  DMA_Channel_TypeDef * dma_channelRX;
-} DMA_CFG;
+#if ANY(STM32F0xx, STM32F1xx)
+  typedef struct
+  { // F0 / F1
+    USART_TypeDef * uart;
+    uint32_t dma_rcc;
+    DMA_TypeDef * dma_controller;
+    DMA_Channel_TypeDef * dma_channelRX;
+  } DMA_CFG;
 #else // F2 / F4 / F7
-typedef struct {
-  USART_TypeDef * uart;
-  uint32_t dma_rcc;
-  uint32_t dma_channel;
-  DMA_Stream_TypeDef * dma_streamRX;
-} DMA_CFG;
+  typedef struct {
+    USART_TypeDef * uart;
+    uint32_t dma_rcc;
+    uint32_t dma_channel;
+    DMA_Stream_TypeDef * dma_streamRX;
+  } DMA_CFG;
 #endif
 
   class HAL_HardwareSerial : public Stream {
