@@ -910,9 +910,10 @@ namespace Anycubic {
   }
 
   void DgusTFT::checkHeaters() {
-    static uint32_t time_last = 0;
-    if (PENDING(millis(), time_last)) return;
-    time_last = millis() + 500;
+    static uint32_t time_next = 0;
+    const millis_t ms = millis();
+    if (PENDING(ms, time_next)) return;
+    time_next = ms + 500;
 
     float temp = 0;
 
