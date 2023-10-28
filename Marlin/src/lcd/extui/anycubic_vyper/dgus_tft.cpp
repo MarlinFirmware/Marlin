@@ -682,13 +682,6 @@ namespace Anycubic {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
 
-    void DgusTFT::powerLoss() {
-      // On:  5A A5 05 82 00 82 00 00
-      // Off: 5A A5 05 82 00 82 00 64
-      //uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, uint8_t(recovery.enabled ? 0x00 : 0x64) };
-      //for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);  // never turn off backlight
-    }
-
     void DgusTFT::powerLossRecovery() {
       printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
     }
