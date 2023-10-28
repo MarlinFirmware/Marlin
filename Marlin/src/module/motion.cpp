@@ -892,7 +892,7 @@ void restore_feedrate_and_scaling() {
     #elif ENABLED(DELTA)
 
       soft_endstop.min[axis] = base_min_pos(axis);
-      soft_endstop.max[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_max_pos(axis);
+      soft_endstop.max[axis] = (axis == Z_AXIS) ? DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height, probe.offset.z) : base_home_pos(axis);
 
       switch (axis) {
         case X_AXIS:
@@ -2100,12 +2100,12 @@ void prepare_line_to_destination() {
       struct OnExit {
         ftMotionMode_t oldmm;
         OnExit() {
-          oldmm = fxdTiCtrl.cfg.mode;
-          fxdTiCtrl.cfg.mode = ftMotionMode_DISABLED;
+          oldmm = ftMotion.cfg.mode;
+          ftMotion.cfg.mode = ftMotionMode_DISABLED;
         }
         ~OnExit() {
-          fxdTiCtrl.cfg.mode = oldmm;
-          fxdTiCtrl.init();
+          ftMotion.cfg.mode = oldmm;
+          ftMotion.init();
         }
       } on_exit;
     #endif
@@ -2468,7 +2468,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if ANY(MORGAN_SCARA, AXEL_TPARA)
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
-    current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
+    current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height, probe.offset.z) : base_home_pos(axis);
   #else
     current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
