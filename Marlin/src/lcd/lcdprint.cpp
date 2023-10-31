@@ -89,17 +89,11 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       n -= utf8_strlen(o);
       o += strlen(o);
     }
-    else if (wc == '@') {
-      *o++ = AXIS_CHAR(ind);
-      *o = '\0';
-      n--;
-    }
     else {
-      while (psc != p) {
-        *o = read_byte_rom(psc);
-        ++o;
-        ++psc;
-      }
+      if (wc == '@')
+        *o++ = AXIS_CHAR(ind);
+      else
+        while (psc != p) *o++ = read_byte_rom(psc++);
       *o = '\0';
       n--;
     }
