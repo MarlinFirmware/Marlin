@@ -55,16 +55,12 @@ static const char *UnwTabGetFunctionName(const UnwindCallbacks *cb, uint32_t add
     return nullptr;
 
   if ((flag_word & 0xFF000000) == 0xFF000000) {
-    uint32_t fn_name_addr = address - 4 - (flag_word & 0x00FFFFFF);
+    const uint32_t fn_name_addr = address - 4 - (flag_word & 0x00FFFFFF);
 
-    // ensure the address is readable to avoid returning a bogus pointer
+    // Ensure the address is readable to avoid returning a bogus pointer
     uint8_t dummy = 0;
-    if(!cb->readB(fn_name_addr, &dummy))
-    {
-      return nullptr;
-    }
-
-    return (const char *)fn_name_addr;
+    if (cb->readB(fn_name_addr, &dummy))
+      return (const char *)fn_name_addr;
   }
   return nullptr;
 }
