@@ -883,7 +883,7 @@ namespace LanguageWide_it {
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancella l'oggetto");
     LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancella l'oggetto {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continua il Job di stampa");
-    LSTR MSG_MEDIA_MENU                   = _UxGT("Seleziona dal supporto");
+    LSTR MSG_MEDIA_MENU                   = _UxGT("Selez.da supporto");
     LSTR MSG_TURN_OFF                     = _UxGT("Spegni la stampante");
     LSTR MSG_END_LOOPS                    = _UxGT("Termina i cicli di ripetizione");
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");
