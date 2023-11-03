@@ -99,8 +99,13 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
 
   bool changed = false;
   float millimeters_delta = 0.0f;
+  #if IS_KINEMATIC
+    float sqr_stepper_space_mm = 0.0f;
+  #endif
 
   LOOP_NUM_AXES(axis) {
+    TERN_(IS_KINEMATIC, sqr_stepper_space_mm += sq(dist[axis] * planner.mm_per_step[axis]));
+
     if (distance_mm[axis]) {
       const bool forward = dm[axis];
 
@@ -154,8 +159,9 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
   }
 
   // if backlash correction steps were added, modify block->millimeters with a linear approximation
+  // see https://github.com/MarlinFirmware/Marlin/pull/26392
   if (changed)
-    block->millimeters += millimeters_delta / block->millimeters;
+    block->millimeters += TERN(IS_KINEMATIC, millimeters_delta * block->millimeters / sqr_stepper_space_mm, millimeters_delta / block->millimeters);
 }
 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
