@@ -2175,7 +2175,7 @@ bool Planner::_populate_block(
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
      */
-    TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist.a, dist.b, dist.c, dm, block));
+    TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist, dm, block));
   }
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
