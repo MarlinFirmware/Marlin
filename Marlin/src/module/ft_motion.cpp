@@ -627,10 +627,9 @@ void FTMotion::makeVector() {
    Tests for delta are moved outside the loop
    2 functions are created for command compute with an array of pointers to functions
 */
-void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t &, int32_t &, int32_t &, ft_command_t &, int32_t, int32_t);
+static void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t &, int32_t &, ft_command_t &, int32_t, int32_t);
 
-void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
-  e += d;
+static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
   if (e >= FTM_CTS_COMPARE_VAL) {
     s++;
     b |= bd | bs;
@@ -638,8 +637,7 @@ void command_set_pos(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_
     }
 }
 
-void command_set_neg(int32_t &d, int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
-  e += d;
+static void command_set_neg(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
   if (e <= -(FTM_CTS_COMPARE_VAL)) {
         s--;
         b |= bs;
@@ -689,18 +687,20 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
 
+    err_P += delta;
+
     // Set up step/dir bits for all axes
     LOGICAL_AXIS_CODE(
-      command_set[E_AXIS_N(current_block->extruder)](delta.e, err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      command_set[X_AXIS](delta.x, err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      command_set[Y_AXIS](delta.y, err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      command_set[Z_AXIS](delta.z, err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      command_set[I_AXIS](delta.i, err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      command_set[J_AXIS](delta.j, err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      command_set[K_AXIS](delta.k, err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      command_set[U_AXIS](delta.u, err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      command_set[V_AXIS](delta.v, err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      command_set[W_AXIS](delta.w, err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
+      command_set[E_AXIS_N(current_block->extruder)](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
+      command_set[X_AXIS](err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
+      command_set[Y_AXIS](err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
+      command_set[Z_AXIS](err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
+      command_set[I_AXIS](err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
+      command_set[J_AXIS](err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
+      command_set[K_AXIS](err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
+      command_set[U_AXIS](err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
+      command_set[V_AXIS](err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
+      command_set[W_AXIS](err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
     );
 
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
