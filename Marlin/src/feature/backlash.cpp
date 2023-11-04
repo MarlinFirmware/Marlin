@@ -158,8 +158,8 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
     }
   }
 
-  // if backlash correction steps were added, modify block->millimeters with a linear approximation
-  // see https://github.com/MarlinFirmware/Marlin/pull/26392
+  // If backlash correction steps were added modify block->millimeters with a linear approximation
+  // See https://github.com/MarlinFirmware/Marlin/pull/26392
   if (changed)
     block->millimeters += TERN(IS_KINEMATIC, millimeters_delta * block->millimeters / sqr_stepper_space_mm, millimeters_delta / block->millimeters);
 }
@@ -171,8 +171,8 @@ int32_t Backlash::get_applied_steps(const AxisEnum axis) {
 
   const int32_t residual_error_axis = residual_error[axis];
 
-  // At startup it is assumed the last move was forwards. So the applied
-  // steps will always be a non-positive number.
+  // At startup it is assumed the last move was forward.
+  // So the applied steps will always be negative.
 
   if (forward) return -residual_error_axis;
 
