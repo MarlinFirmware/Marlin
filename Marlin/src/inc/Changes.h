@@ -665,6 +665,8 @@
   #error "FOLDER_SORTING is now SDSORT_FOLDERS."
 #elif defined(BTT_MINI_12864_V1)
   #error "BTT_MINI_12864_V1 is now BTT_MINI_12864."
+#elif defined(Z_PROBE_OFFSET_RANGE_MIN) || defined(Z_PROBE_OFFSET_RANGE_MAX)
+  #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
 #endif
 
 // L64xx stepper drivers have been removed

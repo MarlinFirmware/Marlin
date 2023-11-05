@@ -163,7 +163,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f     
 DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f               ); // 12345      right-justified (25 increment)
 
 #if HAS_BED_PROBE
-  #if Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+  #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
     #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
   #else
     #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
