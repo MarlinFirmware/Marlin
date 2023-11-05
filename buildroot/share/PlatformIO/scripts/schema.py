@@ -85,7 +85,8 @@ def extract():
         NORMAL          = 0 # No condition yet
         BLOCK_COMMENT   = 1 # Looking for the end of the block comment
         EOL_COMMENT     = 2 # EOL comment started, maybe add the next comment?
-        GET_SENSORS     = 3 # Gathering temperature sensor options
+        SLASH_COMMENT   = 3 # Block-like comment, starting with aligned //
+        GET_SENSORS     = 4 # Gathering temperature sensor options
         ERROR           = 9 # Syntax error
 
     # List of files to process, with shorthand
@@ -107,6 +108,7 @@ def extract():
             line_number = 0         # Counter for the line number of the file
             conditions = []         # Create a condition stack for the current file
             comment_buff = []       # A temporary buffer for comments
+            prev_comment = ''       # Copy before reset for an EOL comment
             options_json = ''       # A buffer for the most recent options JSON found
             eol_options = False     # The options came from end of line, so only apply once
             join_line = False       # A flag that the line should be joined with the previous one
@@ -143,9 +145,13 @@ def extract():
                     if not defmatch and the_line.startswith('//'):
                         comment_buff.append(the_line[2:].strip())
                     else:
-                        last_added_ref['comment'] = ' '.join(comment_buff)
-                        comment_buff = []
                         state = Parse.NORMAL
+                        cline = ' '.join(comment_buff)
+                        comment_buff = []
+                        if cline != '':
+                            # A (block or slash) comment was already added
+                            cfield = 'notes' if 'comment' in last_added_ref else 'comment'
+                            last_added_ref[cfield] = cline
 
                 def use_comment(c, opt, sec, bufref):
                     if c.startswith(':'):               # If the comment starts with : then it has magic JSON
@@ -161,6 +167,15 @@ def extract():
                     elif not c.startswith('========'):
                         bufref.append(c)
                     return opt, sec
+
+                # For slash comments, capture consecutive slash comments.
+                # The comment will be applied to the next #define.
+                if state == Parse.SLASH_COMMENT:
+                    if not defmatch and the_line.startswith('//'):
+                        use_comment(the_line[2:].strip(), options_json, section, comment_buff)
+                        continue
+                    else:
+                        state = Parse.NORMAL
 
                 # In a block comment, capture lines up to the end of the comment.
                 # Assume nothing follows the comment closure.
@@ -178,14 +193,14 @@ def extract():
                         state = Parse.NORMAL
 
                     # Strip the leading '*' from block comments
-                    if cline.startswith('*'): cline = cline[1:].strip()
+                    cline = re.sub(r'^\* ?', '', cline)
 
                     # Collect temperature sensors
                     if state == Parse.GET_SENSORS:
                         sens = re.match(r'^(-?\d+)\s*:\s*(.+)$', cline)
                         if sens:
                             s2 = sens[2].replace("'","''")
-                            options_json += f"{sens[1]}:'{s2}', "
+                            options_json += f"{sens[1]}:'{sens[1]} - {s2}', "
 
                     elif state == Parse.BLOCK_COMMENT:
 
@@ -216,15 +231,19 @@ def extract():
                         # Comment after a define may be continued on the following lines
                         if defmatch != None and cpos > 10:
                             state = Parse.EOL_COMMENT
+                            prev_comment = '\n'.join(comment_buff)
                             comment_buff = []
+                        else:
+                            state = Parse.SLASH_COMMENT
 
                     # Process the start of a new comment
                     if cpos != -1:
+                        comment_buff = []
                         cline, line = line[cpos+2:].strip(), line[:cpos].strip()
 
                         if state == Parse.BLOCK_COMMENT:
                             # Strip leading '*' from block comments
-                            if cline.startswith('*'): cline = cline[1:].strip()
+                            cline = re.sub(r'^\* ?', '', cline)
                         else:
                             # Expire end-of-line options after first use
                             if cline.startswith(':'): eol_options = True
@@ -320,7 +339,7 @@ def extract():
                         if value_type != '': define_info['type'] = value_type
 
                         # Join up accumulated conditions with &&
-                        if conditions: define_info['requires'] = ' && '.join(sum(conditions, []))
+                        if conditions: define_info['requires'] = '(' + ') && ('.join(sum(conditions, [])) + ')'
 
                         # If the comment_buff is not empty, add the comment to the info
                         if comment_buff:
