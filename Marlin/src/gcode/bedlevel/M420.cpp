@@ -156,18 +156,30 @@ void GcodeSuite::M420() {
 
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
-            GRID_LOOP_USED(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_USED_POINTS);
-
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              GRID_LOOP_USED(x, y) mesh_sum += bedlevel.z_values[x][y];
+              const float zmean = mesh_sum / float(GRID_USED_POINTS);
+            #else
+              GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
+              const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+            #endif
           #else // midrange
 
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
-            GRID_LOOP_USED(x, y) {
-              const float z = bedlevel.z_values[x][y];
-              NOMORE(lo_val, z);
-              NOLESS(hi_val, z);
-            }
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              GRID_LOOP_USED(x, y) {
+                const float z = bedlevel.z_values[x][y];
+                NOMORE(lo_val, z);
+                NOLESS(hi_val, z);
+              }
+            #else
+              GRID_LOOP(x, y) {
+                const float z = bedlevel.z_values[x][y];
+                NOMORE(lo_val, z);
+                NOLESS(hi_val, z);
+              }
+            #endif
             // Get the midrange plus C value. (The median may be better.)
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
 
@@ -177,10 +189,17 @@ void GcodeSuite::M420() {
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
-            GRID_LOOP_USED(x, y) {
-              bedlevel.z_values[x][y] -= zmean;
-              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
-            }
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              GRID_LOOP_USED(x, y) {
+                bedlevel.z_values[x][y] -= zmean;
+                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+              }
+            #else
+              GRID_LOOP(x, y) {
+                bedlevel.z_values[x][y] -= zmean;
+                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+              }
+            #endif
             TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
           }
 
