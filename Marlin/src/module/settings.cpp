@@ -296,6 +296,9 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)   
+    xy_uint8_t grid_points;
+    float z_values[3][3];  
   #else
     float z_values[3][3];
   #endif
@@ -1024,6 +1027,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(bedlevel.z_values);              // 9-256 floats
       #else
+        EEPROM_WRITE(bedlevel.grid_points);      
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
@@ -2051,6 +2055,7 @@ void MarlinSettings::postprocess() {
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
+            EEPROM_READ(bedlevel.grid_points);            
             // Skip past disabled (or stale) Bilinear Grid data
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
