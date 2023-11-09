@@ -279,7 +279,7 @@ Nozzle nozzle;
           goto SKIP_XY_MOVE;
         } break;
 
-        case 4:   // Skip raise Z, go to XY position
+        case 4:   // Skip Z raise, go to XY position
           break;
 
         default:  // Raise by NOZZLE_PARK_Z_RAISE_MIN, use park.z as a minimum height
