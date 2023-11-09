@@ -1690,7 +1690,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
-    const float weight_scaled = weight_factor * _MAX(get_mesh_x_dist(), get_mesh_x_dist());
+    const float weight_scaled = weight_factor * _MAX(get_mesh_x_dist(), get_mesh_y_dist());
 
     GRID_LOOP_USED(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
