@@ -1561,12 +1561,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
 
     // Temporary migration toolchange_settings restored on exit. i.e., before next tool_change().
-    #if defined(MIGRATION_FS_EXTRA_PRIME) \
+    #define MIGRATION_SETTINGS defined(MIGRATION_FS_EXTRA_PRIME) \
      || defined(MIGRATION_FS_WIPE_RETRACT) \
      || defined(MIGRATION_FS_FAN_SPEED) \
      || defined(MIGRATION_FS_FAN_TIME) \
      || defined(MIGRATION_ZRAISE) \
      || defined(TOOLCHANGE_MIGRATION_DO_PARK)
+
+     #if MIGRATION_SETTINGS
       REMEMBER(tmp_mig_settings, toolchange_settings);
       #ifdef MIGRATION_FS_EXTRA_PRIME
         toolchange_settings.extra_prime = MIGRATION_FS_EXTRA_PRIME;
@@ -1590,6 +1592,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Perform the tool change
     tool_change(migration_extruder);
+
+    #if MIGRATION_SETTINGS
+      RESTORE(tmp_mig_settings);
+    #endif
 
     // Retract if previously retracted
     #if ENABLED(FWRETRACT)
