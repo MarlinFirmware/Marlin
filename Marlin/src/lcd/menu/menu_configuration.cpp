@@ -547,13 +547,6 @@ void menu_configuration() {
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
 
-  //
-  // Debug Menu when certain options are enabled
-  //
-  #if HAS_DEBUG_MENU
-    SUBMENU(MSG_DEBUG_MENU, menu_debug);
-  #endif
-
   #if ENABLED(CUSTOM_MENU_CONFIG)
     if (TERN1(CUSTOM_MENU_CONFIG_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_CONFIG_TITLE
@@ -569,7 +562,7 @@ void menu_configuration() {
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
   #endif
 
   //
@@ -655,6 +648,12 @@ void menu_configuration() {
 
   #if ENABLED(SOUND_MENU_ITEM)
     EDIT_ITEM(bool, MSG_SOUND, &ui.sound_on, []{ ui.chirp(); });
+  #endif
+
+  // Debug Menu when certain options are enabled
+  // Note: it is at the end of the list, so a more commonly used items should be placed above
+  #if HAS_DEBUG_MENU
+    SUBMENU(MSG_DEBUG_MENU, menu_debug);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

@@ -51,6 +51,7 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
   int8_t n = maxlen;
   while (n > 0) {
     lchar_t wc;
+    uint8_t *psc = (uint8_t *)p;
     p = get_utf8_value_cb(p, read_byte_rom, wc);
     if (!wc) break;
     if (wc == '{' || wc == '~' || wc == '*') {
@@ -88,20 +89,11 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       n -= utf8_strlen(o);
       o += strlen(o);
     }
-    else if (wc == '@') {
-      *o++ = AXIS_CHAR(ind);
-      *o = '\0';
-      n--;
-    }
-    else if (wc > 255 && prop == 2) {
-      // Wide glyph support incomplete
-      *((uint16_t*)o) = wc;
-      o += 2;
-      *o = '\0';
-      n--;
-    }
     else {
-      *o++ = wc;
+      if (wc == '@')
+        *o++ = AXIS_CHAR(ind);
+      else
+        while (psc != p) *o++ = read_byte_rom(psc++);
       *o = '\0';
       n--;
     }

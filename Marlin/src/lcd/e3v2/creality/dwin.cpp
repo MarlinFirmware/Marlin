@@ -1384,7 +1384,7 @@ void hmiMoveDone(const AxisEnum axis) {
       dwinUpdateLCD();
       return;
     }
-    LIMIT(hmiValues.offset_value, (Z_PROBE_OFFSET_RANGE_MIN) * 100, (Z_PROBE_OFFSET_RANGE_MAX) * 100);
+    LIMIT(hmiValues.offset_value, (PROBE_OFFSET_ZMIN) * 100, (PROBE_OFFSET_ZMAX) * 100);
     last_zoffset = dwin_zoffset;
     dwin_zoffset = hmiValues.offset_value / 100.0f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)

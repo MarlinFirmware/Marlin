@@ -1257,11 +1257,6 @@
   #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
 
-// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
-// of the buffer and all stops. This should not be much greater than zero and should only be changed
-// if unwanted behavior is observed on a user's machine when running at very slow speeds.
-#define MINIMUM_PLANNER_SPEED 0.05 // (mm/s)
-
 //
 // Backlash Compensation
 // Adds extra movement to axes on direction-changes to account for backlash.
@@ -4238,6 +4233,7 @@
                                           // row. By default idle() is profiled so this shows how "idle" the processor is.
                                           // See class CodeProfiler.
   //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multi-stepping 1 to 128 on this LED matrix row.
+  //#define MAX7219_DEBUG_SLOWDOWN      6 // Count (mod 16) how many times SLOWDOWN has reduced print speed.
 #endif
 
 /**
