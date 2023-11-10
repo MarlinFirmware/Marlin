@@ -3056,8 +3056,7 @@ void MarlinSettings::postprocess() {
         if (err)
           SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else {
-          bedlevel.grid_points = grid_points;
-          bedlevel.refresh_mesh_dist();
+          bedlevel.set_grid_points(grid_points);
           DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
         }
 

@@ -115,6 +115,7 @@ public:
   static xy_uint8_t grid_points;
   static xy_float_t mesh_dist, mesh_dist_recip;
   static void refresh_mesh_dist();
+  static void set_grid_points(const xy_uint8_t &gp) { grid_points = gp; refresh_mesh_dist(); }
 
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);

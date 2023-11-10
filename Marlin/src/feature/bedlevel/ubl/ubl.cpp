@@ -94,8 +94,8 @@ void unified_bed_leveling::reset() {
   const bool was_enabled = planner.leveling_active;
   set_bed_leveling_enabled(false);
   storage_slot = -1;
-  grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   ZERO(z_values);
+  set_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
   #endif
