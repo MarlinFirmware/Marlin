@@ -204,7 +204,7 @@ public:
    * z_correction_for_x_on_horizontal_mesh_line is an optimization for
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
-  static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const uint8_t x1_i, const int yi, const xy_uint8_t &_grid_points) {
+  static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const uint8_t x1_i, const int yi) {
     if (!WITHIN(x1_i, 0, GRID_USED_CELLS_X) || !WITHIN(yi, 0, GRID_USED_CELLS_Y)) {
 
       if (DEBUGGING(LEVELING)) {
