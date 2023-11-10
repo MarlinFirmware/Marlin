@@ -410,7 +410,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_DRAW_MAX_X                     = _UxGT("Draw Max X");
   LSTR MSG_DRAW_MIN_Y                     = _UxGT("Draw Min Y");
   LSTR MSG_DRAW_MAX_Y                     = _UxGT("Draw Max Y");
-  LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max Kayış Boyu");
   LSTR MSG_ADVANCE_K                      = _UxGT("K İlerlet");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K İlerlet *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Kontrast");

@@ -743,7 +743,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_DRAW_MAX_X                       = _UxGT("Рисовать макс X");
   LSTR MSG_DRAW_MIN_Y                       = _UxGT("Рисовать мин Y");
   LSTR MSG_DRAW_MAX_Y                       = _UxGT("Рисовать макс Y");
-  LSTR MSG_MAX_BELT_LEN                     = _UxGT("Макс.длина ремня");
   LSTR MSG_LINEAR_ADVANCE                   = _UxGT("Linear Advance");
   LSTR MSG_BRIGHTNESS                       = _UxGT("Яркость LCD");
   LSTR MSG_SCREEN_TIMEOUT                   = _UxGT("Таймаут LCD (м)");

@@ -431,7 +431,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_DRAW_MAX_X                     = _UxGT("Max. X kresby");
   LSTR MSG_DRAW_MIN_Y                     = _UxGT("Min. Y kresby");
   LSTR MSG_DRAW_MAX_Y                     = _UxGT("Max. Y kresby");
-  LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max. dĺžka pásu");
   LSTR MSG_ADVANCE_K                      = _UxGT("K pre posun");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K pre posun *");
   LSTR MSG_CONTRAST                       = _UxGT("Kontrast LCD");

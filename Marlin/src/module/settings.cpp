@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V89"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -357,7 +357,7 @@ typedef struct SettingsDataStruct {
                   delta_diagonal_rod_trim;              // M665 A B C
     #elif ENABLED(POLARGRAPH)
       xy_pos_t draw_area_min, draw_area_max;            // M665 L R T B
-      float polargraph_max_belt_len;                    // M665 H
+      float hypotenuse_len_at_home_pos;                 // M665 H
     #endif
 
   #endif
@@ -1101,17 +1101,17 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(segments_per_second);
       #if ENABLED(DELTA)
         _FIELD_TEST(delta_height);
-        EEPROM_WRITE(delta_height);              // 1 float
-        EEPROM_WRITE(delta_endstop_adj);         // 3 floats
-        EEPROM_WRITE(delta_radius);              // 1 float
-        EEPROM_WRITE(delta_diagonal_rod);        // 1 float
-        EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
-        EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
+        EEPROM_WRITE(delta_height);                // 1 float
+        EEPROM_WRITE(delta_endstop_adj);           // 3 floats
+        EEPROM_WRITE(delta_radius);                // 1 float
+        EEPROM_WRITE(delta_diagonal_rod);          // 1 float
+        EEPROM_WRITE(delta_tower_angle_trim);      // 3 floats
+        EEPROM_WRITE(delta_diagonal_rod_trim);     // 3 floats
       #elif ENABLED(POLARGRAPH)
         _FIELD_TEST(draw_area_min);
-        EEPROM_WRITE(draw_area_min);             // 2 floats
-        EEPROM_WRITE(draw_area_max);             // 2 floats
-        EEPROM_WRITE(polargraph_max_belt_len);   // 1 float
+        EEPROM_WRITE(draw_area_min);               // 2 floats
+        EEPROM_WRITE(draw_area_max);               // 2 floats
+        EEPROM_WRITE(hypotenuse_len_at_home_pos);  // 1 float
       #endif
     }
     #endif
@@ -2144,17 +2144,17 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(segments_per_second);
         #if ENABLED(DELTA)
           _FIELD_TEST(delta_height);
-          EEPROM_READ(delta_height);              // 1 float
-          EEPROM_READ(delta_endstop_adj);         // 3 floats
-          EEPROM_READ(delta_radius);              // 1 float
-          EEPROM_READ(delta_diagonal_rod);        // 1 float
-          EEPROM_READ(delta_tower_angle_trim);    // 3 floats
-          EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
+          EEPROM_READ(delta_height);                // 1 float
+          EEPROM_READ(delta_endstop_adj);           // 3 floats
+          EEPROM_READ(delta_radius);                // 1 float
+          EEPROM_READ(delta_diagonal_rod);          // 1 float
+          EEPROM_READ(delta_tower_angle_trim);      // 3 floats
+          EEPROM_READ(delta_diagonal_rod_trim);     // 3 floats
         #elif ENABLED(POLARGRAPH)
           _FIELD_TEST(draw_area_min);
-          EEPROM_READ(draw_area_min);             // 2 floats
-          EEPROM_READ(draw_area_max);             // 2 floats
-          EEPROM_READ(polargraph_max_belt_len);   // 1 float
+          EEPROM_READ(draw_area_min);               // 2 floats
+          EEPROM_READ(draw_area_max);               // 2 floats
+          EEPROM_READ(hypotenuse_len_at_home_pos);  // 1 float
         #endif
       }
       #endif
@@ -3284,7 +3284,7 @@ void MarlinSettings::reset() {
     #elif ENABLED(POLARGRAPH)
       draw_area_min.set(X_MIN_POS, Y_MIN_POS);
       draw_area_max.set(X_MAX_POS, Y_MAX_POS);
-      polargraph_max_belt_len = POLARGRAPH_MAX_BELT_LEN;
+      hypotenuse_len_at_home_pos = HYPOTENUSE_LEN_AT_HOME_POS;
     #endif
   #endif
 

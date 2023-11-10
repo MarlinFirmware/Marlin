@@ -38,7 +38,7 @@
 #include "../MarlinCore.h"
 
 // Initialized by settings.load()
-float segments_per_second, polargraph_max_belt_len;
+float segments_per_second, hypotenuse_len_at_home_pos;
 xy_pos_t draw_area_min, draw_area_max;
 
 void inverse_kinematics(const xyz_pos_t &raw) {

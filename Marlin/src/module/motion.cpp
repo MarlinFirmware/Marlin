@@ -356,8 +356,8 @@ void report_current_position_projected() {
                    b = HYPOT(d2, y);
 
       can_reach = (
-           a < polargraph_max_belt_len + 1
-        && b < polargraph_max_belt_len + 1
+           a < hypotenuse_len_at_home_pos + 1
+        && b < hypotenuse_len_at_home_pos + 1
       );
 
     #elif ENABLED(POLAR)
