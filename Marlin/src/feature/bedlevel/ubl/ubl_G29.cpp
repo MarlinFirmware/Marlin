@@ -1730,6 +1730,12 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // UBL_G29_P31
 
 #if ENABLED(UBL_DEVEL_DEBUGGING)
+
+  #define UBL_SERIAL_ECHO(D, V...) do{ SERIAL_ECHO(V); serial_delay(D); }while(0)
+  #define UBL_SERIAL_ECHOLN(D, V...) do{ SERIAL_ECHOLN(V); serial_delay(D); }while(0)
+  #define UBL_SERIAL_ECHOPGM(D, V...) do{ SERIAL_ECHOPGM(V); serial_delay(D); }while(0)
+  #define UBL_SERIAL_ECHOLNPGM(D, V...) do{ SERIAL_ECHOLNPGM(V); serial_delay(D); }while(0)
+
   /**
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items
@@ -1738,68 +1744,47 @@ void unified_bed_leveling::smart_fill_mesh() {
     report_state();
 
     if (storage_slot == -1)
-      SERIAL_ECHOLNPGM("No Mesh Loaded.");
+      UBL_SERIAL_ECHOLNPGM(25, "No Mesh Loaded.");
     else
-      SERIAL_ECHOLNPGM("Mesh ", storage_slot, " Loaded.");
-    serial_delay(50);
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_ECHOLN(F("Fade Height M420 Z"), p_float_t(planner.z_fade_height, 4));
-    #endif
-
-    adjust_mesh_to_mean(param.C_seen, param.C_constant);
+      UBL_SERIAL_ECHOLNPGM(25, "Mesh ", storage_slot, " Loaded.");
 
     #if HAS_BED_PROBE
       SERIAL_ECHOLNPGM("Probe Offset M851 Z", p_float_t(probe.offset.z, 7));
     #endif
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      SERIAL_ECHOLNPGM("Fade Height M420 Z", p_float_t(planner.z_fade_height, 4));
+    #endif
 
-    SERIAL_ECHOLNPGM("MESH_MIN_X " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X);  serial_delay(25);
-    SERIAL_ECHOLNPGM("MESH_MIN_Y " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y);  serial_delay(25);
-    SERIAL_ECHOLNPGM("MESH_MAX_X " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X);  serial_delay(25);
-    SERIAL_ECHOLNPGM("MESH_MAX_Y " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);  serial_delay(25);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X ", GRID_MAX_POINTS_X);              serial_delay(25);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y ", GRID_MAX_POINTS_Y);              serial_delay(25);
-    SERIAL_ECHOLNPGM("GRID_USED_POINTS_X ", GRID_USED_POINTS_X);            serial_delay(25);
-    SERIAL_ECHOLNPGM("GRID_USED_POINTS_Y ", GRID_USED_POINTS_Y);            serial_delay(25);
-    SERIAL_ECHOLNPGM("MESH_X_DIST ", mesh_dist.x);                          serial_delay(25);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST ", mesh_dist.y);                          serial_delay(25);
+    adjust_mesh_to_mean(param.C_seen, param.C_constant);
 
-    SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i) {
-      SERIAL_ECHO(p_float_t(LOGICAL_X_POSITION(get_mesh_x(i)), 3), F("  "));
-      serial_delay(25);
-    }
+    UBL_SERIAL_ECHOLNPGM(25, "MESH_MIN_[XY] " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X, ", " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y);
+    UBL_SERIAL_ECHOLNPGM(25, "MESH_MAX_[XY] " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X, ", " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);
+    UBL_SERIAL_ECHOLNPGM(25, "GRID_MAX_POINTS_[XY] ", GRID_MAX_POINTS_X, ", ", GRID_MAX_POINTS_Y);
+    UBL_SERIAL_ECHOLNPGM(25, "GRID_USED_POINTS_[XY] ", GRID_USED_POINTS_X, ", ", GRID_USED_POINTS_Y);
+    UBL_SERIAL_ECHOLNPGM(25, "MESH_[XY]_DIST ", mesh_dist.x, ", ", mesh_dist.y);
+
+    SERIAL_ECHO('X', F("-Axis Mesh Points at: "));
+    for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i)
+      UBL_SERIAL_ECHO(25, p_float_t(LOGICAL_X_POSITION(get_mesh_x(i)), 3), F("  "));
     SERIAL_EOL();
 
-    SERIAL_ECHOPGM("Y-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < GRID_USED_POINTS_Y; ++i) {
-      SERIAL_ECHO(p_float_t(LOGICAL_Y_POSITION(get_mesh_y(i)), 3), F("  "));
-      serial_delay(25);
-    }
+    SERIAL_ECHO('Y', F("-Axis Mesh Points at: "));
+    for (uint8_t i = 0; i < GRID_USED_POINTS_Y; ++i)
+      UBL_SERIAL_ECHO(25, p_float_t(LOGICAL_Y_POSITION(get_mesh_y(i)), 3), F("  "));
     SERIAL_EOL();
 
     #if HAS_KILL
-      SERIAL_ECHOLNPGM("Kill Pin (", KILL_PIN, ") state:", kill_state());
+      UBL_SERIAL_ECHOLNPGM(25, "Kill Pin (", KILL_PIN, ") state:", kill_state());
     #endif
 
     SERIAL_EOL();
-    serial_delay(50);
 
-    SERIAL_ECHOLNPGM("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
-    serial_delay(50);
-
-    SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
-    serial_delay(50);
-
-    SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
-    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
-    serial_delay(25);
-
-    SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
-    serial_delay(50);
-
-    SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
-    serial_delay(25);
+    UBL_SERIAL_ECHOLNPGM(25, "ubl_state_at_invocation:", ubl_state_at_invocation, "\nubl_state_recursion_chk:", ubl_state_recursion_chk);
+    UBL_SERIAL_ECHOLNPGM(25, "Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
+    UBL_SERIAL_ECHOLNPGM(25, "sizeof(ubl): ", sizeof(ubl), "\n");
+    UBL_SERIAL_ECHOLNPGM(25, "sizeof(z_values[][]): ", sizeof(z_values), "\n");
+    UBL_SERIAL_ECHOLNPGM(25, "EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
+    UBL_SERIAL_ECHOLNPGM(25, "EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
 
     if (!sanity_check()) {
       echo_name();

@@ -368,11 +368,11 @@ G29_TYPE GcodeSuite::G29() {
       if (parser.seenval('P')) abl.grid_points.x = abl.grid_points.y = parser.value_int();
 
       if (!WITHIN(abl.grid_points.x, 2, GRID_MAX_POINTS_X)) {
-        SERIAL_ECHOLNPGM("?Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+        SERIAL_ECHOLNPGM("?Probe points (", 'X', ") implausible (2-", GRID_MAX_POINTS_X, ").");
         G29_RETURN(false, false);
       }
       if (!WITHIN(abl.grid_points.y, 2, GRID_MAX_POINTS_Y)) {
-        SERIAL_ECHOLNPGM("?Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+        SERIAL_ECHOLNPGM("?Probe points (", 'Y', ") implausible (2-", GRID_MAX_POINTS_Y, ").");
         G29_RETURN(false, false);
       }
 
