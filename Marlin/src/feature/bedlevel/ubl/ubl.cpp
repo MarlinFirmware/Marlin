@@ -73,8 +73,8 @@ xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.loa
 
 void unified_bed_leveling::refresh_mesh_dist() {
   mesh_dist.set(
-    float((MESH_MAX_X) - (MESH_MIN_X)) / (bedlevel.grid_points.x - 1),
-    float((MESH_MAX_Y) - (MESH_MIN_Y)) / (bedlevel.grid_points.y - 1)
+    float((MESH_MAX_X) - (MESH_MIN_X)) / (grid_points.x - 1),
+    float((MESH_MAX_Y) - (MESH_MIN_Y)) / (grid_points.y - 1)
   );
   mesh_dist_recip = mesh_dist.reciprocal();
 }

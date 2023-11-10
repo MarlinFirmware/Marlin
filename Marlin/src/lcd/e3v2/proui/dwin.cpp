@@ -2349,7 +2349,7 @@ void setFlow() { setPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, []{ planner.refr
         ));
       }
       else {
-        // AUTO_BED_LEVELING_BILINEAR does not define MESH_INSET
+        // AUTO_BED_LEVELING_BILINEAR defines MESH_INSET as 0
         #ifndef MESH_MIN_X
           #define MESH_MIN_X (_MAX(X_MIN_BED + PROBING_MARGIN_LEFT, X_MIN_POS))
         #endif
