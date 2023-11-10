@@ -707,7 +707,7 @@ void unified_bed_leveling::G29() {
 void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
   float sum = 0;
   uint8_t n = 0;
-  GRID_LOOP(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y])) {
       sum += z_values[x][y];
       n++;
@@ -719,7 +719,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
   // Sum the squares of difference from mean
   //
   float sum_of_diff_squared = 0;
-  GRID_LOOP(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y]))
       sum_of_diff_squared += sq(z_values[x][y] - mean);
 
@@ -729,12 +729,14 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
   const float sigma = SQRT(sum_of_diff_squared / (n + 1));
   SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
 
-  if (cflag)
-    GRID_LOOP(x, y)
+  if (cflag) {
+    GRID_LOOP_USED(x, y) {
       if (!isnan(z_values[x][y])) {
         z_values[x][y] -= mean + offset;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
       }
+    }
+  }
 }
 
 /**
@@ -1690,7 +1692,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
-    const float weight_scaled = weight_factor * _MAX(get_mesh_x_dist(), get_mesh_y_dist());
+    const float weight_scaled = weight_factor * _MAX(mesh_dist.x, mesh_dist.y);
 
     GRID_LOOP_USED(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
@@ -1761,9 +1763,9 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
     SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
     SERIAL_ECHOLNPGM("GRID_USED_POINTS_X ", GRID_USED_POINTS_X);            serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_USE_POINTS_Y ", GRID_USED_POINTS_Y);             serial_delay(50);    
-    SERIAL_ECHOLNPGM("MESH_X_DIST  ", get_mesh_x_dist());                   serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", get_mesh_y_dist());                   serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_USED_POINTS_Y ", GRID_USED_POINTS_Y);            serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_X_DIST  ", mesh_dist.x);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", mesh_dist.y);                         serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i) {
@@ -1780,7 +1782,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     #if HAS_KILL
-      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", kill_state());
+      SERIAL_ECHOLNPGM("Kill Pin (", KILL_PIN, ") state:", kill_state());
     #endif
 
     SERIAL_EOL();

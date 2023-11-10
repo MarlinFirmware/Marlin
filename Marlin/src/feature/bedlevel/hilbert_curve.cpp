@@ -26,11 +26,11 @@
 #include "bedlevel.h"
 #include "hilbert_curve.h"
 
-int8_t  to_fix(int8_t  v) { return v * 2; }
-int8_t  to_int(int8_t  v) { return v / 2; }
-uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
-uint8_t  order(uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
-#define ord order(GRID_USED_POINTS_X)
+int8_t  to_fix(const int8_t  v) { return v * 2; }
+int8_t  to_int(const int8_t  v) { return v / 2; }
+uint8_t   log2(const uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
+uint8_t  order(const uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
+#define ord order(_MAX(GRID_USED_POINTS_Y, GRID_USED_POINTS_Y))
 #define dim _BV(ord)
 
 static inline bool eval_candidate(int8_t x, int8_t y, hilbert_curve::callback_ptr func, void *data) {
@@ -102,8 +102,8 @@ bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_pt
  */
 bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::callback_ptr func, void *data) {
   // Find closest grid intersection
-  const uint8_t grid_x = LROUND(constrain(float(pos.x - (MESH_MIN_X)) / (unified_bed_leveling::get_mesh_x_dist()), 0, (GRID_USED_POINTS_X) - 1));
-  const uint8_t grid_y = LROUND(constrain(float(pos.y - (MESH_MIN_Y)) / (unified_bed_leveling::get_mesh_y_dist()), 0, (GRID_USED_POINTS_Y) - 1));
+  const uint8_t grid_x = LROUND(constrain(float(pos.x - (MESH_MIN_X)) / ubl.mesh_dist.x, 0, (GRID_USED_POINTS_X) - 1));
+  const uint8_t grid_y = LROUND(constrain(float(pos.y - (MESH_MIN_Y)) / ubl.mesh_dist.y, 0, (GRID_USED_POINTS_Y) - 1));
   return search_from(grid_x, grid_y, func, data);
 }
 

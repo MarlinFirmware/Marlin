@@ -68,20 +68,23 @@ float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
 xy_uint8_t unified_bed_leveling::grid_points;
 
+xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
+           unified_bed_leveling::mesh_dist_recip;
+
+void unified_bed_leveling::refresh_mesh_dist() {
+  mesh_dist.set(
+    float((MESH_MAX_X) - (MESH_MIN_X)) / (bedlevel.grid_points.x - 1),
+    float((MESH_MAX_Y) - (MESH_MIN_Y)) / (bedlevel.grid_points.y - 1)
+  );
+  mesh_dist_recip = mesh_dist.reciprocal();
+}
+
 float unified_bed_leveling::get_mesh_x(const uint8_t i) {
-  return PROBING_MARGIN + i * get_mesh_x_dist();
+  return (PROBING_MARGIN_LEFT) + i * mesh_dist.x;
 }
 
 float unified_bed_leveling::get_mesh_y(const uint8_t i) {
-  return PROBING_MARGIN + i * get_mesh_y_dist();
-}
-
-float unified_bed_leveling::get_mesh_x_dist() {
-    return float((MESH_MAX_X) - (MESH_MIN_X)) / (bedlevel.grid_points.x - 1);
-}
-
-float unified_bed_leveling::get_mesh_y_dist() {
-    return float((MESH_MAX_Y) - (MESH_MIN_Y)) / (bedlevel.grid_points.y - 1);
+  return (PROBING_MARGIN_FRONT) + i * mesh_dist.y;
 }
 
 volatile int16_t unified_bed_leveling::encoder_diff;
@@ -168,8 +171,8 @@ static void serial_echo_column_labels(const uint8_t sp) {
 void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
-  uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
-                    twixt = eachsp * (GRID_USED_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
+  constexpr uint8_t eachsp = 1 + 6 + 1;                  // [-3.567]
+  uint8_t twixt = eachsp * (GRID_USED_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
 

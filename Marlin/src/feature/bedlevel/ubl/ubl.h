@@ -104,15 +104,14 @@ public:
   static void smart_fill_mesh();
 
   static void G29() __O0;                           // O0 for no optimization
-  static void smart_fill_wlsf(const_float_t) __O2; // O2 gives smaller code than Os on A2560
+  static void smart_fill_wlsf(const_float_t) __O2;  // O2 gives smaller code than Os on A2560
 
   static int8_t storage_slot;
 
   static bed_mesh_t z_values;
   static xy_uint8_t grid_points;
-
-  static float get_mesh_x_dist();
-  static float get_mesh_y_dist();  
+  static xy_float_t mesh_dist, mesh_dist_recip;
+  static void refresh_mesh_dist();
 
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
@@ -133,11 +132,11 @@ public:
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
 
   static int8_t cell_index_x_raw(const_float_t x) {
-    return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(get_mesh_x_dist()));
+    return FLOOR((x - (MESH_MIN_X)) * mesh_dist_recip.x);
   }
 
   static int8_t cell_index_y_raw(const_float_t y) {
-    return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(get_mesh_y_dist()));
+    return FLOOR((y - (MESH_MIN_Y)) * mesh_dist_recip.y);
   }
 
   static bool cell_index_x_valid(const_float_t x) {
@@ -162,11 +161,11 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const_float_t x, const xy_uint8_t &_grid_points) {
-    const int8_t px = (x - (MESH_MIN_X) + (get_mesh_x_dist()) * 0.5) * RECIPROCAL(get_mesh_x_dist());
+    const int8_t px = (x - (MESH_MIN_X) + (mesh_dist.x) * 0.5f) * mesh_dist_recip.x;
     return WITHIN(px, 0, (grid_points.x) - 1) ? px : -1;
   }
   static int8_t closest_y_index(const_float_t y, const xy_uint8_t &_grid_points) {
-    const int8_t py = (y - (MESH_MIN_Y) + (get_mesh_y_dist()) * 0.5) * RECIPROCAL(get_mesh_y_dist());
+    const int8_t py = (y - (MESH_MIN_Y) + (mesh_dist.y) * 0.5f) * mesh_dist_recip.y;
     return WITHIN(py, 0, (grid_points.y) - 1) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
@@ -214,7 +213,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float xratio = (rx0 - get_mesh_x(x1_i)) * RECIPROCAL(get_mesh_x_dist()),
+    const float xratio = (rx0 - get_mesh_x(x1_i)) * mesh_dist_recip.x,
                 z1 = z_values[x1_i][yi];
 
     return z1 + xratio * (z_values[_MIN(x1_i, (grid_points.x) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
@@ -237,12 +236,12 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float yratio = (ry0 - get_mesh_y(y1_i)) * RECIPROCAL(get_mesh_y_dist()),
+    const float yratio = (ry0 - get_mesh_y(y1_i)) * mesh_dist_recip.y,
                 z1 = z_values[xi][y1_i];
 
     return z1 + yratio * (z_values[xi][_MIN(y1_i, (grid_points.y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the
-                                                                                        // z_values[][] array and no correction is applied.
+                                                                                    // If it is, it is clamped to the last element of the
+                                                                                    // z_values[][] array and no correction is applied.
   }
 
   /**
