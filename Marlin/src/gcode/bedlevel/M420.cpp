@@ -177,17 +177,10 @@ void GcodeSuite::M420() {
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
-            #if ENABLED(AUTO_BED_LEVELING_UBL)
-              GRID_LOOP_USED(x, y) {
-                bedlevel.z_values[x][y] -= zmean;
-                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
-              }
-            #else
-              GRID_LOOP(x, y) {
-                bedlevel.z_values[x][y] -= zmean;
-                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
-              }
-            #endif
+            GRID_LOOP_USED(x, y) {
+              bedlevel.z_values[x][y] -= zmean;
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+            }
             TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
           }
 

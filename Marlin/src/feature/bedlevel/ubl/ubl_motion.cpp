@@ -418,11 +418,11 @@
         int8_t((raw.x - (MESH_MIN_X)) * mesh_dist_recip.x),
         int8_t((raw.y - (MESH_MIN_Y)) * mesh_dist_recip.y)
       };
-      LIMIT(icell.x, 0, GRID_MAX_CELLS_USED_X);
-      LIMIT(icell.y, 0, GRID_MAX_CELLS_USED_Y);
+      LIMIT(icell.x, 0, GRID_USED_CELLS_X);
+      LIMIT(icell.y, 0, GRID_USED_CELLS_Y);
 
-      const int8_t ncellx = _MIN(icell.x+1, GRID_MAX_CELLS_USED_X),
-                   ncelly = _MIN(icell.y+1, GRID_MAX_CELLS_USED_Y);
+      const int8_t ncellx = _MIN(icell.x+1, GRID_USED_CELLS_X),
+                   ncelly = _MIN(icell.y+1, GRID_USED_CELLS_Y);
       float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
             z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
             z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner

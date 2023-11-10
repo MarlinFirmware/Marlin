@@ -708,10 +708,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
   float sum = 0;
   uint8_t n = 0;
   GRID_LOOP_USED(x, y)
-    if (!isnan(z_values[x][y])) {
-      sum += z_values[x][y];
-      n++;
-    }
+    if (!isnan(z_values[x][y])) { sum += z_values[x][y]; n++; }
 
   const float mean = sum / n;
 

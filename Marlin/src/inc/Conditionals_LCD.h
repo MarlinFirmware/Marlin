@@ -1544,19 +1544,18 @@
 #endif
 
 #ifdef GRID_MAX_POINTS_X
-  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
-  #define GRID_LOOP(A,B) for (uint8_t A = 0; A < GRID_MAX_POINTS_X; ++A) for (uint8_t B = 0; B < GRID_MAX_POINTS_Y; ++B)
+  #define GRID_USED_POINTS_X  TERN(AUTO_BED_LEVELING_UBL, bedlevel.grid_points.x, GRID_MAX_POINTS_X)
+  #define GRID_USED_POINTS_Y  TERN(AUTO_BED_LEVELING_UBL, bedlevel.grid_points.y, GRID_MAX_POINTS_Y)
+  #define GRID_USED_CELLS_X   ((GRID_USED_POINTS_X) - 1)
+  #define GRID_USED_CELLS_Y   ((GRID_USED_POINTS_Y) - 1)
+  #define GRID_MAX_POINTS     ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
+  #define GRID_USED_POINTS    ((GRID_USED_POINTS_X) * (GRID_USED_POINTS_Y))
+  #define GRID_LOOP(A,B)      for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #define GRID_USED_POINTS_X bedlevel.grid_points.x
-    #define GRID_USED_POINTS_Y bedlevel.grid_points.y
+    #define GRID_LOOP_USED(A,B) for (uint8_t A = 0; A < (GRID_USED_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_USED_POINTS_Y); ++B)
   #else
-    #define GRID_USED_POINTS_X GRID_MAX_POINTS_X
-    #define GRID_USED_POINTS_Y GRID_MAX_POINTS_Y
+    #define GRID_LOOP_USED GRID_LOOP
   #endif
-  #define GRID_MAX_CELLS_USED_X ((GRID_USED_POINTS_X) - 1)
-  #define GRID_MAX_CELLS_USED_Y ((GRID_USED_POINTS_Y) - 1)
-  #define GRID_USED_POINTS      ((GRID_USED_POINTS_X) * (GRID_USED_POINTS_Y))
-  #define GRID_LOOP_USED(A,B) for (uint8_t A = 0; A < (GRID_USED_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_USED_POINTS_Y); ++B)
 #endif
 
 // Slim menu optimizations
