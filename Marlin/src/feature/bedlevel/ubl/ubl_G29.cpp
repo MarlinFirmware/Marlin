@@ -1730,12 +1730,6 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // UBL_G29_P31
 
 #if ENABLED(UBL_DEVEL_DEBUGGING)
-
-  #define UBL_SERIAL_ECHO(D, V...) do{ SERIAL_ECHO(V); serial_delay(D); }while(0)
-  #define UBL_SERIAL_ECHOLN(D, V...) do{ SERIAL_ECHOLN(V); serial_delay(D); }while(0)
-  #define UBL_SERIAL_ECHOPGM(D, V...) do{ SERIAL_ECHOPGM(V); serial_delay(D); }while(0)
-  #define UBL_SERIAL_ECHOLNPGM(D, V...) do{ SERIAL_ECHOLNPGM(V); serial_delay(D); }while(0)
-
   /**
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items

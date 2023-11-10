@@ -51,15 +51,14 @@ void unified_bed_leveling::report_current_mesh() {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOLN(F("  M421 I"), x, F(" J"), y, FPSTR(SP_Z_STR), p_float_t(z_values[x][y], 4));
-      serial_delay(75); // Prevent Printrun from exploding
+      UBL_SERIAL_ECHOLN(50, F("  M421 I"), x, F(" J"), y, FPSTR(SP_Z_STR), p_float_t(z_values[x][y], 4));
     }
 }
 
 void unified_bed_leveling::report_state() {
   echo_name();
   serial_ternary(F(" System v" UBL_VERSION " "), planner.leveling_active, nullptr, F("in"), F("active\n"));
-  serial_delay(50);
+  serial_delay(25);
 }
 
 int8_t unified_bed_leveling::storage_slot;
@@ -142,11 +141,9 @@ void unified_bed_leveling::set_all_mesh_points_to_value(const_float_t value) {
 static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
   SERIAL_ECHO_SP(sp);
   SERIAL_CHAR('(');
-  if (x < 100) { SERIAL_CHAR(' '); if (x < 10) SERIAL_CHAR(' '); }
-  SERIAL_ECHO(x);
+  SERIAL_ECHO_NUM(x, 3);
   SERIAL_CHAR(',');
-  if (y < 100) { SERIAL_CHAR(' '); if (y < 10) SERIAL_CHAR(' '); }
-  SERIAL_ECHO(y);
+  SERIAL_ECHO_NUM(y, 3);
   SERIAL_CHAR(')');
   serial_delay(5);
 }

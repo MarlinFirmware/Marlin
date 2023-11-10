@@ -306,5 +306,11 @@ public:
 
 }; // class unified_bed_leveling
 
+// Serial with delay shorthand
+#define UBL_SERIAL_ECHO(D, V...) do{ SERIAL_ECHO(V); serial_delay(D); }while(0)
+#define UBL_SERIAL_ECHOLN(D, V...) do{ SERIAL_ECHOLN(V); serial_delay(D); }while(0)
+#define UBL_SERIAL_ECHOPGM(D, V...) do{ SERIAL_ECHOPGM(V); serial_delay(D); }while(0)
+#define UBL_SERIAL_ECHOLNPGM(D, V...) do{ SERIAL_ECHOLNPGM(V); serial_delay(D); }while(0)
+
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"
