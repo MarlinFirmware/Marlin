@@ -140,19 +140,19 @@ public:
   }
 
   static bool cell_index_x_valid(const_float_t x) {
-    return WITHIN(cell_index_x_raw(x), 0, (grid_points.x - 1) - 1);
+    return WITHIN(cell_index_x_raw(x), 0, GRID_USED_CELLS_X - 1);
   }
 
   static bool cell_index_y_valid(const_float_t y) {
-    return WITHIN(cell_index_y_raw(y), 0, (grid_points.y - 1) - 1);
+    return WITHIN(cell_index_y_raw(y), 0, GRID_USED_CELLS_Y - 1);
   }
 
   static uint8_t cell_index_x(const_float_t x) {
-    return constrain(cell_index_x_raw(x), 0, (grid_points.x - 1) - 1);
+    return constrain(cell_index_x_raw(x), 0, GRID_USED_CELLS_X - 1);
   }
 
   static uint8_t cell_index_y(const_float_t y) {
-    return constrain(cell_index_y_raw(y), 0, (grid_points.y - 1) - 1);
+    return constrain(cell_index_y_raw(y), 0, GRID_USED_CELLS_Y - 1);
   }
 
   static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
@@ -162,11 +162,11 @@ public:
 
   static int8_t closest_x_index(const_float_t x, const xy_uint8_t &_grid_points) {
     const int8_t px = (x - (MESH_MIN_X) + (mesh_dist.x) * 0.5f) * mesh_dist_recip.x;
-    return WITHIN(px, 0, (grid_points.x) - 1) ? px : -1;
+    return WITHIN(px, 0, GRID_USED_CELLS_X) ? px : -1;
   }
   static int8_t closest_y_index(const_float_t y, const xy_uint8_t &_grid_points) {
     const int8_t py = (y - (MESH_MIN_Y) + (mesh_dist.y) * 0.5f) * mesh_dist_recip.y;
-    return WITHIN(py, 0, (grid_points.y) - 1) ? py : -1;
+    return WITHIN(py, 0, GRID_USED_CELLS_Y) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
     return { closest_x_index(xy.x, grid_points), closest_y_index(xy.y, grid_points) };
@@ -202,10 +202,10 @@ public:
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
   static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const uint8_t x1_i, const int yi, const xy_uint8_t &_grid_points) {
-    if (!WITHIN(x1_i, 0, (grid_points.x) - 1) || !WITHIN(yi, 0, (grid_points.y) - 1)) {
+    if (!WITHIN(x1_i, 0, GRID_USED_CELLS_X) || !WITHIN(yi, 0, GRID_USED_CELLS_Y)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(x1_i, 0, (grid_points.x) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
+        if (WITHIN(x1_i, 0, GRID_USED_CELLS_X)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
       }
 
@@ -216,19 +216,19 @@ public:
     const float xratio = (rx0 - get_mesh_x(x1_i)) * mesh_dist_recip.x,
                 z1 = z_values[x1_i][yi];
 
-    return z1 + xratio * (z_values[_MIN(x1_i, (grid_points.x) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the
-                                                                                        // z_values[][] array and no correction is applied.
+    return z1 + xratio * (z_values[_MIN(x1_i, grid_points.x - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+                                                                                  // If it is, it is clamped to the last element of the
+                                                                                  // z_values[][] array and no correction is applied.
   }
 
   //
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
-  static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i, const xy_uint8_t &_grid_points) {
-    if (!WITHIN(xi, 0, (grid_points.x) - 1) || !WITHIN(y1_i, 0, (grid_points.y) - 1)) {
+  static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
+    if (!WITHIN(xi, 0, GRID_USED_CELLS_X) || !WITHIN(y1_i, 0, GRID_USED_CELLS_Y)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(xi, 0, (grid_points.x) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
+        if (WITHIN(xi, 0, GRID_USED_CELLS_X)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 
@@ -239,9 +239,9 @@ public:
     const float yratio = (ry0 - get_mesh_y(y1_i)) * mesh_dist_recip.y,
                 z1 = z_values[xi][y1_i];
 
-    return z1 + yratio * (z_values[xi][_MIN(y1_i, (grid_points.y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
-                                                                                    // If it is, it is clamped to the last element of the
-                                                                                    // z_values[][] array and no correction is applied.
+    return z1 + yratio * (z_values[xi][_MIN(y1_i, grid_points.y - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
+                                                                                  // If it is, it is clamped to the last element of the
+                                                                                  // z_values[][] array and no correction is applied.
   }
 
   /**
@@ -262,7 +262,7 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    uint8_t mx = _MIN(cx, (grid_points.x) - 2) + 1, my = _MIN(cy, (grid_points.y) - 2) + 1;
+    uint8_t mx = _MIN(cx, grid_points.x - 2) + 1, my = _MIN(cy, grid_points.y - 2) + 1;
     float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
                 z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
                 z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);

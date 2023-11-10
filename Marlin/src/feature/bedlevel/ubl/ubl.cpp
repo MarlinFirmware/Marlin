@@ -67,14 +67,13 @@ int8_t unified_bed_leveling::storage_slot;
 float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
 xy_uint8_t unified_bed_leveling::grid_points;
-
 xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
            unified_bed_leveling::mesh_dist_recip;
 
 void unified_bed_leveling::refresh_mesh_dist() {
   mesh_dist.set(
-    float((MESH_MAX_X) - (MESH_MIN_X)) / (grid_points.x - 1),
-    float((MESH_MAX_Y) - (MESH_MIN_Y)) / (grid_points.y - 1)
+    float((MESH_MAX_X) - (MESH_MIN_X)) / GRID_USED_CELLS_X,
+    float((MESH_MAX_Y) - (MESH_MIN_Y)) / GRID_USED_CELLS_Y
   );
   mesh_dist_recip = mesh_dist.reciprocal();
 }
@@ -95,6 +94,7 @@ void unified_bed_leveling::reset() {
   const bool was_enabled = planner.leveling_active;
   set_bed_leveling_enabled(false);
   storage_slot = -1;
+  grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   ZERO(z_values);
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);

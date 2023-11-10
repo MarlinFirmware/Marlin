@@ -1753,16 +1753,16 @@ void unified_bed_leveling::smart_fill_mesh() {
       SERIAL_ECHOLNPGM("Probe Offset M851 Z", p_float_t(probe.offset.z, 7));
     #endif
 
-    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_USED_POINTS_X ", GRID_USED_POINTS_X);            serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_USED_POINTS_Y ", GRID_USED_POINTS_Y);            serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_X_DIST  ", mesh_dist.x);                         serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", mesh_dist.y);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MIN_X " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X);  serial_delay(25);
+    SERIAL_ECHOLNPGM("MESH_MIN_Y " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y);  serial_delay(25);
+    SERIAL_ECHOLNPGM("MESH_MAX_X " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X);  serial_delay(25);
+    SERIAL_ECHOLNPGM("MESH_MAX_Y " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);  serial_delay(25);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X ", GRID_MAX_POINTS_X);              serial_delay(25);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y ", GRID_MAX_POINTS_Y);              serial_delay(25);
+    SERIAL_ECHOLNPGM("GRID_USED_POINTS_X ", GRID_USED_POINTS_X);            serial_delay(25);
+    SERIAL_ECHOLNPGM("GRID_USED_POINTS_Y ", GRID_USED_POINTS_Y);            serial_delay(25);
+    SERIAL_ECHOLNPGM("MESH_X_DIST ", mesh_dist.x);                          serial_delay(25);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST ", mesh_dist.y);                          serial_delay(25);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i) {
