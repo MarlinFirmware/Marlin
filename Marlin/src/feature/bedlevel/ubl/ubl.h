@@ -58,6 +58,9 @@ typedef struct {
   #endif
 } G29_parameters_t;
 
+class unified_bed_leveling;
+extern unified_bed_leveling bedlevel;
+
 class unified_bed_leveling {
 private:
 
@@ -301,8 +304,6 @@ public:
   }
 
 }; // class unified_bed_leveling
-
-extern unified_bed_leveling bedlevel;
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"

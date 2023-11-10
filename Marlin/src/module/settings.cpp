@@ -2993,7 +2993,7 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool err = persistentStore.write_data(pos, &bedlevel.grid_points, sizeof(bedlevel.grid_points), &crc)
+        const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.grid_points, sizeof(bedlevel.grid_points), &crc)
                       || persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
@@ -3029,7 +3029,7 @@ void MarlinSettings::postprocess() {
 
         persistentStore.access_start();
         xy_uint8_t grid_points;
-        bool err = persistentStore.read_data(pos, &grid_points, sizeof(grid_points), &crc)
+        bool err = persistentStore.read_data(pos, (uint8_t *)&grid_points, sizeof(grid_points), &crc)
                 || persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
