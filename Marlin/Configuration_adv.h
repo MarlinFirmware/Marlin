@@ -1133,8 +1133,8 @@
   /**
    * Advanced configuration
    */
-  #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation
-  #define FTM_WINDOW_SIZE           200                 // Window size for trajectory generation
+  #define FTM_BW_SIZE               100                 // Unified Batch and Windows size for trajectory generation
+                                                        // with a ration of 2 between Window size and Batch size
   #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
   #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
 
@@ -1143,7 +1143,7 @@
   #define FTM_POINTS_PER_LOOP       100                 // Number of trajectory points to generate each loop()
 
   #if ENABLED(COREXY)
-    #define FTM_STEPPER_FS          40000               // (Hz) Frequency for stepper I/O update.
+    #define FTM_STEPPER_FS          30000               // (Hz) Frequency for stepper I/O update.
 
     // This value may be configured to adjust duration to consume the command buffer.
     // Try increasing this value if stepper motion is not smooth.

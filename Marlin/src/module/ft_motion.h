@@ -129,7 +129,8 @@ class FTMotion {
   private:
 
     static xyze_trajectory_t traj;
-    static xyze_trajectoryMod_t trajMod;
+    static xyze_trajectory_t trajMod;
+    static xyze_trajectory_t trajWin;
 
     static block_t *current_block_cpy;
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
@@ -149,6 +150,9 @@ class FTMotion {
 
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
+
+    static constexpr uint32_t shaper_intervals = (FTM_BW_SIZE) * ceil((FTM_ZMAX) / (FTM_BW_SIZE)),
+                              min_max_intervals = (FTM_BW_SIZE) * 2;
 
     // Make vector variables.
     static uint32_t makeVector_idx,
