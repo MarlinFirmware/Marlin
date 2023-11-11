@@ -35,9 +35,17 @@ if pioutil.is_pio_build():
     else:
         platform_name = PackageSpec(platform_packages[0]).name
         # platform_packages =  ['framework-arduinoststm32@https://github.com/stm32duino/Arduino_Core_STM32/archive/2.6.0.zip', 'toolchain-gccarmnoneeabi@1.100301.220327']
+        print()
         print("platform_packages = ", platform_packages)
         print("PackageSpec(platform_packages[0]) = ", PackageSpec(platform_packages[0]))
         print("PackageSpec(platform_packages[0]).name = ", platform_name)
+        print()
+        '''
+        platform_packages = ['framework-arduinoststm32@https://github.com/stm32duino/Arduino_Core_STM32/archive/main.zip', 'toolchain-gccarmnoneeabi@1.100301.220327']
+        PackageSpec(platform_packages[0]) = PackageSpec <owner=None id=None name=main requirements=None uri=framework-arduinoststm32@https://github.com/stm32duino/Arduino_Core_STM32/archive/main.zip>
+        PackageSpec(platform_packages[0]).name =  main
+        platform_name is in framework-arduinoststm32 list.
+        '''
 
     if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
         platform_name = "framework-arduinoststm32"
