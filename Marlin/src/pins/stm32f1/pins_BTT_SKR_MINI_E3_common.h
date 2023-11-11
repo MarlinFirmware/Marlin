@@ -244,7 +244,7 @@
        *
        *                   Board                                   Display
        *                   ------                                  ------
-       * (SD_DET)    PB5  | 1  2 | PB6 or PA15   (BEEPER)      5V |10  9 | GND
+       * (SD_DET)    PB5  | 1  2 | PB6 or PA15 (BEEPER)        5V |10  9 | GND
        * (MOD_RESET) PA9  | 3  4 | RESET                       -- | 8  7 | (SD_DET)
        * (SD_CS)     PA10   5  6 | PB9                    (MOSI)  | 6  5 | --
        * (LCD_CS)    PB8  | 7  8 | PB7 or PB15            (SD_CS) | 4  3 | (LCD_CS)
