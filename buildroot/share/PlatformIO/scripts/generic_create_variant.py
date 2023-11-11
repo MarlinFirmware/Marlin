@@ -33,7 +33,18 @@ if pioutil.is_pio_build():
         print("platform.__class__.__name__ = ", platform.__class__.__name__)
         print("framewords[platform.__class__.__name__] = ", platform_name)
     else:
-        platform_name = PackageSpec(platform_packages[0]).name
+        uri = PackageSpec(platform_packages[0]).uri
+        if '@' in uri:
+            platform_name = re.sub(r'^(.+)@.+', r'\1' , uri)
+        else:
+            platform_name = PackageSpec(platform_packages[0]).name
+
+        # [8b3522051a] thisiskeithb/Arduino_Core_STM32/tree/biqu-bx-workaround
+        # [39f37d6d6a] rhapsodyv/Arduino_Core_STM32/tree/usb-host-msc-cdc-msc-3
+        if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "39f37d6d6a", "tool-stm32duino", "8b3522051a" ]:
+            platform_name = "framework-arduinoststm32"
+            print("platform_name is in framework-arduinoststm32 list.")
+
         # platform_packages =  ['framework-arduinoststm32@https://github.com/stm32duino/Arduino_Core_STM32/archive/2.6.0.zip', 'toolchain-gccarmnoneeabi@1.100301.220327']
         print()
         print("platform_packages = ", platform_packages)
@@ -46,12 +57,6 @@ if pioutil.is_pio_build():
         PackageSpec(platform_packages[0]).name =  main
         platform_name is in framework-arduinoststm32 list.
         '''
-
-    # [8b3522051a] thisiskeithb/Arduino_Core_STM32/tree/biqu-bx-workaround
-    # [39f37d6d6a] rhapsodyv/Arduino_Core_STM32/tree/usb-host-msc-cdc-msc-3
-    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "39f37d6d6a", "tool-stm32duino", "8b3522051a", "main" ]:
-        platform_name = "framework-arduinoststm32"
-        print("platform_name is in framework-arduinoststm32 list.")
 
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
     assert FRAMEWORK_DIR.is_dir()
