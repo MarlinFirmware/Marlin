@@ -47,7 +47,9 @@ if pioutil.is_pio_build():
         platform_name is in framework-arduinoststm32 list.
         '''
 
-    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
+    # [8b3522051a] thisiskeithb/Arduino_Core_STM32/tree/biqu-bx-workaround
+    # [39f37d6d6a] rhapsodyv/Arduino_Core_STM32/tree/usb-host-msc-cdc-msc-3
+    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "39f37d6d6a", "tool-stm32duino", "8b3522051a", "main" ]:
         platform_name = "framework-arduinoststm32"
         print("platform_name is in framework-arduinoststm32 list.")
 
