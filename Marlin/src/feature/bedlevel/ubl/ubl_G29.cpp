@@ -788,7 +788,7 @@ void unified_bed_leveling::shift_mesh_height() {
       #endif
 
       #ifndef HUGE_VALF
-        #define HUGE_VALF (10e100F)
+        #define HUGE_VALF __FLT_MAX__
       #endif
 
       best = do_furthest // Points with valid data or HUGE_VALF are skipped
