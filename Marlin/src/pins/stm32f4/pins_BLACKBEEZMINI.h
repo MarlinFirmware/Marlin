@@ -138,8 +138,7 @@
  #define LCD_PINS_EN                        PB13
  #define LCD_PINS_D4                        PB14
  #define LCD_PINS_D5                        PA3
- //#define LCD_PINS_D6                      PB1   //
- //#define LCD_PINS_D7                      PB2   //
+
 
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS                     PB13
