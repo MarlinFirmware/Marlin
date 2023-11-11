@@ -315,10 +315,6 @@ typedef struct RepChr { char asc; uint8_t count;
 typedef struct Spaces { uint8_t count;
                         Spaces(uint8_t c) : count(c) {}
                       } spaces_t;
-template <typename T>
-       struct w_int_t { T value; char width;
-                        w_int_t(T v, char w) : value(v), width(w) {}
-                      };
 
 #ifdef __AVR__
   typedef w_float_t w_double_t;

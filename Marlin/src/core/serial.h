@@ -170,11 +170,10 @@ void SERIAL_EOL();
 void SERIAL_ECHO_P(PGM_P pstr);
 void SERIAL_ECHOLN_P(PGM_P pstr);
 
-// Specializations for float, p_float_t, w_float_t, w_int_t
+// Specializations for float, p_float_t, and w_float_t
 template<> void SERIAL_ECHO(const float f);
 template<> void SERIAL_ECHO(const p_float_t pf);
 template<> void SERIAL_ECHO(const w_float_t wf);
-template<typename T> void SERIAL_ECHO(const w_int_t<T> wi);
 
 // Specializations for F-string
 template<> void SERIAL_ECHO(const FSTR_P fstr);
@@ -254,17 +253,6 @@ inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P 
 void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
   print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
-}
-
-template<typename T>
-inline FSTR_P SERIAL_NUM_INDENT(T num, int digits) {
-  switch (digits) {
-    case 6: if (num < 100000) return F("     ");
-    case 5: if (num < 10000)  return F("    ");
-    case 4: if (num < 1000)   return F("   ");
-    case 3: if (num < 100)    return F("  ");
-    case 2: if (num < 10)     return F(" ");
-  }
 }
 
 template<typename T>
