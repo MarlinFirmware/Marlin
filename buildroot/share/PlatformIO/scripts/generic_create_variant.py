@@ -39,9 +39,7 @@ if pioutil.is_pio_build():
         print("PackageSpec(platform_packages[0]) = ", PackageSpec(platform_packages[0]))
         print("PackageSpec(platform_packages[0]).name = ", platform_name)
 
-    # [8b3522051a] thisiskeithb/Arduino_Core_STM32/tree/biqu-bx-workaround
-    # [39f37d6d6a] rhapsodyv/Arduino_Core_STM32/tree/usb-host-msc-cdc-msc-3
-    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "39f37d6d6a", "tool-stm32duino", "8b3522051a", "main" ]:
+    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
         platform_name = "framework-arduinoststm32"
         print("platform_name is in framework-arduinoststm32 list.")
 
