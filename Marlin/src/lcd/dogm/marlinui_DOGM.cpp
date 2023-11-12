@@ -127,13 +127,36 @@ bool MarlinUI::detected() { return true; }
         #else
           const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame]);
         #endif
+      #elif ENABLED(CUSTOM_BOOTSCREEN_RLE)
+        uint8_t bmp[CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH * CUSTOM_BOOTSCREEN_BMPHEIGHT];
+        uint8_t *bmp_rle = (uint8_t*)custom_start_bmp_rle;
       #else
         const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
       #endif
 
       UNUSED(frame);
 
-      u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
+      #if ENABLED(CUSTOM_BOOTSCREEN_RLE)
+
+        uint8_t bits = 0;                       // Persist the last fetched bitmap byte
+        for (uint8_t *dst = bmp; dst < bmp + sizeof(bmp);) {
+          uint8_t count = *bmp_rle++;           // Get the count byte
+          const bool uniq = bool(count & 0x80); // >= 128 is a distinct run; < 128 is a repeat run
+          count = (count & 0x7F) + 1;           // Actual count is 7-bit plus 1
+          bool getbyte = true;                  // Get at least one bitmap byte
+          while (count--) {                     // Emit 'count' bytes
+            if (getbyte) {
+              getbyte = uniq;                   // Keep getting bitmap bytes if not RLE
+              bits = *bmp_rle++;                // Bitmap byte
+            }
+            *dst++ = bits;
+          }
+        }
+
+      #endif // CUSTOM_BOOTSCREEN_RLE
+
+      u8g.TERN(CUSTOM_BOOTSCREEN_RLE, drawBitmap, drawBitmapP)
+        (left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         if (frame == 0) {

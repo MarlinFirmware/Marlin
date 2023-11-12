@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 #
-# Utility to compress Marlin RGB565 TFT data to RLE16 format.
-# Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
+# RLE compress a Marlin mono DOGM bitmap.
+# Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
+# Output: A new file with the original and compressed data.
 #
-# Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
+# Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
 #
 import sys,struct
 import re
@@ -14,6 +15,8 @@ def addCompressedData(input_file, output_file):
     c_data_section = False
     c_skip_data = False
     c_footer = False
+    datatype = "uint8_t"
+    bytewidth = 16
     raw_data = []
     rle_value = []
     rle_count = []
@@ -24,6 +27,9 @@ def addCompressedData(input_file, output_file):
         if not c_footer:
             if not c_skip_data: ofile.write(line)
 
+        mat = re.match(r'CUSTOM_BOOTSCREEN_BMPWIDTH\s+(\d+)', line)
+        if mat: bytewidth = int(mat[1]) / 16
+
         if "};" in line:
             c_skip_data = False
             c_data_section = False
@@ -31,13 +37,21 @@ def addCompressedData(input_file, output_file):
 
         if c_data_section:
             cleaned = re.sub(r"\s|,|\n", "", line)
-            as_list = cleaned.split("0x")
-            as_list.pop(0)
-            raw_data += [int(x, 16) for x in as_list]
+            mat = re.match(r'(0b|B)[01]{8}', cleaned)
+            if mat:
+                as_list = cleaned.split(mat[1])
+                as_list.pop(0)
+                raw_data += [int(x, 2) for x in as_list]
+            else:
+                as_list = cleaned.split("0x")
+                as_list.pop(0)
+                raw_data += [int(x, 16) for x in as_list]
 
-        if "const uint" in line:
-            # e.g.: const uint16_t marlin_logo_480x320x16[153600] = {
-            if "_rle16" in line:
+        mat = re.match(r'const (uint\d+_t|unsigned char)', line)
+        if mat:
+            # e.g.: const unsigned char custom_start_bmp[] PROGMEM = {
+            datatype = mat[0]
+            if "_rle" in line:
                 c_skip_data = True
             else:
                 c_data_section = True
@@ -49,12 +63,11 @@ def addCompressedData(input_file, output_file):
     input_file.close()
 
     #
-    # RLE16 (run length 16) encoding
-    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
+    # RLE (run length) encoding
+    # Convert data from raw mono bitmap to a simple run-length-encoded format.
     # - Each sequence begins with a count byte N.
-    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
-    #   - Otherwise it repeats the following word N + 1 times.
-    # - Each RGB565 word is stored in MSB / LSB order.
+    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique bytes.
+    #   - Otherwise it repeats the following byte N + 1 times.
     #
     def rle_encode(data):
         warn = "This may take a while" if len(data) > 300000 else ""
@@ -87,14 +100,13 @@ def addCompressedData(input_file, output_file):
 
         return rledata
 
-    def append_byte(data, byte, cols=240):
+    def append_byte(data, byte, cols=bytewidth):
         if data == '': data = '  '
         data += ('0x{0:02X}, '.format(byte)) # 6 characters
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
         return data
 
     def rle_emit(ofile, arrname, rledata, rawsize):
-        col = 0
         i = 0
         outstr = ''
         size = 0
@@ -106,33 +118,25 @@ def addCompressedData(input_file, output_file):
                 outstr = append_byte(outstr, rval)
                 size += 1
                 for j in range(count):
-                    outstr = append_byte(outstr, rledata[i + j] >> 8)
-                    outstr = append_byte(outstr, rledata[i + j] & 0xFF)
-                    size += 2
+                    outstr = append_byte(outstr, rledata[i + j])
+                    size += 1
                 i += count
             else:
                 outstr = append_byte(outstr, rval)
-                outstr = append_byte(outstr, rledata[i] >> 8)
-                outstr = append_byte(outstr, rledata[i] & 0xFF)
+                outstr = append_byte(outstr, rledata[i])
                 i += 1
-                size += 3
+                size += 2
 
         outstr = outstr.rstrip()[:-1]
-        ofile.write("\n// Saves %i bytes\nconst uint8_t %s_rle16[%d] = {\n%s\n};\n" % (rawsize - size, arrname, size, outstr))
-
-        (w, h, d) = arrname.split("_")[-1].split('x')
-        ofile.write("\nconst tImage MarlinLogo{0}x{1}x16 = MARLIN_LOGO_CHOSEN({0}, {1});\n".format(w, h))
-        ofile.write("\n#endif // HAS_GRAPHICAL_TFT && SHOW_BOOTSCREEN\n".format(w, h))
+        ofile.write("\n// Saves %i bytes\n%s %s_rle[%d] PROGMEM = {\n%s\n};\n" % (rawsize - size, datatype, arrname, size, outstr))
 
     # Encode the data, write it out, close the file
     rledata = rle_encode(raw_data)
-    rle_emit(ofile, arrname, rledata, len(raw_data) * 2)
+    rle_emit(ofile, arrname, rledata, len(raw_data))
     ofile.close()
 
 if len(sys.argv) <= 2:
-    print("Utility to compress Marlin RGB565 TFT data to RLE16 format.")
-    print("Reads a Marlin RGB565 cpp file and generate a new file with the additional RLE16 data.")
-    print("Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp")
+    print('Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE')
     exit(1)
 
 output_cpp = sys.argv[2]
