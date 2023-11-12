@@ -1164,13 +1164,13 @@
   #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2)       // Comparison value used in interpolation algorithm.
   #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps.
 
-  #define FTM_MIN_SHAPE_FREQ         10                 // Minimum shaping frequency.
-  #define FTM_ZMAX                  100                 // Maximum delays for shaping functions (even numbers only!).
-                                                        // Calculate as:
-                                                        //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
-                                                        //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
-                                                        //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
-                                                        //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
+  #define FTM_MIN_SHAPE_FREQ         10                           // Minimum shaping frequency.
+  #define FTM_ZMAX           2 * (FTM_FS / FTM_MIN_SHAPE_FREQ)    // Maximum delays for shaping functions (even numbers only!).
+                                                                  // Calculate as:
+                                                                  //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
+                                                                  //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
+                                                                  //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
+                                                                  //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
 #endif
 
 /**
