@@ -48,6 +48,9 @@ public:
   static void add_marker(const uint32_t sdpos, const uint16_t count);
   static void loop();
   static void cancel();
+  static uint8_t count() { return index; }
+  static int16_t get_marker_counter(const uint8_t i) { return marker[i].counter; }
+  static uint32_t get_marker_sdpos(const uint8_t i) { return marker[i].sdpos; }
 };
 
 extern Repeat repeat;

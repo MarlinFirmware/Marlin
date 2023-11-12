@@ -33,7 +33,7 @@ constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
   DGUS_Addr::TEMP_Target_H0,
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 #if HAS_MEDIA
@@ -46,7 +46,7 @@ constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
     DGUS_Addr::SD_FileName4,
     DGUS_Addr::SD_ScrollIcons,
     DGUS_Addr::SD_SelectedFileName,
-    (DGUS_Addr)0
+    DGUS_Addr::END
   };
 #endif
 
@@ -59,7 +59,7 @@ constexpr DGUS_Addr LIST_PRINT_STATUS[] PROGMEM = {
   DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent,
   DGUS_Addr::STATUS_Icons,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PRINT_ADJUST[] PROGMEM = {
@@ -69,7 +69,7 @@ constexpr DGUS_Addr LIST_PRINT_ADJUST[] PROGMEM = {
   DGUS_Addr::ADJUST_Feedrate,
   DGUS_Addr::ADJUST_Flowrate_CUR,
   DGUS_Addr::LEVEL_OFFSET_Current,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PRINT_FINISHED[] PROGMEM = {
@@ -80,7 +80,7 @@ constexpr DGUS_Addr LIST_PRINT_FINISHED[] PROGMEM = {
   DGUS_Addr::STATUS_PositionZ,
   DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent_Complete,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_TEMP_MENU[] PROGMEM = {
@@ -88,7 +88,7 @@ constexpr DGUS_Addr LIST_TEMP_MENU[] PROGMEM = {
   DGUS_Addr::TEMP_Target_H0,
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_TEMP_MANUAL[] PROGMEM = {
@@ -98,23 +98,23 @@ constexpr DGUS_Addr LIST_TEMP_MANUAL[] PROGMEM = {
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::TEMP_Max_Bed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_FAN[] PROGMEM = {
   DGUS_Addr::FAN0_Speed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_SETTINGS_MENU[] PROGMEM = {
   DGUS_Addr::STEPPER_Status,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_LEVELING_OFFSET[] PROGMEM = {
   DGUS_Addr::LEVEL_OFFSET_Current,
   DGUS_Addr::LEVEL_OFFSET_StepIcons,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_LEVELING_MANUAL[] PROGMEM = {
@@ -122,7 +122,7 @@ constexpr DGUS_Addr LIST_LEVELING_MANUAL[] PROGMEM = {
   DGUS_Addr::TEMP_Target_H0,
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_LEVELING_AUTOMATIC[] PROGMEM = {
@@ -132,13 +132,13 @@ constexpr DGUS_Addr LIST_LEVELING_AUTOMATIC[] PROGMEM = {
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::LEVEL_AUTO_DisableIcon,
   DGUS_Addr::LEVEL_AUTO_Grid,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_LEVELING_PROBING[] PROGMEM = {
   DGUS_Addr::LEVEL_PROBING_Icons1,
   DGUS_Addr::LEVEL_PROBING_Icons2,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_FILAMENT[] PROGMEM = {
@@ -146,7 +146,7 @@ constexpr DGUS_Addr LIST_FILAMENT[] PROGMEM = {
   DGUS_Addr::TEMP_Target_H0,
   DGUS_Addr::FILAMENT_ExtruderIcons,
   DGUS_Addr::FILAMENT_Length,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_MOVE[] PROGMEM = {
@@ -154,17 +154,17 @@ constexpr DGUS_Addr LIST_MOVE[] PROGMEM = {
   DGUS_Addr::MOVE_CurrentY,
   DGUS_Addr::MOVE_CurrentZ,
   DGUS_Addr::MOVE_StepIcons,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_GCODE[] PROGMEM = {
   DGUS_Addr::GCODE_Data,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_SETTINGS_MENU2[] PROGMEM = {
   DGUS_Addr::SETTINGS2_BLTouch,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_PID[] PROGMEM = {
@@ -174,17 +174,17 @@ constexpr DGUS_Addr LIST_PID[] PROGMEM = {
   DGUS_Addr::PID_Kp,
   DGUS_Addr::PID_Ki,
   DGUS_Addr::PID_Kd,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_VOLUME[] PROGMEM = {
   DGUS_Addr::VOLUME_Level,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_BRIGHTNESS[] PROGMEM = {
   DGUS_Addr::BRIGHTNESS_Level,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_INFOS[] PROGMEM = {
@@ -196,12 +196,12 @@ constexpr DGUS_Addr LIST_INFOS[] PROGMEM = {
   DGUS_Addr::INFOS_PrintTime,
   DGUS_Addr::INFOS_LongestPrint,
   DGUS_Addr::INFOS_FilamentUsed,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 constexpr DGUS_Addr LIST_WAIT[] PROGMEM = {
   DGUS_Addr::WAIT_Icons,
-  (DGUS_Addr)0
+  DGUS_Addr::END
 };
 
 #define MAP_HELPER(SCREEN, LIST) { .screenID = SCREEN, .addr_list = LIST }

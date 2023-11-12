@@ -341,6 +341,6 @@
 
 #elif defined(TS_TYPICAL_V) && defined(TS_TYPICAL_SLOPE) && defined(TS_TYPICAL_TEMP)
 
-  #define TEMP_SOC_SENSOR(RAW) ((TS_TYPICAL_V - (RAW) / float(OVERSAMPLENR) / float(HAL_ADC_RANGE) * float(ADC_VREF)) / (TS_TYPICAL_SLOPE/1000) + TS_TYPICAL_TEMP)
+  #define TEMP_SOC_SENSOR(RAW) ((TS_TYPICAL_V - (RAW) / float(OVERSAMPLENR) / float(HAL_ADC_RANGE) * (float(ADC_VREF_MV) / 1000.0f)) / ((TS_TYPICAL_SLOPE) / 1000) + TS_TYPICAL_TEMP)
 
 #endif
