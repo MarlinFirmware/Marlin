@@ -583,7 +583,7 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
         #if ENABLED(GCODE_REPEAT_MARKERS)
-          const uint8_t ind = info.stored_repeat.get_index();
+          const uint8_t ind = info.stored_repeat.count();
           DEBUG_ECHOLNPGM("repeat markers: ", ind);
           for (uint8_t i = ind; i--;)
             DEBUG_ECHOLNPGM("...", i, " sdpos: ", info.stored_repeat.get_marker_sdpos(i), " count: ", info.stored_repeat.get_marker_counter(i));
