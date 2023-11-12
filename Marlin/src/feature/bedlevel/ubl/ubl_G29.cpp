@@ -310,8 +310,14 @@ void unified_bed_leveling::G29() {
   // Check for commands that require the printer to be homed
   if (may_move) {
     planner.synchronize();
-    // Send 'N' to force homing before G29 (internal only)
-    if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+      save_ubl_active_state_and_disable();
+      gcode.process_subcommands_now(F("G28Z"));
+      restore_ubl_active_state_and_leave();
+    #else
+      // Send 'N' to force homing before G29 (internal only)
+      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+    #endif
     probe.use_probing_tool();
 
     // Position bed horizontally and Z probe vertically.
@@ -753,7 +759,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
     TERN_(HAS_MARLINUI_MENU, ui.capture());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
     grid_count_t count = GRID_MAX_POINTS;
@@ -766,6 +772,7 @@ void unified_bed_leveling::shift_mesh_height() {
       const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
+      TERN_(LCD_BACKLIGHT_TIMEOUT_MINS, ui.refresh_backlight_timeout());
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -780,14 +787,18 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest
+      #ifndef HUGE_VALF
+        #define HUGE_VALF __FLT_MAX__
+      #endif
+
+      best = do_furthest // Points with valid data or HUGE_VALF are skipped
         ? find_furthest_invalid_mesh_point()
         : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
         const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
-        z_values[best.pos.x][best.pos.y] = measured_z;
+        z_values[best.pos.x][best.pos.y] = isnan(measured_z) ? HUGE_VALF : measured_z;  // Mark invalid point already probed with HUGE_VALF to omit it in the next loop
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
@@ -796,6 +807,8 @@ void unified_bed_leveling::shift_mesh_height() {
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
     } while (best.pos.x >= 0 && --count);
+
+    GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
 
@@ -814,7 +827,7 @@ void unified_bed_leveling::shift_mesh_height() {
     );
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-    TERN_(DWIN_LCD_PROUI, DWIN_LevelingDone());
+    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
   }
 
 #endif // HAS_BED_PROBE
