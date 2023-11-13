@@ -131,7 +131,7 @@ def addCompressedData(input_file, output_file):
 
 if len(sys.argv) <= 2:
     print("Utility to compress Marlin RGB565 TFT data to RLE16 format.")
-    print("Reads a Marlin RGB565 cpp file and generate a new file with the additional RLE16 data.")
+    print("Reads a Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.")
     print("Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp")
     exit(1)
 

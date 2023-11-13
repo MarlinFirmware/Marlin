@@ -127,37 +127,47 @@ bool MarlinUI::detected() { return true; }
         #else
           const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame]);
         #endif
-      #elif ENABLED(CUSTOM_BOOTSCREEN_RLE)
-        uint8_t bmp[CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH * CUSTOM_BOOTSCREEN_BMPHEIGHT];
+      #elif ENABLED(COMPACT_CUSTOM_BOOTSCREEN)
+        #define BMPSIZE (CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH * CUSTOM_BOOTSCREEN_BMPHEIGHT)
+        uint8_t bmp[BMPSIZE];
         uint8_t *bmp_rle = (uint8_t*)custom_start_bmp_rle;
       #else
         const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
       #endif
 
-      UNUSED(frame);
+      #if ENABLED(COMPACT_CUSTOM_BOOTSCREEN)
 
-      #if ENABLED(CUSTOM_BOOTSCREEN_RLE)
+        uint8_t *dst = (uint8_t*)bmp;
 
-        uint8_t bits = 0;                       // Persist the last fetched bitmap byte
-        for (uint8_t *dst = bmp; dst < bmp + sizeof(bmp);) {
-          uint8_t count = *bmp_rle++;           // Get the count byte
-          const bool uniq = bool(count & 0x80); // >= 128 is a distinct run; < 128 is a repeat run
-          count = (count & 0x7F) + 1;           // Actual count is 7-bit plus 1
-          bool getbyte = true;                  // Get at least one bitmap byte
-          while (count--) {                     // Emit 'count' bytes
-            if (getbyte) {
-              getbyte = uniq;                   // Keep getting bitmap bytes if not RLE
-              bits = *bmp_rle++;                // Bitmap byte
-            }
-            *dst++ = bits;
+        auto rle_nybble = [&](const uint16_t i) {
+          const uint8_t b = bmp_rle[i / 2];
+          return (i & 1 ? b & 0xF : b >> 4);
+        };
+
+        uint8_t workbyte = 0, bitstate = rle_nybble(0) << 7;
+        uint16_t inindex = 1, outindex = 0;
+        while (outindex < BMPSIZE * 8) {
+          int16_t c = rle_nybble(inindex++);
+          if (c == 15) {
+            c = 16 * rle_nybble(inindex) + rle_nybble(inindex + 1) + 15; // From 16 to 270
+            inindex += 2;
           }
+          while (c-- >= 0) {
+            const uint8_t bitind = outindex & 7,
+                          bitval = bitstate >> bitind;
+            workbyte |= bitval;
+            if (bitind == 7) { *dst++ = workbyte; workbyte = 0; }
+            outindex++;
+          }
+          bitstate ^= 0x80;
         }
 
-      #endif // CUSTOM_BOOTSCREEN_RLE
+      #endif // COMPACT_CUSTOM_BOOTSCREEN
 
-      u8g.TERN(CUSTOM_BOOTSCREEN_RLE, drawBitmap, drawBitmapP)
+      u8g.TERN(COMPACT_CUSTOM_BOOTSCREEN, drawBitmap, drawBitmapP)
         (left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
+      UNUSED(frame);
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         if (frame == 0) {
           u8g.setColorIndex(1);
