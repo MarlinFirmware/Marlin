@@ -32,6 +32,8 @@ if pioutil.is_pio_build():
         platform_name = framewords[platform.__class__.__name__]
     else:
         uri = PackageSpec(platform_packages[0]).uri
+        if uri is None:
+            uri = []
         if '@' in uri:
             platform_name = re.sub(r'@.+', '' , uri)
         else:
