@@ -985,7 +985,7 @@ void restore_feedrate_and_scaling() {
           #endif
 
           #if HAS_HOME_OFFSET
-            if (home_dir(X_AXIS) < 0)
+            if (TOOL_X_HOME_DIR(active_extruder) < 0)
               NOLESS(target.x, base_min_pos(X_AXIS) + home_offset.x);
             else
               NOMORE(target.x, base_max_pos(X_AXIS) - home_offset.x);
@@ -1003,10 +1003,11 @@ void restore_feedrate_and_scaling() {
           #endif
 
           #if HAS_HOME_OFFSET
-            if (home_dir(Y_AXIS) < 0)
+            #if Y_HOME_TO_MIN
               NOLESS(target.y, base_min_pos(Y_AXIS) + home_offset.y);
-            else
+            #else
               NOMORE(target.y, base_max_pos(Y_AXIS) - home_offset.y);
+            #endif
           #endif
         }
       #endif
@@ -1023,10 +1024,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(Z_AXIS) < 0)
+          #if Z_HOME_TO_MIN
             NOLESS(target.z, base_min_pos(Z_AXIS) + home_offset.z);
-          else
+          #else
             NOMORE(target.z, base_max_pos(Z_AXIS) - home_offset.z);
+          #endif
         #endif
       }
     #endif
@@ -1041,10 +1043,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(I_AXIS) < 0)
+          #if I_HOME_TO_MIN
             NOLESS(target.i, base_min_pos(I_AXIS) + home_offset.i);
-          else
+          #else
             NOMORE(target.i, base_max_pos(I_AXIS) - home_offset.i);
+          #endif
         #endif
       }
     #endif
@@ -1059,10 +1062,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(J_AXIS) < 0)
+          #if J_HOME_TO_MIN
             NOLESS(target.j, base_min_pos(J_AXIS) + home_offset.j);
-          else
+          #else
             NOMORE(target.j, base_max_pos(J_AXIS) - home_offset.j);
+          #endif
         #endif
       }
     #endif
@@ -1077,10 +1081,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(K_AXIS) < 0)
+          #if K_HOME_TO_MIN
             NOLESS(target.k, base_min_pos(K_AXIS) + home_offset.k);
-          else
+          #else
             NOMORE(target.k, base_max_pos(K_AXIS) - home_offset.k);
+          #endif
         #endif
       }
     #endif
@@ -1095,10 +1100,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(U_AXIS) < 0)
+          #if U_HOME_TO_MIN
             NOLESS(target.u, base_min_pos(U_AXIS) + home_offset.u);
-          else
+          #else
             NOMORE(target.u, base_max_pos(U_AXIS) - home_offset.u);
+          #endif
         #endif
       }
     #endif
@@ -1113,10 +1119,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(V_AXIS) < 0)
+          #if V_HOME_TO_MIN
             NOLESS(target.v, base_min_pos(V_AXIS) + home_offset.v);
-          else
+          #else
             NOMORE(target.v, base_max_pos(V_AXIS) - home_offset.v);
+          #endif
         #endif
       }
     #endif
@@ -1131,10 +1138,11 @@ void restore_feedrate_and_scaling() {
         #endif
 
         #if HAS_HOME_OFFSET
-          if (home_dir(W_AXIS) < 0)
+          #if W_HOME_TO_MIN
             NOLESS(target.w, base_min_pos(W_AXIS) + home_offset.w);
-          else
+          #else
             NOMORE(target.w, base_max_pos(W_AXIS) - home_offset.w);
+          #endif
         #endif
       }
     #endif
