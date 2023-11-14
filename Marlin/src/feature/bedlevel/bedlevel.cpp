@@ -132,10 +132,6 @@ void reset_bed_level() {
    */
   //#define SCAD_MESH_OUTPUT
 
-  // The number of values to print in each dimension depends on fn argument or array size (all)
-  #define PRINT_X TERN(VARIABLE_GRID_POINTS, print_x, sx)
-  #define PRINT_Y TERN(VARIABLE_GRID_POINTS, print_y, sy)
-
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
@@ -146,13 +142,14 @@ void reset_bed_level() {
   ) {
 
     #if ENABLED(VARIABLE_GRID_POINTS)
-      // If print_[xy] not supplied, print all in respective dimension
       if (!print_x) print_x = sx;
       if (!print_y) print_y = sy;
+    #else
+      const uint8_t print_x = sx, print_y = sy;
     #endif
 
     #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < PRINT_X; ++x) {
+      for (uint8_t x = 0; x < print_x; ++x) {
         SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
@@ -161,14 +158,14 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    for (uint8_t y = 0; y < PRINT_Y; ++y) {
+    for (uint8_t y = 0; y < print_y; ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      for (uint8_t x = 0; x < PRINT_X; ++x) {
+      for (uint8_t x = 0; x < print_x; ++x) {
         SERIAL_CHAR(' ');
         const float offset = values[x * sy + y];
         if (!isnan(offset)) {
@@ -186,12 +183,12 @@ void reset_bed_level() {
           #endif
         }
         #ifdef SCAD_MESH_OUTPUT
-          if (x < PRINT_X - 1) SERIAL_CHAR(',');
+          if (x < print_x - 1) SERIAL_CHAR(',');
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" ]");            // close sub-array
-        if (y < PRINT_Y - 1) SERIAL_CHAR(',');
+        if (y < print_y - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }
