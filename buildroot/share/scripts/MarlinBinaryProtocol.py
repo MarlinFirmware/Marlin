@@ -75,7 +75,7 @@ class Protocol(object):
         self.device = device
         self.baud = baud
         self.block_size = int(bsize)
-        self.simulate_errors = max(min(simerr, 1.0), 0.0);
+        self.simulate_errors = max(min(simerr, 1.0), 0.0)
         self.connected = True
         self.response_timeout = timeout
 
@@ -237,8 +237,8 @@ class Protocol(object):
 
     # checksum 16 fletchers
     def checksum(self, cs, value):
-        cs_low = (((cs & 0xFF) + value) % 255);
-        return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low;
+        cs_low = (((cs & 0xFF) + value) % 255)
+        return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low
 
     def build_checksum(self, buffer):
         cs = 0
@@ -270,7 +270,7 @@ class Protocol(object):
 
     def response_ok(self, data):
         try:
-            packet_id = int(data);
+            packet_id = int(data)
         except ValueError:
             return
         if packet_id != self.sync:
@@ -279,7 +279,7 @@ class Protocol(object):
         self.packet_status = 1
 
     def response_resend(self, data):
-        packet_id = int(data);
+        packet_id = int(data)
         self.errors += 1
         if not self.syncronised:
             print("Retrying syncronisation")
@@ -330,7 +330,7 @@ class FileTransferProtocol(object):
         return self.responses.popleft()
 
     def connect(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.QUERY);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.QUERY)
 
         token, data = self.await_response()
         if token != 'PFT:version:':
@@ -352,7 +352,7 @@ class FileTransferProtocol(object):
 
         timeout = TimeOut(5000)
         token = None
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
         while token != 'PFT:success' and not timeout.timedout():
             try:
                 token, data = self.await_response(1000)
@@ -363,7 +363,7 @@ class FileTransferProtocol(object):
                     print("Broken transfer detected, purging")
                     self.abort()
                     time.sleep(0.1)
-                    self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload);
+                    self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
                     timeout.reset()
                 elif token == 'PFT:fail':
                     raise Exception("Can not open file on client")
@@ -372,10 +372,10 @@ class FileTransferProtocol(object):
         raise ReadTimeout()
 
     def write(self, data):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.WRITE, data);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.WRITE, data)
 
     def close(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.CLOSE);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.CLOSE)
         token, data = self.await_response(1000)
         if token == 'PFT:success':
             print("File closed")
@@ -388,7 +388,7 @@ class FileTransferProtocol(object):
             return False
 
     def abort(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT)
         token, data = self.await_response()
         if token == 'PFT:success':
             print("Transfer Aborted")
@@ -432,7 +432,7 @@ class FileTransferProtocol(object):
                 self.close()
                 print("Transfer aborted due to protocol errors")
                 #raise Exception("Transfer aborted due to protocol errors")
-                return False;
+                return False
         print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
 
         if not self.close():

@@ -499,7 +499,7 @@ def get_starting_env(board_name_full, version):
   possible_envs = None
   for i, line in enumerate(pins_h):
     if 0 < line.find("Unknown MOTHERBOARD value set in Configuration.h"):
-      invalid_board();
+      invalid_board()
     if list_start_found == False and 0 < line.find('1280'):
       list_start_found = True
     elif list_start_found == False:  # skip lines until find start of CPU list
