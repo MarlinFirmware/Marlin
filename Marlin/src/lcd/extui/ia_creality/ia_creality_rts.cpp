@@ -688,7 +688,9 @@ void RTS::handleData() {
     return;
   }
 
-  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #if ENABLED(LCD_BED_TRAMMING)
+    constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #endif
 
   switch (Checkkey) {
     case Printfile:
@@ -785,26 +787,30 @@ void RTS::handleData() {
       }
       break;
 
-    case Zoffset:
-      float tmp_zprobe_offset;
-      if (recdat.data[0] >= 32768)
-        tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
-      else
-        tmp_zprobe_offset = float(recdat.data[0]) / 100;
-      if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
-        if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
-        smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
-        char zOffs[20], tmp1[11];
-        sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-        onStatusChanged(zOffs);
-      }
-      else {
-        onStatusChanged(F("Requested Offset Beyond Limits"));
-      }
+    #if HAS_BED_PROBE
 
-      sendData(getZOffset_mm() * 100, ProbeOffset_Z);
-      break;
+      case Zoffset:
+        float tmp_zprobe_offset;
+        if (recdat.data[0] >= 32768)
+          tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
+        else
+          tmp_zprobe_offset = float(recdat.data[0]) / 100;
+        if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+          int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
+          if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
+          smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
+          char zOffs[20], tmp1[11];
+          sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+          onStatusChanged(zOffs);
+        }
+        else {
+          onStatusChanged(F("Requested Offset Beyond Limits"));
+        }
+
+        sendData(getZOffset_mm() * 100, ProbeOffset_Z);
+        break;
+
+    #endif // HAS_BED_PROBE
 
     case TempControl:
       if (recdat.data[0] == 0) {
@@ -1106,29 +1112,31 @@ void RTS::handleData() {
           sendData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
         }
-        case 2: { // Z-axis to Up
-          if (WITHIN((getZOffset_mm() + 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-            smartAdjustAxis_steps(getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
-            //setZOffset_mm(getZOffset_mm() + 0.1);
-            sendData(getZOffset_mm() * 100, ProbeOffset_Z);
-            char zOffs[20], tmp1[11];
-            sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            onStatusChanged(zOffs);
+
+        #if HAS_BED_PROBE
+
+          case 2: { // Z-axis to Up
+            if (WITHIN((getZOffset_mm() + 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+              smartAdjustAxis_steps(getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
+              //setZOffset_mm(getZOffset_mm() + 0.1);
+              sendData(getZOffset_mm() * 100, ProbeOffset_Z);
+              onStatusChanged(MString<20>(GET_TEXT_F(MSG_UBL_Z_OFFSET), p_float_t(getZOffset_mm(), 3)));
+            }
+            break;
           }
-          break;
-        }
-        case 3: { // Z-axis to Down
-          if (WITHIN((getZOffset_mm() - 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-            smartAdjustAxis_steps(-getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
-            //babystepAxis_steps(int16_t(-getAxisSteps_per_mm(Z)) / 10, axis_t(Z));
-            //setZOffset_mm(getZOffset_mm() - 0.1);
-            sendData(getZOffset_mm() * 100, ProbeOffset_Z);
-            char zOffs[20], tmp1[11];
-            sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            onStatusChanged(zOffs);
+          case 3: { // Z-axis to Down
+            if (WITHIN((getZOffset_mm() - 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+              smartAdjustAxis_steps(-getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
+              //babystepAxis_steps(int16_t(-getAxisSteps_per_mm(Z)) / 10, axis_t(Z));
+              //setZOffset_mm(getZOffset_mm() - 0.1);
+              sendData(getZOffset_mm() * 100, ProbeOffset_Z);
+              onStatusChanged(MString<20>(GET_TEXT_F(MSG_UBL_Z_OFFSET), p_float_t(getZOffset_mm(), 3)));
+            }
+            break;
           }
-          break;
-        }
+
+        #endif // HAS_BED_PROBE
+
         case 4: { // Assistant Level
           TERN_(HAS_MESH, setLevelingActive(false));
           injectCommands(isPositionKnown() ? F("G1 F1000 Z0.0") : F("G28\nG1 F1000 Z0.0"));
@@ -1140,7 +1148,7 @@ void RTS::handleData() {
           #if ENABLED(MESH_BED_LEVELING)
             sendData(ExchangePageBase + 93, ExchangepageAddr);
           #else
-            waitway = 3; // only for prohibiting to receive massage
+            waitway = 3; // Only for prohibiting to receive message
             sendData(3, AutolevelIcon);
             uint8_t abl_probe_index = 0;
             while (abl_probe_index < 25) {
@@ -1153,65 +1161,74 @@ void RTS::handleData() {
           break;
         }
 
-        case 6: { // Assitant Level ,  Centre 1
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
-          setAxisPosition_mm(X_CENTER, axis_t(X));
-          setAxisPosition_mm(Y_CENTER, axis_t(Y));
-          waitway = 6;
-          break;
-        }
-        case 7: { // Assitant Level , Front Left 2
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
-          setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
-          setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
-          waitway = 6;
-          break;
-        }
-        case 8: { // Assitant Level , Front Right 3
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
-          setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
-          setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
-          waitway = 6;
-          break;
-        }
-        case 9: { // Assitant Level , Back Right 4
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
-          setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
-          setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
-          waitway = 6;
-          break;
-        }
-        case 10: { // Assitant Level , Back Left 5
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
-          setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
-          setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
-          waitway = 6;
-          break;
-        }
+        #if ENABLED(LCD_BED_TRAMMING)
+          case 6: { // Bed Tramming,  Centre 1
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            setAxisPosition_mm(X_CENTER, axis_t(X));
+            setAxisPosition_mm(Y_CENTER, axis_t(Y));
+            waitway = 6;
+            break;
+          }
+          case 7: { // Bed Tramming, Front Left 2
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
+            setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
+            waitway = 6;
+            break;
+          }
+          case 8: { // Bed Tramming, Front Right 3
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
+            setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
+            waitway = 6;
+            break;
+          }
+          case 9: { // Bed Tramming, Back Right 4
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
+            setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
+            waitway = 6;
+            break;
+          }
+          case 10: { // Bed Tramming, Back Left 5
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
+            setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
+            waitway = 6;
+            break;
+          }
+        #endif // LCD_BED_TRAMMING
+
         case 11: { // Autolevel switch
           #if HAS_MESH
             const bool gla = !getLevelingActive();
             setLevelingActive(gla);
             sendData(gla ? 3 : 2, AutoLevelIcon);
           #endif
-          sendData(getZOffset_mm() * 100, ProbeOffset_Z);
+          #if HAS_BED_PROBE
+            sendData(getZOffset_mm() * 100, ProbeOffset_Z);
+          #endif
           break;
         }
-        case 12: {
-          injectCommands(F("G26R255"));
-          onStatusChanged(F("Beginning G26.. Heating"));
-          break;
-        }
-        case 13: {
-          injectCommands(F("G29S1"));
-          onStatusChanged(F("Begin Manual Mesh"));
-          break;
-        }
-        case 14: {
-          injectCommands(F("G29S2"));
-          onStatusChanged(F("Moving to Next Mesh Point"));
-          break;
-        }
+        #if ENABLED(G26_MESH_VALIDATION)
+          case 12: {
+            injectCommands(F("G26R255"));
+            onStatusChanged(F("Beginning G26.. Heating"));
+            break;
+          }
+        #endif
+        #if ENABLED(MESH_BED_LEVELING)
+          case 13: {
+            injectCommands(F("G29S1"));
+            onStatusChanged(F("Begin Manual Mesh"));
+            break;
+          }
+          case 14: {
+            injectCommands(F("G29S2"));
+            onStatusChanged(F("Moving to Next Mesh Point"));
+            break;
+          }
+        #endif
         case 15: {
           injectCommands(F("M211S0\nG91\nG1Z-0.025\nG90\nM211S1"));
           onStatusChanged(F("Moved down 0.025"));
@@ -1422,13 +1439,14 @@ void RTS::handleData() {
           break;
         }
 
-        case 5: {
-          #if ENABLED(PIDTEMPBED)
+        #if ENABLED(PIDTEMPBED)
+          case 5: {
             onStatusChanged(F("Bed PID Started"));
             startBedPIDTune(static_cast<celsius_t>(pid_bedAutoTemp));
-          #endif
-          break;
-        }
+            break;
+          }
+        #endif
+
         case 6: {
           injectCommands(F("M500"));
           break;
