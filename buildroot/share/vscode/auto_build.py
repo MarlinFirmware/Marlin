@@ -499,7 +499,7 @@ def get_starting_env(board_name_full, version):
   possible_envs = None
   for i, line in enumerate(pins_h):
     if 0 < line.find("Unknown MOTHERBOARD value set in Configuration.h"):
-      invalid_board();
+      invalid_board()
     if list_start_found == False and 0 < line.find('1280'):
       list_start_found = True
     elif list_start_found == False:  # skip lines until find start of CPU list
@@ -1103,7 +1103,7 @@ class output_window(Text):
     else:
       try:
         temp_text = IO_queue.get(block=False)
-      except Queue.Empty:
+      except queue.Empty:
         continue_updates = False  # queue is exhausted so no need for further updates
       else:
         self.insert('end', temp_text[0], temp_text[1])
@@ -1267,6 +1267,7 @@ def main():
   global build_type
   global target_env
   global board_name
+  global Marlin_ver
 
   board_name, Marlin_ver = get_board_name()
 
