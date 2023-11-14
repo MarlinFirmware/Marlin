@@ -31,11 +31,11 @@ if pioutil.is_pio_build():
         }
         platform_name = framewords[platform.__class__.__name__]
     else:
-        uri = PackageSpec(platform_packages[0]).uri
-        if '@' in uri:
-            platform_name = re.sub(r'@.+', '' , uri)
+        spec = PackageSpec(platform_packages[0])
+        if spec.uri and '@' in spec.uri:
+            platform_name = re.sub(r'@.+', '', spec.uri)
         else:
-            platform_name = PackageSpec(platform_packages[0]).name
+            platform_name = spec.name
 
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
     assert FRAMEWORK_DIR.is_dir()
