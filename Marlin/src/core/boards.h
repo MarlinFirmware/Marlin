@@ -399,6 +399,7 @@
 #define BOARD_SOVOL_V131              5067  // Sovol V1.3.1 (GD32F103RE)
 #define BOARD_TRIGORILLA_V006         5068  // Trigorilla V0.0.6 (GD32F103RE)
 #define BOARD_KEDI_CONTROLLER_V1_2    5069  // EDUTRONICS Kedi Controller V1.2 (STM32F103RC)
+#define BOARD_MD_D301                 5070  // Mingda D2 DZ301 V1.0 (STM32F103ZE)
 
 //
 // ARM Cortex-M4F

@@ -318,7 +318,7 @@
   #include "mega/pins_GT2560_REV_B.h"               // ATmega2560                           env:mega2560
 #elif MB(GT2560_V4)
   #include "mega/pins_GT2560_V4.h"                  // ATmega2560                           env:mega2560
-  #elif MB(GT2560_V4_A20)
+#elif MB(GT2560_V4_A20)
   #include "mega/pins_GT2560_V4_A20.h"              // ATmega2560                           env:mega2560
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"              // ATmega2560                           env:mega2560
@@ -698,6 +698,8 @@
   #include "gd32f1/pins_TRIGORILLA_V006.h"          // GD32F1                               env:trigorilla_v006
 #elif MB(KEDI_CONTROLLER_V1_2)
   #include "stm32f1/pins_KEDI_CONTROLLER_V1_2.h"    // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
+#elif MB(MD_D301)
+  #include "stm32f1/pins_MD_D301.h"                 // STM32F1                              env:mingda_d301 env:mingda_d301_maple
 
 //
 // ARM Cortex-M4F
