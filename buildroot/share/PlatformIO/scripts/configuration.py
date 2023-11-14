@@ -194,7 +194,7 @@ def apply_config_ini(cp):
             cp2 = configparser.ConfigParser()
             cp2.read(config_path(ckey))
             apply_sections(cp2, sect)
-            ckey = 'base';
+            ckey = 'base'
 
         # (Allow 'example/' as a shortcut for 'examples/')
         elif ckey.startswith('example/'):
