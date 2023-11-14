@@ -380,12 +380,13 @@ G29_TYPE GcodeSuite::G29() {
       // X and Y specify points in each direction, overriding the default
       // These values may be saved with the completed mesh
       if (parser.seenval('U')) {
-        abl.gridSpacing.set(parser.value_linear_units(), parser.value_linear_units()); // override GRID_MIN_SPACING
+        const float u = parser.value_linear_units();
+        abl.gridSpacing.set(u, u); // override GRID_MIN_SPACING
       }
 
       if (parser.seenval('P')) {
         abl.grid_points.x = abl.grid_points.y = parser.value_int(); // override GRID_MAX_POINTS_[XY]
-        abl.gridSpacing.set(0,0); // hard override, spacing will be ignored
+        abl.gridSpacing.set(0, 0); // hard override, spacing will be ignored
       }
 
       if (parser.seenval('X')) { // same as for P but affects X only

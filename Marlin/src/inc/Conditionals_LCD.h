@@ -1557,7 +1557,10 @@
 #endif
 
 #ifdef GRID_MAX_POINTS_X
-  #if ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
+  #if ALL(AUTO_BED_LEVELING_UBL, VARIABLE_GRID_POINTS)
+    #define GRID_USED_POINTS_X bedlevel.grid_points.x
+    #define GRID_USED_POINTS_Y bedlevel.grid_points.y
+  #elif ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
     #define GRID_USED_POINTS_X bedlevel.nr_grid_points.x
     #define GRID_USED_POINTS_Y bedlevel.nr_grid_points.y
   #else
@@ -1565,11 +1568,16 @@
     #define GRID_USED_POINTS_Y (GRID_MAX_POINTS_Y)
   #endif
 
-  // todo: GRID_MAX_POINTS can produce incorrect number if GRID_MAX_POINTS_[XY] is calculated from GRID_MIN_SPACING which resulted in float value
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define GRID_USED_CELLS_X  (GRID_USED_POINTS_X - 1)
+    #define GRID_USED_CELLS_Y  (GRID_USED_POINTS_Y - 1)
+  #endif
+
+  // TODO: GRID_MAX_POINTS can produce incorrect number if GRID_MAX_POINTS_[XY] is calculated from GRID_MIN_SPACING which resulted in float value
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
   #define GRID_USED_POINTS (GRID_USED_POINTS_X * GRID_USED_POINTS_Y)
 
-  #define GRID_LOOP(A,B) for (uint8_t A = 0; A < GRID_MAX_POINTS_X; ++A) for (uint8_t B = 0; B < GRID_MAX_POINTS_Y; ++B)
+  #define GRID_LOOP(A,B)      for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
   #define GRID_LOOP_USED(A,B) for (uint8_t A = 0; A < GRID_USED_POINTS_X; ++A) for (uint8_t B = 0; B < GRID_USED_POINTS_Y; ++B)
 #endif
 
