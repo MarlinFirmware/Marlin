@@ -90,7 +90,7 @@ if pioutil.is_pio_build():
         # Find the name.cpp.o or name.o and remove it
         #
         def rm_ofile(subdir, name):
-            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env);
+            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env)
             for outdir in (build_dir, build_dir / "debug"):
                 for ext in (".cpp.o", ".o"):
                     fpath = outdir / "src/src" / subdir / (name + ext)
