@@ -385,16 +385,32 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       if (parser.seenval('P')) {
-        abl.grid_points.x = abl.grid_points.y = parser.value_int(); // override GRID_MAX_POINTS_[XY]
+        const int16_t v = parser.value_int();
+        if (!WITHIN(v, 2, _MIN(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y))) {
+          SERIAL_ECHOLNPGM("?Grid size (", 'P', ") implausible (2-", _MIN(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y), ").");
+          G29_RETURN(false, false);
+        }
+        abl.grid_points.set(v, v);
         abl.gridSpacing.set(0, 0); // hard override, spacing will be ignored
       }
 
       if (parser.seenval('X')) { // same as for P but affects X only
-        abl.grid_points.x = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_X));
+        const uint8_t x = parser.value_byte();
+        if (!WITHIN(x, 2, GRID_MAX_POINTS_X)) {
+          SERIAL_ECHOLNPGM("?Probe points (", 'X', ") implausible (2-", GRID_MAX_POINTS_X, ").");
+          G29_RETURN(false, false);
+        }
+        abl.grid_points.x = x;
         abl.gridSpacing.x = 0;
       }
+
       if (parser.seenval('Y')) { // same as for P but affects Y only
-        abl.grid_points.y = _MIN((_MAX(parser.value_byte(), 2)), (GRID_MAX_POINTS_Y));
+        const uint8_t y = parser.value_byte();
+        if (!WITHIN(y, 2, GRID_MAX_POINTS_Y)) {
+          SERIAL_ECHOLNPGM("?Probe points (", 'Y', ") implausible (2-", GRID_MAX_POINTS_Y, ").");
+          G29_RETURN(false, false);
+        }
+        abl.grid_points.y = y;
         abl.gridSpacing.y = 0;
       }
 
@@ -438,6 +454,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Size of the probing area
       const xy_float_t size { abl.probe_position_rb.x - abl.probe_position_lf.x, abl.probe_position_rb.y - abl.probe_position_lf.y };
+
       // Spacing between grid lines
       xy_float_t spacing { size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1) };
 
@@ -445,12 +462,12 @@ G29_TYPE GcodeSuite::G29() {
 
         // Reduce the number of points if cells are too small
         if (spacing.x < abl.gridSpacing.x) {
-          abl.grid_points.x = _MIN((_MAX(round(size.x / (abl.gridSpacing.x)) + 1, 2)), abl.gridSpacing.x);
+          abl.grid_points.x = _MIN(_MAX(round(size.x / abl.gridSpacing.x) + 1, 2), abl.gridSpacing.x);
           spacing.x = size.x / (abl.grid_points.x - 1);
         }
 
         if (spacing.y < abl.gridSpacing.y) {
-          abl.grid_points.y = _MIN((_MAX(round(size.y / (abl.gridSpacing.y)) + 1, 2)), abl.gridSpacing.y);
+          abl.grid_points.y = _MIN(_MAX(round(size.y / abl.gridSpacing.y) + 1, 2), abl.gridSpacing.y);
           spacing.y = size.y / (abl.grid_points.y - 1);
         }
 

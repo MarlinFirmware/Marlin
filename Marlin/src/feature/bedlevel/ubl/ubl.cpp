@@ -169,7 +169,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
   constexpr uint8_t eachsp = 1 + 6 + 1;                  // [-3.567]
-  uint8_t twixt = eachsp * (GRID_USED_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
+  uint8_t twixt = eachsp * GRID_USED_POINTS_X - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
 
@@ -190,7 +190,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = (GRID_USED_POINTS_Y) - 1; j >= 0; j--) {
+  for (int8_t j = GRID_USED_POINTS_Y - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -217,7 +217,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < (GRID_USED_POINTS_X) - 1) SERIAL_CHAR('\t');
+      if (csv && i < GRID_USED_POINTS_X - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');

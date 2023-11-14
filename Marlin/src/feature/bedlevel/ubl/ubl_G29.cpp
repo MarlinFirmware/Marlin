@@ -394,8 +394,8 @@ void unified_bed_leveling::G29() {
 
       case 0:
         GRID_LOOP_USED(x, y) {                                     // Create a bowl shape similar to a poorly-calibrated Delta
-          const float p1 = 0.5f * (GRID_USED_POINTS_X) - x,
-                      p2 = 0.5f * (GRID_USED_POINTS_Y) - y;
+          const float p1 = 0.5f * GRID_USED_POINTS_X - x,
+                      p2 = 0.5f * GRID_USED_POINTS_Y - y;
           z_values[x][y] += 2.0f * HYPOT(p1, p2);
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
         }
@@ -403,7 +403,7 @@ void unified_bed_leveling::G29() {
 
       case 1:
         for (uint8_t x = 0; x < GRID_USED_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
-          const uint8_t x2 = x + (x < (GRID_USED_POINTS_Y) - 1 ? 1 : -1);
+          const uint8_t x2 = x + (x < GRID_USED_POINTS_Y - 1 ? 1 : -1);
           z_values[x][x] += 9.999f;
           z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
           #if ENABLED(EXTENSIBLE_UI)
@@ -415,8 +415,8 @@ void unified_bed_leveling::G29() {
 
       case 2:
         // Allow the user to specify the height because 10mm is a little extreme in some cases.
-        for (uint8_t x = (GRID_USED_POINTS_X) / 3; x < 2 * (GRID_USED_POINTS_X) / 3; x++)     // Create a rectangular raised area in
-          for (uint8_t y = (GRID_USED_POINTS_Y) / 3; y < 2 * (GRID_USED_POINTS_Y) / 3; y++) { // the center of the bed
+        for (uint8_t x = GRID_USED_POINTS_X / 3; x < 2 * GRID_USED_POINTS_X / 3; x++)     // Create a rectangular raised area in
+          for (uint8_t y = GRID_USED_POINTS_Y / 3; y < 2 * GRID_USED_POINTS_Y / 3; y++) { // the center of the bed
             z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
           }
@@ -1324,7 +1324,7 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
   } // GRID_LOOP
 
   if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
-    farthest.pos.set((GRID_USED_POINTS_X) / 2, (GRID_USED_POINTS_Y) / 2);
+    farthest.pos.set(GRID_USED_POINTS_X / 2, GRID_USED_POINTS_Y / 2);
     farthest.distance = 1;
   }
   return farthest;
