@@ -76,6 +76,7 @@
 #define PAGE_HEIGHT 8
 
 uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_seq);
+uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t length, const uint8_t *init_seq);
 
 // The sh1106 is compatible to the ssd1306, but is 132x64. 128x64 display area is centered within
 // the 132x64.
@@ -106,8 +107,7 @@ static const uint8_t u8g_dev_sh1106_128x64_data_start_2_wire[] PROGMEM = {
 #define SH1106_VCOM_DESEL(N)     (0xDB), (N)
 #define SH1106_NOOP()            (0xE3)
 
-static const uint8_t u8g_dev_sh1106_128x64_init_seq_2_wire[] PROGMEM = {
-  U8G_ESC_ADR(0),               // Initiate command mode
+static const uint8_t u8g_dev_sh1106_128x64_init_sequence_2_wire[] PROGMEM = {
   SH1106_ON(0),                 // Display off, sleep mode
   SH1106_MUX_RATIO(0x3F),       // Mux ratio
   SH1106_DISP_OFFS(0),          // Display offset
@@ -127,14 +127,17 @@ static const uint8_t u8g_dev_sh1106_128x64_init_seq_2_wire[] PROGMEM = {
   SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
   SH1106_SCROLL(0),             // 2012-05-27: Deactivate scroll
   SH1106_ON(1),                 // Display on
-  U8G_ESC_END                   // End of sequence
 };
+
+#define LENGTH_SH1106_SEQ_TOTAL sizeof(u8g_dev_sh1106_128x64_init_sequence_2_wire)
+#define LENGTH_SH1106_SEQ_ELEMENT sizeof(u8g_dev_sh1106_128x64_init_sequence_2_wire[0])
+#define LENGTH_SH1106_SEQ LENGTH_SH1106_SEQ_TOTAL/LENGTH_SH1106_SEQ_ELEMENT  // compile errors if combine these three into one line
 
 uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
-      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_init_seq_2_wire);
+      u8g_Write_Init_Sequence_2_wire(u8g, dev, LENGTH_SH1106_SEQ,  u8g_dev_sh1106_128x64_init_sequence_2_wire);
       break;
     case U8G_DEV_MSG_STOP:
       break;
@@ -174,8 +177,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_data_start_2_wire[] PROGMEM = {
   U8G_ESC_END     // end of sequence
 };
 
-static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
-  U8G_ESC_ADR(0), // initiate command mode
+static const uint8_t u8g_dev_ssd1306_128x64_init_sequence_2_wire[] PROGMEM = {
   0x0AE,          // display off, sleep mode
   0x0A8, 0x03F,   // mux ratio
   0x0D3, 0x00,    // display offset
@@ -183,7 +185,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
   0x0A1,          // segment remap a0/a1
   0x0C8,          // c0: scan dir normal, c8: reverse
   0x0DA, 0x012,   // com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
-  0x081, 0x0CF,   // [2] set contrast control
+  0x081, 0x080,   // [2] set contrast control
   0x020, 0x002,   // 2012-05-27: page addressing mode
   0x21, 0, 0x7F,  // set column range from 0 through 127
   0x22, 0, 7,     // set page range from 0 through 7
@@ -195,14 +197,17 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
   0x08D, 0x014,   // [2] charge pump setting (p62): 0x014 enable, 0x010 disable
   0x02E,          // 2012-05-27: Deactivate scroll
   0x0AF,          // display on
-  U8G_ESC_END     // end of sequence
 };
+
+#define LENGTH_SSD1306_SEQ_TOTAL sizeof(u8g_dev_ssd1306_128x64_init_sequence_2_wire)
+#define LENGTH_SSD1306_SEQ_ELEMENT sizeof(u8g_dev_ssd1306_128x64_init_sequence_2_wire[0])
+#define LENGTH_SSD1306_SEQ LENGTH_SSD1306_SEQ_TOTAL/LENGTH_SSD1306_SEQ_ELEMENT  // compile errors if combine these three into one line
 
 uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
-      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_init_seq_2_wire);
+      u8g_Write_Init_Sequence_2_wire(u8g, dev, LENGTH_SSD1306_SEQ,  u8g_dev_ssd1306_128x64_init_sequence_2_wire);
       break;
     case U8G_DEV_MSG_STOP:
       break;
@@ -234,7 +239,6 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
 uint8_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire_buf[WIDTH*2] U8G_NOCOMMON ;
 u8g_pb_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1306_128x64_2x_i2c_2_wire_buf};
 u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire = { u8g_dev_ssd1306_128x64_2x_2_wire_fn, &u8g_dev_ssd1306_128x64_2x_i2c_2_wire_pb, U8G_COM_SSD_I2C_HAL };
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -296,6 +300,12 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
     }
     esc_seq++;
   }
+  return 1;
+}
+
+uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t length, const uint8_t *init_seq) {
+  u8g_SetAddress(u8g, dev, 0);           // instruction mode
+  u8g_WriteSequence(u8g, dev, length, (uint8_t*)init_seq);
   return 1;
 }
 
