@@ -1133,8 +1133,13 @@
   /**
    * Advanced configuration
    */
-  #define FTM_BW_SIZE               100                 // Unified Batch and Windows size for trajectory generation
-                                                        // with a ration of 2 between Window size and Batch size
+  #define FTM_UNIFIED_BWS                              // Disable for Ulendo FBS or custom Window and Batch values
+  #if ENABLED(FTM_UNIFIED_BWS)
+    #define FTM_BW_SIZE               100               // Unified Window and Batch size with a ratio of 2
+  #else                                                 // Custom Window and Batch sizes needed by Ulendo FBS
+    #define FTM_WINDOW_SIZE           200               // Window size for trajectory generation
+    #define FTM_BATCH_SIZE            100               // Batch size for trajectory generation
+  #endif
   #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
   #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
 
@@ -1142,7 +1147,7 @@
   #define FTM_STEPS_PER_LOOP         60                 // Number of stepper commands to generate each loop()
   #define FTM_POINTS_PER_LOOP       100                 // Number of trajectory points to generate each loop()
 
-  #if ENABLED(COREXY)
+  #if ENABLED(COREXY)                                   // CoreXY motion needs larger buffer size, values are from experiment
     #define FTM_STEPPER_FS          30000               // (Hz) Frequency for stepper I/O update.
 
     // This value may be configured to adjust duration to consume the command buffer.

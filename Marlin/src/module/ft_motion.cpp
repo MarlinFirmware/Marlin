@@ -60,9 +60,15 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
 
 // Private variables.
 // NOTE: These are sized for Ulendo FBS use.
-xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
-xyze_trajectory_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
-xyze_trajectory_t FTMotion::trajWin;            // = {0.0f} Storage for fixed time trajectory window.
+#if ENABLED(FTM_UNIFIED_BWS)
+  xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+  xyze_trajectory_t FTMotion::trajMod;            // = {0.0f} Storage for modified fixed-time-based trajectory.
+  xyze_trajectory_t FTMotion::trajWin;            // = {0.0f} Storage for fixed time trajectory window.
+#else
+  xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+  xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
+  xyze_trajectoryWin_t FTMotion::trajWin;         // = {0.0f} Storage for fixed time trajectory window.
+#endif
 
 block_t* FTMotion::current_block_cpy = nullptr; // Pointer to current block being processed.
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
@@ -145,8 +151,13 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
-  if (max_intervals <= FTM_BW_SIZE) max_intervals = min_max_intervals;
-  max_intervals += (FTM_BW_SIZE) - makeVector_batchIdx;
+  #if ENABLED(FTM_UNIFIED_BWS)
+    if (max_intervals <= FTM_BW_SIZE) max_intervals = min_max_intervals;
+    max_intervals += (FTM_BW_SIZE) - makeVector_batchIdx;
+  #else
+    if (max_intervals <= min_max_intervals - (FTM_BATCH_SIZE)) max_intervals = min_max_intervals;
+    max_intervals += (FTM_WINDOW_SIZE) - makeVector_batchIdx;
+  #endif
 
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
@@ -186,8 +197,28 @@ void FTMotion::loop() {
 
     // Call Ulendo FBS here.
 
+  #if ENABLED(FTM_UNIFIED_BWS)
     trajMod = traj; // Copy the uncompensated vectors.
     traj = trajWin; // Move the window to traj
+  #else
+   // Copy the uncompensated vectors.
+    #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
+    LOGICAL_AXIS_CODE(
+      TCOPY(e),
+      TCOPY(x), TCOPY(y), TCOPY(z),
+      TCOPY(i), TCOPY(j), TCOPY(k),
+      TCOPY(u), TCOPY(v), TCOPY(w)
+    );
+
+    // Shift the time series back in the window
+    #define TSHIFT(A) memcpy(traj.A, trajWin.A, sizeof(trajWin.A))
+    LOGICAL_AXIS_CODE(
+      TSHIFT(e),
+      TSHIFT(x), TSHIFT(y), TSHIFT(z),
+      TSHIFT(i), TSHIFT(j), TSHIFT(k),
+      TSHIFT(u), TSHIFT(v), TSHIFT(w)
+    );
+  #endif
 
     // ... data is ready in trajMod.
     batchRdyForInterp = true;
@@ -203,7 +234,7 @@ void FTMotion::loop() {
   ) {
     convertToSteps(interpIdx);
 
-    if (++interpIdx == FTM_BW_SIZE) {
+    if (++interpIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE)) {
       batchRdyForInterp = false;
       interpIdx = 0;
     }
@@ -341,7 +372,7 @@ void FTMotion::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  traj.reset(); // Reset trajectory history
+  traj.reset();    // Reset trajectory history
   trajWin.reset(); // Reset Windowws trajectory history
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
@@ -469,7 +500,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   F_P = (2.0f * totalLength - f_s * T1_P - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
 
   // Calculate the acceleration and deceleration rates
-  accel_P = N1 ? accel : 0.0f;
+  accel_P = N1 ? ((F_P - f_s) / T1_P) : 0.0f;
 
   decel_P = (f_e - F_P) / T3_P;
 
@@ -509,16 +540,16 @@ void FTMotion::makeVector() {
   }
 
   LOGICAL_AXIS_CODE(
-    traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
-    traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
-    traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
-    traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
-    traj.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
-    traj.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
-    traj.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
-    traj.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
-    traj.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
-    traj.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
+    trajWin.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
+    trajWin.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
+    trajWin.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
+    trajWin.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
+    trajWin.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
+    trajWin.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
+    trajWin.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
+    trajWin.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
+    trajWin.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
+    trajWin.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
   );
 
   #if HAS_EXTRUDERS
@@ -580,7 +611,7 @@ void FTMotion::makeVector() {
   #endif
 
   // Filled up the queue with regular and shaped steps
-  if (++makeVector_batchIdx == (FTM_BW_SIZE)) {
+  if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, (FTM_WINDOW_SIZE - FTM_BATCH_SIZE))) {
     makeVector_batchIdx = 0;
     batchRdy = true;
   }
