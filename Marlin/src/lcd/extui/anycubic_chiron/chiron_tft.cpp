@@ -433,14 +433,9 @@ void ChironTFT::sendFileList(int8_t startindex) {
 }
 
 void ChironTFT::selectFile() {
-  if (panel_type <= AC_panel_new) {
-    strncpy(selectedfile, panel_command + 4, command_len - 3);
-    selectedfile[command_len - 4] = '\0';
-  }
-  else {
-    strncpy(selectedfile, panel_command + 4, command_len - 4);
-    selectedfile[command_len - 5] = '\0';
-  }
+  const size_t namelen = command_len - 4 + (panel_type <= AC_panel_new);
+  strncpy(selectedfile, panel_command + 4, namelen);
+  selectedfile[namelen] = '\0';
   #if ACDEBUG(AC_FILE)
     DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
