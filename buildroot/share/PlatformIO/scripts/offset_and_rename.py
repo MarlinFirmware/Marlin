@@ -67,3 +67,5 @@ if pioutil.is_pio_build():
             env['PROGNAME'] = path.splitext(_newpath)[0]
 
         marlin.add_post_action(rename_target)
+        import open_explorer
+        open_explorer.open_file_explorer()
