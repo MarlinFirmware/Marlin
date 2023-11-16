@@ -151,13 +151,8 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
-  #if ENABLED(FTM_UNIFIED_BWS)
-    if (max_intervals <= FTM_BW_SIZE) max_intervals = min_max_intervals;
-    max_intervals += (FTM_BW_SIZE) - makeVector_batchIdx;
-  #else
-    if (max_intervals <= min_max_intervals - (FTM_BATCH_SIZE)) max_intervals = min_max_intervals;
-    max_intervals += (FTM_WINDOW_SIZE) - makeVector_batchIdx;
-  #endif
+  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE))) max_intervals = min_max_intervals;
+  max_intervals += TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE) - makeVector_batchIdx;
 
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
