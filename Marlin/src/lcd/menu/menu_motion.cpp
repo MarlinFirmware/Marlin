@@ -152,18 +152,23 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #define __MOVE_MM(V,D) if (TERN1(HAS_EXTRUDERS, axis != E_AXIS || D < 50)) \
-                           SUBMENU_S(F(STRINGIFY(D)), MSG_MOVE_N_MM, []{ _goto_manual_move(D); });
+  #ifndef EXTRUDE_MAXLENGTH
+    #define EXTRUDE_MAXLENGTH 50
+  #endif
+  #define __MOVE_MM(T,D) if (axis < NUM_AXES                                            /* Linear and rotational axes: */ \
+                           ? (D) > base_max_pos(axis) / 2                               /* XYZIJKUVW limit to half axis length */ \
+                           : TERN0(HAS_EXTRUDERS, (D) <= (EXTRUDE_MAXLENGTH) / 2 + 1)   /* E... limit to ~half max length (or 50mm) */ \
+                         ) SUBMENU_S(F(T), MSG_MOVE_N_MM, []{ _goto_manual_move(D); });
 
   if (parser.using_inch_units()) {
     #ifdef MANUAL_MOVE_DISTANCE_IN
-      #define _MOVE_IN(D) __MOVE_MM(STRINGIFY(D), IN_TO_MM(D))
+      #define _MOVE_IN(I) __MOVE_MM(STRINGIFY(I), IN_TO_MM(I))
       MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
     #endif
   }
   else {
     #ifdef MANUAL_MOVE_DISTANCE_MM
-      #define _MOVE_MM(D) __MOVE_MM(STRINGIFY(D), D)
+      #define _MOVE_MM(M) __MOVE_MM(STRINGIFY(M), M)
       MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
     #endif
     #if HAS_Z_AXIS
