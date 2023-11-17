@@ -84,6 +84,11 @@
 */
 #if ENABLED(SDCARD_SORT_ALPHA)
   #define MEDIASORT_MENU_ITEM
+  #if ENABLED(MEDIASORT_MENU_ITEM) && (SDSORT_GCODE == false)
+    // MEDIASORT_MENU_ITEM needs SDSORT_GCODE to be 'true'
+    #undef SDSORT_GCODE
+    #define SDSORT_GCODE true
+  #endif
 #endif
 #if ENABLED(HAS_FILAMENT_SENSOR)
   #define RUNOUT_TUNE_ITEM
