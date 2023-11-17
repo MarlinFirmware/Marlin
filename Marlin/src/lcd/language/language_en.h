@@ -318,8 +318,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Move $ mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Move $ in");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Move 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Move 1.0mm");
   LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");

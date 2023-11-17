@@ -222,8 +222,6 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("噴嘴溫度不夠"); // "Hotend too cold"
   LSTR MSG_MOVE_N_MM                      = _UxGT("移動 $ mm"); // "Move $mm"
   LSTR MSG_MOVE_N_IN                      = _UxGT("移動 $ in"); // "Move $in"
-  LSTR MSG_MOVE_01MM                      = _UxGT("移動 0.1 mm"); // "Move 0.1mm"
-  LSTR MSG_MOVE_1MM                       = _UxGT("移動 1 mm"); // "Move 1mm"
   LSTR MSG_SPEED                          = _UxGT("速率"); // "Speed"
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("熱床Z"); // "Bed Z"
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴"); // "Nozzle" 噴嘴

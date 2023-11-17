@@ -84,8 +84,6 @@ namespace LanguageNarrow_hr {
   LSTR MSG_MOVE_EN                        = _UxGT("Miči *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Miči $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Miči $in");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Miči 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Miči 1mm");
   LSTR MSG_SPEED                          = _UxGT("Brzina");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dizna");

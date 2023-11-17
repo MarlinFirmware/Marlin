@@ -97,8 +97,6 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_MOVE_EN                        = _UxGT("* エクストルーダー"); // "En"
   LSTR MSG_MOVE_N_MM                      = _UxGT("$mm イドウ"); // "Move $mm"
   LSTR MSG_MOVE_N_IN                      = _UxGT("$in イドウ"); // "Move $in"
-  LSTR MSG_MOVE_01MM                      = _UxGT("0.1mm イドウ"); // "Move 0.1mm"
-  LSTR MSG_MOVE_1MM                       = _UxGT("  1mm イドウ"); // "Move 1mm"
   LSTR MSG_SPEED                          = _UxGT("ソクド"); // "Speed"
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Zオフセット"); // "Bed Z"
   LSTR MSG_NOZZLE                         = _UxGT("ノズル"); // "Nozzle"
