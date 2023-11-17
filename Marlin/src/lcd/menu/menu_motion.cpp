@@ -151,15 +151,19 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
+
+  #define __MOVE_MM(V,D) if (TERN1(HAS_EXTRUDERS, axis != E_AXIS || D < 50)) \
+                           SUBMENU_S(F(STRINGIFY(D)), MSG_MOVE_N_MM, []{ _goto_manual_move(D); });
+
   if (parser.using_inch_units()) {
     #ifdef MANUAL_MOVE_DISTANCE_IN
-      #define _MOVE_IN(D) SUBMENU_S(F(STRINGIFY(D)), MSG_MOVE_N_IN, []{ _goto_manual_move(IN_TO_MM(D)); });
+      #define _MOVE_IN(D) __MOVE_MM(STRINGIFY(D), IN_TO_MM(D))
       MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
     #endif
   }
   else {
     #ifdef MANUAL_MOVE_DISTANCE_MM
-      #define _MOVE_MM(D) SUBMENU_S(F(STRINGIFY(D)), MSG_MOVE_N_MM, []{ _goto_manual_move(D); });
+      #define _MOVE_MM(D) __MOVE_MM(STRINGIFY(D), D)
       MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
     #endif
     #if HAS_Z_AXIS
