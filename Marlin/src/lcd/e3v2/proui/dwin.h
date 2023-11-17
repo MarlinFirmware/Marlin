@@ -39,13 +39,6 @@
   #include "../../../feature/leds/leds.h"
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE)
-  #define HAS_ZOFFSET_ITEM 1
-  #if !HAS_BED_PROBE
-    #define JUST_BABYSTEP 1
-  #endif
-#endif
-
 namespace GET_LANG(LCD_LANGUAGE) {
   #define _MSG_PREHEAT(N) \
     LSTR MSG_PREHEAT_##N                  = _UxGT("Preheat ") PREHEAT_## N ##_LABEL; \
@@ -141,9 +134,12 @@ typedef struct {
   #if ENABLED(BAUD_RATE_GCODE)
     bool baud115K = false;
   #endif
-
-  bool fullManualTramming = false;
-  bool mediaSort = true;
+  #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
+    bool fullManualTramming = false;
+  #endif
+  #if ENABLED(MEDIASORT_MENU_ITEM)
+    bool mediaSort = true;
+  #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
@@ -151,8 +147,12 @@ typedef struct {
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor ledColor = defColorLeds;
   #endif
-  bool adaptiveStepSmoothing = true;
-  bool enablePreview = true;
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+    bool adaptiveStepSmoothing = true;
+  #endif
+  #if HAS_GCODE_PREVIEW
+    bool enablePreview = true;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;

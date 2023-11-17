@@ -2756,6 +2756,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "JD_TUNE_ITEM requires HAS_JUNCTION_DEVIATION."
   #elif ENABLED(ADVK_TUNE_ITEM) && DISABLED(LIN_ADVANCE)
     #error "ADVK_TUNE_ITEM requires LIN_ADVANCE."
+  #elif ENABLED(MESH_EDIT_MENU) && !HAS_MESH
+    #error "MESH_EDIT_MENU requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+  #elif (SDSORT_GCODE == false) && ENABLED(MEDIASORT_MENU_ITEM)
+    #error "MEDIASORT_MENU_ITEM requires SDSORT_GCODE to be defined 'true'."
   #endif
 #endif
 

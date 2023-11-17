@@ -78,3 +78,31 @@
 #define DEF_BEDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 60)
 #define DEF_PIDCYCLES 5
 
+/**
+* ProUI Menu Options
+* Choose which feature you would like to Enable or Disable
+*/
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #define MEDIASORT_MENU_ITEM
+#endif
+#if ENABLED(HAS_FILAMENT_SENSOR)
+  #define RUNOUT_TUNE_ITEM
+#endif
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #define PLR_TUNE_ITEM       // Power-loss Recovery option in Tune Menu
+#endif
+#if ENABLED(HAS_JUNCTION_DEVIATION)
+  #define JD_TUNE_ITEM        // Juntion Deviation item in Tune Menu
+#endif
+#if ENABLED(LIN_ADVANCE)
+  #define ADVK_TUNE_ITEM      // Linear Advance item in Tune Menu
+#endif
+#if HAS_MESH
+  #define MESH_EDIT_MENU      // Add a menu to edit mesh points
+#endif
+
+#define HAS_GCODE_PREVIEW 1
+#define HAS_CUSTOM_COLORS 1   // Change display colors
+#define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
+#define HAS_LOCKSCREEN 1      // Simple lockscreen
+#define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
