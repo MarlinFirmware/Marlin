@@ -1518,11 +1518,15 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
-  // Add 50/100mm moves to MarlinUI even with a smaller bed
-  //#define LARGE_MOVE_ITEMS
+  // Manual move distances to show in the menus. Comma-separated list.
+  #define MANUAL_MOVE_DISTANCE_MM                    10, 10, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM         100, 50, 10, 10, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM    500, 100, 50, 10, 10, 0.1  // (mm)
 
-  // Add 500mm moves to MarlinUI even with a smaller bed
-  //#define VERY_LARGE_MOVE_ITEMS
+  // Manual move distances for INCH_MODE_SUPPORT
+  #define MANUAL_MOVE_DISTANCE_IN                          0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN          1.000, 0.500, 0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN   5.000, 1.000, 0.500, 0.100, 0.010, 0.001  // (in)
 
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM

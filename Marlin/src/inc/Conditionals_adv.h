@@ -1303,3 +1303,8 @@
 #if defined(REDUNDANT_PART_COOLING_FAN) && !defined(NUM_REDUNDANT_FANS)
   #define NUM_REDUNDANT_FANS 1
 #endif
+
+// Clean up if only mm units are used
+#if DISABLED(INCH_MODE_SUPPORT)
+  #undef MANUAL_MOVE_DISTANCE_IN
+#endif
