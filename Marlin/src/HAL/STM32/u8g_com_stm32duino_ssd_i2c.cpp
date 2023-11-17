@@ -56,7 +56,9 @@
  *
  */
 
-#if defined(ARDUINO_ARCH_STM32)
+#include "../../inc/MarlinConfigPre.h"
+
+#if (defined(ARDUINO_ARCH_STM32) && (defined(U8GLIB_SH1106) || defined(IS_U8GLIB_SSD1306) || defined(U8GLIB_SSD1309)))
 
 #include <U8glib-HAL.h>
 
