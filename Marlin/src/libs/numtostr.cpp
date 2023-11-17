@@ -413,7 +413,7 @@ const char* ftostr72rj(const_float_t f) {
 const char* ftostr52sp(const_float_t f) {
   long i = INTFLOAT(f, 2);
   uint8_t dig;
-  conv[1] = RJDIGIT(i, 100000);
+  conv[1] = MINUSOR(i, ' ');
   conv[2] = RJDIGIT(i, 10000);
   conv[3] = RJDIGIT(i, 1000);
   conv[4] = DIGIMOD(i, 100);
