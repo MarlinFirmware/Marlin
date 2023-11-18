@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32H743VI_btt
+# Ender-5 Plus with SKR V3.0 (STM32H7)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+use_example_configs "Creality/Ender-5 Plus/BigTreeTech SKR 3"
+exec_test $1 $2 "Creality Ender-5 Plus with BigTreeTech SKR 3" "$3"
+
+# clean up
+restore_configs
