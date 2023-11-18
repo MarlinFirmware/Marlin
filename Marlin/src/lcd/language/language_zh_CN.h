@@ -235,6 +235,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("热端太冷");
   LSTR MSG_MOVE_N_MM                      = _UxGT("移动 $mm"); // "Move $mm"
   LSTR MSG_MOVE_N_IN                      = _UxGT("移动 $in"); // "Move $in"
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("移动 $ ") LCD_STR_DEGREE; // "Move $°"
   LSTR MSG_SPEED                          = _UxGT("速率"); // "Speed"
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("热床Z"); // "Bed Z"
   LSTR MSG_NOZZLE                         = _UxGT("喷嘴"); // "Nozzle" 噴嘴
