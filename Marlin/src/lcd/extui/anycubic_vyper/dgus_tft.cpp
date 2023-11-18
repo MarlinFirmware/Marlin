@@ -276,6 +276,9 @@ namespace Anycubic {
     return stringLength;
   }
 
+  #undef GET_TEXT
+  #define GET_TEXT(MSG) Language_en::MSG
+
   void DgusTFT::printerKilled(FSTR_P error_p, FSTR_P component_p) {
 
     // copy string in FLASH to RAM for strcmp_P
@@ -295,7 +298,7 @@ namespace Anycubic {
 
     if (strcmp_P(error, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed heater");
       }
@@ -307,7 +310,7 @@ namespace Anycubic {
     }
     else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -319,7 +322,7 @@ namespace Anycubic {
     }
     else if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -331,7 +334,7 @@ namespace Anycubic {
     }
     else if (strcmp_P(error, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed thermal runaway");
       }
