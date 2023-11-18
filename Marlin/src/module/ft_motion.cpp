@@ -70,7 +70,6 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
   xyze_trajectoryWin_t FTMotion::trajWin;         // = {0.0f} Storage for fixed time trajectory window.
 #endif
 
-block_t* FTMotion::current_block_cpy = nullptr; // Pointer to current block being processed.
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
      FTMotion::blockProcRdy_z1 = false,         // Storage for the previous indicator.
      FTMotion::blockProcDn = false;             // Indicates current block is done being processed.
@@ -135,8 +134,7 @@ uint32_t FTMotion::interpIdx = 0,                     // Index of current data p
 // Public functions.
 
 // Sets controller states to begin processing a block.
-void FTMotion::startBlockProc(block_t * const current_block) {
-  current_block_cpy = current_block;
+void FTMotion::startBlockProc() {
   blockProcRdy = true;
   blockProcDn = false;
   runoutEna = true;
@@ -180,7 +178,7 @@ void FTMotion::loop() {
 
   if (blockProcRdy) {
     if (!blockProcRdy_z1) { // One-shot.
-      if (!blockDataIsRunout) loadBlockData(current_block_cpy);
+      if (!blockDataIsRunout) loadBlockData(stepper.current_block);
       else blockDataIsRunout = false;
     }
     while (!blockProcDn && !batchRdy && (makeVector_idx - makeVector_idx_z1 < (FTM_POINTS_PER_LOOP)))

@@ -3559,7 +3559,6 @@ void Stepper::report_positions() {
       // If the current block is not done processing, return right away
       if (!ftMotion.getBlockProcDn()) return;
 
-      current_block = nullptr;
       planner.release_current_block();
     }
 
@@ -3570,7 +3569,7 @@ void Stepper::report_positions() {
       // Sync block? Sync the stepper counts and return
       while (current_block->is_sync()) {
         TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
-        current_block = nullptr;
+        
         planner.release_current_block();
 
         // Try to get a new block
@@ -3578,7 +3577,7 @@ void Stepper::report_positions() {
           return; // No queued blocks.
       }
 
-      ftMotion.startBlockProc(current_block);
+      ftMotion.startBlockProc();
       return;
     }
 

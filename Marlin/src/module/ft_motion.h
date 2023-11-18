@@ -106,7 +106,7 @@ class FTMotion {
 
     // Public methods
     static void init();
-    static void startBlockProc(block_t * const current_block); // Set controller states to begin processing a block.
+    static void startBlockProc(); // Set controller states to begin processing a block.
     static bool getBlockProcDn() { return blockProcDn; }    // Return true if the controller no longer needs the current block.
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                     // Controller main, to be invoked from non-isr task.
@@ -138,7 +138,6 @@ class FTMotion {
       static xyze_trajectoryWin_t trajWin;
     #endif
 
-    static block_t *current_block_cpy;
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
     static bool runoutEna;
