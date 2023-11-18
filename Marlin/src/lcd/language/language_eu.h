@@ -139,6 +139,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Mugitu $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mugitu $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Ohea");
   LSTR MSG_NOZZLE                         = _UxGT("Pita");

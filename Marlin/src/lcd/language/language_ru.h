@@ -265,6 +265,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
   LSTR MSG_MOVE_N_MM                        = _UxGT("Движение $мм");
   LSTR MSG_MOVE_N_IN                        = _UxGT("Движение $in");
+  LSTR MSG_MOVE_N_DEG                       = _UxGT("Движение $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                            = _UxGT("Скорость");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");

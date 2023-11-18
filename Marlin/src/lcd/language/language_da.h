@@ -79,6 +79,7 @@ namespace LanguageNarrow_da {
   LSTR MSG_MOVE_EN                        = _UxGT("Flyt *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flyt $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Flyt $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Flyt $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Hastighed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Plade Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dyse");
