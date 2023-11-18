@@ -154,7 +154,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. fej @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Egységes ágy szint");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Döntési pont");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Kézi háló építés");
   LSTR MSG_UBL_MESH_WIZARD                = _UxGT("UBL Háló varázsló");
@@ -262,7 +261,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("A fej túl hideg");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mozgás $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Mozgás $in");
-  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mozgás $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z ágy");
   LSTR MSG_NOZZLE                         = _UxGT("Fej");

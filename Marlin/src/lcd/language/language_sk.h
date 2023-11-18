@@ -192,7 +192,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Vykonávam G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL rovnanie");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnávam bod");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Nakloniť sieť");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Veľkosť nakl. siete");
@@ -307,7 +306,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Posunúť o $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Posunúť o $in");
-  LSTR MSG_MOVE_N_DEG                     = _UxGT("Posunúť o $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Živý pohyb");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");

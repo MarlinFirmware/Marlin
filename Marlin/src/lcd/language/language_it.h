@@ -196,7 +196,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2° ugello @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 in corso");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Strumenti UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Livel.letto unificato");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto inclinaz.");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Inclina Mesh");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Dim.griglia inclin.");
@@ -311,7 +310,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Ugello freddo");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Muovi di $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Muovi di $in");
-  LSTR MSG_MOVE_N_DEG                     = _UxGT("Muovi di $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Modalità Live");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Piatto Z");

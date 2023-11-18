@@ -139,7 +139,6 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_G26_LEAVING                    = _UxGT("Sortie G26");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 en cours");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Outils UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Niveau lit unifie");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Maillage manuel");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser cale & mesurer");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
@@ -234,7 +233,6 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Buse trop froide");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Deplacer $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Deplacer $in");
-  LSTR MSG_MOVE_N_DEG                     = _UxGT("Deplacer $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");

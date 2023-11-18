@@ -96,6 +96,7 @@ namespace LanguageNarrow_el {
   LSTR MSG_MOVE_E                         = _UxGT("Εξωθητής");
   LSTR MSG_MOVE_EN                        = _UxGT("Εξωθητής *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Μετακίνηση $μμ");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Μετακίνηση $in");
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Επ. Εκτύπωσης Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ακροφύσιο");
