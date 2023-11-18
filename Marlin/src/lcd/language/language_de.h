@@ -289,15 +289,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_MOVE_EN                        = _UxGT("Bewege Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend zu kalt");
   LSTR MSG_MOVE_N_MM                      = _UxGT(" $ mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("  0,1  mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("  1,0  mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT(" 10,0  mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT(" 50,0  mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("100,0  mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("0.001 in");
-  LSTR MSG_MOVE_001IN                     = _UxGT("0.010 in");
-  LSTR MSG_MOVE_01IN                      = _UxGT("0.100 in");
-  LSTR MSG_MOVE_1IN                       = _UxGT("1.000 in");
+  LSTR MSG_MOVE_N_IN                      = _UxGT(" $ in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT(" $ ") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Geschw.");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bett Z");
   LSTR MSG_NOZZLE                         = _UxGT("Düse");
