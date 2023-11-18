@@ -202,6 +202,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                    // Hotend too cold
   LSTR MSG_MOVE_N_MM                      = _UxGT("Di chuyển $mm");                        // Move $mm
   LSTR MSG_MOVE_N_IN                      = _UxGT("Di chuyển $in");                        // Move $in
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Di chuyển $") LCD_STR_DEGREE;           // Move $°
   LSTR MSG_SPEED                          = _UxGT("Tốc độ");                               // Speed
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Bàn");
   LSTR MSG_NOZZLE                         = _UxGT("Đầu phun");                             // Nozzle

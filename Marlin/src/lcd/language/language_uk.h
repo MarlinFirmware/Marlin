@@ -264,6 +264,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло дуже холодне");
   LSTR MSG_MOVE_N_MM                        = _UxGT("Рух $мм");
   LSTR MSG_MOVE_N_IN                        = _UxGT("Рух $in");
+  LSTR MSG_MOVE_N_DEG                       = _UxGT("Рух $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                            = _UxGT("Швидкість");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z Столу");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");

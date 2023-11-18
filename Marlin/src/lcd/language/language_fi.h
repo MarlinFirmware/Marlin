@@ -74,6 +74,7 @@ namespace LanguageNarrow_fi {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Liikuta $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Liikuta $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Nopeus");
   LSTR MSG_NOZZLE                         = _UxGT("Suutin");
   LSTR MSG_NOZZLE_N                       = _UxGT("Suutin ~");

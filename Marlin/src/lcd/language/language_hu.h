@@ -262,6 +262,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("A fej túl hideg");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mozgás $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Mozgás $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mozgás $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z ágy");
   LSTR MSG_NOZZLE                         = _UxGT("Fej");

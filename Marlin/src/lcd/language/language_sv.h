@@ -253,6 +253,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hetände för kall");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flytta $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Flytta $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Flytta $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Hastighet");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bädd Z");
   LSTR MSG_NOZZLE                         = _UxGT("Munstycke");

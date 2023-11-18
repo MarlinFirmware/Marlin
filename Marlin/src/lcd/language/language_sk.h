@@ -307,6 +307,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Posunúť o $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Posunúť o $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Posunúť o $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Živý pohyb");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
