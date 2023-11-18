@@ -324,7 +324,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
     bool mv_colon = false;
-    if (vlen) {
+    if (vlen && !center) {
       // Move the leading colon from the value to the label below
       mv_colon = (*vstr == ':');
       // Shorter value, wider label
