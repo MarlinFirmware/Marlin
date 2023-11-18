@@ -293,6 +293,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Nozul Çok Soğuk");
   LSTR MSG_MOVE_N_MM                      = _UxGT("$mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("$in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("$") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Hız");
   LSTR MSG_BED_Z                          = _UxGT("Z Mesafesi");
   LSTR MSG_NOZZLE                         = _UxGT("Nozul");

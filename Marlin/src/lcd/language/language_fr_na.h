@@ -234,6 +234,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Buse trop froide");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Deplacer $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Deplacer $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Deplacer $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");

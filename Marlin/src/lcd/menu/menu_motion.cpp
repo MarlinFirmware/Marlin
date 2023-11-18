@@ -152,23 +152,32 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #ifndef EXTRUDE_MAXLENGTH
-    #define EXTRUDE_MAXLENGTH 50
+  #define __LINEAR_LIMIT(D) ((D) < max_length(axis) / 2 + 1)
+  #if HAS_EXTRUDERS
+    #ifndef EXTRUDE_MAXLENGTH
+      #define EXTRUDE_MAXLENGTH 50
+    #endif
+    #define _LINEAR_LIMIT(D) ((axis < E_AXIS) ? __LINEAR_LIMIT(D) : ((D) < (EXTRUDE_MAXLENGTH) / 2 + 1))
+  #else
+    #define _LINEAR_LIMIT __LINEAR_LIMIT
   #endif
-  #define __MOVE_MM(T,D) if (axis < NUM_AXES                                            /* Linear and rotational axes: */ \
-                           ? (D) > base_max_pos(axis) / 2                               /* XYZIJKUVW limit to half axis length */ \
-                           : TERN0(HAS_EXTRUDERS, (D) <= (EXTRUDE_MAXLENGTH) / 2 + 1)   /* E... limit to ~half max length (or 50mm) */ \
-                         ) SUBMENU_S(F(T), MSG_MOVE_N_MM, []{ _goto_manual_move(D); });
+  #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
 
-  if (parser.using_inch_units()) {
+  if (rotational[axis]) {
+    #ifdef MANUAL_MOVE_DISTANCE_DEG
+      #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
+      MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)
+    #endif
+  }
+  else if (parser.using_inch_units()) {
     #ifdef MANUAL_MOVE_DISTANCE_IN
-      #define _MOVE_IN(I) __MOVE_MM(STRINGIFY(I), IN_TO_MM(I))
+      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(I), IN_TO_MM(I));
       MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
     #endif
   }
   else {
     #ifdef MANUAL_MOVE_DISTANCE_MM
-      #define _MOVE_MM(M) __MOVE_MM(STRINGIFY(M), M)
+      #define _MOVE_MM(M) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(M), M);
       MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
     #endif
     #if HAS_Z_AXIS

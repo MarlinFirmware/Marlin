@@ -311,6 +311,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Ugello freddo");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Muovi di $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Muovi di $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Muovi di $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Modalità Live");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Piatto Z");
