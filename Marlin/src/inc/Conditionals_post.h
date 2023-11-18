@@ -725,6 +725,15 @@
     #endif
   #endif
 
+  #if (TEMP_SENSOR_IS_MAX_TC(BED)) \
+    && PIN_EXISTS(TEMP_BED_MISO) && PIN_EXISTS(TEMP_BED_SCK) && DISABLED(TEMP_SENSOR_BED_FORCE_HW_SPI)
+    #if TEMP_SENSOR_BED_IS_MAX31865 && !PIN_EXISTS(TEMP_BED_MOSI)
+      #error "TEMP_SENSOR_2 MAX31865 requires TEMP_2_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_2_FORCE_HW_SPI."
+    #else
+      #define TEMP_SENSOR_BED_HAS_SPI_PINS 1
+    #endif
+  #endif
+
   //
   // User-defined thermocouple libraries
   //
