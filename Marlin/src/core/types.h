@@ -159,7 +159,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 // General Flags for some number of states
 template<size_t N>
 struct Flags {
-  typedef value_t(N) flagbits_t;
+  typedef uvalue_t(N) flagbits_t;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
   typedef struct { bool b0:1,  b1:1,  b2:1,  b3:1,  b4:1,  b5:1,  b6:1,  b7:1,  b8:1,  b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1,
