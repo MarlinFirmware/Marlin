@@ -2097,36 +2097,36 @@ void Temperature::task() {
     #if TEMP_SENSOR_IS_MAX_TC(0)
     {
       const auto deg = degHotend(0);
-      if (deg > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E0, deg);
-      if (deg < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E0, deg);
+      if (deg > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E0, deg);
+      if (deg < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E0, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(1)
     {
       const auto deg = degHotend(1);
-      if (deg > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E1, deg);
-      if (deg < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E1, deg);
+      if (deg > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E1, deg);
+      if (deg < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E1, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(2)
     {
       const auto deg = degHotend(2);
-      if (deg > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E2, deg);
-      if (deg < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E2, deg);
+      if (deg > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E2, deg);
+      if (deg < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E2, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     {
       const auto deg = degRedundant();
-      if (deg > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) MAXTEMP_ERROR(H_REDUNDANT, deg);
-      if (deg < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) MINTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.00f) MAXTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + 0.01f) MINTEMP_ERROR(H_REDUNDANT, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(BED)
     {
       const auto deg = degBed();
-      if (deg > BED_MAXTEMP - 1.0) MAXTEMP_ERROR(H_REDUNDANT, deg);
-      if (deg < BED_MINTEMP + .01) MINTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg > (BED_MAXTEMP) - 1.00f) MAXTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg < (BED_MINTEMP) + 0.01f) MINTEMP_ERROR(H_REDUNDANT, deg);
     }
     #endif
   #else
@@ -2789,7 +2789,7 @@ void Temperature::init() {
         OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2, MAX31865_WIRE_OHMS_2)
       );
     #endif
-    
+
     #if TEMP_SENSOR_IS_MAX(BED, 6675) && HAS_MAX6675_LIBRARY
       max6675_BED.begin();
     #elif TEMP_SENSOR_IS_MAX(BED, 31855) && HAS_MAX31855_LIBRARY
@@ -3359,6 +3359,8 @@ void Temperature::disable_all_heaters() {
 
 #if HAS_MAX_TC
 
+  typedef TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp_t;
+
   #ifndef THERMOCOUPLE_MAX_ERRORS
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
@@ -3557,18 +3559,14 @@ void Temperature::disable_all_heaters() {
       #define MAX_TC_SPEED_BITS    2        // ~2MHz
     #endif
 
-
-    static TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX;
-      
+    static max_tc_temp_t max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX;
 
     static uint8_t max_tc_errors = 0;
     static millis_t next_max_tc_ms = 0;
 
     // Return last-read value between readings
     const millis_t ms = millis();
-    if (PENDING(ms, next_max_tc_ms))
-      return max_tc_temp;
-
+    if (PENDING(ms, next_max_tc_ms)) return max_tc_temp;
     next_max_tc_ms = ms + MAXTC_HEAT_INTERVAL;
 
     #if !HAS_MAXTC_LIBRARIES
