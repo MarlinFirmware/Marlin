@@ -61,4 +61,6 @@
   #include HAL_PATH(.., inc/Conditionals_adv.h)
 #endif
 
-#include "../lcd/e3v2/proui/dwin_defines.h"
+#ifdef DWIN_LCD_PROUI
+  #include "../lcd/e3v2/proui/dwin_defines.h"
+#endif
