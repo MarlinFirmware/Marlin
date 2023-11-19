@@ -2791,9 +2791,9 @@ void Temperature::init() {
     #endif
     
     #if TEMP_SENSOR_IS_MAX(BED, 6675) && HAS_MAX6675_LIBRARY
-      max6675_bed.begin();
+      max6675_BED.begin();
     #elif TEMP_SENSOR_IS_MAX(BED, 31855) && HAS_MAX31855_LIBRARY
-      max31855_bed.begin();
+      max31855_BED.begin();
     #elif TEMP_SENSOR_IS_MAX(BED, 31865)
       max31865_BED.begin(
         MAX31865_WIRES(MAX31865_SENSOR_WIRES_BED) // MAX31865_BEDWIRE, MAX31865_3WIRE, MAX31865_4WIRE
@@ -3593,12 +3593,12 @@ void Temperature::disable_all_heaters() {
       WRITE(TEMP_BED_CS_PIN, HIGH);  // Disable MAXTC
     #else
       #if HAS_MAX6675_LIBRARY
-        MAX6675 &max6675ref = max6675_bed;
+        MAX6675 &max6675ref = max6675_BED;
         max_tc_temp = max6675ref.readRaw16();
       #endif
 
       #if HAS_MAX31855_LIBRARY
-        MAX31855 &max855ref = max31855_bed;
+        MAX31855 &max855ref = max31855_BED;
         max_tc_temp = max855ref.readRaw32();
       #endif
 
