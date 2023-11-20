@@ -225,10 +225,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Capat Prea Rece");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Move $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Move 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Move 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Move 10mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Move 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Move $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Move $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");

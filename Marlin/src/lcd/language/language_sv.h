@@ -252,13 +252,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hetände för kall");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flytta $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Flytta 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Flytta 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Flytta 10mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Flytta 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Flytta 0.001tum");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Flytta 0.01tum");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Flytta 0.1tum");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Flytta $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Flytta $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Hastighet");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bädd Z");
   LSTR MSG_NOZZLE                         = _UxGT("Munstycke");
