@@ -1385,12 +1385,12 @@ void hmiMoveDone(const AxisEnum axis) {
       return;
     }
 
-    #ifdef PROBE_OFFSET_ZMIN
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMIN)
       #define _OFFSET_ZMIN (PROBE_OFFSET_ZMIN)
     #else
       #define _OFFSET_ZMIN -20
     #endif
-    #ifdef PROBE_OFFSET_ZMAX
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMAX)
       #define _OFFSET_ZMAX (PROBE_OFFSET_ZMAX)
     #else
       #define _OFFSET_ZMAX 20
