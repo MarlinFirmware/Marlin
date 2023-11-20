@@ -77,6 +77,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_MOVE_EN                        = _UxGT("Екструдер *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Премести с $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Премести с $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Премести с $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Скорост");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" Дюза");

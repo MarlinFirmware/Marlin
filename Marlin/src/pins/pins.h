@@ -932,43 +932,44 @@
   #define BOARD_MKS_MONSTER8            99925
   #define BOARD_LINUX_RAMPS             99926
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
+  #define BOARD_VAKE403D                99928
 
   #if MB(MKS_13)
-    #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
+    #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
   #elif MB(TRIGORILLA)
-    #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
+    #error "BOARD_TRIGORILLA is now BOARD_TRIGORILLA_13. Please update your configuration."
   #elif MB(RURAMPS4D)
-    #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
+    #error "BOARD_RURAMPS4D is now BOARD_RURAMPS4D_11. Please update your configuration."
   #elif MB(FORMBOT_TREX2)
-    #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
+    #error "FORMBOT_TREX2 is now BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
   #elif MB(BIQU_SKR_V1_1)
-    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIQU_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_1)
-    #error "BOARD_BIGTREE_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_2)
-    #error "BOARD_BIGTREE_SKR_V1_2 has been renamed BOARD_BTT_SKR_V1_2. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_2 is now BOARD_BTT_SKR_V1_2. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_3)
-    #error "BOARD_BIGTREE_SKR_V1_3 has been renamed BOARD_BTT_SKR_V1_3. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_3 is now BOARD_BTT_SKR_V1_3. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_4)
-    #error "BOARD_BIGTREE_SKR_V1_4 has been renamed BOARD_BTT_SKR_V1_4. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_4 is now BOARD_BTT_SKR_V1_4. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_4_TURBO)
-    #error "BOARD_BIGTREE_SKR_V1_4_TURBO has been renamed BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_4_TURBO is now BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
   #elif MB(BIGTREE_BTT002_V1_0)
-    #error "BOARD_BIGTREE_BTT002_V1_0 has been renamed BOARD_BTT_BTT002_V1_0. Please update your configuration."
+    #error "BOARD_BIGTREE_BTT002_V1_0 is now BOARD_BTT_BTT002_V1_0. Please update your configuration."
   #elif MB(BIGTREE_SKR_PRO_V1_1)
-    #error "BOARD_BIGTREE_SKR_PRO_V1_1 has been renamed BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_PRO_V1_1 is now BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_MINI_V1_1)
-    #error "BOARD_BIGTREE_SKR_MINI_V1_1 has been renamed BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_MINI_V1_1 is now BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_MINI_E3)
-    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_MINI_E3 is now BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
   #elif MB(BIGTREE_SKR_E3_DIP)
-    #error "BOARD_BIGTREE_SKR_E3_DIP has been renamed BOARD_BTT_SKR_E3_DIP. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_E3_DIP is now BOARD_BTT_SKR_E3_DIP. Please update your configuration."
   #elif MB(STM32F1R)
-    #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
+    #error "BOARD_STM32F1R is now BOARD_STM32F103RE. Please update your configuration."
   #elif MB(STM32F103R)
-    #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
+    #error "BOARD_STM32F103R is now BOARD_STM32F103RE. Please update your configuration."
   #elif MOTHERBOARD == BOARD_ESP32
-    #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
+    #error "BOARD_ESP32 is now BOARD_ESPRESSIF_ESP32. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL_3DP001V1 (BOARD_STEVAL) is no longer supported in Marlin."
   #elif MB(RUMBA32)
@@ -991,6 +992,8 @@
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif MB(BTT_MANTA_M4P_V1_0)
     #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
+  #elif MB(VAKE403D)
+    #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1026,6 +1029,7 @@
   #undef BOARD_MKS_MONSTER8
   #undef BOARD_LINUX_RAMPS
   #undef BOARD_BTT_MANTA_M4P_V1_0
+  #undef BOARD_VAKE403D
 
 #endif
 
