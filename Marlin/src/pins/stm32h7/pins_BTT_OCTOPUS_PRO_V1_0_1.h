@@ -21,24 +21,24 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME   "BTT OCTOPUS PRO V1.1"
+#define BOARD_INFO_NAME "OCTOPUS PRO V1.0.1"
 
 #include "pins_BTT_OCTOPUS_PRO_V1_common.h"
 
 //
 // Steppers
 //
-#define Z2_ENABLE_PIN                       PA2
+#define Z2_ENABLE_PIN                       PA0
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA0   // Heater0
-#define HEATER_2_PIN                        PB0   // Heater2
+#define HEATER_0_PIN                        PA2   // Heater0
+#define HEATER_2_PIN                        PB10  // Heater2
 
 //
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB10
+  #define NEOPIXEL_PIN                      PB0
 #endif
