@@ -268,7 +268,7 @@ Menu *stepsMenu = nullptr;
 #endif
 #if HAS_MESH
   Menu *meshMenu = nullptr;
-  #if ENABLED(MESH_EDIT_MENU)
+  #if ENABLED(PROUI_MESH_EDIT)
     Menu *editMeshMenu = nullptr;
   #endif
 #endif
@@ -847,7 +847,7 @@ void updateVariable() {
 
 bool DWIN_lcd_sd_status = false;
 
-#if ENABLED(MEDIASORT_MENU_ITEM)
+#if ENABLED(PROUI_MEDIASORT)
   void setMediaSort() {
     toggleCheckboxLine(hmiData.mediaSort);
     card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD) : AS_OFF);
@@ -1759,7 +1759,7 @@ void dwinSetDataDefaults() {
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     hmiData.fullManualTramming = DISABLED(BED_TRAMMING_USE_PROBE);
   #endif
-  #if ENABLED(MEDIASORT_MENU_ITEM)
+  #if ENABLED(PROUI_MEDIASORT)
     hmiData.mediaSort = true;
     card.setSortOn(TERN(SDSORT_REVERSE, AS_REV, AS_FWD));
   #endif
@@ -3130,7 +3130,7 @@ void drawAdvancedSettingsMenu() {
     #if HAS_GCODE_PREVIEW
       EDIT_ITEM(ICON_File, MSG_HAS_PREVIEW, onDrawChkbMenu, setPreview, &hmiData.enablePreview);
     #endif
-    #if ENABLED(MEDIASORT_MENU_ITEM)
+    #if ENABLED(PROUI_MEDIASORT)
       EDIT_ITEM(ICON_File, MSG_MEDIA_SORT, onDrawChkbMenu, setMediaSort, &hmiData.mediaSort);
     #endif
     EDIT_ITEM(ICON_File, MSG_MEDIA_UPDATE, onDrawChkbMenu, setMediaAutoMount, &hmiData.mediaAutoMount);
@@ -3323,16 +3323,16 @@ void drawTuneMenu() {
     #if HAS_FILAMENT_SENSOR
       EDIT_ITEM(ICON_Runout, MSG_RUNOUT_ENABLE, onDrawChkbMenu, setRunoutEnable, &runout.enabled);
     #endif
-    #if ENABLED(PLR_TUNE_ITEM)
+    #if ENABLED(PROUI_ITEM_PLR)
       EDIT_ITEM(ICON_Pwrlossr, MSG_OUTAGE_RECOVERY, onDrawChkbMenu, setPwrLossr, &recovery.enabled);
     #endif
     #if ENABLED(FWRETRACT)
       MENU_ITEM(ICON_FWRetract, MSG_FWRETRACT, onDrawSubMenu, drawFWRetractMenu);
     #endif
-    #if ENABLED(JD_TUNE_ITEM)
+    #if ENABLED(PROUI_ITEM_JD)
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
     #endif
-    #if ENABLED(ADVK_TUNE_ITEM)
+    #if ENABLED(PROUI_ITEM_ADVK)
       EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.extruder_advance_K[0]);
     #endif
     #if HAS_LOCKSCREEN
@@ -3952,7 +3952,7 @@ void drawStepsMenu() {
     void setBedLevT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
   #endif
 
-  #if ENABLED(MESH_EDIT_MENU)
+  #if ENABLED(PROUI_MESH_EDIT)
     #define Z_OFFSET_MIN -3
     #define Z_OFFSET_MAX  3
 
@@ -4029,7 +4029,7 @@ void drawStepsMenu() {
         MENU_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILT_MESH, onDrawMenuItem, ublMeshTilt);
         MENU_ITEM(ICON_UBLSmartFill, MSG_UBL_SMART_FILLIN, onDrawMenuItem, ublSmartFillMesh);
       #endif
-      #if ENABLED(MESH_EDIT_MENU)
+      #if ENABLED(PROUI_MESH_EDIT)
         MENU_ITEM(ICON_MeshReset, MSG_MESH_RESET, onDrawMenuItem, ResetMesh);
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
@@ -4038,7 +4038,7 @@ void drawStepsMenu() {
     updateMenu(meshMenu);
   }
 
-  #if ENABLED(MESH_EDIT_MENU)
+  #if ENABLED(PROUI_MESH_EDIT)
     void drawEditMeshMenu() {
       if (!leveling_is_valid()) { LCD_MESSAGE(MSG_UBL_MESH_INVALID); return; }
       set_bed_leveling_enabled(false);

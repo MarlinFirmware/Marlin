@@ -137,7 +137,7 @@ typedef struct {
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     bool fullManualTramming = false;
   #endif
-  #if ENABLED(MEDIASORT_MENU_ITEM)
+  #if ENABLED(PROUI_MEDIASORT)
     bool mediaSort = true;
   #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
@@ -343,7 +343,7 @@ void drawStepsMenu();
 #endif
 #if HAS_MESH
   void drawMeshSetMenu();
-  #if ENABLED(MESH_EDIT_MENU)
+  #if ENABLED(PROUI_MESH_EDIT)
     void drawEditMeshMenu();
   #endif
 #endif

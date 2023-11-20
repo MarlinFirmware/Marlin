@@ -79,33 +79,23 @@
 #define DEF_PIDCYCLES 5
 
 /**
-* ProUI Menu Options
-* Choose which feature you would like to Enable or Disable
-*/
-#if ENABLED(SDCARD_SORT_ALPHA)
-  #define MEDIASORT_MENU_ITEM
-  #if ENABLED(MEDIASORT_MENU_ITEM) && (SDSORT_GCODE == false)
-    // MEDIASORT_MENU_ITEM needs SDSORT_GCODE to be 'true'
-    #undef SDSORT_GCODE
-    #define SDSORT_GCODE true
-  #endif
-#endif
-#if ENABLED(HAS_FILAMENT_SENSOR)
-  #define RUNOUT_TUNE_ITEM
+ * ProUI internal feature flags
+ */
+#if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+  #define PROUI_MEDIASORT
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #define PLR_TUNE_ITEM       // Power-loss Recovery option in Tune Menu
+  #define PROUI_ITEM_PLR    // Tune > Power-loss Recovery
 #endif
 #if ENABLED(HAS_JUNCTION_DEVIATION)
-  #define JD_TUNE_ITEM        // Juntion Deviation item in Tune Menu
+  #define PROUI_ITEM_JD     // Tune > Junction Deviation
 #endif
 #if ENABLED(LIN_ADVANCE)
-  #define ADVK_TUNE_ITEM      // Linear Advance item in Tune Menu
+  #define PROUI_ITEM_ADVK   // Tune > Linear Advance
 #endif
 #if HAS_MESH
-  #define MESH_EDIT_MENU      // Add a menu to edit mesh points
+  #define PROUI_MESH_EDIT   // Add a menu to edit mesh points
 #endif
-
 #define HAS_GCODE_PREVIEW 1
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
