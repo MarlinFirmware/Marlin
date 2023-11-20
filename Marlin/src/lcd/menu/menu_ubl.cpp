@@ -361,7 +361,7 @@ void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_
 void _lcd_ubl_storage_mesh() {
   int16_t a = settings.calc_num_meshes();
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   if (!WITHIN(ubl_storage_slot, 0, a - 1))
     STATIC_ITEM(MSG_UBL_NO_STORAGE);
   else {
@@ -517,7 +517,7 @@ void _ubl_goto_map_screen() {
  */
 void _lcd_ubl_output_map() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_HOST, F("G29T0"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_CSV, F("G29T1"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_BACKUP, F("G29S-1"));
@@ -535,7 +535,7 @@ void _lcd_ubl_output_map() {
  */
 void _menu_ubl_tools() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   SUBMENU(MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   GCODES_ITEM(MSG_UBL_MANUAL_MESH, F("G29I999\nG29P2BT0"));
   #if ENABLED(G26_MESH_VALIDATION)
@@ -562,7 +562,7 @@ void _menu_ubl_tools() {
    */
   void _lcd_ubl_step_by_step() {
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, F("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, F("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
@@ -596,7 +596,7 @@ void _menu_ubl_tools() {
   void _menu_ubl_mesh_wizard() {
     const int16_t total_slots = settings.calc_num_meshes();
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
 
     #if HAS_HOTEND
       EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, HEATER_0_MINTEMP + 20, thermalManager.hotend_max_target(0));

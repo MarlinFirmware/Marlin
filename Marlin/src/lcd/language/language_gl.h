@@ -124,7 +124,6 @@ namespace LanguageNarrow_gl {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2º Bico @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Executando G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Ferramentas UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto de inclinación");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Facer Malla Manual");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Colocar Calzo e Medir");

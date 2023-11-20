@@ -157,7 +157,6 @@ namespace LanguageNarrow_ru {
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");
-  LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Настройка UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка разворота");
   LSTR MSG_UBL_MANUAL_MESH                  = _UxGT("Ручной ввод сетки");
   LSTR MSG_UBL_BC_INSERT                    = _UxGT("Разм.шайбу, измерить");
