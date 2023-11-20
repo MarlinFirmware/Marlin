@@ -119,12 +119,11 @@ bool XPT2046::isTouched() {
   );
 }
 
-bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {
-  if (isBusy()) return false;
-  if (!isTouched()) return false;
+bool XPT2046::getRawPoint(int16_t * const x, int16_t * const y) {
+  if (isBusy() || !isTouched()) return false;
   *x = getRawData(XPT2046_X);
   *y = getRawData(XPT2046_Y);
-  return isTouched();
+  return true;
 }
 
 uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {

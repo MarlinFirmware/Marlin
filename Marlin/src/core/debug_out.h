@@ -40,6 +40,7 @@
 #undef DEBUG_ECHO_MSG
 #undef DEBUG_ERROR_MSG
 #undef DEBUG_WARN_MSG
+#undef DEBUG_ECHO_TERNARY
 #undef DEBUG_EOL
 #undef DEBUG_FLUSH
 #undef DEBUG_POS
@@ -67,6 +68,7 @@
   #define DEBUG_ECHO_MSG          SERIAL_ECHO_MSG
   #define DEBUG_ERROR_MSG         SERIAL_ERROR_MSG
   #define DEBUG_WARN_MSG          SERIAL_WARN_MSG
+  #define DEBUG_ECHO_TERNARY      SERIAL_ECHO_TERNARY
   #define DEBUG_EOL               SERIAL_EOL
   #define DEBUG_FLUSH             SERIAL_FLUSH
   #define DEBUG_POS               SERIAL_POS
@@ -90,6 +92,7 @@
   #define DEBUG_ECHO_MSG(...)       NOOP
   #define DEBUG_ERROR_MSG(...)      NOOP
   #define DEBUG_WARN_MSG(...)       NOOP
+  #define DEBUG_ECHO_TERNARY(...)   NOOP
   #define DEBUG_EOL()               NOOP
   #define DEBUG_FLUSH()             NOOP
   #define DEBUG_POS(...)            NOOP

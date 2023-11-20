@@ -87,7 +87,6 @@ namespace LanguageNarrow_eu {
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 exekutatzen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tresnak");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Sarea eskuz sortu");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Neurtu");
   LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktibatu");
@@ -138,11 +137,8 @@ namespace LanguageNarrow_eu {
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mugitu 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mugitu 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mugitu 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mugitu $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mugitu $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Ohea");
   LSTR MSG_NOZZLE                         = _UxGT("Pita");

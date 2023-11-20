@@ -157,7 +157,6 @@ namespace LanguageNarrow_ru {
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");
-  LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Настройка UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка разворота");
   LSTR MSG_UBL_MANUAL_MESH                  = _UxGT("Ручной ввод сетки");
   LSTR MSG_UBL_BC_INSERT                    = _UxGT("Разм.шайбу, измерить");
@@ -264,15 +263,8 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MOVE_EN                          = _UxGT("Экструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
   LSTR MSG_MOVE_N_MM                        = _UxGT("Движение $мм");
-  LSTR MSG_MOVE_01MM                        = _UxGT("Движение 0.1мм");
-  LSTR MSG_MOVE_1MM                         = _UxGT("Движение 1мм");
-  LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
-  LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
-  LSTR MSG_MOVE_0001IN                      = _UxGT("Движение 0.001in");
-  LSTR MSG_MOVE_001IN                       = _UxGT("Движение 0.01in");
-  LSTR MSG_MOVE_01IN                        = _UxGT("Движение 0.1in");
-  LSTR MSG_MOVE_05IN                        = _UxGT("Движение 0.5in");
-  LSTR MSG_MOVE_1IN                         = _UxGT("Движение 1.0in");
+  LSTR MSG_MOVE_N_IN                        = _UxGT("Движение $in");
+  LSTR MSG_MOVE_N_DEG                       = _UxGT("Движение $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                            = _UxGT("Скорость");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
@@ -709,7 +701,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_MESH_INVALID                 = _UxGT("Негодная сетка");
   LSTR MSG_UBL_INVALID_SLOT                 = _UxGT("Сперва выберите слот сетки");
   LSTR MSG_MESH_ACTIVE                      = _UxGT("Сетка %i активна");
-  LSTR MSG_MOVE_50MM                        = _UxGT("Двигать 50mm");
   LSTR MSG_LIVE_MOVE                        = _UxGT("Живое перемещение");
   LSTR MSG_CUTTER                           = _UxGT("Резак");
   LSTR MSG_PID_CYCLE                        = _UxGT("Циклы PID");

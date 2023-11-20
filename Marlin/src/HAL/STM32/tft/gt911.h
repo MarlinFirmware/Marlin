@@ -92,5 +92,5 @@ class GT911 {
   public:
     static void init();
     static bool getFirstTouchPoint(int16_t *x, int16_t *y);
-    static bool getPoint(int16_t *x, int16_t *y);
+    static bool getRawPoint(int16_t * const x, int16_t * const y);
 };

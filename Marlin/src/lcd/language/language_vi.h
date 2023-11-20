@@ -98,7 +98,6 @@ namespace LanguageNarrow_vi {
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Các lệnh tự chọn");                     // Custom Commands
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Đang chạy G29");                        // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("Công cụ UBL");                          // UBL tools
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("San Lấp Bàn Thống Nhất (UBL)");         // Unified Bed Leveling
   LSTR MSG_IDEX_MENU                      = _UxGT("chế độ IDEX");                          // IDEX Mode
   LSTR MSG_IDEX_MODE_AUTOPARK             = _UxGT("Đậu tự động");                          // Auto-Park
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Sự gấp đôi");                           // Duplication
@@ -200,10 +199,9 @@ namespace LanguageNarrow_vi {
   LSTR MSG_MOVE_E                         = _UxGT("Máy đùn");                              // Extruder
   LSTR MSG_MOVE_EN                        = _UxGT("Máy đùn *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                    // Hotend too cold
-  LSTR MSG_MOVE_01MM                      = _UxGT("Di chuyển 0.1mm");                      // Move 0.1mm
-  LSTR MSG_MOVE_1MM                       = _UxGT("Di chuyển 1mm");                        // Move 1mm
-  LSTR MSG_MOVE_10MM                      = _UxGT("Di chuyển 10mm");                       // Move 10mm
-  LSTR MSG_MOVE_100MM                     = _UxGT("Di chuyển 100mm");                      // Move 100mm
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Di chuyển $mm");                        // Move $mm
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Di chuyển $in");                        // Move $in
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Di chuyển $") LCD_STR_DEGREE;           // Move $°
   LSTR MSG_SPEED                          = _UxGT("Tốc độ");                               // Speed
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Bàn");
   LSTR MSG_NOZZLE                         = _UxGT("Đầu phun");                             // Nozzle

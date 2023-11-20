@@ -85,11 +85,8 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_MOVE_E                         = _UxGT("Εξωθητήρας");
   LSTR MSG_MOVE_EN                        = _UxGT("Εξωθητήρας *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Μετακίνηση $μμ");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Μετακίνηση 0,1 μμ");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Μετακίνηση 1 μμ");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Μετακίνηση 10 μμ");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Μετακίνηση 50 μμ");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Μετακίνηση 100 μμ");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Μετακίνηση $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Μετακίνηση $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Κλίνη Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ακροφύσιο");

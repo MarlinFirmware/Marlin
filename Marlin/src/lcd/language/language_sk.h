@@ -192,7 +192,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Vykonávam G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL rovnanie");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnávam bod");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Nakloniť sieť");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Veľkosť nakl. siete");
@@ -306,16 +305,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MOVE_EN                        = _UxGT("Extrudér *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Posunúť o $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Posunúť o 0,1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Posunúť o 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Posunúť o 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Posunúť o 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Posunúť o 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Posunúť o 0,001in");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Posunúť o 0,01in");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Posunúť o 0,1in");
-  LSTR MSG_MOVE_05IN                      = _UxGT("Posunúť o 0,5in");
-  LSTR MSG_MOVE_1IN                       = _UxGT("Posunúť o 1,0in");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Posunúť o $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Posunúť o $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Živý pohyb");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");

@@ -129,7 +129,6 @@ namespace LanguageNarrow_cz {
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnání bodu");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Manuální síť bodů");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Vložte kartu, změřte");
@@ -231,11 +230,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MOVE_EN                        = _UxGT("Extrudér *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Posunout o $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Posunout o 0,1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Posunout o 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Posunout o 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Posunout o 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Posunout o $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Posunout o $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");

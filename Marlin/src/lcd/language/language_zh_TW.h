@@ -119,7 +119,6 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("執行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("統一熱床調平(UBL)"); // "Unified Bed Leveling"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("傾斜點"); // "Tilting Point"
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("手工建網"); // "Manually Build Mesh"
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("放置墊片並測量"); // "Place shim & measure"
@@ -220,12 +219,9 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_MOVE_E                         = _UxGT("擠出機"); // "Extruder"
   LSTR MSG_MOVE_EN                        = _UxGT("擠出機 *"); // "Extruder *"
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("噴嘴溫度不夠"); // "Hotend too cold"
-  LSTR MSG_MOVE_N_MM                      = _UxGT("移動 $ mm"); // "Move 0.025mm"
-  LSTR MSG_MOVE_01MM                      = _UxGT("移動 0.1 mm"); // "Move 0.1mm"
-  LSTR MSG_MOVE_1MM                       = _UxGT("移動 1 mm"); // "Move 1mm"
-  LSTR MSG_MOVE_10MM                      = _UxGT("移動 10 mm"); // "Move 10mm"
-  LSTR MSG_MOVE_50MM                      = _UxGT("移動 50 mm"); // "Move 50mm"
-  LSTR MSG_MOVE_100MM                     = _UxGT("移動 100 mm"); // "Move 100mm"
+  LSTR MSG_MOVE_N_MM                      = _UxGT("移動 $mm"); // "Move $mm"
+  LSTR MSG_MOVE_N_IN                      = _UxGT("移動 $in"); // "Move $in"
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("移動 $") LCD_STR_DEGREE; // "Move $°"
   LSTR MSG_SPEED                          = _UxGT("速率"); // "Speed"
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("熱床Z"); // "Bed Z"
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴"); // "Nozzle" 噴嘴

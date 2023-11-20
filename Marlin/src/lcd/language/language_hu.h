@@ -154,7 +154,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. fej @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Egységes ágy szint");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Döntési pont");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Kézi háló építés");
   LSTR MSG_UBL_MESH_WIZARD                = _UxGT("UBL Háló varázsló");
@@ -261,16 +260,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_MOVE_EN                        = _UxGT("Adagoló *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("A fej túl hideg");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mozgás $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mozgás 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mozgás 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mozgás 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mozgás 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mozgás 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Mozgás 0.025mm");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Mozgás 0.254mm");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Mozgás 2.54mm");
-  LSTR MSG_MOVE_05IN                      = _UxGT("Mozgás 12.7mm");
-  LSTR MSG_MOVE_1IN                       = _UxGT("Mozgáá 25.4mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mozgás $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mozgás $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z ágy");
   LSTR MSG_NOZZLE                         = _UxGT("Fej");

@@ -28,15 +28,6 @@
 
 #if HAS_MARLINUI_MENU
 
-#define HAS_LARGE_AREA (TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
-#if ENABLED(LARGE_MOVE_ITEMS)
-  #define HAS_LARGE_MOVES true
-#elif ENABLED(SLIM_LCD_MENUS)
-  #define HAS_LARGE_MOVES false
-#else
-  #define HAS_LARGE_MOVES HAS_LARGE_AREA
-#endif
-
 #include "menu_item.h"
 #include "menu_addon.h"
 
@@ -52,6 +43,10 @@
   #include "../../module/planner.h"
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
+
+constexpr bool has_large_area() {
+  return TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000);
+}
 
 //
 // "Motion" > "Move Axis" submenu
@@ -88,7 +83,7 @@ void lcd_move_axis(const AxisEnum axis) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
     else
-      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ? (HAS_LARGE_AREA ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ? (has_large_area() ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
   }
 }
 
@@ -156,23 +151,35 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  if (parser.using_inch_units()) {
-    if (HAS_LARGE_MOVES) {
-      SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });
-      SUBMENU(MSG_MOVE_05IN, []{ _goto_manual_move(IN_TO_MM(0.500f)); });
-    }
-    SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move(IN_TO_MM(0.100f)); });
-    SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move(IN_TO_MM(0.010f)); });
-    SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
+
+  #define __LINEAR_LIMIT(D) ((D) < max_length(axis) / 2 + 1)
+  #if HAS_EXTRUDERS
+    #ifndef EXTRUDE_MAXLENGTH
+      #define EXTRUDE_MAXLENGTH 50
+    #endif
+    #define _LINEAR_LIMIT(D) ((axis < E_AXIS) ? __LINEAR_LIMIT(D) : ((D) < (EXTRUDE_MAXLENGTH) / 2 + 1))
+  #else
+    #define _LINEAR_LIMIT __LINEAR_LIMIT
+  #endif
+  #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
+
+  if (rotational[axis]) {
+    #ifdef MANUAL_MOVE_DISTANCE_DEG
+      #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
+      MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)
+    #endif
+  }
+  else if (parser.using_inch_units()) {
+    #ifdef MANUAL_MOVE_DISTANCE_IN
+      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(I), IN_TO_MM(I));
+      MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
+    #endif
   }
   else {
-    if (HAS_LARGE_MOVES) {
-      SUBMENU(MSG_MOVE_100MM, []{ _goto_manual_move(100); });
-      SUBMENU(MSG_MOVE_50MM, []{ _goto_manual_move(50); });
-    }
-    SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
-    SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
-    SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
+    #ifdef MANUAL_MOVE_DISTANCE_MM
+      #define _MOVE_MM(M) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(M), M);
+      MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
+    #endif
     #if HAS_Z_AXIS
       if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f)
         SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
@@ -488,7 +495,7 @@ void menu_motion() {
   //
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    SUBMENU(MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
+    SUBMENU(MSG_UBL_LEVELING, _lcd_ubl_level_bed);
 
   #elif ENABLED(LCD_BED_LEVELING)
 
