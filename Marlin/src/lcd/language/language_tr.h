@@ -179,7 +179,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL Tabla Seviyeleme");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Eğimli Mesh");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Eğimli Izgara Boyutu");
@@ -345,7 +344,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensör çözünürlüğü *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ortam h *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Amb. h fan *");
-  LSTR MSG_SELECT                         = _UxGT("Seç");
   LSTR MSG_SELECT_E                       = _UxGT("Seç *");
   LSTR MSG_ACC                            = _UxGT("İvme");
   LSTR MSG_JERK                           = _UxGT("Sarsma");
