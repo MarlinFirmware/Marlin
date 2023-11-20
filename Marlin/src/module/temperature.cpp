@@ -3545,18 +3545,18 @@ void Temperature::disable_all_heaters() {
   raw_adc_t Temperature::read_max_tc_bed() {
     #define MAXTC_HEAT_INTERVAL 250UL
 
-    #if HAS_MAX31855
-      #define MAX_TC_ERROR_MASK    7        // D2-0: SCV, SCG, OC
-      #define MAX_TC_DISCARD_BITS 18        // Data D31-18; sign bit D31
-      #define MAX_TC_SPEED_BITS    3        // ~1MHz
-    #elif HAS_MAX31865
-      #define MAX_TC_ERROR_MASK    1        // D0 Bit on fault only
-      #define MAX_TC_DISCARD_BITS  1        // Data is in D15-D1
-      #define MAX_TC_SPEED_BITS    3        // ~1MHz
+    #if TEMP_SENSOR_BED_IS_MAX31855
+      #define BED_MAX_TC_ERROR_MASK    7    // D2-0: SCV, SCG, OC
+      #define BED_MAX_TC_DISCARD_BITS 18    // Data D31-18; sign bit D31
+      #define BED_MAX_TC_SPEED_BITS    3    // ~1MHz
+    #elif TEMP_SENSOR_BED_IS_MAX31865
+      #define BED_MAX_TC_ERROR_MASK    1    // D0 Bit on fault only
+      #define BED_MAX_TC_DISCARD_BITS  1    // Data is in D15-D1
+      #define BED_MAX_TC_SPEED_BITS    3    // ~1MHz
     #else // MAX6675
-      #define MAX_TC_ERROR_MASK    3        // D2 only; 1 = open circuit
-      #define MAX_TC_DISCARD_BITS  3        // Data D15-D1
-      #define MAX_TC_SPEED_BITS    2        // ~2MHz
+      #define BED_MAX_TC_ERROR_MASK    3    // D2 only; 1 = open circuit
+      #define BED_MAX_TC_DISCARD_BITS  3    // Data D15-D1
+      #define BED_MAX_TC_SPEED_BITS    2    // ~2MHz
     #endif
 
     static max_tc_temp_t max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX;
@@ -3576,7 +3576,7 @@ void Temperature::disable_all_heaters() {
         // Initialize SPI using the default Hardware SPI bus.
         // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
         spiBegin();
-        spiInit(MAX_TC_SPEED_BITS);
+        spiInit(BED_MAX_TC_SPEED_BITS);
       #endif
 
       WRITE(TEMP_BED_CS_PIN, LOW);  // Enable MAXTC
@@ -3590,17 +3590,13 @@ void Temperature::disable_all_heaters() {
 
       WRITE(TEMP_BED_CS_PIN, HIGH);  // Disable MAXTC
     #else
-      #if HAS_MAX6675_LIBRARY
+      #if ALL(TEMP_SENSOR_BED_IS_MAX6675, HAS_MAX6675_LIBRARY)
         MAX6675 &max6675ref = max6675_BED;
         max_tc_temp = max6675ref.readRaw16();
-      #endif
-
-      #if HAS_MAX31855_LIBRARY
+      #elif ALL(TEMP_SENSOR_BED_IS_MAX31855, HAS_MAX31855_LIBRARY)
         MAX31855 &max855ref = max31855_BED;
         max_tc_temp = max855ref.readRaw32();
-      #endif
-
-      #if HAS_MAX31865
+      #elif TEMP_SENSOR_BED_IS_MAX31865
         MAX31865 &max865ref = max31865_BED;
         max_tc_temp = TERN(LIB_INTERNAL_MAX31865, max865ref.readRaw(), max865ref.readRTD_with_Fault());
       #endif
@@ -3608,13 +3604,13 @@ void Temperature::disable_all_heaters() {
 
     // Handle an error. If there have been more than THERMOCOUPLE_MAX_ERRORS, send an error over serial.
     // Either way, return the TMAX for the thermocouple to trigger a maxtemp_error()
-    if (max_tc_temp & MAX_TC_ERROR_MASK) {
+    if (max_tc_temp & BED_MAX_TC_ERROR_MASK) {
       max_tc_errors++;
 
       if (max_tc_errors > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Bed temp measurement error! ");
-        #if HAS_MAX31855
+        #if TEMP_SENSOR_BED_IS_MAX31855
           SERIAL_ECHOPGM("MAX31855 Fault: (", max_tc_temp & 0x7, ") >> ");
           if (max_tc_temp & 0x1)
             SERIAL_ECHOLNPGM("Open Circuit");
@@ -3622,7 +3618,7 @@ void Temperature::disable_all_heaters() {
             SERIAL_ECHOLNPGM("Short to GND");
           else if (max_tc_temp & 0x4)
             SERIAL_ECHOLNPGM("Short to VCC");
-        #elif HAS_MAX31865
+        #elif TEMP_SENSOR_BED_IS_MAX31865
           const uint8_t fault_31865 = max865ref.readFault();
           max865ref.clearFault();
           if (fault_31865) {
@@ -3646,16 +3642,16 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Set thermocouple above max temperature (TMAX)
-        max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX << (MAX_TC_DISCARD_BITS + 1);
+        max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX << (BED_MAX_TC_DISCARD_BITS + 1);
       }
     }
     else {
       max_tc_errors = 0; // No error bit, reset error count
     }
 
-    max_tc_temp >>= MAX_TC_DISCARD_BITS;
+    max_tc_temp >>= BED_MAX_TC_DISCARD_BITS;
 
-    #if HAS_MAX31855
+    #if TEMP_SENSOR_BED_IS_MAX31855
       // Support negative temperature for MAX38155
       if (max_tc_temp & 0x00002000) max_tc_temp |= 0xFFFFC000;
     #endif
