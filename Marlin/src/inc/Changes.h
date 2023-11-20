@@ -661,6 +661,14 @@
   #error "Z4_USE_ENDSTOP is obsolete. Instead set Z4_STOP_PIN directly. (e.g., 'Z4_USE_ENDSTOP _ZMAX_' becomes 'Z4_STOP_PIN Z_MAX_PIN')"
 #elif defined(INTEGRATED_BABYSTEPPING)
   #error "INTEGRATED_BABYSTEPPING is no longer needed and should be removed."
+#elif defined(FOLDER_SORTING)
+  #error "FOLDER_SORTING is now SDSORT_FOLDERS."
+#elif defined(BTT_MINI_12864_V1)
+  #error "BTT_MINI_12864_V1 is now BTT_MINI_12864."
+#elif defined(Z_PROBE_OFFSET_RANGE_MIN) || defined(Z_PROBE_OFFSET_RANGE_MAX)
+  #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
+#elif defined(LARGE_MOVE_ITEMS)
+  #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
 #endif
 
 // L64xx stepper drivers have been removed

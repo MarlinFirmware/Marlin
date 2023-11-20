@@ -96,11 +96,8 @@ namespace LanguageNarrow_el {
   LSTR MSG_MOVE_E                         = _UxGT("Εξωθητής");
   LSTR MSG_MOVE_EN                        = _UxGT("Εξωθητής *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Μετακίνηση $μμ");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Μετακίνηση 0,1 μμ");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Μετακίνηση 1 μμ");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Μετακίνηση 10 μμ");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Μετακίνηση 50 μμ");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Μετακίνηση 100 μμ");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Μετακίνηση $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Μετακίνηση $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Επ. Εκτύπωσης Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ακροφύσιο");
@@ -192,10 +189,10 @@ namespace LanguageNarrow_el {
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Μικρό βήμα Υ");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Μικρό βήμα Ζ");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Ακύρωση endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Αποτυχία θέρμανσης");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Αποτυχία θέρμανσης");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("ΠΛΕΟΝΑΖΟΥΣΑ ΘΕΡΜΟΤΗΤΑ");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ΘΕΡΜΙΚΗ ΔΙΑΦΥΓΗ");
-  LSTR MSG_TEMP_MALFUNCTION               = _UxGT("ΘΕΡΜΙΚΗ ΔΥΣΛΕΙΤΟΥΡΓΙΑ");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ΘΕΡΜΙΚΗ ΔΙΑΦΥΓΗ");
+  LSTR MSG_ERR_TEMP_MALFUNCTION           = _UxGT("ΘΕΡΜΙΚΗ ΔΥΣΛΕΙΤΟΥΡΓΙΑ");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("ΠΕΡΙΤΤΗ ΘΕΡΜΟΚΡΑΣΙΑ");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("ΑΝΕΠΑΡΚΗΣ ΘΕΡΜΟΚΡΑΣΙΑ");
   LSTR MSG_HALTED                         = _UxGT("Εκτυπωτής διεκόπη");

@@ -120,10 +120,10 @@ void menu_backlash();
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
+        EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, float(VOLUMETRIC_EXTRUDER_LIMIT_MAX), planner.calculate_volumetric_extruder_limits);
         #if HAS_MULTI_EXTRUDER
           EXTRUDER_LOOP()
-            EDIT_ITEM_FAST_N(float42_52, e, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[e], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
+            EDIT_ITEM_FAST_N(float42_52, e, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[e], 0.0f, float(VOLUMETRIC_EXTRUDER_LIMIT_MAX), planner.calculate_volumetric_extruder_limits);
         #endif
       #endif
 
@@ -628,10 +628,10 @@ void menu_backlash();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
       #if HAS_PROBE_XY_OFFSET
-        EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(X_BED_SIZE), X_BED_SIZE);
-        EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
+        EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
+        EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
       #endif
-      EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
 
       #if ENABLED(PROBE_OFFSET_WIZARD)
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);

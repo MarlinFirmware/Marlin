@@ -263,7 +263,7 @@ void DWINUI::drawCircle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
 //  x: the abscissa of the center of the circle
 //  y: ordinate of the center of the circle
 //  r: circle radius
-void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
+void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x, uint16_t y, uint8_t r) {
   dwinDrawLine(bcolor, x - r, y, x + r, y);
   uint16_t b = 1;
   while (b <= r) {
@@ -280,12 +280,12 @@ void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
 //  maxv : Maximum value
 //  color1 : Start color
 //  color2 : End color
-uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
+uint16_t DWINUI::colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B, G, R;
-  const float n = float(val - minv) / (maxv - minv);
-  R = (1 - n) * GetRColor(color1) + n * GetRColor(color2);
-  G = (1 - n) * GetGColor(color1) + n * GetGColor(color2);
-  B = (1 - n) * GetBColor(color1) + n * GetBColor(color2);
+  const float n = float(val - minv) / (maxv - minv + 1);
+  R = (1.0f - n) * GetRColor(color1) + n * GetRColor(color2);
+  G = (1.0f - n) * GetGColor(color1) + n * GetGColor(color2);
+  B = (1.0f - n) * GetBColor(color1) + n * GetBColor(color2);
   return RGB(R, G, B);
 }
 
@@ -293,27 +293,17 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  val : Interpolator minv..maxv
 //  minv : Minimum value
 //  maxv : Maximum value
-uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
-  uint8_t B, G, R;
-  const uint8_t maxB = 28, maxR = 28, maxG = 38;
+uint16_t DWINUI::rainbowInt(int16_t val, int16_t minv, int16_t maxv) {
   const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n = minv >= 0 ? float(val - minv) / (maxv - minv) : (float)val / limv;
+  float n = (minv >= 0) ? float(val - minv) / (maxv - minv + 1) : (float)val / limv;
   LIMIT(n, -1, 1);
-  if (n < 0) {
-    R = 0;
-    G = (1 + n) * maxG;
-    B = (-n) * maxB;
-  }
-  else if (n < 0.5) {
-    R = maxR * n * 2;
-    G = maxG;
-    B = 0;
-  }
-  else {
-    R = maxR;
-    G = maxG * (1 - n);
-    B = 0;
-  }
+
+  constexpr uint8_t maxB = 28, maxR = 28, maxG = 38;
+  uint8_t R, G, B;
+       if (n <= -0.5f) { R = 0;            G = maxG * (1.0f + n); B = maxB; }
+  else if (n <=  0.0f) { R = 0;            G = maxG;              B = maxB * (-n) * 2; }
+  else if (n <   0.5f) { R = maxR * n * 2; G = maxG;              B = 0; }
+  else                 { R = maxR;         G = maxG * (1.0f - n); B = 0; }
   return RGB(R, G, B);
 }
 

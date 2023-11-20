@@ -35,12 +35,8 @@
 #include "../common/encoder.h"
 #include "../common/limits.h"
 #include "../../../libs/BL24CXX.h"
-
-#if ANY(BABYSTEPPING, HAS_BED_PROBE)
-  #define HAS_ZOFFSET_ITEM 1
-  #if !HAS_BED_PROBE
-    #define JUST_BABYSTEP 1
-  #endif
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../../feature/leds/leds.h"
 #endif
 
 namespace GET_LANG(LCD_LANGUAGE) {
@@ -318,9 +314,7 @@ void drawFilSetMenu();
 #endif
 void drawTuneMenu();
 void drawMotionMenu();
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void drawFilamentManMenu();
-#endif
+void drawFilamentManMenu();
 #if ENABLED(MESH_BED_LEVELING)
   void drawManualMeshMenu();
 #endif

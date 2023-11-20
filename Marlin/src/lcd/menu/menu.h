@@ -39,7 +39,7 @@ typedef void (*selectFunc_t)();
 #define SS_INVERT  0x04
 #define SS_DEFAULT SS_CENTER
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET) && PROBE_OFFSET_ZMIN >= -9 && PROBE_OFFSET_ZMAX <= 9
   #define BABYSTEP_TO_STR(N) ftostr43sign(N)
 #elif ENABLED(BABYSTEPPING)
   #define BABYSTEP_TO_STR(N) ftostr53sign(N)
@@ -76,7 +76,7 @@ class MenuItemBase {
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char *vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style=SS_DEFAULT, const char *vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
@@ -102,31 +102,31 @@ class MenuItem_confirm : public MenuItemBase {
       FSTR_P const yes,           // Right option label
       FSTR_P const no,            // Left option label
       const bool yesno,           // Is "yes" selected?
-      FSTR_P const pref,          // Prompt prefix
+      FSTR_P const fpre,          // Prompt prefix
       const char * const string,  // Prompt runtime string
-      FSTR_P const suff           // Prompt suffix
+      FSTR_P const fsuf           // Prompt suffix
     );
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr
+      FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr
     );
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, FSTR_P const fstr, FSTR_P const suff=nullptr
+      FSTR_P const fpre, FSTR_P const fstr, FSTR_P const fsuf=nullptr
     ) {
       #ifdef __AVR__
         char str[strlen_P(FTOP(fstr)) + 1];
         strcpy_P(str, FTOP(fstr));
-        select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+        select_screen(yes, no, yesFunc, noFunc, fpre, str, fsuf);
       #else
-        select_screen(yes, no, yesFunc, noFunc, pref, FTOP(fstr), suff);
+        select_screen(yes, no, yesFunc, noFunc, fpre, FTOP(fstr), fsuf);
       #endif
     }
     // Shortcut for prompt with "NO"/ "YES" labels
-    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
-      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, pref, string, suff);
+    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr) {
+      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, fpre, string, fsuf);
     }
 };
 

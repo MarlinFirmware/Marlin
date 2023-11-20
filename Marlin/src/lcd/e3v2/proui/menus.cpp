@@ -507,25 +507,25 @@ void initMenu() {
 
 bool setMenu(Menu* &menu, FSTR_P fTitle, int8_t totalitems) {
   if (!menu) menu = new Menu();
-  const bool NotCurrent = (currentMenu != menu);
-  if (NotCurrent) {
+  const bool notCurrent = (currentMenu != menu);
+  if (notCurrent) {
     menu->menuTitle.setCaption(fTitle);
     menuItemsPrepare(totalitems);
   }
-  return NotCurrent;
+  return notCurrent;
 }
 
 bool setMenu(Menu* &menu, frame_rect_t cn, FSTR_P fTitle, int8_t totalitems) {
   if (!menu) menu = new Menu();
-  const bool NotCurrent = (currentMenu != menu);
-  if (NotCurrent) {
+  const bool notCurrent = (currentMenu != menu);
+  if (notCurrent) {
     if (cn.w != 0)
       menu->menuTitle.setFrame(cn.x, cn.y, cn.w, cn.h);
     else
       menu->menuTitle.setCaption(fTitle);
     menuItemsPrepare(totalitems);
   }
-  return NotCurrent;
+  return notCurrent;
 }
 
 void resetMenu(Menu* &menu) {

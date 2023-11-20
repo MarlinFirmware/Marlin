@@ -153,7 +153,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 /**
- * Set XYZ...E destination and feedrate from the current GCode command
+ * Set XYZ...E destination and feedrate from the current G-Code command
  *
  *  - Set destination from included axis codes
  *  - Set to current for missing axis codes
@@ -459,7 +459,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
+        case 800: parser.debug(); break;                          // G800: G-Code Parser Test for G
       #endif
 
       default: parser.unknown_command_warning(); break;
@@ -935,6 +935,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        case 592: M592(); break;                                  // M592: Nonlinear Extrusion control
+      #endif
+
       #if HAS_ZV_SHAPING
         case 593: M593(); break;                                  // M593: Input Shaping control
       #endif
@@ -1031,7 +1035,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
+        case 800: parser.debug(); break;                          // M800: G-Code Parser Test for M
       #endif
 
       #if ENABLED(GCODE_REPEAT_MARKERS)

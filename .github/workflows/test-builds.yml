@@ -118,6 +118,7 @@ jobs:
 
         # STM32H7
         - BTT_SKR_SE_BX
+        - STM32H743VI_btt
 
         # STM32F1 (Maple)
         - jgaurora_a5s_a1_maple
@@ -132,6 +133,9 @@ jobs:
         #- mks_robin_nano_v1v2_maple
         #- STM32F103RC_btt_maple
         #- STM32F103RE_creality_maple
+
+        # STM32G0
+        - STM32G0B1RE_btt
 
         # LPC176x - Lengthy tests
         - LPC1768

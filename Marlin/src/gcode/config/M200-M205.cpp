@@ -64,10 +64,10 @@
       if (parser.seenval('L')) {
         // Set volumetric limit (in mm^3/sec)
         const float lval = parser.value_float();
-        if (WITHIN(lval, 0, 20))
+        if (WITHIN(lval, 0, VOLUMETRIC_EXTRUDER_LIMIT_MAX))
           planner.set_volumetric_extruder_limit(target_extruder, lval);
         else
-          SERIAL_ECHOLNPGM("?L value out of range (0-20).");
+          SERIAL_ECHOLNPGM("?L value out of range (0-" STRINGIFY(VOLUMETRIC_EXTRUDER_LIMIT_MAX) ").");
       }
     #endif
 

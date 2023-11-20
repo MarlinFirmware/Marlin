@@ -19,7 +19,7 @@ Here's a basic flowchart of Marlin command processing:
 | Host |                             |  SerialState         RingBuffer      |     |           |
 |      |             Marlin          |  NUM_SERIAL           BUF_SIZE       |     | Marlin    |
 +--+---+        R/TX_BUFFER_SIZE     |    +---+        +------------------+ |     |           |
-   |             +------------+      |    |   |        |                  | |     | GCode     |
+   |             +------------+      |    |   |        |                  | |     | G-Code    |
    |             |            |      |    |   |        |   MAX_CMD_SIZE   +-+-----> processor |
    |             | Platform   |      |    |   | On EOL | +--------------+ | r_pos |           |
    +-------------> serial's   +----------->   +--------> |   G-code     | | |     +-----------+
