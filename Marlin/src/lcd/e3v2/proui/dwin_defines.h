@@ -28,6 +28,16 @@
  * Date: 2022/08/08
  */
 
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_MESH
+  #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
+  #if ENABLED(PROUI_MESH_EDIT)
+    #define Z_OFFSET_MIN  -3.0  // (mm)
+    #define Z_OFFSET_MAX   3.0  // (mm)
+  #endif
+#endif
+
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
@@ -78,3 +88,26 @@
 #define DEF_BEDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 60)
 #define DEF_PIDCYCLES 5
 
+/**
+ * ProUI internal feature flags
+ */
+#if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+  #define PROUI_MEDIASORT     // Enable option to sort G-code files
+#endif
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #define PROUI_ITEM_PLR      // Tune > Power-loss Recovery
+#endif
+#if ENABLED(HAS_JUNCTION_DEVIATION)
+  #define PROUI_ITEM_JD       // Tune > Junction Deviation
+#endif
+#if ENABLED(LIN_ADVANCE)
+  #define PROUI_ITEM_ADVK     // Tune > Linear Advance
+#endif
+#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+  #define PROUI_TUNING_GRAPH 1
+#endif
+#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+#define HAS_CUSTOM_COLORS 1   // Change display colors
+#define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
+#define HAS_LOCKSCREEN 1      // Simple lockscreen
+#define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables

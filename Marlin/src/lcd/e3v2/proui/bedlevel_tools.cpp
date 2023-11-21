@@ -200,7 +200,7 @@ float BedLevelTools::getMinValue() {
 bool BedLevelTools::meshValidate() {
   GRID_LOOP(x, y) {
     const float v = bedlevel.z_values[x][y];
-    if (isnan(v) || !WITHIN(v, UBL_Z_OFFSET_MIN, UBL_Z_OFFSET_MAX)) return false;
+    if (isnan(v) || !WITHIN(v, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
   }
   return true;
 }
@@ -247,7 +247,7 @@ bool BedLevelTools::meshValidate() {
       // Draw value text on
       const uint8_t fs = DWINUI::fontWidth(meshfont);
       if (viewer_print_value) {
-        xy_int8_t offset { 0, cell_height_px / 2 - fs };
+        xy_int_t offset { 0, cell_height_px / 2 - fs };
         if (isnan(bedlevel.z_values[x][y])) {  // undefined
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset.y, F("X"));
         }
