@@ -195,14 +195,28 @@
 #define UNITFDIGITS 1
 #define MINUNITMULT POW(10, UNITFDIGITS)
 
-constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar height
-                   MLINE = 53,                                 // Menu line height
-                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
-                   MROWS = TROWS - 1,                          // Other-than-Back
-                   ICOX = 26,                                  // Menu item icon X position
-                   LBLX = 55,                                  // Menu item label X position
-                   VALX = 210,                                 // Menu item value X position
-                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
+/**
+ * @brief Menu Line Spacing
+ *
+ * @param TITLE_HEIGHT Title bar height
+ * @param MLINE Menu line height
+ * @param TROWS Total rows
+ * @param MROWS Other-than-Back
+ * @param ICOX Menu item icon X position
+ * @param LBLX Menu item label X position
+ * @param VALX Menu item value X position
+ * @param MENU_CHR_W/MENU_CHR_H Menu font 8x16
+ * @param STAT_CHR_W Menu Stats character width
+ *
+ */
+constexpr uint8_t  TITLE_HEIGHT = 30,
+                   MLINE = 53,
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,
+                   MROWS = TROWS - 1,
+                   ICOX = 26,
+                   LBLX = 55,
+                   VALX = 210,
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,
                    STAT_CHR_W = 10;
 
 // Menuitem Y position
