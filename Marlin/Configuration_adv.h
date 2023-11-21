@@ -1257,11 +1257,6 @@
   #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
 
-// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
-// of the buffer and all stops. This should not be much greater than zero and should only be changed
-// if unwanted behavior is observed on a user's machine when running at very slow speeds.
-#define MINIMUM_PLANNER_SPEED 0.05 // (mm/s)
-
 //
 // Backlash Compensation
 // Adds extra movement to axes on direction-changes to account for backlash.
@@ -1523,8 +1518,23 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
-  // Add 50/100mm moves to MarlinUI even with a smaller bed
-  //#define LARGE_MOVE_ITEMS
+  /**
+   * MarlinUI "Move Axis" menu distances. Comma-separated list.
+   * Values are displayed as-defined, so always use plain numbers here.
+   * Axis moves <= 1/2 the axis length and Extruder moves <= EXTRUDE_MAXLENGTH
+   * will be shown in the move submenus.
+   */
+  #define MANUAL_MOVE_DISTANCE_MM                    10, 1.0, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM         100, 50, 10, 1.0, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM    500, 100, 50, 10, 1.0, 0.1  // (mm)
+
+  // Manual move distances for INCH_MODE_SUPPORT
+  #define MANUAL_MOVE_DISTANCE_IN                          0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN          1.000, 0.500, 0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN   5.000, 1.000, 0.500, 0.100, 0.010, 0.001  // (in)
+
+  // Manual move distances for rotational axes
+  #define MANUAL_MOVE_DISTANCE_DEG             90, 45, 22.5, 5, 1  // (°)
 
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
@@ -4238,6 +4248,7 @@
                                           // row. By default idle() is profiled so this shows how "idle" the processor is.
                                           // See class CodeProfiler.
   //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multi-stepping 1 to 128 on this LED matrix row.
+  //#define MAX7219_DEBUG_SLOWDOWN      6 // Count (mod 16) how many times SLOWDOWN has reduced print speed.
 #endif
 
 /**
