@@ -3949,9 +3949,6 @@ void drawStepsMenu() {
   #endif
 
   #if ENABLED(PROUI_MESH_EDIT)
-    #define Z_OFFSET_MIN -3
-    #define Z_OFFSET_MAX  3
-
     void LiveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }

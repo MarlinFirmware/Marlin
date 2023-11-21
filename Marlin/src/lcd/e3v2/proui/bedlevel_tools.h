@@ -47,8 +47,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#define UBL_Z_OFFSET_MIN -3.0
-#define UBL_Z_OFFSET_MAX  3.0
+#define Z_OFFSET_MIN -3.0
+#define Z_OFFSET_MAX  3.0
 
 class BedLevelTools {
 public:
