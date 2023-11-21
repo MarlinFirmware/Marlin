@@ -89,7 +89,7 @@ function process_text(txt) {
   if (!patt) return txt;
   const pindefPatt = new RegExp(`^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(${patt.match})\\s*(//.*)?$`),
          noPinPatt = new RegExp(`^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(-1)\\s*(//.*)?$`),
-         skipPatt1 = new RegExp('^(\\s*(//)?#define)\\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BAUDRATE|CLOCK|CONNECTION|DEFAULT|FREQ|ITEM|MODULE|NAME|ONLY|PERIOD|RANGE|RATE|SERIAL|SIZE|SPI|STATE|STEP|TIMER))\\s+(.+)\\s*(//.*)?$'),
+         skipPatt1 = new RegExp('^(\\s*(//)?#define)\\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BASE_VERSION|BAUDRATE|CLOCK|CONNECTION|DEFAULT|ERROR|EXTRUDERS|FREQ|ITEM|MKS_BASE_VERSION|MODULE|NAME|ONLY|ORIENTATION|PERIOD|RANGE|RATE|READ_RETRIES|SERIAL|SIZE|SPI|STATE|STEP|TIMER))\\s+(.+)\\s*(//.*)?$'),
          skipPatt2 = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(0x[0-9A-Fa-f]+|\d+|.+[a-z].+)\\s*(//.*)?$'),
          aliasPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([A-Z_][A-Z0-9_()]+)\\s*(//.*)?$'),
         switchPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
