@@ -28,6 +28,8 @@
  * Date: 2022/08/08
  */
 
+#include "../../../inc/MarlinConfigPre.h"
+
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
@@ -42,10 +44,6 @@
 
 #if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
   #define HAS_ZOFFSET_ITEM 1
-#endif
-
-#if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
-  #define PROUI_PID_TUNE 1
 #endif
 
 #define defColorBackground  RGB( 1, 12,  8)
@@ -100,7 +98,7 @@
 #if HAS_MESH
   #define PROUI_MESH_EDIT   // Add a menu to edit mesh points
 #endif
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE)
+#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
 #endif
 #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
