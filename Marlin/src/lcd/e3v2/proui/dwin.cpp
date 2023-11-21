@@ -31,6 +31,10 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
+#include "dwin.h"
+#include "menus.h"
+#include "dwin_popup.h"
+
 #include "../../utf8.h"
 #include "../../marlinui.h"
 #include "../../../MarlinCore.h"
@@ -104,10 +108,6 @@
 #if HAS_TRINAMIC_CONFIG
   #include "../../../feature/tmc_util.h"
 #endif
-
-#include "dwin.h"
-#include "menus.h"
-#include "dwin_popup.h"
 
 #if HAS_GCODE_PREVIEW
   #include "gcode_preview.h"
