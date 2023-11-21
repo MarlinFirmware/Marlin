@@ -71,9 +71,9 @@ public:
     bool done = false;
     for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
       uint8_t *cBuf = pBuf;
-      sd2card->writeStart(blkAddr);
+      sd2card->writeStart(blkAddr, blkLen);
       bool okay = true;                   // Assume success
-      for (uint32 i = blkLen; i--;) {
+      for (uint32_t i = blkLen; i--;) {
         hal.watchdog_refresh();
         if (!sd2card->writeData(cBuf)) {  // Write. Did it fail?
           sd2card->writeStop();           // writeStop for new writeStart
@@ -103,7 +103,7 @@ public:
       uint8_t *cBuf = pBuf;
       sd2card->readStart(blkAddr);
       bool okay = true;                   // Assume success
-      for (uint32 i = blkLen; i--;) {
+      for (uint32_t i = blkLen; i--;) {
         hal.watchdog_refresh();
         if (!sd2card->readData(cBuf)) {   // Read. Did it fail?
           sd2card->readStop();            // readStop for new readStart

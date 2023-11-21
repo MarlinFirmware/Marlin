@@ -54,12 +54,6 @@
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
 #define ICON_Folder               ICON_More
-#define ICON_FWRetract            ICON_StepE
-#define ICON_FWRetLength          ICON_StepE
-#define ICON_FWRetSpeed           ICON_Setspeed
-#define ICON_FWRetZRaise          ICON_MoveZ
-#define ICON_FWRecSpeed           ICON_Setspeed
-#define ICON_FWRecExtra           ICON_StepE
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ

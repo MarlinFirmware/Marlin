@@ -160,7 +160,7 @@ void MMU2::mmu_loop() {
         MMU2_SEND("S1");    // Read Version
         state = -2;
       }
-      else if (millis() > 30000) { // 30sec after reset disable MMU
+      else if (ELAPSED(millis(), prev_request + 30000)) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
