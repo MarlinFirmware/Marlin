@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Mellow Fly E3 Pro V3"
+  #define BOARD_INFO_NAME "Fly E3 Pro V3"
   #define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
 #endif
 
