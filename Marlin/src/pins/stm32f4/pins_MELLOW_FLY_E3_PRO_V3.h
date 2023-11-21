@@ -80,7 +80,7 @@
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
 #else
-  #define Y_STOP_PIN                        PB10   // Y-STOP
+  #define Y_STOP_PIN                        PB10  // Y-STOP
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
@@ -115,7 +115,7 @@
 // Power Supply Control
 //
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                         PD11   // PS-ON
+  #define PS_ON_PIN                         PD11  // PS-ON
 #endif
 
 //
@@ -155,7 +155,6 @@
 #define E1_STEP_PIN                         PC13
 #define E1_DIR_PIN                          PC0
 
-
 //
 // Temperature Sensors
 //
@@ -168,26 +167,26 @@
 // Heaters / Fans
 //
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                      PA0   // "HB"
+  #define HEATER_BED_PIN                    PA0   // "HB"
 #endif
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                        PA5   // "HE0"
+  #define HEATER_0_PIN                      PA5   // "HE0"
 #endif
 #ifndef HEATER_1_PIN
-  #define HEATER_1_PIN                        PC6   // "HE0"
+  #define HEATER_1_PIN                      PC6   // "HE0"
 #endif
 
 #ifndef FAN0_PIN
-  #define FAN0_PIN                            PA7   // "FAN0"
+  #define FAN0_PIN                          PA7   // "FAN0"
 #endif
 #ifndef FAN1_PIN
-  #define FAN1_PIN                            PA6
+  #define FAN1_PIN                          PA6
 #endif
 #ifndef FAN2_PIN
-  #define FAN2_PIN                            PA5
+  #define FAN2_PIN                          PA5
 #endif
 #ifndef FAN3_PIN
-  #define FAN3_PIN                            PA4
+  #define FAN3_PIN                          PA4
 #endif
 
 #if HAS_TMC_UART
@@ -237,7 +236,6 @@
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
-
 
 /**
  *              Fly-E3-v2
@@ -458,7 +456,7 @@
     #define TFT_BACKLIGHT_PIN  LCD_BACKLIGHT_PIN
 
     #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
     #define TOUCH_CS_PIN             EXP1_05_PIN  // SPI1_NSS
     #define TOUCH_SCK_PIN            EXP2_02_PIN  // SPI1_SCK
