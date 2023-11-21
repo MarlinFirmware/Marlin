@@ -99,7 +99,7 @@ function process_text(txt) {
         switchPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
          undefPatt = new RegExp('^(\\s*(//)?#undef)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
            defPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([-_\\w]+)\\s*(//.*)?$'),
-          condPatt = new RegExp('^(\\s*(//)?#(if|ifn?def|else|elif)(\\s+\\S+)*)\\s+(//.*)$'),
+          condPatt = new RegExp('^(\\s*(//)?#(if|ifn?def|elif)(\\s+\\S+)*)\\s+(//.*)$'),
           commPatt = new RegExp('^\\s{20,}(//.*)?$');
   const col_value_lj = col_comment - patt.pad - 2;
   var r, out = '', check_comment_next = false;
@@ -179,7 +179,7 @@ function process_text(txt) {
     }
     else if ((r = condPatt.exec(line)) !== null) {
       //
-      // #if, #ifdef, #ifndef, #else, #endif ...
+      // #if, #ifdef, #ifndef, #elif ...
       //
       if (do_log) console.log("cond:", line);
       line = r[1].rpad(col_comment).concat_with_space(r[5]);
