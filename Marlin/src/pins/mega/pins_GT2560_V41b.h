@@ -58,8 +58,6 @@
  *
 */
 
-#define Z2_STOP_PIN                           80  // PE7 - Extended mega2560 pin
-
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                         24
@@ -84,6 +82,9 @@
     #define Z_MAX_PIN                         32
   #endif
 #endif
+#ifndef Z2_STOP_PIN
+  #define Z2_STOP_PIN                         80  // PE7 - Extended mega2560 pin
+#endif  
 
 /**                   Filament Runout Sensors
  *
