@@ -985,9 +985,8 @@ void drawPrintFileMenu() {
   if (card.isMounted()) {
     if (SET_MENU(fileMenu, MSG_MEDIA_MENU, nr_sd_menu_items() + 1)) {
       BACK_ITEM(gotoMainMenu);
-      for (uint8_t i = 0; i < nr_sd_menu_items(); ++i) {
+      for (uint8_t i = 0; i < nr_sd_menu_items(); ++i)
         menuItemAdd(onDrawFileName, onClickSDItem);
-      }
     }
     updateMenu(fileMenu);
     TERN_(DASH_REDRAW, dwinRedrawDash());
@@ -1022,7 +1021,6 @@ void hmiSDCardUpdate() {
  */
 
 void dwinDrawDashboard() {
-
   dwinDrawRectangle(1, hmiData.colorBackground, 0, STATUS_Y + 21, DWIN_WIDTH, DWIN_HEIGHT - 1);
   dwinDrawRectangle(1, hmiData.colorSplitLine, 0, 449, DWIN_WIDTH, 451);
 
@@ -1067,7 +1065,7 @@ void dwinDrawDashboard() {
 void drawInfoMenu() {
   DWINUI::clearMainArea();
   if (hmiIsChinese())
-    title.frameCopy(30, 17, 28, 13);                        // "Info"
+    title.frameCopy(30, 17, 28, 13);                      // "Info"
   else
     title.showCaption(GET_TEXT_F(MSG_INFO_SCREEN));
   drawMenuLine(0, ICON_Back, GET_TEXT_F(MSG_BACK), false, true);
@@ -1124,7 +1122,7 @@ void hmiMainMenu() {
         if (hmiData.mediaAutoMount) {
           card.mount();
           safe_delay(800);
-        };
+        }
         drawPrintFileMenu();
         break;
       case PAGE_PREPARE: drawPrepareMenu(); break;
@@ -2710,7 +2708,7 @@ void onDrawGetColorItem(MenuItem* menuitem, int8_t line) {
   dwinDrawRectangle(0, hmiData.colorHighlight, ICOX + 1, MBASE(line) - 1 + 1, ICOX + 18, MBASE(line) - 1 + 18);
   dwinDrawRectangle(1, color, ICOX + 2, MBASE(line) - 1 + 2, ICOX + 17, MBASE(line) - 1 + 17);
   DWINUI::drawString(LBLX, MBASE(line) - 1, menuitem->caption);
-  drawMenuIntValue(hmiData.colorBackground, line, 4, hmiValue.Color[i]);
+  drawMenuIntValue(hmiData.colorBackground, line, 4, hmiValue.color[i]);
   dwinDrawHLine(hmiData.colorSplitLine, 16, MYPOS(line + 1), 240);
 }
 
@@ -3665,24 +3663,24 @@ void drawStepsMenu() {
 
   void selColor() {
     menuData.intPtr = (int16_t*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
-    hmiValue.Color[0] = GetRColor(*menuData.intPtr);  // Red
-    hmiValue.Color[1] = GetGColor(*menuData.intPtr);  // Green
-    hmiValue.Color[2] = GetBColor(*menuData.intPtr);  // Blue
+    hmiValue.color.r = GetRColor(*menuData.intPtr); // Red
+    hmiValue.color.g = GetGColor(*menuData.intPtr); // Green
+    hmiValue.color.b = GetBColor(*menuData.intPtr); // Blue
     drawGetColorMenu();
   }
 
   void liveRGBColor() {
-    hmiValue.Color[currentMenu->line() - 2] = menuData.value;
-    uint16_t color = RGB(hmiValue.Color[0], hmiValue.Color[1], hmiValue.Color[2]);
+    hmiValue.color[currentMenu->line() - 2] = menuData.value;
+    const uint16_t color = RGB(hmiValue.color.r, hmiValue.color.g, hmiValue.color.b);
     dwinDrawRectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
   }
   void setRGBColor() {
     const uint8_t color = static_cast<MenuItem*>(currentMenu->selectedItem())->icon;
-    setIntOnClick(0, (color == 1) ? 63 : 31, hmiValue.Color[color], nullptr, liveRGBColor);
+    setIntOnClick(0, (color == 1) ? 63 : 31, hmiValue.color[color], nullptr, liveRGBColor);
   }
 
   void dwinApplyColor() {
-    *menuData.intPtr = RGB(hmiValue.Color[0], hmiValue.Color[1], hmiValue.Color[2]);
+    *menuData.intPtr = RGB(hmiValue.color.r, hmiValue.color.g, hmiValue.color.b);
     DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
     drawSelectColorsMenu();
     hash_changed = true;
@@ -3949,12 +3947,12 @@ void drawStepsMenu() {
   #endif
 
   #if ENABLED(PROUI_MESH_EDIT)
-    void LiveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
+    void liveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }
-    void ResetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
-    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, LiveEditMesh); }
-    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, LiveEditMesh); }
+    void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
+    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
+    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
   #endif
 
@@ -4023,7 +4021,7 @@ void drawStepsMenu() {
         MENU_ITEM(ICON_UBLSmartFill, MSG_UBL_SMART_FILLIN, onDrawMenuItem, ublSmartFillMesh);
       #endif
       #if ENABLED(PROUI_MESH_EDIT)
-        MENU_ITEM(ICON_MeshReset, MSG_MESH_RESET, onDrawMenuItem, ResetMesh);
+        MENU_ITEM(ICON_MeshReset, MSG_MESH_RESET, onDrawMenuItem, resetMesh);
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
