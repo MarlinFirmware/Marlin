@@ -30,9 +30,8 @@ String.prototype.rpad = function(len, chr) {
 // Concatenate a string, adding a space if necessary
 // to avoid merging two words
 String.prototype.concat_with_space = function(str) {
-  if (this.charAt(this.length - 1) !== ' ' && str.charAt(0) !== ' ') {
-    return this + ' ' + str;
-  }
+  if (this.charAt(this.length - 1) !== ' ' && str.charAt(0) !== ' ')
+    str = ' ' + str;
   return this + str;
 };
 
@@ -95,6 +94,7 @@ function process_text(txt) {
          noPinPatt = new RegExp(`^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(-1)\\s*(//.*)?$`),
          skipPatt1 = new RegExp('^(\\s*(//)?#define)\\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BAUDRATE|CLOCK|CONNECTION|DEFAULT|ERROR|EXTRUDERS|FREQ|ITEM|MKS_BASE_VERSION|MODULE|NAME|ONLY|ORIENTATION|PERIOD|RANGE|RATE|READ_RETRIES|SERIAL|SIZE|SPI|STATE|STEP|TIMER|VERSION))\\s+(.+)\\s*(//.*)?$'),
          skipPatt2 = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(0x[0-9A-Fa-f]+|\d+|.+[a-z].+)\\s*(//.*)?$'),
+         skipPatt3 = /^\s*#e(lse|ndif)\b.*$/,
          aliasPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([A-Z_][A-Z0-9_()]+)\\s*(//.*)?$'),
         switchPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
          undefPatt = new RegExp('^(\\s*(//)?#undef)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
@@ -136,7 +136,7 @@ function process_text(txt) {
       line = line.rpad(col_value_lj).concat_with_space('-1');
       if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
     }
-    else if (skipPatt2.exec(line) !== null) {
+    else if (skipPatt2.exec(line) !== null || skipPatt3.exec(line) !== null) {
       //
       // #define SKIP_ME
       //
@@ -179,7 +179,7 @@ function process_text(txt) {
     }
     else if ((r = condPatt.exec(line)) !== null) {
       //
-      // #if ...
+      // #if, #ifdef, #ifndef, #else, #endif ...
       //
       if (do_log) console.log("cond:", line);
       line = r[1].rpad(col_comment).concat_with_space(r[5]);

@@ -181,7 +181,7 @@
     #define BTN_ENC                  EXP1_02_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
 
-  #else                                           // !IS_NEWPANEL
+  #else // !IS_NEWPANEL
 
     #define SHIFT_CLK_PIN            EXP2_07_PIN
     #define SHIFT_LD_PIN             EXP2_03_PIN
