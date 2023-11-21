@@ -27,6 +27,15 @@ String.prototype.rpad = function(len, chr) {
   return s;
 };
 
+// Concatenate a string, adding a space if necessary
+// to avoid merging two words
+String.prototype.concat_with_space = function(str) {
+  if (this.charAt(this.length - 1) !== ' ' && str.charAt(0) !== ' ') {
+    return this + ' ' + str;
+  }
+  return this + str;
+};
+
 const mpatt = [ '-?\\d{1,3}', 'P[A-I]\\d+', 'P\\d_\\d+', 'Pin[A-Z]\\d\\b' ],
       definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${mpatt[0]}|${mpatt[1]}|${mpatt[2]}|${mpatt[3]})\\s*(//.*)?$`, 'gm'),
       ppad = [ 3, 4, 5, 5 ],
@@ -120,8 +129,8 @@ function process_text(txt) {
       if (do_log) console.log("pin:", line);
       const pinnum = r[4].charAt(0) == 'P' ? r[4] : r[4].lpad(patt.pad);
       line = r[1] + ' ' + r[3];
-      line = line.rpad(col_value_lj) + pinnum;
-      if (r[5]) line = line.rpad(col_comment) + r[5];
+      line = line.rpad(col_value_lj).concat_with_space(pinnum);
+      if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
     }
     else if ((r = noPinPatt.exec(line)) !== null) {
       //
@@ -129,8 +138,8 @@ function process_text(txt) {
       //
       if (do_log) console.log("pin -1:", line);
       line = r[1] + ' ' + r[3];
-      line = line.rpad(col_value_lj) + '-1';
-      if (r[5]) line = line.rpad(col_comment) + r[5];
+      line = line.rpad(col_value_lj).concat_with_space('-1');
+      if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
     }
     else if (skipPatt2.exec(line) !== null) {
       //
@@ -144,8 +153,10 @@ function process_text(txt) {
       //
       if (do_log) console.log("alias:", line);
       line = r[1] + ' ' + r[3];
-      line += r[4].lpad(col_value_rj + 1 - line.length);
-      if (r[5]) line = line.rpad(col_comment) + r[5];
+      line = line.concat_with_space(r[4].lpad(col_value_rj + 1 - line.length));
+      if (r[5]) {
+        line = line.rpad(col_comment).concat_with_space(r[5]);
+      }
     }
     else if ((r = switchPatt.exec(line)) !== null) {
       //
@@ -153,7 +164,7 @@ function process_text(txt) {
       //
       if (do_log) console.log("switch:", line);
       line = r[1] + ' ' + r[3];
-      if (r[4]) line = line.rpad(col_comment) + r[4];
+      if (r[4]) line = line.rpad(col_comment).concat_with_space(r[4]);
       check_comment_next = true;
     }
     else if ((r = defPatt.exec(line)) !== null) {
@@ -162,7 +173,7 @@ function process_text(txt) {
       //
       if (do_log) console.log("def:", line);
       line = r[1] + ' ' + r[3] + ' ';
-      line += r[4].lpad(col_value_rj + 1 - line.length);
+      line = line.concat_with_space(r[4].lpad(col_value_rj + 1 - line.length));
       if (r[5]) line = line.rpad(col_comment - 1) + ' ' + r[5];
     }
     else if ((r = undefPatt.exec(line)) !== null) {
@@ -171,14 +182,14 @@ function process_text(txt) {
       //
       if (do_log) console.log("undef:", line);
       line = r[1] + ' ' + r[3];
-      if (r[4]) line = line.rpad(col_comment) + r[4];
+      if (r[4]) line = line.rpad(col_comment).concat_with_space(r[4]);
     }
     else if ((r = condPatt.exec(line)) !== null) {
       //
       // #if ...
       //
       if (do_log) console.log("cond:", line);
-      line = r[1].rpad(col_comment) + r[5];
+      line = r[1].rpad(col_comment).concat_with_space(r[5]);
       check_comment_next = true;
     }
     out += line + '\n';
