@@ -3446,7 +3446,7 @@ void Stepper::report_positions() {
 
 #if ENABLED(FT_MOTION)
 
-  AxisBits Stepper::didMoveReport;
+  AxisBits Stepper::axis_step;
 
   // Set stepper I/O for fixed time controller.
   void Stepper::ftMotion_stepper() {
@@ -3465,18 +3465,11 @@ void Stepper::report_positions() {
 
     USING_TIMED_PULSE();
 
-    const xyze_bool_t axis_step = LOGICAL_AXIS_ARRAY(
+    axis_step = LOGICAL_AXIS_ARRAY(
       TEST(command, FT_BIT_STEP_E),
       TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
       TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
       TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
-    );
-
-    LOGICAL_AXIS_CODE(
-      didMoveReport.e |= axis_step.e,
-      didMoveReport.x |= axis_step.x, didMoveReport.y |= axis_step.y, didMoveReport.z |= axis_step.z,
-      didMoveReport.i |= axis_step.i, didMoveReport.j |= axis_step.j, didMoveReport.k |= axis_step.k,
-      didMoveReport.u |= axis_step.u, didMoveReport.v |= axis_step.v, didMoveReport.w |= axis_step.w
     );
 
     last_direction_bits = LOGICAL_AXIS_ARRAY(
@@ -3599,16 +3592,16 @@ void Stepper::report_positions() {
 
     static xyze_ulong_t didMoveDeb;
     LOGICAL_AXIS_CODE(
-      if (didMoveReport.e) didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400), // TODO: aux rate magic number
-      if (didMoveReport.x) didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.y) didMoveDeb.y = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.z) didMoveDeb.z = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.i) didMoveDeb.i = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.j) didMoveDeb.j = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.k) didMoveDeb.k = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.u) didMoveDeb.u = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.v) didMoveDeb.v = int((FTM_AXIS_MOVE_DEB_TI) * 400),
-      if (didMoveReport.w) didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400)
+      if (axis_step.e) didMoveDeb.e = int((FTM_AXIS_MOVE_DEB_TI) * 400), // TODO: aux rate magic number
+      if (axis_step.x) didMoveDeb.x = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.y) didMoveDeb.y = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.z) didMoveDeb.z = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.i) didMoveDeb.i = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.j) didMoveDeb.j = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.k) didMoveDeb.k = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.u) didMoveDeb.u = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.v) didMoveDeb.v = int((FTM_AXIS_MOVE_DEB_TI) * 400),
+      if (axis_step.w) didMoveDeb.w = int((FTM_AXIS_MOVE_DEB_TI) * 400)
     );
 
     AxisBits didmove;
@@ -3626,8 +3619,6 @@ void Stepper::report_positions() {
     );
 
     axis_did_move = didmove;
-
-    didMoveReport.reset();
   }
 
 #endif // FT_MOTION

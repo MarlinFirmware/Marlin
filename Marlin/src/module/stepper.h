@@ -456,7 +456,7 @@ class Stepper {
     static xyze_int8_t count_direction;
 
     #if ENABLED(FT_MOTION)
-      static AxisBits didMoveReport;
+      static AxisBits axis_step;
     #endif
 
   public:

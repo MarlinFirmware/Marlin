@@ -1133,13 +1133,14 @@
   /**
    * Advanced configuration
    */
-  #define FTM_UNIFIED_BWS                              // Disable for Ulendo FBS or custom Window and Batch values
+  #define FTM_UNIFIED_BWS                               // Don't Disable unless you use Ulendo's FBS 
   #if ENABLED(FTM_UNIFIED_BWS)
     #define FTM_BW_SIZE               100               // Unified Window and Batch size with a ratio of 2
-  #else                                                 // Custom Window and Batch sizes needed by Ulendo FBS
-    #define FTM_WINDOW_SIZE           200               // Window size for trajectory generation
-    #define FTM_BATCH_SIZE            100               // Batch size for trajectory generation
+  #else                                                 
+    #define FTM_WINDOW_SIZE           200               // Custom Window size for trajectory generation needed by Ulendo FBS
+    #define FTM_BATCH_SIZE            100               // Custom Batch size for trajectory generation needed by Ulendo FBS
   #endif
+
   #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
   #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
 
