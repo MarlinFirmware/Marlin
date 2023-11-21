@@ -2124,12 +2124,10 @@ void Temperature::task() {
     #if TEMP_SENSOR_IS_MAX_TC(BED)
     {
       const auto deg = degBed();
-      if (deg > (BED_MAXTEMP) - 1.00f) MAXTEMP_ERROR(H_REDUNDANT, deg);
-      if (deg < (BED_MINTEMP) + 0.01f) MINTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg > _MIN(BED_MAXTEMP, TEMP_SENSOR_BED_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_BED, deg);
+      if (deg < _MAX(BED_MINTEMP, TEMP_SENSOR_BED_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_BED, deg);
     }
     #endif
-  #else
-    #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
   #endif
 
   const millis_t ms = millis();
@@ -2343,7 +2341,7 @@ void Temperature::task() {
               max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_0_IS_AD595
           return TEMP_AD595(raw);
@@ -2362,7 +2360,7 @@ void Temperature::task() {
               max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_1_IS_AD595
           return TEMP_AD595(raw);
@@ -2381,7 +2379,7 @@ void Temperature::task() {
               max31865_2.temperature(MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_2_IS_AD595
           return TEMP_AD595(raw);
@@ -2465,7 +2463,7 @@ void Temperature::task() {
           max31865_BED.temperature(MAX31865_SENSOR_OHMS_BED, MAX31865_CALIBRATION_OHMS_BED)
         );
       #else
-        return (int16_t)raw * 0.25;
+        return (int16_t)raw * 0.25f;
       #endif
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
@@ -2572,11 +2570,11 @@ void Temperature::task() {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
@@ -3664,13 +3662,16 @@ void Temperature::update_raw_temperatures() {
     temp_redundant.update();
   #endif
 
+  #if HAS_TEMP_ADC_BED && !TEMP_SENSOR_IS_MAX_TC(BED)
+    temp_bed.update();
+  #endif
+
   TERN_(HAS_TEMP_ADC_2,       temp_hotend[2].update());
   TERN_(HAS_TEMP_ADC_3,       temp_hotend[3].update());
   TERN_(HAS_TEMP_ADC_4,       temp_hotend[4].update());
   TERN_(HAS_TEMP_ADC_5,       temp_hotend[5].update());
   TERN_(HAS_TEMP_ADC_6,       temp_hotend[6].update());
   TERN_(HAS_TEMP_ADC_7,       temp_hotend[7].update());
-  TERN_(HAS_TEMP_ADC_BED,     temp_bed.update());
   TERN_(HAS_TEMP_ADC_CHAMBER, temp_chamber.update());
   TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
   TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
