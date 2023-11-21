@@ -3397,6 +3397,13 @@
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
   #endif
+
+  //Range for speed and flow adjustment sliders (expressed in percents)
+  #define TOUCH_SPEED_TUNE_MIN  10
+  #define TOUCH_SPEED_TUNE_MAX 999
+
+  #define TOUCH_FLOW_TUNE_MIN  10
+  #define TOUCH_FLOW_TUNE_MAX 999
 #endif
 
 //
