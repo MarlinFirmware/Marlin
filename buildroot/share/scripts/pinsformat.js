@@ -30,7 +30,8 @@ String.prototype.rpad = function(len, chr) {
 // Concatenate a string, adding a space if necessary
 // to avoid merging two words
 String.prototype.concat_with_space = function(str) {
-  if (this.charAt(this.length - 1) !== ' ' && str.charAt(0) !== ' ')
+  const c = this.substr(-1), d = str.charAt(0);
+  if (c !== ' ' && c !== '' && d !== ' ' && d !== '')
     str = ' ' + str;
   return this + str;
 };
