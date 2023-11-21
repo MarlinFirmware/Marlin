@@ -47,9 +47,6 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#define Z_OFFSET_MIN -3.0
-#define Z_OFFSET_MAX  3.0
-
 class BedLevelTools {
 public:
   #if ENABLED(USE_GRID_MESHVIEWER)
