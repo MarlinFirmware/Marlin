@@ -96,6 +96,9 @@
 #if HAS_MESH
   #define PROUI_MESH_EDIT   // Add a menu to edit mesh points
 #endif
+#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+  #define PROUI_TUNING_GRAPH 1
+#endif
 #define HAS_GCODE_PREVIEW 1
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
