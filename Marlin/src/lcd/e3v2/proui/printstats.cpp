@@ -31,52 +31,52 @@
 
 #if ALL(DWIN_LCD_PROUI, PRINTCOUNTER)
 
-  #include "printstats.h"
+#include "printstats.h"
 
-  #include "../../../core/types.h"
-  #include "../../../MarlinCore.h"
-  #include "../../marlinui.h"
-  #include "../../../module/printcounter.h"
-  #include "dwin.h"
-  #include "dwin_popup.h"
+#include "../../../core/types.h"
+#include "../../../MarlinCore.h"
+#include "../../marlinui.h"
+#include "../../../module/printcounter.h"
+#include "dwin.h"
+#include "dwin_popup.h"
 
-  PrintStats printStats;
+PrintStats printStats;
 
-  void PrintStats::draw() {
-    char str[30] = "";
-    constexpr int8_t MRG = 30;
+void PrintStats::draw() {
+  char str[30] = "";
+  constexpr int8_t MRG = 30;
 
-    title.showCaption(GET_TEXT_F(MSG_INFO_STATS_MENU));
-    DWINUI::clearMainArea();
-    drawPopupBkgd();
-    DWINUI::drawButton(BTN_Continue, 86, 250);
-    printStatistics ps = print_job_timer.getStats();
+  title.showCaption(GET_TEXT_F(MSG_INFO_STATS_MENU));
+  DWINUI::clearMainArea();
+  drawPopupBkgd();
+  DWINUI::drawButton(BTN_Continue, 86, 250);
+  printStatistics ps = print_job_timer.getStats();
 
-    DWINUI::drawString(MRG,  80, TS(GET_TEXT_F(MSG_INFO_PRINT_COUNT), F(": "), ps.totalPrints));
-    DWINUI::drawString(MRG, 100, TS(GET_TEXT_F(MSG_INFO_COMPLETED_PRINTS), F(": "), ps.finishedPrints));
-    duration_t(print_job_timer.getStats().printTime).toDigital(str, true);
-    DWINUI::drawString(MRG, 120, MString<50>(GET_TEXT_F(MSG_INFO_PRINT_TIME), F(": "), str));
-    duration_t(print_job_timer.getStats().longestPrint).toDigital(str, true);
-    DWINUI::drawString(MRG, 140, MString<50>(GET_TEXT(MSG_INFO_PRINT_LONGEST), F(": "), str));
-    DWINUI::drawString(MRG, 160, TS(GET_TEXT_F(MSG_INFO_PRINT_FILAMENT), F(": "), p_float_t(ps.filamentUsed / 1000, 2), F(" m")));
-  }
+  DWINUI::drawString(MRG,  80, TS(GET_TEXT_F(MSG_INFO_PRINT_COUNT), F(": "), ps.totalPrints));
+  DWINUI::drawString(MRG, 100, TS(GET_TEXT_F(MSG_INFO_COMPLETED_PRINTS), F(": "), ps.finishedPrints));
+  duration_t(print_job_timer.getStats().printTime).toDigital(str, true);
+  DWINUI::drawString(MRG, 120, MString<50>(GET_TEXT_F(MSG_INFO_PRINT_TIME), F(": "), str));
+  duration_t(print_job_timer.getStats().longestPrint).toDigital(str, true);
+  DWINUI::drawString(MRG, 140, MString<50>(GET_TEXT(MSG_INFO_PRINT_LONGEST), F(": "), str));
+  DWINUI::drawString(MRG, 160, TS(GET_TEXT_F(MSG_INFO_PRINT_FILAMENT), F(": "), p_float_t(ps.filamentUsed / 1000, 2), F(" m")));
+}
 
-  void PrintStats::reset() {
-    print_job_timer.initStats();
-    DONE_BUZZ(true);
-  }
+void PrintStats::reset() {
+  print_job_timer.initStats();
+  DONE_BUZZ(true);
+}
 
-  void gotoPrintStats() {
-    printStats.draw();
-    hmiSaveProcessID(ID_WaitResponse);
-  }
+void gotoPrintStats() {
+  printStats.draw();
+  hmiSaveProcessID(ID_WaitResponse);
+}
 
-  // Print Stats Reset popup
-  void popupResetStats() { dwinPopupConfirmCancel(ICON_Info_0, GET_TEXT_F(MSG_RESET_STATS)); }
-  void onClickResetStats() {
-    if (hmiFlag.select_flag) printStats.reset();
-    hmiReturnScreen();
-  }
-  void printStatsReset() { gotoPopup(popupResetStats, onClickResetStats); }
+// Print Stats Reset popup
+void popupResetStats() { dwinPopupConfirmCancel(ICON_Info_0, GET_TEXT_F(MSG_RESET_STATS)); }
+void onClickResetStats() {
+  if (hmiFlag.select_flag) printStats.reset();
+  hmiReturnScreen();
+}
+void printStatsReset() { gotoPopup(popupResetStats, onClickResetStats); }
 
 #endif // DWIN_LCD_PROUI && PRINTCOUNTER

@@ -72,7 +72,7 @@
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
-#if HAS_MESH || ALL(HAS_LEVELING, HAS_ZOFFSET_ITEM)
+#if HAS_MESH || (HAS_LEVELING && HAS_ZOFFSET_ITEM)
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "bedlevel_tools.h"
 #endif
@@ -164,7 +164,7 @@
 #define DWIN_VAR_UPDATE_INTERVAL          500
 #define DWIN_UPDATE_INTERVAL             1000
 
-#if ALL(HAS_MESH, HAS_BED_PROBE)
+#if HAS_MESH && HAS_BED_PROBE
   #define BABY_Z_VAR probe.offset.z
 #else
   float z_offset = 0;
@@ -443,7 +443,7 @@ void popupPauseOrStop() {
 
 #endif
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
   void dwinPopupTemperature(const bool toohigh) {
     hmiSaveProcessID(ID_WaitResponse);
     if (hmiIsChinese()) {
@@ -2390,7 +2390,7 @@ void setFlow() { setPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, []{ planner.refr
 
   #endif
 
-  #if ALL(HAS_BED_PROBE, HAS_MESH)
+  #if HAS_BED_PROBE && HAS_MESH
 
     void trammingwizard() {
       if (hmiData.fullManualTramming) {
@@ -3026,10 +3026,10 @@ void drawPrepareMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(trammingMenu, MSG_BED_TRAMMING, 8)) {
       BACK_ITEM(drawPrepareMenu);
-      #if ALL(HAS_BED_PROBE, HAS_MESH)
+      #if HAS_BED_PROBE && HAS_MESH
         MENU_ITEM(ICON_ProbeSet, MSG_TRAMMING_WIZARD, onDrawMenuItem, trammingwizard);
         EDIT_ITEM(ICON_ProbeSet, MSG_BED_TRAMMING_MANUAL, onDrawChkbMenu, setManualTramming, &hmiData.fullManualTramming);
-      #elif ALL(!HAS_BED_PROBE, HAS_ZOFFSET_ITEM)
+      #elif !HAS_BED_PROBE && HAS_ZOFFSET_ITEM
         MENU_ITEM_F(ICON_MoveZ0, "Home Z and disable", onDrawMenuItem, homeZAndDisable);
       #endif
       MENU_ITEM(ICON_Axis, MSG_TRAM_FL, onDrawMenuItem, []{ (void)tram(0); });
