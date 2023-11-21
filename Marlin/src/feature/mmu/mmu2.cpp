@@ -210,7 +210,12 @@ void MMU2::mmu_loop() {
 
     case -4:
       if (rx_ok()) {
-        sscanf(rx_buffer, "%hhuok\n", &finda);
+        // sscanf(rx_buffer, "%hhuok\n", &finda);
+        if (rx_buffer[0] == '0'){
+          finda = 0;
+        } else if (rx_buffer[0] == '1'){
+          finda = 1;
+        }
 
         DEBUG_ECHOLNPGM("MMU => ", finda, "\nMMU - ENABLED");
 
@@ -283,7 +288,12 @@ void MMU2::mmu_loop() {
 
     case 2:   // response to command P0
       if (rx_ok()) {
-        sscanf(rx_buffer, "%hhuok\n", &finda);
+        // sscanf(rx_buffer, "%hhuok\n", &finda);
+        if (rx_buffer[0] == '0'){
+          finda = 0;
+        } else if (rx_buffer[0] == '1'){
+          finda = 1;
+        }
 
         // This is super annoying. Only activate if necessary
         //if (finda_runout_valid) DEBUG_ECHOLNPGM("MMU <= 'P0'\nMMU => ", p_float_t(finda, 6));
