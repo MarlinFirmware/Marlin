@@ -154,9 +154,7 @@ function process_text(txt) {
       if (do_log) console.log("alias:", line);
       line = r[1] + ' ' + r[3];
       line = line.concat_with_space(r[4].lpad(col_value_rj + 1 - line.length));
-      if (r[5]) {
-        line = line.rpad(col_comment).concat_with_space(r[5]);
-      }
+      if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
     }
     else if ((r = switchPatt.exec(line)) !== null) {
       //
