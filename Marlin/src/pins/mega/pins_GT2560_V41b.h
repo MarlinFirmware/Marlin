@@ -51,7 +51,7 @@
  *  X AXIS              Y AXIS               Z1 AXIS            Z0 AXIS
  *    ---                 ---                 ---                 ---
  *   | 1 | 5V            | 1 | 5V            | 1 | 5V            | 1 | 5V
- *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | 80 Z1_MIN    | 2 | 30 Z0_MIN
+ *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | 80 Z1_MIN     | 2 | 30 Z0_MIN
  *   | 3 | GND           | 3 | GND           | 3 | GND           | 3 | GND
  *    ---                 ---                 ---                 ---
  *     J3                  J4                  J5                  J6
