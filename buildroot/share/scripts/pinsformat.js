@@ -80,10 +80,9 @@ function get_pin_pattern(txt) {
       }
     }
   }
-  if (max_match_index !== -1) {
-    return { match: mpatt[max_match_index], pad: ppad[max_match_index] };
-  }
-  return null;
+  if (max_match_index === -1) return null;
+
+  return { match:mpatt[max_match_index], pad:ppad[max_match_index] };
 }
 
 function process_text(txt) {
