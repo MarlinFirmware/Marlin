@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -117,7 +117,11 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
+  #if DISABLED(BLTOUCH)
+    #define Z_MIN_PROBE_PIN                 PC5   // Probe (Proximity switch) port
+  #else
+    #define Z_MIN_PROBE_PIN                 PB7
+  #endif
 #endif
 
 //
@@ -173,7 +177,6 @@
 
 #define Z2_STEP_PIN                         PG4   // MOTOR 3
 #define Z2_DIR_PIN                          PC1
-#define Z2_ENABLE_PIN                       PA0
 #ifndef Z2_CS_PIN
   #define Z2_CS_PIN                         PC7
 #endif
@@ -215,13 +218,22 @@
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
 
+#if TEMP_SENSOR_0 == -5
+  #define TEMP_0_CS_PIN                     PF8   // Max31865 CS
+  #define TEMP_0_SCK_PIN                    PA5
+  #define TEMP_0_MISO_PIN                   PA6
+  #define TEMP_0_MOSI_PIN                   PA7
+  #define SOFTWARE_SPI                            // Max31865 and LCD SD share a set of SPIs, Set SD to softwareSPI for Max31865
+  #define FORCE_SOFT_SPI
+#else
+  #define TEMP_0_PIN                        PF4   // TH0
+#endif
+
 //
 // Heaters / Fans
 //
 #define HEATER_BED_PIN                      PA1   // Hotbed
-#define HEATER_0_PIN                        PA2   // Heater0
 #define HEATER_1_PIN                        PA3   // Heater1
-#define HEATER_2_PIN                        PB10  // Heater2
 #define HEATER_3_PIN                        PB11  // Heater3
 
 #define FAN0_PIN                            PA8   // Fan0
@@ -341,7 +353,7 @@
   #ifndef SD_DETECT_STATE
     #define SD_DETECT_STATE HIGH
   #elif SD_DETECT_STATE == LOW
-    #error "BOARD_BTT_OCTOPUS_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
+    #error "BOARD_BTT_OCTOPUS_V1_1 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
@@ -519,13 +531,6 @@
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
   #define BTN_ENC                    EXP1_02_PIN
-#endif
-
-//
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB0
 #endif
 
 #if ENABLED(WIFISUPPORT)

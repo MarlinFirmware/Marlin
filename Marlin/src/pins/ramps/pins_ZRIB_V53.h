@@ -374,7 +374,7 @@
   #define KILL_PIN                            -1
   #if ANY(OLED_HW_IIC, OLED_HW_SPI)
     #error "Oops! You must choose SW SPI for ZRIB V53 board and connect the OLED screen to EXP1 connector."
-  #else                                           // SW_SPI
+  #else // SW_SPI
     #define DOGLCD_A0                LCD_PINS_DC
     #define DOGLCD_MOSI                       35  // SDA
     #define DOGLCD_SCK                        37  // SCK

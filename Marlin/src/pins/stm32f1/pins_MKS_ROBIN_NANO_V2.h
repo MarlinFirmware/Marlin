@@ -356,7 +356,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if IS_ULTIPANEL
