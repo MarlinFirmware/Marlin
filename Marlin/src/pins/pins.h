@@ -349,7 +349,7 @@
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
 #elif MB(GT2560_V41B)
-  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560
+  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560ext
 
 //
 // ATmega1281, ATmega2561

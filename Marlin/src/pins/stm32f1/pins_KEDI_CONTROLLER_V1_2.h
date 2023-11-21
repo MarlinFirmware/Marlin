@@ -242,7 +242,7 @@
       //  #define NEOPIXEL_PIN       EXP1_05_PIN
       //#endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_06_PIN
       #if IS_ULTIPANEL
