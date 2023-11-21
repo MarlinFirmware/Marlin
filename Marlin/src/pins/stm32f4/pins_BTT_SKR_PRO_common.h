@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT

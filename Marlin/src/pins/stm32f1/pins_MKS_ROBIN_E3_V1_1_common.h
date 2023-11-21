@@ -34,6 +34,6 @@
 #define Z_STEP_PIN                          PC14
 #define Z_DIR_PIN                           PC15
 
-#define BTN_ENC_EN                            -1
+#define BTN_ENC_EN                          -1
 
 #include "pins_MKS_ROBIN_E3_common.h"
