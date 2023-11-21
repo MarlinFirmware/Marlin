@@ -108,28 +108,57 @@
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
 
+/**
+ *                ------                                    ------
+ * (BEEPER) PB10 | 1  2 | PC13 (BTN_ENC)    (MISO)    PA6  | 1  2 | PA5 (SCK)
+ * (LCD_EN) PB13 | 3  4 | PB12 (LCD_RS)     (BTN_EN1) PC15 | 3  4 | PA4 (SD_SS)
+ * (LCD_D4) PB14   5  6 | PA3  (LCD_D5)     (BTN_EN2) PC14   5  6 | PA7 (MOSI)
+ * (LCD_D6)    - | 7  8 | -    (LCD_D7)     (SD_DET)     - | 7  8 | RESET
+ *           GND | 9 10 | 5V                           GND | 9 10 | -
+ *                ------                                    ------
+ *                 EXP1                                      EXP2
+ */
+#define EXP1_01_PIN                         PB10  // BEEPER
+#define EXP1_02_PIN                         PC13  // ENC
+#define EXP1_03_PIN                         PB13  // EN
+#define EXP1_04_PIN                         PB12  // RS
+#define EXP1_05_PIN                         PB14  // D4
+#define EXP1_06_PIN                         PA3   // D5
+#define EXP1_07_PIN                         -1
+#define EXP1_08_PIN                         -1
+
+#define EXP2_01_PIN                         PA6   // MISO
+#define EXP2_02_PIN                         PA5   // SCK
+#define EXP2_03_PIN                         PC15  // EN1
+#define EXP2_04_PIN                         PA4   // SS
+#define EXP2_05_PIN                         PC14  // EN2
+#define EXP2_06_PIN                         PA7   // MOSI
+#define EXP2_07_PIN                         -1
+#define EXP2_08_PIN                         -1    // RESET
+#define EXP2_10_PIN                         -1
+
 //
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                        PB10
+  #define BEEPER_PIN                 EXP1_01_PIN
 
-  #define BTN_EN1                           PC15
-  #define BTN_EN2                           PC14
-  #define BTN_ENC                           PC13
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_EN                       PB13
-  #define LCD_PINS_D4                       PB14
-  #define LCD_PINS_D5                       PA3
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS                       PB13
-    #define DOGLCD_A0                       PB12
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_04_PIN
     //#define LCD_BACKLIGHT_PIN             -1
-    #define LCD_RESET_PIN                   PB14  // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
     #if ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN                  PA3
+      #define NEOPIXEL_PIN           EXP1_06_PIN
     #endif
   #endif
 
