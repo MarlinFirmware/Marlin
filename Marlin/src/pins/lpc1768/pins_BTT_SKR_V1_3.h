@@ -372,7 +372,7 @@
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      1
 
       //#define TFT_RST_PIN          EXP2_07_PIN
       #define TFT_SCK_PIN            EXP2_02_PIN
@@ -422,7 +422,7 @@
 
     #define SD_DETECT_PIN            EXP2_07_PIN
 
-  #else // !CR10_STOCKDISPLAY
+  #else                                           // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS              EXP1_04_PIN
 
@@ -463,7 +463,7 @@
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
 
-    #else // !FYSETC_MINI_12864
+    #else                                         // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
 
