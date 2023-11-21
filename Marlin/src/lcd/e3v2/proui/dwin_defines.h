@@ -44,6 +44,10 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
+  #define PROUI_PID_TUNE 1
+#endif
+
 #define defColorBackground  RGB( 1, 12,  8)
 #define defColorCursor      RGB(20, 49, 31)
 #define defColorTitleBg     RGB( 0, 23, 16)
@@ -82,7 +86,7 @@
  * ProUI internal feature flags
  */
 #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
-  #define PROUI_MEDIASORT
+  #define PROUI_MEDIASORT   // Enable option to sort G-code files
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   #define PROUI_ITEM_PLR    // Tune > Power-loss Recovery
@@ -96,10 +100,10 @@
 #if HAS_MESH
   #define PROUI_MESH_EDIT   // Add a menu to edit mesh points
 #endif
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE)
   #define PROUI_TUNING_GRAPH 1
 #endif
-#define HAS_GCODE_PREVIEW 1
+#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
