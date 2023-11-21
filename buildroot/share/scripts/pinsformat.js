@@ -82,13 +82,8 @@ function get_pin_pattern(txt) {
     }
   }
   if (max_match_index !== -1) {
-    if (do_log) {
-      match_count.forEach((count, index) => {
-        console.log("Index: " + index, "Count: " + count, "Pattern: " + mpatt[index]);
-      });
-    }
-    return { match: mpatt[max_match_index], pad:ppad[max_match_index] };
-      }
+    return { match: mpatt[max_match_index], pad: ppad[max_match_index] };
+  }
   return null;
 }
 
