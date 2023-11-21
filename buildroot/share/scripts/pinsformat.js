@@ -56,6 +56,7 @@ else
 // Find the pin pattern so non-pin defines can be skipped
 function get_pin_pattern(txt) {
   var r, m = 0, match_count = [ 0, 0, 0, 0 ];
+  var max_match_count = 0, max_match_index = -1;
   definePatt.lastIndex = 0;
   while ((r = definePatt.exec(txt)) !== null) {
     let ind = -1;
@@ -65,11 +66,20 @@ function get_pin_pattern(txt) {
       return r[2].match(p);
     }) ) {
       const m = ++match_count[ind];
-      if (m >= 5) {
-        return { match: mpatt[ind], pad:ppad[ind] };
+      if (m > max_match_count) {
+        max_match_count = m;
+        max_match_index = ind;
       }
     }
   }
+  if (max_match_index !== -1) {
+    if (do_log) {
+      match_count.forEach((count, index) => {
+        console.log("Index: " + index, "Count: " + count, "Pattern: " + mpatt[index]);
+      });
+    }
+    return { match: mpatt[max_match_index], pad:ppad[max_match_index] };
+      }
   return null;
 }
 
