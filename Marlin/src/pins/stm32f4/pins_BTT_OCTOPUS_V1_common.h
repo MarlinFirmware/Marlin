@@ -494,7 +494,7 @@
     #endif
 
   #endif
-#endif  // HAS_WIRED_LCD
+#endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

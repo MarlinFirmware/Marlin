@@ -55,21 +55,21 @@ void TouchCalibration::validate_calibration() {
                      && VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
   #undef VALIDATE_PRECISION
 
-  #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
+  #define CP(N) calibration_points[CALIBRATION_##N]
   if (landscape) {
     calibration_state = CALIBRATION_SUCCESS;
-    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x + CAL_PTS(TOP_RIGHT).raw_x - CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
-    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y - CAL_PTS(TOP_RIGHT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
-    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x) * calibration.x) >> 17);
-    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(TOP_RIGHT).raw_y) * calibration.y) >> 17);
+    calibration.x = ((CP(TOP_RIGHT).x - CP(TOP_LEFT).x) << 17) / (CP(BOTTOM_RIGHT).raw.x + CP(TOP_RIGHT).raw.x - CP(BOTTOM_LEFT).raw.x - CP(TOP_LEFT).raw.x);
+    calibration.y = ((CP(BOTTOM_LEFT).y - CP(TOP_LEFT).y) << 17) / (CP(BOTTOM_RIGHT).raw.y - CP(TOP_RIGHT).raw.y + CP(BOTTOM_LEFT).raw.y - CP(TOP_LEFT).raw.y);
+    calibration.offset.x = CP(TOP_LEFT).x - int16_t(((CP(TOP_LEFT).raw.x + CP(BOTTOM_LEFT).raw.x) * calibration.x) >> 17);
+    calibration.offset.y = CP(TOP_LEFT).y - int16_t(((CP(TOP_LEFT).raw.y + CP(TOP_RIGHT).raw.y) * calibration.y) >> 17);
     calibration.orientation = TOUCH_LANDSCAPE;
   }
   else if (portrait) {
     calibration_state = CALIBRATION_SUCCESS;
-    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y + CAL_PTS(TOP_RIGHT).raw_y - CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
-    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x - CAL_PTS(TOP_RIGHT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
-    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y) * calibration.x) >> 17);
-    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(TOP_RIGHT).raw_x) * calibration.y) >> 17);
+    calibration.x = ((CP(TOP_RIGHT).x - CP(TOP_LEFT).x) << 17) / (CP(BOTTOM_RIGHT).raw.y + CP(TOP_RIGHT).raw.y - CP(BOTTOM_LEFT).raw.y - CP(TOP_LEFT).raw.y);
+    calibration.y = ((CP(BOTTOM_LEFT).y - CP(TOP_LEFT).y) << 17) / (CP(BOTTOM_RIGHT).raw.x - CP(TOP_RIGHT).raw.x + CP(BOTTOM_LEFT).raw.x - CP(TOP_LEFT).raw.x);
+    calibration.offset.x = CP(TOP_LEFT).x - int16_t(((CP(TOP_LEFT).raw.y + CP(BOTTOM_LEFT).raw.y) * calibration.x) >> 17);
+    calibration.offset.y = CP(TOP_LEFT).y - int16_t(((CP(TOP_LEFT).raw.x + CP(TOP_RIGHT).raw.x) * calibration.y) >> 17);
     calibration.orientation = TOUCH_PORTRAIT;
   }
   else {
@@ -77,29 +77,29 @@ void TouchCalibration::validate_calibration() {
     calibration_reset();
     if (need_calibration() && failed_count++ < TOUCH_CALIBRATION_MAX_RETRIES) calibration_state = CALIBRATION_NONE;
   }
-  #undef CAL_PTS
+  #undef CP
 
   if (calibration_state == CALIBRATION_SUCCESS) {
     SERIAL_ECHOLNPGM("Touch screen calibration completed");
-    SERIAL_ECHOLNPGM("TOUCH_CALIBRATION_X ", calibration.x);
-    SERIAL_ECHOLNPGM("TOUCH_CALIBRATION_Y ", calibration.y);
-    SERIAL_ECHOLNPGM("TOUCH_OFFSET_X ", calibration.offset_x);
-    SERIAL_ECHOLNPGM("TOUCH_OFFSET_Y ", calibration.offset_y);
-    SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "TOUCH_ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
+    SERIAL_ECHOLN(F("#define TOUCH_"), F("CALIBRATION_X "), calibration.x);
+    SERIAL_ECHOLN(F("#define TOUCH_"), F("CALIBRATION_Y "), calibration.y);
+    SERIAL_ECHOLN(F("#define TOUCH_"), F("OFFSET_X "), calibration.offset.x);
+    SERIAL_ECHOLN(F("#define TOUCH_"), F("OFFSET_Y "), calibration.offset.y);
+    SERIAL_ECHO(F("#define TOUCH_")); SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
     TERN_(TOUCH_CALIBRATION_AUTO_SAVE, settings.save());
   }
 }
 
-bool TouchCalibration::handleTouch(const uint16_t x, const uint16_t y) {
+bool TouchCalibration::handleTouch(const xy_int_t &point) {
   const millis_t now = millis();
-
   if (next_touch_update_ms && PENDING(now, next_touch_update_ms)) return false;
   next_touch_update_ms = now + BUTTON_DELAY_MENU;
 
   if (calibration_state < CALIBRATION_SUCCESS) {
-    calibration_points[calibration_state].raw_x = x;
-    calibration_points[calibration_state].raw_y = y;
-    DEBUG_ECHOLNPGM("TouchCalibration - State: ", calibration_state, ", x: ", calibration_points[calibration_state].x, ", raw_x: ", x, ", y: ", calibration_points[calibration_state].y, ", raw_y: ", y);
+    calibration_points[calibration_state].raw = point;
+    DEBUG_ECHOLNPGM("TouchCalibration - State: ", calibration_state,
+                    ", x: ", calibration_points[calibration_state].x, ", raw.x: ", point.x,
+                    ", y: ", calibration_points[calibration_state].y, ", raw.y: ", point.y);
   }
 
   switch (calibration_state) {

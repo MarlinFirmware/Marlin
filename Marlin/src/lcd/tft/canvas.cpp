@@ -129,6 +129,13 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
   }
 
   #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
+
+    static struct {
+      bool has_rle_state = false;
+      int16_t dstx, dsty, srcx, srcy;
+      uint32_t rle_offset;
+    } rle_state;
+
     // RLE16 HIGHCOLOR - 16 bits per pixel
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
@@ -139,8 +146,25 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
               dsty = y, dstx = x;                   // Destination line / column index
 
       uint16_t color = 0;                           // Persist the last fetched color value
+      if (rle_state.has_rle_state) {                // do we have RLE position data?
+        rle_state.has_rle_state = false;            // invalidate stored RLE state
+        dstx = rle_state.dstx;                      // restore required states
+        dsty = rle_state.dsty;
+        srcx = rle_state.srcx;
+        srcy = rle_state.srcy;
+        bytedata = (uint8_t *)images[image].data + rle_state.rle_offset;  // Restart decode from here instead of the start of data
+      }
+
       bool done = false;
       while (!done) {
+        if (dsty >= endLine - 1 || srcy >= image_height - 1) { // Store state?
+          rle_state.dstx = dstx;                    // Save required states
+          rle_state.dsty = dsty;
+          rle_state.srcx = srcx;
+          rle_state.srcy = srcy;
+          rle_state.rle_offset = bytedata - (uint8_t *)images[image].data;; // Keep these for skipping full RLE decode on future iteratons
+        }
+
         uint8_t count = *bytedata++;                // Get the count byte
         const bool uniq = bool(count & 0x80);       // >= 128 is a distinct run; < 128 is a repeat run
         count = (count & 0x7F) + 1;                 // Actual count is 7-bit plus 1
@@ -169,6 +193,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
             srcx = 0; dstx = x;                     // May be shifted within the canvas, but usually not
             if (dsty >= endLine || srcy >= image_height) { // Done with the segment or the image?
               done = true;                          // Set a flag to end the loop...
+              rle_state.has_rle_state = true;       // RLE state is stored
               break;                                // ...and break out of while(count--)
             }
           }

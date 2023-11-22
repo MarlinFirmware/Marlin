@@ -122,7 +122,7 @@
       #define TFTGLCD_CS                    PB11
     #endif
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6
     #if IS_ULTIPANEL
