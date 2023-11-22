@@ -142,7 +142,7 @@ static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 typedef struct {
   int8_t Color[3];                    // Color components
   #if HAS_PID_HEATING
-    tempcontrol_t pidresult = PID_DONE;
+    pidresult_t pidresult = PID_DONE;
   #endif
   uint8_t Select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
@@ -358,12 +358,11 @@ void Draw_Steps_Menu();
 
 // PID
 #if HAS_PID_HEATING
-  void DWIN_PidTuning(tempcontrol_t result);
+  void DWIN_PidTuning(pidresult_t result);
   #if ENABLED(PIDTEMP)
     void Draw_HotendPID_Menu();
   #endif
   #if ENABLED(PIDTEMPBED)
     void Draw_BedPID_Menu();
   #endif
-#endif
 #endif
