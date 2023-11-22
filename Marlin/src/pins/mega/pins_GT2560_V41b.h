@@ -51,14 +51,12 @@
  *  X AXIS              Y AXIS               Z1 AXIS            Z0 AXIS
  *    ---                 ---                 ---                 ---
  *   | 1 | 5V            | 1 | 5V            | 1 | 5V            | 1 | 5V
- *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | PE7 Z1_MIN    | 2 | 30 Z0_MIN
+ *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | 80 Z1_MIN     | 2 | 30 Z0_MIN
  *   | 3 | GND           | 3 | GND           | 3 | GND           | 3 | GND
  *    ---                 ---                 ---                 ---
  *     J3                  J4                  J5                  J6
  *
 */
-
-//#define Z1_MIN                             PE7  // Number??
 
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
@@ -84,6 +82,9 @@
     #define Z_MAX_PIN                         32
   #endif
 #endif
+#ifndef Z2_STOP_PIN
+  #define Z2_STOP_PIN                         80  // PE7 - Extended mega2560 pin
+#endif  
 
 /**                   Filament Runout Sensors
  *
@@ -233,7 +234,7 @@
   #define BTN_EN2                      H2_08_PIN
   #define BTN_ENC                      H2_09_PIN
   #define BEEPER_PIN                   H2_12_PIN
-#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b 
+#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b
   #define LCD_PINS_RS                  H2_04_PIN  // DOGLCD_CS
   #define LCD_PINS_D4                  H2_05_PIN  // DOGLCD_SCK
   #define LCD_PINS_EN                  H2_03_PIN  // DOGLCD_MOSI
