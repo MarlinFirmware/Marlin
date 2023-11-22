@@ -389,7 +389,7 @@ private:
 
         // Draw value text on
         if (viewer_print_value) {
-          xy_int_t offset { 0, cell_height_px / 2 - 6 };
+          xy_uint_t offset { 0, cell_height_px / 2 - 6 };
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset.y, F("X"));
           }
