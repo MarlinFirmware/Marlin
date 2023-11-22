@@ -54,7 +54,7 @@
     #define HAS_MENU_BACKLASH
   #endif
   #if ENABLED(LCD_BED_TRAMMING)
-    #define HAS_MENU_BED_CORNERS
+    #define HAS_MENU_BED_TRAMMING
   #endif
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
