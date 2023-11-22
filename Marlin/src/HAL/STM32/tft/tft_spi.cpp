@@ -31,7 +31,7 @@
 #include "tft_spi.h"
 #include "pinconfig.h"
 
-//#define DEBUG_TFT_IO
+#define DEBUG_TFT_IO
 #define DEBUG_OUT ENABLED(DEBUG_TFT_IO)
 #include "../../../core/debug_out.h"
 
@@ -159,24 +159,6 @@ void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
 
 #include "../../../lcd/tft_io/tft_ids.h"
 
-inline bool known_tft_id(const uint32_t &id) {
-  switch (id & 0xFFFF) {
-    case LTDC_RGB:
-    case SSD1963:
-    case ST7735:
-    case ST7789:
-    case ST7796:
-    case R61505:
-    case ILI9328:
-    case ILI9341:
-    case ILI9488:
-    case ILI9488_ID1:
-      return true;
-    default:
-      return false;
-  }
-}
-
 uint32_t TFT_SPI::getID() {
   DEBUG_ECHOLNPGM("TFT_SPI::getID()");
 
@@ -188,7 +170,7 @@ uint32_t TFT_SPI::getID() {
     DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
   #endif
 
-  if (!known_tft_id(id)) {
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
     id = readID(LCD_READ_ID4);
     #if ENABLED(DEBUG_TFT_IO)
       sprintf_P(debug_register, PSTR("%02X"), LCD_READ_ID4);
@@ -198,7 +180,7 @@ uint32_t TFT_SPI::getID() {
   }
 
   #ifdef TFT_DEFAULT_DRIVER
-    if (!known_tft_id(id)) {
+    if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
       id = TFT_DEFAULT_DRIVER;
       #if ENABLED(DEBUG_TFT_IO)
         sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
@@ -213,8 +195,8 @@ uint32_t TFT_SPI::getID() {
 uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
   #if PIN_EXISTS(TFT_MISO)
-    REMEMBER(oldPS, SPIx.Init.BaudRatePrescaler, SPI_BAUDRATEPRESCALER_64);
-    //REMEMBER(oldPS, SPIx.Init.BaudRatePrescaler, SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4);
+    uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
 
     dataTransferBegin(DATASIZE_8BIT);
     writeReg(inReg);
@@ -228,7 +210,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
         SET_BIT(SPIx.Instance->CR1, SPI_CR1_CSTART);
 
         if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) SPIx.Instance->TXDR = 0;
-        while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_EOT)) {}
+        while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_EOT));
         data = (data << 8) | SPIx.Instance->RXDR;
         __HAL_SPI_DISABLE(&SPIx);
         __HAL_SPI_CLEAR_EOTFLAG(&SPIx);
@@ -238,15 +220,16 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
       __HAL_SPI_ENABLE(&SPIx);
       for (uint32_t i = 0; i < 4; i++) {
         if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) {
-          while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
+          while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE));
           SPIx.Instance->DR = 0;
         }
-        while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_RXNE)) {}
+        while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_RXNE));
         data = (data << 8) | SPIx.Instance->DR;
       }
     #endif
 
     dataTransferEnd();
+    //SPIx.Init.BaudRatePrescaler = BaudRatePrescaler;
   #endif
 
   DEBUG_ECHOLNPGM("  raw data : ", data);
@@ -284,7 +267,7 @@ bool TFT_SPI::isBusy() {
   }
 
   abort();
-  return false;
+  return true;
 }
 
 void TFT_SPI::abort() {
@@ -312,7 +295,7 @@ void TFT_SPI::transmit(uint16_t data) {
 
     SPIx.Instance->TXDR = data;
 
-    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_SR_EOT)) {}
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_SR_EOT));
 
     __HAL_SPI_CLEAR_EOTFLAG(&SPIx);
     __HAL_SPI_CLEAR_TXTFFLAG(&SPIx);
@@ -320,11 +303,11 @@ void TFT_SPI::transmit(uint16_t data) {
   #else
     __HAL_SPI_ENABLE(&SPIx);
     SPIx.Instance->DR = data;
-    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}   // Wait for data transfer to actually start
-    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}    // Wait until SPI is idle
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE));   // Wait for data transfer to actually start
+    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY));    // Wait until SPI is idle
   #endif
 
-  if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received data is not read
+  if (SPIx.Init.Direction == SPI_DIRECTION_2LINES) __HAL_SPI_CLEAR_OVRFLAG(&SPIx);  // Clear overrun flag in 2 Lines communication mode because received data is not read
 }
 
 void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
@@ -358,10 +341,10 @@ void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) 
 
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
   #ifdef STM32H7xx
-    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_SR_EOT)) {}
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_SR_EOT));
   #else
-    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
-    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
+    while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE));
+    while (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY));
   #endif
   abort();
 }
