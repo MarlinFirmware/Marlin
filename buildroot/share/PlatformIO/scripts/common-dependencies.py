@@ -53,10 +53,11 @@ if pioutil.is_pio_build():
         # Get a reference to the FEATURE_CONFIG under construction
         feat = FEATURE_CONFIG[feature]
 
-        # Split up passed lines on commas or newlines and iterate
-        # Add common options to the features config under construction
-        # For lib_deps replace a previous instance of the same library
-        atoms = re.sub(r',\s*', '\n', flines).strip().split('\n')
+        # Split up passed lines on commas or newlines and iterate.
+        # Take care to convert Windows '\' paths to Unix-style '/'.
+        # Add common options to the features config under construction.
+        # For lib_deps replace a previous instance of the same library.
+        atoms = re.sub(r',\s*', '\n', flines.replace('\\', '/')).strip().split('\n')
         for line in atoms:
             parts = line.split('=')
             name = parts.pop(0)
@@ -91,7 +92,7 @@ if pioutil.is_pio_build():
                     val = None
                 if val:
                     opt = mat[1].upper()
-                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ))
+                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ), 2)
                     add_to_feat_cnf(opt, val)
 
     def get_all_known_libs():
@@ -213,7 +214,7 @@ if pioutil.is_pio_build():
     #
     def MarlinHas(env, feature):
         load_marlin_features()
-        r = re.compile('^' + feature + '$')
+        r = re.compile('^' + feature + '$', re.IGNORECASE)
         found = list(filter(r.match, env['MARLIN_FEATURES']))
 
         # Defines could still be 'false' or '0', so check
@@ -225,6 +226,8 @@ if pioutil.is_pio_build():
                     some_on = True
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)
+
+        #blab("%s is %s" % (feature, str(some_on)), 2)
 
         return some_on
 
