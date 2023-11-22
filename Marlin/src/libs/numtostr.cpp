@@ -382,6 +382,17 @@ const char* ftostr53sign(const_float_t f) {
   return &conv[1];
 }
 
+// Convert unsigned float to string with __1.2, _12.3, 123.4 format
+const char* ftostr41rj(const_float_t f) {
+  const long i = UINTFLOAT(f, 1);
+  conv[3] = RJDIGIT(i, 1000);
+  conv[4] = RJDIGIT(i, 100);
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = '.';
+  conv[7] = DIGIMOD(i, 1);
+  return &conv[3];
+}
+
 // Convert unsigned float to string with ____5.6, ___45.6, __345.6, _2345.6, 12345.6 format
 const char* ftostr61rj(const_float_t f) {
   const long i = UINTFLOAT(f, 1);
