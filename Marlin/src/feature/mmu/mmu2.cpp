@@ -146,6 +146,14 @@ void mmu2_attn_buzz(const bool two=false) {
   if (two) { BUZZ(10, 0); BUZZ(200, 404); }
 }
 
+// Avoiding sscanf significantly reduces build size
+static uint16_t strtoint(char * str) {
+  uint16_t outval = 0;
+  for (char c; NUMERIC((c = *str)); ++str)
+    outval = outval * 10 + c - '0';
+  return outval;
+}
+
 void MMU2::mmu_loop() {
 
   switch (state) {
@@ -168,7 +176,7 @@ void MMU2::mmu_loop() {
 
     case -2:
       if (rx_ok()) {
-        sscanf(rx_buffer, "%huok\n", &version);
+        version = strtoint(rx_buffer);
         DEBUG_ECHOLNPGM("MMU => ", version, "\nMMU <= 'S2'");
         MMU2_SEND("S2");    // Read Build Number
         state = -3;
@@ -177,8 +185,7 @@ void MMU2::mmu_loop() {
 
     case -3:
       if (rx_ok()) {
-        sscanf(rx_buffer, "%huok\n", &buildnr);
-
+        buildnr = strtoint(rx_buffer);
         DEBUG_ECHOLNPGM("MMU => ", buildnr);
 
         check_version();
@@ -187,7 +194,6 @@ void MMU2::mmu_loop() {
           DEBUG_ECHOLNPGM("MMU <= 'M1'");
           MMU2_SEND("M1");    // Stealth Mode
           state = -5;
-
         #else
           DEBUG_ECHOLNPGM("MMU <= 'P0'");
           MMU2_SEND("P0");    // Read FINDA
