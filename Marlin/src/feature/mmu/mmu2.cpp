@@ -76,7 +76,7 @@ MMU2 mmu2;
 #define MMU2_NO_TOOL 99
 #define MMU_BAUD    115200
 
-bool MMU2::_enabled, MMU2::ready, MMU2::mmu_print_saved;
+bool MMU2::_enabled, MMU2::ready;
 #if HAS_PRUSA_MMU2S
   bool MMU2::mmu2s_triggered;
 #endif
@@ -84,7 +84,6 @@ uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
 volatile bool MMU2::finda_runout_valid;
-uint16_t MMU2::version = 0, MMU2::buildnr = 0;
 millis_t MMU2::prev_request, MMU2::prev_P0_request;
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
@@ -176,7 +175,7 @@ void MMU2::mmu_loop() {
 
     case -2:
       if (rx_ok()) {
-        version = strtoint(rx_buffer);
+        const uint16_t version = strtoint(rx_buffer);
         DEBUG_ECHOLNPGM("MMU => ", version, "\nMMU <= 'S2'");
         MMU2_SEND("S2");    // Read Build Number
         state = -3;
@@ -185,10 +184,10 @@ void MMU2::mmu_loop() {
 
     case -3:
       if (rx_ok()) {
-        buildnr = strtoint(rx_buffer);
+        const uint16_t buildnr = strtoint(rx_buffer);
         DEBUG_ECHOLNPGM("MMU => ", buildnr);
 
-        check_version();
+        check_version(buildnr);
 
         #if ENABLED(MMU2_MODE_12V)
           DEBUG_ECHOLNPGM("MMU <= 'M1'");
@@ -447,7 +446,7 @@ bool MMU2::rx_ok() {
 /**
  * Check if MMU has compatible firmware
  */
-void MMU2::check_version() {
+void MMU2::check_version(const uint16_t buildnr) {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
     kill(GET_TEXT_F(MSG_KILL_MMU2_FIRMWARE));
@@ -809,8 +808,7 @@ bool MMU2::get_response() {
 void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
   constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
-  bool response = false;
-  mmu_print_saved = false;
+  bool response = false, mmu_print_saved = false;
   xyz_pos_t resume_position;
   celsius_t resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
 
