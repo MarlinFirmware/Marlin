@@ -45,6 +45,15 @@
             //"program": "${workspaceRoot}/.pio/build/simulator_windows/MarlinSimulator",
             //"targetArchitecture": "arm64",
             "MIMode": "lldb"
+        },
+        {
+            "name": "Launch Sim (Windows gdb)",
+            "request": "launch",
+            "type": "cppdbg",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/.pio/build/simulator_windows/debug/MarlinSimulator.exe",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/msys64/mingw64/bin/gdb.exe"
         }
     ]
 }
