@@ -264,9 +264,9 @@ class MenuItem_bool : public MenuEditItemBase {
  *     MenuItem_function::action(flabel, lcd_sdcard_pause)
  *     MenuItem_function::draw(sel, row, flabel, lcd_sdcard_pause)
  *
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::action(flabel, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, 10, 999)
+ *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
