@@ -64,7 +64,7 @@ private:
 
   static bool rx_ok();
   static bool rx_start();
-  static void check_version();
+  static void check_version(const uint16_t buildnr);
 
   static void command(const uint8_t cmd);
   static bool get_response();
@@ -90,13 +90,12 @@ private:
     static void mmu_continue_loading();
   #endif
 
-  static bool _enabled, ready, mmu_print_saved;
+  static bool _enabled, ready;
 
   static uint8_t cmd, cmd_arg, last_cmd, extruder;
   static int8_t state;
   static volatile int8_t finda;
   static volatile bool finda_runout_valid;
-  static uint16_t version, buildnr;
   static millis_t prev_request, prev_P0_request;
   static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 

@@ -372,7 +372,7 @@
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      1
 
       //#define TFT_RST_PIN          EXP2_07_PIN
       #define TFT_SCK_PIN            EXP2_02_PIN
