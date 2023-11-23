@@ -113,9 +113,6 @@ const char* ftostr52sign(const_float_t x);
 // Convert signed float to string with +12.345 format
 const char* ftostr53sign(const_float_t f);
 
-// Convert unsigned float to string with 123.4 format omitting trailing zeros
-const char* ftostr41rj(const_float_t x);
-
 // Convert unsigned float to string with 12345.6 format omitting trailing zeros
 const char* ftostr61rj(const_float_t x);
 
