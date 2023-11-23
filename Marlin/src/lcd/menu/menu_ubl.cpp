@@ -376,11 +376,19 @@ void _lcd_ubl_storage_mesh() {
  * UBL LCD "radar" map point editing
  */
 void _lcd_ubl_map_edit_cmd() {
-  char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str);
-  dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2);
-  snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29P4X%sY%sR%i"), str, str2, int(n_edit_pts));
-  queue.inject(ubl_lcd_gcode);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Costs 198 bytes on AVR with PLR disabled, but saves 60 bytes with PLR enabled
+    queue.inject(TS(F("G29P4X"), x_plot, 'Y', y_plot, 'R', n_edit_pts));
+  #else
+    char ubl_lcd_gcode[50], str1[10], str2[10];
+    snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode),
+      PSTR("G29P4X%sY%sR%i"),
+      dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str1),
+      dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2),
+      int(n_edit_pts)
+    );
+    queue.inject(ubl_lcd_gcode);
+  #endif
 }
 
 /**
