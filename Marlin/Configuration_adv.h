@@ -1625,7 +1625,7 @@
 
 #endif // HAS_DISPLAY
 
-#if ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
   #define SPEED_EDIT_MIN    10  // (%) Feedrate percentage edit range minimum
   #define SPEED_EDIT_MAX   999  // (%) Feedrate percentage edit range minimum
   #if HAS_EXTRUDERS
