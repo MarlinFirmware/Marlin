@@ -79,6 +79,37 @@
   #define HAS_SWITCHING_NOZZLE 1
 #endif
 
+/**
+ *  Multi-Material-Unit supported models
+ */
+#define PRUSA_MMU1             1
+#define PRUSA_MMU2             2
+#define PRUSA_MMU2S            3
+#define EXTENDABLE_EMU_MMU2   12
+#define EXTENDABLE_EMU_MMU2S  13
+
+#ifdef MMU_MODEL
+  #define HAS_MMU 1
+  #define SINGLENOZZLE
+  #if MMU_MODEL == PRUSA_MMU1
+    #define HAS_PRUSA_MMU1 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2
+    #define HAS_PRUSA_MMU2 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+    #define HAS_PRUSA_MMU2 1
+    #define HAS_PRUSA_MMU2S 1
+  #endif
+  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
+    #define HAS_EXTENDABLE_MMU 1
+  #endif
+#endif
+
+#undef PRUSA_MMU1
+#undef PRUSA_MMU2
+#undef PRUSA_MMU2S
+#undef EXTENDABLE_EMU_MMU2
+#undef EXTENDABLE_EMU_MMU2S
+
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
   #define E_STEPPERS      2
@@ -114,11 +145,6 @@
 
 #endif
 
-// Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
-#if HAS_MMU
-  #define SINGLENOZZLE
-#endif
-
 // Default E steppers / manual motion is one per extruder
 #ifndef E_STEPPERS
   #define E_STEPPERS EXTRUDERS
@@ -138,6 +164,14 @@
   #define HOTENDS 0                                   // A machine with no hotends at all can still extrude
 #endif
 
+// At least one hotend...
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+#endif
+
 // More than one hotend...
 #if HOTENDS > 1
   #define HAS_MULTI_HOTEND 1
@@ -155,14 +189,6 @@
   #undef HOTEND_OFFSET_X
   #undef HOTEND_OFFSET_Y
   #undef HOTEND_OFFSET_Z
-#endif
-
-// At least one hotend...
-#if HOTENDS
-  #define HAS_HOTEND 1
-  #ifndef HOTEND_OVERSHOOT
-    #define HOTEND_OVERSHOOT 15
-  #endif
 #endif
 
 // Clean up E-stepper-based settings...
@@ -1083,36 +1109,6 @@
     #define LCD_PIXEL_HEIGHT 64
   #endif
 #endif
-
-/**
- *  Multi-Material-Unit supported models
- */
-#define PRUSA_MMU1             1
-#define PRUSA_MMU2             2
-#define PRUSA_MMU2S            3
-#define EXTENDABLE_EMU_MMU2   12
-#define EXTENDABLE_EMU_MMU2S  13
-
-#ifdef MMU_MODEL
-  #define HAS_MMU 1
-  #if MMU_MODEL == PRUSA_MMU1
-    #define HAS_PRUSA_MMU1 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2
-    #define HAS_PRUSA_MMU2 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2S
-    #define HAS_PRUSA_MMU2 1
-    #define HAS_PRUSA_MMU2S 1
-  #endif
-  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
-    #define HAS_EXTENDABLE_MMU 1
-  #endif
-#endif
-
-#undef PRUSA_MMU1
-#undef PRUSA_MMU2
-#undef PRUSA_MMU2S
-#undef EXTENDABLE_EMU_MMU2
-#undef EXTENDABLE_EMU_MMU2S
 
 /**
  * Disable unused SINGLENOZZLE sub-options
