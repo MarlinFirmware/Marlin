@@ -1254,7 +1254,7 @@
  */
 //#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
 #ifdef XY_FREQUENCY_LIMIT
-  #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
+  #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
 
 //
@@ -1624,6 +1624,15 @@
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_FEEDRATE_EDIT
+  #define SPEED_EDIT_MIN    10  // (%) Feedrate percentage edit range minimum
+  #define SPEED_EDIT_MAX   999  // (%) Feedrate percentage edit range maximum
+#endif
+#if HAS_FLOW_EDIT
+  #define FLOW_EDIT_MIN     10  // (%) Flow percentage edit range minimum
+  #define FLOW_EDIT_MAX    999  // (%) Flow percentage edit range maximum
+#endif
 
 // Add 'M73' to set print job progress, overrides Marlin's built-in estimate
 //#define SET_PROGRESS_MANUALLY

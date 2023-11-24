@@ -97,10 +97,6 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y        354
 
-// Print speed limit
-#define MIN_PRINT_SPEED  10
-#define MAX_PRINT_SPEED 999
-
 #define FEEDRATE_E      (60)
 
 // Minimum unit (0.1) : multiple (10)
@@ -1559,7 +1555,7 @@ void hmiPrintSpeed() {
     return;
   }
   // printSpeed limit
-  LIMIT(hmiValues.printSpeed, MIN_PRINT_SPEED, MAX_PRINT_SPEED);
+  LIMIT(hmiValues.printSpeed, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
   // printSpeed value
   drawEditInteger3(select_tune.now + MROWS - index_tune, hmiValues.printSpeed, true);
 }
