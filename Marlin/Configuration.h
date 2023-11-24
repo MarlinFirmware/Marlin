@@ -834,7 +834,7 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of flash)
-  // #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of flash)
+  #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of flash)
 #endif
 
 // @section safety
@@ -1316,7 +1316,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-// #define S_CURVE_ACCELERATION
+ #define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1681,7 +1681,7 @@
 // Require minimum nozzle and/or bed temperature for probing
 #define PREHEAT_BEFORE_PROBING
 #if ENABLED(PREHEAT_BEFORE_PROBING)
-  #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+  #define PROBING_NOZZLE_TEMP 165   // (°C) Only applies to E0 at this time
   #define PROBING_BED_TEMP     60
 #endif
 
@@ -2365,28 +2365,37 @@
 //
 // Preheat Constants - Up to 10 are supported without changes
 //
-#define PREHEAT_1_LABEL       "PETG"
-#define PREHEAT_1_TEMP_HOTEND 170
-#define PREHEAT_1_TEMP_BED     80
-#define PREHEAT_1_TEMP_CHAMBER 35
-#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-// #define PREHEAT_2_LABEL       "PLA"
-// #define PREHEAT_2_TEMP_HOTEND 160
-// #define PREHEAT_2_TEMP_BED    60
-// #define PREHEAT_2_TEMP_CHAMBER 	0
-// #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
-// #define PREHEAT_3_LABEL "TPU"
-// #define PREHEAT_3_TEMP_HOTEND 205
-// #define PREHEAT_3_TEMP_BED 45
-// #define PREHEAT_3_TEMP_CHAMBER 35
-// #define PREHEAT_3_FAN_SPEED 10 // Value from 0 to 255
+#define PREHEAT_1_LABEL       "Warm"
+#define PREHEAT_1_TEMP_HOTEND 165
+#define PREHEAT_1_TEMP_BED     60
+//#define PREHEAT_1_TEMP_CHAMBER 35
+#define PREHEAT_1_FAN_SPEED    26 // Value from 0 to 255
 
-// #define PREHEAT_4_LABEL "ABS"
-// #define PREHEAT_4_TEMP_HOTEND 240
-// #define PREHEAT_4_TEMP_BED 100
-// #define PREHEAT_4_TEMP_CHAMBER 35
-// #define PREHEAT_4_FAN_SPEED 10 // Value from 0 to 255
+#define PREHEAT_2_LABEL       "PETG"
+#define PREHEAT_2_TEMP_HOTEND 235
+#define PREHEAT_2_TEMP_BED     80
+//#define PREHEAT_2_TEMP_CHAMBER 35
+#define PREHEAT_2_FAN_SPEED    26 // Value from 0 to 255
+
+#define PREHEAT_3_LABEL       "PLA"
+#define PREHEAT_3_TEMP_HOTEND 190
+#define PREHEAT_3_TEMP_BED     60
+//#define PREHEAT_3_TEMP_CHAMBER 	0
+#define PREHEAT_3_FAN_SPEED     26 // Value from 0 to 255
+
+#define PREHEAT_4_LABEL       "TPU"
+#define PREHEAT_4_TEMP_HOTEND 205
+#define PREHEAT_4_TEMP_BED     45
+//#define PREHEAT_4_TEMP_CHAMBER 35
+#define PREHEAT_4_FAN_SPEED    26 // Value from 0 to 255
+
+#define PREHEAT_5_LABEL       "ABS"
+#define PREHEAT_5_TEMP_HOTEND 240
+#define PREHEAT_5_TEMP_BED    100
+//#define PREHEAT_5_TEMP_CHAMBER 35
+#define PREHEAT_5_FAN_SPEED    26 // Value from 0 to 255
+
 // @section motion
 
 /**

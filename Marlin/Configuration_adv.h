@@ -3922,7 +3922,7 @@
  *
  * Execute certain G-code commands immediately after power-on.
  */
-#define STARTUP_COMMANDS "M106 S200"
+#define STARTUP_COMMANDS "M106 S26"
 
 /**
  * G-code Macros
