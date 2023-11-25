@@ -23,6 +23,25 @@
 
 #include "env_validate.h"
 
+#define BOARD_INFO_NAME "LDO Leviathan V1.2"
+#define BOARD_WEBSITE_URL "github.com/MotorDynamicsLab/Leviathan"
+
+// Use one of these or SDCard-based Emulation will be used
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+#endif
+
 //
 // Filament Runout Sensor
 //
@@ -113,7 +132,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PF1   // Z-Probe
+  #define Z_MIN_PROBE_PIN                   PF1   // Z-PROBE
 #endif
 
 //
@@ -135,6 +154,22 @@
 #define FAN2_PIN                            PF9   // Fan2
 #define FAN3_PIN                            PF9   // Fan3
 
+#ifndef E0_FAN_TACHO_PIN
+  #define E0_FAN_TACHO_PIN                  PB0 // FAN0
+#endif
+
+#ifndef E1_FAN_TACHO_PIN
+  #define E1_FAN_TACHO_PIN                  PB4 // FAN1
+#endif
+
+#ifndef E2_FAN_TACHO_PIN
+  #define E2_FAN_TACHO_PIN                  PF6 // FAN2
+#endif
+
+#ifndef E3_FAN_TACHO_PIN
+  #define E3_FAN_TACHO_PIN                  PF8 // FAN3
+#endif
+
 //
 // SD Support
 //
@@ -145,7 +180,7 @@
 #endif
 
 //
-// SPI pins for TMC5160 HF-STEPPER drivers
+// SPI pins for TMC5160 HV-STEPPER drivers
 //
 #ifndef TMC_SPI_MOSI
   #define TMC_SPI_MOSI                      PE14
