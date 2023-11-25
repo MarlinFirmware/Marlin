@@ -224,7 +224,7 @@
 
 /**               ------                                      ------
  * (BEEPER) PG9  | 1  2 | PE7  (BTN_ENC)         (MISO) PA6  | 1  2 | PA5  (SCK)
- * (LCD_EN) PG13 | 3  4 | PG14 (LCD_RS)       (BTN_EN1) PE2  | 3  4 | PE4  (SD_SS)
+ * (LCD_EN) PG13 | 3  4 | PG14 (LCD_RS)       (BTN_EN1) PE2  | 3  4 | PA4  (SD_SS)
  * (LCD_D4) PC13   5  6 | PC14 (LCD_D5)       (BTN_EN2) PE3    5  6 | PA7  (MOSI)
  * (LCD_D6) PC15 | 7  8 | PF0  (LCD_D7)     (SD_DETECT) PE5  | 7  8 | RESET
  *           GND | 9 10 | 5V                             GND | 9 10 | PE4 (KILL)
@@ -243,7 +243,7 @@
 #define EXP2_01_PIN                         PA6
 #define EXP2_02_PIN                         PA5
 #define EXP2_03_PIN                         PE2
-#define EXP2_04_PIN                         PE4
+#define EXP2_04_PIN                         PA4
 #define EXP2_05_PIN                         PE3
 #define EXP2_06_PIN                         PA7
 #define EXP2_07_PIN                         PE5
