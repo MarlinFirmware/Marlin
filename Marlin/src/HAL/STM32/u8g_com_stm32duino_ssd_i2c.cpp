@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * 2 wire I2C COM driver
  *
@@ -56,21 +55,23 @@
  *
  */
 
+#ifdef ARDUINO_ARCH_STM32
+
 #include "../../inc/MarlinConfigPre.h"
 
-#if (defined(ARDUINO_ARCH_STM32) && (defined(U8GLIB_SH1106) || defined(IS_U8GLIB_SSD1306) || defined(U8GLIB_SSD1309)))
+#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include <U8glib-HAL.h>
 
 #include "../../MarlinCore.h"  // so can get SDA & SCL pins
 
-/*
-  BUFFER_LENGTH is defined in libraries\Wire\utility\WireBase.h
-  Default value is 32
-  Increate this value to 144 to send U8G_COM_MSG_WRITE_SEQ in single block
-*/
-
-#if !defined(BUFFER_LENGTH) || BUFFER_LENGTH >= 144
+/**
+ * BUFFER_LENGTH is defined in libraries/Wire/utility/WireBase.h
+ * Default value is 32
+ * Increase this value to 144 to send U8G_COM_MSG_WRITE_SEQ in a single block
+ */
+#if !BUFFER_LENGTH || BUFFER_LENGTH >= 144
+  #undef BUFFER_LENGTH
   #define BUFFER_LENGTH 32
 #endif
 #define I2C_MAX_LENGTH (BUFFER_LENGTH - 1)
@@ -91,22 +92,19 @@
     #define MASTER_ADDRESS 0x01
   #endif
 #else
-  #error "unsupported I2C configuration"
+  #error "Unsupported I2C configuration"
 #endif
-
 
 static uint8_t control;
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
-uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
+uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
     if (msgInitCount) return -1;
   }
 
-  switch (msg)
-  {
+  switch (msg) {
     case U8G_COM_MSG_INIT:
       #ifdef LCD_I2C_SOFT
         I2C_ITF.setClock(100000);
@@ -132,8 +130,7 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       I2C_ITF.endTransmission();
       break;
 
-    case U8G_COM_MSG_WRITE_SEQ:
-    {
+    case U8G_COM_MSG_WRITE_SEQ: {
       uint8_t* dataptr = (uint8_t*)arg_ptr;
       #ifdef I2C_MAX_LENGTH
         while (arg_val > 0) {
@@ -163,4 +160,5 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
+#endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309
 #endif // ARDUINO_ARCH_STM32

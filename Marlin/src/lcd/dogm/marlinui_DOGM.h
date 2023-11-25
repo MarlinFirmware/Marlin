@@ -124,14 +124,14 @@
   // MKS 128x64 (SSD1306) OLED I2C LCD
 
   #if ENABLED(LCD_I2C_SOFT)
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE         // I2C via SOFTWIRE
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // I2C via SOFTWIRE
   #else
- //   #define FORCE_SOFT_SPI                                      // SW-SPI
-   #define U8G_PARAM U8G_I2C_OPT_NONE
+    //#define FORCE_SOFT_SPI                                    // SW-SPI
+    #define U8G_PARAM U8G_I2C_OPT_NONE
     #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // 4 stripes
+      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE     // 4 stripes
     #else
-      #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+      #define U8G_CLASS U8GLIB_SSD1306_128X64                   // 8 stripes
     #endif
   #endif
 
@@ -165,7 +165,7 @@
   // - or -
   // Zonestar SH1106 OLED SPI LCD
 
-  //#define FORCE_SOFT_SPI                                        // SW-SPI
+  //#define FORCE_SOFT_SPI                                      // SW-SPI
   #define U8G_PARAM U8G_I2C_OPT_NONE
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes

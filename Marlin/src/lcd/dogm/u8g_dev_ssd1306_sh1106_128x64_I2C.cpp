@@ -67,7 +67,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if (defined(U8GLIB_SH1106) || defined(IS_U8GLIB_SSD1306) || defined(U8GLIB_SSD1309))
+#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include "HAL_LCD_com_defines.h"
 
@@ -235,7 +235,6 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
 }
 
-
 uint8_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire_buf[WIDTH*2] U8G_NOCOMMON ;
 u8g_pb_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1306_128x64_2x_i2c_2_wire_buf};
 u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire = { u8g_dev_ssd1306_128x64_2x_2_wire_fn, &u8g_dev_ssd1306_128x64_2x_i2c_2_wire_pb, U8G_COM_SSD_I2C_HAL };
@@ -309,4 +308,4 @@ uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t leng
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309)
