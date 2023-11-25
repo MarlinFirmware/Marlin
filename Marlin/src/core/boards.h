@@ -454,14 +454,13 @@
 #define BOARD_FYSETC_SPIDER_V2_2      5239  // FYSETC Spider V2.2 (STM32F446VE)
 #define BOARD_CREALITY_V24S1_301F4    5240  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
 #define BOARD_OPULO_LUMEN_REV4        5241  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
-#define BOARD_FYSETC_SPIDER_KING407   5242  // FYSETC Spider King407 (STM32F407ZG)
-#define BOARD_MKS_SKIPR_V1            5243  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
-#define BOARD_TRONXY_V10              5244  // TRONXY V10 (STM32F446ZE)
-#define BOARD_CREALITY_F401RE         5245  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
-#define BOARD_BLACKPILL_CUSTOM        5246  // Custom board based on STM32F401CDU6.
-#define BOARD_I3DBEEZ9_V1             5247  // I3DBEEZ9 V1 (STM32F407ZG)
-#define BOARD_MELLOW_FLY_E3_V2        5248  // Mellow Fly E3 V2 (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V30      5249  // FYSETC Cheetah V3.0 (STM32F446RC)
+#define BOARD_MKS_SKIPR_V1            5242  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
+#define BOARD_TRONXY_V10              5243  // TRONXY V10 (STM32F446ZE)
+#define BOARD_CREALITY_F401RE         5244  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
+#define BOARD_BLACKPILL_CUSTOM        5245  // Custom board based on STM32F401CDU6.
+#define BOARD_I3DBEEZ9_V1             5246  // I3DBEEZ9 V1 (STM32F407ZG)
+#define BOARD_MELLOW_FLY_E3_V2        5247  // Mellow Fly E3 V2 (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V30      5248  // FYSETC Cheetah V3.0 (STM32F446RC)
 
 //
 // ARM Cortex-M7
