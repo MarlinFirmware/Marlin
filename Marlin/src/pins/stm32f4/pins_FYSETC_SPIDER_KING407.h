@@ -185,7 +185,7 @@
 
   #define E2_SERIAL_TX_PIN                  PD9
   #define E2_SERIAL_RX_PIN                  PD9
-    
+
   #define E3_SERIAL_TX_PIN                  PF5
   #define E3_SERIAL_RX_PIN                  PF5
 
@@ -252,14 +252,14 @@
 //
 
 /**
- *          ------                ------                 ------            
- *     PA2 |10  9 | PA3      PA6 |10  9 | PA5       PC9 |10  9 | PA8  
- *      -1 | 8  7 | PB10     PC6 | 8  7 | PA4      PC12 | 8  7 | PD0    
+ *          ------                ------                 ------
+ *     PA2 |10  9 | PA3      PA6 |10  9 | PA5       PC9 |10  9 | PA8
+ *      -1 | 8  7 | PB10     PC6 | 8  7 | PA4      PC12 | 8  7 | PD0
  *     PA6   6  5 | PA7      PC7 | 6  5   PA7      PC10 | 6  5   PC11
- *     PA5 | 4  3 | PA4     PB10 | 4  3 | RESET     PG4 | 4  3 | PE7 
- *     GND | 2  1 | 5V       GND | 2  1 | 5V        GND | 2  1 | 5V  
- *          ------                ------                 ------ 
- *           EXP3                  EXP2                   EXP1 
+ *     PA5 | 4  3 | PA4     PB10 | 4  3 | RESET     PG4 | 4  3 | PE7
+ *     GND | 2  1 | 5V       GND | 2  1 | 5V        GND | 2  1 | 5V
+ *          ------                ------                 ------
+ *           EXP3                  EXP2                   EXP1
  */
 #define EXP1_03_PIN                         PE7   //LCD_D7
 #define EXP1_04_PIN                         PG4   //LCD_D6
