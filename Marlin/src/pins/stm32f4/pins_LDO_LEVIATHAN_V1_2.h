@@ -97,6 +97,22 @@
 #define E3_ENABLE_PIN                       PD13
 
 //
+// Integrated TMC5160/TMC2209 defaults for Leviathan
+//
+#if  (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(TMC5160)) \
+  || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(TMC5160)) \
+  || (NUM_Z_STEPPERS >= 1 && !AXIS_DRIVER_TYPE_Z(TMC2209)) \
+  || (NUM_Z_STEPPERS >= 2 && !AXIS_DRIVER_TYPE_Z2(TMC2209)) \
+  || (NUM_Z_STEPPERS >= 3 && !AXIS_DRIVER_TYPE_Z3(TMC2209)) \
+  || (NUM_Z_STEPPERS >= 4 && !AXIS_DRIVER_TYPE_Z4(TMC2209)) \
+  || (EXTRUDERS >= 1 && !AXIS_DRIVER_TYPE_E0(TMC2209)) \
+  || (EXTRUDERS >= 2 && !AXIS_DRIVER_TYPE_E1(TMC2209)) \
+  || (EXTRUDERS >= 3 && !AXIS_DRIVER_TYPE_E2(TMC2209)) \
+  || (EXTRUDERS >= 4 && !AXIS_DRIVER_TYPE_E3(TMC2209))
+  #error "For Leviathan the X and Y DRIVER TYPE must be TMC5160 and all others should be TMC2209."
+#endif
+
+//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                          PG1   // HV-STEPPER-0
