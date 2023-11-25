@@ -149,9 +149,9 @@
 #define HEATER_BED_PIN                      PG11  // HEATBED
 #define HEATER_0_PIN                        PG10  // HEATER
 
-#define FAN0_PIN                            PB3   // FAN0
-#define FAN1_PIN                            PF7   // FAN1
-#define FAN2_PIN                            PF9   // FAN2
+#define FAN0_PIN                            PF7   // FAN0
+#define FAN1_PIN                            PB3   // FAN1
+#define FAN2_PIN                            PF7   // FAN2
 #define FAN3_PIN                            PF9   // FAN3
 
 #ifndef E0_FAN_TACHO_PIN
