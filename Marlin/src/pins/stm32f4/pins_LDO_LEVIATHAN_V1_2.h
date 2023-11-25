@@ -50,7 +50,7 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                             PE6  // LED-Strip
+#define LED_PIN                             PE6   // LED-Strip
 
 //
 // NeoPixel LED
@@ -155,19 +155,19 @@
 #define FAN3_PIN                            PF9   // Fan3
 
 #ifndef E0_FAN_TACHO_PIN
-  #define E0_FAN_TACHO_PIN                  PB0 // FAN0
+  #define E0_FAN_TACHO_PIN                  PB0   // FAN0
 #endif
 
 #ifndef E1_FAN_TACHO_PIN
-  #define E1_FAN_TACHO_PIN                  PB4 // FAN1
+  #define E1_FAN_TACHO_PIN                  PB4   // FAN1
 #endif
 
 #ifndef E2_FAN_TACHO_PIN
-  #define E2_FAN_TACHO_PIN                  PF6 // FAN2
+  #define E2_FAN_TACHO_PIN                  PF6   // FAN2
 #endif
 
 #ifndef E3_FAN_TACHO_PIN
-  #define E3_FAN_TACHO_PIN                  PF8 // FAN3
+  #define E3_FAN_TACHO_PIN                  PF8   // FAN3
 #endif
 
 //
@@ -255,12 +255,12 @@
 //
 #if SD_CONNECTION_IS(LCD)
 
-#define SDSS                              EXP2_04_PIN
+#define SDSS                         EXP2_04_PIN
   #define SD_SS_PIN                         SDSS
-  #define SD_SCK_PIN                        EXP2_02_PIN
-  #define SD_MISO_PIN                       EXP2_01_PIN
-  #define SD_MOSI_PIN                       EXP2_06_PIN
-  #define SD_DETECT_PIN                     EXP2_07_PIN
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
   #error "ONBOARD is not a supported SDCARD_CONNECTION for this board"
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
@@ -272,7 +272,7 @@
 //
 #if HAS_WIRED_LCD
 
-#define BEEPER_PIN                 EXP1_01_PIN
+#define BEEPER_PIN                   EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
