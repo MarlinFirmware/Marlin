@@ -171,19 +171,19 @@
 #endif
 
 #ifndef E0_FAN_TACHO_PIN
-  #define E0_FAN_TACHO_PIN                  PB0 // FAN0
+  #define E0_FAN_TACHO_PIN                  PB0   // FAN0
 #endif
 
 #ifndef E1_FAN_TACHO_PIN
-  #define E1_FAN_TACHO_PIN                  PB4 // FAN1
+  #define E1_FAN_TACHO_PIN                  PB4   // FAN1
 #endif
 
 #ifndef E2_FAN_TACHO_PIN
-  #define E2_FAN_TACHO_PIN                  PF6 // FAN2
+  #define E2_FAN_TACHO_PIN                  PF6   // FAN2
 #endif
 
 #ifndef E3_FAN_TACHO_PIN
-  #define E3_FAN_TACHO_PIN                  PF8 // FAN3
+  #define E3_FAN_TACHO_PIN                  PF8   // FAN3
 #endif
 
 //
