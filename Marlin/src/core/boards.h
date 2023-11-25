@@ -471,6 +471,7 @@
 #define BOARD_FYSETC_CHEETAH_V30      5250  // FYSETC Cheetah V3.0 (STM32F446RC)
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
 #define BOARD_XTLW_CLIMBER_8TH        5252  // XTLW Climber-8th (STM32F407VGT6)
+#define BOARD_LDO_LEVIATHAN_V1_2      5253  // LDO Leviathan V1.2 (STM32F446ZE)
 
 //
 // Other ARM Cortex-M4
