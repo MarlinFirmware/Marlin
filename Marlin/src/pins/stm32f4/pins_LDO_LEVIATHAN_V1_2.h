@@ -155,7 +155,7 @@
 #define FAN3_PIN                            PF9   // FAN3
 
 #ifndef E0_FAN_TACHO_PIN
-  #define E0_FAN_TACHO_PIN                  PB0   // FAN0
+  #define E0_FAN_TACHO_PIN                  PB8   // FAN0
 #endif
 
 #ifndef E1_FAN_TACHO_PIN
