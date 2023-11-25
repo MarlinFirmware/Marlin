@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -52,17 +52,6 @@
 #endif
 
 //
-// BLTouch and Z Probe
-//
-#if ENABLED(BLTOUCH)||ENABLED(FIX_MOUNTED_PROBE)
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #define Z_MIN_PIN                       PA0
-  #elif !defined(Z_MIN_PROBE_PIN)
-    #define Z_MIN_PROBE_PIN                 PA0
-  #endif
-#endif
-
-//
 // Servos
 //
 #define SERVO0_PIN                          PA1
@@ -88,72 +77,64 @@
 //
 #define X_MIN_PIN                           PC5
 #define Y_MIN_PIN                           PC4
-#ifndef Z_MIN_PIN
-  #define Z_MIN_PIN                         PB6
-#endif
+#define Z_MIN_PIN                           PB6
 #define X_MAX_PIN                           PB5
 #define Y_MAX_PIN                           PF13
 #define Z_MAX_PIN                           PF14
 
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PA0
+#endif
+
 //
 // Steppers
 //
-// MOT1
-#define X_STEP_PIN                          PG7
+#define X_STEP_PIN                          PG7   // "MOT1"
 #define X_DIR_PIN                           PG6
 #define X_ENABLE_PIN                        PE11
 #define X_CS_PIN                            PD2
 
-// MOT2
-#define X2_STEP_PIN                         PD11
+#define X2_STEP_PIN                         PD11  // "MOT2"
 #define X2_DIR_PIN                          PD10
 #define X2_ENABLE_PIN                       PG10
 #define X2_CS_PIN                           PE15
 
-// MOT3
-#define Y_STEP_PIN                          PG14
+#define Y_STEP_PIN                          PG14  // "MOT3"
 #define Y_DIR_PIN                           PG12
 #define Y_ENABLE_PIN                        PG15
 #define Y_CS_PIN                            PD8
 
-// MOT4
-#define Z_STEP_PIN                          PD4
+#define Z_STEP_PIN                          PD4   // "MOT4"
 #define Z_DIR_PIN                           PD6
 #define Z_ENABLE_PIN                        PD5
 #define Z_CS_PIN                            PD7
 
-// MOT5
-#define Z2_STEP_PIN                         PE5
+#define Z2_STEP_PIN                         PE5   // "MOT5"
 #define Z2_DIR_PIN                          PC13
 #define Z2_ENABLE_PIN                       PE6
 #define Z2_CS_PIN                           PC14
 
-// MOT6
-#define E0_STEP_PIN                         PE3
+#define E0_STEP_PIN                         PE3   // "MOT6"
 #define E0_DIR_PIN                          PE4
 #define E0_ENABLE_PIN                       PE2
 #define E0_CS_PIN                           PC15
 
-// MOT7
-#define E1_STEP_PIN                         PG13
+#define E1_STEP_PIN                         PG13  // "MOT7"
 #define E1_DIR_PIN                          PG8
 #define E1_ENABLE_PIN                       PG9
 #define E1_CS_PIN                           PG3
 
-// MOT8
-#define E2_STEP_PIN                         PE1
+#define E2_STEP_PIN                         PE1   // "MOT8"
 #define E2_DIR_PIN                          PE0
 #define E2_ENABLE_PIN                       PB2
 #define E2_CS_PIN                           PD9
 
-// MOT9
-#define E3_STEP_PIN                         PF4
+#define E3_STEP_PIN                         PF4   // "MOT9"
 #define E3_DIR_PIN                          PF3
 #define E3_ENABLE_PIN                       PF2
 #define E3_CS_PIN                           PF5
 
-// MOT10
-#define E4_STEP_PIN                         PF15
+#define E4_STEP_PIN                         PF15  // "MOT10"
 #define E4_DIR_PIN                          PG0
 #define E4_ENABLE_PIN                       PG5
 #define E4_CS_PIN                           PG11
@@ -247,10 +228,6 @@
   #define FAN4_PIN                          PD14
 #endif
 
-//
-// Misc. Functions
-//
-
 /**
  *          ------                ------                 ------
  *     PA2 |10  9 | PA3      PA6 |10  9 | PA5       PC9 |10  9 | PA8
@@ -261,32 +238,32 @@
  *          ------                ------                 ------
  *           EXP3                  EXP2                   EXP1
  */
-#define EXP1_03_PIN                         PE7   //LCD_D7
-#define EXP1_04_PIN                         PG4   //LCD_D6
-#define EXP1_05_PIN                         PC11  //LCD_D5
-#define EXP1_06_PIN                         PC10  //LCD_D4
-#define EXP1_07_PIN                         PD0   //LCD_RS
-#define EXP1_08_PIN                         PC12  //LCD_EN
-#define EXP1_09_PIN                         PA8   //BTN_ENC
-#define EXP1_10_PIN                         PC9   //BEEP
+#define EXP1_03_PIN                         PE7   // LCD_D7
+#define EXP1_04_PIN                         PG4   // LCD_D6
+#define EXP1_05_PIN                         PC11  // LCD_D5
+#define EXP1_06_PIN                         PC10  // LCD_D4
+#define EXP1_07_PIN                         PD0   // LCD_RS
+#define EXP1_08_PIN                         PC12  // LCD_EN
+#define EXP1_09_PIN                         PA8   // BTN_ENC
+#define EXP1_10_PIN                         PC9   // BEEP
 
-#define EXP2_03_PIN                         -1    //RESET
-#define EXP2_04_PIN                         PB10  //CD
-#define EXP2_05_PIN                         PA7   //MOSI
-#define EXP2_06_PIN                         PC7   //BTN_EN2
-#define EXP2_07_PIN                         PA4   //SS
-#define EXP2_08_PIN                         PC6   //BTN_EN1
-#define EXP2_09_PIN                         PA5   //SCK
-#define EXP2_10_PIN                         PA6   //MISO
+#define EXP2_03_PIN                         -1    // RESET
+#define EXP2_04_PIN                         PB10  // CD
+#define EXP2_05_PIN                         PA7   // MOSI
+#define EXP2_06_PIN                         PC7   // BTN_EN2
+#define EXP2_07_PIN                         PA4   // SS
+#define EXP2_08_PIN                         PC6   // BTN_EN1
+#define EXP2_09_PIN                         PA5   // SCK
+#define EXP2_10_PIN                         PA6   // MISO
 
-#define EXP3_03_PIN                  EXP2_07_PIN  //SS
-#define EXP3_04_PIN                  EXP2_09_PIN  //SCK
-#define EXP3_05_PIN                  EXP2_05_PIN  //MOSI
-#define EXP3_06_PIN                  EXP2_10_PIN  //MISO
-#define EXP3_07_PIN                  EXP2_04_PIN  //CD
-#define EXP3_08_PIN                         -1    //3V3
-#define EXP3_09_PIN                         PA3   //LCD_RX/RX
-#define EXP3_10_PIN                         PA2   //LCD_TX/TX
+#define EXP3_03_PIN                         PA4   // SS
+#define EXP3_04_PIN                         PA5   // SCK
+#define EXP3_05_PIN                         PA7   // MOSI
+#define EXP3_06_PIN                         PA6   // MISO
+#define EXP3_07_PIN                         PB10  // CD
+#define EXP3_08_PIN                         -1    // 3V3
+#define EXP3_09_PIN                         PA3   // LCD_RX/RX
+#define EXP3_10_PIN                         PA2   // LCD_TX/TX
 
 //
 // SPI / SD Card
@@ -303,11 +280,11 @@
 //
 #if ENABLED(FYSETC_242_OLED_12864)
 
+  #define BEEPER_PIN                 EXP2_08_PIN
+
   #define BTN_EN1                    EXP1_10_PIN
   #define BTN_EN2                    EXP1_03_PIN
   #define BTN_ENC                    EXP1_09_PIN
-
-  #define BEEPER_PIN                 EXP2_08_PIN
 
   #define LCD_PINS_DC                EXP1_05_PIN
   #define LCD_PINS_RS                EXP2_06_PIN  // LCD_RST
@@ -317,7 +294,7 @@
   #define DOGLCD_A0                  LCD_PINS_DC
   #define FORCE_SOFT_SPI
 
-  #define KILL_PIN                          -1    // NC
+  //#define KILL_PIN                        -1    // NC
   #define NEOPIXEL_PIN               EXP1_04_PIN
 
 #elif HAS_WIRED_LCD
@@ -342,8 +319,8 @@
     #if ENABLED(FYSETC_GENERIC_12864_1_1)
       #define LCD_BACKLIGHT_PIN      EXP1_04_PIN
     #endif
-    #define LCD_RESET_PIN                   EXP1_06_PIN  // Must be high or open for LCD to operate normally.
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #define LCD_RESET_PIN            EXP1_06_PIN  // Must be high or open for LCD to operate normally.
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN        EXP1_05_PIN
       #endif
@@ -363,7 +340,7 @@
     #define LCD_PINS_D6              EXP1_04_PIN
     #define LCD_PINS_D7              EXP1_03_PIN
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN                    LCD_PINS_D7  // Detect the presence of the encoder
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
   #endif
 
@@ -379,12 +356,12 @@
 //
 // Wifi module
 //
-#define ESP_WIFI_MODULE_COM                 1  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE            BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_COM                 1     // Set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Use the same BAUDRATE as SERIAL_PORT or SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PB3
-#define ESP_WIFI_MODULE_ENABLE_PIN          PD1   //PC8
-#define ESP_WIFI_MODULE_GPIO0_PIN           PG2   //PB4
-#define ESP_WIFI_MODULE_GPIO4_PIN           PG1   //PB7
+#define ESP_WIFI_MODULE_ENABLE_PIN          PD1   // PC8
+#define ESP_WIFI_MODULE_GPIO0_PIN           PG2   // PB4
+#define ESP_WIFI_MODULE_GPIO4_PIN           PG1   // PB7
 
 //
 // NeoPixel LED
