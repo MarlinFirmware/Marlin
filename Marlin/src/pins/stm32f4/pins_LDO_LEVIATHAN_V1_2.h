@@ -80,21 +80,21 @@
 #define Z_DIR_PIN                           PD3
 #define Z_ENABLE_PIN                        PD7
 
-#define Z2_STEP_PIN                         PC12  // STEPPER-1
-#define Z2_DIR_PIN                          PC11
-#define Z2_ENABLE_PIN                       PD2
+#define E0_STEP_PIN                         PC12  // STEPPER-1
+#define E0_DIR_PIN                          PC11
+#define E0_ENABLE_PIN                       PD2
 
-#define E0_STEP_PIN                         PC9   // STEPPER-2
-#define E0_DIR_PIN                          PC8
-#define E0_ENABLE_PIN                       PC10
+#define E1_STEP_PIN                         PC9   // STEPPER-2
+#define E1_DIR_PIN                          PC8
+#define E1_ENABLE_PIN                       PC10
 
-#define E1_STEP_PIN                         PG7   // STEPPER-3
-#define E1_DIR_PIN                          PG6
-#define E1_ENABLE_PIN                       PC7
+#define E2_STEP_PIN                         PG7   // STEPPER-3
+#define E2_DIR_PIN                          PG6
+#define E2_ENABLE_PIN                       PC7
 
-#define E2_STEP_PIN                         PD10  // STEPPER-4
-#define E2_DIR_PIN                          PD9
-#define E2_ENABLE_PIN                       PD13
+#define E3_STEP_PIN                         PD10  // STEPPER-4
+#define E3_DIR_PIN                          PD9
+#define E3_ENABLE_PIN                       PD13
 
 //
 // Trinamic Stallguard pins
@@ -102,10 +102,10 @@
 #define X_DIAG_PIN                          PG1   // HV-STEPPER-0
 #define Y_DIAG_PIN                          PE10  // HV-STEPPER-1
 #define Z_DIAG_PIN                          PD6   // STEPPER-0
-#define Z2_DIAG_PIN                         PD1   // STEPPER-1
-#define E0_DIAG_PIN                         PA15  // STEPPER-2
-#define E1_DIAG_PIN                         PC6   // STEPPER-3
-#define E2_DIAG_PIN                         PD12  // STEPPER-4
+#define E0_DIAG_PIN                         PD1   // STEPPER-1
+#define E1_DIAG_PIN                         PA15  // STEPPER-2
+#define E2_DIAG_PIN                         PC6   // STEPPER-3
+#define E3_DIAG_PIN                         PD12  // STEPPER-4
 
 //
 // Limit Switches
@@ -203,17 +203,17 @@
   #define Z_SERIAL_TX_PIN                   PD5
   #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define Z2_SERIAL_TX_PIN                  PD0
-  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
-
-  #define E0_SERIAL_TX_PIN                  PA8
+  #define E0_SERIAL_TX_PIN                  PD0
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
-  #define E1_SERIAL_TX_PIN                  PG8
+  #define E1_SERIAL_TX_PIN                  PA8
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
-  #define E2_SERIAL_TX_PIN                  PD11
+  #define E2_SERIAL_TX_PIN                  PG8
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
+
+  #define E3_SERIAL_TX_PIN                  PD11
+  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
