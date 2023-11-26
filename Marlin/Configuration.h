@@ -2249,6 +2249,9 @@
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
   #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
   //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
+  #define Move_to_Custom //move nozzle to x y after a home
+  #define Custom_Pos_X 0 //or pick custom
+  #define Custom_Pos_Y 0	
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
