@@ -210,7 +210,7 @@
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-  
+
   // Buffer for Color UI
   #define TFT_BUFFER_WORDS                  3200
 #endif
