@@ -35,7 +35,6 @@
   #include <OnChipTemperature.h>
 #endif
 
-
 extern "C" char *_sbrk(int incr);
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
@@ -47,15 +46,17 @@ extern "C" char *_sbrk(int incr);
   inline void HAL_clock_frequencies_dump() {
     // 1. dump all clock frequencies
     update_system_clock_frequencies();
-    SERIAL_ECHOPGM("-- clocks dump -- \nSYS=", SYSTEM_CLOCK_FREQUENCIES.system);
-    SERIAL_ECHOPGM("\nHCLK=", SYSTEM_CLOCK_FREQUENCIES.hclk);
-    SERIAL_ECHOPGM("\nPCLK0=", SYSTEM_CLOCK_FREQUENCIES.pclk0);
-    SERIAL_ECHOPGM("\nPCLK1=", SYSTEM_CLOCK_FREQUENCIES.pclk1);
-    SERIAL_ECHOPGM("\nPCLK2=", SYSTEM_CLOCK_FREQUENCIES.pclk2);
-    SERIAL_ECHOPGM("\nPCLK3=", SYSTEM_CLOCK_FREQUENCIES.pclk3);
-    SERIAL_ECHOPGM("\nPCLK4=", SYSTEM_CLOCK_FREQUENCIES.pclk4);
-    SERIAL_ECHOPGM("\nEXCLK=", SYSTEM_CLOCK_FREQUENCIES.exclk);
-    SERIAL_ECHOPGM("\nF_CPU=", F_CPU);
+    SERIAL_ECHOPGM(
+      "-- clocks dump -- \nSYS=", SYSTEM_CLOCK_FREQUENCIES.system,
+      "\nHCLK=", SYSTEM_CLOCK_FREQUENCIES.hclk,
+      "\nPCLK0=", SYSTEM_CLOCK_FREQUENCIES.pclk0,
+      "\nPCLK1=", SYSTEM_CLOCK_FREQUENCIES.pclk1,
+      "\nPCLK2=", SYSTEM_CLOCK_FREQUENCIES.pclk2,
+      "\nPCLK3=", SYSTEM_CLOCK_FREQUENCIES.pclk3,
+      "\nPCLK4=", SYSTEM_CLOCK_FREQUENCIES.pclk4,
+      "\nEXCLK=", SYSTEM_CLOCK_FREQUENCIES.exclk,
+      "\nF_CPU=", F_CPU
+    );
 
     // 2. dump current system clock source
     en_clk_sys_source_t clkSrc = CLK_GetSysClkSource();
@@ -78,11 +79,13 @@ extern "C" char *_sbrk(int incr);
         }
 
         // PLL multipliers and dividers
-        SERIAL_ECHOPGM("\nP=", M4_SYSREG->CMU_PLLCFGR_f.MPLLP + 1UL);
-        SERIAL_ECHOPGM("\nQ=", M4_SYSREG->CMU_PLLCFGR_f.MPLLQ + 1UL);
-        SERIAL_ECHOPGM("\nR=", M4_SYSREG->CMU_PLLCFGR_f.MPLLR + 1UL);
-        SERIAL_ECHOPGM("\nN=", M4_SYSREG->CMU_PLLCFGR_f.MPLLN + 1UL);
-        SERIAL_ECHOPGM("\nM=", M4_SYSREG->CMU_PLLCFGR_f.MPLLM + 1UL);
+        SERIAL_ECHOPGM(
+          "\nP=", M4_SYSREG->CMU_PLLCFGR_f.MPLLP + 1UL,
+          "\nQ=", M4_SYSREG->CMU_PLLCFGR_f.MPLLQ + 1UL,
+          "\nR=", M4_SYSREG->CMU_PLLCFGR_f.MPLLR + 1UL,
+          "\nN=", M4_SYSREG->CMU_PLLCFGR_f.MPLLN + 1UL,
+          "\nM=", M4_SYSREG->CMU_PLLCFGR_f.MPLLM + 1UL
+        );
         break;
       default: break;
     }
@@ -105,16 +108,11 @@ pin_t MarlinHAL::last_adc_pin;
 MarlinHAL::MarlinHAL() {}
 
 void MarlinHAL::watchdog_init() {
-  #if ENABLED(USE_WATCHDOG)
-    // 5s timeout, reset on timeout
-    WDT.begin(5000);
-  #endif
+  TERN_(USE_WATCHDOG, WDT.begin(5000)); // Reset on 5 second timeout
 }
 
 void MarlinHAL::watchdog_refresh() {
-  #if ENABLED(USE_WATCHDOG)
-    WDT.reload();
-  #endif
+  TERN_(USE_WATCHDOG, WDT.reload());
 }
 
 void MarlinHAL::init() {

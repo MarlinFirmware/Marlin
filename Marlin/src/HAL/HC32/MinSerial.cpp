@@ -25,7 +25,8 @@
 #include "../../inc/MarlinConfig.h"
 #include <drivers/panic/panic.h>
 
-#if ENABLED(POSTMORTEM_DEBUGGING) || defined(PANIC_ENABLE)
+#if ANY(POSTMORTEM_DEBUGGING, PANIC_ENABLE)
+
 #include <drivers/usart/usart_sync.h>
 
 //
