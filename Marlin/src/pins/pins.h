@@ -889,7 +889,7 @@
 // HC32 ARM Cortex-M4
 //
 #elif MB(AQUILA_V101)
-  #include "hc32f460/pins_Aquila_V101.h"            // HC32F460                             env:HC32F460C_AQUILA_V101
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_AQUILA_V101
 
 //
 // Custom board (with custom PIO env)
