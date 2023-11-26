@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -77,15 +77,9 @@
 //
 // Limit Switches
 //
-#ifndef X_STOP_PIN
-  #define X_STOP_PIN                        PA5
-#endif
-#ifndef Y_STOP_PIN
-  #define Y_STOP_PIN                        PA6
-#endif
-#ifndef Z_STOP_PIN
-  #define Z_STOP_PIN                        PA7
-#endif
+#define X_STOP_PIN                          PA5
+#define Y_STOP_PIN                          PA6
+#define Z_STOP_PIN                          PA7
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN
