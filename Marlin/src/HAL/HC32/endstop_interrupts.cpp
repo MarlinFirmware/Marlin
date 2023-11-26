@@ -34,7 +34,7 @@
 void endstopIRQHandler() {
   bool flag = false;
 
-  // check all irq flags
+  // Check all irq flags
   #define CHECK(name) TERN_(USE_##name, flag |= checkIRQFlag(name##_PIN, /*clear*/ true))
 
   CHECK(X_MAX);
@@ -54,10 +54,8 @@ void endstopIRQHandler() {
 
   CHECK(Z_MIN_PROBE);
 
-  // update endstops
-  if (flag) {
-    endstops.update();
-  }
+  // Update endstops
+  if (flag) endstops.update();
 
   #undef CHECK
 }
@@ -88,14 +86,13 @@ void setup_endstop_interrupts() {
   #undef SETUP
 }
 
-// ensure max. 10 irqs are registered
-// if you encounter this error, you'll have to disable some endstops
+// Ensure 1 - 10 IRQs are registered
+// Disable some endstops if you encounter this error
 #define ENDSTOPS_INTERRUPTS_COUNT COUNT_ENABLED(USE_X_MAX, USE_X_MIN, USE_Y_MAX, USE_Y_MIN, USE_Z_MAX, USE_Z_MIN, USE_Z2_MAX, USE_Z2_MIN, USE_Z3_MAX, USE_Z3_MIN, USE_Z_MIN_PROBE)
 #if ENDSTOPS_INTERRUPTS_COUNT > 10
-  #error "too many endstop interrupts! HC32F460 only supports 10 endstop interrupts."
-#endif
-#if ENDSTOPS_INTERRUPTS_COUNT == 0
-  #error "no endstop interrupts are enabled! If you wish to ignore this error, please comment out this line."
+  #error "Too many endstop interrupts! HC32F460 only supports 10 endstop interrupts."
+#elif ENDSTOPS_INTERRUPTS_COUNT == 0
+  #error "No endstop interrupts are enabled! Comment out this line to continue."
 #endif
 
 #endif // ARDUINO_ARCH_HC32
