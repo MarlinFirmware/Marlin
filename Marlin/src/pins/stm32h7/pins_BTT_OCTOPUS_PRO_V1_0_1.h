@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,24 @@
  */
 #pragma once
 
-/**
- * Azteeg X1 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X1/Azteeg_X1_schematics.pdf
- * Origin: https://reprap.org/mediawiki/images/0/07/Azteeg_X1_schematics.pdf
- */
+#define BOARD_INFO_NAME "OCTOPUS PRO V1.0.1"
 
-#define BOARD_INFO_NAME "Azteeg X1"
+#include "pins_BTT_OCTOPUS_PRO_V1_common.h"
 
-#define FAN0_PIN                               4
+//
+// Steppers
+//
+#define Z2_ENABLE_PIN                       PA0
 
-#include "pins_SANGUINOLOLU_12.h" // ... SANGUINOLOLU_11
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN                        PA2   // Heater0
+#define HEATER_2_PIN                        PB10  // Heater2
+
+//
+// NeoPixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PB0
+#endif

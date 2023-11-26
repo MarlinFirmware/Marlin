@@ -68,7 +68,7 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
         strncpy_P(o, b, n);
-        n -= utf8_strlen_P(b);
+        n -= utf8_strlen(o);
         o += strlen(o);
       }
       if (n > 0) {
