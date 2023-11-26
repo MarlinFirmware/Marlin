@@ -45,7 +45,6 @@
  * Return the number of characters emitted
  */
 lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
-  const uint8_t prop = USE_WIDE_GLYPH ? 2 : 1;
   const uint8_t *p = (uint8_t*)ptpl;
   char *o = outstr;
   int8_t n = maxlen;
@@ -69,7 +68,7 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
         strncpy_P(o, b, n);
-        n -= utf8_strlen_P(b);
+        n -= utf8_strlen(o);
         o += strlen(o);
       }
       if (n > 0) {

@@ -476,7 +476,8 @@
 #define BOARD_BTT_SKR_V3_0            6006  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_SKR_V3_0_EZ         6007  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6008  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_1    6009  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6009  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_1    6010  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 
 //
 // Espressif ESP32 WiFi

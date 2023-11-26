@@ -218,6 +218,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 void MarlinUI::init() {
 
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+  #endif
+
   init_lcd();
 
   #if HAS_DIGITAL_BUTTONS
@@ -272,10 +276,6 @@ void MarlinUI::init() {
 
   #if ALL(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
-  #endif
-
-  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.begin(int(I2C_SDA_PIN), int(I2C_SCL_PIN));
   #endif
 
   update_buttons();
@@ -408,7 +408,7 @@ void MarlinUI::init() {
 
     #if HAS_TOUCH_BUTTONS
       uint8_t MarlinUI::touch_buttons;
-      uint8_t MarlinUI::repeat_delay;
+      uint16_t MarlinUI::repeat_delay;
     #endif
 
     #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
@@ -695,7 +695,7 @@ void MarlinUI::init() {
       else if ((old_frm < 100 && new_frm > 100) || (old_frm > 100 && new_frm < 100))
         new_frm = 100;
 
-      LIMIT(new_frm, 10, 999);
+      LIMIT(new_frm, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
       if (old_frm != new_frm) {
         feedrate_percentage = new_frm;
