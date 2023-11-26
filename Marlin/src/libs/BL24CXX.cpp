@@ -45,7 +45,7 @@
 #endif
 
 // IO direction setting
-#if defined(__STM32F1__)
+#ifdef __STM32F1__
   #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
   #define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
 #elif defined(STM32F1) || defined(STM32F4) || defined(ARDUINO_ARCH_HC32)

@@ -54,8 +54,8 @@
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA PA11
-  #define IIC_EEPROM_SCL PA12
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
   #define MARLIN_EEPROM_SIZE 0x800 // 2Kb (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
   #define MARLIN_EEPROM_SIZE 0x800 // 2K
@@ -65,24 +65,24 @@
 // Servos
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN PB0 // BLTouch OUT
+  #define SERVO0_PIN                        PB0   // BLTouch OUT
 #endif
 
 //
 // Limit Switches
 //
 #ifndef X_STOP_PIN
-  #define X_STOP_PIN PA5
+  #define X_STOP_PIN                        PA5
 #endif
 #ifndef Y_STOP_PIN
-  #define Y_STOP_PIN PA6
+  #define Y_STOP_PIN                        PA6
 #endif
 #ifndef Z_STOP_PIN
-  #define Z_STOP_PIN PA7
+  #define Z_STOP_PIN                        PA7
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN PB1 // BLTouch IN
+  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN
 #endif
 
 //
@@ -90,50 +90,50 @@
 //
 // Note: normally high, pulled low when filament is present
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN PA4
+  #define FIL_RUNOUT_PIN                    PA4
 #endif
 
 //
 // Steppers
 //
 #ifndef X_ENABLE_PIN
-  #define X_ENABLE_PIN PC3 // all steppers share enable pins
+  #define X_ENABLE_PIN                      PC3   // all steppers share enable pins
 #endif
 #ifndef X_STEP_PIN
-  #define X_STEP_PIN PC2
+  #define X_STEP_PIN                        PC2
 #endif
 #ifndef X_DIR_PIN
-  #define X_DIR_PIN PB9
+  #define X_DIR_PIN                         PB9
 #endif
 
 #ifndef Y_ENABLE_PIN
-  #define Y_ENABLE_PIN X_ENABLE_PIN
+  #define Y_ENABLE_PIN              X_ENABLE_PIN
 #endif
 #ifndef Y_STEP_PIN
-  #define Y_STEP_PIN PB8
+  #define Y_STEP_PIN                        PB8
 #endif
 #ifndef Y_DIR_PIN
-  #define Y_DIR_PIN PB7
+  #define Y_DIR_PIN                         PB7
 #endif
 
 #ifndef Z_ENABLE_PIN
-  #define Z_ENABLE_PIN X_ENABLE_PIN
+  #define Z_ENABLE_PIN              X_ENABLE_PIN
 #endif
 #ifndef Z_STEP_PIN
-  #define Z_STEP_PIN PB6
+  #define Z_STEP_PIN                        PB6
 #endif
 #ifndef Z_DIR_PIN
-  #define Z_DIR_PIN PB5
+  #define Z_DIR_PIN                         PB5
 #endif
 
 #ifndef E0_ENABLE_PIN
-  #define E0_ENABLE_PIN X_ENABLE_PIN
+  #define E0_ENABLE_PIN             X_ENABLE_PIN
 #endif
 #ifndef E0_STEP_PIN
-  #define E0_STEP_PIN PB4
+  #define E0_STEP_PIN                       PB4
 #endif
 #ifndef E0_DIR_PIN
-  #define E0_DIR_PIN PB3
+  #define E0_DIR_PIN                        PB3
 #endif
 
 //
@@ -145,27 +145,27 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN PC5   // HEATER1 ADC1_IN15
-#define TEMP_BED_PIN PC4 // HOT BED ADC1_IN14
+#define TEMP_0_PIN                          PC5   // HEATER1 ADC1_IN15
+#define TEMP_BED_PIN                        PC4   // HOT BED ADC1_IN14
 
 //
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN PA1 // HEATER1
+  #define HEATER_0_PIN                      PA1   // HEATER1
 #endif
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN PA2 // HOT BED
+  #define HEATER_BED_PIN                    PA2   // HOT BED
 #endif
 
 #ifndef FAN_PIN
-  #define FAN0_PIN PA0 // FAN0
+  #define FAN0_PIN                          PA0   // FAN0
 #endif
 
 //
 // SD Card
 //
-#define SD_DETECT_PIN PA10
+#define SD_DETECT_PIN                       PA10
 #define SDCARD_CONNECTION ONBOARD
 #define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE // This board's SD card is only seen by the printer
@@ -180,14 +180,14 @@
 // PB12 | 7  8 | PB15
 // GND  | 9 10 | +5V
 //       ------
-#define EXP_01_PIN PC6
-#define EXP_02_PIN PB2
-#define EXP_03_PIN PC0
-#define EXP_04_PIN PC1
-#define EXP_05_PIN PB14
-#define EXP_06_PIN PB13
-#define EXP_07_PIN PB12
-#define EXP_08_PIN PB15
+#define EXP_01_PIN                          PC6
+#define EXP_02_PIN                          PB2
+#define EXP_03_PIN                          PC0
+#define EXP_04_PIN                          PC1
+#define EXP_05_PIN                          PB14
+#define EXP_06_PIN                          PB13
+#define EXP_07_PIN                          PB12
+#define EXP_08_PIN                          PB15
 
 #if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)  
   // screen pinout (screen side, so RX/TX are swapped)
@@ -199,12 +199,12 @@
   // GND  | 9 10 | +5V
   //       ------
 
-  #define BTN_ENC EXP_05_PIN // EN
-  #define BTN_EN1 EXP_08_PIN // A
-  #define BTN_EN2 EXP_07_PIN // B
+  #define BTN_ENC                     EXP_05_PIN  // EN
+  #define BTN_EN1                     EXP_08_PIN  // A
+  #define BTN_EN2                     EXP_07_PIN  // B
   
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN EXP_06_PIN // BEEP
+    #define BEEPER_PIN                EXP_06_PIN  // BEEP
   #endif
 
   #define BOARD_USART1_RX_PIN EXP_04_PIN // screen TX
@@ -243,5 +243,5 @@
 
 // on-board LED (HIGH = off, LOW = on)
 #ifndef LED_BUILTIN
-  #define LED_BUILTIN PA3
+  #define LED_BUILTIN                       PA3
 #endif

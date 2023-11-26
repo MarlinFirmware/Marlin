@@ -20,3 +20,7 @@
  *
  */
 #pragma once
+
+#ifndef TEMP_SOC_PIN
+  #define TEMP_SOC_PIN 0xFF   // Dummy that is not a valid GPIO, HAL checks for this
+#endif

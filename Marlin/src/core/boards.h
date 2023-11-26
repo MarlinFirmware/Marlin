@@ -515,7 +515,6 @@
 //
 #define BOARD_AQUILA_V101             7200  // Aquila V1.0.1 as found in the Voxelab Aquila X2
 
-
 //
 // Custom board
 //

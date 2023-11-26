@@ -32,7 +32,7 @@
 
 #define SDIO_PERIPHERAL M4_SDIOC1
 
-// use DMA2 channel 0
+// Use DMA2 channel 0
 #define SDIO_DMA_PERIPHERAL M4_DMA2
 #define SDIO_DMA_CHANNEL DmaCh0
 
@@ -77,20 +77,18 @@ bool SDIO_Init() {
   handle->enDevMode = SdCardDmaMode;
   handle->pstcDmaInitCfg = dmaConf;
 
-  // create card configuration
-  // this should be a fairly safe configuration for most cards
+  // Create card configuration
+  // This should be a fairly safe configuration for most cards
   stc_sdcard_init_t cardConf = {
-      .enBusWidth = SdiocBusWidth4Bit,
-      .enClkFreq = SdiocClk400K,
-      .enSpeedMode = SdiocNormalSpeedMode,
-      //.pstcInitCfg = NULL,
+    .enBusWidth = SdiocBusWidth4Bit,
+    .enClkFreq = SdiocClk400K,
+    .enSpeedMode = SdiocNormalSpeedMode,
+    //.pstcInitCfg = NULL,
   };
 
-  // initialize sd card
+  // Initialize sd card
   en_result_t rc = SDCARD_Init(handle, &cardConf);
-  if (rc != Ok) {
-    printf("SDIO_Init() error (rc=%u)\n", rc);
-  }
+  if (rc != Ok) printf("SDIO_Init() error (rc=%u)\n", rc);
 
   return rc == Ok;
 }
@@ -101,12 +99,8 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 
   WITH_RETRY(SDIO_READ_RETRIES, {
     en_result_t rc = SDCARD_ReadBlocks(handle, block, 1, dst, SDIO_READ_TIMEOUT);
-    if (rc == Ok) {
-      return true;
-    }
-    else {
-      printf("SDIO_ReadBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
-    }
+    if (rc == Ok) return true;
+    printf("SDIO_ReadBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
   })
 
   return false;
@@ -118,12 +112,8 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
 
   WITH_RETRY(SDIO_WRITE_RETRIES, {
     en_result_t rc = SDCARD_WriteBlocks(handle, block, 1, (uint8_t *)src, SDIO_WRITE_TIMEOUT);
-    if (rc == Ok) {
-      return true;
-    }
-    else {
-      printf("SDIO_WriteBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
-    }
+    if (rc == Ok) return true;
+    printf("SDIO_WriteBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
   })
 
   return false;
@@ -137,15 +127,11 @@ bool SDIO_IsReady() {
 uint32_t SDIO_GetCardSize() {
   CORE_ASSERT(handle != NULL, "SDIO not initialized");
 
-  // multiply number of blocks with block size to get size in bytes
-  uint64_t cardSizeBytes = uint64_t(handle->stcSdCardInfo.u32LogBlockNbr) * uint64_t(handle->stcSdCardInfo.u32LogBlockSize);
+  // Multiply number of blocks with block size to get size in bytes
+  const uint64_t cardSizeBytes = uint64_t(handle->stcSdCardInfo.u32LogBlockNbr) * uint64_t(handle->stcSdCardInfo.u32LogBlockSize);
 
-  // if the card is bigger than ~4Gb (maximum a 32bit integer can hold), clamp to the maximum value of a 32 bit integer
-  if (cardSizeBytes >= UINT32_MAX) {
-    return UINT32_MAX;
-  }
-
-  return uint32_t(cardSizeBytes);
+  // If the card is bigger than ~4Gb (maximum a 32bit integer can hold), clamp to the maximum value of a 32 bit integer
+  return _MAX(cardSizeBytes, UINT32_MAX);
 }
 
 #endif // ARDUINO_ARCH_HC32

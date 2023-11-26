@@ -21,6 +21,10 @@
  */
 #pragma once
 
+#ifndef BOARD_XTAL_FREQUENCY
+  #error "BOARD_XTAL_FREQUENCY is required for HC32F460."
+#endif
+
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
