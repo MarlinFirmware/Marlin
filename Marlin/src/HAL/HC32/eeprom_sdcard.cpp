@@ -99,7 +99,7 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uin
     if (writing) {
       value[i] = c;
     }
-    
+
     crc16(crc, &c, 1);
   }
 

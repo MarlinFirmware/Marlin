@@ -79,7 +79,7 @@ static void minserial_putc(char c) {
     #define USART_SYNC_PUTC(port_no, ch) __USART_SYNC_PUTC(port_no, ch)
 
     USART_SYNC_PUTC(SERIAL_PORT, c);
-  
+
     #undef USART_SYNC_PUTC
     #undef __USART_SYNC_PUTC
   #endif

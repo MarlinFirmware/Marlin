@@ -139,7 +139,7 @@ void pwm_details(const pin_t pin) {
     const uint8_t clock_divider = timera_clk_div_to_n(unit->state.base_init->enClkDiv);
     const uint16_t period = TIMERA_GetPeriodValue(unit->peripheral.register_base);
     SERIAL_ECHOPGM("1/", clock_divider, " PERAR=", period);
-  } 
+  }
   else {
     // Unit not initialized
     SERIAL_ECHOPGM("N/A");
@@ -169,6 +169,6 @@ void print_port(pin_t pin) {
   if (gbit < 10) {
     SERIAL_CHAR(' ');
   }
-  
+
   SERIAL_ECHO(buffer);
 }

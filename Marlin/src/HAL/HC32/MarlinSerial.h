@@ -37,12 +37,12 @@ struct MarlinSerial : public Usart {
       NVIC_SetPriority(c_dev()->interrupts.tx_buffer_empty.interrupt_number, UART_IRQ_PRIO);
       NVIC_SetPriority(c_dev()->interrupts.tx_complete.interrupt_number, UART_IRQ_PRIO);
     }
-  
+
     void begin(uint32_t baud) {
       Usart::begin(baud);
       setPriority();
     }
-  
+
     void begin(uint32_t baud, uint8_t config) {
       Usart::begin(baud, config);
       setPriority();

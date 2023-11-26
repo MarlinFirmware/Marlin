@@ -137,6 +137,9 @@ jobs:
         # STM32G0
         - STM32G0B1RE_btt
 
+        # HC32
+        - HC32F460C_aquila_101
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769

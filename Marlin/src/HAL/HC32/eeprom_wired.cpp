@@ -21,7 +21,8 @@
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
-#warning "'eeprom_wired' has not been tested on HC32F460."
+
+#warning "SPI / I2C EEPROM has not been tested on HC32F460."
 
 /**
  * PersistentStore for Arduino-style EEPROM interface
@@ -47,7 +48,7 @@ bool PersistentStore::access_start() {
       SET_INPUT(BOARD_SPI1_MISO_PIN);
       SET_OUTPUT(SPI_EEPROM1_CS);
     #endif
-    
+
     spiInit(0);
   #endif
   return true;

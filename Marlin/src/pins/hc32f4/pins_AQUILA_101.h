@@ -158,7 +158,7 @@
 #define EXP1_07_PIN                         PB12  // EN2
 #define EXP1_08_PIN                         PB15  // EN1
 
-#if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)  
+#if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   /**
    * Display pinout (display side, so RX/TX are swapped)
    *
