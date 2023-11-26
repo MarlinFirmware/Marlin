@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include "HAL.h" // includes MarlinHAL.h
+#include "HAL.h" // Includes MarlinHAL.h
 #include <IWatchdog.h>
 #include <AsyncAnalogRead.h>
 
@@ -39,7 +39,7 @@
 extern "C" char *_sbrk(int incr);
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-  // from MinSerial.cpp
+  // From MinSerial.cpp
   extern void install_min_serial();
 #endif
 
@@ -87,7 +87,7 @@ extern "C" char *_sbrk(int incr);
       default: break;
     }
 
-    // done
+    // Done
     SERIAL_ECHOPGM("\n--\n");
   }
 #endif // MARLIN_DEV_MODE
@@ -210,7 +210,7 @@ void MarlinHAL::adc_init() {}
 void MarlinHAL::adc_enable(const pin_t pin) {
   #if TEMP_SENSOR_SOC
     if (pin == TEMP_SOC_PIN) {
-      // start OTS, min. 1s between reads
+      // Start OTS, min. 1s between reads
       ChipTemperature.begin();
       ChipTemperature.setMinimumReadDeltaMillis(1000);
       return;
@@ -226,7 +226,7 @@ void MarlinHAL::adc_start(const pin_t pin) {
 
   #if TEMP_SENSOR_SOC
     if (pin == TEMP_SOC_PIN) {
-      // read OTS
+      // Read OTS
       float temp;
       if (ChipTemperature.read(temp))
         MarlinHAL::soc_temp = temp;
@@ -262,11 +262,11 @@ uint16_t MarlinHAL::adc_value() {
 }
 
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale, const bool invert) {
-  // invert value if requested
+  // Invert value if requested
   const uint16_t val = invert ? scale - value : value;
 
-  // analogWrite the value, core handles the rest
-  // pin mode should be set by Marlin by calling SET_PWM() before calling this function
+  // AnalogWrite the value, core handles the rest
+  // Pin mode should be set by Marlin by calling SET_PWM() before calling this function
   analogWriteScaled(pin, val, scale);
 }
 

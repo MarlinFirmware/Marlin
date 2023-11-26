@@ -37,7 +37,7 @@ void core_hook_sysclock_init() {
   sysclock_configure_flash_wait_cycles();
   sysclock_configure_sram_wait_cycles();
 
-  // configure MPLLp to 200 MHz output, with different settings depending on XTAL availability
+  // Configure MPLLp to 200 MHz output, with different settings depending on XTAL availability
   #if BOARD_XTAL_FREQUENCY == 8000000 // 8 MHz XTAL
     // - M = 1   => 8 MHz / 1 = 8 MHz
     // - N = 50  => 8 MHz * 50 = 400 MHz
@@ -96,8 +96,8 @@ void core_hook_sysclock_init() {
     #endif
   #endif
 
-  // setup clock divisors for sysclk = 200 MHz:
-  // note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
+  // Setup clock divisors for sysclk = 200 MHz:
+  // Note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
   stc_clk_sysclk_cfg_t sysClkConf = {
       .enHclkDiv = ClkSysclkDiv1,  // HCLK  = 200 MHz (CPU)
       .enExclkDiv = ClkSysclkDiv2, // EXCLK = 100 MHz (SDIO)
@@ -109,14 +109,14 @@ void core_hook_sysclock_init() {
   };
   sysclock_set_clock_dividers(&sysClkConf);
 
-  // set power mode
+  // Set power mode
   #define POWER_MODE_SYSTEM_CLOCK 200000000 // 200 MHz
   power_mode_update_pre(POWER_MODE_SYSTEM_CLOCK);
 
-  // switch to MPLL as sysclk source
+  // Switch to MPLL as sysclk source
   CLK_SetSysClkSource(CLKSysSrcMPLL);
 
-  // set power mode
+  // Set power mode
   power_mode_update_post(POWER_MODE_SYSTEM_CLOCK);
   #undef POWER_MODE_SYSTEM_CLOCK
 }

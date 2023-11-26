@@ -57,7 +57,7 @@
 stc_sd_handle_t *handle;
 
 bool SDIO_Init() {
-  // configure SDIO pins
+  // Configure SDIO pins
   GPIO_SetFunc(BOARD_SDIO_D0, Func_Sdio);
   GPIO_SetFunc(BOARD_SDIO_D1, Func_Sdio);
   GPIO_SetFunc(BOARD_SDIO_D2, Func_Sdio);
@@ -66,12 +66,12 @@ bool SDIO_Init() {
   GPIO_SetFunc(BOARD_SDIO_CMD, Func_Sdio);
   GPIO_SetFunc(BOARD_SDIO_DET, Func_Sdio);
 
-  // create DMA configuration
+  // Create DMA configuration
   stc_sdcard_dma_init_t *dmaConf = new stc_sdcard_dma_init_t;
   dmaConf->DMAx = SDIO_DMA_PERIPHERAL;
   dmaConf->enDmaCh = SDIO_DMA_CHANNEL;
 
-  // create handle in DMA mode
+  // Create handle in DMA mode
   handle = new stc_sd_handle_t;
   handle->SDIOCx = SDIO_PERIPHERAL;
   handle->enDevMode = SdCardDmaMode;

@@ -46,32 +46,24 @@ size_t PersistentStore::capacity() {
 static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];
 
 bool PersistentStore::access_start() {
-  if (!card.isMounted()) {
-    return false;
-  }
+  if (!card.isMounted()) return false;
 
   MediaFile file, root = card.getroot();
-  if (!file.open(&root, EEPROM_FILENAME, O_RDONLY)) {
-    return true; // false aborts the save
-  }
+  if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
+    return true; // False aborts the save
 
   int bytes_read = file.read(HAL_eeprom_data, MARLIN_EEPROM_SIZE);
-  if (bytes_read < 0) {
-    return false;
-  }
+  if (bytes_read < 0) return false;
 
-  for (; bytes_read < MARLIN_EEPROM_SIZE; bytes_read++) {
+  for (; bytes_read < MARLIN_EEPROM_SIZE; bytes_read++)
     HAL_eeprom_data[bytes_read] = 0xFF;
-  }
 
   file.close();
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  if (!card.isMounted()) {
-    return false;
-  }
+  if (!card.isMounted()) return false;
 
   MediaFile file, root = card.getroot();
   int bytes_written = 0;
@@ -84,9 +76,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  for (size_t i = 0; i < size; i++) {
-    HAL_eeprom_data[pos + i] = value[i];
-  }
+  for (size_t i = 0; i < size; i++) HAL_eeprom_data[pos + i] = value[i];
 
   crc16(crc, value, size);
   pos += size;
@@ -96,10 +86,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing /*=true*/) {
   for (size_t i = 0; i < size; i++) {
     uint8_t c = HAL_eeprom_data[pos + i];
-    if (writing) {
-      value[i] = c;
-    }
-
+    if (writing) value[i] = c;
     crc16(crc, &c, 1);
   }
 

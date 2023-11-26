@@ -93,5 +93,5 @@ private:
   servo_angle_t angle;
 };
 
-// alias for marlin HAL
+// Alias for marlin HAL
 typedef MarlinServo hal_servo_t;

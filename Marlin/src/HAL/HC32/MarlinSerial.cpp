@@ -44,7 +44,7 @@ constexpr bool serial_handles_emergency(int port) {
 }
 
 //
-// define serial ports
+// Define serial ports
 //
 #define DEFINE_HWSERIAL_MARLIN(name, n)      \
   MSerialT name(serial_handles_emergency(n), \
@@ -56,7 +56,7 @@ DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
 DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
 
 //
-// serial port assertions
+// Serial port assertions
 //
 
 // Check the type of each serial port by passing it to a template function.

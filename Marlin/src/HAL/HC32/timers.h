@@ -49,14 +49,14 @@ extern Timer0 step_timer;
 #undef CYCLES_PER_MICROSECOND
 #define CYCLES_PER_MICROSECOND (HAL_TIMER_RATE / 1000000UL)
 
-// temperature timer
+// Temperature timer
 #define TEMP_TIMER_NUM (&temp_timer)
 #define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
 #define TEMP_TIMER_PRESCALE 16ul
 #define TEMP_TIMER_RATE 1000                 // 1kHz
-#define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // alias for Marlin
+#define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // Alias for Marlin
 
-// stepper timer
+// Stepper timer
 #define STEP_TIMER_NUM (&step_timer)
 #define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
 #define STEPPER_TIMER_PRESCALE 16ul
@@ -65,13 +65,13 @@ extern Timer0 step_timer;
 #define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
 #define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
 
-// pulse timer (== stepper timer)
+// Pulse timer (== stepper timer)
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
 //
-// channel aliases
+// Channel aliases
 //
 #define MF_TIMER_TEMP TEMP_TIMER_NUM
 #define MF_TIMER_STEP STEP_TIMER_NUM
@@ -82,7 +82,7 @@ extern Timer0 step_timer;
 //
 void HAL_timer_start(const timer_channel_t timer_num, const uint32_t frequency);
 
-// inlined since they are somewhat critical
+// Inlined since they are somewhat critical
 #define MARLIN_HAL_TIMER_INLINE_ATTR __attribute__((always_inline)) inline
 
 MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_enable_interrupt(const timer_channel_t timer_num) {

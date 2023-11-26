@@ -43,18 +43,14 @@ MarlinServo::MarlinServo() {
 }
 
 int8_t MarlinServo::attach(const pin_t apin) {
-  // use last pin if pin not given
-  if (apin >= 0) {
-    this->pin = apin;
-  }
+  // Use last pin if pin not given
+  if (apin >= 0) this->pin = apin;
 
-  // if attached, do nothing but no fail
-  if (this->servo.attached()) {
-    return 0;
-  }
+  // If attached, do nothing but no fail
+  if (this->servo.attached()) return 0;
 
-  // attach
-  uint8_t rc = this->servo.attach(this->pin);
+  // Attach
+  const uint8_t rc = this->servo.attach(this->pin);
   return rc == INVALID_SERVO ? -1 : rc;
 }
 
@@ -72,11 +68,8 @@ void MarlinServo::write(servo_angle_t angle) {
 }
 
 void MarlinServo::move(servo_angle_t angle) {
-  // attach with pin=-1 to use last pin attach() was called with
-  if (attach(-1) < 0) {
-    // attach failed
-    return;
-  }
+  // Attach with pin=-1 to use last pin attach() was called with
+  if (attach(-1) < 0) return; // Attach failed
 
   write(angle);
   safe_delay(servoDelays[this->channel]);

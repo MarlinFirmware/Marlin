@@ -53,7 +53,7 @@
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #define MYSERIAL1 MSERIAL(1) // dummy port
+  #define MYSERIAL1 MSERIAL(1) // Dummy port
   static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
 #endif
 
@@ -63,7 +63,7 @@
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #define MYSERIAL2 MSERIAL(1) // dummy port
+    #define MYSERIAL2 MSERIAL(1) // Dummy port
     static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
   #endif
 #endif
@@ -74,7 +74,7 @@
   #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
     #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #else
-    #define MYSERIAL3 MSERIAL(1) // dummy port
+    #define MYSERIAL3 MSERIAL(1) // Dummy port
     static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
   #endif
 #endif
@@ -85,7 +85,7 @@
   #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #define LCD_SERIAL MSERIAL(1) // dummy port
+    #define LCD_SERIAL MSERIAL(1) // Dummy port
     static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
   #endif
 
@@ -134,7 +134,7 @@
 // bss_end alias
 #define __bss_end __bss_end__
 
-// fix bug in pgm_read_ptr
+// Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*(addr))
 
