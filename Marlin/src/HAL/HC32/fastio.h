@@ -49,14 +49,14 @@
 #define SET_OUTPUT(IO) OUT_WRITE(IO, LOW)
 #define SET_PWM(IO) _SET_MODE(IO, OUTPUT_PWM)
 
-#define IS_INPUT(IO) (                 \
+#define IS_INPUT(IO) (               \
   _GET_MODE(IO) == INPUT ||          \
   _GET_MODE(IO) == INPUT_FLOATING || \
   _GET_MODE(IO) == INPUT_ANALOG ||   \
   _GET_MODE(IO) == INPUT_PULLUP ||   \
   _GET_MODE(IO) == INPUT_PULLDOWN)
 
-#define IS_OUTPUT(IO) (            \
+#define IS_OUTPUT(IO) (          \
   _GET_MODE(IO) == OUTPUT ||     \
   _GET_MODE(IO) == OUTPUT_PWM || \
   _GET_MODE(IO) == OUTPUT_OPEN_DRAIN)
@@ -66,4 +66,4 @@
 #define extDigitalRead(IO) digitalRead(IO)
 #define extDigitalWrite(IO, V) digitalWrite(IO, V)
 
-#define NO_COMPILE_TIME_PWM // cannot check for PWM at compile time
+#define NO_COMPILE_TIME_PWM   // Can't check for PWM at compile time
