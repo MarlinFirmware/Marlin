@@ -1,4 +1,26 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 #pragma once
+
 #include <core_types.h>
 #include <stdint.h>
 
@@ -6,14 +28,14 @@ typedef gpio_pin_t pin_t;
 
 #if TEMP_SENSOR_SOC
   /**
-   * convert ots measurement float to uint16_t for adc_value()
+   * Convert ots measurement float to uint16_t for adc_value()
    *
    * @note returns float as integer in degrees C * 10, if T > 0
    */
   #define OTS_FLOAT_TO_ADC_READING(T) ((T) > 0 ? ((uint16_t)((T) * 10.0f)) : 0)
 
   /**
-   * convert adc_value() uint16_t to ots measurement float
+   * Convert adc_value() uint16_t to ots measurement float
    *
    * @note see OTS_FLOAT_TO_ADC_READING for inverse
    *
@@ -90,21 +112,22 @@ public:
 
 private:
   /**
-   * pin number of the last pin that was used with adc_start()
+   * Pin number of the last pin that was used with adc_start()
    */
   static pin_t last_adc_pin;
 
   #if TEMP_SENSOR_SOC
     /**
-     * on-chip temperature sensor value
+     * On-chip temperature sensor value
      */
     static float soc_temp;
   #endif
 };
 
-// M997: trigger firmware update from sd card (after upload)
-// on HC32F460, a reboot is enough to do this
+// M997: Trigger a firmware update from SD card (after upload).
+//       On HC32F460, a reboot is enough to do this.
 #ifndef PLATFORM_M997_SUPPORT
   #define PLATFORM_M997_SUPPORT
 #endif
+
 void flashFirmware(const int16_t);
