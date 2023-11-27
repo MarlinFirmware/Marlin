@@ -87,7 +87,6 @@ namespace LanguageNarrow_eu {
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 exekutatzen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tresnak");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Sarea eskuz sortu");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Neurtu");
   LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktibatu");

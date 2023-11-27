@@ -130,7 +130,7 @@ void process_lcd_c_command(const char *command) {
     case 'C': // Cope with both V1 early rev and later LCDs.
     case 'S':
       feedrate_percentage = target_val * 10;
-      LIMIT(feedrate_percentage, 10, 999);
+      LIMIT(feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     case 'T':

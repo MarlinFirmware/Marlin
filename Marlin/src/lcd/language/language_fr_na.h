@@ -139,7 +139,6 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_G26_LEAVING                    = _UxGT("Sortie G26");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 en cours");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Outils UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Niveau lit unifie");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Maillage manuel");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser cale & mesurer");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");

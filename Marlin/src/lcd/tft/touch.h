@@ -22,10 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../tft_io/touch_calibration.h"
-#endif
+#include "../tft_io/touch_calibration.h"
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
   #include HAL_PATH(../.., tft/gt911.h)
@@ -43,34 +40,25 @@ extern int8_t encoderTopLine, encoderLine, screen_items;
 enum TouchControlType : uint16_t {
   NONE = 0x0000,
   CALIBRATE,
-  MENU_SCREEN,
-  MENU_ITEM,
+  MENU_SCREEN, MENU_ITEM,
   BACK,
-  PAGE_UP,
-  PAGE_DOWN,
-  CLICK,
-  MENU_CLICK,
+  PAGE_UP, PAGE_DOWN,
+  CLICK, MENU_CLICK,
   RESUME_CONTINUE,
   SLIDER,
-  INCREASE,
-  DECREASE,
-  CANCEL,
-  CONFIRM,
-  HEATER,
-  FAN,
-  FEEDRATE,
-  FLOWRATE,
+  INCREASE, DECREASE,
+  CANCEL, CONFIRM,
+  HEATER, FAN,
+  FEEDRATE, FLOWRATE,
   UBL,
   STOP,
-  BUTTON,
+  BUTTON
 };
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
-  uint16_t x;
-  uint16_t y;
-  uint16_t width;
-  uint16_t height;
+  xy_uint_t pos;
+  xy_uint_t size;
   intptr_t data;
 } touch_control_t;
 
@@ -87,7 +75,7 @@ typedef struct __attribute__((__packed__)) {
 class Touch {
   private:
     static TOUCH_DRIVER_CLASS io;
-    static int16_t x, y;
+    static xy_int_t point;
     static bool enabled;
 
     static touch_control_t controls[MAX_CONTROLS];
@@ -97,7 +85,7 @@ class Touch {
     static millis_t next_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
-    static bool get_point(int16_t *x, int16_t *y);
+    static bool get_point(xy_int_t &point);
     static void touch(touch_control_t *control);
     static void hold(touch_control_t *control, millis_t delay=0);
 
