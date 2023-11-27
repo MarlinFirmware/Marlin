@@ -59,6 +59,9 @@
 #if HAS_COOLER && DISABLED(THERMAL_PROTECTION_COOLER)
   #warning "Safety Alert! Enable THERMAL_PROTECTION_COOLER for the final build!"
 #endif
+#if ENABLED(IGNORE_THERMOCOUPLE_ERRORS)
+  #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
+#endif
 #if ANY_THERMISTOR_IS(998) || ANY_THERMISTOR_IS(999)
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif

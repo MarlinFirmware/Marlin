@@ -74,7 +74,6 @@
 
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
-#define TEMP_SENSOR_IS_ANY_MAX_TC(n) (TEMP_SENSOR_IS_MAX_TC(n) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 
 // LIB_MAX6675 can be added to the build_flags in platformio.ini to use a user-defined library
 // If LIB_MAX6675 is not on the build_flags then raw SPI reads will be used.
@@ -120,6 +119,9 @@
 #endif
 #if TEMP_SENSOR_IS_ANY_MAX_TC(2) && TEMP_SENSOR_2_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
   #define TEMP_SENSOR_2_USES_SW_SPI 1
+#endif
+#if TEMP_SENSOR_IS_ANY_MAX_TC(BED) && TEMP_SENSOR_0_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
+  #define TEMP_SENSOR_BED_USES_SW_SPI 1
 #endif
 
 #if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI || TEMP_SENSOR_2_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
@@ -259,6 +261,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #define _MAX31865_0_SW TEMP_SENSOR_0_USES_SW_SPI
     #define _MAX31865_1_SW TEMP_SENSOR_1_USES_SW_SPI
     #define _MAX31865_2_SW TEMP_SENSOR_2_USES_SW_SPI
+    #define _MAX31865_BED_SW TEMP_SENSOR_BED_USES_SW_SPI
 
     #if TEMP_SENSOR_IS_MAX(0, 31865)
       MAXTC_INIT(0, 31865);
@@ -269,10 +272,14 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if TEMP_SENSOR_IS_MAX(2, 31865)
       MAXTC_INIT(2, 31865);
     #endif
+    #if TEMP_SENSOR_IS_MAX(BED, 31865)
+      MAXTC_INIT(BED, 31865);
+    #endif
 
     #undef _MAX31865_0_SW
     #undef _MAX31865_1_SW
     #undef _MAX31865_2_SW
+    #undef _MAX31865_BED_SW
   #endif
 
   #undef MAXTC_INIT
@@ -2089,33 +2096,38 @@ void Temperature::task() {
     #if TEMP_SENSOR_IS_MAX_TC(0)
     {
       const auto deg = degHotend(0);
-      if (deg > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E0, deg);
-      if (deg < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E0, deg);
+      if (deg > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E0, deg);
+      if (deg < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E0, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(1)
     {
       const auto deg = degHotend(1);
-      if (deg > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E1, deg);
-      if (deg < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E1, deg);
+      if (deg > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E1, deg);
+      if (deg < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E1, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(2)
     {
       const auto deg = degHotend(2);
-      if (deg > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) MAXTEMP_ERROR(H_E2, deg);
-      if (deg < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) MINTEMP_ERROR(H_E2, deg);
+      if (deg > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_E2, deg);
+      if (deg < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_E2, deg);
     }
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     {
       const auto deg = degRedundant();
-      if (deg > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) MAXTEMP_ERROR(H_REDUNDANT, deg);
-      if (deg < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) MINTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.00f) MAXTEMP_ERROR(H_REDUNDANT, deg);
+      if (deg < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + 0.01f) MINTEMP_ERROR(H_REDUNDANT, deg);
     }
     #endif
-  #else
-    #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
+    #if TEMP_SENSOR_IS_MAX_TC(BED)
+    {
+      const auto deg = degBed();
+      if (deg > _MIN(BED_MAXTEMP, TEMP_SENSOR_BED_MAX_TC_TMAX - 1.00f)) MAXTEMP_ERROR(H_BED, deg);
+      if (deg < _MAX(BED_MINTEMP, TEMP_SENSOR_BED_MAX_TC_TMIN + 0.01f)) MINTEMP_ERROR(H_BED, deg);
+    }
+    #endif
   #endif
 
   const millis_t ms = millis();
@@ -2329,7 +2341,7 @@ void Temperature::task() {
               max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_0_IS_AD595
           return TEMP_AD595(raw);
@@ -2348,7 +2360,7 @@ void Temperature::task() {
               max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_1_IS_AD595
           return TEMP_AD595(raw);
@@ -2367,7 +2379,7 @@ void Temperature::task() {
               max31865_2.temperature(MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2)
             );
           #else
-            return (int16_t)raw * 0.25;
+            return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_2_IS_AD595
           return TEMP_AD595(raw);
@@ -2444,6 +2456,15 @@ void Temperature::task() {
   celsius_float_t Temperature::analog_to_celsius_bed(const raw_adc_t raw) {
     #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
+    #elif TEMP_SENSOR_IS_MAX_TC(BED)
+      #if TEMP_SENSOR_BED_IS_MAX31865
+        return TERN(LIB_INTERNAL_MAX31865,
+          max31865_BED.temperature(raw),
+          max31865_BED.temperature(MAX31865_SENSOR_OHMS_BED, MAX31865_CALIBRATION_OHMS_BED)
+        );
+      #else
+        return (int16_t)raw * 0.25f;
+      #endif
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
     #elif TEMP_SENSOR_BED_IS_AD595
@@ -2549,11 +2570,11 @@ void Temperature::task() {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25f);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
@@ -2594,6 +2615,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
   #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     temp_redundant.setraw(READ_MAX_TC(HEATER_ID(TEMP_SENSOR_REDUNDANT_SOURCE)));
+  #endif
+  #if TEMP_SENSOR_IS_MAX_TC(BED)
+    temp_bed.setraw(read_max_tc_bed());
   #endif
 
   #if HAS_HOTEND
@@ -2760,6 +2784,17 @@ void Temperature::init() {
       max31865_2.begin(
         MAX31865_WIRES(MAX31865_SENSOR_WIRES_2) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
         OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2, MAX31865_WIRE_OHMS_2)
+      );
+    #endif
+
+    #if TEMP_SENSOR_IS_MAX(BED, 6675) && HAS_MAX6675_LIBRARY
+      max6675_BED.begin();
+    #elif TEMP_SENSOR_IS_MAX(BED, 31855) && HAS_MAX31855_LIBRARY
+      max31855_BED.begin();
+    #elif TEMP_SENSOR_IS_MAX(BED, 31865)
+      max31865_BED.begin(
+        MAX31865_WIRES(MAX31865_SENSOR_WIRES_BED) // MAX31865_BEDWIRE, MAX31865_3WIRE, MAX31865_4WIRE
+        OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_BED, MAX31865_CALIBRATION_OHMS_BED, MAX31865_WIRE_OHMS_BED)
       );
     #endif
 
@@ -3321,6 +3356,8 @@ void Temperature::disable_all_heaters() {
 
 #if HAS_MAX_TC
 
+  typedef TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp_t;
+
   #ifndef THERMOCOUPLE_MAX_ERRORS
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
@@ -3420,12 +3457,10 @@ void Temperature::disable_all_heaters() {
         MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1, max6675_2);
         max_tc_temp = max6675ref.readRaw16();
       #endif
-
       #if HAS_MAX31855_LIBRARY
         MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1, max31855_2);
         max_tc_temp = max855ref.readRaw32();
       #endif
-
       #if HAS_MAX31865
         MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1, max31865_2);
         max_tc_temp = TERN(LIB_INTERNAL_MAX31865, max865ref.readRaw(), max865ref.readRTD_with_Fault());
@@ -3442,30 +3477,21 @@ void Temperature::disable_all_heaters() {
         SERIAL_ECHOPGM("Temp measurement error! ");
         #if HAS_MAX31855
           SERIAL_ECHOPGM("MAX31855 Fault: (", max_tc_temp & 0x7, ") >> ");
-          if (max_tc_temp & 0x1)
-            SERIAL_ECHOLNPGM("Open Circuit");
-          else if (max_tc_temp & 0x2)
-            SERIAL_ECHOLNPGM("Short to GND");
-          else if (max_tc_temp & 0x4)
-            SERIAL_ECHOLNPGM("Short to VCC");
+               if (max_tc_temp & 0x1) SERIAL_ECHOLNPGM("Open Circuit");
+          else if (max_tc_temp & 0x2) SERIAL_ECHOLNPGM("Short to GND");
+          else if (max_tc_temp & 0x4) SERIAL_ECHOLNPGM("Short to VCC");
         #elif HAS_MAX31865
           const uint8_t fault_31865 = max865ref.readFault();
           max865ref.clearFault();
           if (fault_31865) {
             SERIAL_EOL();
             SERIAL_ECHOLNPGM("\nMAX31865 Fault: (", fault_31865, ")  >>");
-            if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
-              SERIAL_ECHOLNPGM("RTD High Threshold");
-            if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
-              SERIAL_ECHOLNPGM("RTD Low Threshold");
-            if (fault_31865 & MAX31865_FAULT_REFINLOW)
-              SERIAL_ECHOLNPGM("REFIN- > 0.85 x V bias");
-            if (fault_31865 & MAX31865_FAULT_REFINHIGH)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
-            if (fault_31865 & MAX31865_FAULT_RTDINLOW)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
-            if (fault_31865 & MAX31865_FAULT_OVUV)
-              SERIAL_ECHOLNPGM("Under/Over voltage");
+            if (fault_31865 & MAX31865_FAULT_HIGHTHRESH) SERIAL_ECHOLNPGM("RTD High Threshold");
+            if (fault_31865 & MAX31865_FAULT_LOWTHRESH)  SERIAL_ECHOLNPGM("RTD Low Threshold");
+            if (fault_31865 & MAX31865_FAULT_REFINLOW)   SERIAL_ECHOLNPGM("REFIN- > 0.85 x V bias");
+            if (fault_31865 & MAX31865_FAULT_REFINHIGH)  SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
+            if (fault_31865 & MAX31865_FAULT_RTDINLOW)   SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
+            if (fault_31865 & MAX31865_FAULT_OVUV)       SERIAL_ECHOLNPGM("Under/Over voltage");
           }
         #else // MAX6675
           SERIAL_ECHOLNPGM("MAX6675 Fault: Open Circuit");
@@ -3493,6 +3519,124 @@ void Temperature::disable_all_heaters() {
 
 #endif // HAS_MAX_TC
 
+#if TEMP_SENSOR_IS_MAX_TC(BED)
+  /**
+   * @brief Read MAX Thermocouple temperature.
+   *
+   * Reads the thermocouple board via HW or SW SPI, using a library (LIB_USR_x) or raw SPI reads.
+   * Doesn't strictly return a temperature; returns an "ADC Value" (i.e. raw register content).
+   *
+   * @return         integer representing the board's buffer, to be converted later if needed
+   */
+  raw_adc_t Temperature::read_max_tc_bed() {
+    #define MAXTC_HEAT_INTERVAL 250UL
+
+    #if TEMP_SENSOR_BED_IS_MAX31855
+      #define BED_MAX_TC_ERROR_MASK    7    // D2-0: SCV, SCG, OC
+      #define BED_MAX_TC_DISCARD_BITS 18    // Data D31-18; sign bit D31
+      #define BED_MAX_TC_SPEED_BITS    3    // ~1MHz
+    #elif TEMP_SENSOR_BED_IS_MAX31865
+      #define BED_MAX_TC_ERROR_MASK    1    // D0 Bit on fault only
+      #define BED_MAX_TC_DISCARD_BITS  1    // Data is in D15-D1
+      #define BED_MAX_TC_SPEED_BITS    3    // ~1MHz
+    #else // MAX6675
+      #define BED_MAX_TC_ERROR_MASK    3    // D2 only; 1 = open circuit
+      #define BED_MAX_TC_DISCARD_BITS  3    // Data D15-D1
+      #define BED_MAX_TC_SPEED_BITS    2    // ~2MHz
+    #endif
+
+    static max_tc_temp_t max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX;
+
+    static uint8_t max_tc_errors = 0;
+    static millis_t next_max_tc_ms = 0;
+
+    // Return last-read value between readings
+    const millis_t ms = millis();
+    if (PENDING(ms, next_max_tc_ms)) return max_tc_temp;
+    next_max_tc_ms = ms + MAXTC_HEAT_INTERVAL;
+
+    #if !HAS_MAXTC_LIBRARIES
+      max_tc_temp = 0;
+
+      #if !HAS_MAXTC_SW_SPI
+        // Initialize SPI using the default Hardware SPI bus.
+        // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
+        spiBegin();
+        spiInit(BED_MAX_TC_SPEED_BITS);
+      #endif
+
+      WRITE(TEMP_BED_CS_PIN, LOW);  // Enable MAXTC
+      DELAY_NS(100);        // Ensure 100ns delay
+
+      // Read a big-endian temperature value without using a library
+      for (uint8_t i = sizeof(max_tc_temp); i--;) {
+        max_tc_temp |= TERN(HAS_MAXTC_SW_SPI, max_tc_spi.receive(), spiRec());
+        if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
+      }
+
+      WRITE(TEMP_BED_CS_PIN, HIGH);  // Disable MAXTC
+
+    #elif ALL(TEMP_SENSOR_BED_IS_MAX6675, HAS_MAX6675_LIBRARY)
+      MAX6675 &max6675ref = max6675_BED;
+      max_tc_temp = max6675ref.readRaw16();
+    #elif ALL(TEMP_SENSOR_BED_IS_MAX31855, HAS_MAX31855_LIBRARY)
+      MAX31855 &max855ref = max31855_BED;
+      max_tc_temp = max855ref.readRaw32();
+    #elif TEMP_SENSOR_BED_IS_MAX31865
+      MAX31865 &max865ref = max31865_BED;
+      max_tc_temp = TERN(LIB_INTERNAL_MAX31865, max865ref.readRaw(), max865ref.readRTD_with_Fault());
+    #endif
+
+    // Handle an error. If there have been more than THERMOCOUPLE_MAX_ERRORS, send an error over serial.
+    // Either way, return the TMAX for the thermocouple to trigger a maxtemp_error()
+    if (max_tc_temp & BED_MAX_TC_ERROR_MASK) {
+      max_tc_errors++;
+
+      if (max_tc_errors > THERMOCOUPLE_MAX_ERRORS) {
+        SERIAL_ERROR_START();
+        SERIAL_ECHOPGM("Bed temp measurement error! ");
+        #if TEMP_SENSOR_BED_IS_MAX31855
+          SERIAL_ECHOPGM("MAX31855 Fault: (", max_tc_temp & 0x7, ") >> ");
+               if (max_tc_temp & 0x1) SERIAL_ECHOLNPGM("Open Circuit");
+          else if (max_tc_temp & 0x2) SERIAL_ECHOLNPGM("Short to GND");
+          else if (max_tc_temp & 0x4) SERIAL_ECHOLNPGM("Short to VCC");
+        #elif TEMP_SENSOR_BED_IS_MAX31865
+          const uint8_t fault_31865 = max865ref.readFault();
+          max865ref.clearFault();
+          if (fault_31865) {
+            SERIAL_EOL();
+            SERIAL_ECHOLNPGM("\nMAX31865 Fault: (", fault_31865, ")  >>");
+            if (fault_31865 & MAX31865_FAULT_HIGHTHRESH) SERIAL_ECHOLNPGM("RTD High Threshold");
+            if (fault_31865 & MAX31865_FAULT_LOWTHRESH)  SERIAL_ECHOLNPGM("RTD Low Threshold");
+            if (fault_31865 & MAX31865_FAULT_REFINLOW)   SERIAL_ECHOLNPGM("REFIN- > 0.85 x V bias");
+            if (fault_31865 & MAX31865_FAULT_REFINHIGH)  SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
+            if (fault_31865 & MAX31865_FAULT_RTDINLOW)   SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
+            if (fault_31865 & MAX31865_FAULT_OVUV)       SERIAL_ECHOLNPGM("Under/Over voltage");
+          }
+        #else // MAX6675
+          SERIAL_ECHOLNPGM("MAX6675 Fault: Open Circuit");
+        #endif
+
+        // Set thermocouple above max temperature (TMAX)
+        max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX << (BED_MAX_TC_DISCARD_BITS + 1);
+      }
+    }
+    else {
+      max_tc_errors = 0; // No error bit, reset error count
+    }
+
+    max_tc_temp >>= BED_MAX_TC_DISCARD_BITS;
+
+    #if TEMP_SENSOR_BED_IS_MAX31855
+      // Support negative temperature for MAX38155
+      if (max_tc_temp & 0x00002000) max_tc_temp |= 0xFFFFC000;
+    #endif
+
+    return max_tc_temp;
+  }
+
+#endif // TEMP_SENSOR_IS_MAX_TC(BED)
+
 /**
  * Update raw temperatures
  *
@@ -3518,13 +3662,16 @@ void Temperature::update_raw_temperatures() {
     temp_redundant.update();
   #endif
 
+  #if HAS_TEMP_ADC_BED && !TEMP_SENSOR_IS_MAX_TC(BED)
+    temp_bed.update();
+  #endif
+
   TERN_(HAS_TEMP_ADC_2,       temp_hotend[2].update());
   TERN_(HAS_TEMP_ADC_3,       temp_hotend[3].update());
   TERN_(HAS_TEMP_ADC_4,       temp_hotend[4].update());
   TERN_(HAS_TEMP_ADC_5,       temp_hotend[5].update());
   TERN_(HAS_TEMP_ADC_6,       temp_hotend[6].update());
   TERN_(HAS_TEMP_ADC_7,       temp_hotend[7].update());
-  TERN_(HAS_TEMP_ADC_BED,     temp_bed.update());
   TERN_(HAS_TEMP_ADC_CHAMBER, temp_chamber.update());
   TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
   TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
