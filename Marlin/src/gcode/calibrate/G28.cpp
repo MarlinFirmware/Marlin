@@ -135,8 +135,8 @@
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
-	  #ifdef Move_to_Custom
-        do_blocking_move_to_xy(Custom_Pos_X, Custom_Pos_Y);
+	  #ifdef MOVE_TO_CUSTOM_XY_POINT
+        do_blocking_move_to_xy(CUSTOM_POS_X_POINT, CUSTOM_POS_Y_POINT);
       #endif	
     }
     else {
