@@ -9,6 +9,8 @@ export PATH="$HERE:$TESTS:$PATH"
 # exit on first failure
 set -e
 
+SED=$(which gsed sed | head -n1)
+
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
   # Check to see if we should skip tests
@@ -58,7 +60,7 @@ else
   # If the test name is 1 or 2 digits, treat it as an index
   if [[ "$test_name" =~ ^[0-9][0-9]?$ ]] ; then
     # Find the test name that corresponds to that index
-    test_name="$(cat $TESTS/$2 | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
+    test_name="$(cat $TESTS/$2 | grep -e '^exec_test' | $SED -n "$3p" | $SED "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
     if [[ -z "$test_name" ]] ; then
       # Fail if none matches
       printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2\n"

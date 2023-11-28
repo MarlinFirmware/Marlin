@@ -28,7 +28,7 @@ jobs:
     name: Run All Tests
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     strategy:
       matrix:
