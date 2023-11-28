@@ -68,6 +68,7 @@ header = '''
  * 0x0000 and 0xFFFE. A single 0xFFFF in the data stream indicates the
  * start of a new closed path.
  */
+
 #pragma once
 '''
 
