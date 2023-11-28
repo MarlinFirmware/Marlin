@@ -810,6 +810,8 @@
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+#elif MB(BLACKBEEZMINI_V1)
+  #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 
 //
 // ARM Cortex-M7
@@ -884,6 +886,12 @@
 
 #elif MB(MINITRONICS20)
   #include "samd/pins_MINITRONICS20.h"              // SAMD21                               env:SAMD21_minitronics20
+
+//
+// HC32 ARM Cortex-M4
+//
+#elif MB(AQUILA_V101)
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
 
 //
 // Custom board (with custom PIO env)
