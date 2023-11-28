@@ -19,12 +19,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-Configuration.h
-Configuration_adv.h
-Marlin/Configuration.h
-Marlin/Configuration.adv.h
-
-
 # Generated files
 _Version.h
 bdf2u8g.exe
