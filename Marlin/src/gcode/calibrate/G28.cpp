@@ -659,4 +659,8 @@ void GcodeSuite::G28() {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
+  #ifdef EVENT_GCODE_AFTER_HOMING
+    gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));
+  #endif
+
 }
