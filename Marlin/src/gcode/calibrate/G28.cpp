@@ -135,9 +135,6 @@
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
-	  #ifdef MOVE_TO_CUSTOM_XY_POINT
-        do_blocking_move_to_xy(CUSTOM_POS_X_POINT, CUSTOM_POS_Y_POINT);
-      #endif	
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);
@@ -639,6 +636,11 @@ void GcodeSuite::G28() {
     // Restore the active tool after homing
     #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
       tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
+    #endif
+
+    #ifdef XY_AFTER_HOMING
+      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
+      do_blocking_move_to(xy_after);
     #endif
 
     restore_feedrate_and_scaling();
