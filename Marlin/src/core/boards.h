@@ -462,6 +462,7 @@
 #define BOARD_I3DBEEZ9_V1             5247  // I3DBEEZ9 V1 (STM32F407ZG)
 #define BOARD_MELLOW_FLY_E3_V2        5248  // Mellow Fly E3 V2 (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V30      5249  // FYSETC Cheetah V3.0 (STM32F446RC)
+#define BOARD_BLACKBEEZMINI_V1        5250  // BlackBeezMini V1 (STM32F401CCU6)
 
 //
 // ARM Cortex-M7
@@ -509,6 +510,11 @@
 //
 
 #define BOARD_MINITRONICS20           7103  // Minitronics v2.0
+
+//
+// HC32 ARM Cortex-M4
+//
+#define BOARD_AQUILA_V101             7200  // Aquila V1.0.1 as found in the Voxelab Aquila X2
 
 //
 // Custom board
