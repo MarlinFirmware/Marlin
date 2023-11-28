@@ -135,16 +135,16 @@ const char* ftostr51rj(const_float_t x);
 const char* ftostr61rj(const_float_t x);
 
 // Convert unsigned float to string with 1.23 format
-const char* ftostr32rj(const_float_t f) { return ftostrX2rj(f, 4); }
+const char* ftostr32rj(const_float_t f);
 
 // Convert unsigned float to string with _2.34, 12.34 format
-const char* ftostr42rj(const_float_t f) { return ftostrX2rj(f, 3); }
+const char* ftostr42rj(const_float_t f);
 
 // Convert unsigned float to string with __3.45, _23.45, 123.45 format
-const char* ftostr52rj(const_float_t f) { return ftostrX2rj(f, 2); }
+const char* ftostr52rj(const_float_t f);
 
 // Convert unsigned float to string with ___4.56, __34.56, _234.56, 1234.56 format
-const char* ftostr62rj(const_float_t f) { return ftostrX2rj(f, 1); }
+const char* ftostr62rj(const_float_t f);
 
 // Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
 const char* ftostr72rj(const_float_t x);
