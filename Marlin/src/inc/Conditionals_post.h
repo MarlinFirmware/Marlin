@@ -2502,6 +2502,7 @@
   #if ENABLED(DWIN_LCD_PROUI)
     #if ANY(PIDTEMP, PIDTEMPBED)
       #define PROUI_PID_TUNE 1
+    #endif
     #if HAS_MESH && !defined(USE_GRID_MESHVIEWER)
       #define USE_GRID_MESHVIEWER 1
     #endif
