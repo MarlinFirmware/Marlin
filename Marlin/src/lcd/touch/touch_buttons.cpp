@@ -75,27 +75,20 @@ uint8_t TouchButtons::read_buttons() {
         else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
           sleepTimeout();
       #endif
-
-      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        static bool no_touch = false;
-      #endif
-
-      if (!is_touched) {
-        TERN_(TOUCH_SCREEN_CALIBRATION, no_touch = false);
-        return 0;
-      }
+      if (!is_touched) return 0;
 
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
         if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
-          if (!no_touch && touch_calibration.handleTouch(xy_int_t({x, y}))) ui.refresh();
-          no_touch = true;
+          if (touch_calibration.handleTouch(x, y)) ui.refresh();
           return 0;
         }
+        x = int16_t((int32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = int16_t((int32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+      #else
+        x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       #endif
-      x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
-      y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
-
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
 
       const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y);
