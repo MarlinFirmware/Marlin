@@ -353,7 +353,7 @@ const char* ftostr5rj(const_float_t f) {
   return ui16tostr5rj(i);
 }
 
-// Convert float to string with +123.45 format
+// Convert signed float to string with +123.45 format
 const char* ftostr52sign(const_float_t f) {
   long i = INTFLOAT(f, 2);
   conv[1] = MINUSOR(i, '+');
@@ -434,17 +434,17 @@ const char* ftostr52sp(const_float_t f) {
   conv[3] = RJDIGIT(i, 1000);
   conv[4] = DIGIMOD(i, 100);
 
-  if ((dig = i % 10)) {          // second digit after decimal point?
+  if ((dig = i % 10)) {           // Second digit after decimal point?
     conv[5] = '.';
     conv[6] = DIGIMOD(i, 10);
     conv[7] = DIGIT(dig);
   }
   else {
-    if ((dig = (i / 10) % 10)) { // first digit after decimal point?
+    if ((dig = (i / 10) % 10)) {  // First digit after decimal point?
       conv[5] = '.';
       conv[6] = DIGIT(dig);
     }
-    else                          // nothing after decimal point
+    else                          // Nothing after decimal point
       conv[5] = conv[6] = ' ';
     conv[7] = ' ';
   }

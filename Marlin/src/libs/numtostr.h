@@ -40,7 +40,7 @@ const char* ui8tostr3rj(const uint8_t i);
 const char* i8tostr3rj(const int8_t x);
 
 #if HAS_PRINT_PROGRESS_PERMYRIAD
-  // Convert 16-bit unsigned permyriad value to percent: 100 / 23 / 23.4 / 3.45
+  // Convert 16-bit unsigned permyriad value to percent: _100 / __23 / 23.4 / 3.45
   const char* permyriadtostr4(const uint16_t xx);
 #endif
 
@@ -149,14 +149,14 @@ const char* ftostr62rj(const_float_t f);
 // Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
 const char* ftostr72rj(const_float_t x);
 
-// Convert float to rj string with 123 or -12 format
+// Convert signed float to rj string with 123 or -12 format
 FORCE_INLINE const char* ftostr3rj(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
-  // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
+  // Convert signed float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
   const char* ftostr4sign(const_float_t fx);
 #else
-  // Convert float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
+  // Convert signed float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
   FORCE_INLINE const char* ftostr4sign(const_float_t x) { return i16tostr4signrj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 #endif
 
