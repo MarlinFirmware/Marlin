@@ -86,14 +86,20 @@ const char* ftostr53_63(const_float_t x);
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
 const char* ftostr63(const_float_t x);
 
-// Convert float to fixed-length string with +12.3 / -12.3 format
+// Convert signed float to fixed-length string with +12.3 / -12.3 format
 const char* ftostr31sign(const_float_t x);
 
-// Convert float to fixed-length string with +123.4 / -123.4 format
+// Convert signed float to fixed-length string with +123.4 / -123.4 format
 const char* ftostr41sign(const_float_t x);
+
+// Convert signed float to fixed-length string with +1234.5 / +1234.5 format
+const char* ftostr51sign(const_float_t x);
 
 // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
 const char* ftostr43sign(const_float_t x, char plus=' ');
+
+// Convert signed float to string (7 chars) with -12.345 / _00.000 / +12.345 format
+const char* ftostr53sign(const_float_t x, char plus=' ');
 
 // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
 const char* ftostr54sign(const_float_t x, char plus=' ');
@@ -101,7 +107,13 @@ const char* ftostr54sign(const_float_t x, char plus=' ');
 // Convert unsigned float to rj string with 12345 format
 const char* ftostr5rj(const_float_t x);
 
-// Convert signed float to string with +1234.5 format
+// Convert signed float to fixed-length string with +12.3 / -12.3 format
+const char* ftostr31sign(const_float_t x);
+
+// Convert signed float to fixed-length string with +123.4 / -123.4 format
+const char* ftostr41sign(const_float_t x);
+
+// Convert signed float to fixed-length string with +1234.5 format
 const char* ftostr51sign(const_float_t x);
 
 // Convert signed float to space-padded string with -_23.4_ format
@@ -110,13 +122,31 @@ const char* ftostr52sp(const_float_t x);
 // Convert signed float to string with +123.45 format
 const char* ftostr52sign(const_float_t x);
 
-// Convert signed float to string with +12.345 format
-const char* ftostr53sign(const_float_t f);
+// Convert unsigned float to string with _2.3 / 12.3 format
+const char* ftostr31rj(const_float_t x);
 
-// Convert unsigned float to string with 12345.6 format omitting trailing zeros
+// Convert unsigned float to string with __3.4 / _23.4 / 123.4 format
+const char* ftostr41rj(const_float_t x);
+
+// Convert unsigned float to string with ___4.5 / __34.5 / _234.5 / 1234.5 format
+const char* ftostr51rj(const_float_t x);
+
+// Convert unsigned float to string with ____5.6 / ___45.6 / __345.6 / _2345.6 / 12345.6 format
 const char* ftostr61rj(const_float_t x);
 
-// Convert unsigned float to string with 12345.67 format omitting trailing zeros
+// Convert unsigned float to string with 1.23 format
+const char* ftostr32rj(const_float_t f) { return ftostrX2rj(f, 4); }
+
+// Convert unsigned float to string with _2.34, 12.34 format
+const char* ftostr42rj(const_float_t f) { return ftostrX2rj(f, 3); }
+
+// Convert unsigned float to string with __3.45, _23.45, 123.45 format
+const char* ftostr52rj(const_float_t f) { return ftostrX2rj(f, 2); }
+
+// Convert unsigned float to string with ___4.56, __34.56, _234.56, 1234.56 format
+const char* ftostr62rj(const_float_t f) { return ftostrX2rj(f, 1); }
+
+// Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
 const char* ftostr72rj(const_float_t x);
 
 // Convert float to rj string with 123 or -12 format
