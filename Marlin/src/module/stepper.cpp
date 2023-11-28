@@ -1516,7 +1516,8 @@ void Stepper::isr() {
 
         // Define 2.5 msec task for auxiliary functions.
         if (!ftMotion_nextAuxISR) {
-          ftMotion_refreshAxisDidMove();
+          //ftMotion_refreshAxisDidMove();
+          axis_did_move = axis_step;
           endstops.update();
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
           ftMotion_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE); // Aux task magic number
