@@ -464,7 +464,7 @@
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
         #define DOGLCD_CS            EXP1_06_PIN

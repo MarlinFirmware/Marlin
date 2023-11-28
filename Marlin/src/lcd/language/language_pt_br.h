@@ -114,7 +114,6 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2o bico @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Executando G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Ferramentas UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivel. Mesa Unif.");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Fazer malha manual");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Calçar e calibrar");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Medir");

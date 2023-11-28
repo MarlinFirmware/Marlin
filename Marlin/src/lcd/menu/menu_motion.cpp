@@ -495,7 +495,7 @@ void menu_motion() {
   //
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    SUBMENU(MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
+    SUBMENU(MSG_UBL_LEVELING, _lcd_ubl_level_bed);
 
   #elif ENABLED(LCD_BED_LEVELING)
 
