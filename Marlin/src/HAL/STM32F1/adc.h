@@ -53,3 +53,5 @@ enum ADCIndex : uint8_t {
   OPTITEM(POWER_MONITOR_VOLTAGE, POWERMON_VOLTS   )
   ADC_COUNT
 };
+
+extern uint16_t adc_results[ADC_COUNT];

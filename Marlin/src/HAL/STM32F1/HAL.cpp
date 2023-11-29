@@ -29,6 +29,9 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+#include "adc.h"
+uint16_t adc_results[ADC_COUNT];
+
 #ifndef VOXELAB_N32
 
 #include <STM32ADC.h>
@@ -71,10 +74,6 @@
 // ------------------------
 // ADC
 // ------------------------
-
-#include "adc.h"
-
-static uint16_t adc_results[ADC_COUNT];
 
 // Init the AD in continuous capture mode
 void MarlinHAL::adc_init() {
@@ -173,6 +172,37 @@ void analogWrite(const pin_t pin, int pwm_val8) {
 
 uint16_t MarlinHAL::adc_result;
 
+void MarlinHAL::adc_start(const pin_t pin) {
+  #define __TCASE(N,I) case N: pin_index = I; break;
+  #define _TCASE(C,N,I) TERN_(C, __TCASE(N, I))
+  ADCIndex pin_index;
+  switch (pin) {
+    default: return;
+    _TCASE(HAS_TEMP_ADC_0,        TEMP_0_PIN,                TEMP_0)
+    _TCASE(HAS_TEMP_ADC_1,        TEMP_1_PIN,                TEMP_1)
+    _TCASE(HAS_TEMP_ADC_2,        TEMP_2_PIN,                TEMP_2)
+    _TCASE(HAS_TEMP_ADC_3,        TEMP_3_PIN,                TEMP_3)
+    _TCASE(HAS_TEMP_ADC_4,        TEMP_4_PIN,                TEMP_4)
+    _TCASE(HAS_TEMP_ADC_5,        TEMP_5_PIN,                TEMP_5)
+    _TCASE(HAS_TEMP_ADC_6,        TEMP_6_PIN,                TEMP_6)
+    _TCASE(HAS_TEMP_ADC_7,        TEMP_7_PIN,                TEMP_7)
+    _TCASE(HAS_HEATED_BED,        TEMP_BED_PIN,              TEMP_BED)
+    _TCASE(HAS_TEMP_CHAMBER,      TEMP_CHAMBER_PIN,          TEMP_CHAMBER)
+    _TCASE(HAS_TEMP_ADC_PROBE,    TEMP_PROBE_PIN,            TEMP_PROBE)
+    _TCASE(HAS_TEMP_COOLER,       TEMP_COOLER_PIN,           TEMP_COOLER)
+    _TCASE(HAS_TEMP_BOARD,        TEMP_BOARD_PIN,            TEMP_BOARD)
+    _TCASE(HAS_TEMP_SOC,          TEMP_SOC_PIN,              TEMP_SOC)
+    _TCASE(HAS_JOY_ADC_X,         JOY_X_PIN,                 JOY_X)
+    _TCASE(HAS_JOY_ADC_Y,         JOY_Y_PIN,                 JOY_Y)
+    _TCASE(HAS_JOY_ADC_Z,         JOY_Z_PIN,                 JOY_Z)
+    _TCASE(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN,              FILWIDTH)
+    _TCASE(HAS_ADC_BUTTONS,       ADC_KEYPAD_PIN,            ADC_KEY)
+    _TCASE(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN, POWERMON_CURRENT)
+    _TCASE(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN, POWERMON_VOLTS)
+  }
+  adc_result = (adc_results[(int)pin_index] & 0xFFF) >> (12 - HAL_ADC_RESOLUTION); // shift out unused bits
+}
+
 // ------------------------
 // Public functions
 // ------------------------
@@ -250,36 +280,5 @@ void MarlinHAL::idletask() {
 }
 
 void MarlinHAL::reboot() { nvic_sys_reset(); }
-
-void MarlinHAL::adc_start(const pin_t pin) {
-  #define __TCASE(N,I) case N: pin_index = I; break;
-  #define _TCASE(C,N,I) TERN_(C, __TCASE(N, I))
-  ADCIndex pin_index;
-  switch (pin) {
-    default: return;
-    _TCASE(HAS_TEMP_ADC_0,        TEMP_0_PIN,                TEMP_0)
-    _TCASE(HAS_TEMP_ADC_1,        TEMP_1_PIN,                TEMP_1)
-    _TCASE(HAS_TEMP_ADC_2,        TEMP_2_PIN,                TEMP_2)
-    _TCASE(HAS_TEMP_ADC_3,        TEMP_3_PIN,                TEMP_3)
-    _TCASE(HAS_TEMP_ADC_4,        TEMP_4_PIN,                TEMP_4)
-    _TCASE(HAS_TEMP_ADC_5,        TEMP_5_PIN,                TEMP_5)
-    _TCASE(HAS_TEMP_ADC_6,        TEMP_6_PIN,                TEMP_6)
-    _TCASE(HAS_TEMP_ADC_7,        TEMP_7_PIN,                TEMP_7)
-    _TCASE(HAS_HEATED_BED,        TEMP_BED_PIN,              TEMP_BED)
-    _TCASE(HAS_TEMP_CHAMBER,      TEMP_CHAMBER_PIN,          TEMP_CHAMBER)
-    _TCASE(HAS_TEMP_ADC_PROBE,    TEMP_PROBE_PIN,            TEMP_PROBE)
-    _TCASE(HAS_TEMP_COOLER,       TEMP_COOLER_PIN,           TEMP_COOLER)
-    _TCASE(HAS_TEMP_BOARD,        TEMP_BOARD_PIN,            TEMP_BOARD)
-    _TCASE(HAS_TEMP_SOC,          TEMP_SOC_PIN,              TEMP_SOC)
-    _TCASE(HAS_JOY_ADC_X,         JOY_X_PIN,                 JOY_X)
-    _TCASE(HAS_JOY_ADC_Y,         JOY_Y_PIN,                 JOY_Y)
-    _TCASE(HAS_JOY_ADC_Z,         JOY_Z_PIN,                 JOY_Z)
-    _TCASE(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN,              FILWIDTH)
-    _TCASE(HAS_ADC_BUTTONS,       ADC_KEYPAD_PIN,            ADC_KEY)
-    _TCASE(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN, POWERMON_CURRENT)
-    _TCASE(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN, POWERMON_VOLTS)
-  }
-  adc_result = (adc_results[(int)pin_index] & 0xFFF) >> (12 - HAL_ADC_RESOLUTION); // shift out unused bits
-}
 
 #endif // __STM32F1__

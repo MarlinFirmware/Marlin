@@ -32,7 +32,6 @@
 #include "HAL.h"
 
 #include "adc.h"
-static uint16_t adc_results[ADC_COUNT];
 
 void ADC_Init(ADC_Module* NS_ADCx, ADC_InitType* ADC_InitStruct) {
   uint32_t tmpreg1 = 0;
