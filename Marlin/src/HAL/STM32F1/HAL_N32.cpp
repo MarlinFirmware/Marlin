@@ -333,31 +333,6 @@ uint16_t ADC_GetDat(ADC_Module* NS_ADCx) {
   return (uint16_t)NS_ADCx->DAT;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-typedef struct {
-  __IO uint32_t CR;         /* Completely compatible */
-  __IO uint32_t CFGR;       /* Not compatible: ADC frequency is not set here */
-  __IO uint32_t CIR;        /* Completely compatible */
-
-  __IO uint32_t APB2RSTR;   /* Completely compatible */
-  __IO uint32_t APB1RSTR;   /* Completely compatible */
-
-  __IO uint32_t AHBENR;     /* Not compatible: ADC clock enables settings here */
-  __IO uint32_t APB2ENR;    /* Not compatible: ADC clock enables to be here */
-  __IO uint32_t APB1ENR;    /* compatible */
-  __IO uint32_t BDCR;       /* compatible */
-  __IO uint32_t CSR;        /* compatible */
-
-
-  __IO uint32_t AHBRSTR;    /* Not compatible, ADC reset here settings */
-  __IO uint32_t CFGR2;      /* Not compatible, ADC clock settings here */
-  __IO uint32_t CFGR3;      /* Not compatible, add a new register */
-
-} RCC_TypeDef;
-
-#define RCC                 ((RCC_TypeDef *) ADC_RCC_BASE)
-
 /**================================================================
  *        Initialize ADC clock
  ================================================================*/
@@ -554,8 +529,6 @@ void DMA_DeInit(DMA_ChannelType* DMAyChx) {
     DMA2->INTCLR |= DMA2_CH8_INT_MASK;
 }
 
-#define CCR_CLEAR_Mask ((uint32_t)0xFFFF800F)
-
 void DMA_Init(DMA_ChannelType* DMAyChx, DMA_InitType* DMA_InitParam) {
   uint32_t tmpregister = 0;
 
@@ -603,9 +576,6 @@ void DMA_EnableChannel(DMA_ChannelType* DMAyChx, uint32_t Cmd) {
     DMAyChx->CHCFG &= (uint16_t)(~DMA_CHCFG1_CHEN);
   }
 }
-
-#define USE_ADC       NS_ADC2
-#define USE_DMA_CH    DMA1_CH8
 
 /**================================================================
  *        Initialize the DMA of ADC
