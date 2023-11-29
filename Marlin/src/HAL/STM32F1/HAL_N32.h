@@ -778,62 +778,62 @@ typedef struct {
 void ADC_Init(ADC_Module* NS_ADCx, ADC_InitType* ADC_InitStruct);
 
 /**================================================================
- *        库函数: ADC复位
+ *        ADC reset
  ================================================================*/
 void ADC_DeInit(ADC_Module* NS_ADCx);
 
 /**================================================================
- *        库函数: ADC模块使能
+ *        ADC module enable
  ================================================================*/
 void ADC_Enable(ADC_Module* NS_ADCx, uint32_t Cmd);
 
 /**================================================================
- *        库函数: 获取ADC状态标志位
+ *        Get the ADC status logo bit
  ================================================================*/
 uint32_t ADC_GetFlagStatusNew(ADC_Module* NS_ADCx, uint8_t ADC_FLAG_NEW);
 
 /**================================================================
- *        库函数: 开启ADC校准
+ *        Open ADC calibration
  ================================================================*/
 void ADC_StartCalibration(ADC_Module* NS_ADCx);
 
 /**================================================================
- *        库函数: 使能ADC DMA
+ *        Enable ADC DMA
  ================================================================*/
 void ADC_EnableDMA(ADC_Module* NS_ADCx, uint32_t Cmd);
 
 /**================================================================
- *        Library function: Configure ADC interrupt enable enable
+ *        Configure ADC interrupt enable enable
  ================================================================*/
 void ADC_ConfigInt(ADC_Module* NS_ADCx, uint16_t ADC_IT, uint32_t Cmd);
 
 /**================================================================
- *        Library function: Get ADC calibration status
+ *        Get ADC calibration status
  ================================================================*/
 uint32_t ADC_GetCalibrationStatus(ADC_Module* NS_ADCx);
 
 /**================================================================
- *        Library function: configure the ADC channel
+ *        Configure the ADC channel
  ================================================================*/
 void ADC_ConfigRegularChannel(ADC_Module* NS_ADCx, uint8_t ADC_Channel, uint8_t Rank, uint8_t ADC_SampleTime);
 
 /**================================================================
- *        Library function: Start ADC conversion
+ *        Start ADC conversion
  ================================================================*/
 void ADC_EnableSoftwareStartConv(ADC_Module* NS_ADCx, uint32_t Cmd);
 
 /**================================================================
- *        Library function: Get the ADC status logo bit
+ *        Get the ADC status logo bit
  ================================================================*/
 uint32_t ADC_GetFlagStatus(ADC_Module* NS_ADCx, uint8_t ADC_FLAG);
 
 /**================================================================
- *        Library function: Clear status logo bit
+ *        Clear status logo bit
  ================================================================*/
 void ADC_ClearFlag(ADC_Module* NS_ADCx, uint8_t ADC_FLAG);
 
 /**================================================================
- *        Library function: Get ADC sampling value
+ *        Get ADC sampling value
  ================================================================*/
 uint16_t ADC_GetDat(ADC_Module* NS_ADCx);
 

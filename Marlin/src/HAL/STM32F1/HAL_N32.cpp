@@ -365,17 +365,17 @@ typedef struct {
 void enable_adc_clk(uint8_t cmd) {
   uint32_t reg_temp;
   if (cmd) {
-    /** 使能PWR时钟 */
+    /** Make PWR clock */
     reg_temp           = ADC_RCC_APB1PCLKEN;
     reg_temp          |= RCC_APB1Periph_PWR;
     ADC_RCC_APB1PCLKEN = reg_temp;
 
-    /** 使能拓展模式 */
+    /** Enable expansion mode */
     reg_temp   = NS_PWR_CR3;
     reg_temp  |= 0x00000001;
     NS_PWR_CR3 = reg_temp;
 
-    /** 使能ADC时钟 */
+    /** Make ADC clock */
     reg_temp  = ADC_RCC_AHBPCLKEN;
     reg_temp |= ( RCC_AHB_PERIPH_ADC1 |
                   RCC_AHB_PERIPH_ADC2 |
@@ -383,32 +383,32 @@ void enable_adc_clk(uint8_t cmd) {
                   RCC_AHB_PERIPH_ADC4   );
     ADC_RCC_AHBPCLKEN = reg_temp;
 
-    /** 复位外设 */
+    /** Reset */
     reg_temp  = ADC_RCC_AHBPRST;
     reg_temp |= ( RCC_AHB_PERIPH_ADC1 |
                   RCC_AHB_PERIPH_ADC2 |
                   RCC_AHB_PERIPH_ADC3 |
                   RCC_AHB_PERIPH_ADC4   );
-    ADC_RCC_AHBPRST  = reg_temp;              // ADC模块复位置位
-    ADC_RCC_AHBPRST &= ~reg_temp;             // ADC模块复位清除
+    ADC_RCC_AHBPRST  = reg_temp;              // ADC module reunion position
+    ADC_RCC_AHBPRST &= ~reg_temp;             // ADC module reset and clear
 
-    /** 设置ADC 1M时钟*/
+    /** Set ADC 1M clock */
     reg_temp  = ADC_RCC_CFG2;
-    reg_temp &= CFG2_ADC1MSEL_RESET_MASK;     // HSI 作为ADC 1M时钟
+    reg_temp &= CFG2_ADC1MSEL_RESET_MASK;     // HSI as an ADC 1M clock
     reg_temp &= CFG2_ADC1MPRES_RESET_MASK;
-    reg_temp |= 7 << 11;                      // ADC1M 8M/8=1M
+    reg_temp |= 7 << 11;                      // Adc1m 8m / 8 = 1m
 
-    /** 设置ADC PLL分频系数 */
+    /** Set the ADC PLL frequency split coefficient */
     reg_temp &= CFG2_ADCPLLPRES_RESET_MASK;
-    reg_temp |= RCC_ADCPLLCLK_DIV4;           // ADC PLL分频系数
+    reg_temp |= RCC_ADCPLLCLK_DIV4;           // ADC PLL frequency split coefficient
 
-    /** 设置ADC HCLK分频系数 */
+    /** Set the ADC HCLK frequency frequency coefficient */
     reg_temp    &= CFG2_ADCHPRES_RESET_MASK;
-    reg_temp    |= RCC_ADCHCLK_DIV4;          // ADC HCLK分频系数
-    ADC_RCC_CFG2 = reg_temp;                  // 写入寄存器
+    reg_temp    |= RCC_ADCHCLK_DIV4;          // ADC HCLK frequency split coefficient
+    ADC_RCC_CFG2 = reg_temp;                  // Write to register
   }
   else {
-    /** 关闭ADC时钟 */
+    /** Turn off the ADC clock */
     reg_temp  = ADC_RCC_AHBPCLKEN;
     reg_temp &= ~(  RCC_AHB_PERIPH_ADC1 |
                     RCC_AHB_PERIPH_ADC2 |
@@ -426,12 +426,12 @@ void ADC_Initial(ADC_Module* NS_ADCx) {
   ADC_InitType ADC_InitStructure;
 
   /* ADC configuration ------------------------------------------------------*/
-  ADC_InitStructure.WorkMode       = ADC_WORKMODE_INDEPENDENT;    // 独立模式
-  ADC_InitStructure.MultiChEn      = 1;                           // 多通道使能
-  ADC_InitStructure.ContinueConvEn = 1;                           // 连续使能
-  ADC_InitStructure.ExtTrigSelect  = ADC_EXT_TRIGCONV_NONE;       // 无触发
-  ADC_InitStructure.DatAlign       = ADC_DAT_ALIGN_R;             // 右对齐
-  ADC_InitStructure.ChsNumber      = 2;                           // 扫描通道数
+  ADC_InitStructure.WorkMode       = ADC_WORKMODE_INDEPENDENT;    // Independent mode
+  ADC_InitStructure.MultiChEn      = 1;                           // Multi-channel enable
+  ADC_InitStructure.ContinueConvEn = 1;                           // Continuous enable
+  ADC_InitStructure.ExtTrigSelect  = ADC_EXT_TRIGCONV_NONE;       // Non-trigger
+  ADC_InitStructure.DatAlign       = ADC_DAT_ALIGN_R;             // Right alignment
+  ADC_InitStructure.ChsNumber      = 2;                           // Scan channel number
   ADC_Init(NS_ADCx, &ADC_InitStructure);
 
   /* ADC regular channel14 configuration */
