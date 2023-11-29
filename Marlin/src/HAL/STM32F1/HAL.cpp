@@ -217,8 +217,10 @@ void MarlinHAL::init() {
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
-  #ifdef USE_USB_COMPOSITE
+  #if HAS_SD_HOST_DRIVE
     MSC_SD_init();
+  #elif ALL(SERIAL_USB, EMERGENCY_PARSER)
+    usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
@@ -230,17 +232,15 @@ void MarlinHAL::init() {
 
 // HAL idle task
 void MarlinHAL::idletask() {
-  #ifdef USE_USB_COMPOSITE
-    #if HAS_SHARED_MEDIA
-      // If Marlin is using the SD card we need to lock it to prevent access from
-      // a PC via USB.
-      // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
-      // this will not reliably detect delete operations. To be safe we will lock
-      // the disk if Marlin has it mounted. Unfortunately there is currently no way
-      // to unmount the disk from the LCD menu.
-      // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-      /* copy from lpc1768 framework, should be fixed later for process HAS_SHARED_MEDIA*/
-    #endif
+  #if HAS_SHARED_MEDIA
+    // If Marlin is using the SD card we need to lock it to prevent access from
+    // a PC via USB.
+    // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
+    // this will not reliably detect delete operations. To be safe we will lock
+    // the disk if Marlin has it mounted. Unfortunately there is currently no way
+    // to unmount the disk from the LCD menu.
+    // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+    /* copy from lpc1768 framework, should be fixed later for process HAS_SD_HOST_DRIVE*/
     // process USB mass storage device class loop
     MarlinMSC.loop();
   #endif
