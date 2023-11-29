@@ -778,6 +778,13 @@
 #endif
 
 /**
+ * Voxelab N32 bootloader
+ */
+#ifdef SDCARD_FLASH_LIMIT_256K
+  #warning "This board has 512K but the bootloader can only flash firmware.bin <= 256K. ICSP required for full 512K capacity."
+#endif
+
+/**
  * ProUI Boot Screen Duration
  */
 #if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
