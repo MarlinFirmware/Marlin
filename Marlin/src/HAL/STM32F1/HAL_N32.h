@@ -173,7 +173,6 @@ typedef struct {
 #define CFG2_ADCHPRES_SET_MASK      ((uint32_t)0x0000000F)
 #define CFG2_ADCHPRES_RESET_MASK    ((uint32_t)0xFFFFFFF0)
 
-
 #define RCC_ADCPLLCLK_DISABLE    ((uint32_t)0xFFFFFEFF)
 #define RCC_ADCPLLCLK_DIV1       ((uint32_t)0x00000100)
 #define RCC_ADCPLLCLK_DIV2       ((uint32_t)0x00000110)
@@ -243,8 +242,8 @@ typedef struct {
 #define ADC_WORKMODE_SLOW_INTERL            ((uint32_t)0x00080000)
 #define ADC_WORKMODE_ALTER_TRIG             ((uint32_t)0x00090000)
 
-#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) /*!< For ADC1, ADC2 , ADC3 and ADC4 */
-#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) /*!< For ADC1, ADC2 , ADC3 and ADC4 */
+#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) //!< For ADC1, ADC2 , ADC3 and ADC4
+#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) //!< For ADC1, ADC2 , ADC3 and ADC4
 
 #define ADC_DAT_ALIGN_R      ((uint32_t)0x00000000)
 #define ADC_DAT_ALIGN_L      ((uint32_t)0x00000800)
@@ -331,14 +330,14 @@ typedef struct {
 #define RCC_AHB_PERIPH_DMA2   ((uint32_t)0x00000002)
 
 /*******************  Bit definition for DMA_CHCFG1 register  *******************/
-#define DMA_CHCFG1_CHEN  ((uint16_t)0x0001) /*!< Channel enable*/
-#define DMA_CHCFG1_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG1_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG1_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG1_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG1_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG1_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG1_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG1_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG1_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG1_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG1_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG1_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG1_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG1_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG1_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
 #define NS_DMA1_BASE     (0x40020000)
 #define DMA1_CH1_BASE (NS_DMA1_BASE + 0x0008)
@@ -386,363 +385,363 @@ typedef struct {
 /******************************************************************************/
 
 /*******************  Bit definition for DMA_INTSTS register  ********************/
-#define DMA_INTSTS_GLBF1 ((uint32_t)0x00000001) /*!< Channel 1 Global interrupt flag */
-#define DMA_INTSTS_TXCF1 ((uint32_t)0x00000002) /*!< Channel 1 Transfer Complete flag */
-#define DMA_INTSTS_HTXF1 ((uint32_t)0x00000004) /*!< Channel 1 Half Transfer flag */
-#define DMA_INTSTS_ERRF1 ((uint32_t)0x00000008) /*!< Channel 1 Transfer Error flag */
-#define DMA_INTSTS_GLBF2 ((uint32_t)0x00000010) /*!< Channel 2 Global interrupt flag */
-#define DMA_INTSTS_TXCF2 ((uint32_t)0x00000020) /*!< Channel 2 Transfer Complete flag */
-#define DMA_INTSTS_HTXF2 ((uint32_t)0x00000040) /*!< Channel 2 Half Transfer flag */
-#define DMA_INTSTS_ERRF2 ((uint32_t)0x00000080) /*!< Channel 2 Transfer Error flag */
-#define DMA_INTSTS_GLBF3 ((uint32_t)0x00000100) /*!< Channel 3 Global interrupt flag */
-#define DMA_INTSTS_TXCF3 ((uint32_t)0x00000200) /*!< Channel 3 Transfer Complete flag */
-#define DMA_INTSTS_HTXF3 ((uint32_t)0x00000400) /*!< Channel 3 Half Transfer flag */
-#define DMA_INTSTS_ERRF3 ((uint32_t)0x00000800) /*!< Channel 3 Transfer Error flag */
-#define DMA_INTSTS_GLBF4 ((uint32_t)0x00001000) /*!< Channel 4 Global interrupt flag */
-#define DMA_INTSTS_TXCF4 ((uint32_t)0x00002000) /*!< Channel 4 Transfer Complete flag */
-#define DMA_INTSTS_HTXF4 ((uint32_t)0x00004000) /*!< Channel 4 Half Transfer flag */
-#define DMA_INTSTS_ERRF4 ((uint32_t)0x00008000) /*!< Channel 4 Transfer Error flag */
-#define DMA_INTSTS_GLBF5 ((uint32_t)0x00010000) /*!< Channel 5 Global interrupt flag */
-#define DMA_INTSTS_TXCF5 ((uint32_t)0x00020000) /*!< Channel 5 Transfer Complete flag */
-#define DMA_INTSTS_HTXF5 ((uint32_t)0x00040000) /*!< Channel 5 Half Transfer flag */
-#define DMA_INTSTS_ERRF5 ((uint32_t)0x00080000) /*!< Channel 5 Transfer Error flag */
-#define DMA_INTSTS_GLBF6 ((uint32_t)0x00100000) /*!< Channel 6 Global interrupt flag */
-#define DMA_INTSTS_TXCF6 ((uint32_t)0x00200000) /*!< Channel 6 Transfer Complete flag */
-#define DMA_INTSTS_HTXF6 ((uint32_t)0x00400000) /*!< Channel 6 Half Transfer flag */
-#define DMA_INTSTS_ERRF6 ((uint32_t)0x00800000) /*!< Channel 6 Transfer Error flag */
-#define DMA_INTSTS_GLBF7 ((uint32_t)0x01000000) /*!< Channel 7 Global interrupt flag */
-#define DMA_INTSTS_TXCF7 ((uint32_t)0x02000000) /*!< Channel 7 Transfer Complete flag */
-#define DMA_INTSTS_HTXF7 ((uint32_t)0x04000000) /*!< Channel 7 Half Transfer flag */
-#define DMA_INTSTS_ERRF7 ((uint32_t)0x08000000) /*!< Channel 7 Transfer Error flag */
-#define DMA_INTSTS_GLBF8 ((uint32_t)0x10000000) /*!< Channel 7 Global interrupt flag */
-#define DMA_INTSTS_TXCF8 ((uint32_t)0x20000000) /*!< Channel 7 Transfer Complete flag */
-#define DMA_INTSTS_HTXF8 ((uint32_t)0x40000000) /*!< Channel 7 Half Transfer flag */
-#define DMA_INTSTS_ERRF8 ((uint32_t)0x80000000) /*!< Channel 7 Transfer Error flag */
+#define DMA_INTSTS_GLBF1 ((uint32_t)0x00000001) //!< Channel 1 Global interrupt flag
+#define DMA_INTSTS_TXCF1 ((uint32_t)0x00000002) //!< Channel 1 Transfer Complete flag
+#define DMA_INTSTS_HTXF1 ((uint32_t)0x00000004) //!< Channel 1 Half Transfer flag
+#define DMA_INTSTS_ERRF1 ((uint32_t)0x00000008) //!< Channel 1 Transfer Error flag
+#define DMA_INTSTS_GLBF2 ((uint32_t)0x00000010) //!< Channel 2 Global interrupt flag
+#define DMA_INTSTS_TXCF2 ((uint32_t)0x00000020) //!< Channel 2 Transfer Complete flag
+#define DMA_INTSTS_HTXF2 ((uint32_t)0x00000040) //!< Channel 2 Half Transfer flag
+#define DMA_INTSTS_ERRF2 ((uint32_t)0x00000080) //!< Channel 2 Transfer Error flag
+#define DMA_INTSTS_GLBF3 ((uint32_t)0x00000100) //!< Channel 3 Global interrupt flag
+#define DMA_INTSTS_TXCF3 ((uint32_t)0x00000200) //!< Channel 3 Transfer Complete flag
+#define DMA_INTSTS_HTXF3 ((uint32_t)0x00000400) //!< Channel 3 Half Transfer flag
+#define DMA_INTSTS_ERRF3 ((uint32_t)0x00000800) //!< Channel 3 Transfer Error flag
+#define DMA_INTSTS_GLBF4 ((uint32_t)0x00001000) //!< Channel 4 Global interrupt flag
+#define DMA_INTSTS_TXCF4 ((uint32_t)0x00002000) //!< Channel 4 Transfer Complete flag
+#define DMA_INTSTS_HTXF4 ((uint32_t)0x00004000) //!< Channel 4 Half Transfer flag
+#define DMA_INTSTS_ERRF4 ((uint32_t)0x00008000) //!< Channel 4 Transfer Error flag
+#define DMA_INTSTS_GLBF5 ((uint32_t)0x00010000) //!< Channel 5 Global interrupt flag
+#define DMA_INTSTS_TXCF5 ((uint32_t)0x00020000) //!< Channel 5 Transfer Complete flag
+#define DMA_INTSTS_HTXF5 ((uint32_t)0x00040000) //!< Channel 5 Half Transfer flag
+#define DMA_INTSTS_ERRF5 ((uint32_t)0x00080000) //!< Channel 5 Transfer Error flag
+#define DMA_INTSTS_GLBF6 ((uint32_t)0x00100000) //!< Channel 6 Global interrupt flag
+#define DMA_INTSTS_TXCF6 ((uint32_t)0x00200000) //!< Channel 6 Transfer Complete flag
+#define DMA_INTSTS_HTXF6 ((uint32_t)0x00400000) //!< Channel 6 Half Transfer flag
+#define DMA_INTSTS_ERRF6 ((uint32_t)0x00800000) //!< Channel 6 Transfer Error flag
+#define DMA_INTSTS_GLBF7 ((uint32_t)0x01000000) //!< Channel 7 Global interrupt flag
+#define DMA_INTSTS_TXCF7 ((uint32_t)0x02000000) //!< Channel 7 Transfer Complete flag
+#define DMA_INTSTS_HTXF7 ((uint32_t)0x04000000) //!< Channel 7 Half Transfer flag
+#define DMA_INTSTS_ERRF7 ((uint32_t)0x08000000) //!< Channel 7 Transfer Error flag
+#define DMA_INTSTS_GLBF8 ((uint32_t)0x10000000) //!< Channel 7 Global interrupt flag
+#define DMA_INTSTS_TXCF8 ((uint32_t)0x20000000) //!< Channel 7 Transfer Complete flag
+#define DMA_INTSTS_HTXF8 ((uint32_t)0x40000000) //!< Channel 7 Half Transfer flag
+#define DMA_INTSTS_ERRF8 ((uint32_t)0x80000000) //!< Channel 7 Transfer Error flag
 
 /*******************  Bit definition for DMA_INTCLR register  *******************/
-#define DMA_INTCLR_CGLBF1 ((uint32_t)0x00000001) /*!< Channel 1 Global interrupt clear */
-#define DMA_INTCLR_CTXCF1 ((uint32_t)0x00000002) /*!< Channel 1 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF1 ((uint32_t)0x00000004) /*!< Channel 1 Half Transfer clear */
-#define DMA_INTCLR_CERRF1 ((uint32_t)0x00000008) /*!< Channel 1 Transfer Error clear */
-#define DMA_INTCLR_CGLBF2 ((uint32_t)0x00000010) /*!< Channel 2 Global interrupt clear */
-#define DMA_INTCLR_CTXCF2 ((uint32_t)0x00000020) /*!< Channel 2 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF2 ((uint32_t)0x00000040) /*!< Channel 2 Half Transfer clear */
-#define DMA_INTCLR_CERRF2 ((uint32_t)0x00000080) /*!< Channel 2 Transfer Error clear */
-#define DMA_INTCLR_CGLBF3 ((uint32_t)0x00000100) /*!< Channel 3 Global interrupt clear */
-#define DMA_INTCLR_CTXCF3 ((uint32_t)0x00000200) /*!< Channel 3 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF3 ((uint32_t)0x00000400) /*!< Channel 3 Half Transfer clear */
-#define DMA_INTCLR_CERRF3 ((uint32_t)0x00000800) /*!< Channel 3 Transfer Error clear */
-#define DMA_INTCLR_CGLBF4 ((uint32_t)0x00001000) /*!< Channel 4 Global interrupt clear */
-#define DMA_INTCLR_CTXCF4 ((uint32_t)0x00002000) /*!< Channel 4 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF4 ((uint32_t)0x00004000) /*!< Channel 4 Half Transfer clear */
-#define DMA_INTCLR_CERRF4 ((uint32_t)0x00008000) /*!< Channel 4 Transfer Error clear */
-#define DMA_INTCLR_CGLBF5 ((uint32_t)0x00010000) /*!< Channel 5 Global interrupt clear */
-#define DMA_INTCLR_CTXCF5 ((uint32_t)0x00020000) /*!< Channel 5 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF5 ((uint32_t)0x00040000) /*!< Channel 5 Half Transfer clear */
-#define DMA_INTCLR_CERRF5 ((uint32_t)0x00080000) /*!< Channel 5 Transfer Error clear */
-#define DMA_INTCLR_CGLBF6 ((uint32_t)0x00100000) /*!< Channel 6 Global interrupt clear */
-#define DMA_INTCLR_CTXCF6 ((uint32_t)0x00200000) /*!< Channel 6 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF6 ((uint32_t)0x00400000) /*!< Channel 6 Half Transfer clear */
-#define DMA_INTCLR_CERRF6 ((uint32_t)0x00800000) /*!< Channel 6 Transfer Error clear */
-#define DMA_INTCLR_CGLBF7 ((uint32_t)0x01000000) /*!< Channel 7 Global interrupt clear */
-#define DMA_INTCLR_CTXCF7 ((uint32_t)0x02000000) /*!< Channel 7 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF7 ((uint32_t)0x04000000) /*!< Channel 7 Half Transfer clear */
-#define DMA_INTCLR_CERRF7 ((uint32_t)0x08000000) /*!< Channel 7 Transfer Error clear */
-#define DMA_INTCLR_CGLBF8 ((uint32_t)0x10000000) /*!< Channel 7 Global interrupt clear */
-#define DMA_INTCLR_CTXCF8 ((uint32_t)0x20000000) /*!< Channel 7 Transfer Complete clear */
-#define DMA_INTCLR_CHTXF8 ((uint32_t)0x40000000) /*!< Channel 7 Half Transfer clear */
-#define DMA_INTCLR_CERRF8 ((uint32_t)0x80000000) /*!< Channel 7 Transfer Error clear */
+#define DMA_INTCLR_CGLBF1 ((uint32_t)0x00000001) //!< Channel 1 Global interrupt clear
+#define DMA_INTCLR_CTXCF1 ((uint32_t)0x00000002) //!< Channel 1 Transfer Complete clear
+#define DMA_INTCLR_CHTXF1 ((uint32_t)0x00000004) //!< Channel 1 Half Transfer clear
+#define DMA_INTCLR_CERRF1 ((uint32_t)0x00000008) //!< Channel 1 Transfer Error clear
+#define DMA_INTCLR_CGLBF2 ((uint32_t)0x00000010) //!< Channel 2 Global interrupt clear
+#define DMA_INTCLR_CTXCF2 ((uint32_t)0x00000020) //!< Channel 2 Transfer Complete clear
+#define DMA_INTCLR_CHTXF2 ((uint32_t)0x00000040) //!< Channel 2 Half Transfer clear
+#define DMA_INTCLR_CERRF2 ((uint32_t)0x00000080) //!< Channel 2 Transfer Error clear
+#define DMA_INTCLR_CGLBF3 ((uint32_t)0x00000100) //!< Channel 3 Global interrupt clear
+#define DMA_INTCLR_CTXCF3 ((uint32_t)0x00000200) //!< Channel 3 Transfer Complete clear
+#define DMA_INTCLR_CHTXF3 ((uint32_t)0x00000400) //!< Channel 3 Half Transfer clear
+#define DMA_INTCLR_CERRF3 ((uint32_t)0x00000800) //!< Channel 3 Transfer Error clear
+#define DMA_INTCLR_CGLBF4 ((uint32_t)0x00001000) //!< Channel 4 Global interrupt clear
+#define DMA_INTCLR_CTXCF4 ((uint32_t)0x00002000) //!< Channel 4 Transfer Complete clear
+#define DMA_INTCLR_CHTXF4 ((uint32_t)0x00004000) //!< Channel 4 Half Transfer clear
+#define DMA_INTCLR_CERRF4 ((uint32_t)0x00008000) //!< Channel 4 Transfer Error clear
+#define DMA_INTCLR_CGLBF5 ((uint32_t)0x00010000) //!< Channel 5 Global interrupt clear
+#define DMA_INTCLR_CTXCF5 ((uint32_t)0x00020000) //!< Channel 5 Transfer Complete clear
+#define DMA_INTCLR_CHTXF5 ((uint32_t)0x00040000) //!< Channel 5 Half Transfer clear
+#define DMA_INTCLR_CERRF5 ((uint32_t)0x00080000) //!< Channel 5 Transfer Error clear
+#define DMA_INTCLR_CGLBF6 ((uint32_t)0x00100000) //!< Channel 6 Global interrupt clear
+#define DMA_INTCLR_CTXCF6 ((uint32_t)0x00200000) //!< Channel 6 Transfer Complete clear
+#define DMA_INTCLR_CHTXF6 ((uint32_t)0x00400000) //!< Channel 6 Half Transfer clear
+#define DMA_INTCLR_CERRF6 ((uint32_t)0x00800000) //!< Channel 6 Transfer Error clear
+#define DMA_INTCLR_CGLBF7 ((uint32_t)0x01000000) //!< Channel 7 Global interrupt clear
+#define DMA_INTCLR_CTXCF7 ((uint32_t)0x02000000) //!< Channel 7 Transfer Complete clear
+#define DMA_INTCLR_CHTXF7 ((uint32_t)0x04000000) //!< Channel 7 Half Transfer clear
+#define DMA_INTCLR_CERRF7 ((uint32_t)0x08000000) //!< Channel 7 Transfer Error clear
+#define DMA_INTCLR_CGLBF8 ((uint32_t)0x10000000) //!< Channel 7 Global interrupt clear
+#define DMA_INTCLR_CTXCF8 ((uint32_t)0x20000000) //!< Channel 7 Transfer Complete clear
+#define DMA_INTCLR_CHTXF8 ((uint32_t)0x40000000) //!< Channel 7 Half Transfer clear
+#define DMA_INTCLR_CERRF8 ((uint32_t)0x80000000) //!< Channel 7 Transfer Error clear
 
 /*******************  Bit definition for DMA_CHCFG1 register  *******************/
-#define DMA_CHCFG1_CHEN  ((uint16_t)0x0001) /*!< Channel enable*/
-#define DMA_CHCFG1_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG1_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG1_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG1_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG1_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG1_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG1_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG1_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG1_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG1_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG1_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG1_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG1_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG1_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG1_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG1_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG1_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG1_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG1_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG1_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG1_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG1_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG1_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG1_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG1_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG1_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG1_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG1_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits(Channel Priority level) */
-#define DMA_CHCFG1_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG1_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG1_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits(Channel Priority level)
+#define DMA_CHCFG1_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG1_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG1_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode */
+#define DMA_CHCFG1_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode
 
 /*******************  Bit definition for DMA_CHCFG2 register  *******************/
-#define DMA_CHCFG2_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG2_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG2_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG2_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG2_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG2_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG2_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG2_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG2_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG2_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG2_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG2_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG2_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG2_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG2_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG2_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG2_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG2_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG2_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG2_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG2_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG2_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG2_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG2_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG2_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG2_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG2_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG2_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG2_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG2_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG2_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG2_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG2_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG2_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG2_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode */
+#define DMA_CHCFG2_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode
 
 /*******************  Bit definition for DMA_CHCFG3 register  *******************/
-#define DMA_CHCFG3_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG3_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG3_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG3_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG3_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG3_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG3_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG3_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG3_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG3_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG3_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG3_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG3_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG3_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG3_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG3_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG3_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG3_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG3_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG3_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG3_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG3_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG3_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG3_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG3_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG3_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG3_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG3_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG3_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG3_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG3_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG3_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG3_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG3_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG3_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode */
+#define DMA_CHCFG3_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode
 
 /*!<******************  Bit definition for DMA_CHCFG4 register  *******************/
-#define DMA_CHCFG4_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG4_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG4_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG4_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG4_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG4_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG4_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG4_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG4_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG4_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG4_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG4_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG4_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG4_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG4_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG4_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG4_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG4_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG4_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG4_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG4_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG4_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG4_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG4_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG4_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG4_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG4_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG4_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG4_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG4_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG4_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG4_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG4_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG4_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG4_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode */
+#define DMA_CHCFG4_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode
 
 /******************  Bit definition for DMA_CHCFG5 register  *******************/
-#define DMA_CHCFG5_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG5_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG5_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG5_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG5_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG5_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG5_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG5_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG5_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG5_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG5_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG5_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG5_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG5_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG5_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG5_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG5_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG5_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG5_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG5_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG5_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG5_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG5_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG5_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG5_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG5_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG5_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG5_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG5_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG5_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG5_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG5_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG5_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG5_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG5_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode enable */
+#define DMA_CHCFG5_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode enable
 
 /*******************  Bit definition for DMA_CHCFG6 register  *******************/
-#define DMA_CHCFG6_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG6_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG6_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG6_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG6_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG6_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG6_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG6_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG6_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG6_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG6_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG6_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG6_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG6_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG6_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG6_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG6_PSIZE   ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG6_PSIZE_0 ((uint16_t)0x0100) /*!< Bit 0 */
-#define DMA_CHCFG6_PSIZE_1 ((uint16_t)0x0200) /*!< Bit 1 */
+#define DMA_CHCFG6_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG6_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG6_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
-#define DMA_CHCFG6_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG6_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG6_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG6_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG6_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG6_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG6_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG6_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG6_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG6_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG6_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG6_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG6_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode */
+#define DMA_CHCFG6_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode
 
 /*******************  Bit definition for DMA_CHCFG7 register  *******************/
-#define DMA_CHCFG7_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG7_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG7_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG7_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG7_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG7_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG7_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG7_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG7_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG7_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG7_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG7_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG7_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG7_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG7_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG7_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG7_PSIZE   , ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG7_PSIZE_0 ((uint16_t)0x0100)   /*!< Bit 0 */
-#define DMA_CHCFG7_PSIZE_1 ((uint16_t)0x0200)   /*!< Bit 1 */
+#define DMA_CHCFG7_PSIZE   , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG7_PSIZE_0 ((uint16_t)0x0100)   //!< Bit 0
+#define DMA_CHCFG7_PSIZE_1 ((uint16_t)0x0200)   //!< Bit 1
 
-#define DMA_CHCFG7_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG7_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG7_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG7_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG7_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG7_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG7_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG7_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG7_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG7_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG7_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG7_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG7_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode enable */
+#define DMA_CHCFG7_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode enable
 
 /*******************  Bit definition for DMA_CHCFG8 register  *******************/
-#define DMA_CHCFG8_CHEN  ((uint16_t)0x0001) /*!< Channel enable */
-#define DMA_CHCFG8_TXCIE ((uint16_t)0x0002) /*!< Transfer complete interrupt enable */
-#define DMA_CHCFG8_HTXIE ((uint16_t)0x0004) /*!< Half Transfer interrupt enable */
-#define DMA_CHCFG8_ERRIE ((uint16_t)0x0008) /*!< Transfer error interrupt enable */
-#define DMA_CHCFG8_DIR   ((uint16_t)0x0010) /*!< Data transfer direction */
-#define DMA_CHCFG8_CIRC  ((uint16_t)0x0020) /*!< Circular mode */
-#define DMA_CHCFG8_PINC  ((uint16_t)0x0040) /*!< Peripheral increment mode */
-#define DMA_CHCFG8_MINC  ((uint16_t)0x0080) /*!< Memory increment mode */
+#define DMA_CHCFG8_CHEN  ((uint16_t)0x0001) //!< Channel enable
+#define DMA_CHCFG8_TXCIE ((uint16_t)0x0002) //!< Transfer complete interrupt enable
+#define DMA_CHCFG8_HTXIE ((uint16_t)0x0004) //!< Half Transfer interrupt enable
+#define DMA_CHCFG8_ERRIE ((uint16_t)0x0008) //!< Transfer error interrupt enable
+#define DMA_CHCFG8_DIR   ((uint16_t)0x0010) //!< Data transfer direction
+#define DMA_CHCFG8_CIRC  ((uint16_t)0x0020) //!< Circular mode
+#define DMA_CHCFG8_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
+#define DMA_CHCFG8_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG8_PSIZE   , ((uint16_t)0x0300) /*!< PSIZE[1:0] bits (Peripheral size) */
-#define DMA_CHCFG8_PSIZE_0 ((uint16_t)0x0100)   /*!< Bit 0 */
-#define DMA_CHCFG8_PSIZE_1 ((uint16_t)0x0200)   /*!< Bit 1 */
+#define DMA_CHCFG8_PSIZE   , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG8_PSIZE_0 ((uint16_t)0x0100)   //!< Bit 0
+#define DMA_CHCFG8_PSIZE_1 ((uint16_t)0x0200)   //!< Bit 1
 
-#define DMA_CHCFG8_MSIZE   ((uint16_t)0x0C00) /*!< MSIZE[1:0] bits (Memory size) */
-#define DMA_CHCFG8_MSIZE_0 ((uint16_t)0x0400) /*!< Bit 0 */
-#define DMA_CHCFG8_MSIZE_1 ((uint16_t)0x0800) /*!< Bit 1 */
+#define DMA_CHCFG8_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
+#define DMA_CHCFG8_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
+#define DMA_CHCFG8_MSIZE_1 ((uint16_t)0x0800) //!< Bit 1
 
-#define DMA_CHCFG8_PRIOLVL   ((uint16_t)0x3000) /*!< PL[1:0] bits (Channel Priority level) */
-#define DMA_CHCFG8_PRIOLVL_0 ((uint16_t)0x1000) /*!< Bit 0 */
-#define DMA_CHCFG8_PRIOLVL_1 ((uint16_t)0x2000) /*!< Bit 1 */
+#define DMA_CHCFG8_PRIOLVL   ((uint16_t)0x3000) //!< PL[1:0] bits (Channel Priority level)
+#define DMA_CHCFG8_PRIOLVL_0 ((uint16_t)0x1000) //!< Bit 0
+#define DMA_CHCFG8_PRIOLVL_1 ((uint16_t)0x2000) //!< Bit 1
 
-#define DMA_CHCFG8_MEM2MEM ((uint16_t)0x4000) /*!< Memory to memory mode enable */
+#define DMA_CHCFG8_MEM2MEM ((uint16_t)0x4000) //!< Memory to memory mode enable
 
 /******************  Bit definition for DMA_TXNUM1 register  ******************/
-#define DMA_TXNUM1_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM1_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM2 register  ******************/
-#define DMA_TXNUM2_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM2_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM3 register  ******************/
-#define DMA_TXNUM3_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM3_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM4 register  ******************/
-#define DMA_TXNUM4_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM4_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM5 register  ******************/
-#define DMA_TXNUM5_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM5_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM6 register  ******************/
-#define DMA_TXNUM6_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM6_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM7 register  ******************/
-#define DMA_TXNUM7_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM7_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_TXNUM8 register  ******************/
-#define DMA_TXNUM8_NDTX ((uint16_t)0xFFFF) /*!< Number of data to Transfer */
+#define DMA_TXNUM8_NDTX ((uint16_t)0xFFFF) //!< Number of data to Transfer
 
 /******************  Bit definition for DMA_PADDR1 register  *******************/
-#define DMA_PADDR1_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR1_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR2 register  *******************/
-#define DMA_PADDR2_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR2_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR3 register  *******************/
-#define DMA_PADDR3_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR3_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR4 register  *******************/
-#define DMA_PADDR4_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR4_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR5 register  *******************/
-#define DMA_PADDR5_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR5_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR6 register  *******************/
-#define DMA_PADDR6_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR6_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR7 register  *******************/
-#define DMA_PADDR7_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR7_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_PADDR8 register  *******************/
-#define DMA_PADDR8_ADDR ((uint32_t)0xFFFFFFFF) /*!< Peripheral Address */
+#define DMA_PADDR8_ADDR ((uint32_t)0xFFFFFFFF) //!< Peripheral Address
 
 /******************  Bit definition for DMA_MADDR1 register  *******************/
-#define DMA_MADDR1_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR1_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR2 register  *******************/
-#define DMA_MADDR2_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR2_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR3 register  *******************/
-#define DMA_MADDR3_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR3_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR4 register  *******************/
-#define DMA_MADDR4_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR4_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR5 register  *******************/
-#define DMA_MADDR5_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR5_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR6 register  *******************/
-#define DMA_MADDR6_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR6_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR7 register  *******************/
-#define DMA_MADDR7_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR7_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_MADDR8 register  *******************/
-#define DMA_MADDR8_ADDR ((uint32_t)0xFFFFFFFF) /*!< Memory Address */
+#define DMA_MADDR8_ADDR ((uint32_t)0xFFFFFFFF) //!< Memory Address
 
 /******************  Bit definition for DMA_CHSEL1 register  *******************/
-#define DMA_CHSEL1_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL1_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL2 register  *******************/
-#define DMA_CHSEL2_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL2_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL3 register  *******************/
-#define DMA_CHSEL3_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL3_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL4 register  *******************/
-#define DMA_CHSEL4_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL4_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL5 register  *******************/
-#define DMA_CHSEL5_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL5_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL6 register  *******************/
-#define DMA_CHSEL6_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL6_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL7 register  *******************/
-#define DMA_CHSEL7_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL7_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHSEL8 register  *******************/
-#define DMA_CHSEL8_CH_SEL ((uint32_t)0x0000003F) /*!< Channel Select */
+#define DMA_CHSEL8_CH_SEL ((uint32_t)0x0000003F) //!< Channel Select
 
 /******************  Bit definition for DMA_CHMAPEN register  *******************/
-#define DMA_CHMAPEN_MAP_EN ((uint32_t)0x00000001) /*!< Channel Map Enable */
+#define DMA_CHMAPEN_MAP_EN ((uint32_t)0x00000001) //!< Channel Map Enable
 
 /* DMA1 Channelx interrupt pending bit masks */
 #define DMA1_CH1_INT_MASK ((uint32_t)(DMA_INTSTS_GLBF1 | DMA_INTSTS_TXCF1 | DMA_INTSTS_HTXF1 | DMA_INTSTS_ERRF1))
