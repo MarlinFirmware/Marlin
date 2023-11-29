@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Voxelab Aquila V1.0.1/V1.0.2/V1.0.3 (HC32F460) as found in the Voxelab Aquila X2 and C2
+// Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 (HC32F460) as found in the Voxelab Aquila X2 and C2
 //
 #include "env_validate.h"
 
