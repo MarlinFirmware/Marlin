@@ -2,8 +2,10 @@
 #
 # schema.py
 #
-# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build.
-# This script can also be run standalone from within the Marlin repo to generate all schema files.
+# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build
+# when CONFIG_EXPORT is defined in the configuration.
+#
+# This script can also be run standalone from within the Marlin repo to generate JSON and YAML schema files.
 #
 # This script is a companion to abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has
 # been extended to evaluate conditions and can determine what options are actually enabled, not just which
@@ -409,25 +411,35 @@ def main():
 
     if schema:
 
-        # Get the first command line argument
+        # Get the command line arguments after the script name
         import sys
-        if len(sys.argv) > 1:
-            arg = sys.argv[1]
-        else:
-            arg = 'some'
+        args = sys.argv[1:]
+        if len(args) == 0: args = ['some']
+
+        # Does the given array intersect at all with args?
+        def inargs(c): return len(set(args) & set(c)) > 0
+
+        # Help / Unknown option
+        unk = not inargs(['some','json','jsons','group','yml','yaml'])
+        if (unk): print(f"Unknown option: '{args[0]}'")
+        if inargs(['-h', '--help']) or unk:
+            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
+            print("       some  = json + yml")
+            print("       jsons = json + group")
+            return
 
         # JSON schema
-        if arg in ['some', 'json', 'jsons']:
+        if inargs(['some', 'json', 'jsons']):
             print("Generating JSON ...")
             dump_json(schema, Path('schema.json'))
 
         # JSON schema (wildcard names)
-        if arg in ['group', 'jsons']:
+        if inargs(['group', 'jsons']):
             group_options(schema)
             dump_json(schema, Path('schema_grouped.json'))
 
         # YAML
-        if arg in ['some', 'yml', 'yaml']:
+        if inargs(['some', 'yml', 'yaml']):
             try:
                 import yaml
             except ImportError:
