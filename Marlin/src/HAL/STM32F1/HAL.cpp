@@ -24,12 +24,12 @@
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-#if defined(__STM32F1__)
+#ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
-#if !defined(VOXELAB_N32)
+#ifndef VOXELAB_N32
 
 #include <STM32ADC.h>
 
@@ -71,6 +71,8 @@
 // ------------------------
 // ADC
 // ------------------------
+
+#include "adc.h"
 
 static uint16_t adc_results[ADC_COUNT];
 
@@ -233,16 +235,17 @@ void MarlinHAL::init() {
 // HAL idle task
 void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
-    // If Marlin is using the SD card we need to lock it to prevent access from
-    // a PC via USB.
-    // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
-    // this will not reliably detect delete operations. To be safe we will lock
-    // the disk if Marlin has it mounted. Unfortunately there is currently no way
-    // to unmount the disk from the LCD menu.
-    // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-    /* copy from lpc1768 framework, should be fixed later for process HAS_SD_HOST_DRIVE*/
-    // process USB mass storage device class loop
-    MarlinMSC.loop();
+    /**
+     * When Marlin is using the SD card it should be locked to prevent it being
+     * accessed from a PC over USB.
+     * Other HALs use (IS_SD_PRINTING() || IS_SD_FILE_OPEN()) to check for access
+     * but this won't reliably detect other file operations. To be safe we just lock
+     * the drive whenever Marlin has it mounted. LCDs should include an Unmount
+     * command so drives can be released as needed.
+     */
+    /* Copied from LPC1768 framework. Should be fixed later to process HAS_SD_HOST_DRIVE */
+    //if (!drive_locked()) // TODO
+    MarlinMSC.loop(); // Process USB mass storage device class loop
   #endif
 }
 

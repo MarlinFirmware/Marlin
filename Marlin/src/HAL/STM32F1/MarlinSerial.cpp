@@ -28,11 +28,7 @@
 
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
-static
-#if MB(VOXELAB_AQUILA)
-inline
-#endif
-__always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MSerialT &serial) {
+static TERN_(INLINE_USART_IRQ, inline) __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MSerialT &serial) {
  /* Handle RXNEIE and TXEIE interrupts.
   * RXNE signifies availability of a byte in DR.
   *

@@ -776,8 +776,6 @@ typedef struct {
 #define RCC_AHB_PERIPH_ADC3   ((uint32_t)0x00004000)
 #define RCC_AHB_PERIPH_ADC4   ((uint32_t)0x00008000)
 
-static uint16_t adc_results[ADC_COUNT];
-
 void ADC_Init(ADC_Module* NS_ADCx, ADC_InitType* ADC_InitStruct);
 
 /**================================================================
