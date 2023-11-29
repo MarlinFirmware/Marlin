@@ -612,43 +612,6 @@ void ADC_DMA_init() {
  *        n32g452 - end
  ==============================================================================*/
 
-// ------------------------
-// Serial ports
-// ------------------------
-
-// NOTE: The base HAL uses defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE here
-//       Can this be changed to match?
-#if defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE)
-
-  USBSerial SerialUSB;
-  DefaultSerial1 MSerial0(true, SerialUSB);
-
-  #if ENABLED(EMERGENCY_PARSER)
-    #include "../libmaple/usb/stm32f1/usb_reg_map.h"
-    #include "libmaple/usb_cdcacm.h"
-    // The original callback is not called (no way to retrieve address).
-    // That callback detects a special STM32 reset sequence: this functionality is not essential
-    // as M997 achieves the same.
-    void my_rx_callback(unsigned int, void*) {
-      // max length of 16 is enough to contain all emergency commands
-      uint8 buf[16];
-
-      //rx is usbSerialPart.endpoints[2]
-      uint16 len = usb_get_ep_rx_count(USB_CDCACM_RX_ENDP);
-      uint32 total = usb_cdcacm_data_available();
-
-      if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
-        return;
-
-      // cannot get character by character due to bug in composite_cdcacm_peek_ex
-      len = usb_cdcacm_peek(buf, total);
-
-      for (uint32 i = 0; i < len; i++)
-        emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
-    }
-  #endif
-#endif
-
 #define NS_PINRT(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
 
 // Init the AD in continuous capture mode

@@ -22,14 +22,11 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
- * Specifically for VOXELAB_N32. TODO: Rework for generic N32 MCU.
+ * Specifically for VOXELAB_N32 (N32G452). TODO: Rework for generic N32 MCU.
  */
 
 #include <STM32ADC.h>
 
-/**=============================================================================
- *        n32g452
- ==============================================================================*/
 typedef struct {
   uint32_t WorkMode;
   uint32_t MultiChEn;
@@ -893,7 +890,3 @@ void DMA_EnableChannel(DMA_ChannelType* DMAyChx, uint32_t Cmd);
  *        Initialize the DMA of ADC
  ================================================================*/
 void ADC_DMA_init();
-
-/**=============================================================================
- *        n32g452 - end
- ==============================================================================*/
