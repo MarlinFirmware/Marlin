@@ -305,35 +305,28 @@ uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
   return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-static bool get_point(xy_int_t &point) {
-  if (!touch.getRawPoint(&point.x, &point.y)) return false;
+static bool get_point(int16_t * const x, int16_t * const y) {
+  if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
     if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
-      if (touch_calibration.handleTouch(point)) lv_update_touch_calibration_screen();
+      if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
       return false;
     }
   #endif
 
-  point.x = int16_t((int32_t(point.x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
-  point.y = int16_t((int32_t(point.y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+  *x = int16_t((int32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+  *y = int16_t((int32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
 
   return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   static xy_int_t last { 0, 0 };
-  if (get_point(last)) {
-    data->point.x = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_WIDTH  - last.x : last.x;
-    data->point.y = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_HEIGHT - last.y : last.y;
-    data->state = LV_INDEV_STATE_PR;
-  }
-  else {
-    data->point.x = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_WIDTH  - last.x : last.x;
-    data->point.y = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_HEIGHT - last.y : last.y;
-    data->state = LV_INDEV_STATE_REL;
-  }
+  data->state = get_point(&last.x, &last.y) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+  data->point.x = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_WIDTH - last.x : last.x;
+  data->point.y = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_HEIGHT - last.y : last.y;
   return false; // Return `false` since no data is buffering or left to read
 }
 
