@@ -32,10 +32,6 @@
 #include "adc.h"
 uint16_t adc_results[ADC_COUNT];
 
-#ifndef VOXELAB_N32
-
-#include <STM32ADC.h>
-
 // ------------------------
 // Serial ports
 // ------------------------
@@ -70,48 +66,6 @@ uint16_t adc_results[ADC_COUNT];
     }
   #endif
 #endif
-
-// ------------------------
-// ADC
-// ------------------------
-
-// Init the AD in continuous capture mode
-void MarlinHAL::adc_init() {
-  static const uint8_t adc_pins[] = {
-    OPTITEM(HAS_TEMP_ADC_0, TEMP_0_PIN)
-    OPTITEM(HAS_TEMP_ADC_1, TEMP_1_PIN)
-    OPTITEM(HAS_TEMP_ADC_2, TEMP_2_PIN)
-    OPTITEM(HAS_TEMP_ADC_3, TEMP_3_PIN)
-    OPTITEM(HAS_TEMP_ADC_4, TEMP_4_PIN)
-    OPTITEM(HAS_TEMP_ADC_5, TEMP_5_PIN)
-    OPTITEM(HAS_TEMP_ADC_6, TEMP_6_PIN)
-    OPTITEM(HAS_TEMP_ADC_7, TEMP_7_PIN)
-    OPTITEM(HAS_HEATED_BED, TEMP_BED_PIN)
-    OPTITEM(HAS_TEMP_CHAMBER, TEMP_CHAMBER_PIN)
-    OPTITEM(HAS_TEMP_ADC_PROBE, TEMP_PROBE_PIN)
-    OPTITEM(HAS_TEMP_COOLER, TEMP_COOLER_PIN)
-    OPTITEM(HAS_TEMP_BOARD, TEMP_BOARD_PIN)
-    OPTITEM(HAS_TEMP_SOC, TEMP_SOC_PIN)
-    OPTITEM(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN)
-    OPTITEM(HAS_ADC_BUTTONS, ADC_KEYPAD_PIN)
-    OPTITEM(HAS_JOY_ADC_X, JOY_X_PIN)
-    OPTITEM(HAS_JOY_ADC_Y, JOY_Y_PIN)
-    OPTITEM(HAS_JOY_ADC_Z, JOY_Z_PIN)
-    OPTITEM(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN)
-    OPTITEM(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN)
-  };
-  static STM32ADC adc(ADC1);
-  // configure the ADC
-  adc.calibrate();
-  adc.setSampleRate((F_CPU > 72000000) ? ADC_SMPR_71_5 : ADC_SMPR_41_5); // 71.5 or 41.5 ADC cycles
-  adc.setPins((uint8_t *)adc_pins, ADC_COUNT);
-  adc.setDMA(adc_results, uint16_t(ADC_COUNT), uint32_t(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
-  adc.setScanMode();
-  adc.setContinuous();
-  adc.startConversion();
-}
-
-#endif // !VOXELAB_N32
 
 // ------------------------
 // Watchdog Timer
@@ -171,6 +125,48 @@ void analogWrite(const pin_t pin, int pwm_val8) {
 }
 
 uint16_t MarlinHAL::adc_result;
+
+#ifndef VOXELAB_N32
+
+#include <STM32ADC.h>
+
+// Init the AD in continuous capture mode
+void MarlinHAL::adc_init() {
+  static const uint8_t adc_pins[] = {
+    OPTITEM(HAS_TEMP_ADC_0, TEMP_0_PIN)
+    OPTITEM(HAS_TEMP_ADC_1, TEMP_1_PIN)
+    OPTITEM(HAS_TEMP_ADC_2, TEMP_2_PIN)
+    OPTITEM(HAS_TEMP_ADC_3, TEMP_3_PIN)
+    OPTITEM(HAS_TEMP_ADC_4, TEMP_4_PIN)
+    OPTITEM(HAS_TEMP_ADC_5, TEMP_5_PIN)
+    OPTITEM(HAS_TEMP_ADC_6, TEMP_6_PIN)
+    OPTITEM(HAS_TEMP_ADC_7, TEMP_7_PIN)
+    OPTITEM(HAS_HEATED_BED, TEMP_BED_PIN)
+    OPTITEM(HAS_TEMP_CHAMBER, TEMP_CHAMBER_PIN)
+    OPTITEM(HAS_TEMP_ADC_PROBE, TEMP_PROBE_PIN)
+    OPTITEM(HAS_TEMP_COOLER, TEMP_COOLER_PIN)
+    OPTITEM(HAS_TEMP_BOARD, TEMP_BOARD_PIN)
+    OPTITEM(HAS_TEMP_SOC, TEMP_SOC_PIN)
+    OPTITEM(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN)
+    OPTITEM(HAS_ADC_BUTTONS, ADC_KEYPAD_PIN)
+    OPTITEM(HAS_JOY_ADC_X, JOY_X_PIN)
+    OPTITEM(HAS_JOY_ADC_Y, JOY_Y_PIN)
+    OPTITEM(HAS_JOY_ADC_Z, JOY_Z_PIN)
+    OPTITEM(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN)
+    OPTITEM(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN)
+  };
+  static STM32ADC adc(ADC1);
+  // Configure the ADC
+  adc.calibrate();
+  adc.setSampleRate((F_CPU > 72000000) ? ADC_SMPR_71_5 : ADC_SMPR_41_5); // 71.5 or 41.5 ADC cycles
+  adc.setPins((uint8_t *)adc_pins, ADC_COUNT);
+  adc.setDMA(adc_results, uint16_t(ADC_COUNT), uint32_t(DMA_MINC_MODE | DMA_CIRC_MODE), nullptr);
+  adc.setScanMode();
+  adc.setContinuous();
+  adc.startConversion();
+}
+
+#endif // !VOXELAB_N32
 
 void MarlinHAL::adc_start(const pin_t pin) {
   #define __TCASE(N,I) case N: pin_index = I; break;
