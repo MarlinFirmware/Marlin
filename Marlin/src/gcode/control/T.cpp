@@ -48,6 +48,14 @@
  */
 void GcodeSuite::T(const int8_t tool_index) {
 
+  #if HAS_MULTI_EXTRUDER
+    // For 'T' with no parameter report the current tool.
+    if (parser.string_arg && *parser.string_arg == '*') {
+      SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
+      return;
+    }
+  #endif
+
   DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("...(", tool_index, ")");
 
