@@ -47,27 +47,27 @@
   #endif
 #endif
 
-#define GET_TEMP_0_ADC()          TERN(HAS_TEMP_ADC_0,        PIN_TO_ADC(TEMP_0_PIN),       -1)
-#define GET_TEMP_1_ADC()          TERN(HAS_TEMP_ADC_1,        PIN_TO_ADC(TEMP_1_PIN),       -1)
-#define GET_TEMP_2_ADC()          TERN(HAS_TEMP_ADC_2,        PIN_TO_ADC(TEMP_2_PIN),       -1)
-#define GET_TEMP_3_ADC()          TERN(HAS_TEMP_ADC_3,        PIN_TO_ADC(TEMP_3_PIN),       -1)
-#define GET_TEMP_4_ADC()          TERN(HAS_TEMP_ADC_4,        PIN_TO_ADC(TEMP_4_PIN),       -1)
-#define GET_TEMP_5_ADC()          TERN(HAS_TEMP_ADC_5,        PIN_TO_ADC(TEMP_5_PIN),       -1)
-#define GET_TEMP_6_ADC()          TERN(HAS_TEMP_ADC_6,        PIN_TO_ADC(TEMP_6_PIN),       -1)
-#define GET_TEMP_7_ADC()          TERN(HAS_TEMP_ADC_7,        PIN_TO_ADC(TEMP_7_PIN),       -1)
-#define GET_BED_ADC()             TERN(HAS_TEMP_ADC_BED,      PIN_TO_ADC(TEMP_BED_PIN),     -1)
-#define GET_CHAMBER_ADC()         TERN(HAS_TEMP_ADC_CHAMBER,  PIN_TO_ADC(TEMP_CHAMBER_PIN), -1)
-#define GET_PROBE_ADC()           TERN(HAS_TEMP_ADC_PROBE,    PIN_TO_ADC(TEMP_PROBE_PIN),   -1)
-#define GET_COOLER_ADC()          TERN(HAS_TEMP_ADC_COOLER,   PIN_TO_ADC(TEMP_COOLER_PIN),  -1)
-#define GET_BOARD_ADC()           TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),   -1)
-#define GET_SOC_ADC()             TERN(HAS_TEMP_ADC_SOC,      PIN_TO_ADC(TEMP_SOC_PIN),     -1)
-#define GET_FILAMENT_WIDTH_ADC()  TERN(FILAMENT_WIDTH_SENSOR, PIN_TO_ADC(FILWIDTH_PIN),     -1)
-#define GET_BUTTONS_ADC()         TERN(HAS_ADC_BUTTONS,       PIN_TO_ADC(ADC_KEYPAD_PIN),   -1)
-#define GET_JOY_ADC_X()           TERN(HAS_JOY_ADC_X,         PIN_TO_ADC(JOY_X_PIN),        -1)
-#define GET_JOY_ADC_Y()           TERN(HAS_JOY_ADC_Y,         PIN_TO_ADC(JOY_Y_PIN),        -1)
-#define GET_JOY_ADC_Z()           TERN(HAS_JOY_ADC_Z,         PIN_TO_ADC(JOY_Z_PIN),        -1)
-#define GET_POWERMON_ADC_CURRENT() TERN(POWER_MONITOR_CURRENT, PIN_TO_ADC(POWER_MONITOR_CURRENT_PIN), -1)
-#define GET_POWERMON_ADC_VOLTS()  TERN(POWER_MONITOR_VOLTAGE, PIN_TO_ADC(POWER_MONITOR_VOLTAGE_PIN), -1)
+#define GET_TEMP_0_ADC()            TERN(HAS_TEMP_ADC_0,        PIN_TO_ADC(TEMP_0_PIN),                 -1)
+#define GET_TEMP_1_ADC()            TERN(HAS_TEMP_ADC_1,        PIN_TO_ADC(TEMP_1_PIN),                 -1)
+#define GET_TEMP_2_ADC()            TERN(HAS_TEMP_ADC_2,        PIN_TO_ADC(TEMP_2_PIN),                 -1)
+#define GET_TEMP_3_ADC()            TERN(HAS_TEMP_ADC_3,        PIN_TO_ADC(TEMP_3_PIN),                 -1)
+#define GET_TEMP_4_ADC()            TERN(HAS_TEMP_ADC_4,        PIN_TO_ADC(TEMP_4_PIN),                 -1)
+#define GET_TEMP_5_ADC()            TERN(HAS_TEMP_ADC_5,        PIN_TO_ADC(TEMP_5_PIN),                 -1)
+#define GET_TEMP_6_ADC()            TERN(HAS_TEMP_ADC_6,        PIN_TO_ADC(TEMP_6_PIN),                 -1)
+#define GET_TEMP_7_ADC()            TERN(HAS_TEMP_ADC_7,        PIN_TO_ADC(TEMP_7_PIN),                 -1)
+#define GET_BED_ADC()               TERN(HAS_TEMP_ADC_BED,      PIN_TO_ADC(TEMP_BED_PIN),               -1)
+#define GET_CHAMBER_ADC()           TERN(HAS_TEMP_ADC_CHAMBER,  PIN_TO_ADC(TEMP_CHAMBER_PIN),           -1)
+#define GET_PROBE_ADC()             TERN(HAS_TEMP_ADC_PROBE,    PIN_TO_ADC(TEMP_PROBE_PIN),             -1)
+#define GET_COOLER_ADC()            TERN(HAS_TEMP_ADC_COOLER,   PIN_TO_ADC(TEMP_COOLER_PIN),            -1)
+#define GET_BOARD_ADC()             TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),             -1)
+#define GET_SOC_ADC()               TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),             -1)
+#define GET_FILAMENT_WIDTH_ADC()    TERN(FILAMENT_WIDTH_SENSOR, PIN_TO_ADC(FILWIDTH_PIN),               -1)
+#define GET_BUTTONS_ADC()           TERN(HAS_ADC_BUTTONS,       PIN_TO_ADC(ADC_KEYPAD_PIN),             -1)
+#define GET_JOY_ADC_X()             TERN(HAS_JOY_ADC_X,         PIN_TO_ADC(JOY_X_PIN),                  -1)
+#define GET_JOY_ADC_Y()             TERN(HAS_JOY_ADC_Y,         PIN_TO_ADC(JOY_Y_PIN),                  -1)
+#define GET_JOY_ADC_Z()             TERN(HAS_JOY_ADC_Z,         PIN_TO_ADC(JOY_Z_PIN),                  -1)
+#define GET_POWERMON_CURRENT_ADC()  TERN(POWER_MONITOR_CURRENT, PIN_TO_ADC(POWER_MONITOR_CURRENT_PIN),  -1)
+#define GET_POWERMON_VOLTAGE_ADC()  TERN(POWER_MONITOR_VOLTAGE, PIN_TO_ADC(POWER_MONITOR_VOLTAGE_PIN),  -1)
 
 #define IS_ADC_REQUIRED(n) ( \
      GET_TEMP_0_ADC() == n || GET_TEMP_1_ADC() == n || GET_TEMP_2_ADC() == n || GET_TEMP_3_ADC() == n \
@@ -80,7 +80,7 @@
   || GET_FILAMENT_WIDTH_ADC() == n \
   || GET_BUTTONS_ADC() == n \
   || GET_JOY_ADC_X() == n || GET_JOY_ADC_Y() == n || GET_JOY_ADC_Z() == n \
-  || GET_POWERMON_ADC_CURRENT() == n || GET_POWERMON_ADC_VOLTS() == n \
+  || GET_POWERMON_CURRENT_ADC() == n || GET_POWERMON_VOLTAGE_ADC() == n \
 )
 
 #if IS_ADC_REQUIRED(0)
@@ -158,14 +158,14 @@ enum ADCIndex {
   #if GET_JOY_ADC_Z() == 0
     JOY_Z,
   #endif
-  #if GET_POWERMON_ADC_CURRENT() == 0
+  #if GET_POWERMON_CURRENT_ADC() == 0
     POWERMON_CURRENT,
   #endif
-  #if GET_POWERMON_ADC_VOLTS() == 0
-    POWERMON_VOLTS,
+  #if GET_POWERMON_VOLTAGE_ADC() == 0
+    POWERMON_VOLTAGE,
   #endif
 
-  // Use later indexes for ADC index 1
+  // Indexes for ADC1 after those for ADC0
 
   #if GET_TEMP_0_ADC() == 1
     TEMP_0,
@@ -224,13 +224,12 @@ enum ADCIndex {
   #if GET_JOY_ADC_Z() == 1
     JOY_Z,
   #endif
-  #if GET_POWERMON_ADC_CURRENT() == 1
+  #if GET_POWERMON_CURRENT_ADC() == 1
     POWERMON_CURRENT,
   #endif
-  #if GET_POWERMON_ADC_VOLTS() == 1
-    POWERMON_VOLTS,
+  #if GET_POWERMON_VOLTAGE_ADC() == 1
+    POWERMON_VOLTAGE,
   #endif
-
   ADC_COUNT
 };
 
@@ -347,14 +346,14 @@ enum ADCIndex {
     #if GET_JOY_ADC_Z() == 0
       JOY_Z_PIN,
     #endif
-    #if GET_POWERMON_ADC_CURRENT() == 0
+    #if GET_POWERMON_CURRENT_ADC() == 0
       POWER_MONITOR_CURRENT_PIN,
     #endif
-    #if GET_POWERMON_ADC_VOLTS() == 0
-      POWER_MONITOR_VOLTS_PIN,
+    #if GET_POWERMON_VOLTAGE_ADC() == 0
+      POWER_MONITOR_VOLTAGE_PIN,
     #endif
 
-    // ADC1 pins
+    // Pins for ADC1 after ADC0
 
     #if GET_TEMP_0_ADC() == 1
       TEMP_0_PIN,
@@ -413,11 +412,11 @@ enum ADCIndex {
     #if GET_JOY_ADC_Z() == 1
       JOY_Z_PIN,
     #endif
-    #if GET_POWERMON_ADC_CURRENT() == 1
+    #if GET_POWERMON_CURRENT_ADC() == 1
       POWER_MONITOR_CURRENT_PIN,
     #endif
-    #if GET_POWERMON_ADC_VOLTS() == 1
-      POWER_MONITOR_VOLTS_PIN,
+    #if GET_POWERMON_VOLTAGE_ADC() == 1
+      POWER_MONITOR_VOLTAGE_PIN,
     #endif
   };
 
@@ -484,11 +483,11 @@ enum ADCIndex {
       #if GET_JOY_ADC_Z() == 0
         { PIN_TO_INPUTCTRL(JOY_Z_PIN) },
       #endif
-      #if GET_POWERMON_ADC_CURRENT() == 0
+      #if GET_POWERMON_CURRENT_ADC() == 0
         { PIN_TO_INPUTCTRL(POWER_MONITOR_CURRENT_PIN) },
       #endif
-      #if GET_POWERMON_ADC_VOLTS() == 0
-        { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTS_PIN) },
+      #if GET_POWERMON_VOLTAGE_ADC() == 0
+        { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTAGE_PIN) },
       #endif
     };
 
@@ -556,11 +555,11 @@ enum ADCIndex {
       #if GET_JOY_ADC_Z() == 1
         { PIN_TO_INPUTCTRL(JOY_Z_PIN) },
       #endif
-      #if GET_POWERMON_ADC_CURRENT() == 1
+      #if GET_POWERMON_CURRENT_ADC() == 1
         { PIN_TO_INPUTCTRL(POWER_MONITOR_CURRENT_PIN) },
       #endif
-      #if GET_POWERMON_ADC_VOLTS() == 1
-        { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTS_PIN) },
+      #if GET_POWERMON_VOLTAGE_ADC() == 1
+        { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTAGE_PIN) },
       #endif
     };
 
