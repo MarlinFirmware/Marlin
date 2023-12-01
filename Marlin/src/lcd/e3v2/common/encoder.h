@@ -45,7 +45,7 @@ typedef enum {
   ENCODER_DIFF_ENTER = 3   // click
 } EncoderState;
 
-#define ENCODER_WAIT_MS 20
+#define ENCODER_WAIT_MS TERN(DWIN_LCD_PROUI, 10, 20)
 
 // Encoder initialization
 void encoderConfiguration();
