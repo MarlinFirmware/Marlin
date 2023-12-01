@@ -2,8 +2,14 @@
 #
 # schema.py
 #
-# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build.
-# This script can also be run standalone from within the Marlin repo to generate all schema files.
+# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build
+# when CONFIG_EXPORT is defined in the configuration.
+#
+# This script can also be run standalone from within the Marlin repo to generate JSON and YAML schema files.
+#
+# This script is a companion to abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has
+# been extended to evaluate conditions and can determine what options are actually enabled, not just which
+# options are uncommented. That will be migrated to this script for standalone migration.
 #
 import re,json
 from pathlib import Path
@@ -95,6 +101,8 @@ def extract():
     sch_out = { 'basic':{}, 'advanced':{} }
     # Regex for #define NAME [VALUE] [COMMENT] with sanitized line
     defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
+    # Pattern to match a float value
+    flt = r'[-+]?\s*(\d+\.|\d*\.\d+)([eE][-+]?\d+)?[fF]?'
     # Defines to ignore
     ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
     # Start with unknown state
@@ -314,26 +322,27 @@ def extract():
                         }
 
                         # Type is based on the value
-                        if val == '':
-                            value_type = 'switch'
-                        elif re.match(r'^(true|false)$', val):
-                            value_type = 'bool'
-                            val = val == 'true'
-                        elif re.match(r'^[-+]?\s*\d+$', val):
-                            value_type = 'int'
-                            val = int(val)
-                        elif re.match(r'[-+]?\s*(\d+\.|\d*\.\d+)([eE][-+]?\d+)?[fF]?', val):
-                            value_type = 'float'
-                            val = float(val.replace('f',''))
-                        else:
-                            value_type = 'string'   if val[0] == '"' \
-                                    else 'char'     if val[0] == "'" \
-                                    else 'state'    if re.match(r'^(LOW|HIGH)$', val) \
-                                    else 'enum'     if re.match(r'^[A-Za-z0-9_]{3,}$', val) \
-                                    else 'int[]'    if re.match(r'^{(\s*[-+]?\s*\d+\s*(,\s*)?)+}$', val) \
-                                    else 'float[]'  if re.match(r'^{(\s*[-+]?\s*(\d+\.|\d*\.\d+)([eE][-+]?\d+)?[fF]?\s*(,\s*)?)+}$', val) \
-                                    else 'array'    if val[0] == '{' \
-                                    else ''
+                        value_type = \
+                             'switch'  if val == '' \
+                        else 'bool'    if re.match(r'^(true|false)$', val) \
+                        else 'int'     if re.match(r'^[-+]?\s*\d+$', val) \
+                        else 'ints'    if re.match(r'^([-+]?\s*\d+)(\s*,\s*[-+]?\s*\d+)+$', val) \
+                        else 'floats'  if re.match(rf'({flt}(\s*,\s*{flt})+)', val) \
+                        else 'float'   if re.match(f'^({flt})$', val) \
+                        else 'string'  if val[0] == '"' \
+                        else 'char'    if val[0] == "'" \
+                        else 'state'   if re.match(r'^(LOW|HIGH)$', val) \
+                        else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val) \
+                        else 'int[]'   if re.match(r'^{\s*[-+]?\s*\d+(\s*,\s*[-+]?\s*\d+)*\s*}$', val) \
+                        else 'float[]' if re.match(r'^{{\s*{flt}(\s*,\s*{flt})*\s*}}$', val) \
+                        else 'array'   if val[0] == '{' \
+                        else ''
+
+                        val = (val == 'true')           if value_type == 'bool' \
+                        else int(val)                   if value_type == 'int' \
+                        else val.replace('f','')        if value_type == 'floats' \
+                        else float(val.replace('f','')) if value_type == 'float' \
+                        else val
 
                         if val != '': define_info['value'] = val
                         if value_type != '': define_info['type'] = value_type
@@ -402,25 +411,35 @@ def main():
 
     if schema:
 
-        # Get the first command line argument
+        # Get the command line arguments after the script name
         import sys
-        if len(sys.argv) > 1:
-            arg = sys.argv[1]
-        else:
-            arg = 'some'
+        args = sys.argv[1:]
+        if len(args) == 0: args = ['some']
+
+        # Does the given array intersect at all with args?
+        def inargs(c): return len(set(args) & set(c)) > 0
+
+        # Help / Unknown option
+        unk = not inargs(['some','json','jsons','group','yml','yaml'])
+        if (unk): print(f"Unknown option: '{args[0]}'")
+        if inargs(['-h', '--help']) or unk:
+            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
+            print("       some  = json + yml")
+            print("       jsons = json + group")
+            return
 
         # JSON schema
-        if arg in ['some', 'json', 'jsons']:
+        if inargs(['some', 'json', 'jsons']):
             print("Generating JSON ...")
             dump_json(schema, Path('schema.json'))
 
         # JSON schema (wildcard names)
-        if arg in ['group', 'jsons']:
+        if inargs(['group', 'jsons']):
             group_options(schema)
             dump_json(schema, Path('schema_grouped.json'))
 
         # YAML
-        if arg in ['some', 'yml', 'yaml']:
+        if inargs(['some', 'yml', 'yaml']):
             try:
                 import yaml
             except ImportError:

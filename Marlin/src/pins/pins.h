@@ -812,6 +812,8 @@
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+#elif MB(BLACKBEEZMINI_V1)
+  #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 
 //
 // ARM Cortex-M7
