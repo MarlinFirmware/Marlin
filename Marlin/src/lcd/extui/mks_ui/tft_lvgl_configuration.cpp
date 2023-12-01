@@ -55,8 +55,8 @@ XPT2046 touch;
   #include "../../../module/probe.h"
 #endif
 
+#include "../../tft_io/touch_calibration.h"
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../../tft_io/touch_calibration.h"
   #include "draw_touch_calibration.h"
 #endif
 
@@ -305,7 +305,7 @@ uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
   return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-static bool get_point(int16_t *x, int16_t *y) {
+static bool get_point(int16_t * const x, int16_t * const y) {
   if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -314,38 +314,19 @@ static bool get_point(int16_t *x, int16_t *y) {
       if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
       return false;
     }
-    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
-    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
-  #else
-    *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
-    *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
   #endif
+
+  *x = int16_t((int32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+  *y = int16_t((int32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
 
   return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
-  static int16_t last_x = 0, last_y = 0;
-  if (get_point(&last_x, &last_y)) {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
-      data->point.x = last_x;
-      data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_PR;
-  }
-  else {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
-      data->point.x = last_x;
-      data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_REL;
-  }
+  static xy_int_t last { 0, 0 };
+  data->state = get_point(&last.x, &last.y) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+  data->point.x = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_WIDTH - last.x : last.x;
+  data->point.y = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_HEIGHT - last.y : last.y;
   return false; // Return `false` since no data is buffering or left to read
 }
 

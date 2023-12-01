@@ -64,12 +64,13 @@ typedef struct FTConfig {
   #endif
 } ft_config_t;
 
-class FxdTiCtrl {
+class FTMotion {
 
   public:
 
     // Public variables
     static ft_config_t cfg;
+    static bool busy;
 
     static void set_defaults() {
       cfg.mode = FTM_DEFAULT_MODE;
@@ -77,8 +78,8 @@ class FxdTiCtrl {
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
 
-      cfg.zeta = FTM_SHAPING_ZETA;
-      cfg.vtol = FTM_SHAPING_V_TOL;
+      cfg.zeta = FTM_SHAPING_ZETA;  // Damping factor
+      cfg.vtol = FTM_SHAPING_V_TOL; // Vibration Level
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -113,7 +114,6 @@ class FxdTiCtrl {
     static bool getBlockProcDn() { return blockProcDn; }    // Return true if the controller no longer needs the current block.
     static void runoutBlock();                              // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                     // Controller main, to be invoked from non-isr task.
-
 
     #if HAS_X_AXIS
       // Refresh the gains used by shaping functions.
@@ -168,6 +168,7 @@ class FxdTiCtrl {
 
     static hal_timer_t nextStepTicks;
 
+    // Shaping variables.
     #if HAS_X_AXIS
 
       typedef struct AxisShaping {
@@ -202,10 +203,10 @@ class FxdTiCtrl {
 
     // Private methods
     static uint32_t stepperCmdBuffItems();
-    static void loadBlockData(block_t * const current_block);
+    static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
 
-}; // class fxdTiCtrl
+}; // class FTMotion
 
-extern FxdTiCtrl fxdTiCtrl;
+extern FTMotion ftMotion;

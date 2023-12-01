@@ -200,7 +200,7 @@ float BedLevelTools::getMinValue() {
 bool BedLevelTools::meshValidate() {
   GRID_LOOP(x, y) {
     const float v = bedlevel.z_values[x][y];
-    if (isnan(v) || !WITHIN(v, UBL_Z_OFFSET_MIN, UBL_Z_OFFSET_MAX)) return false;
+    if (isnan(v) || !WITHIN(v, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
   }
   return true;
 }
@@ -211,9 +211,9 @@ bool BedLevelTools::meshValidate() {
 
   void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
-    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-    const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
-    const uint16_t cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
+    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
+                   cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
+                   cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
     const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
@@ -247,7 +247,7 @@ bool BedLevelTools::meshValidate() {
       // Draw value text on
       const uint8_t fs = DWINUI::fontWidth(meshfont);
       if (viewer_print_value) {
-        int8_t offset_x, offset_y = cell_height_px / 2 - fs;
+        const int8_t offset_y = cell_height_px / 2 - fs;
         if (isnan(bedlevel.z_values[x][y])) {  // undefined
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
         }
@@ -257,7 +257,7 @@ bool BedLevelTools::meshValidate() {
             msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
           else
             msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
-          offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
+          const int8_t offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
           if ((GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10))
             dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);

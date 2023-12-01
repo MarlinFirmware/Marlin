@@ -27,7 +27,8 @@
   #include "../feature/ethernet.h"
 #endif
 
-uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
+// Echo commands to the terminal by default in dev mode
+uint8_t marlin_debug_flags = TERN(MARLIN_DEV_MODE, MARLIN_DEBUG_ECHO, MARLIN_DEBUG_NONE);
 
 // Commonly-used strings in serial output
 PGMSTR(SP_A_STR, " A"); PGMSTR(SP_B_STR, " B"); PGMSTR(SP_C_STR, " C");
@@ -69,7 +70,7 @@ MAP(_N_LBL, LOGICAL_AXIS_NAMES); MAP(_SP_N_LBL, LOGICAL_AXIS_NAMES);
 #endif
 
 // Specializations for float, p_float_t, w_float_t
-template <> void SERIAL_ECHO(const float f)      { SERIAL_IMPL.print(f); }
+template <> void SERIAL_ECHO(const float f)      { SERIAL_IMPL.print(f, SERIAL_FLOAT_PRECISION); }
 template <> void SERIAL_ECHO(const p_float_t pf) { SERIAL_IMPL.print(pf.value, pf.prec); }
 template <> void SERIAL_ECHO(const w_float_t wf) { char f1[20]; SERIAL_IMPL.print(dtostrf(wf.value, wf.width, wf.prec, f1)); }
 
@@ -92,6 +93,7 @@ void SERIAL_ECHOLN_P(PGM_P pstr) { SERIAL_ECHO_P(pstr); SERIAL_EOL(); }
 
 void SERIAL_ECHO_START()  { SERIAL_ECHO(F("echo:")); }
 void SERIAL_ERROR_START() { SERIAL_ECHO(F("Error:")); }
+void SERIAL_WARN_START()  { SERIAL_ECHO(F("Warning:")); }
 
 void SERIAL_ECHO_SP(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
