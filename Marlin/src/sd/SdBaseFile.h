@@ -283,7 +283,7 @@ class SdBaseFile {
   bool isRoot() const { return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32; }
 
   bool getDosName(char * const name);
-  void ls(uint8_t flags=0, uint8_t indent=0);
+  void ls(const uint8_t flags=0, const uint8_t indent=0);
 
   bool mkdir(SdBaseFile *parent, const char *path, const bool pFlag=true);
   bool open(SdBaseFile * const dirFile, uint16_t index, const uint8_t oflag);

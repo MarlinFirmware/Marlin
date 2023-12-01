@@ -72,9 +72,9 @@ uint8_t sel_id = 0;
     else
       card.cdroot();
 
-    const uint16_t fileCnt = card.get_num_Files();
+    const int16_t fileCnt = card.get_num_Files();
 
-    for (uint16_t i = 0; i < fileCnt; i++) {
+    for (int16_t i = 0; i < fileCnt; i++) {
       if (list_file.Sd_file_cnt == list_file.Sd_file_offset) {
         card.getfilename_sorted(SD_ORDER(i, fileCnt));
 
@@ -120,8 +120,6 @@ bool have_pre_pic(char *path) {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   uint8_t i, file_count = 0;
-  //switch (obj->mks_obj_id)
-  //{
   if (obj->mks_obj_id == ID_P_UP) {
     if (dir_offset[curDirLever].curPage > 0) {
       // 2015.05.19
@@ -130,9 +128,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
 
-      #if ENABLED(SDSUPPORT)
-        file_count = search_file();
-      #endif
+      TERN_(SDSUPPORT, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage--;
         lv_clear_print_file();
@@ -144,9 +140,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     if (dir_offset[curDirLever].cur_page_last_offset > 0) {
       list_file.Sd_file_cnt    = 0;
       list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
-      #if ENABLED(SDSUPPORT)
-        file_count = search_file();
-      #endif
+      TERN_(SDSUPPORT, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage++;
         lv_clear_print_file();
@@ -161,17 +155,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
       if (ch) {
         *ch = 0;
-        #if ENABLED(SDSUPPORT)
-          card.cdup();
-        #endif
+        TERN_(SDSUPPORT, card.cdup());
         dir_offset[curDirLever].curPage               = 0;
         dir_offset[curDirLever].cur_page_first_offset = 0;
         dir_offset[curDirLever].cur_page_last_offset  = 0;
         curDirLever--;
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-        #if ENABLED(SDSUPPORT)
-          file_count = search_file();
-        #endif
+        TERN_(SDSUPPORT, file_count = search_file());
         lv_clear_print_file();
         disp_gcode_icon(file_count);
       }
@@ -189,9 +179,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             strcpy(list_file.curDirPath, list_file.file_name[i]);
             curDirLever++;
             list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-            #if ENABLED(SDSUPPORT)
-              file_count = search_file();
-            #endif
+            TERN_(SDSUPPORT, file_count = search_file());
             lv_clear_print_file();
             disp_gcode_icon(file_count);
           }
@@ -396,8 +384,7 @@ int ascii2dec_test(char *ascii) {
 
 void lv_gcode_file_read(uint8_t *data_buf) {
   #if ENABLED(SDSUPPORT)
-    uint16_t i = 0, j = 0, k = 0;
-    uint16_t row_1    = 0;
+    uint16_t i = 0, j = 0, k = 0, row_1 = 0;
     bool ignore_start = true;
     char temp_test[200];
     volatile uint16_t *p_index;

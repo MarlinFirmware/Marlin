@@ -65,9 +65,9 @@
   #endif
 #endif
 
-#if TFT_BUFFER_SIZE > DMA_MAX_SIZE
+#if TFT_BUFFER_SIZE > DMA_MAX_WORDS
   // DMA Count parameter is uint16_t
-  #error "TFT_BUFFER_SIZE can not exceed DMA_MAX_SIZE"
+  #error "TFT_BUFFER_SIZE can not exceed DMA_MAX_WORDS"
 #endif
 
 class TFT {

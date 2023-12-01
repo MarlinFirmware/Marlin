@@ -91,7 +91,7 @@
   #ifndef FAN_PIN
     #define FAN_PIN                           11
   #endif
-#else                                             // RAMPS_V_1_1 or RAMPS_V_1_2
+#else // RAMPS_V_1_1 or RAMPS_V_1_2
   #define HEATER_0_PIN                        10
   #define HEATER_BED_PIN                       8
   #ifndef FAN_PIN
@@ -113,6 +113,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN                 41  // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN                 45  // Hardware PWM
-#define SPINDLE_DIR_PIN                       43
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN               45  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               41  // Pullup or pulldown!
+  #define SPINDLE_DIR_PIN                     43
+#endif

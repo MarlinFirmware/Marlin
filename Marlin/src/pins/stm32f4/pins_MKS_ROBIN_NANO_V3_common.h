@@ -108,8 +108,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -210,8 +213,8 @@
 
 //
 // Onboard SD card
+// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
-// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
@@ -224,13 +227,12 @@
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  #define SPI_FLASH
-  #define SPI_DEVICE                           2
-  #define SPI_FLASH_SIZE               0x1000000
+  #define SPI_DEVICE                           2  // Maple
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PC3
-  #define SPI_FLASH_MISO_PIN                PC2
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PC2
+  #define SPI_FLASH_MOSI_PIN                PC3
 #endif
 
 /**
@@ -342,7 +344,6 @@
 
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
-    //#undef SHOW_BOOTSCREEN
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define LCD_PINS_DC              EXP1_04_PIN
@@ -358,7 +359,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL

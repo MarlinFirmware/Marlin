@@ -31,10 +31,10 @@
 #endif
 
 // ADC
-#ifdef BOARD_ADC_VREF
-  #define ADC_VREF BOARD_ADC_VREF
+#ifdef BOARD_ADC_VREF_MV
+  #define ADC_VREF_MV BOARD_ADC_VREF_MV
 #else
-  #define ADC_VREF HAL_ADC_VREF
+  #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
@@ -101,7 +101,9 @@
   #define HAS_ROTATIONAL_AXES 1
 #endif
 
-#define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
+#if HAS_X_AXIS
+  #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
+#endif
 #if HAS_Y_AXIS
   #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
 #endif
@@ -130,7 +132,7 @@
 #endif
 
 // Defined only if the sanity-check is bypassed
-#ifndef X_BED_SIZE
+#if HAS_X_AXIS && !defined(X_BED_SIZE)
   #define X_BED_SIZE X_MAX_LENGTH
 #endif
 #if HAS_Y_AXIS && !defined(Y_BED_SIZE)
@@ -161,7 +163,9 @@
 #endif
 
 // Define center values for future use
-#define _X_HALF_BED ((X_BED_SIZE) / 2)
+#if HAS_X_AXIS
+  #define _X_HALF_BED ((X_BED_SIZE) / 2)
+#endif
 #if HAS_Y_AXIS
   #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #endif
@@ -184,7 +188,9 @@
   #define _W_HALF_WMAX ((W_BED_SIZE) / 2)
 #endif
 
-#define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
+#if HAS_X_AXIS
+  #define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
+#endif
 #if HAS_Y_AXIS
   #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
   #define XY_CENTER { X_CENTER, Y_CENTER }
@@ -209,8 +215,10 @@
 #endif
 
 // Get the linear boundaries of the bed
-#define X_MIN_BED (X_CENTER - _X_HALF_BED)
-#define X_MAX_BED (X_MIN_BED + X_BED_SIZE)
+#if HAS_X_AXIS
+  #define X_MIN_BED (X_CENTER - _X_HALF_BED)
+  #define X_MAX_BED (X_MIN_BED + X_BED_SIZE)
+#endif
 #if HAS_Y_AXIS
   #define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
   #define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
@@ -255,12 +263,14 @@
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
+    #define CAN_CALIBRATE(A,B) TERN0(HAS_##A##_AXIS, (_AXIS(A) == B))
   #else
-    #define CAN_CALIBRATE(A,B) true
+    #define CAN_CALIBRATE(A,B) ENABLED(HAS_##A##_AXIS)
   #endif
+  #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
+#else
+  #define AXIS_CAN_CALIBRATE(A) false
 #endif
-#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
 
 /**
  * No adjustable bed on non-cartesians

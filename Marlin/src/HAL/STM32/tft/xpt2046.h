@@ -22,9 +22,9 @@
 #pragma once
 
 #ifdef STM32F1xx
-  #include <stm32f1xx_hal.h>
+  #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
-  #include <stm32f4xx_hal.h>
+  #include "stm32f4xx_hal.h"
 #endif
 
 #include "../../../inc/MarlinConfig.h"

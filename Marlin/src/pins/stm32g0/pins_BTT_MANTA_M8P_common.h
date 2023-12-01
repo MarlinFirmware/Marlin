@@ -51,10 +51,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -179,18 +177,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PA7
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PA6
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PA5
 #endif
 
 #if HAS_TMC_UART
@@ -210,8 +206,11 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors

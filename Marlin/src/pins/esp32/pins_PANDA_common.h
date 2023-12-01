@@ -63,10 +63,10 @@
 #define TEMP_BED_PIN                          36  // Analog Input
 
 #if ENABLED(MAX31856_PANDAPI)
-  #define MAX31856_CLK_PIN                    29
-  #define MAX31856_MISO_PIN                   24
-  #define MAX31856_MOSI_PIN                   28
-  #define MAX31856_CS_PIN                     27
+  #define TEMP_0_CLK_PIN                      29
+  #define TEMP_0_MISO_PIN                     24
+  #define TEMP_0_MOSI_PIN                     28
+  #define TEMP_0_CS_PIN                       27
 #endif
 
 //

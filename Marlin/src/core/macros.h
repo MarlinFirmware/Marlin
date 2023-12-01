@@ -239,7 +239,11 @@
 #define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define ANY(V...)          !DISABLED(V)
+#define ALL                 ENABLED
+#define NONE                DISABLED
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Ternary pre-compiler macros conceal non-emitted content from the compiler
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
@@ -249,6 +253,7 @@
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+#define IF_DISABLED(O,A)    TERN(O,,A)
 
 // Macros to conditionally emit array items and function arguments
 #define _OPTITEM(A...)      A,
@@ -265,16 +270,8 @@
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
-#define IF_ENABLED          TERN_
-#define IF_DISABLED(O,A)    TERN(O,,A)
-
-#define ANY(V...)          !DISABLED(V)
-#define NONE(V...)          DISABLED(V)
-#define ALL(V...)           ENABLED(V)
 #define BOTH(V1,V2)         ALL(V1,V2)
 #define EITHER(V1,V2)       ANY(V1,V2)
-#define MANY(V...)          (COUNT_ENABLED(V) > 1)
-
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
 #define _PINEX_1            PIN_EXISTS
@@ -473,7 +470,41 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // remove const/volatile type qualifiers
+    template<typename T> struct remove_const { typedef T type; };
+    template<typename T> struct remove_const<T const> { typedef T type; };
+
+    template<typename T> struct remove_volatile { typedef T type; };
+    template<typename T> struct remove_volatile<T volatile> { typedef T type; };
+
+    template<typename T> struct remove_cv { typedef typename remove_const<typename remove_volatile<T>::type>::type type; };
+
+    // test if type is integral
+    template<typename>  struct _is_integral { enum { value = false }; };
+    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
+    template<>          struct _is_integral<char> { enum { value = true }; };
+    template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
+    template<>          struct _is_integral<long> { enum { value = true }; };
+    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
   }
+
+  // enum type check and regression to its underlying integral.
+  namespace Private {
+    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+
+    template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
+    template<typename T>                            struct _underlying_type<T, false> { };
+
+    template<typename T> struct underlying_type : public _underlying_type<T> { };
+  }
+
   // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
@@ -730,6 +761,19 @@
 #define RREPEAT_1(N,OP)         RREPEAT_S(1,INCREMENT(N),OP)
 #define RREPEAT2_S(S,N,OP,V...) EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)     RREPEAT2_S(0,N,OP,V)
+
+// Emit a list of N OP(I) items with ascending counter.
+#define _REPLIST(_RPT_I,_RPT_N,_RPT_OP)                          \
+  _RPT_OP(_RPT_I)                                                \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( , DEFER2(__REPLIST)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPLIST() _REPLIST
+
+// Repeat a macro, comma-separated, passing S...N-1.
+#define REPLIST_S(S,N,OP)       EVAL(_REPLIST(S,SUB##S(N),OP))
+#define REPLIST(N,OP)           REPLIST_S(0,N,OP)
+#define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
 
 // Call OP(A) with each item as an argument
 #define _MAP(_MAP_OP,A,V...)       \

@@ -66,6 +66,9 @@ void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
         #endif
       #elif ENABLED(SWITCHING_NOZZLE)
         case SWITCHING_NOZZLE_SERVO_NR:
+        #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+          case SWITCHING_NOZZLE_E1_SERVO_NR:
+        #endif
       #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
         case Z_PROBE_SERVO_NR:
       #endif

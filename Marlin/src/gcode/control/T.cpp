@@ -41,8 +41,8 @@
  *   S1           Don't move the tool in XY after change
  *
  * For PRUSA_MMU2(S) and EXTENDABLE_EMU_MMU2(S)
- *   T[n] Gcode to extrude at least 38.10 mm at feedrate 19.02 mm/s must follow immediately to load to extruder wheels.
- *   T?   Gcode to extrude shouldn't have to follow. Load to extruder wheels is done automatically.
+ *   T[n] G-code to extrude at least 38.10 mm at feedrate 19.02 mm/s must follow immediately to load to extruder wheels.
+ *   T?   G-code to extrude shouldn't have to follow. Load to extruder wheels is done automatically.
  *   Tx   Same as T?, but nozzle doesn't have to be preheated. Tc requires a preheated nozzle to finish filament load.
  *   Tc   Load to nozzle after filament was prepared by Tc and nozzle is already heated.
  */

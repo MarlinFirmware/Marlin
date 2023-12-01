@@ -166,7 +166,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 /**
- * Set XYZ...E destination and feedrate from the current GCode command
+ * Set XYZ...E destination and feedrate from the current G-Code command
  *
  *  - Set destination from included axis codes
  *  - Set to current for missing axis codes
@@ -472,7 +472,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
+        case 800: parser.debug(); break;                          // G800: G-Code Parser Test for G
       #endif
 
       default: parser.unknown_command_warning(); break;
@@ -581,7 +581,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
-      #if HAS_EXTRUDERS
+      #if HAS_HOTEND
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -671,6 +671,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
         case 83: M83(); break;                                    // M83: Set E axis relative mode
       #endif
+
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
       case 85: M85(); break;                                      // M85: Set inactivity stepper shutdown timeout
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
@@ -934,7 +935,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_SHAPING
-        case 593: M593(); break;                                  // M593: Set Input Shaping parameters
+        case 593: M593(); break;                                  // M593: Input Shaping control
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -950,7 +951,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 
-      #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+      #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
         case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
       #endif
 
@@ -1029,7 +1030,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
-        case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
+        case 800: parser.debug(); break;                          // M800: G-Code Parser Test for M
       #endif
 
       #if ENABLED(GCODE_REPEAT_MARKERS)
@@ -1120,7 +1121,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
   if (!no_ok) queue.ok_to_send();
 
-  SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
+  SERIAL_IMPL.msgDone(); // Call the msgDone serial hook to signal command processing done
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)

@@ -49,16 +49,14 @@ BDS_Leveling bdl;
 // M102 S-1   Read sensor information
 
 #define MAX_BD_HEIGHT                 4.0f
+#define CMD_READ_VERSION              1016
 #define CMD_START_READ_CALIBRATE_DATA 1017
 #define CMD_END_READ_CALIBRATE_DATA   1018
 #define CMD_START_CALIBRATE           1019
 #define CMD_END_CALIBRATE             1021
-#define CMD_READ_VERSION  1016
-
-I2C_SegmentBED BD_I2C_SENSOR;
-
 #define BD_SENSOR_I2C_ADDR            0x3C
 
+I2C_SegmentBED BD_I2C_SENSOR;
 int8_t BDS_Leveling::config_state;
 uint8_t BDS_Leveling::homing;
 

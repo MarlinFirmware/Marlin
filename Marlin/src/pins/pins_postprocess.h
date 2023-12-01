@@ -380,7 +380,9 @@
 #ifndef FAN_PIN
   #define FAN_PIN -1
 #endif
-#define FAN0_PIN FAN_PIN
+#ifndef FAN0_PIN
+  #define FAN0_PIN FAN_PIN
+#endif
 #ifndef FAN1_PIN
   #define FAN1_PIN -1
 #endif
@@ -493,7 +495,7 @@
 #undef NEEDS_Z_MINMAX
 
 //
-// Assign endstop pins for boards with only 3 connectors
+// Assign endstop pins, with handling for boards that have only 3 connectors
 //
 #ifdef X_STOP_PIN
   #if X_HOME_TO_MIN

@@ -168,9 +168,11 @@
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_EN1                    EXP2_05_PIN
-  #define BTN_EN2                    EXP2_03_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+
   #define SD_DETECT_PIN              EXP2_07_PIN
 
   #if IS_NEWPANEL
@@ -179,8 +181,8 @@
   #endif
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS            LCD_PINS_ENABLE
-    #define DOGLCD_A0                LCD_PINS_RS
+    #define DOGLCD_CS                EXP1_08_PIN
+    #define DOGLCD_A0                EXP1_07_PIN
     #define DOGLCD_SCK               EXP2_02_PIN
     #define DOGLCD_MOSI              EXP2_06_PIN
 
@@ -258,7 +260,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HOTENDS < 3 && HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
-  #define SPINDLE_LASER_ENA_PIN               45  // Use E2 ENA
   #define SPINDLE_LASER_PWM_PIN               12  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               45  // Use E2 ENA
   #define SPINDLE_DIR_PIN                     47  // Use E2 DIR
 #endif

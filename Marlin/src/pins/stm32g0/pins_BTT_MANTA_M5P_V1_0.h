@@ -53,10 +53,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -79,8 +77,8 @@
 // Z Probe (when not Z_STOP_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     PC13  // PROBE
-  //#define Z_MIN_PROBE_PIN                   PC15  // IND-DET (with adjustable pullup set via jumper)
+  #define Z_MIN_PROBE_PIN                   PC13  // PROBE
+  //#define Z_MIN_PROBE_PIN                 PC15  // IND-DET (with adjustable pullup set via jumper)
 #endif
 
 //
@@ -129,18 +127,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15  // Shared with SPI header, Pin 5 (SPI2)
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14  // Shared with SPI header, Pin 6 (SPI2)
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13  // Shared with SPI header, Pin 4 (SPI2)
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PB15  // Shared with SPI header, Pin 5 (SPI2)
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PB14  // Shared with SPI header, Pin 6 (SPI2)
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PB13  // Shared with SPI header, Pin 4 (SPI2)
 #endif
 
 #if HAS_TMC_UART
@@ -160,8 +156,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors

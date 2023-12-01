@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
 #if ENABLED(ALLOW_SAM3X8E)
   #if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
@@ -33,3 +34,5 @@
 
 #undef ALLOW_SAM3X8E
 #undef REQUIRE_MEGA2560
+
+#endif

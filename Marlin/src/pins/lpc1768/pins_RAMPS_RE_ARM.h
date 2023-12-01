@@ -99,18 +99,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P1_00  // ETH
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P1_08  // ETH
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P1_09  // ETH
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                      P1_00  // ETH
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                      P1_08  // ETH
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                       P1_09  // ETH
 #endif
 
 #if HAS_TMC_UART
@@ -120,7 +118,6 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-
 
   // P2_08 E1-Step
   // P2_13 E1-Dir
@@ -154,8 +151,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -207,9 +207,9 @@
 #endif
 
 #ifndef FAN_PIN
-  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)           // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN                 MOSFET_B_PIN
-  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)          // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN                 MOSFET_C_PIN
   #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
     #define FAN_PIN                        P1_18  // (4) IO pin. Buffer needed
@@ -252,8 +252,8 @@
       #error "LASER_FEATURE requires 3 free servo pins."
     #endif
   #endif
-  #define SPINDLE_LASER_ENA_PIN       SERVO1_PIN  // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_LASER_PWM_PIN       SERVO3_PIN  // (4) MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENA_PIN       SERVO1_PIN  // (6) Pin should have a pullup/pulldown!
   #define SPINDLE_DIR_PIN             SERVO2_PIN  // (5)
 #endif
 

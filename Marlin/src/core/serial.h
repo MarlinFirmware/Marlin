@@ -125,8 +125,6 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL         SERIAL_LEAF_1
 #endif
 
-#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
-
 #define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()     _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P) SerialMask::from(P)
@@ -139,7 +137,7 @@ template <typename ... Args>
 void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
 
 /**
- * SERIAL_ECHO - Print a single string or value.
+ * SERIAL_ECHO / SERIAL_ECHOLN - Print a single string or value.
  *   Any numeric parameter (including char) is printed as a base-10 number.
  *   A string pointer or literal will be output as a string.
  *

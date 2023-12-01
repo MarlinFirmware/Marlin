@@ -53,9 +53,6 @@
 #ifndef X_MIN_PIN
   #define X_MIN_PIN                           37
 #endif
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN                           37
-#endif
 #ifndef X_MAX_PIN
   #define X_MAX_PIN                           36
 #endif

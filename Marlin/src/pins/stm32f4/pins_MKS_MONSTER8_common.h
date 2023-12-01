@@ -126,22 +126,23 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 // This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
-#if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
-    #define TMC_SW_MOSI                     PE14
-  #endif
-  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
-    #define TMC_SW_MISO                     PE13
-  #endif
-  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
-    #define TMC_SW_SCK                      PE12
-  #endif
+#if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
+  #undef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PE14
+#endif
+#if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
+  #undef TMC_SW_MISO
+  #define TMC_SW_MISO                       PE13
+#endif
+#if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
+  #undef TMC_SW_SCK
+  #define TMC_SW_SCK                        PE12
 #endif
 
 #if HAS_TMC_UART
@@ -174,8 +175,11 @@
   #define E4_SERIAL_RX_PIN      E4_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors

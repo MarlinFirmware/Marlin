@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 /**
- * 10 Dec 2017 Victor Perez Marlin for stm32f1 test
+ * 2017 Victor Perez Marlin for stm32f1 test
  */
 
 #define BOARD_INFO_NAME      "STM3R Mini"

@@ -100,18 +100,20 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);
     }

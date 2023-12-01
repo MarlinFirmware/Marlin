@@ -60,22 +60,26 @@
 
 //
 // SPI
-// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
+//
+#define SPI_DEVICE                             2  // Maple
+
+//
+// SD Card SPI
 //
 #define SD_SCK_PIN                          PB13  // SPI2
 #define SD_MISO_PIN                         PB14  // SPI2
 #define SD_MOSI_PIN                         PB15  // SPI2
-#define SPI_DEVICE                             2
 
+//
 // SPI Flash
+//
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  // SPI 2
-  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
-  #define SPI_FLASH_SCK_PIN                 PB13
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
 //
@@ -128,7 +132,9 @@
   #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
   #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
@@ -169,7 +175,6 @@
 #if AXIS_DRIVER_TYPE_E0(TMC2208) || AXIS_DRIVER_TYPE_E0(TMC2209)
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
-  #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_E_PIN           PB0   // VREF1 CONTROL E
@@ -304,7 +309,7 @@
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #ifdef TFT_CLASSIC_UI
+  #if ENABLED(TFT_CLASSIC_UI)
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow

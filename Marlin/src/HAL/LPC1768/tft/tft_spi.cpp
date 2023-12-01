@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef TARGET_LPC1768
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -143,3 +145,4 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
 }
 
 #endif // HAS_SPI_TFT
+#endif // TARGET_LPC1768

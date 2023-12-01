@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef __STM32F1__
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
@@ -142,3 +144,5 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
 }
 
 #endif // HAS_TFT_XPT2046
+
+#endif // __STM32F1__

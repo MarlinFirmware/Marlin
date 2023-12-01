@@ -58,7 +58,6 @@
 #define E0_DIR_PIN                         P2_13
 #define E0_ENABLE_PIN                      P2_12
 
-
 /**        ------                  ------
  *   1.30 | 1  2 | 2.11      0.17 | 1  2 | 0.15
  *   0.18 | 3  4 | 0.16      3.26 | 3  4 | 1.23
@@ -203,7 +202,7 @@
       #undef E1_ENABLE_PIN
     #endif
 
-  #else                                           // !SOFTWARE_DRIVER_ENABLE
+  #else // !SOFTWARE_DRIVER_ENABLE
 
     // A chip-select pin is needed for each driver.
 

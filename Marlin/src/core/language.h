@@ -153,7 +153,7 @@
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
-#define STR_ERR_M428_TOO_FAR                "Too far from reference point"
+#define STR_ERR_M428_TOO_FAR                "Too far from MIN/MAX"
 #define STR_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define STR_M119_REPORT                     "Reporting endstop status"
 #define STR_ON                              "ON"
@@ -323,10 +323,12 @@
 //
 // Endstop Names used by Endstops::report_states
 //
-#define STR_X_MIN                           "x_min"
-#define STR_X_MAX                           "x_max"
-#define STR_X2_MIN                          "x2_min"
-#define STR_X2_MAX                          "x2_max"
+#if HAS_X_AXIS
+  #define STR_X_MIN                         "x_min"
+  #define STR_X_MAX                         "x_max"
+  #define STR_X2_MIN                        "x2_min"
+  #define STR_X2_MAX                        "x2_max"
+#endif
 
 #if HAS_Y_AXIS
   #define STR_Y_MIN                         "y_min"

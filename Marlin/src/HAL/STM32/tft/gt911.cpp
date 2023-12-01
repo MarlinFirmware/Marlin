@@ -190,7 +190,7 @@ bool GT911::getFirstTouchPoint(int16_t *x, int16_t *y) {
 }
 
 bool GT911::getPoint(int16_t *x, int16_t *y) {
-  static bool touched = 0;
+  static bool touched = false;
   static int16_t read_x = 0, read_y = 0;
   static millis_t next_time = 0;
 

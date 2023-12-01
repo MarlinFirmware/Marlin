@@ -112,8 +112,11 @@
   #define E0_SERIAL_RX_PIN                  PC11
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Heaters 0,1 / Fans / Bed
@@ -165,13 +168,13 @@
 #define EXP2_05_PIN                         PB0
 #define EXP2_06_PIN                         PB15
 #define EXP2_07_PIN                         PC10
-#define EXP2_08_PIN                         -1   // RESET
+#define EXP2_08_PIN                         -1    // RESET
 
 // "Ender-3 EXP1"
 #define EXP3_01_PIN                         PC1
 #define EXP3_02_PIN                         PC3
 #define EXP3_03_PIN                         PB11
-#define EXP3_04_PIN                         -1   // RESET
+#define EXP3_04_PIN                         -1    // RESET
 #define EXP3_05_PIN                         PB0
 #define EXP3_06_PIN                         PA6
 #define EXP3_07_PIN                         PA5
@@ -250,7 +253,7 @@
 // SD Card
 //
 #define SDCARD_CONNECTION                ONBOARD
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 #define ONBOARD_SPI_DEVICE                     2
 #define SDSS                           SD_SS_PIN
 #define ONBOARD_SD_CS_PIN              SD_SS_PIN

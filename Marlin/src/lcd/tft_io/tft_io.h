@@ -33,7 +33,7 @@
   #error "TFT IO only supports SPI, FSMC or LTDC interface."
 #endif
 
-#ifndef DMA_MAX_SIZE
+#ifndef DMA_MAX_WORDS
   #error "MAX_DMA_SIZE is not configured for this platform."
 #endif
 

@@ -110,8 +110,6 @@ public:
     #endif
   #endif
 
-  // // // Methods // // //
-
   CardReader();
 
   static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
@@ -276,7 +274,7 @@ private:
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // By default the sort index is static
+    // By default the sort index is statically allocated
     #if ENABLED(SDSORT_DYNAMIC_RAM)
       static uint8_t *sort_order;
     #else

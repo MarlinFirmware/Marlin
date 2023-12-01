@@ -1316,7 +1316,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     }
   }
 
-  cloud_para.state =msg[10 + wifiNameLen + wifiKeyLen];
+  cloud_para.state = msg[10 + wifiNameLen + wifiKeyLen];
   hostLen = msg[11 + wifiNameLen + wifiKeyLen];
   if (cloud_para.state) {
     if (hostLen < 96) {
@@ -1417,14 +1417,13 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
 static void gcode_msg_handle(uint8_t * msg, uint16_t msgLen) {
   uint8_t gcodeBuf[100] = { 0 };
-  char *index_s, *index_e;
 
   if (msgLen <= 0) return;
 
-  index_s = (char *)msg;
-  index_e = (char *)strchr((char *)msg, '\n');
+  char *index_s = (char *)msg,
+       *index_e = strchr((char *)msg, '\n');
   if (*msg == 'N') {
-    index_s = (char *)strchr((char *)msg, ' ');
+    index_s = strchr((char *)msg, ' ');
     while (*index_s == ' ') index_s++;
   }
   while ((index_e != 0) && ((int)index_s < (int)index_e)) {
@@ -1435,7 +1434,7 @@ static void gcode_msg_handle(uint8_t * msg, uint16_t msgLen) {
     }
     while ((*index_e == '\r') || (*index_e == '\n')) index_e++;
     index_s = index_e;
-    index_e = (char *)strchr(index_s, '\n');
+    index_e = strchr(index_s, '\n');
   }
 }
 
@@ -1872,7 +1871,7 @@ void wifi_rcv_handle() {
 
   if (wifiTransError.flag == 0x1) {
     wifiTransError.now_tick = getWifiTick();
-    if (getWifiTickDiff(wifiTransError.start_tick, wifiTransError.now_tick) > WAIT_ESP_TRANS_TIMEOUT_TICK) {
+    if (getWifiTickDiff(wifiTransError.start_tick, wifiTransError.now_tick) > (WAIT_ESP_TRANS_TIMEOUT_TICK)) {
       wifiTransError.flag = 0;
       WIFI_IO1_RESET();
     }
@@ -1992,7 +1991,7 @@ void get_wifi_commands() {
 
       char wifi_char = espGcodeFifo.Buffer[espGcodeFifo.r];
 
-      espGcodeFifo.r = (espGcodeFifo.r + 1) % WIFI_GCODE_BUFFER_SIZE;
+      espGcodeFifo.r = (espGcodeFifo.r + 1) % (WIFI_GCODE_BUFFER_SIZE);
 
       /**
        * If the character ends the line

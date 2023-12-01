@@ -900,7 +900,6 @@ struct XYZEarray {
   #endif
 
   FI XYZEval<T> operator[](const int n) const { return XYZval<T>(LOGICAL_AXIS_ARRAY(e[n], x[n], y[n], z[n], i[n], j[n], k[n], u[n], v[n], w[n])); }
-
 };
 
 #undef _RECIP

@@ -99,7 +99,7 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
-void GCodeQueue::RingBuffer::commit_command(bool skip_ok
+void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
@@ -113,7 +113,7 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return true if the command was successfully added.
  * Return false for a full buffer, or if the 'command' is a comment.
  */
-bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
+bool GCodeQueue::RingBuffer::enqueue(const char *cmd, const bool skip_ok/*=true*/
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
@@ -302,6 +302,24 @@ static bool serial_data_available(serial_index_t index) {
 #endif
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
+
+#if (defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON)
+
+  /**
+   * arduinoststm32's USB receive buffer is not well behaved when the buffer overflows
+   *
+   * This can happen when the host programs (such as Pronterface) automatically
+   * send M105 temperature requests.
+   */
+  void GCodeQueue::flush_rx() {
+    // Flush receive buffer
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p) {
+      if (!serial_data_available(p)) continue; // No data for this port? Skip.
+      while (SERIAL_IMPL.available(p)) (void)read_serial(p);
+    }
+  }
+
+#endif // (ARDUINO_ARCH_STM32F4 || ARDUINO_ARCH_STM32) && USBCON
 
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
@@ -695,8 +713,8 @@ void GCodeQueue::advance() {
 
   void GCodeQueue::report_buffer_statistics() {
     SERIAL_ECHOLNPGM("D576"
-      " P:", planner.moves_free(),         " ", -planner_buffer_underruns, " (", max_planner_buffer_empty_duration, ")"
-      " B:", BUFSIZE - ring_buffer.length, " ", -command_buffer_underruns, " (", max_command_buffer_empty_duration, ")"
+      " P:", planner.moves_free(),         " ", planner_buffer_underruns, " (", max_planner_buffer_empty_duration, ")"
+      " B:", BUFSIZE - ring_buffer.length, " ", command_buffer_underruns, " (", max_command_buffer_empty_duration, ")"
     );
     command_buffer_underruns = planner_buffer_underruns = 0;
     max_command_buffer_empty_duration = max_planner_buffer_empty_duration = 0;

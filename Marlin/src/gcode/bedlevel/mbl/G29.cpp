@@ -103,9 +103,8 @@ void GcodeSuite::G29() {
       bedlevel.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+        if (parser.seen_test('N'))
+          queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
         // Position bed horizontally and Z probe vertically.
         #if HAS_SAFE_BED_LEVELING
@@ -141,6 +140,11 @@ void GcodeSuite::G29() {
           do_blocking_move_to(safe_position);
         #endif // HAS_SAFE_BED_LEVELING
 
+        queue.inject(F("G29S2"));
+
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+
         return;
       }
       state = MeshNext;
@@ -169,7 +173,7 @@ void GcodeSuite::G29() {
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < (GRID_MAX_POINTS)) {
+      if (mbl_probe_index < GRID_MAX_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);

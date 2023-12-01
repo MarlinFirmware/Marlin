@@ -60,9 +60,9 @@
 #endif
 
 //
-// Note: MKS Robin board is using SPI2 interface.
+// SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -122,18 +122,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PD14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PD1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PD0
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PD14
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PD1
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PD0
 #endif
 
 #if HAS_TMC_UART
@@ -165,7 +163,10 @@
   #define E1_SERIAL_RX_PIN                  PD8
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -355,7 +356,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if IS_ULTIPANEL
@@ -383,9 +384,9 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
 
 #ifndef BEEPER_PIN

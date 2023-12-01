@@ -211,24 +211,22 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
   #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
   #define SPINDLE_DIR_PIN                      5
 #endif
 
 //
 // TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       51
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       50
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        53
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                         51
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                         50
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                          53
 #endif
 
 //

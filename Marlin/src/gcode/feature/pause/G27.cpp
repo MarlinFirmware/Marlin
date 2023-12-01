@@ -29,7 +29,12 @@
 #include "../../../module/motion.h"
 
 /**
- * G27: Park the nozzle
+ * G27: Park the nozzle according with the given style
+ *
+ *  P<style> - Parking style:
+ *             0 = (Default) Relative raise by NOZZLE_PARK_Z_RAISE_MIN (>= NOZZLE_PARK_POINT.z) before XY parking.
+ *             1 = Absolute move to NOZZLE_PARK_POINT.z before XY parking. (USE WITH CAUTION!)
+ *             2 = Relative raise by NOZZLE_PARK_POINT.z before XY parking.
  */
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first

@@ -91,4 +91,3 @@ Eject filament
 
 - MMU <= 'E*Filament index*\n'
 - MMU => 'ok\n'
-

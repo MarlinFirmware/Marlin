@@ -32,7 +32,7 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
+#define MOSFET_B_PIN                           7
 #define FAN_PIN                                9
 
 #define FIL_RUNOUT_PIN                         2
@@ -56,6 +56,8 @@
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN)
   #define CASE_LIGHT_PIN                      65
 #endif
+
+#define SERVO1_PIN                            12
 
 #include "pins_RAMPS.h"
 

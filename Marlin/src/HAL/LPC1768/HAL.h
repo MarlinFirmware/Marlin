@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ extern DefaultSerial1 USBSerial;
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
-#define HAL_ADC_VREF            3.3 // ADC voltage reference
+#define HAL_ADC_VREF_MV      3300   // ADC voltage reference
 
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL

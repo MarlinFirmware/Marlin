@@ -36,10 +36,11 @@
 #include <lvgl.h>
 
 #include "../../../MarlinCore.h"
+#include "../../marlinui.h"
+
 #include "../../../inc/MarlinConfig.h"
 
 #include HAL_PATH(../../.., tft/xpt2046.h)
-#include "../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -136,7 +137,6 @@ void tft_lvgl_init() {
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     uint16_t usb_flash_loop = 1000;
     #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
       if (IS_SD_INSERTED())
         card.changeMedia(&card.media_driver_sdcard);
       else

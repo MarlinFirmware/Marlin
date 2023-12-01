@@ -136,8 +136,8 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-      float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
-            eqnBVector[GRID_MAX_POINTS],       // "B" vector of Z points
+      float eqnAMatrix[GRID_MAX_POINTS * 3],  // "A" matrix of the linear system of equations
+            eqnBVector[GRID_MAX_POINTS],      // "B" vector of Z points
             mean;
     #endif
   #endif
@@ -501,20 +501,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      if (!abl.dryrun
-        && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)
-      ) {
-        // Reset grid to 0.0 or "not probed". (Also disables ABL)
-        reset_bed_level();
-
-        // Can't re-enable (on error) until the new grid is written
-        abl.reenable = false;
+      if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
+        reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
+        abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
-
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
-
-    #endif // AUTO_BED_LEVELING_BILINEAR
+    #endif
 
   } // !g29_in_progress
 

@@ -135,7 +135,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
   }
   else if (timer_config[timer_num].type==TimerType::tcc) {
-    
+
     Tcc * const tc = timer_config[timer_num].pTcc;
 
     PM->APBCMASK.reg |= PM_APBCMASK_TCC0;

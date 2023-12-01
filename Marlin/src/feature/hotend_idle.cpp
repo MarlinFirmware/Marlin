@@ -37,7 +37,7 @@
 #include "../module/planner.h"
 #include "../lcd/marlinui.h"
 
-extern HotendIdleProtection hotend_idle;
+HotendIdleProtection hotend_idle;
 
 millis_t HotendIdleProtection::next_protect_ms = 0;
 

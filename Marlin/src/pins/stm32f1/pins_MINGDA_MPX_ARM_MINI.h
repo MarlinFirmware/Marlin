@@ -58,15 +58,15 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Limit Switches
 //
 #define X_MIN_PIN                           PD6
-#define X_MAX_PIN                           PG15 // To double check
+#define X_MAX_PIN                           PG15  // To double check
 #define Y_MIN_PIN                           PG9
-#define Y_MAX_PIN                           PG14 // To double check
+#define Y_MAX_PIN                           PG14  // To double check
 #define Z_MIN_PIN                           PG10
 #define Z_MAX_PIN                           PG13
 

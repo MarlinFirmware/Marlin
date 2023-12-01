@@ -41,9 +41,9 @@
 #define DISABLE_DEBUG
 
 //
-// Note: MKS Robin board is using SPI2 interface.
+// SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -105,18 +105,16 @@
   #define E2_CS_PIN                         PG9
 #endif
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PB15
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PB14
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PB13
 #endif
 
 #if HAS_TMC_UART
@@ -169,9 +167,9 @@
 #define HEATER_BED_PIN                      PA0   // +HOT-BED-
 #define FAN_PIN                             PB1   // +FAN-
 
-/**
- * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
- */
+//
+// Note: Using SPI2 interface. Make sure stm32duino is configured accordingly
+//
 //#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
 //#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
@@ -283,7 +281,7 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-  #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+  #else // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4                     PF14
     #if IS_ULTIPANEL
@@ -312,7 +310,7 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

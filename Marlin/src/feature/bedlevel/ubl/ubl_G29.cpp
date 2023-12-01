@@ -787,17 +787,18 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest
+      #ifndef HUGE_VALF
+        #define HUGE_VALF __FLT_MAX__
+      #endif
+
+      best = do_furthest // Points with valid data or HUGE_VALF are skipped
         ? find_furthest_invalid_mesh_point()
         : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
-        const float measured_z = probe.probe_at_point(
-                      best.meshpos(),
-                      stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity
-                    );
-        z_values[best.pos.x][best.pos.y] = measured_z;
+        const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
+        z_values[best.pos.x][best.pos.y] = isnan(measured_z) ? HUGE_VALF : measured_z;  // Mark invalid point already probed with HUGE_VALF to omit it in the next loop
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
@@ -806,6 +807,8 @@ void unified_bed_leveling::shift_mesh_height() {
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
     } while (best.pos.x >= 0 && --count);
+
+    GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
 
@@ -1067,7 +1070,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
       KEEPALIVE_STATE(PAUSED_FOR_USER);
 
-      if (do_ubl_mesh_map) display_map(param.T_map_type);     // Display the current point
+      if (do_ubl_mesh_map) display_map(param.T_map_type); // Display the current point
 
       #if IS_TFTGLCD_PANEL
         ui.ubl_plot(lpos.x, lpos.y);   // update plot screen
@@ -1614,7 +1617,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     probe.move_z_after_probing();
 
     if (abort_flag || finish_incremental_LSF(&lsf_results)) {
-      SERIAL_ECHOPGM("Could not complete LSF!");
+      SERIAL_ECHOLNPGM("Could not complete LSF!");
       return;
     }
 
@@ -1748,7 +1751,7 @@ void unified_bed_leveling::smart_fill_mesh() {
             }
           }
           if (finish_incremental_LSF(&lsf_results)) {
-            SERIAL_ECHOLNPGM("Insufficient data");
+            SERIAL_ECHOLNPGM(" Insufficient data");
             return;
           }
           const float ez = -lsf_results.D - lsf_results.A * ppos.x - lsf_results.B * ppos.y;
@@ -1759,7 +1762,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
     }
 
-    SERIAL_ECHOLNPGM("done");
+    SERIAL_ECHOLNPGM(" done.");
   }
 #endif // UBL_G29_P31
 
@@ -1772,10 +1775,9 @@ void unified_bed_leveling::smart_fill_mesh() {
     report_state();
 
     if (storage_slot == -1)
-      SERIAL_ECHOPGM("No Mesh Loaded.");
+      SERIAL_ECHOLNPGM("No Mesh Loaded.");
     else
-      SERIAL_ECHOPGM("Mesh ", storage_slot, " Loaded.");
-    SERIAL_EOL();
+      SERIAL_ECHOLNPGM("Mesh ", storage_slot, " Loaded.");
     serial_delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -1820,23 +1822,21 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
     serial_delay(50);
 
-    #if ENABLED(UBL_DEVEL_DEBUGGING)
-      SERIAL_ECHOLNPGM("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
-      serial_delay(50);
+    SERIAL_ECHOLNPGM("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
+    serial_delay(50);
 
-      SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
-      serial_delay(50);
+    SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
+    serial_delay(50);
 
-      SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
-      SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
-      serial_delay(25);
+    SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
+    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
+    serial_delay(25);
 
-      SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
-      serial_delay(50);
+    SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
+    serial_delay(50);
 
-      SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
-      serial_delay(25);
-    #endif // UBL_DEVEL_DEBUGGING
+    SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
+    serial_delay(25);
 
     if (!sanity_check()) {
       echo_name();

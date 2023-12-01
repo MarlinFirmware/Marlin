@@ -521,8 +521,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (inv) u8g.setColorIndex(1);
   }
 
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    ui.draw_select_screen_prompt(fpre, string, suff);
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
@@ -530,13 +530,13 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   #if ENABLED(SDSUPPORT)
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
-      if (mark_as_selected(row, sel)) {
-        const uint8_t maxlen = LCD_WIDTH - isDir;
-        if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
-        const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-        pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
-      }
+      if (!mark_as_selected(row, sel)) return;
+
+      const uint8_t maxlen = LCD_WIDTH - isDir;
+      if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
+      const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 
   #endif // SDSUPPORT

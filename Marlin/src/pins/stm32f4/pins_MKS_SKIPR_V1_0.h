@@ -113,7 +113,7 @@
 #endif
 
 #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #ifndef Z_MIN_PROBE
+  #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN          E2_DIAG_PIN  // defaults to 'Z+' connector
   #endif
 #endif
@@ -191,8 +191,8 @@
 #define FAN2_PIN                            PA0   // Fan2
 
 //
-// Software SPI pins for TMC2130 stepper drivers
-// This board doesn't support hardware SPI there
+// Default pins for TMC software SPI
+// This board only supports SW SPI for stepper drivers
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
@@ -228,8 +228,11 @@
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**               ------                                      ------
  * (BEEPER) PB2  | 1  2 | PE10 (BTN_ENC)         (MISO) PA6  | 1  2 | PA5  (SCK)
@@ -350,7 +353,7 @@
     #endif
 
   #endif
-#endif  // HAS_WIRED_LCD
+#endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

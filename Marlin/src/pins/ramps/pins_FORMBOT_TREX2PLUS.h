@@ -141,8 +141,8 @@
 //
 #define SDSS                                  53
 #ifndef LED_PIN
-  #define LED_PIN                             13  // The Formbot v 1 board has almost no unassigned pins on it.  The Board's LED
-#endif                          // is a good place to get a signal to control the Max7219 LED Matrix.
+  #define LED_PIN                             13  // The Formbot v 1 board has almost no unassigned pins.
+#endif                                            // The Board's LED is a good place to connect the Max7219 Matrix.
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN                           5  // Analog Input

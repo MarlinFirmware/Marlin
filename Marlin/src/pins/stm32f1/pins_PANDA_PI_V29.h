@@ -88,18 +88,16 @@
 #define E0_DIR_PIN                          PB14
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB4
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PB5
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PB4
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PB3
 #endif
 
 #if HAS_TMC_UART
@@ -127,8 +125,11 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors

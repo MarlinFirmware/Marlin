@@ -46,7 +46,7 @@
 #endif
 
 bool GET_PINMODE(const pin_t pin) {
-  if (!LPC176x::pin_is_valid(pin) || LPC176x::pin_adc_enabled(pin)) // found an invalid pin or active analog pin
+  if (!LPC176x::pin_is_valid(pin) || LPC176x::pin_adc_enabled(pin)) // Invalid pin or active analog pin
     return false;
 
   return LPC176x::gpio_direction(pin);

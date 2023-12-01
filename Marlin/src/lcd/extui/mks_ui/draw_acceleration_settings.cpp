@@ -124,8 +124,10 @@ void lv_draw_acceleration_settings() {
     lv_screen_menu_item_1_edit(scr, machine_menu.TravelAcceleration, PARA_UI_POS_X, y, event_handler, ID_ACCE_TRAVEL, 2, public_buf_l);
 
     y += PARA_UI_POS_Y;
-    itoa(planner.settings.max_acceleration_mm_per_s2[X_AXIS], public_buf_l, 10);
-    lv_screen_menu_item_1_edit(scr, machine_menu.X_Acceleration, PARA_UI_POS_X, y, event_handler, ID_ACCE_X, 3, public_buf_l);
+    #if HAS_X_AXIS
+      itoa(planner.settings.max_acceleration_mm_per_s2[X_AXIS], public_buf_l, 10);
+      lv_screen_menu_item_1_edit(scr, machine_menu.X_Acceleration, PARA_UI_POS_X, y, event_handler, ID_ACCE_X, 3, public_buf_l);
+    #endif
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_ACCE_DOWN, true);
   }

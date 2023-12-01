@@ -155,8 +155,8 @@
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
   #if !NUM_SERVOS                                 // Use servo connector if possible
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                    5
   #else
     #error "No auto-assignable Spindle/Laser pins available."
@@ -164,18 +164,16 @@
 #endif
 
 //
-// TMC software SPI
+// TMC SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       58  // Mega/Due:66 - AGCM4:58
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        56  // Mega/Due:64 - AGCM4:56
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                         58  // Mega/Due:66 - AGCM4:58
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                         44
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                          56  // Mega/Due:64 - AGCM4:56
 #endif
 
 #if HAS_TMC_UART

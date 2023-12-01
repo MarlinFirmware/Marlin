@@ -197,7 +197,7 @@
 
 // SPI2 is shared by LCD touch driver and flash
 // SPI1(PA7) & SPI3(PB5) not available
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000
@@ -276,7 +276,7 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x800000  // 8MB
   #define SPI_FLASH_CS_PIN                  PG9
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

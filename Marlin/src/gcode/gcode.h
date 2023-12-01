@@ -454,7 +454,7 @@ public:
      */
     enum MarlinBusyState : char {
       NOT_BUSY,           // Not in a handler
-      IN_HANDLER,         // Processing a GCode
+      IN_HANDLER,         // Processing a G-Code
       IN_PROCESS,         // Known to be blocking command input (as in G29)
       PAUSED_FOR_USER,    // Blocking pending any input
       PAUSED_FOR_INPUT    // Blocking pending text input (concept)
@@ -713,7 +713,7 @@ private:
     static void M102_report(const bool forReplay=true);
   #endif
 
-  #if HAS_EXTRUDERS
+  #if HAS_HOTEND
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }

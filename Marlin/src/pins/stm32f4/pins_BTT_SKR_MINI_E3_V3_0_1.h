@@ -25,7 +25,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "BTT SKR Mini E3 V3.0.1 supports up to 1 hotend / E stepper."
 #endif
 

@@ -221,12 +221,12 @@
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !defined(NUM_SERVOS) || NUM_SERVOS == 0     // Prefer the servo connector
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS                        // try to use AUX 2
-    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
@@ -247,18 +247,16 @@
 #endif
 
 /**
- * Default pins for TMC software SPI
+ * Default pins for TMC SPI
  */
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                         66
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                         44
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                          64
 #endif
 
 #if HAS_TMC_UART
@@ -379,12 +377,12 @@
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
-  #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
   #define TFT_DC_PIN                          43
+  #define TFT_A0_PIN                  TFT_DC_PIN
   #define TFT_SCK_PIN                 SD_SCK_PIN
-  #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define TFT_MISO_PIN               SD_MISO_PIN
+  #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define LCD_USE_DMA_SPI
 
   #define BTN_EN1                             40
@@ -398,19 +396,19 @@
 
   #define SPI_FLASH
   #if ENABLED(SPI_FLASH)
-    #define SPI_DEVICE                         1
+    #define SPI_DEVICE                         1  // Maple
     #define SPI_FLASH_SIZE             0x1000000  // 16MB
     #define SPI_FLASH_CS_PIN                  31
-    #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
-    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
     #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
+    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
+    #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
   #endif
 
   #define TFT_BUFFER_SIZE                 0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #ifndef TOUCH_SCREEN_CALIBRATION
+  #if DISABLED(TOUCH_SCREEN_CALIBRATION)
     #if ENABLED(TFT_RES_320x240)
       #ifndef TOUCH_CALIBRATION_X
         #define TOUCH_CALIBRATION_X        20525

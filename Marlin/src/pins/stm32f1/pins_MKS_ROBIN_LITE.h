@@ -121,7 +121,7 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP3_06_PIN
     #if IS_ULTIPANEL
@@ -156,7 +156,7 @@
 //
 // SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 #define SD_SCK_PIN                          PB13
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15

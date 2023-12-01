@@ -190,6 +190,7 @@
   #define Z2_DIR_PIN                        PD0
 #endif
 
+// TODO: Use different pin names for auto-remapping
 #ifdef OPTION_Z2_ENDSTOP
   #define Z2_MIN_PIN                        PD1
   #define Z2_MAX_PIN                        PB12

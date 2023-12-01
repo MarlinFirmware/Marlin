@@ -96,9 +96,10 @@
     DRAWBIT_HOTEND,
     DRAWBIT_BED = HOTENDS,
     DRAWBIT_CHAMBER,
-    DRAWBIT_CUTTER
+    DRAWBIT_CUTTER,
+    DRAWBIT_COUNT
   };
-  IF<(DRAWBIT_CUTTER > 7), uint16_t, uint8_t>::type draw_bits;
+  bits_t(DRAWBIT_COUNT) draw_bits;
 #endif
 
 #if ANIM_HOTEND
@@ -493,22 +494,28 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  * Use the PAGE_CONTAINS macros to avoid pointless draw calls.
  */
 void MarlinUI::draw_status_screen() {
-  constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
-  #if HAS_Y_AXIS
-    static char ystring[xystorage];
-  #endif
-  #if HAS_Z_AXIS
-    static char zstring[8];
+  #if NUM_AXES
+    constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
+    #if EITHER(HAS_X_AXIS, LCD_SHOW_E_TOTAL)
+      static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
+    #endif
+    #if HAS_Y_AXIS
+      static char ystring[xystorage];
+    #endif
+    #if HAS_Z_AXIS
+      static char zstring[8];
+    #endif
   #endif
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
 
-  const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
+  const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
 
-  static u8g_uint_t progress_bar_solid_width = 0;
+  #if HAS_PRINT_PROGRESS
+    static u8g_uint_t progress_bar_solid_width = 0;
+  #endif
 
   // At the first page, generate new display values
   if (first_page) {
@@ -538,7 +545,7 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x));
+      TERN_(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
       TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
     }
 
@@ -749,7 +756,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)){
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       ui.rotate_progress();
       lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
     }
@@ -820,15 +827,13 @@ void MarlinUI::draw_status_screen() {
           #endif
         }
         else {
-          _draw_axis_value(X_AXIS, xstring, blink);
+          TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
           TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
         }
 
       #endif
 
-      #if HAS_Z_AXIS
-        _draw_axis_value(Z_AXIS, zstring, blink);
-      #endif
+      TERN_(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, zstring, blink));
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white

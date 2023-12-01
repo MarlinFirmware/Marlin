@@ -214,7 +214,7 @@ void GcodeSuite::M702() {
                                                         : fc_settings[target_extruder].unload_length);
 
       unload_filament(unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT
-        #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
+        #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
           , mix_multiplier
         #endif
       );

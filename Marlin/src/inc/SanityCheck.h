@@ -1281,7 +1281,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "SERVO3_PIN must be defined for your SWITCHING_NOZZLE."
     #endif
   #endif
-#endif
+#endif // SWITCHING_NOZZLE
 
 /**
  * Single Stepper Dual Extruder with switching servo
@@ -1313,7 +1313,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
       #error "SWITCHING_EXTRUDER_E23_SERVO_NR should be a different extruder from SWITCHING_EXTRUDER_SERVO_NR."
     #endif
   #endif
-#endif
+#endif // SWITCHING_EXTRUDER
 
 /**
  * Mixing Extruder requirements
@@ -1509,7 +1509,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
-  #if FAN_COUNT < 1
+  #if !HAS_FAN
     #error "MPC_INCLUDE_FAN requires at least one fan."
   #endif
   #if FAN_COUNT < HOTENDS
@@ -1528,8 +1528,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
 #endif
 
-// Fan Kickstart
-#if FAN_KICKSTART_TIME && defined(FAN_KICKSTART_POWER) && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
+// Fan Kickstart power
+#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
   #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
 #endif
 
@@ -2070,7 +2070,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #elif ENABLED(MESH_EDIT_MENU) && !HAS_MESH
-    #error "MESH_EDIT_MENU requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+    #error "MESH_EDIT_MENU requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
   #endif
 #endif
 

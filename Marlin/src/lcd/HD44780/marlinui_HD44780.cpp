@@ -81,7 +81,7 @@
 #elif ENABLED(SR_LCD_2W_NL)
 
   // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+  // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN
     #if PIN_EXISTS(SR_STROBE)
@@ -521,7 +521,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
+    lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -537,7 +537,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
-    const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
+    const bool isBed = heater_id == H_BED;
     const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
@@ -758,6 +758,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 }
 
 #if HAS_PRINT_PROGRESS
+
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
   static char buffer[8];
@@ -774,6 +775,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing()) {
@@ -785,6 +787,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
@@ -796,6 +799,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
       if (printJobOngoing()) {
@@ -807,6 +811,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
 #endif // HAS_PRINT_PROGRESS
 
 /**
@@ -976,10 +981,14 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
             else {
-              const xy_pos_t lpos = current_position.asLogical();
-              _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
-              lcd_put_u8str(F(" "));
-              _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #if HAS_X_AXIS
+                const xy_pos_t lpos = current_position.asLogical();
+                _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+              #endif
+              #if HAS_Y_AXIS
+                TERN_(HAS_X_AXIS, lcd_put_u8str(F(" ")));
+                _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #endif
             }
 
           #endif // !HAS_DUAL_MIXING
@@ -1054,8 +1063,10 @@ void MarlinUI::draw_status_screen() {
     //
     // Z Coordinate
     //
-    lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #if HAS_Z_AXIS
+      lcd_moveto(LCD_WIDTH - 9, 0);
+      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #endif
 
     #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_lchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');

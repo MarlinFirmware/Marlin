@@ -108,18 +108,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                       PB15
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                       PB14
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                        PB13
 #endif
 
 #if HAS_TMC_UART
@@ -154,17 +152,23 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
-#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                    PC2   // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -197,16 +201,14 @@
 #endif
 
 /**
- * ---------------------------------BTT002 V1.0---------------------------------
- *                ------                                    ------              |
- * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)   |
- * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS) |
- * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)  |
- * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET       |
- *           GND | 9 10 | 5V                           GND | 9 10 | PA3         |
- *                ------                                    ------              |
- *                 EXP1                                      EXP2               |
- * ------------------------------------------------------------------------------
+ *                ------                                    ------
+ * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)
+ * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS)
+ * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)
+ * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET
+ *           GND | 9 10 | 5V                           GND | 9 10 | PA3
+ *                ------                                    ------
+ *                 EXP1                                      EXP2
  */
 #define EXP1_01_PIN                         PE7
 #define EXP1_02_PIN                         PB1

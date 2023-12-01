@@ -41,6 +41,14 @@
 #include "../MarlinCore.h"
 
 #if ENABLED(SD_CHECK_AND_RETRY)
+  #ifndef SD_RETRY_COUNT
+    #define SD_RETRY_COUNT 3
+  #elif SD_RETRY_COUNT < 1
+    #error "SD_RETRY_COUNT must be greater than or equal to 1."
+  #endif
+#endif
+
+#if ENABLED(SD_CHECK_AND_RETRY)
   static bool crcSupported = true;
 
   #ifdef FAST_CRC
@@ -105,7 +113,7 @@ uint8_t DiskIODriver_SPI_SD::cardCommand(const uint8_t cmd, const uint32_t arg) 
   #if ENABLED(SD_CHECK_AND_RETRY)
 
     // Form message
-    uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
+    uint8_t d[6] = { uint8_t(cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
 
     // Add crc
     d[5] = CRC7(d, 5);
@@ -245,6 +253,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
 
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
+
   // 16-bit init start time allows over a minute
   const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
   uint32_t arg;
@@ -317,6 +326,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
       goto FAIL;
     }
   }
+
   // If SD2 read OCR register to check for SDHC card
   if (type() == SD_CARD_TYPE_SD2) {
     if (cardCommand(CMD58, 0)) {
@@ -327,6 +337,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
     // Discard rest of ocr - contains allowed voltage range
     LOOP_L_N(i, 3) spiRec();
   }
+
   chipDeselect();
 
   ready = true;
@@ -353,7 +364,7 @@ bool DiskIODriver_SPI_SD::readBlock(uint32_t blockNumber, uint8_t * const dst) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
 
   #if ENABLED(SD_CHECK_AND_RETRY)
-    uint8_t retryCnt = 3;
+    uint8_t retryCnt = SD_RETRY_COUNT;
     for (;;) {
       if (cardCommand(CMD17, blockNumber))
         error(SD_CARD_ERROR_CMD17);
@@ -458,9 +469,15 @@ bool DiskIODriver_SPI_SD::readData(uint8_t * const dst) {
 bool DiskIODriver_SPI_SD::readData(uint8_t * const dst, const uint16_t count) {
   bool success = false;
 
-  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+  #if SD_READ_TIMEOUT
+    const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+    #define READ_TIMEOUT() ELAPSED(millis(), read_timeout)
+  #else
+    #define READ_TIMEOUT() false
+  #endif
+
   while ((status_ = spiRec()) == 0xFF) {      // Wait for start block token
-    if (ELAPSED(millis(), read_timeout)) {
+    if (READ_TIMEOUT()) {
       error(SD_CARD_ERROR_READ_TIMEOUT);
       goto FAIL;
     }
@@ -469,7 +486,7 @@ bool DiskIODriver_SPI_SD::readData(uint8_t * const dst, const uint16_t count) {
   if (status_ == DATA_START_BLOCK) {
     spiRead(dst, count);                      // Transfer data
 
-    const uint16_t recvCrc = (spiRec() << 8) | spiRec();
+    const uint16_t recvCrc = ((uint16_t)spiRec() << 8) | (uint16_t)spiRec();
     #if ENABLED(SD_CHECK_AND_RETRY)
       success = !crcSupported || recvCrc == CRC_CCITT(dst, count);
       if (!success) error(SD_CARD_ERROR_READ_CRC);

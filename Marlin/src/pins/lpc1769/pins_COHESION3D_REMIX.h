@@ -89,16 +89,14 @@
 //
 // Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P1_16  // Ethernet Expansion - Pin 5
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P1_17  // Ethernet Expansion - Pin 6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P1_08  // Ethernet Expansion - Pin 7
-  #endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                      P1_16  // Ethernet Expansion - Pin 5
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                      P1_17  // Ethernet Expansion - Pin 6
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                       P1_08  // Ethernet Expansion - Pin 7
 #endif
 
 //
@@ -155,8 +153,8 @@
   #undef HEATER_0_PIN
   #undef HEATER_BED_PIN
   #undef FAN_PIN
-  #define SPINDLE_LASER_ENA_PIN            P2_07  // FET 1
   #define SPINDLE_LASER_PWM_PIN            P2_05  // Bed FET
+  #define SPINDLE_LASER_ENA_PIN            P2_07  // FET 1
   #define SPINDLE_DIR_PIN                  P2_06  // FET 4
 #endif
 

@@ -219,8 +219,3 @@
   #endif
 
 #endif
-
-// DGUS LCDs
-#if HAS_DGUS_LCD
-  #define LCD_SERIAL_PORT                      3
-#endif

@@ -215,15 +215,13 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       #endif
     #endif
 
-    #if HAS_EXTRUDERS
+    #if HAS_HOTEND
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
     TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
 
-    #if HAS_FAN
-      COPY(info.fan_speed, thermalManager.fan_speed);
-    #endif
+    TERN_(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
 
     #if HAS_LEVELING
       info.flag.leveling = planner.leveling_active;
@@ -380,6 +378,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   #if HAS_HEATED_BED
+    // Restore the bed temperature
     const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
