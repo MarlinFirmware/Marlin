@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define CONFIG_EXAMPLES_DIR "delta/Geeetech/Rostock 301"
+
 
 /**
  * Configuration_adv.h
