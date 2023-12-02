@@ -4,6 +4,8 @@
 # - Apply the label "Bug: Potential ?" to these issues.
 #
 
+name: Label Old Bugs
+
 on:
   schedule:
   - cron: "30 8 * * *"
