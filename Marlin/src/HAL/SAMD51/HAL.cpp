@@ -67,7 +67,7 @@
 #define GET_JOY_ADC_Y()             TERN(HAS_JOY_ADC_Y,         PIN_TO_ADC(JOY_Y_PIN),                  -1)
 #define GET_JOY_ADC_Z()             TERN(HAS_JOY_ADC_Z,         PIN_TO_ADC(JOY_Z_PIN),                  -1)
 #define GET_POWERMON_ADC_CURRENT()  TERN(POWER_MONITOR_CURRENT, PIN_TO_ADC(POWER_MONITOR_CURRENT_PIN),  -1)
-#define GET_POWERMON_ADC_VOLTAGE()  TERN(POWER_MONITOR_VOLTAGE, PIN_TO_ADC(POWER_MONITOR_VOLTAGE_PIN),  -1)
+#define GET_POWERMON_ADC_VOLTS()    TERN(POWER_MONITOR_VOLTAGE, PIN_TO_ADC(POWER_MONITOR_VOLTAGE_PIN),  -1)
 
 #define IS_ADC_REQUIRED(n) ( \
      GET_TEMP_0_ADC() == n || GET_TEMP_1_ADC() == n || GET_TEMP_2_ADC() == n || GET_TEMP_3_ADC() == n \
@@ -80,7 +80,7 @@
   || GET_FILAMENT_WIDTH_ADC() == n \
   || GET_BUTTONS_ADC() == n \
   || GET_JOY_ADC_X() == n || GET_JOY_ADC_Y() == n || GET_JOY_ADC_Z() == n \
-  || GET_POWERMON_ADC_CURRENT() == n || GET_POWERMON_ADC_VOLTAGE() == n \
+  || GET_POWERMON_ADC_CURRENT() == n || GET_POWERMON_ADC_VOLTS() == n \
 )
 
 #if IS_ADC_REQUIRED(0)
@@ -161,7 +161,7 @@ enum ADCIndex {
   #if GET_POWERMON_ADC_CURRENT() == 0
     POWERMON_CURRENT,
   #endif
-  #if GET_POWERMON_ADC_VOLTAGE() == 0
+  #if GET_POWERMON_ADC_VOLTS() == 0
     POWERMON_VOLTAGE,
   #endif
 
@@ -227,7 +227,7 @@ enum ADCIndex {
   #if GET_POWERMON_ADC_CURRENT() == 1
     POWERMON_CURRENT,
   #endif
-  #if GET_POWERMON_ADC_VOLTAGE() == 1
+  #if GET_POWERMON_ADC_VOLTS() == 1
     POWERMON_VOLTAGE,
   #endif
   ADC_COUNT
@@ -349,7 +349,7 @@ enum ADCIndex {
     #if GET_POWERMON_ADC_CURRENT() == 0
       POWER_MONITOR_CURRENT_PIN,
     #endif
-    #if GET_POWERMON_ADC_VOLTAGE() == 0
+    #if GET_POWERMON_ADC_VOLTS() == 0
       POWER_MONITOR_VOLTAGE_PIN,
     #endif
 
@@ -415,7 +415,7 @@ enum ADCIndex {
     #if GET_POWERMON_ADC_CURRENT() == 1
       POWER_MONITOR_CURRENT_PIN,
     #endif
-    #if GET_POWERMON_ADC_VOLTAGE() == 1
+    #if GET_POWERMON_ADC_VOLTS() == 1
       POWER_MONITOR_VOLTAGE_PIN,
     #endif
   };
@@ -486,7 +486,7 @@ enum ADCIndex {
       #if GET_POWERMON_ADC_CURRENT() == 0
         { PIN_TO_INPUTCTRL(POWER_MONITOR_CURRENT_PIN) },
       #endif
-      #if GET_POWERMON_ADC_VOLTAGE() == 0
+      #if GET_POWERMON_ADC_VOLTS() == 0
         { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTAGE_PIN) },
       #endif
     };
@@ -558,7 +558,7 @@ enum ADCIndex {
       #if GET_POWERMON_ADC_CURRENT() == 1
         { PIN_TO_INPUTCTRL(POWER_MONITOR_CURRENT_PIN) },
       #endif
-      #if GET_POWERMON_ADC_VOLTAGE() == 1
+      #if GET_POWERMON_ADC_VOLTS() == 1
         { PIN_TO_INPUTCTRL(POWER_MONITOR_VOLTAGE_PIN) },
       #endif
     };
