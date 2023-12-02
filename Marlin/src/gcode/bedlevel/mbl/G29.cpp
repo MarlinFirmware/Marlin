@@ -38,10 +38,6 @@
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 
-#if ENABLED(FT_MOTION)
-  #include "../../../module/ft_motion.h"
-#endif
-
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_LCD_PROUI)
@@ -68,21 +64,6 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
-
-  #if ENABLED(FT_MOTION)
-    // Disable ft-motion for probing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif
 
   DEBUG_SECTION(log_G29, "G29", true);
 

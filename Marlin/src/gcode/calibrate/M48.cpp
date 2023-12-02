@@ -31,10 +31,6 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if ENABLED(FT_MOTION)
-  #include "../../../module/ft_motion.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../module/planner.h"
 #endif
@@ -61,21 +57,6 @@
  */
 
 void GcodeSuite::M48() {
-
-  #if ENABLED(FT_MOTION)
-    // Disable ft-motion for probing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif
 
   if (homing_needed_error()) return;
 

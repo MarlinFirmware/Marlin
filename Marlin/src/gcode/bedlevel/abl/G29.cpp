@@ -35,10 +35,6 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if ENABLED(FT_MOTION)
-  #include "../../../module/ft_motion.h"
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
 #endif
@@ -229,21 +225,6 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
-
-  #if ENABLED(FT_MOTION)
-    // Disable ft-motion for probing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif  
 
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 

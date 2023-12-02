@@ -29,10 +29,6 @@
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if ENABLED(FT_MOTION)
-  #include "../../../module/ft_motion.h"
-#endif
-
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
@@ -63,21 +59,6 @@
  *               51 - Counter-Clockwise M5
  **/
 void GcodeSuite::G35() {
-
-  #if ENABLED(FT_MOTION)
-    // Disable ft-motion for homing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif
 
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
 

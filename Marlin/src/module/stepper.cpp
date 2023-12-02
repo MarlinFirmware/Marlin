@@ -1492,7 +1492,6 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextAuxISR = 0U;   // Storage for the next ISR of the auxiliary tasks.
     const bool using_ftMotion = ftMotion.cfg.mode;
   #else
     constexpr bool using_ftMotion = false;
@@ -1512,20 +1511,12 @@ void Stepper::isr() {
         if (!nextMainISR) {
           nextMainISR = FTM_MIN_TICKS;
           ftMotion_stepper();
-        }
-
-        // Define 2.5 msec task for auxiliary functions.
-        if (!ftMotion_nextAuxISR) {
-          //ftMotion_refreshAxisDidMove();
           axis_did_move = axis_step;
           endstops.update();
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-          ftMotion_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE); // Aux task magic number
         }
-
-        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
+        interval = nextMainISR;
         nextMainISR -= interval;
-        ftMotion_nextAuxISR -= interval;
       }
 
     #endif

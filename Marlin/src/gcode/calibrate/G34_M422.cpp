@@ -33,10 +33,6 @@
 #include "../../module/probe.h"
 #include "../../lcd/marlinui.h" // for LCD_MESSAGE
 
-#if ENABLED(FT_MOTION)
-  #include "../../../module/ft_motion.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -83,21 +79,6 @@
  *   R                 Flag to recalculate points based on current probe offsets
  */
 void GcodeSuite::G34() {
-
-  #if ENABLED(FT_MOTION)
-    // Disable ft-motion for probing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif
 
   DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();

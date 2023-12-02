@@ -60,10 +60,6 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
-#if ENABLED(FT_MOTION)
-  #include "../../module/ft_motion.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -344,21 +340,6 @@ void GcodeSuite::G28() {
     TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
     remember_feedrate_scaling_off();
-
-    #if ENABLED(FT_MOTION)
-      // Disable ft-motion for homing
-      struct OnExit {
-        ftMotionMode_t oldmm;
-        OnExit() {
-          oldmm = ftMotion.cfg.mode;
-          ftMotion.cfg.mode = ftMotionMode_DISABLED;
-        }
-        ~OnExit() {
-          ftMotion.cfg.mode = oldmm;
-          ftMotion.init();
-        }
-      } on_exit;
-    #endif
 
     endstops.enable(true); // Enable endstops for next homing move
 
