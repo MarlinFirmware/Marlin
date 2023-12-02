@@ -33,6 +33,9 @@
 
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+  #if sizeof(long) == sizeof(int)
+    #warning "NOTE: The 'long' and 'int' types are the same size on this platform."
+  #endif
 #endif
 
 #if ENABLED(LA_DEBUG)
