@@ -58,6 +58,8 @@
   #define WIFI_RESET_PIN                    PD14  // MKS ESP WIFI RESET PIN
 #endif
 
-#define NEOPIXEL_PIN                        PC5
+#if DISABLED(FYSETC_MINI_12864_2_1)
+  #define NEOPIXEL_PIN                        PC5
+#endif
 
 #include "pins_MKS_MONSTER8_common.h"
