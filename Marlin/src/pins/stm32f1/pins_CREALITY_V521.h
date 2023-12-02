@@ -135,7 +135,7 @@
 
 #define FAN0_PIN                            PB14  // FAN
 #define FAN1_PIN                            PB12  // FAN
-#define FAN_SOFT_PWM_REQUIRED
+#define FAN_SOFT_PWM
 
 //
 // SD Card
