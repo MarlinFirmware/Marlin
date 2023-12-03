@@ -221,8 +221,6 @@ void flashFirmware(const int16_t);
 // Memory related
 #define __bss_end __bss_end__
 
-void _delay_ms(const int ms);
-
 extern "C" char* _sbrk(int incr);
 
 #pragma GCC diagnostic push

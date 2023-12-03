@@ -175,7 +175,7 @@ uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
-void _delay_ms(int delay_ms) { delay(delay_ms); }
+void _delay_ms(const int ms) { delay(ms); }
 
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }

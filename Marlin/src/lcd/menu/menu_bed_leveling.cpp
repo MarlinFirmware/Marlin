@@ -138,7 +138,7 @@
   //
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
-      MString<9> msg;
+      MString<10> msg;
       msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
       MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }

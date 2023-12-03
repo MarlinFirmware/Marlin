@@ -4,6 +4,8 @@
 # - Apply the label "Bug: Potential ?" to these issues.
 #
 
+name: Label Old Bugs
+
 on:
   schedule:
   - cron: "30 8 * * *"
@@ -15,24 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Auto Label for [BUG]
-      uses: actions/github-script@v5
+      uses: actions/github-script@v7
       with:
         script: |
-          # Get all open issues in this repository
+          // Get all open issues in this repository
           const issueList = await github.rest.issues.listForRepo({
             owner: context.repo.owner,
             repo: context.repo.repo,
             state: 'open'
           });
-          # Filter the list of issues to only those that don't have any labels
-          # and have a title that contains '[BUG]'. Only the first 50 issues.
+          // Filter issues without labels that have a title containing '[BUG]'.
           const matchingIssues = issueList.data.filter(
             issue => issue.title.includes('[BUG]') && issue.labels.length === 0
           );
-          # Process the first 50
+          // Process the first 50
           for (const issue of matchingIssues.slice(0, 50)) {
-            // Run the desired action on the issue
-            // For example, to add a label:
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
