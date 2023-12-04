@@ -150,10 +150,19 @@ DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f     
 DEFINE_MENU_EDIT_ITEM_TYPE(float3      ,float    ,ftostr3rj       ,   1                   ); // 123        right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float42_52  ,float    ,ftostr42_52     , 100        , + 0.001f ); // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000        , + 0.0001f); // -1.234, _1.234, +1.234
+DEFINE_MENU_EDIT_ITEM_TYPE(float53     ,float    ,ftostr53sign    ,1000        , + 0.0001f); // -12.345, _2.345, +2.345
+DEFINE_MENU_EDIT_ITEM_TYPE(float54     ,float    ,ftostr54sign   ,10000       , + 0.00001f); // -1.2345, _1.2345, +1.2345
 DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1                   ); // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1                   ); // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f               ); // 12345      right-justified (25 increment)
+DEFINE_MENU_EDIT_ITEM_TYPE(float31     ,float    ,ftostr31rj      ,  10        , + 0.01f  ); // 45.6       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float41     ,float    ,ftostr41rj      ,  10        , + 0.01f  ); // 345.6      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10        , + 0.01f  ); // 1234.5     right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10        , + 0.01f  ); // 12345.6    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float32     ,float    ,ftostr32rj      , 100        , + 0.001f ); // 1.23
+DEFINE_MENU_EDIT_ITEM_TYPE(float42     ,float    ,ftostr42rj      , 100        , + 0.001f ); // 12.34      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float52     ,float    ,ftostr52rj      , 100        , + 0.001f ); // 123.45     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float62     ,float    ,ftostr62rj      , 100        , + 0.001f ); // 1234.56    right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100        , + 0.001f ); // 12345.67   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10        , + 0.01f  ); // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10        , + 0.01f  ); // +123.4

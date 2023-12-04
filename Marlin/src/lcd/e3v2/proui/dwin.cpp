@@ -1722,7 +1722,7 @@ void dwinPrintAborted() {
       );
     }
   #endif
-  hostui.notify("Print Aborted");
+  TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PRINT_ABORTED)));
   dwinPrintFinished();
 }
 
