@@ -84,7 +84,7 @@
 #endif
 #ifndef Z2_STOP_PIN
   #define Z2_STOP_PIN                         80  // PE7 - Extended mega2560 pin
-#endif  
+#endif
 
 /**                   Filament Runout Sensors
  *

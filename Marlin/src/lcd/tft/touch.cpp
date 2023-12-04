@@ -39,7 +39,7 @@
 #include "tft.h"
 
 bool Touch::enabled = true;
-xy_int_t Touch::point;
+int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
@@ -67,13 +67,17 @@ void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t 
   if (controls_count == MAX_CONTROLS) return;
 
   controls[controls_count].type = type;
-  controls[controls_count].pos.set(x, y);
-  controls[controls_count].size.set(width, height);
+  controls[controls_count].x = x;
+  controls[controls_count].y = y;
+  controls[controls_count].width = width;
+  controls[controls_count].height = height;
   controls[controls_count].data = data;
   controls_count++;
 }
 
 void Touch::idle() {
+  int16_t _x, _y;
+
   if (!enabled) return;
 
   // Return if Touch::idle is called within the same millisecond
@@ -81,8 +85,7 @@ void Touch::idle() {
   if (now <= next_touch_ms) return;
   next_touch_ms = now;
 
-  xy_int_t got_point;
-  if (get_point(got_point)) {
+  if (get_point(&_x, &_y)) {
     #if HAS_RESUME_CONTINUE
       // UI is waiting for a click anywhere?
       if (wait_for_user) {
@@ -106,13 +109,11 @@ void Touch::idle() {
     if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
     if (PENDING(now, time_to_hold)) return;
 
-    if (bool(point)) {
+    if (x != 0 && y != 0) {
       if (current_control) {
-        if ( WITHIN(point.x, current_control->pos.x - FREE_MOVE_RANGE, current_control->pos.x + current_control->size.x + FREE_MOVE_RANGE)
-          && WITHIN(point.y, current_control->pos.y - FREE_MOVE_RANGE, current_control->pos.y + current_control->size.y + FREE_MOVE_RANGE)
-        ) {
-          LIMIT(point.x, current_control->pos.x, current_control->pos.x + current_control->size.x);
-          LIMIT(point.y, current_control->pos.y, current_control->pos.y + current_control->size.y);
+        if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
+          LIMIT(x, current_control->x, current_control->x + current_control->width);
+          LIMIT(y, current_control->y, current_control->y + current_control->height);
           touch(current_control);
         }
         else
@@ -120,10 +121,7 @@ void Touch::idle() {
       }
       else {
         for (uint16_t i = 0; i < controls_count; i++) {
-          if (TERN0(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE)
-            || ( WITHIN(point.x, controls[i].pos.x, controls[i].pos.x + controls[i].size.x)
-              && WITHIN(point.y, controls[i].pos.y, controls[i].pos.y + controls[i].size.y))
-          ) {
+          if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
             touch_control_type = controls[i].type;
             touch(&controls[i]);
             break;
@@ -134,10 +132,11 @@ void Touch::idle() {
       if (!current_control)
         touch_time = now;
     }
-    point = got_point;
+    x = _x;
+    y = _y;
   }
   else {
-    point.reset();
+    x = y = 0;
     current_control = nullptr;
     touch_time = 0;
     touch_control_type = NONE;
@@ -150,7 +149,7 @@ void Touch::touch(touch_control_t *control) {
   switch (control->type) {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case CALIBRATE:
-        if (touch_calibration.handleTouch(point)) ui.refresh();
+        if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
     #endif
 
@@ -177,7 +176,7 @@ void Touch::touch(touch_control_t *control) {
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < (uint32_t)screen_items ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
-    case SLIDER:    hold(control); ui.encoderPosition = (point.x - control->pos.x) * control->data / control->size.x; break;
+    case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
     case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
     case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
     case HEATER:
@@ -220,7 +219,7 @@ void Touch::touch(touch_control_t *control) {
       break;
     case FEEDRATE:
       ui.clear_lcd();
-      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, 10, 999);
+      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     #if HAS_EXTRUDERS
@@ -228,9 +227,9 @@ void Touch::touch(touch_control_t *control) {
         ui.clear_lcd();
         MenuItemBase::itemIndex = control->data;
         #if EXTRUDERS == 1
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
         #else
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
         #endif
         break;
     #endif
@@ -263,16 +262,19 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
   ui.refresh();
 }
 
-bool Touch::get_point(xy_int_t &point) {
-  bool is_touched = false;
+bool Touch::get_point(int16_t * const x, int16_t * const y) {
   #if ANY(TFT_TOUCH_DEVICE_XPT2046, TFT_TOUCH_DEVICE_GT911)
-    is_touched = (TOUCH_ORIENTATION_NONE != _TOUCH_ORIENTATION)
-                  && (TOUCH_PORTRAIT == _TOUCH_ORIENTATION
-                      ? io.getRawPoint(&point.y, &point.x)
-                      : io.getRawPoint(&point.x, &point.y));
-    #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-      point.x = uint16_t((uint32_t(point.x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
-      point.y = uint16_t((uint32_t(point.y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+    const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION ? io.getRawPoint(y, x) : io.getRawPoint(x, y);
+  #endif
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (is_touched && TOUCH_ORIENTATION_NONE != _TOUCH_ORIENTATION) {
+        *x = int16_t((int32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        *y = int16_t((int32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+      }
+    #else
+      *x = uint16_t((uint32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+      *y = uint16_t((uint32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
     #endif
   #endif
 
