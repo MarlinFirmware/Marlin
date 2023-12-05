@@ -1572,7 +1572,9 @@
     #endif
   #endif
 
-  // #define DOUBLE_LCD_FRAMERATE // Not recommended in slow boards
+  #if HAS_WIRED_LCD
+    //#define DOUBLE_LCD_FRAMERATE        // Not recommended for slow boards.
+  #endif
 
   #if HAS_MARLINUI_U8GLIB
     //#define CUSTOM_STATUS_SCREEN_IMAGE  // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
