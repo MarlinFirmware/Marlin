@@ -1071,7 +1071,7 @@ void MarlinUI::init() {
 
             #endif // ENCODER_RATE_MULTIPLIER
 
-            int8_t fullSteps = encoderDiff / epps;
+            const int8_t fullSteps = encoderDiff / epps;
             if (fullSteps != 0) {
               last_encoder_full_step_movement = ms;
               encoderDiff -= fullSteps * epps;
