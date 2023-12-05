@@ -314,7 +314,7 @@ const char* ftostr51sign(const_float_t f) { return ftostrX1sign(f, 1); }
 // Convert float to string with +/ /- and 3 decimal places
 //
 inline const char* ftostrX3sign(const_float_t f, const int index, char plus/*=' '*/) {
-  long i = INTFLOAT(f, 1);
+  long i = INTFLOAT(f, 3);
   conv[index] = i ? MINUSOR(i, plus) : ' ';
   switch (index + 1) {
     case 1: conv[1] = DIGIMOD(i, 100000);
