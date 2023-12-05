@@ -2769,93 +2769,62 @@ bool Planner::_populate_block(
   #if HAS_CLASSIC_JERK
 
     /**
-     * Adapted from Průša MKS firmware
+     * Heavily modified. Original adapted from Průša MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    // Exit speed limited by a jerk to full halt of a previous last segment
-    static float previous_safe_speed;
-
-    // Start with a safe speed (from which the machine may halt to stop immediately).
-    float safe_speed = block->nominal_speed;
-
     #ifndef TRAVEL_EXTRA_XYJERK
       #define TRAVEL_EXTRA_XYJERK 0
     #endif
     const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
-    uint8_t limited = 0;
-    TERN(HAS_LINEAR_E_JERK, LOOP_NUM_AXES, LOOP_LOGICAL_AXES)(i) {
-      const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
-                  maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
-      if (jerk > maxj) {                          // cs > mj : New current speed too fast?
-        if (limited) {                            // limited already?
-          const float mjerk = block->nominal_speed * maxj; // ns*mj
-          if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk; // ns*mj/cs
-        }
-        else {
-          safe_speed *= maxj / jerk;              // Initial limit: ns*mj/cs
-          ++limited;                              // Initially limited
+    float vmax_junction;
+
+    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
+      // Compute "safe" speed, limited by a jerk to/from full halt.
+
+      float safe_speed_factor = 1;
+      TERN(HAS_LINEAR_E_JERK, LOOP_NUM_AXES, LOOP_LOGICAL_AXES)(i) {
+        const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
+                    maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
+        if (jerk * safe_speed_factor > maxj) {
+          safe_speed_factor = maxj / jerk;
         }
       }
-    }
-
-    float vmax_junction;
-    if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
-      // Estimate a maximum velocity allowed at a joint of two successive segments.
-      // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
-      // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
-
-      // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
-      float v_factor = 1;
-      limited = 0;
+      vmax_junction = block->nominal_speed * safe_speed_factor;
+      NOLESS(minimum_planner_speed_sqr, sq(vmax_junction));
+    } else {
+      // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-      float smaller_speed_factor = 1.0f;
+      float previous_speed_factor = 1.0f;
+      float current_speed_factor = 1.0f;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
-        smaller_speed_factor = vmax_junction / previous_nominal_speed;
-      }
-      else
+        previous_speed_factor = vmax_junction / previous_nominal_speed;
+      } else {
         vmax_junction = previous_nominal_speed;
+        current_speed_factor = vmax_junction / block->nominal_speed;
+      }
+
+      // Factor to multiply vmax_junction to get componentwise limited velocities.
+
+      float v_factor = 1;
 
       // Now limit the jerk in all axes.
       TERN(HAS_LINEAR_E_JERK, LOOP_NUM_AXES, LOOP_LOGICAL_AXES)(axis) {
-        // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
-        float v_exit = previous_speed[axis] * smaller_speed_factor,
-              v_entry = current_speed[axis];
-        if (limited) {
-          v_exit *= v_factor;
-          v_entry *= v_factor;
-        }
+        // Scale per-axis velocities for the same vmax_junction.
+        float v_exit = previous_speed[axis] * previous_speed_factor,
+              v_entry = current_speed[axis] * current_speed_factor;
 
-        // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
-        const float jerk = (v_exit > v_entry)
-            ? //                                  coasting             axis reversal
-              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : _MAX(v_exit, -v_entry) )
-            : // v_exit <= v_entry                coasting             axis reversal
-              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
-
+        // Jerk is the per-axis velocity difference.
+        const float jerk = ABS(v_exit - v_entry);
         const float maxj = (max_jerk[axis] + (axis == X_AXIS || axis == Y_AXIS ? extra_xyjerk : 0.0f));
-
-        if (jerk > maxj) {
-          v_factor *= maxj / jerk;
-          ++limited;
+        if (jerk * v_factor > maxj) {
+          v_factor = maxj / jerk;
         }
       }
-      if (limited) vmax_junction *= v_factor;
-      // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
-      // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
-      const float vmax_junction_threshold = vmax_junction * 0.99f;
-      if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold)
-        vmax_junction = safe_speed;
+      vmax_junction *= v_factor;
     }
-    else
-      vmax_junction = safe_speed;
-
-    previous_safe_speed = safe_speed;
-
-    NOLESS(minimum_planner_speed_sqr, sq(safe_speed));
 
     #if HAS_JUNCTION_DEVIATION
       NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
@@ -2863,7 +2832,7 @@ bool Planner::_populate_block(
       vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
     #endif
 
-  #endif // Classic Jerk Limiting
+  #endif // HAS_CLASSIC_JERK
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
