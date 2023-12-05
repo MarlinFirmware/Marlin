@@ -44,12 +44,14 @@ typedef struct FTConfig {
   #if HAS_X_AXIS
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =               // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
+    
+    float Zeta[1 + ENABLED(HAS_Y_AXIS)] =         // Damping factor
+        { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
+    float Vtol[1 + ENABLED(HAS_Y_AXIS)] =         // Vibration Level
+        { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
-  float zeta = FTM_SHAPING_ZETA;                            // Damping factor
-  float vtol = FTM_SHAPING_V_TOL;                           // Vibration Level
-
-  #if HAS_DYNAMIC_FREQ
+#if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;   // Dynamic frequency mode configuration.
     float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };     // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
   #else
@@ -76,8 +78,11 @@ class FTMotion {
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
 
-      cfg.zeta = FTM_SHAPING_ZETA;  // Damping factor
-      cfg.vtol = FTM_SHAPING_V_TOL; // Vibration Level
+      TERN_(HAS_X_AXIS, cfg.Zeta[X_AXIS] = FTM_SHAPING_ZETA_X);
+      TERN_(HAS_Y_AXIS, cfg.Zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y);
+
+      TERN_(HAS_X_AXIS, cfg.Vtol[X_AXIS] = FTM_SHAPING_V_TOL_X);
+      TERN_(HAS_Y_AXIS, cfg.Vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y);
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -114,11 +119,11 @@ class FTMotion {
     #if HAS_X_AXIS
       // Refresh the gains used by shaping functions.
       // To be called on init or mode or zeta change.
-      static void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+      static void updateShapingA(float *zeta=cfg.Zeta, float *vtol=cfg.Vtol);
 
       // Refresh the indices used by shaping functions.
       // To be called when frequencies change.
-      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta=cfg.zeta);
+      static void updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float *zeta=cfg.Zeta);
 
       static void refreshShapingN() { updateShapingN(cfg.baseFreq[X_AXIS] OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS])); }
 
@@ -195,7 +200,7 @@ class FTMotion {
           axis_shaping_t y;
         #endif
 
-        void updateShapingA(const_float_t zeta=cfg.zeta, const_float_t vtol=cfg.vtol);
+        void updateShapingA(float *zeta=cfg.Zeta, float *vtol=cfg.Vtol);
 
       } shaping_t;
 

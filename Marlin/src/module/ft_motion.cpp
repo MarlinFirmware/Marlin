@@ -32,6 +32,8 @@ FTMotion ftMotion;
 #if !HAS_X_AXIS
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZV, "ftMotionMode_ZV requires at least one linear axis.");
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVD, "ftMotionMode_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVDD, "ftMotionMode_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVDDD, "ftMotionMode_ZVD requires at least one linear axis.");
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_EI, "ftMotionMode_EI requires at least one linear axis.");
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_2HEI, "ftMotionMode_2HEI requires at least one linear axis.");
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_3HEI, "ftMotionMode_3HEI requires at least one linear axis.");
@@ -151,7 +153,6 @@ void FTMotion::runoutBlock() {
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
   if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE))) max_intervals = min_max_intervals;
   max_intervals += TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE) - makeVector_batchIdx;
-
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
 }
@@ -246,76 +247,153 @@ void FTMotion::loop() {
   // Refresh the gains used by shaping functions.
   // To be called on init or mode or zeta change.
 
-  void FTMotion::Shaping::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
+  void FTMotion::Shaping::updateShapingA(float *zeta/*=cfg.zeta*/, float *vtol/*=cfg.vtol*/) {
 
-    const float K = exp(-zeta * M_PI / sqrt(1.0f - sq(zeta))),
-                K2 = sq(K);
+    const float Kx = exp(-zeta[0] * M_PI / sqrt(1.0f - sq(zeta[0]))),
+                Ky = exp(-zeta[1] * M_PI / sqrt(1.0f - sq(zeta[1]))),
+                Kx2 = sq(Kx),
+                Ky2 = sq(Ky);
 
     switch (cfg.mode) {
 
       case ftMotionMode_ZV:
         max_i = 1U;
-        x.Ai[0] = 1.0f / (1.0f + K);
-        x.Ai[1] = x.Ai[0] * K;
+        x.Ai[0] = 1.0f / (1.0f + Kx);
+        x.Ai[1] = x.Ai[0] * Kx;
+
+        y.Ai[0] = 1.0f / (1.0f + Ky);
+        y.Ai[1] = y.Ai[0] * Ky;
         break;
 
       case ftMotionMode_ZVD:
         max_i = 2U;
-        x.Ai[0] = 1.0f / ( 1.0f + 2.0f * K + K2 );
-        x.Ai[1] = x.Ai[0] * 2.0f * K;
-        x.Ai[2] = x.Ai[0] * K2;
+        x.Ai[0] = 1.0f / (1.0f + 2.0f * Kx + Kx2);
+        x.Ai[1] = x.Ai[0] * 2.0f * Kx;
+        x.Ai[2] = x.Ai[0] * Kx2;
+
+        y.Ai[0] = 1.0f / (1.0f + 2.0f * Ky + Ky2);
+        y.Ai[1] = y.Ai[0] * 2.0f * Ky;
+        y.Ai[2] = y.Ai[0] * Ky2;
+        break;
+
+      case ftMotionMode_ZVDD:
+        max_i = 3U;
+        x.Ai[0] = 1.0f / (1.0f + 3.0f * Kx + 3.0f * Kx2 + cu(Kx));
+        x.Ai[1] = x.Ai[0] * 3.0f * Kx;
+        x.Ai[2] = x.Ai[0] * 3.0f * Kx2;
+        x.Ai[3] = x.Ai[0] * cu(Kx);
+
+        y.Ai[0] = 1.0f / (1.0f + 3.0f * Ky + 3.0f * Ky2 + cu(Ky));
+        y.Ai[1] = y.Ai[0] * 3.0f * Ky;
+        y.Ai[2] = y.Ai[0] * 3.0f * Ky2;
+        y.Ai[3] = y.Ai[0] * cu(Ky);
+        break;
+
+      case ftMotionMode_ZVDDD:
+        max_i = 4U;
+        x.Ai[0] = 1.0f / (1.0f + 4.0f * Kx + 6.0f * Kx2 + 4.0f * cu(Kx) + sq(Kx2));
+        x.Ai[1] = x.Ai[0] * 4.0f * Kx;
+        x.Ai[2] = x.Ai[0] * 6.0f * Kx2;
+        x.Ai[3] = x.Ai[0] * 4.0f * cu(Kx);
+        x.Ai[4] = x.Ai[0] * sq(Kx2);
+
+        y.Ai[0] = 1.0f / (1.0f + 4.0f * Ky + 6.0f * Ky2 + 4.0f * cu(Ky) + sq(Ky2));
+        y.Ai[1] = y.Ai[0] * 4.0f * Ky;
+        y.Ai[2] = y.Ai[0] * 6.0f * Ky2;
+        y.Ai[3] = y.Ai[0] * 4.0f * cu(Ky);
+        y.Ai[4] = y.Ai[0] * sq(Ky2);
         break;
 
       case ftMotionMode_EI: {
         max_i = 2U;
-        x.Ai[0] = 0.25f * (1.0f + vtol);
-        x.Ai[1] = 0.50f * (1.0f - vtol) * K;
-        x.Ai[2] = x.Ai[0] * K2;
-        const float A_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2]);
-        for (uint32_t i = 0U; i < 3U; i++) { x.Ai[i] *= A_adj; }
-      } break;
+        x.Ai[0] = 0.25f * (1.0f + vtol[0]);
+        x.Ai[1] = 0.50f * (1.0f - vtol[0]) * Kx;
+        x.Ai[2] = x.Ai[0] * Kx2;
+
+        y.Ai[0] = 0.25f * (1.0f + vtol[1]);
+        y.Ai[1] = 0.50f * (1.0f - vtol[1]) * Ky;
+        y.Ai[2] = y.Ai[0] * Ky2;
+
+        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2]);
+        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2]);
+        for (uint32_t i = 0U; i < 3U; i++) {
+          x.Ai[i] *= X_adj;
+          y.Ai[i] *= Y_adj;
+        }
+      }
+      break;
 
       case ftMotionMode_2HEI: {
         max_i = 3U;
-        const float vtol2 = sq(vtol);
-        const float X = pow(vtol2 * (sqrt(1.0f - vtol2) + 1.0f), 1.0f / 3.0f);
-        x.Ai[0] = ( 3.0f * sq(X) + 2.0f * X + 3.0f * vtol2 ) / (16.0f * X);
-        x.Ai[1] = ( 0.5f - x.Ai[0] ) * K;
-        x.Ai[2] = x.Ai[1] * K;
-        x.Ai[3] = x.Ai[0] * cu(K);
-        const float A_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3]);
-        for (uint32_t i = 0U; i < 4U; i++) { x.Ai[i] *= A_adj; }
-      } break;
+        const float vtolx2 = sq(vtol[0]);
+        const float X = pow(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
+        x.Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
+        x.Ai[1] = (0.5f - x.Ai[0]) * Kx;
+        x.Ai[2] = x.Ai[1] * Kx;
+        x.Ai[3] = x.Ai[0] * cu(Kx);
+       
+        const float vtoly2 = sq(vtol[1]);
+        const float Y = pow(vtoly2 * (sqrt(1.0f - vtoly2) + 1.0f), 1.0f / 3.0f);
+        y.Ai[0] = (3.0f * sq(Y) + 2.0f * Y + 3.0f * vtoly2) / (16.0f * Y);
+        y.Ai[1] = (0.5f - y.Ai[0]) * Ky;
+        y.Ai[2] = y.Ai[1] * Ky;
+        y.Ai[3] = y.Ai[0] * cu(Ky);
+
+        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3]);
+        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2] + y.Ai[3]);
+        for (uint32_t i = 0U; i < 4U; i++) {
+          x.Ai[i] *= X_adj;
+          y.Ai[i] *= Y_adj;
+        }
+      }
+      break;
 
       case ftMotionMode_3HEI: {
         max_i = 4U;
-        x.Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol + 2.0f * sqrt( 2.0f * ( vtol + 1.0f ) * vtol ) );
-        x.Ai[1] = 0.25f * ( 1.0f - vtol ) * K;
-        x.Ai[2] = ( 0.5f * ( 1.0f + vtol ) - 2.0f * x.Ai[0] ) * K2;
-        x.Ai[3] = x.Ai[1] * K2;
-        x.Ai[4] = x.Ai[0] * sq(K2);
-        const float A_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3] + x.Ai[4]);
-        for (uint32_t i = 0U; i < 5U; i++) { x.Ai[i] *= A_adj; }
-      } break;
+        x.Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol[0] + 2.0f * sqrt( 2.0f * ( vtol[0] + 1.0f ) * vtol[0] ) );
+        x.Ai[1] = 0.25f * ( 1.0f - vtol[0] ) * Kx;
+        x.Ai[2] = ( 0.5f * ( 1.0f + vtol[0] ) - 2.0f * x.Ai[0] ) * Kx2;
+        x.Ai[3] = x.Ai[1] * Kx2;
+        x.Ai[4] = x.Ai[0] * sq(Kx2);
+
+        y.Ai[0] = 0.0625f * (1.0f + 3.0f * vtol[1] + 2.0f * sqrt(2.0f * (vtol[1] + 1.0f) * vtol[1]));
+        y.Ai[1] = 0.25f * (1.0f - vtol[1]) * Ky;
+        y.Ai[2] = (0.5f * (1.0f + vtol[1]) - 2.0f * y.Ai[0]) * Ky2;
+        y.Ai[3] = y.Ai[1] * Ky2;
+        y.Ai[4] = y.Ai[0] * sq(Ky2);
+
+        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3] + x.Ai[4]);
+        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2] + y.Ai[3] + y.Ai[4]);
+        for (uint32_t i = 0U; i < 5U; i++) {
+          x.Ai[i] *= X_adj;
+          y.Ai[i] *= Y_adj;
+        }
+      }    
+      break;
 
       case ftMotionMode_MZV: {
         max_i = 2U;
-        const float B = 1.4142135623730950488016887242097f * K;
-        x.Ai[0] = 1.0f / (1.0f + B + K2);
-        x.Ai[1] = x.Ai[0] * B;
-        x.Ai[2] = x.Ai[0] * K2;
-      } break;
+        const float Bx = 1.4142135623730950488016887242097f * Kx;
+        x.Ai[0] = 1.0f / (1.0f + Bx + Kx2);
+        x.Ai[1] = x.Ai[0] * Bx;
+        x.Ai[2] = x.Ai[0] * Kx2;
+
+        const float By = 1.4142135623730950488016887242097f * Ky;
+        y.Ai[0] = 1.0f / (1.0f + By + Ky2);
+        y.Ai[1] = y.Ai[0] * By;
+        y.Ai[2] = y.Ai[0] * Ky2;
+      } 
+      break;
 
       default:
         ZERO(x.Ai);
+        ZERO(y.Ai);
         max_i = 0;
     }
-    #if HAS_Y_AXIS
-      memcpy(y.Ai, x.Ai, sizeof(x.Ai)); // For now, zeta and vtol are shared across x and y.
-    #endif
+    
   }
 
-  void FTMotion::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
+  void FTMotion::updateShapingA(float *zeta/*=cfg.zeta*/, float *vtol/*=cfg.vtol*/) {
     shaping.updateShapingA(zeta, vtol);
   }
 
@@ -333,11 +411,13 @@ void FTMotion::loop() {
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
+      case ftMotionMode_ZVDD:
       case ftMotionMode_2HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         break;
+      case ftMotionMode_ZVDDD:
       case ftMotionMode_3HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
@@ -352,10 +432,14 @@ void FTMotion::loop() {
     }
   }
 
-  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta/*=cfg.zeta*/) {
-    const float df = sqrt(1.0f - sq(zeta));
-    shaping.x.updateShapingN(xf, df);
-    TERN_(HAS_Y_AXIS, shaping.y.updateShapingN(yf, df));
+  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float *zeta/*=cfg.zeta*/) {
+    const float xdf = sqrt(1.0f - sq(zeta[0]));
+    shaping.x.updateShapingN(xf, xdf);
+    
+    #if HAS_Y_AXIS
+      const float ydf = sqrt(1.0f - sq(zeta[1]));
+      shaping.y.updateShapingN(yf, ydf);
+    #endif
   }
 
 #endif // HAS_X_AXIS

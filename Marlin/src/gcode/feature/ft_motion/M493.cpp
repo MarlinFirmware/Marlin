@@ -40,6 +40,8 @@ void say_shaping() {
         default: break;
         case ftMotionMode_ZV:   SERIAL_ECHOPGM("ZV");        break;
         case ftMotionMode_ZVD:  SERIAL_ECHOPGM("ZVD");       break;
+        case ftMotionMode_ZVDD: SERIAL_ECHOPGM("ZVDD");      break;
+        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");    break;
         case ftMotionMode_EI:   SERIAL_ECHOPGM("EI");        break;
         case ftMotionMode_2HEI: SERIAL_ECHOPGM("2 Hump EI"); break;
         case ftMotionMode_3HEI: SERIAL_ECHOPGM("3 Hump EI"); break;
@@ -167,6 +169,8 @@ void GcodeSuite::M493() {
         #if HAS_X_AXIS
           case ftMotionMode_ZV:
           case ftMotionMode_ZVD:
+          case ftMotionMode_ZVDD:
+          case ftMotionMode_ZVDDD:
           case ftMotionMode_EI:
           case ftMotionMode_2HEI:
           case ftMotionMode_3HEI:
@@ -259,21 +263,52 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('A'), "] frequency.");
     }
 
-    #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (X axis).
-      if (parser.seenval('F')) {
-        if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK[X_AXIS] = parser.value_float();
-          flag.report_h = true;
+#if HAS_DYNAMIC_FREQ
+    // Parse frequency scaling parameter (X axis).
+    if (parser.seenval('F')) {
+      if (modeUsesDynFreq) {
+        ftMotion.cfg.dynFreqK[X_AXIS] = parser.value_float();
+        flag.report_h = true;
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
+    }
+#endif
+
+    // Parse zeta parameter (X axis).
+    if (parser.seenval('I')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper()) {
+        if WITHIN (val, 0.01f, 1.0f) {
+          ftMotion.cfg.Zeta[0] = val;
+          flag.update_n = flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Invalid X zeta [", AS_CHAR('I'), "] value."); // Zeta out of range.
       }
-    #endif
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
+    }
 
-  #endif // HAS_X_AXIS
+    // Parse vtol parameter (X axis).
+    if (parser.seenval('Q'))
+    {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper() && WITHIN(ftMotion.cfg.mode, ftMotionMode_EI, ftMotionMode_3HEI)) {
+        if WITHIN (val, 0.00f, 1.0f) {
+          ftMotion.cfg.Vtol[0] = val;
+          flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid X vtol [", AS_CHAR('Q'), "] value."); // VTol out of range.
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
+    }
 
-  #if HAS_Y_AXIS
+#endif // HAS_X_AXIS
+
+#if HAS_Y_AXIS
 
     // Parse frequency parameter (Y axis).
     if (parser.seenval('B')) {
@@ -290,19 +325,49 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('B'), "] frequency.");
     }
 
-    #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (Y axis).
-      if (parser.seenval('H')) {
-        if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK[Y_AXIS] = parser.value_float();
-          flag.report_h = true;
+  #if HAS_DYNAMIC_FREQ
+    // Parse frequency scaling parameter (Y axis).
+    if (parser.seenval('H')) {
+      if (modeUsesDynFreq) {
+        ftMotion.cfg.dynFreqK[Y_AXIS] = parser.value_float();
+        flag.report_h = true;
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
+    }
+  #endif
+
+    // Parse zeta parameter (Y axis).
+    if (parser.seenval('J')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper()) {
+        if WITHIN (val, 0.01f, 1.0f) {
+          ftMotion.cfg.Zeta[1] = val;
+          flag.update_n = flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Invalid Y zeta [", AS_CHAR('J'), "] value."); // Zeta Out of range
       }
-    #endif
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
+    }
 
-  #endif // HAS_Y_AXIS
+    // Parse vtol parameter (Y axis).
+    if (parser.seenval('R')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper() && WITHIN(ftMotion.cfg.mode, ftMotionMode_EI, ftMotionMode_3HEI)) {
+        if WITHIN (val, 0.00f, 1.0f) {
+          ftMotion.cfg.Vtol[1] = val;
+          flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid Y vtol [", AS_CHAR('R'), "] value."); // VTol out of range.
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
+    }
+
+#endif // HAS_Y_AXIS
 
   planner.synchronize();
 

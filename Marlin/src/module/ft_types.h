@@ -29,10 +29,12 @@ typedef enum FXDTICtrlMode : uint8_t {
   //ftMotionMode_ULENDO_FBS = 2U,
   ftMotionMode_ZV         = 10U,
   ftMotionMode_ZVD        = 11U,
-  ftMotionMode_EI         = 12U,
-  ftMotionMode_2HEI       = 13U,
-  ftMotionMode_3HEI       = 14U,
-  ftMotionMode_MZV        = 15U,
+  ftMotionMode_ZVDD       = 12U,
+  ftMotionMode_ZVDDD      = 13U,
+  ftMotionMode_EI         = 14U,
+  ftMotionMode_2HEI       = 15U,
+  ftMotionMode_3HEI       = 16U,
+  ftMotionMode_MZV        = 17U,
   //ftMotionMode_DISCTF   = 20U
 } ftMotionMode_t;
 
