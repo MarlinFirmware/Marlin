@@ -1393,9 +1393,10 @@ void MarlinUI::init() {
 
       #if HAS_ENCODER_WHEEL
         static uint8_t lastEncoderBits;
+        bool ignore = false;
 
         // Manage encoder rotation
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
+        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; default: ignore = true; }
 
         uint8_t enc = 0;
         if (buttons & EN_A) enc |= B01;
@@ -1410,7 +1411,7 @@ void MarlinUI::init() {
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
-          lastEncoderBits = enc;
+          if (!ignore) lastEncoderBits = enc;
         }
 
       #endif // HAS_ENCODER_WHEEL
