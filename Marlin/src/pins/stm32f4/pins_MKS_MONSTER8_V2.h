@@ -58,7 +58,8 @@
   #define WIFI_RESET_PIN                    PD14  // MKS ESP WIFI RESET PIN
 #endif
 
-#if DISABLED(FYSETC_MINI_12864_2_1)
+// The FYSETC_MINI_12864_2_1 uses one of the EXP pins
+#if DISABLED(FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
   #define NEOPIXEL_PIN                      PC5
 #endif
 
