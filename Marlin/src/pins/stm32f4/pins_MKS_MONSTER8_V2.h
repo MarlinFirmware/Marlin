@@ -59,7 +59,7 @@
 #endif
 
 #if DISABLED(FYSETC_MINI_12864_2_1)
-  #define NEOPIXEL_PIN                        PC5
+  #define NEOPIXEL_PIN                      PC5
 #endif
 
 #include "pins_MKS_MONSTER8_common.h"
