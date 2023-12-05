@@ -67,6 +67,8 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
+#define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
+
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -932,6 +934,7 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
+    static millis_t last_encoder_full_step_movement = 0;
     millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
@@ -982,7 +985,12 @@ void MarlinUI::init() {
       if (!touch_buttons) {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) do_click();              // Handle the click
+          if (!wait_for_unclick) {
+            if (ELAPSED(ms, last_encoder_full_step_movement + BLOCK_CLICK_AFTER_MOVEMENT_MS))
+              do_click();              // Handle the click
+            else
+              wait_for_unclick = true;
+          }
         }
         else
           wait_for_unclick = false;
@@ -1019,19 +1027,7 @@ void MarlinUI::init() {
         uint8_t abs_diff = ABS(encoderDiff);
 
         #if ENCODER_PULSES_PER_STEP > 1
-          // When reversing the encoder direction, a movement step can be missed because
-          // encoderDiff has a non-zero residual value, making the controller unresponsive.
-          // The fix clears the residual value when the encoder is idle.
-          // Also check if past half the threshold to compensate for missed single steps.
           static int8_t lastEncoderDiff;
-
-          // Timeout? No decoder change since last check. 10 or 20 times per second.
-          if (encoderDiff == lastEncoderDiff && abs_diff <= epps / 2)   // Same direction & size but not over a half-step?
-            encoderDiff = 0;                                            // Clear residual pulses.
-          else if (WITHIN(abs_diff, epps / 2 + 1, epps - 1)) {          // Past half of threshold?
-            abs_diff = epps;                                            // Treat as a full step size
-            encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
-          }
           TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
           lastEncoderDiff = encoderDiff;
         #endif
@@ -1045,9 +1041,8 @@ void MarlinUI::init() {
               int32_t encoderMultiplier = 1;
 
               if (encoderRateMultiplierEnabled) {
-                const float encoderMovementSteps = float(abs_diff) / epps;
-
                 if (lastEncoderMovementMillis) {
+                  const float encoderMovementSteps = float(abs_diff) / epps;
                   // Note that the rate is always calculated between two passes through the
                   // loop and that the abs of the encoderDiff value is tracked.
                   const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
@@ -1076,9 +1071,14 @@ void MarlinUI::init() {
 
             #endif // ENCODER_RATE_MULTIPLIER
 
-            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
-
-            encoderDiff = 0;
+            int8_t fullSteps = encoderDiff / epps;
+            if (fullSteps != 0) {
+              last_encoder_full_step_movement = ms;
+              encoderDiff -= fullSteps * epps;
+              if (can_encode()) {
+                encoderPosition += (fullSteps * encoderMultiplier);
+              }
+            }
           }
 
           reset_status_timeout(ms);

@@ -1583,6 +1583,8 @@
     //#define DOUBLE_LCD_FRAMERATE        // Not recommended for slow boards.
   #endif
 
+  //#define MENU_SCROLL_FEEDBACK          // Beep when any menu is scrolled
+
   // The timeout to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000   // (ms)
 
