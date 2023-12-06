@@ -67,10 +67,10 @@ def addCompressedData(input_file, output_file):
             i += 1
             rsize = 1
             for j in range(i, len(data)):
-                if v != data[j]: break;
+                if v != data[j]: break
                 i += 1
                 rsize += 1
-                if rsize >= 128: break;
+                if rsize >= 128: break
 
             # If the run is one, add to the distinct values
             if rsize == 1: distinct.append(v)
@@ -131,7 +131,7 @@ def addCompressedData(input_file, output_file):
 
 if len(sys.argv) <= 2:
     print("Utility to compress Marlin RGB565 TFT data to RLE16 format.")
-    print("Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.")
+    print("Reads a Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.")
     print("Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp")
     exit(1)
 

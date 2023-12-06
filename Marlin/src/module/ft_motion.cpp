@@ -27,7 +27,7 @@
 #include "ft_motion.h"
 #include "stepper.h" // Access stepper block queue function and abort status.
 
-FxdTiCtrl fxdTiCtrl;
+FTMotion ftMotion;
 
 #if !HAS_X_AXIS
   static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZV, "ftMotionMode_ZV requires at least one linear axis.");
@@ -50,66 +50,67 @@ FxdTiCtrl fxdTiCtrl;
 
 // Public variables.
 
-ft_config_t FxdTiCtrl::cfg;
-ft_command_t FxdTiCtrl::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U};                // Buffer of stepper commands.
-hal_timer_t FxdTiCtrl::stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE] = {0U};  // Buffer of the stepper command timing.
-uint8_t FxdTiCtrl::stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE] = {0U};             // Buffer of whether DIR needs to be updated.
-uint32_t FxdTiCtrl::stepperCmdBuff_produceIdx = 0,  // Index of next stepper command write to the buffer.
-         FxdTiCtrl::stepperCmdBuff_consumeIdx = 0;  // Index of next stepper command read from the buffer.
+ft_config_t FTMotion::cfg;
+bool FTMotion::busy; // = false
+ft_command_t FTMotion::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U};               // Buffer of stepper commands.
+hal_timer_t FTMotion::stepperCmdBuff_StepRelativeTi[FTM_STEPPERCMD_BUFF_SIZE] = {0U}; // Buffer of the stepper command timing.
+uint8_t FTMotion::stepperCmdBuff_ApplyDir[FTM_STEPPERCMD_DIR_SIZE] = {0U};            // Buffer of whether DIR needs to be updated.
+uint32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
+         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
-bool FxdTiCtrl::sts_stepperBusy = false;          // The stepper buffer has items and is in use.
+bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
 // Private variables.
 // NOTE: These are sized for Ulendo FBS use.
-xyze_trajectory_t FxdTiCtrl::traj;                // = {0.0f} Storage for fixed-time-based trajectory.
-xyze_trajectoryMod_t FxdTiCtrl::trajMod;          // = {0.0f} Storage for modified fixed-time-based trajectory.
+xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
 
-block_t* FxdTiCtrl::current_block_cpy = nullptr;  // Pointer to current block being processed.
-bool FxdTiCtrl::blockProcRdy = false,             // Indicates a block is ready to be processed.
-     FxdTiCtrl::blockProcRdy_z1 = false,          // Storage for the previous indicator.
-     FxdTiCtrl::blockProcDn = false;              // Indicates current block is done being processed.
-bool FxdTiCtrl::batchRdy = false;                 // Indicates a batch of the fixed time trajectory
-                                                  //  has been generated, is now available in the upper -
-                                                  //  half of traj.x[], y, z ... e vectors, and is ready to be
-                                                  //  post processed, if applicable, then interpolated.
-bool FxdTiCtrl::batchRdyForInterp = false;        // Indicates the batch is done being post processed,
-                                                  //  if applicable, and is ready to be converted to step commands.
-bool FxdTiCtrl::runoutEna = false;                // True if runout of the block hasn't been done and is allowed.
-bool FxdTiCtrl::runout = false;                   // Indicates if runout is in progress.
+block_t* FTMotion::current_block_cpy = nullptr; // Pointer to current block being processed.
+bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
+     FTMotion::blockProcRdy_z1 = false,         // Storage for the previous indicator.
+     FTMotion::blockProcDn = false;             // Indicates current block is done being processed.
+bool FTMotion::batchRdy = false;                // Indicates a batch of the fixed time trajectory
+                                                //  has been generated, is now available in the upper -
+                                                //  half of traj.x[], y, z ... e vectors, and is ready to be
+                                                //  post processed, if applicable, then interpolated.
+bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed,
+                                                //  if applicable, and is ready to be converted to step commands.
+bool FTMotion::runoutEna = false;               // True if runout of the block hasn't been done and is allowed.
+bool FTMotion::runout = false;                  // Indicates if runout is in progress.
 
 // Trapezoid data variables.
-xyze_pos_t   FxdTiCtrl::startPosn,                    // (mm) Start position of block
-             FxdTiCtrl::endPosn_prevBlock = { 0.0f }; // (mm) End position of previous block
-xyze_float_t FxdTiCtrl::ratio;                        // (ratio) Axis move ratio of block
-float FxdTiCtrl::accel_P,                       // Acceleration prime of block. [mm/sec/sec]
-      FxdTiCtrl::decel_P,                       // Deceleration prime of block. [mm/sec/sec]
-      FxdTiCtrl::F_P,                           // Feedrate prime of block. [mm/sec]
-      FxdTiCtrl::f_s,                           // Starting feedrate of block. [mm/sec]
-      FxdTiCtrl::s_1e,                          // Position after acceleration phase of block.
-      FxdTiCtrl::s_2e;                          // Position after acceleration and coasting phase of block.
+xyze_pos_t   FTMotion::startPosn,                     // (mm) Start position of block
+             FTMotion::endPosn_prevBlock = { 0.0f };  // (mm) End position of previous block
+xyze_float_t FTMotion::ratio;                         // (ratio) Axis move ratio of block
+float FTMotion::accel_P,                        // Acceleration prime of block. [mm/sec/sec]
+      FTMotion::decel_P,                        // Deceleration prime of block. [mm/sec/sec]
+      FTMotion::F_P,                            // Feedrate prime of block. [mm/sec]
+      FTMotion::f_s,                            // Starting feedrate of block. [mm/sec]
+      FTMotion::s_1e,                           // Position after acceleration phase of block.
+      FTMotion::s_2e;                           // Position after acceleration and coasting phase of block.
 
-uint32_t FxdTiCtrl::N1,                         // Number of data points in the acceleration phase.
-         FxdTiCtrl::N2,                         // Number of data points in the coasting phase.
-         FxdTiCtrl::N3;                         // Number of data points in the deceleration phase.
+uint32_t FTMotion::N1,                          // Number of data points in the acceleration phase.
+         FTMotion::N2,                          // Number of data points in the coasting phase.
+         FTMotion::N3;                          // Number of data points in the deceleration phase.
 
-uint32_t FxdTiCtrl::max_intervals;              // Total number of data points that will be generated from block.
+uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
 
 // Make vector variables.
-uint32_t FxdTiCtrl::makeVector_idx = 0,                     // Index of fixed time trajectory generation of the overall block.
-         FxdTiCtrl::makeVector_idx_z1 = 0,                  // Storage for the previously calculated index above.
-         FxdTiCtrl::makeVector_batchIdx = FTM_BATCH_SIZE;   // Index of fixed time trajectory generation within the batch.
+uint32_t FTMotion::makeVector_idx = 0,                    // Index of fixed time trajectory generation of the overall block.
+         FTMotion::makeVector_idx_z1 = 0,                 // Storage for the previously calculated index above.
+         FTMotion::makeVector_batchIdx = FTM_BATCH_SIZE;  // Index of fixed time trajectory generation within the batch.
 
 // Interpolation variables.
-xyze_long_t FxdTiCtrl::steps = { 0 };                                            // Step count accumulator.
-xyze_stepDir_t FxdTiCtrl::dirState = LOGICAL_AXIS_ARRAY_1(stepDirState_NOT_SET); // Memory of the currently set step direction of the axis.
+xyze_long_t FTMotion::steps = { 0 };                  // Step count accumulator.
+xyze_stepDir_t FTMotion::dirState = LOGICAL_AXIS_ARRAY_1(stepDirState_NOT_SET); // Memory of the currently set step direction of the axis.
 
-uint32_t FxdTiCtrl::interpIdx = 0,                    // Index of current data point being interpolated.
-         FxdTiCtrl::interpIdx_z1 = 0;                 // Storage for the previously calculated index above.
-hal_timer_t FxdTiCtrl::nextStepTicks = FTM_MIN_TICKS; // Accumulator for the next step time (in ticks).
+uint32_t FTMotion::interpIdx = 0,                     // Index of current data point being interpolated.
+         FTMotion::interpIdx_z1 = 0;                  // Storage for the previously calculated index above.
+hal_timer_t FTMotion::nextStepTicks = FTM_MIN_TICKS;  // Accumulator for the next step time (in ticks).
 
 // Shaping variables.
 #if HAS_X_AXIS
-  FxdTiCtrl::shaping_t FxdTiCtrl::shaping = {
+  FTMotion::shaping_t FTMotion::shaping = {
     0, 0,
     x:{ { 0.0f }, { 0.0f }, { 0 } },                  // d_zi, Ai, Ni
     #if HAS_Y_AXIS
@@ -120,8 +121,8 @@ hal_timer_t FxdTiCtrl::nextStepTicks = FTM_MIN_TICKS; // Accumulator for the nex
 
 #if HAS_EXTRUDERS
   // Linear advance variables.
-  float FxdTiCtrl::e_raw_z1 = 0.0f;             // (ms) Unit delay of raw extruder position.
-  float FxdTiCtrl::e_advanced_z1 = 0.0f;        // (ms) Unit delay of advanced extruder position.
+  float FTMotion::e_raw_z1 = 0.0f;        // (ms) Unit delay of raw extruder position.
+  float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
 constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
@@ -133,15 +134,15 @@ constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 // Public functions.
 
 // Sets controller states to begin processing a block.
-void FxdTiCtrl::startBlockProc(block_t * const current_block) {
+void FTMotion::startBlockProc(block_t * const current_block) {
   current_block_cpy = current_block;
   blockProcRdy = true;
   blockProcDn = false;
   runoutEna = true;
 }
 
-// Moves any free data points to the stepper buffer even if a full batch isn't ready.
-void FxdTiCtrl::runoutBlock() {
+// Move any free data points to the stepper buffer even if a full batch isn't ready.
+void FTMotion::runoutBlock() {
 
   if (runoutEna && !batchRdy) {   // If the window is full already (block intervals was a multiple of
                                   // the batch size), or runout is not enabled, no runout is needed.
@@ -170,7 +171,7 @@ void FxdTiCtrl::runoutBlock() {
 }
 
 // Controller main, to be invoked from non-isr task.
-void FxdTiCtrl::loop() {
+void FTMotion::loop() {
 
   if (!cfg.mode) return;
 
@@ -188,7 +189,7 @@ void FxdTiCtrl::loop() {
   }
 
   // Planner processing and block conversion.
-  if (!blockProcRdy && !runout) stepper.fxdTiCtrl_BlockQueueUpdate();
+  if (!blockProcRdy && !runout) stepper.ftMotion_BlockQueueUpdate();
 
   if (blockProcRdy) {
     if (!blockProcRdy_z1) loadBlockData(current_block_cpy); // One-shot.
@@ -264,7 +265,7 @@ void FxdTiCtrl::loop() {
   }
 
   // Report busy status to planner.
-  planner.fxdTiCtrl_busy = (sts_stepperBusy || ((!blockProcDn && blockProcRdy) || batchRdy || batchRdyForInterp || runoutEna));
+  busy = (sts_stepperBusy || ((!blockProcDn && blockProcRdy) || batchRdy || batchRdyForInterp || runoutEna));
 
   blockProcRdy_z1 = blockProcRdy;
   makeVector_idx_z1 = makeVector_idx;
@@ -276,7 +277,7 @@ void FxdTiCtrl::loop() {
   // Refresh the gains used by shaping functions.
   // To be called on init or mode or zeta change.
 
-  void FxdTiCtrl::Shaping::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
+  void FTMotion::Shaping::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
 
     const float K = exp(-zeta * M_PI / sqrt(1.0f - sq(zeta))),
                 K2 = sq(K);
@@ -345,14 +346,14 @@ void FxdTiCtrl::loop() {
     #endif
   }
 
-  void FxdTiCtrl::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
+  void FTMotion::updateShapingA(const_float_t zeta/*=cfg.zeta*/, const_float_t vtol/*=cfg.vtol*/) {
     shaping.updateShapingA(zeta, vtol);
   }
 
   // Refresh the indices used by shaping functions.
   // To be called when frequencies change.
 
-  void FxdTiCtrl::AxisShaping::updateShapingN(const_float_t f, const_float_t df) {
+  void FTMotion::AxisShaping::updateShapingN(const_float_t f, const_float_t df) {
     // Protections omitted for DBZ and for index exceeding array length.
     switch (cfg.mode) {
       case ftMotionMode_ZV:
@@ -382,7 +383,7 @@ void FxdTiCtrl::loop() {
     }
   }
 
-  void FxdTiCtrl::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta/*=cfg.zeta*/) {
+  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), const_float_t zeta/*=cfg.zeta*/) {
     const float df = sqrt(1.0f - sq(zeta));
     shaping.x.updateShapingN(xf, df);
     TERN_(HAS_Y_AXIS, shaping.y.updateShapingN(yf, df));
@@ -391,12 +392,12 @@ void FxdTiCtrl::loop() {
 #endif // HAS_X_AXIS
 
 // Reset all trajectory processing variables.
-void FxdTiCtrl::reset() {
+void FTMotion::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  traj.reset(); // Reset trajectory history
-  trajMod.reset(); // Reset modified trajectory history
+  traj.reset();     // Reset trajectory history
+  trajMod.reset();  // Reset modified trajectory history
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
   batchRdy = batchRdyForInterp = false;
@@ -424,13 +425,13 @@ void FxdTiCtrl::reset() {
 
 // Private functions.
 // Auxiliary function to get number of step commands in the buffer.
-uint32_t FxdTiCtrl::stepperCmdBuffItems() {
+uint32_t FTMotion::stepperCmdBuffItems() {
   const uint32_t udiff = stepperCmdBuff_produceIdx - stepperCmdBuff_consumeIdx;
   return stepperCmdBuff_produceIdx < stepperCmdBuff_consumeIdx ? (FTM_STEPPERCMD_BUFF_SIZE) + udiff : udiff;
 }
 
 // Initializes storage variables before startup.
-void FxdTiCtrl::init() {
+void FTMotion::init() {
   #if HAS_X_AXIS
     refreshShapingN();
     updateShapingA();
@@ -439,7 +440,7 @@ void FxdTiCtrl::init() {
 }
 
 // Loads / converts block data from planner to fixed-time control variables.
-void FxdTiCtrl::loadBlockData(block_t * const current_block) {
+void FTMotion::loadBlockData(block_t * const current_block) {
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
@@ -489,6 +490,7 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
   const float fdiff = feSqByTwoD - fsSqByTwoA,          // (mm) Coasting distance if nominal speed is reached
               odiff = oneby2a - oneby2d,                // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
               ldiff = totalLength - fdiff;              // (mm) Distance to travel if nominal speed is reached
+
   float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));  // (s) Coasting duration after nominal speed reached
   if (T2 < 0.0f) {
     T2 = 0.0f;
@@ -536,7 +538,7 @@ void FxdTiCtrl::loadBlockData(block_t * const current_block) {
 }
 
 // Generate data points of the trajectory.
-void FxdTiCtrl::makeVector() {
+void FTMotion::makeVector() {
   float accel_k = 0.0f;                                   // (mm/s^2) Acceleration K factor
   float tau = (makeVector_idx + 1) * (FTM_TS);            // (s) Time since start of block
   float dist = 0.0f;                                      // (mm) Distance traveled
@@ -653,7 +655,7 @@ void FxdTiCtrl::makeVector() {
 }
 
 // Interpolates single data point to stepper commands.
-void FxdTiCtrl::convertToSteps(const uint32_t idx) {
+void FTMotion::convertToSteps(const uint32_t idx) {
   xyze_long_t err_P = { 0 };
 
   //#define STEPS_ROUNDING

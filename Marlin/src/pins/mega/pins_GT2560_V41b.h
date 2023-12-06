@@ -51,14 +51,12 @@
  *  X AXIS              Y AXIS               Z1 AXIS            Z0 AXIS
  *    ---                 ---                 ---                 ---
  *   | 1 | 5V            | 1 | 5V            | 1 | 5V            | 1 | 5V
- *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | PE7 Z1_MIN    | 2 | 30 Z0_MIN
+ *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | 80 Z1_MIN     | 2 | 30 Z0_MIN
  *   | 3 | GND           | 3 | GND           | 3 | GND           | 3 | GND
  *    ---                 ---                 ---                 ---
  *     J3                  J4                  J5                  J6
  *
 */
-
-//#define Z1_MIN                             PE7  // Number??
 
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
@@ -83,6 +81,9 @@
   #ifndef Z_MAX_PIN
     #define Z_MAX_PIN                         32
   #endif
+#endif
+#ifndef Z2_STOP_PIN
+  #define Z2_STOP_PIN                         80  // PE7 - Extended mega2560 pin
 #endif
 
 /**                   Filament Runout Sensors
@@ -204,45 +205,44 @@
  *   (LCM_D5) 21 | 5  6 | GND
  *   (LCM_D4) 16 | 7  8 | 17 (LCM_EN)
  * (EC_PRESS) 19 | 9 10 | GND
- *       (RESET) |11 12 | 19 (BEEP)
+ *       (RESET) |11 12 | 18 (BEEP)
  *                ------
  *                  H2
  */
 
-#define LCM_D4                                16  // Used as BTN_EN1 for YHCB2004 LCD Module
-#define LCM_D5                                21  // YHCB2004_SCK_PIN
-#define LCM_D6                                 5  // YHCB2004_SS_PIN
-#define LCM_D7                                36  // YHCB2004_MOSI_PIN
-#define LCM_EN                                17  // BTN_EN2
-#define EC_PRESS                              19  // BTN_ENC
-#define BEEP                                  18
+//#define H2_01_PIN                           5V
+//#define H2_02_PIN                          GND
+#define H2_03_PIN                             36  // LCM_D7
+#define H2_04_PIN                              5  // LCM_D6
+#define H2_05_PIN                             21  // LCM_D5
+//#define H2_06_PIN                          GND
+#define H2_07_PIN                             16  // LCM_D4
+#define H2_08_PIN                             17  // LCM_EN
+#define H2_09_PIN                             19  // EC_PRESS
+//#define H2_10_PIN                          GND
+//#define H2_11_PIN                        RESET
+#define H2_12_PIN                             18  // BEEP
 
-#define BEEPER_PIN                          BEEP
 #define LCM_RS                                20  // Pin named and connected to 10k pull-up resistor but unused
 
 #if ENABLED(YHCB2004)
-  #define YHCB2004_SS_PIN                 LCM_D6
-  #define YHCB2004_SCK_PIN                LCM_D5
-  #define YHCB2004_MOSI_PIN               LCM_D7
+  #define YHCB2004_SS_PIN              H2_04_PIN
+  #define YHCB2004_SCK_PIN             H2_05_PIN
+  #define YHCB2004_MOSI_PIN            H2_03_PIN
   #define YHCB2004_MISO_PIN               LCM_RS  // Unused on V4.1b board
+  #define BTN_EN1                      H2_07_PIN
+  #define BTN_EN2                      H2_08_PIN
+  #define BTN_ENC                      H2_09_PIN
+  #define BEEPER_PIN                   H2_12_PIN
+#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b
+  #define LCD_PINS_RS                  H2_04_PIN  // DOGLCD_CS
+  #define LCD_PINS_D4                  H2_05_PIN  // DOGLCD_SCK
+  #define LCD_PINS_EN                  H2_03_PIN  // DOGLCD_MOSI
+  #define BTN_EN1                      H2_07_PIN
+  #define BTN_EN2                      H2_08_PIN
+  #define BTN_ENC                      H2_09_PIN
+  #define BEEPER_PIN                   H2_12_PIN
 #elif HAS_WIRED_LCD
   #error "GT2560 V4.1b requires an adapter for common LCDs."
-  /*  Cannot use because V4.1b board has not LCD_PINS_RS wired to display connector
-  #define LCD_PINS_RS                         20
-  #define LCD_PINS_EN                         17
-  #define LCD_PINS_D4                         16
-  #define LCD_PINS_D5                         21
-  #define LCD_PINS_D6                          5
-  #define LCD_PINS_D7                         36
-  //*/
-#endif
-
-#if ENABLED(YHCB2004)
-  #define BTN_EN1                         LCM_D4
-  #define BTN_EN2                         LCM_EN
-  #define BTN_ENC                       EC_PRESS
-#elif IS_NEWPANEL
-  #define BTN_EN1                             42
-  #define BTN_EN2                             40
-  #define BTN_ENC                             19
+  /*  Cannot use because V4.1b board has not LCD_PINS_RS wired to display connector */
 #endif

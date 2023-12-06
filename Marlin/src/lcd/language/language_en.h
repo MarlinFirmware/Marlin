@@ -113,7 +113,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Home Offset Y");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Home Offset Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
-  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Err: Too far!");
+  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MAX Too Far");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Select Origin");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Last value ");
@@ -203,7 +203,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Tilting Point");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Tilt Mesh");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Tilting Grid Size");
@@ -271,8 +270,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MESH_SAVED                     = _UxGT("Mesh %i Saved");
   LSTR MSG_MESH_ACTIVE                    = _UxGT("Mesh %i active");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("No Storage");
-  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Err: UBL Save");
-  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Err: UBL Restore");
+  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("UBL Save Error");
+  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("UBL Restore Error");
   LSTR MSG_UBL_Z_OFFSET                   = _UxGT("Z-Offset: ");
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Z-Offset Stopped");
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("Step-By-Step UBL");
@@ -317,16 +316,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MOVE_EN                        = _UxGT("Move *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Move $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Move 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Move 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Move 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Move 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Move 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Move 0.001in");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Move 0.01in");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");
-  LSTR MSG_MOVE_05IN                      = _UxGT("Move 0.5in");
-  LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Move $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Move $") LCD_STR_DEGREE;
   LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
@@ -361,7 +352,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LCD_ON                         = _UxGT("On");
   LSTR MSG_LCD_OFF                        = _UxGT("Off");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
-  LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
+  LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autotune * PID");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Cycles");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Autotune failed!");
@@ -611,14 +602,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Heating Failed");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Heating Failed");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: REDUNDANT TEMP");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("THERMAL RUNAWAY");
-  LSTR MSG_TEMP_MALFUNCTION               = _UxGT("TEMP MALFUNCTION");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("BED THERMAL RUNAWAY");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("CHAMBER T. RUNAWAY");
-  LSTR MSG_THERMAL_RUNAWAY_COOLER         = _UxGT("Cooler Runaway");
-  LSTR MSG_COOLING_FAILED                 = _UxGT("Cooling Failed");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("THERMAL RUNAWAY");
+  LSTR MSG_ERR_TEMP_MALFUNCTION           = _UxGT("TEMP MALFUNCTION");
+  LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: MAXTEMP");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("PRINTER HALTED");
@@ -629,6 +617,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_COOLING                        = _UxGT("Cooling...");
   LSTR MSG_BED_HEATING                    = _UxGT("Bed Heating...");
   LSTR MSG_BED_COOLING                    = _UxGT("Bed Cooling...");
+  LSTR MSG_BED_ANNEALING                  = _UxGT("Annealing...");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe Heating...");
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe Cooling...");
   LSTR MSG_CHAMBER_HEATING                = _UxGT("Chamber Heating...");
@@ -904,6 +893,7 @@ namespace LanguageNarrow_en {
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_LIVE_MOVE                    = _UxGT("Live Movement");
     LSTR MSG_HOST_START_PRINT             = _UxGT("Start Host Print");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Printing Object");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancel Object");

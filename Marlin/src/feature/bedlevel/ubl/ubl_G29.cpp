@@ -772,6 +772,7 @@ void unified_bed_leveling::shift_mesh_height() {
       const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
+      TERN_(LCD_BACKLIGHT_TIMEOUT_MINS, ui.refresh_backlight_timeout());
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -787,7 +788,7 @@ void unified_bed_leveling::shift_mesh_height() {
       #endif
 
       #ifndef HUGE_VALF
-        #define HUGE_VALF (10e100F)
+        #define HUGE_VALF __FLT_MAX__
       #endif
 
       best = do_furthest // Points with valid data or HUGE_VALF are skipped

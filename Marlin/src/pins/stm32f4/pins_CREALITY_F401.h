@@ -140,7 +140,7 @@
 //#define LED_CONTROL_PIN                   PA7
 
 //
-// WiFI Reset
+// WiFi Reset
 //
 #ifdef MENU_RESET_WIFI
   #define RESET_WIFI_PIN                    PB12

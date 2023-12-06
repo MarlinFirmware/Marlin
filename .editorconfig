@@ -1,12 +1,14 @@
 # editorconfig.org
 root = true
 
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = true
+
 [{*.patch,syntax_test_*}]
 trim_trailing_whitespace = false
 
 [{*.c,*.cpp,*.h,*.ino,*.py,Makefile}]
-trim_trailing_whitespace = true
-insert_final_newline = true
 end_of_line = lf
 
 [{*.c,*.cpp,*.h,*.ino}]
@@ -17,6 +19,10 @@ indent_size = 2
 [{Makefile}]
 indent_style = tab
 indent_size = 2
+
+[*.md]
+# Two spaces at the end of the line means newline in Markdown
+trim_trailing_whitespace = false
 
 [{*.py}]
 indent_style = space

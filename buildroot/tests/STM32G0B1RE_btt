@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32G0B1RE_btt / Ender-3 with SKR Mini E3 V3.0 (STM32G0)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+use_example_configs "Creality/Ender-3/BigTreeTech SKR Mini E3 3.0"
+exec_test $1 $2 "Creality/Ender-3/BigTreeTech SKR Mini E3 3.0" "$3"
+
+# clean up
+restore_configs

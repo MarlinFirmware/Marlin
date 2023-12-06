@@ -263,7 +263,7 @@ void GcodeSuite::G28() {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
         };
       #else
         #define debug_current(...)
@@ -536,7 +536,7 @@ void GcodeSuite::G28() {
     /**
      * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
      * This is important because it lets a user use the LCD Panel to set an IDEX Duplication mode, and
-     * then print a standard GCode file that contains a single print that does a G28 and has no other
+     * then print a standard G-Code file that contains a single print that does a G28 and has no other
      * IDEX specific commands in it.
      */
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -638,6 +638,11 @@ void GcodeSuite::G28() {
       tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
     #endif
 
+    #ifdef XY_AFTER_HOMING
+      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
+      do_blocking_move_to(xy_after);
+    #endif
+
     restore_feedrate_and_scaling();
 
     if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
@@ -653,5 +658,9 @@ void GcodeSuite::G28() {
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
+
+  #ifdef EVENT_GCODE_AFTER_HOMING
+    gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));
+  #endif
 
 }

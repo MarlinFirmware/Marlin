@@ -37,10 +37,6 @@
   #error "Unknown Touch Screen Type."
 #endif
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../tft_io/touch_calibration.h"
-#endif
-
 #if HAS_TOUCH_SLEEP
   millis_t TouchButtons::next_sleep_ms;
 #endif
@@ -48,6 +44,7 @@
 #include "../buttons.h" // For EN_C bit mask
 #include "../marlinui.h" // For ui.refresh
 #include "../tft_io/tft_io.h"
+#include "../tft_io/touch_calibration.h"
 
 #define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
 #define DOGM_AREA_TOP    TFT_PIXEL_OFFSET_Y
@@ -69,30 +66,45 @@ uint8_t TouchButtons::read_buttons() {
     int16_t x, y;
 
     #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-      const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
+
+      const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION
+                                ? touchIO.getRawPoint(&y, &x)
+                                : touchIO.getRawPoint(&x, &y);
       #if HAS_TOUCH_SLEEP
         if (is_touched)
           wakeUp();
         else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
           sleepTimeout();
       #endif
-      if (!is_touched) return 0;
+
+      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+        static bool no_touch = false;
+      #endif
+
+      if (!is_touched) {
+        TERN_(TOUCH_SCREEN_CALIBRATION, no_touch = false);
+        return 0;
+      }
 
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
         if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
-          if (touch_calibration.handleTouch(x, y)) ui.refresh();
+          if (!no_touch && touch_calibration.handleTouch(x, y)) ui.refresh();
+          no_touch = true;
           return 0;
         }
-        x = int16_t((int32_t(x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
-        y = int16_t((int32_t(y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+        x = int16_t((int32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = int16_t((int32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       #else
-        x = uint16_t((uint32_t(x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
-        y = uint16_t((uint32_t(y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
+        x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       #endif
+
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
-      const bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? touchIO.getPoint(&y, &x) : touchIO.getPoint(&x, &y));
+
+      const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y);
       if (!is_touched) return 0;
+
     #endif
 
     // Touch within the button area simulates an encoder button

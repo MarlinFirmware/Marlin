@@ -30,7 +30,7 @@
 class CaseLight {
 public:
   static bool on;
-  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+  #if CASELIGHT_USES_BRIGHTNESS
     static uint8_t brightness;
   #endif
 
