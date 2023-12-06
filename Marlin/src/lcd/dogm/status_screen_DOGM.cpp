@@ -487,7 +487,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() {
-      if (progress != 0 and progress <= 98) {
+      if (WITHIN(progress, 1, 98)) {
         #define PCENTERED 1  // center percent value over progress bar, else align to the right
         #define PPOS TERN(PCENTERED, 4, 0)
         #define PLEN TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3)
