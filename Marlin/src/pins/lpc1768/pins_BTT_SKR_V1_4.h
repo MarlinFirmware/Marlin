@@ -459,14 +459,9 @@
        */
       #define TFT_CS_PIN             EXP1_07_PIN
       #define TFT_DC_PIN             EXP1_08_PIN
-      #define TOUCH_CS_PIN           EXP1_05_PIN
+
       #define TFT_RESET_PIN          EXP1_04_PIN
-      #define TOUCH_INT_PIN          EXP1_06_PIN
-
       #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
-
-      #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
 
       //#define TFT_RST_PIN          EXP2_07_PIN
       #define TFT_SCK_PIN            EXP2_02_PIN
@@ -476,6 +471,11 @@
       #define LCD_USE_DMA_SPI
 
       #define TFT_BUFFER_WORDS              2400
+
+      #define TOUCH_CS_PIN           EXP1_05_PIN
+      #define TOUCH_INT_PIN          EXP1_06_PIN
+      #define TOUCH_BUTTONS_HW_SPI
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      1
 
     #endif
 
