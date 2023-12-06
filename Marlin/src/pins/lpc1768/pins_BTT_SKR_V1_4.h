@@ -432,6 +432,10 @@
       #define TFT_CS_PIN             EXP2_04_PIN
       #define TFT_DC_PIN             EXP2_07_PIN
 
+      #define TFT_SCK_PIN            EXP2_02_PIN
+      #define TFT_MISO_PIN           EXP2_01_PIN
+      #define TFT_MOSI_PIN           EXP2_06_PIN
+
       #define TOUCH_CS_PIN           EXP1_04_PIN
       #define TOUCH_SCK_PIN          EXP1_05_PIN
       #define TOUCH_MISO_PIN         EXP1_06_PIN
