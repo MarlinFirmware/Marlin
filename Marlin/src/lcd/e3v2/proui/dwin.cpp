@@ -749,7 +749,7 @@ void _drawFeedrate() {
       DWINUI::drawString(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 116 + 4 * STAT_CHR_W + 2, 384, F(" %"));
     }
     else {
-      _value = CEIL(feedrate_mm_s * feedrate_percentage / 100);
+      _value = CEIL(MMS_SCALED(feedrate_mm_s));
       dwinDrawBox(1, hmiData.colorBackground, 116 + 5 * STAT_CHR_W + 2, 384, 20, 20);
     }
     DWINUI::drawInt(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 3, 116 + 2 * STAT_CHR_W, 384, _value);

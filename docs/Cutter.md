@@ -24,10 +24,10 @@ The following flow charts depict the flow control logic for spindle and laser op
                 │M3 S-Value│  │Dir !same ?│  │Stepper    │
                 │Spindle   │  │stop & wait│  │processes  │
              ┌──┤Clockwise ├──┤ & start   ├──┤moves      │
-    ┌─────┐  │  │          │  │spindle    │  │           │
-    │GCode│  │  └──────────┘  └───────────┘  └───────────┘
-    │Send ├──┤  ┌──────────┐  ┌───────────┐  ┌───────────┐
-    └─────┘  │  │M4 S-Value│  │Dir !same ?│  │Stepper    │
+   ┌──────┐  │  │          │  │spindle    │  │           │
+   │G-Code│  │  └──────────┘  └───────────┘  └───────────┘
+   │Send  ├──┤  ┌──────────┐  ┌───────────┐  ┌───────────┐
+   └──────┘  │  │M4 S-Value│  │Dir !same ?│  │Stepper    │
              ├──┤Spindle   ├──┤stop & wait├──┤processes  │
              │  │Counter   │  │& start    │  │moves      │
              │  │Clockwise │  │spindle    │  │           │
@@ -51,10 +51,10 @@ The following flow charts depict the flow control logic for spindle and laser op
              │  │          │  │completion   │  │           │
              │  └──────────┘  └─────────────┘  └───────────┘
              │  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐
-    ┌─────┐  │  │M3 I      │  │G0,G1,G2,G4│  │Planner    │  │Planner     │  │Planner fan │  │Planner     │  │Stepper    │
-    │GCode│  │  │Continuous│  │M3 receive │  │sets block │  │sync power ?│  │sync power ?│  │trap power ?│  │uses block │
-    │Send ├──┼──┤Inline    ├──┤power from ├──┤power using├──┤process M3  ├──┤process fan ├──┤adjusts for ├──┤values to  │
-    └─────┘  │  │          │  │S-Value    │  │Gx S-Value │  │power inline│  │power inline│  │accel/decel │  │apply power│
+   ┌──────┐  │  │M3 I      │  │G0,G1,G2,G4│  │Planner    │  │Planner     │  │Planner fan │  │Planner     │  │Stepper    │
+   │G-Code│  │  │Continuous│  │M3 receive │  │sets block │  │sync power ?│  │sync power ?│  │trap power ?│  │uses block │
+   │Send  ├──┼──┤Inline    ├──┤power from ├──┤power using├──┤process M3  ├──┤process fan ├──┤adjusts for ├──┤values to  │
+   └──────┘  │  │          │  │S-Value    │  │Gx S-Value │  │power inline│  │power inline│  │accel/decel │  │apply power│
              │  └──────────┘  └───────────┘  └───────────┘  └────────────┘  └────────────┘  └────────────┘  └───────────┘
              │  ┌──────────┐  ┌───────────┐  ┌────────────────┐  ┌───────────┐
              │  │M4 I      │  │Gx F-Value │  │Planner         │  │Stepper    │
