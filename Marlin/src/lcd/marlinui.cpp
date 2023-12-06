@@ -23,6 +23,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../MarlinCore.h" // for printingIsPaused
+#include "src/core/macros.h"
 
 #if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (defined(LCD_BACKLIGHT_TIMEOUT_MINS) && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
@@ -1073,6 +1074,15 @@ void MarlinUI::init() {
 
             const int8_t fullSteps = encoderDiff / epps;
             if (fullSteps != 0) {
+              static int8_t lastDir;
+              int8_t dir = SIGN(fullSteps);
+              if (encoderMultiplier != 1 && dir != lastDir) {
+                // Changed direction at high speed.
+                // This is most likely an artifact of skipped steps, keep previous direction instead.
+                encoderMultiplier *= -1;
+              } else {
+                lastDir = dir;
+              }
               last_encoder_full_step_movement = ms;
               encoderDiff -= fullSteps * epps;
               if (can_encode() && !lcd_clicked) {
