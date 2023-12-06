@@ -138,7 +138,7 @@
     #endif
   #endif
 
-#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
+#elif ANY(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
   // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
   // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
@@ -162,7 +162,7 @@
     #define U8G_CLASS U8GLIB_SH1306_128X64                      // 8 stripes
   #endif
 
-#elif EITHER(MKS_12864OLED, ZONESTAR_12864OLED)
+#elif ANY(MKS_12864OLED, ZONESTAR_12864OLED)
 
   // MKS 128x64 (SH1106) OLED I2C LCD
   // - or -
