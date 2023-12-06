@@ -1033,7 +1033,7 @@ void MarlinUI::init() {
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold || lcd_clicked) {
+        if (encoderPastThreshold) {
           if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
             #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
@@ -1075,7 +1075,7 @@ void MarlinUI::init() {
             if (fullSteps != 0) {
               last_encoder_full_step_movement = ms;
               encoderDiff -= fullSteps * epps;
-              if (can_encode()) {
+              if (can_encode() && !lcd_clicked) {
                 encoderPosition += (fullSteps * encoderMultiplier);
               }
             }
