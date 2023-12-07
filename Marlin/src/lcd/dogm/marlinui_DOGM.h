@@ -68,7 +68,7 @@
     #else
       #define U8G_CLASS U8GLIB_ST7920_128X64_RRD                // Adjust stripes with PAGE_HEIGHT in ultralcd_st7920_u8glib_rrd.h
     #endif
-    define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS     // AVR version ignores these pin settingss
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS     // AVR version ignores these pin settingss
                                                                 // HAL version uses these pin settings
   #endif
 
