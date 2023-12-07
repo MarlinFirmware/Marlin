@@ -99,7 +99,7 @@
 #define PROGRESS_BAR_WIDTH  TERN(PCENTERED, LCD_PIXEL_WIDTH - PROGRESS_BAR_X, PCT_X - PROGRESS_BAR_X - 1)
 #define PROGRESS_BAR_HEIGHT TERN(PCENTERED, 4, 5)
 
-#if DISABLED(PCENTERED) && ANY(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+#if DISABLED(PCENTERED) && HAS_TIME_DISPLAY
   #error "PCENTERED is required for extra progress display options."
 #endif
 
@@ -484,12 +484,13 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 #if HAS_EXTRA_PROGRESS
 
-  static void prepare_time_string(const duration_t &time, char prefix) {
-    char str[10];
-    const uint8_t time_len = time.toDigital(str, time.value >= 60*60*24L);  // 5 to 8 chars
-    progressString.set(prefix, ':', spaces_t(10 - time_len), str);                 // 2 to 5 spaces
-  }
-
+  #if HAS_TIME_DISPLAY
+    static void prepare_time_string(const duration_t &time, char prefix) {
+      char str[10];
+      const uint8_t time_len = time.toDigital(str, time.value >= 60*60*24L);  // 5 to 8 chars
+      progressString.set(prefix, ':', spaces_t(10 - time_len), str);                 // 2 to 5 spaces
+    }
+  #endif
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() {
       if (progress == 0) return;
