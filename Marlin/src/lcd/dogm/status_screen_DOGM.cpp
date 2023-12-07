@@ -471,45 +471,46 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 // Prepare strings for progress display
 #if ANY(HAS_EXTRA_PROGRESS, HAS_PRINT_PROGRESS)
   static MarlinUI::progress_t progress = 0;
-  static char bufferc[13];
+  static MString<12> progressString;
 #endif
 
 #if HAS_EXTRA_PROGRESS
 
   static void prepare_time_string(const duration_t &time, char prefix) {
-    char str[13];
-    memset(&bufferc[2], ' ', 5); // Partialy fill with spaces to avoid artifacts and terminator
-    bufferc[0] = prefix;
-    bufferc[1] = ':';
-    int str_length = time.toDigital(str, time.value >= 60*60*24L);
-    strcpy(&bufferc[sizeof(bufferc) - str_length - 1], str);
+    char str[10];
+    const uint8_t time_len = time.toDigital(str, time.value >= 60*60*24L);  // 5 to 8 chars
+    progressString.set(prefix, ':', spaces_t(10 - time_len), str);                 // 2 to 5 spaces
   }
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
+    #define PCENTERED  // Center percent value over progress bar, else right-align
     void MarlinUI::drawPercent() {
       if (progress == 0) return;
-      #define PCENTERED 1  // Center percent value over progress bar, else align to the right
-      #define PPOS TERN(PCENTERED, 4, 0)
-      #define PLEN TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3)
-      memset(&bufferc, ' ', 12);
-      memcpy(&bufferc[PPOS], TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))), PLEN);
-      bufferc[PPOS+PLEN] = '%';
+      progressString.set(
+        #ifdef PCENTERED
+          spaces_t(4),
+        #endif
+        TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))), '%'
+      );
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing() && get_remaining_time() != 0)
-        prepare_time_string(get_remaining_time(), 'R'); }
+        prepare_time_string(get_remaining_time(), 'R');
+    }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       if (printingIsActive() && interaction_time)
-        prepare_time_string(interaction_time, 'C'); }
+        prepare_time_string(interaction_time, 'C');
+    }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
       if (printJobOngoing())
-        prepare_time_string(print_job_timer.duration(), 'E'); }
+        prepare_time_string(print_job_timer.duration(), 'E');
+    }
   #endif
 
 #endif // HAS_EXTRA_PROGRESS
@@ -788,7 +789,7 @@ void MarlinUI::draw_status_screen() {
     // Progress strings
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       ui.rotate_progress();
-      lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
+      lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, progressString);
     }
   #endif
 
