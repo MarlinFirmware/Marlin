@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,34 +21,19 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_68 1
+/**
+ * FFP0173_Aquila_Main_Board_V1.0.1 (GD32F103RC / N32G455RE)
+ *
+ * Uses CREALITY V4 (STM32F103RE / STM32F103RC) board pin assignments
+ */
 
-// PT100 amplifier board from Dyze Design
-constexpr temp_entry_t temptable_68[] PROGMEM = {
-  { OV(273), 0   },
-  { OV(294), 20  },
-  { OV(315), 40  },
-  { OV(336), 60  },
-  { OV(356), 80  },
-  { OV(376), 100 },
-  { OV(396), 120 },
-  { OV(416), 140 },
-  { OV(436), 160 },
-  { OV(455), 180 },
-  { OV(474), 200 },
-  { OV(494), 220 },
-  { OV(513), 240 },
-  { OV(531), 260 },
-  { OV(550), 280 },
-  { OV(568), 300 },
-  { OV(587), 320 },
-  { OV(605), 340 },
-  { OV(623), 360 },
-  { OV(641), 380 },
-  { OV(658), 400 },
-  { OV(676), 420 },
-  { OV(693), 440 },
-  { OV(710), 460 },
-  { OV(727), 480 },
-  { OV(744), 500 }
-};
+#define BOARD_INFO_NAME        "Aquila v1.0.1"
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Aquila"
+#endif
+
+#define INLINE_USART_IRQ
+
+#define NO_MAPLE_WARNING     // Disable warning when compiling with Maple env
+
+#include "../stm32f1/pins_CREALITY_V4.h"
