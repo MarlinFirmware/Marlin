@@ -478,7 +478,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
   static void prepare_time_string(const duration_t &time, char prefix) {
     char str[13];
-    memset(&bufferc[2], ' ', 5); // partialy fill with spaces to avoid artifacts and terminator
+    memset(&bufferc[2], ' ', 5); // Partialy fill with spaces to avoid artifacts and terminator
     bufferc[0] = prefix;
     bufferc[1] = ':';
     int str_length = time.toDigital(str, time.value >= 60*60*24L);
@@ -488,7 +488,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() {
       if (progress == 0) return;
-      #define PCENTERED 1  // center percent value over progress bar, else align to the right
+      #define PCENTERED 1  // Center percent value over progress bar, else align to the right
       #define PPOS TERN(PCENTERED, 4, 0)
       #define PLEN TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3)
       memset(&bufferc, ' ', 12);
