@@ -54,10 +54,6 @@
   #include "../../../feature/host_actions.h"
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
-#endif
-
 #if HAS_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
 #endif

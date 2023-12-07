@@ -50,10 +50,6 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
-#endif
-
 #define defColorBackground  RGB( 1, 12,  8)
 #define defColorCursor      RGB(20, 49, 31)
 #define defColorTitleBg     RGB( 0, 23, 16)
