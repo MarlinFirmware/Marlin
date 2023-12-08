@@ -3021,20 +3021,12 @@
 //#define ENDER2_STOCKDISPLAY
 
 //
-// ANET and Tronxy Graphical Controller
-//
-// Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
-// A clone of the CR10_STOCKDISPLAY display but with
-// different pins/wiring (see pins_ANET_10.h).
+// ANET and Tronxy 128×64 Full Graphics Controller as used on Anet A6
 //
 //#define ANET_FULL_GRAPHICS_LCD
 
 //
-// GUCOCO CTC LCD
-//
-// GUCOCO CTC 128x64 full graphics lcd with rotary encoder as used on GUCOCO CTC A10S
-// A clone of the CR10_STOCKDISPLAY display but with
-// different pins/wiring (see pins_ANET_10.h).
+// GUCOCO CTC 128×64 Full Graphics Controller as used on GUCOCO CTC A10S
 //
 //#define CTC_A10S_A13
 
