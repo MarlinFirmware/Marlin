@@ -35,7 +35,6 @@
 
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
   #define HAS_ONESTEP_LEVELING 1
-  #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
@@ -63,6 +62,10 @@
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../../feature/host_actions.h"
+#endif
+
+#if HAS_LEVELING
+  #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_BED_PROBE
