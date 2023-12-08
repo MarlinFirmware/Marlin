@@ -234,7 +234,7 @@ void doCoolDown();
 #if ENABLED(NOZZLE_PARK_FEATURE)
   void parkHead();
 #endif
-#if HAS_ONESTEP_LEVELING
+#if HAS_AUTOLEVEL
   void trammingwizard();
 #endif
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
