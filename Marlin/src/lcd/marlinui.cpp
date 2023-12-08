@@ -1033,60 +1033,60 @@ void MarlinUI::init() {
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold) {
-          if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
+        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
-            #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              int32_t encoderMultiplier = 1;
+            int32_t encoderMultiplier = 1;
 
-              if (encoderRateMultiplierEnabled) {
-                if (lastEncoderMovementMillis) {
-                  const float encoderMovementSteps = float(abs_diff) / epps;
-                  // Note that the rate is always calculated between two passes through the
-                  // loop and that the abs of the encoderDiff value is tracked.
-                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+            if (encoderRateMultiplierEnabled) {
+              if (lastEncoderMovementMillis) {
+                const float encoderMovementSteps = float(abs_diff) / epps;
+                // Note that the rate is always calculated between two passes through the
+                // loop and that the abs of the encoderDiff value is tracked.
+                const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
 
-                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
+                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
+                else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
 
-                  // Enable to output the encoder steps per second value
-                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                    SERIAL_ECHO_START();
-                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                    SERIAL_EOL();
-                  #endif
-                }
+                // Enable to output the encoder steps per second value
+                //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                  SERIAL_ECHO_START();
+                  SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
+                  SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
+                  SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
+                  SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
+                  SERIAL_EOL();
+                #endif
+              }
 
-                lastEncoderMovementMillis = ms;
-              } // encoderRateMultiplierEnabled
+              lastEncoderMovementMillis = ms;
+            } // encoderRateMultiplierEnabled
 
-            #else
+          #else
 
-              constexpr int32_t encoderMultiplier = 1;
+            constexpr int32_t encoderMultiplier = 1;
 
-            #endif // ENCODER_RATE_MULTIPLIER
+          #endif // ENCODER_RATE_MULTIPLIER
 
-            const int8_t fullSteps = encoderDiff / epps;
-            if (fullSteps != 0) {
-              static bool lastFwd;
-              const bool fwd = fullSteps > 0;
-              // Direction change during fast spin is probably a glitch so go the other way
-              if (encoderMultiplier != 1 && fwd != lastFwd)
-                fullSteps *= -1;
+          int8_t fullSteps = encoderDiff / epps;
+          if (fullSteps != 0) {
+            static bool lastFwd;
+            const bool fwd = fullSteps > 0;
+            // Direction change during fast spin is probably a glitch so go the other way
+            if (encoderMultiplier != 1 && fwd != lastFwd)
+              fullSteps *= -1;
 
-              lastFwd = fwd;
-              last_encoder_full_step_movement = ms;
-              encoderDiff -= fullSteps * epps;
-              if (can_encode() && !lcd_clicked)
-                encoderPosition += (fullSteps * encoderMultiplier);
-            }
+            lastFwd = fwd;
+            last_encoder_full_step_movement = ms;
+            encoderDiff -= fullSteps * epps;
+            if (can_encode() && !lcd_clicked)
+              encoderPosition += (fullSteps * encoderMultiplier);
           }
+        }
 
+        if (encoderPastThreshold || lcd_clicked) {
           reset_status_timeout(ms);
 
           #if LCD_BACKLIGHT_TIMEOUT_MINS
@@ -1100,7 +1100,7 @@ void MarlinUI::init() {
           #if LED_POWEROFF_TIMEOUT > 0
             if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
-        } // encoder activity
+        }
 
       #endif // HAS_ENCODER_ACTION
 
