@@ -146,7 +146,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2:a Munstycke @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Verktyg");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Enad Bädd Nivellering (UBL)");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Lutningspunkt");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Manuellt skapa nät");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Placera Shim & Mät");
@@ -252,13 +251,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hetände för kall");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flytta $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Flytta 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Flytta 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Flytta 10mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Flytta 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Flytta 0.001tum");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Flytta 0.01tum");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Flytta 0.1tum");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Flytta $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Flytta $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Hastighet");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bädd Z");
   LSTR MSG_NOZZLE                         = _UxGT("Munstycke");
@@ -462,11 +456,9 @@ namespace LanguageNarrow_sv {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Småsteg @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Slutstopp Avbrott");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Värma Misslyckad");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Värma Misslyckad");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fel: REDUNDANT TEMP");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TERMISK ÖVERDRIFT");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("BÄDD TERMISK ÖVERDRIFT");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("KAMMARE T. ÖVERDRIFT");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("TERMISK ÖVERDRIFT");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Fel: MAXTEMP");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Fel: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("Utskrift stoppad");

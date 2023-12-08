@@ -29,47 +29,54 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ALL(DWIN_LCD_PROUI, PROUI_TUNING_GRAPH)
+#if ENABLED(DWIN_LCD_PROUI)
+
+#include "dwin_defines.h"
+
+#if PROUI_TUNING_GRAPH
 
 #include "dwin.h"
-#include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "plot.h"
 
 #define Plot_Bg_Color RGB( 1, 12,  8)
 
-PlotClass plot;
+Plot plot;
 
-uint16_t grphpoints, r, x2, y2 = 0;
-frame_rect_t grphframe = {0};
+uint16_t graphpoints, r, x2, y2 = 0;
+frame_rect_t graphframe = {0};
 float scale = 0;
 
-void PlotClass::draw(const frame_rect_t &frame, const_float_t max, const_float_t ref/*=0*/) {
-  grphframe = frame;
-  grphpoints = 0;
+void Plot::draw(const frame_rect_t &frame, const_celsius_float_t max, const_float_t ref/*=0*/) {
+  graphframe = frame;
+  graphpoints = 0;
   scale = frame.h / max;
   x2 = frame.x + frame.w - 1;
   y2 = frame.y + frame.h - 1;
   r = round((y2) - ref * scale);
   DWINUI::drawBox(1, Plot_Bg_Color, frame);
-  for (uint8_t i = 1; i < 4; i++) if (i * 50 < frame.w) dwinDrawVLine(COLOR_LINE, i * 50 + frame.x, frame.y, frame.h);
+  for (uint8_t i = 1; i < 4; i++) if (i * 60 < frame.w) dwinDrawVLine(COLOR_LINE, i * 60 + frame.x, frame.y, frame.h);
   DWINUI::drawBox(0, COLOR_WHITE, DWINUI::extendFrame(frame, 1));
   dwinDrawHLine(COLOR_RED, frame.x, r, frame.w);
 }
 
-void PlotClass::update(const_float_t value) {
+void Plot::update(const_float_t value) {
   if (!scale) return;
   const uint16_t y = round((y2) - value * scale);
-  if (grphpoints < grphframe.w) {
-    dwinDrawPoint(COLOR_YELLOW, 1, 1, grphpoints + grphframe.x, y);
+  if (graphpoints < graphframe.w) {
+    dwinDrawPoint(COLOR_YELLOW, 1, 1, graphpoints + graphframe.x, y);
   }
   else {
-    dwinFrameAreaMove(1, 0, 1, Plot_Bg_Color, grphframe.x, grphframe.y, x2, y2);
-    if ((grphpoints % 50) == 0) dwinDrawVLine(COLOR_LINE, x2 - 1, grphframe.y + 1, grphframe.h - 2);
+    dwinFrameAreaMove(1, 0, 1, Plot_Bg_Color, graphframe.x, graphframe.y, x2, y2);
+    if ((graphpoints % 60) == 0) dwinDrawVLine(COLOR_LINE, x2 - 1, graphframe.y + 1, graphframe.h - 2);
     dwinDrawPoint(COLOR_RED, 1, 1, x2 - 1, r);
     dwinDrawPoint(COLOR_YELLOW, 1, 1, x2 - 1, y);
   }
-  grphpoints++;
+  graphpoints++;
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    ui.refresh_backlight_timeout();
+  #endif
 }
 
-#endif // DWIN_LCD_PROUI && PROUI_TUNING_GRAPH
+#endif // PROUI_TUNING_GRAPH
+#endif // DWIN_LCD_PROUI

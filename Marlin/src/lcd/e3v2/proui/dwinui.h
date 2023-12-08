@@ -54,12 +54,6 @@
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
 #define ICON_Folder               ICON_More
-#define ICON_FWRetract            ICON_StepE
-#define ICON_FWRetLength          ICON_StepE
-#define ICON_FWRetSpeed           ICON_Setspeed
-#define ICON_FWRetZRaise          ICON_MoveZ
-#define ICON_FWRecSpeed           ICON_Setspeed
-#define ICON_FWRecExtra           ICON_StepE
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ
@@ -201,15 +195,18 @@
 #define UNITFDIGITS 1
 #define MINUNITMULT POW(10, UNITFDIGITS)
 
-constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar height
-                   MLINE = 53,                                 // Menu line height
-                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
-                   MROWS = TROWS - 1,                          // Other-than-Back
-                   ICOX = 26,                                  // Menu item icon X position
-                   LBLX = 55,                                  // Menu item label X position
-                   VALX = 210,                                 // Menu item value X position
-                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
-                   STAT_CHR_W = 10;
+/**
+ * @brief Menu Line Spacing
+ */
+constexpr uint8_t  TITLE_HEIGHT = 30,                          //< Title bar height
+                   MLINE = 53,                                 //< Menu line height
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  //< Total rows
+                   MROWS = TROWS - 1,                          //< Other-than-Back
+                   ICOX = 26,                                  //< Menu item icon X position
+                   LBLX = 55,                                  //< Menu item label X position
+                   VALX = 210,                                 //< Menu item value X position
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,            //< Menu font 8x16
+                   STAT_CHR_W = 10;                            //< Menu Stats character width
 
 // Menuitem Y position
 #define MYPOS(L) (TITLE_HEIGHT + MLINE * (L))
@@ -341,7 +338,7 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
   // Draw a positive integer
   inline void drawInt(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
@@ -564,7 +561,7 @@ namespace DWINUI {
   //  maxv : Maximum value
   //  color1 : Start color
   //  color2 : End color
-  uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
+  uint16_t colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
   // ------------------------- Buttons ------------------------------//
 
@@ -593,13 +590,13 @@ namespace DWINUI {
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
   //  maxv : Maximum value
-  uint16_t RainbowInt(int16_t val, int16_t minv, int16_t maxv);
+  uint16_t rainbowInt(int16_t val, int16_t minv, int16_t maxv);
 
   // Write buffer data to the SRAM
   //  addr: SRAM start address 0x0000-0x7FFF
   //  length: Bytes to write
   //  data: address of the buffer with data
-  inline void WriteToSRAM(uint16_t addr, uint16_t length, uint8_t *data) {
+  inline void writeToSRAM(uint16_t addr, uint16_t length, uint8_t *data) {
     dwinWriteToMem(0x5A, addr, length, data);
   }
 
@@ -607,7 +604,7 @@ namespace DWINUI {
   //  addr: Flash start address 0x0000-0x3FFF
   //  length: Bytes to write
   //  data: address of the buffer with data
-  inline void WriteToFlash(uint16_t addr, uint16_t length, uint8_t *data) {
+  inline void writeToFlash(uint16_t addr, uint16_t length, uint8_t *data) {
     dwinWriteToMem(0xA5, addr, length, data);
   }
 

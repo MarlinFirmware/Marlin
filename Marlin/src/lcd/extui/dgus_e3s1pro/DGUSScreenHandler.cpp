@@ -107,8 +107,7 @@ void DGUSScreenHandler::loop() {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    if (booted && powerLossRecoveryAvailable)
-    {
+    if (booted && powerLossRecoveryAvailable) {
       triggerScreenChange(DGUS_ScreenID::POWERCONTINUE);
       powerLossRecoveryAvailable = false;
     }
@@ -355,11 +354,8 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
 
   void DGUSScreenHandler::sdCardRemoved() {
     sdPrintFilename = noFileSelected;
-
-    if (getCurrentScreen() >= DGUS_ScreenID::FILE1
-      && getCurrentScreen() <= DGUS_ScreenID::FILE4) {
+    if (WITHIN(getCurrentScreen(), DGUS_ScreenID::FILE1, DGUS_ScreenID::FILE4))
       triggerTempScreenChange(DGUS_ScreenID::SDCARDCHECK, DGUS_ScreenID::HOME);
-    }
   }
 
   void DGUSScreenHandler::sdCardError() {}

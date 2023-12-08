@@ -72,7 +72,7 @@ public:
     return has_measurement(X_AXIS) || has_measurement(Y_AXIS) || has_measurement(Z_AXIS);
   }
 
-  static void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const AxisBits dm, block_t * const block);
+  static void add_correction_steps(const xyze_long_t &dist, const AxisBits dm, block_t * const block);
   static int32_t get_applied_steps(const AxisEnum axis);
 
   #if ENABLED(BACKLASH_GCODE)

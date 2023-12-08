@@ -78,8 +78,8 @@ bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, con
     return true; // error
   }
   if (raw_data == true) {
-    if (hicheck && (data & 0x3FF) > 550)
-      SERIAL_ECHOLNPGM("BD Sensor mounted too high!");
+    if (hicheck && (data & 0x3FF) > 400)
+      SERIAL_ECHOLNPGM("Bad BD Sensor height! Recommended distance 0.5-2.0mm");
     else if (!good_data(data))
       SERIAL_ECHOLNPGM("Invalid data, please calibrate.");
     else
@@ -109,7 +109,8 @@ void BDS_Leveling::process() {
   static float zpos = 0.0f;
   const millis_t ms = millis();
   if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
-    next_check_ms = ms + (config_state < BDS_IDLE ? 200 : 50);   // check at 5Hz or 20Hz
+    // Check at 1KHz, 5Hz, or 20Hz
+    next_check_ms = ms + (config_state == BDS_HOMING_Z ? 1 : (config_state < BDS_IDLE ? 200 : 50));
 
     uint16_t tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
@@ -127,16 +128,14 @@ void BDS_Leveling::process() {
             babystep.set_mm(Z_AXIS, cur_z - z_sensor);
             DEBUG_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
           }
-          else {
-            babystep.set_mm(Z_AXIS, 0);   //if (old_cur_z <= cur_z) Z_DIR_WRITE(HIGH);
-            //stepper.apply_directions();   // TODO: Remove this line as probably not needed
-          }
+          else
+            babystep.set_mm(Z_AXIS, 0);
         }
       #endif
 
       old_cur_z = cur_z;
       old_buf_z = current_position.z;
-      endstops.bdp_state_update(z_sensor <= 0.01f);
+      endstops.bdp_state_update(z_sensor <= BD_SENSOR_HOME_Z_POSITION);
 
       #if HAS_STATUS_MESSAGE
         static float old_z_sensor = 0;
@@ -149,8 +148,10 @@ void BDS_Leveling::process() {
         }
       #endif
     }
-    else
-      stepper.apply_directions();
+    else if (config_state == BDS_HOMING_Z) {
+      SERIAL_ECHOLNPGM("Read:", tmp);
+      kill(F("BDsensor connect Err!"));
+    }
 
     DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);
     if (TERN0(DEBUG_OUT_BD, BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)) DEBUG_ECHOLNPGM("CRC error");
@@ -233,11 +234,13 @@ void BDS_Leveling::process() {
           sprintf_P(tmp_1, PSTR("G1Z%d.%d"), int(zpos), int(zpos * 10) % 10);
           gcode.process_subcommands_now(tmp_1);
           SERIAL_ECHO(tmp_1); SERIAL_ECHOLNPGM(", Z:", current_position.z);
-          for (float tmp_k = 0; abs(zpos - tmp_k) > 0.004f;) {
+          uint16_t failcount = 300;
+          for (float tmp_k = 0; abs(zpos - tmp_k) > 0.006f && failcount--;) {
             tmp_k = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
             safe_delay(10);
+            if (!failcount--) break;
           }
-          safe_delay(zpos <= 0.4f ? 600 : 100);
+          safe_delay(600);
           tmp = uint16_t((zpos + 0.00001f) * 10);
           BD_I2C_SENSOR.BD_i2c_write(tmp);
           SERIAL_ECHOLNPGM("w:", tmp, ", Z:", zpos);

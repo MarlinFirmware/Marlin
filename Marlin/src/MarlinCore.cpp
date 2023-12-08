@@ -862,7 +862,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 
   // Manage Fixed-time Motion Control
-  TERN_(FT_MOTION, fxdTiCtrl.loop());
+  TERN_(FT_MOTION, ftMotion.loop());
 
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
@@ -1218,6 +1218,12 @@ void setup() {
   #endif
   #if TEMP_SENSOR_IS_MAX_TC(1) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1))
     OUT_WRITE(TEMP_1_CS_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_IS_MAX_TC(2) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2))
+    OUT_WRITE(TEMP_2_CS_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_IS_MAX_TC(BED)
+    OUT_WRITE(TEMP_BED_CS_PIN, HIGH);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
@@ -1632,7 +1638,7 @@ void setup() {
   #endif
 
   #if ENABLED(FT_MOTION)
-    SETUP_RUN(fxdTiCtrl.init());
+    SETUP_RUN(ftMotion.init());
   #endif
 
   marlin_state = MF_RUNNING;

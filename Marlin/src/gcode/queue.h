@@ -35,7 +35,7 @@ public:
    */
   struct SerialState {
     /**
-     * GCode line number handling. Hosts may include line numbers when sending
+     * G-Code line number handling. Hosts may include line numbers when sending
      * commands to Marlin, and lines will be checked for sequentiality.
      * M110 N<int> sets the current line number.
      */
@@ -48,7 +48,7 @@ public:
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
 
   /**
-   * GCode Command Queue
+   * G-Code Command Queue
    * A simple (circular) ring buffer of BUFSIZE command strings.
    *
    * Commands are copied into this buffer by the command injectors
@@ -134,7 +134,7 @@ public:
    * Aborts the current SRAM queue so only use for one or two commands.
    */
   static void inject(const char * const gcode) {
-    strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
+    strlcpy(injected_commands, gcode, sizeof(injected_commands));
   }
 
   /**
