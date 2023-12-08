@@ -1072,13 +1072,16 @@ void MarlinUI::init() {
 
           int8_t fullSteps = encoderDiff / epps;
           if (fullSteps != 0) {
-            static bool lastFwd;
-            const bool fwd = fullSteps > 0;
-            // Direction change during fast spin is probably a glitch so go the other way
-            if (encoderMultiplier != 1 && fwd != lastFwd)
-              fullSteps *= -1;
 
-            lastFwd = fwd;
+            #if ENABLED(ENCODER_RATE_MULTIPLIER)
+              static bool lastFwd;
+              const bool fwd = fullSteps > 0;
+              // Direction change during fast spin is probably a glitch so go the other way
+              if (encoderMultiplier != 1 && fwd != lastFwd)
+                fullSteps *= -1;
+              lastFwd = fwd;
+            #endif
+
             next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
