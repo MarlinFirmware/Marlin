@@ -19,8 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
 #ifndef ARDUINO_ARCH_HC32
   #error "Oops! Select an HC32F460 board in 'Tools > Board.'"
+#endif
+
 #endif
