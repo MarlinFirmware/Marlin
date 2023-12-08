@@ -3024,11 +3024,19 @@
 // ANET and Tronxy Graphical Controller
 //
 // Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
-// A clone of the RepRapDiscount full graphics display but with
-// different pins/wiring (see pins_ANET_10.h). Enable one of these.
+// A clone of the CR10_STOCKDISPLAY display but with
+// different pins/wiring (see pins_ANET_10.h).
 //
 //#define ANET_FULL_GRAPHICS_LCD
-//#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
+
+//
+// GUCOCO CTC LCD
+//
+// GUCOCO CTC 128x64 full graphics lcd with rotary encoder as used on GUCOCO CTC A10S
+// A clone of the CR10_STOCKDISPLAY display but with
+// different pins/wiring (see pins_ANET_10.h).
+//
+//#define CTC_A10S_A13
 
 //
 // AZSMZ 12864 LCD with SD
