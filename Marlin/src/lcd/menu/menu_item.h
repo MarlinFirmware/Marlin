@@ -386,11 +386,11 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
-  char msg[m+1];                                 \
+  char msg[m + 1];                               \
   if (_menuLineNr == _thisItemNr) {              \
     msg[0] = ':'; msg[1] = ' ';                  \
-    strncpy_P(msg+2, PVAL, m-2);                 \
-    if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
+    strlcpy_P(msg + 2, PVAL, m - 1);             \
+    if (msg[m - 1] & 0x80) msg[m - 1] = '\0';    \
   }                                              \
   STATIC_ITEM_F(FLABEL, STYL, msg);              \
 }while(0)
