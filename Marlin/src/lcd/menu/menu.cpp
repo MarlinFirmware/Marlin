@@ -269,13 +269,6 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   }
   else
     encoderTopLine = encoderLine;
-  #ifdef BEEP_ON_SCROLL
-    static int8_t last_encoderLine = encoderLine;
-    if (encoderLine != last_encoderLine) {
-      BUZZ(SCROLL_BEEP_DURATION, SCROLL_BEEP_FREQUENCY);
-      last_encoderLine = encoderLine;
-    }
-  #endif
 }
 
 #if HAS_LINE_TO_Z
