@@ -2950,7 +2950,7 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#if HAS_ZOFFSET_ITEM
+#if PROBE_SELECTED
   #ifndef PROBE_OFFSET_ZMIN
     #define PROBE_OFFSET_ZMIN -20
   #endif
