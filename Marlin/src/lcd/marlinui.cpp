@@ -934,8 +934,8 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
-    static millis_t last_encoder_full_step_movement = 0;
-    millis_t ms = millis();
+    static millis_t next_encoder_enable_ms = 0;
+    const millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
       leds.update_timeout(powerManager.psu_on);
@@ -986,7 +986,7 @@ void MarlinUI::init() {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
           if (!wait_for_unclick) {
-            if (ELAPSED(ms, last_encoder_full_step_movement + BLOCK_CLICK_AFTER_MOVEMENT_MS))
+            if (ELAPSED(ms, next_encoder_enable_ms))
               do_click();              // Handle the click
             else
               wait_for_unclick = true;
@@ -1079,7 +1079,7 @@ void MarlinUI::init() {
               fullSteps *= -1;
 
             lastFwd = fwd;
-            last_encoder_full_step_movement = ms;
+            next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
               encoderPosition += (fullSteps * encoderMultiplier);
