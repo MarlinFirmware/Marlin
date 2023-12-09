@@ -433,12 +433,12 @@ void ChironTFT::sendFileList(int8_t startindex) {
 }
 
 void ChironTFT::selectFile() {
-  const size_t namelen = command_len - 4 + (panel_type <= AC_panel_new);
-  strncpy(selectedfile, panel_command + 4, namelen);
-  selectedfile[namelen] = '\0';
+  const size_t fnlen = command_len - 4 + (panel_type <= AC_panel_new);
+  strlcpy(selectedfile, panel_command + 4, fnlen + 1);
   #if ACDEBUG(AC_FILE)
     DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
+
   switch (selectedfile[0]) {
     case '/':   // Valid file selected
       tftSendLn(AC_msg_sd_file_open_success);
@@ -449,10 +449,9 @@ void ChironTFT::selectFile() {
       tftSendLn(AC_msg_sd_file_open_failed);
       sendFileList( 0 );
       break;
-    default:   // enter sub folder
-      // for new panel remove the '.GCO' tag that was added to the end of the path
-      if (panel_type <= AC_panel_new)
-        selectedfile[strlen(selectedfile) - 4] = '\0';
+    default:    // enter subfolder
+      // For new panel remove the '.GCO' tag that was added to the end of the path
+      if (panel_type <= AC_panel_new) selectedfile[fnlen - 4] = '\0';
       filenavigator.changeDIR(selectedfile);
       tftSendLn(AC_msg_sd_file_open_failed);
       sendFileList( 0 );

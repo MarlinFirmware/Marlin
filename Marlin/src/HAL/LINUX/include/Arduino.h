@@ -28,6 +28,9 @@
 
 #include <pinmapping.h>
 
+#define strlcpy(A, B, C)   strncpy(A, B, (C) - 1)
+#define strlcpy_P(A, B, C) strncpy_P(A, B, (C) - 1)
+
 #define HIGH         0x01
 #define LOW          0x00
 

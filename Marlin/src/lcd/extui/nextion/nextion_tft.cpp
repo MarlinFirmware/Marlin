@@ -158,8 +158,7 @@ void NextionTFT::sendFileList(int8_t startindex) {
 }
 
 void NextionTFT::selectFile() {
-  strncpy(selectedfile, nextion_command + 4, command_len - 4);
-  selectedfile[command_len - 5] = '\0';
+  strlcpy(selectedfile, nextion_command + 4, command_len - 3);
   #if NEXDEBUG(N_FILE)
     DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
