@@ -895,6 +895,9 @@
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
 //#define MARKFORGED_YX
 
+//Enable to inverse beltpath for Markforged
+//#define MARKFORGED_INVERSE  // Inverse choosen Markforged kinemtics belt path
+
 // Enable for a belt style printer with endless "Z" motion
 //#define BELTPRINTER
 

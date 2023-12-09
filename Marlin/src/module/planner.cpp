@@ -1990,11 +1990,21 @@ bool Planner::_populate_block(
       dm.c  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    dm.a = (dist.a + dist.b > 0);               // Motor A direction
-    dm.b = (dist.b > 0);                        // Motor B direction
+    #if MARKFORGED_INVERSE
+      dm.a = (dist.a - dist.b > 0);               // Motor A direction
+      dm.b = (dist.b > 0);                        // Motor B direction
+    #else   
+      dm.a = (dist.a + dist.b > 0);               // Motor A direction
+      dm.b = (dist.b > 0);                        // Motor B direction
+    #endif
   #elif ENABLED(MARKFORGED_YX)
-    dm.a = (dist.a > 0);                        // Motor A direction
-    dm.b = (dist.b + dist.a > 0);               // Motor B direction
+    #if MARKFORGED_INVERSE
+      dm.a = (dist.a > 0);                        // Motor A direction
+      dm.b = (dist.b + dist.a > 0);               // Motor B direction
+    #else
+      dm.a = (dist.a > 0);                        // Motor A direction
+      dm.b = (dist.b - dist.a > 0);               // Motor B direction
+    #endif  
   #else
     XYZ_CODE(
       dm.x = (dist.a > 0),
@@ -2062,9 +2072,17 @@ bool Planner::_populate_block(
     #elif CORE_IS_YZ
       ABS(dist.a), ABS(dist.b + dist.c), ABS(dist.b - dist.c)
     #elif ENABLED(MARKFORGED_XY)
-      ABS(dist.a + dist.b), ABS(dist.b), ABS(dist.c)
+      #if MARKFORGED_INVERSE
+        ABS(dist.a - dist.b), ABS(dist.b), ABS(dist.c)
+      #else
+        ABS(dist.a + dist.b), ABS(dist.b), ABS(dist.c)
+      #endif
     #elif ENABLED(MARKFORGED_YX)
-      ABS(dist.a), ABS(dist.b + dist.a), ABS(dist.c)
+      #if MARKFORGED_INVERSE
+        ABS(dist.a), ABS(dist.b - dist.a), ABS(dist.c)
+      #else
+        ABS(dist.a), ABS(dist.b + dist.a), ABS(dist.c)  
+      #endif
     #elif IS_SCARA
       ABS(dist.a), ABS(dist.b), ABS(dist.c)
     #else // default non-h-bot planning
@@ -2110,11 +2128,19 @@ bool Planner::_populate_block(
       dist_mm.c      = CORESIGN(dist.b - dist.c) * mm_per_step[C_AXIS];
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    dist_mm.a = (dist.a - dist.b) * mm_per_step[A_AXIS];
+    #if ENABLED(MARKFORGED_INVERSE)
+      dist_mm.a = (dist.a + dist.b) * mm_per_step[A_AXIS];
+    #else
+      dist_mm.a = (dist.a - dist.b) * mm_per_step[A_AXIS];
+    #endif
     dist_mm.b = dist.b * mm_per_step[B_AXIS];
   #elif ENABLED(MARKFORGED_YX)
     dist_mm.a = dist.a * mm_per_step[A_AXIS];
-    dist_mm.b = (dist.b - dist.a) * mm_per_step[B_AXIS];
+    #if ENABLED(MARKFORGED_INVERSE)
+      dist_mm.b = (dist.b + dist.a) * mm_per_step[B_AXIS];
+    #else
+      dist_mm.b = (dist.b - dist.a) * mm_per_step[B_AXIS];
+    #endif
   #else
     XYZ_CODE(
       dist_mm.a = dist.a * mm_per_step[A_AXIS],
