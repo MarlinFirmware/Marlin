@@ -136,6 +136,6 @@
   #define BTN_ENC                              0
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
-  #define DOGLCD_SDA                          21  // SDA
-  #define DOGLCD_SCL                          22  // SCL
+  #define DOGLCD_SDA_PIN                      21  // SDA
+  #define DOGLCD_SCL_PIN                      22  // SCL
 #endif

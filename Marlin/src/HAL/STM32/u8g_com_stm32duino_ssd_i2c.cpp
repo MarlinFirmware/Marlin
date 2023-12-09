@@ -21,41 +21,50 @@
  */
 
 /**
- * 2 wire I2C COM driver
+ * 2-Wire I2C COM Driver
  *
- * Handles both hardware I2C and software I2C.
+ * Handles both Hardware and Software I2C so any pins can be used as SDA and SLC.
+ * Wire library is used for Hardware I2C.
+ * SlowSoftWire is used for Software I2C.
  *
- * The WIRE library is used for the hardware I2C.  That means that
- * ANY hardware SDA and SLC pairs can be selected and the WIRE library
- * will automatically enable the correct hardware.
+ * Wire / SoftWire library selection can be done automatically at runtime.
  *
- * The SlowSoftWire library is used for the software I2C. That means that
- * ANY pin can be selected for SDA and SLC.
- *
- * Selection of the WIRE library or the SoftWire library is automatically done
- * at run time.
- *
- * This driver requires the SDA and SLC pins be named:
- *   DOGLCD_SDA
- *   DOGLCD_SCL
- *
- * This allows independence from other I2C devices (mostly EEPROMs) that
- * usually use I2C_SDA_PIN and I2C_SLC_PIN.
- *
+ * SDA and SLC pins must be named DOGLCD_SDA_PIN, DOGLCD_SCL_PIN to distinguish
+ * from other I2C devices (e.g., EEPROM) that use I2C_SDA_PIN, I2C_SLC_PIN.
  */
 #ifdef ARDUINO_ARCH_STM32
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include <U8glib-HAL.h>
 
-#include "../../MarlinCore.h"  // For SDA and SCL pins
-#include <Wire.h>
+// Define this to reduce build size and optimize performance
+//#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
 
-#include <SlowSoftI2CMaster.h>
-#include <SlowSoftWire.h>
+#ifdef COMPILE_TIME_I2C_IS_HARDWARE
+  #if COMPILE_TIME_I2C_IS_HARDWARE
+    #define USE_HW_I2C
+  #else
+    #define USE_SW_I2C
+  #endif
+#else
+  #define USE_HW_I2C
+  #define USE_SW_I2C
+#endif
+
+#if ENABLED(USE_HW_I2C)
+  #include <Wire.h>
+  #ifndef MASTER_ADDRESS
+    #define MASTER_ADDRESS 0x01
+  #endif
+#endif
+
+#if ENABLED(USE_SW_I2C)
+  #include <SlowSoftI2CMaster.h>
+  #include <SlowSoftWire.h>
+#endif
 
 /**
  * BUFFER_LENGTH is defined in libraries\Wire\utility\WireBase.h
@@ -70,21 +79,21 @@
 #endif
 #define I2C_MAX_LENGTH (BUFFER_LENGTH - 1)
 
-#ifndef MASTER_ADDRESS
-  #define MASTER_ADDRESS 0x01
-#endif
-
 uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
-  static bool isHardI2C = false;          // Hardware I2C?
-
-  static bool i2c_initialized = false;    // Flag to only run init/linking code once
-  if (!i2c_initialized) {                 // Init runtime linkages
-    i2c_initialized = true;               // Only do this once
-    I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA), PinMap_I2C_SDA);
-    if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL), PinMap_I2C_SCL))
-      i2cInstance = NP;
-    isHardI2C = (i2cInstance != nullptr); // Found hardware I2C controller
-  }
+  // Hardware I2C flag
+  #ifdef COMPILE_TIME_I2C_IS_HARDWARE
+    constexpr bool isHardI2C = ENABLED(COMPILE_TIME_I2C_IS_HARDWARE);
+  #else
+    static bool isHardI2C = false;
+    static bool i2c_initialized = false;    // Flag to only run init/linking code once
+    if (!i2c_initialized) {                 // Init runtime linkages
+      i2c_initialized = true;               // Only do this once
+      I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
+      if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL))
+        i2cInstance = NP;
+      isHardI2C = (i2cInstance != nullptr); // Found hardware I2C controller
+    }
+  #endif
 
   static uint8_t msgInitCount = 0;        // Ignore all messages until 2nd U8G_COM_MSG_INIT
   if (msgInitCount) {
@@ -94,103 +103,106 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
 
   static uint8_t control;
   if (isHardI2C) {                        // Found hardware I2C controller
-    static TwoWire wire2;                 // A TwoWire object for use below
-    switch (msg) {
-      case U8G_COM_MSG_INIT:
-        wire2.setClock(400000);
-        wire2.setSCL(DOGLCD_SCL);
-        wire2.setSDA(DOGLCD_SDA);
-        wire2.begin(MASTER_ADDRESS, 0);   // Start as master
-        break;
+    #if ENABLED(USE_HW_I2C)
+      static TwoWire wire2;                 // A TwoWire object for use below
+      switch (msg) {
+        case U8G_COM_MSG_INIT:
+          wire2.setClock(400000);
+          wire2.setSCL(DOGLCD_SCL_PIN);
+          wire2.setSDA(DOGLCD_SDA_PIN);
+          wire2.begin(MASTER_ADDRESS, 0);   // Start as master
+          break;
 
-      case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
-        control = arg_val ? 0x40 : 0x00;
-        break;
+        case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
+          control = arg_val ? 0x40 : 0x00;
+          break;
 
-      case U8G_COM_MSG_WRITE_BYTE:
-        wire2.beginTransmission(0x3C);
-        wire2.write(control);
-        wire2.write(arg_val);
-        wire2.endTransmission();
-        break;
-
-      case U8G_COM_MSG_WRITE_SEQ: {
-        uint8_t* dataptr = (uint8_t*)arg_ptr;
-        #ifdef I2C_MAX_LENGTH
-          while (arg_val > 0) {
-            wire2.beginTransmission(0x3C);
-            wire2.write(control);
-            if (arg_val <= I2C_MAX_LENGTH) {
-              wire2.write(dataptr, arg_val);
-              arg_val = 0;
-            }
-            else {
-              wire2.write(dataptr, I2C_MAX_LENGTH);
-              arg_val -= I2C_MAX_LENGTH;
-              dataptr += I2C_MAX_LENGTH;
-            }
-            wire2.endTransmission();
-          }
-        #else
+        case U8G_COM_MSG_WRITE_BYTE:
           wire2.beginTransmission(0x3C);
           wire2.write(control);
-          wire2.write(dataptr, arg_val);
+          wire2.write(arg_val);
           wire2.endTransmission();
-        #endif // I2C_MAX_LENGTH
-        break;
+          break;
+
+        case U8G_COM_MSG_WRITE_SEQ: {
+          uint8_t* dataptr = (uint8_t*)arg_ptr;
+          #ifdef I2C_MAX_LENGTH
+            while (arg_val > 0) {
+              wire2.beginTransmission(0x3C);
+              wire2.write(control);
+              if (arg_val <= I2C_MAX_LENGTH) {
+                wire2.write(dataptr, arg_val);
+                arg_val = 0;
+              }
+              else {
+                wire2.write(dataptr, I2C_MAX_LENGTH);
+                arg_val -= I2C_MAX_LENGTH;
+                dataptr += I2C_MAX_LENGTH;
+              }
+              wire2.endTransmission();
+            }
+          #else
+            wire2.beginTransmission(0x3C);
+            wire2.write(control);
+            wire2.write(dataptr, arg_val);
+            wire2.endTransmission();
+          #endif // I2C_MAX_LENGTH
+          break;
+        }
       }
-    }
-    return 1;
+    #endif
   }
   else {    // Software I2C
+    #if ENABLED(USE_SW_I2C)
+      static SlowSoftWire sWire = SlowSoftWire(DOGLCD_SDA_PIN, DOGLCD_SCL_PIN);
 
-    static SlowSoftWire sWire = SlowSoftWire(DOGLCD_SDA, DOGLCD_SCL);
+      switch (msg) {
+        case U8G_COM_MSG_INIT:
+          sWire.setClock(400000);
+          sWire.begin(); // start as master
+          break;
 
-    switch (msg) {
-      case U8G_COM_MSG_INIT:
-        sWire.setClock(400000);
-        sWire.begin(); // start as master
-        break;
+        case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
+          control = arg_val ? 0x40 : 0x00;
+          break;
 
-      case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
-        control = arg_val ? 0x40 : 0x00;
-        break;
-
-      case U8G_COM_MSG_WRITE_BYTE:
-        sWire.beginTransmission((uint8_t)0x3C);
-        sWire.write((uint8_t)control);
-        sWire.write((uint8_t)arg_val);
-        sWire.endTransmission();
-        break;
-
-      case U8G_COM_MSG_WRITE_SEQ: {
-        uint8_t* dataptr = (uint8_t*)arg_ptr;
-        #ifdef I2C_MAX_LENGTH
-          while (arg_val > 0) {
-            sWire.beginTransmission((uint8_t)0x3C);
-            sWire.write((uint8_t)control);
-            if (arg_val <= I2C_MAX_LENGTH) {
-              sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
-              arg_val = 0;
-            }
-            else {
-              sWire.write((const uint8_t *)dataptr, I2C_MAX_LENGTH);
-              arg_val -= I2C_MAX_LENGTH;
-              dataptr += I2C_MAX_LENGTH;
-            }
-            sWire.endTransmission();
-          }
-        #else
+        case U8G_COM_MSG_WRITE_BYTE:
           sWire.beginTransmission((uint8_t)0x3C);
           sWire.write((uint8_t)control);
-          sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
+          sWire.write((uint8_t)arg_val);
           sWire.endTransmission();
-        #endif // I2C_MAX_LENGTH
-        break;
+          break;
+
+        case U8G_COM_MSG_WRITE_SEQ: {
+          uint8_t* dataptr = (uint8_t*)arg_ptr;
+          #ifdef I2C_MAX_LENGTH
+            while (arg_val > 0) {
+              sWire.beginTransmission((uint8_t)0x3C);
+              sWire.write((uint8_t)control);
+              if (arg_val <= I2C_MAX_LENGTH) {
+                sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
+                arg_val = 0;
+              }
+              else {
+                sWire.write((const uint8_t *)dataptr, I2C_MAX_LENGTH);
+                arg_val -= I2C_MAX_LENGTH;
+                dataptr += I2C_MAX_LENGTH;
+              }
+              sWire.endTransmission();
+            }
+          #else
+            sWire.beginTransmission((uint8_t)0x3C);
+            sWire.write((uint8_t)control);
+            sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
+            sWire.endTransmission();
+          #endif // I2C_MAX_LENGTH
+          break;
+        }
       }
-    }
-    return 1;
+    #endif
   }
+
+  return 1;
 }
 
 #endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309)

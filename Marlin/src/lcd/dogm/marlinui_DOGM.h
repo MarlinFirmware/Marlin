@@ -32,8 +32,8 @@
 
 //#define ALTERNATIVE_LCD
 
-// Defined DOGLCD_SDA and SCL pins indicate I2C LCD
-#if defined(DOGLCD_SDA) && DOGLCD_SDA != -1 && defined(DOGLCD_SCL) && DOGLCD_SCL != -1
+// Defined DOGLCD_SDA_PIN and DOGLCD_SCL_PIN pins indicate I2C LCD
+#if PINS_EXIST(DOGLCD_SDA, DOGLCD_SCL)
   #define IS_I2C_LCD 1
 #endif
 
