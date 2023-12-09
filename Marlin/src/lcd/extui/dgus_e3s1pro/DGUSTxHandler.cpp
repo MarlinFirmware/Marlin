@@ -105,7 +105,7 @@ void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
   }
 #endif // PIDTEMPBED
 
-static duration_t _PrintRemainingDurationEstimate() {
+static duration_t _printRemainingDurationEstimate() {
   duration_t remainingDuration = 0;
 
   if (ExtUI::isPrinting()) {
@@ -120,12 +120,12 @@ static duration_t _PrintRemainingDurationEstimate() {
 }
 
 void DGUSTxHandler::printRemainingHours(DGUS_VP &vp) {
-  const int16_t data = _PrintRemainingDurationEstimate().hour();
+  const int16_t data = _printRemainingDurationEstimate().hour();
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 
 void DGUSTxHandler::printRemainingMinutes(DGUS_VP &vp) {
-  const int16_t data = _PrintRemainingDurationEstimate().minute() % 60;
+  const int16_t data = _printRemainingDurationEstimate().minute() % 60;
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 
