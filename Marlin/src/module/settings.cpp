@@ -2042,7 +2042,7 @@ void MarlinSettings::postprocess() {
           if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
             bedlevel.set_grid(spacing, start);
-            EEPROM_READ(bedlevel.z_values);                 // 9 to 256 floats
+            EEPROM_READ(bedlevel.z_values);            // 9 to 256 floats
           }
           else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
             eeprom_error = ERR_EEPROM_CORRUPT;
