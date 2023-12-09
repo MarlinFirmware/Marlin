@@ -1076,10 +1076,10 @@ void MarlinUI::init() {
             #if ENABLED(ENCODER_RATE_MULTIPLIER)
               static bool lastFwd;
               const bool fwd = fullSteps > 0;
-              // Direction change during fast spin is probably a glitch so go the other way
               if (encoderMultiplier != 1 && fwd != lastFwd)
-                fullSteps *= -1;
-              lastFwd = fwd;
+                fullSteps *= -1;  // Fast move and direction changed? Assume glitch.
+              else
+                lastFwd = fwd;    // Slow move or lastFwd==fwd already. Remember dir.
             #endif
 
             next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
