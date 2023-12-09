@@ -1990,7 +1990,7 @@ bool Planner::_populate_block(
       dm.c  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
     #endif
   #elif ENABLED(MARKFORGED_XY)
-    #if MARKFORGED_INVERSE
+    #if ENABLED(MARKFORGED_INVERSE)
       dm.a = (dist.a - dist.b > 0);               // Motor A direction
       dm.b = (dist.b > 0);                        // Motor B direction
     #else   
@@ -1998,7 +1998,7 @@ bool Planner::_populate_block(
       dm.b = (dist.b > 0);                        // Motor B direction
     #endif
   #elif ENABLED(MARKFORGED_YX)
-    #if MARKFORGED_INVERSE
+    #if ENABLED(MARKFORGED_INVERSE)
       dm.a = (dist.a > 0);                        // Motor A direction
       dm.b = (dist.b + dist.a > 0);               // Motor B direction
     #else
