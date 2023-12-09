@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * 2 wire I2C COM driver
  *
@@ -44,10 +43,11 @@
  * usually use I2C_SDA_PIN and I2C_SLC_PIN.
  *
  */
+#ifdef ARDUINO_ARCH_STM32
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if (defined(ARDUINO_ARCH_STM32) && (defined(U8GLIB_SH1106) || defined(IS_U8GLIB_SSD1306) || defined(U8GLIB_SSD1309)))
+#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include <U8glib-HAL.h>
 
@@ -193,4 +193,5 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   }
 }
 
-#endif // ARDUINO_ARCH_STM32 && (U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309))
+#endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309)
+#endif // ARDUINO_ARCH_STM32
