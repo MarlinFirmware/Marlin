@@ -309,20 +309,19 @@ void MarlinUI::init_lcd() {
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
 
-  uint8_t LCD_I2C_soft = 0;   // check if using soft I2C driver for LCD
   #if IS_I2C_LCD
-    I2C_TypeDef *i2cInstance;
-    i2cInstance      = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA), PinMap_I2C_SDA);
-    if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL), PinMap_I2C_SCL)) i2cInstance = NP;
-
-    if (!i2cInstance) {  // using soft I2C driver for LCD
-      LCD_I2C_soft = 1;
-    }
+    bool isSoftI2C = false; // Flag for LCD software I2C driver
+    I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA), PinMap_I2C_SDA);
+    if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL), PinMap_I2C_SCL))
+      i2cInstance = NP;
+    isSoftI2C = (i2cInstance == nullptr);  // Using software I2C driver for LCD
+  #else
+    constexpr bool isSoftI2C = false;
   #endif
 
   #if ANY(MKS_12864OLED, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
-    #ifdef LCD_PINS_DC
-      if (!LCD_I2C_soft) SET_OUTPUT(LCD_PINS_DC);  // for these LCDs, set as output if not using soft I2C driver
+    #if defined(LCD_PINS_DC) && LCD_PINS_DC != -1
+      if (!isSoftI2C) SET_OUTPUT(LCD_PINS_DC);  // For these LCDs, set as output if not using software I2C driver
     #endif
     #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS

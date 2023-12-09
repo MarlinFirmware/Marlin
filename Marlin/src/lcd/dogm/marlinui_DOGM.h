@@ -32,8 +32,8 @@
 
 //#define ALTERNATIVE_LCD
 
-#define IS_I2C_LCD (defined(DOGLCD_SDA) && defined (DOGLCD_SCL))  // use DOGLCD_SDA && DOGLCD_SCL to
-                                                                  // determine if LCD is using I2C interface
+// Defined DOGLCD_SDA and SCL pins indicate I2C LCD
+#define IS_I2C_LCD (defined(DOGLCD_SDA) && DOGLCD_SDA != -1 && defined(DOGLCD_SCL) && DOGLCD_SCL != -1)
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
@@ -68,7 +68,7 @@
     #else
       #define U8G_CLASS U8GLIB_ST7920_128X64_RRD                // Adjust stripes with PAGE_HEIGHT in ultralcd_st7920_u8glib_rrd.h
     #endif
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS     // AVR version ignores these pin settingss
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS     // AVR version ignores these pin settings
                                                                 // HAL version uses these pin settings
   #endif
 
@@ -130,7 +130,7 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // I2C
     #define U8G_PARAM U8G_I2C_OPT_NONE
   #else
-    #define FORCE_SOFT_SPI                                     // SW-SPI
+    #define FORCE_SOFT_SPI                                      // SW-SPI
     #if ENABLED(ALTERNATIVE_LCD)
       #define U8G_CLASS U8GLIB_SSD1306_128X64_2X // 4 stripes
     #else
@@ -241,7 +241,7 @@
   #if ENABLED(FORCE_SOFT_SPI)
     #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0 // SW-SPI
   #elif IS_I2C_LCD
-    #define U8G_PARAM U8G_I2C_OPT_NONE                           // I2C LCD
+    #define U8G_PARAM U8G_I2C_OPT_NONE                          // I2C LCD
   #else
     #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
   #endif
