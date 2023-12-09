@@ -33,7 +33,9 @@
 //#define ALTERNATIVE_LCD
 
 // Defined DOGLCD_SDA and SCL pins indicate I2C LCD
-#define IS_I2C_LCD (defined(DOGLCD_SDA) && DOGLCD_SDA != -1 && defined(DOGLCD_SCL) && DOGLCD_SCL != -1)
+#if defined(DOGLCD_SDA) && DOGLCD_SDA != -1 && defined(DOGLCD_SCL) && DOGLCD_SCL != -1
+  #define IS_I2C_LCD 1
+#endif
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
@@ -132,7 +134,7 @@
   #else
     #define FORCE_SOFT_SPI                                      // SW-SPI
     #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X // 4 stripes
+      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                // 4 stripes
     #else
       #define U8G_CLASS U8GLIB_SSD1306_128X64                   // 8 stripes
     #endif
