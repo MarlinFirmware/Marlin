@@ -45,28 +45,28 @@
  *
  */
 
-
 #include "../../inc/MarlinConfigPre.h"
 
 #if (defined(ARDUINO_ARCH_STM32) && (defined(U8GLIB_SH1106) || defined(IS_U8GLIB_SSD1306) || defined(U8GLIB_SSD1309)))
 
 #include <U8glib-HAL.h>
 
-#include "../../MarlinCore.h"  // so can get SDA & SCL pins
+#include "../../MarlinCore.h"  // For SDA and SCL pins
 #include <Wire.h>
 
 #include <SlowSoftI2CMaster.h>
 #include <SlowSoftWire.h>
 
-
-/*
-  BUFFER_LENGTH is defined in libraries\Wire\utility\WireBase.h
-  Default value is 32
-  Increate this value to 144 to send U8G_COM_MSG_WRITE_SEQ in single block
-*/
-
-#if !defined(BUFFER_LENGTH) || BUFFER_LENGTH >= 144
+/**
+ * BUFFER_LENGTH is defined in libraries\Wire\utility\WireBase.h
+ * Default value is 32
+ * Increase this value to 144 to send U8G_COM_MSG_WRITE_SEQ in single block
+ */
+#ifndef BUFFER_LENGTH
   #define BUFFER_LENGTH 32
+#endif
+#if BUFFER_LENGTH > 144
+  #error "BUFFER_LENGTH should not be greater than 144."
 #endif
 #define I2C_MAX_LENGTH (BUFFER_LENGTH - 1)
 
@@ -74,137 +74,123 @@
   #define MASTER_ADDRESS 0x01
 #endif
 
-static uint8_t control;
-static uint8_t msgInitCount = 0; // Ignore all messages until 2nd U8G_COM_MSG_INIT
+uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+  static bool isHardI2C = false;          // Hardware I2C?
 
-static uint8_t I2C_initialized = 0;  // flag to only run init/linking code once
-static uint8_t HARD_I2C = 0;         // 1 - hard I2C, 0 - soft I2C
-
-TwoWire Wire2;  // Create an object of TwoWire
-SlowSoftWire I2C_soft = SlowSoftWire((uint8_t)DOGLCD_SDA, (uint8_t)DOGLCD_SCL);
-
-uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  I2C_TypeDef *i2cInstance;
-  if(!I2C_initialized) {  // init runtime linkages
-      I2C_initialized = 1;  //only do this once
-      i2cInstance      = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA), PinMap_I2C_SDA);
-      if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL), PinMap_I2C_SCL)) i2cInstance = NP;
-
-      if (i2cInstance) {  // found hard I2C controller
-        HARD_I2C = 1;
-      }
+  static bool i2c_initialized = false;    // Flag to only run init/linking code once
+  if (!i2c_initialized) {                 // Init runtime linkages
+    i2c_initialized = true;               // Only do this once
+    I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA), PinMap_I2C_SDA);
+    if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL), PinMap_I2C_SCL))
+      i2cInstance = NP;
+    isHardI2C = (i2cInstance != nullptr); // Found hardware I2C controller
   }
 
-
+  static uint8_t msgInitCount = 0;        // Ignore all messages until 2nd U8G_COM_MSG_INIT
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
     if (msgInitCount) return -1;
   }
 
-  if (HARD_I2C) {  // found hard I2C controller
-
-    switch (msg)
-    {
+  static uint8_t control;
+  if (isHardI2C) {                        // Found hardware I2C controller
+    static TwoWire wire2;                 // A TwoWire object for use below
+    switch (msg) {
       case U8G_COM_MSG_INIT:
-        Wire2.setClock(400000);
-        Wire2.setSCL(DOGLCD_SCL);
-        Wire2.setSDA(DOGLCD_SDA);
-        Wire2.begin(MASTER_ADDRESS, 0); // start as master
+        wire2.setClock(400000);
+        wire2.setSCL(DOGLCD_SCL);
+        wire2.setSDA(DOGLCD_SDA);
+        wire2.begin(MASTER_ADDRESS, 0);   // Start as master
         break;
 
-      case U8G_COM_MSG_ADDRESS:           /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+      case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
         control = arg_val ? 0x40 : 0x00;
         break;
 
       case U8G_COM_MSG_WRITE_BYTE:
-        Wire2.beginTransmission(0x3c);
-        Wire2.write(control);
-        Wire2.write(arg_val);
-        Wire2.endTransmission();
+        wire2.beginTransmission(0x3C);
+        wire2.write(control);
+        wire2.write(arg_val);
+        wire2.endTransmission();
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ:
-      {
+      case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t* dataptr = (uint8_t*)arg_ptr;
         #ifdef I2C_MAX_LENGTH
           while (arg_val > 0) {
-            Wire2.beginTransmission(0x3c);
-            Wire2.write(control);
+            wire2.beginTransmission(0x3C);
+            wire2.write(control);
             if (arg_val <= I2C_MAX_LENGTH) {
-              Wire2.write(dataptr, arg_val);
+              wire2.write(dataptr, arg_val);
               arg_val = 0;
             }
             else {
-              Wire2.write(dataptr, I2C_MAX_LENGTH);
+              wire2.write(dataptr, I2C_MAX_LENGTH);
               arg_val -= I2C_MAX_LENGTH;
               dataptr += I2C_MAX_LENGTH;
             }
-            Wire2.endTransmission();
+            wire2.endTransmission();
           }
         #else
-          Wire2.beginTransmission(0x3c);
-          Wire2.write(control);
-          Wire2.write(dataptr, arg_val);
-          Wire2.endTransmission();
+          wire2.beginTransmission(0x3C);
+          wire2.write(control);
+          wire2.write(dataptr, arg_val);
+          wire2.endTransmission();
         #endif // I2C_MAX_LENGTH
         break;
       }
-
     }
-  return 1;
+    return 1;
   }
+  else {    // Software I2C
 
-  else {    // use soft I2C
+    static SlowSoftWire sWire = SlowSoftWire(DOGLCD_SDA, DOGLCD_SCL);
 
-    switch (msg)
-    {
+    switch (msg) {
       case U8G_COM_MSG_INIT:
-        I2C_soft.setClock(400000);
-        I2C_soft.begin(); // start as master
+        sWire.setClock(400000);
+        sWire.begin(); // start as master
         break;
 
-      case U8G_COM_MSG_ADDRESS:           /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+      case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
         control = arg_val ? 0x40 : 0x00;
         break;
 
       case U8G_COM_MSG_WRITE_BYTE:
-        I2C_soft.beginTransmission((uint8_t)0x3c);
-        I2C_soft.write((uint8_t)control);
-        I2C_soft.write((uint8_t)arg_val);
-        I2C_soft.endTransmission();
+        sWire.beginTransmission((uint8_t)0x3C);
+        sWire.write((uint8_t)control);
+        sWire.write((uint8_t)arg_val);
+        sWire.endTransmission();
         break;
 
-      case U8G_COM_MSG_WRITE_SEQ:
-      {
+      case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t* dataptr = (uint8_t*)arg_ptr;
         #ifdef I2C_MAX_LENGTH
           while (arg_val > 0) {
-            I2C_soft.beginTransmission((uint8_t)0x3c);
-            I2C_soft.write((uint8_t)control);
+            sWire.beginTransmission((uint8_t)0x3C);
+            sWire.write((uint8_t)control);
             if (arg_val <= I2C_MAX_LENGTH) {
-              I2C_soft.write((const uint8_t *)dataptr, (size_t)arg_val);
+              sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
               arg_val = 0;
             }
             else {
-              I2C_soft.write((const uint8_t *)dataptr, I2C_MAX_LENGTH);
+              sWire.write((const uint8_t *)dataptr, I2C_MAX_LENGTH);
               arg_val -= I2C_MAX_LENGTH;
               dataptr += I2C_MAX_LENGTH;
             }
-            I2C_soft.endTransmission();
+            sWire.endTransmission();
           }
         #else
-          I2C_soft.beginTransmission((uint8_t)0x3c);
-          I2C_soft.write((uint8_t)control);
-          I2C_soft.write((const uint8_t *)dataptr, (size_t)arg_val);
-          I2C_soft.endTransmission();
+          sWire.beginTransmission((uint8_t)0x3C);
+          sWire.write((uint8_t)control);
+          sWire.write((const uint8_t *)dataptr, (size_t)arg_val);
+          sWire.endTransmission();
         #endif // I2C_MAX_LENGTH
         break;
       }
-
     }
     return 1;
   }
 }
 
-#endif // ARDUINO_ARCH_STM32
+#endif // ARDUINO_ARCH_STM32 && (U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309))

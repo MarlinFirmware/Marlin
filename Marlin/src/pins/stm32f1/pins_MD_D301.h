@@ -42,17 +42,12 @@
  * #define SERIAL_PORT 3
  * #define BAUDRATE 115200
  * #define SERIAL_PORT_2 -1
-*/
+ */
 
 //
 // Servos
 //
 #define SERVO0_PIN                          PB0
-
-//
-// Z Probe must be this pin
-//
-#define Z_MIN_PROBE_PIN                     PB1
 
 //
 // Limit Switches
@@ -61,12 +56,19 @@
 #define X_MAX_PIN                           PF11
 #define Y_MIN_PIN                           PF14
 #define Y_MAX_PIN                           PF13
-#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #define Z_MIN_PIN                         PB1
-#else
-  #define Z_MIN_PIN                         PG0
-#endif
+#define Z_MIN_PIN                           PG0
 #define Z_MAX_PIN                           PF15
+
+//
+// Z Probe must be this pin
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1
+#endif
+
+#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #error "It's physically impossible to connect the Z Probe to the Z Min Endstop pin on this board."
+#endif
 
 //
 // Filament Sensor
@@ -210,7 +212,7 @@
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-  
+
   // Buffer for Color UI
   #define TFT_BUFFER_WORDS                  3200
 #endif
