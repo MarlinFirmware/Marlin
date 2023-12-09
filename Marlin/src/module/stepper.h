@@ -455,10 +455,6 @@ class Stepper {
     // Current stepper motor directions (+1 or -1)
     static xyze_int8_t count_direction;
 
-    #if ENABLED(FT_MOTION)
-      static AxisBits axis_step;
-    #endif
-
   public:
     // Initialize stepper hardware
     static void init();
@@ -701,7 +697,6 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       static void ftMotion_stepper();
-      static void ftMotion_refreshAxisDidMove();
     #endif
 
 };
