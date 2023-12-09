@@ -95,14 +95,14 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
     }
   #endif
 
-  static uint8_t msgInitCount = 0;        // Ignore all messages until 2nd U8G_COM_MSG_INIT
+  static uint8_t msgInitCount = 0;          // Ignore all messages until 2nd U8G_COM_MSG_INIT
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
     if (msgInitCount) return -1;
   }
 
   static uint8_t control;
-  if (isHardI2C) {                        // Found hardware I2C controller
+  if (isHardI2C) {                          // Found hardware I2C controller
     #if ENABLED(USE_HW_I2C)
       static TwoWire wire2;                 // A TwoWire object for use below
       switch (msg) {
@@ -159,7 +159,7 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       switch (msg) {
         case U8G_COM_MSG_INIT:
           sWire.setClock(400000);
-          sWire.begin(); // start as master
+          sWire.begin();                    // Start as master
           break;
 
         case U8G_COM_MSG_ADDRESS:           // Define cmd (arg_val = 0) or data mode (arg_val = 1)
