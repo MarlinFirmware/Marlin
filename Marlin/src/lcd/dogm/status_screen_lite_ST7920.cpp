@@ -667,7 +667,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if HAS_TIME_DISPLAY
     char * ST7920_Lite_Status_Screen::prepare_time_string(const duration_t &time, char prefix) {
       static char str[6];
-      memset(&screenstr, 0x20, 8); // fill with spaces to avoid artifacts, not doing right-justification to save cycles
+      memset(&screenstr, ' ', 8); // fill with spaces to avoid artifacts, not doing right-justification to save cycles
       screenstr[0] = prefix;
       TERN_(HOTENDS == 1, screenstr[1] = 0x07;)  // add bullet • separator when there is space
       int str_length = time.toDigital(str);
@@ -689,7 +689,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void ST7920_Lite_Status_Screen::drawPercent() {
       #define LSHIFT TERN(HOTENDS == 1, 0, 1)
       const uint8_t progress = ui.get_progress_percent();
-      memset(&screenstr, 0x20, 8); // fill with spaces to avoid artifacts
+      memset(&screenstr, ' ', 8); // fill with spaces to avoid artifacts
       if (progress){
         memcpy(&screenstr[2 - LSHIFT], \
                   TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)), \
