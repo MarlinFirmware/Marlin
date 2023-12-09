@@ -2072,13 +2072,13 @@ bool Planner::_populate_block(
     #elif CORE_IS_YZ
       ABS(dist.a), ABS(dist.b + dist.c), ABS(dist.b - dist.c)
     #elif ENABLED(MARKFORGED_XY)
-      #if MARKFORGED_INVERSE
+      #if ENABLED(MARKFORGED_INVERSE)
         ABS(dist.a - dist.b), ABS(dist.b), ABS(dist.c)
       #else
         ABS(dist.a + dist.b), ABS(dist.b), ABS(dist.c)
       #endif
     #elif ENABLED(MARKFORGED_YX)
-      #if MARKFORGED_INVERSE
+      #if ENABLED(MARKFORGED_INVERSE)
         ABS(dist.a), ABS(dist.b - dist.a), ABS(dist.c)
       #else
         ABS(dist.a), ABS(dist.b + dist.a), ABS(dist.c)  
