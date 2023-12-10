@@ -768,11 +768,13 @@ void unified_bed_leveling::shift_mesh_height() {
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
-
+      TERN_(DWIN_LCD_PROUI, dwinRedrawScreen());
       const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
-      TERN_(LCD_BACKLIGHT_TIMEOUT_MINS, ui.refresh_backlight_timeout());
+      #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
+        ui.refresh_backlight_timeout();
+      #endif
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {

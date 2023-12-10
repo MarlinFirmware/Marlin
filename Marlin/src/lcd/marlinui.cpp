@@ -185,7 +185,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
-#if LCD_BACKLIGHT_TIMEOUT_MINS
+#ifdef LCD_BACKLIGHT_TIMEOUT_MINS
 
   constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
   uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
@@ -1092,7 +1092,7 @@ void MarlinUI::init() {
         if (encoderPastThreshold || lcd_clicked) {
           reset_status_timeout(ms);
 
-          #if LCD_BACKLIGHT_TIMEOUT_MINS
+          #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
           #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
@@ -1202,7 +1202,7 @@ void MarlinUI::init() {
           return_to_status();
       #endif
 
-      #if LCD_BACKLIGHT_TIMEOUT_MINS
+      #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
 
         if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
           #ifdef NEOPIXEL_BKGD_INDEX_FIRST

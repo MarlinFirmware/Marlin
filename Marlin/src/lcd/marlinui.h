@@ -272,7 +272,7 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
+  #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
     static uint8_t backlight_timeout_minutes;
