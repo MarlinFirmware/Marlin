@@ -134,15 +134,15 @@
 #endif
 
 // Macros to chain up to 40 conditions
-#define _DO_1(W,C,A)       (_##W##_1(A))
-#define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
-#define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
-#define _DO_4(W,C,A,V...)  (_##W##_1(A) C _DO_3(W,C,V))
-#define _DO_5(W,C,A,V...)  (_##W##_1(A) C _DO_4(W,C,V))
-#define _DO_6(W,C,A,V...)  (_##W##_1(A) C _DO_5(W,C,V))
-#define _DO_7(W,C,A,V...)  (_##W##_1(A) C _DO_6(W,C,V))
-#define _DO_8(W,C,A,V...)  (_##W##_1(A) C _DO_7(W,C,V))
-#define _DO_9(W,C,A,V...)  (_##W##_1(A) C _DO_8(W,C,V))
+#define _DO_1( W,C,A)      (_##W##_1(A))
+#define _DO_2( W,C,A,B)    (_##W##_1(A) C _##W##_1(B))
+#define _DO_3( W,C,A,V...) (_##W##_1(A) C _DO_2(W,C,V))
+#define _DO_4( W,C,A,V...) (_##W##_1(A) C _DO_3(W,C,V))
+#define _DO_5( W,C,A,V...) (_##W##_1(A) C _DO_4(W,C,V))
+#define _DO_6( W,C,A,V...) (_##W##_1(A) C _DO_5(W,C,V))
+#define _DO_7( W,C,A,V...) (_##W##_1(A) C _DO_6(W,C,V))
+#define _DO_8( W,C,A,V...) (_##W##_1(A) C _DO_7(W,C,V))
+#define _DO_9( W,C,A,V...) (_##W##_1(A) C _DO_8(W,C,V))
 #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
 #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
@@ -175,12 +175,12 @@
 #define _DO_39(W,C,A,V...) (_##W##_1(A) C _DO_38(W,C,V))
 #define _DO_40(W,C,A,V...) (_##W##_1(A) C _DO_39(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
-#define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
+#define _DO_N( W,C,N,V...) __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
 
 // Concatenate symbol names, without or with pre-expansion
 #define _CAT(a,V...) a##V
-#define CAT(a,V...) _CAT(a,V)
+#define CAT( a,V...) _CAT(a,V)
 
 // Recognize "true" values: blank, 1, 0x1, true
 #define _ISENA_     ~,1
@@ -258,13 +258,13 @@
   }while(0)
 
 // Expansion of some code
-#define CODE_16( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O; P
-#define CODE_15( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O
-#define CODE_14( A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N
-#define CODE_13( A,B,C,D,E,F,G,H,I,J,K,L,M,...) A; B; C; D; E; F; G; H; I; J; K; L; M
-#define CODE_12( A,B,C,D,E,F,G,H,I,J,K,L,...) A; B; C; D; E; F; G; H; I; J; K; L
-#define CODE_11( A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
-#define CODE_10( A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
+#define CODE_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O; P
+#define CODE_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O
+#define CODE_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N
+#define CODE_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) A; B; C; D; E; F; G; H; I; J; K; L; M
+#define CODE_12(A,B,C,D,E,F,G,H,I,J,K,L,...) A; B; C; D; E; F; G; H; I; J; K; L
+#define CODE_11(A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
+#define CODE_10(A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
 #define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
 #define CODE_8( A,B,C,D,E,F,G,H,...) A; B; C; D; E; F; G; H
 #define CODE_7( A,B,C,D,E,F,G,...) A; B; C; D; E; F; G
@@ -276,7 +276,7 @@
 #define CODE_1( A,...) A
 #define CODE_0(...)
 #define _CODE_N(N,V...) CODE_##N(V)
-#define CODE_N(N,V...) _CODE_N(N,V)
+#define CODE_N( N,V...) _CODE_N(N,V)
 
 // Expansion of some non-delimited content
 #define GANG_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A B C D E F G H I J K L M N O P
@@ -297,7 +297,7 @@
 #define GANG_1( A,...) A
 #define GANG_0(...)
 #define _GANG_N(N,V...) GANG_##N(V)
-#define GANG_N(N,V...) _GANG_N(N,V)
+#define GANG_N( N,V...) _GANG_N(N,V)
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Expansion of some list items
@@ -564,7 +564,7 @@
 #define INC_19 20
 #define INC_20 21
 #define INCREMENT_(n) INC_##n
-#define INCREMENT(n) INCREMENT_(n)
+#define INCREMENT( n) INCREMENT_(n)
 
 #define ADD0(N)  N
 #define ADD1(N)  INCREMENT_(N)
@@ -622,7 +622,7 @@
 
 // Defer expansion
 #define EMPTY()
-#define DEFER(M)  M EMPTY()
+#define DEFER( M) M EMPTY()
 #define DEFER2(M) M EMPTY EMPTY()()
 #define DEFER3(M) M EMPTY EMPTY EMPTY()()()
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
