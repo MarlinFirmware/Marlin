@@ -1722,7 +1722,7 @@ void Stepper::isr() {
 #if MINIMUM_STEPPER_PULSE_NS || MAXIMUM_STEPPER_RATE
   #define ISR_PULSE_CONTROL 1
 #endif
-#if ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM)
+#if ISR_PULSE_CONTROL && MULTISTEPPING_LIMIT > 1 && DISABLED(I2S_STEPPER_STREAM)
   #define ISR_MULTI_STEPS 1
 #endif
 
@@ -1771,11 +1771,9 @@ void Stepper::pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
+  TERN_(ISR_PULSE_CONTROL, USING_TIMED_PULSE());
   // Take multiple steps per interrupt (For high speed moves)
-  #if ISR_MULTI_STEPS
-    bool firstStep = true;
-    USING_TIMED_PULSE();
-  #endif
+  TERN_(ISR_MULTI_STEPS, bool firstStep = true);
 
   // Direct Stepping page?
   const bool is_page = current_block->is_page();
@@ -2080,7 +2078,7 @@ void Stepper::pulse_phase_isr() {
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE_NS over i2s
-    #if ISR_MULTI_STEPS
+    #if ISR_PULSE_CONTROL
       START_TIMED_PULSE();
       AWAIT_HIGH_PULSE();
     #endif
