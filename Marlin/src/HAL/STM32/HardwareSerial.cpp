@@ -107,6 +107,7 @@
       RCC->AHBENR &= ~RCC_AHBPeriph;
   }
 #endif
+
 // END OF TODO------------------------------------------------------
 
 // SerialEvent functions are weak, so when the user doesn't define them,
@@ -160,10 +161,10 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL1_RX);
     setTx(PIN_SERIAL1_TX);
     _uart_index = 0;
-    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
+    #ifdef DMA2_Stream2
       RX_DMA = { USART1, RCC_AHB1Periph_DMA2, 4, DMA2_Stream2 };
     #endif
-    #if ANY(STM32F0xx, STM32F1xx)
+    #ifdef DMA1_Channel5
       RX_DMA = { USART1, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel5 };
     #endif
   }
@@ -171,10 +172,10 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL2_RX);
     setTx(PIN_SERIAL2_TX);
     _uart_index = 1;
-    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
+    #ifdef DMA1_Stream5
       RX_DMA = { USART2, RCC_AHB1Periph_DMA1, 4, DMA1_Stream5 };
     #endif
-    #if ANY(STM32F0xx, STM32F1xx)
+    #ifdef DMA1_Channel6
       RX_DMA = { USART2, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel6 };
     #endif
   }
@@ -182,18 +183,19 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     setRx(PIN_SERIAL3_RX);
     setTx(PIN_SERIAL3_TX);
     _uart_index = 2;
-
-    #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
+    #ifdef DMA1_Stream1
       RX_DMA = { USART3, RCC_AHB1Periph_DMA1, 4, DMA1_Stream1 };
     #endif
-    #ifdef STM32F1xx // F0 has no support for UART3, requires system remapping
+    #ifdef DMA1_Channel3 // F0 has no support for UART3, requires system remapping
       RX_DMA = { USART3, RCC_AHBPeriph_DMA1, DMA1, DMA1_Channel3 };
     #endif
   }
 
-  #ifdef USART4 // must be F2 / F4 /F7
+  #ifdef USART4 // Only F2 / F4 / F7
     else if (peripheral == USART4) {
-      RX_DMA = { USART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
+      #ifdef DMA1_Stream2
+        RX_DMA = { USART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
+      #endif
       setRx(PIN_SERIAL4_RX);
       setTx(PIN_SERIAL4_TX);
       _uart_index = 3;
@@ -202,10 +204,10 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
 
   #ifdef UART4
     else if (peripheral == UART4) {
-      #if ANY(STM32F2xx, STM32F4xx, STM32F7xx)
+      #ifdef DMA1_Stream2
         RX_DMA = { UART4, RCC_AHB1Periph_DMA1, 4, DMA1_Stream2 };
       #endif
-      #ifdef STM32F1xx // STM32F0xx has only 3 UARTs
+      #ifdef DMA2_Channel3 // STM32F0xx has only 3 UARTs
         RX_DMA = { UART4, RCC_AHBPeriph_DMA2, DMA2, DMA2_Channel3 };
       #endif
       setRx(PIN_SERIAL4_RX);
@@ -214,25 +216,27 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     }
   #endif
 
-  #if !ANY(STM32F0xx, STM32F1xx) // exclude UART4 for F0 / F1, no DMA connectivity
-    #ifdef UART5 // must be F2 / F4 /F7
-      else if (peripheral == UART5) {
+  #ifdef UART5 // Only F2 / F4 / F7
+    else if (peripheral == UART5) {
+      #ifdef DMA1_Stream0
         RX_DMA = { UART5, RCC_AHB1Periph_DMA1, 4, DMA1_Stream0 };
-        setRx(PIN_SERIAL5_RX);
-        setTx(PIN_SERIAL5_TX);
-        _uart_index = 4;
-      }
-    #endif
+      #endif
+      setRx(PIN_SERIAL5_RX);
+      setTx(PIN_SERIAL5_TX);
+      _uart_index = 4;
+    }
+  #endif
 
-    #ifdef USART6 // must be F2 / F4 /F7
-      else if (peripheral == USART6) {
+  #ifdef USART6 // Only F2 / F4 / F7
+    else if (peripheral == USART6) {
+      #ifdef DMA2_Stream1
         RX_DMA = { USART6, RCC_AHB1Periph_DMA2, 4, DMA2_Stream1 };
-        setRx(PIN_SERIAL6_RX);
-        setTx(PIN_SERIAL6_TX);
-        _uart_index = 5;
-      }
-    #endif
-  #endif // !ANY(STM32F0xx, STM32F1xx)
+      #endif
+      setRx(PIN_SERIAL6_RX);
+      setTx(PIN_SERIAL6_TX);
+      _uart_index = 5;
+    }
+  #endif
 
   else { // else get the pins of the first peripheral occurence in PinMap
     _serial.pin_rx = pinmap_pin(peripheral, PinMap_UART_RX);

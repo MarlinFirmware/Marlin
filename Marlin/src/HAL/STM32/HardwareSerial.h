@@ -23,7 +23,7 @@
 #ifdef SERIAL_DMA
 
 // TODO: Move to more appropriate place
-#if !ANY(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+#if NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
   #error "SERIAL_DMA is currently only supported on STM32F0xx, STM32F1xx STM32F2xx, STM32F4xx and STM32F7xx."
 #endif
 
