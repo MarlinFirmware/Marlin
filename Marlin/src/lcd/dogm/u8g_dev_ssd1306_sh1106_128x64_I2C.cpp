@@ -67,7 +67,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
+#if HAS_U8GLIB_I2C_OLED
 
 #include "HAL_LCD_com_defines.h"
 
@@ -211,7 +211,7 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
         u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2));    // Select current page
         u8g_SetAddress(u8g, dev, 1);                        // Data mode
-        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
+        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)pb->buf);
         u8g_SetChipSelect(u8g, dev, 0);
         u8g_SetAddress(u8g, dev, 0);                        // Instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
@@ -296,4 +296,4 @@ uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t leng
   return 1;
 }
 
-#endif // U8GLIB_SH1106 || U8GLIB_SSD1306 || U8GLIB_SSD1309)
+#endif // HAS_U8GLIB_I2C_OLED

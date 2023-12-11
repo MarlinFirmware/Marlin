@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
+#if HAS_U8GLIB_I2C_OLED
   // Define this to reduce build size and optimize performance
   //#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
 

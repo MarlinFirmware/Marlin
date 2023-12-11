@@ -36,7 +36,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
+#if HAS_U8GLIB_I2C_OLED
 
 #include <U8glib-HAL.h>
 
@@ -190,5 +190,5 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // U8GLIB_SH1106 || U8GLIB_SSD1306 || U8GLIB_SSD1309)
+#endif // HAS_U8GLIB_I2C_OLED
 #endif // ARDUINO_ARCH_STM32
