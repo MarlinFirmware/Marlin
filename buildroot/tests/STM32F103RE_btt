@@ -10,6 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
+opt_enable ULTI_CONTROLLER
 opt_set MOTHERBOARD BOARD_BTT_SKR_E3_DIP \
         SERIAL_PORT 1 SERIAL_PORT_2 -1 \
         X_DRIVER_TYPE TMC2209 Y_DRIVER_TYPE TMC2130

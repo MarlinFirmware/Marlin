@@ -20,20 +20,3 @@
  *
  */
 #pragma once
-
-#if HAS_U8GLIB_I2C_OLED
-  // Define this to reduce build size and optimize performance
-  //#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
-
-  #ifdef COMPILE_TIME_I2C_IS_HARDWARE
-    #if COMPILE_TIME_I2C_IS_HARDWARE
-      #define U8G_USES_HW_I2C
-    #else
-      #define U8G_USES_SW_I2C
-    #endif
-  #else
-    #define U8G_USES_HW_I2C
-    #define U8G_USES_SW_I2C
-  #endif
-
-#endif
