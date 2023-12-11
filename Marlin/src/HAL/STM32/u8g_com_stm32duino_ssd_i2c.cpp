@@ -36,7 +36,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
+#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include <U8glib-HAL.h>
 
@@ -74,10 +74,9 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
     static bool i2c_initialized = false;    // Flag to only run init/linking code once
     if (!i2c_initialized) {                 // Init runtime linkages
       i2c_initialized = true;               // Only do this once
-      I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
-      if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL))
-        i2cInstance = NP;
-      isHardI2C = (i2cInstance != nullptr); // Found hardware I2C controller
+      I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
+      I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);
+      isHardI2C = (i2cInstance1 && (i2cInstance1 == i2cInstance2)); // Found hardware I2C controller
     }
   #endif
 
@@ -191,5 +190,5 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309)
+#endif // U8GLIB_SH1106 || U8GLIB_SSD1306 || U8GLIB_SSD1309)
 #endif // ARDUINO_ARCH_STM32

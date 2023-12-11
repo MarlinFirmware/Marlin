@@ -67,7 +67,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
+#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
 
 #include "HAL_LCD_com_defines.h"
 
@@ -296,4 +296,4 @@ uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t leng
   return 1;
 }
 
-#endif // U8GLIB_SH1106 || IS_U8GLIB_SSD1306 || U8GLIB_SSD1309)
+#endif // U8GLIB_SH1106 || U8GLIB_SSD1306 || U8GLIB_SSD1309)

@@ -310,11 +310,9 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if IS_I2C_LCD
-    bool isSoftI2C = false; // Flag for LCD software I2C driver
-    I2C_TypeDef *i2cInstance = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
-    if (i2cInstance != (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL))
-      i2cInstance = NP;
-    isSoftI2C = (i2cInstance == nullptr);  // Using software I2C driver for LCD
+    I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
+    I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);
+    bool isSoftI2C = !(i2cInstance1 && (i2cInstance1 == i2cInstance2)); // Using software I2C driver for LCD
   #else
     constexpr bool isSoftI2C = false;
   #endif

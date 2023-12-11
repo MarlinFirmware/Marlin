@@ -286,6 +286,7 @@
   #endif
 #endif
 
+// U8GLIB_SSD1306 may be set alone or for other displays that need it
 #if ENABLED(IS_U8GLIB_SSD1306)
   #define U8GLIB_SSD1306
 #endif
