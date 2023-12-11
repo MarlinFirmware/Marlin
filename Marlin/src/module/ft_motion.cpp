@@ -530,7 +530,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
   */
 
-  const float spm = totalLength / current_block->step_event_count;
+  const float spm = totalLength / current_block->step_event_count,
               f_s = spm * current_block->initial_rate,
               f_e = spm * current_block->final_rate;
 
