@@ -80,8 +80,8 @@ struct EnsureDouble {
   // If the compiler breaks on ambiguity here, it's likely because print(X, base) is called with X not a double/float, and
   // a base that's not a PrintBase value. This code is made to detect the error. You MUST set a base explicitly like this:
   //SERIAL_PRINT(v, PrintBase::Hex)
+  EnsureDouble(float  a) : a(a) {}
   EnsureDouble(double a) : a(a) {}
-  EnsureDouble(float a) : a(a) {}
 };
 
 // Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.
@@ -113,13 +113,22 @@ struct SerialBase {
   // Called on destruction
   void end()                        { SerialChild->end(); }
 
-  /** Check for available data from the port
-      @param index  The port index, usually 0 */
-  int available(serial_index_t index=0) const { return SerialChild->available(index); }
+  // Redirect flush
+  void flush()                      { SerialChild->flush(); }
+
+  // Not all implementation have a flushTX, so let's call them only if the child has the implementation
+  void flushTX()                    { CALL_IF_EXISTS(void, SerialChild, flushTX); }
+
+  // Check if the serial port is connected (usually bypassed)
+  bool connected() const            { return SerialChild->connected(); }
 
   /** Read a value from the port
       @param index  The port index, usually 0 */
-  int read(serial_index_t index=0)        { return SerialChild->read(index); }
+  int read(serial_index_t index=0)  { return SerialChild->read(index); }
+
+  /** Check for available data from the port
+      @param index  The port index, usually 0 */
+  int available(serial_index_t index=0) const { return SerialChild->available(index); }
 
   /** Combine the features of this serial instance and return it
       @param index  The port index, usually 0 */
@@ -127,15 +136,6 @@ struct SerialBase {
 
   // Check if the serial port has a feature
   bool has_feature(serial_index_t index, SerialFeature flag) const { return (features(index) & flag) != SerialFeature::None; }
-
-  // Check if the serial port is connected (usually bypassed)
-  bool connected() const            { return SerialChild->connected(); }
-
-  // Redirect flush
-  void flush()                      { SerialChild->flush(); }
-
-  // Not all implementation have a flushTX, so let's call them only if the child has the implementation
-  void flushTX()                    { CALL_IF_EXISTS(void, SerialChild, flushTX); }
 
   // Glue code here
   void write(const char *str)                    { while (*str) write(*str++); }
@@ -150,42 +150,42 @@ struct SerialBase {
   // Prints are performed with a single size, to avoid needing multiple print functions.
   // The fixed integer size used for prints will be the larger of long or a pointer.
   #if __LONG_WIDTH__ >= __INTPTR_WIDTH__
-    typedef long int_fixed_print_t;
+    typedef          long  int_fixed_print_t;
     typedef unsigned long uint_fixed_print_t;
   #else
-    typedef intptr_t int_fixed_print_t;
+    typedef  intptr_t  int_fixed_print_t;
     typedef uintptr_t uint_fixed_print_t;
 
-    FORCE_INLINE void print(intptr_t c, PrintBase base)         { printNumber_signed(c, base); }
-    FORCE_INLINE void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, base); }
+    FORCE_INLINE void print( intptr_t c, PrintBase base)    { printNumber_signed(  c, base); }
+    FORCE_INLINE void print(uintptr_t c, PrintBase base)    { printNumber_unsigned(c, base); }
   #endif
 
-  FORCE_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, base); }
-  FORCE_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, base); }
-  FORCE_INLINE void print(int c, PrintBase base)                { printNumber_signed(c, base); }
-  FORCE_INLINE void print(long c, PrintBase base)               { printNumber_signed(c, base); }
-  FORCE_INLINE void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, base); }
-  FORCE_INLINE void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, base); }
-  FORCE_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, base); }
-  FORCE_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(         char  c, PrintBase base) { printNumber_signed(  c, base); }
+  FORCE_INLINE void print(         short c, PrintBase base) { printNumber_signed(  c, base); }
+  FORCE_INLINE void print(         int   c, PrintBase base) { printNumber_signed(  c, base); }
+  FORCE_INLINE void print(         long  c, PrintBase base) { printNumber_signed(  c, base); }
+  FORCE_INLINE void print(unsigned char  c, PrintBase base) { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned short c, PrintBase base) { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned int   c, PrintBase base) { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned long  c, PrintBase base) { printNumber_unsigned(c, base); }
 
-  void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
+  void print(EnsureDouble c, int digits) { printFloat(c, digits); }
 
   // Forward the call to the former's method
 
   // Default implementation for anything without a specialization
   // This handles integers since they are the most common
   template <typename T>
-  void print(T c)    { print(c, PrintBase::Dec); }
+  void print(T c) { print(c, PrintBase::Dec); }
 
-  void print(float c)    { print(c, 2); }
-  void print(double c)   { print(c, 2); }
+  void print(float  c)               { print(c, 2); }
+  void print(double c)               { print(c, 2); }
 
-  void println(char *s)               { print(s); println(); }
-  void println(const char *s)         { print(s); println(); }
-  void println(float c, int digits)   { print(c, digits); println(); }
-  void println(double c, int digits)  { print(c, digits); println(); }
-  void println()                      { write('\r'); write('\n'); }
+  void println(char *s)              { print(s); println(); }
+  void println(const char *s)        { print(s); println(); }
+  void println(float c, int digits)  { print(c, digits); println(); }
+  void println(double c, int digits) { print(c, digits); println(); }
+  void println()                     { write('\r'); write('\n'); }
 
   // Default implementations for types without a specialization. Handles integers.
   template <typename T>
@@ -195,7 +195,7 @@ struct SerialBase {
   void println(T c)                   { println(c, PrintBase::Dec); }
 
   // Forward the call to the former's method
-  void println(float c)               { println(c, 2); }
+  void println(float  c)              { println(c, 2); }
   void println(double c)              { println(c, 2); }
 
   // Print a number with the given base

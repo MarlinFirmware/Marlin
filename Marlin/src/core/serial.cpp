@@ -34,8 +34,8 @@ uint8_t marlin_debug_flags = TERN(MARLIN_DEV_MODE, MARLIN_DEBUG_ECHO, MARLIN_DEB
 PGMSTR(SP_A_STR, " A"); PGMSTR(SP_B_STR, " B"); PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_P_STR, " P"); PGMSTR(SP_T_STR, " T"); PGMSTR(NUL_STR,   "");
 
-#define _N_STR(N) PGMSTR(N##_STR, STR_##N);
-#define _N_LBL(N) PGMSTR(N##_LBL, STR_##N ":");
+#define _N_STR(N)    PGMSTR(N##_STR, STR_##N);
+#define _N_LBL(N)    PGMSTR(N##_LBL, STR_##N ":");
 #define _SP_N_STR(N) PGMSTR(SP_##N##_STR, " " STR_##N);
 #define _SP_N_LBL(N) PGMSTR(SP_##N##_LBL, " " STR_##N ":");
 MAP(_N_STR, LOGICAL_AXIS_NAMES); MAP(_SP_N_STR, LOGICAL_AXIS_NAMES);
@@ -75,7 +75,7 @@ template <> void SERIAL_ECHO(const p_float_t pf) { SERIAL_IMPL.print(pf.value, p
 template <> void SERIAL_ECHO(const w_float_t wf) { char f1[20]; SERIAL_IMPL.print(dtostrf(wf.value, wf.width, wf.prec, f1)); }
 
 // Specializations for F-string
-template <> void SERIAL_ECHO(const FSTR_P fstr)   { SERIAL_ECHO_P(FTOP(fstr)); }
+template <> void SERIAL_ECHO(  const FSTR_P fstr) { SERIAL_ECHO_P(  FTOP(fstr)); }
 template <> void SERIAL_ECHOLN(const FSTR_P fstr) { SERIAL_ECHOLN_P(FTOP(fstr)); }
 
 void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
@@ -112,9 +112,9 @@ void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P 
   if (post)          SERIAL_ECHO(post);
 }
 
-void serialprint_onoff(const bool onoff) { SERIAL_ECHO(onoff ? F(STR_ON) : F(STR_OFF)); }
+void serialprint_onoff(  const bool onoff) { SERIAL_ECHO(onoff ? F(STR_ON) : F(STR_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
-void serialprint_truefalse(const bool tf) { SERIAL_ECHO(tf ? F("true") : F("false")); }
+void serialprint_truefalse(const bool tf)  { SERIAL_ECHO(tf ? F("true") : F("false")); }
 
 void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
