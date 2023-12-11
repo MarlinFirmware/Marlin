@@ -130,7 +130,6 @@
 //
 
 #if ANY(EDUTRONICS_12864OLED_SH1106, EDUTRONICS_12864OLED_SSD1306)
-  #define LCDSCREEN_NAME "EDUTRONICS 12864 OLED"
   #define BTN_EN2                              1
   #define BTN_EN1                              3
   #define BTN_ENC                              0

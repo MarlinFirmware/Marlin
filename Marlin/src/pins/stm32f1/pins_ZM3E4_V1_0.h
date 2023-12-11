@@ -279,7 +279,6 @@
 // LCD / Controller
 //
 #if ENABLED(ZONESTAR_12864LCD)
-  #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_04_PIN  // 8 SCK make sure for zonestar zm3e4!
@@ -289,7 +288,6 @@
   #define BTN_EN2                    EXP1_08_PIN
   #define BTN_ENC                    EXP1_07_PIN
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP1_04_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_06_PIN  // 8 SCK make sure for zonestar zm3e4!
@@ -300,7 +298,6 @@
   #define BTN_ENC                    EXP1_01_PIN
 #elif ENABLED(ZONESTAR_DWIN_LCD)
   // Connect to EXP2 connector
-  #define LCDSCREEN_NAME "ZONESTAR DWIN LCD"
   #define BEEPER_PIN                 EXP2_05_PIN
   #define KILL_PIN                          PC0
   #define BTN_EN1                    EXP2_08_PIN
@@ -309,7 +306,6 @@
 #endif
 
 #if ENABLED(ZONESTAR_LCD2004_KNOB)
-  #define LCDSCREEN_NAME "LCD2004 KNOB"
   #define LCD_PINS_RS                EXP1_03_PIN
   #define LCD_PINS_EN                EXP1_04_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
@@ -322,7 +318,6 @@
   #define BEEPER_PIN                 EXP1_02_PIN
   #define KILL_PIN                   EXP2_07_PIN
 #elif ENABLED(ZONESTAR_LCD2004_ADCKEY)
-  #define LCDSCREEN_NAME "LCD2004 5KEY"
   #define LCD_PINS_RS                EXP1_03_PIN
   #define LCD_PINS_EN                EXP1_04_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
