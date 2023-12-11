@@ -40,28 +40,14 @@
 
 #include <U8glib-HAL.h>
 
-// Define this to reduce build size and optimize performance
-//#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
-
-#ifdef COMPILE_TIME_I2C_IS_HARDWARE
-  #if COMPILE_TIME_I2C_IS_HARDWARE
-    #define USE_HW_I2C
-  #else
-    #define USE_SW_I2C
-  #endif
-#else
-  #define USE_HW_I2C
-  #define USE_SW_I2C
-#endif
-
-#if ENABLED(USE_HW_I2C)
+#if ENABLED(U8G_USES_HW_I2C)
   #include <Wire.h>
   #ifndef MASTER_ADDRESS
     #define MASTER_ADDRESS 0x01
   #endif
 #endif
 
-#if ENABLED(USE_SW_I2C)
+#if ENABLED(U8G_USES_SW_I2C)
   #include <SlowSoftI2CMaster.h>
   #include <SlowSoftWire.h>
 #endif
@@ -103,7 +89,7 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
 
   static uint8_t control;
   if (isHardI2C) {                          // Found hardware I2C controller
-    #if ENABLED(USE_HW_I2C)
+    #if ENABLED(U8G_USES_HW_I2C)
       static TwoWire wire2;                 // A TwoWire object for use below
       switch (msg) {
         case U8G_COM_MSG_INIT:
@@ -153,7 +139,7 @@ uint8_t u8g_com_stm32duino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
     #endif
   }
   else {    // Software I2C
-    #if ENABLED(USE_SW_I2C)
+    #if ENABLED(U8G_USES_SW_I2C)
       static SlowSoftWire sWire = SlowSoftWire(DOGLCD_SDA_PIN, DOGLCD_SCL_PIN);
 
       switch (msg) {

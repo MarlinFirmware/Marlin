@@ -20,3 +20,20 @@
  *
  */
 #pragma once
+
+#if ANY(U8GLIB_SH1106, IS_U8GLIB_SSD1306, U8GLIB_SSD1309)
+  // Define this to reduce build size and optimize performance
+  //#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
+
+  #ifdef COMPILE_TIME_I2C_IS_HARDWARE
+    #if COMPILE_TIME_I2C_IS_HARDWARE
+      #define U8G_USES_HW_I2C
+    #else
+      #define U8G_USES_SW_I2C
+    #endif
+  #else
+    #define U8G_USES_HW_I2C
+    #define U8G_USES_SW_I2C
+  #endif
+
+#endif
