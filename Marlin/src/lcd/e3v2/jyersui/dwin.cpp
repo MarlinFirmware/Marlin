@@ -389,7 +389,7 @@ private:
 
         // Draw value text on
         if (viewer_print_value) {
-          int8_t offset_x, offset_y = cell_height_px / 2 - 6;
+          const int8_t offset_y = cell_height_px / 2 - 6;
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
@@ -399,7 +399,7 @@ private:
               msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
             else
               msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
-            offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
+            const int8_t offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
             if (GRID_MAX_POINTS_X >= 10)
               dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, msg);

@@ -788,7 +788,7 @@ void unified_bed_leveling::shift_mesh_height() {
       #endif
 
       #ifndef HUGE_VALF
-        #define HUGE_VALF (10e100F)
+        #define HUGE_VALF __FLT_MAX__
       #endif
 
       best = do_furthest // Points with valid data or HUGE_VALF are skipped
@@ -1790,8 +1790,8 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
     serial_delay(50);
 
-    SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
-    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
+    SERIAL_ECHOLNPGM("sizeof(unified_bed_leveling) :  ", sizeof(unified_bed_leveling));
+    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values));
     serial_delay(25);
 
     SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
