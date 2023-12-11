@@ -44,12 +44,16 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2U
 };
 
+#define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
+
 #if ENABLED(FTM_UNIFIED_BWS)
   typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectory_t;
+  typedef xyze_trajectory_t xyze_trajInfo_t;
 #else
   typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
   typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
   typedef struct XYZEarray<float, (FTM_WINDOW_SIZE - FTM_BATCH_SIZE)> xyze_trajectoryWin_t;
+  typedef xyze_trajectoryMod_t xyze_trajInfo_t;
 #endif
 
 enum {

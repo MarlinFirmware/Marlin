@@ -263,24 +263,24 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('A'), "] frequency.");
     }
 
-#if HAS_DYNAMIC_FREQ
-    // Parse frequency scaling parameter (X axis).
-    if (parser.seenval('F')) {
-      if (modeUsesDynFreq) {
-        ftMotion.cfg.dynFreqK[X_AXIS] = parser.value_float();
-        flag.report_h = true;
+    #if HAS_DYNAMIC_FREQ
+      // Parse frequency scaling parameter (X axis).
+      if (parser.seenval('F')) {
+        if (modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK[X_AXIS] = parser.value_float();
+          flag.report_h = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
-    }
-#endif
+    #endif
 
     // Parse zeta parameter (X axis).
     if (parser.seenval('I')) {
       const float val = parser.value_float();
       if (ftMotion.cfg.modeHasShaper()) {
-        if WITHIN (val, 0.01f, 1.0f) {
-          ftMotion.cfg.Zeta[0] = val;
+        if (WITHIN(val, 0.01f, 1.0f)) {
+          ftMotion.cfg.zeta[0] = val;
           flag.update_n = flag.update_a = true;
         }
         else
@@ -291,12 +291,11 @@ void GcodeSuite::M493() {
     }
 
     // Parse vtol parameter (X axis).
-    if (parser.seenval('Q'))
-    {
+    if (parser.seenval('Q')) {
       const float val = parser.value_float();
-      if (ftMotion.cfg.modeHasShaper() && WITHIN(ftMotion.cfg.mode, ftMotionMode_EI, ftMotionMode_3HEI)) {
-        if WITHIN (val, 0.00f, 1.0f) {
-          ftMotion.cfg.Vtol[0] = val;
+      if (ftMotion.cfg.modeHasShaper() && IS_EI_MODE(ftMotion.cfg.mode)) {
+        if (WITHIN(val, 0.00f, 1.0f)) {
+          ftMotion.cfg.vtol[0] = val;
           flag.update_a = true;
         }
         else
@@ -306,9 +305,9 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
     }
 
-#endif // HAS_X_AXIS
+  #endif // HAS_X_AXIS
 
-#if HAS_Y_AXIS
+  #if HAS_Y_AXIS
 
     // Parse frequency parameter (Y axis).
     if (parser.seenval('B')) {
@@ -325,24 +324,24 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('B'), "] frequency.");
     }
 
-  #if HAS_DYNAMIC_FREQ
-    // Parse frequency scaling parameter (Y axis).
-    if (parser.seenval('H')) {
-      if (modeUsesDynFreq) {
-        ftMotion.cfg.dynFreqK[Y_AXIS] = parser.value_float();
-        flag.report_h = true;
+    #if HAS_DYNAMIC_FREQ
+      // Parse frequency scaling parameter (Y axis).
+      if (parser.seenval('H')) {
+        if (modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK[Y_AXIS] = parser.value_float();
+          flag.report_h = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
-    }
-  #endif
+    #endif
 
     // Parse zeta parameter (Y axis).
     if (parser.seenval('J')) {
       const float val = parser.value_float();
       if (ftMotion.cfg.modeHasShaper()) {
-        if WITHIN (val, 0.01f, 1.0f) {
-          ftMotion.cfg.Zeta[1] = val;
+        if (WITHIN(val, 0.01f, 1.0f)) {
+          ftMotion.cfg.zeta[1] = val;
           flag.update_n = flag.update_a = true;
         }
         else
@@ -355,9 +354,9 @@ void GcodeSuite::M493() {
     // Parse vtol parameter (Y axis).
     if (parser.seenval('R')) {
       const float val = parser.value_float();
-      if (ftMotion.cfg.modeHasShaper() && WITHIN(ftMotion.cfg.mode, ftMotionMode_EI, ftMotionMode_3HEI)) {
-        if WITHIN (val, 0.00f, 1.0f) {
-          ftMotion.cfg.Vtol[1] = val;
+      if (ftMotion.cfg.modeHasShaper() && IS_EI_MODE(ftMotion.cfg.mode)) {
+        if (WITHIN(val, 0.00f, 1.0f)) {
+          ftMotion.cfg.vtol[1] = val;
           flag.update_a = true;
         }
         else
@@ -367,7 +366,7 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
     }
 
-#endif // HAS_Y_AXIS
+  #endif // HAS_Y_AXIS
 
   planner.synchronize();
 

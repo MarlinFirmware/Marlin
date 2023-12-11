@@ -62,15 +62,9 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
 
 // Private variables.
 // NOTE: These are sized for Ulendo FBS use.
-#if ENABLED(FTM_UNIFIED_BWS)
-  xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
-  xyze_trajectory_t FTMotion::trajMod;            // = {0.0f} Storage for modified fixed-time-based trajectory.
-  xyze_trajectory_t FTMotion::trajWin;            // = {0.0f} Storage for fixed time trajectory window.
-#else
-  xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
-  xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
-  xyze_trajectoryWin_t FTMotion::trajWin;         // = {0.0f} Storage for fixed time trajectory window.
-#endif
+xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+xyze_trajInfo_t FTMotion::trajMod;              // = {0.0f} Storage for modified fixed-time-based trajectory.
+xyze_trajInfo_t FTMotion::trajWin;              // = {0.0f} Storage for fixed time trajectory window.
 
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
      FTMotion::blockProcRdy_z1 = false,         // Storage for the previous indicator.
@@ -191,34 +185,33 @@ void FTMotion::loop() {
 
     // Call Ulendo FBS here.
 
-  #if ENABLED(FTM_UNIFIED_BWS)
-    trajMod = traj; // Copy the uncompensated vectors.
-    traj = trajWin; // Move the window to traj
-  #else
-   // Copy the uncompensated vectors.
-    #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
-    LOGICAL_AXIS_CODE(
-      TCOPY(e),
-      TCOPY(x), TCOPY(y), TCOPY(z),
-      TCOPY(i), TCOPY(j), TCOPY(k),
-      TCOPY(u), TCOPY(v), TCOPY(w)
-    );
+    #if ENABLED(FTM_UNIFIED_BWS)
+      trajMod = traj; // Copy the uncompensated vectors.
+      traj = trajWin; // Move the window to traj
+    #else
+      // Copy the uncompensated vectors.
+      #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
+      LOGICAL_AXIS_CODE(
+        TCOPY(e),
+        TCOPY(x), TCOPY(y), TCOPY(z),
+        TCOPY(i), TCOPY(j), TCOPY(k),
+        TCOPY(u), TCOPY(v), TCOPY(w)
+      );
 
-    // Shift the time series back in the window
-    #define TSHIFT(A) memcpy(traj.A, trajWin.A, sizeof(trajWin.A))
-    LOGICAL_AXIS_CODE(
-      TSHIFT(e),
-      TSHIFT(x), TSHIFT(y), TSHIFT(z),
-      TSHIFT(i), TSHIFT(j), TSHIFT(k),
-      TSHIFT(u), TSHIFT(v), TSHIFT(w)
-    );
-  #endif
+      // Shift the time series back in the window
+      #define TSHIFT(A) memcpy(traj.A, trajWin.A, sizeof(trajWin.A))
+      LOGICAL_AXIS_CODE(
+        TSHIFT(e),
+        TSHIFT(x), TSHIFT(y), TSHIFT(z),
+        TSHIFT(i), TSHIFT(j), TSHIFT(k),
+        TSHIFT(u), TSHIFT(v), TSHIFT(w)
+      );
+    #endif
 
     // ... data is ready in trajMod.
     batchRdyForInterp = true;
 
-    batchRdy = false; // Clear so that makeVector() may resume generating points.
-
+    batchRdy = false; // Clear so makeVector() can resume generating points.
   }
 
   // Interpolation.
@@ -247,7 +240,7 @@ void FTMotion::loop() {
   // Refresh the gains used by shaping functions.
   // To be called on init or mode or zeta change.
 
-  void FTMotion::Shaping::updateShapingA(float *zeta/*=cfg.zeta*/, float *vtol/*=cfg.vtol*/) {
+  void FTMotion::Shaping::updateShapingA(float zeta[]/*=cfg.zeta*/, float vtol[]/*=cfg.vtol*/) {
 
     const float Kx = exp(-zeta[0] * M_PI / sqrt(1.0f - sq(zeta[0]))),
                 Ky = exp(-zeta[1] * M_PI / sqrt(1.0f - sq(zeta[1]))),
@@ -393,7 +386,7 @@ void FTMotion::loop() {
     
   }
 
-  void FTMotion::updateShapingA(float *zeta/*=cfg.zeta*/, float *vtol/*=cfg.vtol*/) {
+  void FTMotion::updateShapingA(float zeta[]/*=cfg.zeta*/, float vtol[]/*=cfg.vtol*/) {
     shaping.updateShapingA(zeta, vtol);
   }
 
@@ -432,7 +425,7 @@ void FTMotion::loop() {
     }
   }
 
-  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float *zeta/*=cfg.zeta*/) {
+  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float zeta[]/*=cfg.zeta*/) {
     const float xdf = sqrt(1.0f - sq(zeta[0]));
     shaping.x.updateShapingN(xf, xdf);
     
@@ -449,8 +442,8 @@ void FTMotion::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  traj.reset();    // Reset trajectory history
-  trajWin.reset(); // Reset Windowws trajectory history
+  traj.reset();
+  trajWin.reset();
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
   batchRdy = batchRdyForInterp = false;
@@ -513,8 +506,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   /* Keep for comprehension
   const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
-              f_s = spm * current_block->initial_rate;  // (steps/s) Start feedrate
-  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
+              f_s = spm * current_block->initial_rate,  // (steps/s) Start feedrate
+              f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
 
   const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
               oneby2a = 1.0f / (2.0f * a),              // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
@@ -538,14 +531,14 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   */
 
   const float spm = totalLength / current_block->step_event_count;
-              f_s = spm * current_block->initial_rate;
-  const float f_e = spm * current_block->final_rate;
+              f_s = spm * current_block->initial_rate,
+              f_e = spm * current_block->final_rate;
 
   const float accel = current_block->acceleration,
               oneOverAccel = 1.0f / accel;
 
   float F_n = current_block->nominal_speed;
-  const float ldiff = totalLength  + 0.5f * oneOverAccel * (sq(f_s) + sq(f_e));
+  const float ldiff = totalLength + 0.5f * oneOverAccel * (sq(f_s) + sq(f_e));
 
   float T2 = ldiff / F_n - oneOverAccel * F_n;
   if (T2 < 0.0f) {
@@ -564,16 +557,17 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               T2_P = N2 * (FTM_TS), // (s) Coast
               T3_P = N3 * (FTM_TS); // (s) Decel
 
-  // Calculate the reachable feedrate at the end of the accel phase
-  // totalLength is the total distance to travel in mm
-  // f_s is the starting feedrate in mm/s
-  // f_e is the ending feedrate in mm/s
-  // T1_P is the time spent accelerating in seconds
-  // T2_P is the time spent coasting in seconds
-  // T3_P is the time spent decelerating in seconds
-  // f_s * T1_P is the distance traveled during the accel phase
-  // f_e * T3_P is the distance traveled during the decel phase
-  //
+  /**
+   * Calculate the reachable feedrate at the end of the accel phase.
+   *  totalLength is the total distance to travel in mm
+   *  f_s        : (mm/s) Starting feedrate
+   *  f_e        : (mm/s) Ending feedrate
+   *  T1_P       : (sec) Time spent accelerating
+   *  T2_P       : (sec) Time spent coasting
+   *  T3_P       : (sec) Time spent decelerating
+   *  f_s * T1_P : (mm) Distance traveled during the accel phase
+   *  f_e * T3_P : (mm) Distance traveled during the decel phase
+   */
   F_P = (2.0f * totalLength - f_s * T1_P - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
 
   // Calculate the acceleration and deceleration rates
@@ -595,18 +589,18 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
 // Generate data points of the trajectory.
 void FTMotion::makeVector() {
-  float accel_k = 0.0f;                                   // (mm/s^2) Acceleration K factor
-  float tau = (makeVector_idx + 1) * (FTM_TS);            // (s) Time since start of block
-  float dist = 0.0f;                                      // (mm) Distance traveled
+  float accel_k = 0.0f;                                 // (mm/s^2) Acceleration K factor
+  float tau = (makeVector_idx + 1) * (FTM_TS);          // (s) Time since start of block
+  float dist = 0.0f;                                    // (mm) Distance traveled
 
   if (makeVector_idx < N1) {
     // Acceleration phase
-    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));      // (mm) Distance traveled for acceleration phase since start of block
-    accel_k = accel_P;                                    // (mm/s^2) Acceleration K factor from Accel phase
+    dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
+    accel_k = accel_P;                                  // (mm/s^2) Acceleration K factor from Accel phase
   }
   else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
-    dist = s_1e + F_P * (tau - N1 * (FTM_TS));            // (mm) Distance traveled for coasting phase since start of block
+    dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
     //accel_k = 0.0f;
   }
   else {
@@ -700,26 +694,26 @@ void FTMotion::makeVector() {
   }
 }
 
-/* Convert to steps : commands are written in a bitmask with step and dir as single bits.
-   Tests for delta are moved outside the loop
-   2 functions are created for command compute with an array of pointers to functions
-*/
-static void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t &, int32_t &, ft_command_t &, int32_t, int32_t);
+/**
+ * Convert to steps
+ * - Commands are written in a bitmask with step and dir as single bits.
+ * - Tests for delta are moved outside the loop.
+ * - Two functions are used for command computation with an array of function pointers.
+ */
+static void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
 
-static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
-  if (e >= FTM_CTS_COMPARE_VAL) {
-    s++;
-    b |= bd | bs;
-    e -= FTM_STEPS_PER_UNIT_TIME;
-    }
+static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
+  if (e < FTM_CTS_COMPARE_VAL) return;
+  s++;
+  b |= bd | bs;
+  e -= FTM_STEPS_PER_UNIT_TIME;
 }
 
-static void command_set_neg(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs){
-  if (e <= -(FTM_CTS_COMPARE_VAL)) {
-        s--;
-        b |= bs;
-        e += FTM_STEPS_PER_UNIT_TIME;
-      }
+static void command_set_neg(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
+  if (e > -(FTM_CTS_COMPARE_VAL)) return;
+  s--;
+  b |= bs;
+  e += FTM_STEPS_PER_UNIT_TIME;
 }
 
 // Interpolates single data point to stepper commands.
@@ -747,16 +741,16 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #endif
 
   LOGICAL_AXIS_CODE(
-  command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ?  command_set_pos : command_set_neg,
-  command_set[X_AXIS] = delta.x >= 0 ?  command_set_pos : command_set_neg,
-  command_set[Y_AXIS] = delta.y >= 0 ?  command_set_pos : command_set_neg,
-  command_set[Z_AXIS] = delta.z >= 0 ?  command_set_pos : command_set_neg,
-  command_set[I_AXIS] = delta.i >= 0 ?  command_set_pos : command_set_neg,
-  command_set[J_AXIS] = delta.j >= 0 ?  command_set_pos : command_set_neg,
-  command_set[K_AXIS] = delta.k >= 0 ?  command_set_pos : command_set_neg,
-  command_set[U_AXIS] = delta.u >= 0 ?  command_set_pos : command_set_neg,
-  command_set[V_AXIS] = delta.v >= 0 ?  command_set_pos : command_set_neg,
-  command_set[W_AXIS] = delta.w >= 0 ?  command_set_pos : command_set_neg
+    command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ?  command_set_pos : command_set_neg,
+    command_set[X_AXIS] = delta.x >= 0 ?  command_set_pos : command_set_neg,
+    command_set[Y_AXIS] = delta.y >= 0 ?  command_set_pos : command_set_neg,
+    command_set[Z_AXIS] = delta.z >= 0 ?  command_set_pos : command_set_neg,
+    command_set[I_AXIS] = delta.i >= 0 ?  command_set_pos : command_set_neg,
+    command_set[J_AXIS] = delta.j >= 0 ?  command_set_pos : command_set_neg,
+    command_set[K_AXIS] = delta.k >= 0 ?  command_set_pos : command_set_neg,
+    command_set[U_AXIS] = delta.u >= 0 ?  command_set_pos : command_set_neg,
+    command_set[V_AXIS] = delta.v >= 0 ?  command_set_pos : command_set_neg,
+    command_set[W_AXIS] = delta.w >= 0 ?  command_set_pos : command_set_neg
   );
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {

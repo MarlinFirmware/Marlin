@@ -421,19 +421,19 @@ void menu_move() {
       #endif
 
       #if HAS_X_AXIS
-        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.Zeta[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
       #endif
       #if HAS_Y_AXIS
-        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.Zeta[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
       #endif
 
-      if (WITHIN(c.mode, ftMotionMode_EI, ftMotionMode_3HEI)) {
-      #if HAS_X_AXIS
-        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.Vtol[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
-      #endif
-      #if HAS_Y_AXIS
-        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.Vtol[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
-      #endif
+      if (IS_EI_MODE(c.mode)) {
+        #if HAS_X_AXIS
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        #endif
+        #if HAS_Y_AXIS
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        #endif
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -452,7 +452,7 @@ void menu_move() {
 
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      if(c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();
