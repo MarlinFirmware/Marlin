@@ -20,43 +20,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef SERIAL_DMA
-
-// TODO: Move to more appropriate place
-#if NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
-  #error "SERIAL_DMA is currently only supported on STM32F0xx, STM32F1xx STM32F2xx, STM32F4xx and STM32F7xx."
-#endif
-
 #pragma once
 
-#if !defined(RX_BUFFER_SIZE) || (RX_BUFFER_SIZE == 0)
+//
+// HAL_HardwareSerial Class. Adapted from Arduino HardwareSerial.
+//
+
+#if RX_BUFFER_SIZE == 0
   #undef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 128
 #endif
 
-#if !defined(TX_BUFFER_SIZE) || (TX_BUFFER_SIZE == 0)
+#if TX_BUFFER_SIZE == 0
   #undef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 64
 #endif
 
-#if ANY(STM32F0xx, STM32F1xx)
-  typedef struct
-  { // F0 / F1
-    USART_TypeDef * uart;
-    uint32_t dma_rcc;
+typedef struct {
+  USART_TypeDef * uart;
+  uint32_t dma_rcc;
+  #if ANY(STM32F0xx, STM32F1xx)           // F0 / F1
     DMA_TypeDef * dma_controller;
     DMA_Channel_TypeDef * dma_channelRX;
-  } DMA_CFG;
-#else // F2 / F4 / F7
-  typedef struct {
-    USART_TypeDef * uart;
-    uint32_t dma_rcc;
+  #else                                   // F2 / F4 / F7
     uint32_t dma_channel;
     DMA_Stream_TypeDef * dma_streamRX;
-  } DMA_CFG;
-#endif
+  #endif
+} DMA_CFG;
 
-  class HAL_HardwareSerial : public Stream {
+class HAL_HardwareSerial : public Stream {
   protected:
     // Don't put any members after these buffers, since only the first
     // 32 bytes of this struct can be accessed quickly using the ldd instruction.
@@ -66,14 +58,14 @@
     serial_t _serial;
 
   public:
-  HAL_HardwareSerial(void *peripheral);
+    HAL_HardwareSerial(void *peripheral);
     void begin(unsigned long, uint8_t);
     void end();
     virtual int available();
     virtual int read();
     virtual int peek();
     virtual size_t write(uint8_t);
-     virtual void flush();
+    virtual void flush();
     operator bool() { return true; }
 
     void setRx(uint32_t _rx);
@@ -91,5 +83,3 @@
     DMA_CFG RX_DMA;
     void Serial_DMA_Read_Enable();
 };
-
-#endif // SERIAL_DMA

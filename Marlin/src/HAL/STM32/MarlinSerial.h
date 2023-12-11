@@ -27,39 +27,38 @@
   #include "../../feature/e_parser.h"
 #endif
 
+#if ENABLED(SERIAL_DMA)
+  #include "HardwareSerial.h"
+#endif
+
 #include "../../core/serial_hook.h"
 
-#ifdef SERIAL_DMA
-  #include "HardwareSerial.h"
+#if ENABLED(SERIAL_DMA)
 
   struct MarlinSerial : public HAL_HardwareSerial {
-    MarlinSerial(void *peripheral) :
-      HAL_HardwareSerial(peripheral)
-      { }
+    MarlinSerial(void *peripheral) : HAL_HardwareSerial(peripheral) { }
+    void begin(unsigned long baud, uint8_t config);
+    inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
+  };
 
-  void begin(unsigned long baud, uint8_t config);
-  inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
-
-#else // use Arduino platform
+#else // Arduino non-DMA
 
   typedef void (*usart_rx_callback_t)(serial_t * obj);
 
   struct MarlinSerial : public HardwareSerial {
-    MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback) :
-      HardwareSerial(peripheral), _rx_callback(rx_callback)
-      { }
+    MarlinSerial(void *peripheral, usart_rx_callback_t rx_callback)
+      : HardwareSerial(peripheral), _rx_callback(rx_callback) { }
 
-  void begin(unsigned long baud, uint8_t config);
-  inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
+    void begin(unsigned long baud, uint8_t config);
+    inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
-  void _rx_complete_irq(serial_t *obj);
+    void _rx_complete_irq(serial_t *obj);
 
-protected:
-  usart_rx_callback_t _rx_callback;
+    protected:
+      usart_rx_callback_t _rx_callback;
+  };
 
 #endif
-
-};
 
 typedef Serial1Class<MarlinSerial> MSerialT;
 extern MSerialT MSerial1;
