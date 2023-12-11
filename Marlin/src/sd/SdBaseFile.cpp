@@ -706,7 +706,7 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
               if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
               // Get LFN sequence number
               lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
-              if WITHIN(lfnSequenceNumber, 1, reqEntriesNum) {
+              if (WITHIN(lfnSequenceNumber, 1, reqEntriesNum)) {
                 // Check checksum for all other entries with the starting checksum fetched before
                 if (lfnChecksum == pvFat->checksum) {
                   // Set chunk of LFN from VFAT entry into lfnName
