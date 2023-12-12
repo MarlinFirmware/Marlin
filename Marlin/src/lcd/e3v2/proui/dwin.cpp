@@ -1521,48 +1521,25 @@ void dwinLevelingDone() {
         case MPCTEMP_START:
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_MPC_AUTOTUNE));
           DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:    Celsius"));
-          break;
-      #endif
-      #if ANY(PIDTEMP, PIDTEMPBED)
-        TERN_(PIDTEMP,    case PIDTEMP_START:)
-        TERN_(PIDTEMPBED, case PIDTEMPBED_START:)
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
-          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
-          break;
-      #endif
-    }
-
-    switch (hmiValue.tempControl) {
-      default: break;
-      #if ANY(PIDTEMP, MPC_AUTOTUNE)
-        TERN_(PIDTEMP,      case PIDTEMP_START:)
-        TERN_(MPC_AUTOTUNE, case MPCTEMP_START:)
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for Nozzle is running."));
-          break;
-      #endif
-      #if ENABLED(PIDTEMPBED)
-        case PIDTEMPBED_START:
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for BED is running."));
-          break;
-      #endif
-    }
-
-    switch (hmiValue.tempControl) {
-      default: break;
-      #if ENABLED(MPC_AUTOTUNE)
-        case MPCTEMP_START:
           _maxtemp = thermalManager.hotend_maxtemp[0];
           _target = 200;
           break;
       #endif
       #if ENABLED(PIDTEMP)
         case PIDTEMP_START:
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
+          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for Nozzle is running."));
           _maxtemp = thermalManager.hotend_maxtemp[0];
           _target = hmiData.hotendPidT;
           break;
       #endif
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
+          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for BED is running."));
           _maxtemp = BED_MAXTEMP;
           _target = hmiData.bedPidT;
           break;
