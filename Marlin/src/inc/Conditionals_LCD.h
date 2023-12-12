@@ -1615,11 +1615,7 @@
   #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
 
-// This flag indicates some kind of jerk storage is needed
-#if ANY(CLASSIC_JERK, IS_KINEMATIC)
-  #define HAS_CLASSIC_JERK 1
-#endif
-
+// Use Junction Deviation for motion if Jerk is disabled
 #if DISABLED(CLASSIC_JERK)
   #define HAS_JUNCTION_DEVIATION 1
 #endif

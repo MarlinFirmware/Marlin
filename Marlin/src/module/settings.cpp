@@ -852,7 +852,7 @@ void MarlinSettings::postprocess() {
     {
       EEPROM_WRITE(planner.settings);
 
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         EEPROM_WRITE(planner.max_jerk);
         #if HAS_LINEAR_E_JERK
           dummyf = float(DEFAULT_EJERK);
@@ -1880,7 +1880,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           EEPROM_READ(planner.max_jerk);
           #if HAS_LINEAR_E_JERK
             EEPROM_READ(dummyf);
@@ -3092,7 +3092,7 @@ void MarlinSettings::reset() {
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     #if HAS_X_AXIS && !defined(DEFAULT_XJERK)
       #define DEFAULT_XJERK 0
     #endif
