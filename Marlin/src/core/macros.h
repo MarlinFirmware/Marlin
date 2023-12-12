@@ -214,9 +214,9 @@
 #define _OPTARG( A...)      , A
 #define _OPTCODE(A)         A;
 #define _OPTITEM(A...)      A,
-#define OPTARG( O,A...)     TERN_(O,DEFER4(_OPTARG)(A))
-#define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
-#define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A))
+#define OPTARG( O,A...)     TERN_(O,DEFER4(_OPTARG)(A))  // , A
+#define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A)) // A;
+#define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A)) // A,
 
 // Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
