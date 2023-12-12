@@ -1615,16 +1615,6 @@
   #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
 
-// Use Junction Deviation for motion if Jerk is disabled
-#if DISABLED(CLASSIC_JERK)
-  #define HAS_JUNCTION_DEVIATION 1
-#endif
-
-// E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
-#if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
-  #define HAS_CLASSIC_E_JERK 1
-#endif
-
 //
 // Serial Port Info
 //
