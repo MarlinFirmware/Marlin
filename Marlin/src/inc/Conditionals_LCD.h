@@ -271,7 +271,7 @@
 #endif
 
 #if ANY(FYSETC_MINI_12864, MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-  #define IS_U8GLIB_MINI12864
+  #define IS_U8GLIB_MINI12864 1
 #endif
 
 // ST7920-based graphical displays
