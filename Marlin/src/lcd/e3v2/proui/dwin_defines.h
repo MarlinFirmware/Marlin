@@ -98,6 +98,9 @@
 #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
 #endif
+#if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE, HAS_MESH)
+  #define HAS_TRAMMING_WIZARD 1  // Manual mesh not have a probe
+#endif
 #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity

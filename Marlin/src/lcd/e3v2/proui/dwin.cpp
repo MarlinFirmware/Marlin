@@ -1185,13 +1185,9 @@ void drawMainArea() {
     case ID_MainMenu:         drawMainMenu(); break;
     case ID_PrintProcess:     drawPrintProcess(); break;
     case ID_PrintDone:        drawPrintDone(); break;
-    #if HAS_ESDIAG
-      case ID_ESDiagProcess:  drawEndStopDiag(); break;
-    #endif
+    TERN_(HAS_ESDIAG, case ID_ESDiagProcess: drawEndStopDiag(); break;)
     case ID_Popup:            popupDraw(); break;
-    #if HAS_LOCKSCREEN
-      case ID_Locked:         lockScreen.draw(); break;
-    #endif
+    TERN_(HAS_LOCKSCREEN, case ID_Locked: lockScreen.draw(); break;)
     case ID_Menu:
     case ID_SetInt:
     case ID_SetPInt:
@@ -1214,9 +1210,7 @@ void hmiWaitForUser() {
         select_page.reset();
         gotoMainMenu();
         break;
-      #if HAS_BED_PROBE
-        case ID_Leveling:
-      #endif
+      TERN_(HAS_BED_PROBE, case ID_Leveling:)
       default:
         hmiReturnScreen();
         break;
@@ -1399,9 +1393,7 @@ void dwinHandleScreen() {
     case ID_PrintProcess: hmiPrinting(); break;
     case ID_Popup:        hmiPopup(); break;
     case ID_Leveling:     break;
-    #if HAS_LOCKSCREEN
-      case ID_Locked:     hmiLockScreen(); break;
-    #endif
+    TERN_(HAS_LOCKSCREEN, case ID_Locked: hmiLockScreen(); break;)
     case ID_PrintDone:
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     case ID_WaitResponse: hmiWaitForUser(); break;
@@ -2372,7 +2364,7 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 
   #endif
 
-  #if HAS_BED_PROBE && HAS_MESH
+  #if ALL(HAS_BED_PROBE, HAS_MESH, HAS_TRAMMING_WIZARD)
 
     void trammingwizard() {
       if (hmiData.fullManualTramming) {
@@ -2442,7 +2434,7 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
       toggleCheckboxLine(hmiData.fullManualTramming);
     }
 
-  #endif // HAS_BED_PROBE && HAS_MESH
+  #endif // HAS_BED_PROBE && HAS_MESH && HAS_TRAMMING_WIZARD
 
 #endif // LCD_BED_TRAMMING
 
@@ -3008,8 +3000,10 @@ void drawPrepareMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(trammingMenu, MSG_BED_TRAMMING, 8)) {
       BACK_ITEM(drawPrepareMenu);
-      #if HAS_BED_PROBE && HAS_MESH
-        MENU_ITEM(ICON_ProbeSet, MSG_TRAMMING_WIZARD, onDrawMenuItem, trammingwizard);
+      #if ALL(HAS_BED_PROBE, HAS_MESH)
+        #if HAS_TRAMMING_WIZARD
+          MENU_ITEM(ICON_ProbeSet, MSG_TRAMMING_WIZARD, onDrawMenuItem, trammingwizard);
+        #endif
         EDIT_ITEM(ICON_ProbeSet, MSG_BED_TRAMMING_MANUAL, onDrawChkbMenu, setManualTramming, &hmiData.fullManualTramming);
       #elif !HAS_BED_PROBE && HAS_ZOFFSET_ITEM
         MENU_ITEM_F(ICON_MoveZ0, "Home Z and disable", onDrawMenuItem, homeZAndDisable);
