@@ -21,9 +21,9 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
-// use this file to create the public interface for device drivers that are NOT in the U8G library
+// Use this file to create the public interface for device drivers that are NOT in the U8G library
 
 extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_sw_spi;
 extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_hw_spi;
