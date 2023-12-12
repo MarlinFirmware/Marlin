@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../../../inc/MarlinConfig.h"
+
 #include <U8glib-HAL.h>
 
 // Use this file to create the public interface for device drivers that are NOT in the U8G library
