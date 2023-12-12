@@ -2769,7 +2769,7 @@ bool Planner::_populate_block(
   #if HAS_CLASSIC_JERK
 
     /**
-     * Heavily modified. Original adapted from Průša MKS firmware
+     * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
     #ifndef TRAVEL_EXTRA_XYJERK
@@ -2782,45 +2782,42 @@ bool Planner::_populate_block(
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
 
-      float safe_speed_factor = 1;
-      TERN(HAS_LINEAR_E_JERK, LOOP_NUM_AXES, LOOP_LOGICAL_AXES)(i) {
-        const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
-                    maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
-        if (jerk * safe_speed_factor > maxj) {
-          safe_speed_factor = maxj / jerk;
-        }
+      float safe_speed_factor = 1.0f;
+      LOOP_LOGICAL_AXES(i) {
+        const float jerk = ABS(current_speed[i]),   // Starting from zero, change in speed for this axis
+                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f); // The max jerk setting for this axis
+        if (jerk * safe_speed_factor > maxj) safe_speed_factor = maxj / jerk;
       }
       vmax_junction = block->nominal_speed * safe_speed_factor;
       NOLESS(minimum_planner_speed_sqr, sq(vmax_junction));
-    } else {
+    }
+    else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float previous_speed_factor = 1.0f;
-      float current_speed_factor = 1.0f;
+      float previous_speed_factor = 1.0f, current_speed_factor = 1.0f;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
         previous_speed_factor = vmax_junction / previous_nominal_speed;
-      } else {
+      }
+      else {
         vmax_junction = previous_nominal_speed;
         current_speed_factor = vmax_junction / block->nominal_speed;
       }
 
       // Factor to multiply vmax_junction to get componentwise limited velocities.
-      float v_factor = 1;
+      float v_factor = 1.0f;
 
       // Now limit the jerk in all axes.
-      TERN(HAS_LINEAR_E_JERK, LOOP_NUM_AXES, LOOP_LOGICAL_AXES)(axis) {
+      LOOP_LOGICAL_AXES(i) {
         // Scale per-axis velocities for the same vmax_junction.
-        float v_exit = previous_speed[axis] * previous_speed_factor,
-              v_entry = current_speed[axis] * current_speed_factor;
+        const float v_exit = previous_speed[i] * previous_speed_factor,
+                    v_entry = current_speed[i] * current_speed_factor;
 
         // Jerk is the per-axis velocity difference.
-        const float jerk = ABS(v_exit - v_entry);
-        const float maxj = (max_jerk[axis] + (axis == X_AXIS || axis == Y_AXIS ? extra_xyjerk : 0.0f));
-        if (jerk * v_factor > maxj) {
-          v_factor = maxj / jerk;
-        }
+        const float jerk = ABS(v_exit - v_entry),
+                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f);
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
       vmax_junction *= v_factor;
     }
@@ -2831,7 +2828,7 @@ bool Planner::_populate_block(
       vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
     #endif
 
-  #endif // Classic Jerk Limiting
+  #endif // HAS_CLASSIC_JERK
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
