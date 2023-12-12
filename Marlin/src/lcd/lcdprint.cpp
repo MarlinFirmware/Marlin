@@ -67,24 +67,24 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       }
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
-        strncpy_P(o, b, n);
+        strlcpy_P(o, b, n + 1);
         n -= utf8_strlen(o);
         o += strlen(o);
       }
       if (n > 0) {
-        strncpy_P(o, (PGM_P)p, n);
+        strlcpy_P(o, (PGM_P)p, n + 1);
         n -= utf8_strlen(o);
         o += strlen(o);
         break;
       }
     }
     else if (wc == '$' && fstr) {
-      strncpy_P(o, FTOP(fstr), n);
-      n -= utf8_strlen_P(FTOP(fstr));
+      strlcpy_P(o, FTOP(fstr), n + 1);
+      n -= utf8_strlen(o);
       o += strlen(o);
     }
     else if (wc == '$' && cstr) {
-      strncpy(o, cstr, n);
+      strlcpy(o, cstr, n + 1);
       n -= utf8_strlen(o);
       o += strlen(o);
     }
