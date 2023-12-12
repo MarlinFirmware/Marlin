@@ -81,9 +81,6 @@ static const uint8_t u8g_dev_ssd1309_128x64_init_seq[] PROGMEM = {
   U8G_ESC_END               // End of sequence
 };
 
-// Select one init sequence here
-#define u8g_dev_ssd1309_128x64_init_seq u8g_dev_ssd1309_128x64_init_seq
-
 static const uint8_t u8g_dev_ssd1309_128x64_data_start[] PROGMEM = {
   U8G_ESC_ADR(0),     // Instruction mode
   U8G_ESC_CS(1),      // Enable chip

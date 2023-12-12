@@ -133,7 +133,7 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
-       u8g_Write_Init_Sequence_2_wire(u8g, dev, COUNT(u8g_dev_sh1106_128x64_init_sequence_2_wire), u8g_dev_sh1106_128x64_init_sequence_2_wire);
+       u8g_Write_Init_Sequence_2_wire(u8g, dev, COUNT(u8g_dev_sh1106_128x64_init_seq_2_wire), u8g_dev_sh1106_128x64_init_seq_2_wire);
       break;
     case U8G_DEV_MSG_STOP:
       break;
