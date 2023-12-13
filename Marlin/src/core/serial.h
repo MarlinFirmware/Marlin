@@ -276,13 +276,13 @@ public:
   SString& set() { super::set(); return *this; }
 
   template<typename... Args>
-  SString& setf_P(PGM_P const fmt, Args... more) { snprintf_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  SString& setf_P(PGM_P const fmt, Args... more) { super::setf_P(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(const char *fmt, Args... more)   { snprintf(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  SString& setf(const char *fmt, Args... more)   { super::setf(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  SString& setf(FSTR_P const fmt, Args... more)  { super::setf(fmt, more...); return *this; }
 
   template <typename T>
   SString& set(const T &v) { super::set(v); return *this; }

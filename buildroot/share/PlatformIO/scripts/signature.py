@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # signature.py
 #
@@ -44,35 +45,35 @@ def compress_file(filepath, storedname, outpath):
         zipf.write(filepath, arcname=storedname, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
 #
-# Compute the build signature. The idea is to extract all defines in the configuration headers
-# to build a unique reversible signature from this build so it can be included in the binary
-# We can reverse the signature to get a 1:1 equivalent configuration file
+# Compute the build signature by extracting all configuration settings and
+# building a unique reversible signature that can be included in the binary.
+# The signature can be reversed to get a 1:1 equivalent configuration file.
 #
 def compute_build_signature(env):
     if 'BUILD_SIGNATURE' in env:
         return
 
+    build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
+    marlin_json = build_path / 'marlin_config.json'
+    marlin_zip = build_path / 'mc.zip'
+
     # Definitions from these files will be kept
     files_to_keep = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
-
-    build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
 
     # Check if we can skip processing
     hashes = ''
     for header in files_to_keep:
         hashes += get_file_sha256sum(header)[0:10]
 
-    marlin_json = build_path / 'marlin_config.json'
-    marlin_zip = build_path / 'mc.zip'
-
-    # Read existing config file
+    # Read a previously exported JSON file
+    # Same configuration, skip recomputing the build signature
+    same_hash = False
     try:
         with marlin_json.open() as infile:
             conf = json.load(infile)
-            if conf['__INITIAL_HASH'] == hashes:
-                # Same configuration, skip recomputing the building signature
+            same_hash = conf['__INITIAL_HASH'] == hashes
+            if same_hash:
                 compress_file(marlin_json, 'marlin_config.json', marlin_zip)
-                return
     except:
         pass
 
@@ -124,9 +125,6 @@ def compute_build_signature(env):
     for key in defines:
         # Remove all boards now
         if key.startswith("BOARD_") and key != "BOARD_INFO_NAME":
-            continue
-        # Remove all keys ending by "_NAME" as it does not make a difference to the configuration
-        if key.endswith("_NAME") and key != "CUSTOM_MACHINE_NAME":
             continue
         # Remove all keys ending by "_T_DECLARED" as it's a copy of extraneous system stuff
         if key.endswith("_T_DECLARED"):
@@ -196,7 +194,7 @@ def compute_build_signature(env):
                         outfile.write(ini_fmt.format(key.lower(), ' = ' + val))
 
     #
-    # Produce a schema.json file if CONFIG_EXPORT == 3
+    # CONFIG_EXPORT 3 = schema.json, 4 = schema.yml
     #
     if config_dump >= 3:
         try:
@@ -207,7 +205,7 @@ def compute_build_signature(env):
 
         if conf_schema:
             #
-            # Produce a schema.json file if CONFIG_EXPORT == 3
+            # 3 = schema.json
             #
             if config_dump in (3, 13):
                 print("Generating schema.json ...")
@@ -217,7 +215,7 @@ def compute_build_signature(env):
                     schema.dump_json(conf_schema, build_path / 'schema_grouped.json')
 
             #
-            # Produce a schema.yml file if CONFIG_EXPORT == 4
+            # 4 = schema.yml
             #
             elif config_dump == 4:
                 print("Generating schema.yml ...")
@@ -243,8 +241,9 @@ def compute_build_signature(env):
 
     #
     # Produce a JSON file for CONFIGURATION_EMBEDDING or CONFIG_EXPORT == 1
+    # Skip if an identical JSON file was already present.
     #
-    if config_dump == 1 or 'CONFIGURATION_EMBEDDING' in defines:
+    if not same_hash and (config_dump == 1 or 'CONFIGURATION_EMBEDDING' in defines):
         with marlin_json.open('w') as outfile:
             json.dump(data, outfile, separators=(',', ':'))
 
@@ -255,9 +254,10 @@ def compute_build_signature(env):
         return
 
     # Compress the JSON file as much as we can
-    compress_file(marlin_json, 'marlin_config.json', marlin_zip)
+    if not same_hash:
+        compress_file(marlin_json, 'marlin_config.json', marlin_zip)
 
-    # Generate a C source file for storing this array
+    # Generate a C source file containing the entire ZIP file as an array
     with open('Marlin/src/mczip.h','wb') as result_file:
         result_file.write(
               b'#ifndef NO_CONFIGURATION_EMBEDDING_WARNING\n'
@@ -274,3 +274,8 @@ def compute_build_signature(env):
         if count % 16:
             result_file.write(b'\n')
         result_file.write(b'};\n')
+
+if __name__ == "__main__":
+    # Build required. From command line just explain usage.
+    print("Use schema.py to export JSON and YAML from the command-line.")
+    print("Build Marlin with CONFIG_EXPORT 2 to export 'config.ini'.")

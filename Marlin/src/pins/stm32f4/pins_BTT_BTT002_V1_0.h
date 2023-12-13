@@ -201,16 +201,14 @@
 #endif
 
 /**
- * ---------------------------------BTT002 V1.0---------------------------------
- *                ------                                    ------              |
- * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)   |
- * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS) |
- * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)  |
- * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET       |
- *           GND | 9 10 | 5V                           GND | 9 10 | PA3         |
- *                ------                                    ------              |
- *                 EXP1                                      EXP2               |
- * ------------------------------------------------------------------------------
+ *                ------                                    ------
+ * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)
+ * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS)
+ * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)
+ * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET
+ *           GND | 9 10 | 5V                           GND | 9 10 | PA3
+ *                ------                                    ------
+ *                 EXP1                                      EXP2
  */
 #define EXP1_01_PIN                         PE7
 #define EXP1_02_PIN                         PB1

@@ -359,7 +359,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL

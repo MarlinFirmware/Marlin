@@ -107,7 +107,7 @@ void onDrawMenuItem(MenuItem* menuitem, int8_t line) {
   if (menuitem->icon) DWINUI::drawIcon(menuitem->icon, ICOX, MBASE(line) - 3);
   if (menuitem->frameid)
     dwinFrameAreaCopy(menuitem->frameid, menuitem->frame.left, menuitem->frame.top, menuitem->frame.right, menuitem->frame.bottom, LBLX, MBASE(line));
-  else if (menuitem->caption)
+  else
     DWINUI::drawString(LBLX, MBASE(line) - 1, menuitem->caption);
   dwinDrawHLine(hmiData.colorSplitLine, 16, MYPOS(line + 1), 240);
 }

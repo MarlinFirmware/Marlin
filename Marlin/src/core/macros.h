@@ -218,12 +218,16 @@
 #define _OPTCODE(A)         A;
 #define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 
-// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
 #define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
 #define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define MUL_TERN1(O,A)      _TERN(_ENA_1(O),,* (A)) // OPTION ? '* (A)' : '<nul>'
+#define DIV_TERN1(O,A)      _TERN(_ENA_1(O),,/ (A)) // OPTION ? '/ (A)' : '<nul>'
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
+#define MUL_TERN(O,B,A)     ((B) MUL_TERN1(O,A))    // ((B) (OPTION ? '* (A)' : '<nul>'))
+#define DIV_TERN(O,B,A)     ((B) DIV_TERN1(O,A))    // ((B) (OPTION ? '/ (A)' : '<nul>'))
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
