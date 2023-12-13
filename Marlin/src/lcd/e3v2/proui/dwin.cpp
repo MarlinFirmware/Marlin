@@ -855,24 +855,24 @@ inline uint16_t nr_sd_menu_items() {
 }
 
 void makeNameWithoutExt(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) {
-  size_t pos = strlen(src);  // Index of ending nul
+  size_t pos = strlen(src); // Index of ending nul
 
   // For files, remove the extension
   // which may be .gcode, .gco, or .g
   if (!card.flag.filenameIsDir)
     while (pos && src[pos] != '.') pos--; // Find last '.' (stop at 0)
 
-  if (!pos) pos = strlen(src);  // pos = 0 ('.' not found) restore pos
+  if (!pos) pos = strlen(src); // pos = 0 ('.' not found) restore pos
 
-  size_t len = pos;   // nul or '.'
-  if (len > maxlen) { // Keep the name short
-    pos        = len = maxlen; // Move nul down
-    dst[--pos] = '.'; // Insert dots
+  size_t len = pos;     // nul or '.'
+  if (len > maxlen) {   // Keep the name short
+    pos = len = maxlen; // Move nul down
+    dst[--pos] = '.';   // Insert dots
     dst[--pos] = '.';
     dst[--pos] = '.';
   }
 
-  dst[len] = '\0';    // End it
+  dst[len] = '\0';      // End it
 
   // Copy down to 0
   while (pos--) dst[pos] = src[pos];
