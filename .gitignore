@@ -30,6 +30,7 @@ out-csv/
 out-language/
 *.gen
 *.sublime-workspace
+*.code-workspace
 
 # OS
 applet/
