@@ -3287,17 +3287,9 @@ void Stepper::_set_position(const abce_long_t &spos) {
       // coreyz planning
       count_position.set(spos.a, spos.b + spos.c, CORESIGN(spos.b - spos.c));
     #elif ENABLED(MARKFORGED_XY)
-        #if ENABLED(MARKFORGED_INVERSE)
-          count_position.set(spos.a + spos.b, spos.b, spos.c);
-        #else
-          count_position.set(spos.a - spos.b, spos.b, spos.c);
-        #endif
+      count_position.set(spos.a TERN(MARKFORGED_INVERSE, +, -) spos.b, spos.b, spos.c);
     #elif ENABLED(MARKFORGED_YX)
-        #if ENABLED(MARKFORGED_INVERSE)
-          count_position.set(spos.a, spos.b + spos.a, spos.c);
-        #else
-          count_position.set(spos.a, spos.b - spos.a, spos.c);
-        #endif
+      count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, +, -) spos.a, spos.c);
     #endif
     SECONDARY_AXIS_CODE(
       count_position.i = spos.i,
@@ -3389,25 +3381,13 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
         : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
       ) * double(0.5)
     #elif ENABLED(MARKFORGED_XY)
-      #if ENABLED(MARKFORGED_INVERSE)  
       axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+        ? count_position[CORE_AXIS_1] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
         : count_position[CORE_AXIS_2]
-      #else
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2]
-        : count_position[CORE_AXIS_2]
-      #endif  
     #elif ENABLED(MARKFORGED_YX)
-      #if ENABLED(MARKFORGED_INVERSE)  
       axis == CORE_AXIS_1
         ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] + count_position[CORE_AXIS_1]
-      #else
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] - count_position[CORE_AXIS_1]
-      #endif  
+        : count_position[CORE_AXIS_2] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
     #else // !IS_CORE
       count_position[axis]
     #endif
