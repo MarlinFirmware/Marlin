@@ -83,8 +83,8 @@ void GcodeSuite::G30() {
       const xy_pos_t lpos = probepos.asLogical();
       SString<30> msg(
         F("Bed X:"), p_float_t(lpos.x, 2),
-        F(   " Y:"), p_float_t(lpos.y, 2),
-        F(   " Z:"), p_float_t(measured_z, 3)
+        F(  " Y:"), p_float_t(lpos.y, 2),
+        F(  " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
       #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)

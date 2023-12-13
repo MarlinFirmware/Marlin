@@ -55,7 +55,7 @@
 //#define FASTER_APPEND   // Append without using an intermediate buffer
 
 // Declare externs for serial debug output
-template <typename T> extern void SERIAL_ECHO(  T x);
+template <typename T> extern void SERIAL_ECHO(T x);
 template <typename T> extern void SERIAL_ECHOLN(T x);
 extern void SERIAL_ECHO(serial_char_t x);
 extern void SERIAL_CHAR(char c);
@@ -130,10 +130,10 @@ public:
   template <int S>
   MString& set(const MString<S> &m)       { strlcpy(str, &m, SIZE + 1); debug(F("MString")); return *this; }
 
-  MString& setn(        char *s, int len) { int c = _MIN(len, SIZE); strlcpy(str, s, c + 1); debug(F("string")); return *this; }
-  MString& setn(const   char *s, int len) { return setn(const_cast<char*>(s), len); }
+  MString& setn(char *s, int len)         { int c = _MIN(len, SIZE); strlcpy(str, s, c + 1); debug(F("string")); return *this; }
+  MString& setn(const char *s, int len)   { return setn(const_cast<char*>(s), len); }
   MString& setn_P(PGM_P const s, int len) { int c = _MIN(len, SIZE); strlcpy_P(str, s, c + 1); debug(F("pstring")); return *this; }
-  MString& setn(FSTR_P  const f, int len) { return setn_P(FTOP(f), len); }
+  MString& setn(FSTR_P const f, int len)  { return setn_P(FTOP(f), len); }
 
   // set(repchr_t('-', 10))
   MString& set(const repchr_t &s)         { int c = _MIN(s.count, SIZE); memset(str, s.asc, c); str[c] = '\0'; debug(F("")); return *this; }
@@ -146,53 +146,53 @@ public:
   MString& setf_P(PGM_P const fmt, Args... more) { SNPRINTF_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
 
   template<typename... Args>
-  MString& setf(  const char *fmt, Args... more) { SNPRINTF(  str, SIZE, fmt, more...); debug(F("setf"));   return *this; }
+  MString& setf(const char *fmt, Args... more)   { SNPRINTF(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
 
   template<typename... Args>
-  MString& setf( FSTR_P const fmt, Args... more) { return setf_P(FTOP(fmt), more...); }
+  MString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
 
   // Chainable String appenders
-  MString& append()                          { debug(F("nil")); return *this; } // for macros that might emit no output
-  MString& append(char *s)                   { int sz = length(); if (sz < SIZE) strlcpy(str + sz, s, SIZE - sz + 1); debug(F("string")); return *this; }
-  MString& append(const char *s)             { return append(const_cast<char *>(s)); }
-  MString& append_P(PGM_P const s)           { int sz = length(); if (sz < SIZE) strlcpy_P(str + sz, s, SIZE - sz + 1); debug(F("pstring")); return *this; }
-  MString& append(FSTR_P const f)            { return append_P(FTOP(f)); }
-  MString& append(const bool &b)             { return append(b ? F("true") : F("false")); }
-  MString& append(const char c)              { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } return *this; }
+  MString& append()                           { debug(F("nil")); return *this; } // for macros that might emit no output
+  MString& append(char *s)                    { int sz = length(); if (sz < SIZE) strlcpy(str + sz, s, SIZE - sz + 1); debug(F("string")); return *this; }
+  MString& append(const char *s)              { return append(const_cast<char *>(s)); }
+  MString& append_P(PGM_P const s)            { int sz = length(); if (sz < SIZE) strlcpy_P(str + sz, s, SIZE - sz + 1); debug(F("pstring")); return *this; }
+  MString& append(FSTR_P const f)             { return append_P(FTOP(f)); }
+  MString& append(const bool &b)              { return append(b ? F("true") : F("false")); }
+  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } return *this; }
   #if ENABLED(FASTER_APPEND)
-    MString& append(const int8_t &i)         { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const short &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const int &i)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const long &l)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); return *this; }
-    MString& append(const unsigned char &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned short &i) { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned int &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned long &l)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); return *this; }
+    MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
+    MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
+    MString& append(const int &i)             { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
+    MString& append(const long &l)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); return *this; }
+    MString& append(const unsigned char &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
+    MString& append(const unsigned short &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
+    MString& append(const unsigned int &i)    { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
+    MString& append(const unsigned long &l)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); return *this; }
   #else
-    MString& append(const int8_t &i)         { char buf[ 5]; sprintf(buf, "%d",  i); return append(buf); }
-    MString& append(const short &i)          { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }
-    MString& append(const int &i)            { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }
-    MString& append(const long &l)           { char buf[12]; sprintf(buf, "%ld", l); return append(buf); }
-    MString& append(const unsigned char &i)  { char buf[ 5]; sprintf(buf, "%u",  i); return append(buf); }
-    MString& append(const unsigned short &i) { char buf[11]; sprintf(buf, "%u",  i); return append(buf); }
-    MString& append(const unsigned int &i)   { char buf[11]; sprintf(buf, "%u",  i); return append(buf); }
-    MString& append(const unsigned long &l)  { char buf[11]; sprintf(buf, "%lu", l); return append(buf); }
+    MString& append(const int8_t &i)          { char buf[ 5]; sprintf(buf, "%d",  i); return append(buf); }
+    MString& append(const short &i)           { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }
+    MString& append(const int &i)             { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }
+    MString& append(const long &l)            { char buf[12]; sprintf(buf, "%ld", l); return append(buf); }
+    MString& append(const unsigned char &i)   { char buf[ 5]; sprintf(buf, "%u",  i); return append(buf); }
+    MString& append(const unsigned short &i)  { char buf[11]; sprintf(buf, "%u",  i); return append(buf); }
+    MString& append(const unsigned int &i)    { char buf[11]; sprintf(buf, "%u",  i); return append(buf); }
+    MString& append(const unsigned long &l)   { char buf[11]; sprintf(buf, "%lu", l); return append(buf); }
   #endif
-  MString& append(const float &f)            { return append(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
-  MString& append(const p_float_t &pf)       { return append(w_float_t(pf.value, 1, pf.prec)); }
-  MString& append(const w_float_t &wf)       { char f1[20]; return append(dtostrf(wf.value, wf.width, wf.prec, f1)); }
-  MString& append(const serial_char_t &v)    { return append(char(v.c)); }
-  MString& append(const xyz_pos_t &v)        { LOOP_NUM_AXES(i)     { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyz")); return *this; }
-  MString& append(const xyze_pos_t &v)       { LOOP_LOGICAL_AXES(i) { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyze")); return *this; }
+  MString& append(const float &f)             { return append(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
+  MString& append(const p_float_t &pf)        { return append(w_float_t(pf.value, 1, pf.prec)); }
+  MString& append(const w_float_t &wf)        { char f1[20]; return append(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+  MString& append(const serial_char_t &v)     { return append(char(v.c)); }
+  MString& append(const xyz_pos_t &v)         { LOOP_NUM_AXES(i)     { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyz")); return *this; }
+  MString& append(const xyze_pos_t &v)        { LOOP_LOGICAL_AXES(i) { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyze")); return *this; }
 
   template<int S>
-  MString& append(const MString<S> &m)       { return append(&m); }
+  MString& append(const MString<S> &m)        { return append(&m); }
 
   // Append only if the given space is available
-  MString& appendn(        char *s, int len) { int sz = length(), c = _MIN(len, SIZE - sz); if (c > 0) { strlcpy(str + sz, s, c + 1); } debug(F("string")); return *this; }
-  MString& appendn(  const char *s, int len) { return appendn(const_cast<char *>(s), len); }
-  MString& appendn_P(PGM_P const s, int len) { int sz = length(), c = _MIN(len, SIZE - sz); if (c > 0) { strlcpy_P(str + sz, s, c + 1); } debug(F("pstring")); return *this; }
-  MString& appendn( FSTR_P const f, int len) { return appendn_P(FTOP(f), len); }
+  MString& appendn(char *s, int len)          { int sz = length(), c = _MIN(len, SIZE - sz); if (c > 0) { strlcpy(str + sz, s, c + 1); } debug(F("string")); return *this; }
+  MString& appendn(const char *s, int len)    { return appendn(const_cast<char *>(s), len); }
+  MString& appendn_P(PGM_P const s, int len)  { int sz = length(), c = _MIN(len, SIZE - sz); if (c > 0) { strlcpy_P(str + sz, s, c + 1); } debug(F("pstring")); return *this; }
+  MString& appendn(FSTR_P const f, int len)   { return appendn_P(FTOP(f), len); }
 
   // append(repchr_t('-', 10))
   MString& append(const repchr_t &s) {
@@ -241,7 +241,7 @@ public:
 
   // Operator = as shorthand for set()
   template<typename T>
-  MString& operator=(const T &v)          { return set(v); }
+  MString& operator=(const T &v)          { return set(v);     }
 
   // Operator += as shorthand for append()
   template<typename T>
@@ -265,17 +265,17 @@ public:
   char operator[](const int i) const { return str[i]; }
 
   // Cast to char* (explicit?)
-  operator char* ()  { return str; }
+  operator char* () { return str; }
 
   // Use &mystring as shorthand for mystring.str
-  char* operator&()  { return str; }
+  char* operator&() { return str; }
 
   // Return the buffer address (same as &)
-  char* buffer()     { return str; }
+  char* buffer() { return str; }
 
   int length() const { return strlen(str); }
-  int glyphs()       { return utf8_strlen(str); }
-  bool empty()       { return !str[0]; }
+  int glyphs() { return utf8_strlen(str); }
+  bool empty() { return !str[0]; }
 
   // Quick hash to detect change (e.g., to avoid expensive drawing)
   typedef IF<ENABLED(DJB2_HASH), uint32_t, uint16_t>::type hash_t;
@@ -292,11 +292,11 @@ public:
     return hval;
   }
 
-  void copyto(char * const dst)          const { strcpy( dst, str); }
+  void copyto(char * const dst) const { strcpy(dst, str); }
   void copyto(char * const dst, int len) const { strlcpy(dst, str, len + 1); }
 
   MString& clear() { return set(); }
-  MString& eol()   { return append('\n'); }
+  MString& eol() { return append('\n'); }
   MString& trunc(const int &i) { if (i <= SIZE) str[i] = '\0'; debug(F("trunc")); return *this; }
 
   // Truncate on a Unicode boundary

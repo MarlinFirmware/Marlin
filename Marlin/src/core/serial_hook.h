@@ -42,7 +42,7 @@ public:
     return SerialMask(0); // A invalid index mean no output
   }
 
-  constexpr SerialMask(const uint8_t mask)   : mask(mask) {}
+  constexpr SerialMask(const uint8_t mask) : mask(mask) {}
   constexpr SerialMask(const SerialMask &rs) : mask(rs.mask) {} // Can't use = default here since not all frameworks support this
 
   SerialMask& operator=(const SerialMask &rs) { mask = rs.mask; return *this; }
@@ -99,14 +99,14 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   void end()                        { out.end(); }
 
   void msgDone() {}
-  bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
-  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
+  bool connected()          { return CALL_IF_EXISTS(bool, &out, connected); }
+  void flushTX()            { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(serial_index_t) { return (int)out.available(); }
-  int read(serial_index_t)      { return (int)out.read(); }
-  int available()               { return (int)out.available(); }
-  int read()                    { return (int)out.read(); }
-  SerialFeature features(serial_index_t index) const { return CALL_IF_EXISTS(SerialFeature, &out, features, index);  }
+  int available(serial_index_t)   { return (int)out.available(); }
+  int read(serial_index_t)        { return (int)out.read(); }
+  int available()                 { return (int)out.available(); }
+  int read()                      { return (int)out.read(); }
+  SerialFeature features(serial_index_t index) const  { return CALL_IF_EXISTS(SerialFeature, &out, features, index);  }
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
@@ -118,9 +118,9 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
 
   SerialT & out;
   NO_INLINE size_t write(uint8_t c) { return out.write(c); }
-  void flush()        { out.flush();  }
-  void begin(long br) { out.begin(br); }
-  void end()          { out.end(); }
+  void flush()            { out.flush();  }
+  void begin(long br)     { out.begin(br); }
+  void end()              { out.end(); }
 
   void msgDone() {}
   // Existing instances implement Arduino's operator bool, so use that if it's available
@@ -177,7 +177,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   void flushTX() { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
 
   // Append Hookable for this class
-  SerialFeature features(serial_index_t index) const  { return SerialFeature::Hookable | CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index); }
+  SerialFeature features(serial_index_t index) const  { return SerialFeature::Hookable | CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
   void setHook(WriteHook writeHook=0, EndOfMessageHook eofHook=0, void * userPointer=0) {
     // Order is important here as serial code can be called inside interrupts

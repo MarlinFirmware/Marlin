@@ -1770,7 +1770,7 @@ void Stepper::pulse_phase_isr() {
   const bool is_page = current_block->is_page();
 
   do {
-    AxisFlags step_needed{0};
+    axis_flags_t step_needed{0};
 
     #define _APPLY_STEP(AXIS, INV, ALWAYS) AXIS ##_APPLY_STEP(INV, ALWAYS)
     #define _STEP_STATE(AXIS) STEP_STATE_## AXIS
@@ -2107,7 +2107,7 @@ void Stepper::pulse_phase_isr() {
 #if HAS_ZV_SHAPING
 
   void Stepper::shaping_isr() {
-    AxisFlags step_needed{0};
+    axis_flags_t step_needed{0};
 
     // Clear the echoes that are ready to process. If the buffers are too full and risk overflow, also apply echoes early.
     TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);

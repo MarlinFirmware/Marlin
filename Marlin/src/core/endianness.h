@@ -63,8 +63,8 @@ namespace Endianness {
   }
 
   // Convert to / from known endianness, depending on the host endianness
-  template<typename T> static constexpr T toBE(T   V) { return cpuIsLittleEndian ? swap(V) : V; }
-  template<typename T> static constexpr T toLE(T   V) { return cpuIsLittleEndian ? V : swap(V); }
+  template<typename T> static constexpr T toBE(T V) { return cpuIsLittleEndian ? swap(V) : V; }
+  template<typename T> static constexpr T toLE(T V) { return cpuIsLittleEndian ? V : swap(V); }
   template<typename T> static constexpr T fromBE(T V) { return cpuIsLittleEndian ? swap(V) : V; }
   template<typename T> static constexpr T fromLE(T V) { return cpuIsLittleEndian ? V : swap(V); }
 
