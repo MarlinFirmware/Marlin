@@ -706,12 +706,8 @@ void MarlinSettings::postprocess() {
   // Moved as last update due to interference with Neopixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
   TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-
-  #if HAS_BACKLIGHT_TIMEOUT
-    ui.refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP
-    ui.refresh_screen_timeout();
-  #endif
+  TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+  TERN_(HAS_DISPLAY_SLEEP, ui.refresh_screen_timeout());
 }
 
 #if ALL(PRINTCOUNTER, EEPROM_SETTINGS)
