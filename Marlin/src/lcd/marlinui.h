@@ -272,17 +272,25 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
+  #if HAS_BACKLIGHT_TIMEOUT
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t backlight_timeout_minutes;
+    #else
+      static constexpr uint8_t backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
+    #endif
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
-    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t sleep_timeout_minutes;
+    #else
+      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
-    static uint8_t sleep_timeout_minutes;
-    static millis_t screen_timeout_millis;
+    static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
     static void sleep_display(const bool sleep=true);
   #endif

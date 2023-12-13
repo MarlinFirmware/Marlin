@@ -1471,11 +1471,6 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
-//
-// LCD Backlight Timeout
-//
-//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
-
 #if HAS_BED_PROBE && ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
   //#define PROBE_OFFSET_WIZARD       // Add a Probe Z Offset calibration option to the LCD menu
   #if ENABLED(PROBE_OFFSET_WIZARD)
@@ -2204,6 +2199,15 @@
   //#define TFT_BTCANCEL_COLOR 0xF800 // Red
   //#define TFT_BTARROWS_COLOR 0xDEE6 // 11011 110111 00110 Yellow
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
+#endif
+
+//
+// LCD Backlight Timeout
+// Requires a display with a controllable backlight
+//
+//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
+#if defined(DISPLAY_SLEEP_MINUTES) || defined(LCD_BACKLIGHT_TIMEOUT_MINS)
+  #define EDITABLE_DISPLAY_TIMEOUT      // Edit timeout with M255 S<minutes> and a menu item
 #endif
 
 //
