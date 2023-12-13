@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,19 @@
  */
 #pragma once
 
-#ifndef SERIAL_PORT
-  #define SERIAL_PORT 0
+/**
+ * FFP0173_Aquila_Main_Board_V1.0.1 (GD32F103RC / N32G455RE)
+ *
+ * Uses CREALITY V4 (STM32F103RE / STM32F103RC) board pin assignments
+ */
+
+#define BOARD_INFO_NAME        "Aquila v1.0.1"
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
+
+#define INLINE_USART_IRQ
+
+#define NO_MAPLE_WARNING     // Disable warning when compiling with Maple env
+
+#include "../stm32f1/pins_CREALITY_V4.h"

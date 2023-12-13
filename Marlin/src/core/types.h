@@ -198,7 +198,7 @@ typedef Flags<8> flags_8_t;
 typedef Flags<16> flags_16_t;
 
 // Flags for some axis states, with per-axis aliases xyzijkuvwe
-typedef struct AxisFlags {
+typedef struct {
   union {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
@@ -212,7 +212,7 @@ typedef struct AxisFlags {
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
   FI operator bool() const                   { return flags; }
-} axis_flags_t;
+} AxisFlags;
 
 //
 // Enumerated axis indices
