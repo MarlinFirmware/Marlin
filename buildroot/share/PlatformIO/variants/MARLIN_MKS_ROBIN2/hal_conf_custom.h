@@ -47,7 +47,9 @@ extern "C" {
 /* #define HAL_NAND_MODULE_ENABLED   */
 /* #define HAL_NOR_MODULE_ENABLED   */
 /* #define HAL_PCCARD_MODULE_ENABLED   */
-#define HAL_SRAM_MODULE_ENABLED
+#ifndef HAL_SRAM_MODULE_ENABLED
+  #define HAL_SRAM_MODULE_ENABLED
+#endif
 /* #define HAL_SDRAM_MODULE_ENABLED   */
 /* #define HAL_HASH_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
