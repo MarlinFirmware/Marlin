@@ -87,7 +87,7 @@ EncoderState encoderReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
+      #if HAS_BACKLIGHT_TIMEOUT
         ui.refresh_backlight_timeout();
       #endif
       if (!ui.backlight) {
@@ -161,7 +161,7 @@ EncoderState encoderReceiveAnalyze() {
     temp_diff = 0;
   }
   if (temp_diffState != ENCODER_DIFF_NO) {
-    #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
+    #if HAS_BACKLIGHT_TIMEOUT
       ui.refresh_backlight_timeout();
     #endif
     if (!ui.backlight) ui.refresh_brightness();

@@ -793,7 +793,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 250: M250(); break;                                  // M250: Set LCD contrast
       #endif
 
-      #if HAS_GCODE_M255
+      #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
         case 255: M255(); break;                                  // M255: Set LCD Sleep/Backlight Timeout (Minutes)
       #endif
 

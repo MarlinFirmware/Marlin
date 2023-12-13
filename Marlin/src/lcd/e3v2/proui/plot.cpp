@@ -73,7 +73,7 @@ void Plot::update(const_float_t value) {
     dwinDrawPoint(COLOR_YELLOW, 1, 1, x2 - 1, y);
   }
   graphpoints++;
-  #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
+  #if HAS_BACKLIGHT_TIMEOUT
     ui.refresh_backlight_timeout();
   #endif
 }
