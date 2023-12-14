@@ -389,7 +389,7 @@ private:
 
         // Draw value text on
         if (viewer_print_value) {
-          int8_t offset_x, offset_y = cell_height_px / 2 - 6;
+          const int8_t offset_y = cell_height_px / 2 - 6;
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
@@ -399,7 +399,7 @@ private:
               msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
             else
               msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
-            offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
+            const int8_t offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
             if (GRID_MAX_POINTS_X >= 10)
               dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, msg);
@@ -2333,7 +2333,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define MOTION_HOMEOFFSETS (MOTION_BACK + 1)
       #define MOTION_SPEED (MOTION_HOMEOFFSETS + 1)
       #define MOTION_ACCEL (MOTION_SPEED + 1)
-      #define MOTION_JERK (MOTION_ACCEL + ENABLED(HAS_CLASSIC_JERK))
+      #define MOTION_JERK (MOTION_ACCEL + ENABLED(CLASSIC_JERK))
       #define MOTION_STEPS (MOTION_JERK + 1)
       #define MOTION_FLOW (MOTION_STEPS + ENABLED(HAS_HOTEND))
       #define MOTION_LA (MOTION_FLOW + ENABLED(LIN_ADVANCE))
@@ -2364,7 +2364,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           else
             drawMenu(ID_MaxAcceleration);
           break;
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           case MOTION_JERK:
             if (draw)
               drawMenuItem(row, ICON_MaxJerk, GET_TEXT_F(MSG_JERK), nullptr, true);
@@ -2553,7 +2553,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #endif
       }
       break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:
 
         #define JERK_BACK 0
@@ -4170,7 +4170,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     case ID_HomeOffsets:    return GET_TEXT_F(MSG_SET_HOME_OFFSETS);
     case ID_MaxSpeed:       return GET_TEXT_F(MSG_MAX_SPEED);
     case ID_MaxAcceleration: return F("Max Acceleration");
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return F("Max Jerk");
     #endif
     case ID_Steps:          return GET_TEXT_F(MSG_STEPS_PER_MM);
@@ -4247,7 +4247,7 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     case ID_HomeOffsets:    return HOMEOFFSETS_TOTAL;
     case ID_MaxSpeed:       return SPEED_TOTAL;
     case ID_MaxAcceleration: return ACCEL_TOTAL;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return JERK_TOTAL;
     #endif
     case ID_Steps:          return STEPS_TOTAL;

@@ -195,15 +195,18 @@
 #define UNITFDIGITS 1
 #define MINUNITMULT POW(10, UNITFDIGITS)
 
-constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar height
-                   MLINE = 53,                                 // Menu line height
-                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
-                   MROWS = TROWS - 1,                          // Other-than-Back
-                   ICOX = 26,                                  // Menu item icon X position
-                   LBLX = 55,                                  // Menu item label X position
-                   VALX = 210,                                 // Menu item value X position
-                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
-                   STAT_CHR_W = 10;
+/**
+ * @brief Menu Line Spacing
+ */
+constexpr uint8_t  TITLE_HEIGHT = 30,                          //< Title bar height
+                   MLINE = 53,                                 //< Menu line height
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  //< Total rows
+                   MROWS = TROWS - 1,                          //< Other-than-Back
+                   ICOX = 26,                                  //< Menu item icon X position
+                   LBLX = 55,                                  //< Menu item label X position
+                   VALX = 210,                                 //< Menu item value X position
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,            //< Menu font 8x16
+                   STAT_CHR_W = 10;                            //< Menu Stats character width
 
 // Menuitem Y position
 #define MYPOS(L) (TITLE_HEIGHT + MLINE * (L))
@@ -335,7 +338,7 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
   // Draw a positive integer
   inline void drawInt(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {

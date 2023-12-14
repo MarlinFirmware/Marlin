@@ -97,17 +97,12 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y        354
 
-// Print speed limit
-#define MIN_PRINT_SPEED  10
-#define MAX_PRINT_SPEED 999
-
 #define FEEDRATE_E      (60)
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
 #define MINUNITMULT pow(10, UNITFDIGITS)
 
-#define ENCODER_WAIT_MS                  20
 #define DWIN_VAR_UPDATE_INTERVAL         1024
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL SEC_TO_MS(20)
@@ -465,7 +460,7 @@ void drawBackFirst(const bool is_sel=true) {
 
 #define MOTION_CASE_RATE   1
 #define MOTION_CASE_ACCEL  2
-#define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(HAS_CLASSIC_JERK))
+#define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(CLASSIC_JERK))
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
 #define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
 
@@ -1009,7 +1004,7 @@ void drawMotionMenu() {
     itemAreaCopy(173, 133, 228, 147, MOTION_CASE_RATE);        // Max speed
     itemAreaCopy(173, 133, 200, 147, MOTION_CASE_ACCEL);       // Max...
     itemAreaCopy(28, 149, 69, 161, MOTION_CASE_ACCEL, 30, 1);  // ...Acceleration
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       itemAreaCopy(173, 133, 200, 147, MOTION_CASE_JERK);      // Max...
       itemAreaCopy(1, 180, 28, 192, MOTION_CASE_JERK, 30, 1);  // ...
       itemAreaCopy(202, 133, 228, 147, MOTION_CASE_JERK, 57);  // ...Jerk
@@ -1025,14 +1020,14 @@ void drawMotionMenu() {
     #ifdef USE_STRING_TITLES
       dwinDrawLabel(MOTION_CASE_RATE, F("Feedrate"));                 // "Feedrate"
       dwinDrawLabel(MOTION_CASE_ACCEL, GET_TEXT_F(MSG_ACCELERATION)); // "Acceleration"
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dwinDrawLabel(MOTION_CASE_JERK, GET_TEXT_F(MSG_JERK));        // "Jerk"
       #endif
       dwinDrawLabel(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM)); // "Steps/mm"
     #else
       say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE); // "Max Speed"
       say_max_accel_en(MOTION_CASE_ACCEL);                              // "Max Acceleration"
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);    // "Max Jerk"
       #endif
       say_steps_per_mm_en(MOTION_CASE_STEPS);                           // "Steps-per-mm"
@@ -1046,7 +1041,7 @@ void drawMotionMenu() {
   #define _MOTION_ICON(N) drawMenuLine(++i, ICON_MaxSpeed + (N) - 1)
   _MOTION_ICON(MOTION_CASE_RATE); drawMoreIcon(i);
   _MOTION_ICON(MOTION_CASE_ACCEL); drawMoreIcon(i);
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     _MOTION_ICON(MOTION_CASE_JERK); drawMoreIcon(i);
   #endif
   _MOTION_ICON(MOTION_CASE_STEPS); drawMoreIcon(i);
@@ -1384,7 +1379,19 @@ void hmiMoveDone(const AxisEnum axis) {
       dwinUpdateLCD();
       return;
     }
-    LIMIT(hmiValues.offset_value, (Z_PROBE_OFFSET_RANGE_MIN) * 100, (Z_PROBE_OFFSET_RANGE_MAX) * 100);
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMIN)
+      #define _OFFSET_ZMIN (PROBE_OFFSET_ZMIN)
+    #else
+      #define _OFFSET_ZMIN -20
+    #endif
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMAX)
+      #define _OFFSET_ZMAX (PROBE_OFFSET_ZMAX)
+    #else
+      #define _OFFSET_ZMAX 20
+    #endif
+    LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
+
     last_zoffset = dwin_zoffset;
     dwin_zoffset = hmiValues.offset_value / 100.0f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
@@ -1547,7 +1554,7 @@ void hmiPrintSpeed() {
     return;
   }
   // printSpeed limit
-  LIMIT(hmiValues.printSpeed, MIN_PRINT_SPEED, MAX_PRINT_SPEED);
+  LIMIT(hmiValues.printSpeed, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
   // printSpeed value
   drawEditInteger3(select_tune.now + MROWS - index_tune, hmiValues.printSpeed, true);
 }
@@ -1590,7 +1597,7 @@ void hmiMaxAccelerationXYZE() {
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
 
   void hmiMaxJerkXYZE() {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -1610,7 +1617,7 @@ void hmiMaxAccelerationXYZE() {
     drawEditFloat3(select_jerk.now, hmiValues.maxJerkScaled, true);
   }
 
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 void hmiStepXYZE() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -3342,7 +3349,7 @@ void drawMaxAccelMenu() {
   #endif
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void drawMaxJerkMenu() {
     clearMainWindow();
 
@@ -3482,7 +3489,7 @@ void hmiMotion() {
         select_acc.reset();
         drawMaxAccelMenu();
         break;
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         case MOTION_CASE_JERK:
           checkkey = ID_MaxJerk;
           select_jerk.reset();
@@ -3989,7 +3996,7 @@ void hmiMaxAcceleration() {
   dwinUpdateLCD();
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   // Max Jerk
   void hmiMaxJerk() {
     EncoderState encoder_diffState = get_encoder_state();
@@ -4018,7 +4025,7 @@ void hmiMaxAcceleration() {
     }
     dwinUpdateLCD();
   }
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 // Step
 void hmiStep() {
@@ -4244,7 +4251,7 @@ void dwinHandleScreen() {
     #endif
     case ID_MaxSpeed:       hmiMaxSpeed(); break;
     case ID_MaxAcceleration: hmiMaxAcceleration(); break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      hmiMaxJerk(); break;
     #endif
     case ID_Step:           hmiStep(); break;
@@ -4267,7 +4274,7 @@ void dwinHandleScreen() {
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif
     case ID_StepValue:      hmiStepXYZE(); break;
