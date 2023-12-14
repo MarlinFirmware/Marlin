@@ -149,14 +149,9 @@
   #define LCD_PINS_D5                EXP1_06_PIN
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                EXP1_04_PIN
-    //#define LCD_BACKLIGHT_PIN             -1
-    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-    #if ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN           EXP1_06_PIN
-    #endif
-  #endif
+
+    // Migrated to pins/lcd
+  #endif // FYSETC_MINI_12864
 
   //
   // GLCD features
