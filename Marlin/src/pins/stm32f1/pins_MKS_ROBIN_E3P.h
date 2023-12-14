@@ -323,6 +323,14 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(FYSETC_MINI_12864_2_1)
+
+  // Migrated to pins/lcd
+
+  #if SD_CONNECTION_IS(ONBOARD)
+    #define FORCE_SOFT_SPI
+  #endif
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
@@ -347,21 +355,7 @@
       #define BEEPER_PIN                    -1
     #endif
 
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define LCD_PINS_DC              EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                  DOGLCD_A0
-    #define LCD_BACKLIGHT_PIN               -1
-    #define LCD_RESET_PIN            EXP1_05_PIN
-    #define NEOPIXEL_PIN             EXP1_06_PIN
-    #define DOGLCD_MOSI              EXP2_06_PIN
-    #define DOGLCD_SCK               EXP2_02_PIN
-    #if SD_CONNECTION_IS(ONBOARD)
-      #define FORCE_SOFT_SPI
-    #endif
-    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
-
-  #else // !FYSETC_MINI_12864_2_1
+  #else // !IS_TFTGLCD_PANEL
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
@@ -379,7 +373,7 @@
     #define BOARD_ST7920_DELAY_2             125
     #define BOARD_ST7920_DELAY_3             125
 
-  #endif // !FYSETC_MINI_12864_2_1
+  #endif // !IS_TFTGLCD_PANEL
 
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
