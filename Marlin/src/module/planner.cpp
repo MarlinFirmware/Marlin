@@ -2374,41 +2374,41 @@ bool Planner::_populate_block(
 
   // Limit speed on extruders, if any
   #if HAS_EXTRUDERS
-    {
-      current_speed.e = dist_mm.e * inverse_secs;
-      #if HAS_MIXER_SYNC_CHANNEL
-        // Move all mixing extruders at the specified rate
-        if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
-          current_speed.e *= MIXING_STEPPERS;
-      #endif
+  {
+    current_speed.e = dist_mm.e * inverse_secs;
+    #if HAS_MIXER_SYNC_CHANNEL
+      // Move all mixing extruders at the specified rate
+      if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
+        current_speed.e *= MIXING_STEPPERS;
+    #endif
 
-      const feedRate_t cs = ABS(current_speed.e),
-                   max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                            * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+    const feedRate_t cs = ABS(current_speed.e),
+                 max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
+                          * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
-      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
 
-      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
-                                   * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
+                                 * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
-        // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
+      // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
 
-        if (block->steps.a || block->steps.b || block->steps.c) {
+      if (block->steps.a || block->steps.b || block->steps.c) {
 
-          if (max_vfr > 0 && cs > max_vfr) {
-            NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
-            /* <-- add a slash to enable
-            SERIAL_ECHOPGM("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-            SERIAL_ECHOPGM(" mm^3/s (", cs);
-            SERIAL_ECHOPGM(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-            SERIAL_ECHOPGM(" mm^3/s (", max_vfr);
-            SERIAL_ECHOLNPGM(" mm/s)");
-            //*/
-          }
+        if (max_vfr > 0 && cs > max_vfr) {
+          NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
+          /* <-- add a slash to enable
+          SERIAL_ECHOPGM("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+          SERIAL_ECHOPGM(" mm^3/s (", cs);
+          SERIAL_ECHOPGM(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+          SERIAL_ECHOPGM(" mm^3/s (", max_vfr);
+          SERIAL_ECHOLNPGM(" mm/s)");
+          //*/
         }
-      #endif
-    }
+      }
+    #endif
+  }
   #endif
 
   #ifdef XY_FREQUENCY_LIMIT
@@ -2511,9 +2511,10 @@ bool Planner::_populate_block(
         else {
           // Scale E acceleration so that it will be possible to jump to the advance speed.
           const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-          if (TERN0(LA_DEBUG, accel > max_accel_steps_per_s2))
-            SERIAL_ECHOLNPGM("Acceleration limited.");
-          NOMORE(accel, max_accel_steps_per_s2);
+          if (accel > max_accel_steps_per_s2) {
+            accel = max_accel_steps_per_s2;
+            if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+          }
         }
       }
     #endif
