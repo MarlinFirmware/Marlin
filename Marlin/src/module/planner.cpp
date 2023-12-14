@@ -2409,7 +2409,7 @@ bool Planner::_populate_block(
       }
     #endif
   }
-  #endif
+  #endif // HAS_EXTRUDERS
 
   #ifdef XY_FREQUENCY_LIMIT
 
@@ -2765,9 +2765,7 @@ bool Planner::_populate_block(
 
     prev_unit_vec = unit_vec;
 
-  #endif
-
-  #if ENABLED(CLASSIC_JERK)
+  #else // CLASSIC_JERK
 
     /**
      * Heavily modified. Originally adapted from Průša firmware.
@@ -2783,33 +2781,33 @@ bool Planner::_populate_block(
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
 
-      float safe_speed_factor = 1.0f;
+      float v_factor = 1.0f;
       LOOP_LOGICAL_AXES(i) {
         const float jerk = ABS(current_speed[i]),   // Starting from zero, change in speed for this axis
                     maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f); // The max jerk setting for this axis
-        if (jerk * safe_speed_factor > maxj) safe_speed_factor = maxj / jerk;
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
-      vmax_junction = block->nominal_speed * safe_speed_factor;
+      vmax_junction = block->nominal_speed * v_factor;
       NOLESS(minimum_planner_speed_sqr, sq(vmax_junction));
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float previous_speed_factor = 1.0f, current_speed_factor = 1.0f;
+      float previous_speed_factor, current_speed_factor;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
         previous_speed_factor = vmax_junction / previous_nominal_speed;
+        current_speed_factor = 1.0f;
       }
       else {
         vmax_junction = previous_nominal_speed;
+        previous_speed_factor = 1.0f;
         current_speed_factor = vmax_junction / block->nominal_speed;
       }
 
-      // Factor to multiply vmax_junction to get componentwise limited velocities.
-      float v_factor = 1.0f;
-
       // Now limit the jerk in all axes.
+      float v_factor = 1.0f;
       LOOP_LOGICAL_AXES(i) {
         // Scale per-axis velocities for the same vmax_junction.
         const float v_exit = previous_speed[i] * previous_speed_factor,
