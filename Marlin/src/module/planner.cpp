@@ -153,9 +153,7 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
   #if HAS_LINEAR_E_JERK
     float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
-#endif
-
-#if ENABLED(CLASSIC_JERK)
+#else // CLASSIC_JERK
   TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) Planner::max_jerk;
 #endif
 
