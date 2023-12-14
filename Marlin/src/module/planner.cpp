@@ -2821,13 +2821,7 @@ bool Planner::_populate_block(
       }
       vmax_junction *= v_factor;
     }
-
-    #if HAS_JUNCTION_DEVIATION
-      NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
-    #else
-      vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
-    #endif
-
+    vmax_junction_sqr = sq(vmax_junction);
   #endif // CLASSIC_JERK
 
   // Max entry speed of this block equals the max exit speed of the previous block.
