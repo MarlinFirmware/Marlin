@@ -190,61 +190,65 @@
 // LCD / Controller
 //
 
-#if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-  #define LCD_PINS_DC                         38  // Set as output on init
-  #define LCD_PINS_RS                         41  // Pull low for 1s to init
-  // DOGM SPI LCD Support
-  #define DOGLCD_CS                           19
-  #define DOGLCD_MOSI                         42
-  #define DOGLCD_SCK                          18
-  #define DOGLCD_A0                  LCD_PINS_DC
-#elif ENABLED(FYSETC_MINI_12864)
-  #define DOGLCD_CS                           42
-  #define DOGLCD_A0                           19
-  #define DOGLCD_MOSI                         51
-  #define DOGLCD_SCK                          52
+#if ENABLED(FYSETC_MINI_12864)
 
-  //#define FORCE_SOFT_SPI                        // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+  // Migrated to pins/lcd
 
-  #define LCD_RESET_PIN                       18  // Must be high or open for LCD to operate normally.
-
+  #define EXP1_01_PIN                         44  // BEEPER
+  #define EXP1_02_PIN                         43  // ENC
+  #define EXP1_03_PIN                         42  // CS
+  #define EXP1_04_PIN                         19  // A0
+  #define EXP1_05_PIN                         18  // RESET
   #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-    #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN                   41
-    #endif
-    #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN                   38
-    #endif
-    #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN                   40
-    #endif
+    #define EXP1_06_PIN                       41  // R
+    #define EXP1_07_PIN                       38  // G
+    #define EXP1_08_PIN                       40  // B
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      38
+    #define EXP1_06_PIN                       38  // NEOPIXEL
   #endif
+  #define EXP2_02_PIN                         52  // SCK
+  #define EXP2_03_PIN                         11  // EN1
+  #define EXP2_04_PIN                         53  // SDSS
+  #define EXP2_05_PIN                         12  // EN2
+  #define EXP2_06_PIN                         51  // MOSI
+  #define EXP2_07_PIN                         49  // SD_DET
 
 #else
-  #define LCD_PINS_RS                         19
-  #define LCD_PINS_EN                         42
-  #define LCD_PINS_D4                         18
-  #define LCD_PINS_D5                         38
-  #define LCD_PINS_D6                         41
-#endif
 
-#define LCD_PINS_D7                           40
+  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
 
-//
-// Beeper, SD Card, Encoder
-//
-#define BEEPER_PIN                            44
+    #define LCD_PINS_DC                       38  // Set as output on init
+    #define LCD_PINS_RS                       41  // Pull low for 1s to init
+    // DOGM SPI LCD Support
+    #define DOGLCD_CS                         19
+    #define DOGLCD_MOSI                       42
+    #define DOGLCD_SCK                        18
+    #define DOGLCD_A0                LCD_PINS_DC
 
-#if HAS_MEDIA
-  #define SD_SS_PIN                           53
-  #define SD_DETECT_PIN                       49
-#endif
+  #else
+    #define LCD_PINS_RS                       19
+    #define LCD_PINS_EN                       42
+    #define LCD_PINS_D4                       18
+    #define LCD_PINS_D5                       38
+    #define LCD_PINS_D6                       41
+  #endif
 
-#if IS_NEWPANEL
-  #define BTN_EN1                             11
-  #define BTN_EN2                             12
-  #define BTN_ENC                             43
+  #define LCD_PINS_D7                         40
+
+  //
+  // Beeper, SD Card, Encoder
+  //
+  #define BEEPER_PIN                          44
+
+  #if HAS_MEDIA
+    #define SD_SS_PIN                         53
+    #define SD_DETECT_PIN                     49
+  #endif
+
+  #if IS_NEWPANEL
+    #define BTN_EN1                           11
+    #define BTN_EN2                           12
+    #define BTN_ENC                           43
+  #endif
+
 #endif
