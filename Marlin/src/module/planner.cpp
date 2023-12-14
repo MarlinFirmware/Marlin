@@ -2492,7 +2492,7 @@ bool Planner::_populate_block(
        *
        * extruder_advance_K[extruder] : There is an advance factor set for this extruder.
        *
-       * dist.e > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * dist.e > 0                   : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
       use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dist.e > 0;
 
@@ -2773,9 +2773,9 @@ bool Planner::_populate_block(
      * https://github.com/prusa3d/Prusa-Firmware
      */
     #ifndef TRAVEL_EXTRA_XYJERK
-      #define TRAVEL_EXTRA_XYJERK 0
+      #define TRAVEL_EXTRA_XYJERK 0.0f
     #endif
-    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
+    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
 
     float vmax_junction;
 
@@ -2821,7 +2821,9 @@ bool Planner::_populate_block(
       }
       vmax_junction *= v_factor;
     }
-    vmax_junction_sqr = sq(vmax_junction);
+
+    vmax_junction_sqr = sq(vmax_junction); // Go up or down to the new speed
+
   #endif // CLASSIC_JERK
 
   // Max entry speed of this block equals the max exit speed of the previous block.
