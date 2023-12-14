@@ -165,6 +165,8 @@
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+  // NOTE: Kept inline — ULTRATRONICS_PRO uses raw SAM pins (A8/MOSI/SCK) and
+  // non-EXP encoder pins; not EXP/LCD-tokenable.
   #define LCD_PINS_RS                         A8  // CS chip select / SS chip slave select
   #define LCD_PINS_EN                       MOSI  // SID (MOSI)
   #define LCD_PINS_D4                        SCK  // SCK (CLK) clock

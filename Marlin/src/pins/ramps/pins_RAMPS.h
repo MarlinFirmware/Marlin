@@ -630,9 +630,7 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
-    #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
-    #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
+    // Migrated to pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h
 
   #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
@@ -729,6 +727,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — REPRAPWORLD input pins are on the AUX-2 connector
+      // (separate from EXP-2, which carries the display output). Not EXP/LCD-tokenable.
       #define BTN_EN1                    AUX2_05
       #define BTN_EN2                    AUX2_03
       #define BTN_ENC                    AUX2_04

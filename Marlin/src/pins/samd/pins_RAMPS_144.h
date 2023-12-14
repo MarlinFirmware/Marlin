@@ -434,6 +434,22 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+
+  // TODO: Define an adapter
+  // NOTE: Kept inline — REPRAPWORLD input pins are on the AUX-2 connector;
+  // the display output pins are provided by lcd/REPRAPWORLD_GRAPHICAL_LCD.h.
+
+  #define BTN_ENC                        AUX2_04
+  #define BTN_EN1                        AUX2_05
+  #define BTN_EN2                        AUX2_03
+
+  // LCD output pins migrated to pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h
+
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN                AUX2_08
+  #endif
+
 #elif IS_RRD_SC
 
   // Migrated to pins/lcd
@@ -449,13 +465,7 @@
   //
   // LCD Display output pins
   //
-  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-
-    #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
-    #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
-    #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
-
-  #elif ALL(IS_NEWPANEL, PANEL_ONE)
+  #if ALL(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                  AUX2_06
     #define LCD_PINS_EN                  AUX2_08
@@ -531,16 +541,7 @@
   //
   #if IS_NEWPANEL
 
-    #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-
-      #define BTN_EN1                    AUX2_05
-      #define BTN_EN2                    AUX2_03
-      #define BTN_ENC                    AUX2_04
-      #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN            AUX2_08
-      #endif
-
-    #elif ENABLED(LCD_I2C_PANELOLU2)
+    #if ENABLED(LCD_I2C_PANELOLU2)
 
       #define BTN_EN1                    AUX4_04
       #define BTN_EN2                    AUX4_06
