@@ -290,63 +290,45 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(FYSETC_MINI_12864)
+
+  // Migrated to pins/lcd
+
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
   // Migrated to pins/lcd
 
-#elif HAS_WIRED_LCD
+#else
 
-  #define BEEPER_PIN                 EXP1_01_PIN
+  #if HAS_WIRED_LCD
 
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
+    #define BEEPER_PIN               EXP1_01_PIN
 
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
 
-  #define LCD_SDSS_PIN               EXP2_04_PIN
+    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
-  #if ENABLED(FYSETC_MINI_12864)
-    // See https://wiki.fysetc.com/Mini12864_Panel
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                EXP1_04_PIN
-    #if ENABLED(FYSETC_GENERIC_12864_1_1)
-      #define LCD_BACKLIGHT_PIN      EXP1_07_PIN
+    #define LCD_SDSS_PIN             EXP2_04_PIN
+
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
     #endif
-    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN        EXP1_06_PIN
-      #endif
-      #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN        EXP1_07_PIN
-      #endif
-      #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN        EXP1_08_PIN
-      #endif
-    #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN           EXP1_06_PIN
-    #endif
+
+  #endif // HAS_WIRED_LCD
+
+  // Alter timing for graphical display
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             640
   #endif
 
-  #if IS_ULTIPANEL
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
-  #endif
-
-#endif // HAS_WIRED_LCD
-
-// Alter timing for graphical display
-#if IS_U8GLIB_ST7920
-  #define BOARD_ST7920_DELAY_1              96
-  #define BOARD_ST7920_DELAY_2              48
-  #define BOARD_ST7920_DELAY_3              640
 #endif
 
 /**
@@ -362,24 +344,18 @@
  *                 -------
  *                  WIFI
  */
+
+//
+// NeoPixel LED
+//
+#define BOARD_NEOPIXEL_PIN                  PD3
+
+//
+// Wifi module
+//
 #define ESP_WIFI_MODULE_COM                 1     // Set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Use the same BAUDRATE as SERIAL_PORT or SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PB3
 #define ESP_WIFI_MODULE_ENABLE_PIN          PD1   // PC8
 #define ESP_WIFI_MODULE_GPIO0_PIN           PG2   // PB4
 #define ESP_WIFI_MODULE_GPIO4_PIN           PG1   // PB7
-
-//
-// NeoPixel LED
-// FYSETC_242_OLED_12864 & FYSETC_MINI_12864_2_1 uses one of the EXP pins for NeoPixels
-//
-#if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
-  // Allow dedicated RGB (NeoPixel) pin to be used for a NeoPixel strip
-  #ifndef NEOPIXEL2_PIN
-    #define NEOPIXEL2_PIN                   PD3   // Neo-pixel
-  #endif
-#else
-  #ifndef NEOPIXEL_PIN
-    #define NEOPIXEL_PIN                    PD3   // Neo-pixel
-  #endif
-#endif
