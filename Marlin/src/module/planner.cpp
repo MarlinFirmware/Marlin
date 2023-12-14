@@ -2774,8 +2774,6 @@ bool Planner::_populate_block(
     #endif
     const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
 
-    float vmax_junction;
-
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
 
@@ -2785,14 +2783,14 @@ bool Planner::_populate_block(
                     maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f); // The max jerk setting for this axis
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
-      vmax_junction = block->nominal_speed * v_factor;
-      NOLESS(minimum_planner_speed_sqr, sq(vmax_junction));
+      vmax_junction_sqr = sq(block->nominal_speed * v_factor);
+      NOLESS(minimum_planner_speed_sqr, vmax_junction_sqr);
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float previous_speed_factor, current_speed_factor;
+      float vmax_junction, previous_speed_factor, current_speed_factor;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
         previous_speed_factor = vmax_junction / previous_nominal_speed;
@@ -2816,10 +2814,8 @@ bool Planner::_populate_block(
                     maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f);
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
-      vmax_junction *= v_factor;
+      vmax_junction_sqr = sq(vmax_junction * v_factor);
     }
-
-    vmax_junction_sqr = sq(vmax_junction); // Go up or down to the new speed
 
   #endif // CLASSIC_JERK
 
