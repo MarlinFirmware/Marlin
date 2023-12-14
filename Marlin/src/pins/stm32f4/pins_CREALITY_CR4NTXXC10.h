@@ -198,7 +198,7 @@
   #if ENABLED(RET6_12864_LCD)
     // RET6 12864 LCD
     #define LCD_PINS_RS                     PB12
-    #define LCD_PINS_ENABLE                 PB15
+    #define LCD_PINS_EN                     PB15
     #define LCD_PINS_D4                     PB13
 
     #define BTN_ENC                         PB2
@@ -212,7 +212,7 @@
   #elif ENABLED(VET6_12864_LCD)
     // VET6 12864 LCD
     #define LCD_PINS_RS                     PA4
-    //#define LCD_PINS_ENABLE               PA7
+    //#define LCD_PINS_EN                   PA7
     #define LCD_PINS_D4                     PA5
 
     #define BTN_ENC                         PC5
