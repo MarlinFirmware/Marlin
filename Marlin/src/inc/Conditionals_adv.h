@@ -302,6 +302,21 @@
   #endif
 #endif
 
+// Use Junction Deviation for motion if Jerk is disabled
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
+#endif
+
+// E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
+#if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
+  #define HAS_CLASSIC_E_JERK 1
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
+#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+  #define HAS_LINEAR_E_JERK 1
+#endif
+
 /**
  * Temperature Sensors; define what sensor(s) we have.
  */

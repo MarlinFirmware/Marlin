@@ -37,11 +37,6 @@
   #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
-  #define HAS_LINEAR_E_JERK 1
-#endif
-
 // Determine which type of 'EEPROM' is in use
 #if ENABLED(EEPROM_SETTINGS)
   // EEPROM type may be defined by compile flags, configs, HALs, or pins
