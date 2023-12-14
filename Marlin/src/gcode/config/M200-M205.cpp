@@ -297,9 +297,6 @@ void GcodeSuite::M205() {
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
-    #if AXIS_COLLISION('J')
-      #error "Can't set_max_jerk for 'J' axis because 'J' is used for Junction Deviation."
-    #endif
     if (parser.seenval('J')) {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
