@@ -1,6 +1,6 @@
 # LeoTechLab SV06 v0.1 Firmware (15-12-2023)
 
-This is a stock Marlin fork with Sovol SV06 configurations based on the original Sovol firmware.
+This is a stock Marlin fork with Sovol SV06 configurations based on the original Sovol firmware (https://github.com/Sovol3d/Sv06-Source-Code).
 
 Part of the configuration was based on Michael Hill's work, here: https://github.com/hillsoftware/sv06
 
