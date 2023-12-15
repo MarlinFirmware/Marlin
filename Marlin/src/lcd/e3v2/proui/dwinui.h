@@ -238,12 +238,10 @@ extern Title title;
 
 namespace DWINUI {
   extern xy_int_t cursor;
-  extern uint16_t penColor;
   extern uint16_t textColor;
   extern uint16_t backColor;
   extern uint16_t buttonColor;
   extern fontid_t fontID;
-  extern FSTR_P const author;
 
   extern void (*onTitleDraw)(Title* t);
 
@@ -271,7 +269,6 @@ namespace DWINUI {
   void setColors(uint16_t fgcolor, uint16_t bgcolor, uint16_t alcolor);
   void setTextColor(uint16_t fgcolor);
   void setBackgroundColor(uint16_t bgcolor);
-  void setButtonColor(uint16_t alcolor);
 
   // Moves cursor to point
   //  x: abscissa of the display
@@ -286,16 +283,6 @@ namespace DWINUI {
   //  point: xy coordinate
   void moveBy(int16_t x, int16_t y);
   void moveBy(xy_int_t point);
-
-  // Draw a line from the cursor to xy position
-  //  color: Line segment color
-  //  x/y: End point
-  inline void lineTo(uint16_t color, uint16_t x, uint16_t y) {
-    dwinDrawLine(color, cursor.x, cursor.y, x, y);
-  }
-  inline void lineTo(uint16_t x, uint16_t y) {
-    dwinDrawLine(penColor, cursor.x, cursor.y, x, y);
-  }
 
   // Extend a frame box
   //  v: value to extend

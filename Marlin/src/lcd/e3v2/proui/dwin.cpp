@@ -3925,13 +3925,16 @@ void drawStepsMenu() {
   #endif
 
   #if ENABLED(PROUI_MESH_EDIT)
+    bool autoMovToMesh = false;
+    void setAutoMovToMesh() { toggleCheckboxLine(autoMovToMesh); }
     void liveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
-    void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
-    void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }
+    void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
+    void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
-    void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
+    void liveEditMeshZ() { *menuData.floatPtr = menuData.value / POW(10, 2); if (autoMovToMesh) bedLevelTools.moveToZ(); }
+    void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3, nullptr, liveEditMeshZ); if (autoMovToMesh) bedLevelTools.moveToXYZ(); }
   #endif
 
 #endif // HAS_MESH
@@ -4012,12 +4015,14 @@ void drawStepsMenu() {
       if (!leveling_is_valid()) { LCD_MESSAGE(MSG_UBL_MESH_INVALID); return; }
       set_bed_leveling_enabled(false);
       checkkey = ID_Menu;
-      if (SET_MENU(editMeshMenu, MSG_EDIT_MESH, 4)) {
+      if (SET_MENU(editMeshMenu, MSG_EDIT_MESH, 6)) {
         bedLevelTools.mesh_x = bedLevelTools.mesh_y = 0;
         BACK_ITEM(drawMeshSetMenu);
+        EDIT_ITEM_F(ICON_UBLActive, "Move to position", onDrawChkbMenu, setAutoMovToMesh, &autoMovToMesh);
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
+        OPTCODE(HAS_BED_PROBE, MENU_ITEM_F(ICON_UBLActive, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY))
       }
       updateMenu(editMeshMenu);
     }

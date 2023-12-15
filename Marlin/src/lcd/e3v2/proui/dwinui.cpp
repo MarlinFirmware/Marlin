@@ -35,18 +35,15 @@
 #include "dwinui.h"
 
 xy_int_t DWINUI::cursor = { 0 };
-uint16_t DWINUI::penColor = COLOR_WHITE;
 uint16_t DWINUI::textColor = defColorText;
 uint16_t DWINUI::backColor = defColorBackground;
 uint16_t DWINUI::buttonColor = defColorButton;
 uint8_t  DWINUI::fontID = font8x16;
-FSTR_P const DWINUI::author = F(STRING_CONFIG_H_AUTHOR);
 
 void (*DWINUI::onTitleDraw)(Title* t) = nullptr;
 
 void DWINUI::init() {
   cursor.reset();
-  penColor = COLOR_WHITE;
   textColor = defColorText;
   backColor = defColorBackground;
   buttonColor = defColorButton;
@@ -111,9 +108,6 @@ void DWINUI::setTextColor(uint16_t fgcolor) {
 }
 void DWINUI::setBackgroundColor(uint16_t bgcolor) {
   backColor = bgcolor;
-}
-void DWINUI::setButtonColor(uint16_t alcolor) {
-  buttonColor = alcolor;
 }
 
 // Moves cursor to point
