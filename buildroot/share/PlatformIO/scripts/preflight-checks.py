@@ -72,7 +72,7 @@ if pioutil.is_pio_build():
         result = check_envs("env:"+build_env, board_envs, config)
 
         if not result:
-            err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
+            err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
 
@@ -90,7 +90,7 @@ if pioutil.is_pio_build():
         # Find the name.cpp.o or name.o and remove it
         #
         def rm_ofile(subdir, name):
-            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env);
+            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env)
             for outdir in (build_dir, build_dir / "debug"):
                 for ext in (".cpp.o", ".o"):
                     fpath = outdir / "src/src" / subdir / (name + ext)
