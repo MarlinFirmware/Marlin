@@ -154,7 +154,6 @@ typedef struct {
     bool enablePreview = true;
   #endif
 } hmi_data_t;
-
 extern hmi_data_t hmiData;
 static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
 
@@ -179,6 +178,7 @@ typedef struct {
   uint8_t select = 0;                 // Auxiliary selector variable
   AxisEnum axis = X_AXIS;             // Axis Select
 } hmi_value_t;
+extern hmi_value_t hmiValue;
 
 typedef struct {
   uint8_t language;
@@ -188,8 +188,6 @@ typedef struct {
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
 } hmi_flag_t;
-
-extern hmi_value_t hmiValue;
 extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 

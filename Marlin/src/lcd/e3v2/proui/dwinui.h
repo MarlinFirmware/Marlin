@@ -165,9 +165,8 @@
 
 // Extended and default UI Colors
 #define COLOR_BLACK           0
-#define COLOR_GREEN           RGB(0,63,0)
-#define COLOR_AQUA            RGB(0,63,31)
-#define COLOR_BLUE            RGB(0,0,31)
+#define COLOR_GREEN           RGB(0, 63,  0)
+#define COLOR_BLUE            RGB(0,  0, 31)
 #define COLOR_LIGHT_WHITE     0xBDD7
 #define COLOR_LIGHT_GREEN     0x3460
 #define COLOR_CYAN            0x07FF
@@ -272,6 +271,7 @@ namespace DWINUI {
   void setColors(uint16_t fgcolor, uint16_t bgcolor, uint16_t alcolor);
   void setTextColor(uint16_t fgcolor);
   void setBackgroundColor(uint16_t bgcolor);
+  void setButtonColor(uint16_t alcolor);
 
   // Moves cursor to point
   //  x: abscissa of the display
