@@ -28,6 +28,8 @@
 #include <algorithm>
 #include "pinmapping.h"
 
+#define strlcpy(A, B, C)   strncpy(A, B, (C) - 1)  // Add strlcpy
+
 void _printf (const  char *format, ...);
 void _putc(uint8_t c);
 uint8_t _getc();
