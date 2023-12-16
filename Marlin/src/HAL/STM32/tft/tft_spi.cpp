@@ -31,7 +31,7 @@
 #include "tft_spi.h"
 #include "pinconfig.h"
 
-#define DEBUG_TFT_IO
+//#define DEBUG_TFT_IO
 #define DEBUG_OUT ENABLED(DEBUG_TFT_IO)
 #include "../../../core/debug_out.h"
 
@@ -229,7 +229,9 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     #endif
 
     dataTransferEnd();
-    //SPIx.Init.BaudRatePrescaler = BaudRatePrescaler;
+    #if DISABLED(DEBUG_TFT_IO)
+      SPIx.Init.BaudRatePrescaler = BaudRatePrescaler;
+    #endif
   #endif
 
   DEBUG_ECHOLNPGM("  raw data : ", data);
