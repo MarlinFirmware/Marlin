@@ -37,19 +37,23 @@ static const uint8_t flashdata[TOTAL_FLASH_SIZE]  __attribute__((__aligned__(256
 
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity() {
-  return MARLIN_EEPROM_SIZE;
- /* const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ,
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+
+/*
+  const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ,
                 sblk = NVMCTRL->SEESTAT.bit.SBLK;
 
-  return   (!psz && !sblk)         ? 0
-         : (psz <= 2)              ? (0x200 << psz)
-         : (sblk == 1 || psz == 3) ?  4096
-         : (sblk == 2 || psz == 4) ?  8192
-         : (sblk <= 4 || psz == 5) ? 16384
-         : (sblk >= 9 && psz == 7) ? 65536
-                                   : 32768;*/
+  return (
+    (!psz && !sblk)         ? 0
+   : (psz <= 2)              ? (0x200 << psz)
+   : (sblk == 1 || psz == 3) ?  4096
+   : (sblk == 2 || psz == 4) ?  8192
+   : (sblk <= 4 || psz == 5) ? 16384
+   : (sblk >= 9 && psz == 7) ? 65536
+                             : 32768
+  ) - eeprom_exclude_size;
 }
+*/
 
 uint32_t PAGE_SIZE;
 uint32_t ROW_SIZE;

@@ -123,7 +123,7 @@ typedef Servo hal_servo_t;
 //
 // ADC
 //
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 #define HAL_ADC_RESOLUTION  10
 
 #ifndef analogInputToDigitalPin

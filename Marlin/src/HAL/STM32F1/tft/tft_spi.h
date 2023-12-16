@@ -56,7 +56,7 @@
 #define DATASIZE_8BIT  DATA_SIZE_8BIT
 #define DATASIZE_16BIT DATA_SIZE_16BIT
 #define TFT_IO_DRIVER  TFT_SPI
-#define DMA_MAX_SIZE   0xFFFF
+#define DMA_MAX_WORDS  0xFFFF
 
 #define DMA_MINC_ENABLE   DMA_MINC_MODE
 #define DMA_MINC_DISABLE  0
@@ -89,8 +89,8 @@ public:
   static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_MINC_ENABLE, Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
     while (Count > 0) {
-      Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
-      Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
+      Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_WORDS ? DMA_MAX_WORDS : Count);
+      Count = Count > DMA_MAX_WORDS ? Count - DMA_MAX_WORDS : 0;
     }
   }
 };

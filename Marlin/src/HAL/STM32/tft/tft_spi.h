@@ -38,8 +38,9 @@
 
 #define DATASIZE_8BIT  SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
+#define DATASIZE_32BIT SPI_DATASIZE_32BIT
 #define TFT_IO_DRIVER  TFT_SPI
-#define DMA_MAX_SIZE   0xFFFF
+#define DMA_MAX_WORDS  0xFFFF
 
 class TFT_SPI {
 private:
@@ -78,8 +79,8 @@ public:
   static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_MINC_ENABLE, Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
     while (Count > 0) {
-      Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
-      Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
+      Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_WORDS ? DMA_MAX_WORDS : Count);
+      Count = Count > DMA_MAX_WORDS ? Count - DMA_MAX_WORDS : 0;
     }
   }
 };

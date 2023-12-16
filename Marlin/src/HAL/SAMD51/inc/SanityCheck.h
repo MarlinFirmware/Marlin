@@ -54,8 +54,8 @@
   #error "EMERGENCY_PARSER is not yet implemented for SAMD51. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(SDIO_SUPPORT)
-  #error "SDIO_SUPPORT is not supported on SAMD51."
+#if ENABLED(ONBOARD_SDIO)
+  #error "ONBOARD_SDIO is not supported on SAMD51."
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
