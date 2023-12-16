@@ -1,5 +1,7 @@
 # LeoTechLab SV06 v0.1 Firmware (15-12-2023)
 
+**Follow me on YouTube: https://www.youtube.com/@LeoTechLab**
+
 This is a stock Marlin fork with Sovol SV06 configurations based on the original Sovol firmware (https://github.com/Sovol3d/Sv06-Source-Code).
 
 Part of the configuration was based on Michael Hill's work, here: https://github.com/hillsoftware/sv06
@@ -18,8 +20,8 @@ Currently this is tracking the **bugfix-2.1.x** branch.
 # Installation
 1. **Install the new firmware as usual**
     - put the .bin file inside a FAT32-formatted sdcard
-    - put the sdcard in the printer and power it own
-    - what a couple of seconds until the new firmware appears on screen
+    - put the sdcard in the printer and power it on
+    - wait a couple of seconds until the new firmware appears on screen
     - just to be sure, I suggest removing the sdcard and deleting the firmware file
     - NOTE: if the printer does not update, try renaming the firmware file. The printer has a safety feature that stores the last flashed filename, so that it doesn't reflash it again accidentally.
 2. **Reset EEPROM and restore defaults, save settings**
