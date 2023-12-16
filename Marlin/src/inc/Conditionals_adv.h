@@ -302,6 +302,21 @@
   #endif
 #endif
 
+// Use Junction Deviation for motion if Jerk is disabled
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
+#endif
+
+// E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
+#if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
+  #define HAS_CLASSIC_E_JERK 1
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
+#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+  #define HAS_LINEAR_E_JERK 1
+#endif
+
 /**
  * Temperature Sensors; define what sensor(s) we have.
  */
@@ -893,11 +908,11 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
-#if DISPLAY_SLEEP_MINUTES || TOUCH_IDLE_SLEEP_MINS
+#if defined(DISPLAY_SLEEP_MINUTES) || defined(TOUCH_IDLE_SLEEP_MINS)
   #define HAS_DISPLAY_SLEEP 1
 #endif
-#if HAS_DISPLAY_SLEEP || LCD_BACKLIGHT_TIMEOUT_MINS
-  #define HAS_GCODE_M255 1
+#ifdef LCD_BACKLIGHT_TIMEOUT_MINS
+  #define HAS_BACKLIGHT_TIMEOUT 1
 #endif
 
 #if ANY(DIGIPOT_MCP4018, DIGIPOT_MCP4451)

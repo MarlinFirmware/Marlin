@@ -587,17 +587,11 @@ void menu_backlash();
 
   #endif
 
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
 
     void menu_advanced_jerk() {
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
-
-      #if HAS_JUNCTION_DEVIATION
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, TERN(LIN_ADVANCE, 0.3f, 0.5f)
-          OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
-        );
-      #endif
 
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
@@ -711,12 +705,12 @@ void menu_advanced_settings() {
       if (!is_busy) SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
     #endif
 
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       // M205 - Max Jerk
       SUBMENU(MSG_JERK, menu_advanced_jerk);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
-        OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
+        OPTARG(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk)
       );
     #endif
 
