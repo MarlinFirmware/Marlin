@@ -41,6 +41,7 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../../../core/debug_out.h"
+#include "src/module/temperature.h"
 
 void menu_job_recovery();
 
@@ -65,7 +66,11 @@ inline void plr_error(FSTR_P const prefix) {
 void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
-    if (parser.seen_test('S')) {
+     bool force_resume = false;
+     if (thermalManager.degBed() >= recovery.bed_temp_threshold)
+        force_resume = true;
+
+    if (parser.seen_test('S') && !force_resume) {
       #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
       #elif HAS_DWIN_E3V2_BASIC

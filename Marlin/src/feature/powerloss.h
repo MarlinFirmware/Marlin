@@ -174,6 +174,7 @@ class PrintJobRecovery {
     static bool enabled;
     static void enable(const bool onoff);
     static void changed();
+    static int16_t bed_temp_threshold;
 
     static bool exists() { return card.jobRecoverFileExists(); }
     static void open(const bool read) { card.openJobRecoveryFile(read); }

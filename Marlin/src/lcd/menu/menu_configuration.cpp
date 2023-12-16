@@ -640,6 +640,7 @@ void menu_configuration() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     EDIT_ITEM(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
+    EDIT_ITEM(int3, MSG_BED_TEMP_RECOVERY, &recovery.bed_temp_threshold, 0, BED_MAXTEMP);
   #endif
 
   // Preheat configurations

@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V89"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -448,6 +448,7 @@ typedef struct SettingsDataStruct {
   // POWER_LOSS_RECOVERY
   //
   bool recovery_enabled;                                // M413 S
+  uint16_t recovery_threshold;
 
   //
   // FWRETRACT
@@ -1275,6 +1276,10 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(recovery_enabled);
       const bool recovery_enabled = TERN(POWER_LOSS_RECOVERY, recovery.enabled, ENABLED(PLR_ENABLED_DEFAULT));
       EEPROM_WRITE(recovery_enabled);
+
+      _FIELD_TEST(recovery_threshold);
+      const uint16_t recovery_threshold = TERN(POWER_LOSS_RECOVERY, recovery.bed_temp_threshold,PLR_BED_THRESHOLD);
+      EEPROM_WRITE(recovery_threshold);
     }
 
     //
@@ -2320,6 +2325,11 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(recovery_enabled);
         EEPROM_READ(recovery_enabled);
         TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.enabled = recovery_enabled);
+
+        int16_t recovery_threshold;
+        _FIELD_TEST(recovery_threshold);
+        EEPROM_READ(recovery_threshold);
+        TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.bed_temp_threshold = recovery_threshold);
       }
 
       //
@@ -3470,7 +3480,7 @@ void MarlinSettings::reset() {
   // Power-Loss Recovery
   //
   TERN_(POWER_LOSS_RECOVERY, recovery.enable(ENABLED(PLR_ENABLED_DEFAULT)));
-
+  TERN_(POWER_LOSS_RECOVERY, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
   //
   // Firmware Retraction
   //

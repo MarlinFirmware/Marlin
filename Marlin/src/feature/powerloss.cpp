@@ -36,6 +36,7 @@
 #endif
 
 bool PrintJobRecovery::enabled; // Initialized by settings.load()
+int16_t PrintJobRecovery::bed_temp_threshold;
 
 MediaFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
