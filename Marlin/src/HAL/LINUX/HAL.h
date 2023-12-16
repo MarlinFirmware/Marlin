@@ -80,8 +80,8 @@ extern MSerialT usb_serial;
 #define CRITICAL_SECTION_END()
 
 // ADC
-#define HAL_ADC_VREF           5.0
-#define HAL_ADC_RESOLUTION    10
+#define HAL_ADC_VREF_MV   5000
+#define HAL_ADC_RESOLUTION  10
 
 // ------------------------
 // Class Utilities

@@ -85,12 +85,6 @@ void install_min_serial() {
     void __attribute__((naked, alias("JumpHandler_ASM"))) MemManage_Handler();
     void __attribute__((naked, alias("JumpHandler_ASM"))) NMI_Handler();
   }
-  void __attribute__((naked, alias("JumpHandler_ASM"))) HardFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) BusFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) UsageFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) MemManage_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) NMI_Handler();
-}
 #endif
 
 #endif // POSTMORTEM_DEBUGGING

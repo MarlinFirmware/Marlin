@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
 
 #include "sdio.h"
 
@@ -453,5 +453,5 @@ uint32_t SDIO_GetCardSize() {
   return (uint32_t)(hsd.SdCard.BlockNbr) * (hsd.SdCard.BlockSize);
 }
 
-#endif // SDIO_SUPPORT
+#endif // ONBOARD_SDIO
 #endif // HAL_STM32

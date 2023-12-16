@@ -34,14 +34,11 @@
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO31 /* led D5 red */
-
 // SPI
-#define SCK         DIO21  //  9
-#define MISO        DIO23  // 11
-#define MOSI        DIO22  // 10
-#define SS          DIO20  //  8
+#define SS          20  //  8
+#define SCK         21  //  9
+#define MOSI        22  // 10
+#define MISO        23  // 11
 
 // Digital I/O
 
