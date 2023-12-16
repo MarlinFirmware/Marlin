@@ -5,9 +5,6 @@
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
  * Copyright (C) 2015, ChaN, all right reserved.
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This software is a free software and there is NO WARRANTY.
  * No restriction on use. You can use, modify and redistribute it for
  * personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.

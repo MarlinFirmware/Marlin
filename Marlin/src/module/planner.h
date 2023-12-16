@@ -355,7 +355,7 @@ typedef struct {
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
   struct motion_state_t {
     TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       TERN(DELTA, xyz_float_t, xy_float_t) jerk_state;
     #endif
   };
@@ -475,9 +475,7 @@ class Planner {
       #if HAS_LINEAR_E_JERK
         static float max_e_jerk[DISTINCT_E];          // Calculated from junction_deviation_mm
       #endif
-    #endif
-
-    #if HAS_CLASSIC_JERK
+    #else // CLASSIC_JERK
       // (mm/s^2) M205 XYZ(E) - The largest speed change requiring no acceleration.
       static TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) max_jerk;
     #endif
@@ -602,7 +600,7 @@ class Planner {
     static void set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS);
 
     // For an axis set the Maximum Jerk (instant change) in mm/s
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
       static void set_max_jerk(const AxisEnum, const_float_t) {}

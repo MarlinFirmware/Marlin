@@ -195,7 +195,7 @@ void BDS_Leveling::process() {
       safe_delay(10);
       if (config_state == BDS_CALIBRATE_START) {
         config_state = BDS_CALIBRATING;
-        REMEMBER(gsit, gcode.stepper_inactive_time, SEC_TO_MS(60 * 5));
+        REMEMBER(gsit, gcode.stepper_inactive_time, MIN_TO_MS(5));
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
         // Move the z axis instead of enabling the Z axis with M17

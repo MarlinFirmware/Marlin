@@ -338,7 +338,7 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
   // Draw a positive integer
   inline void drawInt(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {

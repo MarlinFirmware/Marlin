@@ -236,7 +236,7 @@ Menu *filamentMenu = nullptr;
 Menu *temperatureMenu = nullptr;
 Menu *maxSpeedMenu = nullptr;
 Menu *maxAccelMenu = nullptr;
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   Menu *maxJerkMenu = nullptr;
 #endif
 Menu *stepsMenu = nullptr;
@@ -1249,7 +1249,7 @@ void eachMomentUpdate() {
   static millis_t next_var_update_ms = 0, next_rts_update_ms = 0, next_status_update_ms = 0;
   const millis_t ms = millis();
 
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
+  #if HAS_BACKLIGHT_TIMEOUT
     if (ui.backlight_off_ms && ELAPSED(ms, ui.backlight_off_ms)) {
       turnOffBacklight(); // Backlight off
       ui.backlight_off_ms = 0;
@@ -2235,7 +2235,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
 #endif
 
-#if LCD_BACKLIGHT_TIMEOUT_MINS
+#if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
   void applyTimer() { ui.backlight_timeout_minutes = menuData.value; }
   void setTimer() { setIntOnClick(ui.backlight_timeout_min, ui.backlight_timeout_max, ui.backlight_timeout_minutes, applyTimer); }
 #endif
@@ -2545,7 +2545,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
   void setMaxAccelE() { hmiValue.axis = E_AXIS; setIntOnClick(min_acceleration_edit_values.e, max_acceleration_edit_values.e, planner.settings.max_acceleration_mm_per_s2[E_AXIS], applyMaxAccel); }
 #endif
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void applyMaxJerk() { planner.set_max_jerk(hmiValue.axis, menuData.value / MINUNITMULT); }
   #if HAS_X_AXIS
     void setMaxJerkX() { hmiValue.axis = X_AXIS, setFloatOnClick(min_jerk_edit_values.x, max_jerk_edit_values.x, UNITFDIGITS, planner.max_jerk.x, applyMaxJerk); }
@@ -2880,7 +2880,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   }
 #endif
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
 
   void onDrawJerk(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
@@ -2941,7 +2941,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
 
   #endif
 
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 #if HAS_X_AXIS
   void onDrawStepsX(MenuItem* menuitem, int8_t line) {
@@ -3123,7 +3123,7 @@ void drawAdvancedSettingsMenu() {
     #if HAS_LOCKSCREEN
       MENU_ITEM(ICON_Lock, MSG_LOCKSCREEN, onDrawMenuItem, dwinLockScreen);
     #endif
-    #if LCD_BACKLIGHT_TIMEOUT_MINS
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
       EDIT_ITEM(ICON_Brightness, MSG_SCREEN_TIMEOUT, onDrawPIntMenu, setTimer, &ui.backlight_timeout_minutes);
     #endif
     #if ENABLED(SOUND_MENU_ITEM)
@@ -3347,7 +3347,7 @@ void drawTuneMenu() {
       EDIT_ITEM(ICON_Brightness, MSG_BRIGHTNESS, onDrawPInt8Menu, setBrightness, &ui.brightness);
       MENU_ITEM(ICON_Brightness, MSG_BRIGHTNESS_OFF, onDrawMenuItem, turnOffBacklight);
     #endif
-    #if LCD_BACKLIGHT_TIMEOUT_MINS
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
       EDIT_ITEM(ICON_Brightness, MSG_SCREEN_TIMEOUT, onDrawPIntMenu, setTimer, &ui.backlight_timeout_minutes);
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
@@ -3451,7 +3451,7 @@ void drawMotionMenu() {
     BACK_ITEM(drawControlMenu);
     MENU_ITEM(ICON_MaxSpeed, MSG_SPEED, onDrawSpeed, drawMaxSpeedMenu);
     MENU_ITEM(ICON_MaxAccelerated, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       MENU_ITEM(ICON_MaxJerk, MSG_JERK, onDrawJerk, drawMaxJerkMenu);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
@@ -3616,7 +3616,7 @@ void drawMaxAccelMenu() {
   updateMenu(maxAccelMenu);
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
 
   void drawMaxJerkMenu() {
     checkkey = ID_Menu;
@@ -3638,7 +3638,7 @@ void drawMaxAccelMenu() {
     updateMenu(maxJerkMenu);
   }
 
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 void drawStepsMenu() {
   checkkey = ID_Menu;

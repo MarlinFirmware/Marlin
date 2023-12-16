@@ -157,7 +157,7 @@
 #define FAN2_PIN                            PG9   // FAN2
 #define FAN3_PIN                            PF10  // FAN3
 #define CONTROLLER_FAN_PIN                  PD7   // BOARD FAN
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Laser / Spindle

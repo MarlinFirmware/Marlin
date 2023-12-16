@@ -67,7 +67,7 @@ constexpr xyze_float_t min_acceleration_edit_values = LOGICAL_AXIS_ARRAY_1(MIN_A
 #define MIN_JERK_EDIT_VALUE 0.1
 #define DEFAULT_MAX_JERK_MULTIPLIER 2
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   constexpr xyze_float_t min_jerk_edit_values = LOGICAL_AXIS_ARRAY_1(MIN_JERK_EDIT_VALUE),
                          default_jerk = LOGICAL_AXIS_ARRAY(
                            DEFAULT_EJERK,

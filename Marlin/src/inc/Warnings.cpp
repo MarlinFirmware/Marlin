@@ -33,6 +33,13 @@
 
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+  #ifdef __LONG_MAX__
+    #if __LONG_MAX__ > __INT_MAX__
+      #warning "The 'long' type is larger than the 'int' type on this platform."
+    #else
+      #warning "The 'long' type is the same as the 'int' type on this platform."
+    #endif
+  #endif
 #endif
 
 #if ENABLED(LA_DEBUG)
@@ -707,7 +714,7 @@
 /**
  * Maple environment
  */
-#ifdef __STM32F1__
+#if defined(__STM32F1__) && DISABLED(NO_MAPLE_WARNING)
   #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
 #endif
 
@@ -775,6 +782,13 @@
  */
 #ifdef STM32F4_UPDATE_FOLDER
   #warning "Place the firmware bin file in a folder named 'STM32F4_UPDATE' on the SD card. Install with 'M936 V2'."
+#endif
+
+/**
+ * Voxelab N32 bootloader
+ */
+#ifdef SDCARD_FLASH_LIMIT_256K
+  #warning "This board has 512K but the bootloader can only flash firmware.bin <= 256K. ICSP required for full 512K capacity."
 #endif
 
 /**
