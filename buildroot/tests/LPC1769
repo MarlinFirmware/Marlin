@@ -14,7 +14,7 @@ exec_test $1 $2 "Azteeg X5GT Example Configuration" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_SMOOTHIEBOARD \
-        EXTRUDERS 2 TEMP_SENSOR_0 -5 TEMP_SENSOR_1 -1 TEMP_SENSOR_BED 5 TEMP_0_CS_PIN P1_29 \
+        EXTRUDERS 2 TEMP_SENSOR_0 -5 TEMP_SENSOR_1 -4 TEMP_SENSOR_BED 5 TEMP_0_CS_PIN P1_29 \
         GRID_MAX_POINTS_X 16 \
         NOZZLE_CLEAN_START_POINT "{ {  10, 10, 3 }, {  10, 10, 3 } }" \
         NOZZLE_CLEAN_END_POINT "{ {  10, 20, 3 }, {  10, 20, 3 } }"
@@ -43,6 +43,7 @@ exec_test $1 $2 "Smoothieboard with TFTGLCD_PANEL_SPI and many features" "$3"
 restore_configs
 use_example_configs delta/generic
 opt_set MOTHERBOARD BOARD_COHESION3D_REMIX \
+        TEMP_SENSOR_0 1 \
         X_DRIVER_TYPE TMC2130 Y_DRIVER_TYPE TMC2130 Z_DRIVER_TYPE TMC2130 I_DRIVER_TYPE TB6560 \
         DEFAULT_AXIS_STEPS_PER_UNIT '{ 80, 80, 400, 500, 80 }' \
         DEFAULT_MAX_FEEDRATE '{ 300, 300, 5, 25, 300 }' \
