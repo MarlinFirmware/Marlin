@@ -25,16 +25,16 @@ extern "C" {
 
                  // | DIGITAL | ANALOG | USART     | TWI      | SPI                    | SPECIAL   |
                  // |---------|--------|-----------|----------|------------------------|-----------|
-#define PA0  0   // | 0       | A0     |           |          |                        |           |
-#define PA1  1   // | 1       | A1     |           |          |                        |           |
-#define PA2  2   // | 2       | A2     | USART2_TX |          |                        |           |
-#define PA3  3   // | 3       | A3     | USART2_RX |          |                        |           |
-#define PA4  4   // | 4       | A4     |           |          | SPI1_SS, (SPI3_SS)     |           |
-#define PA5  5   // | 5       | A5     |           |          | SPI1_SCK               |           |
-#define PA6  6   // | 6       | A6     |           |          | SPI1_MISO              |           |
-#define PA7  7   // | 7       | A7     |           |          | SPI1_MOSI              |           |
-#define PA8  8   // | 8       |        |           | TWI3_SCL |                        |           |
-#define PA9  9   // | 9       |        | USART1_TX |          |                        |           |
+#define PA0   0  // | 0       | A0     |           |          |                        |           |
+#define PA1   1  // | 1       | A1     |           |          |                        |           |
+#define PA2   2  // | 2       | A2     | USART2_TX |          |                        |           |
+#define PA3   3  // | 3       | A3     | USART2_RX |          |                        |           |
+#define PA4   4  // | 4       | A4     |           |          | SPI1_SS, (SPI3_SS)     |           |
+#define PA5   5  // | 5       | A5     |           |          | SPI1_SCK               |           |
+#define PA6   6  // | 6       | A6     |           |          | SPI1_MISO              |           |
+#define PA7   7  // | 7       | A7     |           |          | SPI1_MOSI              |           |
+#define PA8   8  // | 8       |        |           | TWI3_SCL |                        |           |
+#define PA9   9  // | 9       |        | USART1_TX |          |                        |           |
 #define PA10 10  // | 10      |        | USART1_RX |          |                        |           |
 #define PA11 11  // | 11      |        | USART6_TX |          |                        |           |
 #define PA12 12  // | 12      |        | USART6_RX |          |                        |           |
@@ -95,8 +95,8 @@ extern "C" {
 
 // Timer Definitions
 #define TIMER_TONE              TIM2
-#define TIMER_SERVO             TIM5
-#define TIMER_SERIAL            TIM11
+#define TIMER_SERVO             TIM11
+#define TIMER_SERIAL            TIM5
 
 // UART Definitions
 //#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
@@ -111,7 +111,7 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-// Used when the user instantiates a hardware Serial using its peripheral name.
+// Used when user instanciate a hardware Serial using its peripheral name.
 // Example: HardwareSerial mySerial(USART3);
 // will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
 #define PIN_SERIAL1_RX          PA10
@@ -122,7 +122,6 @@ extern "C" {
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
  *----------------------------------------------------------------------------*/

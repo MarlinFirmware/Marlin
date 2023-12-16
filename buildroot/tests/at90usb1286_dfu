@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for AT90USB1286 ARMED
+# Build tests for AT90USB1286 (DFU)
 #
 
 # exit on first failure
