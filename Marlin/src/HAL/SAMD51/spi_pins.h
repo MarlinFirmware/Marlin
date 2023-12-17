@@ -27,7 +27,7 @@
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
 
- /*
+ /**
   * AGCM4 Default SPI Pins
   *
   *         SS    SCK   MISO   MOSI

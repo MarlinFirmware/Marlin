@@ -324,7 +324,6 @@ class FilamentSensorBase {
       }
   };
 
-
 #endif // !FILAMENT_MOTION_SENSOR
 
 /********************************* RESPONSE TYPE *********************************/

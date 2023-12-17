@@ -48,7 +48,6 @@
  * Once installed select the SANGUINO board and then select the CPU.
  */
 
-
 #define BOARD_INFO_NAME "Gen6 Deluxe"
 
 #include "pins_GEN6.h"

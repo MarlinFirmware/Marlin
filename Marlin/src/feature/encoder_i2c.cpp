@@ -27,7 +27,6 @@
 //todo:  try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
 //todo:    consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
 
-
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -425,22 +424,22 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOLNPGM("Attempted travel: ", travelDistance, "mm");
-    SERIAL_ECHOLNPGM("   Actual travel:  ", travelledDistance, "mm");
+    SERIAL_ECHOLNPGM("   Actual travel: ", travelledDistance, "mm");
 
-    //Calculate new axis steps per unit
+    // Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
     SERIAL_ECHOLNPGM("Old steps/mm: ", old_steps_mm);
     SERIAL_ECHOLNPGM("New steps/mm: ", new_steps_mm);
 
-    //Save new value
+    // Save new value
     planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
 
     if (iter > 1) {
       total += new_steps_mm;
 
-      // swap start and end points so next loop runs from current position
+      // Swap start and end points so next loop runs from current position
       const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;
@@ -464,7 +463,6 @@ void I2CPositionEncoder::reset() {
 
   TERN_(I2CPE_ERR_ROLLING_AVERAGE, ZERO(err));
 }
-
 
 bool I2CPositionEncodersMgr::I2CPE_anyaxis;
 uint8_t I2CPositionEncodersMgr::I2CPE_addr,

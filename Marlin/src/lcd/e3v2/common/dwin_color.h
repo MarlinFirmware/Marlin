@@ -22,7 +22,7 @@
 #pragma once
 
 // Extended and default UI Colors
-#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R: 0..31, G: 0..63, B: 0..31
 #define GetRColor(color) ((color >> 11) & 0x1F)
 #define GetGColor(color) ((color >>  5) & 0x3F)
 #define GetBColor(color) ((color >>  0) & 0x1F)

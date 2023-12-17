@@ -25,7 +25,7 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
+#include "../../MarlinCore.h" // for pin_is_protected, wait_for_user
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
@@ -195,31 +195,30 @@ inline void servo_probe_test() {
     if (!blt) {
       // DEPLOY and STOW 4 times and see if the signal follows
       // Then it is a mechanical switch
-      uint8_t i = 0;
       SERIAL_ECHOLNPGM(". Deploy & stow 4 times");
-      do {
+      for (uint8_t i = 0; i < 4; ++i) {
         servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
         safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
         servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
         safe_delay(500);
         stow_state = READ(PROBE_TEST_PIN);
-      } while (++i < 4);
+      }
 
       if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING: INVERTING setting probably backwards.");
 
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
         if (deploy_state) {
-          SERIAL_ECHOLNPGM("  DEPLOYED state: HIGH (logic 1)",
-                            "  STOWED (triggered) state: LOW (logic 0)");
+          SERIAL_ECHOLNPGM(". DEPLOYED state: HIGH (logic 1)\n"
+                           ". STOWED (triggered) state: LOW (logic 0)");
         }
         else {
-          SERIAL_ECHOLNPGM("  DEPLOYED state: LOW (logic 0)",
-                            "  STOWED (triggered) state: HIGH (logic 1)");
+          SERIAL_ECHOLNPGM(". DEPLOYED state: LOW (logic 0)\n"
+                           ". STOWED (triggered) state: HIGH (logic 1)");
         }
         #if ENABLED(BLTOUCH)
-          SERIAL_ECHOLNPGM("FAIL: BLTOUCH enabled - Set up this device as a Servo Probe with INVERTING set to 'true'.");
+          SERIAL_ECHOLNPGM("FAIL: Can't enable BLTOUCH. Check your settings.");
         #endif
         return;
       }

@@ -26,7 +26,6 @@
 #include "screens.h"
 tiny_timer_t refresh_timer;
 
-
 /**
  * DECL_SCREEN_IF_INCLUDED allows for a concise
  * definition of SCREEN_TABLE:

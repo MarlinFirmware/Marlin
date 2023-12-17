@@ -90,7 +90,6 @@ void PRINT_ARRAY_NAME(uint8_t x) {
 
 #define GET_ARRAY_IS_DIGITAL(x)   pgm_read_byte(&pin_array[x].is_digital)
 
-
 #if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
   #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it
   #define NUM_DIGITAL_PINS 32     // set to digital only + digital/analog
@@ -164,7 +163,6 @@ static bool pwm_status(uint8_t pin) {
   SERIAL_ECHO_SP(2);
 } // pwm_status
 
-
 const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     { &TCCR0A, &TCCR0B, &TIMSK0 },
     { &TCCR1A, &TCCR1B, &TIMSK1 },
@@ -181,7 +179,6 @@ const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     { &TCCR5A, &TCCR5B, &TIMSK5 },
   #endif
 };
-
 
 const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
@@ -217,7 +214,6 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
     { (const uint8_t*)&OCR5A, (const uint8_t*)&OCR5B, (const uint8_t*)&OCR5C },
   #endif
 };
-
 
 #define TCCR_A(T)   pgm_read_word(&PWM_other[T][0])
 #define TCCR_B(T)   pgm_read_word(&PWM_other[T][1])

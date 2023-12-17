@@ -136,9 +136,7 @@ void MMU2::reset() {
   #endif
 }
 
-uint8_t MMU2::get_current_tool() {
-  return extruder == MMU2_NO_TOOL ? -1 : extruder;
-}
+int8_t MMU2::get_current_tool() { return extruder == MMU2_NO_TOOL ? -1 : extruder; }
 
 #if ANY(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
   #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
@@ -149,6 +147,7 @@ void mmu2_attn_buzz(const bool two=false) {
   if (two) { BUZZ(10, 0); BUZZ(200, 404); }
 }
 
+// Avoiding sscanf significantly reduces build size
 void MMU2::mmu_loop() {
 
   switch (state) {
@@ -190,7 +189,6 @@ void MMU2::mmu_loop() {
           DEBUG_ECHOLNPGM("MMU <= 'M1'");
           MMU2_SEND("M1");    // Stealth Mode
           state = -5;
-
         #else
           DEBUG_ECHOLNPGM("MMU <= 'P0'");
           MMU2_SEND("P0");    // Read FINDA
@@ -200,15 +198,15 @@ void MMU2::mmu_loop() {
       break;
 
     #if ENABLED(MMU2_MODE_12V)
-    case -5:
-      // response to M1
-      if (rx_ok()) {
-        DEBUG_ECHOLNPGM("MMU => ok");
-        DEBUG_ECHOLNPGM("MMU <= 'P0'");
-        MMU2_SEND("P0");    // Read FINDA
-        state = -4;
-      }
-      break;
+      case -5:
+        // response to M1
+        if (rx_ok()) {
+          DEBUG_ECHOLNPGM("MMU => ok");
+          DEBUG_ECHOLNPGM("MMU <= 'P0'");
+          MMU2_SEND("P0");    // Read FINDA
+          state = -4;
+        }
+        break;
     #endif
 
     case -4:
@@ -460,6 +458,11 @@ static void mmu2_not_responding() {
 
 #if HAS_PRUSA_MMU2S
 
+  /**
+   * Load filament until the sensor at the gears is triggered
+   * and give up after a number of attempts set with MMU2_C0_RETRY.
+   * Each try has a timeout before returning a fail state.
+   */
   bool MMU2::load_to_gears() {
     command(MMU_CMD_C0);
     manage_response(true, true);
@@ -830,7 +833,6 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         thermalManager.setTargetHotend(resume_hotend_temp, active_extruder);
         LCD_MESSAGE(MSG_HEATING);
         ERR_BUZZ();
-
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(1000);
       }
 
@@ -843,7 +845,6 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
       if (move_axes && all_axes_homed()) {
         // Move XY to starting position, then Z
         do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
-
         // Move Z_AXIS to saved position
         do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
@@ -1038,7 +1039,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
   planner.synchronize();
   stepper.enable_extruder();
 
-  const E_Step* step = sequence;
+  const E_Step *step = sequence;
 
   for (uint8_t i = 0; i < steps; ++i) {
     const float es = pgm_read_float(&(step->extrude));

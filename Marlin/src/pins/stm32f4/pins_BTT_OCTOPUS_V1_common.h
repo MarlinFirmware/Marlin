@@ -62,13 +62,6 @@
 #define E3_DIAG_PIN                         PG15  // E3DET
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
-#endif
-
-//
 // Check for additional used endstop pins
 //
 #if HAS_EXTRA_ENDSTOPS
@@ -140,6 +133,13 @@
   #endif
 #else
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
+#endif
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
 //
@@ -510,7 +510,7 @@
     #endif
 
   #endif
-#endif  // HAS_WIRED_LCD
+#endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

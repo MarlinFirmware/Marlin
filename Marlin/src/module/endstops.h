@@ -31,6 +31,24 @@
 #define __ES_ITEM(N) N,
 #define _ES_ITEM(K,N) TERN_(K,DEFER4(__ES_ITEM)(N))
 
+/**
+ * Basic Endstop Flag Bits:
+ * - Each axis with an endstop gets a flag for its homing direction.
+ *   (The use of "MIN" or "MAX" makes it easier to pair with similarly-named endstop pins.)
+ * - Bed probes with a single pin get a Z_MIN_PROBE flag. This includes Sensorless Z Probe.
+ *
+ * Extended Flag Bits:
+ * - Multi-stepper axes may have multi-endstops such as X2_MIN, Y2_MAX, etc.
+ * - DELTA gets X_MAX, Y_MAX, and Z_MAX corresponding to its "A", "B", "C" towers.
+ * - For DUAL_X_CARRIAGE the X axis has both X_MIN and X_MAX flags.
+ * - The Z axis may have both MIN and MAX when homing to MAX and the probe is Z_MIN.
+ * - DELTA Sensorless Probe uses X/Y/Z_MAX but sets the Z_MIN flag.
+ *
+ * Endstop Flag Bit Aliases:
+ * - Each *_MIN or *_MAX flag is aliased to *_ENDSTOP.
+ * - Z_MIN_PROBE is an alias to Z_MIN when the Z_MIN_PIN is being used as the probe pin.
+ * - When homing with the probe Z_ENDSTOP is a Z_MIN_PROBE alias, otherwise a Z_MIN/MAX alias.
+ */
 enum EndstopEnum : char {
   // Common XYZ (ABC) endstops. Defined according to USE_[XYZ](MIN|MAX)_PLUG settings.
   _ES_ITEM(HAS_X_MIN, X_MIN)

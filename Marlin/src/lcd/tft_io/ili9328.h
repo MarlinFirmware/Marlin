@@ -39,7 +39,7 @@
 #define ILI9328_ETMOD_ID0         0x0010 // 0 - Horizontal Decrement / 1 - Horizontal Increment
 #define ILI9328_ETMOD_AM          0x0008 // 0 - Horizontal / 1 - Vertical
 
-// MKS Robin TFT v1.1 - 320x240 ; Cable on the left side
+// MKS Robin TFT v1.1 - 320x240 ; FPC cable on the left side
 
 #if TFT_ROTATION == TFT_ROTATE_180
   #define ILI9328_DRVCTL_DATA        0x0000
@@ -64,7 +64,6 @@
 #endif
 
 #define ILI9328_ETMOD_DATA       (ILI9328_ETMOD_ORIENTATION) | (ILI9328_ETMOD_COLOR)
-
 
 #define ILI9328_RDDID             0x00 // ID code - 0x9328
 #define ILI9328_DRVCTL            0x01 // Driver Output Control
@@ -127,7 +126,6 @@
 #define ILI9328_OTPWR             0xA1 // OTP VCM Programming Control
 #define ILI9328_RDOTP             0xA2 // OTP VCM Status and Enable
 #define ILI9328_OTPPKEY           0xA5 // OTP Programming ID Key
-
 
 static const uint16_t ili9328_init[] = {
   DATASIZE_16BIT,

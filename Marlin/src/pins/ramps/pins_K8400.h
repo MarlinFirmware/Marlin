@@ -60,7 +60,7 @@
 #include "pins_3DRAG.h" // ... RAMPS
 
 //
-// Heaters / Fans
+// Heaters
 //
 #undef HEATER_1_PIN
 #define HEATER_1_PIN                          11

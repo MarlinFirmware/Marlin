@@ -309,8 +309,8 @@
     #endif
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS
-    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   65
   #else
     #error "No auto-assignable Spindle/Laser pins available."
@@ -339,8 +339,9 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    *
-   * Serial2 -- AUX-4 Pin 18 (D16 TX2) and AUX-4 Pin 17 (D17 RX2)
-   * Serial1 -- Pins D18 and D19 are used for Z-MIN and Z-MAX
+   * Serial1 -- TX1 = D18   RX1 = D19 (Z-MIN and Z-MAX on RAMPS)
+   * Serial2 -- TX2 = D16   RX2 = D17 (AUX4-18 and AUX4-17)
+   * Serial3 -- TX3 = D14   RX3 = D15 (Available on some RAMPS-like boards)
    */
   //#define X_HARDWARE_SERIAL Serial1
   //#define X2_HARDWARE_SERIAL Serial1
@@ -881,7 +882,7 @@
         #define BEEPER_PIN           EXP2_05_PIN
       #endif
 
-      #if ENABLED(PANEL_ONE)                       // Buttons connect directly to AUX-2
+      #if ENABLED(PANEL_ONE)                      // Buttons connect directly to AUX-2
         #define BTN_EN1              AUX2_03_PIN
         #define BTN_EN2              AUX2_04_PIN
         #define BTN_ENC              AUX3_02_PIN

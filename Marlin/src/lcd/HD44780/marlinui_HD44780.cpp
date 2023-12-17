@@ -81,7 +81,7 @@
 #elif ENABLED(SR_LCD_2W_NL)
 
   // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+  // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN
     #if PIN_EXISTS(SR_STROBE)
@@ -758,6 +758,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 }
 
 #if HAS_PRINT_PROGRESS
+
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
   static char buffer[8];
@@ -774,6 +775,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing()) {
@@ -785,6 +787,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
@@ -796,6 +799,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
       if (printJobOngoing()) {
@@ -807,6 +811,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
   #endif
+
 #endif // HAS_PRINT_PROGRESS
 
 /**

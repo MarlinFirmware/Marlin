@@ -49,11 +49,11 @@
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA                  PA11
-  #define IIC_EEPROM_SCL                  PA12
-  #define MARLIN_EEPROM_SIZE             0x800  // 2K (24C16)
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
 #elif ANY(SDCARD_EEPROM_EMULATION, FLASH_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE             0x800  // 2K
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K
 #endif
 
 //

@@ -93,6 +93,7 @@ uint8_t TouchButtons::read_buttons() {
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
       const bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? touchIO.getPoint(&y, &x) : touchIO.getPoint(&x, &y));
       if (!is_touched) return 0;
+
     #endif
 
     // Touch within the button area simulates an encoder button
@@ -127,6 +128,7 @@ uint8_t TouchButtons::read_buttons() {
     #endif
     next_sleep_ms = TSLP_SLEEPING;
   }
+
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
@@ -135,7 +137,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
+    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
   }
 
 #endif // HAS_TOUCH_SLEEP

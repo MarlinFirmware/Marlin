@@ -456,7 +456,7 @@
     #define TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX 1024
   #endif
 
-  // mimic setting up the source TEMP_SENSOR
+  // Mimic setting up the source TEMP_SENSOR
   #if REDUNDANT_TEMP_MATCH(SOURCE, E0)
     #define TEMP_SENSOR_0_MAX_TC_TMIN TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN
     #define TEMP_SENSOR_0_MAX_TC_TMAX TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX
@@ -479,11 +479,11 @@
 
   #if (TEMP_SENSOR_IS_MAX_TC(0) && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_0) || (TEMP_SENSOR_IS_MAX_TC(1) && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_1) || (TEMP_SENSOR_IS_MAX_TC(2) && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_2)
     #if   TEMP_SENSOR_REDUNDANT == -5
-      #error "If MAX31865 Thermocouple (-5) is used for TEMP_SENSOR_0/TEMP_SENSOR_1/TEMP_SENSOR_2 then TEMP_SENSOR_REDUNDANT must match."
+      #error "If MAX31865 Thermocouple (-5) is used for TEMP_SENSOR_[0-2] then TEMP_SENSOR_REDUNDANT must match."
     #elif TEMP_SENSOR_REDUNDANT == -3
-      #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_0/TEMP_SENSOR_1/TEMP_SENSOR_2 then TEMP_SENSOR_REDUNDANT must match."
+      #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_[0-2] then TEMP_SENSOR_REDUNDANT must match."
     #elif TEMP_SENSOR_REDUNDANT == -2
-      #error "If MAX6675 Thermocouple (-2) is used for TEMP_SENSOR_0/TEMP_SENSOR_1/TEMP_SENSOR_2 then TEMP_SENSOR_REDUNDANT must match."
+      #error "If MAX6675 Thermocouple (-2) is used for TEMP_SENSOR_[0-2] then TEMP_SENSOR_REDUNDANT must match."
     #endif
   #endif
 #elif TEMP_SENSOR_REDUNDANT == -4
@@ -1201,7 +1201,8 @@
 #endif
 
 /**
- * LCD_SERIAL_PORT must be defined ahead of HAL.h
+ * LCD_SERIAL_PORT must be defined ahead of HAL.h and
+ * currently HAL.h must be included ahead of pins.h.
  */
 #ifndef LCD_SERIAL_PORT
   #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI || HAS_DGUS_LCD

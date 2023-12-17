@@ -47,13 +47,13 @@ public:
 
   enum DGUS_ControlType : uint8_t {
     VARIABLE_DATA_INPUT = 0x00,
-    POPUP_WINDOW = 0x01,
-    INCREMENTAL_ADJUST = 0x02,
-    SLIDER_ADJUST = 0x03,
-    RTC_SETTINGS = 0x04,
-    RETURN_KEY_CODE = 0x05,
-    TEXT_INPUT = 0x06,
-    FIRMWARE_SETTINGS = 0x07
+    POPUP_WINDOW        = 0x01,
+    INCREMENTAL_ADJUST  = 0x02,
+    SLIDER_ADJUST       = 0x03,
+    RTC_SETTINGS        = 0x04,
+    RETURN_KEY_CODE     = 0x05,
+    TEXT_INPUT          = 0x06,
+    FIRMWARE_SETTINGS   = 0x07
   };
 
   DGUSDisplay() = default;
@@ -154,7 +154,7 @@ private:
   };
 
   enum dgus_system_addr : uint16_t {
-    DGUS_VERSION = 0x000f // OS/GUI version
+    DGUS_VERSION = 0x000F // OS/GUI version
   };
 
   static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);

@@ -35,7 +35,7 @@ public:
    */
   struct SerialState {
     /**
-     * GCode line number handling. Hosts may include line numbers when sending
+     * G-Code line number handling. Hosts may include line numbers when sending
      * commands to Marlin, and lines will be checked for sequentiality.
      * M110 N<int> sets the current line number.
      */
@@ -48,7 +48,7 @@ public:
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
 
   /**
-   * GCode Command Queue
+   * G-Code Command Queue
    * A simple (circular) ring buffer of BUFSIZE command strings.
    *
    * Commands are copied into this buffer by the command injectors
@@ -79,12 +79,12 @@ public:
 
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
-    void commit_command(bool skip_ok
-      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
+    void commit_command(const bool skip_ok
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind=serial_index_t())
     );
 
-    bool enqueue(const char *cmd, bool skip_ok = true
-      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
+    bool enqueue(const char *cmd, const bool skip_ok=true
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind=serial_index_t())
     );
 
     void ok_to_send();

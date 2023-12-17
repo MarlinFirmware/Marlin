@@ -76,7 +76,6 @@ void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t 
 }
 
 void Touch::idle() {
-  uint16_t i;
   int16_t _x, _y;
 
   if (!enabled) return;
@@ -121,7 +120,7 @@ void Touch::idle() {
           current_control = nullptr;
       }
       else {
-        for (i = 0; i < controls_count; i++) {
+        for (uint16_t i = 0; i < controls_count; i++) {
           if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
             touch_control_type = controls[i].type;
             touch(&controls[i]);
@@ -273,12 +272,14 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
     bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
   #endif
+
   #if HAS_TOUCH_SLEEP
     if (is_touched)
       wakeUp();
     else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
       sleepTimeout();
   #endif
+
   return is_touched;
 }
 

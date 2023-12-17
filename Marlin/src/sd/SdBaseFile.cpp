@@ -322,12 +322,12 @@ void SdBaseFile::getpos(filepos_t * const pos) {
  * \param[in] indent Amount of space before file name. Used for recursive
  * list to indicate subdirectory level.
  */
-void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
+void SdBaseFile::ls(const uint8_t flags/*=0*/, const uint8_t indent/*=0*/) {
   rewind();
   int8_t status;
   while ((status = lsPrintNext(flags, indent))) {
     if (status > 1 && (flags & LS_R)) {
-      uint16_t index = curPosition() / 32 - 1;
+      const uint16_t index = curPosition() / 32 - 1;
       SdBaseFile s;
       if (s.open(this, index, O_READ)) s.ls(flags, indent + 2);
       seekSet(32 * (index + 1));
@@ -1002,7 +1002,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, const uint8_t oflag) {
   bool SdBaseFile::isDirLFN(const dir_t* dir) {
     if (DIR_IS_LONG_NAME(dir)) {
       vfat_t *VFAT = (vfat_t*)dir;
-      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      // Sanity-check the VFAT entry. The first cluster is always set to zero.
+      // The sequence number should be higher than 0 and lower than maximum allowed by VFAT spec
       if ((VFAT->firstClusterLow == 0) && WITHIN((VFAT->sequenceNumber & 0x1F), 1, MAX_VFAT_ENTRIES)) return true;
     }
     return false;
@@ -1294,7 +1295,6 @@ static void print2u(const uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 
-
 /**
  * %Print a directory date field.
  *
@@ -1310,7 +1310,6 @@ void SdBaseFile::printFatDate(const uint16_t fatDate) {
   SERIAL_CHAR('-');
   print2u(FAT_DAY(fatDate));
 }
-
 
 /**
  * %Print a directory time field.
@@ -1421,11 +1420,13 @@ int16_t SdBaseFile::read(void * const buf, uint16_t nbyte) {
  *
  * \param[out] dir The dir_t struct that will receive the data.
  *
- * \return For success readDir() returns the number of bytes read.
- * A value of zero will be returned if end of file is reached.
- * If an error occurs, readDir() returns -1.  Possible errors include
- * readDir() called before a directory has been opened, this is not
- * a directory file or an I/O error occurred.
+ * \return For success return a non-zero value (number of bytes read).
+ *         A value of zero will be returned if end of dir is reached.
+ *         If an error occurs, readDir() returns -1. Possible errors:
+ *           - readDir() called on unopened dir
+ *           - not a directory file
+ *           - bad dir entry
+ *           - I/O error
  */
 int8_t SdBaseFile::readDir(dir_t * const dir, char * const longFilename) {
   int16_t n;
@@ -1487,7 +1488,7 @@ int8_t SdBaseFile::readDir(dir_t * const dir, char * const longFilename) {
                   longFilename[idx] = utf16_ch & 0xFF;
                   longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
                 #else
-                  // Replace all multibyte characters to '_'
+                  // Replace multibyte character with '_'
                   longFilename[n + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
                 #endif
               }

@@ -147,7 +147,7 @@
     #define BTN_ENC                           19
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !IS_NEWPANEL
+  #else // !IS_NEWPANEL
 
     #define SHIFT_CLK_PIN                     38
     #define SHIFT_LD_PIN                      42

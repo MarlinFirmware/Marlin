@@ -154,10 +154,10 @@
   #ifndef EX_SERIAL_RX_PIN
     #define EX_SERIAL_RX_PIN    EX_SERIAL_TX_PIN
   #endif
-  //#define Z2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
-  //#define Z2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
-  //#define E2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
-  //#define E2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+  //#define Z2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
+  //#define Z2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
+  //#define E2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
+  //#define E2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif

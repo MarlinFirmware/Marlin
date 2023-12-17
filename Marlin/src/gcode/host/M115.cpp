@@ -61,8 +61,12 @@
  * M115: Capabilities string and extended capabilities report
  *       If a capability is not reported, hosts should assume
  *       the capability is not present.
+ *
+ * NOTE: Always make sure to add new capabilities to the RepRap Wiki
+ *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
  */
 void GcodeSuite::M115() {
+
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL

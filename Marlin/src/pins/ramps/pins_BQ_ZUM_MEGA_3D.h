@@ -121,7 +121,7 @@
 #include "pins_RAMPS_13.h" // ... RAMPS
 
 //
-// Used by the Hephestos 2 heated bed upgrade kit
+// Hephestos 2 heated bed upgrade kit uses pin 8
 //
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef HEATER_BED_PIN

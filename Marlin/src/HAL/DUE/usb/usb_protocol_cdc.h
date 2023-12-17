@@ -58,42 +58,42 @@
  * \name Possible values of class
  */
 //@{
-#define  CDC_CLASS_DEVICE     0x02	//!< USB Communication Device Class
-#define  CDC_CLASS_COMM       0x02	//!< CDC Communication Class Interface
-#define  CDC_CLASS_DATA       0x0A	//!< CDC Data Class Interface
+#define  CDC_CLASS_DEVICE     0x02  //!< USB Communication Device Class
+#define  CDC_CLASS_COMM       0x02  //!< CDC Communication Class Interface
+#define  CDC_CLASS_DATA       0x0A  //!< CDC Data Class Interface
 #define  CDC_CLASS_MULTI      0xEF      //!< CDC Multi-interface Function
 
 //@}
 
 //! \name USB CDC Subclass IDs
 //@{
-#define  CDC_SUBCLASS_DLCM    0x01	//!< Direct Line Control Model
-#define  CDC_SUBCLASS_ACM     0x02	//!< Abstract Control Model
-#define  CDC_SUBCLASS_TCM     0x03	//!< Telephone Control Model
-#define  CDC_SUBCLASS_MCCM    0x04	//!< Multi-Channel Control Model
-#define  CDC_SUBCLASS_CCM     0x05	//!< CAPI Control Model
-#define  CDC_SUBCLASS_ETH     0x06	//!< Ethernet Networking Control Model
-#define  CDC_SUBCLASS_ATM     0x07	//!< ATM Networking Control Model
+#define  CDC_SUBCLASS_DLCM    0x01  //!< Direct Line Control Model
+#define  CDC_SUBCLASS_ACM     0x02  //!< Abstract Control Model
+#define  CDC_SUBCLASS_TCM     0x03  //!< Telephone Control Model
+#define  CDC_SUBCLASS_MCCM    0x04  //!< Multi-Channel Control Model
+#define  CDC_SUBCLASS_CCM     0x05  //!< CAPI Control Model
+#define  CDC_SUBCLASS_ETH     0x06  //!< Ethernet Networking Control Model
+#define  CDC_SUBCLASS_ATM     0x07  //!< ATM Networking Control Model
 //@}
 
 //! \name USB CDC Communication Interface Protocol IDs
 //@{
-#define  CDC_PROTOCOL_V25TER  0x01	//!< Common AT commands
+#define  CDC_PROTOCOL_V25TER  0x01  //!< Common AT commands
 //@}
 
 //! \name USB CDC Data Interface Protocol IDs
 //@{
-#define  CDC_PROTOCOL_I430    0x30	//!< ISDN BRI
-#define  CDC_PROTOCOL_HDLC    0x31	//!< HDLC
-#define  CDC_PROTOCOL_TRANS   0x32	//!< Transparent
-#define  CDC_PROTOCOL_Q921M   0x50	//!< Q.921 management protocol
-#define  CDC_PROTOCOL_Q921    0x51	//!< Q.931 [sic] Data link protocol
-#define  CDC_PROTOCOL_Q921TM  0x52	//!< Q.921 TEI-multiplexor
-#define  CDC_PROTOCOL_V42BIS  0x90	//!< Data compression procedures
-#define  CDC_PROTOCOL_Q931    0x91	//!< Euro-ISDN protocol control
-#define  CDC_PROTOCOL_V120    0x92	//!< V.24 rate adaption to ISDN
-#define  CDC_PROTOCOL_CAPI20  0x93	//!< CAPI Commands
-#define  CDC_PROTOCOL_HOST    0xFD	//!< Host based driver
+#define  CDC_PROTOCOL_I430    0x30  //!< ISDN BRI
+#define  CDC_PROTOCOL_HDLC    0x31  //!< HDLC
+#define  CDC_PROTOCOL_TRANS   0x32  //!< Transparent
+#define  CDC_PROTOCOL_Q921M   0x50  //!< Q.921 management protocol
+#define  CDC_PROTOCOL_Q921    0x51  //!< Q.931 [sic] Data link protocol
+#define  CDC_PROTOCOL_Q921TM  0x52  //!< Q.921 TEI-multiplexor
+#define  CDC_PROTOCOL_V42BIS  0x90  //!< Data compression procedures
+#define  CDC_PROTOCOL_Q931    0x91  //!< Euro-ISDN protocol control
+#define  CDC_PROTOCOL_V120    0x92  //!< V.24 rate adaption to ISDN
+#define  CDC_PROTOCOL_CAPI20  0x93  //!< CAPI Commands
+#define  CDC_PROTOCOL_HOST    0xFD  //!< Host based driver
 /**
  * \brief Describes the Protocol Unit Functional Descriptors [sic]
  * on Communication Class Interface
@@ -103,16 +103,16 @@
 
 //! \name USB CDC Functional Descriptor Types
 //@{
-#define  CDC_CS_INTERFACE     0x24	//!< Interface Functional Descriptor
-#define  CDC_CS_ENDPOINT      0x25	//!< Endpoint Functional Descriptor
+#define  CDC_CS_INTERFACE     0x24  //!< Interface Functional Descriptor
+#define  CDC_CS_ENDPOINT      0x25  //!< Endpoint Functional Descriptor
 //@}
 
 //! \name USB CDC Functional Descriptor Subtypes
 //@{
-#define  CDC_SCS_HEADER       0x00	//!< Header Functional Descriptor
-#define  CDC_SCS_CALL_MGMT    0x01	//!< Call Management
-#define  CDC_SCS_ACM          0x02	//!< Abstract Control Management
-#define  CDC_SCS_UNION        0x06	//!< Union Functional Descriptor
+#define  CDC_SCS_HEADER       0x00  //!< Header Functional Descriptor
+#define  CDC_SCS_CALL_MGMT    0x01  //!< Call Management
+#define  CDC_SCS_ACM          0x02  //!< Abstract Control Management
+#define  CDC_SCS_UNION        0x06  //!< Union Functional Descriptor
 //@}
 
 //! \name USB CDC Request IDs
@@ -168,41 +168,39 @@ COMPILER_PACK_SET(1)
 //! \name USB CDC Descriptors
 //@{
 
-
 //! CDC Header Functional Descriptor
 typedef struct {
-	uint8_t bFunctionLength;
-	uint8_t bDescriptorType;
-	uint8_t bDescriptorSubtype;
-	le16_t bcdCDC;
+  uint8_t bFunctionLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  le16_t bcdCDC;
 } usb_cdc_hdr_desc_t;
 
 //! CDC Call Management Functional Descriptor
 typedef struct {
-	uint8_t bFunctionLength;
-	uint8_t bDescriptorType;
-	uint8_t bDescriptorSubtype;
-	uint8_t bmCapabilities;
-	uint8_t bDataInterface;
+  uint8_t bFunctionLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bmCapabilities;
+  uint8_t bDataInterface;
 } usb_cdc_call_mgmt_desc_t;
 
 //! CDC ACM Functional Descriptor
 typedef struct {
-	uint8_t bFunctionLength;
-	uint8_t bDescriptorType;
-	uint8_t bDescriptorSubtype;
-	uint8_t bmCapabilities;
+  uint8_t bFunctionLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bmCapabilities;
 } usb_cdc_acm_desc_t;
 
 //! CDC Union Functional Descriptor
 typedef struct {
-	uint8_t bFunctionLength;
-	uint8_t bDescriptorType;
-	uint8_t bDescriptorSubtype;
-	uint8_t bMasterInterface;
-	uint8_t bSlaveInterface0;
+  uint8_t bFunctionLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bMasterInterface;
+  uint8_t bSlaveInterface0;
 } usb_cdc_union_desc_t;
-
 
 //! \name USB CDC Call Management Capabilities
 //@{
@@ -235,24 +233,24 @@ typedef struct {
 //@{
 //! Line Coding structure
 typedef struct {
-	le32_t dwDTERate;
-	uint8_t bCharFormat;
-	uint8_t bParityType;
-	uint8_t bDataBits;
+  le32_t dwDTERate;
+  uint8_t bCharFormat;
+  uint8_t bParityType;
+  uint8_t bDataBits;
 } usb_cdc_line_coding_t;
 //! Possible values of bCharFormat
 enum cdc_char_format {
-	CDC_STOP_BITS_1 = 0,	//!< 1 stop bit
-	CDC_STOP_BITS_1_5 = 1,	//!< 1.5 stop bits
-	CDC_STOP_BITS_2 = 2,	//!< 2 stop bits
+  CDC_STOP_BITS_1 = 0,  //!< 1 stop bit
+  CDC_STOP_BITS_1_5 = 1,  //!< 1.5 stop bits
+  CDC_STOP_BITS_2 = 2,  //!< 2 stop bits
 };
 //! Possible values of bParityType
 enum cdc_parity {
-	CDC_PAR_NONE = 0,	//!< No parity
-	CDC_PAR_ODD = 1,	//!< Odd parity
-	CDC_PAR_EVEN = 2,	//!< Even parity
-	CDC_PAR_MARK = 3,	//!< Parity forced to 0 (space)
-	CDC_PAR_SPACE = 4,	//!< Parity forced to 1 (mark)
+  CDC_PAR_NONE = 0, //!< No parity
+  CDC_PAR_ODD = 1,  //!< Odd parity
+  CDC_PAR_EVEN = 2, //!< Even parity
+  CDC_PAR_MARK = 3, //!< Parity forced to 0 (space)
+  CDC_PAR_SPACE = 4,  //!< Parity forced to 1 (mark)
 };
 //@}
 
@@ -262,7 +260,7 @@ enum cdc_parity {
 
 //! Control signal structure
 typedef struct {
-	uint16_t value;
+  uint16_t value;
 } usb_cdc_control_signal_t;
 
 //! \name Possible values in usb_cdc_control_signal_t
@@ -278,16 +276,15 @@ typedef struct {
 //@}
 //@}
 
-
 //! \name USB CDC notification message
 //@{
 
 typedef struct {
-	uint8_t bmRequestType;
-	uint8_t bNotification;
-	le16_t wValue;
-	le16_t wIndex;
-	le16_t wLength;
+  uint8_t bmRequestType;
+  uint8_t bNotification;
+  le16_t wValue;
+  le16_t wIndex;
+  le16_t wLength;
 } usb_cdc_notify_msg_t;
 
 //! \name USB CDC serial state
@@ -295,8 +292,8 @@ typedef struct {
 
 //! Hardware handshake support (cdc spec 1.1 chapter 6.3.5)
 typedef struct {
-	usb_cdc_notify_msg_t header;
-	le16_t value;
+  usb_cdc_notify_msg_t header;
+  le16_t value;
 } usb_cdc_notify_serial_state_t;
 
 //! \name Possible values in usb_cdc_notify_serial_state_t
