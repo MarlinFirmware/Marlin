@@ -72,16 +72,14 @@
 //
 // Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                   P1_16  // Ethernet Expansion - Pin 5
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                   P1_17  // Ethernet Expansion - Pin 6
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                    P1_08  // Ethernet Expansion - Pin 7
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P1_16  // Ethernet Expansion - Pin 5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P1_17  // Ethernet Expansion - Pin 6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P1_08  // Ethernet Expansion - Pin 7
 #endif
 
 //

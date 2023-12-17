@@ -149,6 +149,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define BEEPER_PIN                          -1
@@ -167,6 +168,8 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                 24  // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENA_PIN                 39  // F1 IO-11 - Pin should have a pullup!
-#define SPINDLE_DIR_PIN                       40  // F2 IO-9
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN               24  // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENA_PIN               39  // F1 IO-11 - Pin should have a pullup!
+  #define SPINDLE_DIR_PIN                     40  // F2 IO-9
+#endif

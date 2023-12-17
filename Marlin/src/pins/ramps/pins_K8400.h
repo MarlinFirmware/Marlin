@@ -53,6 +53,11 @@
 #define X_STOP_PIN                             3
 #define Y_STOP_PIN                            14
 
+//
+// Fans
+//
+#define FAN0_PIN                               8
+
 #if ANY(BLTOUCH, TOUCH_MI_PROBE)
   #define INVERTED_PROBE_STATE
 #endif

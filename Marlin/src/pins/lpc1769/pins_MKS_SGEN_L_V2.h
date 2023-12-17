@@ -148,18 +148,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                   P1_16
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                   P0_05
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                    P0_04
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P1_16
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_05
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P0_04
 #endif
 
 #if HAS_TMC_UART
@@ -197,7 +195,10 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -360,8 +361,8 @@
       #define LCD_PINS_EN                  -1
       #define LCD_PINS_RS                  -1
 
-      #ifndef TFT_BUFFER_SIZE
-        #define TFT_BUFFER_SIZE             1200
+      #ifndef TFT_BUFFER_WORDS
+        #define TFT_BUFFER_WORDS            1200
       #endif
       #ifndef TFT_QUEUE_SIZE
         #define TFT_QUEUE_SIZE              6144
@@ -428,6 +429,9 @@
 
 #endif // HAS_WIRED_LCD
 
+//
+// SD Card
+//
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

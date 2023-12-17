@@ -141,18 +141,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Default pins for TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PC12  // Shared with SPI header, Pin 5 (SPI3)
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PC11  // Shared with SPI header, Pin 6 (SPI3)
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PC10  // Shared with SPI header, Pin 4 (SPI3)
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PC12  // Shared with SPI header, Pin 5 (SPI3)
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PC11  // Shared with SPI header, Pin 6 (SPI3)
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PC10  // Shared with SPI header, Pin 4 (SPI3)
 #endif
 
 #if HAS_TMC_UART
@@ -172,8 +170,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -235,20 +236,35 @@
 #define EXP1_10_PIN                         -1
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  /**
+   *              ------                   ------            ---
+   *  (PC1) BEEP | 1  2 |                 | 1  2 |          | 1 |    (5V)
+   *             | 3  4 |              RX | 3  4 | TX       | 2 |    (GND)
+   *  (PC0)  ENT   5  6 |             ENT   5  6 | BEEP     | 3 | RX (PD8)
+   *  (PA2)    B | 7  8 | A  (PA1)      B | 7  8 | A        | 4 | TX (PD9)
+   *         GND | 9 10 | 5V          GND | 9 10 | VCC      | 5 |    (RST)
+   *              ------                   ------            ---
+   *               EXP1                     DWIN             TFT
+   *
+   * DWIN pins are labeled as printed on DWIN PCB. GND, VCC, A, B, ENT & BEEP can be connected in the same orientation as the
+   * existing plug/DWIN to EXP1. DWIN TX/RX need to be connected to the Manta E3 EZ's TFT port, with DWIN TX->PD9, DWIN RX->PD8.
+   *
+   * Needs custom cable:
+   *
+   *     Board        Adapter       Display
+   * ------------------------------------------
+   *  (EXP1-1) PC1 <-----------> BEEP (DWIN-6)
+   *  (EXP1-5) PC0 <-----------> ENT  (DWIN-5)
+   *   (TFT-4) PD9 <-----------> RX   (DWIN-3)
+   *   (TFT-3) PD8 <-----------> TX   (DWIN-4)
+   *  (EXP1-7) PA2 <-----------> B    (DWIN-7)
+   *  (EXP1-9) GND <-----------> GND  (DWIN-9)
+   *  (EXP1-8) PA1 <-----------> A    (DWIN-8)
+   * (EXP1-10)  5V <-----------> VCC  (DWIN-10)
+   */
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! Ender-3 V2 display requires a custom cable with TX = PA0, RX = PC2. See 'pins_BTT_MANTA_E3_EZ_V1_0.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
-
- /**
-  *            Ender-3 V2 display                        Manta E3 EZ V1.0               Ender-3 V2 display --> Manta E3 EZ V1.0
-  *                  ------                                   ------                                 RX  3 -->  5  P0_15
-  *             --  | 1  2 | --                (BEEPER)  PC1 | 1  2 | PC2  (BTN_ENC)                 TX  4 -->  9  P0_16
-  * (MANTA TX1) RX  | 3  4 | TX (MANTA RX1)    (BTN_EN1) PC3 | 3  4 | RESET                      BEEPER  6 --> 10  P2_08
-  *   (BTN_ENC) ENT   5  6 | BEEPER            (BTN_EN2) PC0   5  6 | PA0  (LCD_D4)
-  *   (BTN_E2)  B   | 7  8 | A  (BTN_E1)       (LCD_RS)  PA2 | 7  8 | PA1  (LCD_EN)
-  *             GND | 9 10 | 5V                          GND | 9 10 | 5V
-  *                  ------                                   ------
-  */
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -307,7 +323,6 @@
 //
 // SD Support
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

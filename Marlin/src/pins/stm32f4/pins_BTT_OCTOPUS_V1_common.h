@@ -165,6 +165,11 @@
 #endif
 
 //
+// Misc. Functions
+//
+#define LED_PIN                             PA13
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PF13  // MOTOR 0
@@ -260,18 +265,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PA7
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PA6
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PA5
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PA7
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PA6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 #if HAS_TMC_UART
@@ -318,8 +321,11 @@
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 /**               ------                                      ------
  * (BEEPER) PE8  | 1  2 | PE7  (BTN_ENC)         (MISO) PA6  | 1  2 | PA5  (SCK)
@@ -353,7 +359,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
   #ifndef SD_DETECT_STATE
     #define SD_DETECT_STATE HIGH
   #elif SD_DETECT_STATE == LOW
@@ -421,8 +427,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -510,6 +517,7 @@
     #endif
 
   #endif
+
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display

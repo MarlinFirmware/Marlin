@@ -108,18 +108,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PB15
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PB14
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PB13
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB15
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB14
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB13
 #endif
 
 #if HAS_TMC_UART
@@ -154,17 +152,23 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
-#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                    PC2   // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -234,8 +238,9 @@
 #define SDSS                         EXP2_04_PIN
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN

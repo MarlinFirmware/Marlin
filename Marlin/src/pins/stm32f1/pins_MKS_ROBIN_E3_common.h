@@ -112,8 +112,11 @@
   #define E0_SERIAL_RX_PIN                  PC11
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Heaters 0,1 / Fans / Bed
@@ -210,7 +213,7 @@
     #define SOFTWARE_SPI
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else
+  #else // !FYSETC_MINI_12864_2_1
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
@@ -224,7 +227,7 @@
 
     #endif
 
-  #endif // !MKS_MINI_12864
+  #endif // !FYSETC_MINI_12864_2_1
 
 #endif // HAS_WIRED_LCD
 
@@ -254,7 +257,7 @@
 #define ONBOARD_SPI_DEVICE                     2
 #define SDSS                           SD_SS_PIN
 #define ONBOARD_SD_CS_PIN              SD_SS_PIN
-#define SD_DETECT_PIN                       PC10  // EXP2_07_PIN
+#define SD_DETECT_PIN                EXP2_07_PIN
 #define NO_SD_HOST_DRIVE
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)

@@ -133,6 +133,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_SPI_TFT || HAS_FSMC_TFT
   #define TFT_RESET_PIN                     PE6
   #define TFT_CS_PIN                        PD7
@@ -195,7 +196,7 @@
 //
 // SD Card
 //
-//#define SDIO_SUPPORT
+//#define ONBOARD_SDIO
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION         CUSTOM_CABLE
@@ -203,7 +204,7 @@
 
 #if HAS_MEDIA
 
-  #if DISABLED(SDIO_SUPPORT)
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI
     #define SDSS                            PC11
     #define SD_SS_PIN                       SDSS

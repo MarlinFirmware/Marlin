@@ -219,16 +219,14 @@
 //
 // TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                      51
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                      50
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                       53
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                        51
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                        50
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                         53
 #endif
 
 //
@@ -246,13 +244,10 @@
   #endif
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
-//
-// LCD Display output pins
-//
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          45
   #define LCD_PINS_RS                         19

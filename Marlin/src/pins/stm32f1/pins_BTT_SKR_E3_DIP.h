@@ -94,18 +94,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PB5
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PB4
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PB3
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB5
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB4
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
 #endif
 
 #if HAS_TMC_UART
@@ -133,8 +131,11 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -174,6 +175,19 @@
 #define EXP1_06_PIN                         PB9
 #define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB7
+
+/*   -----
+ *   | 1 | RST
+ *   | 2 | PA3 RX2
+ *   | 3 | PA2 TX2
+ *   | 4 | GND
+ *   | 5 | 5V
+ *   -----
+ *    TFT
+ */
+
+#define TFT_02                              PA3
+#define TFT_03                              PA2
 
 #if HAS_WIRED_LCD
 
@@ -250,13 +264,13 @@
      *                    EXP1                                 EXP1
      *
      *
-     *                  -----                                  ------
+     *                   ---                                  ------
      *                  | 1 | RST                         -- |10  9 | --
      *                  | 2 | PA3 RX2              RESET_BTN | 8  7 | SD_DETECT
      *                  | 3 | PA2 TX2               LCD_MOSI | 6  5   EN2
      *                  | 4 | GND                         -- | 4  3 | EN1
      *                  | 5 | 5V                     LCD_SCK | 2  1 | --
-     *                  -----                                 ------
+     *                   ---                                  ------
      *                   TFT                                   EXP2
 
      *
@@ -339,9 +353,8 @@
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
 //
-// SD Support
+// SD Card
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
