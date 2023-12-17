@@ -162,7 +162,6 @@ inline void DWIN_Draw_Box(uint8_t mode, uint16_t color, uint16_t xStart, uint16_
 void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
                          uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
-
 /*---------------------------------------- Text related functions ----------------------------------------*/
 
 // Draw a string

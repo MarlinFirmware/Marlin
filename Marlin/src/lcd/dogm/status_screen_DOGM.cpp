@@ -234,13 +234,8 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     const celsius_t temp = thermalManager.wholeDegHotend(heater_id),
                   target = thermalManager.degTargetHotend(heater_id);
 
-    #if DISABLED(STATUS_HOTEND_ANIM)
-      #define STATIC_HOTEND true
-      #define HOTEND_DOT    isHeat
-    #else
-      #define STATIC_HOTEND false
-      #define HOTEND_DOT    false
-    #endif
+    #define STATIC_HOTEND DISABLED(STATUS_HOTEND_ANIM)
+    #define HOTEND_DOT TERN(STATUS_HOTEND_ANIM, false, isHeat)
 
     #if ENABLED(STATUS_HOTEND_NUMBERLESS)
       #define OFF_BMP(N) TERN(STATUS_HOTEND_INVERTED, status_hotend_b_bmp, status_hotend_a_bmp)
@@ -333,13 +328,8 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       const bool isHeat = BED_ALT();
     #endif
 
-    #if DISABLED(STATUS_BED_ANIM)
-      #define STATIC_BED    true
-      #define BED_DOT       isHeat
-    #else
-      #define STATIC_BED    false
-      #define BED_DOT       false
-    #endif
+    #define STATIC_BED DISABLED(STATUS_BED_ANIM)
+    #define BED_DOT TERN(STATUS_BED_ANIM, false, isHeat)
 
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
@@ -472,19 +462,23 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing() && get_remaining_time() != 0)
-        prepare_time_string(get_remaining_time(), 'R'); }
+        prepare_time_string(get_remaining_time(), 'R');
+    }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       if (printingIsActive() && interaction_time)
-        prepare_time_string(interaction_time, 'C'); }
+        prepare_time_string(interaction_time, 'C');
+    }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
       if (printJobOngoing())
-        prepare_time_string(print_job_timer.duration(), 'E'); }
+        prepare_time_string(print_job_timer.duration(), 'E');
+    }
   #endif
-#endif // HAS_PRINT_PROGRESS
+
+#endif // HAS_EXTRA_PROGRESS
 
 /**
  * Draw the Status Screen for a 128x64 DOGM (U8glib) display.
@@ -826,9 +820,7 @@ void MarlinUI::draw_status_screen() {
 
       #endif
 
-      #if HAS_Z_AXIS
-        _draw_axis_value(Z_AXIS, zstring, blink);
-      #endif
+      TERN_(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, zstring, blink));
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white

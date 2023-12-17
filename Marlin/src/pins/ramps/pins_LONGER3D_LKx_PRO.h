@@ -128,14 +128,14 @@
 //          ------------------        ----------------        ---------------        -------------
 
 #if ALL(CR10_STOCKDISPLAY, LONGER_LK5)
-  /**           CR-10 Stock Display
-   *                  ------
-   *             GND | 9 10 | 5V
-   * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_EN
-   *     BTN_EN2 D19 | 5  6   D6  LCD_PINS_D4
-   *     BTN_EN1 D18 | 3  4 | GND
-   *  BEEPER_PIN D11 | 1  2 | D15 BTN_ENC
-   *                  ------
+  /**       CR-10 Stock Display
+   *             ------
+   * BEEPER D11 | 1  2 | D15 ENC
+   *    EN1 D18 | 3  4 | GND
+   *    EN2 D19   5  6 | D6  LCD_D4
+   * LCD_RS D5  | 7  8 | D4  LCD_ENABLE
+   *        GND | 9 10 | 5V
+   *             ------
    *      Connected via provided custom cable to:
    *      Aux-1, J21, J17 and Y-Max.
    */

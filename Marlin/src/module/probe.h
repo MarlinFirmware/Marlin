@@ -76,9 +76,7 @@ class Probe {
 public:
 
   #if ENABLED(SENSORLESS_PROBING)
-    typedef struct {
-        bool x:1, y:1, z:1;
-    } sense_bool_t;
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;
   #endif
 
@@ -116,7 +114,7 @@ public:
         }
       #endif
 
-    #else
+    #else // !IS_KINEMATIC
 
       /**
        * Return whether the given position is within the bed, and whether the nozzle
@@ -138,7 +136,7 @@ public:
         }
       }
 
-    #endif
+    #endif // !IS_KINEMATIC
 
     static void move_z_after_probing() {
       #ifdef Z_AFTER_PROBING
@@ -150,7 +148,7 @@ public:
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
-  #else
+  #else // !HAS_BED_PROBE
 
     static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY_1(0)); // See #16767
 
@@ -158,7 +156,7 @@ public:
 
     static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
 
-  #endif
+  #endif // !HAS_BED_PROBE
 
   static void move_z_after_homing() {
     #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)

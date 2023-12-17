@@ -296,7 +296,7 @@ void reset_trinamic_drivers();
     #define U_ENABLE_READ() stepperU.isEnabled()
   #endif
   #if AXIS_HAS_SQUARE_WAVE(U)
-    #define U_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(U_STEP_PIN); }while(0)
+    #define U_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(U_STEP_PIN); }while(0)
   #endif
 #endif
 
@@ -310,7 +310,7 @@ void reset_trinamic_drivers();
     #define V_ENABLE_READ() stepperV.isEnabled()
   #endif
   #if AXIS_HAS_SQUARE_WAVE(V)
-    #define V_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(V_STEP_PIN); }while(0)
+    #define V_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(V_STEP_PIN); }while(0)
   #endif
 #endif
 
@@ -324,7 +324,7 @@ void reset_trinamic_drivers();
     #define W_ENABLE_READ() stepperW.isEnabled()
   #endif
   #if AXIS_HAS_SQUARE_WAVE(W)
-    #define W_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(W_STEP_PIN); }while(0)
+    #define W_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(W_STEP_PIN); }while(0)
   #endif
 #endif
 

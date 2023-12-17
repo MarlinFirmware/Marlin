@@ -52,7 +52,7 @@
 
 #define ILI9341_NOP               0x00 // No Operation
 #define ILI9341_SWRESET           0x01 // Software Reset
-#define ILI9341_RDDIDIF           0x04 // Read display identification information
+#define ILI9341_RDDIDIF           0x04 // Read Display Identification Information
 #define ILI9341_RDDST             0x09 // Read Display Status
 #define ILI9341_RDDPM             0x0A // Read Display Power Mode
 #define ILI9341_RDDMADCTL         0x0B // Read Display MADCTL
@@ -135,7 +135,6 @@
 #define ILI9341_EN3G              0xF2 // Enable 3G - 3 gamma control
 #define ILI9341_IFCTL             0xF6 // Interface Control
 #define ILI9341_PUMPRCTL          0xF7 // Pump ratio control
-
 
 static const uint16_t ili9341_init[] = {
   DATASIZE_8BIT,

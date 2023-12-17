@@ -148,16 +148,17 @@
     #define E0_SLAVE_ADDRESS                   0
   #endif
 #endif
+
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PC2   //TB
-#define TEMP_0_PIN                          PC1   //TH1
-//#define TEMP_1_PIN                        PC3   //TH2
 #define TEMP_BOARD_PIN                      PC3
 #ifndef TEMP_SENSOR_BOARD
   #define TEMP_SENSOR_BOARD                   13
 #endif
+#define TEMP_BED_PIN                        PC2   // TB
+#define TEMP_0_PIN                          PC1   // TH1
+//#define TEMP_1_PIN                        PC3   // TH2
 #define FIL_RUNOUT_PIN                      PA10  // MT_DET
 
 //

@@ -37,6 +37,7 @@
  *   H<microsteps> - Specify micro-steps to use. Best guess if not supplied.
  *   L<linear>     - Desired layer height in current units. Nearest good heights are shown.
  */
+
 void GcodeSuite::M92() {
 
   const int8_t target_extruder = get_target_extruder_from_command();

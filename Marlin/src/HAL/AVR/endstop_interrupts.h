@@ -91,7 +91,6 @@ void endstop_ISR() { endstops.update(); }
 
 #endif
 
-
 // Install Pin change interrupt for a pin. Can be called multiple times.
 void pciSetup(const int8_t pin) {
   if (digitalPinHasPCICR(pin)) {

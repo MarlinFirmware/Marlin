@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * Native/Simulator LCD-specific defines
+ */
+
 void usleep(uint64_t microsec);
 // The following are optional depending on the platform.
 

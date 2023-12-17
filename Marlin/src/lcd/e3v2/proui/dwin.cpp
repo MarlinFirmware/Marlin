@@ -530,8 +530,7 @@ void DWIN_ResetStatusLine() {
 // Djb2 hash algorithm
 uint32_t GetHash(char * str) {
   uint32_t hash = 5381;
-  char c;
-  while ((c = *str++)) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  for (char c; (c = *str++);) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
   return hash;
 }
 
@@ -793,7 +792,8 @@ void update_variable() {
                _new_hotend_target = _hotendtarget != ht;
     if (_new_hotend_temp) _hotendtemp = hc;
     if (_new_hotend_target) _hotendtarget = ht;
-  #endif
+  #endif // HAS_HOTEND
+
   #if HAS_HEATED_BED
     static celsius_t _bedtemp = 0, _bedtarget = 0;
     const celsius_t bc = thermalManager.wholeDegBed(),
@@ -802,7 +802,8 @@ void update_variable() {
                _new_bed_target = _bedtarget != bt;
     if (_new_bed_temp) _bedtemp = bc;
     if (_new_bed_target) _bedtarget = bt;
-  #endif
+  #endif // HAS_HEATED_BED
+
   #if HAS_FAN
     static uint8_t _fanspeed = 0;
     const bool _new_fanspeed = _fanspeed != thermalManager.fan_speed[0];
@@ -976,8 +977,11 @@ void onClickSDItem() {
       shift_amt = shift_new;                      // Set new scroll
     }
   }
-#else
+
+#else // !SCROLL_LONG_FILENAMES
+
   char shift_name[FILENAME_LENGTH + 1] = "";
+
 #endif
 
 void onDrawFileName(MenuItemClass* menuitem, int8_t line) {
@@ -1402,7 +1406,6 @@ void EachMomentUpdate() {
   }
 
 #endif // POWER_LOSS_RECOVERY
-
 
 void DWIN_HandleScreen() {
   switch (checkkey) {

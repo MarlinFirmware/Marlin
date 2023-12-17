@@ -113,8 +113,6 @@ public:
     #endif
   #endif
 
-  // // // Methods // // //
-
   CardReader();
 
   static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
@@ -212,7 +210,7 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls(const uint8_t lsflags);
+  static void ls(const uint8_t lsflags=0);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -279,7 +277,7 @@ private:
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // By default the sort index is static
+    // By default the sort index is statically allocated
     #if ENABLED(SDSORT_DYNAMIC_RAM)
       static uint8_t *sort_order;
     #else

@@ -163,8 +163,8 @@ typedef struct {
   //uint8_t uartTxBuffer[UART_FIFO_BUFFER_SIZE];
 } SZ_USART_FIFO;
 
-#define WIFI_GCODE_BUFFER_LEAST_SIZE    96
-#define WIFI_GCODE_BUFFER_SIZE  (WIFI_GCODE_BUFFER_LEAST_SIZE * 3)
+#define WIFI_GCODE_BUFFER_LEAST_SIZE 96
+#define WIFI_GCODE_BUFFER_SIZE (WIFI_GCODE_BUFFER_LEAST_SIZE * 3)
 typedef struct {
   uint8_t wait_tick;
   uint8_t Buffer[WIFI_GCODE_BUFFER_SIZE];

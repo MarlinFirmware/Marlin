@@ -67,7 +67,6 @@ uint8_t const LS_DATE = 1,    // ls() flag to print modify date
               LS_SIZE = 2,    // ls() flag to print file size
               LS_R = 4;       // ls() flag for recursive list of subdirectories
 
-
 // flags for timestamp
 uint8_t const T_ACCESS = 1,   // Set the file's last access date
               T_CREATE = 2,   // Set the file's creation date and time
@@ -283,7 +282,7 @@ class SdBaseFile {
   bool isRoot() const { return type_ == FAT_FILE_TYPE_ROOT_FIXED || type_ == FAT_FILE_TYPE_ROOT32; }
 
   bool getDosName(char * const name);
-  void ls(uint8_t flags=0, uint8_t indent=0);
+  void ls(const uint8_t flags=0, const uint8_t indent=0);
 
   bool mkdir(SdBaseFile *parent, const char *path, const bool pFlag=true);
   bool open(SdBaseFile * const dirFile, uint16_t index, const uint8_t oflag);

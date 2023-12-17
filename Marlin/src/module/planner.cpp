@@ -127,7 +127,7 @@ volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be
                  Planner::block_buffer_planned, // Index of the optimally planned block
                  Planner::block_buffer_tail;    // Index of the busy block, if any
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
-uint8_t Planner::delay_before_delivering;       // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
@@ -252,11 +252,15 @@ void Planner::init() {
   position.reset();
   TERN_(HAS_POSITION_FLOAT, position_float.reset());
   TERN_(IS_KINEMATIC, position_cart.reset());
+
   previous_speed.reset();
   previous_nominal_speed = 0;
+
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
+
   clear_block_buffer();
   delay_before_delivering = 0;
+
   #if ENABLED(DIRECT_STEPPING)
     last_page_step_rate = 0;
     last_page_dir.reset();
@@ -1495,7 +1499,7 @@ void Planner::check_axes_activity() {
     thermalManager.setTargetHotend(t, active_extruder);
   }
 
-#endif
+#endif // AUTOTEMP
 
 #if DISABLED(NO_VOLUMETRICS)
 
@@ -1965,29 +1969,27 @@ bool Planner::_populate_block(
     if (db < 0) SBI(dm, Y_HEAD);                  // ...and Y
     TERN_(HAS_Z_AXIS, if (dc < 0) SBI(dm, Z_AXIS));
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
-    #elif CORE_IS_XZ
-      if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
-      if (db < 0) SBI(dm, Y_AXIS);
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (da + dc < 0) SBI(dm, A_AXIS);           // Motor A direction
-      if (CORESIGN(da - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
-    #elif CORE_IS_YZ
-      if (da < 0) SBI(dm, X_AXIS);
-      if (db < 0) SBI(dm, Y_HEAD);                // Save the toolhead's true direction in Y
-      if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
-      if (db + dc < 0) SBI(dm, B_AXIS);           // Motor B direction
-      if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
-    #endif
+  #if CORE_IS_XY
+    if (da + db < 0) SBI(dm, A_AXIS);             // Motor A direction
+    if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS);   // Motor B direction
+  #elif CORE_IS_XZ
+    if (da < 0) SBI(dm, X_HEAD);                  // Save the toolhead's true direction in X
+    if (db < 0) SBI(dm, Y_AXIS);
+    if (dc < 0) SBI(dm, Z_HEAD);                  // ...and Z
+    if (da + dc < 0) SBI(dm, A_AXIS);             // Motor A direction
+    if (CORESIGN(da - dc) < 0) SBI(dm, C_AXIS);   // Motor C direction
+  #elif CORE_IS_YZ
+    if (da < 0) SBI(dm, X_AXIS);
+    if (db < 0) SBI(dm, Y_HEAD);                  // Save the toolhead's true direction in Y
+    if (dc < 0) SBI(dm, Z_HEAD);                  // ...and Z
+    if (db + dc < 0) SBI(dm, B_AXIS);             // Motor B direction
+    if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS);   // Motor C direction
   #elif ENABLED(MARKFORGED_XY)
-    if (da + db < 0) SBI(dm, A_AXIS);              // Motor A direction
-    if (db < 0) SBI(dm, B_AXIS);                   // Motor B direction
+    if (da + db < 0) SBI(dm, A_AXIS);             // Motor A direction
+    if (db < 0) SBI(dm, B_AXIS);                  // Motor B direction
   #elif ENABLED(MARKFORGED_YX)
-    if (da < 0) SBI(dm, A_AXIS);                   // Motor A direction
-    if (db + da < 0) SBI(dm, B_AXIS);              // Motor B direction
+    if (da < 0) SBI(dm, A_AXIS);                  // Motor A direction
+    if (db + da < 0) SBI(dm, B_AXIS);             // Motor B direction
   #else
     XYZ_CODE(
       if (da < 0) SBI(dm, X_AXIS),
@@ -2089,23 +2091,21 @@ bool Planner::_populate_block(
     steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
     TERN_(HAS_Z_AXIS, steps_dist_mm.z = dc * mm_per_step[Z_AXIS]);
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      steps_dist_mm.a      = (da + db) * mm_per_step[A_AXIS];
-      steps_dist_mm.b      = CORESIGN(da - db) * mm_per_step[B_AXIS];
-    #elif CORE_IS_XZ
-      steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
-      steps_dist_mm.y      = db * mm_per_step[Y_AXIS];
-      steps_dist_mm.head.z = dc * mm_per_step[C_AXIS];
-      steps_dist_mm.a      = (da + dc) * mm_per_step[A_AXIS];
-      steps_dist_mm.c      = CORESIGN(da - dc) * mm_per_step[C_AXIS];
-    #elif CORE_IS_YZ
-      steps_dist_mm.x      = da * mm_per_step[X_AXIS];
-      steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
-      steps_dist_mm.head.z = dc * mm_per_step[C_AXIS];
-      steps_dist_mm.b      = (db + dc) * mm_per_step[B_AXIS];
-      steps_dist_mm.c      = CORESIGN(db - dc) * mm_per_step[C_AXIS];
-    #endif
+  #if CORE_IS_XY
+    steps_dist_mm.a      = (da + db) * mm_per_step[A_AXIS];
+    steps_dist_mm.b      = CORESIGN(da - db) * mm_per_step[B_AXIS];
+  #elif CORE_IS_XZ
+    steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
+    steps_dist_mm.y      = db * mm_per_step[Y_AXIS];
+    steps_dist_mm.head.z = dc * mm_per_step[C_AXIS];
+    steps_dist_mm.a      = (da + dc) * mm_per_step[A_AXIS];
+    steps_dist_mm.c      = CORESIGN(da - dc) * mm_per_step[C_AXIS];
+  #elif CORE_IS_YZ
+    steps_dist_mm.x      = da * mm_per_step[X_AXIS];
+    steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
+    steps_dist_mm.head.z = dc * mm_per_step[C_AXIS];
+    steps_dist_mm.b      = (db + dc) * mm_per_step[B_AXIS];
+    steps_dist_mm.c      = CORESIGN(db - dc) * mm_per_step[C_AXIS];
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
     steps_dist_mm.b      = db * mm_per_step[B_AXIS];
@@ -2138,15 +2138,9 @@ bool Planner::_populate_block(
   #endif
 
   if (true NUM_AXIS_GANG(
-      && block->steps.a < MIN_STEPS_PER_SEGMENT,
-      && block->steps.b < MIN_STEPS_PER_SEGMENT,
-      && block->steps.c < MIN_STEPS_PER_SEGMENT,
-      && block->steps.i < MIN_STEPS_PER_SEGMENT,
-      && block->steps.j < MIN_STEPS_PER_SEGMENT,
-      && block->steps.k < MIN_STEPS_PER_SEGMENT,
-      && block->steps.u < MIN_STEPS_PER_SEGMENT,
-      && block->steps.v < MIN_STEPS_PER_SEGMENT,
-      && block->steps.w < MIN_STEPS_PER_SEGMENT
+      && block->steps.a < MIN_STEPS_PER_SEGMENT, && block->steps.b < MIN_STEPS_PER_SEGMENT, && block->steps.c < MIN_STEPS_PER_SEGMENT,
+      && block->steps.i < MIN_STEPS_PER_SEGMENT, && block->steps.j < MIN_STEPS_PER_SEGMENT, && block->steps.k < MIN_STEPS_PER_SEGMENT,
+      && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT
     )
   ) {
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(steps_dist_mm.e));
@@ -2302,12 +2296,9 @@ bool Planner::_populate_block(
   #endif
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     SECONDARY_AXIS_CODE(
-      if (block->steps.i) stepper.enable_axis(I_AXIS),
-      if (block->steps.j) stepper.enable_axis(J_AXIS),
-      if (block->steps.k) stepper.enable_axis(K_AXIS),
-      if (block->steps.u) stepper.enable_axis(U_AXIS),
-      if (block->steps.v) stepper.enable_axis(V_AXIS),
-      if (block->steps.w) stepper.enable_axis(W_AXIS)
+      if (block->steps.i) stepper.enable_axis(I_AXIS), if (block->steps.j) stepper.enable_axis(J_AXIS),
+      if (block->steps.k) stepper.enable_axis(K_AXIS), if (block->steps.u) stepper.enable_axis(U_AXIS),
+      if (block->steps.v) stepper.enable_axis(V_AXIS), if (block->steps.w) stepper.enable_axis(W_AXIS)
     );
   #endif
 
@@ -2590,6 +2581,7 @@ bool Planner::_populate_block(
   #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
+
   #if ENABLED(LIN_ADVANCE)
     block->la_advance_rate = 0;
     block->la_scaling = 0;

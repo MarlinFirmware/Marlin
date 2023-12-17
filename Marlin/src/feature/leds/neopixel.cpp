@@ -54,7 +54,7 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
     set_background_color(background_color);
   }
 
-#endif
+#endif // NEOPIXEL_BKGD_INDEX_FIRST
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
   if (neoindex >= 0) {

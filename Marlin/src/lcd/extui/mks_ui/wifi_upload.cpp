@@ -79,13 +79,13 @@ const uint32_t ESP_FLASH_ADDR = 0x40200000;     // address of start of Flash
 
 UPLOAD_STRUCT esp_upload;
 
-static const unsigned int retriesPerReset = 3;
-static const uint32_t connectAttemptInterval = 50;
-static const unsigned int percentToReportIncrement = 5; // how often we report % complete
-static const uint32_t defaultTimeout = 500;
-static const uint32_t eraseTimeout = 15000;
-static const uint32_t blockWriteTimeout = 200;
-static const uint32_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
+static const uint16_t retriesPerReset = 3;
+static const millis_t connectAttemptInterval = 50;
+static const uint16_t percentToReportIncrement = 5; // how often we report % complete
+static const millis_t defaultTimeout = 500;
+static const millis_t eraseTimeout = 15000;
+static const millis_t blockWriteTimeout = 200;
+static const millis_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
 static MediaFile update_file, *update_curDir;
 
 // Messages corresponding to result codes, should make sense when followed by " error"
@@ -103,12 +103,14 @@ const char *resultMessages[] = {
   "slip data"
 };
 
-// A note on baud rates.
-// The ESP8266 supports 921600, 460800, 230400, 115200, 74880 and some lower baud rates.
-// 921600b is not reliable because even though it sometimes succeeds in connecting, we get a bad response during uploading after a few blocks.
-// Probably our UART ISR cannot receive bytes fast enough, perhaps because of the latency of the system tick ISR.
-// 460800b doesn't always manage to connect, but if it does then uploading appears to be reliable.
-// 230400b always manages to connect.
+/**
+ * Baud Rate Notes:
+ * The ESP8266 supports 921600, 460800, 230400, 115200, 74880 and some lower baud rates.
+ * 921600b is not reliable because even though it sometimes succeeds in connecting, we get a bad response during uploading after a few blocks.
+ * Probably our UART ISR cannot receive bytes fast enough, perhaps because of the latency of the system tick ISR.
+ * 460800b doesn't always manage to connect, but if it does then uploading appears to be reliable.
+ * 230400b always manages to connect.
+ */
 static const uint32_t uploadBaudRates[] = { 460800, 230400, 115200, 74880 };
 
 signed char IsReady() {
@@ -151,7 +153,7 @@ void flushInput() {
 uint32_t getData(unsigned byteCnt, const uint8_t *buf, int ofst) {
   uint32_t val = 0;
   if (buf && byteCnt) {
-    unsigned int shiftCnt = 0;
+    uint16_t shiftCnt = 0;
     NOMORE(byteCnt, 4U);
     do {
       val |= (uint32_t)buf[ofst++] << shiftCnt;
@@ -172,14 +174,16 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
   }
 }
 
-// Read a byte optionally performing SLIP decoding.  The return values are:
-//
-//  2 - an escaped byte was read successfully
-//  1 - a non-escaped byte was read successfully
-//  0 - no data was available
-//   -1 - the value 0xC0 was encountered (shouldn't happen)
-//   -2 - a SLIP escape byte was found but the following byte wasn't available
-//   -3 - a SLIP escape byte was followed by an invalid byte
+/**
+ * Read a byte optionally performing SLIP decoding.  The return values are:
+ *
+ *  2 - an escaped byte was read successfully
+ *  1 - a non-escaped byte was read successfully
+ *  0 - no data was available
+ *   -1 - the value 0xC0 was encountered (shouldn't happen)
+ *   -2 - a SLIP escape byte was found but the following byte wasn't available
+ *   -3 - a SLIP escape byte was followed by an invalid byte
+ */
 int ReadByte(uint8_t *data, signed char slipDecode) {
   if (uploadPort_available() == 0) return 0;
 
@@ -226,14 +230,16 @@ void WriteByteSlip(const uint8_t b) {
     uploadPort_write((const uint8_t *)&b, 1);
 }
 
-// Wait for a data packet to be returned.  If the body of the packet is
-// non-zero length, return an allocated buffer indirectly containing the
-// data and return the data length. Note that if the pointer for returning
-// the data buffer is nullptr, the response is expected to be two bytes of zero.
-//
-// If an error occurs, return a negative value.  Otherwise, return the number
-// of bytes in the response (or zero if the response was not the standard "two bytes of zero").
-EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t msTimeout) {
+/**
+ * Wait for a data packet to be returned.  If the body of the packet is
+ * non-zero length, return an allocated buffer indirectly containing the
+ * data and return the data length. Note that if the pointer for returning
+ * the data buffer is nullptr, the response is expected to be two bytes of zero.
+ *
+ * If an error occurs, return a negative value.  Otherwise, return the number
+ * of bytes in the response (or zero if the response was not the standard "two bytes of zero").
+ */
+EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, millis_t msTimeout) {
   typedef enum {
     begin = 0,
     header,
@@ -246,7 +252,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 
   const size_t headerLength = 8;
 
-  uint32_t startTime = getWifiTick();
+  const millis_t startTime = getWifiTick();
   uint8_t hdr[headerLength];
   uint16_t hdrIdx = 0;
 
@@ -348,7 +354,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 // Send a block of data performing SLIP encoding of the content.
 void _writePacket(const uint8_t *data, size_t len) {
   unsigned char outBuf[2048] = {0};
-  unsigned int outIndex = 0;
+  uint16_t outIndex = 0;
   while (len != 0) {
     if (*data == 0xC0) {
       outBuf[outIndex++] = 0xDB;
@@ -405,7 +411,7 @@ void sendCommand(uint8_t op, uint32_t checkVal, const uint8_t *data, size_t data
 }
 
 // Send a command to the attached device together with the supplied data, if any, and get the response
-EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint32_t checkVal, uint32_t *valp, uint32_t msTimeout) {
+EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint32_t checkVal, uint32_t *valp, millis_t msTimeout) {
   size_t bodyLen;
   EspUploadResult stat;
 
@@ -459,7 +465,7 @@ EspUploadResult flashBegin(uint32_t addr, uint32_t size) {
   // determine the number of blocks represented by the size
   uint32_t blkCnt;
   uint8_t buf[16];
-  uint32_t timeout;
+  millis_t timeout;
 
   blkCnt = (size + EspFlashBlockSize - 1) / EspFlashBlockSize;
 
@@ -597,7 +603,7 @@ void upload_spin() {
     case uploading:
       // The ESP needs several milliseconds to recover from one packet before it will accept another
       if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= 15) {
-        unsigned int percentComplete;
+        uint16_t percentComplete;
         const uint32_t blkCnt = (esp_upload.fileSize + EspFlashBlockSize - 1) / EspFlashBlockSize;
         if (esp_upload.uploadBlockNumber < blkCnt) {
           esp_upload.uploadResult = flashWriteBlock(0, 0);

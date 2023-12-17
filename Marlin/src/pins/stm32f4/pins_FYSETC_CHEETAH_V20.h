@@ -43,14 +43,14 @@
   #define FLASH_ADDRESS_START   0x8004000
 #endif
 
-#define SERVO0_PIN                          PB1 // BL-TOUCH/PWM
+#define SERVO0_PIN                          PB1   // BL-TOUCH/PWM
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PB4 // X-MIN
-#define Y_STOP_PIN                          PC8 // Y-MIN
-#define Z_STOP_PIN                          PA0 // Z-MIN
+#define X_STOP_PIN                          PB4   // X-MIN
+#define Y_STOP_PIN                          PC8   // Y-MIN
+#define Z_STOP_PIN                          PA0   // Z-MIN
 
 //
 // Z Probe
@@ -59,7 +59,7 @@
   #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
 #endif
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB1 // BL-TOUCH/PWM repurposed
+  #define Z_MIN_PROBE_PIN                   PB1   // BL-TOUCH/PWM repurposed
 #endif
 
 //
@@ -149,17 +149,15 @@
  *              GND | 9 10 | 5V                         GND | 9 10 |   5V
  *                   ------                                  ------
  *                    EXP2                                    EXP1
- */
-
-/**
- *                     ------
- *                 5V | 1  2 | GND
- * (LCD_EN/MOSI) PB15 | 3  4 | PB12  (LCD_RS)
- * (LCD_D4/SCK)  PB13   5  6 | PC11 (BTN_EN2)
- * (LCD_D5/MISO) PB14 | 7  8 | PC10 (BTN_EN1)
- * (BTN_ENC)     PC12 | 9 10 | PC9   (BEEPER)
- *                     ------
- *                      EXP3
+ *
+ *                   ------
+ *    (BEEPER) PC9  | 1  2 | PC12 (BTN_ENC)
+ *   (BTN_EN1) PC10 | 3  4 | PB14 (LCD_D5/MISO)
+ *   (BTN_EN2) PC11   5  6 | PB13 (LCD_D4/SCK)
+ *    (LCD_RS) PB12 | 7  8 | PB15 (LCD_EN/MOSI)
+ *             GND  | 9 10 |   5V
+ *                   ------
+ *                    EXP3
  */
 
 #define EXP1_01_PIN                         PC9

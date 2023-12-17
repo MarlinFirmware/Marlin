@@ -120,7 +120,6 @@ void u8g_spiSend_sw_AVR_mode_3(uint8_t val) {
   U8G_ATOMIC_END();
 }
 
-
 #if ENABLED(FYSETC_MINI_12864)
   #define SPISEND_SW_AVR u8g_spiSend_sw_AVR_mode_3
 #else

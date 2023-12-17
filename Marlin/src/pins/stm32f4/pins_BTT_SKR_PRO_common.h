@@ -487,7 +487,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN            -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
 

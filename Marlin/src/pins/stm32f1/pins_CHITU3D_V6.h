@@ -39,7 +39,7 @@
 
 #include "pins_CHITU3D_common.h"
 
-/*
+/**
  * Circuit diagram https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  *
  * Details on the 30 pin ribbon pins. From: https://3dtoday.ru/blogs/artem-sr/tronxy-x5sa-pro-ustanovka-bfp-touch-na-board-chitu3d-v6-cxy-v6-191017

@@ -53,7 +53,7 @@ public:
   static void reset();
   static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start);
   static void extrapolate_unprobed_bed_level();
-  static void print_leveling_grid(const bed_mesh_t* _z_values = NULL);
+  static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr);
   static void refresh_bed_level();
   static bool has_mesh() { return !!grid_spacing.x; }
   static bool mesh_is_valid() { return has_mesh(); }

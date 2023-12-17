@@ -71,7 +71,7 @@ void do_enable(const stepper_flags_t to_enable) {
 
   if (!shall_enable) return;    // All specified axes already enabled?
 
-  ena_mask_t also_enabled = 0;    // Track steppers enabled due to overlap
+  ena_mask_t also_enabled = 0;  // Track steppers enabled due to overlap
 
   // Enable all flagged axes
   LOOP_NUM_AXES(a) {

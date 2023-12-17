@@ -32,7 +32,7 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
+#define MOSFET_B_PIN                           7
 #define FAN0_PIN                               9
 
 #define FIL_RUNOUT_PIN                         2

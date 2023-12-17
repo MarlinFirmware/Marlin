@@ -81,17 +81,17 @@
 #endif
 
 #if HAS_TMC_UART                                  // Shared with EXP1
-  #define X_SERIAL_TX_PIN                  PC10
-  #define X_SERIAL_RX_PIN       X_SERIAL_TX_PIN
+  #define X_SERIAL_TX_PIN                   PC10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
-  #define Y_SERIAL_TX_PIN                  PC11
-  #define Y_SERIAL_RX_PIN       Y_SERIAL_TX_PIN
+  #define Y_SERIAL_TX_PIN                   PC11
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                  PC12
-  #define Z_SERIAL_RX_PIN       Z_SERIAL_TX_PIN
+  #define Z_SERIAL_TX_PIN                   PC12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E0_SERIAL_TX_PIN                 PC14
-  #define E0_SERIAL_RX_PIN     E0_SERIAL_TX_PIN
+  #define E0_SERIAL_TX_PIN                  PC14
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                   19200
@@ -215,7 +215,7 @@
 
       #define FORCE_SOFT_SPI                      // SPI MODE3
 
-      #define LED_PIN                EXP1_06_PIN   // red pwm
+      #define LED_PIN                EXP1_06_PIN  // red pwm
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 
@@ -233,7 +233,7 @@
       //  #define NEOPIXEL_PIN       EXP1_06_PIN
       //#endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_05_PIN
       #if IS_ULTIPANEL
@@ -271,7 +271,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SPI_DEVICE                           3
+  #define SPI_DEVICE                           3  // Maple
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
@@ -287,4 +287,4 @@
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                          SD_SS_PIN
+#define SDSS                           SD_SS_PIN
