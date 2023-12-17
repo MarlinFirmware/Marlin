@@ -152,7 +152,7 @@
   #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
-  #define TFT_BUFFER_SIZE                   3200
+  #define TFT_BUFFER_WORDS                  3200
 #endif
 
 #if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)
@@ -160,7 +160,7 @@
   #define LCD_BRIGHTNESS_DEFAULT TFT_BACKLIGHT_PWM
 #endif
 
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
 #endif
 

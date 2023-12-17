@@ -80,17 +80,6 @@
 //
 // Steppers
 //
-#define X_ENABLE_PIN                        -1
-#define X_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
-#define X_DIR_PIN                           -1
-
-#define Y_ENABLE_PIN                        -1
-#define Y_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
-#define Y_DIR_PIN                           -1
-
-#define Z_ENABLE_PIN                        -1
-#define Z_STEP_PIN                          PA10 // Unused. Assigned so Marlin will compile
-#define Z_DIR_PIN                           -1
 
 #define E0_ENABLE_PIN                       PD2
 #define E0_STEP_PIN                         PD0
@@ -110,7 +99,9 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 
   // Default TMC slave addresses
   #ifndef E0_SLAVE_ADDRESS
@@ -134,7 +125,8 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA2   // "HE"
+#define HEATER_0_PIN                        PA2   // "HE" V1.1
+#define HEATER_1_PIN                        PB13  // "HE" V1.2
 #define FAN0_PIN                            PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
 
@@ -148,6 +140,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5

@@ -63,10 +63,10 @@
 #define TEMP_BED_PIN                          36  // Analog Input
 
 #if ENABLED(MAX31856_PANDAPI)
-  #define MAX31856_CLK_PIN                    29
-  #define MAX31856_MISO_PIN                   24
-  #define MAX31856_MOSI_PIN                   28
-  #define MAX31856_CS_PIN                     27
+  #define TEMP_0_CLK_PIN                      29
+  #define TEMP_0_MISO_PIN                     24
+  #define TEMP_0_MOSI_PIN                     28
+  #define TEMP_0_CS_PIN                       27
 #endif
 
 //
@@ -86,7 +86,7 @@
  *   (EN1) 33 | 3  4 | (5 SDSS?)     (EN)      26 | 3  4 | 27 (RS)
  *   (EN2) 32   5  6 | (23 MOSI?)    (D4)      14 | 5  6   --
  * (SDDET 2?) | 7  8 | (RESET)                 -- | 7  8 | --
- *         -- | 9 10 | --                   (GND) | 9 10 | (5V)
+ *         -- | 9 10 | --                     GND | 9 10 | 5V
  *             ------                              ------
  *              EXP2                                EXP1
  */

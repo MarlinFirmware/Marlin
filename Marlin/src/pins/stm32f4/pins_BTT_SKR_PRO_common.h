@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
@@ -172,18 +172,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PC12
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PC11
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PC10
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PC12
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PC11
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PC10
 #endif
 
 #if HAS_TMC_UART
@@ -224,8 +222,11 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -424,8 +425,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)

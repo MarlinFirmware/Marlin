@@ -68,16 +68,15 @@
 #define E0_DIR_PIN                          PB0
 #define E0_ENABLE_PIN                       PC4
 
-#if ENABLED(TMC_USE_SW_SPI)                       // Shared with EXP2
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                     PB3
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                    PB4
-  #endif
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                    PB5
-  #endif
+// Shared with EXP2
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB4
+#endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PB5
 #endif
 
 #if HAS_TMC_UART                                  // Shared with EXP1
@@ -94,8 +93,11 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                   19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Heaters / Fans
@@ -140,6 +142,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
@@ -169,7 +172,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  #define TFT_BUFFER_SIZE                   9600
+  #define TFT_BUFFER_WORDS                  9600
 
 #elif HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN

@@ -34,7 +34,9 @@
 //
 // I2S (steppers & other output-only pins)
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              17
   #define I2S_BCK                             22
@@ -91,7 +93,9 @@
 #define K_CS_PIN                             159
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -108,7 +112,7 @@
 
 // #define FAN_SOFT_PWM_REQUIRED // check if needed
 
-// Neopixel Rings
+// NeoPixel Rings
 #define NEOPIXEL_PIN                          14
 #define NEOPIXEL2_PIN                         27
 

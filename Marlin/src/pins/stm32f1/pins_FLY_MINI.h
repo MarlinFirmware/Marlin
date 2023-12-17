@@ -83,16 +83,14 @@
   #define E0_CS_PIN                         PC2
 #endif
 
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI             EXP2_06_PIN
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO             EXP2_01_PIN
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK              EXP2_02_PIN
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI               EXP2_06_PIN
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO               EXP2_01_PIN
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                EXP2_02_PIN
 #endif
 
 #if HAS_TMC_UART
@@ -152,6 +150,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define SPI_DEVICE                           2  // Maple

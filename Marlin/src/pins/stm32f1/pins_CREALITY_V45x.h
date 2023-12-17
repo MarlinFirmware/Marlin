@@ -105,7 +105,7 @@
 #define SD_DETECT_PIN                       PC7
 #define NO_SD_HOST_DRIVE                          // SD is only seen by the printer
 
-#define SDIO_SUPPORT                              // Extra added by Creality
+#define ONBOARD_SDIO                              // Extra added by Creality
 #define SDIO_CLOCK                       6000000  // In original source code overridden by Creality in sdio.h
 
 //

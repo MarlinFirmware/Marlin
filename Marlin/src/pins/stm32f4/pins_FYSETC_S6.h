@@ -238,6 +238,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(FYSETC_242_OLED_12864)
 
   #define BTN_EN1                    EXP1_01_PIN

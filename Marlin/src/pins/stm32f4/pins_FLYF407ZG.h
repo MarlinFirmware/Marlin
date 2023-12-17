@@ -214,9 +214,9 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
 
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define ONBOARD_SDIO                            // Use SDIO for onboard SD
 
-  #if DISABLED(SDIO_SUPPORT)
+  #if DISABLED(ONBOARD_SDIO)
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                            PC11
     #define SD_SCK_PIN                      PC12
@@ -235,18 +235,16 @@
 #endif
 
 //
-// Trinamic Software SPI
+// Trinamic SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK              EXP2_02_PIN
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO             EXP2_01_PIN
-  #endif
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI             EXP2_06_PIN
-  #endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                EXP2_02_PIN
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO               EXP2_01_PIN
+#endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI               EXP2_06_PIN
 #endif
 
 //
@@ -285,6 +283,7 @@
 //
 // LCD / Controller
 //
+
 #if IS_RRD_SC
   #define BEEPER_PIN                 EXP1_01_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
