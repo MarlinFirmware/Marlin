@@ -2769,18 +2769,19 @@ bool Planner::_populate_block(
      * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    #ifndef TRAVEL_EXTRA_XYJERK
-      #define TRAVEL_EXTRA_XYJERK 0.0f
+    #ifdef TRAVEL_EXTRA_XYJERK
+      #define HAS_TRAVEL_EXTRA_XYJERK 1
+      const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
     #endif
-    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
 
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
 
       float v_factor = 1.0f;
       LOOP_LOGICAL_AXES(i) {
-        const float jerk = ABS(current_speed[i]),   // Starting from zero, change in speed for this axis
-                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f); // The max jerk setting for this axis
+        const float jerk = ABS(current_speed[i]);   // Starting from zero, change in speed for this axis
+        float maxj = max_jerk[i];
+        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
       vmax_junction_sqr = sq(block->nominal_speed * v_factor);
@@ -2810,8 +2811,9 @@ bool Planner::_populate_block(
                     v_entry = current_speed[i] * current_speed_factor;
 
         // Jerk is the per-axis velocity difference.
-        const float jerk = ABS(v_exit - v_entry),
-                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f);
+        const float jerk = ABS(v_exit - v_entry);
+        float maxj = max_jerk[i];
+        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
       vmax_junction_sqr = sq(vmax_junction * v_factor);
