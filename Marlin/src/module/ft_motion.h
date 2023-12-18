@@ -133,15 +133,9 @@ class FTMotion {
 
   private:
 
-    #if ENABLED(FTM_UNIFIED_BWS)
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
     static xyze_trajectoryWin_t trajWin;
-  #else
-    static xyze_trajectory_t traj;
-    static xyze_trajectoryMod_t trajMod;
-    static xyze_trajectoryWin_t trajWin;
-  #endif
 
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
