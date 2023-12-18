@@ -2805,6 +2805,22 @@ bool Planner::_populate_block(
         speed_diff = v_entry - previous_speed;
       }
 
+      #if ENABLED(LIN_ADVANCE)
+        // Advance affects E_AXIS speed therefore its jerk. Add a speed correction whenever we stop
+        // using advance. There's no correction when we start using advance because it didn't
+        // perform well as it takes more time/effort to push/melt filament than the reverse.
+        static float previous_advance_speed_mm_s = 0.0f;
+        float advance_correction_mm_s = 0.0f;
+        if (dist.e < 0 && previous_advance_speed_mm_s != 0.0f) {
+          // Retract move after a segment with advance, which ends with an E speed decrease.
+          // Correct for this to allow a faster junction speed. Since the decrease always helps to
+          // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
+          advance_correction_mm_s = previous_advance_speed_mm_s;
+        }
+        // Prepare for next segment.
+        previous_advance_speed_mm_s = block->la_advance_rate * mm_per_step[E_AXIS_N(extruder)];
+      #endif
+
       // Now limit the jerk in all axes.
       float v_factor = 1.0f;
       LOOP_LOGICAL_AXES(i) {
@@ -2812,6 +2828,7 @@ bool Planner::_populate_block(
         const float jerk = ABS(speed_diff[i]);
         float maxj = max_jerk[i];
         TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
+        TERN_(LIN_ADVANCE, if (i == E_AXIS) maxj += advance_correction_mm_s);
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
       vmax_junction_sqr = sq(vmax_junction * v_factor);
