@@ -2785,7 +2785,7 @@ bool Planner::_populate_block(
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
       vmax_junction_sqr = sq(block->nominal_speed * v_factor);
-      NOLESS(minimum_planner_speed_sqr, vmax_junction_sqr);
+      minimum_planner_speed_sqr = vmax_junction_sqr;
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
