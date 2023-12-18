@@ -2791,27 +2791,25 @@ bool Planner::_populate_block(
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float vmax_junction, previous_speed_factor, current_speed_factor;
+      // Scale per-axis velocities for the same vmax_junction.
+      float vmax_junction;
+      xyze_float_t speed_diff;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
-        previous_speed_factor = vmax_junction / previous_nominal_speed;
-        current_speed_factor = 1.0f;
+        xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);
+        speed_diff = current_speed - v_exit;
       }
       else {
         vmax_junction = previous_nominal_speed;
-        previous_speed_factor = 1.0f;
-        current_speed_factor = vmax_junction / block->nominal_speed;
+        xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);
+        speed_diff = v_entry - previous_speed;
       }
 
       // Now limit the jerk in all axes.
       float v_factor = 1.0f;
       LOOP_LOGICAL_AXES(i) {
-        // Scale per-axis velocities for the same vmax_junction.
-        const float v_exit = previous_speed[i] * previous_speed_factor,
-                    v_entry = current_speed[i] * current_speed_factor;
-
         // Jerk is the per-axis velocity difference.
-        const float jerk = ABS(v_exit - v_entry);
+        const float jerk = ABS(speed_diff[i]);
         float maxj = max_jerk[i];
         TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
         if (jerk * v_factor > maxj) v_factor = maxj / jerk;
