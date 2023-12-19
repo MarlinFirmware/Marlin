@@ -36,9 +36,11 @@ public:
   static void update(const_celsius_float_t value);
 
 private:
-  static uint16_t graphpoints, r, x2, y2, yP;
-  static frame_rect_t graphframe;
-  static float scale;
+  static struct PlotData {
+    uint16_t graphpoints, r, x2, y2, yP = 0;
+    frame_rect_t graphframe = {0};
+    float scale = 0;
+  } data;
 };
 
 extern Plot plot;

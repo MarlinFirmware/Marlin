@@ -43,40 +43,38 @@
 
 Plot plot;
 
-uint16_t Plot::graphpoints, Plot::r, Plot::x2, Plot::y2, Plot::yP; // = 0
-frame_rect_t Plot::graphframe; // = { 0 }
-float Plot::scale; // = 0
+Plot::PlotData Plot::data;
 
 void Plot::draw(const frame_rect_t &frame, const_celsius_float_t max, const_celsius_float_t ref/*=0*/) {
-  graphframe = frame;
-  graphpoints = 0;
-  scale = frame.h / max;
-  x2 = frame.x + frame.w - 1;
-  y2 = frame.y + frame.h - 1;
-  r = LROUND((y2) - ref * scale);
+  data.graphframe = frame;
+  data.graphpoints = 0;
+  data.scale = frame.h / max;
+  data.x2 = frame.x + frame.w - 1;
+  data.y2 = frame.y + frame.h - 1;
+  data.r = LROUND((data.y2) - ref * data.scale);
   DWINUI::drawBox(1, plotBgColor, frame);
   for (uint8_t i = 1; i < 4; i++) if (i * 60 < frame.w) dwinDrawVLine(COLOR_LINE, i * 60 + frame.x, frame.y, frame.h);
   DWINUI::drawBox(0, COLOR_WHITE, DWINUI::extendFrame(frame, 1));
-  dwinDrawHLine(COLOR_RED, frame.x, r, frame.w);
+  dwinDrawHLine(COLOR_RED, frame.x, data.r, frame.w);
 }
 
 void Plot::update(const_celsius_float_t value) {
-  if (!scale) return;
-  const uint16_t y = LROUND((y2) - value * scale);
-  if (graphpoints < graphframe.w) {
-    if (graphpoints < 1)
-      dwinDrawPoint(COLOR_YELLOW, 1, 1, graphframe.x, y);
+  if (!data.scale) return;
+  const uint16_t y = LROUND((data.y2) - value * data.scale);
+  if (data.graphpoints < data.graphframe.w) {
+    if (data.graphpoints < 1)
+      dwinDrawPoint(COLOR_YELLOW, 1, 1, data.graphframe.x, y);
     else
-      dwinDrawLine(COLOR_YELLOW, graphpoints + graphframe.x - 1, yP, graphpoints + graphframe.x, y);
+      dwinDrawLine(COLOR_YELLOW, data.graphpoints + data.graphframe.x - 1, data.yP, data.graphpoints + data.graphframe.x, y);
   }
   else {
-    dwinFrameAreaMove(1, 0, 1, plotBgColor, graphframe.x, graphframe.y, x2, y2);
-    if ((graphpoints % 60) == 0) dwinDrawVLine(COLOR_LINE, x2 - 1, graphframe.y + 1, graphframe.h - 2);
-    dwinDrawPoint(COLOR_RED, 1, 1, x2 - 1, r);
-    dwinDrawLine(COLOR_YELLOW, x2 - 2, yP, x2 - 1, y);
+    dwinFrameAreaMove(1, 0, 1, plotBgColor, data.graphframe.x, data.graphframe.y, data.x2, data.y2);
+    if ((data.graphpoints % 60) == 0) dwinDrawVLine(COLOR_LINE, data.x2 - 1, data.graphframe.y + 1, data.graphframe.h - 2);
+    dwinDrawPoint(COLOR_RED, 1, 1, data.x2 - 1, data.r);
+    dwinDrawLine(COLOR_YELLOW, data.x2 - 2, data.yP, data.x2 - 1, y);
   }
-  yP = y;
-  graphpoints++;
+  data.yP = y;
+  data.graphpoints++;
   TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
 }
 
