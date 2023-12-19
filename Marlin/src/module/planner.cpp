@@ -2773,31 +2773,46 @@ bool Planner::_populate_block(
      * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    #ifdef TRAVEL_EXTRA_XYJERK
-      #define HAS_TRAVEL_EXTRA_XYJERK 1
-      const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
+    #if defined(TRAVEL_EXTRA_XYJERK) || ENABLED(LIN_ADVANCE)
+      xyze_float_t max_j = max_jerk;
+    #else
+      const xyze_float_t &max_j = max_jerk;
     #endif
 
-    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
-      // Compute "safe" speed, limited by a jerk to/from full halt.
+    #ifdef TRAVEL_EXTRA_XYJERK
+      const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
+      max_j[X_AXIS] += extra_xyjerk;
+      max_j[Y_AXIS] += extra_xyjerk;
+    #endif
 
-      float v_factor = 1.0f;
-      LOOP_LOGICAL_AXES(i) {
-        const float jerk = ABS(current_speed[i]);   // Starting from zero, change in speed for this axis
-        float maxj = max_jerk[i];
-        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
-        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+    #if ENABLED(LIN_ADVANCE)
+      // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
+      // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
+      // perform well; it takes more time/effort to push/melt filament than the reverse).
+      static uint32_t previous_advance_rate;
+      static float previous_e_mm_per_step;
+      if (dist.e < 0 && previous_advance_rate) {
+        // Retract move after a segment with LA that ended with an E speed decrease.
+        // Correct for this to allow a faster junction speed. Since the decrease always helps to
+        // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
+        max_j[E_AXIS] = previous_advance_rate * previous_e_mm_per_step;
       }
-      vmax_junction_sqr = sq(block->nominal_speed * v_factor);
-      minimum_planner_speed_sqr = vmax_junction_sqr;
-    }
-    else {
+      // Prepare for next segment.
+      previous_advance_rate = block->la_advance_rate;
+      previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
+    #endif
+
+    xyze_float_t speed_diff;
+    float vmax_junction;
+    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
+      // Limited by a jerk to/from full halt.
+      vmax_junction = block->nominal_speed;
+      speed_diff = current_speed;
+    } else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Scale per-axis velocities for the same vmax_junction.
-      float vmax_junction;
-      xyze_float_t speed_diff;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
         xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);
@@ -2808,36 +2823,20 @@ bool Planner::_populate_block(
         xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);
         speed_diff = v_entry - previous_speed;
       }
+    }
 
-      #if ENABLED(LIN_ADVANCE)
-        // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
-        // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
-        // perform well; it takes more time/effort to push/melt filament than the reverse).
-        static uint32_t previous_advance_rate;
-        static float previous_e_mm_per_step;
-        float advance_correction_mm_s = 0.0f;
-        if (dist.e < 0 && previous_advance_rate) {
-          // Retract move after a segment with LA that ended with an E speed decrease.
-          // Correct for this to allow a faster junction speed. Since the decrease always helps to
-          // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
-          advance_correction_mm_s = previous_advance_rate * previous_e_mm_per_step;
-        }
-        // Prepare for next segment.
-        previous_advance_rate = block->la_advance_rate;
-        previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
-      #endif
+    // Now limit the jerk in all axes.
+    float v_factor = 1.0f;
+    LOOP_LOGICAL_AXES(i) {
+      // Jerk is the per-axis velocity difference.
+      const float jerk = ABS(speed_diff[i]);
+      float maxj = max_j[i];
+      if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+    }
+    vmax_junction_sqr = sq(vmax_junction * v_factor);
 
-      // Now limit the jerk in all axes.
-      float v_factor = 1.0f;
-      LOOP_LOGICAL_AXES(i) {
-        // Jerk is the per-axis velocity difference.
-        const float jerk = ABS(speed_diff[i]);
-        float maxj = max_jerk[i];
-        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
-        TERN_(LIN_ADVANCE, if (i == E_AXIS) maxj += advance_correction_mm_s);
-        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
-      }
-      vmax_junction_sqr = sq(vmax_junction * v_factor);
+    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
+      minimum_planner_speed_sqr = vmax_junction_sqr;
     }
 
   #endif // CLASSIC_JERK
