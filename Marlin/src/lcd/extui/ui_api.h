@@ -434,9 +434,6 @@ namespace ExtUI {
   void resumePrint();
 
   class FileList {
-    private:
-      uint16_t num_files;
-
     public:
       FileList();
       void refresh();

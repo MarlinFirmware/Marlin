@@ -1166,12 +1166,12 @@ namespace ExtUI {
 
   FileList::FileList() { refresh(); }
 
-  void FileList::refresh() { num_files = 0xFFFF; }
+  void FileList::refresh() { }
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if HAS_MEDIA
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.selectFileByIndexSorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);
@@ -1197,7 +1197,7 @@ namespace ExtUI {
   }
 
   uint16_t FileList::count() {
-    return TERN0(HAS_MEDIA, (num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)));
+    return TERN0(HAS_MEDIA, card.get_num_items());
   }
 
   bool FileList::isAtRootDir() {
@@ -1205,19 +1205,11 @@ namespace ExtUI {
   }
 
   void FileList::upDir() {
-    #if HAS_MEDIA
-      card.cdup();
-      num_files = 0xFFFF;
-    #endif
+    TERN_(HAS_MEDIA, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {
-    #if HAS_MEDIA
-      card.cd(dirname);
-      num_files = 0xFFFF;
-    #else
-      UNUSED(dirname);
-    #endif
+    TERN(HAS_MEDIA, card.cd(dirname), UNUSED(dirname));
   }
 
 } // namespace ExtUI

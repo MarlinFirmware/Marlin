@@ -817,18 +817,25 @@ uint8_t Explore_Disk(char *path , uint8_t recu_level) {
 
   if (!path) return 0;
 
-  const uint8_t fileCnt = card.get_num_Files();
+  const int16_t fileCnt = card.get_num_items();
 
-  for (uint8_t i = 0; i < fileCnt; i++) {
-    card.getfilename_sorted(SD_ORDER(i, fileCnt));
-    ZERO(tmp);
-    strcpy(tmp, card.filename);
+  MediaFile file;
+  MediaFile *diveDir;
+  for (int16_t i = 0; i < fileCnt; i++) {
+    card.selectFileByIndexSorted(i);
 
     ZERO(Fstream);
-    strcpy(Fstream, tmp);
+    strcpy(Fstream, card.filename);
 
     if (card.flag.filenameIsDir && recu_level <= 10)
       strcat_P(Fstream, PSTR(".DIR"));
+
+    strcat_P(Fstream, PSTR(" 0")); // report 0 file size
+
+    if (with_longnames) {
+      strcat_P(Fstream, PSTR(" "));
+      strcat_P(Fstream, card.longest_filename());
+    }
 
     strcat_P(Fstream, PSTR("\r\n"));
     send_to_wifi((uint8_t*)Fstream, strlen(Fstream));

@@ -808,7 +808,7 @@ void CrealityDWINClass::Draw_SD_Item(const uint8_t item, const uint8_t row) {
   if (item == 0)
     Draw_Menu_Item(0, ICON_Back, card.flag.workDirIsRoot ? F("Back") : F(".."));
   else {
-    card.getfilename_sorted(SD_ORDER(item - 1, card.get_num_Files()));
+    card.selectFileByIndexSorted(item - 1);
     char * const filename = card.longest_filename();
     size_t max = MENU_CHAR_LIMIT;
     size_t pos = strlen(filename), len = pos;
@@ -4283,7 +4283,7 @@ void CrealityDWINClass::File_Control() {
   EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) {
     if (selection > 0) {
-      card.getfilename_sorted(SD_ORDER(selection - 1, card.get_num_Files()));
+      card.selectFileByIndexSorted(selection - 1);
       char * const filename = card.longest_filename();
       size_t len = strlen(filename);
       size_t pos = len;
@@ -4302,7 +4302,7 @@ void CrealityDWINClass::File_Control() {
     }
     return;
   }
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < card.get_num_Files()) {
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < card.get_num_items()) {
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection - scrollpos) - 18, 14, MBASE(selection - scrollpos) + 33);
     if (selection > 0) {
       DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
@@ -4342,7 +4342,7 @@ void CrealityDWINClass::File_Control() {
       }
     }
     else {
-      card.getfilename_sorted(SD_ORDER(selection - 1, card.get_num_Files()));
+      card.selectFileByIndexSorted(selection - 1);
       if (card.flag.filenameIsDir) {
         card.cd(card.filename);
         Draw_SD_List();
