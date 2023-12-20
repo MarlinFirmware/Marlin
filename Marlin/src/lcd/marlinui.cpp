@@ -1037,11 +1037,13 @@ void MarlinUI::init() {
         #if ENCODER_PULSES_PER_STEP > 1
           #if HAS_TOUCH_SLEEP
             static int8_t lastEncoderDiff;
-            if (lastEncoderDiff != encoderDiff) wakeup_screen();
-            lastEncoderDiff = encoderDiff;
+            if (lastEncoderDiff != encoderDiff) {
+              wakeup_screen();
+              lastEncoderDiff = encoderDiff;
+            }
           #endif
         #endif
-      
+
         const bool encoderPastThreshold = (abs_diff >= epps);
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
