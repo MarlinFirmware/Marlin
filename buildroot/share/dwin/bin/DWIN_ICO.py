@@ -338,5 +338,20 @@ _iconNames = {
     88 : 'ICON_Confirm_C',
     89 : 'ICON_Confirm_E',
     90 : 'ICON_Info_0',
-    91 : 'ICON_Info_1'
+    91 : 'ICON_Info_1',
+    93 : 'ICON_Printer_0',
+    # 94 : 'ICON_Printer_1',
+   200 : 'ICON_Checkbox_F',
+   201 : 'ICON_Checkbox_T',
+   202 : 'ICON_Fade',
+   203 : 'ICON_Mesh',
+   204 : 'ICON_Tilt',
+   205 : 'ICON_Brightness',
+   206 : 'ICON_Probe',
+   249 : 'ICON_AxisD',
+   250 : 'ICON_AxisBR',
+   251 : 'ICON_AxisTR',
+   252 : 'ICON_AxisBL',
+   253 : 'ICON_AxisTL',
+   254 : 'ICON_AxisC'
     }
