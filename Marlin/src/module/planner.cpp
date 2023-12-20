@@ -2810,13 +2810,13 @@ bool Planner::_populate_block(
       }
 
       #if ENABLED(LIN_ADVANCE)
-        // Advance affects E_AXIS speed therefore its jerk. Add a speed correction whenever we stop
-        // using advance. There's no correction when we start using advance because it didn't
-        // perform well as it takes more time/effort to push/melt filament than the reverse.
+        // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
+        // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
+        // perform well; it takes more time/effort to push/melt filament than the reverse).
         static float previous_advance_speed_mm_s = 0.0f;
         float advance_correction_mm_s = 0.0f;
         if (dist.e < 0 && previous_advance_speed_mm_s != 0.0f) {
-          // Retract move after a segment with advance, which ends with an E speed decrease.
+          // Retract move after a segment with LA that ended with an E speed decrease.
           // Correct for this to allow a faster junction speed. Since the decrease always helps to
           // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
           advance_correction_mm_s = previous_advance_speed_mm_s;
