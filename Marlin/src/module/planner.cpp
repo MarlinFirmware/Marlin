@@ -1871,27 +1871,6 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   return true;
 }
 
-#if ENABLED(CLASSIC_JERK)
-
-  #ifdef TRAVEL_EXTRA_XYJERK
-    #define HAS_TRAVEL_EXTRA_XYJERK 1
-  #endif
-
-  // Get the jerk limit squared based on a given set of jerk limits
-  FORCE_INLINE float get_vmax_junction_sqr(block_t * const block, const xyze_float_t &jerk_values, const_float_t extra_xyjerk) {
-    //IF_DISABLED(HAS_TRAVEL_EXTRA_XYJERK, UNUSED(extra_xyjerk));
-    float v_factor = 1.0f;
-    LOOP_LOGICAL_AXES(i) {
-      const float jerk = ABS(jerk_values[i]);   // Change in speed for this axis, either from 0 or from subtraction
-      float maxj = planner.max_jerk[i];
-      TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
-      if (v_factor * jerk > maxj) v_factor = maxj / jerk;
-    }
-    return sq(block->nominal_speed * v_factor);
-  }
-
-#endif
-
 /**
  * @brief Populate a block in preparation for insertion
  * @details Populate the fields of a new linear movement block
@@ -2795,15 +2774,27 @@ bool Planner::_populate_block(
      * https://github.com/prusa3d/Prusa-Firmware
      */
 
-    #if HAS_TRAVEL_EXTRA_XYJERK
+    #ifdef TRAVEL_EXTRA_XYJERK
       const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
-    #else
-      constexpr float extra_xyjerk = 0.0f;
     #endif
+
+    // jerk_values is the per-axis velocity difference.
+    auto get_vmax_junction_sqr = [&](const xyze_float_t &jerk_values) -> float {
+      float v_factor = 1.0f;
+      LOOP_LOGICAL_AXES(i) {
+        const float jerk = ABS(jerk_values[i]);   // Change in speed for this axis, from 0 or from difference
+        float maxj = max_jerk[i];
+        #ifdef TRAVEL_EXTRA_XYJERK
+          if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk;
+        #endif
+        if (v_factor * jerk > maxj) v_factor = maxj / jerk;
+      }
+      return sq(block->nominal_speed * v_factor);
+    };
 
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
-      vmax_junction_sqr = get_vmax_junction_sqr(block, current_speed, extra_xyjerk);
+      vmax_junction_sqr = get_vmax_junction_sqr(current_speed);
       // The minimum speed for this kind of move (print or travel) is now known.
       minimum_planner_speed_sqr = vmax_junction_sqr;
     }
@@ -2842,7 +2833,7 @@ bool Planner::_populate_block(
       #endif
 
       // Now limit the jerk in all axes.
-      vmax_junction_sqr = get_vmax_junction_sqr(block, speed_diff, extra_xyjerk);
+      vmax_junction_sqr = get_vmax_junction_sqr(speed_diff);
     }
 
   #endif // CLASSIC_JERK
