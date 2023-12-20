@@ -642,9 +642,6 @@ public:
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
-    #if MARLINUI_SCROLL_NAME
-      static uint8_t filename_scroll_pos, filename_scroll_max;
-    #endif
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
