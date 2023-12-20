@@ -2813,16 +2813,18 @@ bool Planner::_populate_block(
         // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
         // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
         // perform well; it takes more time/effort to push/melt filament than the reverse).
-        static float previous_advance_speed_mm_s = 0.0f;
+        static uint32_t previous_advance_rate;
+        static float previous_e_mm_per_step;
         float advance_correction_mm_s = 0.0f;
-        if (dist.e < 0 && previous_advance_speed_mm_s != 0.0f) {
+        if (dist.e < 0 && previous_advance_rate) {
           // Retract move after a segment with LA that ended with an E speed decrease.
           // Correct for this to allow a faster junction speed. Since the decrease always helps to
           // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
-          advance_correction_mm_s = previous_advance_speed_mm_s;
+          advance_correction_mm_s = previous_advance_rate * previous_e_mm_per_step;
         }
         // Prepare for next segment.
-        previous_advance_speed_mm_s = block->la_advance_rate * mm_per_step[E_AXIS_N(extruder)];
+        previous_advance_rate = block->la_advance_rate;
+        previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
       #endif
 
       // Now limit the jerk in all axes.
