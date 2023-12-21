@@ -165,6 +165,9 @@
   #define BABY_Z_VAR z_offset
 #endif
 
+#define _OFFSET_ZMIN TERN(HAS_BED_PROBE, PROBE_OFFSET_ZMIN, -20)
+#define _OFFSET_ZMAX TERN(HAS_BED_PROBE, PROBE_OFFSET_ZMAX,  20)
+
 // Structs
 hmi_value_t hmiValue;
 hmi_flag_t hmiFlag{0};
@@ -2030,7 +2033,7 @@ void autoHome() { queue.inject_P(G28_STR); }
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       babystep.accum = round(planner.settings.axis_steps_per_mm[Z_AXIS] * BABY_Z_VAR);
     #endif
-    setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2, applyZOffset, liveZOffset);
+    setPFloatOnClick(_OFFSET_ZMIN, _OFFSET_ZMAX, 2, applyZOffset, liveZOffset);
   }
 
   void setMoveZto0() {
