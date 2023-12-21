@@ -488,7 +488,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     static void prepare_time_string(const duration_t &time, char prefix) {
       char str[13];
       const uint8_t time_len = time.toDigital(str, time.value >= 60*60*24L);  // 5 to 8 chars
-      progressString.set(prefix, ':', spaces_t(10 - time_len), str);                 // 2 to 5 spaces
+      progressString.set(prefix, ':', spaces_t(10 - time_len), str);          // 2 to 5 spaces
     }
   #endif
   #if ENABLED(SHOW_PROGRESS_PERCENT)
