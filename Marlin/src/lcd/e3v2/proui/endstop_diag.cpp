@@ -61,7 +61,7 @@ void draw_es_state(const bool is_hit) {
   const uint8_t LM = 130;
   DWINUI::cursor.x = LM;
   dwinDrawRectangle(1, hmiData.colorPopupBg, LM, DWINUI::cursor.y, LM + 100, DWINUI::cursor.y + 20);
-  is_hit ? DWINUI::drawString(RGB(31,31,16), F(STR_ENDSTOP_HIT)) : DWINUI::drawString(RGB(16,63,16), F(STR_ENDSTOP_OPEN));
+  is_hit ? DWINUI::drawString(RGB(31, 31, 16), F(STR_ENDSTOP_HIT)) : DWINUI::drawString(RGB(16, 63, 16), F(STR_ENDSTOP_OPEN));
   DWINUI::moveBy(0, 25);
 }
 
