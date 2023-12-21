@@ -2805,7 +2805,8 @@ bool Planner::_populate_block(
 
     xyze_float_t speed_diff;
     float vmax_junction;
-    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
+    const bool start_from_zero = !moves_queued || UNEAR_ZERO(previous_nominal_speed);
+    if (start_from_zero) {
       // Limited by a jerk to/from full halt.
       vmax_junction = block->nominal_speed;
       speed_diff = current_speed;
@@ -2817,12 +2818,12 @@ bool Planner::_populate_block(
       // Scale per-axis velocities for the same vmax_junction.
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
-        xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);
+        const xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);
         speed_diff = current_speed - v_exit;
       }
       else {
         vmax_junction = previous_nominal_speed;
-        xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);
+        const xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);
         speed_diff = v_entry - previous_speed;
       }
     }
@@ -2831,14 +2832,12 @@ bool Planner::_populate_block(
     float v_factor = 1.0f;
     LOOP_LOGICAL_AXES(i) {
       // Jerk is the per-axis velocity difference.
-      const float jerk = ABS(speed_diff[i]);
-      float maxj = max_j[i];
+      const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
       if (jerk * v_factor > maxj) v_factor = maxj / jerk;
     }
     vmax_junction_sqr = sq(vmax_junction * v_factor);
 
-    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed))
-      minimum_planner_speed_sqr = vmax_junction_sqr;
+    if (start_from_zero) minimum_planner_speed_sqr = vmax_junction_sqr;
 
   #endif // CLASSIC_JERK
 
