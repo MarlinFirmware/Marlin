@@ -2728,10 +2728,6 @@
   #define HAS_FAN 1
 #endif
 
-#ifndef FAN_INVERTING
-  #define FAN_INVERTING false
-#endif
-
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
 #endif
