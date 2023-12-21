@@ -47,7 +47,6 @@ enum dynFreqMode_t : uint8_t {
 #define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
 
 #if ENABLED(FTM_UNIFIED_BWS)
-  typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectory_t;
   typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectoryMod_t;
   typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectoryWin_t;
 #else

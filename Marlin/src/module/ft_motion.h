@@ -132,8 +132,9 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
   private:
-
+  #if DISABLED(FTM_UNIFIED_BWS)
     static xyze_trajectory_t traj;
+  #endif
     static xyze_trajectoryMod_t trajMod;
     static xyze_trajectoryWin_t trajWin;
 

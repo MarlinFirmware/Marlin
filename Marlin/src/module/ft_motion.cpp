@@ -62,7 +62,9 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
 
 // Private variables.
 // NOTE: These are sized for Ulendo FBS use.
+#if DISABLED(FTM_UNIFIED_BWS)
   xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+#endif
   xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
   xyze_trajectoryWin_t FTMotion::trajWin;         // = {0.0f} Storage for fixed time trajectory window.
 
@@ -186,8 +188,7 @@ void FTMotion::loop() {
     // Call Ulendo FBS here.
 
     #if ENABLED(FTM_UNIFIED_BWS)
-      trajMod = traj; // Copy the uncompensated vectors.
-      traj = trajWin; // Move the window to traj
+      trajMod = trajWin; // Move the window to traj
     #else
       // Copy the uncompensated vectors.
       #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
@@ -442,7 +443,6 @@ void FTMotion::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  traj.reset();
   trajWin.reset();
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
