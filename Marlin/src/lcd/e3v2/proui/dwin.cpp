@@ -4025,7 +4025,9 @@ void drawStepsMenu() {
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
-        OPTCODE(HAS_BED_PROBE, MENU_ITEM_F(ICON_UBLActive, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY))
+        #if HAS_BED_PROBE
+          HAS_BED_PROBE, MENU_ITEM_F(ICON_UBLActive, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY);
+        #endif
       }
       updateMenu(editMeshMenu);
     }
