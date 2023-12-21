@@ -2779,10 +2779,11 @@ bool Planner::_populate_block(
       const xyze_float_t &max_j = max_jerk;
     #endif
 
-    #ifdef TRAVEL_EXTRA_XYJERK
-      const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
-      max_j[X_AXIS] += extra_xyjerk;
-      max_j[Y_AXIS] += extra_xyjerk;
+    #if HAS_EXTRUDERS && defined(TRAVEL_EXTRA_XYJERK)
+      if (dist.e <= 0) {
+        max_j.x += TRAVEL_EXTRA_XYJERK;
+        max_j.y += TRAVEL_EXTRA_XYJERK;
+      }
     #endif
 
     #if ENABLED(LIN_ADVANCE)
@@ -2795,7 +2796,7 @@ bool Planner::_populate_block(
         // Retract move after a segment with LA that ended with an E speed decrease.
         // Correct for this to allow a faster junction speed. Since the decrease always helps to
         // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
-        max_j[E_AXIS] = previous_advance_rate * previous_e_mm_per_step;
+        max_j.e = previous_advance_rate * previous_e_mm_per_step;
       }
       // Prepare for next segment.
       previous_advance_rate = block->la_advance_rate;
@@ -2808,7 +2809,8 @@ bool Planner::_populate_block(
       // Limited by a jerk to/from full halt.
       vmax_junction = block->nominal_speed;
       speed_diff = current_speed;
-    } else {
+    }
+    else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
@@ -2835,9 +2837,8 @@ bool Planner::_populate_block(
     }
     vmax_junction_sqr = sq(vmax_junction * v_factor);
 
-    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
+    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed))
       minimum_planner_speed_sqr = vmax_junction_sqr;
-    }
 
   #endif // CLASSIC_JERK
 
