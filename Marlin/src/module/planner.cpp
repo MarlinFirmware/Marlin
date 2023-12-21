@@ -2773,29 +2773,22 @@ bool Planner::_populate_block(
      * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
-
     #ifdef TRAVEL_EXTRA_XYJERK
+      #define HAS_TRAVEL_EXTRA_XYJERK 1
       const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
     #endif
 
-    // jerk_values is the per-axis velocity difference.
-    auto get_vmax_junction_sqr = [&](const xyze_float_t &jerk_values) -> float {
-      float v_factor = 1.0f;
-      LOOP_LOGICAL_AXES(i) {
-        const float jerk = ABS(jerk_values[i]);   // Change in speed for this axis, from 0 or from difference
-        float maxj = max_jerk[i];
-        #ifdef TRAVEL_EXTRA_XYJERK
-          if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk;
-        #endif
-        if (v_factor * jerk > maxj) v_factor = maxj / jerk;
-      }
-      return sq(block->nominal_speed * v_factor);
-    };
-
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Compute "safe" speed, limited by a jerk to/from full halt.
-      vmax_junction_sqr = get_vmax_junction_sqr(current_speed);
-      // The minimum speed for this kind of move (print or travel) is now known.
+
+      float v_factor = 1.0f;
+      LOOP_LOGICAL_AXES(i) {
+        const float jerk = ABS(current_speed[i]);   // Starting from zero, change in speed for this axis
+        float maxj = max_jerk[i];
+        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+      }
+      vmax_junction_sqr = sq(block->nominal_speed * v_factor);
       minimum_planner_speed_sqr = vmax_junction_sqr;
     }
     else {
@@ -2833,7 +2826,16 @@ bool Planner::_populate_block(
       #endif
 
       // Now limit the jerk in all axes.
-      vmax_junction_sqr = get_vmax_junction_sqr(speed_diff);
+      float v_factor = 1.0f;
+      LOOP_LOGICAL_AXES(i) {
+        // Jerk is the per-axis velocity difference.
+        const float jerk = ABS(speed_diff[i]);
+        float maxj = max_jerk[i];
+        TERN_(HAS_TRAVEL_EXTRA_XYJERK, if (i == X_AXIS || i == Y_AXIS) maxj += extra_xyjerk);
+        TERN_(LIN_ADVANCE, if (i == E_AXIS) maxj += advance_correction_mm_s);
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+      }
+      vmax_junction_sqr = sq(vmax_junction * v_factor);
     }
 
   #endif // CLASSIC_JERK
