@@ -487,9 +487,9 @@ void CardReader::mount() {
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(driver))
-    SERIAL_ERROR_MSG(STR_SD_VOL_INIT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_VOL_INIT_FAIL);
   else if (!root.openRoot(&volume))
-    SERIAL_ERROR_MSG(STR_SD_OPENROOT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_OPENROOT_FAIL);
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);

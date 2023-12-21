@@ -118,22 +118,22 @@ static void disp_key_value() {
       break;
 
     case XJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.x, 1, 1, public_buf_m);
       #endif
       break;
     case YJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.y, 1, 1, public_buf_m);
       #endif
       break;
     case ZJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.z, 1, 1, public_buf_m);
       #endif
       break;
     case EJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.e, 1, 1, public_buf_m);
       #endif
       break;
@@ -307,10 +307,10 @@ static void set_value_confirm() {
     case ZMaxFeedRate:   planner.settings.max_feedrate_mm_s[Z_AXIS] = atof(key_value); break;
     case E0MaxFeedRate:  planner.settings.max_feedrate_mm_s[E_AXIS] = atof(key_value); break;
     case E1MaxFeedRate:  planner.settings.max_feedrate_mm_s[E_AXIS_N(1)] = atof(key_value); break;
-    case XJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.x = atof(key_value)); break;
-    case YJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.y = atof(key_value)); break;
-    case ZJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.z = atof(key_value)); break;
-    case EJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.e = atof(key_value)); break;
+    case XJerk: TERN_(CLASSIC_JERK, planner.max_jerk.x = atof(key_value)); break;
+    case YJerk: TERN_(CLASSIC_JERK, planner.max_jerk.y = atof(key_value)); break;
+    case ZJerk: TERN_(CLASSIC_JERK, planner.max_jerk.z = atof(key_value)); break;
+    case EJerk: TERN_(CLASSIC_JERK, planner.max_jerk.e = atof(key_value)); break;
     case Xstep:  planner.settings.axis_steps_per_mm[X_AXIS] = atof(key_value); planner.refresh_positioning(); break;
     case Ystep:  planner.settings.axis_steps_per_mm[Y_AXIS] = atof(key_value); planner.refresh_positioning(); break;
     case Zstep:  planner.settings.axis_steps_per_mm[Z_AXIS] = atof(key_value); planner.refresh_positioning(); break;
