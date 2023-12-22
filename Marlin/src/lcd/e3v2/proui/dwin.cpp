@@ -1432,30 +1432,32 @@ void dwinHandleScreen() {
     case ID_SetIntNoDraw: hmiSetNoDraw(); break;
     case ID_PrintProcess: hmiPrinting(); break;
     case ID_Popup:        hmiPopup(); break;
-    TERN_(HAS_BED_PROBE, case ID_Leveling: break;)
     #if HAS_LOCKSCREEN
       case ID_Locked:     hmiLockScreen(); break;
     #endif
-    case ID_PrintDone:
+
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
+    case ID_PrintDone:
     case ID_WaitResponse: hmiWaitForUser(); break;
+
+    TERN_(HAS_BED_PROBE, case ID_Leveling:)
     case ID_Homing:
     case ID_PIDProcess:
-    case ID_NothingToDo:  break;
+    case ID_NothingToDo:
     default: break;
   }
 }
 
 bool idIsPopUp() {    // If ID is popup...
   switch (checkkey) {
+    TERN_(HAS_BED_PROBE, case ID_Leveling:)
+    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     case ID_NothingToDo:
     case ID_WaitResponse:
     case ID_Popup:
     case ID_Homing:
-    TERN_(HAS_BED_PROBE, case ID_Leveling:)
     case ID_PIDProcess:
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
       return true;
     default: break;
   }
