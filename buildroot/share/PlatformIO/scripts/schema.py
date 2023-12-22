@@ -80,7 +80,26 @@ def load_boards():
     return ''
 
 #
-# Extract a schema from the current configuration files
+# Extract the current configuration files in the form of a structured schema.
+# Contains the full schema for the configuration files, not just the enabled options,
+# Contains the current values of the options, not just data structure, so "schema" is a slight misnomer.
+#
+# The returned object is a nested dictionary with the following indexing:
+#
+#  - schema[filekey][section][define_name] = define_info
+#
+# Where the define_info contains the following keyed fields:
+#    - section  = The @section the define is in
+#    - name     = The name of the define
+#    - enabled  = True if the define is enabled (not commented out)
+#    - line     = The line number of the define
+#    - sid      = A serial ID for the define
+#    - value    = The value of the define, if it has one
+#    - type     = The type of the define, if it has one
+#    - requires = The conditions that must be met for the define to be enabled
+#    - comment  = The comment for the define, if it has one
+#    - units    = The units for the define, if it has one
+#    - options  = The options for the define, if it has one
 #
 def extract():
     # Load board names from boards.h
