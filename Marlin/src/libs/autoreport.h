@@ -25,8 +25,9 @@
 
 template <typename Helper>
 struct AutoReporter {
-  millis_t next_report_ms;
+  millis_t last_report_ms;
   uint8_t report_interval;
+  millis_t report_interval_ms;
   #if HAS_MULTI_SERIAL
     SerialMask report_port_mask;
     AutoReporter() : report_port_mask(SerialMask::All) {}
@@ -34,14 +35,15 @@ struct AutoReporter {
 
   inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
     report_interval = _MIN(seconds, limit);
-    next_report_ms = millis() + SEC_TO_MS(seconds);
+    last_report_ms=millis();
+    report_interval_ms=SEC_TO_MS(report_interval); //pre calculate interval in milliseconds
   }
 
   inline void tick() {
     if (!report_interval) return;
     const millis_t ms = millis();
-    if (ELAPSED(ms, next_report_ms)) {
-      next_report_ms = ms + SEC_TO_MS(report_interval);
+    if (millis_t(ms - last_report_ms) > report_interval_ms) {
+      last_report_ms = ms;
       PORT_REDIRECT(report_port_mask);
       Helper::report();
       PORT_RESTORE();
