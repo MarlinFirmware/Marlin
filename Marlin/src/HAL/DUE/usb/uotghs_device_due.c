@@ -116,6 +116,20 @@
 //#define dbg_print printf
 #define dbg_print(...)
 
+// Marlin versions of macros to freeze/unfreeze add memory barriers
+// to ensure that any accesses to USB registers aren't re-ordered
+// to occur while the clock is frozen.
+#define marlin_otg_freeze_clock() do { \
+  __DSB(); \
+  Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+} while (0)
+
+#define marlin_otg_unfreeze_clock()                \
+do {                                        \
+  Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+  __DSB();                                \
+} while (0)
+
 /**
  * \ingroup udd_group
  * \defgroup udd_udphs_group USB On-The-Go High-Speed Port for device mode (UOTGHS)
@@ -587,11 +601,11 @@ ISR(UDD_USB_INT_FUN)
 	}
 
 	if (Is_udd_suspend_interrupt_enabled() && Is_udd_suspend()) {
-		otg_unfreeze_clock();
+		marlin_otg_unfreeze_clock();
 		// The suspend interrupt is automatic acked when a wakeup occur
 		udd_disable_suspend_interrupt();
 		udd_enable_wake_up_interrupt();
-		otg_freeze_clock(); // Mandatory to exit of sleep mode after a wakeup event
+		marlin_otg_freeze_clock(); // Mandatory to exit of sleep mode after a wakeup event
 		udd_sleep_mode(false);  // Enter in SUSPEND mode
 #ifdef UDC_SUSPEND_EVENT
 		UDC_SUSPEND_EVENT();
@@ -601,7 +615,7 @@ ISR(UDD_USB_INT_FUN)
 
 	if (Is_udd_wake_up_interrupt_enabled() && Is_udd_wake_up()) {
 		// Ack wakeup interrupt and enable suspend interrupt
-		otg_unfreeze_clock();
+		marlin_otg_unfreeze_clock();
 		// Check USB clock ready after suspend and eventually sleep USB clock
 		while (!Is_otg_clock_usable()) {
 			if (Is_udd_suspend()) {
@@ -611,6 +625,15 @@ ISR(UDD_USB_INT_FUN)
 		// The wakeup interrupt is automatic acked when a suspend occur
 		udd_disable_wake_up_interrupt();
 		udd_enable_suspend_interrupt();
+
+		// The following interrupts can only be enabled while the clock
+        // is unfrozen, which is why they were left disabled in udd_attach
+		udd_enable_reset_interrupt();
+		udd_enable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+		udd_enable_msof_interrupt();
+#endif
+
 		udd_sleep_mode(true); // Enter in IDLE mode
 #ifdef UDC_RESUME_EVENT
 		UDC_RESUME_EVENT();
@@ -621,9 +644,9 @@ ISR(UDD_USB_INT_FUN)
 	if (Is_otg_vbus_transition()) {
 		dbg_print("VBus ");
 		// Ack Vbus transition and send status to high level
-		otg_unfreeze_clock();
+		marlin_otg_unfreeze_clock();
 		otg_ack_vbus_transition();
-		otg_freeze_clock();
+		marlin_otg_freeze_clock();
 #ifndef USB_DEVICE_ATTACH_AUTO_DISABLE
 		if (Is_otg_vbus_high()) {
 			udd_attach();
@@ -704,7 +727,7 @@ void udd_enable(void)
 #endif // USB_DEVICE_LOW_SPEED
 
 	// Check USB clock
-	otg_unfreeze_clock();
+	marlin_otg_unfreeze_clock();
 	while (!Is_otg_clock_usable());
 
 	// Reset internal variables
@@ -719,7 +742,7 @@ void udd_enable(void)
 		otg_raise_vbus_transition();
 	}
 	otg_enable_vbus_interrupt();
-	otg_freeze_clock();
+	marlin_otg_freeze_clock();
 
 #ifndef UDD_NO_SLEEP_MGR
 	if (!udd_b_sleep_initialized) {
@@ -744,7 +767,7 @@ void udd_disable(void)
 # ifdef USB_ID_GPIO
 	if (Is_otg_id_host()) {
 		// Freeze clock to switch mode
-		otg_freeze_clock();
+		marlin_otg_freeze_clock();
 		udd_detach();
 		otg_disable();
 		return; // Host mode running, ignore UDD disable
@@ -757,7 +780,7 @@ void udd_disable(void)
 #endif
 
 	flags = cpu_irq_save();
-	otg_unfreeze_clock();
+	marlin_otg_unfreeze_clock();
 	udd_detach();
 #ifndef UDD_NO_SLEEP_MGR
 	if (udd_b_sleep_initialized) {
@@ -776,6 +799,23 @@ void udd_disable(void)
 	cpu_irq_restore(flags);
 }
 
+// Disable and ACK interrupts that cannot be handled when the clock is frozen.
+static void disable_and_ack_sync_interrupts()
+{
+	// Disable USB line events
+	udd_disable_reset_interrupt();
+	udd_disable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+	udd_disable_msof_interrupt();
+#endif
+	// Clear interrupt bits which cannot be cleared while the clock
+    // is frozen. Add barriers to ensure proper execution order.
+	__DSB();
+	udd_ack_reset();
+	udd_ack_sof();
+	udd_ack_msof();
+	__DSB();
+}
 
 void udd_attach(void)
 {
@@ -785,7 +825,7 @@ void udd_attach(void)
 	// At startup the USB bus state is unknown,
 	// therefore the state is considered IDLE to not miss any USB event
 	udd_sleep_mode(true);
-	otg_unfreeze_clock();
+	marlin_otg_unfreeze_clock();
 
 	// This section of clock check can be improved with a check of
 	// USB clock source via sysclk()
@@ -796,35 +836,32 @@ void udd_attach(void)
 	udd_attach_device();
 
 	// Enable USB line events
-	udd_enable_reset_interrupt();
 	udd_enable_suspend_interrupt();
 	udd_enable_wake_up_interrupt();
-	udd_enable_sof_interrupt();
-#ifdef USB_DEVICE_HS_SUPPORT
-	udd_enable_msof_interrupt();
-#endif
-	// Reset following interrupts flag
-	udd_ack_reset();
-	udd_ack_sof();
-	udd_ack_msof();
+
+    // Several interrupts cannot be handled while the
+    // clock is frozen. Ensure they are disabled and
+    // defer until the wake interrupt enables them.
+	disable_and_ack_sync_interrupts();
 
 	// The first suspend interrupt must be forced
 	// The first suspend interrupt is not detected else raise it
 	udd_raise_suspend();
-
 	udd_ack_wake_up();
-	otg_freeze_clock();
+
+	marlin_otg_freeze_clock();
 	cpu_irq_restore(flags);
 }
 
 
 void udd_detach(void)
 {
-	otg_unfreeze_clock();
+	marlin_otg_unfreeze_clock();
 
 	// Detach device from the bus
 	udd_detach_device();
-	otg_freeze_clock();
+	disable_and_ack_sync_interrupts();
+	marlin_otg_freeze_clock();
 	udd_sleep_mode(false);
 }
 
@@ -870,7 +907,7 @@ void udd_send_remotewakeup(void)
 #endif
 	{
 		udd_sleep_mode(true); // Enter in IDLE mode
-		otg_unfreeze_clock();
+		marlin_otg_unfreeze_clock();
 		udd_initiate_remote_wake_up();
 	}
 }
@@ -2043,6 +2080,7 @@ static bool udd_ep_interrupt(void)
 				dbg_print("I ");
 				udd_disable_in_send_interrupt(ep);
 				// One bank is free then send a ZLP
+				__DSB(); // Barrier to ensure in_send is disabled before it is cleared
 				udd_ack_in_send(ep);
 				udd_ack_fifocon(ep);
 				udd_ep_finish_job(ptr_job, false, ep);
