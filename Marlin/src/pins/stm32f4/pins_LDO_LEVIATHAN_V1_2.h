@@ -201,6 +201,10 @@
   #define TMC_SPI_SCK                       PE12
 #endif
 
+#if DISABLED(TMC_USE_SW_SPI)
+  #error "TMC_USE_SW_SPI is required for this board"
+#endif
+
 #if HAS_TMC_UART
 /**
    * TMC2209 stepper drivers
