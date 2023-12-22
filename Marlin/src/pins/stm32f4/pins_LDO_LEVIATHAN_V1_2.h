@@ -53,13 +53,6 @@
 #define LED_PIN                             PE6   // LED-Strip
 
 //
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PF10
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN                          PB10  // HV-STEPPER-0
@@ -154,8 +147,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PA1   // TH0
-#define TEMP_0_PIN                          PA2   // TH1
+#define TEMP_BED_PIN                        PA2   // TH1
+#define TEMP_0_PIN                          PA1   // TH0
 #define TEMP_1_PIN                          PA0   // TH2
 #define TEMP_2_PIN                          PA3   // TH3
 
@@ -454,4 +447,12 @@
 
   #endif
 
+#endif
+
+//
+// NeoPixel LED
+// The FYSETC_MINI_12864_2_1 uses one of the EXP pins
+//
+#if DISABLED(FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
+  #define NEOPIXEL_PIN                      PF10  // RGB
 #endif
