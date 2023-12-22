@@ -788,7 +788,8 @@ void updateVariable() {
       dwinDrawBox(1, hmiData.colorBackground, 10, 383, 20, 20);
       DWINUI::drawIcon(ICON_HotendTemp, 10, 383);
     }
-  #endif
+  #endif // HAS_HOTEND
+
   #if HAS_HEATED_BED
     static celsius_t _bedtemp = 0, _bedtarget = 0;
     const celsius_t bc = thermalManager.wholeDegBed(),
@@ -807,7 +808,8 @@ void updateVariable() {
       dwinDrawBox(1, hmiData.colorBackground, 10, 416, 20, 20);
       DWINUI::drawIcon(ICON_SetBedTemp, 10, 416);
     }
-  #endif
+  #endif // HAS_HEATED_BED
+
   #if HAS_FAN
     static uint8_t _fanspeed = 0;
     const bool _new_fanspeed = _fanspeed != thermalManager.fan_speed[0];
@@ -1635,7 +1637,7 @@ void dwinLevelingDone() {
       TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START);)
     }
 
-  #endif
+  #endif // PROUI_ITEM_PLOT
 
 #endif // PROUI_TUNING_GRAPH
 
