@@ -2774,20 +2774,11 @@ bool Planner::_populate_block(
      * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    #if defined(TRAVEL_EXTRA_XYJERK) || ENABLED(LIN_ADVANCE)
-      xyze_float_t max_j = max_jerk;
-    #else
-      const xyze_float_t &max_j = max_jerk;
-    #endif
-
-    #if HAS_EXTRUDERS && defined(TRAVEL_EXTRA_XYJERK)
-      if (!dm.e) {
-        max_j.x += TRAVEL_EXTRA_XYJERK;
-        max_j.y += TRAVEL_EXTRA_XYJERK;
-      }
-    #endif
 
     #if ENABLED(LIN_ADVANCE)
+      float extra_e_jerk = 0.0f;
+      #define ADD_EXTRA_EJERK(V,N) do{ if (N == E_AXIS) V += extra_e_jerk; }while(0)
+
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
       // perform well; it takes more time/effort to push/melt filament than the reverse).
@@ -2797,47 +2788,64 @@ bool Planner::_populate_block(
         // Retract move after a segment with LA that ended with an E speed decrease.
         // Correct for this to allow a faster junction speed. Since the decrease always helps to
         // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
-        max_j.e = previous_advance_rate * previous_e_mm_per_step;
+        extra_e_jerk = (previous_advance_rate * previous_e_mm_per_step) - max_jerk.e;
       }
       // Prepare for next segment.
       previous_advance_rate = block->la_advance_rate;
       previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
+    #else
+      #define ADD_EXTRA_EJERK(V,N) NOOP
     #endif
 
-    xyze_float_t speed_diff;
-    float vmax_junction;
+    #if HAS_EXTRUDERS && defined(TRAVEL_EXTRA_XYJERK)
+      const float extra_xyjerk = dm.e ? 0.0f : TRAVEL_EXTRA_XYJERK;
+      #define ADD_EXTRA_XYJERK(V,N) do{ if (N == X_AXIS || N == Y_AXIS) V += extra_xyjerk; }while(0)
+    #else
+      #define ADD_EXTRA_XYJERK(...) NOOP
+    #endif
+
+    float vmax_junction, v_factor = 1.0f;
     const bool start_from_zero = !moves_queued || UNEAR_ZERO(previous_nominal_speed);
     if (start_from_zero) {
-      // Limited by a jerk to/from full halt.
+      // Compute "safe" speed, limited by a jerk to/from full halt.
       vmax_junction = block->nominal_speed;
-      speed_diff = current_speed;
+
+      LOOP_LOGICAL_AXES(i) {
+        const float jerk = ABS(current_speed[i]);   // Starting from zero, change in speed for this axis
+        float maxj = max_jerk[i];                   // The max jerk setting for this axis
+        ADD_EXTRA_XYJERK(maxj, i);                  // Allow more XY jerk for a travel move
+        ADD_EXTRA_EJERK(maxj, i);                   // Adjust E jerk for Linear Advance
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+      }
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      // Scale per-axis velocities for the same vmax_junction.
+      float current_speed_factor = 1.0f;
       if (block->nominal_speed < previous_nominal_speed) {
-        vmax_junction = block->nominal_speed;                                                   // Slowing down
-        const xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);  // Exit speed is a decrease from the previous limited speed
-        speed_diff = current_speed - v_exit;                                                    // Actual change may be positive or negative, so ABS is used below
+        vmax_junction = block->nominal_speed;
+        previous_speed *= (vmax_junction / previous_nominal_speed);
       }
       else {
-        vmax_junction = previous_nominal_speed;                                                 // Speeding up
-        const xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);    // Entry speed is an increase over the current limited speed
-        speed_diff = v_entry - previous_speed;                                                  // Actual change may be positive or negative, so ABS is used below
+        vmax_junction = previous_nominal_speed;
+        current_speed_factor = vmax_junction / block->nominal_speed;
+      }
+
+      // Now limit the jerk in all axes.
+      LOOP_LOGICAL_AXES(i) {
+        // Scale per-axis velocities for the same vmax_junction.
+        const float v_exit = previous_speed[i],
+                    v_entry = current_speed[i] * current_speed_factor;
+
+        const float jerk = ABS(v_exit - v_entry);   // Jerk is the per-axis velocity difference
+        float maxj = max_jerk[i];                   // The max jerk setting for this axis
+        ADD_EXTRA_XYJERK(maxj, i);                  // Allow more XY jerk for a travel move
+        ADD_EXTRA_EJERK(maxj, i);                   // Adjust E jerk for Linear Advance
+        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
       }
     }
-
-    // Now limit the jerk in all axes.
-    float v_factor = 1.0f;
-    LOOP_LOGICAL_AXES(i) {
-      // Jerk is the per-axis velocity difference.
-      const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
-      if (jerk * v_factor > maxj) v_factor = maxj / jerk;
-    }
     vmax_junction_sqr = sq(vmax_junction * v_factor);
-
     if (start_from_zero) minimum_planner_speed_sqr = vmax_junction_sqr;
 
   #endif // CLASSIC_JERK
