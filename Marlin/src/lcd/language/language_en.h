@@ -448,6 +448,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Brightness");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
+  LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
+  LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Backlight Off");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Store Settings");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");

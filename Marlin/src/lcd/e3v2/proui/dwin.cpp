@@ -1604,21 +1604,20 @@ void dwinLevelingDone() {
         #elif ENABLED(PIDTEMP)
           case PIDTEMP_START:
         #endif
-            title.showCaption(F("Hotend Temp Graph"));
+            title.showCaption(GET_TEXT_F(MSG_HOTEND_TEMP_GRAPH));
             DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Nozzle Temperature"));
             _maxtemp = thermalManager.hotend_max_target(0);
             _target = thermalManager.degTargetHotend(0);
             break;
         #if ENABLED(PIDTEMPBED)
           case PIDTEMPBED_START:
-            title.showCaption(F("Bed Temp Graph"));
+            title.showCaption(GET_TEXT_F(MSG_BED_TEMP_GRAPH));
             DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Bed Temperature"));
             _maxtemp = BED_MAX_TARGET;
             _target = thermalManager.degTargetBed();
             break;
         #endif
-        default:
-          break;
+        default: break;
       }
 
       dwinDrawString(false, 2, hmiData.colorPopupTxt, hmiData.colorPopupBg, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("Target:     Celsius"));
@@ -3085,8 +3084,8 @@ void drawPrepareMenu() {
     #endif
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
-      MENU_ITEM_F(ICON_PIDNozzle, "Hotend Temp Graph", onDrawMenuItem, drawHPlot);
-      MENU_ITEM_F(ICON_PIDBed, "Bed Temp Graph", onDrawMenuItem, drawBPlot);
+      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
     #endif
     MENU_ITEM(ICON_Language, MSG_UI_LANGUAGE, onDrawLanguage, setLanguage);
   }
@@ -3416,8 +3415,8 @@ void drawTuneMenu() {
       EDIT_ITEM(ICON_Brightness, MSG_SCREEN_TIMEOUT, onDrawPIntMenu, setTimer, &ui.backlight_timeout_minutes);
     #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
-      MENU_ITEM_F(ICON_PIDNozzle, "Hotend Temp Graph", onDrawMenuItem, drawHPlot);
-      MENU_ITEM_F(ICON_PIDBed, "Bed Temp Graph", onDrawMenuItem, drawBPlot);
+      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
       EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
