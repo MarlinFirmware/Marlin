@@ -792,10 +792,17 @@
 #endif
 
 /**
- * ProUI Boot Screen Duration
+ * ProUI Extras
  */
-#if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
-  #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+#if ENABLED(DWIN_LCD_PROUI)
+  #if BOOTSCREEN_TIMEOUT > 2000
+    #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+  #endif
+  #if HAS_PID_HEATING && NONE(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+    #warning "For ProUI PID_AUTOTUNE_MENU and PID_EDIT_MENU is recommended for PID tuning."
+  #elif ENABLED(MPCTEMP) && NONE(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+    #warning "For ProUI MPC_EDIT_MENU and MPC_AUTOTUNE_MENU is recommended for MPC tuning."
+  #endif
 #endif
 
 /**

@@ -735,7 +735,7 @@ void _drawIconBlink(bool &flag, const bool sensor, const uint8_t icon1, const ui
 void _drawZOffsetIcon() {
   #if HAS_LEVELING
     static bool _leveling_active = false;
-    _drawIconBlink(_leveling_active, planner.leveling_active, ICON_Zoffset, ICON_SetZOffset, 186, 416);
+    _drawIconBlink(_leveling_active, planner.leveling_active, ICON_Zoffset, ICON_SetZOffset, 187, 416);
   #else
     DWINUI::drawIcon(ICON_Zoffset, 187, 416);
   #endif
@@ -763,9 +763,9 @@ void _drawFeedrate() {
 }
 
 void _drawXYZPosition(const bool force) {
-  _update_axis_value(X_AXIS,  27, 459, force);
-  _update_axis_value(Y_AXIS, 112, 459, force);
-  _update_axis_value(Z_AXIS, 197, 459, force);
+  _update_axis_value(X_AXIS,  27, 457, force);
+  _update_axis_value(Y_AXIS, 112, 457, force);
+  _update_axis_value(Z_AXIS, 197, 457, force);
 }
 
 void updateVariable() {
@@ -778,7 +778,18 @@ void updateVariable() {
                _new_hotend_target = _hotendtarget != ht;
     if (_new_hotend_temp) _hotendtemp = hc;
     if (_new_hotend_target) _hotendtarget = ht;
-  #endif
+
+    // if hotend is near target or heating, ICON indicates hot
+    if (thermalManager.degHotendNear(0, ht) || thermalManager.isHeatingHotend(0)) {
+      dwinDrawBox(1, hmiData.colorBackground, 10, 383, 20, 20);
+      DWINUI::drawIcon(ICON_SetEndTemp, 10, 383);
+    }
+    else {
+      dwinDrawBox(1, hmiData.colorBackground, 10, 383, 20, 20);
+      DWINUI::drawIcon(ICON_HotendTemp, 10, 383);
+    }
+  #endif // HAS_HOTEND
+
   #if HAS_HEATED_BED
     static celsius_t _bedtemp = 0, _bedtarget = 0;
     const celsius_t bc = thermalManager.wholeDegBed(),
@@ -787,7 +798,18 @@ void updateVariable() {
                _new_bed_target = _bedtarget != bt;
     if (_new_bed_temp) _bedtemp = bc;
     if (_new_bed_target) _bedtarget = bt;
-  #endif
+
+    // if bed is near target, heating, or if degrees > 44, ICON indicates hot
+    if (thermalManager.degBedNear(bt) || thermalManager.isHeatingBed() || (bc > 44)) {
+      dwinDrawBox(1, hmiData.colorBackground, 10, 416, 20, 20);
+      DWINUI::drawIcon(ICON_BedTemp, 10, 416);
+    }
+    else {
+      dwinDrawBox(1, hmiData.colorBackground, 10, 416, 20, 20);
+      DWINUI::drawIcon(ICON_SetBedTemp, 10, 416);
+    }
+  #endif // HAS_HEATED_BED
+
   #if HAS_FAN
     static uint8_t _fanspeed = 0;
     const bool _new_fanspeed = _fanspeed != thermalManager.fan_speed[0];
@@ -1022,9 +1044,9 @@ void dwinDrawDashboard() {
   dwinDrawRectangle(1, hmiData.colorBackground, 0, STATUS_Y + 21, DWIN_WIDTH, DWIN_HEIGHT - 1);
   dwinDrawRectangle(1, hmiData.colorSplitLine, 0, 449, DWIN_WIDTH, 451);
 
-  DWINUI::drawIcon(ICON_MaxSpeedX,  10, 456);
-  DWINUI::drawIcon(ICON_MaxSpeedY,  95, 456);
-  DWINUI::drawIcon(ICON_MaxSpeedZ, 180, 456);
+  DWINUI::drawIcon(ICON_MaxSpeedX,  10, 454);
+  DWINUI::drawIcon(ICON_MaxSpeedY,  95, 454);
+  DWINUI::drawIcon(ICON_MaxSpeedZ, 180, 454);
   _drawXYZPosition(true);
 
   #if HAS_HOTEND
@@ -1033,7 +1055,7 @@ void dwinDrawDashboard() {
     DWINUI::drawString(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
     DWINUI::drawInt(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.degTargetHotend(0));
 
-    DWINUI::drawIcon(ICON_StepE, 112, 417);
+    DWINUI::drawIcon(ICON_StepE, 113, 416);
     DWINUI::drawInt(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
     DWINUI::drawString(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
   #endif
@@ -1269,6 +1291,16 @@ void eachMomentUpdate() {
         TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) plot.update(thermalManager.wholeDegBed()));
       }
       TERN_(MPCTEMP, if (checkkey == ID_MPCProcess) plot.update(thermalManager.wholeDegHotend(0)));
+      #if ENABLED(PROUI_ITEM_PLOT)
+        if (checkkey == ID_PlotProcess) {
+          TERN_(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
+          TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) { plot.update(thermalManager.wholeDegBed()); })
+          TERN_(MPCTEMP, if (hmiValue.tempControl == MPCTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
+          if (hmiFlag.abort_flag || hmiFlag.pause_flag || print_job_timer.isPaused()) {
+            hmiReturnScreen();
+          }
+        }
+      #endif
     #endif
   }
 
@@ -1402,29 +1434,32 @@ void dwinHandleScreen() {
     case ID_SetIntNoDraw: hmiSetNoDraw(); break;
     case ID_PrintProcess: hmiPrinting(); break;
     case ID_Popup:        hmiPopup(); break;
-    case ID_Leveling:     break;
     #if HAS_LOCKSCREEN
       case ID_Locked:     hmiLockScreen(); break;
     #endif
-    case ID_PrintDone:
+
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
+    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
+    case ID_PrintDone:
     case ID_WaitResponse: hmiWaitForUser(); break;
+
+    TERN_(HAS_BED_PROBE, case ID_Leveling:)
     case ID_Homing:
     case ID_PIDProcess:
-    case ID_NothingToDo:  break;
+    case ID_NothingToDo:
     default: break;
   }
 }
 
 bool idIsPopUp() {    // If ID is popup...
   switch (checkkey) {
+    TERN_(HAS_BED_PROBE, case ID_Leveling:)
+    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     case ID_NothingToDo:
     case ID_WaitResponse:
     case ID_Popup:
     case ID_Homing:
-    case ID_Leveling:
     case ID_PIDProcess:
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
       return true;
     default: break;
   }
@@ -1439,8 +1474,9 @@ void hmiSaveProcessID(const uint8_t id) {
     case ID_Popup:
     case ID_WaitResponse:
     case ID_PrintDone:
-    case ID_Leveling:
+    TERN_(HAS_BED_PROBE, case ID_Leveling:)
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
+    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
       wait_for_user = true;
     default: break;
   }
@@ -1515,7 +1551,7 @@ void dwinLevelingDone() {
 
   celsius_t _maxtemp, _target;
   void dwinDrawPIDMPCPopup() {
-    constexpr frame_rect_t gfrm = { 40, 180, DWIN_WIDTH - 80, 120 };
+    constexpr frame_rect_t gfrm = { 30, 150, DWIN_WIDTH - 60, 160 };
     DWINUI::clearMainArea();
     drawPopupBkgd();
 
@@ -1523,50 +1559,27 @@ void dwinLevelingDone() {
       default: return;
       #if ENABLED(MPC_AUTOTUNE)
         case MPCTEMP_START:
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_MPC_AUTOTUNE));
-          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:    Celsius"));
-          break;
-      #endif
-      #if ANY(PIDTEMP, PIDTEMPBED)
-        TERN_(PIDTEMP,    case PIDTEMP_START:)
-        TERN_(PIDTEMPBED, case PIDTEMPBED_START:)
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
-          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
-          break;
-      #endif
-    }
-
-    switch (hmiValue.tempControl) {
-      default: break;
-      #if ANY(PIDTEMP, MPC_AUTOTUNE)
-        TERN_(PIDTEMP,      case PIDTEMP_START:)
-        TERN_(MPC_AUTOTUNE, case MPCTEMP_START:)
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for Nozzle is running."));
-          break;
-      #endif
-      #if ENABLED(PIDTEMPBED)
-        case PIDTEMPBED_START:
-          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 120, F("for BED is running."));
-          break;
-      #endif
-    }
-
-    switch (hmiValue.tempControl) {
-      default: break;
-      #if ENABLED(MPC_AUTOTUNE)
-        case MPCTEMP_START:
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 70, GET_TEXT_F(MSG_MPC_AUTOTUNE));
+          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:     Celsius"));
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, F("for NOZZLE is running."));
           _maxtemp = thermalManager.hotend_maxtemp[0];
           _target = 200;
           break;
       #endif
       #if ENABLED(PIDTEMP)
         case PIDTEMP_START:
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 70, GET_TEXT_F(MSG_PID_AUTOTUNE));
+          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:     Celsius"));
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, F("for NOZZLE is running."));
           _maxtemp = thermalManager.hotend_maxtemp[0];
           _target = hmiData.hotendPidT;
           break;
       #endif
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 70, GET_TEXT_F(MSG_PID_AUTOTUNE));
+          DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:     Celsius"));
+          DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, F("for BED is running."));
           _maxtemp = BED_MAXTEMP;
           _target = hmiData.bedPidT;
           break;
@@ -1574,8 +1587,57 @@ void dwinLevelingDone() {
     }
 
     plot.draw(gfrm, _maxtemp, _target);
-    DWINUI::drawInt(hmiData.colorPopupTxt, 3, gfrm.x + 90, gfrm.y - DWINUI::fontHeight() - 4, _target);
+    DWINUI::drawInt(false, 2, hmiData.colorStatusTxt, hmiData.colorPopupTxt, 3, gfrm.x + 92, gfrm.y - DWINUI::fontHeight() - 6, _target);
   }
+
+  // Plot Temperature Graph (PID Tuning Graph)
+  #if ENABLED(PROUI_ITEM_PLOT)
+
+    void dwinDrawPlot(tempcontrol_t result) {
+      hmiValue.tempControl = result;
+      constexpr frame_rect_t gfrm = {30, 135, DWIN_WIDTH - 60, 160};
+      DWINUI::clearMainArea();
+      drawPopupBkgd();
+      hmiSaveProcessID(ID_PlotProcess);
+
+      switch (result) {
+        #if ENABLED(MPCTEMP)
+          case MPCTEMP_START:
+        #elif ENABLED(PIDTEMP)
+          case PIDTEMP_START:
+        #endif
+            title.showCaption(GET_TEXT_F(MSG_HOTEND_TEMP_GRAPH));
+            DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Nozzle Temperature"));
+            _maxtemp = thermalManager.hotend_max_target(0);
+            _target = thermalManager.degTargetHotend(0);
+            break;
+        #if ENABLED(PIDTEMPBED)
+          case PIDTEMPBED_START:
+            title.showCaption(GET_TEXT_F(MSG_BED_TEMP_GRAPH));
+            DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Bed Temperature"));
+            _maxtemp = BED_MAX_TARGET;
+            _target = thermalManager.degTargetBed();
+            break;
+        #endif
+        default: break;
+      }
+
+      dwinDrawString(false, 2, hmiData.colorPopupTxt, hmiData.colorPopupBg, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("Target:     Celsius"));
+      plot.draw(gfrm, _maxtemp, _target);
+      DWINUI::drawInt(false, 2, hmiData.colorStatusTxt, hmiData.colorPopupBg, 3, gfrm.x + 80, gfrm.y - DWINUI::fontHeight() - 4, _target);
+      DWINUI::drawButton(BTN_Continue, 86, 305);
+      dwinUpdateLCD();
+    }
+
+    void drawHPlot() {
+      TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START);)
+      TERN_(MPCTEMP, dwinDrawPlot(MPCTEMP_START);)
+    }
+    void drawBPlot() {
+      TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START);)
+    }
+
+  #endif // PROUI_ITEM_PLOT
 
 #endif // PROUI_TUNING_GRAPH
 
@@ -2993,7 +3055,7 @@ frame_rect_t selrect(frame_rect_t) {
 
 void drawPrepareMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(prepareMenu, selrect({133, 1, 28, 13}), MSG_PREPARE, 10 + PREHEAT_COUNT)) {
+  if (SET_MENU_R(prepareMenu, selrect({133, 1, 28, 13}), MSG_PREPARE, 12 + PREHEAT_COUNT)) {
     BACK_ITEM(gotoMainMenu);
     MENU_ITEM(ICON_FilMan, MSG_FILAMENT_MAN, onDrawSubMenu, drawFilamentManMenu);
     MENU_ITEM(ICON_Axis, MSG_MOVE_AXIS, onDrawMoveSubMenu, drawMoveMenu);
@@ -3023,6 +3085,10 @@ void drawPrepareMenu() {
       REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
     #endif
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
+    #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
+      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
+    #endif
     MENU_ITEM(ICON_Language, MSG_UI_LANGUAGE, onDrawLanguage, setLanguage);
   }
   ui.reset_status(true);
@@ -3304,7 +3370,7 @@ void drawFilSetMenu() {
 
 void drawTuneMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(tuneMenu, selrect({73, 2, 28, 12}), MSG_TUNE, 18)) {
+  if (SET_MENU_R(tuneMenu, selrect({73, 2, 28, 12}), MSG_TUNE, 20)) {
     BACK_ITEM(gotoPrintProcess);
     EDIT_ITEM(ICON_Speed, MSG_SPEED, onDrawSpeedItem, setSpeed, &feedrate_percentage);
     #if HAS_HOTEND
@@ -3349,6 +3415,10 @@ void drawTuneMenu() {
     #endif
     #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
       EDIT_ITEM(ICON_Brightness, MSG_SCREEN_TIMEOUT, onDrawPIntMenu, setTimer, &ui.backlight_timeout_minutes);
+    #endif
+    #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
+      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
       EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
