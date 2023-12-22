@@ -26,6 +26,9 @@
 #define BOARD_INFO_NAME "LDO Leviathan V1.2"
 #define BOARD_WEBSITE_URL "github.com/MotorDynamicsLab/Leviathan"
 
+// Ignore temp readings during development
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
