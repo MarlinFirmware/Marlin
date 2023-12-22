@@ -345,6 +345,13 @@
   #endif
 #endif // HAS_WIRED_LCD
 
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
+#endif
+
 #if HAS_SPI_TFT                                   // Config for Classic UI (emulated DOGM) and Color UI
 
   #define TFT_SCK_PIN                EXP2_02_PIN
