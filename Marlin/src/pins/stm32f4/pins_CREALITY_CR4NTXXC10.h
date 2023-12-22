@@ -100,15 +100,15 @@
 #define X_STEP_PIN                          PC2
 #define X_DIR_PIN                           PB9
 
-#define Y_ENABLE_PIN                        PC3
+#define Y_ENABLE_PIN               X_ENABLE_PIN
 #define Y_STEP_PIN                          PB8
 #define Y_DIR_PIN                           PB7
 
-#define Z_ENABLE_PIN                        PC3
+#define Z_ENABLE_PIN               X_ENABLE_PIN
 #define Z_STEP_PIN                          PB6
 #define Z_DIR_PIN                           PB5
 
-#define E0_ENABLE_PIN                       PC3
+#define E0_ENABLE_PIN              X_ENABLE_PIN
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB3
 
@@ -142,21 +142,21 @@
    * If undefined software serial is used according to the pins below
    */
   #define X_HARDWARE_SERIAL  Serial6
-  #define Y_HARDWARE_SERIAL  Serial6
-  #define Z_HARDWARE_SERIAL  Serial6
-  #define E0_HARDWARE_SERIAL Serial6
+  #define Y_HARDWARE_SERIAL  X_HARDWARE_SERIAL
+  #define Z_HARDWARE_SERIAL  X_HARDWARE_SERIAL
+  #define E0_HARDWARE_SERIAL X_HARDWARE_SERIAL
 
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS 0
+    #define X_SLAVE_ADDRESS                   0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS 1
+    #define Y_SLAVE_ADDRESS                   1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS 2
+    #define Z_SLAVE_ADDRESS                   2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                  3
   #endif
 
   // Software serial

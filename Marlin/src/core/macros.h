@@ -37,11 +37,12 @@
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
-#define __O0         __attribute__((optimize("O0")))
-#define __Os         __attribute__((optimize("Os")))
-#define __O1         __attribute__((optimize("O1")))
-#define __O2         __attribute__((optimize("O2")))
-#define __O3         __attribute__((optimize("O3")))
+#define __O0         __attribute__((optimize("O0")))  // No optimization and less debug info
+#define __Og         __attribute__((optimize("Og")))  // Optimize the debugging experience
+#define __Os         __attribute__((optimize("Os")))  // Optimize for size
+#define __O1         __attribute__((optimize("O1")))  // Try to reduce size and cycles; nothing that takes a lot of time to compile
+#define __O2         __attribute__((optimize("O2")))  // Optimize even more
+#define __O3         __attribute__((optimize("O3")))  // Optimize yet more
 
 #define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
