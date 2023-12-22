@@ -41,6 +41,9 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
+// Avoid conflict with TIMER_TONE
+#define STEP_TIMER 8
+
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
