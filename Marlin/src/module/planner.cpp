@@ -2815,16 +2815,12 @@ bool Planner::_populate_block(
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
         const float previous_scale = vmax_junction / previous_nominal_speed;
-        LOOP_LOGICAL_AXES(i) {
-          speed_diff[i] -= previous_speed[i] * previous_scale;
-        }
+        LOOP_LOGICAL_AXES(i) speed_diff[i] -= previous_speed[i] * previous_scale;
       }
       else {
         vmax_junction = previous_nominal_speed;
         const float current_scale = vmax_junction / block->nominal_speed;
-        LOOP_LOGICAL_AXES(i) {
-          speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
-        }
+        LOOP_LOGICAL_AXES(i) speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
       }
     }
 
@@ -2838,6 +2834,7 @@ bool Planner::_populate_block(
     vmax_junction_sqr = sq(vmax_junction * v_factor);
 
     if (start_from_zero) minimum_planner_speed_sqr = vmax_junction_sqr;
+
   #endif // CLASSIC_JERK
 
   // Max entry speed of this block equals the max exit speed of the previous block.
