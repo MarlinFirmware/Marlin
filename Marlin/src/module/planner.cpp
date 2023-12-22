@@ -2494,9 +2494,9 @@ bool Planner::_populate_block(
        *
        * extruder_advance_K[extruder] : There is an advance factor set for this extruder.
        *
-       * dist.e > 0                   : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * dm.e                         : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
-      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dist.e > 0;
+      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dm.e;
 
       if (use_advance_lead) {
         float e_D_ratio = (target_float.e - position_float.e) /
@@ -2781,7 +2781,7 @@ bool Planner::_populate_block(
     #endif
 
     #if HAS_EXTRUDERS && defined(TRAVEL_EXTRA_XYJERK)
-      if (dist.e <= 0) {
+      if (!dm.e) {
         max_j.x += TRAVEL_EXTRA_XYJERK;
         max_j.y += TRAVEL_EXTRA_XYJERK;
       }
