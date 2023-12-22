@@ -247,16 +247,16 @@ class Entry():
         return rawdata
 
 _iconNames = {
-    0 : 'ICON_LOGO',
-    1 : 'ICON_Print_0',
-    2 : 'ICON_Print_1',
-    3 : 'ICON_Prepare_0',
-    4 : 'ICON_Prepare_1',
-    5 : 'ICON_Control_0',
-    6 : 'ICON_Control_1',
-    7 : 'ICON_Leveling_0',
-    8 : 'ICON_Leveling_1',
-    9 : 'ICON_HotendTemp',
+     0 : 'ICON_LOGO',
+     1 : 'ICON_Print_0',
+     2 : 'ICON_Print_1',
+     3 : 'ICON_Prepare_0',
+     4 : 'ICON_Prepare_1',
+     5 : 'ICON_Control_0',
+     6 : 'ICON_Control_1',
+     7 : 'ICON_Leveling_0',
+     8 : 'ICON_Leveling_1',
+     9 : 'ICON_HotendTemp',
     10 : 'ICON_BedTemp',
     11 : 'ICON_Speed',
     12 : 'ICON_Zoffset',
@@ -340,7 +340,7 @@ _iconNames = {
     90 : 'ICON_Info_0',
     91 : 'ICON_Info_1',
     93 : 'ICON_Printer_0',
-    # 94 : 'ICON_Printer_1',
+  #94 : 'ICON_Printer_1',
    200 : 'ICON_Checkbox_F',
    201 : 'ICON_Checkbox_T',
    202 : 'ICON_Fade',
@@ -354,4 +354,4 @@ _iconNames = {
    252 : 'ICON_AxisBL',
    253 : 'ICON_AxisTL',
    254 : 'ICON_AxisC'
-    }
+}
