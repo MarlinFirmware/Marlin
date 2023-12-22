@@ -242,8 +242,8 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
  */
 void GcodeSuite::dwell(millis_t time) {
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+  millis_t startMillis=millis();
+  while (millis_t(millis() - startMillis) < time) idle(); //as long as millis_t is unsigned, the comparison works correctly even when the millis() overflows.
 }
 
 /**
