@@ -2822,20 +2822,22 @@ bool Planner::_populate_block(
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float current_speed_factor = 1.0f;
+      float previous_speed_factor, current_speed_factor;
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
-        previous_speed *= (vmax_junction / previous_nominal_speed);
+        previous_speed_factor = vmax_junction / previous_nominal_speed;
+        current_speed_factor = 1.0f;
       }
       else {
         vmax_junction = previous_nominal_speed;
+        previous_speed_factor = 1.0f;
         current_speed_factor = vmax_junction / block->nominal_speed;
       }
 
       // Now limit the jerk in all axes.
       LOOP_LOGICAL_AXES(i) {
         // Scale per-axis velocities for the same vmax_junction.
-        const float v_exit = previous_speed[i],
+        const float v_exit = previous_speed[i] * previous_speed_factor,
                     v_entry = current_speed[i] * current_speed_factor;
 
         const float jerk = ABS(v_exit - v_entry);   // Jerk is the per-axis velocity difference
