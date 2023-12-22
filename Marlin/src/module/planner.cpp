@@ -2544,6 +2544,7 @@ bool Planner::_populate_block(
   #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
+
   #if ENABLED(LIN_ADVANCE)
     block->la_advance_rate = 0;
     block->la_scaling = 0;
@@ -2817,14 +2818,14 @@ bool Planner::_populate_block(
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Scale per-axis velocities for the same vmax_junction.
       if (block->nominal_speed < previous_nominal_speed) {
-        vmax_junction = block->nominal_speed;
-        const xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);
-        speed_diff = current_speed - v_exit;
+        vmax_junction = block->nominal_speed;                                                   // Slowing down
+        const xyze_float_t v_exit = previous_speed * (vmax_junction / previous_nominal_speed);  // Exit speed is a decrease from the previous limited speed
+        speed_diff = current_speed - v_exit;                                                    // Actual change may be positive or negative, so ABS is used below
       }
       else {
-        vmax_junction = previous_nominal_speed;
-        const xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);
-        speed_diff = v_entry - previous_speed;
+        vmax_junction = previous_nominal_speed;                                                 // Speeding up
+        const xyze_float_t v_entry = current_speed * (vmax_junction / block->nominal_speed);    // Entry speed is an increase over the current limited speed
+        speed_diff = v_entry - previous_speed;                                                  // Actual change may be positive or negative, so ABS is used below
       }
     }
 
