@@ -1974,23 +1974,21 @@ bool Planner::_populate_block(
     dm.hy = (dist.b > 0);                       // ...and Y
     TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      dm.a = (dist.a + dist.b > 0);             // Motor A direction
-      dm.b = (CORESIGN(dist.a - dist.b) > 0);   // Motor B direction
-    #elif CORE_IS_XZ
-      dm.hx = (dist.a > 0);                     // Save the toolhead's true direction in X
-      dm.y  = (dist.b > 0);
-      dm.hz = (dist.c > 0);                     // ...and Z
-      dm.a  = (dist.a + dist.c > 0);            // Motor A direction
-      dm.c  = (CORESIGN(dist.a - dist.c) > 0);  // Motor C direction
-    #elif CORE_IS_YZ
-      dm.x  = (dist.a > 0);
-      dm.hy = (dist.b > 0);                     // Save the toolhead's true direction in Y
-      dm.hz = (dist.c > 0);                     // ...and Z
-      dm.b  = (dist.b + dist.c > 0);            // Motor B direction
-      dm.c  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
-    #endif
+  #if CORE_IS_XY
+    dm.a = (dist.a + dist.b > 0);               // Motor A direction
+    dm.b = (CORESIGN(dist.a - dist.b) > 0);     // Motor B direction
+  #elif CORE_IS_XZ
+    dm.hx = (dist.a > 0);                       // Save the toolhead's true direction in X
+    dm.y  = (dist.b > 0);
+    dm.hz = (dist.c > 0);                       // ...and Z
+    dm.a  = (dist.a + dist.c > 0);              // Motor A direction
+    dm.c  = (CORESIGN(dist.a - dist.c) > 0);    // Motor C direction
+  #elif CORE_IS_YZ
+    dm.x  = (dist.a > 0);
+    dm.hy = (dist.b > 0);                       // Save the toolhead's true direction in Y
+    dm.hz = (dist.c > 0);                       // ...and Z
+    dm.b  = (dist.b + dist.c > 0);              // Motor B direction
+    dm.c  = (CORESIGN(dist.b - dist.c) > 0);    // Motor C direction
   #elif ENABLED(MARKFORGED_XY)
     dm.a = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
     dm.b = (dist.b > 0);                        // Motor B direction
@@ -2094,23 +2092,21 @@ bool Planner::_populate_block(
     dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
     TERN_(HAS_Z_AXIS, dist_mm.z = dist.c * mm_per_step[Z_AXIS]);
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      dist_mm.a      = (dist.a + dist.b) * mm_per_step[A_AXIS];
-      dist_mm.b      = CORESIGN(dist.a - dist.b) * mm_per_step[B_AXIS];
-    #elif CORE_IS_XZ
-      dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
-      dist_mm.y      = dist.b * mm_per_step[Y_AXIS];
-      dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
-      dist_mm.a      = (dist.a + dist.c) * mm_per_step[A_AXIS];
-      dist_mm.c      = CORESIGN(dist.a - dist.c) * mm_per_step[C_AXIS];
-    #elif CORE_IS_YZ
-      dist_mm.x      = dist.a * mm_per_step[X_AXIS];
-      dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
-      dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
-      dist_mm.b      = (dist.b + dist.c) * mm_per_step[B_AXIS];
-      dist_mm.c      = CORESIGN(dist.b - dist.c) * mm_per_step[C_AXIS];
-    #endif
+  #if CORE_IS_XY
+    dist_mm.a      = (dist.a + dist.b) * mm_per_step[A_AXIS];
+    dist_mm.b      = CORESIGN(dist.a - dist.b) * mm_per_step[B_AXIS];
+  #elif CORE_IS_XZ
+    dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
+    dist_mm.y      = dist.b * mm_per_step[Y_AXIS];
+    dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
+    dist_mm.a      = (dist.a + dist.c) * mm_per_step[A_AXIS];
+    dist_mm.c      = CORESIGN(dist.a - dist.c) * mm_per_step[C_AXIS];
+  #elif CORE_IS_YZ
+    dist_mm.x      = dist.a * mm_per_step[X_AXIS];
+    dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
+    dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
+    dist_mm.b      = (dist.b + dist.c) * mm_per_step[B_AXIS];
+    dist_mm.c      = CORESIGN(dist.b - dist.c) * mm_per_step[C_AXIS];
   #elif ENABLED(MARKFORGED_XY)
     dist_mm.a = (dist.a TERN(MARKFORGED_INVERSE, +, -) dist.b) * mm_per_step[A_AXIS];
     dist_mm.b = dist.b * mm_per_step[B_AXIS];
