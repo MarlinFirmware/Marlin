@@ -36,7 +36,6 @@
 #include "dwin_lcd.h"
 
 // Extra Icons
-#define ICON_AdvSet               ICON_Language
 #define ICON_BedSizeX             ICON_PrintSize
 #define ICON_BedSizeY             ICON_PrintSize
 #define ICON_BedTramming          ICON_SetHome
@@ -52,14 +51,9 @@
 #define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
-#define ICON_Folder               ICON_More
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ
-#define ICON_HomeOffset           ICON_PrintSize
-#define ICON_HomeOffsetX          ICON_StepX
-#define ICON_HomeOffsetY          ICON_StepY
-#define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_HSMode               ICON_MaxAccZ
 #define ICON_InputShaping         ICON_MaxAccelerated
 #define ICON_JDmm                 ICON_MaxJerk
@@ -86,8 +80,6 @@
 #define ICON_ParkPosY             ICON_StepY
 #define ICON_ParkPosZ             ICON_StepZ
 #define ICON_PhySet               ICON_PrintSize
-#define ICON_PIDNozzle            ICON_HotendTemp
-#define ICON_PIDBed               ICON_BedTemp
 #define ICON_PIDCycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
 #define ICON_PrintStats           ICON_PrintTime
@@ -104,9 +96,6 @@
 #define ICON_Preheat10            ICON_CustomPreheat
 #define ICON_ProbeDeploy          ICON_Probe
 #define ICON_ProbeMargin          ICON_PrintSize
-#define ICON_ProbeOffsetX         ICON_StepX
-#define ICON_ProbeOffsetY         ICON_StepY
-#define ICON_ProbeOffsetZ         ICON_StepZ
 #define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_ProbeStow            ICON_Tilt
 #define ICON_ProbeTest            ICON_Zoffset
