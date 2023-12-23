@@ -44,7 +44,6 @@ typedef struct FTConfig {
   #if HAS_X_AXIS
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    
     float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
         { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
     float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
