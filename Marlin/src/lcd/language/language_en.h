@@ -834,7 +834,7 @@ namespace LanguageNarrow_en {
 
   LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
   LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
-  LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Probe Z-Offset to ");
+  LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
 
   LSTR MSG_SOUND                          = _UxGT("Sound");
 

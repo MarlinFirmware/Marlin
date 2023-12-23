@@ -196,7 +196,7 @@ extern uint8_t checkkey;
 
 // Popups
 #if HAS_HOTEND || HAS_HEATED_BED
-  void dwinPopupTemperature(const bool toohigh);
+  void dwinPopupTemperature(const int_fast8_t heater_id, const bool toohigh);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   void popupPowerLossRecovery();

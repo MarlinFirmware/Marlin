@@ -112,7 +112,14 @@ void dwinFrameClear(const uint16_t color);
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
+#if ENABLED(TJC_DISPLAY)
+  void dwinDrawBox(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xSize, uint16_t ySize);
+  inline void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    dwinDrawBox(1, color, x, y, 1, 1);
+  }
+#else
 void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+#endif
 
 // Draw a line
 //  color: Line segment color
