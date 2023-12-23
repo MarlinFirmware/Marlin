@@ -669,7 +669,10 @@
   #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
 #elif defined(LARGE_MOVE_ITEMS)
   #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
+#elif defined(SDIO_SUPPORT)
+  #error "SDIO_SUPPORT is now ONBOARD_SDIO."
 #endif
+
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
