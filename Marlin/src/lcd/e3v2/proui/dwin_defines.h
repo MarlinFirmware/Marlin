@@ -98,6 +98,9 @@
 #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
 #endif
+#if PROUI_TUNING_GRAPH
+  #define PROUI_ITEM_PLOT     // Plot temp graph viewer
+#endif
 #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE, HAS_MESH)
   #define HAS_TRAMMING_WIZARD 1  // Manual mesh not have a probe
 #endif

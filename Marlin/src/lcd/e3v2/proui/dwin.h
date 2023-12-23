@@ -67,6 +67,7 @@ enum processID : uint8_t {
   ID_WaitResponse,
   ID_Homing,
   ID_PIDProcess,
+  ID_PlotProcess,
   ID_MPCProcess,
   ID_NothingToDo
 };
