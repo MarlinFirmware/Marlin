@@ -72,9 +72,7 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PA5
-#define X_MAX_PIN                           PA4
-
+#define X_STOP_PIN                          PA5
 #define Y_STOP_PIN                          PA6
 
 #if ENABLED(BLTOUCH)
@@ -188,9 +186,9 @@
 //
 // SD Card
 //
+#define SD_DETECT_PIN                       PC1
 #define SDCARD_CONNECTION                ONBOARD
 #define ONBOARD_SDIO
-#define SD_DETECT_PIN                       PC1
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
 #define NO_SD_HOST_DRIVE                  // This board's SD is only seen by the printer
