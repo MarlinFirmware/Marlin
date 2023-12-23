@@ -47,10 +47,9 @@
 //
 // Limit Switches
 //
-
-#define X_MIN_PIN                           PA15
-#define Y_MIN_PIN                           PA14
-#define Z_MIN_PIN                           PA12
+#define X_STOP_PIN                          PA15
+#define Y_STOP_PIN                          PA14
+#define Z_STOP_PIN                          PA12
 
 //
 // Steppers
