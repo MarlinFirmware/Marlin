@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -48,9 +48,9 @@
 // Limit Switches
 //
 
-#define X_MIN_PIN                          PA15
-#define Y_MIN_PIN                          PA14
-#define Z_MIN_PIN                          PA12
+#define X_MIN_PIN                           PA15
+#define Y_MIN_PIN                           PA14
+#define Z_MIN_PIN                           PA12
 
 //
 // Steppers
@@ -157,7 +157,7 @@
 
   #define E3_SERIAL_TX_PIN                  PD8
   #define E3_SERIAL_RX_PIN                  PD8
-  
+
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
     #define TMC_BAUD_RATE                  19200
@@ -194,8 +194,8 @@
 
 /**
  * Note: ORCA 3D Modular Controller uses various TFT controllers.
- * for TFT displays use UART0
- * for 12864 displays follow pinout below
+ * - For TFT displays use UART0
+ * - For 12864 displays use the expansion headers
  */
 
 /**                ------                                     ------
@@ -262,7 +262,7 @@
     #define BTN_EN1                  EXP1_08_PIN
     #define BTN_EN2                  EXP1_06_PIN
 
-    #define LCD_PINS_EN		         EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
   #elif IS_TFTGLCD_PANEL
@@ -283,7 +283,7 @@
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_EN2                  EXP2_06_PIN
 
-    #define LCD_PINS_EN          	 EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
 
@@ -314,7 +314,7 @@
       //  #define NEOPIXEL_PIN       EXP1_05_PIN
       //#endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_06_PIN
       #if IS_ULTIPANEL
@@ -330,13 +330,13 @@
 
     #endif // !FYSETC_MINI_12864
 
-    // Alter timing for graphical display
-    #if IS_U8GLIB_ST7920
-      #define BOARD_ST7920_DELAY_1           125
-      #define BOARD_ST7920_DELAY_2           125
-      #define BOARD_ST7920_DELAY_3           125
-    #endif
-
   #endif
 
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
+#endif

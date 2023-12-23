@@ -324,7 +324,7 @@ void FTMotion::loop() {
         x.Ai[1] = (0.5f - x.Ai[0]) * Kx;
         x.Ai[2] = x.Ai[1] * Kx;
         x.Ai[3] = x.Ai[0] * cu(Kx);
-       
+
         const float vtoly2 = sq(vtol[1]);
         const float Y = pow(vtoly2 * (sqrt(1.0f - vtoly2) + 1.0f), 1.0f / 3.0f);
         y.Ai[0] = (3.0f * sq(Y) + 2.0f * Y + 3.0f * vtoly2) / (16.0f * Y);
@@ -361,7 +361,7 @@ void FTMotion::loop() {
           x.Ai[i] *= X_adj;
           y.Ai[i] *= Y_adj;
         }
-      }    
+      }
       break;
 
       case ftMotionMode_MZV: {
@@ -375,7 +375,7 @@ void FTMotion::loop() {
         y.Ai[0] = 1.0f / (1.0f + By + Ky2);
         y.Ai[1] = y.Ai[0] * By;
         y.Ai[2] = y.Ai[0] * Ky2;
-      } 
+      }
       break;
 
       default:
@@ -383,7 +383,7 @@ void FTMotion::loop() {
         ZERO(y.Ai);
         max_i = 0;
     }
-    
+
   }
 
   void FTMotion::updateShapingA(float zeta[]/*=cfg.zeta*/, float vtol[]/*=cfg.vtol*/) {
@@ -428,7 +428,7 @@ void FTMotion::loop() {
   void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float zeta[]/*=cfg.zeta*/) {
     const float xdf = sqrt(1.0f - sq(zeta[0]));
     shaping.x.updateShapingN(xf, xdf);
-    
+
     #if HAS_Y_AXIS
       const float ydf = sqrt(1.0f - sq(zeta[1]));
       shaping.y.updateShapingN(yf, ydf);
