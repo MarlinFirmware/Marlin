@@ -82,7 +82,7 @@
 #define ICON_Motion             41
 #define ICON_WriteEEPROM        42
 #define ICON_ReadEEPROM         43
-#define ICON_ResetEEPROM       44
+#define ICON_ResetEEPROM        44
 #define ICON_Info               45
 
 #define ICON_SetEndTemp         46
