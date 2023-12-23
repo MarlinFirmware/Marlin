@@ -420,12 +420,8 @@ void popupPauseOrStop() {
   }
   else {
     switch (select_print.now) {
-      case PRINT_PAUSE_RESUME:
-        dwinPopupConfirmCancel(ICON_Pause_1, GET_TEXT_F(MSG_PAUSE_PRINT));
-        break;
-      case PRINT_STOP:
-        dwinPopupConfirmCancel(ICON_Stop_1, GET_TEXT_F(MSG_STOP_PRINT));
-        break;
+      case PRINT_PAUSE_RESUME: dwinPopupConfirmCancel(ICON_Pause_1, GET_TEXT_F(MSG_PAUSE_PRINT)); break;
+      case PRINT_STOP: dwinPopupConfirmCancel(ICON_Stop_1, GET_TEXT_F(MSG_STOP_PRINT)); break;
       default: break;
     }
   }
@@ -433,8 +429,6 @@ void popupPauseOrStop() {
 
 #if HAS_HOTEND || HAS_HEATED_BED
   void dwinPopupTemperature(const int_fast8_t heater_id, const bool toohigh) {
-    FSTR_P heaterstr = (heater_id == H_BED) ? F("Bed") : F("Nozzle");
-    FSTR_P lowhighstr = toohigh ? GET_TEXT_F(MSG_TEMP_TOO_HIGH) : GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW);
     hmiSaveProcessID(ID_WaitResponse);
     if (hmiIsChinese()) {
       DWINUI::clearMainArea();
@@ -451,8 +445,11 @@ void popupPauseOrStop() {
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
     }
-    else
+    else {
+      FSTR_P const heaterstr = (heater_id == H_BED) ? F("Bed") : F("Nozzle"),
+                   lowhighstr = toohigh ? GET_TEXT_F(MSG_TEMP_TOO_HIGH) : GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW);
       dwinShowPopup((toohigh ? ICON_TempTooHigh : ICON_TempTooLow), heaterstr, lowhighstr, BTN_Continue);
+    }
   }
 #endif
 
@@ -474,8 +471,7 @@ void dwinResetStatusLine() {
 // Djb2 hash algorithm
 uint32_t getHash(char * str) {
   uint32_t hash = 5381;
-  char c;
-  while ((c = *str++)) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  for (char c; (c = *str++);) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
   return hash;
 }
 

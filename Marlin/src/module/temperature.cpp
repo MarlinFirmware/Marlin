@@ -1523,7 +1523,7 @@ void Temperature::_temp_error(
 }
 
 void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(1));
     TERN_(DWIN_LCD_PROUI, dwinPopupTemperature(heater_id, 1));
   #endif
@@ -1531,7 +1531,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 }
 
 void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
     TERN_(DWIN_LCD_PROUI, dwinPopupTemperature(heater_id, 0));
   #endif

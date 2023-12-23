@@ -30,6 +30,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+//#define TJC_DISPLAY           // Enable for TJC display
+
 #if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
   #if ENABLED(PROUI_MESH_EDIT)
@@ -114,4 +116,3 @@
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
-//#define TJC_DISPLAY         // Enable to be used for TJC display
