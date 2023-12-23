@@ -171,22 +171,6 @@ void dwinFrameClear(const uint16_t color) {
   }
 #endif
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
-  size_t i = 0;
-  dwinByte(i, 0x02);
-  dwinWord(i, color);
-  dwinByte(i, width);
-  dwinByte(i, height);
-  dwinWord(i, x);
-  dwinWord(i, y);
-  dwinSend(i);
-}
-
 // Draw a line
 //  color: Line segment color
 //  xStart/yStart: Start point
