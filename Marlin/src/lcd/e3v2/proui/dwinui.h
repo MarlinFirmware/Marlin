@@ -40,7 +40,7 @@
 #define ICON_BedSizeY             ICON_PrintSize
 #define ICON_BedTramming          ICON_SetHome
 #define ICON_Binary               ICON_Contact
-#define ICON_BltouchReset         ICON_ResumeEEPROM
+#define ICON_BLTouchReset         ICON_ResumeEEPROM
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_BedTemp
 #define ICON_Error                ICON_TempTooHigh

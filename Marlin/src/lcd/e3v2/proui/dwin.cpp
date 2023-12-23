@@ -3264,7 +3264,7 @@ void drawMoveMenu() {
       #if ENABLED(BLTOUCH)
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, probeStow);
         MENU_ITEM(ICON_ProbeDeploy, MSG_MANUAL_DEPLOY, onDrawMenuItem, probeDeploy);
-        MENU_ITEM(ICON_BltouchReset, MSG_BLTOUCH_RESET, onDrawMenuItem, bltouch._reset);
+        MENU_ITEM(ICON_BLTouchReset, MSG_BLTOUCH_RESET, onDrawMenuItem, bltouch._reset);
         #if HAS_BLTOUCH_HS_MODE
           EDIT_ITEM(ICON_HSMode, MSG_ENABLE_HS_MODE, onDrawChkbMenu, setHSMode, &bltouch.high_speed_mode);
         #endif
