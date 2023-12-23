@@ -40,15 +40,15 @@
 #define ICON_BedSizeY             ICON_PrintSize
 #define ICON_BedTramming          ICON_SetHome
 #define ICON_Binary               ICON_Contact
-#define ICON_BLTouchReset         ICON_ResumeEEPROM
+#define ICON_BLTouchReset         ICON_ResetEEPROM
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_BedTemp
 #define ICON_Error                ICON_TempTooHigh
 #define ICON_esDiag               ICON_Info
 #define ICON_ExtrudeMinT          ICON_HotendTemp
 #define ICON_FilLoad              ICON_WriteEEPROM
-#define ICON_FilMan               ICON_ResumeEEPROM
-#define ICON_FilSet               ICON_ResumeEEPROM
+#define ICON_FilMan               ICON_ResetEEPROM
+#define ICON_FilSet               ICON_ResetEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
 #define ICON_HomeX                ICON_MoveX
@@ -80,7 +80,7 @@
 #define ICON_ParkPosY             ICON_StepY
 #define ICON_ParkPosZ             ICON_StepZ
 #define ICON_PhySet               ICON_PrintSize
-#define ICON_PIDCycles            ICON_ResumeEEPROM
+#define ICON_PIDCycles            ICON_ResetEEPROM
 #define ICON_PIDValue             ICON_Contact
 #define ICON_PrintStats           ICON_PrintTime
 #define ICON_PrintStatsReset      ICON_RemainTime
@@ -101,7 +101,7 @@
 #define ICON_ProbeTest            ICON_Zoffset
 #define ICON_ProbeZSpeed          ICON_MaxSpeedZ
 #define ICON_Pwrlossr             ICON_Motion
-#define ICON_Reboot               ICON_ResumeEEPROM
+#define ICON_Reboot               ICON_ResetEEPROM
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Scolor               ICON_MaxSpeed
 #define ICON_SetBaudRate          ICON_Setspeed
@@ -125,7 +125,7 @@
 #define ICON_TMCZSet              ICON_MoveZ
 #define ICON_TMCESet              ICON_Extruder
 #define ICON_UBLActive            ICON_Fade
-#define ICON_UBLSlot              ICON_ResumeEEPROM
+#define ICON_UBLSlot              ICON_ResetEEPROM
 #define ICON_UBLMeshSave          ICON_WriteEEPROM
 #define ICON_UBLMeshLoad          ICON_ReadEEPROM
 #define ICON_UBLTiltGrid          ICON_Tilt

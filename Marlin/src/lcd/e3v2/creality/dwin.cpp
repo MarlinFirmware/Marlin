@@ -905,7 +905,7 @@ void drawControlMenu() {
   #if ENABLED(EEPROM_SETTINGS)
     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResetEEPROM, false);
   #endif
 }
 
