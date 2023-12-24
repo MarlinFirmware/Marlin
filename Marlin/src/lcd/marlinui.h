@@ -88,7 +88,7 @@ typedef bool (*statusResetFunc_t)();
 
 #if ANY(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
   #define LCD_WITH_BLINK 1
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
+  #define LCD_UPDATE_INTERVAL DIV_TERN(DOUBLE_LCD_FRAMERATE, TERN(HAS_TOUCH_BUTTONS, 50, 100), 2)
 #endif
 
 #if HAS_MARLINUI_U8GLIB
@@ -272,17 +272,25 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
+  #if HAS_BACKLIGHT_TIMEOUT
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t backlight_timeout_minutes;
+    #else
+      static constexpr uint8_t backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
+    #endif
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
-    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t sleep_timeout_minutes;
+    #else
+      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
-    static uint8_t sleep_timeout_minutes;
-    static millis_t screen_timeout_millis;
+    static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
     static void sleep_display(const bool sleep=true);
   #endif
@@ -660,7 +668,7 @@ public:
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
-      static uint8_t repeat_delay;
+      static uint16_t repeat_delay;
     #else
       static constexpr uint8_t touch_buttons = 0;
     #endif
@@ -729,7 +737,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
+    static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
   #else
 

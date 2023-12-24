@@ -142,7 +142,7 @@
   //
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
-      MString<9> msg;
+      MString<10> msg;
       msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
       MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }
@@ -286,13 +286,18 @@ void menu_bed_leveling() {
   // Leveling Z-Offset
   //
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_base_offset, -2, 2);
+    #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
+      #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
+    #else
+      #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+    #endif
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_base_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
   #endif
 
   #if ENABLED(BABYSTEP_GLOBAL_Z)
