@@ -811,3 +811,10 @@
 #if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
   #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
 #endif
+
+/**
+ * No PWM on the Piezo Beeper?
+ */
+#if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
+  #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
+#endif
