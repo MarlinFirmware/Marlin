@@ -239,6 +239,7 @@ void menu_advanced_settings();
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
+
     #if HAS_HOTEND_OFFSET
       for (uint8_t o = 1; o < TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOL_OFFSET, 1); ++o) {
         #if ENABLED(DUAL_X_CARRIAGE)
@@ -251,6 +252,7 @@ void menu_advanced_settings();
         EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
       }
     #endif
+
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif

@@ -1752,10 +1752,10 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       if (TERN0(MANUAL_SWITCHING_TOOLHEAD, active_extruder != e)) continue;
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100)) {
-        const auto deg = degHotend(e);
-        if (deg > temp_range[e].maxtemp) MAXTEMP_ERROR(e, deg);
-      }
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100)) {
+          const auto deg = degHotend(e);
+          if (deg > temp_range[e].maxtemp) MAXTEMP_ERROR(e, deg);
+        }
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, heater_idle[e].update(ms));

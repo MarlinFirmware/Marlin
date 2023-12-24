@@ -617,6 +617,24 @@
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
 
+/**
+ * Tool Offsets: defaults, determine array size
+ */
+#if HAS_HOTEND_OFFSET
+  #ifndef HOTEND_OFFSET_X
+    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Y
+    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
+  #endif
+  #ifndef HOTEND_OFFSET_Z
+    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
+  #endif
+  #ifndef NUM_TOOL_OFFSET
+    #define NUM_TOOL_OFFSET HOTENDS
+  #endif
+#endif
+
 // Support for SD Card and other file storage
 #if ENABLED(SDSUPPORT)
   #define HAS_MEDIA 1
@@ -1176,23 +1194,6 @@
 #endif
 
 /**
- * Tool Offsets: defaults, determine array size
- */
-#if HAS_HOTEND_OFFSET
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
-  #endif
-  #ifndef NUM_TOOL_OFFSET
-    #define NUM_TOOL_OFFSET HOTENDS
-  #endif
-#endif
-
 /**
  * Disable unused SINGLENOZZLE sub-options
  */
