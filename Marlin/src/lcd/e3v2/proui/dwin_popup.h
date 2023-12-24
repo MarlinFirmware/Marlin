@@ -50,9 +50,15 @@ inline void drawPopupBkgd() {
 
 template<typename T, typename U>
 void dwinDrawPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
+  xy_uint8_t pos;
+  switch (icon) {
+    default: pos.set(81, 90); break;          // Icon  1 -  8, 90 - 91; (110 x 100)
+    case 17 ... 24: pos.set(96, 90); break;   // Icon 17 - 24;          ( 80 x 100)
+    case 78 ... 81: pos.set(100, 107); break; // Icon 78 - 81;          ( 73 x  66)
+  }
   DWINUI::clearMainArea();
   drawPopupBkgd();
-  if (icon) DWINUI::drawIcon(icon, 101, 105);
+  if (icon) DWINUI::drawIcon(icon, pos.x, pos.y);
   if (amsg1) DWINUI::drawCenteredString(hmiData.colorPopupTxt, 210, amsg1);
   if (amsg2) DWINUI::drawCenteredString(hmiData.colorPopupTxt, 240, amsg2);
   if (button) DWINUI::drawButton(button, 86, 280);

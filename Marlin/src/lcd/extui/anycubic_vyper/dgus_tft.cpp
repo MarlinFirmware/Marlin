@@ -971,8 +971,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::selectFile() {
-    strncpy(selectedfile, panel_command + 4, command_len - 4);
-    selectedfile[command_len - 5] = '\0';
+    strlcpy(selectedfile, panel_command + 4, command_len - 3);
     #if ACDEBUG(AC_FILE)
       DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
     #endif
@@ -1293,8 +1292,7 @@ namespace Anycubic {
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1332,8 +1330,7 @@ namespace Anycubic {
             printFile(filenavigator.filelist.shortFilename());
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             sprintf(str_buf, "%5.2f", getFeedrate_percent());

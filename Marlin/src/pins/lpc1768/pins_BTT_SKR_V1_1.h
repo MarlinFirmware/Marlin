@@ -202,7 +202,7 @@
       #undef E1_ENABLE_PIN
     #endif
 
-  #else                                           // !SOFTWARE_DRIVER_ENABLE
+  #else // !SOFTWARE_DRIVER_ENABLE
 
     // A chip-select pin is needed for each driver.
 
