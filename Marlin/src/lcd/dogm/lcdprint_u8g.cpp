@@ -38,6 +38,9 @@ int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   return ret;
 }
 
+/**
+ * @return output width in pixels
+ */
 int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   u8g_uint_t x = u8g.getPrintCol(), y = u8g.getPrintRow(),
            ret = uxg_DrawUtf8Str(u8g.getU8g(), x, y, utf8_str, max_length);
@@ -45,6 +48,9 @@ int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   return ret;
 }
 
+/**
+ * @return output width in pixels
+ */
 int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   u8g_uint_t x = u8g.getPrintCol(), y = u8g.getPrintRow(),
            ret = uxg_DrawUtf8StrP(u8g.getU8g(), x, y, utf8_pstr, max_length);

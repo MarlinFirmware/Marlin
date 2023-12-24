@@ -1179,7 +1179,7 @@ void MarlinUI::draw_status_screen() {
     int8_t llen = ftpl ? expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, n - vlen) : 0;
 
     bool mv_colon = false;
-    if (vlen) {
+    if (vlen && !center) {
       // Move the leading colon from the value to the label below
       mv_colon = (*vstr == ':');
       // Shorter value, wider label
@@ -1248,8 +1248,8 @@ void MarlinUI::draw_status_screen() {
   }
 
   // The Select Screen presents a prompt and two "buttons"
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    ui.draw_select_screen_prompt(pref, string, suff);
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     if (no) {
       SETCURSOR(0, LCD_HEIGHT - 1);
       lcd_put_lchar(yesno ? ' ' : '['); lcd_put_u8str(no); lcd_put_lchar(yesno ? ' ' : ']');
