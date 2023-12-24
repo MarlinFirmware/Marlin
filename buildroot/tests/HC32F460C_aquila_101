@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# Build tests for HC32F460C_aquila_101
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_AQUILA_V101 SERIAL_PORT 1
+opt_enable EEPROM_SETTINGS SDSUPPORT EMERGENCY_PARSER
+exec_test $1 $2 "Default Configuration with Fallback SD EEPROM" "$3"
+
+# cleanup
+restore_configs
