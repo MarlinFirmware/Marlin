@@ -96,7 +96,7 @@
 #define E3_ENABLE_PIN                       PD13
 
 //
-// Integrated TMC5160/TMC2209 defaults for Leviathan
+// Integrated TMC5160/TMC2209 driver defaults
 //
 #if  (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(TMC5160)) \
   || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(TMC5160)) \
@@ -108,7 +108,39 @@
   || (EXTRUDERS >= 2 && !AXIS_DRIVER_TYPE_E1(TMC2209)) \
   || (EXTRUDERS >= 3 && !AXIS_DRIVER_TYPE_E2(TMC2209)) \
   || (EXTRUDERS >= 4 && !AXIS_DRIVER_TYPE_E3(TMC2209))
-  #error "For Leviathan the X and Y DRIVER TYPE must be TMC5160 and all others should be TMC2209."
+  #error "X and Y DRIVER TYPE must be TMC5160 and all others should be TMC2209 for BOARD_LDO_LEVIATHAN_V1_2."
+#endif
+
+// RSENSE defaults
+#if HAS_X_AXIS
+  static_assert(X_RSENSE == 0.075, "X_RSENSE (HV-STEPPER-0) must be 0.075 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if HAS_Y_AXIS
+  static_assert(Y_RSENSE == 0.075, "Y_RSENSE (HV-STEPPER-1) must be 0.075 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if NUM_Z_STEPPERS >= 1
+  static_assert(Z_RSENSE == 0.11, "Z_RSENSE (STEPPER-0) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if NUM_Z_STEPPERS >= 2
+  static_assert(Z2_RSENSE == 0.11, "Z2_RSENSE (STEPPER-2) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if NUM_Z_STEPPERS >= 3
+  static_assert(Z3_RSENSE == 0.11, "Z3_RSENSE (STEPPER-3) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if NUM_Z_STEPPERS >= 4
+  static_assert(Z4_RSENSE == 0.11, "Z4_RSENSE (STEPPER-4) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if EXTRUDERS >= 1
+  static_assert(E0_RSENSE == 0.11, "E0_RSENSE (STEPPER-1) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if EXTRUDERS >= 2
+  static_assert(E1_RSENSE == 0.11, "E1_RSENSE (STEPPER-2) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if EXTRUDERS >= 3
+  static_assert(E2_RSENSE == 0.11, "E2_RSENSE (STEPPER-3) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
+#endif
+#if EXTRUDERS >= 4
+  static_assert(E3_RSENSE == 0.11, "E3_RSENSE (STEPPER-4) must be 0.11 for BOARD_LDO_LEVIATHAN_V1_2.");
 #endif
 
 //
@@ -278,9 +310,9 @@
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
-  #error "ONBOARD is not a supported SDCARD_CONNECTION for this board"
+  #error "ONBOARD is not a supported SDCARD_CONNECTION for BOARD_LDO_LEVIATHAN_V1_2."
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for BOARD_LDO_LEVIATHAN_V1_2."
 #endif
 
 //
