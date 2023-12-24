@@ -255,11 +255,11 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        constexpr bool is_wide = (GRID_MAX_POINTS_X) < TERN(TJC_DISPLAY, 8, 10);
+        constexpr bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
-          msg.set(p_float_t(abs(z), 2));
-        else
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
+        else
+          msg.set(p_float_t(abs(z), 2));
         const int8_t offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
         if (is_wide)
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
