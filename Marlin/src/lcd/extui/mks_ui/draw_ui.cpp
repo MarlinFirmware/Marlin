@@ -951,7 +951,7 @@ void clear_cur_ui() {
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
-    case JERK_UI:                     TERN_(HAS_CLASSIC_JERK, lv_clear_jerk_settings()); break;
+    case JERK_UI:                     TERN_(CLASSIC_JERK, lv_clear_jerk_settings()); break;
     case MOTORDIR_UI:                 break;
     case HOMESPEED_UI:                break;
     case NOZZLE_CONFIG_UI:            break;
@@ -1061,7 +1061,7 @@ void draw_return_ui() {
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
       case STEPS_UI:                    lv_draw_step_settings(); break;
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         case JERK_UI:                   lv_draw_jerk_settings(); break;
       #endif
       case MOTORDIR_UI:                 break;

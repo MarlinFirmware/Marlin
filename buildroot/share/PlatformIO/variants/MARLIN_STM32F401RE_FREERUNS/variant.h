@@ -101,6 +101,7 @@ extern "C" {
 // UART Definitions
 //#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
 #define ENABLE_HWSERIAL2
+#define ENABLE_HWSERIAL6
 
 
 // Define here Serial instance number to map on Serial generic name (if not already used by SerialUSB)
@@ -118,11 +119,12 @@ extern "C" {
 #define PIN_SERIAL1_TX          PA9
 #define PIN_SERIAL2_RX          PA3
 #define PIN_SERIAL2_TX          PA2
+#define PIN_SERIAL6_RX          PC7
+#define PIN_SERIAL6_TX          PC6
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
  *----------------------------------------------------------------------------*/
