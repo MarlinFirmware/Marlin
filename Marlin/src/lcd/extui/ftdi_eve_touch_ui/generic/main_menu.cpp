@@ -43,7 +43,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #define ADVANCED_SETTINGS_POS BTN_POS(1,2), BTN_SIZE(2,1)
     #if ENABLED(CUSTOM_MENU_MAIN)
       #define FILAMENTCHANGE_POS  BTN_POS(1,3), BTN_SIZE(1,1)
-      #define CUSTOM_MENU_POS BTN_POS(2,3), BTN_SIZE(1,1)
+      #define CUSTOM_MENU_POS     BTN_POS(2,3), BTN_SIZE(1,1)
     #else
       #define FILAMENTCHANGE_POS  BTN_POS(1,3), BTN_SIZE(2,1)
     #endif
@@ -66,7 +66,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #if ENABLED(CUSTOM_MENU_MAIN)
       #define TEMPERATURE_POS     BTN_POS(1,4), BTN_SIZE(2,1)
       #define FILAMENTCHANGE_POS  BTN_POS(3,4), BTN_SIZE(2,1)
-      #define CUSTOM_MENU_POS BTN_POS(5,4), BTN_SIZE(2,1)
+      #define CUSTOM_MENU_POS     BTN_POS(5,4), BTN_SIZE(2,1)
     #else
       #define TEMPERATURE_POS     BTN_POS(1,4), BTN_SIZE(3,1)
       #define FILAMENTCHANGE_POS  BTN_POS(4,4), BTN_SIZE(3,1)
@@ -92,7 +92,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .tag( 9).button(LEVELING_POS,        GET_TEXT_F(MSG_LEVELING))
        .tag(10).button(ABOUT_PRINTER_POS,   GET_TEXT_F(MSG_INFO_MENU))
        #if ENABLED(CUSTOM_MENU_MAIN)
-        .tag(11).button(CUSTOM_MENU_POS, GET_TEXT_F(MSG_CUSTOM_COMMANDS))
+        .tag(11).button(CUSTOM_MENU_POS,    GET_TEXT_F(MSG_CUSTOM_COMMANDS))
        #endif
        .colors(action_btn)
        .tag(1).button(BACK_POS,             GET_TEXT_F(MSG_BUTTON_DONE));
@@ -103,22 +103,30 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
-    case 2:  SpinnerDialogBox::enqueueAndWait(F("G28"));            break;
+    case 1: SaveSettingsDialogBox::promptToSaveSettings(); break;
+    case 2: SpinnerDialogBox::enqueueAndWait(F("G28")); break;
     #if ENABLED(NOZZLE_CLEAN_FEATURE)
-      case 3: injectCommands(F("G12")); GOTO_SCREEN(StatusScreen); break;
+      case 3:
+        injectCommands(F("G12"));
+        GOTO_SCREEN(StatusScreen);             break;
     #endif
-    case 4:  GOTO_SCREEN(MoveAxisScreen);                             break;
-    case 5:  injectCommands(F("M84"));                           break;
-    case 6:  GOTO_SCREEN(TemperatureScreen);                          break;
-    case 7:  GOTO_SCREEN(ChangeFilamentScreen);                       break;
-    case 8:  GOTO_SCREEN(AdvancedSettingsMenu);                       break;
+    case 4: GOTO_SCREEN(MoveAxisScreen);       break;
+    case 5:
+      injectCommands(F("M84 E"
+        TERN_(DISABLE_INACTIVE_X, " X")
+        TERN_(DISABLE_INACTIVE_Y, " Y")
+        TERN_(DISABLE_INACTIVE_Z, " Z")
+      ));
+      break;
+    case 6: GOTO_SCREEN(TemperatureScreen);    break;
+    case 7: GOTO_SCREEN(ChangeFilamentScreen); break;
+    case 8: GOTO_SCREEN(AdvancedSettingsMenu); break;
     #if HAS_LEVELING
-      case 9:  GOTO_SCREEN(LevelingMenu);                             break;
+      case 9: GOTO_SCREEN(LevelingMenu);       break;
     #endif
-    case 10: GOTO_SCREEN(AboutScreen);                                break;
+    case 10: GOTO_SCREEN(AboutScreen);         break;
     #if ENABLED(CUSTOM_MENU_MAIN)
-      case 11: GOTO_SCREEN(CustomUserMenus);                          break;
+      case 11: GOTO_SCREEN(CustomUserMenus);   break;
     #endif
 
     default:

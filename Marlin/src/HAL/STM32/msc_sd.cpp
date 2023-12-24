@@ -1,13 +1,20 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -32,6 +39,12 @@
 
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
+
+#ifndef SD_MULTIBLOCK_RETRY_CNT
+  #define SD_MULTIBLOCK_RETRY_CNT 1
+#elif SD_MULTIBLOCK_RETRY_CNT < 1
+  #error "SD_MULTIBLOCK_RETRY_CNT must be greater than or equal to 1."
+#endif
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
@@ -58,19 +71,29 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->writeBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->writeBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
-    sd2card->writeStart(blkAddr, blkLen);
-    while (blkLen--) {
-      hal.watchdog_refresh();
-      sd2card->writeData(pBuf);
-      pBuf += BLOCK_SIZE;
+    bool done = false;
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
+      uint8_t *cBuf = pBuf;
+      sd2card->writeStart(blkAddr, blkLen);
+      bool okay = true;                   // Assume success
+      for (uint32_t i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->writeData(cBuf)) {  // Write. Did it fail?
+          sd2card->writeStop();           // writeStop for new writeStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
+      }
+      done = okay;                        // Done if no error occurred
     }
-    sd2card->writeStop();
-    return true;
+
+    if (done) sd2card->writeStop();
+    return done;
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
@@ -78,24 +101,32 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->readBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->readBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
-    sd2card->readStart(blkAddr);
-    while (blkLen--) {
-      hal.watchdog_refresh();
-      sd2card->readData(pBuf);
-      pBuf += BLOCK_SIZE;
+    bool done = false;
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
+      uint8_t *cBuf = pBuf;
+      sd2card->readStart(blkAddr);
+      bool okay = true;                   // Assume success
+      for (uint32_t i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->readData(cBuf)) {   // Read. Did it fail?
+          sd2card->readStop();            // readStop for new readStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
+      }
+      done = okay;                        // Done if no error occurred
     }
-    sd2card->readStop();
-    return true;
+
+    if (done) sd2card->readStop();
+    return done;
   }
 
-  bool IsReady() {
-    return diskIODriver()->isReady();
-  }
+  bool IsReady() { return diskIODriver()->isReady(); }
 };
 
 Sd2CardUSBMscHandler usbMscHandler;

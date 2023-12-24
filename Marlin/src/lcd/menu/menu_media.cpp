@@ -126,16 +126,18 @@ void menu_media_filelist() {
   else if (card.isMounted())
     ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
-  if (ui.should_draw()) for (int16_t i = 0; i < fileCnt; i++) {
-    if (_menuLineNr == _thisItemNr) {
-      card.selectFileByIndexSorted(i);
-      if (card.flag.filenameIsDir)
-        MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
-      else
-        MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
+  if (ui.should_draw()) {
+    for (int16_t i = 0; i < fileCnt; i++) {
+      if (_menuLineNr != _thisItemNr)
+        SKIP_ITEM();
+      else {
+        card.selectFileByIndexSorted(i);
+        if (card.flag.filenameIsDir)
+          MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
+        else
+          MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
+      }
     }
-    else
-      SKIP_ITEM();
   }
   END_MENU();
 }

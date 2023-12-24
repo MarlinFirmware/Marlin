@@ -37,11 +37,6 @@
   #define ADC_VREF_MV HAL_ADC_VREF_MV
 #endif
 
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
-  #define HAS_LINEAR_E_JERK 1
-#endif
-
 // Determine which type of 'EEPROM' is in use
 #if ENABLED(EEPROM_SETTINGS)
   // EEPROM type may be defined by compile flags, configs, HALs, or pins
@@ -103,6 +98,8 @@
 
 #if ANY(AXIS4_ROTATES, AXIS5_ROTATES, AXIS6_ROTATES, AXIS7_ROTATES, AXIS8_ROTATES, AXIS9_ROTATES)
   #define HAS_ROTATIONAL_AXES 1
+#else
+  #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
 
 #if HAS_X_AXIS
@@ -695,11 +692,13 @@
 /**
  * Compatibility layer for MAX (SPI) temp boards
  */
+
+#define TEMP_SENSOR_IS_ANY_MAX_TC(n) (TEMP_SENSOR_IS_MAX_TC(n) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
+
 #if HAS_MAX_TC
 
   // Software SPI - enable if MISO/SCK are defined.
-  #if (TEMP_SENSOR_IS_MAX_TC(0) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1))) \
-    && PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK) && DISABLED(TEMP_SENSOR_0_FORCE_HW_SPI)
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && DISABLED(TEMP_SENSOR_0_FORCE_HW_SPI) && PINS_EXIST(TEMP_0_MISO, TEMP_0_SCK)
     #if TEMP_SENSOR_0_IS_MAX31865 && !PIN_EXISTS(TEMP_0_MOSI)
       #error "TEMP_SENSOR_0 MAX31865 requires TEMP_0_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_0_FORCE_HW_SPI."
     #else
@@ -707,8 +706,7 @@
     #endif
   #endif
 
-  #if (TEMP_SENSOR_IS_MAX_TC(1) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1))) \
-    && PIN_EXISTS(TEMP_1_MISO) && PIN_EXISTS(TEMP_1_SCK) && DISABLED(TEMP_SENSOR_1_FORCE_HW_SPI)
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && DISABLED(TEMP_SENSOR_1_FORCE_HW_SPI) && PINS_EXIST(TEMP_1_MISO, TEMP_1_SCK)
     #if TEMP_SENSOR_1_IS_MAX31865 && !PIN_EXISTS(TEMP_1_MOSI)
       #error "TEMP_SENSOR_1 MAX31865 requires TEMP_1_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_1_FORCE_HW_SPI."
     #else
@@ -716,12 +714,19 @@
     #endif
   #endif
 
-  #if (TEMP_SENSOR_IS_MAX_TC(2) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2))) \
-    && PIN_EXISTS(TEMP_2_MISO) && PIN_EXISTS(TEMP_2_SCK) && DISABLED(TEMP_SENSOR_2_FORCE_HW_SPI)
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(2) && DISABLED(TEMP_SENSOR_2_FORCE_HW_SPI) && PINS_EXIST(TEMP_2_MISO, TEMP_2_SCK)
     #if TEMP_SENSOR_2_IS_MAX31865 && !PIN_EXISTS(TEMP_2_MOSI)
       #error "TEMP_SENSOR_2 MAX31865 requires TEMP_2_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_2_FORCE_HW_SPI."
     #else
       #define TEMP_SENSOR_2_HAS_SPI_PINS 1
+    #endif
+  #endif
+
+  #if (TEMP_SENSOR_IS_MAX_TC(BED)) && DISABLED(TEMP_SENSOR_BED_FORCE_HW_SPI) && PINS_EXIST(TEMP_BED_MISO, TEMP_BED_SCK)
+    #if TEMP_SENSOR_BED_IS_MAX31865 && !PIN_EXISTS(TEMP_BED_MOSI)
+      #error "TEMP_SENSOR_BED MAX31865 requires TEMP_BED_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_BED_FORCE_HW_SPI."
+    #else
+      #define TEMP_SENSOR_BED_HAS_SPI_PINS 1
     #endif
   #endif
 
@@ -2468,11 +2473,7 @@
   #define COOLER_MAX_TARGET (COOLER_MAXTEMP - (COOLER_OVERSHOOT))
 #endif
 
-#if HAS_HEATED_BED || HAS_TEMP_CHAMBER
-  #define BED_OR_CHAMBER 1
-#endif
-
-#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
   #define HAS_TEMP_SENSOR 1
 #endif
 
@@ -2489,14 +2490,8 @@
 // PID heating
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #define HAS_PID_HEATING 1
-#endif
-
-#if ENABLED(DWIN_LCD_PROUI)
-  #if ANY(PIDTEMP, PIDTEMPBED)
+  #if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
     #define PROUI_PID_TUNE 1
-  #endif
-  #if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
-    #define PROUI_TUNING_GRAPH 1
   #endif
 #endif
 
@@ -2645,11 +2640,13 @@
   #endif
 #endif
 
-// Print Cooling fans (limit)
+/**
+ * Up to 12 PWM fans
+ */
 #ifdef NUM_M106_FANS
   #define MAX_FANS NUM_M106_FANS
 #else
-  #define MAX_FANS 8  // Max supported fans
+  #define MAX_FANS 12  // Max supported fans
 #endif
 
 #define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
@@ -2684,21 +2681,30 @@
 #if _HAS_FAN(7)
   #define HAS_FAN7 1
 #endif
-#undef _NOT_E_AUTO
+#if _HAS_FAN(8)
+  #define HAS_FAN8 1
+#endif
+#if _HAS_FAN(9)
+  #define HAS_FAN9 1
+#endif
+#if _HAS_FAN(10)
+  #define HAS_FAN10 1
+#endif
+#if _HAS_FAN(11)
+  #define HAS_FAN11 1
+#endif
 #undef _HAS_FAN
+#undef _IS_E_AUTO
 
-#if BED_OR_CHAMBER || HAS_FAN0
-  #define BED_OR_CHAMBER_OR_FAN 1
-#endif
-
-/**
- * Up to 8 PWM fans
- */
-#ifndef FAN_INVERTING
-  #define FAN_INVERTING false
-#endif
-
-#if HAS_FAN7
+#if HAS_FAN11
+  #define FAN_COUNT 12
+#elif HAS_FAN10
+  #define FAN_COUNT 11
+#elif HAS_FAN9
+  #define FAN_COUNT 10
+#elif HAS_FAN8
+  #define FAN_COUNT 9
+#elif HAS_FAN7
   #define FAN_COUNT 8
 #elif HAS_FAN6
   #define FAN_COUNT 7
@@ -2943,14 +2949,26 @@
  * Bed Probe dependencies
  */
 #if ANY(MESH_BED_LEVELING, HAS_BED_PROBE)
-  #ifndef Z_PROBE_OFFSET_RANGE_MIN
-    #define Z_PROBE_OFFSET_RANGE_MIN -20
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
   #endif
-  #ifndef Z_PROBE_OFFSET_RANGE_MAX
-    #define Z_PROBE_OFFSET_RANGE_MAX 20
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
   #endif
 #endif
 #if HAS_BED_PROBE
+  #ifndef PROBE_OFFSET_XMIN
+    #define PROBE_OFFSET_XMIN -50
+  #endif
+  #ifndef PROBE_OFFSET_XMAX
+    #define PROBE_OFFSET_XMAX  50
+  #endif
+  #ifndef PROBE_OFFSET_YMIN
+    #define PROBE_OFFSET_YMIN -50
+  #endif
+  #ifndef PROBE_OFFSET_YMAX
+    #define PROBE_OFFSET_YMAX  50
+  #endif
   #if ALL(ENDSTOPPULLUPS, USE_Z_MIN_PROBE)
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
@@ -2960,9 +2978,6 @@
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
-#else
-  #undef NOZZLE_TO_PROBE_OFFSET
-  #undef PROBING_STEPPERS_OFF
 #endif
 
 /**
@@ -3217,10 +3232,10 @@
   #endif
 #endif
 
+#ifndef Z_CLEARANCE_BETWEEN_PROBES
+  #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
+#endif
 #if PROBE_SELECTED
-  #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
-  #endif
   #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
     #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
   #else
@@ -3337,8 +3352,8 @@
     #define SDSORT_CACHE_NAMES true
     #define SDSORT_CACHE_LPC1768_WARNING 1
   #endif
-  #ifndef FOLDER_SORTING
-    #define FOLDER_SORTING     -1
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS     -1
   #endif
   #ifndef SDSORT_GCODE
     #define SDSORT_GCODE       false

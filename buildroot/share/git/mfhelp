@@ -8,7 +8,7 @@ Marlin Firmware Commands:
 
   firstpush ... Push and set-upstream the current branch to 'origin'
   ghpc ........ Push the current branch to its upstream branch
-  ghtp ........ Set the transfer protolcol for all your remotes
+  ghtp ........ Set the transfer protocol for all your remotes
   mfadd ....... Fetch a remote branch from any Marlin fork
   mfclean ..... Attempt to clean up merged and deleted branches
   mfdoc ....... Build the website, serve locally, and browse
@@ -24,5 +24,23 @@ Marlin Firmware Commands:
   mfup ........ Fetch the latest 'upstream' and rebase on it
 
   Enter [command] --help for more information.
+
+Build / Test Commands:
+
+  mftest ............... Run a platform test locally with PlatformIO
+  build_all_examples ... Build all configurations of a branch, stop on error
+
+Modify Configuration.h / Configuration_adv.h:
+
+  opt_add .............. Add a configuration option (to the top of Configuration.h)
+  opt_disable .......... Disable a configuration option (modifies )
+  opt_enable ........... Enable a configuration option
+  opt_set .............. Set the value of a configuration option
+  use_example_configs .. Download configs from a remote branch on GitHub
+
+Modify pins files:
+
+  pins_set ............. Set the value of a pin in a pins file
+  pinsformat.js ........ Node.js script to format pins files
 
 THIS

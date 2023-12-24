@@ -161,6 +161,7 @@ void SERIAL_FLUSHTX();
 // Start an echo: or error: output
 void SERIAL_ECHO_START();
 void SERIAL_ERROR_START();
+void SERIAL_WARN_START();
 
 // Serial end-of-line
 void SERIAL_EOL();
@@ -227,6 +228,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 
 #define SERIAL_ECHO_MSG(V...)  do{ SERIAL_ECHO_START();  SERIAL_ECHOLNPGM(V); }while(0)
 #define SERIAL_ERROR_MSG(V...) do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(V); }while(0)
+#define SERIAL_WARN_MSG(V...)  do{ SERIAL_WARN_START();  SERIAL_ECHOLNPGM(V); }while(0)
 
 // Print a prefix, conditional string, and suffix
 void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr);
@@ -274,13 +276,13 @@ public:
   SString& set() { super::set(); return *this; }
 
   template<typename... Args>
-  SString& setf_P(PGM_P const fmt, Args... more) { snprintf_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  SString& setf_P(PGM_P const fmt, Args... more) { super::setf_P(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(const char *fmt, Args... more)   { snprintf(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  SString& setf(const char *fmt, Args... more)   { super::setf(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  SString& setf(FSTR_P const fmt, Args... more)  { super::setf(fmt, more...); return *this; }
 
   template <typename T>
   SString& set(const T &v) { super::set(v); return *this; }

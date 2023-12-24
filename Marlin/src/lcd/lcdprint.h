@@ -206,13 +206,36 @@ inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P cons
 }
 
 /**
+ * @brief Expand a string with optional substitution
+ * @details Expand a string with optional substitutions:
+ *   $ : the clipped string given by fstr or cstr
+ *   { :  '0'....'10' for indexes 0 - 10
+ *   ~ :  '1'....'11' for indexes 0 - 10
+ *   * : 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ : an axis name such as XYZUVW, or E for an extruder
+ *
+ * @param *outstr The output destination buffer
+ * @param ptpl A ROM string (template)
+ * @param ind An index value to use for = ~ * substitution
+ * @param cstr An SRAM C-string to use for $ substitution
+ * @param fstr A ROM F-string to use for $ substitution
+ * @param maxlen The maximum size of the string (in pixels on GLCD)
+ * @return the output width (in pixels on GLCD)
+ */
+lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH);
+
+inline lcd_uint_t expand_u8str(char * const outstr, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
+  return expand_u8str_P(outstr, FTOP(ftpl), ind, cstr, fstr, maxlen);
+}
+
+/**
  * @brief Draw a string with optional substitution
  * @details Print a string with optional substitutions:
- *   $ displays the clipped string given by fstr or cstr
- *   { displays  '0'....'10' for indexes 0 - 10
- *   ~ displays  '1'....'11' for indexes 0 - 10
- *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
- *   @ displays an axis name such as XYZUVW, or E for an extruder
+ *   $ : the clipped string given by fstr or cstr
+ *   { :  '0'....'10' for indexes 0 - 10
+ *   ~ :  '1'....'11' for indexes 0 - 10
+ *   * : 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ : an axis name such as XYZUVW, or E for an extruder
  *
  * @param ptpl A ROM string (template)
  * @param ind An index value to use for = ~ * substitution
