@@ -350,7 +350,7 @@
       #define LCD_PINS_D7            EXP1_08_PIN
       #define KILL_PIN                     -1     // NC
 
-    #else                                         // !MKS_12864OLED_SSD1306
+    #else // !MKS_12864OLED_SSD1306
 
       #define LCD_PINS_RS            EXP1_04_PIN
 
@@ -385,7 +385,7 @@
           #define NEOPIXEL_PIN       EXP1_06_PIN
         #endif
 
-      #else                                       // !FYSETC_MINI_12864
+      #else // !FYSETC_MINI_12864
 
         #if ENABLED(MKS_MINI_12864)
           #define DOGLCD_CS          EXP1_06_PIN

@@ -276,6 +276,9 @@ namespace Anycubic {
     return stringLength;
   }
 
+  #undef GET_TEXT
+  #define GET_TEXT(MSG) Language_en::MSG
+
   void DgusTFT::printerKilled(FSTR_P error_p, FSTR_P component_p) {
 
     // copy string in FLASH to RAM for strcmp_P
@@ -293,9 +296,9 @@ namespace Anycubic {
       DEBUG_ECHOLNPGM("printerKilled()\nerror: ", error, "\ncomponent: ", component);
     #endif
 
-    if (strcmp_P(error, PSTR("Heating Failed")) == 0) {
+    if (strcmp_P(error, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed heater");
       }
@@ -305,9 +308,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Err: MINTEMP")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -317,9 +320,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Err: MAXTEMP")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
         SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
@@ -329,9 +332,9 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("THERMAL RUNAWAY")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0) {
 
-      if (strcmp_P(component, PSTR("Bed")) == 0) {
+      if (strcmp_P(component, GET_TEXT(MSG_BED)) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
         SERIAL_ECHOLNPGM("Check Bed thermal runaway");
       }
@@ -341,7 +344,7 @@ namespace Anycubic {
       }
 
     }
-    else if (strcmp_P(error, PSTR("Homing Failed")) == 0) {
+    else if (strcmp_P(error, GET_TEXT(MSG_KILL_HOMING_FAILED)) == 0) {
 
       if (strcmp_P(component, PSTR("X")) == 0) {
         changePageOfTFT(PAGE_CHS_ABNORMAL_X_ENDSTOP);
@@ -968,8 +971,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::selectFile() {
-    strncpy(selectedfile, panel_command + 4, command_len - 4);
-    selectedfile[command_len - 5] = '\0';
+    strlcpy(selectedfile, panel_command + 4, command_len - 3);
     #if ACDEBUG(AC_FILE)
       DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
     #endif
@@ -1290,8 +1292,7 @@ namespace Anycubic {
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1329,8 +1330,7 @@ namespace Anycubic {
             printFile(filenavigator.filelist.shortFilename());
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             sprintf(str_buf, "%5.2f", getFeedrate_percent());
