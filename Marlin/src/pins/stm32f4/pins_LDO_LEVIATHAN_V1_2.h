@@ -197,18 +197,17 @@
 //
 // SPI pins for TMC5160 HV-STEPPER drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PE14
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PE13
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PE12
-#endif
-
-#if DISABLED(TMC_USE_SW_SPI)
-  #error "TMC_USE_SW_SPI is required for this board"
+#if HAS_TMC_SPI
+  #define TMC_USE_SW_SPI
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PE14
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PE13
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PE12
+  #endif
 #endif
 
 #if HAS_TMC_UART
