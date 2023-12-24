@@ -281,7 +281,7 @@
 
     #ifndef BEEPER_PIN
       #define BEEPER_PIN             EXP1_01_PIN
-      #undef SPEAKER
+      #define NO_SPEAKER
     #endif
 
   #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
