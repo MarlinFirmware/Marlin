@@ -188,10 +188,8 @@
 //
 // SD Support
 //
-#ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
-    #define SDCARD_CONNECTION                LCD
-  #endif
+#if HAS_WIRED_LCD && !defined(SDCARD_CONNECTION)
+  #define SDCARD_CONNECTION                LCD
 #endif
 
 //
