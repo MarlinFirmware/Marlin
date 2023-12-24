@@ -93,7 +93,7 @@ public:
   MenuItem(uint8_t cicon, const char * const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
   MenuItem(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
   void setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void setCaption(const char * const text = nullptr);
+  void setCaption(const char * const text=nullptr);
 };
 
 class MenuItemPtr: public MenuItem {
