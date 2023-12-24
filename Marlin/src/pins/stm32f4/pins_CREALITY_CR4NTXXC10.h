@@ -240,13 +240,3 @@
   #endif
 
 #endif
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if HAS_CUTTER
-  #define SPINDLE_LASER_ENA_PIN      EXP1_01_PIN  // FET 1
-  #define SPINDLE_LASER_PWM_PIN      EXP1_01_PIN  // Bed FET
-  #define SPINDLE_DIR_PIN            EXP1_01_PIN  // FET 4
-  //#define LASER_SOFT_PWM_PIN       EXP1_01_PIN
-#endif
