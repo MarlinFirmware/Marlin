@@ -251,6 +251,12 @@ static FSTR_P pause_header() {
 }while(0)
 
 void menu_pause_option() {
+  #if HAS_FILAMENT_SENSOR
+    const bool still_out = runout.filament_ran_out;
+  #else
+    constexpr bool still_out = false;
+  #endif
+
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
@@ -258,11 +264,8 @@ void menu_pause_option() {
   ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_PURGE, []{ pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; });
 
   #if HAS_FILAMENT_SENSOR
-    const bool still_out = runout.filament_ran_out;
     if (still_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
-  #else
-    constexpr bool still_out = false;
   #endif
 
   if (!still_out)

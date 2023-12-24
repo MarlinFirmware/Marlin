@@ -169,7 +169,7 @@
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN

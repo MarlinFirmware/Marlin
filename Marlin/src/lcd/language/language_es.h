@@ -127,7 +127,6 @@ namespace LanguageNarrow_es {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ª Fusor @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivelado UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto de inclinación");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Crear Mallado man.");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Colocar cuña y Medir");
@@ -187,8 +186,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_MESH_LOADED                    = _UxGT("Malla %i Cargada");
   LSTR MSG_MESH_SAVED                     = _UxGT("Malla %i Guardada");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Sin guardar");
-  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Error: Guardar UBL");
-  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Error: Restaurar UBL");
+  LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Error Guardar UBL");
+  LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Error Restaurar UBL");
   LSTR MSG_UBL_Z_OFFSET                   = _UxGT("Desfase de Z: ");
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Desfase de Z Parado");
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("UBL Paso a Paso");
@@ -229,11 +228,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend muy frio");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mover $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mover $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Velocidad");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Cama Z");
   LSTR MSG_NOZZLE                         = _UxGT("Boquilla");
@@ -407,11 +403,9 @@ namespace LanguageNarrow_es {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Micropaso @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancelado - Endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Calent. fallido");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Calent. fallido");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP. REDUN.");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("FUGA TÉRMICA");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("FUGA TÉRMICA CAMA");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("FUGA TÉRMICA CAMARA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("FUGA TÉRMICA");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err:TEMP. MÁX");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err:TEMP. MIN");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA DETENIDA");

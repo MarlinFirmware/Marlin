@@ -139,7 +139,6 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_G26_LEAVING                    = _UxGT("Sortie G26");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 en cours");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Outils UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Niveau lit unifie");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Maillage manuel");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser cale & mesurer");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
@@ -233,16 +232,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Buse trop froide");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Deplacer $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Deplacer 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Deplacer 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Deplacer 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Deplacer 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Deplacer 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Deplacer 0.001\"");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Deplacer 0.01\"");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Deplacer 0.1\"");
-  LSTR MSG_MOVE_05IN                      = _UxGT("Deplacer 0.5\"");
-  LSTR MSG_MOVE_1IN                       = _UxGT("Deplacer 1\"");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Deplacer $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Deplacer $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");
@@ -433,9 +424,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Butee abandon");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Err de chauffe");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Err de chauffe");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err TEMP. REDONDANTE");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Err THERMIQUE");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Err THERMIQUE");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err TEMP. MAX");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err TEMP. MIN");
 

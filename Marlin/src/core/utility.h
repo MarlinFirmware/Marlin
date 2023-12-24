@@ -33,7 +33,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   inline void serial_delay(const millis_t) {}
 #endif
 
-#if (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y)
+#if GRID_MAX_POINTS
 
   // 16x16 bit arrays
   template <int W, int H>
