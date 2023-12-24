@@ -468,5 +468,5 @@
 // The FYSETC_MINI_12864_2_1 uses one of the EXP pins
 //
 #if DISABLED(FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
-  #define NEOPIXEL_PIN                      PF10  // RGB
+  #define NEOPIXEL_PIN                      PF10  // NEOPIXEL
 #endif
