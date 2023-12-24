@@ -200,8 +200,8 @@ float BedLevelTools::getMinValue() {
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
   GRID_LOOP(x, y) {
-    const float v = bedlevel.z_values[x][y];
-    if (isnan(v) || !WITHIN(v, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
+    const float z = bedlevel.z_values[x][y];
+    if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
   }
   return true;
 }
@@ -234,10 +234,10 @@ bool BedLevelTools::meshValidate() {
       const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       const float z = bedlevel.z_values[x][y];
-      const uint16_t color = isnan(z) ? COLOR_GREY : (    // Gray if undefined
-        (z < 0 ? uint16_t(round(0x1F * -z / rmax)) << 11  // Red for negative mesh point
-               : uint16_t(round(0x3F *  z / rmax)) << 5)  // Green for positive mesh point
-        | _MIN(0x1F, (((uint8_t)abs(z) / 10) * 4))        // + Blue stepping for every mm
+      const uint16_t color = isnan(z) ? COLOR_GREY : (   // Gray if undefined
+        (z < 0 ? uint16_t(round(0x1F * -z / rmax)) << 11 // Red for negative mesh point
+               : uint16_t(round(0x3F *  z / rmax)) << 5) // Green for positive mesh point
+               | _MIN(0x1F, (uint8_t(abs(z) * 0.4)))     // + Blue stepping for every mm
       );
 
       dwinDrawRectangle(1, color, start_x_px, start_y_px, end_x_px, end_y_px);
@@ -250,7 +250,6 @@ bool BedLevelTools::meshValidate() {
 
       const uint8_t fs = DWINUI::fontWidth(meshfont);
       const int8_t offset_y = cell_height_px / 2 - fs;
-      const float z = bedlevel.z_values[x][y];
       if (isnan(z)) { // undefined
         dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
       }
@@ -258,9 +257,9 @@ bool BedLevelTools::meshValidate() {
         MString<12> msg;
         constexpr bool is_wide = (GRID_MAX_POINTS_X) < TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
-          msg.setf(F("%02i"), uint16_t(z * 100) % 100);
-        else
           msg.set(p_float_t(abs(z), 2));
+        else
+          msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         const int8_t offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
         if (is_wide)
           dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
