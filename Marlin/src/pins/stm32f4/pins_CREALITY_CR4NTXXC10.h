@@ -199,7 +199,7 @@
  *       TX2  PA2 | 3  4 | PA3  RX2
  * SPI2_MISO PB14 | 5  6 | PB13 SPI2_SCK
  * SPI2_NSS  PB12 | 7  8 | PB15 SPI2_MOSI
- *            GND | 9  10| 5V
+ *            GND | 9 10 | 5V
  *                 ------
  *                  EXP1
  */
@@ -236,7 +236,7 @@
   //#define LCD_LED_PIN              EXP1_02_PIN
   #ifndef BEEPER_PIN
     #define BEEPER_PIN               EXP1_06_PIN
-    #undef SPEAKER
+    #define NO_SPEAKER
   #endif
 
 #endif
@@ -245,9 +245,6 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  //#undef HEATER_0_PIN
-  //#undef HEATER_BED_PIN
-  //#undef FAN0_PIN
   #define SPINDLE_LASER_ENA_PIN      EXP1_01_PIN  // FET 1
   #define SPINDLE_LASER_PWM_PIN      EXP1_01_PIN  // Bed FET
   #define SPINDLE_DIR_PIN            EXP1_01_PIN  // FET 4

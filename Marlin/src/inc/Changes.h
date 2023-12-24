@@ -673,7 +673,6 @@
   #error "SDIO_SUPPORT is now ONBOARD_SDIO."
 #endif
 
-
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
 #define _L6474              0x6474
