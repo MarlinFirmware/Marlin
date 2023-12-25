@@ -218,7 +218,7 @@
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
 
-#if TEMP_SENSOR_0 == -5
+#if TEMP_SENSOR_0_IS_MAX31865
   #define TEMP_0_CS_PIN                     PF8   // Max31865 CS
   #define TEMP_0_SCK_PIN                    PA5
   #define TEMP_0_MISO_PIN                   PA6
