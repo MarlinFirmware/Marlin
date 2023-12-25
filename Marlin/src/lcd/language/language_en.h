@@ -138,13 +138,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Preheat Custom");
   LSTR MSG_COOLDOWN                       = _UxGT("Cooldown");
 
-  #define _MSG_PREHEAT(N) \
-    LSTR MSG_PREHEAT_##N                  = _UxGT("Preheat ") PREHEAT_## N ##_LABEL; \
-    LSTR MSG_PREHEAT_## N ##_SETTINGS     = _UxGT("Preheat ") PREHEAT_## N ##_LABEL _UxGT(" Conf");
-  #if PREHEAT_COUNT > 1
-    REPEAT_S(2, INCREMENT(PREHEAT_COUNT), _MSG_PREHEAT)
-  #endif
-
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frequency");
   LSTR MSG_LASER_MENU                     = _UxGT("Laser Control");
   LSTR MSG_SPINDLE_MENU                   = _UxGT("Spindle Control");
