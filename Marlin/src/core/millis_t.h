@@ -30,6 +30,8 @@ typedef uint32_t millis_t;
 #define MS_TO_SEC(N) millis_t((N)/1000UL)
 #define MS_TO_SEC_PRECISE(N) (float(N)/1000.0f)
 
-constexpr bool PENDING(const millis_t &now, const millis_t &soon) { return (now < soon); }
-constexpr bool PENDING(const millis_t &now, const millis_t &start, const millis_t &interval) { return ((now - start) < interval); }
+constexpr bool _PENDING(const millis_t &now, const millis_t &soon) { return (now < soon); }
+constexpr bool _PENDING(const millis_t &now, const millis_t &start, const millis_t &interval) { return ((now - start) < interval); }
+
+#define PENDING(V...) _PENDING(V)
 #define ELAPSED(V...) !PENDING(V)
