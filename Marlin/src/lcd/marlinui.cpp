@@ -1035,9 +1035,13 @@ void MarlinUI::init() {
         uint8_t abs_diff = ABS(encoderDiff);
 
         #if ENCODER_PULSES_PER_STEP > 1
-          static int8_t lastEncoderDiff;
-          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
-          lastEncoderDiff = encoderDiff;
+          #if HAS_TOUCH_SLEEP
+            static int8_t lastEncoderDiff;
+            if (lastEncoderDiff != encoderDiff) {
+              wakeup_screen();
+              lastEncoderDiff = encoderDiff;
+            }
+          #endif
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
