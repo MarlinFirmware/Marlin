@@ -54,6 +54,17 @@ void runStartupTests() {
   SERIAL_ECHOLN(F("PENDING("), int32_t(late), AS_CHAR(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
   SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
 
+  MTimeout timeout(100);
+  timeout.prime();
+  timeout.idle();
+
+  MDelay<4000> delay4000;
+  delay4000.prime();
+  delay4000.dofunc([] {
+    SERIAL_ECHOLNPGM("millis() = ", millis());
+    safe_delay(500);
+  });
+
   SERIAL_ECHOLNPGM("\n<< SString class >>");
 
   // String with cutoff at 20 chars:
