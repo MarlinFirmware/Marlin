@@ -21,8 +21,10 @@
  */
 #pragma once
 
+#include "../inc/MarlinConfig.h"
+
 typedef uint32_t millis_t;
-extern "C" unsigned long millis(void);
+
 void idle(const bool no_stepper_sleep);
 
 #define SEC_TO_MS(N) millis_t((N)*1000UL)

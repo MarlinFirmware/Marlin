@@ -23,7 +23,6 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
-#include "../../core/millis_t.h"
 
 #include <usb/usb.h>
 #include <usb/usbcfg.h>
@@ -35,6 +34,7 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
+typedef uint32_t millis_t;
 DefaultSerial1 USBSerial(false, UsbSerial);
 
 uint32_t MarlinHAL::adc_result = 0;
