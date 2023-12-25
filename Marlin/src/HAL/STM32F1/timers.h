@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2017 Victor Perez
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ typedef uint16_t hal_timer_t;
   //#define MF_TIMER_TEMP       4  // 2->4, Timer 2 for Stepper Current PWM
 #endif
 
-#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3)
+#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3, VOXELAB_AQUILA)
   // SKR Mini E3 boards use PA8 as FAN0_PIN, so TIMER 1 is used for Fan PWM.
   #ifdef STM32_HIGH_DENSITY
     #define MF_TIMER_SERVO0  8  // tone.cpp uses Timer 4

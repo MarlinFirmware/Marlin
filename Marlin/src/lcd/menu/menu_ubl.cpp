@@ -361,7 +361,7 @@ void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_
 void _lcd_ubl_storage_mesh() {
   int16_t a = settings.calc_num_meshes();
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   if (!WITHIN(ubl_storage_slot, 0, a - 1))
     STATIC_ITEM(MSG_UBL_NO_STORAGE);
   else {
@@ -376,11 +376,19 @@ void _lcd_ubl_storage_mesh() {
  * UBL LCD "radar" map point editing
  */
 void _lcd_ubl_map_edit_cmd() {
-  char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str);
-  dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2);
-  snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29P4X%sY%sR%i"), str, str2, int(n_edit_pts));
-  queue.inject(ubl_lcd_gcode);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Costs 198 bytes on AVR with PLR disabled, but saves 60 bytes with PLR enabled
+    queue.inject(TS(F("G29P4X"), x_plot, 'Y', y_plot, 'R', n_edit_pts));
+  #else
+    char ubl_lcd_gcode[50], str1[10], str2[10];
+    snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode),
+      PSTR("G29P4X%sY%sR%i"),
+      dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str1),
+      dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2),
+      int(n_edit_pts)
+    );
+    queue.inject(ubl_lcd_gcode);
+  #endif
 }
 
 /**
@@ -517,7 +525,7 @@ void _ubl_goto_map_screen() {
  */
 void _lcd_ubl_output_map() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_HOST, F("G29T0"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_CSV, F("G29T1"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_BACKUP, F("G29S-1"));
@@ -535,7 +543,7 @@ void _lcd_ubl_output_map() {
  */
 void _menu_ubl_tools() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   SUBMENU(MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   GCODES_ITEM(MSG_UBL_MANUAL_MESH, F("G29I999\nG29P2BT0"));
   #if ENABLED(G26_MESH_VALIDATION)
@@ -562,7 +570,7 @@ void _menu_ubl_tools() {
    */
   void _lcd_ubl_step_by_step() {
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, F("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, F("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
@@ -596,7 +604,7 @@ void _menu_ubl_tools() {
   void _menu_ubl_mesh_wizard() {
     const int16_t total_slots = settings.calc_num_meshes();
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
 
     #if HAS_HOTEND
       EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, HEATER_0_MINTEMP + 20, thermalManager.hotend_max_target(0));

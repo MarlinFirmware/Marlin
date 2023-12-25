@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +52,9 @@ struct USARTMin {
     0x40004800, // USART3
     0x40004C00, // UART4_BASE
     0x40005000, // UART5_BASE
-    0x40011400  // USART6
-    0x40007800  // UART7_BASE
-    0x40007C00  // UART8_BASE
+    0x40011400, // USART6
+    0x40007800, // UART7_BASE
+    0x40007C00, // UART8_BASE
     0x40011800  // UART9_BASE
   };
   static USARTMin * regs = (USARTMin*)regsAddr[SERIAL_PORT - 1];

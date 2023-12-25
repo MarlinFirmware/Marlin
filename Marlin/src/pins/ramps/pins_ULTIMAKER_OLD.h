@@ -195,7 +195,7 @@
 
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !IS_NEWPANEL - Old style panel with shift register
+  #else // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
     #define SHIFT_CLK_PIN                     38

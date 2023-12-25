@@ -77,7 +77,7 @@ class WriteSource:
     if len(self.values):
       self.blocks.append(self.values)
 
-    block_strs = [];
+    block_strs = []
     for b in self.blocks:
       data = self.convert_to_4bpp(b)
       data = ', '.join(data)

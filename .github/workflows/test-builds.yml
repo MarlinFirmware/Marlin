@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
     - bugfix-2.1.x
+    - 2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -17,6 +18,7 @@ on:
   push:
     branches:
     - bugfix-2.1.x
+    - 2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -118,6 +120,7 @@ jobs:
 
         # STM32H7
         - BTT_SKR_SE_BX
+        - STM32H743VI_btt
 
         # STM32F1 (Maple)
         - jgaurora_a5s_a1_maple
@@ -136,6 +139,9 @@ jobs:
         # STM32G0
         - STM32G0B1RE_btt
 
+        # HC32
+        - HC32F460C_aquila_101
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769
@@ -143,7 +149,7 @@ jobs:
     steps:
 
     - name: Check out the PR
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Cache pip
       uses: actions/cache@v3
@@ -159,11 +165,11 @@ jobs:
         path: ~/.platformio
         key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
-    - name: Select Python 3.7
-      uses: actions/setup-python@v3
+    - name: Select Python 3.9
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
-        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+        python-version: '3.9'
+        architecture: 'x64'
 
     - name: Install PlatformIO
       run: |
