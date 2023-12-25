@@ -39,8 +39,18 @@
 
 #define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
 #define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
-#if WITHIN(SERIAL_PORT, 0, 3)
+#if WITHIN(SERIAL_PORT, 0, 8)
   IMPLEMENT_SERIAL(SERIAL_PORT);
+#endif
+#ifdef SERIAL_PORT_2
+  #if WITHIN(SERIAL_PORT_2, 0, 8)
+    IMPLEMENT_SERIAL(SERIAL_PORT_2);
+  #endif
+#endif
+#ifdef SERIAL_PORT_3
+  #if WITHIN(SERIAL_PORT_3, 0, 8)
+    IMPLEMENT_SERIAL(SERIAL_PORT_3);
+  #endif
 #endif
 USBSerialType USBSerial(false, SerialUSB);
 
