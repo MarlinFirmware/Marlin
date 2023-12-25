@@ -136,7 +136,7 @@ public:
   MString& setn(FSTR_P const f, int len)  { return setn_P(FTOP(f), len); }
 
   // set(repchr_t('-', 10))
-  MString& set(const repchr_t &s)         { int c = _MIN(s.count, SIZE); memset(str, s.asc, c); str[c] = '\0'; debug(F("")); return *this; }
+  MString& set(const repchr_t &s)         { int c = _MIN(s.count, SIZE); if (c >= 0) { if (c > 0) memset(str, s.asc, c); str[c] = '\0'; } debug(F("repchr_t")); return *this; }
 
   // set(spaces_t(10))
   MString& set(const spaces_t &s)         { repchr_t r(' ', s.count); return set(r); }
