@@ -242,12 +242,8 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
  */
 void GcodeSuite::dwell(millis_t time) {
-  if (time > 2147483647) {
-    dwell(2147483647);
-    time -= 2147483647;
-  }
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+  const millis_t ms = millis();
+  while (PENDING(millis(), ms, time)) idle();
 }
 
 /**
