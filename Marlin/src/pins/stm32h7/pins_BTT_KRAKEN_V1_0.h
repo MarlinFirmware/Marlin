@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME      "BTT Kraken V1.0"
+#define BOARD_INFO_NAME   "BTT Kraken V1.0"
 #define BOARD_WEBSITE_URL "github.com/bigtreetech/BIGTREETECH-Kraken"
 
 #define USES_DIAG_JUMPERS
