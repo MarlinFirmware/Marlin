@@ -31,6 +31,7 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 //#define TJC_DISPLAY           // Enable for TJC display
+//#define DACAI_DISPLAY         // Enable for DACAI display
 
 #if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
