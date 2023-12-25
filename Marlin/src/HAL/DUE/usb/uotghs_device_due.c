@@ -813,7 +813,9 @@ static void disable_and_ack_sync_interrupts()
 	__DSB();
 	udd_ack_reset();
 	udd_ack_sof();
+#ifdef USB_DEVICE_HS_SUPPORT
 	udd_ack_msof();
+#endif
 	__DSB();
 }
 
