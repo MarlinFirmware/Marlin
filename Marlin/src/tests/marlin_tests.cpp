@@ -38,6 +38,24 @@
 void runStartupTests() {
   // Call post-setup tests here to validate behaviors.
 
+  SERIAL_ECHOLNPGM("\n<< Startup Tests >>");
+
+  SERIAL_ECHOLNPGM("\n<< SERIAL_ECHO>>");
+
+  SERIAL_ECHOLN("C String ", F("F String "), AS_CHAR('X'), AS_CHAR(' '), 123, AS_CHAR(','), 123.4, AS_CHAR(','), -123, AS_CHAR(','), -123.4, AS_CHAR(','), int8_t(-123), AS_CHAR(','), uint8_t(123), AS_CHAR(','), int16_t(-123), AS_CHAR(','), uint16_t(123), AS_CHAR(','), int32_t(-123), AS_CHAR(','), uint32_t(123));
+  for (uint8_t i = 0; i <= 9; ++i) SERIAL_CHAR('0' + char(i));
+  SERIAL_EOL();
+
+  SERIAL_ECHOLNPGM("\n<< ELAPSED / PENDING >>");
+
+  constexpr millis_t erly = 0x0000FFFF, late = 0x7FFFFF00,
+                     erly2 = erly + MIN_TO_MS(1), late2 = late + MIN_TO_MS(1), huge = erly + 0x7FFFFFFF0;
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(erly2), F(") is "), PENDING(erly, erly2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(late), AS_CHAR(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
+
+  SERIAL_ECHOLNPGM("\n<< SString class >>");
+
   // String with cutoff at 20 chars:
   // "F-string, 1234.50, 2"
   SString<20> str20;
