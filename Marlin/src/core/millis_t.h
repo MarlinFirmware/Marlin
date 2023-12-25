@@ -38,6 +38,8 @@ constexpr bool _PENDING(const millis_t now, const millis_t start, const millis_t
 #define PENDING(V...) _PENDING(V)
 #define ELAPSED(V...) !PENDING(V)
 
+typedef void (*timeoutFunc_t)();
+
 template<typename T>
 struct MTimeout {
   millis_t start_ms = 0;
@@ -51,6 +53,9 @@ struct MTimeout {
   bool elapsed(const millis_t ms=millis()) const { return ELAPSED(ms, start_ms, delay_ms); }
   bool on_pending(const millis_t ms=millis()) const { return delay_ms && pending(ms); }
   bool on_elapsed(const millis_t ms=millis()) const { return delay_ms && elapsed(ms); }
-  void idle() const { if (delay_ms) { while(pending()) ::idle(false); } }
+  void idle(const bool nss=false) const { if (delay_ms) { while(pending()) ::idle(nss); } }
+  void dofunc(timeoutFunc_t fn) const { if (delay_ms) { while(pending()) fn(); } }
   millis_t remaining(const millis_t ms=millis()) const { return pending() ? start_ms + delay_ms - ms : 0; }
 };
+
+template<const int D> struct MDelay : MTimeout<const int> {};
