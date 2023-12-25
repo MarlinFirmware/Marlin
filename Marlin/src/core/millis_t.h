@@ -55,7 +55,7 @@ struct MTimeout {
   bool on_elapsed(const millis_t ms=millis()) const { return delay_ms && elapsed(ms); }
   void idle(const bool nss=false) const { if (delay_ms) { while(pending()) ::idle(nss); } }
   void dofunc(timeoutFunc_t fn) const { if (delay_ms) { while(pending()) fn(); } }
-  millis_t remaining(const millis_t ms=millis()) const { return pending() ? start_ms + delay_ms - ms : 0; }
+  millis_t remaining(const millis_t ms=millis()) const { return pending(ms) ? start_ms + delay_ms - ms : 0; }
 };
 
 template<const int D> struct MDelay : MTimeout<const int> {};
