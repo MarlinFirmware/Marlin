@@ -1429,7 +1429,6 @@ void dwinHandleScreen() {
     case ID_Popup:        hmiPopup(); break;
     case ID_Leveling:     break;
     TERN_(HAS_LOCKSCREEN, case ID_Locked: hmiLockScreen(); break;)
-    case ID_PrintDone:
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
     case ID_PrintDone:
