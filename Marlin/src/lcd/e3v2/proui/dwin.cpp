@@ -1433,7 +1433,8 @@ void dwinHandleScreen() {
 
     TERN_(HAS_BED_PROBE, case ID_Leveling:)
     case ID_Homing:
-    case ID_PIDProcess:
+    TERN_(PROUI_PID_TUNE, case ID_PIDProcess:)
+    TERN_(MPCTEMP, case ID_MPCProcess:)
     case ID_NothingToDo:
     default: break;
   }
@@ -1447,7 +1448,8 @@ bool idIsPopUp() {    // If ID is popup...
     case ID_WaitResponse:
     case ID_Popup:
     case ID_Homing:
-    case ID_PIDProcess:
+    TERN_(PROUI_PID_TUNE, case ID_PIDProcess:)
+    TERN_(MPCTEMP, case ID_MPCProcess:)
       return true;
     default: break;
   }
