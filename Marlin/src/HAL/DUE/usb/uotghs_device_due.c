@@ -120,14 +120,14 @@
 // to ensure that any accesses to USB registers aren't re-ordered
 // to occur while the clock is frozen.
 #define marlin_otg_freeze_clock() do { \
-  __DSB(); \
-  Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+	__DSB(); \
+	Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
 } while (0)
 
-#define marlin_otg_unfreeze_clock()                \
-do {                                        \
-  Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
-  __DSB();                                \
+#define marlin_otg_unfreeze_clock() \
+do { \
+	Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+	__DSB(); \
 } while (0)
 
 /**
@@ -627,7 +627,7 @@ ISR(UDD_USB_INT_FUN)
 		udd_enable_suspend_interrupt();
 
 		// The following interrupts can only be enabled while the clock
-        // is unfrozen, which is why they were left disabled in udd_attach
+		// is unfrozen, which is why they were left disabled in udd_attach
 		udd_enable_reset_interrupt();
 		udd_enable_sof_interrupt();
 #ifdef USB_DEVICE_HS_SUPPORT
@@ -809,7 +809,7 @@ static void disable_and_ack_sync_interrupts()
 	udd_disable_msof_interrupt();
 #endif
 	// Clear interrupt bits which cannot be cleared while the clock
-    // is frozen. Add barriers to ensure proper execution order.
+	// is frozen. Add barriers to ensure proper execution order.
 	__DSB();
 	udd_ack_reset();
 	udd_ack_sof();
@@ -839,9 +839,9 @@ void udd_attach(void)
 	udd_enable_suspend_interrupt();
 	udd_enable_wake_up_interrupt();
 
-    // Several interrupts cannot be handled while the
-    // clock is frozen. Ensure they are disabled and
-    // defer until the wake interrupt enables them.
+	// Several interrupts cannot be handled while the
+	// clock is frozen. Ensure they are disabled and
+	// defer until the wake interrupt enables them.
 	disable_and_ack_sync_interrupts();
 
 	// The first suspend interrupt must be forced
