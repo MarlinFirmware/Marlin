@@ -28,8 +28,6 @@
 #include <algorithm>
 #include "pinmapping.h"
 
-#define strlcpy(A, B, C)   strncpy(A, B, (C) - 1)  // Add strlcpy
-
 void _printf (const  char *format, ...);
 void _putc(uint8_t c);
 uint8_t _getc();
@@ -263,6 +261,15 @@ public:
    */
   static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
     analogWrite(pin, v);
+  }
+
+  /**
+   * Add missing strlcpy to HAL as str_lcpy
+   */
+  size_t str_lcpy(char *dest, const char *source, size_t totalsize) {
+    strncpy(dest, source, totalsize - 1);
+    dest[totalsize - 1] = '\0';
+    return strlen(source);
   }
 
 };

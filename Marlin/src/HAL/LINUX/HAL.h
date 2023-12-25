@@ -162,4 +162,14 @@ public:
   }
 
   static void set_pwm_frequency(const pin_t, int) {}
+
+  /**
+   * Add missing strlcpy to HAL as str_lcpy
+   */
+  size_t str_lcpy(char *dest, const char *source, size_t totalsize) {
+    strncpy(dest, source, totalsize - 1);
+    dest[totalsize - 1] = '\0';
+    return strlen(source);
+  }
+
 };
