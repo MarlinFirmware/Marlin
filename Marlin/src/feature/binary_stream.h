@@ -279,7 +279,6 @@ public:
   template<const size_t buffer_size>
   void receive(char (&buffer)[buffer_size]) {
     uint8_t data = 0;
-    millis_t transfer_window = millis() + RX_TIMESLICE;
 
     #if HAS_MEDIA
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
@@ -288,7 +287,8 @@ public:
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Warray-bounds"
 
-    while (PENDING(millis(), transfer_window)) {
+    const millis_t transfer_start_ms = millis();
+    while (PENDING(millis(), transfer_start_ms, RX_TIMESLICE)) {
       switch (stream_state) {
          /**
           * Data stream packet handling

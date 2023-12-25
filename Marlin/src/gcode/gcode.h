@@ -479,7 +479,7 @@ public:
     #define KEEPALIVE_STATE(N) NOOP
   #endif
 
-  static void dwell(millis_t time);
+  static void dwell(const millis_t &time);
 
 private:
 

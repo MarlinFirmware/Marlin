@@ -179,18 +179,21 @@ void DiskIODriver_USBFlash::idle() {
     }
   #endif
 
-  static millis_t next_state_ms = millis();
+  static millis_t prev_state_ms = millis();
+  static uint16_t state_delay_ms;
 
-  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
+  #define NEXT_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; state_delay_ms = DELAY; }while(0)
 
-  if (ELAPSED(millis(), next_state_ms)) {
-    GOTO_STATE_AFTER_DELAY(state, 250); // Default delay
+  const millis_t ms = millis();
+  if (ELAPSED(ms, prev_state_ms, state_delay_ms)) {
+    prev_state_ms = ms;
+    state_delay_ms = 250;
 
     switch (state) {
 
       case UNINITIALIZED:
         #ifndef MANUAL_USB_STARTUP
-          GOTO_STATE_AFTER_DELAY( DO_STARTUP, USB_STARTUP_DELAY );
+          NEXT_STATE_AFTER_DELAY( DO_STARTUP, USB_STARTUP_DELAY );
         #endif
         break;
 
@@ -201,7 +204,7 @@ void DiskIODriver_USBFlash::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("USB device inserted");
           #endif
-          GOTO_STATE_AFTER_DELAY( WAIT_FOR_LUN, 250 );
+          NEXT_STATE_AFTER_DELAY( WAIT_FOR_LUN, 250 );
         }
         break;
 
@@ -212,7 +215,7 @@ void DiskIODriver_USBFlash::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("LUN is good");
           #endif
-          GOTO_STATE_AFTER_DELAY( MEDIA_READY, 100 );
+          NEXT_STATE_AFTER_DELAY( MEDIA_READY, 100 );
         }
         else {
           #ifdef USB_HOST_MANUAL_POLL
@@ -224,7 +227,7 @@ void DiskIODriver_USBFlash::idle() {
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
           LCD_MESSAGE(MSG_MEDIA_WAITING);
-          GOTO_STATE_AFTER_DELAY(state, 2000);
+          NEXT_STATE_AFTER_DELAY(state, 2000);
         }
         break;
 
@@ -239,7 +242,7 @@ void DiskIODriver_USBFlash::idle() {
       #endif
       if (state != MEDIA_READY)
         LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+      NEXT_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
@@ -248,12 +251,12 @@ void DiskIODriver_USBFlash::idle() {
         SERIAL_ECHOLNPGM("Media removed");
       #endif
       LCD_MESSAGE(MSG_MEDIA_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+      NEXT_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
       LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
-      GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
+      NEXT_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
     }
   }
 }

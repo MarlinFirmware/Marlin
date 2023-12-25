@@ -1147,23 +1147,23 @@ void setup() {
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
   MYSERIAL1.begin(BAUDRATE);
-  millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  millis_t start_ms = millis();
+  while (!MYSERIAL1.connected() && PENDING(millis(), start_ms, 1000UL)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
     #endif
     MYSERIAL2.begin(BAUDRATE_2);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    start_ms = millis();
+    while (!MYSERIAL2.connected() && PENDING(millis(), start_ms, 1000UL)) { /*nada*/ }
     #ifdef SERIAL_PORT_3
       #ifndef BAUDRATE_3
         #define BAUDRATE_3 BAUDRATE
       #endif
       MYSERIAL3.begin(BAUDRATE_3);
-      serial_connect_timeout = millis() + 1000UL;
-      while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+      start_ms = millis();
+      while (!MYSERIAL3.connected() && PENDING(millis(), start_ms, 1000UL)) { /*nada*/ }
     #endif
   #endif
   SERIAL_ECHOLNPGM("start");

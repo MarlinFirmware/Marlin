@@ -460,14 +460,11 @@ void Max7219::register_setup() {
 #if MAX7219_INIT_TEST
 
   uint8_t test_mode = 0;
-  millis_t next_patt_ms;
   bool patt_on;
 
   #if MAX7219_INIT_TEST == 2
 
     #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
-
-    constexpr millis_t pattern_delay = 4;
 
     int8_t spiralx, spiraly, spiral_dir;
     uvalue_t(MAX7219_LEDS) spiral_count;
@@ -493,10 +490,14 @@ void Max7219::register_setup() {
 
   #else
 
-    constexpr millis_t pattern_delay = 20;
     int8_t sweep_count, sweepx, sweep_dir;
 
-    void Max7219::test_pattern() {
+    void Max7219::run_test_pattern() {
+      constexpr millis_t pattern_delay = 20;
+      static millis_t prev_pattern_ms = 0;
+      const millis_t ms = millis();
+      if (PENDING(ms, prev_pattern_ms, pattern_delay)) return;
+      prev_patt_ms = ms;
       set_column(sweepx, patt_on ? 0xFFFFFFFF : 0x00000000);
       sweepx += sweep_dir;
       if (!WITHIN(sweepx, 0, MAX7219_X_LEDS - 1)) {
@@ -507,19 +508,12 @@ void Max7219::register_setup() {
         else
           sweepx -= MAX7219_X_LEDS * sweep_dir;
         patt_on ^= true;
-        next_patt_ms += 100;
+        prev_patt_ms += 100;
         if (++test_mode > 4) test_mode = 0;
       }
     }
 
   #endif
-
-  void Max7219::run_test_pattern() {
-    const millis_t ms = millis();
-    if (PENDING(ms, next_patt_ms)) return;
-    next_patt_ms = ms + pattern_delay;
-    test_pattern();
-  }
 
   void Max7219::start_test_pattern() {
     clear();

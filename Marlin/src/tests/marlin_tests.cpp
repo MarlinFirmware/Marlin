@@ -49,7 +49,7 @@ void runStartupTests() {
   SERIAL_ECHOLNPGM("\n<< ELAPSED / PENDING >>");
 
   constexpr millis_t erly = 0x0000FFFF, late = 0x7FFFFF00,
-                     erly2 = erly + MIN_TO_MS(1), late2 = late + MIN_TO_MS(1), huge = erly + 0x7FFFFFFF0;
+                     erly2 = erly + MIN_TO_MS(1), late2 = late + MIN_TO_MS(1), huge = erly + 0x7FFFFFF0;
   SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(erly2), F(") is "), PENDING(erly, erly2) ? F("OK") :  F("BAD"));
   SERIAL_ECHOLN(F("PENDING("), int32_t(late), AS_CHAR(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
   SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
