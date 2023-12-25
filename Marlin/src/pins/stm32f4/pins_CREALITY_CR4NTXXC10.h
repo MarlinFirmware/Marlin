@@ -100,15 +100,15 @@
 #define X_STEP_PIN                          PC2
 #define X_DIR_PIN                           PB9
 
-#define Y_ENABLE_PIN               X_ENABLE_PIN
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 #define Y_STEP_PIN                          PB8
 #define Y_DIR_PIN                           PB7
 
-#define Z_ENABLE_PIN               X_ENABLE_PIN
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 #define Z_STEP_PIN                          PB6
 #define Z_DIR_PIN                           PB5
 
-#define E0_ENABLE_PIN              X_ENABLE_PIN
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB3
 
@@ -188,74 +188,55 @@
 //
 #define SD_DETECT_PIN                       PC1
 #define SDCARD_CONNECTION                ONBOARD
-#define ONBOARD_SPI_DEVICE                     1
-//#define ONBOARD_SD_CS_PIN                 PA4   // SDSS
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
+#define SDIO_CLOCK                       4500000
+#define SDIO_READ_RETRIES                     16
 #define NO_SD_HOST_DRIVE                  // This board's SD is only seen by the printer
+
+/**
+ *                 ------
+ *            PC0 | 1  2 | PB2
+ *       TX2  PA2 | 3  4 | PA3  RX2
+ * SPI2_MISO PB14 | 5  6 | PB13 SPI2_SCK
+ * SPI2_NSS  PB12 | 7  8 | PB15 SPI2_MOSI
+ *            GND | 9 10 | 5V
+ *                 ------
+ *                  EXP1
+ */
+#define EXP1_01_PIN                         PC0
+#define EXP1_02_PIN                         PB2
+#define EXP1_03_PIN                         PA2
+#define EXP1_04_PIN                         PA3
+#define EXP1_05_PIN                         PB14
+#define EXP1_06_PIN                         PB13
+#define EXP1_07_PIN                         PB12
+#define EXP1_08_PIN                         PB15
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
-  #if ENABLED(RET6_12864_LCD)
-    // RET6 12864 LCD
-    #define LCD_PINS_RS                     PB12
-    #define LCD_PINS_EN                     PB15
-    #define LCD_PINS_D4                     PB13
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
 
-    #define BTN_ENC                         PB2
-    #define BTN_EN1                         PA2
-    #define BTN_EN2                         PB14
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
 
-    #ifndef HAS_PIN_27_BOARD
-      #define BEEPER_PIN                    PC0
-    #endif
-
-  #elif ENABLED(VET6_12864_LCD)
-    // VET6 12864 LCD
-    #define LCD_PINS_RS                     PA4
-    //#define LCD_PINS_EN                   PA7
-    #define LCD_PINS_D4                     PA5
-
-    #define BTN_ENC                         PC5
-    #define BTN_EN1                         PB10
-    #define BTN_EN2                         PA6
-
-  #else
-    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the CREALITY_CR4NTXXC10 controller."
+  #ifndef HAS_PIN_27_BOARD
+    #define BEEPER_PIN               EXP1_01_PIN
   #endif
 
 #elif ENABLED(DWIN_CREALITY_LCD)
 
-  // RET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PB14
-  #define BTN_EN1                           PB15
-  #define BTN_EN2                           PB12
+  // DWIN ENCODER LCD
+  #define BTN_ENC                    EXP1_05_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_07_PIN
 
-  //#define LCD_LED_PIN                     PB2
+  //#define LCD_LED_PIN              EXP1_02_PIN
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                      PB13
-    #undef SPEAKER
+    #define BEEPER_PIN               EXP1_06_PIN
+    #define NO_SPEAKER
   #endif
 
-#elif ENABLED(DWIN_VET6_CREALITY_LCD)
-
-  // VET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PA6
-  //#define BTN_EN1                         PA7
-  #define BTN_EN2                           PA4
-
-  #define BEEPER_PIN                        PA5
-
-#endif
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if HAS_CUTTER
-  //#undef HEATER_0_PIN
-  //#undef HEATER_BED_PIN
-  //#undef FAN0_PIN
-  #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
-  #define SPINDLE_LASER_PWM_PIN             PC0   // Bed FET
-  #define SPINDLE_DIR_PIN                   PC0   // FET 4
-  //#define LASER_SOFT_PWM_PIN              PC0
 #endif

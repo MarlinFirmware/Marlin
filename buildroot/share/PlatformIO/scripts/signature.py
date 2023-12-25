@@ -370,7 +370,7 @@ f'''#
             else:
                 for header in real_config:
                     conf = real_config[header]
-                    print(f"real_config[{header}]", conf)
+                    #print(f"real_config[{header}]", conf)
                     for name in conf:
                         json_data[name] = conf[name]['value']
 
