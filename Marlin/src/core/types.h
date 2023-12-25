@@ -309,10 +309,10 @@ typedef struct WFloat { float value; char width; char prec;
 typedef struct PFloat { float value; char prec;
                         PFloat(float v, char p) : value(v), prec(p) {}
                       } p_float_t;
-typedef struct RepChr { char asc; uint8_t count;
+typedef struct RepChr { char asc; int8_t count;
                         RepChr(char a, uint8_t c) : asc(a), count(c) {}
                       } repchr_t;
-typedef struct Spaces { uint8_t count;
+typedef struct Spaces { int8_t count;
                         Spaces(uint8_t c) : count(c) {}
                       } spaces_t;
 
