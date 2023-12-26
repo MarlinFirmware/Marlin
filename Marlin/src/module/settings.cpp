@@ -918,8 +918,8 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
-      EEPROM_WRITE(zfh);
+      const float planner_z_fade_height = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
+      EEPROM_WRITE(planner_z_fade_height);
     }
 
     //
