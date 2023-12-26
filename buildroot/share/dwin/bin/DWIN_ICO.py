@@ -337,20 +337,20 @@ _iconNames7 = {
      88 : "Confirm_C",
      89 : "Confirm_E",
      90 : "Info_0",
-     91 : "Info_1"
-     92 : "DegreesC"
-     93 : "Printer_0"
-    200 : "Checkbox_F"
-    201 : "Checkbox_T"
-    202 : "Fade"
-    203 : "Mesh"
-    204 : "Tilt"
-    205 : "Brightness"
-    206 : "Probe"
-    249 : "AxisD"
-    250 : "AxisBR"
-    251 : "AxisTR"
-    252 : "AxisBL"
-    253 : "AxisTL"
+     91 : "Info_1",
+     92 : "DegreesC",
+     93 : "Printer_0",
+    200 : "Checkbox_F",
+    201 : "Checkbox_T",
+    202 : "Fade",
+    203 : "Mesh",
+    204 : "Tilt",
+    205 : "Brightness",
+    206 : "Probe",
+    249 : "AxisD",
+    250 : "AxisBR",
+    251 : "AxisTR",
+    252 : "AxisBL",
+    253 : "AxisTL",
     254 : "AxisC"
 }
