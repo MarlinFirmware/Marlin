@@ -258,7 +258,8 @@
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PB0   // THB
-#if TEMP_SENSOR_0 == -5
+
+#if TEMP_SENSOR_0_IS_MAX31865
   #define TEMP_0_CS_PIN                     PC9   // 31865 (1)
   #define TEMP_0_SCK_PIN                    PC10
   #define TEMP_0_MISO_PIN                   PC11
@@ -268,7 +269,7 @@
 #else
   #define TEMP_0_PIN                        PB1   // TH0
 #endif
-#if TEMP_SENSOR_1 == -5
+#if TEMP_SENSOR_1_IS_MAX31865
   #define TEMP_1_CS_PIN                     PA8   // 31865 (2)
   #define TEMP_1_SCK_PIN                    PC10
   #define TEMP_1_MISO_PIN                   PC11
