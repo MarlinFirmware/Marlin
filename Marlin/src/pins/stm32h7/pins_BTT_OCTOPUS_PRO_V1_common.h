@@ -214,19 +214,18 @@
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PF3   // TB
+#define TEMP_0_PIN                          PF4   // TH0
 #define TEMP_1_PIN                          PF5   // TH1
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
 
-#if TEMP_SENSOR_0 == -5
+#if TEMP_SENSOR_0_IS_MAX31865
   #define TEMP_0_CS_PIN                     PF8   // Max31865 CS
   #define TEMP_0_SCK_PIN                    PA5
   #define TEMP_0_MISO_PIN                   PA6
   #define TEMP_0_MOSI_PIN                   PA7
   #define SOFTWARE_SPI                            // Max31865 and LCD SD share a set of SPIs, Set SD to softwareSPI for Max31865
   #define FORCE_SOFT_SPI
-#else
-  #define TEMP_0_PIN                        PF4   // TH0
 #endif
 
 //
