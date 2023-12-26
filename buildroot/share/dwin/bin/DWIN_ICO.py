@@ -81,15 +81,14 @@ class DWIN_ICO_File():
     def _parseHeader(self, infile):
         maxEntries = 256
         count = 0
-        validEntries = 0
+        icon_nums = _iconNames7.keys()
         while count < maxEntries:
             rawBytes = infile.read(16)
             entry = Entry()
             entry.parseRawData(rawBytes)
             # check that it is valid: is offset nonzero?
-            # Special case: treat 39 as valid
-            if (entry.offset > 0) or (count == 39):
-                validEntries += 1
+            # Special case: treat missing numbers as valid
+            if (entry.offset > 0) or count not in icon_nums:
                 self.entries.append(entry)
             count += 1
         return
@@ -110,15 +109,14 @@ class DWIN_ICO_File():
             if entry.length == 0:
                 count += 1
                 continue
-            # Seek file position, read length bytes, and write to new output file.
-            print('%02d: offset: 0x%06x len: 0x%04x width: %d height: %d' %
-                  (count, entry.offset, entry.length, entry.width, entry.height))
             outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, _iconNames7[count]))
             with open(outfilename, 'wb') as outfile:
                 infile.seek(entry.offset)
                 blob = infile.read(entry.length)
                 outfile.write(blob)
-                print('Wrote %d bytes to %s' % (entry.length, outfilename))
+                # Seek file position, read length bytes, and write to new output file.
+                print('(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s' %
+                      (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename)))
 
             count += 1
         return
