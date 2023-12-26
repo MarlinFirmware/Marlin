@@ -482,6 +482,7 @@
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6008  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6009  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1    6010  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
+#define BOARD_BTT_KRAKEN_V1_0         6011  // BigTreeTech Kraken v1.0 (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi

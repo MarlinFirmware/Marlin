@@ -1158,7 +1158,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           case PREPARE_CHANGEFIL:
             if (draw) {
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   , nullptr, true
                 #endif
@@ -1766,7 +1766,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case CHANGEFIL_CHANGE:
             if (draw)
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else {
               if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
@@ -3449,7 +3449,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
             case LEVELING_SETTINGS_PLANE:
               if (draw)
-                drawMenuItem(row, ICON_ResumeEEPROM, F("Convert Mesh to Plane"));
+                drawMenuItem(row, ICON_ResetEEPROM, F("Convert Mesh to Plane"));
               else {
                 if (mesh_conf.createPlaneFromMesh()) break;
                 gcode.process_subcommands_now(F("M420 S1"));
@@ -3594,7 +3594,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             case LEVELING_M_UNDEF:
               if (draw)
-                drawMenuItem(row, ICON_ResumeEEPROM, F("Clear Point Value"));
+                drawMenuItem(row, ICON_ResetEEPROM, F("Clear Point Value"));
               else {
                 mesh_conf.manualValueUpdate(true);
                 redrawMenu(false);
@@ -3924,7 +3924,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           case TUNE_CHANGEFIL:
             if (draw)
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else
               popupHandler(Popup_ConfFilChange);
             break;
