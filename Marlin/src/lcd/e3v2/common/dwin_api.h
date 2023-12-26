@@ -151,7 +151,9 @@ inline void dwinDrawBox(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t 
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
 #if ENABLED(TJC_DISPLAY)
-  inline void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) { dwinDrawBox(1, color, x, y, 1, 1); }
+  inline void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    dwinDrawBox(1, color, x, y, 1, 1);
+  }
 #else
   void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
 #endif
