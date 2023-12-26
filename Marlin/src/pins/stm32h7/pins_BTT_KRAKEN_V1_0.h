@@ -257,6 +257,10 @@
 //
 // Temperature Sensors
 //
+#define TEMP_0_PIN                          PB1   // TH0
+#define TEMP_1_PIN                          PC5   // TH1
+#define TEMP_2_PIN                          PC4   // TH2
+#define TEMP_3_PIN                          PA7   // TH3
 #define TEMP_BED_PIN                        PB0   // THB
 
 #if TEMP_SENSOR_0_IS_MAX31865
@@ -266,19 +270,13 @@
   #define TEMP_0_MOSI_PIN                   PC12
   #define SOFTWARE_SPI                            // MAX31865 and LCD SD share a set of SPIs, Set SD to software SPI
   #define FORCE_SOFT_SPI
-#else
-  #define TEMP_0_PIN                        PB1   // TH0
 #endif
 #if TEMP_SENSOR_1_IS_MAX31865
   #define TEMP_1_CS_PIN                     PA8   // 31865 (2)
   #define TEMP_1_SCK_PIN                    PC10
   #define TEMP_1_MISO_PIN                   PC11
   #define TEMP_1_MOSI_PIN                   PC12
-#else
-  #define TEMP_1_PIN                        PC5   // TH1
 #endif
-#define TEMP_2_PIN                          PC4   // TH2
-#define TEMP_3_PIN                          PA7   // TH3
 
 //
 // Heaters / Fans
