@@ -469,7 +469,7 @@ void Max7219::register_setup() {
     int8_t spiralx, spiraly, spiral_dir;
     uvalue_t(MAX7219_LEDS) spiral_count;
 
-    void Max7219::test_pattern() {
+    void Max7219::run_test_pattern() {
       constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
       led_set(spiralx, spiraly, patt_on);
       const int8_t x = spiralx + way[spiral_dir][0], y = spiraly + way[spiral_dir][1];
