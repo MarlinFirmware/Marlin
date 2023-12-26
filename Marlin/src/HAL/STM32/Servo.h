@@ -23,7 +23,7 @@
 
 #include <Servo.h>
 
-typedef uint32_t millis_t;
+#include "../../core/millis_t.h"
 
 // Inherit and expand on the official library
 class libServo {

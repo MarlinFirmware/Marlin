@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+#include "../HAL/shared/Marduino.h"
 
 typedef uint32_t millis_t;
 

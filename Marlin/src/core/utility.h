@@ -23,8 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
-
-typedef uint32_t millis_t;
+#include "../core/millis_t.h"
 
 void safe_delay(millis_t ms);           // Delay ensuring that temperatures are updated and the watchdog is kept alive.
 

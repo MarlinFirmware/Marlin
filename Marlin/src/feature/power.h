@@ -25,7 +25,9 @@
  * power.h - power control
  */
 
-typedef uint32_t millis_t;
+#if ANY(AUTO_POWER_CONTROL, POWER_OFF_TIMER)
+  #include "../core/millis_t.h"
+#endif
 
 class Power {
   public:
