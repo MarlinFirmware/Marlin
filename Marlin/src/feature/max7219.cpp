@@ -466,23 +466,24 @@ void Max7219::register_setup() {
 
     #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
 
-    int8_t spiralx, spiraly, spiral_dir;
+    xy_int8_t spiral;
+    int8_t spiral_dir;
     uvalue_t(MAX7219_LEDS) spiral_count;
 
     void Max7219::run_test_pattern() {
-      constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
-      led_set(spiralx, spiraly, patt_on);
-      const int8_t x = spiralx + way[spiral_dir][0], y = spiraly + way[spiral_dir][1];
-      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == patt_on)
+      constexpr xy_int8_t way[] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
+      led_set(spiral.x, spiral.y, patt_on);
+      const xy_int8_t xy = spiral + way[spiral_dir];
+      if (!WITHIN(xy.x, 0, MAX7219_X_LEDS - 1) || !WITHIN(xy.y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(xy.x, xy.y) == patt_on)
         spiral_dir = (spiral_dir + 1) & 0x3;
-      spiralx += way[spiral_dir][0];
-      spiraly += way[spiral_dir][1];
+      spiral += way[spiral_dir];
       if (!spiral_count--) {
         if (!patt_on)
           test_mode = 0;
         else {
           spiral_count = MAX7219_LEDS;
-          spiralx = spiraly = spiral_dir = 0;
+          spiral.reset();
+          spiral_dir = 0;
           patt_on = false;
         }
       }
@@ -520,7 +521,8 @@ void Max7219::register_setup() {
     test_mode = 1;
     patt_on = true;
     #if MAX7219_INIT_TEST == 2
-      spiralx = spiraly = spiral_dir = 0;
+      spiral.reset();
+      spiral_dir = 0;
       spiral_count = MAX7219_LEDS;
     #else
       sweep_dir = 1;
