@@ -72,7 +72,6 @@
 #define ICON_HSMode           ICON_MaxAccZ
 #define ICON_InputShaping     ICON_MaxAccelerated
 #define ICON_JDmm             ICON_MaxJerk
-#define ICON_Tram             ICON_Step
 #define ICON_Level            ICON_Mesh
 #define ICON_Lock             ICON_Checkbox
 #define ICON_ManualMesh       ICON_Mesh
@@ -82,10 +81,10 @@
 #define ICON_MeshEdit         ICON_Fade
 #define ICON_MeshEditX        ICON_MoveX
 #define ICON_MeshEditY        ICON_MoveY
-#define ICON_MeshEditZ        ICON_MoveZ
+#define ICON_MeshEditZ        ICON_Zoffset
 #define ICON_MeshNext         ICON_AxisD
 #define ICON_MeshPoints       ICON_HotendTemp
-#define ICON_MeshReset        ICON_StockConfiguration
+#define ICON_MeshReset        ICON_ResetEEPROM
 #define ICON_MeshSave         ICON_WriteEEPROM
 #define ICON_MeshViewer       ICON_Mesh
 #define ICON_MoveZ0           ICON_CloseMotor
@@ -139,22 +138,24 @@
 #define ICON_TMCYSet          ICON_MoveY
 #define ICON_TMCZSet          ICON_MoveZ
 #define ICON_TMCESet          ICON_Extruder
+#define ICON_Tram             ICON_Step
 #define ICON_UBLActive        ICON_Fade
 #define ICON_UBLSlot          ICON_ResetEEPROM
 #define ICON_UBLMeshSave      ICON_WriteEEPROM
 #define ICON_UBLMeshLoad      ICON_ReadEEPROM
-#define ICON_UBLTiltGrid      ICON_Tilt
 #define ICON_UBLSmartFill     ICON_StockConfiguration
+#define ICON_UBLTiltGrid      ICON_Tilt
 #define ICON_ZAfterHome       ICON_Tilt
 
+// LED Lights
 #define ICON_CaseLight        ICON_Motion
 #define ICON_LedControl       ICON_Motion
 
 // MPC
-#define ICON_MPCNozzle        ICON_SetEndTemp
+#define ICON_MPCNozzle        ICON_HotendTemp
 #define ICON_MPCValue         ICON_Contact
 #define ICON_MPCHeater        ICON_Temperature
-#define ICON_MPCHeatCap       ICON_SetBedTemp
+#define ICON_MPCHeatCap       ICON_BedTemp
 #define ICON_MPCFan           ICON_FanSpeed
 
 // Buttons
@@ -501,6 +502,9 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
+  inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+    drawCenteredString(bShow, fid, color, bColor, 2 * x, 0, y, string);
+  }
   inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
     drawCenteredString(bShow, fid, color, bColor, 0, DWIN_WIDTH, y, string);
   }
