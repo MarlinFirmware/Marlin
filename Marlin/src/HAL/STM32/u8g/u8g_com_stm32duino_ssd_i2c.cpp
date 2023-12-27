@@ -34,7 +34,7 @@
  */
 #ifdef ARDUINO_ARCH_STM32
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAS_U8GLIB_I2C_OLED
 
