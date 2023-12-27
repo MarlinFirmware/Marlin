@@ -25,8 +25,6 @@
  * Native/Simulator LCD-specific defines
  */
 
-void usleep(uint64_t microsec);
-
 uint8_t u8g_com_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 
