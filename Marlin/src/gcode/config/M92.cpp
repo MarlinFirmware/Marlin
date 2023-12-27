@@ -82,7 +82,7 @@ void GcodeSuite::M92() {
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
         SERIAL_ECHOPGM(", best:[", best);
-        if (best != wanted) { SERIAL_ECHO(AS_CHAR(','), best + z_full_step_mm); }
+        if (best != wanted) { SERIAL_ECHO(C(','), best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }
       SERIAL_ECHOLNPGM(" }");
