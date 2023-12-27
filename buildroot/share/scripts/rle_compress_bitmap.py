@@ -69,46 +69,57 @@ def addCompressedData(input_file, output_file):
     #   - A value of 16 indicates a run of 16-270 calculated using the next two bytes.
     #
     def bitwise_rle_encode(data):
-        warn = "This may take a while" if len(data) > 300000 else ""
-        print("Compressing image data...", warn)
 
         def get_bit(data, n): return 1 if (data[n // 8] & (0x80 >> (n & 7))) else 0
 
+        def try_encode(data, isext):
+            bitslen = len(data) * 8
+            bitstate = get_bit(data, 0)
+            rledata = [ bitstate ]
+            bigrun = 256 if isext else 272
+            medrun = False
+
+            i = 0
+            runlen = -1
+            while i <= bitslen:
+                if i < bitslen: b = get_bit(data, i)
+                runlen += 1
+                if bitstate != b or i == bitslen:
+                    if runlen >= bigrun:
+                        isext = True
+                        if medrun: return [], isext
+                        rem = runlen & 0xFF
+                        rledata += [ 15, 15, rem // 16, rem % 16 ]
+                    elif runlen >= 16:
+                        rledata += [ 15, runlen // 16 - 1, runlen % 16 ]
+                        if runlen >= 256: medrun = True
+                    else:
+                        rledata += [ runlen - 1 ]
+                    bitstate ^= 1
+                    runlen = 0
+                i += 1
+
+            #print("\nrledata", rledata)
+
+            encoded = []
+            ri = 0
+            rlen = len(rledata)
+            while ri < rlen:
+                v = rledata[ri] << 4
+                if (ri < rlen - 1): v |= rledata[ri + 1]
+                encoded += [ v ]
+                ri += 2
+
+            #print("\nencoded", encoded)
+            return encoded, isext
+
+        # Try to encode with the original isext flag
+        warn = "This may take a while" if len(data) > 300000 else ""
+        print("Compressing image data...", warn)
         isext = False
-        bitslen = len(data) * 8
-        bitstate = get_bit(data, 0)
-        rledata = [ bitstate ]
-
-        i = 0
-        runlen = -1
-        while i <= bitslen:
-            if i < bitslen: b = get_bit(data, i)
-            runlen += 1
-            if bitstate != b or i == bitslen:
-                if runlen >= 272:
-                    isext = True
-                    rem = runlen & 0xFF
-                    rledata += [ 15, 15, rem // 16, rem % 16 ]
-                elif runlen >= 16:
-                    rledata += [ 15, runlen // 16 - 1, runlen % 16 ]
-                else:
-                    rledata += [ runlen - 1 ]
-                bitstate ^= 1
-                runlen = 0
-            i += 1
-
-        #print("\nrledata", rledata)
-
-        encoded = []
-        ri = 0
-        rlen = len(rledata)
-        while ri < rlen:
-            v = rledata[ri] << 4
-            if (ri < rlen - 1): v |= rledata[ri + 1]
-            encoded += [ v ]
-            ri += 2
-
-        print("\nencoded", encoded)
+        encoded, isext = try_encode(data, isext)
+        if len(encoded) == 0:
+            encoded, isext = try_encode(data, True)
         return encoded, isext
 
     def bitwise_rle_decode(isext, rledata, invert=0):

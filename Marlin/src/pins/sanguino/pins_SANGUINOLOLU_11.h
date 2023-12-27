@@ -173,7 +173,7 @@
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
         // with M42 instead of BEEPER_PIN.
         #define BEEPER_PIN                    27
-      #else                                       // Sanguinololu >=1.3
+      #else // Sanguinololu >=1.3
         #define LCD_PINS_RS                    4
         #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   30
@@ -197,7 +197,7 @@
         #define BEEPER_PIN                    27
         #define DOGLCD_CS                     28
 
-      #else                                       // !MAKRPANEL
+      #else // !MAKRPANEL
 
         #define DOGLCD_CS                     29
 
@@ -250,7 +250,7 @@
       #define BTN_ENC                         30
     #endif
 
-  #else                                           // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
+  #else // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
     #define BTN_ENC                           16
     #ifndef LCD_SDSS

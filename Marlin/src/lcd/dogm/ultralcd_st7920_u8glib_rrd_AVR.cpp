@@ -25,7 +25,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32)
+#if ANY(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -193,4 +193,4 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_rrd_st7920_128x64_fn, &u8
 #endif
 
 #endif // IS_U8GLIB_ST7920
-#endif // !U8G_HAL_LINKS && (__AVR__ || ARDUINO_ARCH_STM32 || ARDUINO_ARCH_ESP32)
+#endif // __AVR__ || ARDUINO_ARCH_STM32 || ARDUINO_ARCH_ESP32

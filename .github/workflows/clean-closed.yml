@@ -23,6 +23,7 @@ jobs:
           - "S: Please Merge"
           - "S: Please Test"
           - "help wanted"
+          - "Bug: Potential ?"
           - "Needs: Discussion"
           - "Needs: Documentation"
           - "Needs: More Data"
