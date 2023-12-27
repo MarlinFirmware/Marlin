@@ -1,8 +1,8 @@
 # Marlin Binary File Transfer (BFT)
-Marlin is capable of transfering binary data to the internal storage (SD card) via serial when built with `BINARY_FILE_TRANSFER` enabled. The following is a description of the binary protocol that must be used to conduct transfers once the printer is in binary mode after running `M28 B1`. 
+Marlin is capable of transferring binary data to the internal storage (SD card) via serial when built with `BINARY_FILE_TRANSFER` enabled. The following is a description of the binary protocol that must be used to conduct transfers once the printer is in binary mode after running `M28 B1`. 
 
 ## Data Endianness
-All data structures are **little-endian**! This means that when constructing the packets with multi-byte values, the lower bits are packed first. For example, each packet should start with a 16bit start token with the value of `0xB5AD`. The data itself should start with a value of `0xAD` followed by `0xB5` etc.
+All data structures are **little-endian**! This means that when constructing the packets with multi-byte values, the lower bits are packed first. For example, each packet should start with a 16-bit start token with the value of `0xB5AD`. The data itself should start with a value of `0xAD` followed by `0xB5` etc.
 
 An example Connection SYNC packet, which is only a header and has no payload:
 ```
@@ -37,12 +37,12 @@ ADB5 00 0 1 0000 0103
 
 | Field           | Width   | Description |
 |-----------------|---------|---|
-| Start Token     | 16 bits | Each packet must start with the 16bit value `0xB5AD`. |
-| Sync Number     |  8 bits | Syncronization value, each packet after sync should increment this value by 1. |
+| Start Token     | 16 bits | Each packet must start with the 16-bit value `0xB5AD`. |
+| Sync Number     |  8 bits | Synchronization value, each packet after sync should increment this value by 1. |
 | Protocol ID     |  4 bits | Protocol ID. `0` for Connection Control, `1` for Transfer. See Below. |
 | Packet Type     |  4 bits | Packet Type ID. Depends on the Protocol ID, see below. |
 | Payload Length  | 16 bits | Length of payload data. If this value is greater than 0, a packet payload will follow the header. |
-| Header Checksum | 16 bits | 16bit Fletchers checksum of the header data excluding the Start Token |
+| Header Checksum | 16 bits | 16-bit Fletchers checksum of the header data excluding the Start Token |
 
 ## Packet Payload
 If the Payload Length field of the header is non-zero, payload data is expected to follow.
@@ -60,7 +60,7 @@ If the Payload Length field of the header is non-zero, payload data is expected 
 | Field           | Width                  | Description |
 |-----------------|------------------------|---|
 | Payload Data    | Payload Length bytes   | Payload data. This should be no longer than the buffer length reported by the Connection SYNC operation. |
-| Packet Checksum | 16 bits                | 16bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
+| Packet Checksum | 16 bits                | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
 
 ## Fletchers Checksum
 Data packets require a checksum for the header and a checksum for the entire packet if the packet has a payload. In both cases the checksum does not include the first two bytes of the packet, the Start Token.
@@ -77,7 +77,7 @@ for (size_t i = 2; i<packet.size(); i++) {
 ## General Responses
 
 ### ok
-All packets **except** the SYNC Packet (see below) are acknowledged by an `ok<SYNC>` message. This acknowledgement only signfies the client has received the packet and that the header was well formed. An `ok` acknowledgement does not signify successful operation in cases where the client also sends detailed response messages (see details on packet types below). Most notably, with the current implementation the client will still respond `ok` when a client sends multiple packets with the same Sync Number, but will not send the proper respones or any errors.
+All packets **except** the SYNC Packet (see below) are acknowledged by an `ok<SYNC>` message. This acknowledgement only signifies the client has received the packet and that the header was well formed. An `ok` acknowledgement does not signify successful operation in cases where the client also sends detailed response messages (see details on packet types below). Most notably, with the current implementation the client will still respond `ok` when a client sends multiple packets with the same Sync Number, but will not send the proper response or any errors.
 
 **NOTE**: The `ok` acknowledgement is sent before any packet type specific output. The `SYNC` value should match the Sync Number of the last packet sent, and the next packet sent should use a Sync Number of this value + 1.
 
@@ -99,7 +99,7 @@ rs1
 
 | Packet Type | Name | Description |
 |---|---|---|
-| 1 | SYNC | Syncronize host and client and get connection info. |
+| 1 | SYNC | Synchronize host and client and get connection info. |
 | 2 | CLOSE | Close the binary connection and switch back to ASCII. |
 
 ### SYNC Packet
@@ -116,9 +116,9 @@ ss<SYNC>,<BUFFER_SIZE>,<VERSION_MAJOR>.<VERSION_MINOR>.<VERSION_PATCH>
 |---|---|
 | SYNC | The current Sync Number, this should be used in the next packet sent and incremented by 1 for each packet sent after. |
 | BUFFER_SIZE | The client buffer size. Packet Payload Length must not exceed this value. |
-| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, ie. `0`. |
-| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, ie. `1`. |
-| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, ie. `0`. |
+| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, e.g., `0`. |
+| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, e.g., `1`. |
+| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, e.g., `0`. |
 
 Example response:
 ```
@@ -149,9 +149,9 @@ PFT:version:<VERSION_MAJOR>.<VERSION_MINOR>.<VERSION_PATCH>:compression:<COMPRES
 
 | Value | Description |
 |---|---|
-| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, ie. `0`. |
-| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, ie. `1`. |
-| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, ie. `0`. |
+| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, e.g., `0`. |
+| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, e.g., `1`. |
+| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, e.g., `0`. |
 | COMPRESSION_ALGO | Compression algorithm. Currently either `heatshrink` or `none` |
 | COMPRESSION_PARAMS | Compression parameters, separated by commas. Currently, if `COMPRESSION_AGLO` is heatshrink, this will be the window size and lookahead size. |
 
@@ -179,9 +179,9 @@ Payload:
 | Field           | Width                  | Description |
 |-----------------|------------------------|---|
 | Dummy           |  8 bits | A boolean value indicating if this file transfer should be actually carried out or not. If `1`, the client will respond as if the file is opened and accept data transfer, but no data will be written. |
-| Compression     |  8 bits | A boolean value indicating if the data to be transfered will be compressed using the alorithm and parameters returned in the QUERY Packet. |
+| Compression     |  8 bits | A boolean value indicating if the data to be transferred will be compressed using the algorithm and parameters returned in the QUERY Packet. |
 | Filename        |   ...   | A filename including a null terminator byte. |
-| Packet Checksum | 16 bits | 16bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
+| Packet Checksum | 16 bits | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
 
 Responses:
 
@@ -220,11 +220,11 @@ Responses:
 
 | Response | Description |
 |---|---|
-| `PFT:success` | Tranfer aborted, file removed. |
+| `PFT:success` | Transfer aborted, file removed. |
 
 ## Typical Usage
 
-1. Send ASCII command `M28 B1` to initiate Binary Tranfer mode.
+1. Send ASCII command `M28 B1` to initiate Binary Transfer mode.
 2. Send Connection SYNC Packet, record Sync Number and Buffer Size.
 3. Send Transfer QUERY Packet, using Sync Number from above. Record compression algorithm and parameters.
 4. Send Transfer OPEN Packet, using last Sync Number + 1, filename and compression options. If error, send Connection CLOSE Packet and abort.
