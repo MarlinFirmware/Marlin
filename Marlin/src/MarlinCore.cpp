@@ -693,7 +693,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // Add a delayed move when the proper time arrives, or always add it
-    if (delayed_move_interval && (delayed_move_interval == 1 || ELAPSED(ms, delayed_move_start_ms, delayed_move_interval)) && IsRunning()) {
+    if (delayed_move_interval > 1 && ELAPSED(ms, delayed_move_start_ms, delayed_move_interval) && IsRunning()) {
       delayed_move_interval = 1;      // Force moves to be done in dual_x_carriage_unpark
       destination = current_position;
       prepare_line_to_destination();  // Also calls dual_x_carriage_unpark
