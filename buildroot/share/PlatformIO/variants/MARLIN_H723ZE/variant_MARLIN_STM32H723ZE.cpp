@@ -128,7 +128,9 @@ const PinName digitalPin[] = {
   PH_0,   // D110
   PH_1,   // D111
   PC_2_C, // D112/A26
-  PC_3_C  // D113/A27
+  PC_3_C, // D113/A27
+  PC_2,   // D114/A28
+  PC_3    // D115/A29
 };
 
 // Analog (Ax) pin number array
@@ -160,7 +162,9 @@ const uint32_t analogInputPin[] = {
   91, // A24, PF13
   92, // A25, PF14
   112, // A26, PC2_C
-  113 // A27, PC3_C
+  113, // A27, PC3_C
+  114, // A28, PC2
+  115  // A29, PC3
 };
 
 void MPU_Config(void)
