@@ -273,7 +273,7 @@ bool wait_for_heatup = true;
   bool wait_for_user; // = false;
 
   void wait_for_user_response(const millis_t timeout/*=0*/, const bool no_sleep/*=false*/) {
-    MTimeout expiration(timeout);
+    MTimeout<millis_t> expiration(timeout);
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;

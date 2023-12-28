@@ -54,7 +54,7 @@ void runStartupTests() {
   SERIAL_ECHOLN(F("PENDING("), int32_t(late), AS_CHAR(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
   SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
 
-  MTimeout timeout(100);
+  MTimeout<millis_t> timeout(100);
   timeout.prime();
   timeout.idle();
 
