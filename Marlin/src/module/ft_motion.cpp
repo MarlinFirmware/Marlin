@@ -62,10 +62,8 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
 
 // Private variables.
 // NOTE: These are sized for Ulendo FBS use.
-#if DISABLED(FTM_UNIFIED_BWS)
+
   xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
-#endif
-  xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
   xyze_trajectoryWin_t FTMotion::traj;         // = {0.0f} Storage for fixed time trajectory window.
 
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
