@@ -66,7 +66,7 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
   xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
 #endif
   xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for modified fixed-time-based trajectory.
-  xyze_trajectoryWin_t FTMotion::trajWin;         // = {0.0f} Storage for fixed time trajectory window.
+  xyze_trajectoryWin_t FTMotion::traj;         // = {0.0f} Storage for fixed time trajectory window.
 
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
      FTMotion::blockProcRdy_z1 = false,         // Storage for the previous indicator.
@@ -188,7 +188,7 @@ void FTMotion::loop() {
     // Call Ulendo FBS here.
 
     #if ENABLED(FTM_UNIFIED_BWS)
-      trajMod = trajWin; // Move the window to traj
+      trajMod = traj; // Move the window to traj
     #else
       // Copy the uncompensated vectors.
       #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
@@ -200,7 +200,7 @@ void FTMotion::loop() {
       );
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, trajWin.A, sizeof(trajWin.A))
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE],(FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
       LOGICAL_AXIS_CODE(
         TSHIFT(e),
         TSHIFT(x), TSHIFT(y), TSHIFT(z),
@@ -443,7 +443,7 @@ void FTMotion::reset() {
 
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
-  trajWin.reset();
+  traj.reset();
 
   blockProcRdy = blockProcRdy_z1 = blockProcDn = false;
   batchRdy = batchRdyForInterp = false;
@@ -611,26 +611,26 @@ void FTMotion::makeVector() {
   }
 
   LOGICAL_AXIS_CODE(
-    trajWin.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
-    trajWin.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
-    trajWin.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
-    trajWin.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
-    trajWin.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
-    trajWin.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
-    trajWin.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
-    trajWin.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
-    trajWin.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
-    trajWin.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
+    traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
+    traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
+    traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
+    traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
+    traj.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
+    traj.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
+    traj.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
+    traj.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
+    traj.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
+    traj.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
   );
 
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
-      float dedt_adj = (trajWin.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
+      float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
       if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK;
 
-      e_raw_z1 = trajWin.e[makeVector_batchIdx];
+      e_raw_z1 = traj.e[makeVector_batchIdx];
       e_advanced_z1 += dedt_adj * (FTM_TS);
-      trajWin.e[makeVector_batchIdx] = e_advanced_z1;
+      traj.e[makeVector_batchIdx] = e_advanced_z1;
     }
   #endif
 
@@ -640,9 +640,9 @@ void FTMotion::makeVector() {
 
     #if HAS_DYNAMIC_FREQ_MM
       case dynFreqMode_Z_BASED:
-        if (trajWin.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
-                 const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * trajWin.z[makeVector_batchIdx]
-          OPTARG(HAS_Y_AXIS, yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * trajWin.z[makeVector_batchIdx]);
+        if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
+                 const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx]
+          OPTARG(HAS_Y_AXIS, yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx]);
           updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ) OPTARG(HAS_Y_AXIS, _MAX(yf, FTM_MIN_SHAPE_FREQ)));
         }
         break;
@@ -652,8 +652,8 @@ void FTMotion::makeVector() {
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
-        updateShapingN(      cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * trajWin.e[makeVector_batchIdx]
-          OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * trajWin.e[makeVector_batchIdx]) );
+        updateShapingN(      cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx]
+          OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx]) );
         break;
     #endif
 
@@ -663,18 +663,18 @@ void FTMotion::makeVector() {
   // Apply shaping if in mode.
   #if HAS_X_AXIS
     if (cfg.modeHasShaper()) {
-      shaping.x.d_zi[shaping.zi_idx] = trajWin.x[makeVector_batchIdx];
-      trajWin.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+      shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
+      traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
       #if HAS_Y_AXIS
-        shaping.y.d_zi[shaping.zi_idx] = trajWin.y[makeVector_batchIdx];
-        trajWin.y[makeVector_batchIdx] *= shaping.y.Ai[0];
+        shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
+        traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
       #endif
       for (uint32_t i = 1U; i <= shaping.max_i; i++) {
         const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-        trajWin.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+        traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
         #if HAS_Y_AXIS
           const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-          trajWin.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+          traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
         #endif
       }
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;

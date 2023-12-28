@@ -132,11 +132,10 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
   private:
-  #if DISABLED(FTM_UNIFIED_BWS)
+
     static xyze_trajectory_t traj;
-  #endif
     static xyze_trajectoryMod_t trajMod;
-    static xyze_trajectoryWin_t trajWin;
+
 
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
@@ -157,8 +156,8 @@ class FTMotion {
     static uint32_t max_intervals;
 
     static constexpr uint32_t _ftm_size = TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE),
-                              _ftm_wind = TERN(FTM_UNIFIED_BWS, 2, ceil((FTM_WINDOW_SIZE) / _ftm_size)),
-                              shaper_intervals = _ftm_size * ceil((FTM_ZMAX) / _ftm_size),
+                              _ftm_wind = TERN(FTM_UNIFIED_BWS, 2, ceil(double(FTM_WINDOW_SIZE) / _ftm_size)),
+                              shaper_intervals = _ftm_size * ceil(double(FTM_ZMAX) / _ftm_size),
                               min_max_intervals = _ftm_size * _ftm_wind;
 
     // Make vector variables.
