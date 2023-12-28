@@ -599,7 +599,8 @@ void home_if_needed(const bool keeplev=false);
                duplicate_extruder_x_offset;         // Used in mode 2 & 3
   extern xyz_pos_t raised_parked_position;          // Used in mode 1
   extern bool active_extruder_parked;               // Used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;                // Used in mode 1
+  extern millis_t delayed_move_start_ms;            // Used in mode 1
+  extern uint16_t delayed_move_interval;            // Used in mode 1
   extern celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
   extern bool idex_mirrored_mode;                   // Used in mode 3
 

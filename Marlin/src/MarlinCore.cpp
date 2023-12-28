@@ -692,12 +692,11 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif // EXTRUDER_RUNOUT_PREVENT
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    // handle delayed move timeout
-    if (delayed_move_time && ELAPSED(ms, delayed_move_time) && IsRunning()) {
-      // travel moves have been received so enact them
-      delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
+    // Add a delayed move when the proper time arrives, or always add it
+    if (delayed_move_interval && (delayed_move_interval == 1 || ELAPSED(ms, delayed_move_start_ms, delayed_move_interval)) && IsRunning()) {
       destination = current_position;
-      prepare_line_to_destination();
+      prepare_line_to_destination(); // Also calls dual_x_carriage_unpark
+      delayed_move_interval = 1; // force moves to be done
       planner.synchronize();
     }
   #endif

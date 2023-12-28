@@ -850,7 +850,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE                  // If Auto-Park mode is enabled
         && IsRunning() && !no_move                                  // ...and movement is permitted
-        && (delayed_move_time || current_position.x != xhome)       // ...and delayed_move_time is set OR not "already parked"...
+        && (delayed_move_interval || current_position.x != xhome)   // ...and delayed_move_interval is set OR not "already parked"...
     ) {
       DEBUG_ECHOLNPGM("MoveX to ", xhome);
       current_position.x = xhome;
