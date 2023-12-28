@@ -45,16 +45,17 @@ struct MTimeout {
   millis_t start_ms = 0;
   T delay_ms = 0;
   MTimeout() {}
-  MTimeout(T interval) { start_ms = millis(); delay_ms = interval; }
-  void prime(const millis_t ms=millis()) { start_ms = ms; }
-  void clear(const millis_t ms=millis()) { delay_ms = 0; }
-  void start(const T interval, const millis_t ms=millis()) { delay_ms = interval; prime(ms); }
-  bool pending(const millis_t ms=millis()) const { return PENDING(ms, start_ms, delay_ms); }
-  bool elapsed(const millis_t ms=millis()) const { return ELAPSED(ms, start_ms, delay_ms); }
-  bool on_pending(const millis_t ms=millis()) const { return delay_ms && pending(ms); }
-  bool on_elapsed(const millis_t ms=millis()) const { return delay_ms && elapsed(ms); }
-  void idle(const bool nss=false) const { if (delay_ms) { while(pending()) ::idle(nss); } }
-  void dofunc(timeoutFunc_t fn) const { if (delay_ms) { while(pending()) fn(); } }
+  MTimeout(T interval, const millis_t ms=millis()) { start(interval, ms); }
+  inline void prime(const millis_t ms=millis()) { start_ms = ms; }
+  inline void clear(const millis_t ms=millis()) { delay_ms = 0; }
+  inline void start(const T interval, const millis_t ms=millis()) { delay_ms = interval; prime(ms); }
+  inline bool pending(const millis_t ms=millis()) const { return PENDING(ms, start_ms, delay_ms); }
+  inline bool elapsed(const millis_t ms=millis()) const { return ELAPSED(ms, start_ms, delay_ms); }
+  inline bool enabled() const { return delay_ms != 0; }
+  inline bool on_pending(const millis_t ms=millis()) const { return enabled() && pending(ms); }
+  inline bool on_elapsed(const millis_t ms=millis()) const { return enabled() && elapsed(ms); }
+  inline void idle(const bool nss=false) const { if (enabled()) { while(pending()) ::idle(nss); } }
+  inline void dofunc(timeoutFunc_t fn) const { if (enabled()) { while(pending()) fn(); } }
   millis_t remaining(const millis_t ms=millis()) const { return pending(ms) ? start_ms + delay_ms - ms : 0; }
 };
 

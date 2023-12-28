@@ -272,12 +272,12 @@ bool wait_for_heatup = true;
 #if HAS_RESUME_CONTINUE
   bool wait_for_user; // = false;
 
-  void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
+  void wait_for_user_response(const millis_t timeout/*=0*/, const bool no_sleep/*=false*/) {
+    MTimeout expiration(timeout);
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;
-    if (ms) ms += millis(); // expire time
-    while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
+    while (wait_for_user && expiration.on_pending())
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     wait_for_user = false;
     while (ui.button_pressed()) safe_delay(50);
@@ -465,9 +465,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   #if ENABLED(PHOTO_GCODE) && PIN_EXISTS(CHDK)
     // Check if CHDK should be set to LOW (after M240 set it HIGH)
-    extern millis_t chdk_timeout;
-    if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
-      chdk_timeout = 0;
+    extern millis_t chdk_start_ms;
+    extern uint16_t chdk_timeout_ms;
+    if (chdk_timeout_ms && ELAPSED(ms, chdk_start_ms, chdk_timeout_ms)) {
+      chdk_timeout_ms = 0;
       WRITE(CHDK_PIN, LOW);
     }
   #endif
@@ -501,11 +502,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   #if HAS_HOME
     // Handle a standalone HOME button
-    constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_home_key_ms; // = 0
+    static millis_t prev_home_key_ms; // = 0
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
-      if (ELAPSED(ms, next_home_key_ms)) {
-        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
+      if (ELAPSED(ms, prev_home_key_ms, 1000UL)) {
+        prev_home_key_ms = ms;
         LCD_MESSAGE(MSG_AUTO_HOME);
         queue.inject_P(G28_STR);
       }
@@ -518,12 +518,12 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
     #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
     #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
-      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
-      static millis_t next_cub_ms_##N;                                 \
+      static millis_t prev_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
-        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
+        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)    \
+      ) {                                                              \
+        if (ELAPSED(ms, prev_cub_ms_##N, 250UL)) {                     \
+          prev_cub_ms_##N = ms;                                        \
           CODE;                                                        \
           queue.inject(F(BUTTON##N##_GCODE));                          \
           TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());               \
@@ -671,7 +671,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
-      && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
+      && ELAPSED(ms, gcode.previous_move_ms, SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
       const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, active_extruder >> 1, active_extruder);
@@ -707,16 +707,16 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   TERN_(MONITOR_DRIVER_STATUS, monitor_tmc_drivers());
 
   // Limit check_axes_activity frequency to 10Hz
-  static millis_t next_check_axes_ms = 0;
-  if (ELAPSED(ms, next_check_axes_ms)) {
+  static millis_t prev_check_axes_ms = 0;
+  if (ELAPSED(ms, prev_check_axes_ms, 100UL)) {
     planner.check_axes_activity();
-    next_check_axes_ms = ms + 100UL;
+    prev_check_axes_ms = ms;
   }
 
   #if PIN_EXISTS(FET_SAFETY)
-    static millis_t FET_next;
-    if (ELAPSED(ms, FET_next)) {
-      FET_next = ms + FET_SAFETY_DELAY;  // 2µs pulse every FET_SAFETY_DELAY mS
+    static millis_t prev_FET = 0;
+    if (ELAPSED(ms, prev_FET, FET_SAFETY_DELAY)) { // 2µs pulse every FET_SAFETY_DELAY mS
+      prev_FET = ms;
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
       DELAY_US(2);
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
@@ -797,7 +797,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
+    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_start_ms, default_sg_guard_duration)))
       for (uint8_t i = 0; i < 4; ++i) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
