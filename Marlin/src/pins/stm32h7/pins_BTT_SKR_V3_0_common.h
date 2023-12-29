@@ -536,7 +536,7 @@
       #define TFT_BACKLIGHT_PIN LCD_BACKLIGHT_PIN
 
       #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      1
 
       #define TOUCH_CS_PIN           EXP1_05_PIN  // SPI1_NSS
       #define TOUCH_SCK_PIN          EXP2_02_PIN  // SPI1_SCK

@@ -37,7 +37,7 @@ static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8
   SERIAL_ECHOPGM("Config:");
   if (pref) SERIAL_ECHOPGM_P(pref);
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
-  SERIAL_ECHOPGM_P(name, AS_CHAR(':'));
+  SERIAL_ECHOPGM_P(name, C(':'));
 }
 static void config_line(PGM_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
@@ -91,7 +91,7 @@ void GcodeSuite::M360() {
   //
   // XYZ Axis Jerk
   //
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     if (planner.max_jerk.x == planner.max_jerk.y)
       config_line(F("XY"), planner.max_jerk.x, FPSTR(JERK_STR));
     else {
@@ -182,7 +182,7 @@ void GcodeSuite::M360() {
   config_line(F("NumExtruder"), EXTRUDERS);
   #if HAS_EXTRUDERS
     EXTRUDER_LOOP() {
-      config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(HAS_CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));
+      config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));
       config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
       config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));

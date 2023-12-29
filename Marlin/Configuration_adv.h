@@ -1121,42 +1121,62 @@
 #if ENABLED(FT_MOTION)
   #define FTM_DEFAULT_MODE        ftMotionMode_DISABLED // Default mode of fixed time control. (Enums in ft_types.h)
   #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (Enums in ft_types.h)
-  #define FTM_SHAPING_DEFAULT_X_FREQ 37.0f              // (Hz) Default peak frequency used by input shapers.
-  #define FTM_SHAPING_DEFAULT_Y_FREQ 37.0f              // (Hz) Default peak frequency used by input shapers.
-  #define FTM_LINEAR_ADV_DEFAULT_ENA false              // Default linear advance enable (true) or disable (false).
-  #define FTM_LINEAR_ADV_DEFAULT_K    0.0f              // Default linear advance gain.
-  #define FTM_SHAPING_ZETA            0.1f              // Zeta used by input shapers.
-  #define FTM_SHAPING_V_TOL           0.05f             // Vibration tolerance used by EI input shapers.
+  #define FTM_SHAPING_DEFAULT_X_FREQ   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_DEFAULT_Y_FREQ   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
+  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain
+  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
+  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
+
+  #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
+  #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+
+  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
 
   /**
    * Advanced configuration
    */
-  #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation;
-  #define FTM_WINDOW_SIZE           200                 // Window size for trajectory generation.
-  #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
-  #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
-  #define FTM_STEPPER_FS          20000                 // (Hz) Frequency for stepper I/O update.
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps.
-  #define FTM_MIN_SHAPE_FREQ         10                 // Minimum shaping frequency.
-  #define FTM_ZMAX                  100                 // Maximum delays for shaping functions (even numbers only!).
-                                                        // Calculate as:
-                                                        //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
-                                                        //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
-                                                        //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
-                                                        //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
-  #define FTM_STEPS_PER_UNIT_TIME    20                 // Interpolated stepper commands per unit time.
-                                                        // Calculate as (FTM_STEPPER_FS / FTM_FS).
-  #define FTM_CTS_COMPARE_VAL        10                 // Comparison value used in interpolation algorithm.
-                                                        // Calculate as (FTM_STEPS_PER_UNIT_TIME / 2).
-  // These values may be configured to adjust duration of loop().
-  #define FTM_STEPS_PER_LOOP         60                 // Number of stepper commands to generate each loop().
-  #define FTM_POINTS_PER_LOOP       100                 // Number of trajectory points to generate each loop().
+  #define FTM_UNIFIED_BWS                         // DON'T DISABLE unless you use Ulendo FBS (not implemented)
+  #if ENABLED(FTM_UNIFIED_BWS)
+    #define FTM_BW_SIZE               100         // Unified Window and Batch size with a ratio of 2
+  #else
+    #define FTM_WINDOW_SIZE           200         // Custom Window size for trajectory generation needed by Ulendo FBS
+    #define FTM_BATCH_SIZE            100         // Custom Batch size for trajectory generation needed by Ulendo FBS
+  #endif
 
-  // This value may be configured to adjust duration to consume the command buffer.
-  // Try increasing this value if stepper motion is not smooth.
-  #define FTM_STEPPERCMD_BUFF_SIZE 1000                 // Size of the stepper command buffers.
+  #define FTM_FS                     1000         // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
+  #define FTM_TS                        0.001f    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
 
-  //#define FT_MOTION_MENU                              // Provide a MarlinUI menu to set M493 parameters.
+  // These values may be configured to adjust the duration of loop().
+  #define FTM_STEPS_PER_LOOP           60         // Number of stepper commands to generate each loop()
+  #define FTM_POINTS_PER_LOOP         100         // Number of trajectory points to generate each loop()
+
+  #if DISABLED(COREXY)
+    #define FTM_STEPPER_FS          20000         // (Hz) Frequency for stepper I/O update
+
+    // Use this to adjust the time required to consume the command buffer.
+    // Try increasing this value if stepper motion is choppy.
+    #define FTM_STEPPERCMD_BUFF_SIZE 3000         // Size of the stepper command buffers
+                                                  // (FTM_STEPS_PER_LOOP * FTM_POINTS_PER_LOOP) is a good start
+                                                  // If you run out of memory, fall back to 3000 and increase progressively
+  #else
+    // CoreXY motion needs a larger buffer size. These values are based on our testing.
+    #define FTM_STEPPER_FS          30000
+    #define FTM_STEPPERCMD_BUFF_SIZE 6000
+  #endif
+
+  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
+  #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2)       // Comparison value used in interpolation algorithm
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
+
+  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
+  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ) // Factor for use in FTM_ZMAX. DON'T CHANGE.
+  #define FTM_ZMAX (FTM_RATIO * 2)                // Maximum delays for shaping functions (even numbers only!)
+                                                  // Calculate as:
+                                                  //   ZV       : FTM_RATIO / 2
+                                                  //   ZVD, MZV : FTM_RATIO
+                                                  //   2HEI     : FTM_RATIO * 3 / 2
+                                                  //   3HEI     : FTM_RATIO * 2
 #endif
 
 /**
@@ -1254,13 +1274,8 @@
  */
 //#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
 #ifdef XY_FREQUENCY_LIMIT
-  #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
+  #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
-
-// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
-// of the buffer and all stops. This should not be much greater than zero and should only be changed
-// if unwanted behavior is observed on a user's machine when running at very slow speeds.
-#define MINIMUM_PLANNER_SPEED 0.05 // (mm/s)
 
 //
 // Backlash Compensation
@@ -1476,11 +1491,6 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
-//
-// LCD Backlight Timeout
-//
-//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
-
 #if HAS_BED_PROBE && ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
   //#define PROBE_OFFSET_WIZARD       // Add a Probe Z Offset calibration option to the LCD menu
   #if ENABLED(PROBE_OFFSET_WIZARD)
@@ -1523,8 +1533,23 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
-  // Add 50/100mm moves to MarlinUI even with a smaller bed
-  //#define LARGE_MOVE_ITEMS
+  /**
+   * MarlinUI "Move Axis" menu distances. Comma-separated list.
+   * Values are displayed as-defined, so always use plain numbers here.
+   * Axis moves <= 1/2 the axis length and Extruder moves <= EXTRUDE_MAXLENGTH
+   * will be shown in the move submenus.
+   */
+  #define MANUAL_MOVE_DISTANCE_MM                    10, 1.0, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM         100, 50, 10, 1.0, 0.1  // (mm)
+  //#define MANUAL_MOVE_DISTANCE_MM    500, 100, 50, 10, 1.0, 0.1  // (mm)
+
+  // Manual move distances for INCH_MODE_SUPPORT
+  #define MANUAL_MOVE_DISTANCE_IN                          0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN          1.000, 0.500, 0.100, 0.010, 0.001  // (in)
+  //#define MANUAL_MOVE_DISTANCE_IN   5.000, 1.000, 0.500, 0.100, 0.010, 0.001  // (in)
+
+  // Manual move distances for rotational axes
+  #define MANUAL_MOVE_DISTANCE_DEG             90, 45, 22.5, 5, 1  // (°)
 
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
@@ -1568,6 +1593,10 @@
 
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
+
+  #if HAS_WIRED_LCD
+    //#define DOUBLE_LCD_FRAMERATE        // Not recommended for slow boards.
+  #endif
 
   // The timeout to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000   // (ms)
@@ -1614,6 +1643,15 @@
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_FEEDRATE_EDIT
+  #define SPEED_EDIT_MIN    10  // (%) Feedrate percentage edit range minimum
+  #define SPEED_EDIT_MAX   999  // (%) Feedrate percentage edit range maximum
+#endif
+#if HAS_FLOW_EDIT
+  #define FLOW_EDIT_MIN     10  // (%) Flow percentage edit range minimum
+  #define FLOW_EDIT_MAX    999  // (%) Flow percentage edit range maximum
+#endif
 
 // Add 'M73' to set print job progress, overrides Marlin's built-in estimate
 //#define SET_PROGRESS_MANUALLY
@@ -2184,6 +2222,15 @@
 #endif
 
 //
+// LCD Backlight Timeout
+// Requires a display with a controllable backlight
+//
+//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
+#if defined(DISPLAY_SLEEP_MINUTES) || defined(LCD_BACKLIGHT_TIMEOUT_MINS)
+  #define EDITABLE_DISPLAY_TIMEOUT      // Edit timeout with M255 S<minutes> and a menu item
+#endif
+
+//
 // ADC Button Debounce
 //
 #if HAS_ADC_BUTTONS
@@ -2626,10 +2673,12 @@
   //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
 #endif
 
-// Bad Serial-connections can miss a received command by sending an 'ok'
-// Therefore some clients abort after 30 seconds in a timeout.
-// Some other clients start sending commands while receiving a 'wait'.
-// This "wait" is only sent when the buffer is empty. 1 second is a good value here.
+/**
+ * Bad Serial-connections can miss a received command by sending an 'ok'
+ * Therefore some clients abort after 30 seconds in a timeout.
+ * Some other clients start sending commands while receiving a 'wait'.
+ * This "wait" is only sent when the buffer is empty. 1 second is a good value here.
+ */
 //#define NO_TIMEOUTS 1000 // (ms)
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
@@ -2641,6 +2690,15 @@
 
 // For serial echo, the number of digits after the decimal point
 //#define SERIAL_FLOAT_PRECISION 4
+
+/**
+ * This feature is EXPERIMENTAL so use with caution and test thoroughly.
+ * Enable this option to receive data on the serial ports via the onboard DMA
+ * controller for more stable and reliable high-speed serial communication.
+ * Only some STM32 MCUs are currently supported.
+ * Note: This has no effect on emulated USB serial ports.
+ */
+//#define SERIAL_DMA
 
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
@@ -3419,9 +3477,8 @@
 /**
  * TWI/I2C BUS
  *
- * This feature is an EXPERIMENTAL feature so it shall not be used on production
- * machines. Enabling this will allow you to send and receive I2C data from slave
- * devices on the bus.
+ * This feature is EXPERIMENTAL but may be useful for custom I2C peripherals.
+ * Enable this to send and receive I2C data from slave devices on the bus.
  *
  * ; Example #1
  * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
@@ -4238,6 +4295,7 @@
                                           // row. By default idle() is profiled so this shows how "idle" the processor is.
                                           // See class CodeProfiler.
   //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multi-stepping 1 to 128 on this LED matrix row.
+  //#define MAX7219_DEBUG_SLOWDOWN      6 // Count (mod 16) how many times SLOWDOWN has reduced print speed.
 #endif
 
 /**

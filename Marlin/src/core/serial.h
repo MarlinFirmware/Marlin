@@ -148,7 +148,7 @@ template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
 void SERIAL_ECHO(serial_char_t x);
-#define AS_DIGIT(C) AS_CHAR('0' + (C))
+#define AS_DIGIT(n) C('0' + (n))
 
 // Print an integer with a numeric base such as PrintBase::Hex
 template <typename T> void SERIAL_PRINT(T x, PrintBase y)   { SERIAL_IMPL.print(x, y); }
@@ -276,13 +276,13 @@ public:
   SString& set() { super::set(); return *this; }
 
   template<typename... Args>
-  SString& setf_P(PGM_P const fmt, Args... more) { snprintf_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  SString& setf_P(PGM_P const fmt, Args... more) { super::setf_P(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(const char *fmt, Args... more)   { snprintf(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  SString& setf(const char *fmt, Args... more)   { super::setf(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  SString& setf(FSTR_P const fmt, Args... more)  { super::setf(fmt, more...); return *this; }
 
   template <typename T>
   SString& set(const T &v) { super::set(v); return *this; }

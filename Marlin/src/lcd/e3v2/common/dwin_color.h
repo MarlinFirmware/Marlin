@@ -27,6 +27,7 @@
 #define GetGColor(color) ((color >>  5) & 0x3F)
 #define GetBColor(color) ((color >>  0) & 0x1F)
 
+// RGB565 colors: https://rgbcolorpicker.com/565
 #define COLOR_WHITE         0xFFFF
 #define COLOR_YELLOW        RGB(0x1F,0x3F,0x00)
 #define COLOR_RED           RGB(0x1F,0x00,0x00)
