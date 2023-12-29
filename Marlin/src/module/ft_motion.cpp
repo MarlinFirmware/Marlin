@@ -46,9 +46,9 @@ FTMotion ftMotion;
   static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
 #endif
 
-//-----------------------------------------------------------------//
+//-----------------------------------------------------------------
 // Variables.
-//-----------------------------------------------------------------//
+//-----------------------------------------------------------------
 
 // Public variables.
 
@@ -63,7 +63,7 @@ bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items 
 // Private variables.
 
 // NOTE: These are sized for Ulendo FBS use.
-xyze_trajectory_t FTMotion::traj;               // = {0.0f} Storage for fixed-time-based trajectory.
+xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
 xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for fixed time trajectory window.
 
 bool FTMotion::blockProcRdy = false,            // Indicates a block is ready to be processed.
@@ -96,23 +96,23 @@ uint32_t FTMotion::N1,                          // Number of data points in the 
 uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
 
 // Make vector variables.
-uint32_t FTMotion::makeVector_idx = 0,                    // Index of fixed time trajectory generation of the overall block.
-         FTMotion::makeVector_idx_z1 = 0,                 // Storage for the previously calculated index above.
-         FTMotion::makeVector_batchIdx = 0;               // Index of fixed time trajectory generation within the batch.
+uint32_t FTMotion::makeVector_idx = 0,          // Index of fixed time trajectory generation of the overall block.
+         FTMotion::makeVector_idx_z1 = 0,       // Storage for the previously calculated index above.
+         FTMotion::makeVector_batchIdx = 0;     // Index of fixed time trajectory generation within the batch.
 
 // Interpolation variables.
-xyze_long_t FTMotion::steps = { 0 };                  // Step count accumulator.
+xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 
-uint32_t FTMotion::interpIdx = 0,                     // Index of current data point being interpolated.
-         FTMotion::interpIdx_z1 = 0;                  // Storage for the previously calculated index above.
+uint32_t FTMotion::interpIdx = 0,               // Index of current data point being interpolated.
+         FTMotion::interpIdx_z1 = 0;            // Storage for the previously calculated index above.
 
 // Shaping variables.
 #if HAS_X_AXIS
   FTMotion::shaping_t FTMotion::shaping = {
     0, 0,
-    x:{ { 0.0f }, { 0.0f }, { 0 } },                  // d_zi, Ai, Ni
+    x:{ { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, { 0.0f }, { 0 } }                 // d_zi, Ai, Ni
+      y:{ { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
     #endif
   };
 #endif
@@ -123,9 +123,9 @@ uint32_t FTMotion::interpIdx = 0,                     // Index of current data p
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
-//-----------------------------------------------------------------//
+//-----------------------------------------------------------------
 // Function definitions.
-//-----------------------------------------------------------------//
+//-----------------------------------------------------------------
 
 // Public functions.
 
