@@ -33,6 +33,7 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
+#include "../../core/millis_t.h"
 
 /**
  * M140 - Set Bed Temperature target and return immediately
@@ -93,7 +94,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   #if ENABLED(BED_ANNEALING_GCODE)
     const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
-    MTimeout annealTimeout;
+    MTimeout<millis_t> annealTimeout;
     if(anneal){annealTimeout.start(parser.value_millis_from_seconds());}
   #else
     constexpr bool anneal = false;
