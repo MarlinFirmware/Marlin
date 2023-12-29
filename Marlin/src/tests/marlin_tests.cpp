@@ -58,8 +58,7 @@ void runStartupTests() {
   timeout.prime();
   timeout.idle();
 
-  MDelay<4000> delay4000;
-  delay4000.prime();
+  MDelay delay4000(4000);
   delay4000.dofunc([] {
     SERIAL_ECHOLNPGM("millis() = ", millis());
     safe_delay(500);
