@@ -115,8 +115,9 @@ void GcodeSuite::M140_M190(const bool isM190) {
         for (celsius_t cool_temp = thermalManager.degBed(); --cool_temp >= temp; ) {
           thermalManager.setTargetBed(cool_temp);           // Cool by one degree
           thermalManager.wait_for_bed(false);               // Could this wait forever?
-          if (annealTimeout.pending() && cool_temp > temp) { // Still warmer and waiting?
-            dwell(annealTimeout.remaining() / (cool_temp - temp));             // Wait for a fraction of remaining time
+          const millis_t ms=millis();
+          if (annealTimeout.on_pending(ms) && cool_temp > temp) { // Still warmer and waiting?
+            dwell(annealTimeout.remaining(ms) / (cool_temp - temp));             // Wait for a fraction of remaining time
           }
         }
         return;
