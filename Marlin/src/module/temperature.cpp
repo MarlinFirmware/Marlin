@@ -31,6 +31,7 @@
 #include "../HAL/shared/Delay.h"
 #include "../lcd/marlinui.h"
 #include "../gcode/gcode.h"
+#include "../core/millis_t.h"
 
 #include "temperature.h"
 #include "endstops.h"
@@ -500,7 +501,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     bed_watch_t Temperature::watch_bed; // = { 0 }
   #endif
   #if DISABLED(PIDTEMPBED)
-    millis_t Temperature::next_bed_check_ms;
+  static MTimeout<uint16_t> bedCheckIntervalTimer(BED_CHECK_INTERVAL);//initialize interval timer (used only in this file)
   #endif
 #endif
 
@@ -1804,10 +1805,10 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     do {
 
       #if DISABLED(PIDTEMPBED)
-        if (PENDING(ms, next_bed_check_ms)
+        if(bedCheckIntervalTimer.pending()
           && TERN1(PAUSE_CHANGE_REQD, paused_for_probing == last_pause_state)
         ) break;
-        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+        bedCheckIntervalTimer.prime(ms);//re activate timer for next interval
         TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused_for_probing);
       #endif
 
