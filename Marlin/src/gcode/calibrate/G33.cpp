@@ -92,7 +92,7 @@ void ac_cleanup() {
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
-  SERIAL_ECHO(F("  "), prefix, AS_CHAR(':'));
+  SERIAL_ECHO(F("  "), prefix, C(':'));
   serial_offset(f);
 }
 
