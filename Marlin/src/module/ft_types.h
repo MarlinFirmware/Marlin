@@ -49,11 +49,9 @@ enum dynFreqMode_t : uint8_t {
 #if ENABLED(FTM_UNIFIED_BWS)
   typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectory_t;
   typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectoryMod_t;
-  typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectoryWin_t;
 #else
   typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
   typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
-  typedef struct XYZEarray<float, (FTM_WINDOW_SIZE - FTM_BATCH_SIZE)> xyze_trajectoryWin_t;
 #endif
 
 enum {
