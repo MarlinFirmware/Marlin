@@ -3361,12 +3361,12 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
       ) * double(0.5)
     #elif ENABLED(MARKFORGED_XY)
       axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
+        ? count_position[CORE_AXIS_1] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
         : count_position[CORE_AXIS_2]
     #elif ENABLED(MARKFORGED_YX)
       axis == CORE_AXIS_1
         ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
+        : count_position[CORE_AXIS_2] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
     #else // !IS_CORE
       count_position[axis]
     #endif
