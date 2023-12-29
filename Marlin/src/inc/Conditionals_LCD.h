@@ -1194,7 +1194,6 @@
 #endif
 
 /**
-/**
  * Disable unused SINGLENOZZLE sub-options
  */
 #if DISABLED(SINGLENOZZLE)
