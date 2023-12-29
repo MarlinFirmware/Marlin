@@ -81,7 +81,7 @@ class DWIN_ICO_File():
     def _parseHeader(self, infile):
         maxEntries = 256
         count = 0
-        icon_nums = _iconNames7.keys()
+        icon_nums = _iconNames.keys()
         while count < maxEntries:
             rawBytes = infile.read(16)
             entry = Entry()
@@ -109,7 +109,7 @@ class DWIN_ICO_File():
             if entry.length == 0:
                 count += 1
                 continue
-            outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, _iconNames7[count]))
+            outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, _iconNames.get(count, "UNKNOWN")))
             with open(outfilename, 'wb') as outfile:
                 infile.seek(entry.offset)
                 blob = infile.read(entry.length)
@@ -243,7 +243,7 @@ class Entry():
                               0, 0, 0, 0, 0)
         return rawdata
 
-_iconNames7 = {
+_iconNames = {
       0 : "LOGO_Creality",
       1 : "Print_0",
       2 : "Print_1",
