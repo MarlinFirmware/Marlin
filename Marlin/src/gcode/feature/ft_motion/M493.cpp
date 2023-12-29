@@ -257,10 +257,10 @@ void GcodeSuite::M493() {
           flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
+          SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
       }
       else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('A'), "] frequency.");
+        SERIAL_ECHOLNPGM("Wrong mode for [", C('A'), "] frequency.");
     }
 
     #if HAS_DYNAMIC_FREQ
@@ -271,7 +271,7 @@ void GcodeSuite::M493() {
           flag.report_h = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Wrong mode for [", C('F'), "] frequency scaling.");
       }
     #endif
 
@@ -284,7 +284,7 @@ void GcodeSuite::M493() {
           flag.update_n = flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Invalid X zeta [", AS_CHAR('I'), "] value."); // Zeta out of range.
+          SERIAL_ECHOLNPGM("Invalid X zeta [", C('I'), "] value."); // Zeta out of range.
       }
       else
         SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
@@ -299,7 +299,7 @@ void GcodeSuite::M493() {
           flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Invalid X vtol [", AS_CHAR('Q'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("Invalid X vtol [", C('Q'), "] value."); // VTol out of range.
       }
       else
         SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
@@ -318,10 +318,10 @@ void GcodeSuite::M493() {
           flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");
+          SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
       }
       else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('B'), "] frequency.");
+        SERIAL_ECHOLNPGM("Wrong mode for [", C('B'), "] frequency.");
     }
 
     #if HAS_DYNAMIC_FREQ
@@ -332,7 +332,7 @@ void GcodeSuite::M493() {
           flag.report_h = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Wrong mode for [", C('H'), "] frequency scaling.");
       }
     #endif
 
@@ -345,7 +345,7 @@ void GcodeSuite::M493() {
           flag.update_n = flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Invalid Y zeta [", AS_CHAR('J'), "] value."); // Zeta Out of range
+          SERIAL_ECHOLNPGM("Invalid Y zeta [", C('J'), "] value."); // Zeta Out of range
       }
       else
         SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
@@ -360,7 +360,7 @@ void GcodeSuite::M493() {
           flag.update_a = true;
         }
         else
-          SERIAL_ECHOLNPGM("Invalid Y vtol [", AS_CHAR('R'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("Invalid Y vtol [", C('R'), "] value."); // VTol out of range.
       }
       else
         SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");

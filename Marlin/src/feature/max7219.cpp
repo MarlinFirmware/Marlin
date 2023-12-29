@@ -136,7 +136,7 @@ uint8_t Max7219::suspended; // = 0;
 
 void Max7219::error(FSTR_P const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
-    SERIAL_ECHO(F("??? Max7219::"), func, AS_CHAR('('), v1);
+    SERIAL_ECHO(F("??? Max7219::"), func, C('('), v1);
     if (v2 > 0) SERIAL_ECHOPGM(", ", v2);
     SERIAL_CHAR(')');
     SERIAL_EOL();

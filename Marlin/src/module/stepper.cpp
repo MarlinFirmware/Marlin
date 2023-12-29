@@ -3361,12 +3361,12 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
       ) * double(0.5)
     #elif ENABLED(MARKFORGED_XY)
       axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
+        ? count_position[CORE_AXIS_1] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
         : count_position[CORE_AXIS_2]
     #elif ENABLED(MARKFORGED_YX)
       axis == CORE_AXIS_1
         ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] ENABLED(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
+        : count_position[CORE_AXIS_2] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
     #else // !IS_CORE
       count_position[axis]
     #endif
@@ -3552,7 +3552,7 @@ void Stepper::report_positions() {
       // Sync block? Sync the stepper counts and return
       while (current_block->is_sync()) {
         TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
-        
+
         planner.release_current_block();
 
         // Try to get a new block

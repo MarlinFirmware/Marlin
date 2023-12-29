@@ -257,11 +257,15 @@ void Planner::init() {
   position.reset();
   TERN_(HAS_POSITION_FLOAT, position_float.reset());
   TERN_(IS_KINEMATIC, position_cart.reset());
+
   previous_speed.reset();
   previous_nominal_speed = 0;
+
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
+
   clear_block_buffer();
   delay_before_delivering = 0;
+
   #if ENABLED(DIRECT_STEPPING)
     last_page_step_rate = 0;
     last_page_dir.reset();
@@ -1970,23 +1974,21 @@ bool Planner::_populate_block(
     dm.hy = (dist.b > 0);                       // ...and Y
     TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      dm.a = (dist.a + dist.b > 0);             // Motor A direction
-      dm.b = (CORESIGN(dist.a - dist.b) > 0);   // Motor B direction
-    #elif CORE_IS_XZ
-      dm.hx = (dist.a > 0);                     // Save the toolhead's true direction in X
-      dm.y  = (dist.b > 0);
-      dm.hz = (dist.c > 0);                     // ...and Z
-      dm.a  = (dist.a + dist.c > 0);            // Motor A direction
-      dm.c  = (CORESIGN(dist.a - dist.c) > 0);  // Motor C direction
-    #elif CORE_IS_YZ
-      dm.x  = (dist.a > 0);
-      dm.hy = (dist.b > 0);                     // Save the toolhead's true direction in Y
-      dm.hz = (dist.c > 0);                     // ...and Z
-      dm.b  = (dist.b + dist.c > 0);            // Motor B direction
-      dm.c  = (CORESIGN(dist.b - dist.c) > 0);  // Motor C direction
-    #endif
+  #if CORE_IS_XY
+    dm.a = (dist.a + dist.b > 0);               // Motor A direction
+    dm.b = (CORESIGN(dist.a - dist.b) > 0);     // Motor B direction
+  #elif CORE_IS_XZ
+    dm.hx = (dist.a > 0);                       // Save the toolhead's true direction in X
+    dm.y  = (dist.b > 0);
+    dm.hz = (dist.c > 0);                       // ...and Z
+    dm.a  = (dist.a + dist.c > 0);              // Motor A direction
+    dm.c  = (CORESIGN(dist.a - dist.c) > 0);    // Motor C direction
+  #elif CORE_IS_YZ
+    dm.x  = (dist.a > 0);
+    dm.hy = (dist.b > 0);                       // Save the toolhead's true direction in Y
+    dm.hz = (dist.c > 0);                       // ...and Z
+    dm.b  = (dist.b + dist.c > 0);              // Motor B direction
+    dm.c  = (CORESIGN(dist.b - dist.c) > 0);    // Motor C direction
   #elif ENABLED(MARKFORGED_XY)
     dm.a = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
     dm.b = (dist.b > 0);                        // Motor B direction
@@ -2090,23 +2092,21 @@ bool Planner::_populate_block(
     dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
     TERN_(HAS_Z_AXIS, dist_mm.z = dist.c * mm_per_step[Z_AXIS]);
   #endif
-  #if IS_CORE
-    #if CORE_IS_XY
-      dist_mm.a      = (dist.a + dist.b) * mm_per_step[A_AXIS];
-      dist_mm.b      = CORESIGN(dist.a - dist.b) * mm_per_step[B_AXIS];
-    #elif CORE_IS_XZ
-      dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
-      dist_mm.y      = dist.b * mm_per_step[Y_AXIS];
-      dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
-      dist_mm.a      = (dist.a + dist.c) * mm_per_step[A_AXIS];
-      dist_mm.c      = CORESIGN(dist.a - dist.c) * mm_per_step[C_AXIS];
-    #elif CORE_IS_YZ
-      dist_mm.x      = dist.a * mm_per_step[X_AXIS];
-      dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
-      dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
-      dist_mm.b      = (dist.b + dist.c) * mm_per_step[B_AXIS];
-      dist_mm.c      = CORESIGN(dist.b - dist.c) * mm_per_step[C_AXIS];
-    #endif
+  #if CORE_IS_XY
+    dist_mm.a      = (dist.a + dist.b) * mm_per_step[A_AXIS];
+    dist_mm.b      = CORESIGN(dist.a - dist.b) * mm_per_step[B_AXIS];
+  #elif CORE_IS_XZ
+    dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
+    dist_mm.y      = dist.b * mm_per_step[Y_AXIS];
+    dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
+    dist_mm.a      = (dist.a + dist.c) * mm_per_step[A_AXIS];
+    dist_mm.c      = CORESIGN(dist.a - dist.c) * mm_per_step[C_AXIS];
+  #elif CORE_IS_YZ
+    dist_mm.x      = dist.a * mm_per_step[X_AXIS];
+    dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
+    dist_mm.head.z = dist.c * mm_per_step[C_AXIS];
+    dist_mm.b      = (dist.b + dist.c) * mm_per_step[B_AXIS];
+    dist_mm.c      = CORESIGN(dist.b - dist.c) * mm_per_step[C_AXIS];
   #elif ENABLED(MARKFORGED_XY)
     dist_mm.a = (dist.a TERN(MARKFORGED_INVERSE, +, -) dist.b) * mm_per_step[A_AXIS];
     dist_mm.b = dist.b * mm_per_step[B_AXIS];
@@ -2490,9 +2490,9 @@ bool Planner::_populate_block(
        *
        * extruder_advance_K[extruder] : There is an advance factor set for this extruder.
        *
-       * dist.e > 0                   : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * dm.e                         : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
-      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dist.e > 0;
+      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dm.e;
 
       if (use_advance_lead) {
         float e_D_ratio = (target_float.e - position_float.e) /
@@ -2540,6 +2540,7 @@ bool Planner::_populate_block(
   #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
+
   #if ENABLED(LIN_ADVANCE)
     block->la_advance_rate = 0;
     block->la_scaling = 0;
@@ -2769,53 +2770,70 @@ bool Planner::_populate_block(
      * Heavily modified. Originally adapted from Průša firmware.
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    #ifndef TRAVEL_EXTRA_XYJERK
-      #define TRAVEL_EXTRA_XYJERK 0.0f
+    #if defined(TRAVEL_EXTRA_XYJERK) || ENABLED(LIN_ADVANCE)
+      xyze_float_t max_j = max_jerk;
+    #else
+      const xyze_float_t &max_j = max_jerk;
     #endif
-    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, dist.e <= 0) ? TRAVEL_EXTRA_XYJERK : 0.0f;
 
-    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
-      // Compute "safe" speed, limited by a jerk to/from full halt.
-
-      float v_factor = 1.0f;
-      LOOP_LOGICAL_AXES(i) {
-        const float jerk = ABS(current_speed[i]),   // Starting from zero, change in speed for this axis
-                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f); // The max jerk setting for this axis
-        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+    #ifdef TRAVEL_EXTRA_XYJERK
+      if (dist.e <= 0) {
+        max_j.x += TRAVEL_EXTRA_XYJERK;
+        max_j.y += TRAVEL_EXTRA_XYJERK;
       }
-      vmax_junction_sqr = sq(block->nominal_speed * v_factor);
-      NOLESS(minimum_planner_speed_sqr, vmax_junction_sqr);
+    #endif
+
+    #if ENABLED(LIN_ADVANCE)
+      // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
+      // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
+      // perform well; it takes more time/effort to push/melt filament than the reverse).
+      static uint32_t previous_advance_rate;
+      static float previous_e_mm_per_step;
+      if (dist.e < 0 && previous_advance_rate) {
+        // Retract move after a segment with LA that ended with an E speed decrease.
+        // Correct for this to allow a faster junction speed. Since the decrease always helps to
+        // get E to nominal retract speed, the equation simplifies to an increase in max jerk.
+        max_j.e += previous_advance_rate * previous_e_mm_per_step;
+      }
+      // Prepare for next segment.
+      previous_advance_rate = block->la_advance_rate;
+      previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
+    #endif
+
+    xyze_float_t speed_diff = current_speed;
+    float vmax_junction;
+    const bool start_from_zero = !moves_queued || UNEAR_ZERO(previous_nominal_speed);
+    if (start_from_zero) {
+      // Limited by a jerk to/from full halt.
+      vmax_junction = block->nominal_speed;
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      float vmax_junction, previous_speed_factor, current_speed_factor;
+      // Scale per-axis velocities for the same vmax_junction.
       if (block->nominal_speed < previous_nominal_speed) {
         vmax_junction = block->nominal_speed;
-        previous_speed_factor = vmax_junction / previous_nominal_speed;
-        current_speed_factor = 1.0f;
+        const float previous_scale = vmax_junction / previous_nominal_speed;
+        LOOP_LOGICAL_AXES(i) speed_diff[i] -= previous_speed[i] * previous_scale;
       }
       else {
         vmax_junction = previous_nominal_speed;
-        previous_speed_factor = 1.0f;
-        current_speed_factor = vmax_junction / block->nominal_speed;
+        const float current_scale = vmax_junction / block->nominal_speed;
+        LOOP_LOGICAL_AXES(i) speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
       }
-
-      // Now limit the jerk in all axes.
-      float v_factor = 1.0f;
-      LOOP_LOGICAL_AXES(i) {
-        // Scale per-axis velocities for the same vmax_junction.
-        const float v_exit = previous_speed[i] * previous_speed_factor,
-                    v_entry = current_speed[i] * current_speed_factor;
-
-        // Jerk is the per-axis velocity difference.
-        const float jerk = ABS(v_exit - v_entry),
-                    maxj = max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f);
-        if (jerk * v_factor > maxj) v_factor = maxj / jerk;
-      }
-      vmax_junction_sqr = sq(vmax_junction * v_factor);
     }
+
+    // Now limit the jerk in all axes.
+    float v_factor = 1.0f;
+    LOOP_LOGICAL_AXES(i) {
+      // Jerk is the per-axis velocity difference.
+      const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
+      if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+    }
+    vmax_junction_sqr = sq(vmax_junction * v_factor);
+
+    if (start_from_zero) minimum_planner_speed_sqr = vmax_junction_sqr;
 
   #endif // CLASSIC_JERK
 
