@@ -42,7 +42,7 @@ void runStartupTests() {
 
   SERIAL_ECHOLNPGM("\n<< SERIAL_ECHO>>");
 
-  SERIAL_ECHOLN("C String ", F("F String "), AS_CHAR('X'), AS_CHAR(' '), 123, AS_CHAR(','), 123.4, AS_CHAR(','), -123, AS_CHAR(','), -123.4, AS_CHAR(','), int8_t(-123), AS_CHAR(','), uint8_t(123), AS_CHAR(','), int16_t(-123), AS_CHAR(','), uint16_t(123), AS_CHAR(','), int32_t(-123), AS_CHAR(','), uint32_t(123));
+  SERIAL_ECHOLN("C String ", F("F String "), C('X'), C(' '), 123, C(','), 123.4, C(','), -123, C(','), -123.4, C(','), int8_t(-123), C(','), uint8_t(123), C(','), int16_t(-123), C(','), uint16_t(123), C(','), int32_t(-123), C(','), uint32_t(123));
   for (uint8_t i = 0; i <= 9; ++i) SERIAL_CHAR('0' + char(i));
   SERIAL_EOL();
 
@@ -50,9 +50,9 @@ void runStartupTests() {
 
   constexpr millis_t erly = 0x0000FFFF, late = 0x7FFFFF00,
                      erly2 = erly + MIN_TO_MS(1), late2 = late + MIN_TO_MS(1), huge = erly + 0x7FFFFFF0;
-  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(erly2), F(") is "), PENDING(erly, erly2) ? F("OK") :  F("BAD"));
-  SERIAL_ECHOLN(F("PENDING("), int32_t(late), AS_CHAR(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
-  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), AS_CHAR(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), C(','), int32_t(erly2), F(") is "), PENDING(erly, erly2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(late), C(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), C(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
 
   MTimeout<millis_t> timeout(100);
   timeout.prime();
