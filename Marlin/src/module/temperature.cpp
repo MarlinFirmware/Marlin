@@ -1401,30 +1401,35 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
           break;
       }
 
-      #ifdef FAN_KICKSTART_TIME
-        if ((autofan_kick[f].kick_active == 0) && fan_on) {   // auto fan just started
-          autofan_kick[f].kick_active = 1;
-          autofan_kick[f].kick_end = millis() + FAN_KICKSTART_TIME;
-        }
-        if (autofan_kick[f].kick_active == 1) {  // check for kick timeout
-          if (ELAPSED(millis(), autofan_kick[f].kick_end)) {
-            autofan_kick[f].kick_active = 2;
-          }
-        }
-        if ((autofan_kick[f].kick_active == 2) && !fan_on) {   // auto fan just stopped
-          autofan_kick[f].kick_active = 0;
-        }
-        #if ALL(HAS_FANCHECK, HAS_PWMFANCHECK)
-          #define _AUTOFAN_SPEED() fan_check.is_measuring() ? 255 : (autofan_kick[f].kick_active == 1) ? FAN_KICKSTART_POWER : EXTRUDER_AUTO_FAN_SPEED
-        #else
-          #define _AUTOFAN_SPEED() (autofan_kick[f].kick_active == 1) ? FAN_KICKSTART_POWER : EXTRUDER_AUTO_FAN_SPEED
-        #endif
+      #if ALL(HAS_FANCHECK, HAS_PWMFANCHECK)
+        #define _IS_MEASURING() fan_check.is_measuring()
       #else
-        #if ALL(HAS_FANCHECK, HAS_PWMFANCHECK)
-          #define _AUTOFAN_SPEED() fan_check.is_measuring() ? 255 : EXTRUDER_AUTO_FAN_SPEED
-        #else
-          #define _AUTOFAN_SPEED() EXTRUDER_AUTO_FAN_SPEED
-        #endif
+        #define _IS_MEASURING() false
+      #endif
+
+      #if EXTRUDER_AUTO_FAN_KICKSTART_TIME
+
+        if (f < HOTENDS) {
+          autofan_kick_t &kick = autofan_kick[f];
+
+          // Autofan just started? Kick for a short period.
+          if (!kick.state && fan_on) {
+            kick.state = 1;
+            kick.end_ms = millis() + EXTRUDER_AUTO_FAN_KICKSTART_TIME;
+          }
+
+          // Kickstart timeout? Go to full speed.
+          if (kick.state == 1 && ELAPSED(millis(), kick.end_ms))
+            kick.state = 2;
+
+          // Autofan just stopped? Kick on the next start.
+          if (kick.state == 2 && !fan_on)
+            kick.state = 0;
+        }
+
+        #define _AUTOFAN_SPEED() _IS_MEASURING() ? 255 : (kick.state == 1) ? EXTRUDER_AUTO_FAN_KICKSTART_POWER : EXTRUDER_AUTO_FAN_SPEED
+      #else
+        #define _AUTOFAN_SPEED() _IS_MEASURING() ? 255 : EXTRUDER_AUTO_FAN_SPEED
       #endif
       #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break;
       #define _AUTOFAN_NOT(N)

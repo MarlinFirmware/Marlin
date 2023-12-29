@@ -671,6 +671,8 @@
   #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
 #elif defined(SDIO_SUPPORT)
   #error "SDIO_SUPPORT is now ONBOARD_SDIO."
+#elif defined(EFAN_KICKSTART_TIME) || defined(EFAN_KICKSTART_POWER)
+  #error "FAN_KICKSTART_(TIME|POWER) are now EFAN_KICKSTART_(TIME|POWER) and CONTROLLERFAN_KICKSTART_(TIME|POWER)."
 #endif
 
 // L64xx stepper drivers have been removed

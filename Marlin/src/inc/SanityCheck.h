@@ -1047,16 +1047,16 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 // Fan Kickstart power
-#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
-  #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+#if EFAN_KICKSTART_TIME && !WITHIN(EFAN_KICKSTART_POWER, 64, 255)
+  #error "EFAN_KICKSTART_POWER must be an integer from 64 to 255."
 #endif
 
 /**
  * Synchronous M106/M107 checks
  */
 #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-  #if FAN_KICKSTART_TIME
-    #error "FAN_KICKSTART_TIME must be 0 with LASER_SYNCHRONOUS_M106_M107 (because the laser will always come on at FULL power)."
+  #if EFAN_KICKSTART_TIME
+    #error "EFAN_KICKSTART_TIME must be 0 with LASER_SYNCHRONOUS_M106_M107 (because the laser will always come on at FULL power)."
   #elif FAN_MIN_PWM
     #error "FAN_MIN_PWM must be 0 with LASER_SYNCHRONOUS_M106_M107 (otherwise the laser will never turn OFF)."
   #endif

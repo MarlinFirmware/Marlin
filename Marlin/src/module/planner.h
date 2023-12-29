@@ -624,7 +624,7 @@ class Planner {
     // Apply fan speeds
     #if HAS_FAN
       static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
-      #if FAN_KICKSTART_TIME
+      #if EFAN_KICKSTART_TIME
         static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
       #else
         FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}

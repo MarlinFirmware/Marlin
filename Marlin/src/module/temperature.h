@@ -587,14 +587,12 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
   #define HAS_FAN_LOGIC 1
 #endif
 
-#ifdef FAN_KICKSTART_TIME
-
-typedef struct {
-    uint8_t kick_active = 0;  // 0: fan off, 1: kick active, 2: fan on (normal)
-    millis_t kick_end;
-  } AUTO_FAN_kick;
-
-static AUTO_FAN_kick autofan_kick[HOTENDS];
+#if EXTRUDER_AUTO_FAN_KICKSTART_TIME
+  typedef struct {
+    uint8_t state = 0;  // 0: fan off, 1: kick active, 2: fan on (normal)
+    millis_t end_ms;
+  } autofan_kick_t;
+  static autofan_kick_t autofan_kick[HOTENDS];
 #endif
 
 class Temperature {
