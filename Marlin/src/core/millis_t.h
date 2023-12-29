@@ -40,7 +40,7 @@ constexpr bool _PENDING(const millis_t now, const millis_t start, const millis_t
 
 typedef void (*timeoutFunc_t)();
 
-template<typename T>
+template<typename T=millis_t>
 struct MTimeout {
   T start_ms = 0;
   T delay_ms = 0;
