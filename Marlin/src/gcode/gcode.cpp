@@ -244,7 +244,7 @@ void GcodeSuite::get_destination_from_command() {
  * @param time unit: ms
  */
 void GcodeSuite::dwell(const millis_t time) {
-  MTimeout timeout(time);
+  MTimeout <millis_t> timeout(time);
   timeout.idle();
 }
 
