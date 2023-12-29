@@ -93,7 +93,8 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   #if ENABLED(BED_ANNEALING_GCODE)
     const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
-    const millis_t anneal_ms = anneal ? millis() + parser.value_millis_from_seconds() : 0UL;
+    MTimeout annealTimeout;
+    if(anneal){annealTimeout.start(parser.value_millis_from_seconds());}
   #else
     constexpr bool anneal = false;
   #endif
@@ -114,10 +115,8 @@ void GcodeSuite::M140_M190(const bool isM190) {
         for (celsius_t cool_temp = thermalManager.degBed(); --cool_temp >= temp; ) {
           thermalManager.setTargetBed(cool_temp);           // Cool by one degree
           thermalManager.wait_for_bed(false);               // Could this wait forever?
-          const millis_t ms = millis();
-          if (PENDING(ms, anneal_ms) && cool_temp > temp) { // Still warmer and waiting?
-            const millis_t remain = anneal_ms - ms;
-            dwell(remain / (cool_temp - temp));             // Wait for a fraction of remaining time
+          if (annealTimeout.pending() && cool_temp > temp) { // Still warmer and waiting?
+            dwell(annealTimeout.remaining() / (cool_temp - temp));             // Wait for a fraction of remaining time
           }
         }
         return;
