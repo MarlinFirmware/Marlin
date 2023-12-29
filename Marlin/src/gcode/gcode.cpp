@@ -35,7 +35,6 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
-#include "../core/millis_t.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
