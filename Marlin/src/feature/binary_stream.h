@@ -129,7 +129,7 @@ private:
   enum class FileTransfer : uint8_t { QUERY, OPEN, CLOSE, WRITE, ABORT };
 
   static size_t data_waiting; 
-  static uint16_t transfer_timeout_last, idle_timeout_last;
+  static uint16_t transfer_time_last, idle_time_last;
   static bool transfer_active, dummy_transfer, compression;
 
 public:
@@ -137,14 +137,14 @@ public:
   static void idle() {
     // If a transfer is interrupted and a file is left open, abort it after TIMEOUT ms
     const uint16_t ms = (uint16_t)millis();
-    if (transfer_active && ((uint16_t)(ms - idle_timeout_last) > IDLE_PERIOD)) {
-      idle_timeout_last = ms;
-      if ((ms - transfer_timeout_last > TIMEOUT)) transfer_abort();
+    if (transfer_active && ((uint16_t)(ms - idle_time_last) > IDLE_PERIOD)) {
+      idle_time_last = ms;
+      if ((ms - transfer_time_last > TIMEOUT)) transfer_abort();
     }
   }
 
   static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
-    transfer_timeout_last = (uint16_t)millis();
+    transfer_time_last = (uint16_t)millis();
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
         SERIAL_ECHOPGM("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
