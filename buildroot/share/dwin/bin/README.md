@@ -4,7 +4,7 @@ Tools for processing `.ICO` files used by DWIN displays.
 
 ## Introduction
 
-The DWIN LCDs that come with the Creality Ender-3 v2 and other 3D printers contain image and container files stored on them which are used to draw various the UI elements.
+The DWIN LCDs that come with the Creality Ender-3 V2 and other 3D printers contain image and container files stored on them which are used to draw various the UI elements.
 
 Standard `.JPG` files can be installed for things like the boot screen, and `.ICO` files can contain several images within a structured file format.
 
@@ -48,9 +48,11 @@ Pillow is most easily installed with pip:
 
 These tools process an `.ICO` file that you specify. The safest method is to create a folder and copy your `.ICO` file there. For example:
 
+```
   $ mkdir hackicons
   $ cp 9.ICO hackicons
   $ cd hackicons
+```
 
 The following explanations will refer back to this layout.
 
@@ -58,12 +60,20 @@ The following explanations will refer back to this layout.
 
 If you want to edit the individual icons stored in an ICO file (or add more images) you'll first need to extract all the images from the archive using `splitIco.py`.
 
-**Usage:** `splitIco.py #.ICO foldername`.
+**Usage:** `splitIco.py #.ICO foldername`
+
+**Splitting .ICO FIle In Windows:**
+* Create `Split-ICO.bat` file in this folder with the following code
+  *     for /f %%f in ('dir *.ICO /B /O:-D') do splitico.py %%f %%f-icons
+* Paste `.ICO` file into this folder
+* Run `Split-ICO.bat`
+* A new folder should appear containing all icons
 
 **Example:**
 
-In this example we're extracting the constituent JPEG files from `9.ICO` and storing them in a folder named `icons`. As each file is extracted the script reports its index number, byte offset, size, dimensions, and filename:
+In this example we're extracting the constituent JPEG files from `9.ICO` and storing them in a folder named `icons-9`. As each file is extracted the script reports its index number, byte offset, size, dimensions, and filename:
 
+```
   $ cd buildroot/share/dwin
   $ ./bin/splitIco.py 9.ICO icons-9
     Splitting 9.ICO into dir icons
@@ -77,16 +87,35 @@ In this example we're extracting the constituent JPEG files from `9.ICO` and sto
     ...
     91: offset: 0x0345fc len: 0x0d89 width: 110 height: 100
     Wrote 3465 bytes to icons/091-ICON_Info_1.jpg
+```
 
 Once the individual JPEG files have been saved they can be edited using common graphics applications like Photoshop. JPEG files are inherently lossy and will usually contain ugly artifacts, so cleanup may be needed before they are re-exported. Keep the limits of bank size in mind when exporting images and try to find the best balance between compressed size and image quality.
 
 ### `makeIco.py` - Combine JPEGs into `ICO` archive
 
+If you want to create an ICO file you'll need to use `makeIco.py`.
+
+**Usage:** `makeIco.py foldername #.ICO`
+
+**Making .ICO FIle In Windows:**
+* Create `Make-ICO.bat` file in this folder with the following code
+  * ```
+    setlocal enabledelayedexpansion
+    for /f %%f in ('dir *-icons /B /O:-D') do set f=%%f & makeico.py %%f !f:~0,-7!
+    ```
+* Paste folder containing all icons into this folder
+* Run `Make-ICO.bat`
+* A new `.ICO` file should appear
+
+**Example:**
+
 After editing images you'll create a new `9.ICO` archive with `makeIco.py` like so:
 
+```
   $ cd buildroot/share/dwin
-  $ ./bin/makeIco.py icons-3 3.ICO
-    Making .ico file '3.ICO' from contents of 'icons-3'
-    Scanning icon directory icons-3
+  $ ./bin/makeIco.py icons-9 9.ICO
+    Making .ico file '9.ICO' from contents of 'icons-9'
+    Scanning icon directory icons-9
     ...Scanned 16 icon files
     Scanning done. 16 icons included.
+```
