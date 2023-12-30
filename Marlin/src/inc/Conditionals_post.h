@@ -2657,7 +2657,7 @@
                      && !_IS_E_AUTO(4,F) && !_IS_E_AUTO(5,F) \
                      && !_IS_E_AUTO(6,F) && !_IS_E_AUTO(7,F))
 
-#if _HAS_FAN(0)
+#if PIN_EXISTS(FAN0) // Special case, do not use _HAS_FAN(0)
   #define HAS_FAN0 1
 #endif
 #if _HAS_FAN(1)
