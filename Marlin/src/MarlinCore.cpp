@@ -821,12 +821,12 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
   {
-    static millis_t i2cpem_next_update_ms;
+    static millis_t i2cpem_last_update_ms;
     if (planner.has_blocks_queued()) {
       const millis_t ms = millis();
-      if (ELAPSED(ms, i2cpem_next_update_ms)) {
+      if (ELAPSED(ms, i2cpem_last_update_ms, I2CPE_MIN_UPD_TIME_MS)) {
         I2CPEM.update();
-        i2cpem_next_update_ms = ms + I2CPE_MIN_UPD_TIME_MS;
+        i2cpem_last_update_ms = ms;
       }
     }
   }
