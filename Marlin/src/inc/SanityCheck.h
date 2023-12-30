@@ -1829,19 +1829,25 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #undef GOOD_AXIS_PINS
 
 /**
- * Make sure auto fan pins don't conflict with the fan pin
+ * Make sure auto fan pins don't conflict with the first fan pin
  */
 #if HAS_AUTO_FAN
-  #if HAS_FAN0
-    #if PIN_EXISTS(E0_AUTO_FAN) && E0_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E1_AUTO_FAN) && E1_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E2_AUTO_FAN) && E2_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E3_AUTO_FAN) &&  E3_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
-    #endif
+  #if PINS_EXIST(E0_AUTO_FAN, FAN0) && E0_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E1_AUTO_FAN, FAN0) && E1_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E2_AUTO_FAN, FAN0) && E2_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E3_AUTO_FAN, FAN0) &&  E3_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E4_AUTO_FAN, FAN0) &&  E4_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E4_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E5_AUTO_FAN, FAN0) &&  E5_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E5_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E6_AUTO_FAN, FAN0) &&  E6_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E6_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E7_AUTO_FAN, FAN0) &&  E7_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E7_AUTO_FAN_PIN equal to FAN0_PIN."
   #endif
 #endif
 
