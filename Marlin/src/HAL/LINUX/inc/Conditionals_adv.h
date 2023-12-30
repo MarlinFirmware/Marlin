@@ -20,8 +20,3 @@
  *
  */
 #pragma once
-
-// Redirect strlcpy to hal.str_lcpy
-#ifndef strlcpy
-  #define strlcpy(dest, source, totalsize) hal.str_lcpy(dest, source, totalsize)
-#endif

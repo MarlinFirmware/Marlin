@@ -163,13 +163,16 @@ public:
 
   static void set_pwm_frequency(const pin_t, int) {}
 
+};
+
+#ifndef HAS_STRLCPY
   /**
-   * Add missing strlcpy to HAL as str_lcpy
+   * Redirect missing strlcpy to _strlcpy
    */
-  size_t str_lcpy(char *dest, const char *source, size_t totalsize) {
+  size_t _strlcpy(char *dest, const char *source, size_t totalsize) {
     strncpy(dest, source, totalsize - 1);
     dest[totalsize - 1] = '\0';
     return strlen(source);
   }
-
-};
+  #define strlcpy _strlcpy
+#endif

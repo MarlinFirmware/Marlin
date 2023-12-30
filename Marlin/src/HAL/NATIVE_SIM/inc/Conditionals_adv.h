@@ -29,8 +29,3 @@
 #ifndef strcat_P
   #define strcat_P(dest, src) strcat((dest), (src))
 #endif
-
-// Redirect strlcpy to hal.str_lcpy
-#ifndef strlcpy
-  #define strlcpy(dest, source, totalsize) hal.str_lcpy(dest, source, totalsize)
-#endif
