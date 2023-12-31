@@ -492,7 +492,7 @@ public:
    * @param cstr    A C-string to set as the status.
    */
   static void set_status_no_expire_P(PGM_P const pstr)      { set_status_P(pstr, true); }
-  static void set_status_no_expire(const char * const cstr) { set_status(cstr, true); }
+  FORCE_INLINE static void set_status_no_expire(const char * const cstr) { set_status(cstr, true); }
   static void set_status_no_expire(FSTR_P const fstr)       { set_status(fstr, true); }
 
   /**
