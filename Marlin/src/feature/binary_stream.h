@@ -139,7 +139,7 @@ public:
     const uint16_t ms = (uint16_t)millis();
     if (transfer_active && ((uint16_t)(ms - idle_time_last) > IDLE_PERIOD)) {
       idle_time_last = ms;
-      if ((ms - transfer_time_last > TIMEOUT)) transfer_abort();
+      if ((uint16_t)(ms - transfer_time_last) > TIMEOUT) transfer_abort();
     }
   }
 
