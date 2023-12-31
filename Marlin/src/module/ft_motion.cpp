@@ -501,11 +501,13 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   ratio = moveDist * oneOverLength;
 
-  /* Keep for comprehension
   const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
-              f_s = spm * current_block->initial_rate,  // (steps/s) Start feedrate
-              f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
 
+  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
+
+  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
+
+  /* Keep for comprehension
   const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
               oneby2a = 1.0f / (2.0f * a),              // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
               oneby2d = -oneby2a;                       // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
@@ -526,10 +528,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
               T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
   */
-
-  const float spm = totalLength / current_block->step_event_count,
-              f_s = spm * current_block->initial_rate,
-              f_e = spm * current_block->final_rate;
 
   const float accel = current_block->acceleration,
               oneOverAccel = 1.0f / accel;
