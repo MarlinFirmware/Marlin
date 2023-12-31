@@ -294,14 +294,14 @@ private:
           float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), F("]   ---> "));
+            DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
             DEBUG_DELAY(20);
           }
 
           rotation.apply_rotation_xyz(mx, my, mz);
 
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), AS_CHAR(']'));
+            DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), C(']'));
             DEBUG_DELAY(20);
           }
 
@@ -1158,7 +1158,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           case PREPARE_CHANGEFIL:
             if (draw) {
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE)
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   , nullptr, true
                 #endif
@@ -1766,7 +1766,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case CHANGEFIL_CHANGE:
             if (draw)
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else {
               if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
@@ -2333,7 +2333,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define MOTION_HOMEOFFSETS (MOTION_BACK + 1)
       #define MOTION_SPEED (MOTION_HOMEOFFSETS + 1)
       #define MOTION_ACCEL (MOTION_SPEED + 1)
-      #define MOTION_JERK (MOTION_ACCEL + ENABLED(HAS_CLASSIC_JERK))
+      #define MOTION_JERK (MOTION_ACCEL + ENABLED(CLASSIC_JERK))
       #define MOTION_STEPS (MOTION_JERK + 1)
       #define MOTION_FLOW (MOTION_STEPS + ENABLED(HAS_HOTEND))
       #define MOTION_LA (MOTION_FLOW + ENABLED(LIN_ADVANCE))
@@ -2364,7 +2364,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           else
             drawMenu(ID_MaxAcceleration);
           break;
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           case MOTION_JERK:
             if (draw)
               drawMenuItem(row, ICON_MaxJerk, GET_TEXT_F(MSG_JERK), nullptr, true);
@@ -2553,7 +2553,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #endif
       }
       break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:
 
         #define JERK_BACK 0
@@ -3449,7 +3449,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
             case LEVELING_SETTINGS_PLANE:
               if (draw)
-                drawMenuItem(row, ICON_ResumeEEPROM, F("Convert Mesh to Plane"));
+                drawMenuItem(row, ICON_ResetEEPROM, F("Convert Mesh to Plane"));
               else {
                 if (mesh_conf.createPlaneFromMesh()) break;
                 gcode.process_subcommands_now(F("M420 S1"));
@@ -3594,7 +3594,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             case LEVELING_M_UNDEF:
               if (draw)
-                drawMenuItem(row, ICON_ResumeEEPROM, F("Clear Point Value"));
+                drawMenuItem(row, ICON_ResetEEPROM, F("Clear Point Value"));
               else {
                 mesh_conf.manualValueUpdate(true);
                 redrawMenu(false);
@@ -3924,7 +3924,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           case TUNE_CHANGEFIL:
             if (draw)
-              drawMenuItem(row, ICON_ResumeEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_FILAMENTCHANGE));
             else
               popupHandler(Popup_ConfFilChange);
             break;
@@ -4170,7 +4170,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     case ID_HomeOffsets:    return GET_TEXT_F(MSG_SET_HOME_OFFSETS);
     case ID_MaxSpeed:       return GET_TEXT_F(MSG_MAX_SPEED);
     case ID_MaxAcceleration: return F("Max Acceleration");
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return F("Max Jerk");
     #endif
     case ID_Steps:          return GET_TEXT_F(MSG_STEPS_PER_MM);
@@ -4247,7 +4247,7 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     case ID_HomeOffsets:    return HOMEOFFSETS_TOTAL;
     case ID_MaxSpeed:       return SPEED_TOTAL;
     case ID_MaxAcceleration: return ACCEL_TOTAL;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return JERK_TOTAL;
     #endif
     case ID_Steps:          return STEPS_TOTAL;

@@ -460,7 +460,7 @@ void drawBackFirst(const bool is_sel=true) {
 
 #define MOTION_CASE_RATE   1
 #define MOTION_CASE_ACCEL  2
-#define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(HAS_CLASSIC_JERK))
+#define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(CLASSIC_JERK))
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
 #define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
 
@@ -905,7 +905,7 @@ void drawControlMenu() {
   #if ENABLED(EEPROM_SETTINGS)
     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResetEEPROM, false);
   #endif
 }
 
@@ -1004,7 +1004,7 @@ void drawMotionMenu() {
     itemAreaCopy(173, 133, 228, 147, MOTION_CASE_RATE);        // Max speed
     itemAreaCopy(173, 133, 200, 147, MOTION_CASE_ACCEL);       // Max...
     itemAreaCopy(28, 149, 69, 161, MOTION_CASE_ACCEL, 30, 1);  // ...Acceleration
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       itemAreaCopy(173, 133, 200, 147, MOTION_CASE_JERK);      // Max...
       itemAreaCopy(1, 180, 28, 192, MOTION_CASE_JERK, 30, 1);  // ...
       itemAreaCopy(202, 133, 228, 147, MOTION_CASE_JERK, 57);  // ...Jerk
@@ -1020,14 +1020,14 @@ void drawMotionMenu() {
     #ifdef USE_STRING_TITLES
       dwinDrawLabel(MOTION_CASE_RATE, F("Feedrate"));                 // "Feedrate"
       dwinDrawLabel(MOTION_CASE_ACCEL, GET_TEXT_F(MSG_ACCELERATION)); // "Acceleration"
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dwinDrawLabel(MOTION_CASE_JERK, GET_TEXT_F(MSG_JERK));        // "Jerk"
       #endif
       dwinDrawLabel(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM)); // "Steps/mm"
     #else
       say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE); // "Max Speed"
       say_max_accel_en(MOTION_CASE_ACCEL);                              // "Max Acceleration"
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);    // "Max Jerk"
       #endif
       say_steps_per_mm_en(MOTION_CASE_STEPS);                           // "Steps-per-mm"
@@ -1041,7 +1041,7 @@ void drawMotionMenu() {
   #define _MOTION_ICON(N) drawMenuLine(++i, ICON_MaxSpeed + (N) - 1)
   _MOTION_ICON(MOTION_CASE_RATE); drawMoreIcon(i);
   _MOTION_ICON(MOTION_CASE_ACCEL); drawMoreIcon(i);
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     _MOTION_ICON(MOTION_CASE_JERK); drawMoreIcon(i);
   #endif
   _MOTION_ICON(MOTION_CASE_STEPS); drawMoreIcon(i);
@@ -1597,7 +1597,7 @@ void hmiMaxAccelerationXYZE() {
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
 
   void hmiMaxJerkXYZE() {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -1617,7 +1617,7 @@ void hmiMaxAccelerationXYZE() {
     drawEditFloat3(select_jerk.now, hmiValues.maxJerkScaled, true);
   }
 
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 void hmiStepXYZE() {
   EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -2468,7 +2468,7 @@ void itemAdvBedPID(const uint8_t row) {
       itemAreaCopy(145, 104, 167, 114, row, 27); // "PID"
     #endif
   }
-  drawMenuLine(row, ICON_PIDbed);
+  drawMenuLine(row, ICON_PIDBed);
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -3349,7 +3349,7 @@ void drawMaxAccelMenu() {
   #endif
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void drawMaxJerkMenu() {
     clearMainWindow();
 
@@ -3489,7 +3489,7 @@ void hmiMotion() {
         select_acc.reset();
         drawMaxAccelMenu();
         break;
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         case MOTION_CASE_JERK:
           checkkey = ID_MaxJerk;
           select_jerk.reset();
@@ -3996,7 +3996,7 @@ void hmiMaxAcceleration() {
   dwinUpdateLCD();
 }
 
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   // Max Jerk
   void hmiMaxJerk() {
     EncoderState encoder_diffState = get_encoder_state();
@@ -4025,7 +4025,7 @@ void hmiMaxAcceleration() {
     }
     dwinUpdateLCD();
   }
-#endif // HAS_CLASSIC_JERK
+#endif // CLASSIC_JERK
 
 // Step
 void hmiStep() {
@@ -4251,7 +4251,7 @@ void dwinHandleScreen() {
     #endif
     case ID_MaxSpeed:       hmiMaxSpeed(); break;
     case ID_MaxAcceleration: hmiMaxAcceleration(); break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      hmiMaxJerk(); break;
     #endif
     case ID_Step:           hmiStep(); break;
@@ -4274,7 +4274,7 @@ void dwinHandleScreen() {
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif
     case ID_StepValue:      hmiStepXYZE(); break;

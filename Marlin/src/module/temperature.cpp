@@ -370,9 +370,9 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef BOARD_OPENDRAIN_MOSFETS
-  #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
+  #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, ENABLED(FAN_INVERTING) ? LOW : HIGH)
 #else
-  #define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
+  #define _INIT_SOFT_FAN(P) OUT_WRITE(P, ENABLED(FAN_INVERTING) ? LOW : HIGH)
 #endif
 #if ENABLED(FAN_SOFT_PWM)
   #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
@@ -1487,7 +1487,7 @@ void Temperature::_temp_error(
       OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break)
       OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED);     break)
       default:
-        if (real_heater_id >= 0) SERIAL_ECHO('E', real_heater_id);
+        if (real_heater_id >= 0) SERIAL_ECHO(C('E'), real_heater_id);
     }
     #if ENABLED(ERR_INCLUDE_TEMP)
       SERIAL_ECHOLNPGM(STR_DETECTED_TEMP_B, deg, STR_DETECTED_TEMP_E);
@@ -3819,7 +3819,7 @@ void Temperature::isr() {
     static SoftPWM soft_pwm_controller;
   #endif
 
-  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
+  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ ENABLED(FAN_INVERTING))
 
   #if DISABLED(SLOW_PWM_HEATERS)
 

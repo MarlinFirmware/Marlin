@@ -29,10 +29,12 @@ typedef enum FXDTICtrlMode : uint8_t {
   //ftMotionMode_ULENDO_FBS = 2U,
   ftMotionMode_ZV         = 10U,
   ftMotionMode_ZVD        = 11U,
-  ftMotionMode_EI         = 12U,
-  ftMotionMode_2HEI       = 13U,
-  ftMotionMode_3HEI       = 14U,
-  ftMotionMode_MZV        = 15U,
+  ftMotionMode_ZVDD       = 12U,
+  ftMotionMode_ZVDDD      = 13U,
+  ftMotionMode_EI         = 14U,
+  ftMotionMode_2HEI       = 15U,
+  ftMotionMode_3HEI       = 16U,
+  ftMotionMode_MZV        = 17U,
   //ftMotionMode_DISCTF   = 20U
 } ftMotionMode_t;
 
@@ -42,16 +44,15 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2U
 };
 
-enum stepDirState_t : uint8_t {
-  stepDirState_NOT_SET = 0U,
-  stepDirState_POS     = 1U,
-  stepDirState_NEG     = 2U
-};
+#define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
 
-typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
-typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
-
-typedef struct XYZEval<stepDirState_t> xyze_stepDir_t;
+#if ENABLED(FTM_UNIFIED_BWS)
+  typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectory_t;
+  typedef struct XYZEarray<float, FTM_BW_SIZE> xyze_trajectoryMod_t;
+#else
+  typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
+  typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
+#endif
 
 enum {
   LIST_N(DOUBLE(LOGICAL_AXES),

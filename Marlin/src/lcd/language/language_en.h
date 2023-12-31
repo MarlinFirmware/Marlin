@@ -448,6 +448,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Brightness");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
+  LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
+  LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Backlight Off");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Store Settings");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
@@ -802,6 +804,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MODE                       = _UxGT("Motion Mode:");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
+  LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
+  LSTR MSG_FTM_ZVDDD                      = _UxGT("ZVDDD");
   LSTR MSG_FTM_EI                         = _UxGT("EI");
   LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
   LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
@@ -813,8 +817,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
   LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Dyn. Freq.");
-  LSTR MSG_FTM_ZETA                       = _UxGT("Damping");
-  LSTR MSG_FTM_VTOL                       = _UxGT("Vib. Level");
+  LSTR MSG_FTM_ZETA_N                     = _UxGT("@ Damping");
+  LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");

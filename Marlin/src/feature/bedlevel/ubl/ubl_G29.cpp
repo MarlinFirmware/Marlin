@@ -465,7 +465,7 @@ void unified_bed_leveling::G29() {
             SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
           }
           if (param.V_verbosity > 1)
-            SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, AS_CHAR(','), param.XY_pos.y, F(").\n"));
+            SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, C(','), param.XY_pos.y, F(").\n"));
           probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
 
           report_current_position();
@@ -772,7 +772,8 @@ void unified_bed_leveling::shift_mesh_height() {
       const grid_count_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
-      TERN_(LCD_BACKLIGHT_TIMEOUT_MINS, ui.refresh_backlight_timeout());
+      TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+      TERN_(DWIN_LCD_PROUI, dwinRedrawScreen());
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -1571,14 +1572,14 @@ void unified_bed_leveling::smart_fill_mesh() {
             if (DEBUGGING(LEVELING)) {
               #if ENABLED(UBL_TILT_ON_MESH_POINTS)
                 const xy_pos_t oldLpos = oldRpos.asLogical();
-                DEBUG_ECHO(F("Calculated point: ("), p_float_t(oldRpos.x, 7), AS_CHAR(','), p_float_t(oldRpos.y, 7),
-                           F(")   logical: ("), p_float_t(oldLpos.x, 7), AS_CHAR(','), p_float_t(oldLpos.y, 7),
+                DEBUG_ECHO(F("Calculated point: ("), p_float_t(oldRpos.x, 7), C(','), p_float_t(oldRpos.y, 7),
+                           F(")   logical: ("), p_float_t(oldLpos.x, 7), C(','), p_float_t(oldLpos.y, 7),
                            F(")\nSelected mesh point: ")
                 );
               #endif
               const xy_pos_t lpos = rpos.asLogical();
-              DEBUG_ECHO(      AS_CHAR('('), p_float_t(rpos.x, 7), AS_CHAR(','), p_float_t(rpos.y, 7),
-                         F(")  logical: ("), p_float_t(lpos.x, 7), AS_CHAR(','), p_float_t(lpos.y, 7),
+              DEBUG_ECHO(      C('('), p_float_t(rpos.x, 7), C(','), p_float_t(rpos.y, 7),
+                         F(")  logical: ("), p_float_t(lpos.x, 7), C(','), p_float_t(lpos.y, 7),
                          F(")  measured: "), p_float_t(measured_z, 7),
                          F("  correction: "), p_float_t(zcorr, 7)
               );
@@ -1613,7 +1614,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
 
     if (param.V_verbosity > 2)
-      SERIAL_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), AS_CHAR(','), p_float_t(normal.y, 7), AS_CHAR(','), p_float_t(normal.z, 7), AS_CHAR(']'));
+      SERIAL_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
 
@@ -1621,14 +1622,14 @@ void unified_bed_leveling::smart_fill_mesh() {
       float mx = get_mesh_x(i), my = get_mesh_y(j), mz = z_values[i][j];
 
       if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), F("]   ---> "));
+        DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
         DEBUG_DELAY(20);
       }
 
       rotation.apply_rotation_xyz(mx, my, mz);
 
       if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), F("]   ---> "));
+        DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
         DEBUG_DELAY(20);
       }
 
@@ -1640,7 +1641,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       rotation.debug(F("rotation matrix:\n"));
       DEBUG_ECHOLN(F("LSF Results A="), p_float_t(lsf_results.A, 7), F("  B="), p_float_t(lsf_results.B, 7), F("  D="), p_float_t(lsf_results.D, 7));
       DEBUG_DELAY(55);
-      DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), AS_CHAR(','), p_float_t(normal.y, 7), AS_CHAR(','), p_float_t(normal.z, 7), AS_CHAR(']'));
+      DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
       DEBUG_EOL();
 
       /**
@@ -1658,7 +1659,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         };
         auto debug_pt = [](const int num, const xy_pos_t &pos, const_float_t zadd) {
           d_from();
-          DEBUG_ECHOLN(F("Point "), num, AS_CHAR(':'), p_float_t(normed(pos, zadd), 6), F("   Z error = "), p_float_t(zadd - get_z_correction(pos), 6));
+          DEBUG_ECHOLN(F("Point "), num, C(':'), p_float_t(normed(pos, zadd), 6), F("   Z error = "), p_float_t(zadd - get_z_correction(pos), 6));
         };
         debug_pt(1, probe_pt[0], normal.z * gotz[0]);
         debug_pt(2, probe_pt[1], normal.z * gotz[1]);
@@ -1667,7 +1668,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           constexpr xy_float_t safe_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
           d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("0 : "), p_float_t(normed(safe_xy, 0), 6));
           d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("mesh value "), p_float_t(normed(safe_xy, get_z_correction(safe_xy)), 6));
-          DEBUG_ECHO(F("   Z error = ("), Z_SAFE_HOMING_X_POINT, AS_CHAR(','), Z_SAFE_HOMING_Y_POINT, F(") = "), p_float_t(get_z_correction(safe_xy), 6));
+          DEBUG_ECHO(F("   Z error = ("), Z_SAFE_HOMING_X_POINT, C(','), Z_SAFE_HOMING_Y_POINT, F(") = "), p_float_t(get_z_correction(safe_xy), 6));
         #endif
       #endif
     } // DEBUGGING(LEVELING)
@@ -1790,8 +1791,8 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
     serial_delay(50);
 
-    SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
-    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
+    SERIAL_ECHOLNPGM("sizeof(unified_bed_leveling) :  ", sizeof(unified_bed_leveling));
+    SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values));
     serial_delay(25);
 
     SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));

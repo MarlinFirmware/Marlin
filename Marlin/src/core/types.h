@@ -198,7 +198,7 @@ typedef Flags<8> flags_8_t;
 typedef Flags<16> flags_16_t;
 
 // Flags for some axis states, with per-axis aliases xyzijkuvwe
-typedef struct AxisFlags {
+typedef struct {
   union {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
@@ -212,7 +212,7 @@ typedef struct AxisFlags {
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
   FI operator bool() const                   { return flags; }
-} axis_flags_t;
+} AxisFlags;
 
 //
 // Enumerated axis indices
@@ -298,9 +298,9 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
-// Packaged character for AS_CHAR macro and other usage
+// Packaged character for C macro and other usage
 typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
-#define AS_CHAR(C) serial_char_t(C)
+#define C(c) serial_char_t(c)
 
 // Packaged types: float with precision and/or width; a repeated space/character
 typedef struct WFloat { float value; char width; char prec;
@@ -309,10 +309,10 @@ typedef struct WFloat { float value; char width; char prec;
 typedef struct PFloat { float value; char prec;
                         PFloat(float v, char p) : value(v), prec(p) {}
                       } p_float_t;
-typedef struct RepChr { char asc; uint8_t count;
+typedef struct RepChr { char asc; int8_t count;
                         RepChr(char a, uint8_t c) : asc(a), count(c) {}
                       } repchr_t;
-typedef struct Spaces { uint8_t count;
+typedef struct Spaces { int8_t count;
                         Spaces(uint8_t c) : count(c) {}
                       } spaces_t;
 
