@@ -5,7 +5,7 @@ CONTAINER_IMAGE := marlin-dev
 
 help:
 	@echo "Tasks for local development:"
-	@echo "* format-pins:                 Reformat all pins files
+	@echo "* format-pins:                 Reformat all pins files"
 	@echo "* tests-single-ci:             Run a single test from inside the CI"
 	@echo "* tests-single-local:          Run a single test locally"
 	@echo "* tests-single-local-docker:   Run a single test locally, using docker"
