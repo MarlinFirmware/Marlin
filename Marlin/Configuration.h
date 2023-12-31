@@ -3015,7 +3015,6 @@
 //
 //#define BTT_MINI_12864
 
-
 //
 // BEEZ MINI 12864 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
 //
