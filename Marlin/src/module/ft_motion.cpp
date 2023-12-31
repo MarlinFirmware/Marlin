@@ -529,6 +529,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   const float spm = totalLength / current_block->step_event_count;
               f_s = spm * current_block->initial_rate;
+
+  // NOTE: Keep this declaration separate to get the compiler to behave
   const float f_e = spm * current_block->final_rate;
 
   const float accel = current_block->acceleration,
