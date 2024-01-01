@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(DEBUG_LEVEL_GCODE)
+
 #include "../gcode.h"
 
 /**
@@ -75,3 +79,5 @@ void GcodeSuite::M111() {
   }
   SERIAL_EOL();
 }
+
+#endif // DEBUG_LEVEL_GCODE
