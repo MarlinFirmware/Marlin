@@ -85,10 +85,6 @@ void MarlinHAL::reboot() { /* Reset the application state and GPIO */ }
    * chars will be copied.  Always NUL terminates (unless dsize == 0).
    * Returns strlen(src); if retval >= dsize, truncation occurred.
    */
-
-  /**
-   * Redirect missing strlcpy here
-   */
   size_t MarlinHAL::_strlcpy(char *dst, const char *src, size_t dsize) {
     const char *osrc = src;
     size_t nleft = dsize;

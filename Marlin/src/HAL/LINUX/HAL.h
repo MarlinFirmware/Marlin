@@ -27,6 +27,10 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#ifdef HAS_LIBBSD
+  #include <bsd/string.h>
+#endif
+
 #undef min
 #undef max
 #include <algorithm>
