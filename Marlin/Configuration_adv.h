@@ -4498,8 +4498,9 @@
 #endif
 
 /**
- * M111 - Set the debug level   Disable to save ~234 bytes of FLASH
- **/
+ * M111 - Set the debug level. Disable to save ~234 bytes of flash.
+ *        Some hosts (Repetier Host) rely on this feature.
+ */
 #define DEBUG_LEVEL_GCODE
 
 /**
