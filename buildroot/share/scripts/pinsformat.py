@@ -17,15 +17,13 @@ def logmsg(msg, line):
 col_comment = 50
 
 # String lpad / rpad
-def lpad(astr, fill, c=None):
+def lpad(astr, fill, c=' '):
     if not fill: return astr
-    if c == None: c = ' '
     need = fill - len(astr)
     return astr if need <= 0 else (need * c) + astr
 
-def rpad(astr, fill, c=None):
+def rpad(astr, fill, c=' '):
     if not fill: return astr
-    if c == None: c = ' '
     need = fill - len(astr)
     return astr if need <= 0 else astr + (need * c)
 
@@ -64,9 +62,8 @@ def format_pins(argv):
         # If no source file specified read from STDIN
         file_text = sys.stdin.read()
     else:
-        # Open the file src_file
-        with open(src_file, 'r') as rf:
-            file_text = rf.read()
+        # Open and read the file src_file
+        with open(src_file, 'r') as rf: file_text = rf.read()
 
     if len(file_text) == 0:
         print('No text to process')
@@ -75,8 +72,7 @@ def format_pins(argv):
     # Read from file or STDIN until it terminates
     filtered = process_text(file_text)
     if dst_file:
-        with open(dst_file, 'w') as wf:
-            wf.write(filtered)
+        with open(dst_file, 'w') as wf: wf.write(filtered)
     else:
         print(filtered)
 
@@ -105,16 +101,18 @@ def process_text(txt):
     patt = get_pin_pattern(txt)
     if patt == None: return txt
 
-    pindefPatt = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+(' + patt['match'] + r')\s*(//.*)?$')
-    noPinPatt = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+(-1)\s*(//.*)?$')
-    skipPatt1 = re.compile(r'^(\s*(//)?#define)\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BAUDRATE|CLOCK|CONNECTION|DEFAULT|FREQ|ITEM|MODULE|NAME|ONLY|PERIOD|RANGE|RATE|SERIAL|SIZE|SPI|STATE|STEP|TIMER))\s+(.+)\s*(//.*)?$')
-    skipPatt2 = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+(0x[0-9A-Fa-f]+|\d+|.+[a-z].+)\s*(//.*)?$')
-    aliasPatt = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+([A-Z_][A-Z0-9_()]+)\s*(//.*)?$')
+    pmatch = patt['match']
+    pindefPatt = re.compile(rf'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+({pmatch})\s*(//.*)?$')
+    noPinPatt  = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+(-1)\s*(//.*)?$')
+    skipPatt1  = re.compile(r'^(\s*(//)?#define)\s+(AT90USB|USBCON|(BOARD|DAC|FLASH|HAS|IS|USE)_.+|.+_(ADDRESS|AVAILABLE|BAUDRATE|CLOCK|CONNECTION|DEFAULT|ERROR|EXTRUDERS|FREQ|ITEM|MKS_BASE_VERSION|MODULE|NAME|ONLY|ORIENTATION|PERIOD|RANGE|RATE|READ_RETRIES|SERIAL|SIZE|SPI|STATE|STEP|TIMER|VERSION))\s+(.+)\s*(//.*)?$')
+    skipPatt2  = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+(0x[0-9A-Fa-f]+|\d+|.+[a-z].+)\s*(//.*)?$')
+    skipPatt3  = re.compile(r'^\s*#e(lse|ndif)\b.*$')
+    aliasPatt  = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+([A-Z_][A-Z0-9_()]+)\s*(//.*)?$')
     switchPatt = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s*(//.*)?$')
-    undefPatt = re.compile(r'^(\s*(//)?#undef)\s+([A-Z_][A-Z0-9_]+)\s*(//.*)?$')
-    defPatt = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+([-_\w]+)\s*(//.*)?$')
-    condPatt = re.compile(r'^(\s*(//)?#(if|ifn?def|else|elif)(\s+\S+)*)\s+(//.*)$')
-    commPatt = re.compile(r'^\s{20,}(//.*)?$')
+    undefPatt  = re.compile(r'^(\s*(//)?#undef)\s+([A-Z_][A-Z0-9_]+)\s*(//.*)?$')
+    defPatt    = re.compile(r'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+([-_\w]+)\s*(//.*)?$')
+    condPatt   = re.compile(r'^(\s*(//)?#(if|ifn?def|elif)(\s+\S+)*)\s+(//.*)$')
+    commPatt   = re.compile(r'^\s{20,}(//.*)?$')
 
     col_value_lj = col_comment - patt['pad'] - 2
     col_value_rj = col_comment - 3
@@ -136,7 +134,7 @@ def process_text(txt):
         if r == None: return False
         logmsg("pin:", line)
         pinnum = r[4] if r[4][0] == 'P' else lpad(r[4], patt['pad'])
-        line = r[1] + ' ' + r[3]
+        line = f'{r[1]} {r[3]}'
         line = rpad(line, col_value_lj) + pinnum
         if r[5]: line = rpad(line, col_comment) + r[5]
         d['line'] = line
@@ -150,7 +148,7 @@ def process_text(txt):
         r = noPinPatt.match(line)
         if r == None: return False
         logmsg("pin -1:", line)
-        line = r[1] + ' ' + r[3]
+        line = f'{r[1]} {r[3]}'
         line = rpad(line, col_value_lj) + '-1'
         if r[5]: line = rpad(line, col_comment) + r[5]
         d['line'] = line
@@ -161,6 +159,14 @@ def process_text(txt):
     #
     def trySkip2(d):
         if skipPatt2.match( d['line']) == None: return False
+        logmsg("skip:", d['line'])
+        return True
+
+    #
+    # #else|endif
+    #
+    def trySkip3(d):
+        if skipPatt3.match( d['line']) == None: return False
         logmsg("skip:", d['line'])
         return True
 
@@ -220,7 +226,7 @@ def process_text(txt):
         return True
 
     #
-    # #if ...
+    # #if|ifdef|ifndef|elif ...
     #
     def tryCond(d):
         line = d['line']
@@ -243,18 +249,19 @@ def process_text(txt):
             wDict['check_comment_next'] = (r != None)
 
         if wDict['check_comment_next']:
-            # Comments in column 45
+            # Comments in column 50
             line = rpad('', col_comment) + r[1]
 
         elif trySkip1(wDict):   pass  #define SKIP_ME
         elif tryPindef(wDict):  pass  #define MY_PIN [pin]
         elif tryNoPin(wDict):   pass  #define MY_PIN -1
         elif trySkip2(wDict):   pass  #define SKIP_ME_TOO
+        elif trySkip3(wDict):   pass  #else|endif
         elif tryAlias(wDict):   pass  #define ALIAS OTHER
         elif trySwitch(wDict):  pass  #define SWITCH
         elif tryDef(wDict):     pass  #define ...
         elif tryUndef(wDict):   pass  #undef ...
-        elif tryCond(wDict):    pass  #if ...
+        elif tryCond(wDict):    pass  #if|ifdef|ifndef|elif ...
 
         out += wDict['line'] + '\n'
 
