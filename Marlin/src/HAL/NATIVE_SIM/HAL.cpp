@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,49 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef __PLAT_LINUX__
 
-#include "../../inc/MarlinConfig.h"
-#include "../shared/Delay.h"
-
-// ------------------------
-// Serial ports
-// ------------------------
-
-MSerialT usb_serial(TERN0(EMERGENCY_PARSER, true));
-
-// U8glib required functions
-extern "C" {
-  void u8g_xMicroDelay(uint16_t val) { DELAY_US(val); }
-  void u8g_MicroDelay()              { u8g_xMicroDelay(1); }
-  void u8g_10MicroDelay()            { u8g_xMicroDelay(10); }
-  void u8g_Delay(uint16_t val)       { delay(val); }
-}
-
-//************************//
-
-// return free heap space
-int freeMemory() { return 0; }
-
-// ------------------------
-// ADC
-// ------------------------
-
-uint8_t MarlinHAL::active_ch = 0;
-
-uint16_t MarlinHAL::adc_value() {
-  const pin_t pin = analogInputToDigitalPin(active_ch);
-  if (!VALID_PIN(pin)) return 0;
-  return uint16_t((Gpio::get(pin) >> 2) & 0x3FF); // return 10bit value as Marlin expects
-}
-
-void MarlinHAL::reboot() { /* Reset the application state and GPIO */ }
-
-// ------------------------
-// BSD String
-// ------------------------
+#ifdef __PLAT_NATIVE_SIM__
 
 #ifndef HAS_LIBBSD
+
+  #include "HAL.h"
 
   /**
    * Redirect missing strlcpy here
@@ -83,5 +46,4 @@ void MarlinHAL::reboot() { /* Reset the application state and GPIO */ }
   }
 
 #endif // HAS_LIBBSD
-
-#endif // __PLAT_LINUX__
+#endif // __PLAT_NATIVE_SIM__

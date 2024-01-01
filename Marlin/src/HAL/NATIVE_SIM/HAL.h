@@ -265,15 +265,11 @@ public:
 
   static void set_pwm_frequency(const pin_t, int) {}
 
-  #ifndef HAS_STRLCPY
+  #ifndef HAS_LIBBSD
     /**
      * Redirect missing strlcpy here
      */
-    size_t _strlcpy(char *dest, const char *source, size_t totalsize) {
-      strncpy(dest, source, totalsize - 1);
-      dest[totalsize - 1] = '\0';
-      return strlen(source);
-    }
+    static size_t _strlcpy(char *dst, const char *src, size_t dsize);
     #define strlcpy hal._strlcpy
   #endif
 
