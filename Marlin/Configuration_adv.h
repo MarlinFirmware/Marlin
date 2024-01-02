@@ -3936,7 +3936,7 @@
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
 /**
- * Enable M111 debug levels 1=ECHO, 2=INFO, 4=ERRORS (unimplemented).
+ * Enable M111 debug flags 1=ECHO, 2=INFO, 4=ERRORS (unimplemented).
  * Disable to save some flash. Some hosts (Repetier Host) may rely on this feature.
  */
 #define DEBUG_FLAGS_GCODE
