@@ -4507,7 +4507,7 @@
  * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
  *        Some hosts (and host tft displays) rely on this feature.
  */
-//#define REPORT_CAPABILITIES_GCODE
+#define REPORT_CAPABILITIES_GCODE
 
 /**
  * Postmortem Debugging captures misbehavior and outputs the CPU status and backtrace to serial.
