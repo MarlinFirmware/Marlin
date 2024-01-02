@@ -2929,7 +2929,7 @@
 
   //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
-	//#define CONFIGURE_FILAMENT_CHANGE               // Add M603 G-code. Disable to save ~290 bytes of flash
+	#define CONFIGURE_FILAMENT_CHANGE               // Add M603 G-code. Disable to save ~290 bytes of flash
 #endif
 
 // @section tmc_smart
