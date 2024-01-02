@@ -44,7 +44,6 @@ typedef struct FTConfig {
   #if HAS_X_AXIS
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    
     float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
         { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
     float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
@@ -135,7 +134,6 @@ class FTMotion {
 
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
-    static xyze_trajectoryWin_t trajWin;
 
     static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
     static bool batchRdy, batchRdyForInterp;
@@ -156,8 +154,8 @@ class FTMotion {
     static uint32_t max_intervals;
 
     static constexpr uint32_t _ftm_size = TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE),
-                              _ftm_wind = TERN(FTM_UNIFIED_BWS, 2, ceil((FTM_WINDOW_SIZE) / _ftm_size)),
-                              shaper_intervals = _ftm_size * ceil((FTM_ZMAX) / _ftm_size),
+                              _ftm_wind = TERN(FTM_UNIFIED_BWS, 2, CEIL((FTM_WINDOW_SIZE) / _ftm_size)),
+                              shaper_intervals = _ftm_size * CEIL((FTM_ZMAX) / _ftm_size),
                               min_max_intervals = _ftm_size * _ftm_wind;
 
     // Make vector variables.

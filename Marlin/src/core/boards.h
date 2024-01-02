@@ -401,6 +401,7 @@
 #define BOARD_KEDI_CONTROLLER_V1_2    5069  // EDUTRONICS Kedi Controller V1.2 (STM32F103RC)
 #define BOARD_MD_D301                 5070  // Mingda D2 DZ301 V1.0 (STM32F103ZE)
 #define BOARD_VOXELAB_AQUILA          5071  // Voxelab Aquila V1.0.0/V1.0.1 (GD32F103RC / N32G455RE / STM32F103RE)
+#define BOARD_SPRINGER_CONTROLLER     5072  // ORCA 3D SPRINGER Modular Controller (STM32F103VC)
 
 //
 // ARM Cortex-M4F
@@ -481,6 +482,8 @@
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6008  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6009  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1    6010  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
+#define BOARD_BTT_MANTA_M8P_V2_0      6011  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
+#define BOARD_BTT_KRAKEN_V1_0         6012  // BigTreeTech Kraken v1.0 (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi

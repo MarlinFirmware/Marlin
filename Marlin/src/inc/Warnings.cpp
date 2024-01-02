@@ -704,7 +704,7 @@
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
 #elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
+  #warning "Your FYSETC/MKS/BTT Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && ALL(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
@@ -810,4 +810,11 @@
  */
 #if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
   #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
+#endif
+
+/**
+ * No PWM on the Piezo Beeper?
+ */
+#if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
+  #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
 #endif

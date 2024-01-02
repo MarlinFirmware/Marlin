@@ -669,6 +669,10 @@
   #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
 #elif defined(LARGE_MOVE_ITEMS)
   #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
+#elif defined(SDIO_SUPPORT)
+  #error "SDIO_SUPPORT is now ONBOARD_SDIO."
+#elif defined(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+  #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
 #endif
 
 // L64xx stepper drivers have been removed
