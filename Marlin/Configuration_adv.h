@@ -3936,6 +3936,18 @@
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
 /**
+ * M111 - Set the debug level. Disable to save ~234 bytes of flash.
+ *        Some hosts (Repetier Host) rely on this feature.
+ */
+#define DEBUG_LEVEL_GCODE
+
+/**
+ * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
+ *        Some hosts (and host tft displays) rely on this feature.
+ */
+#define REPORT_CAPABILITIES_GCODE
+
+/**
  * Enable this option for a leaner build of Marlin that removes
  * workspace offsets to slightly optimize performance.
  * G92 will revert to its behavior from Marlin 1.0.
@@ -4496,18 +4508,6 @@
    */
   //#define BUFFER_MONITORING
 #endif
-
-/**
- * M111 - Set the debug level. Disable to save ~234 bytes of flash.
- *        Some hosts (Repetier Host) rely on this feature.
- */
-#define DEBUG_LEVEL_GCODE
-
-/**
- * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
- *        Some hosts (and host tft displays) rely on this feature.
- */
-#define REPORT_CAPABILITIES_GCODE
 
 /**
  * Postmortem Debugging captures misbehavior and outputs the CPU status and backtrace to serial.

@@ -21,6 +21,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+
 #if ENABLED(REPORT_CAPABILITIES_GCODE)
 
 #include "../gcode.h"
