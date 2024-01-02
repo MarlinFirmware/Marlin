@@ -33,19 +33,29 @@
 //
 enum MarlinDebugFlags : uint8_t {
   MARLIN_DEBUG_NONE          = 0,
-  MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
-  MARLIN_DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
-  MARLIN_DEBUG_ERRORS        = _BV(2), ///< Not implemented
-  MARLIN_DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
-  MARLIN_DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    MARLIN_DEBUG_LEVELING    = _BV(5), ///< Print detailed output for homing and leveling
-    MARLIN_DEBUG_MESH_ADJUST = _BV(6), ///< UBL bed leveling
+  #if ENABLED(DEBUG_FLAGS_GCODE)
+    MARLIN_DEBUG_ECHO          = _BV(0), //!< Echo commands in order as they are processed
+    MARLIN_DEBUG_INFO          = _BV(1), //!< Print messages for code that has debug output
+    MARLIN_DEBUG_ERRORS        = _BV(2), //!< Not implemented
   #else
-    MARLIN_DEBUG_LEVELING    = 0,
-    MARLIN_DEBUG_MESH_ADJUST = 0,
+    MARLIN_DEBUG_ECHO          = 0,
+    MARLIN_DEBUG_INFO          = 0,
+    MARLIN_DEBUG_ERRORS        = 0,
   #endif
-  MARLIN_DEBUG_ALL           = 0xFF
+    MARLIN_DEBUG_DRYRUN        = _BV(3), //!< Ignore temperature setting and E movement commands
+  #if ENABLED(DEBUG_FLAGS_GCODE)
+    MARLIN_DEBUG_COMMUNICATION = _BV(4), //!< Not implemented
+  #else
+    MARLIN_DEBUG_COMMUNICATION = 0,
+  #endif
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+      MARLIN_DEBUG_LEVELING    = _BV(5), //!< Print detailed output for homing and leveling
+      MARLIN_DEBUG_MESH_ADJUST = _BV(6), //!< UBL bed leveling
+  #else
+      MARLIN_DEBUG_LEVELING    = 0,
+      MARLIN_DEBUG_MESH_ADJUST = 0,
+  #endif
+  MARLIN_DEBUG_ALL             = 0xFF
 };
 
 extern uint8_t marlin_debug_flags;

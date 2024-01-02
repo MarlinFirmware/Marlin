@@ -3939,7 +3939,7 @@
  * M111 - Set the debug level. Disable to save ~234 bytes of flash.
  *        Some hosts (Repetier Host) rely on this feature.
  */
-#define DEBUG_LEVEL_GCODE
+#define DEBUG_FLAGS_GCODE
 
 /**
  * M115 - Report capabilites. Disable to save ~1150 bytes of flash.

@@ -581,10 +581,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       case 110: M110(); break;                                    // M110: Set Current Line Number
-
-      #if ENABLED(DEBUG_LEVEL_GCODE)
-        case 111: M111(); break;                                  // M111: Set debug level
-      #endif
+      case 111: M111(); break;                                    // M111: Set debug level
 
       #if DISABLED(EMERGENCY_PARSER)
         case 108: M108(); break;                                  // M108: Cancel Waiting
