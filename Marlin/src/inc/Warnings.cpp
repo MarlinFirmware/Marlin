@@ -46,6 +46,10 @@
   #warning "DEBUG_LEVEL_GCODE is recommended if you have space. Some hosts rely on it."
 #endif
 
+#if DISABLED(REPORT_CAPABILITIES_GCODE)
+  #warning "REPORT_CAPABILITIES_GCODE is recommended if you have space. Some hosts rely on it."
+#endif
+
 #if ENABLED(LA_DEBUG)
   #warning "WARNING! Disable LA_DEBUG for the final build!"
 #endif
