@@ -2869,6 +2869,8 @@
       //#define TOOLCHANGE_MIGRATION_DO_PARK  // Force park (or no-park) on migration
     #endif
   #endif
+#else
+	//#define NO_VIRTUAL_EXTRUDERS // Disable T G-code and parameters to save ~460 bytes
 #endif // HAS_MULTI_EXTRUDER
 
 // @section advanced pause
