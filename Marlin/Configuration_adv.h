@@ -3936,8 +3936,8 @@
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
 /**
- * M111 - Set the debug level. Disable to save ~234 bytes of flash.
- *        Some hosts (Repetier Host) rely on this feature.
+ * Enable M111 debug levels 1=ECHO, 2=INFO, 4=ERRORS (unimplemented).
+ * Disable to save some flash. Some hosts (Repetier Host) may rely on this feature.
  */
 #define DEBUG_FLAGS_GCODE
 
