@@ -4504,6 +4504,12 @@
 #define DEBUG_LEVEL_GCODE
 
 /**
+ * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
+ *        Some hosts (and host tft displays) rely on this feature.
+ */
+#define REPORT_CAPABILITIES_GCODE
+
+/**
  * Postmortem Debugging captures misbehavior and outputs the CPU status and backtrace to serial.
  * When running in the debugger it will break for debugging. This is useful to help understand
  * a crash from a remote location. Requires ~400 bytes of SRAM and 5Kb of flash.
