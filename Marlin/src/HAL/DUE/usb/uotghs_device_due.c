@@ -630,10 +630,10 @@ ISR(UDD_USB_INT_FUN)
 		udd_enable_suspend_interrupt();
 
 		// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
-    // enabled in udd_attach, which caused a race condition where they could
-    // be raised and unclearable with the clock is frozen. They are now
-    // enabled here, after the clock has been unfrozen in response to the wake
-    // interrupt.
+		// enabled in udd_attach, which caused a race condition where they could
+		// be raised and unclearable with the clock is frozen. They are now
+		// enabled here, after the clock has been unfrozen in response to the wake
+		// interrupt.
 		udd_enable_reset_interrupt();
 		udd_enable_sof_interrupt();
 #ifdef USB_DEVICE_HS_SUPPORT
@@ -849,19 +849,19 @@ void udd_attach(void)
 	udd_enable_suspend_interrupt();
 	udd_enable_wake_up_interrupt();
 
-  // Marlin modification: The RESET, SOF, and MSOF interrupts were previously
-  // enabled here, which caused a race condition where they could be raised
-  // and unclearable with the clock is frozen. They are now enabled in the
-  // wake interrupt handler, after the clock has been unfrozen. They are now
-  // explicitly disabled here to ensure that they cannot be raised before
-  // the clock is frozen.
+	// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
+	// enabled here, which caused a race condition where they could be raised
+	// and unclearable with the clock is frozen. They are now enabled in the
+	// wake interrupt handler, after the clock has been unfrozen. They are now
+	// explicitly disabled here to ensure that they cannot be raised before
+	// the clock is frozen.
 	disable_and_ack_sync_interrupts();
 
 	// The first suspend interrupt must be forced
 	// The first suspend interrupt is not detected else raise it
 	udd_raise_suspend();
-	udd_ack_wake_up();
 
+	udd_ack_wake_up();
 	otg_freeze_clock();
 	cpu_irq_restore(flags);
 }
@@ -874,9 +874,9 @@ void udd_detach(void)
 	// Detach device from the bus
 	udd_detach_device();
 
-  // Marlin modification: Added the explicit disabling of the RESET, SOF, and
-  // MSOF interrupts here, to ensure that they cannot be raised after the
-  // clock is frozen.
+	// Marlin modification: Added the explicit disabling of the RESET, SOF, and
+	// MSOF interrupts here, to ensure that they cannot be raised after the
+	// clock is frozen.
 	disable_and_ack_sync_interrupts();
 
 	otg_freeze_clock();
@@ -2099,9 +2099,9 @@ static bool udd_ep_interrupt(void)
 				udd_disable_in_send_interrupt(ep);
 				// One bank is free then send a ZLP
 
-        // Marlin modification: Add a barrier to ensure in_send is disabled
-        // before it is cleared. This was not an observed problem, but
-        // other interrupts were seen to misbehave without this barrier.
+				// Marlin modification: Add a barrier to ensure in_send is disabled
+				// before it is cleared. This was not an observed problem, but
+				// other interrupts were seen to misbehave without this barrier.
 				__DSB();
 
 				udd_ack_in_send(ep);
