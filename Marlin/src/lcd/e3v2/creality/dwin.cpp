@@ -1804,6 +1804,12 @@ void hmiSDCardInit() { card.cdroot(); }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
+void MarlinUI::update() {
+  eachMomentUpdate();   // Status update
+  hmiSDCardUpdate();   // SD card update
+  dwinHandleScreen();  // Rotary encoder update
+}
+
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
 #if HAS_LCD_BRIGHTNESS
@@ -4066,12 +4072,6 @@ void dwinInitScreen() {
   hmiInit();
   hmiSetLanguageCache();
   hmiStartFrame(true);
-}
-
-void dwinUpdate() {
-  eachMomentUpdate();   // Status update
-  hmiSDCardUpdate();   // SD card update
-  dwinHandleScreen();  // Rotary encoder update
 }
 
 void eachMomentUpdate() {
