@@ -557,7 +557,9 @@ void menu_configuration() {
     }
   #endif
 
-  SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+  #if DISABLED(NO_ADVANCED_SETTINGS_MENU)
+    SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+  #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);

@@ -1231,13 +1231,13 @@
 
 /**
  * Default Axis Steps Per Unit (linear=steps/mm, rotational=steps/°)
- * Override with M92
+ * Override with M92 unless disabled below
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
 
 /**
- * Disable support for M92 to save ~ bytes of flash
+ * Disable support for M92 to save ~530 bytes of flash (1400 more if using a display)
  */
 //#define NO_EDIT_STEPS_PER_UNIT
 
