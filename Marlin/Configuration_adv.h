@@ -3943,7 +3943,7 @@
 
 /**
  * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
- *        Some hosts (and host tft displays) rely on this feature.
+ *        Some hosts (and serial TFT displays) rely on this feature.
  */
 #define REPORT_CAPABILITIES_GCODE
 
