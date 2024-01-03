@@ -38,14 +38,14 @@ void say_shaping() {
       SERIAL_ECHOPGM(" with ");
       switch (ftMotion.cfg.mode) {
         default: break;
-        case ftMotionMode_ZV:   SERIAL_ECHOPGM("ZV");        break;
-        case ftMotionMode_ZVD:  SERIAL_ECHOPGM("ZVD");       break;
-        case ftMotionMode_ZVDD: SERIAL_ECHOPGM("ZVDD");      break;
-        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");    break;
-        case ftMotionMode_EI:   SERIAL_ECHOPGM("EI");        break;
-        case ftMotionMode_2HEI: SERIAL_ECHOPGM("2 Hump EI"); break;
-        case ftMotionMode_3HEI: SERIAL_ECHOPGM("3 Hump EI"); break;
-        case ftMotionMode_MZV:  SERIAL_ECHOPGM("MZV");       break;
+        case ftMotionMode_ZV:    SERIAL_ECHOPGM("ZV");        break;
+        case ftMotionMode_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+        case ftMotionMode_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+        case ftMotionMode_EI:    SERIAL_ECHOPGM("EI");        break;
+        case ftMotionMode_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+        case ftMotionMode_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+        case ftMotionMode_MZV:   SERIAL_ECHOPGM("MZV");       break;
         //case ftMotionMode_DISCTF: SERIAL_ECHOPGM("discrete transfer functions"); break;
         //case ftMotionMode_ULENDO_FBS: SERIAL_ECHOPGM("Ulendo FBS."); return;
       }

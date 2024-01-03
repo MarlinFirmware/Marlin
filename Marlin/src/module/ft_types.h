@@ -24,24 +24,24 @@
 #include "../core/types.h"
 
 typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0U,
-  ftMotionMode_ENABLED    =  1U,
-  //ftMotionMode_ULENDO_FBS = 2U,
-  ftMotionMode_ZV         = 10U,
-  ftMotionMode_ZVD        = 11U,
-  ftMotionMode_ZVDD       = 12U,
-  ftMotionMode_ZVDDD      = 13U,
-  ftMotionMode_EI         = 14U,
-  ftMotionMode_2HEI       = 15U,
-  ftMotionMode_3HEI       = 16U,
-  ftMotionMode_MZV        = 17U,
-  //ftMotionMode_DISCTF   = 20U
+  ftMotionMode_DISABLED   =  0,
+  ftMotionMode_ENABLED    =  1,
+  //ftMotionMode_ULENDO_FBS = 2,
+  ftMotionMode_ZV         = 10,
+  ftMotionMode_ZVD        = 11,
+  ftMotionMode_ZVDD       = 12,
+  ftMotionMode_ZVDDD      = 13,
+  ftMotionMode_EI         = 14,
+  ftMotionMode_2HEI       = 15,
+  ftMotionMode_3HEI       = 16,
+  ftMotionMode_MZV        = 17,
+  //ftMotionMode_DISCTF   = 20
 } ftMotionMode_t;
 
 enum dynFreqMode_t : uint8_t {
-  dynFreqMode_DISABLED   = 0U,
-  dynFreqMode_Z_BASED    = 1U,
-  dynFreqMode_MASS_BASED = 2U
+  dynFreqMode_DISABLED   = 0,
+  dynFreqMode_Z_BASED    = 1,
+  dynFreqMode_MASS_BASED = 2
 };
 
 #define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
