@@ -724,6 +724,32 @@ void MarlinUI::init() {
 
     #endif // ULTIPANEL_FEEDMULTIPLY
 
+    #if ENABLED(ULTIPANEL_FLOWPERCENT)
+
+      const int16_t old_fp = planner.flow_percentage[active_extruder];
+            int16_t new_fp = old_fp + int16_t(encoderPosition);
+
+      // Dead zone at 100% flow percentage
+      if (old_fp == 100) {
+        if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
+          new_fp -= ENCODER_FEEDRATE_DEADZONE;
+        else if (int16_t(encoderPosition) < -(ENCODER_FEEDRATE_DEADZONE))
+          new_fp += ENCODER_FEEDRATE_DEADZONE;
+        else
+          new_fp = old_fp;
+      }
+      else if ((old_fp < 100 && new_fp > 100) || (old_fp > 100 && new_fp < 100))
+        new_fp = 100;
+
+      LIMIT(new_fp, 10, 999);
+
+      if (old_fp != new_fp) {
+        planner.set_flow(active_extruder, new_fp);
+        encoderPosition = 0;
+      }
+
+    #endif // ULTIPANEL_FLOWPERCENT
+
     draw_status_screen();
   }
 
