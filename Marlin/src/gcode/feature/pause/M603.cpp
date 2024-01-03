@@ -20,9 +20,9 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
 
 #include "../../gcode.h"
 #include "../../../feature/pause.h"
@@ -80,4 +80,4 @@ void GcodeSuite::M603_report(const bool forReplay/*=true*/) {
   #endif
 }
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // CONFIGURE_FILAMENT_CHANGE
