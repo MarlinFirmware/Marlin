@@ -219,7 +219,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if ENABLED(TOOL_SENSOR)
+#if HAS_TOOLCHANGE
   #include "module/tool_change.h"
 #endif
 
