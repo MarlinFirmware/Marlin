@@ -130,18 +130,16 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
  *      
- *       0: NORMAL
- *       1: FIXED-TIME
- *       2: Ulendo FBS (not implemented)
- *      10: ZV
- *      11: ZVD
- *      12: ZVDD
- *      13: ZVDDD
- *      14: EI
- *      15: 2HEI
- *      16: 3HEI
- *      17: MZV
- *      20: DISCTF (not implemented)
+ *       0: Standard Motion
+ *       1: Fixed-Time Motion
+ *      10: ZV    : Zero Vibration
+ *      11: ZVD   : Zero Vibration and Derivative
+ *      12: ZVDD  : Zero Vibration, Derivative, and Double Derivative
+ *      13: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+ *      14: EI    : Extra-Insensitive
+ *      15: 2HEI  : 2-Hump Extra-Insensitive
+ *      16: 3HEI  : 3-Hump Extra-Insensitive
+ *      17: MZV   : Mass-based Zero Vibration
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *

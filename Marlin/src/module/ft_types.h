@@ -24,18 +24,16 @@
 #include "../core/types.h"
 
 typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0,
-  ftMotionMode_ENABLED    =  1,
-  //ftMotionMode_ULENDO_FBS = 2,
-  ftMotionMode_ZV         = 10,
-  ftMotionMode_ZVD        = 11,
-  ftMotionMode_ZVDD       = 12,
-  ftMotionMode_ZVDDD      = 13,
-  ftMotionMode_EI         = 14,
-  ftMotionMode_2HEI       = 15,
-  ftMotionMode_3HEI       = 16,
-  ftMotionMode_MZV        = 17,
-  //ftMotionMode_DISCTF   = 20
+  ftMotionMode_DISABLED   =  0, // Standard Motion
+  ftMotionMode_ENABLED    =  1, // Time-Based Motion
+  ftMotionMode_ZV         = 10, // Zero Vibration
+  ftMotionMode_ZVD        = 11, // Zero Vibration and Derivative
+  ftMotionMode_ZVDD       = 12, // Zero Vibration, Derivative, and Double Derivative
+  ftMotionMode_ZVDDD      = 13, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+  ftMotionMode_EI         = 14, // Extra-Insensitive
+  ftMotionMode_2HEI       = 15, // 2-Hump Extra-Insensitive
+  ftMotionMode_3HEI       = 16, // 3-Hump Extra-Insensitive
+  ftMotionMode_MZV        = 17  // Mass-based Zero Vibration
 } ftMotionMode_t;
 
 enum dynFreqMode_t : uint8_t {
