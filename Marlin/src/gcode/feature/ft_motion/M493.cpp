@@ -136,9 +136,9 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *      11: ZVD   : Zero Vibration and Derivative
  *      12: ZVDD  : Zero Vibration, Derivative, and Double Derivative
  *      13: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
- *      14: EI    : Extra-Insensitive
- *      15: 2HEI  : 2-Hump Extra-Insensitive
- *      16: 3HEI  : 3-Hump Extra-Insensitive
+ *      14: EI    : Extra-Intensive
+ *      15: 2HEI  : 2-Hump Extra-Intensive
+ *      16: 3HEI  : 3-Hump Extra-Intensive
  *      17: MZV   : Mass-based Zero Vibration
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control

@@ -30,9 +30,9 @@ typedef enum FXDTICtrlMode : uint8_t {
   ftMotionMode_ZVD        = 11, // Zero Vibration and Derivative
   ftMotionMode_ZVDD       = 12, // Zero Vibration, Derivative, and Double Derivative
   ftMotionMode_ZVDDD      = 13, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
-  ftMotionMode_EI         = 14, // Extra-Insensitive
-  ftMotionMode_2HEI       = 15, // 2-Hump Extra-Insensitive
-  ftMotionMode_3HEI       = 16, // 3-Hump Extra-Insensitive
+  ftMotionMode_EI         = 14, // Extra-Intensive
+  ftMotionMode_2HEI       = 15, // 2-Hump Extra-Intensive
+  ftMotionMode_3HEI       = 16, // 3-Hump Extra-Intensive
   ftMotionMode_MZV        = 17  // Mass-based Zero Vibration
 } ftMotionMode_t;
 
