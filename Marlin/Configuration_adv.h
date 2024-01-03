@@ -3936,6 +3936,18 @@
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
 /**
+ * Enable M111 debug flags 1=ECHO, 2=INFO, 4=ERRORS (unimplemented).
+ * Disable to save some flash. Some hosts (Repetier Host) may rely on this feature.
+ */
+#define DEBUG_FLAGS_GCODE
+
+/**
+ * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
+ *        Some hosts (and serial TFT displays) rely on this feature.
+ */
+#define REPORT_CAPABILITIES_GCODE
+
+/**
  * Enable this option for a leaner build of Marlin that removes
  * workspace offsets to slightly optimize performance.
  * G92 will revert to its behavior from Marlin 1.0.
