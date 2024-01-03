@@ -1113,7 +1113,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
     break;
 
-		case 'T': T(parser.codenum); break;                           // Tn: Tool Change
+    case 'T': T(parser.codenum); break;                           // Tn: Tool Change
 
     #if ENABLED(MARLIN_DEV_MODE)
       case 'D': D(parser.codenum); break;                         // Dn: Debug codes
