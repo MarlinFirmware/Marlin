@@ -37,10 +37,6 @@ GCodeQueue queue;
 #include "../MarlinCore.h"
 #include "../core/bug_on.h"
 
-#if HAS_ETHERNET
-  #include "../feature/ethernet.h"
-#endif
-
 #if ENABLED(BINARY_FILE_TRANSFER)
   #include "../feature/binary_stream.h"
 #endif
