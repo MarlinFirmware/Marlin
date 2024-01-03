@@ -687,6 +687,26 @@
   #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
 #endif
 
+// Changes to Probe Temp Compensation (#17392)
+#if HAS_PTC && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
+  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
+  #endif
+#endif
+
+// Consolidate TMC26X, validate migration (#24373)
+#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
+#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
+#if DO(ISMAX,||,ALL_AXIS_NAMES)
+  #error "*_MAX_CURRENT is now set with *_CURRENT."
+#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
+#endif
+#undef _ISMAX_1
+#undef _ISSNS_1
+
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
 #define _L6474              0x6474
