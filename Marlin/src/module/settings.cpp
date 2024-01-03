@@ -3924,9 +3924,7 @@ void MarlinSettings::reset() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
-      TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
-    #endif
+    TERN_(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
 
     //
     // Tool-changing Parameters
