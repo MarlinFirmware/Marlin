@@ -132,6 +132,9 @@
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
   #endif
+  #ifndef MIXING_VIRTUAL_TOOLS
+    #define MIXING_VIRTUAL_TOOLS 1
+  #endif
 
 #elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
 

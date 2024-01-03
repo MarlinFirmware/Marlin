@@ -26,9 +26,7 @@
 
 #include "../gcode.h"
 
-#if ANY(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_MIGRATION_FEATURE)
-  #include "../../module/tool_change.h"
-#endif
+#include "../../module/tool_change.h"
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
 
