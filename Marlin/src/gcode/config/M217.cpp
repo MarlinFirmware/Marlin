@@ -26,9 +26,13 @@
 
 #include "../gcode.h"
 
-#include "../../module/tool_change.h"
+#if HAS_TOOLCHANGE
+  #include "../../module/tool_change.h"
+#endif
 
-#include "../../MarlinCore.h" // for SP_X_STR, etc.
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../../module/motion.h" // for active_extruder
+#endif
 
 /**
  * M217 - Set toolchange parameters
@@ -118,7 +122,7 @@ void GcodeSuite::M217() {
     #endif
   #endif
 
-  #if HAS_Z_AXIS
+  #if HAS_Z_AXIS && HAS_TOOLCHANGE
     if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
   #endif
 
