@@ -722,7 +722,7 @@ void menu_advanced_settings() {
   #endif // !SLIM_LCD_MENUS
 
   // M92 - Steps Per mm
-  #if DISABLED(NO_EDIT_STEPS_PER_UNIT)
+  #if ENABLED(CONFIGURE_STEPS_PER_UNIT)
     if (!is_busy)
       SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
   #endif

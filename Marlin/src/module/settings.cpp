@@ -3662,7 +3662,9 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
-  void M92_report(const bool echo=true, const int8_t e=-1);
+  #if ENABLED(CONFIGURE_STEPS_PER_UNIT)
+    void M92_report(const bool echo=true, const int8_t e=-1);
+  #endif
 
   /**
    * M503 - Report current settings in RAM
@@ -3700,7 +3702,7 @@ void MarlinSettings::reset() {
     //
     // M92 Steps per Unit
     //
-    #if DISABLED(NO_EDIT_STEPS_PER_UNIT)
+    #if ENABLED(CONFIGURE_STEPS_PER_UNIT)
       gcode.M92_report(forReplay);
     #endif
 

@@ -719,8 +719,10 @@ private:
     static void M87();
   #endif
 
-  static void M92();
-  static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #if ENABLED(CONFIGURE_STEPS_PER_UNIT)
+    static void M92();
+    static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #endif
 
   #if ENABLED(M100_FREE_MEMORY_WATCHER)
     static void M100();
