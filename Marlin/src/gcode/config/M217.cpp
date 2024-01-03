@@ -25,10 +25,9 @@
 #if HAS_MULTI_EXTRUDER
 
 #include "../gcode.h"
-#include "../../module/tool_change.h"
 
-#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  #include "../../module/motion.h"
+#if ANY(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../../module/tool_change.h"
 #endif
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.

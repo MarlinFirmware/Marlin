@@ -29,10 +29,6 @@
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
 
-#if HAS_MULTI_EXTRUDER
-  #include "../../../module/tool_change.h"
-#endif
-
 /**
  * M603: Configure filament change
  *
