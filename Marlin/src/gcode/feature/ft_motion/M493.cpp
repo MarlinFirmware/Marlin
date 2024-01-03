@@ -129,14 +129,19 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * M493: Set Fixed-time Motion Control parameters
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
+ *      
  *       0: NORMAL
  *       1: FIXED-TIME
+ *       2: Ulendo FBS (not implemented)
  *      10: ZV
  *      11: ZVD
- *      12: EI
- *      13: 2HEI
- *      14: 3HEI
- *      15: MZV
+ *      12: ZVDD
+ *      13: ZVDDD
+ *      14: EI
+ *      15: 2HEI
+ *      16: 3HEI
+ *      17: MZV
+ *      20: DISCTF (not implemented)
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *
@@ -147,11 +152,15 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       1: Z-based (Requires a Z axis)
  *       2: Mass-based (Requires X and E axes)
  *
- *    A<Hz> Set static/base frequency for the X axis
- *    F<Hz> Set frequency scaling for the X axis
+ *    A<Hz>   Set static/base frequency for the X axis
+ *    F<Hz>   Set frequency scaling for the X axis
+ *    I 0.0   Set damping ratio for the X axis
+ *    Q 0.00  Set the vibration tolerance for the X axis
  *
  *    B<Hz> Set static/base frequency for the Y axis
  *    H<Hz> Set frequency scaling for the Y axis
+ *    J 0.0   Set damping ratio for the Y axis
+ *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
   struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
