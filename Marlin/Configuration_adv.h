@@ -3976,8 +3976,6 @@
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
 
-// @section gcode
-
 /**
  * Startup commands
  *
