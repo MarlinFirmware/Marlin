@@ -357,7 +357,7 @@ typedef struct PlannerSettings {
     #define _EASU(N) _dasu[_DLIM(E_AXIS + N)],
     static constexpr float axis_steps_per_mm[DISTINCT_AXES] = {
       REPEAT(NUM_AXES, _DASU)
-      REPEAT(DISTINCT_E, _EASU)
+      TERN_(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
     };
     #undef _EASU
     #undef _DASU
