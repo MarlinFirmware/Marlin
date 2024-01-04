@@ -38,14 +38,14 @@ void say_shaping() {
       SERIAL_ECHOPGM(" with ");
       switch (ftMotion.cfg.mode) {
         default: break;
-        case ftMotionMode_ZV:   SERIAL_ECHOPGM("ZV");        break;
-        case ftMotionMode_ZVD:  SERIAL_ECHOPGM("ZVD");       break;
-        case ftMotionMode_ZVDD: SERIAL_ECHOPGM("ZVDD");      break;
-        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");    break;
-        case ftMotionMode_EI:   SERIAL_ECHOPGM("EI");        break;
-        case ftMotionMode_2HEI: SERIAL_ECHOPGM("2 Hump EI"); break;
-        case ftMotionMode_3HEI: SERIAL_ECHOPGM("3 Hump EI"); break;
-        case ftMotionMode_MZV:  SERIAL_ECHOPGM("MZV");       break;
+        case ftMotionMode_ZV:    SERIAL_ECHOPGM("ZV");        break;
+        case ftMotionMode_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+        case ftMotionMode_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+        case ftMotionMode_EI:    SERIAL_ECHOPGM("EI");        break;
+        case ftMotionMode_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+        case ftMotionMode_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+        case ftMotionMode_MZV:   SERIAL_ECHOPGM("MZV");       break;
         //case ftMotionMode_DISCTF: SERIAL_ECHOPGM("discrete transfer functions"); break;
         //case ftMotionMode_ULENDO_FBS: SERIAL_ECHOPGM("Ulendo FBS."); return;
       }
@@ -129,14 +129,17 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * M493: Set Fixed-time Motion Control parameters
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
- *       0: NORMAL
- *       1: FIXED-TIME
- *      10: ZV
- *      11: ZVD
- *      12: EI
- *      13: 2HEI
- *      14: 3HEI
- *      15: MZV
+ *      
+ *       0: Standard Motion
+ *       1: Fixed-Time Motion
+ *      10: ZV    : Zero Vibration
+ *      11: ZVD   : Zero Vibration and Derivative
+ *      12: ZVDD  : Zero Vibration, Derivative, and Double Derivative
+ *      13: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+ *      14: EI    : Extra-Intensive
+ *      15: 2HEI  : 2-Hump Extra-Intensive
+ *      16: 3HEI  : 3-Hump Extra-Intensive
+ *      17: MZV   : Mass-based Zero Vibration
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *
@@ -147,11 +150,15 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       1: Z-based (Requires a Z axis)
  *       2: Mass-based (Requires X and E axes)
  *
- *    A<Hz> Set static/base frequency for the X axis
- *    F<Hz> Set frequency scaling for the X axis
+ *    A<Hz>   Set static/base frequency for the X axis
+ *    F<Hz>   Set frequency scaling for the X axis
+ *    I 0.0   Set damping ratio for the X axis
+ *    Q 0.00  Set the vibration tolerance for the X axis
  *
  *    B<Hz> Set static/base frequency for the Y axis
  *    H<Hz> Set frequency scaling for the Y axis
+ *    J 0.0   Set damping ratio for the Y axis
+ *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
   struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };

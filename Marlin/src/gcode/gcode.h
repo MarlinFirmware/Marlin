@@ -760,7 +760,10 @@ private:
   #endif
 
   static void M114();
-  static void M115();
+
+  #if ENABLED(REPORT_CAPABILITIES_GCODE)
+    static void M115();
+  #endif
 
   #if HAS_STATUS_MESSAGE
     static void M117();
