@@ -123,6 +123,10 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
+#if(DISABLED(FTM_UNIFIED_BWS))
+  constexpr uint32_t last_batchIdx = FTM_WINDOW_SIZE - FTM_BATCH_SIZE;
+#endif 
+
 //-----------------------------------------------------------------
 // Function definitions.
 //-----------------------------------------------------------------
@@ -198,7 +202,7 @@ void FTMotion::loop() {
       );
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]))
       LOGICAL_AXIS_CODE(
         TSHIFT(e),
         TSHIFT(x), TSHIFT(y), TSHIFT(z),
@@ -449,7 +453,7 @@ void FTMotion::reset() {
   endPosn_prevBlock.reset();
 
   makeVector_idx = makeVector_idx_z1 = 0;
-  makeVector_batchIdx = 0;
+  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, last_batchIdx);
 
   steps.reset();
   interpIdx = interpIdx_z1 = 0;
@@ -677,8 +681,8 @@ void FTMotion::makeVector() {
   #endif
 
   // Filled up the queue with regular and shaped steps
-  if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, (FTM_WINDOW_SIZE - FTM_BATCH_SIZE))) {
-    makeVector_batchIdx = 0;
+  if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE)) {
+    makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, last_batchIdx);
     batchRdy = true;
   }
 
