@@ -133,6 +133,12 @@ volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
 uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
 
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  float Planner::mm_per_step[DISTINCT_AXES];    // (mm) Millimeters per step
+#else
+  constexpr float PlannerSettings::axis_steps_per_mm[DISTINCT_AXES];
+  constexpr float Planner::mm_per_step[DISTINCT_AXES];
+#endif
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
 /**
@@ -145,8 +151,6 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-
-float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;         // (mm) M205 J
@@ -3308,7 +3312,9 @@ void Planner::refresh_acceleration_rates() {
  * Must be called whenever settings.axis_steps_per_mm changes!
  */
 void Planner::refresh_positioning() {
-  LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
+  #endif
   set_position_mm(current_position);
   refresh_acceleration_rates();
 }
