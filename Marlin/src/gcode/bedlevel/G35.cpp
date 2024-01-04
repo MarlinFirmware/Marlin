@@ -29,10 +29,6 @@
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
 #endif

@@ -182,10 +182,6 @@
   #include "../feature/joystick.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
-  #include "tool_change.h"
-#endif
-
 #if HAS_BEEPER
   #include "../libs/buzzer.h"
 #endif
@@ -849,9 +845,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
         #if ANY(PIDTEMPBED, PIDTEMPCHAMBER)
           FSTR_P const estring = GHV(F("chamber"), F("bed"), FPSTR(NUL_STR));
-          say_default_(); SERIAL_ECHO(estring, F("Kp "), tune_pid.p);
-          say_default_(); SERIAL_ECHO(estring, F("Ki "), tune_pid.i);
-          say_default_(); SERIAL_ECHO(estring, F("Kd "), tune_pid.d);
+          say_default_(); SERIAL_ECHOLN(estring, F("Kp "), tune_pid.p);
+          say_default_(); SERIAL_ECHOLN(estring, F("Ki "), tune_pid.i);
+          say_default_(); SERIAL_ECHOLN(estring, F("Kd "), tune_pid.d);
         #else
           say_default_(); SERIAL_ECHOLNPGM("Kp ", tune_pid.p);
           say_default_(); SERIAL_ECHOLNPGM("Ki ", tune_pid.i);

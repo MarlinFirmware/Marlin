@@ -82,33 +82,36 @@
 /**
  *  Multi-Material-Unit supported models
  */
-#define PRUSA_MMU1             1
-#define PRUSA_MMU2             2
-#define PRUSA_MMU2S            3
-#define EXTENDABLE_EMU_MMU2   12
-#define EXTENDABLE_EMU_MMU2S  13
-
 #ifdef MMU_MODEL
   #define HAS_MMU 1
   #define SINGLENOZZLE
-  #if MMU_MODEL == PRUSA_MMU1
+
+  #define _PRUSA_MMU1             1
+  #define _PRUSA_MMU2             2
+  #define _PRUSA_MMU2S            3
+  #define _EXTENDABLE_EMU_MMU2   12
+  #define _EXTENDABLE_EMU_MMU2S  13
+  #define _MMU CAT(_,MMU_MODEL)
+
+  #if _MMU == _PRUSA_MMU1
     #define HAS_PRUSA_MMU1 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2
+  #elif _MMU % 10 == _PRUSA_MMU2
     #define HAS_PRUSA_MMU2 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+  #elif _MMU % 10 == _PRUSA_MMU2S
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
+  #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
   #endif
-#endif
 
-#undef PRUSA_MMU1
-#undef PRUSA_MMU2
-#undef PRUSA_MMU2S
-#undef EXTENDABLE_EMU_MMU2
-#undef EXTENDABLE_EMU_MMU2S
+  #undef _MMU
+  #undef _PRUSA_MMU1
+  #undef _PRUSA_MMU2
+  #undef _PRUSA_MMU2S
+  #undef _EXTENDABLE_EMU_MMU2
+  #undef _EXTENDABLE_EMU_MMU2S
+#endif
 
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
@@ -131,6 +134,9 @@
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
+  #endif
+  #ifndef MIXING_VIRTUAL_TOOLS
+    #define MIXING_VIRTUAL_TOOLS 1
   #endif
 
 #elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
@@ -566,8 +572,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 and BTT_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
-#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864)
+// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
+#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
 

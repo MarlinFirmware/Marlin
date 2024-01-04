@@ -323,7 +323,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     SEND_PRINT_INFO("t8", getFilamentUsed_str);
     break;
 
-  case 28: // Filament laod/unload
+  case 28: // Filament load/unload
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #define SEND_PAUSE_INFO(A, B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
     #else

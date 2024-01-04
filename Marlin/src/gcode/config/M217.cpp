@@ -28,10 +28,8 @@
 #include "../../module/tool_change.h"
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  #include "../../module/motion.h"
+  #include "../../module/motion.h" // for active_extruder
 #endif
-
-#include "../../MarlinCore.h" // for SP_X_STR, etc.
 
 /**
  * M217 - Set toolchange parameters
