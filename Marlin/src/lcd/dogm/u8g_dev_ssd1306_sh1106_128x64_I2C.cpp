@@ -183,7 +183,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_sequence_2_wire[] PROGMEM = {
   CMD_COLUMN_RANGE(0x07F),  // Set column range from 0 through 127
   CMD_PAGE_RANGE(0, 7)      // Set page range from 0 through 7
   CMD_CHARGE_PER(0x1, 0xF), // [2] pre-charge period 0x22/f1
-  CMD_CHARGE_PER(0x40),     // Vcomh deselect level
+  CMD_VCOM_DESEL(0x40),     // Vcomh deselect level
   CMD_ALL_PIX(0),           // Output ram to display
   CMD_INVERTED(0),          // None inverted normal display mode
   CMD_OSC_FREQ(0, 8),       // Clock divide ratio (0x00=1) and oscillator frequency (0x08)
