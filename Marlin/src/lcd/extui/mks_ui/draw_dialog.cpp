@@ -491,7 +491,11 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_loading_time_flg = true;
     uiCfg.filament_loading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+    #if HAS_TOOLCHANGE
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+    #else
+      sprintf_P(public_buf_m, PSTR("G91\nG1 E%d F%d\nG90"), gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+    #endif
     queue.inject(public_buf_m);
   }
   if (uiCfg.filament_heat_completed_unload) {
@@ -501,7 +505,11 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_unloading_time_flg = true;
     uiCfg.filament_unloading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+    #if HAS_TOOLCHANGE
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+    #else
+      sprintf_P(public_buf_m, PSTR("G91\nG1 E-%d F%d\nG90"), gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+    #endif
     queue.inject(public_buf_m);
   }
 
