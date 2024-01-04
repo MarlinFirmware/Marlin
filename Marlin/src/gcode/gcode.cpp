@@ -670,7 +670,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
       case 114: M114(); break;                                    // M114: Report current position
 
-      #if ENABLED(REPORT_CAPABILITIES)
+      #if ENABLED(CAPABILITIES_REPORT)
         case 115: M115(); break;                                  // M115: Report capabilities
       #endif
 
