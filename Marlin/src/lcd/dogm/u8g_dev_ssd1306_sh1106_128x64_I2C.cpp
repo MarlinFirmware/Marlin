@@ -181,7 +181,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_sequence_2_wire[] PROGMEM = {
   CMD_CONTRAST(0x80),       // [2] set contrast control
   CMD_PAGE_ADR(2),          // Page addressing mode 2
   CMD_COLUMN_RANGE(0x07F),  // Set column range from 0 through 127
-  CMD_PAGE_RANGE(0, 7)      // Set page range from 0 through 7
+  CMD_PAGE_RANGE(0, 7),     // Set page range from 0 through 7
   CMD_CHARGE_PER(0x1, 0xF), // [2] pre-charge period 0x22/f1
   CMD_VCOM_DESEL(0x40),     // Vcomh deselect level
   CMD_ALL_PIX(0),           // Output ram to display
