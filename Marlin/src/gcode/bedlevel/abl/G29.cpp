@@ -55,10 +55,6 @@
   #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../../module/tool_change.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
