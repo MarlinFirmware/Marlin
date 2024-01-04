@@ -3891,6 +3891,7 @@
  * Requires fans with tachometer pins
  */
 //#define AUTO_REPORT_FANS
+
 //#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
 
 /**
