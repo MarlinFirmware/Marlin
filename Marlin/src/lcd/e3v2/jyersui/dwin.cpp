@@ -294,14 +294,14 @@ private:
           float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), F("]   ---> "));
+            DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
             DEBUG_DELAY(20);
           }
 
           rotation.apply_rotation_xyz(mx, my, mz);
 
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), AS_CHAR(','), p_float_t(my, 7), AS_CHAR(','), p_float_t(mz, 7), AS_CHAR(']'));
+            DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), C(']'));
             DEBUG_DELAY(20);
           }
 
@@ -2910,7 +2910,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
           case ADVANCED_LOAD:
             if (draw) {
               drawMenuItem(row, ICON_WriteEEPROM, F("Load Length"));
@@ -2927,7 +2927,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               modifyValue(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
-        #endif // ADVANCED_PAUSE_FEATURE
+        #endif // CONFIGURE_FILAMENT_CHANGE
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           case ADVANCED_COLD_EXTRUDE:

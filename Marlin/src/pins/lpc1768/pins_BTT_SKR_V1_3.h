@@ -221,8 +221,8 @@
 #define EXP2_08_PIN                        -1
 
 #if HAS_WIRED_LCD
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
-    #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
+  #if ENABLED(CTC_A10S_A13)
+    #error "CTC_A10S_A13 only applies to the ANET 1.0 board."
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
 

@@ -98,7 +98,7 @@ public:
 
   void debug(FSTR_P const f) {
     #if ENABLED(MSTRING_DEBUG)
-      SERIAL_ECHOLN(f, AS_CHAR(':'), uintptr_t(str), AS_CHAR(' '), length(), AS_CHAR(' '), str);
+      SERIAL_ECHOLN(f, C(':'), uintptr_t(str), C(' '), length(), C(' '), str);
     #endif
   }
 
