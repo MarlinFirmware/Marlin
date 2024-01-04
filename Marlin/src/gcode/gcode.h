@@ -149,7 +149,7 @@
  *
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
- * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
+ * M115 - Report capabilities. (EXTENDED_CAPABILITIES_REPORT requires REPORT_CAPABILITIES)
  * M117 - Display a message on the controller screen. (Requires an LCD)
  * M118 - Display a message in the host console.
  *
@@ -761,7 +761,7 @@ private:
 
   static void M114();
 
-  #if ENABLED(REPORT_CAPABILITIES_GCODE)
+  #if ENABLED(REPORT_CAPABILITIES)
     static void M115();
   #endif
 
