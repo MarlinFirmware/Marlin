@@ -30,6 +30,16 @@
   // Extras for CI testing
 #endif
 
+// Arduino IDE with Teensy Additions
+#ifdef TEENSYDUINO
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
+  #define NOT_A_PIN 0 // For PINS_DEBUGGING
+#endif
+
 // ADC
 #ifdef BOARD_ADC_VREF_MV
   #define ADC_VREF_MV BOARD_ADC_VREF_MV
@@ -62,16 +72,6 @@
 
 #if DISABLED(IIC_BL24CXX_EEPROM)
   #undef OTA_FIRMWARE_UPDATE
-#endif
-
-#ifdef TEENSYDUINO
-  #undef max
-  #define max(a,b) ((a)>(b)?(a):(b))
-  #undef min
-  #define min(a,b) ((a)<(b)?(a):(b))
-
-  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
-  #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
 /**

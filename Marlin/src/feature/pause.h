@@ -26,10 +26,6 @@
  * This may be combined with related G-codes if features are consolidated.
  */
 
-typedef struct {
-  float unload_length, load_length;
-} fil_change_settings_t;
-
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -69,7 +65,20 @@ enum PauseMessage : char {
   extern PauseMode pause_mode;
 #endif
 
-extern fil_change_settings_t fc_settings[EXTRUDERS];
+typedef struct FilamentChangeSettings {
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
+    float load_length, unload_length;
+  #else
+    static constexpr float load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH,
+                           unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
+  #endif
+} fil_change_settings_t;
+
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
+  extern fil_change_settings_t fc_settings[EXTRUDERS];
+#else
+  constexpr fil_change_settings_t fc_settings[EXTRUDERS];
+#endif
 
 extern uint8_t did_pause_print;
 
