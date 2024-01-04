@@ -245,7 +245,7 @@ void GcodeSuite::M48() {
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {
-        SERIAL_ECHO(n + 1, F(" of "), n_samples, F(": z: "), p_float_t(pz, 3), AS_CHAR(' '));
+        SERIAL_ECHO(n + 1, F(" of "), n_samples, F(": z: "), p_float_t(pz, 3), C(' '));
         dev_report(verbose_level > 2, mean, sigma, min, max);
         SERIAL_EOL();
       }

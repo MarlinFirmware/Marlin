@@ -26,6 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
+#include "../../../module/stepper.h"
 
 void say_shaping() {
   // FT Enabled
@@ -37,12 +38,14 @@ void say_shaping() {
       SERIAL_ECHOPGM(" with ");
       switch (ftMotion.cfg.mode) {
         default: break;
-        case ftMotionMode_ZV:   SERIAL_ECHOPGM("ZV");        break;
-        case ftMotionMode_ZVD:  SERIAL_ECHOPGM("ZVD");       break;
-        case ftMotionMode_EI:   SERIAL_ECHOPGM("EI");        break;
-        case ftMotionMode_2HEI: SERIAL_ECHOPGM("2 Hump EI"); break;
-        case ftMotionMode_3HEI: SERIAL_ECHOPGM("3 Hump EI"); break;
-        case ftMotionMode_MZV:  SERIAL_ECHOPGM("MZV");       break;
+        case ftMotionMode_ZV:    SERIAL_ECHOPGM("ZV");        break;
+        case ftMotionMode_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+        case ftMotionMode_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+        case ftMotionMode_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+        case ftMotionMode_EI:    SERIAL_ECHOPGM("EI");        break;
+        case ftMotionMode_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+        case ftMotionMode_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+        case ftMotionMode_MZV:   SERIAL_ECHOPGM("MZV");       break;
         //case ftMotionMode_DISCTF: SERIAL_ECHOPGM("discrete transfer functions"); break;
         //case ftMotionMode_ULENDO_FBS: SERIAL_ECHOPGM("Ulendo FBS."); return;
       }
@@ -126,14 +129,17 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * M493: Set Fixed-time Motion Control parameters
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
- *       0: NORMAL
- *       1: FIXED-TIME
- *      10: ZV
- *      11: ZVD
- *      12: EI
- *      13: 2HEI
- *      14: 3HEI
- *      15: MZV
+ *      
+ *       0: Standard Motion
+ *       1: Fixed-Time Motion
+ *      10: ZV    : Zero Vibration
+ *      11: ZVD   : Zero Vibration and Derivative
+ *      12: ZVDD  : Zero Vibration, Derivative, and Double Derivative
+ *      13: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+ *      14: EI    : Extra-Intensive
+ *      15: 2HEI  : 2-Hump Extra-Intensive
+ *      16: 3HEI  : 3-Hump Extra-Intensive
+ *      17: MZV   : Mass-based Zero Vibration
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *
@@ -144,31 +150,34 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       1: Z-based (Requires a Z axis)
  *       2: Mass-based (Requires X and E axes)
  *
- *    A<Hz> Set static/base frequency for the X axis
- *    F<Hz> Set frequency scaling for the X axis
+ *    A<Hz>   Set static/base frequency for the X axis
+ *    F<Hz>   Set frequency scaling for the X axis
+ *    I 0.0   Set damping ratio for the X axis
+ *    Q 0.00  Set the vibration tolerance for the X axis
  *
  *    B<Hz> Set static/base frequency for the Y axis
  *    H<Hz> Set frequency scaling for the Y axis
+ *    J 0.0   Set damping ratio for the Y axis
+ *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
   struct { bool update_n:1, update_a:1, reset_ft:1, report_h:1; } flag = { false };
 
   if (!parser.seen_any())
     flag.report_h = true;
-  else
-    planner.synchronize();
 
   // Parse 'S' mode parameter.
   if (parser.seenval('S')) {
-    const ftMotionMode_t oldmm = ftMotion.cfg.mode,
-                         newmm = (ftMotionMode_t)parser.value_byte();
+    const ftMotionMode_t newmm = (ftMotionMode_t)parser.value_byte();
 
-    if (newmm != oldmm) {
+    if (newmm != ftMotion.cfg.mode) {
       switch (newmm) {
         default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
         #if HAS_X_AXIS
           case ftMotionMode_ZV:
           case ftMotionMode_ZVD:
+          case ftMotionMode_ZVDD:
+          case ftMotionMode_ZVDDD:
           case ftMotionMode_EI:
           case ftMotionMode_2HEI:
           case ftMotionMode_3HEI:
@@ -177,11 +186,10 @@ void GcodeSuite::M493() {
           //case ftMotionMode_DISCTF:
             flag.update_n = flag.update_a = true;
         #endif
-        case ftMotionMode_DISABLED:
+        case ftMotionMode_DISABLED: flag.reset_ft = true;
         case ftMotionMode_ENABLED:
           ftMotion.cfg.mode = newmm;
           flag.report_h = true;
-          if (oldmm == ftMotionMode_DISABLED) flag.reset_ft = true;
           break;
       }
     }
@@ -193,6 +201,7 @@ void GcodeSuite::M493() {
     if (parser.seen('P')) {
       const bool val = parser.value_bool();
       ftMotion.cfg.linearAdvEna = val;
+      flag.report_h = true;
       SERIAL_ECHO_TERNARY(val, "Linear Advance ", "en", "dis", "abled.\n");
     }
 
@@ -216,22 +225,16 @@ void GcodeSuite::M493() {
       if (ftMotion.cfg.modeHasShaper()) {
         const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
         switch (val) {
+          #if HAS_DYNAMIC_FREQ_MM
+            case dynFreqMode_Z_BASED:
+          #endif
+          #if HAS_DYNAMIC_FREQ_G
+            case dynFreqMode_MASS_BASED:
+          #endif
           case dynFreqMode_DISABLED:
             ftMotion.cfg.dynFreqMode = val;
             flag.report_h = true;
             break;
-          #if HAS_DYNAMIC_FREQ_MM
-            case dynFreqMode_Z_BASED:
-              ftMotion.cfg.dynFreqMode = val;
-              flag.report_h = true;
-              break;
-          #endif
-          #if HAS_DYNAMIC_FREQ_G
-            case dynFreqMode_MASS_BASED:
-              ftMotion.cfg.dynFreqMode = val;
-              flag.report_h = true;
-              break;
-          #endif
           default:
             SERIAL_ECHOLNPGM("?Invalid Dynamic Frequency Mode [D] value.");
             break;
@@ -261,10 +264,10 @@ void GcodeSuite::M493() {
           flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid [", AS_CHAR('A'), "] frequency value.");
+          SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
       }
       else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('A'), "] frequency.");
+        SERIAL_ECHOLNPGM("Wrong mode for [", C('A'), "] frequency.");
     }
 
     #if HAS_DYNAMIC_FREQ
@@ -275,9 +278,39 @@ void GcodeSuite::M493() {
           flag.report_h = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('F'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Wrong mode for [", C('F'), "] frequency scaling.");
       }
     #endif
+
+    // Parse zeta parameter (X axis).
+    if (parser.seenval('I')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper()) {
+        if (WITHIN(val, 0.01f, 1.0f)) {
+          ftMotion.cfg.zeta[0] = val;
+          flag.update_n = flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid X zeta [", C('I'), "] value."); // Zeta out of range.
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
+    }
+
+    // Parse vtol parameter (X axis).
+    if (parser.seenval('Q')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper() && IS_EI_MODE(ftMotion.cfg.mode)) {
+        if (WITHIN(val, 0.00f, 1.0f)) {
+          ftMotion.cfg.vtol[0] = val;
+          flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid X vtol [", C('Q'), "] value."); // VTol out of range.
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
+    }
 
   #endif // HAS_X_AXIS
 
@@ -292,10 +325,10 @@ void GcodeSuite::M493() {
           flag.update_n = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid frequency [", AS_CHAR('B'), "] value.");
+          SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
       }
       else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('B'), "] frequency.");
+        SERIAL_ECHOLNPGM("Wrong mode for [", C('B'), "] frequency.");
     }
 
     #if HAS_DYNAMIC_FREQ
@@ -306,19 +339,54 @@ void GcodeSuite::M493() {
           flag.report_h = true;
         }
         else
-          SERIAL_ECHOLNPGM("Wrong mode for [", AS_CHAR('H'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("Wrong mode for [", C('H'), "] frequency scaling.");
       }
     #endif
 
+    // Parse zeta parameter (Y axis).
+    if (parser.seenval('J')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper()) {
+        if (WITHIN(val, 0.01f, 1.0f)) {
+          ftMotion.cfg.zeta[1] = val;
+          flag.update_n = flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid Y zeta [", C('J'), "] value."); // Zeta Out of range
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
+    }
+
+    // Parse vtol parameter (Y axis).
+    if (parser.seenval('R')) {
+      const float val = parser.value_float();
+      if (ftMotion.cfg.modeHasShaper() && IS_EI_MODE(ftMotion.cfg.mode)) {
+        if (WITHIN(val, 0.00f, 1.0f)) {
+          ftMotion.cfg.vtol[1] = val;
+          flag.update_a = true;
+        }
+        else
+          SERIAL_ECHOLNPGM("Invalid Y vtol [", C('R'), "] value."); // VTol out of range.
+      }
+      else
+        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
+    }
+
   #endif // HAS_Y_AXIS
 
-  #if HAS_X_AXIS
-    if (flag.update_n) ftMotion.refreshShapingN();
-    if (flag.update_a) ftMotion.updateShapingA();
-  #endif
-  if (flag.reset_ft) ftMotion.reset();
-  if (flag.report_h) say_shaping();
+  planner.synchronize();
 
+  if (flag.update_n) ftMotion.refreshShapingN();
+
+  if (flag.update_a) ftMotion.updateShapingA();
+
+  if (flag.reset_ft) {
+    stepper.ftMotion_syncPosition();
+    ftMotion.reset();
+  }
+
+  if (flag.report_h) say_shaping();
 }
 
 #endif // FT_MOTION

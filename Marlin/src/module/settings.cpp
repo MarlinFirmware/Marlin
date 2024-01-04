@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V89"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -508,7 +508,7 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  #if HAS_EXTRUDERS
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
   #endif
 
@@ -862,7 +862,7 @@ void MarlinSettings::postprocess() {
     {
       EEPROM_WRITE(planner.settings);
 
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         EEPROM_WRITE(planner.max_jerk);
         #if HAS_LINEAR_E_JERK
           dummyf = float(DEFAULT_EJERK);
@@ -1563,11 +1563,8 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    #if HAS_EXTRUDERS
+    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     {
-      #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
-      #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
     }
@@ -1899,7 +1896,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           EEPROM_READ(planner.max_jerk);
           #if HAS_LINEAR_E_JERK
             EEPROM_READ(dummyf);
@@ -2645,11 +2642,8 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
-      #if HAS_EXTRUDERS
+      #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       {
-        #if DISABLED(ADVANCED_PAUSE_FEATURE)
-          fil_change_settings_t fc_settings[EXTRUDERS];
-        #endif
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
       }
@@ -3121,7 +3115,7 @@ void MarlinSettings::reset() {
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     #if HAS_X_AXIS && !defined(DEFAULT_XJERK)
       #define DEFAULT_XJERK 0
     #endif
@@ -3579,7 +3573,7 @@ void MarlinSettings::reset() {
   //
   // Advanced Pause filament load & unload lengths
   //
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     EXTRUDER_LOOP() {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
@@ -3954,7 +3948,7 @@ void MarlinSettings::reset() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+    TERN_(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
 
     //
     // Tool-changing Parameters

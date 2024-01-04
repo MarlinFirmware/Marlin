@@ -10,6 +10,11 @@
 
 const fs = require("fs");
 
+var do_log = false
+function logmsg(msg, line='') {
+  if (do_log) console.log(msg, line);
+}
+
 // String lpad / rpad
 String.prototype.lpad = function(len, chr) {
   if (!len) return this;
@@ -37,7 +42,7 @@ String.prototype.concat_with_space = function(str) {
 };
 
 const mpatt = [ '-?\\d{1,3}', 'P[A-I]\\d+', 'P\\d_\\d+', 'Pin[A-Z]\\d\\b' ],
-      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${mpatt[0]}|${mpatt[1]}|${mpatt[2]}|${mpatt[3]})\\s*(//.*)?$`, 'gm'),
+      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${'|'.join(mpatt)})\\s*(//.*)?$`, 'gm'),
       ppad = [ 3, 4, 5, 5 ],
       col_comment = 50,
       col_value_rj = col_comment - 3;
@@ -47,11 +52,11 @@ for (let m of mpatt) mexpr.push(new RegExp('^' + m + '$'));
 
 const argv = process.argv.slice(2), argc = argv.length;
 
-var src_file = 0, src_name = 'STDIN', dst_file, do_log = false;
+var src_file = 0, dst_file;
 if (argc > 0) {
   let ind = 0;
   if (argv[0] == '-v') { do_log = true; ind++; }
-  dst_file = src_file = src_name = argv[ind++];
+  dst_file = src_file = argv[ind++];
   if (ind < argc) dst_file = argv[ind];
 }
 
@@ -115,13 +120,13 @@ function process_text(txt) {
       //
       // #define SKIP_ME
       //
-      if (do_log) console.log("skip:", line);
+      logmsg("skip:", line);
     }
     else if ((r = pindefPatt.exec(line)) !== null) {
       //
       // #define MY_PIN [pin]
       //
-      if (do_log) console.log("pin:", line);
+      logmsg("pin:", line);
       const pinnum = r[4].charAt(0) == 'P' ? r[4] : r[4].lpad(patt.pad);
       line = r[1] + ' ' + r[3];
       line = line.rpad(col_value_lj).concat_with_space(pinnum);
@@ -131,7 +136,7 @@ function process_text(txt) {
       //
       // #define MY_PIN -1
       //
-      if (do_log) console.log("pin -1:", line);
+      logmsg("pin -1:", line);
       line = r[1] + ' ' + r[3];
       line = line.rpad(col_value_lj).concat_with_space('-1');
       if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
@@ -139,14 +144,15 @@ function process_text(txt) {
     else if (skipPatt2.exec(line) !== null || skipPatt3.exec(line) !== null) {
       //
       // #define SKIP_ME
+      // #else, #endif
       //
-      if (do_log) console.log("skip:", line);
+      logmsg("skip:", line);
     }
     else if ((r = aliasPatt.exec(line)) !== null) {
       //
       // #define ALIAS OTHER
       //
-      if (do_log) console.log("alias:", line);
+      logmsg("alias:", line);
       line = r[1] + ' ' + r[3];
       line = line.concat_with_space(r[4].lpad(col_value_rj + 1 - line.length));
       if (r[5]) line = line.rpad(col_comment).concat_with_space(r[5]);
@@ -155,7 +161,7 @@ function process_text(txt) {
       //
       // #define SWITCH
       //
-      if (do_log) console.log("switch:", line);
+      logmsg("switch:", line);
       line = r[1] + ' ' + r[3];
       if (r[4]) line = line.rpad(col_comment).concat_with_space(r[4]);
       check_comment_next = true;
@@ -164,7 +170,7 @@ function process_text(txt) {
       //
       // #define ...
       //
-      if (do_log) console.log("def:", line);
+      logmsg("def:", line);
       line = r[1] + ' ' + r[3] + ' ';
       line = line.concat_with_space(r[4].lpad(col_value_rj + 1 - line.length));
       if (r[5]) line = line.rpad(col_comment - 1) + ' ' + r[5];
@@ -173,7 +179,7 @@ function process_text(txt) {
       //
       // #undef ...
       //
-      if (do_log) console.log("undef:", line);
+      logmsg("undef:", line);
       line = r[1] + ' ' + r[3];
       if (r[4]) line = line.rpad(col_comment).concat_with_space(r[4]);
     }
@@ -181,7 +187,7 @@ function process_text(txt) {
       //
       // #if, #ifdef, #ifndef, #elif ...
       //
-      if (do_log) console.log("cond:", line);
+      logmsg("cond:", line);
       line = r[1].rpad(col_comment).concat_with_space(r[5]);
       check_comment_next = true;
     }

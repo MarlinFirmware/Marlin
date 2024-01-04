@@ -49,7 +49,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 
   initialized = true;
 
-  SERIAL_ECHOLNPGM("Setting up encoder on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis, addr = ", address);
+  SERIAL_ECHOLNPGM("Setting up encoder on ", C(AXIS_CHAR(encoderAxis)), " axis, addr = ", address);
 
   position = get_position();
 }
@@ -67,7 +67,7 @@ void I2CPositionEncoder::update() {
     /*
     if (trusted) { //commented out as part of the note below
       trusted = false;
-      SERIAL_ECHOLNPGM("Fault detected on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis encoder. Disengaging error correction until module is trusted again.");
+      SERIAL_ECHOLNPGM("Fault detected on ", C(AXIS_CHAR(encoderAxis)), " axis encoder. Disengaging error correction until module is trusted again.");
     }
     */
     return;
@@ -92,7 +92,7 @@ void I2CPositionEncoder::update() {
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
         trusted = true;
 
-        SERIAL_ECHOLNPGM("Untrusted encoder module on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis has been fault-free for set duration, reinstating error correction.");
+        SERIAL_ECHOLNPGM("Untrusted encoder module on ", C(AXIS_CHAR(encoderAxis)), " axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occurred, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialize
@@ -106,7 +106,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPGM("Current position is ", pos);
           SERIAL_ECHOLNPGM("Position in encoder ticks is ", positionInTicks);
           SERIAL_ECHOLNPGM("New zero-offset of ", zeroOffset);
-          SERIAL_ECHOLN(F("New position reads as "), get_position(), AS_CHAR('('), mm_from_count(get_position()), AS_CHAR(')'));
+          SERIAL_ECHOLN(F("New position reads as "), get_position(), C('('), mm_from_count(get_position()), C(')'));
         #endif
       }
     #endif

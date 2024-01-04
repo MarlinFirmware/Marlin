@@ -865,7 +865,7 @@ void MarlinUI::init() {
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
 
           axis = NO_AXIS_ENUM;
 
@@ -882,7 +882,7 @@ void MarlinUI::init() {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
       start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
       axis = move_axis;
-      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " soon.");
+      //SERIAL_ECHOLNPGM("Post Move with Axis ", C(AXIS_CHAR(axis)), " soon.");
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1035,9 +1035,13 @@ void MarlinUI::init() {
         uint8_t abs_diff = ABS(encoderDiff);
 
         #if ENCODER_PULSES_PER_STEP > 1
-          static int8_t lastEncoderDiff;
-          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
-          lastEncoderDiff = encoderDiff;
+          #if HAS_TOUCH_SLEEP
+            static int8_t lastEncoderDiff;
+            if (lastEncoderDiff != encoderDiff) {
+              wakeup_screen();
+              lastEncoderDiff = encoderDiff;
+            }
+          #endif
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
