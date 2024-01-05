@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(REPORT_CAPABILITIES_GCODE)
+#if ENABLED(CAPABILITIES_REPORT)
 
 #include "../gcode.h"
 #include "../queue.h"           // for getting the command port
@@ -275,4 +275,4 @@ void GcodeSuite::M115() {
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
 
-#endif // REPORT_CAPABILITIES_GCODE
+#endif // CAPABILITIES_REPORT
