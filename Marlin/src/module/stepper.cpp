@@ -3448,7 +3448,8 @@ void Stepper::report_positions() {
     // Use one byte to restore one stepper command in the format:
     // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
-    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE)) ftMotion.stepperCmdBuff_consumeIdx = 0U;
+    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
+      ftMotion.stepperCmdBuff_consumeIdx = 0;
 
     if (abort_current_block) return;
 

@@ -55,8 +55,8 @@ FTMotion ftMotion;
 ft_config_t FTMotion::cfg;
 bool FTMotion::busy; // = false
 ft_command_t FTMotion::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U}; // Stepper commands buffer.
-uint32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
-         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
+int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
+        FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
@@ -123,9 +123,7 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
-#if DISABLED(FTM_UNIFIED_BWS)
-  constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
-#endif 
+constexpr uint32_t last_batchIdx = TERN(FTM_UNIFIED_BWS, 0, (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE));
 
 //-----------------------------------------------------------------
 // Function definitions.
@@ -149,12 +147,16 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
-  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE))) max_intervals = min_max_intervals;
-  #if DISABLED(FTM_UNIFIED_BWS)
-    max_intervals += FTM_WINDOW_SIZE - ((FTM_BATCH_SIZE > last_batchIdx)? 0:makeVector_batchIdx);
-  #else
-    max_intervals += FTM_BW_SIZE - makeVector_batchIdx;
-  #endif
+  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE)))
+    max_intervals = min_max_intervals;
+
+  max_intervals += (
+    #if ENABLED(FTM_UNIFIED_BWS)
+      FTM_BW_SIZE - makeVector_batchIdx
+    #else
+      FTM_WINDOW_SIZE - ((last_batchIdx < (FTM_BATCH_SIZE)) ? 0 : makeVector_batchIdx)
+    #endif
+  );
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
 }
@@ -457,7 +459,7 @@ void FTMotion::reset() {
   endPosn_prevBlock.reset();
 
   makeVector_idx = makeVector_idx_z1 = 0;
-  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, (FTM_BATCH_SIZE > last_batchIdx)? FTM_BATCH_SIZE:last_batchIdx);
+  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, _MAX(last_batchIdx, FTM_BATCH_SIZE));
 
   steps.reset();
   interpIdx = interpIdx_z1 = 0;
@@ -472,10 +474,11 @@ void FTMotion::reset() {
 }
 
 // Private functions.
+
 // Auxiliary function to get number of step commands in the buffer.
-uint32_t FTMotion::stepperCmdBuffItems() {
-  const uint32_t udiff = stepperCmdBuff_produceIdx - stepperCmdBuff_consumeIdx;
-  return stepperCmdBuff_produceIdx < stepperCmdBuff_consumeIdx ? (FTM_STEPPERCMD_BUFF_SIZE) + udiff : udiff;
+int32_t FTMotion::stepperCmdBuffItems() {
+  const int32_t udiff = stepperCmdBuff_produceIdx - stepperCmdBuff_consumeIdx;
+  return (udiff < 0) ? udiff + (FTM_STEPPERCMD_BUFF_SIZE) : udiff;
 }
 
 // Initializes storage variables before startup.
@@ -686,7 +689,7 @@ void FTMotion::makeVector() {
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE)) {
-    makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, last_batchIdx);
+    makeVector_batchIdx = last_batchIdx;
     batchRdy = true;
   }
 
