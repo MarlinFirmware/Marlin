@@ -501,8 +501,10 @@ void GcodeSuite::G26() {
   // or if the parameter parsing did not go OK, abort
   if (homing_needed_error()) return;
 
-  // Change the tool first, if specified
-  if (parser.seenval('T')) tool_change(parser.value_int());
+  #if HAS_TOOLCHANGE
+    // Change the tool first, if specified
+    if (parser.seenval('T')) tool_change(parser.value_int());
+  #endif
 
   g26_helper_t g26;
 

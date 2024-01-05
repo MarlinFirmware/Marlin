@@ -187,7 +187,7 @@
  *
  * Only the following displays are supported:
  *  ZONESTAR_LCD
- *  CTC_A10S_A13G
+ *  CTC_A10S_A13
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
@@ -209,10 +209,10 @@
   #elif IS_RRD_FG_SC
 
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
-    // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
+    // display using an adapter board. See https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
 
-    #if ENABLED(CTC_A10S_A13G)
+    #if ENABLED(CTC_A10S_A13)
 
       /**
        * CTC_A10S_A13 pinout
