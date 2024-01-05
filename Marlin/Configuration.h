@@ -3620,8 +3620,9 @@
  * For some servo-related options NUM_SERVOS will be set automatically.
  * Set this manually if there are extra servos needing manual control.
  * Set to 0 to turn off servo support.
+ * NOTE: Servo index starts with 0 for M280-M282 commands
  */
-//#define NUM_SERVOS 3 // NOTE: Servo index starts with 0 for M280-M282 commands
+//#define NUM_SERVOS 3
 
 // (ms) Delay before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
