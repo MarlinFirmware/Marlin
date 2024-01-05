@@ -123,7 +123,7 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
-constexpr uint32_t last_batchIdx = TERN(FTM_UNIFIED_BWS, 0, (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE));
+constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 
 //-----------------------------------------------------------------
 // Function definitions.
@@ -147,12 +147,12 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
-  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE)))
+  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BATCH_SIZE, min_max_intervals - (FTM_BATCH_SIZE)))
     max_intervals = min_max_intervals;
 
   max_intervals += (
     #if ENABLED(FTM_UNIFIED_BWS)
-      FTM_BW_SIZE - makeVector_batchIdx
+      FTM_WINDOW_SIZE - makeVector_batchIdx
     #else
       FTM_WINDOW_SIZE - ((last_batchIdx < (FTM_BATCH_SIZE)) ? 0 : makeVector_batchIdx)
     #endif
@@ -229,7 +229,7 @@ void FTMotion::loop() {
     && (interpIdx - interpIdx_z1 < (FTM_STEPS_PER_LOOP))
   ) {
     convertToSteps(interpIdx);
-    if (++interpIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE)) {
+    if (++interpIdx == FTM_BATCH_SIZE) {
       batchRdyForInterp = false;
       interpIdx = 0;
     }
@@ -688,7 +688,7 @@ void FTMotion::makeVector() {
   #endif
 
   // Filled up the queue with regular and shaped steps
-  if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE)) {
+  if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
     makeVector_batchIdx = last_batchIdx;
     batchRdy = true;
   }
