@@ -123,8 +123,8 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
-#if(DISABLED(FTM_UNIFIED_BWS))
-  constexpr uint32_t last_batchIdx = FTM_WINDOW_SIZE - FTM_BATCH_SIZE;
+#if DISABLED(FTM_UNIFIED_BWS)
+  constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 #endif 
 
 //-----------------------------------------------------------------
