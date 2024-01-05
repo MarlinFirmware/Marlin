@@ -150,7 +150,11 @@ void FTMotion::runoutBlock() {
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
   if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE))) max_intervals = min_max_intervals;
-  max_intervals += TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE) - makeVector_batchIdx;
+  #if DISABLED(FTM_UNIFIED_BWS)
+    max_intervals += FTM_WINDOW_SIZE - ((FTM_BATCH_SIZE > last_batchIdx)? 0:makeVector_batchIdx);
+  #else
+    max_intervals += FTM_BW_SIZE - makeVector_batchIdx;
+  #endif
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
 }
@@ -453,7 +457,7 @@ void FTMotion::reset() {
   endPosn_prevBlock.reset();
 
   makeVector_idx = makeVector_idx_z1 = 0;
-  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, last_batchIdx);
+  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, (FTM_BATCH_SIZE > last_batchIdx)? FTM_BATCH_SIZE:last_batchIdx);
 
   steps.reset();
   interpIdx = interpIdx_z1 = 0;
