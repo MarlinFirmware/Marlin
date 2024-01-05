@@ -901,7 +901,7 @@
 
 /**
  * MarkForged Kinematics
- * See https://reprap.org/forum/read.php?152,504042
+ * NOTE: See https://reprap.org/forum/read.php?152,504042
  */
 //#define MARKFORGED_XY
 //#define MARKFORGED_YX
@@ -936,7 +936,7 @@
 
   // Delta calibration menu
   // Add three-point calibration to the MarlinUI menu.
-  // See http://minow.blogspot.com/index.html#4918805519571907051
+  // NOTE: See http://minow.blogspot.com/index.html#4918805519571907051
   //#define DELTA_CALIBRATION_MENU
 
   // G33 Delta Auto-Calibration. Enable EEPROM_SETTINGS to store results.
@@ -985,7 +985,8 @@
  * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  *
- * Mostly Printed SCARA is an open source design by Tyler Williams. See:
+ * Mostly Printed SCARA is an open source design by Tyler Williams.
+ * NOTE: See:
  *   https://www.thingiverse.com/thing:2487048
  *   https://www.thingiverse.com/thing:1241491
  */
@@ -1066,7 +1067,7 @@
  *   Y or B : Polar
  *        Z : Independent linear
  *
- * For example, PolarBear has CoreXZ plus Polar Y or B.
+ * EXAMPLE: PolarBear has CoreXZ plus Polar Y or B.
  *
  * Motion problem for Polar axis near center / origin:
  *
@@ -1312,7 +1313,7 @@
 /**
  * Junction Deviation Factor
  *
- * See:
+ * NOTE: See:
  *   https://reprap.org/forum/read.php?1,739819
  *   https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
@@ -1328,17 +1329,17 @@
  * This option eliminates vibration during printing by fitting a Bézier
  * curve to move acceleration, producing much smoother direction changes.
  *
- * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
+ * NOTE: See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
 //#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
 //===========================================================================
-// @section probes
 
 /**
- * See https://marlinfw.org/docs/configuration/probes.html
+ * NOTE: See https://marlinfw.org/docs/configuration/probes.html
+ * @section probes
  */
 
 /**
@@ -1426,7 +1427,7 @@
  * By default, the magnet is assumed to be on the left and activated by a home. If the magnet is
  * on the right, enable and set TOUCH_MI_DEPLOY_XPOS to the deploy position.
  *
- * Also requires: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
+ * REQUIREMENT: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
  *                and a minimum Z_CLEARANCE_FOR_HOMING of 10.
  */
 //#define TOUCH_MI_PROBE
@@ -1440,7 +1441,7 @@
  * Bed Distance Sensor
  *
  * Measures the distance from bed to nozzle with accuracy of 0.01mm.
- * For information about this sensor https://github.com/markniu/Bed_Distance_sensor
+ * For more info: https://github.com/markniu/Bed_Distance_sensor
  * Uses I2C port, so it requires I2C library markyue/Panda_SoftMasterI2C.
  */
 //#define BD_SENSOR
@@ -1556,7 +1557,7 @@
  *  - Probe in BACK  of the Nozzle has a Positive Y offset
  *  - Probe in FRONT of the Nozzle has a Negative Y offset
  *
- * Some examples:
+ * EXAMPLE:
  *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, -1 }   // Example "1"
  *   #define NOZZLE_TO_PROBE_OFFSET {-10,  5, -1 }   // Example "2"
  *   #define NOZZLE_TO_PROBE_OFFSET {  5, -5, -1 }   // Example "3"
@@ -1652,7 +1653,7 @@
  * probe Z Offset set with NOZZLE_TO_PROBE_OFFSET, M851, or the LCD.
  * Only integer values >= 1 are valid here.
  *
- * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
+ * EXAMPLE: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // (mm) Z Clearance for Deploy/Stow
@@ -1706,7 +1707,7 @@
 
 /**
  * For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
- * :{ 0:'Low', 1:'High' }
+ * EXAMPLE: { 0:'Low', 1:'High' }
  */
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
@@ -2450,12 +2451,12 @@
  *
  * Adds the G12 command to perform a nozzle cleaning process.
  *
- * Parameters:
+ * PARAMETERS:
  *   P  Pattern
  *   S  Strokes / Repetitions
  *   T  Triangles (P1 only)
  *
- * Patterns:
+ * PATTERNS:
  *   P0  Straight line (default). This process requires a sponge type material
  *       at a fixed bed location. "S" specifies strokes (i.e. back-forth motions)
  *       between the start / end points.
@@ -2463,7 +2464,7 @@
  *   P1  Zig-zag pattern between (X0, Y0) and (X1, Y1), "T" specifies the
  *       number of zig-zag triangles to do. "S" defines the number of strokes.
  *       Zig-zags are done in whichever is the narrower dimension.
- *       For example, "G12 P1 S1 T3" will execute:
+ *       EXAMPLE: "G12 P1 S1 T3" will execute:
  *
  *          --
  *         |  (X0, Y1) |     /\        /\        /\     | (X1, Y1)
@@ -2479,7 +2480,7 @@
  *       "R" specifies the radius. "S" specifies the stroke count.
  *       Before starting, the nozzle moves to NOZZLE_CLEAN_START_POINT.
  *
- *   Caveats: The ending Z should be the same as starting Z.
+ *   CAVEATS: The ending Z should be the same as starting Z.
  */
 //#define NOZZLE_CLEAN_FEATURE
 
@@ -2642,7 +2643,7 @@
  *  - Click the controller to view the LCD menu
  *  - The LCD will display Japanese, Western, or Cyrillic text
  *
- * See https://marlinfw.org/docs/development/lcd_language.html
+ * NOTE: See https://marlinfw.org/docs/development/lcd_language.html
  *
  * :['JAPANESE', 'WESTERN', 'CYRILLIC']
  */
@@ -2924,7 +2925,7 @@
 /**
  * TFT GLCD Panel with Marlin UI
  * Panel connected to main board by SPI or I2C interface.
- * See https://github.com/Serhiy-K/TFTGLCDAdapter
+ * https://github.com/Serhiy-K/TFTGLCDAdapter
  */
 //#define TFTGLCD_PANEL_SPI
 //#define TFTGLCD_PANEL_I2C
@@ -3535,7 +3536,7 @@
  * luminance values can be set from 0 to 255.
  * For NeoPixel LED an overall brightness parameter is also available.
  *
- *  === CAUTION ===
+ *  === CAUTION: ===
  *  LED Strips require a MOSFET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
