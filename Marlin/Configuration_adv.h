@@ -1417,24 +1417,24 @@
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
 /**
- *  @section  stepper motor current
+ * @section  stepper motor current
  *
- *  Some boards have a means of setting the stepper motor current via firmware.
+ * Some boards have a means of setting the stepper motor current via firmware.
  *
- *  The power on motor currents are set by:
- *    PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
- *                         known compatible chips: A4982
- *    DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
- *                         known compatible chips: AD5206
- *    DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
- *                         known compatible chips: MCP4728
- *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, AZTEEG_X5_MINI_WIFI, MIGHTYBOARD_REVE
- *                         known compatible chips: MCP4451, MCP4018
+ * The power on motor currents are set by:
+ *   PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
+ *                        known compatible chips: A4982
+ *   DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
+ *                        known compatible chips: AD5206
+ *   DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
+ *                        known compatible chips: MCP4728
+ *   DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, AZTEEG_X5_MINI_WIFI, MIGHTYBOARD_REVE
+ *                        known compatible chips: MCP4451, MCP4018
  *
- *  Motor currents can also be set by M907 - M910 and by the LCD.
- *    M907 - applies to all.
- *    M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
- *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
+ * Motor currents can also be set by M907 - M910 and by the LCD.
+ *   M907 - applies to all.
+ *   M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
+ *   M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
 //#define PWM_MOTOR_CURRENT { 1300, 1300, 1250 }          // Values in milliamps
 //#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)

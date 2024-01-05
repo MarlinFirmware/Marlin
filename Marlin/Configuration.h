@@ -2396,7 +2396,7 @@
 // @section units
 
  /**
- *  G20/G21 Inch mode support
+ * G20/G21 Inch mode support
  */
 //#define INCH_MODE_SUPPORT
 
@@ -2721,10 +2721,10 @@
 //#define REVERSE_MENU_DIRECTION
 
 /**
- *  This option reverses the encoder direction for Select Screen.
+ * This option reverses the encoder direction for Select Screen.
  *
- *   If CLOCKWISE normally moves LEFT this makes it go RIGHT.
- *   If CLOCKWISE normally moves RIGHT this makes it go LEFT.
+ *  If CLOCKWISE normally moves LEFT this makes it go RIGHT.
+ *  If CLOCKWISE normally moves RIGHT this makes it go LEFT.
  */
 //#define REVERSE_SELECT_DIRECTION
 
@@ -3295,7 +3295,7 @@
 //#define MKS_ROBIN_TFT35
 
 /**
- *  480x272, 4.3", FSMC Display From MKS
+ * 480x272, 4.3", FSMC Display From MKS
  */
 //#define MKS_ROBIN_TFT43
 
@@ -3461,9 +3461,9 @@
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
-//
-// EasyThreeD ET-4000+ with button input and status LED
-//
+/**
+ * EasyThreeD ET-4000+ with button input and status LED
+ */
 //#define EASYTHREED_UI
 
 //=============================================================================
