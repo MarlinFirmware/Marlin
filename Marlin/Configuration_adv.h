@@ -68,9 +68,9 @@
  */
 #define THERMOCOUPLE_MAX_ERRORS 15
 
-//
-// Custom Thermistor 1000 parameters
-//
+/**
+ * Custom Thermistor 1000 parameters
+ */
 #if TEMP_SENSOR_0 == 1000
   #define HOTEND0_PULLUP_RESISTOR_OHMS    4700 // Pullup resistor
   #define HOTEND0_RESISTANCE_25C_OHMS   100000 // Resistance at 25C
@@ -197,9 +197,9 @@
   #define HEATER_BED_INVERTING true
 #endif
 
-//
-// Heated Bed Bang-Bang options
-//
+/**
+ * Heated Bed Bang-Bang options
+ */
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
@@ -207,9 +207,9 @@
   #endif
 #endif
 
-//
-// Heated Chamber options
-//
+/**
+ * Heated Chamber options
+ */
 #if DISABLED(PIDTEMPCHAMBER)
   #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
   #if ENABLED(CHAMBER_LIMIT_SWITCHING)
@@ -250,9 +250,9 @@
   #endif
 #endif
 
-//
-// Laser Cooler options
-//
+/**
+ * Laser Cooler options
+ */
 #if TEMP_SENSOR_COOLER
   #define COOLER_MINTEMP           8  // (°C)
   #define COOLER_MAXTEMP          26  // (°C)
@@ -269,9 +269,9 @@
   #endif
 #endif
 
-//
-// Motherboard Sensor options
-//
+/**
+ * Motherboard Sensor options
+ */
 #if TEMP_SENSOR_BOARD
   #define THERMAL_PROTECTION_BOARD   // Halt the printer if the board sensor leaves the temp range below.
   #define BOARD_MINTEMP           8  // (°C)
@@ -279,9 +279,9 @@
   //#define TEMP_BOARD_PIN -1        // Board temp sensor pin override.
 #endif
 
-//
-// SoC Sensor options
-//
+/**
+ * SoC Sensor options
+ */
 #if TEMP_SENSOR_SOC
   #define THERMAL_PROTECTION_SOC     // Halt the printer if the SoC sensor leaves the temp range below.
   #define SOC_MAXTEMP            85  // (°C)
@@ -494,8 +494,10 @@
   #endif
 #endif
 
-// Show Temperature ADC value
-// Enable for M105 to include ADC values read from temperature sensors.
+/**
+ * Show Temperature ADC value
+ * Enable for M105 to include ADC values read from temperature sensors.
+ */
 //#define SHOW_TEMP_ADC_VALUES
 
 /**
@@ -557,8 +559,10 @@
 
 // @section temperature
 
-// Calibration for AD595 / AD8495 sensor to adjust temperature measurements.
-// The final temperature is calculated as (measuredTemp * GAIN) + OFFSET.
+/**
+ * Calibration for AD595 / AD8495 sensor to adjust temperature measurements.
+ * The final temperature is calculated as (measuredTemp * GAIN) + OFFSET.
+ */
 #define TEMP_SENSOR_AD595_OFFSET  0.0
 #define TEMP_SENSOR_AD595_GAIN    1.0
 #define TEMP_SENSOR_AD8495_OFFSET 0.0
@@ -745,8 +749,8 @@
 #define FANMUX2_PIN -1
 
 /**
- * @section caselight
  * M355 Case Light on-off / brightness
+ * @section caselight
  */
 //#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
@@ -876,9 +880,9 @@
   #endif
 #endif
 
-//
-// Multi-Z steppers
-//
+/**
+ * Multi-Z steppers
+ */
 #ifdef Z2_DRIVER_TYPE
   //#define INVERT_Z2_VS_Z_DIR        // Z2 direction signal is the opposite of Z
 
@@ -911,8 +915,10 @@
 
 // @section extruder
 
-// Activate a solenoid on the active extruder with M380. Disable all with M381.
-// Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+/**
+ * Activate a solenoid on the active extruder with M380. Disable all with M381.
+ * Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+ */
 //#define EXT_SOLENOID
 
 // @section homing
@@ -1079,9 +1085,9 @@
   #define HOME_AFTER_G34
 #endif
 
-//
-// Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
-//
+/**
+ * Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
+ */
 //#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
@@ -1277,10 +1283,10 @@
   #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
 
-//
-// Backlash Compensation
-// Adds extra movement to axes on direction-changes to account for backlash.
-//
+/**
+ * Backlash Compensation
+ * Adds extra movement to axes on direction-changes to account for backlash.
+ */
 //#define BACKLASH_COMPENSATION
 #if ENABLED(BACKLASH_COMPENSATION)
   // Define values for backlash distance and correction.
@@ -2031,9 +2037,9 @@
   //#define OVERLAY_GFX_REVERSE       // Swap the CW/CCW indicators in the graphics overlay
 #endif
 
-//
-// Additional options for DGUS / DWIN displays
-//
+/**
+ * Additional options for DGUS / DWIN displays
+ */
 #if HAS_DGUS_LCD
   #define LCD_BAUDRATE 115200
 
@@ -2083,9 +2089,9 @@
   #endif
 #endif // HAS_DGUS_LCD
 
-//
-// Additional options for AnyCubic Chiron TFT displays
-//
+/**
+ * Additional options for AnyCubic Chiron TFT displays
+ */
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
   // By default the type of panel is automatically detected.
   // Enable one of these options if you know the panel type.
@@ -2108,9 +2114,9 @@
   #define AC_SD_FOLDER_VIEW
 #endif
 
-//
-// Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
-//
+/**
+ * Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
+ */
 #if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI, ANYCUBIC_LCD_VYPER)
   //#define LCD_LANGUAGE_2 fr
   //#define LCD_LANGUAGE_3 de
@@ -2121,9 +2127,9 @@
   #endif
 #endif
 
-//
-// Touch UI for the FTDI Embedded Video Engine (EVE)
-//
+/**
+ * Touch UI for the FTDI Embedded Video Engine (EVE)
+ */
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   // Display board used
   //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
@@ -2221,18 +2227,18 @@
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
 
-//
-// LCD Backlight Timeout
-// Requires a display with a controllable backlight
-//
+/**
+ * LCD Backlight Timeout
+ * Requires a display with a controllable backlight
+ */
 //#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
 #if defined(DISPLAY_SLEEP_MINUTES) || defined(LCD_BACKLIGHT_TIMEOUT_MINS)
   #define EDITABLE_DISPLAY_TIMEOUT      // Edit timeout with M255 S<minutes> and a menu item
 #endif
 
-//
-// ADC Button Debounce
-//
+/**
+ * ADC Button Debounce
+ */
 #if HAS_ADC_BUTTONS
   #define ADC_BUTTON_DEBOUNCE_DELAY 16  // Increase if buttons bounce or repeat too fast
 #endif
@@ -2260,7 +2266,7 @@
  * the current position values. This feature is used primarily to adjust the Z
  * axis in the first layer of a print in real-time.
  *
- * Warning: Does not respect endstops!
+ * WARNING: Does not respect endstops!
  */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
@@ -2392,7 +2398,8 @@
 #endif
 
 #if ALL(AUTO_BED_LEVELING_UBL, EEPROM_SETTINGS)
-  //#define OPTIMIZED_MESH_STORAGE  // Store mesh with less precision to save EEPROM space
+  // Store mesh with less precision to save EEPROM space
+  //#define OPTIMIZED_MESH_STORAGE
 #endif
 
 /**
@@ -2483,14 +2490,14 @@
 
 // @section extras
 
-//
-// G60/G61 Position Save and Return
-//
-//#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+/**
+ * G60/G61 Position Save and Return
+ */
+//#define SAVED_POSITIONS 1           // Each saved position slot costs 12 bytes
 
-//
-// G2/G3 Arc Support
-//
+/**
+ * G2/G3 Arc Support
+ */
 #define ARC_SUPPORT                   // Requires ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
   #define MIN_ARC_SEGMENT_MM      0.1 // (mm) Minimum length of each arc segment
@@ -2502,11 +2509,14 @@
   //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
-// G5 Bézier Curve Support with XYZE destination and IJPQ offsets
+/**
+ * G5 Bézier Curve Support with XYZE destination and IJPQ offsets
+ */
 //#define BEZIER_CURVE_SUPPORT        // Requires ~2666 bytes
 
 #if ANY(ARC_SUPPORT, BEZIER_CURVE_SUPPORT)
-  //#define CNC_WORKSPACE_PLANES      // Allow G2/G3/G5 to operate in XY, ZX, or YZ planes
+  // Allow G2/G3/G5 to operate in XY, ZX, or YZ planes
+  //#define CNC_WORKSPACE_PLANES
 #endif
 
 /**
@@ -2606,19 +2616,23 @@
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-// Transmission to Host Buffer Size
-// To save 386 bytes of flash (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
-// To buffer a simple "ok" you need 4 bytes.
-// For ADVANCED_OK (M105) you need 32 bytes.
-// For debug-echo: 128 bytes for the optimal speed.
-// Other output doesn't need to be that speedy.
-// :[0, 2, 4, 8, 16, 32, 64, 128, 256]
+/**
+ * Transmission to Host Buffer Size
+ * To save 386 bytes of flash (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
+ * To buffer a simple "ok" you need 4 bytes.
+ * For ADVANCED_OK (M105) you need 32 bytes.
+ * For debug-echo: 128 bytes for the optimal speed.
+ * Other output doesn't need to be that speedy.
+ * :[0, 2, 4, 8, 16, 32, 64, 128, 256]
+ */
 #define TX_BUFFER_SIZE 0
 
-// Host Receive Buffer Size
-// Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
-// To use flow control, set this buffer size to at least 1024 bytes.
-// :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+/**
+ * Host Receive Buffer Size
+ * Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
+ * To use flow control, set this buffer size to at least 1024 bytes.
+ * :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+ */
 //#define RX_BUFFER_SIZE 1024
 
 #if RX_BUFFER_SIZE >= 1024
@@ -2637,10 +2651,12 @@
   //#define SERIAL_STATS_DROPPED_RX
 #endif
 
-// Monitor RX buffer usage
-// Dump an error to the serial port if the serial receive buffer overflows.
-// If you see these errors, increase the RX_BUFFER_SIZE value.
-// Not supported on all platforms.
+/**
+ * Monitor RX buffer usage
+ * Dump an error to the serial port if the serial receive buffer overflows.
+ * If you see these errors, increase the RX_BUFFER_SIZE value.
+ * Not supported on all platforms.
+ */
 //#define RX_BUFFER_MONITOR
 
 /**
@@ -4480,19 +4496,19 @@
 
 // @section develop
 
-//
-// M100 Free Memory Watcher to debug memory usage
-//
+/**
+ * M100 Free Memory Watcher to debug memory usage
+ */
 //#define M100_FREE_MEMORY_WATCHER
 
-//
-// M42 - Set pin states
-//
+/**
+ * M42 - Set pin states
+ */
 //#define DIRECT_PIN_CONTROL
 
-//
-// M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
-//
+/**
+ * M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
+ */
 //#define PINS_DEBUGGING
 
 // Enable Tests that will run at startup and produce a report
