@@ -75,7 +75,7 @@
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
  * Serial port -1 is the USB emulated serial port, if available.
- * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
+ * NOTE: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
@@ -650,22 +650,22 @@
 #define COOLER_OVERSHOOT  2   // (°C) Forbid temperatures closer than OVERSHOOT
 
 //===========================================================================
-//============================= PID Settings ================================
+//==================== PID > Hotend Temperature Control =====================
 //===========================================================================
 
 // @section hotend temp
 
 /**
- * Temperature Control
+ * PID Temperature Control
  *
  *  (NONE) : Bang-bang heating
- * PIDTEMP : PID temperature control (~4.1K)
- * MPCTEMP : Predictive Model temperature control. (~1.8K without auto-tune)
+ *
+ * NOTE: See the PID Tuning Guide at https://reprap.org/wiki/PID_Tuning
  */
-#define PIDTEMP           // See the PID Tuning Guide at https://reprap.org/wiki/PID_Tuning
-//#define MPCTEMP         // ** EXPERIMENTAL ** See https://marlinfw.org/docs/features/model_predictive_control.html
+#define PIDTEMP           // PID temperature control (~4.1K)
 
-#define PID_MAX  255      // Limit hotend current while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+// Limit hotend current while PID is active (see PID_FUNCTIONAL_RANGE below)
+#define PID_MAX  255      // 255=full current
 #define PID_K1     0.95   // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
@@ -689,13 +689,17 @@
 #endif
 
 /**
- * Model Predictive Control for hotend
+ * ** EXPERIMENTAL **
+ * Model Predictive Control (MPC) for hotend
  *
  * Use a physical model of the hotend to control temperature. When configured correctly this gives
  * better responsiveness and stability than PID and removes the need for PID_EXTRUSION_SCALING
  * and PID_FAN_SCALING. Enable MPC_AUTOTUNE and use M306 T to autotune the model.
+ *
+ * NOTE: See https://marlinfw.org/docs/features/model_predictive_control.html
  * @section mpctemp
  */
+//#define MPCTEMP                                     // Predictive Model temperature control. (~1.8K without auto-tune)
 #if ENABLED(MPCTEMP)
   #define MPC_AUTOTUNE                                // Include a method to do MPC auto-tuning (~6.3K bytes of flash)
   //#define MPC_EDIT_MENU                             // Add MPC editing to the "Advanced Settings" menu. (~1.3K bytes of flash)
@@ -851,7 +855,7 @@
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
- * Note: For Bowden Extruders make this large enough to allow load/unload.
+ * NOTE: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
 #define EXTRUDE_MAXLENGTH 200
@@ -884,8 +888,10 @@
 
 // @section machine
 
-// Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
-// either in the usual order or reversed
+/**
+ * Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
+ * either in the usual order or reversed
+ */
 //#define COREXY
 //#define COREXZ
 //#define COREYZ
@@ -893,10 +899,10 @@
 //#define COREZX
 //#define COREZY
 
-//
-// MarkForged Kinematics
-// See https://reprap.org/forum/read.php?152,504042
-//
+/**
+ * MarkForged Kinematics
+ * See https://reprap.org/forum/read.php?152,504042
+ */
 //#define MARKFORGED_XY
 //#define MARKFORGED_YX
 #if ANY(MARKFORGED_XY, MARKFORGED_YX)
@@ -1219,7 +1225,7 @@
  *
  * These settings can be reset by M502
  *
- * Note that if EEPROM is enabled, saved values will override these.
+ * NOTE: that if EEPROM is enabled, saved values will override these.
  */
 
 /**
@@ -1331,9 +1337,9 @@
 //===========================================================================
 // @section probes
 
-//
-// See https://marlinfw.org/docs/configuration/probes.html
-//
+/**
+ * See https://marlinfw.org/docs/configuration/probes.html
+ */
 
 /**
  * Enable this option for a probe connected to the Z-MIN pin.
@@ -1477,8 +1483,10 @@
   #define MAG_MOUNTED_STOW_5   { PROBE_STOW_FEEDRATE,   {   0,   0,  0 } }  // Extra move if needed
 #endif
 
-// Duet Smart Effector (for delta printers) - https://docs.duet3d.com/en/Duet3D_hardware/Accessories/Smart_Effector
-// When the pin is defined you can use M672 to set/reset the probe sensitivity.
+/**
+ *  Duet Smart Effector (for delta printers) - https://docs.duet3d.com/en/Duet3D_hardware/Accessories/Smart_Effector
+ *  When the pin is defined you can use M672 to set/reset the probe sensitivity.
+ */
 //#define DUET_SMART_EFFECTOR
 #if ENABLED(DUET_SMART_EFFECTOR)
   #define SMART_EFFECTOR_MOD_PIN  -1  // Connect a GPIO pin to the Smart Effector MOD pin
@@ -1696,8 +1704,10 @@
   #define PROBING_BED_TEMP     50
 #endif
 
-// For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-// :{ 0:'Low', 1:'High' }
+/**
+ * For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
+ * :{ 0:'Low', 1:'High' }
+ */
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
@@ -1709,8 +1719,10 @@
 //#define V_ENABLE_ON 0
 //#define W_ENABLE_ON 0
 
-// Disable axis steppers immediately when they're not being stepped.
-// WARNING: When motors turn off there is a chance of losing position accuracy!
+/**
+ * Disable axis steppers immediately when they're not being stepped.
+ * WARNING: When motors turn off there is a chance of losing position accuracy!
+ */
 //#define DISABLE_X
 //#define DISABLE_Y
 //#define DISABLE_Z
@@ -1731,7 +1743,8 @@
 
 // @section motion
 
-// Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
+// Invert the stepper direction.
+// Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
@@ -1756,8 +1769,17 @@
 
 // @section homing
 
-//#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
-//#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
+/**
+ * Inhibit movement until all axes have been homed.
+ * Also enable HOME_AFTER_DEACTIVATE for extra safety.
+ */
+//#define NO_MOTION_BEFORE_HOMING
+
+/**
+ * Require rehoming after steppers are deactivated.
+ * Also enable NO_MOTION_BEFORE_HOMING for extra safety.
+ */
+//#define HOME_AFTER_DEACTIVATE
 
 /**
  * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
@@ -1884,7 +1906,8 @@
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
-  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder.
+                                          // Define a FIL_RUNOUT#_PIN for each.
 
   #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
@@ -1925,27 +1948,33 @@
   //#define FIL_RUNOUT8_PULLUP
   //#define FIL_RUNOUT8_PULLDOWN
 
-  // Commands to execute on filament runout.
-  // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
-  // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
+  /**
+   * Commands to execute on filament runout.
+   * With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
+   * NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
+   */
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
-  // After a runout is detected, continue printing this length of filament
-  // before executing the runout script. Useful for a sensor at the end of
-  // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+  /**
+   * After a runout is detected, continue printing this length of filament
+   * before executing the runout script. Useful for a sensor at the end of
+   * a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+   */
   //#define FILAMENT_RUNOUT_DISTANCE_MM 25
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    // Enable this option to use an encoder disc that toggles the runout pin
-    // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
-    // large enough to avoid false positives.)
+    /**
+     * Enable this option to use an encoder disc that toggles the runout pin
+     * as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+     * large enough to avoid false positives.)
+     */
     //#define FILAMENT_MOTION_SENSOR
 
     #if ENABLED(FILAMENT_MOTION_SENSOR)
       //#define FILAMENT_SWITCH_AND_MOTION
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_MOTION#_PIN for each.
-        //#define FIL_MOTION1_PIN    -1
+        #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder.
+        //#define FIL_MOTION1_PIN    -1         // Define a FIL_MOTION#_PIN for each.
 
         // Override individually if the motion sensors vary
         //#define FIL_MOTION1_STATE LOW
@@ -2109,14 +2138,16 @@
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-    // Beyond the probed grid, continue the implied tilt?
-    // Default is to maintain the height of the nearest edge.
+    /**
+     * Beyond the probed grid, continue the implied tilt?
+     * Default is to maintain the height of the nearest edge.
+     */
     //#define EXTRAPOLATE_BEYOND_GRID
 
-    //
-    // Subdivision of the grid by Catmull-Rom method.
-    // Synthesizes intermediate points to produce a more detailed mesh.
-    //
+    /**
+     * Subdivision of the grid by Catmull-Rom method.
+     * Synthesizes intermediate points to produce a more detailed mesh.
+     */
     //#define ABL_BILINEAR_SUBDIVISION
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
@@ -2218,7 +2249,7 @@
    *  LF  Left-Front    RF  Right-Front
    *  LB  Left-Back     RB  Right-Back
    *
-   * Examples:
+   * EXAMPLES:
    *
    *      Default        {LF,RB,LB,RF}         {LF,RF}           {LB,LF}
    *  LB --------- RB   LB --------- RB    LB --------- RB   LB --------- RB
@@ -2350,35 +2381,34 @@
   //#define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.
 #endif
 
-// @section host
-
-//
-// Host Keepalive
-//
-// When enabled Marlin will send a busy status message to the host
-// every couple of seconds when it can't accept commands.
-//
+/**
+ * Host Keepalive
+ *
+ * When enabled Marlin will send a busy status message to the host
+ * every couple of seconds when it can't accept commands.
+ * @section host
+ */
 #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 // @section units
 
-//
-// G20/G21 Inch mode support
-//
+ /**
+ *  G20/G21 Inch mode support
+ */
 //#define INCH_MODE_SUPPORT
 
-//
-// M149 Set temperature units support
-//
+/**
+ * M149 Set temperature units support
+ */
 //#define TEMPERATURE_UNITS_SUPPORT
 
 // @section temperature
 
-//
-// Preheat Constants - Up to 10 are supported without changes
-//
+/**
+ * Preheat Constants - Up to 10 are supported without changes
+ */
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
 #define PREHEAT_1_TEMP_BED     70
@@ -2597,7 +2627,7 @@
 /**
  * LCD Character Set
  *
- * Note: This option is NOT applicable to Graphical Displays.
+ * NOTE: This option is NOT applicable to Graphical Displays.
  *
  * All character-based LCDs provide ASCII plus one of these
  * language extensions:
@@ -2649,18 +2679,19 @@
 //#define NO_LCD_MENUS
 //#define SLIM_LCD_MENUS
 
-//
-// ENCODER SETTINGS
-//
-// This option overrides the default number of encoder pulses needed to
-// produce one step. Should be increased for high-resolution encoders.
-//
+/**
+ * ENCODER SETTINGS
+ *
+ * This option overrides the default number of encoder pulses needed to
+ * produce one step. Should be increased for high-resolution encoders.
+ * @section encoder
+ */
 //#define ENCODER_PULSES_PER_STEP 4
 
-//
-// Use this option to override the number of step signals required to
-// move between next/prev menu items.
-//
+/**
+ * Use this option to override the number of step signals required to
+ * move between next/prev menu items.
+ */
 //#define ENCODER_STEPS_PER_MENU_ITEM 1
 
 /**
@@ -2673,75 +2704,75 @@
  *  Reversed Value Editing only?      Enable BOTH options.
  */
 
-//
-// This option reverses the encoder direction everywhere.
-//
-//  Set this option if CLOCKWISE causes values to DECREASE
-//
+/**
+ * This option reverses the encoder direction everywhere:
+ *
+ *  If CLOCKWISE causes values to DECREASE.
+ */
 //#define REVERSE_ENCODER_DIRECTION
 
-//
-// This option reverses the encoder direction for navigating LCD menus.
-//
-//  If CLOCKWISE normally moves DOWN this makes it go UP.
-//  If CLOCKWISE normally moves UP this makes it go DOWN.
-//
+/**
+ * This option reverses the encoder direction for navigating LCD menus:
+ *
+ *  If CLOCKWISE normally moves DOWN this makes it go UP.
+ *  If CLOCKWISE normally moves UP this makes it go DOWN.
+ */
 //#define REVERSE_MENU_DIRECTION
 
-//
-// This option reverses the encoder direction for Select Screen.
-//
-//  If CLOCKWISE normally moves LEFT this makes it go RIGHT.
-//  If CLOCKWISE normally moves RIGHT this makes it go LEFT.
-//
+/**
+ *  This option reverses the encoder direction for Select Screen.
+ *
+ *   If CLOCKWISE normally moves LEFT this makes it go RIGHT.
+ *   If CLOCKWISE normally moves RIGHT this makes it go LEFT.
+ */
 //#define REVERSE_SELECT_DIRECTION
 
-//
-// Encoder EMI Noise Filter
-//
-// This option increases encoder samples to filter out phantom encoder clicks caused by EMI noise.
-//
+/**
+ * Encoder EMI Noise Filter
+ *
+ * This option increases encoder samples to filter out phantom encoder clicks caused by EMI noise.
+ */
 //#define ENCODER_NOISE_FILTER
 #if ENABLED(ENCODER_NOISE_FILTER)
   #define ENCODER_SAMPLES 10
 #endif
 
-//
-// Individual Axis Homing
-//
-// Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
-//
+/**
+ * Individual Axis Homing
+ * Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
+ */
 //#define INDIVIDUAL_AXIS_HOMING_MENU
 //#define INDIVIDUAL_AXIS_HOMING_SUBMENU
 
-//
-// SPEAKER/BUZZER
-//
-// If you have a speaker that can produce tones, enable it here.
-// By default Marlin assumes you have a buzzer with a fixed frequency.
-//
+/**
+ * SPEAKER/BUZZER
+ *
+ * If you have a speaker that can produce tones, enable it here.
+ * By default Marlin assumes you have a buzzer with a fixed frequency.
+ * @section speaker
+ */
 //#define SPEAKER
 
-//
-// The duration and frequency for the UI feedback sound.
-// Set these to 0 to disable audio feedback in the LCD menus.
-//
-// Note: Test audio output with the G-Code:
-//  M300 S<frequency Hz> P<duration ms>
-//
+/**
+ * The duration and frequency for the UI feedback sound.
+ * Set these to 0 to disable audio feedback in the LCD menus.
+ *
+ * NOTE: Test audio output with the G-Code:
+ *  M300 S<frequency Hz> P<duration ms>
+ */
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
 //#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
-//
-// Tone queue size, used to keep beeps from blocking execution.
-// Default is 4, or override here. Costs 4 bytes of SRAM per entry.
-//
+/**
+ * Tone queue size, used to keep beeps from blocking execution.
+ * Default is 4, or override here. Costs 4 bytes of SRAM per entry.
+ */
 //#define TONE_QUEUE_LENGTH 4
 
-//
-// A sequence of tones to play at startup, in pairs of tone (Hz), duration (ms).
-// Silence in-between tones.
-//
+/**
+ * A sequence of tones to play at startup, in pairs of tone (Hz), duration (ms).
+ * Silence in-between tones.
+ */
 //#define STARTUP_TUNE { 698, 300, 0, 50, 523, 50, 0, 25, 494, 50, 0, 25, 523, 100, 0, 50, 554, 300, 0, 100, 523, 300 }
 
 //=============================================================================
@@ -2750,74 +2781,76 @@
 //=============================================================================
 // @section lcd
 
-//
-// RepRapDiscount Smart Controller.
-// https://reprap.org/wiki/RepRapDiscount_Smart_Controller
-//
-// Note: Usually sold with a white PCB.
-//
+/**
+ * RepRapDiscount Smart Controller.
+ * https://reprap.org/wiki/RepRapDiscount_Smart_Controller
+ *
+ * NOTE: Usually sold with a white PCB.
+ */
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
-//
-// GT2560 (YHCB2004) LCD Display
-//
-// Requires Testato, Koepel softwarewire library and
-// Andriy Golovnya's LiquidCrystal_AIP31068 library.
-//
+/**
+ * GT2560 (YHCB2004) LCD Display
+ *
+ * Requires Testato, Koepel softwarewire library and
+ * Andriy Golovnya's LiquidCrystal_AIP31068 library.
+ */
 //#define YHCB2004
 
-//
-// Original RADDS LCD Display+Encoder+SDCardReader
-// https://web.archive.org/web/20200719145306/http://doku.radds.org/dokumentation/lcd-display/
-//
+/**
+ * Original RADDS LCD Display+Encoder+SDCardReader
+ * https://web.archive.org/web/20200719145306/http://doku.radds.org/dokumentation/lcd-display/
+ */
 //#define RADDS_DISPLAY
 
-//
-// ULTIMAKER Controller.
-//
+/**
+ * ULTIMAKER Controller.
+ */
 //#define ULTIMAKERCONTROLLER
 
-//
-// ULTIPANEL as seen on Thingiverse.
-//
+/**
+ * ULTIPANEL as seen on Thingiverse.
+ */
 //#define ULTIPANEL
 
-//
-// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
-// https://reprap.org/wiki/PanelOne
-//
+/**
+ * PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
+ * https://reprap.org/wiki/PanelOne
+ */
 //#define PANEL_ONE
 
-//
-// GADGETS3D G3D LCD/SD Controller
-// https://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
-//
-// Note: Usually sold with a blue PCB.
-//
+/**
+ * GADGETS3D G3D LCD/SD Controller
+ * https://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+ *
+ * NOTE: Usually sold with a blue PCB.
+ */
 //#define G3D_PANEL
 
-//
-// RigidBot Panel V1.0
-//
+/**
+ * RigidBot Panel V1.0
+ */
 //#define RIGIDBOT_PANEL
 
-//
-// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
-// https://www.aliexpress.com/item/32765887917.html
-//
+/**
+ * Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
+ * https://www.aliexpress.com/item/32765887917.html
+ */
 //#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
 
-//
-// ANET and Tronxy 20x4 Controller
-//
-//#define ZONESTAR_LCD            // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
-                                  // This LCD is known to be susceptible to electrical interference
-                                  // which scrambles the display.  Pressing any button clears it up.
-                                  // This is a LCD2004 display with 5 analog buttons.
+/**
+ * ANET and Tronxy 20x4 Controller
+ *
+ * NOTE: Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
+ * This LCD is known to be susceptible to electrical interference
+ * which scrambles the display.  Pressing any button clears it up.
+ * This is a LCD2004 display with 5 analog buttons.
+ */
+//#define ZONESTAR_LCD
 
-//
-// Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
-//
+/**
+ * Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
+ */
 //#define ULTRA_LCD
 
 //=============================================================================
@@ -2825,74 +2858,74 @@
 //=====================   (I2C and Shift-Register LCDs)   =====================
 //=============================================================================
 
-//
-// CONTROLLER TYPE: I2C
-//
-// Note: These controllers require the installation of Arduino's LiquidCrystal_I2C
-// library. For more info: https://github.com/kiyoshigawa/LiquidCrystal_I2C
-//
+/**
+ * CONTROLLER TYPE: I2C
+ *
+ * NOTE: These controllers require the installation of Arduino's LiquidCrystal_I2C
+ * library. For more info: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+ */
 
-//
-// Elefu RA Board Control Panel
-// https://web.archive.org/web/20140823033947/http://www.elefu.com/index.php?route=product/product&product_id=53
-//
+/**
+ * Elefu RA Board Control Panel
+ * https://web.archive.org/web/20140823033947/http://www.elefu.com/index.php?route=product/product&product_id=53
+ */
 //#define RA_CONTROL_PANEL
 
-//
-// Sainsmart (YwRobot) LCD Displays
-//
-// These require LiquidCrystal_I2C library:
-//   https://github.com/MarlinFirmware/New-LiquidCrystal
-//   https://github.com/fmalpartida/New-LiquidCrystal/wiki
-//
+/**
+ * Sainsmart (YwRobot) LCD Displays
+ *
+ * These require LiquidCrystal_I2C library:
+ *  https://github.com/MarlinFirmware/New-LiquidCrystal
+ *  https://github.com/fmalpartida/New-LiquidCrystal/wiki
+ */
 //#define LCD_SAINSMART_I2C_1602
 //#define LCD_SAINSMART_I2C_2004
 
-//
-// Generic LCM1602 LCD adapter
-//
+/**
+ * Generic LCM1602 LCD adapter
+ */
 //#define LCM1602
 
-//
-// PANELOLU2 LCD with status LEDs,
-// separate encoder and click inputs.
-//
-// Note: This controller requires Arduino's LiquidTWI2 library v1.2.3 or later.
-// For more info: https://github.com/lincomatic/LiquidTWI2
-//
-// Note: The PANELOLU2 encoder click input can either be directly connected to
-// a pin (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
-//
+/**
+ * PANELOLU2 LCD with status LEDs,
+ * separate encoder and click inputs.
+ *
+ * NOTE: This controller requires Arduino's LiquidTWI2 library v1.2.3 or later.
+ * For more info: https://github.com/lincomatic/LiquidTWI2
+ *
+ * NOTE: The PANELOLU2 encoder click input can either be directly connected to
+ * a pin (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
+ */
 //#define LCD_I2C_PANELOLU2
 
-//
-// Panucatt VIKI LCD with status LEDs,
-// integrated click & L/R/U/D buttons, separate encoder inputs.
-//
+/**
+ * Panucatt VIKI LCD with status LEDs,
+ * integrated click & L/R/U/D buttons, separate encoder inputs.
+ */
 //#define LCD_I2C_VIKI
 
-//
-// CONTROLLER TYPE: Shift register panels
-//
+/**
+ * CONTROLLER TYPE: Shift register panels
+ */
 
-//
-// 2-wire Non-latching LCD SR from https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
-// LCD configuration: https://reprap.org/wiki/SAV_3D_LCD
-//
+/**
+ * 2-wire Non-latching LCD SR from https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+ * LCD configuration: https://reprap.org/wiki/SAV_3D_LCD
+ */
 //#define SAV_3DLCD
 
-//
-// 3-wire SR LCD with strobe using 74HC4094
-// https://github.com/mikeshub/SailfishLCD
-// Uses the code directly from Sailfish
-//
+/**
+ * 3-wire SR LCD with strobe using 74HC4094
+ * https://github.com/mikeshub/SailfishLCD
+ * Uses the code directly from Sailfish
+ *
 //#define FF_INTERFACEBOARD
 
-//
-// TFT GLCD Panel with Marlin UI
-// Panel connected to main board by SPI or I2C interface.
-// See https://github.com/Serhiy-K/TFTGLCDAdapter
-//
+/**
+ * TFT GLCD Panel with Marlin UI
+ * Panel connected to main board by SPI or I2C interface.
+ * See https://github.com/Serhiy-K/TFTGLCDAdapter
+ */
 //#define TFTGLCD_PANEL_SPI
 //#define TFTGLCD_PANEL_I2C
 
@@ -2901,223 +2934,225 @@
 //=========================      (Graphical LCDs)      ========================
 //=============================================================================
 
-//
-// CONTROLLER TYPE: Graphical 128x64 (DOGM)
-//
-// IMPORTANT: The U8glib library is required for Graphical Display!
-//            https://github.com/olikraus/U8glib_Arduino
-//
-// NOTE: If the LCD is unresponsive you may need to reverse the plugs.
-//
+/**
+ * CONTROLLER TYPE: Graphical 128x64 (DOGM)
+ *
+ * IMPORTANT: The U8glib library is required for Graphical Display!
+ *            https://github.com/olikraus/U8glib_Arduino
+ *
+ * NOTE: If the LCD is unresponsive you may need to reverse the plugs.
+ */
 
-//
-// RepRapDiscount FULL GRAPHIC Smart Controller
-// https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
-//
+/**
+ * RepRapDiscount FULL GRAPHIC Smart Controller
+ * https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+ */
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
-//
-// K.3D Full Graphic Smart Controller
-//
+/**
+ * K.3D Full Graphic Smart Controller
+ */
 //#define K3D_FULL_GRAPHIC_SMART_CONTROLLER
 
-//
-// ReprapWorld Graphical LCD
-// https://reprapworld.com/electronics/3d-printer-modules/autonomous-printing/graphical-lcd-screen-v1-0/
-//
+/**
+ * ReprapWorld Graphical LCD
+ * https://reprapworld.com/electronics/3d-printer-modules/autonomous-printing/graphical-lcd-screen-v1-0/
+ */
 //#define REPRAPWORLD_GRAPHICAL_LCD
 
-//
-// Activate one of these if you have a Panucatt Devices
-// Viki 2.0 or mini Viki with Graphic LCD
-// https://www.panucatt.com
-//
+/**
+ * Activate one of these if you have a Panucatt Devices
+ * Viki 2.0 or mini Viki with Graphic LCD
+ * https://www.panucatt.com
+ */
 //#define VIKI2
 //#define miniVIKI
 
-//
-// Alfawise Ex8 printer LCD marked as WYH L12864 COG
-//
+/**
+ *Alfawise Ex8 printer LCD marked as WYH L12864 COG
+ */
 //#define WYH_L12864
 
-//
-// MakerLab Mini Panel with graphic
-// controller and SD support - https://reprap.org/wiki/Mini_panel
-//
+/**
+ * MakerLab Mini Panel with graphic
+ * controller and SD support - https://reprap.org/wiki/Mini_panel
+ */
 //#define MINIPANEL
 
-//
-// MaKr3d Makr-Panel with graphic controller and SD support.
-// https://reprap.org/wiki/MaKrPanel
-//
+/**
+ * MaKr3d Makr-Panel with graphic controller and SD support.
+ * https://reprap.org/wiki/MaKrPanel
+ */
 //#define MAKRPANEL
 
-//
-// Adafruit ST7565 Full Graphic Controller.
-// https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
-//
+/**
+ * Adafruit ST7565 Full Graphic Controller.
+ * https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
+ */
 //#define ELB_FULL_GRAPHIC_CONTROLLER
 
-//
-// BQ LCD Smart Controller shipped by
-// default with the BQ Hephestos 2 and Witbox 2.
-//
+/**
+ * BQ LCD Smart Controller shipped by
+ * default with the BQ Hephestos 2 and Witbox 2.
+ */
 //#define BQ_LCD_SMART_CONTROLLER
 
-//
-// Cartesio UI
-// https://web.archive.org/web/20180605050442/http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
-//
+/**
+ * Cartesio UI
+ * https://web.archive.org/web/20180605050442/http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
+ */
 //#define CARTESIO_UI
 
-//
-// LCD for Melzi Card with Graphical LCD
-//
+/**
+ * LCD for Melzi Card with Graphical LCD
+ */
 //#define LCD_FOR_MELZI
 
-//
-// Original Ulticontroller from Ultimaker 2 printer with SSD1309 I2C display and encoder
-// https://github.com/Ultimaker/Ultimaker2/tree/master/1249_Ulticontroller_Board_(x1)
-//
+/**
+ * Original Ulticontroller from Ultimaker 2 printer with SSD1309 I2C display and encoder
+ * https://github.com/Ultimaker/Ultimaker2/tree/master/1249_Ulticontroller_Board_(x1)
+ */
 //#define ULTI_CONTROLLER
 
-//
-// MKS MINI12864 with graphic controller and SD support
-// https://reprap.org/wiki/MKS_MINI_12864
-//
+/**
+ * MKS MINI12864 with graphic controller and SD support
+ * https://reprap.org/wiki/MKS_MINI_12864
+ */
 //#define MKS_MINI_12864
 
-//
-// MKS MINI12864 V3 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
-//
+/**
+ *
+ * MKS MINI12864 V3 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+ */
 //#define MKS_MINI_12864_V3
 
-//
-// MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
-// https://www.aliexpress.com/item/33018110072.html
-//
+/**
+ * MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
+ * https://www.aliexpress.com/item/33018110072.html
+ */
 //#define MKS_LCD12864A
 //#define MKS_LCD12864B
 
-//
-// FYSETC variant of the MINI12864 graphic controller with SD support
-// https://wiki.fysetc.com/Mini12864_Panel/
-//
+/**
+ * FYSETC variant of the MINI12864 graphic controller with SD support
+ * https://wiki.fysetc.com/Mini12864_Panel/
+ */
 //#define FYSETC_MINI_12864_X_X    // Type C/D/E/F. No tunable RGB Backlight by default
 //#define FYSETC_MINI_12864_1_2    // Type C/D/E/F. Simple RGB Backlight (always on)
 //#define FYSETC_MINI_12864_2_0    // Type A/B. Discreet RGB Backlight
 //#define FYSETC_MINI_12864_2_1    // Type A/B. NeoPixel RGB Backlight
 //#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
-//
-// BigTreeTech Mini 12864 V1.0 / V2.0 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
-// https://github.com/bigtreetech/MINI-12864
-//
+/**
+ * BigTreeTech Mini 12864 V1.0 / V2.0 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+ * https://github.com/bigtreetech/MINI-12864
+ */
 //#define BTT_MINI_12864
 
-//
-// BEEZ MINI 12864 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
-//
+/**
+ * BEEZ MINI 12864 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+ */
 //#define BEEZ_MINI_12864
 
-//
-// Factory display for Creality CR-10 / CR-7 / Ender-3
-// https://www.aliexpress.com/item/32833148327.html
-//
-// Connect to EXP1 on RAMPS and compatible boards.
-//
+/**
+ * Factory display for Creality CR-10 / CR-7 / Ender-3
+ * https://www.aliexpress.com/item/32833148327.html
+ *
+ * Connect to EXP1 on RAMPS and compatible boards.
+ */
 //#define CR10_STOCKDISPLAY
 
-//
-// Ender-2 OEM display, a variant of the MKS_MINI_12864
-//
+/**
+ * Ender-2 OEM display, a variant of the MKS_MINI_12864
+ */
 //#define ENDER2_STOCKDISPLAY
 
-//
-// ANET and Tronxy 128×64 Full Graphics Controller as used on Anet A6
-//
+/**
+ * ANET and Tronxy 128×64 Full Graphics Controller as used on Anet A6
+ */
 //#define ANET_FULL_GRAPHICS_LCD
 
-//
-// GUCOCO CTC 128×64 Full Graphics Controller as used on GUCOCO CTC A10S
-//
+/**
+ * GUCOCO CTC 128×64 Full Graphics Controller as used on GUCOCO CTC A10S
+ */
 //#define CTC_A10S_A13
 
-//
-// AZSMZ 12864 LCD with SD
-// https://www.aliexpress.com/item/32837222770.html
-//
+/**
+ * AZSMZ 12864 LCD with SD
+ * https://www.aliexpress.com/item/32837222770.html
+ */
 //#define AZSMZ_12864
 
-//
-// Silvergate GLCD controller
-// https://github.com/android444/Silvergate
-//
+/**
+ * Silvergate GLCD controller
+ * https://github.com/android444/Silvergate
+ */
 //#define SILVER_GATE_GLCD_CONTROLLER
 
-//
-// eMotion Tech LCD with SD
-// https://www.reprap-france.com/produit/1234568748-ecran-graphique-128-x-64-points-2-1
-//
+/**
+ * eMotion Tech LCD with SD
+ * https://www.reprap-france.com/produit/1234568748-ecran-graphique-128-x-64-points-2-1
+ */
 //#define EMOTION_TECH_LCD
 
 //=============================================================================
 //==============================  OLED Displays  ==============================
 //=============================================================================
 
-//
-// SSD1306 OLED full graphics generic display
-//
+/**
+ * SSD1306 OLED full graphics generic display
+ */
 //#define U8GLIB_SSD1306
 
-//
-// SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
-//
+/**
+ * SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
+ */
 //#define SAV_3DGLCD
 #if ENABLED(SAV_3DGLCD)
   #define U8GLIB_SSD1306
   //#define U8GLIB_SH1106
 #endif
 
-//
-// TinyBoy2 128x64 OLED / Encoder Panel
-//
+/**
+ * TinyBoy2 128x64 OLED / Encoder Panel
+ */
 //#define OLED_PANEL_TINYBOY2
 
-//
-// MKS OLED 1.3" 128×64 Full Graphics Controller
-// https://reprap.org/wiki/MKS_12864OLED
-//
-// Tiny, but very sharp OLED display
-//
+/**
+ * MKS OLED 1.3" 128×64 Full Graphics Controller
+ * https://reprap.org/wiki/MKS_12864OLED
+ *
+ * Tiny, but very sharp OLED display
+ */
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
-//
-// Zonestar OLED 128×64 Full Graphics Controller
-//
+/**
+ * Zonestar OLED 128×64 Full Graphics Controller
+ */
 //#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
 
-//
-// Einstart S OLED SSD1306
-//
+/**
+ * Einstart S OLED SSD1306
+ */
 //#define U8GLIB_SH1106_EINSTART
 
-//
-// Overlord OLED display/controller with i2c buzzer and LEDs
-//
+/**
+ * Overlord OLED display/controller with i2c buzzer and LEDs
+ */
 //#define OVERLORD_OLED
 
-//
-// FYSETC OLED 2.42" 128×64 Full Graphics Controller with WS2812 RGB
-// Where to find : https://www.aliexpress.com/item/4000345255731.html
+/**
+ * FYSETC OLED 2.42" 128×64 Full Graphics Controller with WS2812 RGB
+ * Where to find : https://www.aliexpress.com/item/4000345255731.html
+ */
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
 
-//
-// K.3D SSD1309 OLED 2.42" 128×64 Full Graphics Controller
-//
+/**
+ * K.3D SSD1309 OLED 2.42" 128×64 Full Graphics Controller
+ */
 //#define K3D_242_OLED_CONTROLLER   // Software SPI
 
 //=============================================================================
@@ -3174,44 +3209,44 @@
   //#define IA_CREALITY_BOOT_DELAY 1500   // (ms)
 #endif
 
-//
-// Touch-screen LCD for Malyan M200/M300 printers
-//
+/**
+ * Touch-screen LCD for Malyan M200/M300 printers
+ */
 //#define MALYAN_LCD
 
-//
-// Touch UI for FTDI EVE (FT800/FT810) displays
-// See Configuration_adv.h for all configuration options.
-//
+/**
+ * Touch UI for FTDI EVE (FT800/FT810) displays
+ * See Configuration_adv.h for all configuration options.
+ */
 //#define TOUCH_UI_FTDI_EVE
 
-//
-// Touch-screen LCD for Anycubic Chiron
-//
+/**
+ * Touch-screen LCD for Anycubic Chiron
+ */
 //#define ANYCUBIC_LCD_CHIRON
 
-//
-// Touch-screen LCD for Anycubic i3 Mega
-//
+/**
+ * Touch-screen LCD for Anycubic i3 Mega
+ */
 //#define ANYCUBIC_LCD_I3MEGA
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
   //#define ANYCUBIC_LCD_GCODE_EXT  // Add ".gcode" to menu entries for DGUS clone compatibility
 #endif
 
-//
-// Touch-screen LCD for Anycubic Vyper
-//
+/**
+ * Touch-screen LCD for Anycubic Vyper
+ */
 //#define ANYCUBIC_LCD_VYPER
 
-//
-// 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
-//
+/**
+ * 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
+ */
 //#define NEXTION_TFT
 
-//
-// Third-party or vendor-customized controller interfaces.
-// Sources should be installed in 'src/lcd/extui'.
-//
+/**
+ * Third-party or vendor-customized controller interfaces.
+ * Sources should be installed in 'src/lcd/extui'.
+ */
 //#define EXTENSIBLE_UI
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -3227,88 +3262,88 @@
  * or enable TFT_GENERIC and set sub-options.
  */
 
-//
-// 480x320, 3.5", SPI Display with Rotary Encoder from MKS
-// Usually paired with MKS Robin Nano V2 & V3
-// https://github.com/makerbase-mks/MKS-TFT-Hardware/tree/master/MKS%20TS35
-//
+/**
+ * 480x320, 3.5", SPI Display with Rotary Encoder from MKS
+ * Usually paired with MKS Robin Nano V2 & V3
+ * https://github.com/makerbase-mks/MKS-TFT-Hardware/tree/master/MKS%20TS35
+ */
 //#define MKS_TS35_V2_0
 
-//
-// 320x240, 2.4", FSMC Display From MKS
-// Usually paired with MKS Robin Nano V1.2
-//
+/**
+ * 320x240, 2.4", FSMC Display From MKS
+ * Usually paired with MKS Robin Nano V1.2
+ */
 //#define MKS_ROBIN_TFT24
 
-//
-// 320x240, 2.8", FSMC Display From MKS
-// Usually paired with MKS Robin Nano V1.2
-//
+/**
+ * 320x240, 2.8", FSMC Display From MKS
+ * Usually paired with MKS Robin Nano V1.2
+ */
 //#define MKS_ROBIN_TFT28
 
-//
-// 320x240, 3.2", FSMC Display From MKS
-// Usually paired with MKS Robin Nano V1.2
-//
+/**
+ * 320x240, 3.2", FSMC Display From MKS
+ * Usually paired with MKS Robin Nano V1.2
+ */
 //#define MKS_ROBIN_TFT32
 
-//
-// 480x320, 3.5", FSMC Display From MKS
-// Usually paired with MKS Robin Nano V1.2
-//
+/**
+ * 480x320, 3.5", FSMC Display From MKS
+ * Usually paired with MKS Robin Nano V1.2
+ */
 //#define MKS_ROBIN_TFT35
 
-//
-// 480x272, 4.3", FSMC Display From MKS
-//
+/**
+ *  480x272, 4.3", FSMC Display From MKS
+ */
 //#define MKS_ROBIN_TFT43
 
-//
-// 320x240, 3.2", FSMC Display From MKS
-// Usually paired with MKS Robin
-//
+/**
+ * 320x240, 3.2", FSMC Display From MKS
+ * Usually paired with MKS Robin
+ */
 //#define MKS_ROBIN_TFT_V1_1R
 
-//
-// 480x320, 3.5", FSMC Stock Display from Tronxy
-//
+/**
+ * 480x320, 3.5", FSMC Stock Display from Tronxy
+ */
 //#define TFT_TRONXY_X5SA
 
-//
-// 480x320, 3.5", FSMC Stock Display from AnyCubic
-//
+/**
+ * 480x320, 3.5", FSMC Stock Display from AnyCubic
+ */
 //#define ANYCUBIC_TFT35
 
-//
-// 320x240, 2.8", FSMC Stock Display from Longer/Alfawise
-//
+/**
+ * 320x240, 2.8", FSMC Stock Display from Longer/Alfawise
+ */
 //#define LONGER_LK_TFT28
 
-//
-// 320x240, 2.8", FSMC Stock Display from ET4
-//
+/**
+ * 320x240, 2.8", FSMC Stock Display from ET4
+ */
 //#define ANET_ET4_TFT28
 
-//
-// 480x320, 3.5", FSMC Stock Display from ET5
-//
+/**
+ * 480x320, 3.5", FSMC Stock Display from ET5
+ */
 //#define ANET_ET5_TFT35
 
-//
-// 1024x600, 7", RGB Stock Display with Rotary Encoder from BIQU BX
-// https://github.com/bigtreetech/BIQU-BX/tree/master/Hardware
-//
+/**
+ * 1024x600, 7", RGB Stock Display with Rotary Encoder from BIQU BX
+ * https://github.com/bigtreetech/BIQU-BX/tree/master/Hardware
+ */
 //#define BIQU_BX_TFT70
 
-//
-// 480x320, 3.5", SPI Stock Display with Rotary Encoder from BIQU B1 SE Series
-// https://github.com/bigtreetech/TFT35-SPI/tree/master/v1
-//
+/**
+ * 480x320, 3.5", SPI Stock Display with Rotary Encoder from BIQU B1 SE Series
+ * https://github.com/bigtreetech/TFT35-SPI/tree/master/v1
+ */
 //#define BTT_TFT35_SPI_V1_0
 
-//
-// Generic TFT with detailed options
-//
+/**
+ * Generic TFT with detailed options
+ */
 //#define TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
   // :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
@@ -3381,18 +3416,18 @@
 //============================  Other Controllers  ============================
 //=============================================================================
 
-//
-// Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
-//
+/**
+ * Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
+ */
 //#define DWIN_CREALITY_LCD           // Creality UI
 //#define DWIN_LCD_PROUI              // Pro UI by MRiscoC
 //#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
 //#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
 //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
-//
-// Touch Screen Settings
-//
+/**
+ * Touch Screen Settings
+ */
 //#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT      50 // (ms) Button repeat delay for edit screens
@@ -3418,10 +3453,10 @@
   #endif
 #endif
 
-//
-// RepRapWorld REPRAPWORLD_KEYPAD v1.1
-// https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/
-//
+/**
+ * RepRapWorld REPRAPWORLD_KEYPAD v1.1
+ * https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/
+ */
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
@@ -3436,26 +3471,34 @@
 
 // @section fans
 
-// Set number of user-controlled fans. Disable to use all board-defined fans.
-// :[1,2,3,4,5,6,7,8]
+/**
+ * Set number of user-controlled fans. Disable to use all board-defined fans.
+ * :[1,2,3,4,5,6,7,8]
+ */
 //#define NUM_M106_FANS 1
 
-// Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
-// which is not as annoying as with the hardware PWM. On the other hand, if this frequency
-// is too low, you should also increment SOFT_PWM_SCALE.
+/**
+ * Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
+ * which is not as annoying as with the hardware PWM. On the other hand, if this frequency
+ * is too low, you should also increment SOFT_PWM_SCALE.
+ */
 //#define FAN_SOFT_PWM
 
-// Incrementing this by 1 will double the software PWM frequency,
-// affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
-// However, control resolution will be halved for each increment;
-// at zero value, there are 128 effective control positions.
-// :[0,1,2,3,4,5,6,7]
+/**
+ * Incrementing this by 1 will double the software PWM frequency,
+ * affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
+ * However, control resolution will be halved for each increment;
+ * at zero value, there are 128 effective control positions.
+ * :[0,1,2,3,4,5,6,7]
+ */
 #define SOFT_PWM_SCALE 0
 
-// If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
-// be used to mitigate the associated resolution loss. If enabled,
-// some of the PWM cycles are stretched so on average the desired
-// duty cycle is attained.
+/**
+ * If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
+ * be used to mitigate the associated resolution loss. If enabled,
+ * some of the PWM cycles are stretched so on average the desired
+ * duty cycle is attained.
+ */
 //#define SOFT_PWM_DITHER
 
 // @section extras
@@ -3465,9 +3508,11 @@
 
 // @section lights
 
-// Temperature status LEDs that display the hotend and bed temperature.
-// If all hotends, bed temperature, and target temperature are under 54C
-// then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
+/**
+ * Temperature status LEDs that display the hotend and bed temperature.
+ * If all hotends, bed temperature, and target temperature are under 54C
+ * then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
+ */
 //#define TEMP_STAT_LEDS
 
 // Support for BlinkM/CyzRgb
@@ -3576,7 +3621,7 @@
  * Set this manually if there are extra servos needing manual control.
  * Set to 0 to turn off servo support.
  */
-//#define NUM_SERVOS 3 // Note: Servo index starts with 0 for M280-M282 commands
+//#define NUM_SERVOS 3 // NOTE: Servo index starts with 0 for M280-M282 commands
 
 // (ms) Delay before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
