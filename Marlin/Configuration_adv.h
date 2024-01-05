@@ -69,9 +69,9 @@
  */
 #define THERMOCOUPLE_MAX_ERRORS 15
 
-//
-// Custom Thermistor 1000 parameters
-//
+/**
+ * Custom Thermistor 1000 parameters
+ */
 #if TEMP_SENSOR_0 == 1000
   #define HOTEND0_PULLUP_RESISTOR_OHMS    4700 // Pullup resistor
   #define HOTEND0_RESISTANCE_25C_OHMS   100000 // Resistance at 25C
@@ -200,9 +200,9 @@
   #define HEATER_BED_INVERTING true
 #endif
 
-//
-// Heated Bed Bang-Bang options
-//
+/**
+ * Heated Bed Bang-Bang options
+ */
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
   #if ANY(BED_LIMIT_SWITCHING, PELTIER_BED)
@@ -210,9 +210,9 @@
   #endif
 #endif
 
-//
-// Heated Chamber options
-//
+/**
+ * Heated Chamber options
+ */
 
 #if TEMP_SENSOR_CHAMBER
   //#define HEATER_CHAMBER_PIN      P2_04   // Required heater on/off pin (example: SKR 1.4 Turbo HE1 plug)
@@ -254,9 +254,9 @@
   #endif
 #endif
 
-//
-// Laser Cooler options
-//
+/**
+ * Laser Cooler options
+ */
 #if TEMP_SENSOR_COOLER
   #define COOLER_MINTEMP           8  // (°C)
   #define COOLER_MAXTEMP          26  // (°C)
@@ -273,9 +273,9 @@
   #endif
 #endif
 
-//
-// Motherboard Sensor options
-//
+/**
+ * Motherboard Sensor options
+ */
 #if TEMP_SENSOR_BOARD
   #define THERMAL_PROTECTION_BOARD   // Halt the printer if the board sensor leaves the temp range below.
   #define BOARD_MINTEMP           8  // (°C)
@@ -283,9 +283,9 @@
   //#define TEMP_BOARD_PIN -1        // Board temp sensor pin override.
 #endif
 
-//
-// SoC Sensor options
-//
+/**
+ * SoC Sensor options
+ */
 #if TEMP_SENSOR_SOC
   #define THERMAL_PROTECTION_SOC     // Halt the printer if the SoC sensor leaves the temp range below.
   #define SOC_MAXTEMP            85  // (°C)
@@ -431,7 +431,7 @@
    *   kf = (power_fan * eff_fan) / power_heater * 255
    * where eff_fan is between 0.0 and 1.0, based on fan-efficiency and airflow to the nozzle / heater.
    *
-   * Example:
+   * EXAMPLE:
    *   Heater: 40W, Fan: 0.1A * 24V = 2.4W, eff_fan = 0.8
    *   Kf = (2.4W * 0.8) / 40W * 255 = 12.24
    *
@@ -498,8 +498,10 @@
   #endif
 #endif
 
-// Show Temperature ADC value
-// Enable for M105 to include ADC values read from temperature sensors.
+/**
+ * Show Temperature ADC value
+ * Enable for M105 to include ADC values read from temperature sensors.
+ */
 //#define SHOW_TEMP_ADC_VALUES
 
 /**
@@ -561,8 +563,10 @@
 
 // @section temperature
 
-// Calibration for AD595 / AD8495 sensor to adjust temperature measurements.
-// The final temperature is calculated as (measuredTemp * GAIN) + OFFSET.
+/**
+ * Calibration for AD595 / AD8495 sensor to adjust temperature measurements.
+ * The final temperature is calculated as (measuredTemp * GAIN) + OFFSET.
+ */
 #define TEMP_SENSOR_AD595_OFFSET  0.0
 #define TEMP_SENSOR_AD595_GAIN    1.0
 #define TEMP_SENSOR_AD8495_OFFSET 0.0
@@ -753,8 +757,8 @@
 #define FANMUX2_PIN -1
 
 /**
- * @section caselight
  * M355 Case Light on-off / brightness
+ * @section caselight
  */
 //#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
@@ -884,9 +888,9 @@
   #endif
 #endif
 
-//
-// Multi-Z steppers
-//
+/**
+ * Multi-Z steppers
+ */
 #ifdef Z2_DRIVER_TYPE
   //#define INVERT_Z2_VS_Z_DIR        // Z2 direction signal is the opposite of Z
 
@@ -919,8 +923,10 @@
 
 // @section extruder
 
-// Activate a solenoid on the active extruder with M380. Disable all with M381.
-// Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+/**
+ * Activate a solenoid on the active extruder with M380. Disable all with M381.
+ * Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
+ */
 //#define EXT_SOLENOID
 
 // @section homing
@@ -952,10 +958,10 @@
    * Do not activate settings that the probe might not understand. Clones might misunderstand
    * advanced commands.
    *
-   * Note: If the probe is not deploying, do a "Reset" and "Self-Test" and then check the
+   * NOTE: If the probe is not deploying, do a "Reset" and "Self-Test" and then check the
    *       wiring of the BROWN, RED and ORANGE wires.
    *
-   * Note: If the trigger signal of your probe is not being recognized, it has been very often
+   * NOTE: If the trigger signal of your probe is not being recognized, it has been very often
    *       because the BLACK and WHITE wires needed to be swapped. They are not "interchangeable"
    *       like they would be with a real switch. So please check the wiring first.
    *
@@ -1287,10 +1293,10 @@
   #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 S<min%>.
 #endif
 
-//
-// Backlash Compensation
-// Adds extra movement to axes on direction-changes to account for backlash.
-//
+/**
+ * Backlash Compensation
+ * Adds extra movement to axes on direction-changes to account for backlash.
+ */
 //#define BACKLASH_COMPENSATION
 #if ENABLED(BACKLASH_COMPENSATION)
   // Define values for backlash distance and correction.
@@ -1333,7 +1339,7 @@
  * on the bed and measures and/or correct positional offsets, axis backlash
  * and hotend offsets.
  *
- * Note: HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER must be set to within
+ * NOTE: HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER must be set to within
  *       ±5mm of true values for G425 to succeed.
  */
 //#define CALIBRATION_GCODE
@@ -1831,7 +1837,7 @@
     #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
     #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
     #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
-                                      // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+                                      // NOTE: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
   #endif
 
   // Allow international symbols in long filenames. To display correctly, the
@@ -2051,9 +2057,9 @@
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 #endif
 
-//
-// Additional options for DGUS / DWIN displays
-//
+/**
+ * Additional options for DGUS / DWIN displays
+ */
 #if HAS_DGUS_LCD
   #define LCD_BAUDRATE 115200
 
@@ -2103,9 +2109,9 @@
   #endif
 #endif // HAS_DGUS_LCD
 
-//
-// Additional options for AnyCubic Chiron TFT displays
-//
+/**
+ * Additional options for AnyCubic Chiron TFT displays
+ */
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
   // By default the type of panel is automatically detected.
   // Enable one of these options if you know the panel type.
@@ -2128,9 +2134,9 @@
   #define AC_SD_FOLDER_VIEW
 #endif
 
-//
-// Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
-//
+/**
+ * Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
+ */
 #if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI, ANYCUBIC_LCD_VYPER)
   //#define LCD_LANGUAGE_2 fr
   //#define LCD_LANGUAGE_3 de
@@ -2141,9 +2147,9 @@
   #endif
 #endif
 
-//
-// Touch UI for the FTDI Embedded Video Engine (EVE)
-//
+/**
+ * Touch UI for the FTDI Embedded Video Engine (EVE)
+ */
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   // Display board used
   //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
@@ -2257,9 +2263,9 @@
   #define EDITABLE_DISPLAY_TIMEOUT      // Edit sleep / backlight timeout with M255 S<minutes> and a menu item
 #endif
 
-//
-// ADC Button Debounce
-//
+/**
+ * ADC Button Debounce
+ */
 #if HAS_ADC_BUTTONS
   #define ADC_BUTTON_DEBOUNCE_DELAY 16  // (count) Increase if buttons bounce or repeat too fast
 #endif
@@ -2287,7 +2293,7 @@
  * the current position values. This feature is used primarily to adjust the Z
  * axis in the first layer of a print in real-time.
  *
- * Warning: Does not respect endstops!
+ * WARNING: Does not respect endstops!
  */
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
@@ -2303,7 +2309,7 @@
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // (ms) Maximum interval between clicks.
-                                            // Note: Extra time may be added to mitigate controller latency.
+                                            // NOTE: Extra time may be added to mitigate controller latency.
     //#define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on double-click when printer is idle.
     #if ENABLED(MOVE_Z_WHEN_IDLE)
       #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size.
@@ -2419,7 +2425,8 @@
 #endif
 
 #if ALL(AUTO_BED_LEVELING_UBL, EEPROM_SETTINGS)
-  //#define OPTIMIZED_MESH_STORAGE  // Store mesh with less precision to save EEPROM space
+  // Store mesh with less precision to save EEPROM space
+  //#define OPTIMIZED_MESH_STORAGE
 #endif
 
 /**
@@ -2482,7 +2489,7 @@
   #endif
 
   #if ENABLED(PTC_HOTEND)
-    // Note: There is no automatic calibration for the hotend. Use M871.
+    // NOTE: There is no automatic calibration for the hotend. Use M871.
     #define PTC_HOTEND_START 180    // (°C)
     #define PTC_HOTEND_RES     5    // (°C)
     #define PTC_HOTEND_COUNT  20
@@ -2495,7 +2502,7 @@
     #define PTC_PARK_POS   { 0, 0, 100 }
 
     // Probe position to probe and wait for probe to reach target temperature
-    //#define PTC_PROBE_POS  { 12.0f, 7.3f } // Example: MK52 magnetic heatbed
+    //#define PTC_PROBE_POS  { 12.0f, 7.3f } // EXAMPLE: MK52 magnetic heatbed
     #define PTC_PROBE_POS  { 90, 100 }
 
     // The temperature the probe should be at while taking measurements during
@@ -2503,21 +2510,21 @@
     #define PTC_PROBE_TEMP    30  // (°C)
 
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: The Z=0.0 offset is determined by the probe Z offset (e.g., as set with M851 Z).
+    // NOTE: The Z=0.0 offset is determined by the probe Z offset (e.g., as set with M851 Z).
     #define PTC_PROBE_HEATING_OFFSET 0.5  // (mm)
   #endif
 #endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
 // @section extras
 
-//
-// G60/G61 Position Save and Return
-//
-//#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+/**
+ * G60/G61 Position Save and Return
+ */
+//#define SAVED_POSITIONS 1           // Each saved position slot costs 12 bytes
 
-//
-// G2/G3 Arc Support
-//
+/**
+ * G2/G3 Arc Support
+ */
 #define ARC_SUPPORT                   // Requires ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
   #define MIN_ARC_SEGMENT_MM      0.1 // (mm) Minimum length of each arc segment
@@ -2529,11 +2536,14 @@
   //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
-// G5 Bézier Curve Support with XYZE destination and IJPQ offsets
+/**
+ * G5 Bézier Curve Support with XYZE destination and IJPQ offsets
+ */
 //#define BEZIER_CURVE_SUPPORT        // Requires ~2666 bytes
 
 #if ANY(ARC_SUPPORT, BEZIER_CURVE_SUPPORT)
-  //#define CNC_WORKSPACE_PLANES      // Allow G2/G3/G5 to operate in XY, ZX, or YZ planes
+  // Allow G2/G3/G5 to operate in XY, ZX, or YZ planes
+  //#define CNC_WORKSPACE_PLANES
 #endif
 
 /**
@@ -2669,10 +2679,12 @@
   //#define SERIAL_STATS_DROPPED_RX
 #endif
 
-// Monitor RX buffer usage
-// Dump an error to the serial port if the serial receive buffer overflows.
-// If you see these errors, increase the RX_BUFFER_SIZE value.
-// Not supported on all platforms.
+/**
+ * Monitor RX buffer usage
+ * Dump an error to the serial port if the serial receive buffer overflows.
+ * If you see these errors, increase the RX_BUFFER_SIZE value.
+ * Not supported on all platforms.
+ */
 //#define RX_BUFFER_MONITOR
 
 /**
@@ -2728,7 +2740,7 @@
  * Enable this option to receive data on the serial ports via the onboard DMA
  * controller for more stable and reliable high-speed serial communication.
  * Support is currently limited to some STM32 MCUs and all HC32 MCUs.
- * Note: This has no effect on emulated USB serial ports.
+ * NOTE: This has no effect on emulated USB serial ports.
  */
 //#define SERIAL_DMA
 
@@ -3493,7 +3505,7 @@
    * A list of available functions can be found on the library github page
    * https://github.com/teemuatlut/TMCStepper
    *
-   * Example:
+   * EXAMPLE:
    * #define TMC_ADV() { \
    *   stepperX.diag0_otpw(1); \
    *   stepperY.intpol(0); \
@@ -3689,7 +3701,7 @@
 
     // Define the minimum and maximum test pulse time values for a laser test fire function
     #define LASER_TEST_PULSE_MIN           1   // (ms) Used with Laser Control Menu
-    #define LASER_TEST_PULSE_MAX         999   // (ms) Caution: Menu may not show more than 3 characters
+    #define LASER_TEST_PULSE_MAX         999   // (ms) CAUTION: Menu may not show more than 3 characters
 
     #define SPINDLE_LASER_POWERUP_DELAY   50   // (ms) Delay to allow the spindle/laser to come up to speed/power
     #define SPINDLE_LASER_POWERDOWN_DELAY 50   // (ms) Delay to allow the spindle to stop
@@ -3781,7 +3793,7 @@
  *
  * Add the M7, M8, and M9 commands to turn mist or flood coolant on and off.
  *
- * Note: COOLANT_MIST_PIN and/or COOLANT_FLOOD_PIN must also be defined.
+ * NOTE: COOLANT_MIST_PIN and/or COOLANT_FLOOD_PIN must also be defined.
  */
 //#define COOLANT_CONTROL
 #if ENABLED(COOLANT_CONTROL)
@@ -3809,7 +3821,7 @@
  *  81 PRINTRBOARD : Analog input 2 on the Exp1 connector (version B,C,D,E)
  * 301 RAMBO       : Analog input 3
  *
- * Note: May require analog pins to be defined for other boards.
+ * NOTE: May require analog pins to be defined for other boards.
  */
 //#define FILAMENT_WIDTH_SENSOR
 
@@ -4618,19 +4630,19 @@
 
 // @section develop
 
-//
-// M100 Free Memory Watcher to debug memory usage
-//
+/**
+ * M100 Free Memory Watcher to debug memory usage
+ */
 //#define M100_FREE_MEMORY_WATCHER
 
-//
-// M42 - Set pin states
-//
+/**
+ * M42 - Set pin states
+ */
 //#define DIRECT_PIN_CONTROL
 
-//
-// M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
-//
+/**
+ * M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
+ */
 //#define PINS_DEBUGGING
 
 // Enable Tests that will run at startup and produce a report
