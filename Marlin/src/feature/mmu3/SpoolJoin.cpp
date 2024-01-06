@@ -33,13 +33,10 @@ void SpoolJoin::toggleSpoolJoin()
     enabled = !enabled;
 
     // Following Prusa's implementation let's save the value to the EEPROM
-    // settings.save(); // This saves all the settings and probably very slow.
-
-    // instead of saving all the settings,
-    // save only the portion that contains the SpoolJoin data.
     persistentStore.access_start();
     persistentStore.write_data(epprom_addr, enabled);
     persistentStore.access_finish();
+    settings.save();
 }
 
 bool SpoolJoin::isSpoolJoinEnabled()
