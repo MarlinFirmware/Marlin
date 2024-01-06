@@ -1,7 +1,7 @@
+#ifdef HAS_PRUSA_MMU3
 #pragma once
 #include "src/core/macros.h"
 #include <stdint.h>
-// #include "../runout.h"
 
 
 #if ANY(HAS_PRUSA_MMU3, HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
@@ -33,3 +33,4 @@ enum class FilamentState : uint_fast8_t {
 FilamentState WhereIsFilament();
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

@@ -1,5 +1,6 @@
 /// @file
 /// MK3 / Marlin1 implementation of support routines for the MMU2
+#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 #include "src/module/stepper.h"
 #include "src/module/planner.h"
@@ -155,3 +156,4 @@ bool all_axes_homed(){
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

@@ -1,5 +1,6 @@
 /// @file
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 
 // See documentation here: https://help.prusa3d.com/article/spooljoin-mmu2s_134252
@@ -48,3 +49,4 @@ private:
 extern SpoolJoin spooljoin;
 
 } // namespace SpoolJoin
+#endif // HAS_PRUSA_MMU3

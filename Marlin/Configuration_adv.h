@@ -4410,29 +4410,32 @@
   // This is for Průša MK3-style extruders. Customize for your hardware.
   #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
 
-  // ------------
-  // MMU2 / MMU2S
-  // ------------
-  // These old MMU2 sequences are using mm/min
-  // it is not compatible with MMU3 as MMU3 is using mm/s
-  // #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-  //   {  4.4,  871 }, \
-  //   { 10.0, 1393 }, \
-  //   {  4.4,  871 }, \
-  //   { 10.0,  198 }
+  /**
+   *  ------------
+   * MMU2 / MMU2S
+   * ------------
+   * These old MMU2 sequences are using mm/min
+   * it is not compatible with MMU3 as MMU3 is using mm/s
+   * #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+   *   {  4.4,  871 }, \
+   *   { 10.0, 1393 }, \
+   *   {  4.4,  871 }, \
+   *   { 10.0,  198 }
+   */
 
-  // #define MMU2_RAMMING_SEQUENCE \
-  //   {   1.0, 1000 }, \
-  //   {   1.0, 1500 }, \
-  //   {   2.0, 2000 }, \
-  //   {   1.5, 3000 }, \
-  //   {   2.5, 4000 }, \
-  //   { -15.0, 5000 }, \
-  //   { -14.0, 1200 }, \
-  //   {  -6.0,  600 }, \
-  //   {  10.0,  700 }, \
-  //   { -10.0,  400 }, \
-  //   { -50.0, 2000 }
+  /* #define MMU2_RAMMING_SEQUENCE \
+   *   {   1.0, 1000 }, \
+   *   {   1.0, 1500 }, \
+   *   {   2.0, 2000 }, \
+   *   {   1.5, 3000 }, \
+   *   {   2.5, 4000 }, \
+   *   { -15.0, 5000 }, \
+   *   { -14.0, 1200 }, \
+   *   {  -6.0,  600 }, \
+   *   {  10.0,  700 }, \
+   *   { -10.0,  400 }, \
+   *   { -50.0, 2000 }
+   */
 
   // ----
   // MMU3

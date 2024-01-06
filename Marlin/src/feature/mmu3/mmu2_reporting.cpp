@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include <avr/pgmspace.h>
 // #include "eeprom.h"
 #include "src/MarlinCore.h"
@@ -21,6 +22,10 @@
 #include "ultralcd.h"
 // #include "Filament_sensor.h"
 #include "sound.h"
+
+#ifndef HAS_WIRED_LCD
+#define LCD_WIDTH 21
+#endif
 
 
 namespace MMU2 {
@@ -47,6 +52,7 @@ void OperationStatistics::increment_load_fails(){
     load_fail_num += 1;
     load_fail_total_num += 1;
 
+    #if ENABLED(EEPROM_SETTINGS)
     // save load_fail_num to eeprom
     persistentStore.access_start();
     persistentStore.write_data(load_fail_num_addr, load_fail_num);
@@ -55,6 +61,7 @@ void OperationStatistics::increment_load_fails(){
     persistentStore.write_data(load_fail_total_num_addr, load_fail_total_num);
     persistentStore.access_finish();
     settings.save();
+    #endif
 }
 
 /**
@@ -64,8 +71,7 @@ void OperationStatistics::increment_mmu_fails(){
     fail_num += 1;
     fail_total_num += 1;
 
-    SERIAL_ECHOLN(fail_num);
-
+    #if ENABLED(EEPROM_SETTINGS)
     // save fail_num to eeprom
     persistentStore.access_start();
     persistentStore.write_data(fail_num_addr, fail_num);
@@ -73,6 +79,7 @@ void OperationStatistics::increment_mmu_fails(){
     persistentStore.write_data(fail_total_num_addr, fail_total_num);
     persistentStore.access_finish();
     settings.save();
+    #endif
 }
 
 /**
@@ -82,11 +89,13 @@ void OperationStatistics::increment_tool_change_counter(){
     tool_change_counter += 1;
     tool_change_total_counter += 1;
 
+    #if ENABLED(EEPROM_SETTINGS)
     // save tool_change_total_counter to eeprom
     persistentStore.access_start();
     persistentStore.write_data(tool_change_total_counter_addr, tool_change_total_counter);
     persistentStore.access_finish();
     settings.save();
+    #endif
 }
 
 
@@ -101,6 +110,7 @@ bool OperationStatistics::reset_per_print_stats(){
     fail_num = 0;
     tool_change_counter = 0;
 
+    #if ENABLED(EEPROM_SETTINGS)
     // Update EEPROM
     persistentStore.access_start();
     persistentStore.write_data(load_fail_num_addr, load_fail_num);
@@ -108,6 +118,9 @@ bool OperationStatistics::reset_per_print_stats(){
     persistentStore.write_data(tool_change_counter_addr, tool_change_counter);
     persistentStore.access_finish();
     return settings.save();
+    #else
+    return true;
+    #endif
 }
 
 
@@ -125,6 +138,7 @@ bool OperationStatistics::reset_stats(){
     tool_change_counter = 0;
     tool_change_total_counter = 0;
 
+    #if ENABLED(EEPROM_SETTINGS)
     // Update EEPROM
     persistentStore.access_start();
     persistentStore.write_data(load_fail_num_addr, load_fail_num);
@@ -135,6 +149,9 @@ bool OperationStatistics::reset_stats(){
     persistentStore.write_data(tool_change_total_counter_addr, tool_change_total_counter);
     persistentStore.access_finish();
     return settings.save();
+    #else
+    return true;
+    #endif
 }
 
 
@@ -156,6 +173,7 @@ void EndReport(CommandInProgress /*cip*/, ProgressCode /*ec*/) {
  *Currently, this is FINDA and Filament Sensor status and Extruder temperature.
  */
 extern void ReportErrorHookDynamicRender(void){
+    #ifdef HAS_WIRED_LCD
     // beware - this optimization abuses the fact, that FindaDetectsFilament returns 0 or 1 and '0' is followed by '1' in the ASCII table
     lcd_put_int(3, 2, mmu2.FindaDetectsFilament() + '0');
     lcd_put_int(8, 2, FILAMENT_PRESENT() + '0');
@@ -166,6 +184,7 @@ extern void ReportErrorHookDynamicRender(void){
 
     // Print active extruder temperature
     lcd_put_int(16, 2, (int)(thermalManager.degHotend(0) + 0.5));
+    #endif
 }
 
 /**
@@ -173,6 +192,7 @@ extern void ReportErrorHookDynamicRender(void){
  * @param[in] ei Error code index
  */
 static void ReportErrorHookStaticRender(uint8_t ei) {
+    #ifdef HAS_WIRED_LCD
     //! Show an error screen
     //! When an MMU error occurs, the LCD content will look like this:
     //! |01234567890123456789|
@@ -219,11 +239,14 @@ static void ReportErrorHookStaticRender(uint8_t ei) {
 
     END_SCREEN();
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    #endif
 }
 
 void ReportErrorHookSensorLineRender(){
+    #ifdef HAS_WIRED_LCD
     // Render static characters in third line
     lcd_put_u8str(0, 2, F("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
+    #endif
 }
 
 /**
@@ -263,6 +286,7 @@ static uint8_t ReportErrorHookMonitor(uint8_t ei) {
         reset_button_selection = 0;
     }
 
+    #ifdef HAS_WIRED_LCD
     // Check if knob was rotated
     if (ui.encoderPosition != 0) {
         if (two_choices == false) { // third_choice is not nullptr, safe to dereference
@@ -315,6 +339,7 @@ static uint8_t ReportErrorHookMonitor(uint8_t ei) {
         // Consume rotation event
         ui.encoderPosition = 0;
     }
+    #endif
 
     // Check if knob was clicked and consume the event
     if (ui.button_pressed()) {
@@ -328,8 +353,10 @@ static uint8_t ReportErrorHookMonitor(uint8_t ei) {
         || (!two_choices && choice_selected == LCD_RIGHT_BUTTON_CHOICE)) // Three choices and right most button selected
     {
         // 'More' show error description
+        #ifdef HAS_WIRED_LCD
         lcd_show_fullscreen_message_and_wait_P(PrusaErrorDesc(ei));
         LCD_ALERTMESSAGE_F(PrusaErrorDesc(ei));
+        #endif
         ret = 1;
     } else if(choice_selected == LCD_MIDDLE_BUTTON_CHOICE) {
         SetButtonResponse((ButtonOperations)button_op_right);
@@ -457,8 +484,10 @@ void ReportErrorHook(CommandInProgress /*cip*/, ErrorCode ec, uint8_t /*es*/) {
             ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
         } else if ( result == 2){
             // Exit error screen and enable lcd updates
+            #ifdef HAS_WIRED_LCD
             ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
             ui.return_to_status();
+            #endif
             sound_wait_for_user_reset();
             // Reset the state in case a new error is reported
             is_mmu_error_monitor_active = false;
@@ -467,8 +496,10 @@ void ReportErrorHook(CommandInProgress /*cip*/, ErrorCode ec, uint8_t /*es*/) {
         }
         return; // Always return to loop() to let MMU trigger a call to ReportErrorHook again
     } else if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::DISMISS_ERROR_SCREEN) {
+        #ifdef HAS_WIRED_LCD
         ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
         ui.return_to_status();
+        #endif
         sound_wait_for_user_reset();
         // Reset the state in case a new error is reported
         is_mmu_error_monitor_active = false;
@@ -495,16 +526,18 @@ TryLoadUnloadReporter::TryLoadUnloadReporter(float delta_mm)
 }
 
 TryLoadUnloadReporter::~TryLoadUnloadReporter() {
+    #ifdef HAS_WIRED_LCD
     // Delay the next status message just so
     // the user can see the results clearly
     ui.set_status_no_expire(ui.status_message);
+    #endif
 }
 
 void TryLoadUnloadReporter::Render(uint8_t col, bool sensorState) {
+    #if HAS_WIRED_LCD
     // Set the cursor position each time in case some other
     // part of the firmware changes the cursor position
     lcd_insert_char_into_status(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
-    #if HAS_WIRED_LCD
     if (ui.lcdDrawUpdate == LCDViewAction::LCDVIEW_NONE)
         ui.draw_status_message(false);
     #endif
@@ -522,8 +555,9 @@ void TryLoadUnloadReporter::Progress(bool sensorState){
 
 void TryLoadUnloadReporter::DumpToSerial(){
     char buf[LCD_WIDTH + 1];
-    // lcd_getstatus(buf);
+    #ifdef HAS_WIRED_LCD
     ui.status_message.copyto(buf);
+    #endif
     for (uint8_t i = 0; i < sizeof(buf); i++) {
         // 0xFF is -1 when converting from unsigned to signed char
         // If the number is negative, that means filament is present
@@ -537,11 +571,13 @@ void TryLoadUnloadReporter::DumpToSerial(){
 void DisableMMUInSettings() {
     mmu2.mmu_hw_enabled = false;
 
+    #if ENABLED(EEPROM_SETTINGS)
     // save mmu_hw_enabled to eeprom
     persistentStore.access_start();
     persistentStore.write_data(mmu2.mmu_hw_enabled_addr, mmu2.mmu_hw_enabled);
     persistentStore.access_finish();
     settings.save();
+    #endif
 
     mmu2.Status();
 }
@@ -595,11 +631,15 @@ void FullScreenMsgLoad(uint8_t slot){
 }
 
 void FullScreenMsgRestoringTemperature(){
+    #ifdef HAS_WIRED_LCD
     lcd_display_message_fullscreen_P("MMU Retry: Restoring temperature..."); ////MSG_MMU_RESTORE_TEMP c=20 r=4
+    #endif
 }
 
 void ScreenUpdateEnable(){
+    #ifdef HAS_WIRED_LCD
     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
+    #endif
 }
 
 void ScreenClear(){
@@ -709,3 +749,4 @@ void tuneIdlerStallguardThreshold() {
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

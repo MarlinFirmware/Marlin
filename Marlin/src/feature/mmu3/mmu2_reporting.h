@@ -1,6 +1,6 @@
 /// @file mmu2_reporting.h
-
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/progress_codes.h"
@@ -143,3 +143,4 @@ void tuneIdlerStallguardThreshold();
 void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

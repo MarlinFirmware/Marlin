@@ -1,6 +1,6 @@
 /// @file
 #pragma once
-
+#ifdef HAS_PRUSA_MMU3
 #include "mmu2_state.h"
 #include "mmu2_marlin.h"
 
@@ -393,3 +393,4 @@ private:
 extern MMU2 mmu2;
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

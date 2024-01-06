@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include "mmu2.h"
 #include "mmu2_power.h"
 
@@ -37,3 +38,4 @@ void reset() {
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

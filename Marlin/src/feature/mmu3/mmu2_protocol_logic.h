@@ -2,7 +2,7 @@
  * 
 */
 #pragma once
-
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 #include <avr/pgmspace.h>
 
@@ -400,3 +400,4 @@ private:
 };
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

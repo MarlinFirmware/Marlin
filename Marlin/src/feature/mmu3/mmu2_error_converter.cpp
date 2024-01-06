@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include <stdio.h>
 #include "src/core/language.h"
 #include "mmu2_error_converter.h"
@@ -349,3 +350,4 @@ void SetButtonResponse(ButtonOperations rsp){
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

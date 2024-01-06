@@ -1,5 +1,6 @@
 /// @file protocol.h
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 #include "mmu2_crc.h"
 
@@ -324,3 +325,4 @@ private:
 } // namespace modules
 
 namespace mp = modules::protocol;
+#endif // HAS_PRUSA_MMU3

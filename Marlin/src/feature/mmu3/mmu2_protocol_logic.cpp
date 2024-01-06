@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include "mmu2_protocol_logic.h"
 #include "mmu2_log.h"
 #include "mmu2_fsensor.h"
@@ -881,3 +882,4 @@ bool DropOutFilter::Record(StepStatus ss) {
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

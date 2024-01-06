@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include "mmu2_log.h"
 
 namespace MMU2 {
@@ -15,3 +16,4 @@ void LogEchoEvent_P(const char *msg){
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

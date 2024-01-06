@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 #include "src/feature/runout.h"
 #include "mmu2_fsensor.h"
@@ -29,3 +30,4 @@ FilamentState WhereIsFilament(){
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

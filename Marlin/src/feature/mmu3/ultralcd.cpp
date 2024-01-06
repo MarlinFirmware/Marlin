@@ -1,4 +1,4 @@
-
+#ifdef HAS_PRUSA_MMU3
 #include "ultralcd.h"
 #include "src/lcd/menu/menu_item.h"
 #include "src/gcode/gcode.h"
@@ -201,3 +201,4 @@ void lcd_insert_char_into_status(uint8_t position, const char message)
     str[position] = message;
     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_REDRAW_NOW; // force redraw
 }
+#endif // HAS_PRUSA_MMU3

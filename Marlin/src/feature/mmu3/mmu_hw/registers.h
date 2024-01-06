@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #pragma once
 #include <stdint.h>
 
@@ -42,3 +43,4 @@ enum class Register : uint8_t {
 };
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

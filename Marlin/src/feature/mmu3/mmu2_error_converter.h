@@ -1,13 +1,9 @@
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 #include <stddef.h>
-#ifdef __AVR__
-    #include "mmu_hw/buttons.h"
-    #include "mmu_hw/error_codes.h"
-#else
-    #include "mmu_hw/buttons.h"
-    #include "mmu_hw/error_codes.h"
-#endif
+#include "mmu_hw/buttons.h"
+#include "mmu_hw/error_codes.h"
 
 namespace MMU2 {
 
@@ -52,3 +48,4 @@ Buttons ButtonPressed(ErrorCode ec);
 Buttons ButtonAvailable(ErrorCode ec);
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

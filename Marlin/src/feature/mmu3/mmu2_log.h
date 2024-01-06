@@ -1,4 +1,5 @@
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #ifdef __AVR__
     #include <avr/pgmspace.h>
 #else
@@ -28,7 +29,7 @@ void LogEchoEvent_P(const char *msg_P);
 
 #ifndef UNITTEST
     #ifdef __AVR__
-        #include "Marlin.h"
+        #include "src/MarlinCore.h"
     #else
         #include "src/core/serial.h"
     #endif
@@ -68,3 +69,4 @@ void LogEchoEvent_P(const char *msg_P);
     #define SERIAL_ECHOLN(S)      /*marlinLogSim.AppendLine(S)*/
 
 #endif                            // #ifndef UNITTEST
+#endif // HAS_PRUSA_MMU3

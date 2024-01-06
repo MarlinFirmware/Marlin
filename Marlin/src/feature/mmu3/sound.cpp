@@ -1,12 +1,10 @@
+#ifdef HAS_PRUSA_MMU3
 #include <Arduino.h>
 // #include "backlight.h"
 #include "eeprom.h"
 // #include "fastio.h"
 #include "src/libs/buzzer.h"
 #include "sound.h"
-// #include "system_timer.h"
-#include "Timer.h"
-
 
 
 //eSOUND_MODE eSoundMode=e_SOUND_MODE_LOUD;
@@ -118,10 +116,6 @@ static void Sound_DoSound_Blind_Alert(void)
     uint8_t nI;
     for(nI=0; nI<20; nI++)
     {
-        // WRITE(BEEPER,HIGH);
-        // delayMicroseconds(94);
-        // WRITE(BEEPER,LOW);
-        // delayMicroseconds(94);
         BUZZ(94, 404);
         BUZZ(94, 0);
     }
@@ -131,10 +125,6 @@ static void Sound_DoSound_Encoder_Move(void)
 {
     uint8_t nI;
     for(nI=0;nI<5;nI++){
-        // WRITE(BEEPER,HIGH);
-        // delayMicroseconds(75);
-        // WRITE(BEEPER,LOW);
-        // delayMicroseconds(75);
         BUZZ(75, 404);
         BUZZ(75, 0);
     }
@@ -144,10 +134,6 @@ static void Sound_DoSound_Echo(void)
 {
     uint8_t nI;
     for(nI=0;nI<10;nI++){
-        // WRITE(BEEPER,HIGH);
-        // delayMicroseconds(100);
-        // WRITE(BEEPER,LOW);
-        // delayMicroseconds(100);
         BUZZ(100, 404);
         BUZZ(100, 0);
     }
@@ -156,9 +142,6 @@ static void Sound_DoSound_Echo(void)
 static void Sound_DoSound_Prompt(void)
 {
     // backlight_wake(2);
-    // WRITE(BEEPER,HIGH);
-    // _delay_ms(500);
-    // WRITE(BEEPER,LOW);
     BUZZ(500, 404);
 }
 
@@ -167,10 +150,6 @@ static void Sound_DoSound_Alert(bool bOnce)
     uint8_t nI,nMax;
     nMax=bOnce?1:3;
     for(nI=0;nI<nMax;nI++){
-        // WRITE(BEEPER,HIGH);
-        // delayMicroseconds(200);
-        // WRITE(BEEPER,LOW);
-        // delayMicroseconds(500);
         BUZZ(200, 404);
         BUZZ(500, 0);
     }
@@ -218,3 +197,4 @@ void sound_wait_for_user_reset()
     // beep_timer.stop();
     bFirst = false;
 }
+#endif // HAS_PRUSA_MMU3

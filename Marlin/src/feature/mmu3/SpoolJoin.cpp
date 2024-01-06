@@ -1,7 +1,12 @@
+#ifdef HAS_PRUSA_MMU3
 #include "SpoolJoin.h"
 #include "src/MarlinCore.h"
 #include "src/module/settings.h"
-#include "eeprom.h"
+#ifdef __AVR__
+    #include <avr/eeprom.h>
+#else
+    #include "eeprom.h"
+#endif
 #include "messages.h"
 #include "src/core/language.h"
 
@@ -33,10 +38,12 @@ void SpoolJoin::toggleSpoolJoin()
     enabled = !enabled;
 
     // Following Prusa's implementation let's save the value to the EEPROM
+    #if ENABLED(EEPROM_SETTINGS)
     persistentStore.access_start();
     persistentStore.write_data(epprom_addr, enabled);
     persistentStore.access_finish();
     settings.save();
+    #endif
 }
 
 bool SpoolJoin::isSpoolJoinEnabled()
@@ -65,3 +72,4 @@ uint8_t SpoolJoin::nextSlot()
 }
 
 }
+#endif // HAS_PRUSA_MMU3

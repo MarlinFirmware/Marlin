@@ -1,4 +1,4 @@
-/// @file
+#ifdef HAS_PRUSA_MMU3
 #include "mmu2_crc.h"
 
 #ifdef __AVR__
@@ -20,3 +20,4 @@ uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
 } // namespace crc
 // clang-format on
 } // namespace modules
+#endif // HAS_PRUSA_MMU3

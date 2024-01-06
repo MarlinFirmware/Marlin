@@ -1,7 +1,6 @@
 #pragma once
-
+#ifdef HAS_PRUSA_MMU3
 #include "src/lcd/marlinui.h"
-
 
 #define LCD_LEFT_BUTTON_CHOICE 0
 #define LCD_MIDDLE_BUTTON_CHOICE 1
@@ -12,7 +11,7 @@
 #define LCD_STR_SOLID_BLOCK  "\xFF"  //from the default character set
 
 
-
+#ifdef HAS_WIRED_LCD
 //! @brief Helper class to temporarily disable LCD updates
 //!
 //! When constructed (on stack), original state state of lcd_update_enabled is stored
@@ -25,7 +24,7 @@ class LcdUpdateDisabler
 public:
     LcdUpdateDisabler(): m_updateEnabled(ui.lcdDrawUpdate)
     {
-        ui.lcdDrawUpdate = TERN(HAS_WIRED_LCD, LCDViewAction::LCDVIEW_NONE, nullptr);
+        ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
     }
     ~LcdUpdateDisabler()
     {
@@ -46,3 +45,5 @@ extern void lcd_show_fullscreen_message_and_wait_P(const char *msg);
 uint8_t lcdui_print_extruder(void);
 extern void lcd_space(uint8_t n);
 void lcd_insert_char_into_status(uint8_t position, const char message);
+#endif // HAS_WIRED_LCD
+#endif // HAS_PRUSA_MMU3

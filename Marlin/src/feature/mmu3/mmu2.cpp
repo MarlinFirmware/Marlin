@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 // #include "eeprom.h"
 #include "src/lcd/marlinui.h"
@@ -30,8 +31,6 @@
 // As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
 // Saves at least 800B of code size
 static_assert(EXTRUDERS == 1);
-
-constexpr float MMM_TO_MMS(float MM_M) { return MM_M / 60.0f; }
 #endif
 
 namespace MMU2 {
@@ -1195,3 +1194,4 @@ void MMU2::OnMMUProgressMsgSame(ProgressCode pc) {
 }
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

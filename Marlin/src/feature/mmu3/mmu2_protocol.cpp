@@ -1,3 +1,4 @@
+#ifdef HAS_PRUSA_MMU3
 /// @file
 #include "mmu2_protocol.h"
 
@@ -368,3 +369,4 @@ uint8_t Protocol::AppendCRC(uint8_t crc, uint8_t *dst) {
 
 } // namespace protocol
 } // namespace modules
+#endif // HAS_PRUSA_MMU3

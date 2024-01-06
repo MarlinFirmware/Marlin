@@ -1,5 +1,6 @@
 /// @file progress_codes.h
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 
 /// A complete set of progress codes which may be reported while running a high-level command/operation
@@ -43,3 +44,4 @@ enum class ProgressCode : uint_fast8_t {
 
     Empty = 0xff // dummy empty state
 };
+#endif // HAS_PRUSA_MMU3

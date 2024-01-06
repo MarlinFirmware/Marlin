@@ -1,5 +1,6 @@
 /// @file error_codes.h
 #pragma once
+#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 
 /// A complete set of error codes which may be a result of a high-level command/operation.
@@ -122,3 +123,4 @@ enum class ErrorCode : uint_fast16_t {
     MMU_SOLDERING_NEEDS_ATTENTION = 0xC200,
 
 };
+#endif // HAS_PRUSA_MMU3

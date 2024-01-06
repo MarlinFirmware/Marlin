@@ -1,4 +1,5 @@
 /// @file
+#ifdef HAS_PRUSA_MMU3
 /// The sole purpose of this interface is to separate Marlin1/Marlin2 from the MMU top logic layer.
 /// Why?
 /// - unify implementation among MK3 and Buddy FW
@@ -48,3 +49,4 @@ void Disable_E0();
 bool all_axes_homed();
 
 } // namespace MMU2
+#endif // HAS_PRUSA_MMU3

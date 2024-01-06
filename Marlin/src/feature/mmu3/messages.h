@@ -1,4 +1,6 @@
 //messages.h
+#ifdef HAS_PRUSA_MMU3
+#include "src/MarlinCore.h"
 
 // Common serial messages
 #define MSG_MARLIN "Marlin"
@@ -7,7 +9,11 @@
 extern "C" {
 #endif //defined(__cplusplus)
 
+#ifdef CUSTOM_MACHINE_NAME
 #define WELCOME_MSG (CUSTOM_MACHINE_NAME " OK.")
+#else
+#define WELCOME_MSG ("PRINTER OK.")
+#endif
 
 // LCD Menu Messages
 //internationalized messages
@@ -263,3 +269,4 @@ extern const char MSG_M702[];
 #if defined(__cplusplus)
 }
 #endif //defined(__cplusplus)
+#endif // HAS_PRUSA_MMU3
