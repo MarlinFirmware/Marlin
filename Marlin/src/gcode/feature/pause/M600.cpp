@@ -34,7 +34,12 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "../../../feature/mmu3/mmu2.h"
+  #if ENABLED(MMU2_MENUS)
+    #include "../../../lcd/menu/menu_mmu2.h"
+  #endif
+#elif HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
   #if ENABLED(MMU2_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
@@ -101,7 +106,11 @@ void GcodeSuite::M600() {
     }
   #endif
 
-  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+  #if HAS_PRUSA_MMU3
+    const bool standardM600 = TERN1(MMU2_MENUS, !MMU2::mmu2.Enabled());
+  #elif HAS_PRUSA_MMU2
+    const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+  #endif
 
   // Show initial "wait for start" message
   if (standardM600)
@@ -160,11 +169,11 @@ void GcodeSuite::M600() {
         parser.celsiusval('R')
         DXC_PASS
       );
-    }
-    else {
+    } else {
       #if ENABLED(MMU2_MENUS)
-        mmu2_M600();
-        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+        bool automatic = strcmp_P(parser.string_arg, "AUTO") == 0;
+        mmu2_M600(automatic);
+        resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
       #endif
     }
   }

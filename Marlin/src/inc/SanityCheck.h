@@ -507,8 +507,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
-      #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
+  #elif (HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3) && NUM_RUNOUT_SENSORS != 1
+      #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S / MMU3."
   #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
     #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
   #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
@@ -599,7 +599,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
     #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
@@ -607,8 +607,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
     #error "PRUSA_MMU2(S) requires NOZZLE_PARK_FEATURE. Enable it to continue."
-  #elif HAS_PRUSA_MMU2S && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif (HAS_PRUSA_MMU2S || HAS_PRUSA_MMU3) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2S and HAS_PRUSA_MMU3 requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_MARLINUI_MENU
@@ -690,8 +690,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MECHANICAL_SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "MECHANICAL_SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif HAS_PRUSA_MMU2
-    #error "MECHANICAL_SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+    #error "MECHANICAL_SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif !defined(EVENT_GCODE_TOOLCHANGE_T0)
     #error "MECHANICAL_SWITCHING_NOZZLE requires EVENT_GCODE_TOOLCHANGE_T0."
   #elif !defined(EVENT_GCODE_TOOLCHANGE_T1)
@@ -704,8 +704,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif HAS_PRUSA_MMU2
-    #error "SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+    #error "SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
   #elif !defined(SWITCHING_NOZZLE_SERVO_NR)
