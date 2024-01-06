@@ -129,7 +129,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * M493: Set Fixed-time Motion Control parameters
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
- *      
+ *
  *       0: Standard Motion
  *       1: Fixed-Time Motion
  *      10: ZV    : Zero Vibration
