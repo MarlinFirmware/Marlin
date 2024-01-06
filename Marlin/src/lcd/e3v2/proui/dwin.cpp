@@ -4027,7 +4027,7 @@ void drawStepsMenu() {
     void liveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
-    void zeroMesh() { manualResetValue(); EditZValueItem->redraw(); LCD_MESSAGE(MSG_MESH_RESET); }
+    void zeroMesh() { manualResetValue(); editZValueItem->redraw(); LCD_MESSAGE(MSG_MESH_RESET); }
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void liveEditMeshZ() { *menuData.floatPtr = menuData.value / POW(10, 2); if (autoMovToMesh) bedLevelTools.moveToZ(); }
@@ -4122,7 +4122,7 @@ void drawStepsMenu() {
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
         #if HAS_BED_PROBE
-          HAS_BED_PROBE, MENU_ITEM_F(ICON_ProbeDeploy, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY);
+          MENU_ITEM_F(ICON_ProbeDeploy, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY);
         #endif
         MENU_ITEM_F(ICON_SetZOffset, "Zero Current Point", onDrawMenuItem, zeroMesh);
       }
