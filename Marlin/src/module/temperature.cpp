@@ -894,7 +894,7 @@ volatile bool Temperature::raw_temps_ready = false;
       hal.idletask();
 
       // Run UI update
-      TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+      ui.update();
     }
     wait_for_heatup = false;
 
