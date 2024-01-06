@@ -439,7 +439,9 @@ void ReportErrorHook(CommandInProgress /*cip*/, ErrorCode ec, uint8_t /*es*/) {
     // This should be the equivelent of the switch..case above...
     if( (uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::RENDER_ERROR_SCREEN){
         KEEPALIVE_STATE(PAUSED_FOR_USER);
+        #if HAS_WIRED_LCD
         ReportErrorHookStaticRender(ei);
+        #endif
         ReportErrorHookState = ReportErrorHookStates::MONITOR_SELECTION;
     }
 
@@ -502,7 +504,10 @@ void TryLoadUnloadReporter::Render(uint8_t col, bool sensorState) {
     // Set the cursor position each time in case some other
     // part of the firmware changes the cursor position
     lcd_insert_char_into_status(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
-    if (ui.lcdDrawUpdate == LCDViewAction::LCDVIEW_NONE) ui.draw_status_message(false);
+    #if HAS_WIRED_LCD
+    if (ui.lcdDrawUpdate == LCDViewAction::LCDVIEW_NONE)
+        ui.draw_status_message(false);
+    #endif
 }
 
 void TryLoadUnloadReporter::Progress(bool sensorState){
@@ -558,6 +563,7 @@ void MakeSound(SoundType s){
 }
 
 static void FullScreenMsg(const char *pgmS, uint8_t slot){
+    #if HAS_WIRED_LCD
     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
     ui.clear_lcd();
     // START_SCREEN();
@@ -569,6 +575,7 @@ static void FullScreenMsg(const char *pgmS, uint8_t slot){
     lcd_put_int(slot + 1);
     // END_SCREEN();
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    #endif
 }
 
 void FullScreenMsgCut(uint8_t slot){

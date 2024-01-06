@@ -143,9 +143,13 @@ static const char* lcd_display_message_fullscreen_nonBlocking_P(const char *msg)
 const char* lcd_display_message_fullscreen_P(const char *msg)
 {
     // Disable update of the screen by the usual lcd_update(0) routine.
-    ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-    ui.clear_lcd();
-    return lcd_display_message_fullscreen_nonBlocking_P(msg);
+    #if HAS_WIRED_LCD
+        ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
+        ui.clear_lcd();
+        return lcd_display_message_fullscreen_nonBlocking_P(msg);
+    #else
+        return msg
+    #endif
 }
 
 

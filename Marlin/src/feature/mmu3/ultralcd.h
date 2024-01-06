@@ -25,7 +25,7 @@ class LcdUpdateDisabler
 public:
     LcdUpdateDisabler(): m_updateEnabled(ui.lcdDrawUpdate)
     {
-        ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
+        ui.lcdDrawUpdate = TERN(HAS_WIRED_LCD, LCDViewAction::LCDVIEW_NONE, nullptr);
     }
     ~LcdUpdateDisabler()
     {
