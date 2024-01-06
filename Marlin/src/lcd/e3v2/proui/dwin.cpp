@@ -1459,7 +1459,7 @@ bool idIsPopUp(const uint8_t id) {    // If ID is popup...
 void hmiSaveProcessID(const uint8_t id) {
   if (checkkey == id) return;
   if (!idIsPopUp(id)) last_checkkey = checkkey; // If previous is not a popup
-  else if (checkkey == ID_PlotProcess) hmiReturnScreen();
+  else if (checkkey == ID_PlotProcess && hmiFlag.printing_flag == isPrinting()) hmiReturnScreen();
   checkkey = id;
   switch (id) {
     case ID_Popup:
