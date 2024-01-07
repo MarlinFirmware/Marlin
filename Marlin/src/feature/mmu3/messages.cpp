@@ -1,4 +1,3 @@
-#ifdef HAS_PRUSA_MMU3
 //messages.c
 #include "src/core/language.h"
 #include "messages.h"
@@ -7,6 +6,7 @@
 // For the custom characters
 // #include "lcd.h"
 #include "src/lcd/marlinui.h"
+#if HAS_PRUSA_MMU3
 
 //internationalized messages
 const char MSG_ALWAYS[] PROGMEM = ISTR("Always"); ////MSG_ALWAYS c=6

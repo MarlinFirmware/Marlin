@@ -4499,6 +4499,9 @@
     #define MMU2_CAN_LOAD_RETRACT   6.0   // (mm) Keep under the distance between Load Sequence values
     #define MMU2_CAN_LOAD_DEVIATION 0.8   // (mm) Acceptable deviation
 
+    #define MMU2_EXTRUDER_PTFE_LENGTH 42.3f // mm
+    #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7f // mm
+
     #define MMU2_CAN_LOAD_INCREMENT 0.2   // (mm) To reuse within MMU2 module
     #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
       { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
@@ -4527,9 +4530,6 @@
     #define MMU2_FILAMENT_SENSOR_POSITION 0 // mm
     #define MMU2_LOAD_DISTANCE_PAST_GEARS 5 // mm
     #define MMU2_TOOL_CHANGE_LOAD_LENGTH MMU2_FILAMENT_SENSOR_POSITION + MMU2_LOAD_DISTANCE_PAST_GEARS // mm
-
-    #define MMU2_EXTRUDER_PTFE_LENGTH 42.3f // mm
-    #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7f // mm
 
     #define MMU2_LOAD_TO_NOZZLE_FEED_RATE 20.0F // mm/s
     #define MMU2_UNLOAD_TO_FINDA_FEED_RATE 120.0F // mm/s

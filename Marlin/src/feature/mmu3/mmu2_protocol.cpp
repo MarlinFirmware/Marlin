@@ -1,4 +1,5 @@
-#ifdef HAS_PRUSA_MMU3
+#include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 /// @file
 #include "mmu2_protocol.h"
 

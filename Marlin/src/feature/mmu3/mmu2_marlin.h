@@ -1,5 +1,4 @@
 /// @file
-#ifdef HAS_PRUSA_MMU3
 /// The sole purpose of this interface is to separate Marlin1/Marlin2 from the MMU top logic layer.
 /// Why?
 /// - unify implementation among MK3 and Buddy FW
@@ -8,6 +7,7 @@
 #include <stdint.h>
 #include "src/MarlinCore.h"
 
+#if HAS_PRUSA_MMU3
 namespace MMU2 {
 
 void extruder_move(const float distance, const float feed_rate, const bool sync=true);

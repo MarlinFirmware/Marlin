@@ -1,4 +1,4 @@
-#ifdef HAS_PRUSA_MMU3
+#if HAS_PRUSA_MMU3
 // Extracted from Prusa-Error-Codes repo
 // Subject to automation and optimization
 // BEWARE - this file shall be included only into mmu2_error_converter.cpp, not anywhere else!

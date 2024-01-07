@@ -1,5 +1,4 @@
 /// @file
-#ifdef HAS_PRUSA_MMU3
 /// This file will not be the same on Marlin1 and Marlin2.
 /// Its purpose is to unify different macros in either of Marlin incarnations.
 #pragma once
@@ -19,4 +18,3 @@
     #define _T(x)                             x
     #define MARLIN_KEEPALIVE_STATE_IN_PROCESS KEEPALIVE_STATE(IN_PROCESS)
 #endif
-#endif // HAS_PRUSA_MMU3

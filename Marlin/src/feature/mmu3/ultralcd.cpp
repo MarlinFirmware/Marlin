@@ -1,4 +1,5 @@
-#ifdef HAS_PRUSA_MMU3
+#include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 #include "ultralcd.h"
 #include "src/lcd/menu/menu_item.h"
 #include "src/gcode/gcode.h"

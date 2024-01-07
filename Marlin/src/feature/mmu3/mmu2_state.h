@@ -3,7 +3,7 @@
  * @brief status of mmu
  */
 #pragma once
-#ifdef HAS_PRUSA_MMU3
+#if HAS_PRUSA_MMU3
 #include <stdint.h>
 namespace MMU2 {
 /// States of a printer with the MMU:

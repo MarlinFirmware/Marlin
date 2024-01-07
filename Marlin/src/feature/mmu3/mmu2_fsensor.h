@@ -1,4 +1,3 @@
-#ifdef HAS_PRUSA_MMU3
 #pragma once
 #include "src/core/macros.h"
 #include <stdint.h>
@@ -10,6 +9,7 @@
   #define FILAMENT_PRESENT() true
 #endif
 
+#if HAS_PRUSA_MMU3
 namespace MMU2 {
 
 /// Can be used to block printer's filament sensor handling - to avoid errorneous injecting of M600

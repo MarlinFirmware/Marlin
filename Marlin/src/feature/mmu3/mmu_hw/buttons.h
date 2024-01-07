@@ -1,5 +1,4 @@
 #pragma once
-#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 
 // Helper macros to parse the operations from Btns()
@@ -45,4 +44,3 @@ constexpr uint_least8_t buttons_to_uint8t(Buttons b) {
 }
 
 } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

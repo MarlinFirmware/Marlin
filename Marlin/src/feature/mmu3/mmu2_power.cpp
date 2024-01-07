@@ -1,4 +1,3 @@
-#ifdef HAS_PRUSA_MMU3
 #include "mmu2.h"
 #include "mmu2_power.h"
 
@@ -7,10 +6,8 @@
 #include "src/core/macros.h"
 #include "src/core/boards.h"
 #include "src/pins/pins.h"
-// #include "Configuration_var.h"
-// #include "fastio.h"
-// #include <util/delay.h>
 
+#if HAS_PRUSA_MMU3
 namespace MMU2 {
 
 // On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.

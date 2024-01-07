@@ -1,9 +1,9 @@
-#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 #include "src/feature/runout.h"
 #include "mmu2_fsensor.h"
 
 
+#if HAS_PRUSA_MMU3
 namespace MMU2 {
 
 #if HAS_FILAMENT_SENSOR

@@ -1,6 +1,7 @@
 /// @file
 #pragma once
-#ifdef HAS_PRUSA_MMU3
+#include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 #include "mmu2_state.h"
 #include "mmu2_marlin.h"
 

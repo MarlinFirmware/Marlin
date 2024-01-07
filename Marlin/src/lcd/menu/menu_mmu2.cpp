@@ -205,6 +205,7 @@ void menu_mmu2_dev_increment_load_fail_stat(){
 
 static void mmu2_reset_stats(){
   bool result = MMU2::operation_statistics.reset_stats();
+  ui.go_back();
   MarlinUI::completion_feedback(result);
 }
 

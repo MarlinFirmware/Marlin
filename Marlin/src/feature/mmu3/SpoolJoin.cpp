@@ -1,6 +1,6 @@
-#ifdef HAS_PRUSA_MMU3
-#include "SpoolJoin.h"
 #include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
+#include "SpoolJoin.h"
 #include "src/module/settings.h"
 #ifdef __AVR__
     #include <avr/eeprom.h>

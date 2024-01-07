@@ -1,6 +1,6 @@
-#ifdef HAS_PRUSA_MMU3
-#include "mmu2_progress_converter.h"
 #include "src/core/language.h"
+#if HAS_PRUSA_MMU3
+#include "mmu2_progress_converter.h"
 #ifdef __AVR__
     #include <avr/pgmspace.h>
 #endif

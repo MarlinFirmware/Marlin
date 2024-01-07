@@ -1,7 +1,7 @@
-#ifdef HAS_PRUSA_MMU3
 #include <avr/pgmspace.h>
-// #include "eeprom.h"
+
 #include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 #include "src/core/language.h"
 #include "src/gcode/gcode.h"
 #include "src/feature/host_actions.h"
@@ -20,7 +20,6 @@
 #include "mmu_hw/errors_list.h"
 #include "messages.h"
 #include "ultralcd.h"
-// #include "Filament_sensor.h"
 #include "sound.h"
 
 #ifndef HAS_WIRED_LCD

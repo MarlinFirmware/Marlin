@@ -1,5 +1,4 @@
 /// @file
-#ifdef HAS_PRUSA_MMU3
 #pragma once
 #include <stdint.h>
 
@@ -47,4 +46,3 @@ public:
 // clang-format on
 
 } // namespace modules
-#endif // HAS_PRUSA_MMU3

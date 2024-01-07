@@ -1,5 +1,4 @@
 #pragma once
-#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 
 #define e_SOUND_MODE_NULL 0xFF
@@ -43,4 +42,3 @@ void sound_wait_for_user_reset();
 
 //static void Sound_DoSound_Echo(void);
 //static void Sound_DoSound_Prompt(void);
-#endif // HAS_PRUSA_MMU3

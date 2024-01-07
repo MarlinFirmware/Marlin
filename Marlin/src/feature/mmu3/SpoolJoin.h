@@ -1,8 +1,8 @@
 /// @file
 #pragma once
-#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
-
+#include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 // See documentation here: https://help.prusa3d.com/article/spooljoin-mmu2s_134252
 
 namespace SpoolJoin {

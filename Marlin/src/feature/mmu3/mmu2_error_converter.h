@@ -1,9 +1,9 @@
 #pragma once
-#ifdef HAS_PRUSA_MMU3
 #include <stdint.h>
 #include <stddef.h>
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
+#if HAS_PRUSA_MMU3
 
 namespace MMU2 {
 

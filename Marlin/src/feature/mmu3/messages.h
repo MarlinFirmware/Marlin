@@ -1,5 +1,4 @@
 //messages.h
-#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 
 // Common serial messages
@@ -14,6 +13,7 @@ extern "C" {
 #else
 #define WELCOME_MSG ("PRINTER OK.")
 #endif
+#if HAS_PRUSA_MMU3
 
 // LCD Menu Messages
 //internationalized messages

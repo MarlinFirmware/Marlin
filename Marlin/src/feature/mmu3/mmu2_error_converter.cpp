@@ -1,6 +1,6 @@
-#ifdef HAS_PRUSA_MMU3
 #include <stdio.h>
 #include "src/core/language.h"
+#if HAS_PRUSA_MMU3
 #include "mmu2_error_converter.h"
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/errors_list.h"

@@ -243,7 +243,7 @@
   #define HEATER_BED_PIN                    PD7   // Hotbed
 #endif
 #ifndef FAN0_PIN
-  #define FAN0_PIN                          PB7   // Fan0
+  #define FAN0_PIN                          PB5 // Because I burned the PB7   // Fan0
 #endif
 
 #if HAS_CUTTER
@@ -258,7 +258,7 @@
     #define FAN1_PIN                        PB6   // Fan1
   #endif
   #ifndef FAN2_PIN
-    #define FAN2_PIN                        PB5   // Fan2
+    #define FAN2_PIN                        PB7   // Fan2
   #endif
 #endif // SPINDLE_FEATURE || LASER_FEATURE
 

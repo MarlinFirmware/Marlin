@@ -1,6 +1,6 @@
-#ifdef HAS_PRUSA_MMU3
+#include "src/MarlinCore.h"
+#if HAS_PRUSA_MMU3
 #include "mmu2_log.h"
-
 namespace MMU2 {
 
 void LogErrorEvent_P(const char *msg){

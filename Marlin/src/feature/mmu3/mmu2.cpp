@@ -1,6 +1,5 @@
-#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
-// #include "eeprom.h"
+#if HAS_PRUSA_MMU3
 #include "src/lcd/marlinui.h"
 #include "src/core/language.h"
 #include "src/module/planner.h"

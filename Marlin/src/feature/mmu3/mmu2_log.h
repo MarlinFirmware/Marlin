@@ -1,5 +1,4 @@
 #pragma once
-#ifdef HAS_PRUSA_MMU3
 #ifdef __AVR__
     #include <avr/pgmspace.h>
 #else
@@ -11,6 +10,7 @@
 // and MMU2::ReportError + MMU2::ReportProgress
 static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
 
+#if HAS_PRUSA_MMU3
 namespace MMU2 {
 
 /// Report the msg into the general logging subsystem (through Marlin's SERIAL_ECHO stuff)

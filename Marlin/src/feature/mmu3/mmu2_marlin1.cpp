@@ -1,10 +1,10 @@
 /// @file
 /// MK3 / Marlin1 implementation of support routines for the MMU2
-#ifdef HAS_PRUSA_MMU3
 #include "src/MarlinCore.h"
 #include "src/module/stepper.h"
 #include "src/module/planner.h"
 #include "src/module/temperature.h"
+#if HAS_PRUSA_MMU3
 #include "mmu2_marlin.h"
 
 namespace MMU2 {
