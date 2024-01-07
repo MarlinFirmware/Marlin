@@ -13,7 +13,6 @@ extern "C" {
 #else
 #define WELCOME_MSG ("PRINTER OK.")
 #endif
-#if HAS_PRUSA_MMU3
 
 // LCD Menu Messages
 //internationalized messages
@@ -269,4 +268,3 @@ extern const char MSG_M702[];
 #if defined(__cplusplus)
 }
 #endif //defined(__cplusplus)
-#endif // HAS_PRUSA_MMU3

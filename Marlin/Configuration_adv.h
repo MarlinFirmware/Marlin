@@ -4441,6 +4441,10 @@
   // MMU3
   // ----
   // These values are compatible with MMU3 as they are defined in mm/s
+
+  #define MMU2_EXTRUDER_PTFE_LENGTH 42.3f // mm
+  #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7f // mm
+
   #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
       { MMU2_EXTRUDER_PTFE_LENGTH,       810.0F / 60.F}, \
       { MMU2_EXTRUDER_HEATBREAK_LENGTH,  198.0F / 60.F}
@@ -4498,9 +4502,6 @@
 
     #define MMU2_CAN_LOAD_RETRACT   6.0   // (mm) Keep under the distance between Load Sequence values
     #define MMU2_CAN_LOAD_DEVIATION 0.8   // (mm) Acceptable deviation
-
-    #define MMU2_EXTRUDER_PTFE_LENGTH 42.3f // mm
-    #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7f // mm
 
     #define MMU2_CAN_LOAD_INCREMENT 0.2   // (mm) To reuse within MMU2 module
     #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \

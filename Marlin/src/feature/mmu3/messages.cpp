@@ -3,10 +3,10 @@
 #include "messages.h"
 #include "mmu_hw/errors_list.h"
 
+#if HAS_PRUSA_MMU3
 // For the custom characters
 // #include "lcd.h"
 #include "src/lcd/marlinui.h"
-#if HAS_PRUSA_MMU3
 
 //internationalized messages
 const char MSG_ALWAYS[] PROGMEM = ISTR("Always"); ////MSG_ALWAYS c=6
