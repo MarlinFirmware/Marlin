@@ -1810,15 +1810,6 @@ void MarlinUI::update() {
   dwinHandleScreen();  // Rotary encoder update
 }
 
-// void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-//   clearMainWindow();
-//   drawPopupBkgd60();
-//   dwinIconShow(ICON, ICON_TempTooHigh, 100, 105);
-//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 220, GET_TEXT_F(MSG_HALTED));
-//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 220, error);
-//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 250, GET_TEXT_F(MSG_TURN_OFF));
-// }
-
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
 #if HAS_LCD_BRIGHTNESS
