@@ -1049,7 +1049,7 @@ void drawMotionMenu() {
     clearPopupArea();
     drawPopupBkgd105();
     if (toohigh) {
-      dwinIconShow(ICON, ICON_TempTooHigh, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooHigh, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 237, 386,  52, 285); // Temp Too High
         dwinFrameAreaCopy(1, 151, 389, 185, 402, 187, 285);
@@ -1061,7 +1061,7 @@ void drawMotionMenu() {
       }
     }
     else {
-      dwinIconShow(ICON, ICON_TempTooLow, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooLow, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 270, 386, 52, 285); // Tenp Too Low
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
@@ -1084,7 +1084,7 @@ void drawPopupBkgd60() {
   void popupWindowETempTooLow() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_TempTooLow, 102, 105);
+    dwinIconShow(ICON, ICON_TempTooLow, 100, 105);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 103, 371, 136, 386, 69, 240);      // Nozzle Too Cold
       dwinFrameAreaCopy(1, 170, 371, 270, 386, 69 + 33, 240);
@@ -1119,7 +1119,7 @@ void popupWindowResume() {
 void popupWindowHome(const bool parking/*=false*/) {
   clearMainWindow();
   drawPopupBkgd60();
-  dwinIconShow(ICON, ICON_BLTouch, 101, 105);
+  dwinIconShow(ICON, ICON_BLTouch, 100, 105);
   if (hmiIsChinese()) {
     dwinFrameAreaCopy(1, 0, 371, 33, 386, 85, 240);       // Wait for Move to Complete
     dwinFrameAreaCopy(1, 203, 286, 271, 302, 118, 240);
@@ -1136,7 +1136,7 @@ void popupWindowHome(const bool parking/*=false*/) {
   void popupWindowLeveling() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_AutoLeveling, 101, 105);
+    dwinIconShow(ICON, ICON_AutoLeveling, 100, 105);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 0, 371, 100, 386, 84, 240);    // Wait for Leveling
       dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
@@ -1809,6 +1809,15 @@ void MarlinUI::update() {
   hmiSDCardUpdate();   // SD card update
   dwinHandleScreen();  // Rotary encoder update
 }
+
+// void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
+//   clearMainWindow();
+//   drawPopupBkgd60();
+//   dwinIconShow(ICON, ICON_TempTooHigh, 100, 105);
+//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 220, GET_TEXT_F(MSG_HALTED));
+//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 220, error);
+//   dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 250, GET_TEXT_F(MSG_TURN_OFF));
+// }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
