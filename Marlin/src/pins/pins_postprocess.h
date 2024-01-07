@@ -498,6 +498,8 @@
     #define NUM_SERVO_PLUGS 2
   #elif PIN_EXISTS(SERVO0)
     #define NUM_SERVO_PLUGS 1
+  #else
+    #define NUM_SERVO_PLUGS 0
   #endif
 #endif
 
