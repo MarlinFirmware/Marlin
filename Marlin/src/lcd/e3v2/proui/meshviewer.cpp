@@ -136,8 +136,8 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
   if (see_mesh) {
     TERN_(USE_GRID_MESHVIEWER, bedLevelTools.setMeshViewerStatus());
   }
-  else
-    ui.set_status_and_level(MString<30>(F("Mesh Z min: "), p_float_t(min, 2), F(", max: "), p_float_t(max, 2)));
+  else // TODO: in marlinui.h set_status_and_level was defined to (..., const int8_t level=0); remove ", 0" when pulling other PR
+    ui.set_status_and_level(MString<30>(F("Mesh Z min: "), p_float_t(min, 2), F(", max: "), p_float_t(max, 2)), 0);
 }
 
 void drawMeshViewer() { meshViewer.draw(true, meshredraw); }
