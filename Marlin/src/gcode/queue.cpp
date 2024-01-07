@@ -101,7 +101,7 @@ void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
 ) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
-  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w, is_sd_cmd));
+  TERN_(POWER_LOSS_RECOVERY, if (is_sd_cmd) recovery.commit_sdpos(index_w));
   advance_pos(index_w, 1);
 }
 

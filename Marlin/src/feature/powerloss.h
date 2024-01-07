@@ -130,7 +130,7 @@ typedef struct {
 
   uint8_t valid_foot;
 
-  bool valid() { return valid_head && valid_head == valid_foot; }
+  bool valid() { return valid_head && valid_head == valid_foot && sdpos; }
 
 } job_recovery_info_t;
 
@@ -169,7 +169,7 @@ class PrintJobRecovery {
 
     // Track each command's file offsets
     static uint32_t command_sdpos() { return sdpos[queue_index_r]; }
-    static void commit_sdpos(const uint8_t index_w, const bool is_sd_cmd=true) { sdpos[index_w] = is_sd_cmd ? cmd_sdpos : 0; }
+    static void commit_sdpos(const uint8_t index_w) { sdpos[index_w] = cmd_sdpos; }
 
     static bool enabled;
     static void enable(const bool onoff);

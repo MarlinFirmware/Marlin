@@ -60,6 +60,7 @@ inline void plr_error(FSTR_P const prefix) {
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
+ *   - With 'C' execute a cancel selection
  *   - With no parameters, run recovery commands
  */
 void GcodeSuite::M1000() {
