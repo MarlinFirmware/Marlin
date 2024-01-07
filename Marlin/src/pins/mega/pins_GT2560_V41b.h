@@ -51,14 +51,12 @@
  *  X AXIS              Y AXIS               Z1 AXIS            Z0 AXIS
  *    ---                 ---                 ---                 ---
  *   | 1 | 5V            | 1 | 5V            | 1 | 5V            | 1 | 5V
- *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | PE7 Z1_MIN    | 2 | 30 Z0_MIN
+ *   | 2 | 24 X_MIN      | 2 | 28 Y_MIN      | 2 | 80 Z1_MIN     | 2 | 30 Z0_MIN
  *   | 3 | GND           | 3 | GND           | 3 | GND           | 3 | GND
  *    ---                 ---                 ---                 ---
  *     J3                  J4                  J5                  J6
  *
 */
-
-//#define Z1_MIN                             PE7  // Number??
 
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
@@ -83,6 +81,9 @@
   #ifndef Z_MAX_PIN
     #define Z_MAX_PIN                         32
   #endif
+#endif
+#ifndef Z2_STOP_PIN
+  #define Z2_STOP_PIN                         80  // PE7 - Extended mega2560 pin
 #endif
 
 /**                   Filament Runout Sensors

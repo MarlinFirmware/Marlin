@@ -118,22 +118,22 @@ static void disp_key_value() {
       break;
 
     case XJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.x, 1, 1, public_buf_m);
       #endif
       break;
     case YJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.y, 1, 1, public_buf_m);
       #endif
       break;
     case ZJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.z, 1, 1, public_buf_m);
       #endif
       break;
     case EJerk:
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         dtostrf(planner.max_jerk.e, 1, 1, public_buf_m);
       #endif
       break;
@@ -307,10 +307,10 @@ static void set_value_confirm() {
     case ZMaxFeedRate:   planner.settings.max_feedrate_mm_s[Z_AXIS] = atof(key_value); break;
     case E0MaxFeedRate:  planner.settings.max_feedrate_mm_s[E_AXIS] = atof(key_value); break;
     case E1MaxFeedRate:  planner.settings.max_feedrate_mm_s[E_AXIS_N(1)] = atof(key_value); break;
-    case XJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.x = atof(key_value)); break;
-    case YJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.y = atof(key_value)); break;
-    case ZJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.z = atof(key_value)); break;
-    case EJerk: TERN_(HAS_CLASSIC_JERK, planner.max_jerk.e = atof(key_value)); break;
+    case XJerk: TERN_(CLASSIC_JERK, planner.max_jerk.x = atof(key_value)); break;
+    case YJerk: TERN_(CLASSIC_JERK, planner.max_jerk.y = atof(key_value)); break;
+    case ZJerk: TERN_(CLASSIC_JERK, planner.max_jerk.z = atof(key_value)); break;
+    case EJerk: TERN_(CLASSIC_JERK, planner.max_jerk.e = atof(key_value)); break;
     case Xstep:  planner.settings.axis_steps_per_mm[X_AXIS] = atof(key_value); planner.refresh_positioning(); break;
     case Ystep:  planner.settings.axis_steps_per_mm[Y_AXIS] = atof(key_value); planner.refresh_positioning(); break;
     case Zstep:  planner.settings.axis_steps_per_mm[Z_AXIS] = atof(key_value); planner.refresh_positioning(); break;
@@ -358,20 +358,20 @@ static void set_value_confirm() {
       case x_offset: {
         #if HAS_PROBE_XY_OFFSET
           const float x = atof(key_value);
-          if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
+          if (WITHIN(x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX))
             probe.offset.x = x;
         #endif
       } break;
       case y_offset: {
         #if HAS_PROBE_XY_OFFSET
           const float y = atof(key_value);
-          if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
+          if (WITHIN(y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX))
             probe.offset.y = y;
         #endif
       } break;
       case z_offset: {
         const float z = atof(key_value);
-        if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+        if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
           probe.offset.z = z;
       } break;
     #endif

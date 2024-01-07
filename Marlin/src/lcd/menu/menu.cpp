@@ -298,7 +298,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
                     , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     , new_probe_offset
                   );
-      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+      if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
@@ -352,13 +352,13 @@ bool MarlinUI::update_selection() {
 void MenuItem_confirm::select_screen(
   FSTR_P const yes, FSTR_P const no,
   selectFunc_t yesFunc, selectFunc_t noFunc,
-  FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/
+  FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
 ) {
   ui.defer_status_screen();
   const bool ui_selection = !yes ? false : !no || ui.update_selection(),
              got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
-    draw_select_screen(yes, no, ui_selection, pref, string, suff);
+    draw_select_screen(yes, no, ui_selection, fpre, string, fsuf);
     if (got_click) {
       selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
       if (callFunc) callFunc(); else ui.goto_previous_screen();

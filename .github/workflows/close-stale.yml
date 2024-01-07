@@ -17,12 +17,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/stale@v3
+    - uses: actions/stale@v8
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'This issue has had no activity in the last 60 days. Please add a reply if you want to keep this issue active, otherwise it will be automatically closed within 10 days.'
-        days-before-stale: 60
-        days-before-close: 10
+        stale-issue-message: |
+          Greetings from the Marlin AutoBot!
+          This issue has had no activity for the last 90 days.
+          Do you still see this issue with the latest `bugfix-2.1.x` code?
+          Please add a reply within 14 days or this issue will be automatically closed.
+          To keep a confirmed issue open we can also add a "Bug: Confirmed" tag.
+
+          Disclaimer: This is an open community project with lots of activity and limited
+          resources. The main project contributors will do a bug sweep ahead of the next
+          release, but any skilled member of the community may jump in at any time to fix
+          this issue. That can take a while depending on our busy lives so please be patient,
+          and take advantage of other resources such as the MarlinFirmware Discord to help
+          solve the issue.
+        days-before-stale: 90
+        days-before-close: 14
         stale-issue-label: 'stale-closing-soon'
         exempt-all-assignees: true
         exempt-issue-labels: 'Bug: Confirmed !,T: Feature Request,Needs: More Data,Needs: Discussion,Needs: Documentation,Needs: Patch,Needs: Work,Needs: Testing,help wanted,no-locking'

@@ -47,10 +47,15 @@
   #define USART9 UART9
 #endif
 
-#define DECLARE_SERIAL_PORT(ser_num) \
-  void _rx_complete_irq_ ## ser_num (serial_t * obj); \
-  MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
-  void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
+#if ENABLED(SERIAL_DMA)
+  #define DECLARE_SERIAL_PORT(ser_num) \
+    MSerialT MSerial ## ser_num (true, USART ## ser_num);
+#else
+  #define DECLARE_SERIAL_PORT(ser_num) \
+    void _rx_complete_irq_ ## ser_num (serial_t * obj); \
+    MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
+    void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
+#endif
 
 #if USING_HW_SERIAL1
   DECLARE_SERIAL_PORT(1)
@@ -87,33 +92,38 @@
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
-  HardwareSerial::begin(baud, config);
-  // Replace the IRQ callback with the one we have defined
-  TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
+  #if ENABLED(SERIAL_DMA)
+    HAL_HardwareSerial::begin(baud, config);
+  #else
+    HardwareSerial::begin(baud, config);
+    // Replace the IRQ callback with the one we have defined
+    TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
+  #endif
 }
 
-// This function is Copyright (c) 2006 Nicholas Zambetti.
-void MarlinSerial::_rx_complete_irq(serial_t *obj) {
-  // No Parity error, read byte and store it in the buffer if there is room
-  unsigned char c;
+#if DISABLED(SERIAL_DMA)
 
-  if (uart_getc(obj, &c) == 0) {
+  // This function Copyright (c) 2006 Nicholas Zambetti.
+  void MarlinSerial::_rx_complete_irq(serial_t *obj) {
+    // No Parity error, read byte and store it in the buffer if there is room
+    unsigned char c;
+    if (uart_getc(obj, &c) == 0) {
 
-    rx_buffer_index_t i = (unsigned int)(obj->rx_head + 1) % SERIAL_RX_BUFFER_SIZE;
+      rx_buffer_index_t i = (unsigned int)(obj->rx_head + 1) % SERIAL_RX_BUFFER_SIZE;
 
-    // if we should be storing the received character into the location
-    // just before the tail (meaning that the head would advance to the
-    // current location of the tail), we're about to overflow the buffer
-    // and so we don't write the character or advance the head.
-    if (i != obj->rx_tail) {
-      obj->rx_buff[obj->rx_head] = c;
-      obj->rx_head = i;
+      // If tail overlaps head the buffer is overflowed
+      // so don't write the character or advance the head.
+      if (i != obj->rx_tail) {
+        obj->rx_buff[obj->rx_head] = c;
+        obj->rx_head = i;
+      }
+
+      #if ENABLED(EMERGENCY_PARSER)
+        emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, c);
+      #endif
     }
-
-    #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, c);
-    #endif
   }
-}
+
+#endif // !SERIAL_DMA
 
 #endif // HAL_STM32
