@@ -2494,7 +2494,7 @@
     #if ANY(PIDTEMP, PIDTEMPBED)
       #define PROUI_PID_TUNE 1
     #endif
-    #if HAS_MESH && !defined(USE_GRID_MESHVIEWER)
+    #if HAS_MESH && !USE_GRID_MESHVIEWER
       #define USE_GRID_MESHVIEWER 1
     #endif
   #endif
