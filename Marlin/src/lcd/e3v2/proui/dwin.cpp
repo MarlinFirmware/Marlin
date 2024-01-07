@@ -2019,6 +2019,7 @@ void dwinRedrawScreen() {
   void onClickConfirmToPrint() {
     dwinResetStatusLine();
     if (hmiFlag.select_flag) {     // Confirm
+      gotoMainMenu();
       return card.openAndPrintFile(card.filename);
     }
     else
@@ -4120,7 +4121,7 @@ void drawStepsMenu() {
         BACK_ITEM(drawMeshSetMenu);
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
-        editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat3Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
+        editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
       }
       updateMenu(editMeshMenu);
     }

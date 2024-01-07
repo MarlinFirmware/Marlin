@@ -1657,8 +1657,6 @@ void MarlinUI::host_notify(const char * const cstr) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
   void MarlinUI::status_printf_P(int8_t level, PGM_P const fmt, ...) {
-    if (set_alert_level(level)) return;
-
     MString<30> msg;
 
     va_list args;

@@ -224,9 +224,9 @@ void DWINUI::drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y
 
 void DWINUI::drawButton(uint8_t id, uint16_t x, uint16_t y) {
   switch (id) {
-    case BTN_Continue: drawButton(GET_TEXT_F(MSG_BUTTON_CONTINUE), x, y); break;
     case BTN_Cancel  : drawButton(GET_TEXT_F(MSG_BUTTON_CANCEL), x, y); break;
     case BTN_Confirm : drawButton(GET_TEXT_F(MSG_BUTTON_CONFIRM), x, y); break;
+    case BTN_Continue: drawButton(GET_TEXT_F(MSG_BUTTON_CONTINUE), x, y); break;
     case BTN_Print   : drawButton(GET_TEXT_F(MSG_BUTTON_PRINT), x, y); break;
     case BTN_Save    : drawButton(GET_TEXT_F(MSG_BUTTON_SAVE), x, y); break;
     case BTN_Purge   : drawButton(GET_TEXT_F(MSG_BUTTON_PURGE), x, y); break;
