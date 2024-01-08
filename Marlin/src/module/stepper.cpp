@@ -1511,8 +1511,6 @@ void Stepper::isr() {
         if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
           nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
           ftMotion_stepper();             // Run FTM Stepping
-          IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());         // Check endstops now
-          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());  // Babystep if needed
         }
         interval = nextMainISR;           // Interval is either some old nextMainISR or FTM_MIN_TICKS
         nextMainISR = 0;                  // For FT Motion fire again ASAP
@@ -3493,6 +3491,8 @@ void Stepper::report_positions() {
       U_APPLY_STEP(axis_did_move.u, false), V_APPLY_STEP(axis_did_move.v, false), W_APPLY_STEP(axis_did_move.w, false)
     );
 
+    TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
+
     // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
@@ -3533,6 +3533,12 @@ void Stepper::report_positions() {
       I_APPLY_STEP(!STEP_STATE_I, false), J_APPLY_STEP(!STEP_STATE_J, false), K_APPLY_STEP(!STEP_STATE_K, false),
       U_APPLY_STEP(!STEP_STATE_U, false), V_APPLY_STEP(!STEP_STATE_V, false), W_APPLY_STEP(!STEP_STATE_W, false)
     );
+
+    // Check endstops on every step
+    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
+
+    // Also handle babystepping here
+    TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
 
   } // Stepper::ftMotion_stepper
 

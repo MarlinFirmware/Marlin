@@ -36,11 +36,6 @@
 
 #if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
-  #include "../../module/endstops.h"
-#endif
-
-#if ENABLED(BABYSTEPPING)
-  #include "../../feature/babystep.h"
 #endif
 
 #define DMA_BUF_COUNT 8                                // number of DMA buffers to store data
@@ -164,13 +159,7 @@ void stepperTask(void *parameter) {
       #if ENABLED(FT_MOTION)
 
         if (using_ftMotion) {
-          if (!nextMainISR) {
-            stepper.ftMotion_stepper();
-            IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update()); // Check endstops now
-            TERN_(BABYSTEPPING, if (babystep.has_steps()) stepper.babystepping_isr());
-          }
-          else
-            i2s_push_sample();
+          if (!nextMainISR) stepper.ftMotion_stepper();
           nextMainISR = 0;
         }
 
