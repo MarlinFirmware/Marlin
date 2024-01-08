@@ -130,6 +130,7 @@ void menu_mmu2_eject_filament() {
 
 // Cutter
 
+#if HAS_PRUSA_MMU3
 void menu_mmu2_cutter_set_mode(uint8_t mode){MMU2::mmu2.cutter_mode = mode;}
 void menu_mmu2_cutter_disable(){menu_mmu2_cutter_set_mode(0);}
 void menu_mmu2_cutter_enable(){menu_mmu2_cutter_set_mode(1);}
@@ -241,6 +242,7 @@ void menu_mmu2_statistics() {
   );
   END_MENU();
 }
+#endif // HAS_PRUSA_MMU3
 
 //
 // MMU2 Menu
@@ -344,17 +346,21 @@ void menu_mmu2_pause() {
 }
 
 void mmu2_M600(bool automatic) {
-  uint8_t slot;
   // Disable automatic switching if MMU3 is not enabled or spool join is disabled
-  if(TERN0(HAS_PRUSA_MMU3, automatic && SpoolJoin::spooljoin.enabled)){
-    slot = SpoolJoin::spooljoin.nextSlot();
-    MMU2::mmu2.load_filament_to_nozzle(slot);
-  } else {
-    ui.defer_status_screen();
-    ui.goto_screen(menu_mmu2_pause);
-    wait_for_mmu_menu = true;
-    while (wait_for_mmu_menu) idle();
-  }
+  #if HAS_PRUSA_MMU3
+    if(automatic && SpoolJoin::spooljoin.enabled){
+      uint8_t slot;
+      slot = SpoolJoin::spooljoin.nextSlot();
+      MMU2::mmu2.load_filament_to_nozzle(slot);
+    } else {
+  #endif
+      ui.defer_status_screen();
+      ui.goto_screen(menu_mmu2_pause);
+      wait_for_mmu_menu = true;
+      while (wait_for_mmu_menu) idle();
+  #if HAS_PRUSA_MMU3
+    }
+  #endif
 }
 
 uint8_t mmu2_choose_filament() {

@@ -2,15 +2,14 @@
 #if HAS_PRUSA_MMU3
 #include <Arduino.h>
 // #include "backlight.h"
-#include "eeprom.h"
 // #include "fastio.h"
 #include "src/libs/buzzer.h"
 #include "sound.h"
 
 
 //eSOUND_MODE eSoundMode=e_SOUND_MODE_LOUD;
-// nema vyznam, pokud se bude volat Sound_Init (tzn. poc. hodnota je v EEPROM)
-// !?! eSOUND_MODE eSoundMode; v ultraldc.cpp :: cd_settings_menu() se takto jevi jako lokalni promenna
+// doesn't matter if Sound_Init is called (i.e. the value is in the EEPROM)
+// !?! eSOUND_MODE eSoundMode; in ultraldc.cpp :: cd_settings_menu() it appears as a local variable like this
 eSOUND_MODE eSoundMode; //=e_SOUND_MODE_DEFAULT;
 
 

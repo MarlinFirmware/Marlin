@@ -5,6 +5,7 @@
 #include "src/gcode/gcode.h"
 #include "src/lcd/marlinui.h"
 #include "mmu2.h"
+#include "mmu2_marlin_macros.h"
 #include "mmu_hw/errors_list.h"
 
 
@@ -17,12 +18,12 @@
 void lcd_show_choices_prompt_P(uint8_t selected, const char *first_choice, const char *second_choice, uint8_t second_col, const char *third_choice)
 {
     lcd_put_lchar(0, 3, selected == LCD_LEFT_BUTTON_CHOICE ? '>': ' ');
-    lcd_put_u8str(F(first_choice));
+    lcd_put_u8str(first_choice);
     lcd_put_lchar(second_col, 3, selected == LCD_MIDDLE_BUTTON_CHOICE ? '>': ' ');
-    lcd_put_u8str(F(second_choice));
+    lcd_put_u8str(second_choice);
     if (third_choice) {
         lcd_put_lchar(18, 3, selected == LCD_RIGHT_BUTTON_CHOICE ? '>': ' ');
-        lcd_put_u8str(F(third_choice));
+        lcd_put_u8str(third_choice);
     }
 }
 

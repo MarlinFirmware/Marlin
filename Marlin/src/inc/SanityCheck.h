@@ -615,6 +615,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
   #elif ENABLED(MMU2_MENUS) && !HAS_MARLINUI_MENU
     #error "MMU2_MENUS requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && !HAS_MARLINUI_MENU
+    #error "MMU3 requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && DISABLED(MMU2_MENUS)
+    #error "MMU3 requires MMU2_MENUS."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "MMU2_FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
   #endif

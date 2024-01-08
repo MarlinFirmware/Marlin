@@ -2,11 +2,6 @@
 #if HAS_PRUSA_MMU3
 #include "SpoolJoin.h"
 #include "src/module/settings.h"
-#ifdef __AVR__
-    #include <avr/eeprom.h>
-#else
-    #include "eeprom.h"
-#endif
 #include "messages.h"
 #include "src/core/language.h"
 

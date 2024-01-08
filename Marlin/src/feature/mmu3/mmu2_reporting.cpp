@@ -14,6 +14,7 @@
 #include "mmu2_fsensor.h"
 #include "mmu2_reporting.h"
 #include "mmu2_error_converter.h"
+#include "mmu2_marlin_macros.h"
 #include "mmu2_progress_converter.h"
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
@@ -216,14 +217,14 @@ static void ReportErrorHookStaticRender(uint8_t ei) {
     ui.clear_lcd();
 
     START_SCREEN();
-    STATIC_ITEM_F(F(PrusaErrorTitle(ei)), SS_DEFAULT|SS_INVERT);
+    STATIC_ITEM(PrusaErrorTitle(ei), SS_DEFAULT|SS_INVERT);
 
-    MString<20> url(F(""));
+    MString<20> url("");
     url.append(
-        F("prusa.io/04%hu"),
+        "prusa.io/04%hu",
         PrusaErrorCode(ei)
     );
-    STATIC_ITEM_F(F(url.buffer()));
+    STATIC_ITEM(url.buffer());
 
     ReportErrorHookSensorLineRender();
 
@@ -244,7 +245,7 @@ static void ReportErrorHookStaticRender(uint8_t ei) {
 void ReportErrorHookSensorLineRender(){
     #ifdef HAS_WIRED_LCD
     // Render static characters in third line
-    lcd_put_u8str(0, 2, F("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
+    lcd_put_u8str(0, 2, ("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
     #endif
 }
 
@@ -354,7 +355,7 @@ static uint8_t ReportErrorHookMonitor(uint8_t ei) {
         // 'More' show error description
         #ifdef HAS_WIRED_LCD
         lcd_show_fullscreen_message_and_wait_P(PrusaErrorDesc(ei));
-        LCD_ALERTMESSAGE_F(PrusaErrorDesc(ei));
+        LCD_ALERTMESSAGE(PrusaErrorDesc(ei));
         #endif
         ret = 1;
     } else if(choice_selected == LCD_MIDDLE_BUTTON_CHOICE) {
@@ -709,7 +710,7 @@ void tuneIdlerStallguardThresholdMenu() {
     // //     lcd_return_to_status();
     // //     return;
     // // );
-    // // MENU_ITEM_BACK_P(_T(MSG_DONE));
+    // // MENU_ITEM_BACK(MSG_DONE);
     // // MENU_ITEM_EDIT_int3_P(
     // //     _i("Sensitivity"), ////MSG_MMU_SENSITIVITY c=18
     // //     &_md->currentValue,

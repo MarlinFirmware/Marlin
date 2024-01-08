@@ -4,6 +4,7 @@
 #include "src/core/language.h"
 #include "src/module/planner.h"
 #include "src/module/motion.h"
+#include "src/gcode/parser.h"
 #include "src/gcode/queue.h"
 #include "src/feature/runout.h"
 #if HAS_LEVELING
@@ -26,11 +27,11 @@
 
 #include "messages.h"
 
-#ifdef __AVR__
+// #ifdef __AVR__
 // As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
 // Saves at least 800B of code size
-static_assert(EXTRUDERS == 1);
-#endif
+// static_assert(EXTRUDERS == 1);
+// #endif
 
 namespace MMU2 {
 

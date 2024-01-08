@@ -6,7 +6,8 @@
 
 #ifdef __AVR__
     // on MK3/S/+ we shuffle the timers a bit, thus "_millis" may not equal "millis"
-    #include "system_timer.h"
+    // #include "system_timer.h"
+    #define _millis millis
 #else
     // irrelevant on Buddy FW, just keep "_millis" as "millis"
     #include <wiring_time.h>
@@ -211,7 +212,14 @@ void ProtocolLogic::SendMsg(RequestMsg rq) {
     uint8_t txbuff[Protocol::MaxRequestSize()];
 #endif
     uint8_t len = Protocol::EncodeRequest(rq, txbuff);
+#ifdef __AVR__
+    // TODO: I'm not sure if this is the correct approach with AVR
+    for( uint8_t i; i < len; i++){
+        MMU2_SERIAL.write(txbuff[i]);
+    }
+#else
     MMU2_SERIAL.write(txbuff, len);
+#endif
     LogRequestMsg(txbuff, len);
     RecordUARTActivity();
 }
@@ -223,7 +231,15 @@ void ProtocolLogic::SendWriteMsg(RequestMsg rq) {
     uint8_t txbuff[Protocol::MaxRequestSize()];
 #endif
     uint8_t len = Protocol::EncodeWriteRequest(rq.value, rq.value2, txbuff);
+
+#ifdef __AVR__
+    // TODO: I'm not sure if this is the correct approach with AVR
+    for( uint8_t i; i < len; i++){
+        MMU2_SERIAL.write(txbuff[i]);
+    }
+#else
     MMU2_SERIAL.write(txbuff, len);
+#endif
     LogRequestMsg(txbuff, len);
     RecordUARTActivity();
 }

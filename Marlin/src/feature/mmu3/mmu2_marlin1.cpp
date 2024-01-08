@@ -5,6 +5,8 @@
 #include "src/module/planner.h"
 #include "src/module/temperature.h"
 #if HAS_PRUSA_MMU3
+#include "src/feature/pause.h"
+#include "src/libs/nozzle.h"
 #include "mmu2_marlin.h"
 
 namespace MMU2 {
@@ -85,8 +87,12 @@ void motion_do_blocking_move_to_z(float z, float feedRate_mm_s){
 }
 
 void nozzle_park() {
+#if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
+    #if ALL(ADVANCED_PAUSE_FEATURE)
     xyz_pos_t park_point = NOZZLE_PARK_POINT;
     nozzle.park(2, park_point);
+    #endif
+#endif
 }
 
 bool marlin_printingIsActive() {
@@ -118,8 +124,12 @@ void marlin_clear_print_state_in_ram(){
 
 void marlin_stop_and_save_print_to_ram(){
     // stop_and_save_print_to_ram(0,0);
+    #if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
+    #if ALL(ADVANCED_PAUSE_FEATURE, NOZZLE_PARK_FEATURE)
     xyz_pos_t park_point = NOZZLE_PARK_POINT;
     pause_print(0, park_point);
+    #endif
+    #endif
 }
 
 int16_t thermal_degTargetHotend() {
@@ -144,11 +154,19 @@ void safe_delay_keep_alive(uint16_t t) {
 }
 
 void Enable_E0(){
-    stepper.enable_extruder(0);
+    stepper.enable_extruder(
+    #if HAS_EXTRUDERS
+    0
+    #endif
+    );
 }
 
 void Disable_E0(){
-    stepper.disable_extruder(0);
+    stepper.disable_extruder(
+    #if HAS_EXTRUDERS
+    0
+    #endif
+    );
 }
 
 bool all_axes_homed(){
