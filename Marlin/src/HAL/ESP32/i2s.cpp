@@ -34,6 +34,15 @@
 #include <freertos/queue.h>
 #include "../../module/stepper.h"
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+  #include "../../module/endstops.h"
+#endif
+
+#if ENABLED(BABYSTEPPING)
+  #include "../../feature/babystep.h"
+#endif
+
 #define DMA_BUF_COUNT 8                                // number of DMA buffers to store data
 #define DMA_BUF_LEN   4092                             // maximum size in bytes
 #define I2S_SAMPLE_SIZE 4                              // 4 bytes, 32 bits per sample
@@ -148,29 +157,48 @@ void stepperTask(void *parameter) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
+    const bool using_ftMotion = TERN0(FT_MOTION, ftMotion.cfg.mode);
+
     while (dma.rw_pos < DMA_SAMPLE_COUNT) {
-      if (!nextMainISR) {
-        Stepper::pulse_phase_isr();
-        nextMainISR = Stepper::block_phase_isr();
-      }
-      #if ENABLED(LIN_ADVANCE)
-        else if (!nextAdvanceISR) {
-          Stepper::advance_isr();
-          nextAdvanceISR = Stepper::la_interval;
+
+      #if ENABLED(FT_MOTION)
+
+        if (using_ftMotion) {
+          if (!nextMainISR) {
+            nextMainISR = FTM_MIN_TICKS;
+            stepper.ftMotion_stepper();
+            endstops.update();
+            TERN_(BABYSTEPPING, if (babystep.has_steps()) stepper.babystepping_isr());
+          }
+          nextMainISR = 0;
         }
+
       #endif
-      else
-        i2s_push_sample();
 
-      nextMainISR--;
+      if (!using_ftMotion) {
+        if (!nextMainISR) {
+          Stepper::pulse_phase_isr();
+          nextMainISR = Stepper::block_phase_isr();
+        }
+        #if ENABLED(LIN_ADVANCE)
+          else if (!nextAdvanceISR) {
+            Stepper::advance_isr();
+            nextAdvanceISR = Stepper::la_interval;
+          }
+        #endif
+        else
+          i2s_push_sample();
 
-      #if ENABLED(LIN_ADVANCE)
-        if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
-          nextAdvanceISR = Stepper::la_interval;
+        nextMainISR--;
 
-        if (nextAdvanceISR && nextAdvanceISR != Stepper::LA_ADV_NEVER)
-          nextAdvanceISR--;
-      #endif
+        #if ENABLED(LIN_ADVANCE)
+          if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
+            nextAdvanceISR = Stepper::la_interval;
+
+          if (nextAdvanceISR && nextAdvanceISR != Stepper::LA_ADV_NEVER)
+            nextAdvanceISR--;
+        #endif
+      }
     }
   }
 }

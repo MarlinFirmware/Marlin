@@ -4128,8 +4128,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
   #elif DISABLED(FTM_UNIFIED_BWS)
     #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
-  #elif ENABLED(I2S_STEPPER_STREAM)
-    #error "FT_MOTION and I2S_STEPPER_STREAM are incompatible."
   #endif
 #endif
 
