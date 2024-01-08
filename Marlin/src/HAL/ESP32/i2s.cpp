@@ -165,9 +165,8 @@ void stepperTask(void *parameter) {
 
         if (using_ftMotion) {
           if (!nextMainISR) {
-            nextMainISR = FTM_MIN_TICKS;
             stepper.ftMotion_stepper();
-            endstops.update();
+            IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update()); // Check endstops now
             TERN_(BABYSTEPPING, if (babystep.has_steps()) stepper.babystepping_isr());
           }
           else

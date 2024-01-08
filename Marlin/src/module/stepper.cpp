@@ -1508,14 +1508,14 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
-        if (!nextMainISR) {
-          nextMainISR = FTM_MIN_TICKS;
-          ftMotion_stepper();
-          endstops.update();
-          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+        if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
+          nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
+          ftMotion_stepper();             // Run FTM Stepping
+          IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());         // Check endstops now
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());  // Babystep if needed
         }
-        interval = nextMainISR;
-        nextMainISR = 0;
+        interval = nextMainISR;           // Interval is either some old nextMainISR or FTM_MIN_TICKS
+        nextMainISR = 0;                  // For FT Motion fire again ASAP
       }
 
     #endif
