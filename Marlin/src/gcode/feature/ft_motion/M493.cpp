@@ -79,7 +79,7 @@ void say_shaping() {
       SERIAL_ECHO_TERNARY(dynamic, "X/A ", "base dynamic", "static", " compensator frequency: ");
       SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq[X_AXIS], 2), F("Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) SERIAL_ECHO(" scaling: ", p_float_t(ftMotion.cfg.dynFreqK[X_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK[X_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
