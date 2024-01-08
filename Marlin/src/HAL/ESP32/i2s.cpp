@@ -143,8 +143,8 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 
   if (high_priority_task_awoken == pdTRUE) portYIELD_FROM_ISR();
 
-  // clear interrupt
-  I2S0.int_clr.val = I2S0.int_st.val; //clear pending interrupt
+  // Clear pending interrupt
+  I2S0.int_clr.val = I2S0.int_st.val;
 }
 
 void stepperTask(void *parameter) {
@@ -170,6 +170,8 @@ void stepperTask(void *parameter) {
             endstops.update();
             TERN_(BABYSTEPPING, if (babystep.has_steps()) stepper.babystepping_isr());
           }
+          else
+            i2s_push_sample();
           nextMainISR = 0;
         }
 
