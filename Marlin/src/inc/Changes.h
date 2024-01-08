@@ -669,6 +669,8 @@
   #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
 #elif defined(LARGE_MOVE_ITEMS)
   #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
+#elif defined(Z_PROBE_END_SCRIPT)
+  #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
 #endif
 
 // L64xx stepper drivers have been removed
