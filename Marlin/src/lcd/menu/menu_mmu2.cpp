@@ -171,8 +171,11 @@ void menu_mmu2_fail_stats_last_print(){
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_LAST_PRINT_FAILURES, SS_INVERT);
+  #ifndef __AVR__
+  // TODO: I couldn't make this work on AVR
   PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
   PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
+  #endif
   END_SCREEN();
 }
 
@@ -188,9 +191,12 @@ void menu_mmu2_fail_stas_total(){
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_TOTAL_FAILURES, SS_INVERT);
+  #ifndef __AVR__
+  // TODO: I couldn't make this work on AVR
   PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
   PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
   PSTRING_ITEM(MSG_MMU_POWER_FAILS, buffer3, SS_FULL);
+  #endif
   END_SCREEN();
 }
 
@@ -220,8 +226,11 @@ void menu_mmu2_toolchange_stat_total(){
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
+  #ifndef __AVR__
+  // TODO: I couldn't make this work on AVR
   PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
   PSTRING_ITEM(MSG_MMU_TOTAL, buffer2, SS_FULL);
+  #endif
   END_SCREEN();
 }
 

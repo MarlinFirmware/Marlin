@@ -191,6 +191,7 @@ void GcodeSuite::M709() {
             // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, false);
             MMU2::mmu2.mmu_hw_enabled = false;
 
+            #if ENABLED(EEPROM_SETTINGS)
             // save mmu_hw_enabled to eeprom
             persistentStore.access_start();
             persistentStore.write_data(
@@ -198,8 +199,8 @@ void GcodeSuite::M709() {
                 MMU2::mmu2.mmu_hw_enabled
             );
             persistentStore.access_finish();
-
             settings.save();
+            #endif
 
             MMU2::mmu2.Stop();
             break;
@@ -207,6 +208,7 @@ void GcodeSuite::M709() {
             // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, true);
             MMU2::mmu2.mmu_hw_enabled = true;
 
+            #if ENABLED(EEPROM_SETTINGS)
             // save mmu_hw_enabled to eeprom
             persistentStore.access_start();
             persistentStore.write_data(
@@ -214,8 +216,8 @@ void GcodeSuite::M709() {
                 MMU2::mmu2.mmu_hw_enabled
             );
             persistentStore.access_finish();
-
             settings.save();
+            #endif
 
             MMU2::mmu2.Start();
             break;

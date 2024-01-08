@@ -155,41 +155,20 @@ static const char MSG_TITLE_SELECTOR_CANNOT_HOME[] PROGMEM    = ISTR("SELECTOR C
 static const char MSG_TITLE_IDLER_CANNOT_MOVE[] PROGMEM       = ISTR("IDLER CANNOT MOVE"); ////MSG_TITLE_IDLER_CANNOT_MOVE c=20
 static const char MSG_TITLE_IDLER_CANNOT_HOME[] PROGMEM       = ISTR("IDLER CANNOT HOME"); ////MSG_TITLE_IDLER_CANNOT_HOME c=20
 static const char MSG_TITLE_TMC_WARNING_TMC_TOO_HOT[] PROGMEM = ISTR("WARNING TMC TOO HOT"); ////MSG_TITLE_TMC_WARNING_TMC_TOO_HOT c=20
-//static const char MSG_TITLE_WARNING_TMC_PULLEY_TOO_HOT[] PROGMEM = ISTR("WARNING TMC TOO HOT");
-//static const char MSG_TITLE_WARNING_TMC_SELECTOR_TOO_HOT[] PROGMEM = ISTR("WARNING TMC TOO HOT");
-//static const char MSG_TITLE_WARNING_TMC_IDLER_TOO_HOT[] PROGMEM = ISTR("WARNING TMC TOO HOT");
 static const char MSG_TITLE_TMC_OVERHEAT_ERROR[] PROGMEM      = ISTR("TMC OVERHEAT ERROR"); ////MSG_TITLE_TMC_OVERHEAT_ERROR c=20
-//static const char MSG_TITLE_TMC_PULLEY_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC OVERHEAT ERROR");
-//static const char MSG_TITLE_TMC_SELECTOR_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC OVERHEAT ERROR");
-//static const char MSG_TITLE_TMC_IDLER_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC OVERHEAT ERROR");
 static const char MSG_TITLE_TMC_DRIVER_ERROR[] PROGMEM        = ISTR("TMC DRIVER ERROR"); ////MSG_TITLE_TMC_DRIVER_ERROR c=20
-//static const char MSG_TITLE_TMC_PULLEY_DRIVER_ERROR[] PROGMEM = ISTR("TMC DRIVER ERROR");
-//static const char MSG_TITLE_TMC_SELECTOR_DRIVER_ERROR[] PROGMEM = ISTR("TMC DRIVER ERROR");
-//static const char MSG_TITLE_TMC_IDLER_DRIVER_ERROR[] PROGMEM = ISTR("TMC DRIVER ERROR");
 static const char MSG_TITLE_TMC_DRIVER_RESET[] PROGMEM        = ISTR("TMC DRIVER RESET"); ////MSG_TITLE_TMC_DRIVER_RESET c=20
-//static const char MSG_TITLE_TMC_PULLEY_DRIVER_RESET[] PROGMEM = ISTR("TMC DRIVER RESET");
-//static const char MSG_TITLE_TMC_SELECTOR_DRIVER_RESET[] PROGMEM = ISTR("TMC DRIVER RESET");
-//static const char MSG_TITLE_TMC_IDLER_DRIVER_RESET[] PROGMEM = ISTR("TMC DRIVER RESET");
 static const char MSG_TITLE_TMC_UNDERVOLTAGE_ERROR[] PROGMEM  = ISTR("TMC UNDERVOLTAGE ERR"); ////MSG_TITLE_TMC_UNDERVOLTAGE_ERROR c=20
-//static const char MSG_TITLE_TMC_PULLEY_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("TMC UNDERVOLTAGE ERR");
-//static const char MSG_TITLE_TMC_SELECTOR_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("TMC UNDERVOLTAGE ERR");
-//static const char MSG_TITLE_TMC_IDLER_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("TMC UNDERVOLTAGE ERR");
 static const char MSG_TITLE_TMC_DRIVER_SHORTED[] PROGMEM      = ISTR("TMC DRIVER SHORTED"); ////MSG_TITLE_TMC_DRIVER_SHORTED c=20
-//static const char MSG_TITLE_TMC_PULLEY_DRIVER_SHORTED[] PROGMEM = ISTR("TMC DRIVER SHORTED");
-//static const char MSG_TITLE_TMC_SELECTOR_DRIVER_SHORTED[] PROGMEM = ISTR("TMC DRIVER SHORTED");
-//static const char MSG_TITLE_TMC_IDLER_DRIVER_SHORTED[] PROGMEM = ISTR("TMC DRIVER SHORTED");
-static const char MSG_TITLE_SELFTEST_FAILED[] PROGMEM      = ISTR("MMU SELFTEST FAILED"); ////MSG_TITLE_SELFTEST_FAILED c=20
-//static const char MSG_TITLE_MMU_PULLEY_SELFTEST_FAILED[] PROGMEM      = ISTR("MMU SELFTEST FAILED");
-//static const char MSG_TITLE_MMU_SELECTOR_SELFTEST_FAILED[] PROGMEM      = ISTR("MMU SELFTEST FAILED");
-//static const char MSG_TITLE_MMU_IDLER_SELFTEST_FAILED[] PROGMEM      = ISTR("MMU SELFTEST FAILED");
+static const char MSG_TITLE_SELFTEST_FAILED[] PROGMEM         = ISTR("MMU SELFTEST FAILED"); ////MSG_TITLE_SELFTEST_FAILED c=20
 static const char MSG_TITLE_MMU_MCU_ERROR[] PROGMEM           = ISTR("MMU MCU ERROR"); ////MSG_TITLE_MMU_MCU_ERROR c=20
-static const char MSG_TITLE_MMU_NOT_RESPONDING[] PROGMEM    = ISTR("MMU NOT RESPONDING"); ////MSG_TITLE_MMU_NOT_RESPONDING c=20
+static const char MSG_TITLE_MMU_NOT_RESPONDING[] PROGMEM      = ISTR("MMU NOT RESPONDING"); ////MSG_TITLE_MMU_NOT_RESPONDING c=20
 static const char MSG_TITLE_COMMUNICATION_ERROR[] PROGMEM     = ISTR("COMMUNICATION ERROR"); ////MSG_TITLE_COMMUNICATION_ERROR c=20
 static const char MSG_TITLE_FILAMENT_ALREADY_LOADED[] PROGMEM = ISTR("FIL. ALREADY LOADED"); ////MSG_TITLE_FILAMENT_ALREADY_LOADED c=20
 static const char MSG_TITLE_INVALID_TOOL[] PROGMEM            = ISTR("INVALID TOOL"); ////MSG_TITLE_INVALID_TOOL c=20
 static const char MSG_TITLE_QUEUE_FULL[] PROGMEM              = ISTR("QUEUE FULL"); ////MSG_TITLE_QUEUE_FULL c=20
 static const char MSG_TITLE_FW_UPDATE_NEEDED[] PROGMEM        = ISTR("MMU FW UPDATE NEEDED"); ////MSG_TITLE_FW_UPDATE_NEEDED c=20
-static const char MSG_TITLE_FW_RUNTIME_ERROR[] PROGMEM      = ISTR("FW RUNTIME ERROR"); ////MSG_TITLE_FW_RUNTIME_ERROR c=20
+static const char MSG_TITLE_FW_RUNTIME_ERROR[] PROGMEM        = ISTR("FW RUNTIME ERROR"); ////MSG_TITLE_FW_RUNTIME_ERROR c=20
 static const char MSG_TITLE_UNLOAD_MANUALLY[] PROGMEM         = ISTR("UNLOAD MANUALLY"); ////MSG_TITLE_UNLOAD_MANUALLY c=20
 static const char MSG_TITLE_FILAMENT_EJECTED[] PROGMEM        = ISTR("FILAMENT EJECTED"); ////MSG_TITLE_FILAMENT_EJECTED c=20
 static const char MSG_TITLE_FILAMENT_CHANGE[] PROGMEM         = ISTR("FILAMENT CHANGE"); ////MSG_TITLE_FILAMENT_CHANGE c=20
@@ -255,32 +234,8 @@ static const char MSG_DESC_INSPECT_FINDA[] PROGMEM = ISTR("Selector can't move d
 static const char MSG_DESC_LOAD_TO_EXTRUDER_FAILED[] PROGMEM = ISTR("Loading to extruder failed. Inspect the filament tip shape. Refine the sensor calibration, if needed."); ////MSG_DESC_LOAD_TO_EXTRUDER_FAILED c=20 r=8
 static const char MSG_DESC_SELECTOR_CANNOT_HOME[] PROGMEM = ISTR("The Selector cannot home properly. Check for anything blocking its movement."); ////MSG_DESC_SELECTOR_CANNOT_HOME c=20 r=8
 static const char MSG_DESC_CANNOT_MOVE[] PROGMEM = ISTR("Can't move Selector or Idler."); /////MSG_DESC_CANNOT_MOVE c=20 r=4
-//static const char MSG_DESC_SELECTOR_CANNOT_MOVE[] PROGMEM = ISTR("The Selector cannot move. Check for anything blocking its movement. Check if the wiring is correct.");
 static const char MSG_DESC_IDLER_CANNOT_HOME[] PROGMEM = ISTR("The Idler cannot home properly. Check for anything blocking its movement."); ////MSG_DESC_IDLER_CANNOT_HOME c=20 r=8
-//static const char MSG_DESC_IDLER_CANNOT_MOVE[] PROGMEM = ISTR("The Idler cannot move properly. Check for anything blocking its movement. Check if the wiring is correct.");
 static const char MSG_DESC_TMC[] PROGMEM = ISTR("More details online."); ////MSG_DESC_TMC c=20 r=8
-//static const char MSG_DESC_WARNING_TMC_PULLEY_TOO_HOT[] PROGMEM = ISTR("TMC driver for the Pulley motor is almost overheating. Make sure there is sufficient airflow near the MMU board.");
-//static const char MSG_DESC_WARNING_TMC_SELECTOR_TOO_HOT[] PROGMEM = ISTR("TMC driver for the Selector motor is almost overheating. Make sure there is sufficient airflow near the MMU board.");
-//static const char MSG_DESC_WARNING_TMC_IDLER_TOO_HOT[] PROGMEM = ISTR("TMC driver for the Idler motor is almost overheating. Make sure there is sufficient airflow near the MMU board.");
-//static const char MSG_DESC_TMC_PULLEY_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC driver for the Pulley motor is overheated. Cool down the MMU board and reset MMU.");
-//static const char MSG_DESC_TMC_SELECTOR_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC driver for the Selector motor is overheated. Cool down the MMU board and reset MMU.");
-//static const char MSG_DESC_TMC_IDLER_OVERHEAT_ERROR[] PROGMEM = ISTR("TMC driver for the Idler motor is overheated. Cool down the MMU board and reset MMU.");
-//static const char MSG_DESC_TMC_PULLEY_DRIVER_ERROR[] PROGMEM = ISTR("TMC driver for the Pulley motor is not responding. Try resetting the MMU. If the issue persists contact support.");
-//static const char MSG_DESC_TMC_SELECTOR_DRIVER_ERROR[] PROGMEM = ISTR("TMC driver for the Selector motor is not responding. Try resetting the MMU. If the issue persists contact support.");
-//static const char MSG_DESC_TMC_IDLER_DRIVER_ERROR[] PROGMEM = ISTR("TMC driver for the Idler motor is not responding. Try resetting the MMU. If the issue persists contact support.");
-//static const char MSG_DESC_TMC_PULLEY_DRIVER_RESET[] PROGMEM = ISTR("TMC driver for the Pulley motor was restarted. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_SELECTOR_DRIVER_RESET[] PROGMEM = ISTR("TMC driver for the Selector motor was restarted. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_IDLER_DRIVER_RESET[] PROGMEM = ISTR("TMC driver for the Idler motor was restarted. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_PULLEY_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("Not enough current for the Pulley TMC driver. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_SELECTOR_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("Not enough current for the Selector TMC driver. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_IDLER_UNDERVOLTAGE_ERROR[] PROGMEM = ISTR("Not enough current for the Idler TMC driver. There is probably an issue with the electronics. Check the wiring and connectors.");
-//static const char MSG_DESC_TMC_PULLEY_DRIVER_SHORTED[] PROGMEM = ISTR("Short circuit on the Pulley TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_TMC_SELECTOR_DRIVER_SHORTED[] PROGMEM = ISTR("Short circuit on the Selector TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_TMC_IDLER_DRIVER_SHORTED[] PROGMEM = ISTR("Short circuit on the Idler TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_MMU_PULLEY_SELFTEST_FAILED[] PROGMEM = ISTR("MMU selftest failed on the Pulley TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_MMU_SELECTOR_SELFTEST_FAILED[] PROGMEM = ISTR("MMU selftest failed on the Selector TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_MMU_IDLER_SELFTEST_FAILED[] PROGMEM = ISTR("MMU selftest failed on the Idler TMC driver. Check the wiring and connectors. If the issue persists contact support.");
-//static const char MSG_DESC_MMU_MCU_ERROR[] PROGMEM = ISTR("MMU detected a power-related issue. Check the wiring and connectors. If the issue persists, contact support."); ////MSG_DESC_MMU_MCU_ERROR c=20 r=8
 static const char MSG_DESC_MMU_NOT_RESPONDING[] PROGMEM = ISTR("MMU not responding. Check the wiring and connectors."); ////MSG_DESC_MMU_NOT_RESPONDING c=20 r=4
 static const char MSG_DESC_COMMUNICATION_ERROR[] PROGMEM = ISTR("MMU not responding correctly. Check the wiring and connectors."); ////MSG_DESC_COMMUNICATION_ERROR c=20 r=4
 static const char MSG_DESC_FILAMENT_ALREADY_LOADED[] PROGMEM = ISTR("Cannot perform the action, filament is already loaded. Unload it first."); ////MSG_DESC_FILAMENT_ALREADY_LOADED c=20 r=8

@@ -217,14 +217,17 @@ static void ReportErrorHookStaticRender(uint8_t ei) {
     ui.clear_lcd();
 
     START_SCREEN();
-    STATIC_ITEM(PrusaErrorTitle(ei), SS_DEFAULT|SS_INVERT);
+    #ifndef __AVR__
+    // TODO: I couldn't make this work on AVR
+    STATIC_ITEM_F(F(PrusaErrorTitle(ei)), SS_DEFAULT|SS_INVERT);
 
-    MString<20> url("");
+    MString<LCD_WIDTH> url("");
     url.append(
         "prusa.io/04%hu",
         PrusaErrorCode(ei)
     );
-    STATIC_ITEM(url.buffer());
+    STATIC_ITEM_F(F(url.buffer()));
+    #endif
 
     ReportErrorHookSensorLineRender();
 
@@ -245,7 +248,7 @@ static void ReportErrorHookStaticRender(uint8_t ei) {
 void ReportErrorHookSensorLineRender(){
     #ifdef HAS_WIRED_LCD
     // Render static characters in third line
-    lcd_put_u8str(0, 2, ("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
+    lcd_put_u8str(0, 2, F("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
     #endif
 }
 
@@ -355,7 +358,10 @@ static uint8_t ReportErrorHookMonitor(uint8_t ei) {
         // 'More' show error description
         #ifdef HAS_WIRED_LCD
         lcd_show_fullscreen_message_and_wait_P(PrusaErrorDesc(ei));
-        LCD_ALERTMESSAGE(PrusaErrorDesc(ei));
+        #ifndef __AVR__
+        // TODO: I couldn't make this work on AVR
+        LCD_ALERTMESSAGE_F(PrusaErrorDesc(ei));
+        #endif
         #endif
         ret = 1;
     } else if(choice_selected == LCD_MIDDLE_BUTTON_CHOICE) {

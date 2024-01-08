@@ -198,7 +198,7 @@ void lcd_show_fullscreen_message_and_wait_P(const char *msg)
 void lcd_insert_char_into_status(uint8_t position, const char message)
 {
     if (position > LCD_WIDTH - 1) return;
-    int size = ui.status_message.length();
+    // int size = ui.status_message.length();
     char *str = ui.status_message.buffer();
     str[position] = message;
     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_REDRAW_NOW; // force redraw
