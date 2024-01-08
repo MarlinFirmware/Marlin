@@ -149,7 +149,7 @@
  *
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
- * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
+ * M115 - Report capabilities. (Requires CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
  * M118 - Display a message in the host console.
  *
@@ -760,7 +760,10 @@ private:
   #endif
 
   static void M114();
-  static void M115();
+
+  #if ENABLED(CAPABILITIES_REPORT)
+    static void M115();
+  #endif
 
   #if HAS_STATUS_MESSAGE
     static void M117();
@@ -909,7 +912,7 @@ private:
     static void M250_report(const bool forReplay=true);
   #endif
 
-  #if HAS_GCODE_M255
+  #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
     static void M255();
     static void M255_report(const bool forReplay=true);
   #endif
@@ -1282,7 +1285,7 @@ private:
     static void M710_report(const bool forReplay=true);
   #endif
 
-  static void T(const int8_t tool_index);
+  static void T(const int8_t tool_index) IF_DISABLED(HAS_TOOLCHANGE, { UNUSED(tool_index); });
 
 };
 

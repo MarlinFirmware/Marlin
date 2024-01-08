@@ -66,6 +66,7 @@ uint8_t TouchButtons::read_buttons() {
     int16_t x, y;
 
     #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+
       const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION
                                 ? touchIO.getRawPoint(&y, &x)
                                 : touchIO.getRawPoint(&x, &y);
@@ -88,13 +89,16 @@ uint8_t TouchButtons::read_buttons() {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
         if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
-          if (!no_touch && touch_calibration.handleTouch(xy_int_t({x, y}))) ui.refresh();
+          if (!no_touch && touch_calibration.handleTouch(x, y)) ui.refresh();
           no_touch = true;
           return 0;
         }
+        x = int16_t((int32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = int16_t((int32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+      #else
+        x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       #endif
-      x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
-      y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
 
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
 
@@ -143,7 +147,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
+    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
   }
 
 #endif // HAS_TOUCH_SLEEP

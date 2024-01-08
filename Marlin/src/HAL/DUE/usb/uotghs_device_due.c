@@ -116,6 +116,23 @@
 //#define dbg_print printf
 #define dbg_print(...)
 
+// Marlin modification: Redefine the otg_freeze_clock and otg_unfreeze_clock macros
+// to add memory barriers to ensure that any accesses to USB registers aren't re-ordered
+// to occur while the clock is frozen.
+#undef otg_freeze_clock
+#undef otg_unfreeze_clock
+
+#define otg_freeze_clock() do { \
+	__DSB(); \
+	Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+} while (0)
+
+#define otg_unfreeze_clock() \
+do { \
+	Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+	__DSB(); \
+} while (0)
+
 /**
  * \ingroup udd_group
  * \defgroup udd_udphs_group USB On-The-Go High-Speed Port for device mode (UOTGHS)
@@ -611,6 +628,18 @@ ISR(UDD_USB_INT_FUN)
 		// The wakeup interrupt is automatic acked when a suspend occur
 		udd_disable_wake_up_interrupt();
 		udd_enable_suspend_interrupt();
+
+		// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
+		// enabled in udd_attach, which caused a race condition where they could
+		// be raised and unclearable with the clock is frozen. They are now
+		// enabled here, after the clock has been unfrozen in response to the wake
+		// interrupt.
+		udd_enable_reset_interrupt();
+		udd_enable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+		udd_enable_msof_interrupt();
+#endif
+
 		udd_sleep_mode(true); // Enter in IDLE mode
 #ifdef UDC_RESUME_EVENT
 		UDC_RESUME_EVENT();
@@ -776,6 +805,27 @@ void udd_disable(void)
 	cpu_irq_restore(flags);
 }
 
+// Marlin modification: The original implementation did not use a memory
+// barrier between disabling and clearing interrupts. This sometimes
+// allowed interrupts to remain raised and unclearable after the clock
+// was frozen. This helper was added to ensure that memory barriers
+// are used consistently from all places where interrupts are disabled.
+static void disable_and_ack_sync_interrupts()
+{
+	// Disable USB line events
+	udd_disable_reset_interrupt();
+	udd_disable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+	udd_disable_msof_interrupt();
+#endif
+	__DSB();
+	udd_ack_reset();
+	udd_ack_sof();
+#ifdef USB_DEVICE_HS_SUPPORT
+	udd_ack_msof();
+#endif
+	__DSB();
+}
 
 void udd_attach(void)
 {
@@ -796,17 +846,16 @@ void udd_attach(void)
 	udd_attach_device();
 
 	// Enable USB line events
-	udd_enable_reset_interrupt();
 	udd_enable_suspend_interrupt();
 	udd_enable_wake_up_interrupt();
-	udd_enable_sof_interrupt();
-#ifdef USB_DEVICE_HS_SUPPORT
-	udd_enable_msof_interrupt();
-#endif
-	// Reset following interrupts flag
-	udd_ack_reset();
-	udd_ack_sof();
-	udd_ack_msof();
+
+	// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
+	// enabled here, which caused a race condition where they could be raised
+	// and unclearable with the clock is frozen. They are now enabled in the
+	// wake interrupt handler, after the clock has been unfrozen. They are now
+	// explicitly disabled here to ensure that they cannot be raised before
+	// the clock is frozen.
+	disable_and_ack_sync_interrupts();
 
 	// The first suspend interrupt must be forced
 	// The first suspend interrupt is not detected else raise it
@@ -824,6 +873,12 @@ void udd_detach(void)
 
 	// Detach device from the bus
 	udd_detach_device();
+
+	// Marlin modification: Added the explicit disabling of the RESET, SOF, and
+	// MSOF interrupts here, to ensure that they cannot be raised after the
+	// clock is frozen.
+	disable_and_ack_sync_interrupts();
+
 	otg_freeze_clock();
 	udd_sleep_mode(false);
 }
@@ -2043,6 +2098,12 @@ static bool udd_ep_interrupt(void)
 				dbg_print("I ");
 				udd_disable_in_send_interrupt(ep);
 				// One bank is free then send a ZLP
+
+				// Marlin modification: Add a barrier to ensure in_send is disabled
+				// before it is cleared. This was not an observed problem, but
+				// other interrupts were seen to misbehave without this barrier.
+				__DSB();
+
 				udd_ack_in_send(ep);
 				udd_ack_fifocon(ep);
 				udd_ep_finish_job(ptr_job, false, ep);
