@@ -1205,7 +1205,7 @@ void drawMainArea() {
     #if ENABLED(PROUI_ITEM_PLOT)
       case ID_PlotProcess:
         if (hmiValue.tempControl == PIDTEMPBED_START) drawBPlot();
-        else drawHPlot(); break
+        else drawHPlot(); break;
     #endif
     case ID_Popup:            popupDraw(); break;
     #if HAS_LOCKSCREEN
