@@ -961,9 +961,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > NUM_SERVO_PLUGS
-  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
-#endif
+static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) is too large. The selected board only has " STRINGIFY(NUM_SERVO_PLUGS) " servos.");
 
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder

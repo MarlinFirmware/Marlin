@@ -90,10 +90,9 @@
 
 #if HAS_SERVOS
   #include "servo.h"
-#endif
-
-#if HAS_SERVOS && HAS_SERVO_ANGLES
-  #define EEPROM_NUM_SERVOS NUM_SERVOS
+  #if HAS_SERVO_ANGLES
+    #define EEPROM_NUM_SERVOS NUM_SERVOS
+  #endif
 #endif
 
 #include "../feature/fwretract.h"
@@ -2085,15 +2084,15 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       #ifdef EEPROM_NUM_SERVOS
-        {
-          _FIELD_TEST(servo_angles);
-          #if ENABLED(EDITABLE_SERVO_ANGLES)
-            uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
-          #else
-            uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
-          #endif
-          EEPROM_READ(servo_angles_arr);
-        }
+      {
+        _FIELD_TEST(servo_angles);
+        #if ENABLED(EDITABLE_SERVO_ANGLES)
+          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+        #else
+          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
+        #endif
+        EEPROM_READ(servo_angles_arr);
+      }
       #endif
 
       //
