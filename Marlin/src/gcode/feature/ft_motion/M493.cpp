@@ -96,10 +96,10 @@ void say_shaping() {
 
   #if HAS_EXTRUDERS
     SERIAL_ECHO_TERNARY(ftMotion.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-    if(ftMotion.cfg.linearAdvEna)
-      SERIAL_ECHOLN(F(". Gain: "), ftMotion.cfg.linearAdvK);
+    if (ftMotion.cfg.linearAdvEna)
+      SERIAL_ECHOLNPGM(". Gain: ", ftMotion.cfg.linearAdvK);
     else
-      SERIAL_ECHO("\n");
+      SERIAL_EOL();
   #endif
 }
 
