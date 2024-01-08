@@ -1051,13 +1051,13 @@ void MarlinSettings::postprocess() {
     // Servo Angles
     //
     #ifdef EEPROM_NUM_SERVOS
-      {
-        _FIELD_TEST(servo_angles);
-        #if !HAS_SERVO_ANGLES
-          uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
-        #endif
-        EEPROM_WRITE(servo_angles);
-      }
+    {
+      _FIELD_TEST(servo_angles);
+      #if !HAS_SERVO_ANGLES
+        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
+      #endif
+      EEPROM_WRITE(servo_angles);
+    }
     #endif
 
     //
