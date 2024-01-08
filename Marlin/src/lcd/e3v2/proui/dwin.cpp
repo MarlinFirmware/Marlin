@@ -1455,6 +1455,7 @@ bool idIsPopUp() {    // If ID is popup...
     case ID_Homing:
     TERN_(PROUI_PID_TUNE, case ID_PIDProcess:)
     TERN_(MPCTEMP, case ID_MPCProcess:)
+    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
       return true;
     default: break;
   }
@@ -1464,7 +1465,6 @@ bool idIsPopUp() {    // If ID is popup...
 void hmiSaveProcessID(const uint8_t id) {
   if (checkkey == id) return;
   if (!idIsPopUp()) last_checkkey = checkkey; // If previous is not a popup
-  //TERN_(PROUI_ITEM_PLOT, if (checkkey == ID_PlotProcess && (id == ID_Homing || id == ID_WaitResponse || id == ID_Popup)) hmiReturnScreen();)
   checkkey = id;
   switch (id) {
     case ID_Popup:
