@@ -544,9 +544,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float T1 = (F_n - f_s) * oneOverAccel,
               T3 = (F_n - f_e) * oneOverAccel;
 
-  N1 = ceil(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
-  N2 = ceil(T2 * (FTM_FS));         // Coast
-  N3 = ceil(T3 * (FTM_FS));         // Decel
+  N1 = CEIL(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
+  N2 = CEIL(T2 * (FTM_FS));         // Coast
+  N3 = CEIL(T3 * (FTM_FS));         // Decel
 
   const float T1_P = N1 * (FTM_TS), // (s) Accel datapoints x timestep resolution
               T2_P = N2 * (FTM_TS), // (s) Coast

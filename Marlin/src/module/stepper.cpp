@@ -3161,7 +3161,7 @@ void Stepper::init() {
       factor2 += -7.58095488 * zeta2;
       const float zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
-      factor2 = floor(factor2);
+      factor2 = FLOOR(factor2);
     }
 
     const bool was_on = hal.isr_state();
