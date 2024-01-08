@@ -1202,6 +1202,11 @@ void drawMainArea() {
     #if HAS_ESDIAG
       case ID_ESDiagProcess:  drawEndStopDiag(); break;
     #endif
+    #if ENABLED(PROUI_ITEM_PLOT)
+      case PlotProcess:
+        if (hmiValue.tempControl == PIDTEMPBED_START) drawBPlot();
+        else drawHPlot(); break
+    #endif
     case ID_Popup:            popupDraw(); break;
     #if HAS_LOCKSCREEN
       case ID_Locked:         lockScreen.draw(); break;
@@ -1459,7 +1464,7 @@ bool idIsPopUp() {    // If ID is popup...
 void hmiSaveProcessID(const uint8_t id) {
   if (checkkey == id) return;
   if (!idIsPopUp()) last_checkkey = checkkey; // If previous is not a popup
-  TERN_(PROUI_ITEM_PLOT, if (checkkey == ID_PlotProcess && (id == ID_Homing || id == ID_WaitResponse || id == ID_Popup)) hmiReturnScreen();)
+  //TERN_(PROUI_ITEM_PLOT, if (checkkey == ID_PlotProcess && (id == ID_Homing || id == ID_WaitResponse || id == ID_Popup)) hmiReturnScreen();)
   checkkey = id;
   switch (id) {
     case ID_Popup:
