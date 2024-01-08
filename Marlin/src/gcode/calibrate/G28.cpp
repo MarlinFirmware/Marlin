@@ -639,10 +639,10 @@ void GcodeSuite::G28() {
     #endif
 
     #ifdef XY_AFTER_HOMING
-		if (!(homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS)))){
-			constexpr xy_pos_t xy_after XY_AFTER_HOMING;
-			do_blocking_move_to(xy_after);
-		}
+    if (!(homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS)))){
+      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
+      do_blocking_move_to(xy_after);
+    }
     #endif
 
     restore_feedrate_and_scaling();
