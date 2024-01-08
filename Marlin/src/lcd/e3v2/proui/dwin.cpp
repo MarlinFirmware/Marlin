@@ -1426,17 +1426,12 @@ void dwinHandleScreen() {
     case ID_SetIntNoDraw: hmiSetNoDraw(); break;
     case ID_PrintProcess: hmiPrinting(); break;
     case ID_Popup:        hmiPopup(); break;
-    TERN_(HAS_BED_PROBE, case ID_Leveling: break;)
     TERN_(HAS_LOCKSCREEN, case ID_Locked: hmiLockScreen(); break;)
 
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
     case ID_PrintDone:
     case ID_WaitResponse: hmiWaitForUser(); break;
-
-    case ID_Homing:
-    case ID_PIDProcess:
-    case ID_NothingToDo:
     default: break;
   }
 }
