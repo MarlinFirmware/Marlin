@@ -1203,7 +1203,7 @@ void drawMainArea() {
       case ID_ESDiagProcess:  drawEndStopDiag(); break;
     #endif
     #if ENABLED(PROUI_ITEM_PLOT)
-      case PlotProcess:
+      case ID_PlotProcess:
         if (hmiValue.tempControl == PIDTEMPBED_START) drawBPlot();
         else drawHPlot(); break
     #endif
