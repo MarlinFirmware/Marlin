@@ -1515,7 +1515,7 @@ void Stepper::isr() {
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
         }
         interval = nextMainISR;
-        nextMainISR -= interval;
+        nextMainISR = 0;
       }
 
     #endif
