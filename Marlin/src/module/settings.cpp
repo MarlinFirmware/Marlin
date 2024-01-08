@@ -90,9 +90,6 @@
 
 #if HAS_SERVOS
   #include "servo.h"
-  #if HAS_SERVO_ANGLES
-    #define EEPROM_NUM_SERVOS NUM_SERVOS
-  #endif
 #endif
 
 #include "../feature/fwretract.h"
@@ -315,8 +312,8 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  #ifdef EEPROM_NUM_SERVOS
-    uint16_t servo_angles[EEPROM_NUM_SERVOS][2];        // M281 P L U
+  #if HAS_SERVO_ANGLES
+    uint16_t servo_angles[NUM_SERVOS][2];               // M281 P L U
   #endif
 
   //
@@ -1050,12 +1047,9 @@ void MarlinSettings::postprocess() {
     //
     // Servo Angles
     //
-    #ifdef EEPROM_NUM_SERVOS
+    #if HAS_SERVO_ANGLES
     {
       _FIELD_TEST(servo_angles);
-      #if !HAS_SERVO_ANGLES
-        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
-      #endif
       EEPROM_WRITE(servo_angles);
     }
     #endif
@@ -2083,13 +2077,13 @@ void MarlinSettings::postprocess() {
       //
       // SERVO_ANGLES
       //
-      #ifdef EEPROM_NUM_SERVOS
+      #if HAS_SERVO_ANGLES
       {
         _FIELD_TEST(servo_angles);
         #if ENABLED(EDITABLE_SERVO_ANGLES)
-          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+          uint16_t (&servo_angles_arr)[NUM_SERVOS][2] = servo_angles;
         #else
-          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
+          uint16_t servo_angles_arr[NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles_arr);
       }
