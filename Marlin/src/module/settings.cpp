@@ -316,7 +316,7 @@ typedef struct SettingsDataStruct {
   // SERVO_ANGLES
   //
   #ifdef EEPROM_NUM_SERVOS
-    uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+    uint16_t servo_angles[EEPROM_NUM_SERVOS][2];        // M281 P L U
   #endif
 
   //
