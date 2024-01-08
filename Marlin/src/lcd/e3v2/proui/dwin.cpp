@@ -1440,8 +1440,8 @@ void dwinHandleScreen() {
   }
 }
 
-bool idIsPopUp(const uint8_t id) {    // If ID is popup...
-  switch (id) {
+bool idIsPopUp() {    // If ID is popup...
+  switch (checkkey) {
     TERN_(HAS_BED_PROBE, case ID_Leveling:)
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     case ID_NothingToDo:
@@ -1458,8 +1458,8 @@ bool idIsPopUp(const uint8_t id) {    // If ID is popup...
 
 void hmiSaveProcessID(const uint8_t id) {
   if (checkkey == id) return;
-  if (!idIsPopUp(id)) last_checkkey = checkkey; // If previous is not a popup
-  else if (checkkey == ID_PlotProcess && hmiFlag.printing_flag == isPrinting()) hmiReturnScreen();
+  if (!idIsPopUp()) last_checkkey = checkkey; // If previous is not a popup
+  TERN_(PROUI_ITEM_PLOT, if (checkkey == ID_PlotProcess && (id == ID_Homing || id == ID_WaitResponse || id == ID_Popup)) hmiReturnScreen();)
   checkkey = id;
   switch (id) {
     case ID_Popup:
@@ -1586,7 +1586,7 @@ void dwinLevelingDone() {
 
     void dwinDrawPlot(tempcontrol_t result) {
       hmiValue.tempControl = result;
-      constexpr frame_rect_t gfrm = {30, 135, DWIN_WIDTH - 60, 160};
+      constexpr frame_rect_t gfrm = { 30, 135, DWIN_WIDTH - 60, 160 };
       DWINUI::clearMainArea();
       drawPopupBkgd();
       hmiSaveProcessID(ID_PlotProcess);
