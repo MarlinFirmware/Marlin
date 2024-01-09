@@ -729,6 +729,8 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = true;
     while (wait_for_heatup) { // Can be interrupted with M108
 
+      TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
+
       const millis_t ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
