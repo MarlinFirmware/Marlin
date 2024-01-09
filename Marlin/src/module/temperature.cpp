@@ -632,6 +632,25 @@ volatile bool Temperature::raw_temps_ready = false;
  * Class and Instance Methods
  */
 
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
+
+  /**
+   * Run the minimal required activities during a tuning loop.
+   * TODO: Allow tuning routines to call idle() for more complete keepalive.
+   */
+  inline void tuning_manage_activity() {
+    // Run HAL idle tasks
+    hal.idletask();
+
+    // Run Controller Fan check (normally handled by manage_inactivity)
+    TERN_(USE_CONTROLLER_FAN, controllerFan.update());
+
+    // Run UI update
+    TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+  }
+
+#endif
+
 #if HAS_PID_HEATING
 
   inline void say_default_() { SERIAL_ECHOPGM("#define DEFAULT_"); }
@@ -728,10 +747,6 @@ volatile bool Temperature::raw_temps_ready = false;
     // PID Tuning loop
     wait_for_heatup = true;
     while (wait_for_heatup) { // Can be interrupted with M108
-
-      #if ALL(PIDTEMPBED,USE_CONTROLLER_FAN)
-        controllerFan.update(); // Check if fan should be turned on to cool down the bed MOSFET
-      #endif
 
       const millis_t ms = millis();
 
@@ -894,11 +909,8 @@ volatile bool Temperature::raw_temps_ready = false;
         goto EXIT_M303;
       }
 
-      // Run HAL idle tasks
-      hal.idletask();
-
-      // Run UI update
-      TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+      // Run minimal necessary machine tasks
+      tuning_manage_activity();
     }
     wait_for_heatup = false;
 
@@ -1161,8 +1173,8 @@ volatile bool Temperature::raw_temps_ready = false;
       SERIAL_EOL();
     }
 
-    hal.idletask();
-    TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+    // Run minimal necessary machine tasks
+    tuning_manage_activity();
 
     if (!wait_for_heatup) {
       SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
