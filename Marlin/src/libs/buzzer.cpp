@@ -55,7 +55,6 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
 }
 
 void Buzzer::tick() {
-  if (!ui.sound_on) return;
   const millis_t now = millis();
 
   if (!state.endtime) {
