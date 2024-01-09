@@ -1193,8 +1193,10 @@ class Temperature {
       static constexpr bool adaptive_fan_slowing = true;
     #endif
 
+    static bool tuning_idle(const millis_t &ms);
+
     /**
-     * Perform auto-tuning for hotend or bed in response to M303
+     * M303 PID auto-tuning for hotends or bed
      */
     #if HAS_PID_HEATING
 
@@ -1219,6 +1221,9 @@ class Temperature {
 
     #endif // HAS_PID_HEATING
 
+    /**
+     * M306 MPC auto-tuning for hotends
+     */
     #if ENABLED(MPC_AUTOTUNE)
 
       // Utility class to perform MPCTEMP auto tuning measurements

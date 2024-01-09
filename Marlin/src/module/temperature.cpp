@@ -638,14 +638,13 @@ volatile bool Temperature::raw_temps_ready = false;
    * Run the minimal required activities during a tuning loop.
    * TODO: Allow tuning routines to call idle() for more complete keepalive.
    */
-  inline bool tuning_idle(const millis_t &ms) {
-
-    const bool temp_ready = updateTemperaturesIfReady()
+  bool Temperature::tuning_idle(const millis_t &ms) {
 
     // Run HAL idle tasks
     hal.idletask();
 
-    // Update Extruder Auto Fans
+    const bool temp_ready = updateTemperaturesIfReady()
+
     #if HAS_FAN_LOGIC
       if (temp_ready) manage_extruder_fans(ms);
     #else
@@ -656,7 +655,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
 
     // Run UI update
-    TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+    ui.update();
 
     return temp_ready;
   }
