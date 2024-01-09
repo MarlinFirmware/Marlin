@@ -95,7 +95,7 @@ void GcodeSuite::M81() {
       uint16_t delay = parser.value_ushort();
       if (delay > 1) { // skip already observed 1s delay
         delayed_power_off = true;
-        powerManager.setPowerOffTimer(SEC_TO_MS(delay - 1));
+        powerManager.setPowerOffTimer(delay - 1);
       }
     }
   #endif

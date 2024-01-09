@@ -28,7 +28,7 @@
 #include "../include/i2c_util.h"
 #include "../../../core/millis_t.h"
 
-extern int millis();
+uint32_t millis();
 
 #ifdef __cplusplus
   extern "C" {

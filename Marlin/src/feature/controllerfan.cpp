@@ -55,11 +55,11 @@ void ControllerFan::set_fan_speed(const uint8_t s) {
 }
 
 void ControllerFan::update() {
-  static millis_t lastMotorOn = 0,    // Last time a motor was turned on
-                  nextMotorCheck = 0; // Last time the state was checked
+  static millis_t motor_on_ms = 0,    // Last time a motor was turned on
+                  prev_motor_ms = 0;  // Last time the state was checked
   const millis_t ms = millis();
-  if (ELAPSED(ms, nextMotorCheck)) {
-    nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+  if (ELAPSED(ms, prev_motor_ms, 2500UL)) {
+    prev_motor_ms = ms;               // Not time-critical, so only check every 2.5s
 
     // If any triggers for the controller fan are true...
     //   - At least one stepper driver is enabled
@@ -75,30 +75,30 @@ void ControllerFan::update() {
       #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
         || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
       #endif
-    ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
+    ) motor_on_ms = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:
     //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_IDLE_TIME seconds.
     //  - If System is on idle and idle fan speed settings is activated.
     set_fan_speed(
-      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + SEC_TO_MS(settings.duration))
+      settings.auto_mode && motor_on_ms && PENDING(ms, motor_on_ms, SEC_TO_MS(settings.duration))
       ? settings.active_speed : settings.idle_speed
     );
 
     speed = CALC_FAN_SPEED(speed);
 
     #if FAN_KICKSTART_TIME
-      static millis_t fan_kick_end = 0;
+      static millis_t fan_start_ms = 0;
       if (speed > FAN_OFF_PWM) {
-        if (!fan_kick_end) {
-          fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
+        if (fan_start_ms == 0) {
+          fan_start_ms = ms; // May be longer based on slow update interval for controller fn check. Sets minimum
           speed = FAN_KICKSTART_POWER;
         }
-        else if (PENDING(ms, fan_kick_end))
+        else if (PENDING(ms, fan_start_ms, FAN_KICKSTART_TIME))
           speed = FAN_KICKSTART_POWER;
       }
       else
-        fan_kick_end = 0;
+        fan_start_ms = 0;
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)

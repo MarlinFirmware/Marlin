@@ -33,6 +33,7 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
+#include "../../core/millis_t.h"
 
 /**
  * M140 - Set Bed Temperature target and return immediately
@@ -93,7 +94,8 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   #if ENABLED(BED_ANNEALING_GCODE)
     const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
-    const millis_t anneal_ms = anneal ? millis() + parser.value_millis_from_seconds() : 0UL;
+    MTimeout<millis_t> annealTimeout;
+    if(anneal){annealTimeout.start(parser.value_millis_from_seconds());}
   #else
     constexpr bool anneal = false;
   #endif
@@ -114,10 +116,9 @@ void GcodeSuite::M140_M190(const bool isM190) {
         for (celsius_t cool_temp = thermalManager.degBed(); --cool_temp >= temp; ) {
           thermalManager.setTargetBed(cool_temp);           // Cool by one degree
           thermalManager.wait_for_bed(false);               // Could this wait forever?
-          const millis_t ms = millis();
-          if (PENDING(ms, anneal_ms) && cool_temp > temp) { // Still warmer and waiting?
-            const millis_t remain = anneal_ms - ms;
-            dwell(remain / (cool_temp - temp));             // Wait for a fraction of remaining time
+          const millis_t ms=millis();
+          if (annealTimeout.on_pending(ms) && cool_temp > temp) { // Still warmer and waiting?
+            dwell(annealTimeout.remaining(ms) / (cool_temp - temp));             // Wait for a fraction of remaining time
           }
         }
         return;

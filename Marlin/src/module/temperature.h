@@ -734,9 +734,6 @@ class Temperature {
       #if WATCH_BED
         static bed_watch_t watch_bed;
       #endif
-      #if DISABLED(PIDTEMPBED)
-        static millis_t next_bed_check_ms;
-      #endif
       static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 

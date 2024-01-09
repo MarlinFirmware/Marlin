@@ -128,22 +128,23 @@ private:
 
   enum class FileTransfer : uint8_t { QUERY, OPEN, CLOSE, WRITE, ABORT };
 
-  static size_t data_waiting, transfer_timeout, idle_timeout;
+  static size_t data_waiting; 
+  static uint16_t transfer_time_last, idle_time_last;
   static bool transfer_active, dummy_transfer, compression;
 
 public:
 
   static void idle() {
     // If a transfer is interrupted and a file is left open, abort it after TIMEOUT ms
-    const millis_t ms = millis();
-    if (transfer_active && ELAPSED(ms, idle_timeout)) {
-      idle_timeout = ms + IDLE_PERIOD;
-      if (ELAPSED(ms, transfer_timeout)) transfer_abort();
+    const uint16_t ms = (uint16_t)millis();
+    if (transfer_active && ((uint16_t)(ms - idle_time_last) > IDLE_PERIOD)) {
+      idle_time_last = ms;
+      if ((uint16_t)(ms - transfer_time_last) > TIMEOUT) transfer_abort();
     }
   }
 
   static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
-    transfer_timeout = millis() + TIMEOUT;
+    transfer_time_last = (uint16_t)millis();
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
         SERIAL_ECHOPGM("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
@@ -236,7 +237,7 @@ public:
     Footer footer;
     uint32_t bytes_received;
     uint16_t checksum, header_checksum;
-    millis_t timeout;
+    uint16_t timeout;
     char* buffer;
 
     void reset() {
@@ -245,7 +246,7 @@ public:
       bytes_received = 0;
       checksum = 0;
       header_checksum = 0;
-      timeout = millis() + PACKET_MAX_WAIT;
+      timeout = (uint16_t)millis();
       buffer = nullptr;
     }
   } packet{};
@@ -266,20 +267,19 @@ public:
   // whether the stream times out from data starvation
   // takes the data variable by reference in order to return status
   bool stream_read(uint8_t& data) {
-    if (stream_state != StreamState::PACKET_WAIT && ELAPSED(millis(), packet.timeout)) {
+    if (stream_state != StreamState::PACKET_WAIT && ((uint16_t)((uint16_t)millis()- packet.timeout) > PACKET_MAX_WAIT)) {
       stream_state = StreamState::PACKET_TIMEOUT;
       return false;
     }
     if (!bs_serial_data_available(card.transfer_port_index)) return false;
     data = bs_read_serial(card.transfer_port_index);
-    packet.timeout = millis() + PACKET_MAX_WAIT;
+    packet.timeout = (uint16_t)millis();
     return true;
   }
 
   template<const size_t buffer_size>
   void receive(char (&buffer)[buffer_size]) {
     uint8_t data = 0;
-    millis_t transfer_window = millis() + RX_TIMESLICE;
 
     #if HAS_MEDIA
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
@@ -288,7 +288,8 @@ public:
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Warray-bounds"
 
-    while (PENDING(millis(), transfer_window)) {
+    const uint16_t transfer_start_ms = (uint16_t)millis();
+    while (((uint16_t)((uint16_t)millis() - transfer_start_ms) < RX_TIMESLICE)) {
       switch (stream_state) {
          /**
           * Data stream packet handling

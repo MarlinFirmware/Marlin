@@ -67,7 +67,7 @@ extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
-  void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
+  void wait_for_user_response(const millis_t timeout=0, const bool no_sleep=false);
 #endif
 
 bool pin_is_protected(const pin_t pin);

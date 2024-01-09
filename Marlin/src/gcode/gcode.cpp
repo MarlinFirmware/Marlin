@@ -35,6 +35,7 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
+#include "../core/millis_t.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
@@ -242,10 +243,11 @@ void GcodeSuite::get_destination_from_command() {
 
 /**
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
+ * @param time unit: ms
  */
-void GcodeSuite::dwell(millis_t time) {
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+void GcodeSuite::dwell(const millis_t time) {
+  MTimeout <millis_t> timeout(time);
+  timeout.idle();
 }
 
 /**

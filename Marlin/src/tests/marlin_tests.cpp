@@ -38,6 +38,34 @@
 void runStartupTests() {
   // Call post-setup tests here to validate behaviors.
 
+  SERIAL_ECHOLNPGM("\n<< Startup Tests >>");
+
+  SERIAL_ECHOLNPGM("\n<< SERIAL_ECHO>>");
+
+  SERIAL_ECHOLN("C String ", F("F String "), C('X'), C(' '), 123, C(','), 123.4, C(','), -123, C(','), -123.4, C(','), int8_t(-123), C(','), uint8_t(123), C(','), int16_t(-123), C(','), uint16_t(123), C(','), int32_t(-123), C(','), uint32_t(123));
+  for (uint8_t i = 0; i <= 9; ++i) SERIAL_CHAR('0' + char(i));
+  SERIAL_EOL();
+
+  SERIAL_ECHOLNPGM("\n<< ELAPSED / PENDING >>");
+
+  constexpr millis_t erly = 0x0000FFFF, late = 0x7FFFFF00,
+                     erly2 = erly + MIN_TO_MS(1), late2 = late + MIN_TO_MS(1), huge = erly + 0x7FFFFFF0;
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), C(','), int32_t(erly2), F(") is "), PENDING(erly, erly2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(late), C(','), int32_t(late2), F(") is "), PENDING(late, late2) ? F("OK") :  F("BAD"));
+  SERIAL_ECHOLN(F("PENDING("), int32_t(erly), C(','), int32_t(huge), F(") is "), PENDING(erly, huge) ? F("OK") :  F("BAD"));
+
+  MTimeout<millis_t> timeout(100);
+  timeout.prime();
+  timeout.idle();
+
+  MDelay delay4000(4000);
+  delay4000.dofunc([] {
+    SERIAL_ECHOLNPGM("millis() = ", millis());
+    safe_delay(500);
+  });
+
+  SERIAL_ECHOLNPGM("\n<< SString class >>");
+
   // String with cutoff at 20 chars:
   // "F-string, 1234.50, 2"
   SString<20> str20;

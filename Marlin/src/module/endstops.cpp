@@ -104,7 +104,7 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   Endstops::tmc_spi_homing_t Endstops::tmc_spi_homing; // = 0
 #endif
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-  millis_t sg_guard_period; // = 0
+  millis_t sg_guard_start_ms; // = 0
 #endif
 
 /**

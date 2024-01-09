@@ -407,14 +407,14 @@ public:
 
   static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
-    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+    return max_inactive_time && ELAPSED(ms, previous_move_ms , max_inactive_time);
   }
   FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
 
   #if HAS_DISABLE_IDLE_AXES
     static millis_t stepper_inactive_time;
     FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
-      return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+      return ELAPSED(ms, previous_move_ms , stepper_inactive_time);
     }
   #else
     static bool stepper_inactive_timeout(const millis_t) { return false; }
@@ -479,7 +479,7 @@ public:
     #define KEEPALIVE_STATE(N) NOOP
   #endif
 
-  static void dwell(millis_t time);
+  static void dwell(const millis_t time);
 
 private:
 

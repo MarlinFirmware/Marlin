@@ -147,8 +147,9 @@ void Power::power_off() {
 #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
 
   #if ENABLED(POWER_OFF_TIMER)
-    millis_t Power::power_off_time = 0;
-    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = millis() + delay_ms; }
+    millis_t Power::power_off_start_ms = 0;
+    uint16_t power_off_secs = 0;
+    void Power::setPowerOffTimer(const uint16_t delay_sec) { power_off_start_ms = millis(); power_off_secs = delay_sec; }
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
@@ -157,14 +158,14 @@ void Power::power_off() {
   #endif
 
   void Power::cancelAutoPowerOff() {
-    TERN_(POWER_OFF_TIMER, power_off_time = 0);
+    TERN_(POWER_OFF_TIMER, power_off_secs = 0);
     TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
   }
 
   void Power::checkAutoPowerOff() {
-    if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
+    if (TERN1(POWER_OFF_TIMER, !power_off_secs) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
     if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
-    if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;
+    if (TERN0(POWER_OFF_TIMER, power_off_secs && PENDING(millis(), power_off_start_ms, SEC_TO_MS(power_off_secs)))) return;
     power_off();
   }
 

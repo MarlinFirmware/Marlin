@@ -49,13 +49,12 @@ void GcodeSuite::M280() {
       if (anew >= 0) {
         #if ENABLED(POLARGRAPH)
           if (parser.seenval('T')) { // (ms) Total duration of servo move
-            const int16_t t = constrain(parser.value_int(), 0, 10000);
+            const uint16_t t = constrain(parser.value_int(), 0, 10000);
             const int aold = servo[servo_index].read();
-            millis_t now = millis();
-            const millis_t start = now, end = start + t;
-            while (PENDING(now, end)) {
+            const millis_t start = millis();
+            millis_t now;
+            while (PENDING((now = millis()), start, t)) {
               safe_delay(50);
-              now = _MIN(millis(), end);
               servo[servo_index].move(LROUND(aold + (anew - aold) * (float(now - start) / t)));
             }
           }
