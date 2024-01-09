@@ -2762,20 +2762,26 @@
 #endif
 
 // Servos
-#if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
-  #define HAS_SERVO_0 1
-#endif
-#if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
-  #define HAS_SERVO_1 1
-#endif
-#if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
-  #define HAS_SERVO_2 1
-#endif
-#if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
-  #define HAS_SERVO_3 1
-#endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
+  #if PIN_EXISTS(SERVO0)
+    #define HAS_SERVO_0 1
+  #endif
+  #if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
+    #define HAS_SERVO_1 1
+  #endif
+  #if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
+    #define HAS_SERVO_2 1
+  #endif
+  #if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
+    #define HAS_SERVO_3 1
+  #endif
+  #if PIN_EXISTS(SERVO4) && NUM_SERVOS > 4
+    #define HAS_SERVO_4 1
+  #endif
+  #if PIN_EXISTS(SERVO5) && NUM_SERVOS > 5
+    #define HAS_SERVO_5 1
+  #endif
   #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
     #define HAS_PAUSE_SERVO_OUTPUT 1
   #endif

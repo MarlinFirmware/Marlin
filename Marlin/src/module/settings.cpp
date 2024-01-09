@@ -92,12 +92,6 @@
   #include "servo.h"
 #endif
 
-#if HAS_SERVOS && HAS_SERVO_ANGLES
-  #define EEPROM_NUM_SERVOS NUM_SERVOS
-#else
-  #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
-#endif
-
 #include "../feature/fwretract.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -318,7 +312,9 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+  #if HAS_SERVO_ANGLES
+    uint16_t servo_angles[NUM_SERVOS][2];               // M281 P L U
+  #endif
 
   //
   // Temperature first layer compensation values
@@ -1051,13 +1047,12 @@ void MarlinSettings::postprocess() {
     //
     // Servo Angles
     //
+    #if HAS_SERVO_ANGLES
     {
       _FIELD_TEST(servo_angles);
-      #if !HAS_SERVO_ANGLES
-        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
-      #endif
       EEPROM_WRITE(servo_angles);
     }
+    #endif
 
     //
     // Thermal first layer compensation values
@@ -2082,15 +2077,17 @@ void MarlinSettings::postprocess() {
       //
       // SERVO_ANGLES
       //
+      #if HAS_SERVO_ANGLES
       {
         _FIELD_TEST(servo_angles);
         #if ENABLED(EDITABLE_SERVO_ANGLES)
-          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+          uint16_t (&servo_angles_arr)[NUM_SERVOS][2] = servo_angles;
         #else
-          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
+          uint16_t servo_angles_arr[NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles_arr);
       }
+      #endif
 
       //
       // Thermal first layer compensation values
