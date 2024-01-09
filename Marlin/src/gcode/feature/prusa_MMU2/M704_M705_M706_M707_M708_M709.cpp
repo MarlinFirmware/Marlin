@@ -32,28 +32,28 @@
 // Common gcode shared by the gcodes. This saves some flash memory
 static void gcodes_M704_M705_M706(uint16_t gcode)
 {
-    int8_t mmuSlotIndex = parser.intval('P', -1);
+  int8_t mmuSlotIndex = parser.intval('P', -1);
 
-    if(MMU2::mmu2.Enabled() && WITHIN(mmuSlotIndex, 0, EXTRUDERS - 1))
-    {
-        switch (gcode){
-        case 704:
-            MMU2::mmu2.load_filament(mmuSlotIndex);
-            break;
-        case 705:
-            MMU2::mmu2.eject_filament(mmuSlotIndex, false);
-            break;
-        case 706:
+  if(MMU2::mmu2.Enabled() && WITHIN(mmuSlotIndex, 0, EXTRUDERS - 1))
+  {
+    switch (gcode){
+    case 704:
+      MMU2::mmu2.load_filament(mmuSlotIndex);
+      break;
+    case 705:
+      MMU2::mmu2.eject_filament(mmuSlotIndex, false);
+      break;
+    case 706:
 #ifdef MMU_HAS_CUTTER
-            if (MMU2::mmu2.cutter_mode > 0){
-                MMU2::mmu2.cut_filament(mmuSlotIndex);
-            }
+      if (MMU2::mmu2.cutter_mode > 0){
+        MMU2::mmu2.cut_filament(mmuSlotIndex);
+      }
 #endif // MMU_HAS_CUTTER
-            break;
-        default:
-            break;
-        }
+      break;
+    default:
+      break;
     }
+  }
 }
 
 
@@ -61,7 +61,7 @@ static void gcodes_M704_M705_M706(uint16_t gcode)
 ### M704 - Preload to MMU <a href="https://reprap.org/wiki/G-code#M704:_Preload_to_MMU">M704: Preload to MMU</a>
 #### Usage
 
-    M704 [ P ]
+  M704 [ P ]
 
 #### Parameters
 - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
@@ -74,7 +74,7 @@ void GcodeSuite::M704() {
 ### M705 - Eject filament <a href="https://reprap.org/wiki/G-code#M705:_Eject_filament">M705: Eject filament</a>
 #### Usage
 
-    M705 [ P ]
+  M705 [ P ]
 
 #### Parameters
 - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
@@ -87,7 +87,7 @@ void GcodeSuite::M705() {
 ### M706 - Cut filament <a href="https://reprap.org/wiki/G-code#M706:_Cut_filament">M706: Cut filament</a>
 #### Usage
 
-    M706 [ P ]
+  M706 [ P ]
 
 #### Parameters
 - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
@@ -101,7 +101,7 @@ void GcodeSuite::M706() {
 ### M707 - Read from MMU register <a href="https://reprap.org/wiki/G-code#M707:_Read_from_MMU_register">M707: Read from MMU register</a>
 #### Usage
 
-    M707 [ A ]
+  M707 [ A ]
 
 #### Parameters
 - `A` - Address of register in hexidecimal.
@@ -114,12 +114,12 @@ Does nothing if the A parameter is not present or if MMU is not enabled.
 
 */
 void GcodeSuite::M707() {
-    if ( MMU2::mmu2.Enabled() ) {
-        if( parser.seenval('A') ) {
-            uint16_t address = parser.longval('A', -1);
-            MMU2::mmu2.ReadRegister(uint8_t(address));
-        }
+  if ( MMU2::mmu2.Enabled() ) {
+    if( parser.seenval('A') ) {
+      uint16_t address = parser.longval('A', -1);
+      MMU2::mmu2.ReadRegister(uint8_t(address));
     }
+  }
 }
 
 
@@ -128,7 +128,7 @@ void GcodeSuite::M707() {
 ### M708 - Write to MMU register <a href="https://reprap.org/wiki/G-code#M708:_Write_to_MMU_register">M707: Write to MMU register</a>
 #### Usage
 
-    M708 [ A | X ]
+  M708 [ A | X ]
 
 #### Parameters
 - `A` - Address of register in hexidecimal.
@@ -140,19 +140,19 @@ M708 A0x1b X05 - Write to register 0x1b the value 05.
 Does nothing if A parameter is missing or if MMU is not enabled.
 */
 void GcodeSuite::M708() {
-    if ( MMU2::mmu2.Enabled() ){
-        uint8_t addr = 0;
-        if( parser.seenval('A') ) {
-            addr = parser.byteval('A', 0);
-        }
-        uint16_t data = 0;
-        if( parser.seenval('X') ) {
-            data = parser.ushortval('X', 0);
-        }
-        if(addr){
-            MMU2::mmu2.WriteRegister(addr, data);
-        }
+  if ( MMU2::mmu2.Enabled() ){
+    uint8_t addr = 0;
+    if( parser.seenval('A') ) {
+      addr = parser.byteval('A', 0);
     }
+    uint16_t data = 0;
+    if( parser.seenval('X') ) {
+      data = parser.ushortval('X', 0);
+    }
+    if(addr){
+      MMU2::mmu2.WriteRegister(addr, data);
+    }
+  }
 }
 
 
@@ -163,7 +163,7 @@ The MK3S cannot not power off the MMU, but we can en- and disable the MMU.
 The new state of the MMU is stored in printer's EEPROM - i.e. if you disable the MMU via M709, it will not be activated after the printer resets.
 #### Usage
 
-    M709 [ S | X ]
+  M709 [ S | X ]
 
 #### Parameters
 - `X` - Reset MMU (0:soft reset | 1:hardware reset | 42: erase MMU eeprom)
@@ -184,65 +184,65 @@ M709 S0 - disable MMU
 M709    - Serial message if en- or disabled
 */
 void GcodeSuite::M709() {
-    if (parser.seenval('S'))
-    {
-        switch (parser.byteval('S', -1)){
-        case 0:
-            // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, false);
-            MMU2::mmu2.mmu_hw_enabled = false;
+  if (parser.seenval('S'))
+  {
+    switch (parser.byteval('S', -1)){
+    case 0:
+      // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, false);
+      MMU2::mmu2.mmu_hw_enabled = false;
 
-            #if ENABLED(EEPROM_SETTINGS)
-            // save mmu_hw_enabled to eeprom
-            persistentStore.access_start();
-            persistentStore.write_data(
-                MMU2::mmu2.mmu_hw_enabled_addr,
-                MMU2::mmu2.mmu_hw_enabled
-            );
-            persistentStore.access_finish();
-            settings.save();
-            #endif
+      #if ENABLED(EEPROM_SETTINGS)
+      // save mmu_hw_enabled to eeprom
+      persistentStore.access_start();
+      persistentStore.write_data(
+        MMU2::mmu2.mmu_hw_enabled_addr,
+        MMU2::mmu2.mmu_hw_enabled
+      );
+      persistentStore.access_finish();
+      settings.save();
+      #endif
 
-            MMU2::mmu2.Stop();
-            break;
-        case 1:
-            // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, true);
-            MMU2::mmu2.mmu_hw_enabled = true;
+      MMU2::mmu2.Stop();
+      break;
+    case 1:
+      // eeprom_update_byte((uint8_t *)EEPROM_MMU_ENABLED, true);
+      MMU2::mmu2.mmu_hw_enabled = true;
 
-            #if ENABLED(EEPROM_SETTINGS)
-            // save mmu_hw_enabled to eeprom
-            persistentStore.access_start();
-            persistentStore.write_data(
-                MMU2::mmu2.mmu_hw_enabled_addr,
-                MMU2::mmu2.mmu_hw_enabled
-            );
-            persistentStore.access_finish();
-            settings.save();
-            #endif
+      #if ENABLED(EEPROM_SETTINGS)
+      // save mmu_hw_enabled to eeprom
+      persistentStore.access_start();
+      persistentStore.write_data(
+        MMU2::mmu2.mmu_hw_enabled_addr,
+        MMU2::mmu2.mmu_hw_enabled
+      );
+      persistentStore.access_finish();
+      settings.save();
+      #endif
 
-            MMU2::mmu2.Start();
-            break;
-        default:
-            break;
-        }
+      MMU2::mmu2.Start();
+      break;
+    default:
+      break;
     }
-    if (MMU2::mmu2.Enabled() && parser.seenval('X'))
+  }
+  if (MMU2::mmu2.Enabled() && parser.seenval('X'))
+  {
+    switch (parser.byteval('X', -1))
     {
-        switch (parser.byteval('X', -1))
-        {
-        case 0:
-            MMU2::mmu2.Reset(MMU2::MMU2::Software);
-            break;
-        case 1:
-            MMU2::mmu2.Reset(MMU2::MMU2::ResetPin);
-            break;
-        case 42:
-            MMU2::mmu2.Reset(MMU2::MMU2::EraseEEPROM);
-            break;
-        default:
-            break;
-        }
+    case 0:
+      MMU2::mmu2.Reset(MMU2::MMU2::Software);
+      break;
+    case 1:
+      MMU2::mmu2.Reset(MMU2::MMU2::ResetPin);
+      break;
+    case 42:
+      MMU2::mmu2.Reset(MMU2::MMU2::EraseEEPROM);
+      break;
+    default:
+      break;
     }
-    MMU2::mmu2.Status();
+  }
+  MMU2::mmu2.Status();
 }
 
 #endif // HAS_PRUSA_MMU3

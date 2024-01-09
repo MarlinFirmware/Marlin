@@ -10,14 +10,14 @@
 namespace MMU2 {
 
 enum CommandInProgress : uint8_t {
-    NoCommand = 0,
-    CutFilament = 'K',
-    EjectFilament = 'E',
-    Homing = 'H',
-    LoadFilament = 'L',
-    Reset = 'X',
-    ToolChange = 'T',
-    UnloadFilament = 'U',
+  NoCommand = 0,
+  CutFilament = 'K',
+  EjectFilament = 'E',
+  Homing = 'H',
+  LoadFilament = 'L',
+  Reset = 'X',
+  ToolChange = 'T',
+  UnloadFilament = 'U',
 };
 
 /**
@@ -29,24 +29,24 @@ enum CommandInProgress : uint8_t {
 class OperationStatistics {
 public:
 
-    void increment_load_fails();
-    void increment_mmu_fails();
-    void increment_tool_change_counter();
-    bool reset_per_print_stats(); // Reset only the per print stats.
-    bool reset_stats();  // Reset MMU stats and update EEPROM
+  void increment_load_fails();
+  void increment_mmu_fails();
+  void increment_tool_change_counter();
+  bool reset_per_print_stats(); // Reset only the per print stats.
+  bool reset_stats();  // Reset MMU stats and update EEPROM
 
-    static uint16_t fail_total_num;                 // total failures
-    static uint8_t  fail_num;                       // fails during print
-    static uint16_t load_fail_total_num;            // total load failures
-    static uint8_t  load_fail_num;                  // load failures during print
-    static uint16_t tool_change_counter;            // number of tool changes during print
-    static uint32_t tool_change_total_counter;      // number of total tool changes
-    static int      fail_total_num_addr;            // total failures EEPROM addr
-    static int      fail_num_addr;                  // fails during print EEPROM addr
-    static int      load_fail_total_num_addr;       // total load failures EEPROM addr
-    static int      load_fail_num_addr;             // load failures during print EEPROM addr
-    static int      tool_change_counter_addr;       // number of tool changes EEPROM addr
-    static int      tool_change_total_counter_addr; // number of total tool changes EEPROM addr
+  static uint16_t fail_total_num;                 // total failures
+  static uint8_t  fail_num;                       // fails during print
+  static uint16_t load_fail_total_num;            // total load failures
+  static uint8_t  load_fail_num;                  // load failures during print
+  static uint16_t tool_change_counter;            // number of tool changes during print
+  static uint32_t tool_change_total_counter;      // number of total tool changes
+  static int      fail_total_num_addr;            // total failures EEPROM addr
+  static int      fail_num_addr;                  // fails during print EEPROM addr
+  static int      load_fail_total_num_addr;       // total load failures EEPROM addr
+  static int      load_fail_num_addr;             // load failures during print EEPROM addr
+  static int      tool_change_counter_addr;       // number of tool changes EEPROM addr
+  static int      tool_change_total_counter_addr; // number of total tool changes EEPROM addr
 };
 
 extern OperationStatistics operation_statistics;
@@ -76,24 +76,24 @@ void ReportErrorHook(CommandInProgress cip, ErrorCode ec, uint8_t es);
 void ReportProgressHook(CommandInProgress cip, ProgressCode ec);
 
 struct TryLoadUnloadReporter {
-    TryLoadUnloadReporter(float delta_mm);
-    ~TryLoadUnloadReporter();
-    void Progress(bool sensorState);
-    void DumpToSerial();
+  TryLoadUnloadReporter(float delta_mm);
+  ~TryLoadUnloadReporter();
+  void Progress(bool sensorState);
+  void DumpToSerial();
 
 private:
-    /// @brief Add one block to the progress bar
-    /// @param col pixel position on the LCD status line, should range from 0 to (LCD_WIDTH - 1)
-    /// @param sensorState if true, filament is not present, else filament is present. This controls which character to render
-    void Render(uint8_t col, bool sensorState);
+  /// @brief Add one block to the progress bar
+  /// @param col pixel position on the LCD status line, should range from 0 to (LCD_WIDTH - 1)
+  /// @param sensorState if true, filament is not present, else filament is present. This controls which character to render
+  void Render(uint8_t col, bool sensorState);
 
-    uint8_t dpixel0;
-    uint8_t dpixel1;
-    uint8_t lcd_cursor_col;
-    // The total length is twice delta_mm. Divide that length by number of pixels
-    // available to get length per pixel.
-    // Note: Below is the reciprocal of (2 * delta_mm) / LCD_WIDTH [mm/pixel]
-    float pixel_per_mm;
+  uint8_t dpixel0;
+  uint8_t dpixel1;
+  uint8_t lcd_cursor_col;
+  // The total length is twice delta_mm. Divide that length by number of pixels
+  // available to get length per pixel.
+  // Note: Below is the reciprocal of (2 * delta_mm) / LCD_WIDTH [mm/pixel]
+  float pixel_per_mm;
 };
 
 /// Remders the sensor status line. Also used by the "resume temperature" screen.
@@ -124,8 +124,8 @@ bool cutter_enabled();
 
 // Beware: enum values intentionally chosen to match the 8bit FW to save code size
 enum SoundType {
-    Prompt = 2,
-    Confirm = 3
+  Prompt = 2,
+  Confirm = 3
 };
 
 void MakeSound(SoundType s);

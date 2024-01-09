@@ -1,8 +1,8 @@
 #pragma once
 #ifdef __AVR__
-    #include <avr/pgmspace.h>
+  #include <avr/pgmspace.h>
 #else
-    #include <pgmspace.h>
+  #include <pgmspace.h>
 #endif
 
 // Beware - before changing this prefix, think twice
@@ -28,45 +28,45 @@ void LogEchoEvent_P(const char *msg_P);
 } // namespace MMU2
 
 #ifndef UNITTEST
-    #ifdef __AVR__
-        #include "src/MarlinCore.h"
-    #else
-        #include "src/core/serial.h"
-    #endif
-    #define SERIAL_MMU2() \
-        { SERIAL_ECHO_P(mmu2Magic); }
+  #ifdef __AVR__
+    #include "src/MarlinCore.h"
+  #else
+    #include "src/core/serial.h"
+  #endif
+  #define SERIAL_MMU2() \
+    { SERIAL_ECHO_P(mmu2Magic); }
 
-    #define MMU2_ECHO_MSGLN(S)   \
-        do {                     \
-            SERIAL_ECHO_START;   \
-            SERIAL_MMU2();       \
-            SERIAL_ECHOLN(S);    \
-        } while (0)
-    #define MMU2_ERROR_MSGLN(S) MMU2_ECHO_MSGLN(S) //!@todo Decide MMU errors  on serial line
-    #define MMU2_ECHO_MSGRPGM(S) \
-        do {                     \
-            SERIAL_ECHO_START;   \
-            SERIAL_MMU2();       \
-            SERIAL_ECHO_P(S);  \
-        } while (0)
-    #define MMU2_ERROR_MSGRPGM(S) MMU2_ECHO_MSGRPGM(S) //!@todo Decide MMU errors  on serial line
-    #define MMU2_ECHO_MSG(S)     \
-        do {                     \
-            SERIAL_ECHO_START;   \
-            SERIAL_MMU2();       \
-            SERIAL_ECHO(S);      \
-        } while (0)
-    #define MMU2_ERROR_MSG(S) MMU2_ECHO_MSG(S) //!@todo Decide MMU errors  on serial line
+  #define MMU2_ECHO_MSGLN(S)   \
+    do {                     \
+      SERIAL_ECHO_START;   \
+      SERIAL_MMU2();       \
+      SERIAL_ECHOLN(S);    \
+    } while (0)
+  #define MMU2_ERROR_MSGLN(S) MMU2_ECHO_MSGLN(S) //!@todo Decide MMU errors  on serial line
+  #define MMU2_ECHO_MSGRPGM(S) \
+    do {                     \
+      SERIAL_ECHO_START;   \
+      SERIAL_MMU2();       \
+      SERIAL_ECHO_P(S);  \
+    } while (0)
+  #define MMU2_ERROR_MSGRPGM(S) MMU2_ECHO_MSGRPGM(S) //!@todo Decide MMU errors  on serial line
+  #define MMU2_ECHO_MSG(S)     \
+    do {                     \
+      SERIAL_ECHO_START;   \
+      SERIAL_MMU2();       \
+      SERIAL_ECHO(S);      \
+    } while (0)
+  #define MMU2_ERROR_MSG(S) MMU2_ECHO_MSG(S) //!@todo Decide MMU errors  on serial line
 
 #else                                          // #ifndef UNITTEST
-    #include "stubs/stub_interfaces.h"
-    #define MMU2_ECHO_MSGLN(S)    marlinLogSim.AppendLine(S)
-    #define MMU2_ERROR_MSGLN(S)   marlinLogSim.AppendLine(S)
-    #define MMU2_ECHO_MSGRPGM(S)  /*marlinLogSim.AppendLine(S)*/
-    #define MMU2_ERROR_MSGRPGM(S) /*marlinLogSim.AppendLine(S)*/
-    #define SERIAL_ECHOLNPGM(S)   /*marlinLogSim.AppendLine(S)*/
-    #define SERIAL_ECHOPGM(S)     /* */
-    #define SERIAL_ECHOLN(S)      /*marlinLogSim.AppendLine(S)*/
+  #include "stubs/stub_interfaces.h"
+  #define MMU2_ECHO_MSGLN(S)    marlinLogSim.AppendLine(S)
+  #define MMU2_ERROR_MSGLN(S)   marlinLogSim.AppendLine(S)
+  #define MMU2_ECHO_MSGRPGM(S)  /*marlinLogSim.AppendLine(S)*/
+  #define MMU2_ERROR_MSGRPGM(S) /*marlinLogSim.AppendLine(S)*/
+  #define SERIAL_ECHOLNPGM(S)   /*marlinLogSim.AppendLine(S)*/
+  #define SERIAL_ECHOPGM(S)     /* */
+  #define SERIAL_ECHOLN(S)      /*marlinLogSim.AppendLine(S)*/
 
 #endif                            // #ifndef UNITTEST
 #endif // HAS_PRUSA_MMU3

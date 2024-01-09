@@ -13,11 +13,11 @@ namespace MMU2 {
 // On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
 void power_on() {
 #if PIN_EXISTS(MMU2_RST)
-    WRITE(MMU2_RST_PIN, 1);
-    SET_OUTPUT(MMU2_RST_PIN); // setup reset pin
+  WRITE(MMU2_RST_PIN, 1);
+  SET_OUTPUT(MMU2_RST_PIN); // setup reset pin
 #endif //MMU_HWRESET
 
-    reset();
+  reset();
 }
 
 void power_off() {
@@ -25,13 +25,13 @@ void power_off() {
 
 void reset() {
 #if PIN_EXISTS(MMU2_RST) // HW - pulse reset pin
-    WRITE(MMU2_RST_PIN, 0);
-    safe_delay(100);
-    WRITE(MMU2_RST_PIN, 1);
+  WRITE(MMU2_RST_PIN, 0);
+  safe_delay(100);
+  WRITE(MMU2_RST_PIN, 1);
 #else
-    mmu2.Reset(MMU2::Software); // @@TODO needs to be redesigned, this power implementation shall not know anything about the MMU itself
+  mmu2.Reset(MMU2::Software); // @@TODO needs to be redesigned, this power implementation shall not know anything about the MMU itself
 #endif
-    // otherwise HW reset is not available
+  // otherwise HW reset is not available
 }
 
 } // namespace MMU2

@@ -23,17 +23,17 @@
 class LcdUpdateDisabler
 {
 public:
-    LcdUpdateDisabler(): m_updateEnabled(ui.lcdDrawUpdate)
-    {
-        ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-    }
-    ~LcdUpdateDisabler()
-    {
-        ui.lcdDrawUpdate = m_updateEnabled;
-    }
+  LcdUpdateDisabler(): m_updateEnabled(ui.lcdDrawUpdate)
+  {
+    ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
+  }
+  ~LcdUpdateDisabler()
+  {
+    ui.lcdDrawUpdate = m_updateEnabled;
+  }
 
 private:
-    LCDViewAction m_updateEnabled;
+  LCDViewAction m_updateEnabled;
 };
 
 
