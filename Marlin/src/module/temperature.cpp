@@ -643,7 +643,7 @@ volatile bool Temperature::raw_temps_ready = false;
     // Run HAL idle tasks
     hal.idletask();
 
-    const bool temp_ready = updateTemperaturesIfReady()
+    const bool temp_ready = updateTemperaturesIfReady();
 
     #if HAS_FAN_LOGIC
       if (temp_ready) manage_extruder_fans(ms);
