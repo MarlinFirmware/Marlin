@@ -733,8 +733,6 @@ volatile bool Temperature::raw_temps_ready = false;
         controllerFan.update(); // Check if fan should be turned on to cool stepper drivers down
       #endif
 
-      TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
-
       const millis_t ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
