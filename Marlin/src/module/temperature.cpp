@@ -1169,7 +1169,7 @@ volatile bool Temperature::raw_temps_ready = false;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping() {
-    const millis_t report_interval_ms = 1000UL;
+    constexpr millis_t report_interval_ms = 1000UL;
     curr_time_ms = millis();
 
     // Run minimal necessary machine tasks
