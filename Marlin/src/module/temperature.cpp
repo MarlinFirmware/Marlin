@@ -638,7 +638,7 @@ volatile bool Temperature::raw_temps_ready = false;
    * Run the minimal required activities during a tuning loop.
    * TODO: Allow tuning routines to call idle() for more complete keepalive.
    */
-  inline void tuning_manage_activity() {
+  inline void tuning_idle() {
     // Run HAL idle tasks
     hal.idletask();
 
@@ -910,7 +910,7 @@ volatile bool Temperature::raw_temps_ready = false;
       }
 
       // Run minimal necessary machine tasks
-      tuning_manage_activity();
+      tuning_idle();
     }
     wait_for_heatup = false;
 
@@ -1174,7 +1174,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     // Run minimal necessary machine tasks
-    tuning_manage_activity();
+    tuning_idle();
 
     if (!wait_for_heatup) {
       SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
