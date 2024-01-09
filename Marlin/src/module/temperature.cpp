@@ -638,15 +638,27 @@ volatile bool Temperature::raw_temps_ready = false;
    * Run the minimal required activities during a tuning loop.
    * TODO: Allow tuning routines to call idle() for more complete keepalive.
    */
-  inline void tuning_idle() {
+  inline bool tuning_idle(const millis_t &ms) {
+
+    const bool temp_ready = updateTemperaturesIfReady()
+
     // Run HAL idle tasks
     hal.idletask();
+
+    // Update Extruder Auto Fans
+    #if HAS_FAN_LOGIC
+      if (temp_ready) manage_extruder_fans(ms);
+    #else
+      UNUSED(ms);
+    #endif
 
     // Run Controller Fan check (normally handled by manage_inactivity)
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
 
     // Run UI update
     TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+
+    return temp_ready;
   }
 
 #endif
@@ -750,7 +762,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
       const millis_t ms = millis();
 
-      if (updateTemperaturesIfReady()) { // temp sample ready
+      // Run minimal necessary machine tasks
+      const bool temp_ready = tuning_idle(ms);
+
+      // If a new sample has arrived process things
+      if (temp_ready) {
 
         // Get the current temperature and constrain it
         current_temp = GHV(degChamber(), degBed(), degHotend(heater_id));
@@ -760,8 +776,6 @@ volatile bool Temperature::raw_temps_ready = false;
         #if ENABLED(PRINTER_EVENT_LEDS)
           ONHEATING(start_temp, current_temp, target);
         #endif
-
-        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
 
         if (heating && current_temp > target && ELAPSED(ms, t2 + 5000UL)) {
           heating = false;
@@ -908,9 +922,6 @@ volatile bool Temperature::raw_temps_ready = false;
 
         goto EXIT_M303;
       }
-
-      // Run minimal necessary machine tasks
-      tuning_idle();
     }
     wait_for_heatup = false;
 
@@ -1162,19 +1173,17 @@ volatile bool Temperature::raw_temps_ready = false;
     const millis_t report_interval_ms = 1000UL;
     curr_time_ms = millis();
 
-    if (updateTemperaturesIfReady()) { // temp sample ready
-      current_temp = degHotend(e);
-      TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
-    }
+    // Run minimal necessary machine tasks
+    const bool temp_ready = tuning_idle(curr_time_ms);
+
+    // Set MPC temp if a new sample is ready
+    if (temp_ready) current_temp = degHotend(e);
 
     if (ELAPSED(curr_time_ms, next_report_ms)) {
       next_report_ms += report_interval_ms;
       print_heater_states(e);
       SERIAL_EOL();
     }
-
-    // Run minimal necessary machine tasks
-    tuning_idle();
 
     if (!wait_for_heatup) {
       SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
