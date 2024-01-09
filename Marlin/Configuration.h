@@ -692,9 +692,9 @@
     #define DEFAULT_Ki_LIST {   1.54,   1.54 }
     #define DEFAULT_Kd_LIST {  76.55,  76.55 }
   #else
-    #define DEFAULT_Kp  33.1392
-    #define DEFAULT_Ki   3.79970
-    #define DEFAULT_Kd  72.2559
+    #define DEFAULT_Kp  33.08
+    #define DEFAULT_Ki   3.69
+    #define DEFAULT_Kd  74.10
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -780,9 +780,9 @@
   //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Print Bed PID debug data to the serial port.
 
-  #define DEFAULT_bedKp 126.63
-  #define DEFAULT_bedKi 23.93
-  #define DEFAULT_bedKd 446.70  
+  #define DEFAULT_bedKp 181.07 // Config for 60 degreesC
+  #define DEFAULT_bedKi 34.82
+  #define DEFAULT_bedKd 627.70
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
