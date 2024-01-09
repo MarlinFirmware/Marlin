@@ -127,7 +127,6 @@ jobs:
         # STM32H7
         - BTT_SKR_SE_BX
         - STM32H743VI_btt
-        - BIGTREE_SKR_3_EZ
 
         # STM32F1 (Maple)
         - jgaurora_a5s_a1_maple
