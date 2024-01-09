@@ -263,10 +263,13 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
+  #define HAS_A_AXIS 1
   #if NUM_AXES >= XY
     #define HAS_Y_AXIS 1
+    #define HAS_B_AXIS 1
     #if NUM_AXES >= XYZ
       #define HAS_Z_AXIS 1
+      #define HAS_C_AXIS 1
       #if NUM_AXES >= 4
         #define HAS_I_AXIS 1
         #if NUM_AXES >= 5

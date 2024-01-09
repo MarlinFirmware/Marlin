@@ -1309,6 +1309,12 @@
   #define HAS_ZV_SHAPING 1
 #endif
 
+// FT Motion unified window and batch size
+#if ALL(FT_MOTION, FTM_UNIFIED_BWS)
+  #define FTM_WINDOW_SIZE FTM_BW_SIZE
+  #define FTM_BATCH_SIZE  FTM_BW_SIZE
+#endif
+
 // Toolchange Event G-code
 #if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
   #undef TC_GCODE_USE_GLOBAL_X

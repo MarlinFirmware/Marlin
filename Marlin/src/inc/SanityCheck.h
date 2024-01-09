@@ -961,9 +961,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > NUM_SERVO_PLUGS
-  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
-#endif
+static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) is too large. The selected board only has " STRINGIFY(NUM_SERVO_PLUGS) " servos.");
 
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
@@ -4123,8 +4121,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ALL(FT_MOTION, MIXING_EXTRUDER)
-  #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+  #elif DISABLED(FTM_UNIFIED_BWS)
+    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
+  #endif
 #endif
 
 // Multi-Stepping Limit
