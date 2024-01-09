@@ -826,3 +826,10 @@
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
   #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
 #endif
+
+/**
+ * Fixed-Time Motion
+ */
+#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
+  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#endif

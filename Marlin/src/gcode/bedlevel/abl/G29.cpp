@@ -987,10 +987,10 @@ G29_TYPE GcodeSuite::G29() {
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
-  #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+  #ifdef EVENT_GCODE_AFTER_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
     planner.synchronize();
-    process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+    process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
   #endif
 
   probe.use_probing_tool(false);
