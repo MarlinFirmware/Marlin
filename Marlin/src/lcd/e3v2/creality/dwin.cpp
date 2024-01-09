@@ -4077,10 +4077,12 @@ void dwinInitScreen() {
 }
 
 void dwinUpdate() {
-  eachMomentUpdate();   // Status update
-  hmiSDCardUpdate();   // SD card update
-  dwinHandleScreen();  // Rotary encoder update
+  eachMomentUpdate(); // Status update
+  hmiSDCardUpdate();  // SD card update
+  dwinHandleScreen(); // Rotary encoder update
 }
+
+void MarlinUI::update() { dwinUpdate(); }
 
 void eachMomentUpdate() {
   static millis_t next_var_update_ms = 0, next_rts_update_ms = 0;
