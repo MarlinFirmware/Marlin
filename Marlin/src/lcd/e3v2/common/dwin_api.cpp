@@ -90,6 +90,7 @@ bool dwinHandshake() {
   }
 #endif
 
+#if DISABLED(DWIN_LCD_PROUI)
 // Get font character width
 uint8_t fontWidth(uint8_t cfont) {
   switch (cfont) {
@@ -123,6 +124,7 @@ uint8_t fontHeight(uint8_t cfont) {
     default: return 0;
   }
 }
+#endif
 
 // Set screen display direction
 //  dir: 0=0°, 1=90°, 2=180°, 3=270°

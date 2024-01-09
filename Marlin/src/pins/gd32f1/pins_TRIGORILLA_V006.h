@@ -132,21 +132,21 @@
   // SDIO
   //
   #define SDIO_READ_RETRIES 16
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
+  #define BOARD_SDIO_D0                     PC8
+  #define BOARD_SDIO_D1                     PC9
+  #define BOARD_SDIO_D2                     PC10
+  #define BOARD_SDIO_D3                     PC11
+  #define BOARD_SDIO_CLK                    PC12
+  #define BOARD_SDIO_CMD                    PD2
 
 #else
 
   #undef SDSS
-  #define SDSS                              PC11  // SDIO_D3_PIN
+  #define SDSS                              PC11  // BOARD_SDIO_D3
   #define SS_PIN                            SDSS
-  #define SCK_PIN                           PC12  // SDIO_CK_PIN
-  #define MISO_PIN                          PC8   // SDIO_D0_PIN
-  #define MOSI_PIN                          PD2   // SDIO_CMD_PIN
+  #define SCK_PIN                           PC12  // BOARD_SDIO_CLK
+  #define MISO_PIN                          PC8   // BOARD_SDIO_D0
+  #define MOSI_PIN                          PD2   // BOARD_SDIO_CMD
   #define SOFTWARE_SPI
 
 #endif
