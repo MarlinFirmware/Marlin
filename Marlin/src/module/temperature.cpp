@@ -730,7 +730,7 @@ volatile bool Temperature::raw_temps_ready = false;
     while (wait_for_heatup) { // Can be interrupted with M108
 
       #if ALL(PIDTEMPBED,USE_CONTROLLER_FAN)
-        controllerFan.update(); // Check if fan should be turned on to cool stepper drivers down
+        controllerFan.update(); // Check if fan should be turned on to cool down the bed MOSFET
       #endif
 
       const millis_t ms = millis();
