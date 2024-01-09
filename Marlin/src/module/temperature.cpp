@@ -698,12 +698,12 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(HAS_FAN_LOGIC, fan_update_ms = next_temp_ms + fan_update_interval_ms);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
-    TERN_(PROUI_PID_TUNE, dwinPidTuning(isbed ? PIDTEMPBED_START : PIDTEMP_START));
+    TERN_(DWIN_LCD_PROUI, dwinPidTuning(isbed ? PIDTEMPBED_START : PIDTEMP_START));
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
-      TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TEMP_TOO_HIGH));
+      TERN_(DWIN_LCD_PROUI, dwinPidTuning(PID_TEMP_TOO_HIGH));
       TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH)));
       return;
     }
@@ -795,7 +795,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TEMP_TOO_HIGH));
+        TERN_(DWIN_LCD_PROUI, dwinPidTuning(PID_TEMP_TOO_HIGH));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH)));
         break;
       }
@@ -832,7 +832,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #endif
       if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TUNING_TIMEOUT));
+        TERN_(DWIN_LCD_PROUI, dwinPidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
@@ -885,7 +885,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
 
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
+        TERN_(DWIN_LCD_PROUI, dwinPidTuning(AUTOTUNE_DONE));
 
         goto EXIT_M303;
       }
@@ -903,7 +903,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-    TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
+    TERN_(DWIN_LCD_PROUI, dwinPidTuning(AUTOTUNE_DONE));
 
     EXIT_M303:
       TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);

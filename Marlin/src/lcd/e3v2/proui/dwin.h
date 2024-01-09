@@ -311,7 +311,7 @@ void dwinRebootScreen();
 #if HAS_ESDIAG
   void drawEndStopDiag();
 #endif
-#if ALL(PROUI_PID_TUNE, PROUI_ITEM_PLOT)
+#if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
   void dwinDrawPlot(tempcontrol_t result);
   void drawHPlot();
   void drawBPlot();
