@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,31 @@
  */
 
 /**
- * $(filename)
+ * Platform-independent Arduino functions for I2C EEPROM.
+ * Enable USE_SHARED_EEPROM if not supplied by the framework.
  */
+#ifdef ARDUINO_ARCH_HC32
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+
+#include "../../libs/BL24CXX.h"
+#include "../shared/eeprom_if.h"
+
+void eeprom_init() {
+  BL24CXX::init();
+}
+
+void eeprom_write_byte(uint8_t *pos, unsigned char value) {
+  const unsigned eeprom_address = (unsigned)pos;
+  return BL24CXX::writeOneByte(eeprom_address, value);
+}
+
+uint8_t eeprom_read_byte(uint8_t *pos) {
+  const unsigned eeprom_address = (unsigned)pos;
+  return BL24CXX::readOneByte(eeprom_address);
+}
+
+#endif // IIC_BL24CXX_EEPROM
+#endif // ARDUINO_ARCH_HC32

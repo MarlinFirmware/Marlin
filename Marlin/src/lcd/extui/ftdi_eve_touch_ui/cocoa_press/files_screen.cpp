@@ -171,13 +171,10 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(normal_btn)
-     .enabled(!mydata.flags.is_root)
-     .tag(245).button(BTN2_POS, F("Up Dir"))
+     .tag(mydata.flags.is_root ? 240 : 245).button(BTN2_POS, F("Back"))
      .colors(action_btn);
 
-  if (mydata.flags.is_empty)
-    cmd.tag(240).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_DONE));
-  else if (has_selection && mydata.flags.is_dir)
+  if (has_selection && mydata.flags.is_dir)
     cmd.tag(244).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_OPEN));
   else
     cmd.tag(241).enabled(has_selection).button(BTN1_POS, F("Select"));
@@ -214,12 +211,9 @@ void FilesScreen::gotoPage(uint8_t page) {
 
 bool FilesScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 240: // Done button, always select first file
-      {
-          FileList files;
-          files.seek(0);
-          GOTO_PREVIOUS();
-      }
+    case 240: // Back button
+      card.filename[0] = card.longFilename[0] = '\0'; // Clear file selection
+      GOTO_PREVIOUS();
       return true;
     case 241: // Select highlighted file
       GOTO_PREVIOUS();

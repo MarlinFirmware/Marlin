@@ -175,6 +175,10 @@ class PrintJobRecovery {
     static void enable(const bool onoff);
     static void changed();
 
+    #if HAS_PLR_BED_THRESHOLD
+      static celsius_t bed_temp_threshold;
+    #endif
+
     static bool exists() { return card.jobRecoverFileExists(); }
     static void open(const bool read) { card.openJobRecoveryFile(read); }
     static void close() { file.close(); }

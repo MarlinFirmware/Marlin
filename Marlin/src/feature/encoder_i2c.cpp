@@ -49,7 +49,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 
   initialized = true;
 
-  SERIAL_ECHOLNPGM("Setting up encoder on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis, addr = ", address);
+  SERIAL_ECHOLNPGM("Setting up encoder on ", C(AXIS_CHAR(encoderAxis)), " axis, addr = ", address);
 
   position = get_position();
 }
@@ -67,7 +67,7 @@ void I2CPositionEncoder::update() {
     /*
     if (trusted) { //commented out as part of the note below
       trusted = false;
-      SERIAL_ECHOLNPGM("Fault detected on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis encoder. Disengaging error correction until module is trusted again.");
+      SERIAL_ECHOLNPGM("Fault detected on ", C(AXIS_CHAR(encoderAxis)), " axis encoder. Disengaging error correction until module is trusted again.");
     }
     */
     return;
@@ -92,7 +92,7 @@ void I2CPositionEncoder::update() {
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
         trusted = true;
 
-        SERIAL_ECHOLNPGM("Untrusted encoder module on ", AS_CHAR(AXIS_CHAR(encoderAxis)), " axis has been fault-free for set duration, reinstating error correction.");
+        SERIAL_ECHOLNPGM("Untrusted encoder module on ", C(AXIS_CHAR(encoderAxis)), " axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occurred, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialize
@@ -106,7 +106,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPGM("Current position is ", pos);
           SERIAL_ECHOLNPGM("Position in encoder ticks is ", positionInTicks);
           SERIAL_ECHOLNPGM("New zero-offset of ", zeroOffset);
-          SERIAL_ECHOLN(F("New position reads as "), get_position(), AS_CHAR('('), mm_from_count(get_position()), AS_CHAR(')'));
+          SERIAL_ECHOLN(F("New position reads as "), get_position(), C('('), mm_from_count(get_position()), C(')'));
         #endif
       }
     #endif
@@ -422,22 +422,22 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOLNPGM("Attempted travel: ", travelDistance, "mm");
-    SERIAL_ECHOLNPGM("   Actual travel:  ", travelledDistance, "mm");
+    SERIAL_ECHOLNPGM("   Actual travel: ", travelledDistance, "mm");
 
-    //Calculate new axis steps per unit
+    // Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
     SERIAL_ECHOLNPGM("Old steps/mm: ", old_steps_mm);
     SERIAL_ECHOLNPGM("New steps/mm: ", new_steps_mm);
 
-    //Save new value
+    // Save new value
     planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
 
     if (iter > 1) {
       total += new_steps_mm;
 
-      // swap start and end points so next loop runs from current position
+      // Swap start and end points so next loop runs from current position
       const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;

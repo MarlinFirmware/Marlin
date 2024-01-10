@@ -83,6 +83,7 @@ enum menuID : uint8_t {
       ID_Preheat,
       ID_ChangeFilament,
       ID_MenuCustom,
+      OPTITEM(FWRETRACT, ID_FWMenu)
     ID_Control,
       ID_TempMenu,
         ID_PID,
@@ -100,14 +101,12 @@ enum menuID : uint8_t {
         ID_MaxSpeed,
         ID_MaxAcceleration,
         ID_MaxJerk,
-        ID_Steps,
+        OPTITEM(EDITABLE_STEPS_PER_UNIT, ID_Steps)
       ID_Visual,
         ID_ColorSettings,
       ID_Advanced,
         ID_ProbeMenu,
-        #if HAS_TRINAMIC_CONFIG
-          ID_TMCMenu,
-        #endif
+        OPTITEM(HAS_TRINAMIC_CONFIG, ID_TMCMenu)
       ID_Info,
     ID_Leveling,
       ID_LevelManual,

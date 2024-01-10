@@ -51,7 +51,7 @@ uint16_t DGUSScreenHandler::filament_length = DGUS_DEFAULT_FILAMENT_LEN;
 char DGUSScreenHandler::gcode[] = "";
 
 DGUS_Data::Heater DGUSScreenHandler::pid_heater = DGUS_Data::Heater::H0;
-uint16_t DGUSScreenHandler::pid_temp = DGUS_PLA_TEMP_HOTEND;
+celsius_t DGUSScreenHandler::pid_temp = DGUS_PLA_TEMP_HOTEND;
 uint8_t DGUSScreenHandler::pid_cycles = 5;
 
 bool DGUSScreenHandler::settings_ready = false;

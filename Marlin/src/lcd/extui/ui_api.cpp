@@ -172,35 +172,6 @@ namespace ExtUI {
     if (!flags.printer_killed) thermalManager.task();
   }
 
-  void enableHeater(const extruder_t extruder) {
-    #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      thermalManager.reset_hotend_idle_timer(extruder - E0);
-    #else
-      UNUSED(extruder);
-    #endif
-  }
-
-  void enableHeater(const heater_t heater) {
-    #if HEATER_IDLE_HANDLER
-      switch (heater) {
-        #if HAS_HEATED_BED
-          case BED: thermalManager.reset_bed_idle_timer(); return;
-        #endif
-        #if HAS_HEATED_CHAMBER
-          case CHAMBER: return; // Chamber has no idle timer
-        #endif
-        #if HAS_COOLER
-          case COOLER: return;  // Cooler has no idle timer
-        #endif
-        default:
-          TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
-          break;
-      }
-    #else
-      UNUSED(heater);
-    #endif
-  }
-
   #if ENABLED(JOYSTICK)
     /**
      * Jogs in the direction given by the vector (dx, dy, dz).
@@ -236,6 +207,39 @@ namespace ExtUI {
       }
     }
   #endif
+
+  //
+  // Heaters locked / idle
+  //
+
+  void enableHeater(const extruder_t extruder) {
+    #if HAS_HOTEND && HEATER_IDLE_HANDLER
+      thermalManager.reset_hotend_idle_timer(extruder - E0);
+    #else
+      UNUSED(extruder);
+    #endif
+  }
+
+  void enableHeater(const heater_t heater) {
+    #if HEATER_IDLE_HANDLER
+      switch (heater) {
+        #if HAS_HEATED_BED
+          case BED: thermalManager.reset_bed_idle_timer(); return;
+        #endif
+        #if HAS_HEATED_CHAMBER
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if HAS_COOLER
+          case COOLER: return;  // Cooler has no idle timer
+        #endif
+        default:
+          TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
+          break;
+      }
+    #else
+      UNUSED(heater);
+    #endif
+  }
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
@@ -302,6 +306,9 @@ namespace ExtUI {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
+  //
+  // Fan target/actual speed
+  //
   float getTargetFan_percent(const fan_t fan) {
     UNUSED(fan);
     return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
@@ -312,6 +319,9 @@ namespace ExtUI {
     return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
+  //
+  // High level axis and extruder positions
+  //
   float getAxisPosition_mm(const axis_t axis) {
     return current_position[axis];
   }
@@ -349,6 +359,9 @@ namespace ExtUI {
     line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
+  //
+  // Tool changing
+  //
   void setActiveTool(const extruder_t extruder, bool no_move) {
     #if HAS_MULTI_EXTRUDER
       const uint8_t e = extruder - E0;
@@ -370,11 +383,17 @@ namespace ExtUI {
 
   extruder_t getActiveTool() { return getTool(active_extruder); }
 
+  //
+  // Moving axes and extruders
+  //
   bool isMoving() { return planner.has_blocks_queued(); }
 
+  //
+  // Motion might be blocked by NO_MOTION_BEFORE_HOMING
+  //
   bool canMove(const axis_t axis) {
     switch (axis) {
-      #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
+      #if ANY(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING)
         OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
@@ -385,19 +404,33 @@ namespace ExtUI {
     }
   }
 
+  //
+  // E Motion might be prevented by cold material
+  //
   bool canMove(const extruder_t extruder) {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
+  //
+  // Host Keepalive, used by awaitingUserConfirm
+  //
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     GcodeSuite::MarlinBusyState getHostKeepaliveState() { return gcode.busy_state; }
     bool getHostKeepaliveIsPaused() { return gcode.host_keepalive_is_paused(); }
   #endif
 
+  //
+  // Soft Endstops Enabled/Disabled State
+  //
+
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
     void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
   #endif
+
+  //
+  // Trinamic Current / Bump Sensitivity
+  //
 
   #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t axis) {
@@ -626,6 +659,10 @@ namespace ExtUI {
     }
   #endif
 
+  //
+  // Planner Accessors / Setters
+  //
+
   float getAxisSteps_per_mm(const axis_t axis) {
     return planner.settings.axis_steps_per_mm[axis];
   }
@@ -635,16 +672,18 @@ namespace ExtUI {
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
-    planner.settings.axis_steps_per_mm[axis] = value;
-    planner.refresh_positioning();
-  }
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
+      planner.settings.axis_steps_per_mm[axis] = value;
+      planner.refresh_positioning();
+    }
 
-  void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
-    UNUSED(extruder);
-    planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
-    planner.refresh_positioning();
-  }
+    void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
+      UNUSED(extruder);
+      planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
+      planner.refresh_positioning();
+    }
+  #endif
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
     return planner.settings.max_feedrate_mm_s[axis];
@@ -858,7 +897,7 @@ namespace ExtUI {
 
   void setZOffset_mm(const_float_t value) {
     #if HAS_BED_PROBE
-      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+      if (WITHIN(value, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
         probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       babystep.add_mm(Z_AXIS, value - getZOffset_mm());
@@ -1103,6 +1142,7 @@ namespace ExtUI {
 
   bool isMediaInserted() { return TERN0(HAS_MEDIA, IS_SD_INSERTED()); }
 
+  // Pause/Resume/Stop are implemented in MarlinUI
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
   void stopPrint()   { ui.abort_print(); }

@@ -9,6 +9,7 @@ set -e
 
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_MINI EXTRUDERS 1 TEMP_SENSOR_1 0
+opt_enable MARKFORGED_XY MARKFORGED_INVERSE
 exec_test $1 $2 "MKS Robin mini" "$3"
 
 # cleanup
