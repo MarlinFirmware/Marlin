@@ -130,7 +130,7 @@ typedef struct {
 
   uint8_t valid_foot;
 
-  bool valid() { return valid_head && valid_head == valid_foot && sdpos; }
+  bool valid() { return valid_head && valid_head == valid_foot; }
 
 } job_recovery_info_t;
 

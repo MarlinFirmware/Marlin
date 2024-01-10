@@ -2508,11 +2508,8 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
 
       #if ENABLED(POWER_LOSS_RECOVERY)
-        const uint32_t sdpos = current_block->sdpos;
-        if (sdpos) {
-          recovery.info.sdpos = sdpos;
-          recovery.info.current_position = current_block->start_position;
-        }
+        recovery.info.sdpos = current_block->sdpos;
+        recovery.info.current_position = current_block->start_position;
       #endif
 
       #if ENABLED(DIRECT_STEPPING)
