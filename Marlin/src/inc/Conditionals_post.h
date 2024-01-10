@@ -30,6 +30,16 @@
   // Extras for CI testing
 #endif
 
+// Arduino IDE with Teensy Additions
+#ifdef TEENSYDUINO
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
+  #define NOT_A_PIN 0 // For PINS_DEBUGGING
+#endif
+
 // ADC
 #ifdef BOARD_ADC_VREF_MV
   #define ADC_VREF_MV BOARD_ADC_VREF_MV
@@ -62,16 +72,6 @@
 
 #if DISABLED(IIC_BL24CXX_EEPROM)
   #undef OTA_FIRMWARE_UPDATE
-#endif
-
-#ifdef TEENSYDUINO
-  #undef max
-  #define max(a,b) ((a)>(b)?(a):(b))
-  #undef min
-  #define min(a,b) ((a)<(b)?(a):(b))
-
-  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
-  #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
 /**
@@ -2473,11 +2473,7 @@
   #define COOLER_MAX_TARGET ((COOLER_MAXTEMP) - (COOLER_OVERSHOOT))
 #endif
 
-#if HAS_HEATED_BED || HAS_TEMP_CHAMBER
-  #define BED_OR_CHAMBER 1
-#endif
-
-#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
   #define HAS_TEMP_SENSOR 1
 #endif
 
@@ -2644,11 +2640,13 @@
   #endif
 #endif
 
-// Print Cooling fans (limit)
+/**
+ * Up to 12 PWM fans
+ */
 #ifdef NUM_M106_FANS
   #define MAX_FANS NUM_M106_FANS
 #else
-  #define MAX_FANS 8  // Max supported fans
+  #define MAX_FANS 12  // Max supported fans
 #endif
 
 #define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
@@ -2683,21 +2681,30 @@
 #if _HAS_FAN(7)
   #define HAS_FAN7 1
 #endif
-#undef _NOT_E_AUTO
+#if _HAS_FAN(8)
+  #define HAS_FAN8 1
+#endif
+#if _HAS_FAN(9)
+  #define HAS_FAN9 1
+#endif
+#if _HAS_FAN(10)
+  #define HAS_FAN10 1
+#endif
+#if _HAS_FAN(11)
+  #define HAS_FAN11 1
+#endif
 #undef _HAS_FAN
+#undef _IS_E_AUTO
 
-#if BED_OR_CHAMBER || HAS_FAN0
-  #define BED_OR_CHAMBER_OR_FAN 1
-#endif
-
-/**
- * Up to 8 PWM fans
- */
-#ifndef FAN_INVERTING
-  #define FAN_INVERTING false
-#endif
-
-#if HAS_FAN7
+#if HAS_FAN11
+  #define FAN_COUNT 12
+#elif HAS_FAN10
+  #define FAN_COUNT 11
+#elif HAS_FAN9
+  #define FAN_COUNT 10
+#elif HAS_FAN8
+  #define FAN_COUNT 9
+#elif HAS_FAN7
   #define FAN_COUNT 8
 #elif HAS_FAN6
   #define FAN_COUNT 7
@@ -2755,20 +2762,26 @@
 #endif
 
 // Servos
-#if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
-  #define HAS_SERVO_0 1
-#endif
-#if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
-  #define HAS_SERVO_1 1
-#endif
-#if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
-  #define HAS_SERVO_2 1
-#endif
-#if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
-  #define HAS_SERVO_3 1
-#endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
+  #if PIN_EXISTS(SERVO0)
+    #define HAS_SERVO_0 1
+  #endif
+  #if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
+    #define HAS_SERVO_1 1
+  #endif
+  #if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
+    #define HAS_SERVO_2 1
+  #endif
+  #if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
+    #define HAS_SERVO_3 1
+  #endif
+  #if PIN_EXISTS(SERVO4) && NUM_SERVOS > 4
+    #define HAS_SERVO_4 1
+  #endif
+  #if PIN_EXISTS(SERVO5) && NUM_SERVOS > 5
+    #define HAS_SERVO_5 1
+  #endif
   #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
     #define HAS_PAUSE_SERVO_OUTPUT 1
   #endif

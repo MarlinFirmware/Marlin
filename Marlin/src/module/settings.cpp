@@ -92,12 +92,6 @@
   #include "servo.h"
 #endif
 
-#if HAS_SERVOS && HAS_SERVO_ANGLES
-  #define EEPROM_NUM_SERVOS NUM_SERVOS
-#else
-  #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
-#endif
-
 #include "../feature/fwretract.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -318,7 +312,9 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+  #if HAS_SERVO_ANGLES
+    uint16_t servo_angles[NUM_SERVOS][2];               // M281 P L U
+  #endif
 
   //
   // Temperature first layer compensation values
@@ -509,7 +505,7 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  #if HAS_EXTRUDERS
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
   #endif
 
@@ -1052,13 +1048,12 @@ void MarlinSettings::postprocess() {
     //
     // Servo Angles
     //
+    #if HAS_SERVO_ANGLES
     {
       _FIELD_TEST(servo_angles);
-      #if !HAS_SERVO_ANGLES
-        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
-      #endif
       EEPROM_WRITE(servo_angles);
     }
+    #endif
 
     //
     // Thermal first layer compensation values
@@ -1554,11 +1549,8 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    #if HAS_EXTRUDERS
+    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     {
-      #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
-      #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
     }
@@ -2088,15 +2080,17 @@ void MarlinSettings::postprocess() {
       //
       // SERVO_ANGLES
       //
+      #if HAS_SERVO_ANGLES
       {
         _FIELD_TEST(servo_angles);
         #if ENABLED(EDITABLE_SERVO_ANGLES)
-          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+          uint16_t (&servo_angles_arr)[NUM_SERVOS][2] = servo_angles;
         #else
-          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
+          uint16_t servo_angles_arr[NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles_arr);
       }
+      #endif
 
       //
       // Thermal first layer compensation values
@@ -2634,11 +2628,8 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
-      #if HAS_EXTRUDERS
+      #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       {
-        #if DISABLED(ADVANCED_PAUSE_FEATURE)
-          fil_change_settings_t fc_settings[EXTRUDERS];
-        #endif
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
       }
@@ -3560,7 +3551,7 @@ void MarlinSettings::reset() {
   //
   // Advanced Pause filament load & unload lengths
   //
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     EXTRUDER_LOOP() {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
@@ -3935,7 +3926,7 @@ void MarlinSettings::reset() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+    TERN_(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
 
     //
     // Tool-changing Parameters

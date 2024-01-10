@@ -111,37 +111,37 @@ void TFT_IO::initTFT() {
     switch (lcd_id) {
       case LTDC_RGB:
         break;
-      case ST7796:    // ST7796S    480x320
-        DEBUG_ECHO_MSG(" ST7796S");
+      case ST7796:
+        DEBUG_ECHO_MSG(" ST7796S");       // 480x320
         write_esc_sequence(st7796s_init);
         break;
-      case ST7789:    // ST7789V    320x240
-        DEBUG_ECHO_MSG(" ST7789V");
+      case ST7789:
+        DEBUG_ECHO_MSG(" ST7789V");       // 320x240
         write_esc_sequence(st7789v_init);
         break;
-      case SSD1963:    // SSD1963
+      case SSD1963:
         DEBUG_ECHO_MSG(" SSD1963");
         write_esc_sequence(ssd1963_init);
         break;
-      case ST7735:    // ST7735     160x128
-        DEBUG_ECHO_MSG(" ST7735");
+      case ST7735:
+        DEBUG_ECHO_MSG(" ST7735");        // 160x128
         write_esc_sequence(st7735_init);
         break;
-      case R61505:    // R61505U    320x240
-        DEBUG_ECHO_MSG(" R61505U");
+      case R61505:
+        DEBUG_ECHO_MSG(" R61505U");       // 320x240
         write_esc_sequence(r61505_init);
         break;
-      case ILI9328:   // ILI9328    320x240
-        DEBUG_ECHO_MSG(" ILI9328");
+      case ILI9328:
+        DEBUG_ECHO_MSG(" ILI9328");       // 320x240
         write_esc_sequence(ili9328_init);
         break;
-      case ILI9341:   // ILI9341    320x240
-        DEBUG_ECHO_MSG(" ILI9341");
+      case ILI9341:
+        DEBUG_ECHO_MSG(" ILI9341");       // 320x240
         write_esc_sequence(ili9341_init);
         break;
-      case ILI9488:   // ILI9488    480x320
-      case ILI9488_ID1: // 0x8066 ILI9488    480x320
-        DEBUG_ECHO_MSG(" ILI9488");
+      case ILI9488:
+      case ILI9488_ID1:
+        DEBUG_ECHO_MSG(" ILI9488");       // 480x320
         write_esc_sequence(ili9488_init);
         break;
       default:

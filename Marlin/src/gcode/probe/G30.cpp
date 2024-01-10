@@ -34,10 +34,6 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 /**
  * G30: Do a single Z probe at the given XY (default: current)
  *

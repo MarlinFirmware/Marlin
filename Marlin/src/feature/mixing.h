@@ -43,10 +43,6 @@
 
 typedef int8_t mixer_perc_t;
 
-#ifndef MIXING_VIRTUAL_TOOLS
-  #define MIXING_VIRTUAL_TOOLS 1
-#endif
-
 enum MixTool {
     FIRST_USER_VIRTUAL_TOOL = 0
   , LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1

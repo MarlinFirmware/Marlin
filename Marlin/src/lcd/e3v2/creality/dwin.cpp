@@ -905,7 +905,7 @@ void drawControlMenu() {
   #if ENABLED(EEPROM_SETTINGS)
     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResetEEPROM, false);
   #endif
 }
 
@@ -2468,7 +2468,7 @@ void itemAdvBedPID(const uint8_t row) {
       itemAreaCopy(145, 104, 167, 114, row, 27); // "PID"
     #endif
   }
-  drawMenuLine(row, ICON_PIDbed);
+  drawMenuLine(row, ICON_PIDBed);
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -4077,10 +4077,12 @@ void dwinInitScreen() {
 }
 
 void dwinUpdate() {
-  eachMomentUpdate();   // Status update
-  hmiSDCardUpdate();   // SD card update
-  dwinHandleScreen();  // Rotary encoder update
+  eachMomentUpdate(); // Status update
+  hmiSDCardUpdate();  // SD card update
+  dwinHandleScreen(); // Rotary encoder update
 }
+
+void MarlinUI::update() { dwinUpdate(); }
 
 void eachMomentUpdate() {
   static millis_t next_var_update_ms = 0, next_rts_update_ms = 0;

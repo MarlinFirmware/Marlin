@@ -122,14 +122,16 @@ void GcodeSuite::say_units() {
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
-  if (parser.seenval('T')) {
-    const int8_t e = parser.value_byte();
-    if (e < EXTRUDERS) return e;
-    SERIAL_ECHO_START();
-    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-    return -1;
-  }
+  #if HAS_TOOLCHANGE
+    if (parser.seenval('T')) {
+      const int8_t e = parser.value_byte();
+      if (e < EXTRUDERS) return e;
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
+      return -1;
+    }
+  #endif
   return active_extruder;
 }
 
@@ -669,7 +671,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
       case 114: M114(); break;                                    // M114: Report current position
-      case 115: M115(); break;                                    // M115: Report capabilities
+
+      #if ENABLED(CAPABILITIES_REPORT)
+        case 115: M115(); break;                                  // M115: Report capabilities
+      #endif
 
       case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
 
@@ -945,7 +950,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: M600(); break;                                  // M600: Pause for Filament Change
-        case 603: M603(); break;                                  // M603: Configure Filament Change
+        #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
+          case 603: M603(); break;                                  // M603: Configure Filament Change
+        #endif
       #endif
 
       #if HAS_DUPLICATION_MODE

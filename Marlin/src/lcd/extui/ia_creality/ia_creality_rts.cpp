@@ -1655,9 +1655,9 @@ void RTS::handleData() {
 
     case AutolevelVal: {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2,
-              yPnt = floor(meshPoint / GRID_MAX_POINTS_X),
-              xPnt = meshPoint - (yPnt * GRID_MAX_POINTS_X);
-      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X - 1) - xPnt; // zag row
+              yPnt = meshPoint / (GRID_MAX_POINTS_X),
+              xPnt = meshPoint - yPnt * (GRID_MAX_POINTS_X);
+      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X) - 1 - xPnt; // zag row
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
