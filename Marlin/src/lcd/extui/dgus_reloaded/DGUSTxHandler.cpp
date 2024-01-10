@@ -31,7 +31,9 @@
 
 #include "../ui_api.h"
 #include "../../../module/stepper.h"
+#include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
 #endif
