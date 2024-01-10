@@ -833,3 +833,10 @@
 #if ALL(FT_MOTION, I2S_STEPPER_STREAM)
   #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
 #endif
+
+/**
+ * User doesn't have or disabled G92?
+ */
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+#endif

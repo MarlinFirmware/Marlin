@@ -265,8 +265,10 @@ namespace ExtUI {
   void setAxisPosition_mm(const_float_t, const extruder_t, const feedRate_t=0);
 
   // Planner Control
-  void setAxisSteps_per_mm(const_float_t, const axis_t);
-  void setAxisSteps_per_mm(const_float_t, const extruder_t);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    void setAxisSteps_per_mm(const_float_t, const axis_t);
+    void setAxisSteps_per_mm(const_float_t, const extruder_t);
+  #endif
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const extruder_t);
   void setAxisMaxAcceleration_mm_s2(const_float_t, const axis_t);

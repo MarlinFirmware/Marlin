@@ -1059,7 +1059,9 @@ void draw_return_ui() {
       case DELTA_LEVELING_PARA_UI:      break;
       case MANUAL_LEVELING_POSITION_UI: lv_draw_tramming_pos_settings(); break;
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
-      case STEPS_UI:                    lv_draw_step_settings(); break;
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case STEPS_UI:                  lv_draw_step_settings(); break;
+      #endif
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
       #if ENABLED(CLASSIC_JERK)
         case JERK_UI:                   lv_draw_jerk_settings(); break;
