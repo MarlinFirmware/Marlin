@@ -1090,6 +1090,10 @@
   #define HAS_DISPLAY 1
 #endif
 
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD)
+  #define HAS_UI_UPDATE 1
+#endif
+
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
   #define HAS_LCDPRINT 1
 #endif
