@@ -106,7 +106,7 @@ public:
   static char gcode[DGUS_GCODE_LEN + 1];
 
   static DGUS_Data::Heater pid_heater;
-  static uint16_t pid_temp;
+  static celsius_t pid_temp;
   static uint8_t pid_cycles;
 
   static bool wait_continue;

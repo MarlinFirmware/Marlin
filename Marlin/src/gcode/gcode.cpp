@@ -669,7 +669,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 87: M87(); break;                                    // M87: Cancel Hotend Idle Timeout
       #endif
 
-      case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case 92: M92(); break;                                    // M92: Set the steps-per-unit for one or more axes
+      #endif
+
       case 114: M114(); break;                                    // M114: Report current position
 
       #if ENABLED(CAPABILITIES_REPORT)

@@ -33,6 +33,7 @@ exec_test $1 $2 "BigTreeTech GTR | 6 Extruders | Quad Z + Endstops" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_GTR_V1_0 SERIAL_PORT -1 \
         EXTRUDERS 3 TEMP_SENSOR_1 1 TEMP_SENSOR_2 1 \
+        SERVO1_PIN PE9 SERVO2_PIN PE11 \
         SERVO_DELAY '{ 300, 300, 300 }' \
         SWITCHING_TOOLHEAD_X_POS '{ 215, 0 ,0 }' \
         MPC_HEATER_POWER '{ 40.0f, 40.0f, 40.0f }' \

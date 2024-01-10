@@ -111,6 +111,12 @@ void MarlinHAL::init() {
   #if HAS_SERVO_3
     INIT_SERVO(3);
   #endif
+  #if HAS_SERVO_4
+    INIT_SERVO(4);
+  #endif
+  #if HAS_SERVO_5
+    INIT_SERVO(5);
+  #endif
 
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
