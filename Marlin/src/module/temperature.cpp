@@ -2652,31 +2652,8 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
 
   #if HAS_HOTEND
-    static constexpr int8_t temp_dir[HOTENDS] = {
-      #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
-        0
-      #else
-        TEMPDIR(0)
-      #endif
-      #if HAS_MULTI_HOTEND
-        #if TEMP_SENSOR_IS_ANY_MAX_TC(1)
-          , 0
-        #else
-          , TEMPDIR(1)
-        #endif
-      #endif
-      #if HOTENDS > 2
-        #if TEMP_SENSOR_IS_ANY_MAX_TC(2)
-          , 0
-        #else
-          , TEMPDIR(2)
-        #endif
-      #endif
-      #if HOTENDS > 3
-        #define _TEMPDIR(N) , TEMPDIR(N)
-        REPEAT_S(3, HOTENDS, _TEMPDIR)
-      #endif
-    };
+    #define _TEMPDIR(N) , TEMP_SENSOR_IS_ANY_MAX_TC(N) ? 0 : TEMPDIR(N)
+    static constexpr int8_t temp_dir[HOTENDS] = { REPEAT(HOTENDS, _TEMPDIR) };
 
     HOTEND_LOOP() {
       const raw_adc_t r = temp_hotend[e].getraw();
