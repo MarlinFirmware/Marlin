@@ -816,12 +816,12 @@ void DGUSRxHandler::pidSetTemp(DGUS_VP &vp, void *data_ptr) {
     #endif
     #if HAS_HOTEND
       case DGUS_Data::Heater::H0:
-        LIMIT(temp, HEATER_0_MINTEMP, thermalManager.hotend_max_target(0));
+        LIMIT(temp, celsius_t(HEATER_0_MINTEMP), thermalManager.hotend_max_target(0));
         break;
     #endif
     #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
-        LIMIT(temp, HEATER_1_MINTEMP, thermalManager.hotend_max_target(0));
+        LIMIT(temp, celsius_t(HEATER_1_MINTEMP), thermalManager.hotend_max_target(0));
         break;
     #endif
   }
