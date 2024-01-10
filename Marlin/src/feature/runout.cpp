@@ -35,8 +35,8 @@ FilamentMonitor runout;
 bool FilamentMonitorBase::enabled = true,
      FilamentMonitorBase::filament_ran_out;  // = false
 
-#if NUM_RUNOUT_SENSORS == 2
-  bool FilamentMonitorBase::pin_inversion;
+#if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+  bool FilamentMonitorBase::swap_sensors; // = false
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)

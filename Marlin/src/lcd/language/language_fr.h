@@ -497,7 +497,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Reprendre impr.");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Buse: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Capteur fil.");
-  LSTR MSG_RUNOUT_INVERSION               = _UxGT("Inv capteur.");
+  LSTR MSG_SWAP_SENSORS                   = _UxGT("Ech. capteurs");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Echec origine");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Echec sonde");
 

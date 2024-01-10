@@ -35,11 +35,15 @@
  *  S<bool>   : Reset and enable/disable the runout sensor
  *  H<bool>   : Enable/disable host handling of filament runout
  *  D<linear> : Extra distance to continue after runout is triggered
+ *
+ * With FIL_RUNOUT_SWAP_SENSORS:
+ *  I<bool>   : Swap the identity of dual filament runout sensors
+ *
  */
 void GcodeSuite::M412() {
 
-  #if NUM_RUNOUT_SENSORS == 2
-    if (parser.seen('I')) runout.pin_inversion = parser.value_bool();
+  #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+    if (parser.seen('I')) runout.swap_sensors = parser.value_bool();
   #endif
 
   if (parser.seen("RS"
@@ -67,17 +71,11 @@ void GcodeSuite::M412() {
       SERIAL_ECHOPGM(" ; Host handling ");
       serialprint_onoff(runout.host_handling);
     #endif
-    SERIAL_EOL();
-
-    #if NUM_RUNOUT_SENSORS == 2
-      SERIAL_ECHOPGM(
-        "  Filament Inversion : "
-      );
-      serialprintln_onoff(runout.pin_inversion);
-
-      SERIAL_EOL();
+    #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+      SERIAL_ECHOPGM(" ; Inverted Sensor ");
+      serialprint_onoff(runout.swap_sensors);
     #endif
-
+    SERIAL_EOL();
   }
 }
 
@@ -90,15 +88,14 @@ void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
     #endif
     , " ; Sensor "
   );
-  serialprintln_onoff(runout.enabled);
+  serialprint_onoff(runout.enabled);
 
-  #if NUM_RUNOUT_SENSORS == 2
-    SERIAL_ECHOPGM(
-    "  Filament Inversion : "
-    );
-    serialprintln_onoff(runout.pin_inversion);
+  #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+    SERIAL_ECHOPGM(" ; Inverted Sensor ");
+    serialprint_onoff(runout.swap_sensors);
   #endif
 
+  SERIAL_EOL();
 }
 
 #endif // HAS_FILAMENT_SENSOR

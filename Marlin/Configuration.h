@@ -1897,6 +1897,8 @@
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
                                           // This is automatically enabled for MIXING_EXTRUDERs.
 
+  //#define FIL_RUNOUT_SWAP_SENSORS       // Enable for certain Dual Extruder situations. Requires NUM_RUNOUT_SENSORS 2.
+
   // Override individually if the runout sensors vary
   //#define FIL_RUNOUT1_STATE LOW
   //#define FIL_RUNOUT1_PULLUP
