@@ -1661,10 +1661,6 @@ void dwinLevelingDone() {
             dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
           #endif
           break;
-        case PID_TEMP_TOO_HIGH:
-          checkkey = last_checkkey;
-          dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
-          break;
       #endif
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
@@ -1684,12 +1680,17 @@ void dwinLevelingDone() {
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
         break;
+      case PID_TEMP_TOO_HIGH:
+        checkkey = last_checkkey;
+        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
+        break;
       case AUTOTUNE_DONE:
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         break;
       default:
         checkkey = last_checkkey;
+        dwinPopupConfirm(ICON_Info_0 GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_STOPPING));
         break;
     }
   }
