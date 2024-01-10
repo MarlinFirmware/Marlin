@@ -697,8 +697,7 @@ void AnycubicTFT::getCommandFromTFT() {
         case 18: { // A18 set fan speed
           float fanPercent;
           if (codeSeen('S')) {
-            fanPercent = codeValue();
-            fanPercent = constrain(fanPercent, 0, 100);
+            fanPercent = constrain(codeValue(), 0, 100);
             setTargetFan_percent(fanPercent, FAN0);
           }
           else
