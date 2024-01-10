@@ -128,7 +128,7 @@
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
- * M92  - Set planner.settings.axis_steps_per_mm for one or more axes.
+ * M92  - Set planner.settings.axis_steps_per_mm for one or more axes. (Requires EDITABLE_STEPS_PER_UNIT)
  *
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  *
@@ -719,8 +719,10 @@ private:
     static void M87();
   #endif
 
-  static void M92();
-  static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    static void M92();
+    static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #endif
 
   #if ENABLED(M100_FREE_MEMORY_WATCHER)
     static void M100();

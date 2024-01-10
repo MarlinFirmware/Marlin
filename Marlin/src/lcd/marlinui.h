@@ -505,9 +505,10 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
-  #if HAS_DISPLAY
+  // Periodic or as-needed display update
+  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
 
-    static void update();
+  #if HAS_DISPLAY
 
     static void abort_print();
     static void pause_print();
@@ -628,7 +629,6 @@ public:
 
   #else // No LCD
 
-    static void update() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
