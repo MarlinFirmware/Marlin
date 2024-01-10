@@ -579,6 +579,18 @@
   #error "Y_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(NUM_Z_STEPPER_DRIVERS)
   #error "NUM_Z_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(SNMM)
+  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif defined(MK2_MULTIPLEXER)
+  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif defined(PRUSA_MMU2)
+  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
+#elif defined(PRUSA_MMU2_S_MODE)
+  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
+#elif defined(SMUFF_EMU_MMU2)
+  #error "SMUFF_EMU_MMU2 is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2 instead."
+#elif defined(SMUFF_EMU_MMU2S)
+  #error "SMUFF_EMU_MMU2S is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2S instead."
 #elif defined(LEVEL_BED_CORNERS)
   #error "LEVEL_BED_CORNERS is now LCD_BED_TRAMMING."
 #elif defined(LEVEL_CORNERS_INSET_LFRB) || defined(LEVEL_CORNERS_HEIGHT) || defined(LEVEL_CORNERS_Z_HOP) || defined(LEVEL_CORNERS_USE_PROBE) || defined(LEVEL_CORNERS_PROBE_TOLERANCE) || defined(LEVEL_CORNERS_VERIFY_RAISED) || defined(LEVEL_CORNERS_AUDIO_FEEDBACK)
@@ -673,7 +685,29 @@
   #error "SDIO_SUPPORT is now ONBOARD_SDIO."
 #elif defined(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
   #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
+#elif defined(Z_PROBE_END_SCRIPT)
+  #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
 #endif
+
+// Changes to Probe Temp Compensation (#17392)
+#if HAS_PTC && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
+  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
+  #endif
+#endif
+
+// Consolidate TMC26X, validate migration (#24373)
+#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
+#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
+#if DO(ISMAX,||,ALL_AXIS_NAMES)
+  #error "*_MAX_CURRENT is now set with *_CURRENT."
+#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
+#endif
+#undef _ISMAX_1
+#undef _ISSNS_1
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470

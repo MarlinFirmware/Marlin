@@ -55,8 +55,8 @@ FTMotion ftMotion;
 ft_config_t FTMotion::cfg;
 bool FTMotion::busy; // = false
 ft_command_t FTMotion::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U}; // Stepper commands buffer.
-uint32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
-         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
+int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
+        FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
@@ -123,6 +123,8 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
   float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
 #endif
 
+constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
+
 //-----------------------------------------------------------------
 // Function definitions.
 //-----------------------------------------------------------------
@@ -145,8 +147,16 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
-  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, min_max_intervals - (FTM_BATCH_SIZE))) max_intervals = min_max_intervals;
-  max_intervals += TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_WINDOW_SIZE) - makeVector_batchIdx;
+  if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BATCH_SIZE, min_max_intervals - (FTM_BATCH_SIZE)))
+    max_intervals = min_max_intervals;
+
+  max_intervals += (
+    #if ENABLED(FTM_UNIFIED_BWS)
+      FTM_WINDOW_SIZE - makeVector_batchIdx
+    #else
+      FTM_WINDOW_SIZE - ((last_batchIdx < (FTM_BATCH_SIZE)) ? 0 : makeVector_batchIdx)
+    #endif
+  );
   blockProcRdy = blockDataIsRunout = true;
   runoutEna = blockProcDn = false;
 }
@@ -198,7 +208,7 @@ void FTMotion::loop() {
       );
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], (FTM_WINDOW_SIZE - FTM_BATCH_SIZE) * sizeof(traj.A[0]))
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]))
       LOGICAL_AXIS_CODE(
         TSHIFT(e),
         TSHIFT(x), TSHIFT(y), TSHIFT(z),
@@ -219,7 +229,7 @@ void FTMotion::loop() {
     && (interpIdx - interpIdx_z1 < (FTM_STEPS_PER_LOOP))
   ) {
     convertToSteps(interpIdx);
-    if (++interpIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE)) {
+    if (++interpIdx == FTM_BATCH_SIZE) {
       batchRdyForInterp = false;
       interpIdx = 0;
     }
@@ -449,7 +459,7 @@ void FTMotion::reset() {
   endPosn_prevBlock.reset();
 
   makeVector_idx = makeVector_idx_z1 = 0;
-  makeVector_batchIdx = 0;
+  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, _MAX(last_batchIdx, FTM_BATCH_SIZE));
 
   steps.reset();
   interpIdx = interpIdx_z1 = 0;
@@ -464,10 +474,11 @@ void FTMotion::reset() {
 }
 
 // Private functions.
+
 // Auxiliary function to get number of step commands in the buffer.
-uint32_t FTMotion::stepperCmdBuffItems() {
-  const uint32_t udiff = stepperCmdBuff_produceIdx - stepperCmdBuff_consumeIdx;
-  return stepperCmdBuff_produceIdx < stepperCmdBuff_consumeIdx ? (FTM_STEPPERCMD_BUFF_SIZE) + udiff : udiff;
+int32_t FTMotion::stepperCmdBuffItems() {
+  const int32_t udiff = stepperCmdBuff_produceIdx - stepperCmdBuff_consumeIdx;
+  return (udiff < 0) ? udiff + (FTM_STEPPERCMD_BUFF_SIZE) : udiff;
 }
 
 // Initializes storage variables before startup.
@@ -544,9 +555,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float T1 = (F_n - f_s) * oneOverAccel,
               T3 = (F_n - f_e) * oneOverAccel;
 
-  N1 = ceil(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
-  N2 = ceil(T2 * (FTM_FS));         // Coast
-  N3 = ceil(T3 * (FTM_FS));         // Decel
+  N1 = CEIL(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
+  N2 = CEIL(T2 * (FTM_FS));         // Coast
+  N3 = CEIL(T3 * (FTM_FS));         // Decel
 
   const float T1_P = N1 * (FTM_TS), // (s) Accel datapoints x timestep resolution
               T2_P = N2 * (FTM_TS), // (s) Coast
@@ -677,8 +688,8 @@ void FTMotion::makeVector() {
   #endif
 
   // Filled up the queue with regular and shaped steps
-  if (++makeVector_batchIdx == TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, (FTM_WINDOW_SIZE - FTM_BATCH_SIZE))) {
-    makeVector_batchIdx = 0;
+  if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
+    makeVector_batchIdx = last_batchIdx;
     batchRdy = true;
   }
 

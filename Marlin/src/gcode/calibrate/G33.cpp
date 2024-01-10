@@ -35,10 +35,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif

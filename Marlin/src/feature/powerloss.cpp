@@ -37,6 +37,10 @@
 
 bool PrintJobRecovery::enabled; // Initialized by settings.load()
 
+#if HAS_PLR_BED_THRESHOLD
+  celsius_t PrintJobRecovery::bed_temp_threshold; // Initialized by settings.load()
+#endif
+
 MediaFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
 const char PrintJobRecovery::filename[5] = "/PLR";

@@ -37,10 +37,6 @@
 #include "../../../gcode/gcode.h"
 #include "../../../libs/least_squares_fit.h"
 
-#if HAS_MULTI_HOTEND
-  #include "../../../module/tool_change.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
@@ -685,11 +681,11 @@ void unified_bed_leveling::G29() {
     ui.release();
   #endif
 
-  #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+  #ifdef EVENT_GCODE_AFTER_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
     if (probe_deployed) {
       planner.synchronize();
-      gcode.process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
     }
   #else
     UNUSED(probe_deployed);

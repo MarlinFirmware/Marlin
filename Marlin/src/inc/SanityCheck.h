@@ -116,17 +116,6 @@
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
-// Consolidate TMC26X, validate migration (#24373)
-#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
-#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
-#if DO(ISMAX,||,ALL_AXIS_NAMES)
-  #error "*_MAX_CURRENT is now set with *_CURRENT."
-#elif DO(ISSNS,||,ALL_AXIS_NAMES)
-  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
-#endif
-#undef _ISMAX_1
-#undef _ISSNS_1
-
 /**
  * RADDS is forbidden for non-DUE boards, for now.
  */
@@ -160,16 +149,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Probe temp compensation requirements
  */
 #if HAS_PTC
-  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
-    #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
-      #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
-    #elif !defined(PTC_PARK_POS)
-      #error "PTC_PARK_POS is required for Probe Temperature Compensation."
-    #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
-      #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
-    #elif !defined(PTC_PROBE_POS)
-      #error "PTC_PROBE_POS is required for Probe Temperature Compensation."
-    #endif
+  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED && !(defined(PTC_PARK_POS) && defined(PTC_PROBE_POS))
+    #error "PTC_PARK_POS and PTC_PROBE_POS are required for Probe Temperature Compensation."
   #endif
 
   #if ENABLED(PTC_PROBE)
@@ -614,23 +595,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * Sanity checking for all Průša MMU
- */
-#ifdef SNMM
-  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(MK2_MULTIPLEXER)
-  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(PRUSA_MMU2)
-  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
-#elif ENABLED(PRUSA_MMU2_S_MODE)
-  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
-#elif ENABLED(SMUFF_EMU_MMU2)
-  #error "SMUFF_EMU_MMU2 is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2 instead."
-#elif ENABLED(SMUFF_EMU_MMU2S)
-  #error "SMUFF_EMU_MMU2S is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2S instead."
-#endif
-
-/**
  * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
 #if HAS_PRUSA_MMU2
@@ -999,9 +963,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > NUM_SERVO_PLUGS
-  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
-#endif
+static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) is too large. The selected board only has " STRINGIFY(NUM_SERVO_PLUGS) " servos.");
 
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
@@ -2277,7 +2239,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * FYSETC/MKS/BTT Mini Panel Requirements
+ * FYSETC/MKS/BTT/BEEZ Mini Panel Requirements
  */
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
   #ifndef NEO_RGB
@@ -2285,9 +2247,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #define FAUX_RGB 1
   #endif
   #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
-    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
+    #error "Your FYSETC/MKS/BTT/BEEZ Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
   #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
-    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_PIXELS >= 3."
+    #error "Your FYSETC/MKS/BTT/BEEZ Mini Panel requires NEOPIXEL_PIXELS >= 3."
   #endif
   #if FAUX_RGB
     #undef NEO_RGB
@@ -2620,8 +2582,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
-  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864)) \
-  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864) \
+  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)) \
+  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
@@ -4161,8 +4123,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ALL(FT_MOTION, MIXING_EXTRUDER)
-  #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+  #elif DISABLED(FTM_UNIFIED_BWS)
+    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
+  #endif
 #endif
 
 // Multi-Stepping Limit

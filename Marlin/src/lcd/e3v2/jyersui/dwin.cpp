@@ -114,7 +114,7 @@
   #define MAX_FLOW_RATE   299
   #define MIN_FLOW_RATE   10
 
-  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+  #define MAX_E_TEMP    thermalManager.hotend_max_target(0)
   #define MIN_E_TEMP    0
 #endif
 
@@ -2921,7 +2921,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
           case ADVANCED_LOAD:
             if (draw) {
               drawMenuItem(row, ICON_WriteEEPROM, F("Load Length"));
@@ -2938,7 +2938,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               modifyValue(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
-        #endif // ADVANCED_PAUSE_FEATURE
+        #endif // CONFIGURE_FILAMENT_CHANGE
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           case ADVANCED_COLD_EXTRUDE:
