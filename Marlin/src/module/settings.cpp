@@ -3479,7 +3479,7 @@ void MarlinSettings::reset() {
   //
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.enable(ENABLED(PLR_ENABLED_DEFAULT));
-    TERN(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
+    TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
   #endif
 
   //
