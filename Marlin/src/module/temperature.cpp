@@ -1854,12 +1854,18 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
             // Check if temperature is within the correct band
             if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
               #if ENABLED(BED_LIMIT_SWITCHING)
+
+                // Range-limited "bang-bang" bed heating
                 if (temp_bed.is_above_target(BED_HYSTERESIS))
                   temp_bed.soft_pwm_amount = 0;
                 else if (temp_bed.is_below_target(BED_HYSTERESIS))
                   temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+
               #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+
+                // Simple (noisy) "bang-bang" bed heating
                 temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+
               #endif
             }
             else {
@@ -2652,7 +2658,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
 
   #if HAS_HOTEND
-    #define _TEMPDIR(N) , TEMP_SENSOR_IS_ANY_MAX_TC(N) ? 0 : TEMPDIR(N)
+    #define _TEMPDIR(N) TEMP_SENSOR_IS_ANY_MAX_TC(N) ? 0 : TEMPDIR(N),
     static constexpr int8_t temp_dir[HOTENDS] = { REPEAT(HOTENDS, _TEMPDIR) };
 
     HOTEND_LOOP() {
