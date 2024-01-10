@@ -448,7 +448,7 @@ typedef struct SettingsDataStruct {
   // POWER_LOSS_RECOVERY
   //
   bool recovery_enabled;                                // M413 S
-  uint16_t recovery_threshold;
+  celsius_t bed_temp_threshold;                         // M413 B
 
   //
   // FWRETRACT
@@ -1274,12 +1274,10 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(recovery_enabled);
-      const bool recovery_enabled = TERN(POWER_LOSS_RECOVERY, recovery.enabled, ENABLED(PLR_ENABLED_DEFAULT));
+      const bool recovery_enabled = TERN0(POWER_LOSS_RECOVERY, recovery.enabled);
+      const celsius_t bed_temp_threshold = TERN0(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold);
       EEPROM_WRITE(recovery_enabled);
-
-      _FIELD_TEST(recovery_threshold);
-      const uint16_t recovery_threshold = TERN(POWER_LOSS_RECOVERY, recovery.bed_temp_threshold,PLR_BED_THRESHOLD);
-      EEPROM_WRITE(recovery_threshold);
+      EEPROM_WRITE(bed_temp_threshold);
     }
 
     //
@@ -2321,15 +2319,15 @@ void MarlinSettings::postprocess() {
       // Power-Loss Recovery
       //
       {
-        bool recovery_enabled;
         _FIELD_TEST(recovery_enabled);
+        bool recovery_enabled;
+        celsius_t bed_temp_threshold;
         EEPROM_READ(recovery_enabled);
-        TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.enabled = recovery_enabled);
-
-        int16_t recovery_threshold;
-        _FIELD_TEST(recovery_threshold);
-        EEPROM_READ(recovery_threshold);
-        TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.bed_temp_threshold = recovery_threshold);
+        EEPROM_READ(bed_temp_threshold);
+        if (!validating) {
+          TERN_(POWER_LOSS_RECOVERY, recovery.enabled = recovery_enabled);
+          TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = bed_temp_threshold);
+        }
       }
 
       //
@@ -3479,8 +3477,11 @@ void MarlinSettings::reset() {
   //
   // Power-Loss Recovery
   //
-  TERN_(POWER_LOSS_RECOVERY, recovery.enable(ENABLED(PLR_ENABLED_DEFAULT)));
-  TERN_(POWER_LOSS_RECOVERY, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.enable(ENABLED(PLR_ENABLED_DEFAULT));
+    TERN(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
+  #endif
+
   //
   // Firmware Retraction
   //
