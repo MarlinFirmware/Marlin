@@ -316,20 +316,20 @@ namespace DWINUI {
   //  libID: Icon library ID
   //  picID: Icon ID
   //  x/y: Upper-left point
-  void ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y);
+  void iconShow(bool BG, uint8_t icon, uint16_t x, uint16_t y);
 
   // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIcon(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(false, icon, x, y);
+    iconShow(false, icon, x, y);
   }
 
   // Draw an Icon from the library ICON with its background
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIconWB(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(true, icon, x, y);
+    iconShow(true, icon, x, y);
   }
 
   // Draw a numeric integer value
