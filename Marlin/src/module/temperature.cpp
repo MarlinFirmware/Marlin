@@ -490,7 +490,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_HEATED_BED
   bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
-  temp_sensor_raw_range_t Temperature::temp_sensor_range_bed = { TEMP_SENSOR_BED_RAW_LO_TEMP, TEMP_SENSOR_BED_RAW_HI_TEMP };
+  temp_raw_range_t Temperature::temp_sensor_range_bed = { TEMP_SENSOR_BED_RAW_LO_TEMP, TEMP_SENSOR_BED_RAW_HI_TEMP };
   #if WATCH_BED
     bed_watch_t Temperature::watch_bed; // = { 0 }
   #endif
@@ -504,7 +504,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #if HAS_HEATED_CHAMBER
     millis_t next_cool_check_ms = 0;
     celsius_float_t old_temp = 9999;
-    temp_sensor_raw_range_t Temperature::temp_sensor_range_chamber = { TEMP_SENSOR_CHAMBER_RAW_LO_TEMP, TEMP_SENSOR_CHAMBER_RAW_HI_TEMP };
+    temp_raw_range_t Temperature::temp_sensor_range_chamber = { TEMP_SENSOR_CHAMBER_RAW_LO_TEMP, TEMP_SENSOR_CHAMBER_RAW_HI_TEMP };
     #if WATCH_CHAMBER
       chamber_watch_t Temperature::watch_chamber; // = { 0 }
     #endif
@@ -520,7 +520,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
     celsius_float_t previous_temp = 9999;
-    temp_sensor_raw_range_t Temperature::temp_sensor_range_cooler = { TEMP_SENSOR_COOLER_RAW_LO_TEMP, TEMP_SENSOR_COOLER_RAW_HI_TEMP };
+    temp_raw_range_t Temperature::temp_sensor_range_cooler = { TEMP_SENSOR_COOLER_RAW_LO_TEMP, TEMP_SENSOR_COOLER_RAW_HI_TEMP };
     #if WATCH_COOLER
       cooler_watch_t Temperature::watch_cooler; // = { 0 }
     #endif
@@ -535,7 +535,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_TEMP_BOARD
   board_info_t Temperature::temp_board; // = { 0 }
   #if ENABLED(THERMAL_PROTECTION_BOARD)
-    temp_sensor_raw_range_t Temperature::temp_sensor_range_board = { TEMP_SENSOR_BOARD_RAW_LO_TEMP, TEMP_SENSOR_BOARD_RAW_HI_TEMP };
+    temp_raw_range_t Temperature::temp_sensor_range_board = { TEMP_SENSOR_BOARD_RAW_LO_TEMP, TEMP_SENSOR_BOARD_RAW_HI_TEMP };
   #endif
 #endif
 

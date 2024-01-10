@@ -523,7 +523,7 @@ struct HeaterWatch {
 #endif
 
 // Just raw temperature sensor ranges
-typedef struct { raw_adc_t raw_min, raw_max; } temp_sensor_raw_range_t;
+typedef struct { raw_adc_t raw_min, raw_max; } temp_raw_range_t;
 
 // Temperature sensor read value ranges
 typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
@@ -741,7 +741,7 @@ class Temperature {
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
       #endif
-      static temp_sensor_raw_range_t temp_sensor_range_bed;
+      static temp_raw_range_t temp_sensor_range_bed;
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -751,7 +751,7 @@ class Temperature {
       #if DISABLED(PIDTEMPCHAMBER)
         static millis_t next_chamber_check_ms;
       #endif
-      static temp_sensor_raw_range_t temp_sensor_range_chamber;
+      static temp_raw_range_t temp_sensor_range_chamber;
     #endif
 
     #if HAS_COOLER
@@ -759,11 +759,11 @@ class Temperature {
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
-      static temp_sensor_raw_range_t temp_sensor_range_cooler;
+      static temp_raw_range_t temp_sensor_range_cooler;
     #endif
 
     #if ALL(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
-      static temp_sensor_raw_range_t temp_sensor_range_board;
+      static temp_raw_range_t temp_sensor_range_board;
     #endif
 
     #if ALL(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
