@@ -114,7 +114,7 @@
   #define MAX_FLOW_RATE   299
   #define MIN_FLOW_RATE   10
 
-  #define MAX_E_TEMP    ((HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))
+  #define MAX_E_TEMP    thermalManager.hotend_max_target(0)
   #define MIN_E_TEMP    0
 #endif
 
