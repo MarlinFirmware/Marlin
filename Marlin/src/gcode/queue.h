@@ -80,7 +80,6 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(const bool skip_ok
-      OPTARG(POWER_LOSS_RECOVERY, const bool is_sd_cmd=false)
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind=serial_index_t())
     );
 

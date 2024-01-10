@@ -409,6 +409,7 @@ void PrintJobRecovery::resume() {
   // Home the axes that can safely be homed, and
   // establish the current position as best we can.
   //
+
   PROCESS_SUBCOMMANDS_NOW(F("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
@@ -545,7 +546,7 @@ void PrintJobRecovery::resume() {
   ));
 
   // Move back down to the saved Z for printing
-  PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(resume_pos.z, 3)));
+  PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(z_print, 3)));
 
   // Restore the feedrate
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
