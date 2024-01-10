@@ -741,7 +741,7 @@ class Temperature {
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
       #endif
-      static temp_sensor_raw_range_t<BED_MINTEMP, BED_MAXTEMP> temp_sensor_range_bed;
+      static temp_sensor_raw_range_t temp_sensor_range_bed;
     #endif
 
     #if HAS_HEATED_CHAMBER
