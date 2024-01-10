@@ -1197,6 +1197,8 @@ class Temperature {
       static constexpr bool adaptive_fan_slowing = true;
     #endif
 
+    static bool tuning_idle(const millis_t &ms);
+
     /**
      * M303 PID auto-tuning for hotends or bed
      */
