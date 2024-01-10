@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+
 #include "../gcode.h"
 #include "../../module/planner.h"
 
@@ -37,6 +41,7 @@
  *   H<microsteps> - Specify micro-steps to use. Best guess if not supplied.
  *   L<linear>     - Desired layer height in current units. Nearest good heights are shown.
  */
+
 void GcodeSuite::M92() {
 
   const int8_t target_extruder = get_target_extruder_from_command();
@@ -127,3 +132,5 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
     UNUSED(e);
   #endif
 }
+
+#endif // EDITABLE_STEPS_PER_UNIT
