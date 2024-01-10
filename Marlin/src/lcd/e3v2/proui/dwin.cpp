@@ -154,8 +154,8 @@
 #endif
 
 // Editable temperature limits
-#define MIN_ETEMP  0
-#define MAX_ETEMP  (thermalManager.hotend_maxtemp[0] - (HOTEND_OVERSHOOT))
+#define MIN_ETEMP   0
+#define MAX_ETEMP   thermalManager.hotend_max_target(0)
 #define MIN_BEDTEMP 0
 #define MAX_BEDTEMP BED_MAX_TARGET
 
