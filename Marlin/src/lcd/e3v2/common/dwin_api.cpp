@@ -90,40 +90,40 @@ bool dwinHandshake() {
   }
 #endif
 
-#if DISABLED(DWIN_LCD_PROUI)
-// Get font character width
-uint8_t fontWidth(uint8_t cfont) {
-  switch (cfont) {
-    case font6x12 : return 6;
-    case font8x16 : return 8;
-    case font10x20: return 10;
-    case font12x24: return 12;
-    case font14x28: return 14;
-    case font16x32: return 16;
-    case font20x40: return 20;
-    case font24x48: return 24;
-    case font28x56: return 28;
-    case font32x64: return 32;
-    default: return 0;
+#if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
+  // Get font character width
+  uint8_t fontWidth(uint8_t cfont) {
+    switch (cfont) {
+      case font6x12 : return 6;
+      case font8x16 : return 8;
+      case font10x20: return 10;
+      case font12x24: return 12;
+      case font14x28: return 14;
+      case font16x32: return 16;
+      case font20x40: return 20;
+      case font24x48: return 24;
+      case font28x56: return 28;
+      case font32x64: return 32;
+      default: return 0;
+    }
   }
-}
 
-// Get font character height
-uint8_t fontHeight(uint8_t cfont) {
-  switch (cfont) {
-    case font6x12 : return 12;
-    case font8x16 : return 16;
-    case font10x20: return 20;
-    case font12x24: return 24;
-    case font14x28: return 28;
-    case font16x32: return 32;
-    case font20x40: return 40;
-    case font24x48: return 48;
-    case font28x56: return 56;
-    case font32x64: return 64;
-    default: return 0;
+  // Get font character height
+  uint8_t fontHeight(uint8_t cfont) {
+    switch (cfont) {
+      case font6x12 : return 12;
+      case font8x16 : return 16;
+      case font10x20: return 20;
+      case font12x24: return 24;
+      case font14x28: return 28;
+      case font16x32: return 32;
+      case font20x40: return 40;
+      case font24x48: return 48;
+      case font28x56: return 56;
+      case font32x64: return 64;
+      default: return 0;
+    }
   }
-}
 #endif
 
 // Set screen display direction
@@ -268,7 +268,7 @@ void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, u
 void dwinDrawIntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint32_t value) {
   size_t i = 0;
-  #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
     dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * iNum + 1, y + fontHeight(size));
   #endif
   dwinByte(i, 0x14);
@@ -318,7 +318,7 @@ void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
                           uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, int32_t value) {
   //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
-  #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
     dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * (iNum + fNum + 1), y + fontHeight(size));
   #endif
   dwinByte(i, 0x14);
