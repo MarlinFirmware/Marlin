@@ -1690,7 +1690,7 @@ void dwinLevelingDone() {
         break;
       default:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_Info_0 GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_STOPPING));
+        dwinPopupConfirm(ICON_Info_0, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_STOPPING));
         break;
     }
   }
