@@ -938,9 +938,15 @@ void minkill(const bool steppers_off/*=false*/) {
     hal.reboot();
 
   #else
-
-    for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
-
+    #if defined(PLR_REBOOT_TIMEOUT)
+      for (uint16_t i = 0; i < PLR_REBOOT_TIMEOUT; i++) {
+        hal.watchdog_refresh();
+        delayMicroseconds(1000000UL);
+      }
+      hal.reboot();
+    #else
+      for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
+    #endif
   #endif
 }
 

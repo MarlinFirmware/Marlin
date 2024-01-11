@@ -1750,6 +1750,7 @@
 
     //#define POWER_LOSS_PIN             44 // Pin to detect power-loss. Set to -1 to disable default pin on boards without module, or comment to use board default.
     //#define POWER_LOSS_STATE         HIGH // State of pin indicating power-loss
+    #endif
     //#define POWER_LOSS_PULLUP             // Set pullup / pulldown as appropriate for your sensor
     //#define POWER_LOSS_PULLDOWN
 
@@ -1763,6 +1764,7 @@
     //#define BACKUP_POWER_SUPPLY           // Backup power / UPS to move the steppers on power-loss
     #if ENABLED(BACKUP_POWER_SUPPLY)
       //#define POWER_LOSS_RETRACT_LEN   10 // (mm) Length of filament to retract on fail
+      //#define PLR_REBOOT_TIMEOUT       60 // (seconds) Restart after power loss if it returned while UPS still had power.
     #endif
 
     // Enable if Z homing is needed for proper recovery. 99.9% of the time this should be disabled!
