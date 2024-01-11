@@ -552,26 +552,26 @@ void drawPrintLabels() {
   }
 }
 
+static uint8_t _percent_done = 242;
 void drawPrintProgressBar() {
-  const uint8_t _percent_done = ui.get_progress_percent();
   DWINUI::drawIconWB(ICON_Bar, 15, 93);
-  dwinDrawRectangle(1, hmiData.colorBarfill, 16 + _percent_done * 240 / 100, 93, 256, 113);
+  dwinDrawRectangle(1, hmiData.colorBarfill, 15 + (_percent_done * 242) / 100, 93, 257, 113);
   DWINUI::drawInt(hmiData.colorPercentTxt, hmiData.colorBackground, 3, 117, 133, _percent_done);
   DWINUI::drawString(hmiData.colorPercentTxt, 142, 133, F("%"));
 }
 
+duration_t _printtime = print_job_timer.duration();
 void drawPrintProgressElapsed() {
-  MString<12> buf;
-  duration_t elapsed = print_job_timer.duration(); // Print timer
-  buf.setf(F("%02i:%02i "), uint16_t(elapsed.value / 3600), (uint16_t(elapsed.value) % 3600) / 60);
+  MString<14> buf;
+  buf.setf(F("%02i:%02i "), uint16_t(_printtime.hour()), uint16_t(_printtime.minute()));
   DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 47, 192, buf);
 }
 
 #if ENABLED(SHOW_REMAINING_TIME)
-  uint32_t _remain_time = 0;
+  duration_t _remain_time = 0;
   void drawPrintProgressRemain() {
-    MString<12> buf;
-    buf.setf(F("%02i:%02i "), _remain_time / 3600, (_remain_time % 3600) / 60);
+    MString<14> buf;
+    buf.setf(F("%02i:%02i "), uint16_t(_remain_time.hour()), uint16_t(_remain_time.minute()));
     DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 181, 192, buf);
   }
 #endif
@@ -1336,11 +1336,8 @@ void eachMomentUpdate() {
     if (checkkey == ID_PrintProcess) { // Print process
 
       // Progress percent
-      static uint8_t _percent_done = 255;
-      if (_percent_done != ui.get_progress_percent()) {
-        _percent_done = ui.get_progress_percent();
-        drawPrintProgressBar();
-      }
+      _percent_done = card.percentDone();
+      drawPrintProgressBar();
 
       // Remaining time
       #if ENABLED(SHOW_REMAINING_TIME)
@@ -1351,10 +1348,9 @@ void eachMomentUpdate() {
       #endif
 
       // Elapsed print time
-      static uint16_t _printtime = 0;
-      const uint16_t min = (print_job_timer.duration() % 3600) / 60;
-      if (_printtime != min) { // 1 minute update
-        _printtime = min;
+      const uint16_t min = print_job_timer.duration();
+      if (_printtime.minute() + 1 <= min) { // 1 minute update
+        _printtime.value = min;
         drawPrintProgressElapsed();
       }
     }
