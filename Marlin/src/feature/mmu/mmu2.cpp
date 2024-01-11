@@ -135,7 +135,7 @@ void MMU2::reset() {
 int8_t MMU2::get_current_tool() { return extruder == MMU2_NO_TOOL ? -1 : extruder; }
 
 #if ANY(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
+  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != TERN(HAS_PROUI_RUNOUT_SENSOR, PRO_data.Runout_active_state, FIL_RUNOUT1_STATE))
 #else
   #define FILAMENT_PRESENT() true
 #endif

@@ -23,10 +23,20 @@
 
 // R25 = 100 kOhm, beta25 = 4092 K, 4.7 kOhm pull-up, bed thermistor
 constexpr temp_entry_t temptable_1[] PROGMEM = {
-  { OV(  18), 320 },
-  { OV(  19), 315 },
-  { OV(  20), 310 },
-  { OV(  22), 305 },
+
+// Extended table from SteinhartHart curvefit for ProUI
+  { OV( 13.55), 350 },
+  { OV( 14.29), 345 },
+  { OV( 15.08), 340 },
+  { OV( 15.93), 335 },
+  { OV( 16.85), 330 },
+  { OV( 17.84), 325 },
+  { OV( 18.90), 320 },
+  { OV( 20.05), 315 },
+  { OV( 21.29), 310 },
+  { OV( 22.64), 305 },
+//
+
   { OV(  23), 300 },
   { OV(  25), 295 },
   { OV(  27), 290 },

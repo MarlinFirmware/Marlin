@@ -21,7 +21,7 @@
  */
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+#if HAS_GCODE_M255
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
@@ -51,4 +51,4 @@ void GcodeSuite::M255_report(const bool forReplay/*=true*/) {
   );
 }
 
-#endif // EDITABLE_DISPLAY_TIMEOUT
+#endif // HAS_GCODE_M255

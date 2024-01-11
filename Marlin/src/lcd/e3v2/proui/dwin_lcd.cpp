@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN Enhanced implementation for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 4.1.1
+ * Date: 2023/07/12
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,16 +14,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- */
-
-/**
- * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.12.1
- * Date: 2023/01/22
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -50,14 +42,6 @@ void dwinDrawQR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string) {
   dwinByte(i, QR_Pixel);
   dwinText(i, string);
   dwinSend(i);
-}
-
-// Draw an Icon with transparent background
-//  libID: Icon library ID
-//  picID: Icon ID
-//  x/y: Upper-left point
-void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
-  dwinIconShow(false, false, true, libID, picID, x, y);
 }
 
 // Copy area from current virtual display area to current screen
@@ -147,9 +131,10 @@ void DACAI_ICON_Show(uint16_t x, uint16_t y, uint16_t addr) {
 }
 
 void dwinIconShow(uint16_t x, uint16_t y, uint16_t addr) {
-  #if ENABLED(DACAI_DISPLAY)
+  #if ENABLED(DACAI_DISPLAY) || DISABLED(DWIN_DISPLAY)
     DACAI_ICON_Show(x, y, addr);
-  #else
+  #endif
+  #if ENABLED(DWIN_DISPLAY) || DISABLED(DACAI_DISPLAY)
     dwinIconShow(0, 0, 1, x, y, addr);
   #endif
 }

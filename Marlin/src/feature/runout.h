@@ -64,7 +64,11 @@ inline bool should_monitor_runout() { return did_pause_print || printingIsActive
 
 template<class RESPONSE_T, class SENSOR_T>
 class TFilamentMonitor;
-class FilamentSensor;
+#if ENABLED(HAS_PROUI_RUNOUT_SENSOR)
+  class FilamentSensorProUI;
+#else
+  class FilamentSensor;
+#endif
 class RunoutResponseDelayed;
 class RunoutResponseDebounced;
 
@@ -72,7 +76,7 @@ class RunoutResponseDebounced;
 
 typedef TFilamentMonitor<
           TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
-          FilamentSensor
+          TERN(HAS_PROUI_RUNOUT_SENSOR, FilamentSensorProUI, FilamentSensor)
         > FilamentMonitor;
 
 extern FilamentMonitor runout;
@@ -159,7 +163,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         if (ran_out) {
           #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
             SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i = 0; i < 8; ++i) SERIAL_CHAR('0' + char(runout_flags[i]));
+            for (uint8_t i = 0; i < 8; ++i) SERIAL_ECHO(i < NUM_RUNOUT_SENSORS ? runout_flags[i] : 0);  // ProUI
             SERIAL_ECHOLNPGM(" -> ", extruder, " RUN OUT");
           #endif
 
@@ -191,7 +195,11 @@ class FilamentSensorBase {
   public:
     static void setup() {
       #define _INIT_RUNOUT_PIN(P,S,U,D) do{ if (ENABLED(U)) SET_INPUT_PULLUP(P); else if (ENABLED(D)) SET_INPUT_PULLDOWN(P); else SET_INPUT(P); }while(0);
-      #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN);
+      #if ENABLED(HAS_PROUI_RUNOUT_SENSOR)
+        #define INIT_RUNOUT_PIN(N) proUIEx.setRunoutState(FIL_RUNOUT##N##_PIN);
+      #else
+        #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN);
+      #endif
       REPEAT_1(NUM_RUNOUT_SENSORS, INIT_RUNOUT_PIN)
       #undef INIT_RUNOUT_PIN
 
@@ -212,12 +220,16 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static uint8_t poll_runout_states() {
-      #define _INVERT_BIT(N) | (FIL_RUNOUT##N##_STATE ? 0 : _BV(N - 1))
+      #if ENABLED(HAS_PROUI_RUNOUT_SENSOR)
+        #define _INVERT_BIT(N) | (PRO_data.Runout_active_state ? 0 : _BV(N - 1))
+      #else
+        #define _INVERT_BIT(N) | (FIL_RUNOUT##N##_STATE ? 0 : _BV(N - 1))
+      #endif
       return poll_runout_pins() ^ uint8_t(0 REPEAT_1(NUM_RUNOUT_SENSORS, _INVERT_BIT));
       #undef _INVERT_BIT
     }
 
-    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION) && DISABLED(HAS_PROUI_RUNOUT_SENSOR)
       // Return a bitmask of motion pin states
       static uint8_t poll_motion_pins() {
         #define _OR_MOTION(N) | (READ(FIL_MOTION##N##_PIN) ? _BV((N) - 1) : 0)
@@ -234,7 +246,7 @@ class FilamentSensorBase {
     #endif
 };
 
-#if HAS_FILAMENT_MOTION
+#if HAS_FILAMENT_MOTION && DISABLED(HAS_PROUI_RUNOUT_SENSOR)
 
   /**
    * This sensor uses a magnetic encoder disc and a Hall effect
@@ -280,7 +292,7 @@ class FilamentSensorBase {
 
 #endif // HAS_FILAMENT_MOTION
 
-#if HAS_FILAMENT_SWITCH
+#if HAS_FILAMENT_SWITCH && DISABLED(HAS_PROUI_RUNOUT_SENSOR)
 
   /**
    * This is a simple endstop switch in the path of the filament.
@@ -318,7 +330,24 @@ class FilamentSensorBase {
       }
   };
 
- #endif // HAS_FILAMENT_SWITCH
+#endif // HAS_FILAMENT_SWITCH
+
+#if HAS_PROUI_RUNOUT_SENSOR
+  /**
+   * This is a selectable sensor between a configurable endstop switch in
+   * the path of the filament, and a magnetic encoder disc with a Hall effect
+   * sensor (or a slotted disc and optical sensor).
+   */
+  class FilamentSensorProUI : public FilamentSensorBase {
+    private:
+      static uint8_t motion_detected;
+    public:    
+      static void poll_motion_sensor();
+      static void block_completed(const block_t * const b);
+      static void run();
+  };
+
+#else
 
   /**
    * This is a simple endstop switch in the path of the filament.
@@ -341,6 +370,7 @@ class FilamentSensorBase {
       }
   };
 
+#endif
 
 /********************************* RESPONSE TYPE *********************************/
 

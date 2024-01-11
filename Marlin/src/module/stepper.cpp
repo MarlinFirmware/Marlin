@@ -138,6 +138,10 @@ Stepper stepper; // Singleton
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ALL(DWIN_LCD_PROUI, CV_LASER_MODULE)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -1508,12 +1512,14 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
-        if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
-          nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
-          ftMotion_stepper();             // Run FTM Stepping
+        if (!nextMainISR) {
+          nextMainISR = FTM_MIN_TICKS;
+          ftMotion_stepper();
+          endstops.update();
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
         }
-        interval = nextMainISR;           // Interval is either some old nextMainISR or FTM_MIN_TICKS
-        nextMainISR = 0;                  // For FT Motion fire again ASAP
+        interval = nextMainISR;
+        nextMainISR -= interval;
       }
 
     #endif
@@ -2245,6 +2251,9 @@ hal_timer_t Stepper::block_phase_isr() {
   if (current_block) {
     // If current block is finished, reset pointer and finalize state
     if (step_events_completed >= step_event_count) {
+      #if ENABLED(CV_LASER_MODULE)
+        if(laser_device.is_laser_device()) cutter.apply_power(0);
+      #endif
       #if ENABLED(DIRECT_STEPPING)
         // Direct stepping is currently not ready for HAS_I_AXIS
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
@@ -3159,7 +3168,7 @@ void Stepper::init() {
       factor2 += -7.58095488 * zeta2;
       const float zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
-      factor2 = FLOOR(factor2);
+      factor2 = floor(factor2);
     }
 
     const bool was_on = hal.isr_state();
@@ -3446,8 +3455,7 @@ void Stepper::report_positions() {
     // Use one byte to restore one stepper command in the format:
     // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
-    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
-      ftMotion.stepperCmdBuff_consumeIdx = 0;
+    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE)) ftMotion.stepperCmdBuff_consumeIdx = 0U;
 
     if (abort_current_block) return;
 
@@ -3491,8 +3499,6 @@ void Stepper::report_positions() {
       U_APPLY_STEP(axis_did_move.u, false), V_APPLY_STEP(axis_did_move.v, false), W_APPLY_STEP(axis_did_move.w, false)
     );
 
-    TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
-
     // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
@@ -3533,12 +3539,6 @@ void Stepper::report_positions() {
       I_APPLY_STEP(!STEP_STATE_I, false), J_APPLY_STEP(!STEP_STATE_J, false), K_APPLY_STEP(!STEP_STATE_K, false),
       U_APPLY_STEP(!STEP_STATE_U, false), V_APPLY_STEP(!STEP_STATE_V, false), W_APPLY_STEP(!STEP_STATE_W, false)
     );
-
-    // Check endstops on every step
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
-
-    // Also handle babystepping here
-    TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
 
   } // Stepper::ftMotion_stepper
 

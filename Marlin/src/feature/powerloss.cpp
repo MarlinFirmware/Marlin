@@ -69,6 +69,11 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../core/debug_out.h"
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../lcd/e3v2/proui/dwin.h"
+  #include "../lcd/e3v2/proui/dwin_popup.h"
+#endif
+
 PrintJobRecovery recovery;
 
 #ifndef POWER_LOSS_PURGE_LEN
@@ -121,6 +126,15 @@ void PrintJobRecovery::changed() {
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
 bool PrintJobRecovery::check() {
+
+  // 激光暂不做断电续打 107011 -20211015
+  #if ENABLED(CV_LASER_MODULE)
+    if(laser_device.is_laser_device()) {// 激光模式下不做断电续打
+      purge();
+      return false;
+    }
+  #endif
+
   //if (!card.isMounted()) card.mount();
   bool success = false;
   if (card.isMounted()) {
@@ -168,6 +182,10 @@ void PrintJobRecovery::prepare() {
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POWER_LOSS_ZRAISE*/, const bool raised/*=false*/) {
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
+
+  #if ENABLED(CV_LASER_MODULE)
+    if (laser_device.is_laser_device()) return;
+  #endif
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -404,6 +422,10 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(NOZZLE_CLEAN_FEATURE)
+    xyze_pos_t save_pos = info.current_position;
+  #endif
+
   PROCESS_SUBCOMMANDS_NOW(F("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
@@ -460,6 +482,14 @@ void PrintJobRecovery::resume() {
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
       PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9Z"), p_float_t(z_now, 1)));
     #endif
+  #endif
+
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(NOZZLE_CLEAN_FEATURE)
+    // Parking head to allow clean before of heating the hotend
+    gcode.process_subcommands_now(F("G27"));
+    dwinPopupContinue(ICON_BLTouch, GET_TEXT_F(MSG_NOZZLE_PARKED), GET_TEXT_F(MSG_NOZZLE_CLEAN));
+    wait_for_user_response();
+    info.current_position = save_pos;
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)

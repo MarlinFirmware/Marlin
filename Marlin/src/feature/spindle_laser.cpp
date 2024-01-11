@@ -38,6 +38,10 @@
   #include "../feature/ammeter.h"
 #endif
 
+#if ALL(DWIN_LCD_PROUI, CV_LASER_MODULE)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
 SpindleLaser cutter;
 bool SpindleLaser::enable_state;                                      // Virtual enable state, controls enable pin if present and or apply power if > 0
 uint8_t SpindleLaser::power,                                          // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
@@ -65,29 +69,35 @@ cutter_frequency_t SpindleLaser::frequency;                           // PWM fre
  * Init the cutter to a safe OFF state
  */
 void SpindleLaser::init() {
-  #if ENABLED(SPINDLE_SERVO)
-    servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
-  #elif PIN_EXISTS(SPINDLE_LASER_ENA)
-    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
+
+  #if ENABLED(CV_LASER_MODULE)
+    _SET_OUTPUT(LASER_SOFT_PWM_PIN);
+    laser_device.init_device();
+  #else
+    #if ENABLED(SPINDLE_SERVO)
+      servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
+    #elif PIN_EXISTS(SPINDLE_LASER_ENA)
+      OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
+    #endif
+    #if ENABLED(SPINDLE_CHANGE_DIR)
+      OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
+    #endif
+    #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
+      frequency = SPINDLE_LASER_FREQUENCY;
+      hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
+    #endif
+    #if ENABLED(SPINDLE_LASER_USE_PWM)
+      SET_PWM(SPINDLE_LASER_PWM_PIN);
+      hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
+    #endif
+    #if ENABLED(AIR_EVACUATION)
+      OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);            // Init Vacuum/Blower OFF
+    #endif
+    #if ENABLED(AIR_ASSIST)
+      OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
+    #endif
+    TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
   #endif
-  #if ENABLED(SPINDLE_CHANGE_DIR)
-    OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
-  #endif
-  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
-    frequency = SPINDLE_LASER_FREQUENCY;
-    hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
-  #endif
-  #if ENABLED(SPINDLE_LASER_USE_PWM)
-    SET_PWM(SPINDLE_LASER_PWM_PIN);
-    hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
-  #endif
-  #if ENABLED(AIR_EVACUATION)
-    OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);            // Init Vacuum/Blower OFF
-  #endif
-  #if ENABLED(AIR_ASSIST)
-    OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
-  #endif
-  TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -98,20 +108,24 @@ void SpindleLaser::init() {
    */
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
-      hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
+      #if ENABLED(CV_LASER_MODULE)
+        laser_device.laser_power_start(ocr);
+      #else
+        hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
+      #endif
     #endif
     hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
   void SpindleLaser::set_ocr(const uint8_t ocr) {
-    #if PIN_EXISTS(SPINDLE_LASER_ENA)
+    #if PIN_EXISTS(SPINDLE_LASER_ENA) && DISABLED(CV_LASER_MODULE)
       WRITE(SPINDLE_LASER_ENA_PIN,  SPINDLE_LASER_ACTIVE_STATE); // Cutter ON
     #endif
     _set_ocr(ocr);
   }
 
   void SpindleLaser::ocr_off() {
-    #if PIN_EXISTS(SPINDLE_LASER_ENA)
+    #if PIN_EXISTS(SPINDLE_LASER_ENA) && DISABLED(CV_LASER_MODULE)
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE); // Cutter OFF
     #endif
     _set_ocr(0);

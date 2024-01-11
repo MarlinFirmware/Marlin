@@ -71,11 +71,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Ayarları");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Yönetimi");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Manuel Seviyeleme");
-  LSTR MSG_TRAM_FL                        = _UxGT("Sol Ön");
-  LSTR MSG_TRAM_FR                        = _UxGT("Ön Sağ");
-  LSTR MSG_TRAM_C                         = _UxGT("Orta");
-  LSTR MSG_TRAM_BL                        = _UxGT("Arka Sol");
-  LSTR MSG_TRAM_BR                        = _UxGT("Arka Sağ");
+  LSTR MSG_TRAM_FL                      = _UxGT("Sol Ön");
+  LSTR MSG_TRAM_FR                      = _UxGT("Ön Sağ");
+  LSTR MSG_TRAM_C                       = _UxGT("Orta");
+  LSTR MSG_TRAM_BL                      = _UxGT("Arka Sol");
+  LSTR MSG_TRAM_BR                      = _UxGT("Arka Sağ");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Manuel Mesh");
   LSTR MSG_AUTO_MESH                      = _UxGT("Oto Mesh Oluştur");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Oto. Z-Hizalama");

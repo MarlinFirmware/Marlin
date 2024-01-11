@@ -327,4 +327,122 @@ static constexpr bool verify_no_timer_conflicts() {
 // when hovering over it, making it easy to identify the conflicting timers.
 static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected. Examine \"timers_in_use\" to help identify conflict.");
 
+// Support for Creality CV Laser module
+// Code from CrealityOfficial laser support repository:
+// https://github.com/CrealityOfficial/Ender-3S1/tree/ender-3s1-lasermodel
+// 107011 激光模式
+
+#if ENABLED(CV_LASER_MODULE)
+
+  #define LASER_TIMER_NUM	                          3
+  #define LASER_TIMER_DEV	                          _TIMER_DEV(LASER_TIMER_NUM)
+  #define LASER_TIMER_PRESCALE(timer_clk, freq)     ((timer_clk) / ((freq) * (LASER_TIMER_PWM_MAX + 1)))
+  #define LASER_TIMER_IRQ_PRIO                      1
+
+  typedef enum {
+    LASER_PWM_STATE_L = 0,
+    LASER_PWM_STATE_H
+  } laser_pwm_state_t;
+
+  static HardwareTimer *timer_laser = nullptr;
+  static uint8_t laser_h = 0, laser_l = 0;
+  static laser_pwm_state_t laser_pwm_state;
+
+  FORCE_INLINE static void laser_timer_set_compare(const hal_timer_t overflow) {
+    if (timer_laser) {
+      // 格式为TICK_FORMAT时，设置的是重载寄存器ARR，
+      // 且setOverflow(overflow) {ARR = overflow - 1;}，所以形参需设置为overflow + 1
+      timer_laser->setOverflow(overflow + 1, TICK_FORMAT);
+      // 如果溢出值小于计数值。专业固件是最好的，将触发中断
+      if (overflow < timer_laser->getCount())
+        timer_laser->refresh();
+    }
+  }
+
+  static void laser_timer_handler(void) {
+    // SERIAL_ECHO_MSG("laser_timer_handler");
+    switch(laser_pwm_state) {
+      case LASER_PWM_STATE_L:
+        laser_timer_set_compare(laser_h);
+        WRITE(LASER_SOFT_PWM_PIN, 1);
+        laser_pwm_state = LASER_PWM_STATE_H;
+        break;
+      case LASER_PWM_STATE_H:
+        laser_timer_set_compare(laser_l);
+        WRITE(LASER_SOFT_PWM_PIN, 0);
+        laser_pwm_state = LASER_PWM_STATE_L;
+        break;
+    }
+  }
+
+  void laser_timer_soft_pwm_start(uint8_t pwm) {
+    // SERIAL_ECHOLNPAIR("laser_timer_soft_pwm_start():", pwm);
+    if (timer_laser == nullptr) return;
+    if (pwm > LASER_TIMER_PWM_MAX) pwm = LASER_TIMER_PWM_MAX;
+    if (pwm == 0x00) {
+      laser_timer_soft_pwm_stop();
+    }
+    else if (pwm == 0xFF) {
+      timer_laser->pause();
+      OUT_WRITE(LASER_SOFT_PWM_PIN, 1);
+    }
+    else {
+      timer_laser->pause();
+      laser_pwm_state = LASER_PWM_STATE_H;
+      WRITE(LASER_SOFT_PWM_PIN, 1);
+      laser_l = LASER_TIMER_PWM_MAX - pwm;
+      laser_h = pwm;
+      laser_timer_set_compare(laser_h);
+      timer_laser->resume();
+      // 立即进入中断 -> 设置为0无法触发中断。
+      // laser_timer_set_compare(0);
+    }
+  }
+
+  // 相对停止， 以最弱的激光输出
+  void laser_timer_soft_pwm_stop(void) {
+    // SERIAL_ECHO_MSG("laser_timer_soft_pwm_stop()");
+    laser_timer_soft_pwm_start(1);
+  }
+
+  void laser_timer_soft_pwm_close() {
+    // SERIAL_ECHO_MSG("laser_timer_soft_pwm_close()");
+    if(timer_laser == nullptr) return;
+    timer_laser->pause();
+    WRITE(LASER_SOFT_PWM_PIN, 0);
+  }
+
+  // 初始化 frequency: 频率
+  void laser_timer_soft_pwm_init() {
+    const uint32_t frequency = LASER_TIMER_FREQUENCY;
+    if(timer_laser == nullptr) {
+      // 创建硬件定时器。
+      timer_laser = new HardwareTimer(LASER_TIMER_DEV);
+
+      // 根据频率自动设置分频因子
+      // timer_laser->setOverflow(frequency * LASER_TIMER_PWM_MAX, HERTZ_FORMAT);
+      // 设置分频因子
+      uint32_t prescale = LASER_TIMER_PRESCALE(timer_laser->getTimerClkFreq(), frequency);
+      timer_laser->setPrescaleFactor(prescale);
+      timer_laser->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (timer_laser->getTimerClkFreq()) / (prescale) /* /frequency */), TICK_FORMAT);
+
+      // 禁用预加载。专业固件是最好的
+      timer_laser->setPreloadEnable(false);
+
+      // 设置中断处理函数
+      if(!timer_laser->hasInterrupt()) timer_laser->attachInterrupt(laser_timer_handler);
+
+      // 停止定时器
+      timer_laser->pause();
+
+      // 启动定时器
+      // timer_laser->resume(); // First call to resume() MUST follow the attachInterrupt()
+
+      // 设置中断优先级
+      timer_laser->setInterruptPriority(LASER_TIMER_IRQ_PRIO, 0);
+    }
+  }
+
+#endif // CV_LASER_MODULE
+
 #endif // HAL_STM32

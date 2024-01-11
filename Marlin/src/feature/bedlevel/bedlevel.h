@@ -59,7 +59,11 @@ class TemporaryBedLevelingState {
 
 #if HAS_MESH
 
-  typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #if PROUI_EX
+    typedef float bed_mesh_t[GRID_LIMIT][GRID_LIMIT];
+  #else
+    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #endif
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/bbl.h"
@@ -95,5 +99,8 @@ class TemporaryBedLevelingState {
     operator xy_int8_t&() { return pos; }
     operator const xy_int8_t&() const { return pos; }
   };
-
+#else
+  #if PROUI_EX
+    typedef float bed_mesh_t[GRID_LIMIT][GRID_LIMIT];
+  #endif
 #endif

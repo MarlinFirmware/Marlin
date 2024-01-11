@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN Enhanced graphics implementation for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 4.2.1
+ * Date: 2023/09/30
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,23 +14,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- */
-
-/**
- * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.21.1
- * Date: 2023/03/21
  */
 
 #include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin_defines.h"
 #include "dwinui.h"
 
 xy_int_t DWINUI::cursor = { 0 };
@@ -40,9 +31,6 @@ uint16_t DWINUI::textColor = defColorText;
 uint16_t DWINUI::backColor = defColorBackground;
 uint16_t DWINUI::buttonColor = defColorButton;
 uint8_t  DWINUI::fontID = font8x16;
-FSTR_P const DWINUI::author = F(STRING_CONFIG_H_AUTHOR);
-
-void (*DWINUI::onTitleDraw)(Title* t) = nullptr;
 
 void DWINUI::init() {
   cursor.reset();
@@ -79,7 +67,7 @@ uint8_t DWINUI::fontWidth(fontid_t fid) {
 uint8_t DWINUI::fontHeight(fontid_t fid) {
   switch (fid) {
     #if DISABLED(TJC_DISPLAY)
-    case font6x12 : return 12;
+      case font6x12 : return 12;
       case font20x40: return 40;
       case font24x48: return 48;
       case font28x56: return 56;
@@ -209,7 +197,7 @@ void DWINUI::drawFloat(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t co
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWINUI::ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
+void DWINUI::iconShow(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
   const uint8_t libID = ICON TERN_(HAS_CUSTOMICONS, + (icon / 100));
   const uint8_t picID = icon TERN_(HAS_CUSTOMICONS, % 100);
   dwinIconShow(BG, false, !BG, libID, picID, x, y);
@@ -263,14 +251,14 @@ void DWINUI::drawCircle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
 //  x: the abscissa of the center of the circle
 //  y: ordinate of the center of the circle
 //  r: circle radius
-void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x, uint16_t y, uint8_t r) {
+void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
   dwinDrawLine(bcolor, x - r, y, x + r, y);
   uint16_t b = 1;
   while (b <= r) {
     uint16_t a = SQRT(sq(r) - sq(b));
-    dwinDrawLine(bcolor, x - a, y + b, x + a, y + b);
-    dwinDrawLine(bcolor, x - a, y - b, x + a, y - b);
-    b += TERN(TJC_DISPLAY, 2, 1);
+    dwinDrawLine(bcolor, x-a,y+b,x+a,y+b);
+    dwinDrawLine(bcolor, x-a,y-b,x+a,y-b);
+    b+=TERN(TJC_DISPLAY,2,1);
   }
 }
 
@@ -282,10 +270,10 @@ void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x, uint16_t y, uint8_t r) 
 //  color2 : End color
 uint16_t DWINUI::colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B, G, R;
-  const float n = float(val - minv) / (maxv - minv + 1);
-  R = (1.0f - n) * GetRColor(color1) + n * GetRColor(color2);
-  G = (1.0f - n) * GetGColor(color1) + n * GetGColor(color2);
-  B = (1.0f - n) * GetBColor(color1) + n * GetBColor(color2);
+  const float n = (float)(val - minv) / (maxv - minv);
+  R = (1 - n) * GetRColor(color1) + n * GetRColor(color2);
+  G = (1 - n) * GetGColor(color1) + n * GetGColor(color2);
+  B = (1 - n) * GetBColor(color1) + n * GetBColor(color2);
   return RGB(R, G, B);
 }
 
@@ -293,17 +281,28 @@ uint16_t DWINUI::colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  val : Interpolator minv..maxv
 //  minv : Minimum value
 //  maxv : Maximum value
-uint16_t DWINUI::rainbowInt(int16_t val, int16_t minv, int16_t maxv) {
-  const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n = (minv >= 0) ? float(val - minv) / (maxv - minv + 1) : (float)val / limv;
-  LIMIT(n, -1, 1);
-
-  constexpr uint8_t maxB = 28, maxR = 28, maxG = 38;
-  uint8_t R, G, B;
-       if (n <= -0.5f) { R = 0;            G = maxG * (1.0f + n); B = maxB; }
-  else if (n <=  0.0f) { R = 0;            G = maxG;              B = maxB * (-n) * 2; }
-  else if (n <   0.5f) { R = maxR * n * 2; G = maxG;              B = 0; }
-  else                 { R = maxR;         G = maxG * (1.0f - n); B = 0; }
+uint16_t DWINUI::rainbowInt(const int16_t val, const int16_t minv, const int16_t maxv) {
+  uint8_t B, G, R;
+  const uint8_t maxB = 28, maxR = 28, maxG = 38;
+  int16_t v = val;
+  LIMIT(v, minv, maxv);
+  const float m = 2.0 / float(maxv - minv);
+  const float n = m * (v - minv) - 1;
+  if (n < 0) {
+    R = 0;
+    G = (1 + n) * maxG;
+    B = (-n) * maxB;
+  }
+  else if (n < 0.5) {
+    R = maxR * n * 2;
+    G = maxG;
+    B = 0;
+  }
+  else {
+    R = maxR;
+    G = maxG * (1 - n);
+    B = 0;
+  }
   return RGB(R, G, B);
 }
 
@@ -326,40 +325,16 @@ void DWINUI::clearMainArea() {
 
 Title title;
 
-void Title::draw() {
-  if (DWINUI::onTitleDraw != nullptr) (*DWINUI::onTitleDraw)(this);
-}
+uint16_t Title::textColor = defColorTitleTxt;
+uint16_t Title::backColor = defColorTitleBg;
 
-void Title::setCaption(const char * const titleStr) {
-  frameid = 0;
-  if ( caption == titleStr ) return;
-  const uint8_t len = _MIN(sizeof(caption) - 1, strlen(titleStr));
-  memcpy(&caption[0], titleStr, len);
-  caption[len] = '\0';
-}
-
-void Title::showCaption(const char * const titleStr) {
-  setCaption(titleStr);
-  draw();
-}
-
-void Title::setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-  caption[0] = '\0';
-  frameid = id;
-  frame = { x1, y1, x2, y2 };
-}
-
-void Title::setFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
-  setFrame(1, x, y, x + w - 1, y + h - 1);
-}
-
-void Title::frameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-  setFrame(id, x1, y1, x2, y2);
-  draw();
-}
-
-void Title::frameCopy(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
-  frameCopy(1, x, y, x + w - 1, y + h - 1);
+void Title::draw(const char * const caption) {
+  dwinDrawRectangle(1, backColor, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
+  #if ENABLED(TITLE_CENTERED)
+    drawCenteredString(false, DWIN_FONT_HEAD, textColor, backColor, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, caption);
+  #else
+    dwinDrawString(false, DWIN_FONT_HEAD, textColor, backColor, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, caption);
+  #endif
 }
 
 #endif // DWIN_LCD_PROUI

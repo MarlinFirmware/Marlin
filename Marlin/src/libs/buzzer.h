@@ -93,7 +93,9 @@
        */
       FORCE_INLINE static void off() { WRITE(BEEPER_PIN, LOW); }
 
-      static void click(const uint16_t duration) { on(); delay(duration); off(); }
+      #if DISABLED(SPEAKER)
+        static void click(const uint16_t duration) { on(); delay(duration); off(); }
+      #endif
 
       /**
        * @brief Add a tone to the queue

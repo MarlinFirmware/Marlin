@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN End Stops diagnostic page for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 2.1.3
+ * Date: 2023/07/12
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,27 +14,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-/**
- * DWIN Endstops diagnostic page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.4.3
- * Date: 2023/05/10
- */
-
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-
-#include "dwin_defines.h"
-
-#if HAS_ESDIAG
+#if ALL(DWIN_LCD_PROUI, HAS_ESDIAG)
 
 #include "endstop_diag.h"
+
+#include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "dwin.h"
 #include "dwin_popup.h"
@@ -66,7 +56,7 @@ void draw_es_state(const bool is_hit) {
 }
 
 void ESDiag::draw() {
-  title.showCaption(GET_TEXT_F(MSG_ENDSTOP_TEST));
+  title.draw(GET_TEXT_F(MSG_ENDSTOP_TEST));
   DWINUI::clearMainArea();
   drawPopupBkgd();
   DWINUI::drawButton(BTN_Continue, 86, 250);
@@ -85,9 +75,14 @@ void ESDiag::update() {
   TERN_(USE_X_MIN, ES_REPORT(X_MIN)); TERN_(USE_X_MAX, ES_REPORT(X_MAX));
   TERN_(USE_Y_MIN, ES_REPORT(Y_MIN)); TERN_(USE_Y_MAX, ES_REPORT(Y_MAX));
   TERN_(USE_Z_MIN, ES_REPORT(Z_MIN)); TERN_(USE_Z_MAX, ES_REPORT(Z_MAX));
-  TERN_(HAS_FILAMENT_SENSOR, draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE));
+  #if HAS_FILAMENT_SENSOR
+    #if PROUI_EX
+      draw_es_state(!FilamentSensorBase::poll_runout_states());
+    #else
+      draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE);
+    #endif
+  #endif
   dwinUpdateLCD();
 }
 
-#endif // HAS_ESDIAG
-#endif // DWIN_LCD_PROUI
+#endif // DWIN_LCD_PROUI && HAS_ESDIAG

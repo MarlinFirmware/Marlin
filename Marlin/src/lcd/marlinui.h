@@ -86,7 +86,7 @@ typedef bool (*statusResetFunc_t)();
 
 #endif // HAS_WIRED_LCD
 
-#if ANY(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if HAS_WIRED_LCD
   #define LCD_WITH_BLINK 1
   #define LCD_UPDATE_INTERVAL DIV_TERN(DOUBLE_LCD_FRAMERATE, TERN(HAS_TOUCH_BUTTONS, 50, 100), 2)
 #endif
@@ -272,25 +272,21 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if HAS_BACKLIGHT_TIMEOUT
-    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
-      static uint8_t backlight_timeout_minutes;
-    #else
-      static constexpr uint8_t backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
-    #endif
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
+    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP
-    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
-      static uint8_t sleep_timeout_minutes;
-    #else
-      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
-    #endif
+  #elif ENABLED(PROUI_EX)
+    static void refresh_backlight_timeout();
+  #endif
+
+  #if HAS_DISPLAY_SLEEP
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
-    static millis_t screen_timeout_ms;
+    static uint8_t sleep_timeout_minutes;
+    static millis_t screen_timeout_millis;
     static void refresh_screen_timeout();
     static void sleep_display(const bool sleep=true);
   #endif
@@ -763,7 +759,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}

@@ -50,7 +50,11 @@ EncoderRate encoderRate;
 
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
-  TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
+  #if ENABLED(SPEAKER)
+    if (ui.sound_on) BUZZ(50,800);
+  #elif HAS_BEEPER
+    if (ui.sound_on) buzzer.click(10);
+  #endif
 }
 
 // Encoder initialization
@@ -87,7 +91,9 @@ EncoderState encoderReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+      #if LCD_BACKLIGHT_TIMEOUT_MINS
+        ui.refresh_backlight_timeout();
+      #endif
       if (!ui.backlight) {
         ui.refresh_brightness();
         return ENCODER_DIFF_NO;
@@ -159,7 +165,9 @@ EncoderState encoderReceiveAnalyze() {
     temp_diff = 0;
   }
   if (temp_diffState != ENCODER_DIFF_NO) {
-    TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+    #if LCD_BACKLIGHT_TIMEOUT_MINS
+      ui.refresh_backlight_timeout();
+    #endif
     if (!ui.backlight) ui.refresh_brightness();
   }
   return temp_diffState;
@@ -172,9 +180,9 @@ EncoderState encoderReceiveAnalyze() {
 
   // LED light operation
   void LED_Action() {
-    LED_Control(RGB_SCALE_WARM_WHITE, 0x0F);
+    LED_Control(RGB_SCALE_WARM_WHITE,0x0F);
     delay(30);
-    LED_Control(RGB_SCALE_WARM_WHITE, 0x00);
+    LED_Control(RGB_SCALE_WARM_WHITE,0x00);
   }
 
   // LED initialization

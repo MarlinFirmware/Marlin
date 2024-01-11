@@ -147,7 +147,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
+    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
   }
 
 #endif // HAS_TOUCH_SLEEP

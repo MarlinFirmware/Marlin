@@ -34,6 +34,10 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
+#if ALL(DWIN_LCD_PROUI, CV_LASER_MODULE)
+  #include "../../lcd/e3v2/proui/dwin.h"
+#endif
+
 /**
  * M140 - Set Bed Temperature target and return immediately
  * M190 - Set Bed Temperature target and wait
@@ -66,6 +70,11 @@
  *
  */
 void GcodeSuite::M140_M190(const bool isM190) {
+
+  TERN_(CV_LASER_MODULE, laserOn(false));
+  // #if ENABLED(CV_LASER_MODULE)
+  //   if(laser_device.is_laser_device()) return; // 激光模式不加热 107011 -20211021
+  // #endif
 
   if (DEBUGGING(DRYRUN)) return;
 

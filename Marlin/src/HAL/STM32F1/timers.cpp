@@ -180,4 +180,86 @@ timer_dev* HAL_get_timer_dev(int number) {
   }
 }
 
+// Support for Creality CV Laser module
+// Code from CrealityOfficial laser support repository:
+// https://github.com/CrealityOfficial/Ender-3S1/tree/ender-3s1-lasermodel
+// 107011 激光模式
+
+#if ENABLED(CV_LASER_MODULE)
+  static unsigned int sw=0, laser_h = 0, laser_l = 0;
+
+  void laser_timer_soft_pwm_start(uint8_t pwm) {
+    //SERIAL_ECHOLNPAIR("laser_timer_soft_pwm_start():", pwm);
+    if (pwm>255) pwm =255;
+    if (pwm<=0) pwm = 1; //107011 -20211011 要求激光常开
+    if (pwm <= 0X00) {//
+      timer_pause(LASER_TIMER_DEV);
+      WRITE(LASER_SOFT_PWM_PIN, 0); //WRITE(PC0, 0);
+    }
+    else if(pwm>=0xFE) {
+      timer_pause(LASER_TIMER_DEV);
+      WRITE(LASER_SOFT_PWM_PIN, 1); //WRITE(PC0, 0);
+    }
+    else {
+      timer_pause(LASER_TIMER_DEV);
+      sw = 0;
+      laser_l = 256 - pwm;
+      laser_h = pwm;
+      timer_resume(LASER_TIMER_DEV);
+    }
+  }
+
+  // 相对停止， 以最弱的激光输出
+  void laser_timer_soft_pwm_stop(void)
+  {
+  //	SERIAL_ECHO_MSG("laser_timer_soft_pwm_stop()");
+  //	SERIAL_ECHOLNPAIR(str, val)
+  //  专业固件是最好的
+
+    // 107011 -20211011 常开
+    laser_timer_soft_pwm_start(1);
+  }
+
+  //关闭PWM，暂停timer3中断
+  void laser_timer_soft_pwm_close()
+  {
+    timer_pause(LASER_TIMER_DEV);
+    WRITE(LASER_SOFT_PWM_PIN, 0);//WRITE(PC0, 0);
+  }
+
+  void laser_timer_handler(void)
+  {
+  //	SERIAL_ECHO_MSG("laser_timer_handler");
+
+    switch(sw)
+    {
+    case 0:
+      timer_set_reload(LASER_TIMER_DEV, laser_l);//0xFFFF);
+      WRITE(LASER_SOFT_PWM_PIN, 1);//WRITE(PC0, 1);
+      sw = 1;
+      break;
+    case 1:
+      timer_set_reload(LASER_TIMER_DEV, laser_h);//0xFFFF);
+      WRITE(LASER_SOFT_PWM_PIN, 0);//WRITE(PC0, 0);
+      sw=0;
+      break;
+    }
+  }
+
+  // 初始化 frequency: 频率
+  void laser_timer_soft_pwm_init() {
+    const uint32_t frequency = LASER_TIMER_FREQUENCY;
+    timer_pause(LASER_TIMER_DEV);
+    //timer_set_mode(LASER_TIMER_DEV, TEMP_TIMER_CHAN, TIMER_OUTPUT_COMPARE);
+    timer_set_count(LASER_TIMER_DEV, 0);
+    timer_set_prescaler(LASER_TIMER_DEV, (uint16_t)(LASER_TIMER_PRESCALE(frequency) - 1));
+    timer_set_reload(LASER_TIMER_DEV, LASER_TIMER_PWM_MAX);//0xFFFF);
+    //timer_set_compare(LASER_TIMER_DEV, TEMP_TIMER_CHAN, _MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (F_CPU) / (LASER_TIMER_PRESCALE) / frequency));
+    timer_attach_interrupt(LASER_TIMER_DEV, TEMP_TIMER_CHAN, laser_timer_handler);
+    HAL_timer_set_interrupt_priority(LASER_TIMER_NUM, LASER_TIMER_IRQ_PRIO);
+    timer_generate_update(LASER_TIMER_DEV);
+    // timer_resume(LASER_TIMER_DEV);
+  }
+#endif // CV_LASER_MODULE
+
 #endif // __STM32F1__

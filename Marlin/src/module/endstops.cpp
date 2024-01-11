@@ -496,7 +496,7 @@ void __O2 Endstops::report_states() {
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, F(STR_FILAMENT));
+    print_es_state(READ(FIL_RUNOUT1_PIN) != TERN(HAS_PROUI_RUNOUT_SENSOR, PRO_data.Runout_active_state, FIL_RUNOUT_STATE), F(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

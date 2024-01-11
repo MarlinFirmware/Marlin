@@ -46,8 +46,16 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if ALL(MESH_BED_LEVELING, DWIN_LCD_PROUI)
+  #include "bedlevel_tools.h"
+#endif
+
 bool leveling_is_valid() {
-  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
+  #if ALL(MESH_BED_LEVELING, DWIN_LCD_PROUI)
+    return bedLevelTools.meshValidate();
+  #else
+    return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
+  #endif
 }
 
 /**
@@ -155,7 +163,11 @@ void reset_bed_level() {
       #endif
       for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_CHAR(' ');
-        const float offset = values[x * sy + y];
+        #if PROUI_EX
+          const float offset = proUIEx.getZvalues(sy, x, y, values);
+        #else
+          const float offset = values[x * sy + y];
+        #endif
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO(p_float_t(offset, precision));

@@ -60,3 +60,8 @@
 #ifndef __MARLIN_DEPS__
   #include HAL_PATH(.., inc/Conditionals_adv.h)
 #endif
+
+// General ProUIex defines and data structs
+#if PROUI_EX
+  #include "../prouiex/proui_ex.h"
+#endif

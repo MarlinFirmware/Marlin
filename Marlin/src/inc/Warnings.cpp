@@ -800,17 +800,10 @@
 #endif
 
 /**
- * ProUI Extras
+ * ProUI Boot Screen Duration
  */
-#if ENABLED(DWIN_LCD_PROUI)
-  #if BOOTSCREEN_TIMEOUT > 2000
-    #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
-  #endif
-  #if HAS_PID_HEATING && NONE(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    #warning "For ProUI PID_AUTOTUNE_MENU and PID_EDIT_MENU is recommended for PID tuning."
-  #elif ENABLED(MPCTEMP) && NONE(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
-    #warning "For ProUI MPC_EDIT_MENU and MPC_AUTOTUNE_MENU is recommended for MPC tuning."
-  #endif
+#if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
+  #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
 #endif
 
 /**
@@ -825,11 +818,4 @@
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
   #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
-#endif
-
-/**
- * Fixed-Time Motion
- */
-#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
-  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
 #endif

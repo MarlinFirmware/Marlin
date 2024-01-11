@@ -38,11 +38,17 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
-#define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#if !PROUI_EX
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#endif
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
-  typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #if PROUI_EX
+    typedef int16_t mesh_store_t[GRID_LIMIT][GRID_LIMIT];
+  #else
+    typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  #endif
 #endif
 
 typedef struct {
@@ -116,8 +122,10 @@ public:
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
-  static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
-                     _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+  #if DISABLED(PROUI_EX)
+    static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
+                       _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+  #endif
 
   #if HAS_MARLINUI_MENU
     static bool lcd_map_control;
@@ -287,12 +295,17 @@ public:
 
   static constexpr float get_z_offset() { return 0.0f; }
 
-  static float get_mesh_x(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
-  }
-  static float get_mesh_y(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
-  }
+  #if PROUI_EX
+    static float get_mesh_x(const uint8_t i);
+    static float get_mesh_y(const uint8_t i);
+  #else
+    static float get_mesh_x(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
+    }
+    static float get_mesh_y(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
+    }
+  #endif
 
   #if UBL_SEGMENTED
     static bool line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s);

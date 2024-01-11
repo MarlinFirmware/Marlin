@@ -119,7 +119,7 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
-    constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    TERN(PROUI_EX, , constexpr) xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
     destination.set(safe_homing_xy, current_position.z);
 
     TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
@@ -409,8 +409,13 @@ void GcodeSuite::G28() {
         // Use raise given by 'R' or Z_CLEARANCE_FOR_HOMING (above the probe trigger point)
         float z_homing_height = seenR ? parser.value_linear_units() : Z_CLEARANCE_FOR_HOMING;
 
-        // Check for any lateral motion that might require clearance
-        const bool may_skate = seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        #if ENABLED(CV_LASER_MODULE)
+          // Check for any lateral motion that might require clearance
+          const bool may_skate = !laser_device.is_laser_device() && (seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW));
+        #else
+          // Check for any lateral motion that might require clearance
+          const bool may_skate = seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        #endif
 
         if (seenR && z_homing_height == 0) {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
@@ -500,7 +505,7 @@ void GcodeSuite::G28() {
 
         // Home Z last if homing towards the bed
         #if DISABLED(HOME_Z_FIRST)
-          if (doZ) {
+          if (doZ && TERN1(CV_LASER_MODULE, !laser_device.is_laser_device())) {
             #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
               stepper.set_all_z_lock(false);
               stepper.set_separate_multi_axis(false);
@@ -639,8 +644,8 @@ void GcodeSuite::G28() {
     #endif
 
     #ifdef XY_AFTER_HOMING
-      if (!axes_should_home(_BV(X_AXIS) | _BV(Y_AXIS)))
-        do_blocking_move_to(xy_pos_t(XY_AFTER_HOMING));
+      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
+      do_blocking_move_to(xy_after);
     #endif
 
     restore_feedrate_and_scaling();

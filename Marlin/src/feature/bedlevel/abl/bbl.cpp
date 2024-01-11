@@ -112,6 +112,7 @@ void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _
   grid_factor = grid_spacing.reciprocal();
 }
 
+#if DISABLED(PROUI_EX)
 /**
  * Fill in the unprobed points (corners of circular print surface)
  * using linear extrapolation, away from the center.
@@ -152,6 +153,7 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
       extrapolate_one_point(x2, y2, -1, -1);       // right-above - -
     }
 }
+#endif
 
 void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/) {
   // print internal grid(s) or just the one passed as a parameter

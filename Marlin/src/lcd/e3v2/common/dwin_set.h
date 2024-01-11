@@ -25,7 +25,12 @@
 #define Language_English    1
 #define Language_Chinese    2
 
-#define ICON 7 // 7.ICO
+#define USE_STOCK_DWIN_SET  // Use the Creality stock DWIN_SET instead of Marlin's unified DWIN_SET by The-EG & thinkyhead
+#ifdef USE_STOCK_DWIN_SET
+  #define ICON 9 // 9.ICO
+#else
+  #define ICON 7 // 7.ICO
+#endif
 
 #ifndef CORP_WEBSITE
   #define CORP_WEBSITE WEBSITE_URL
@@ -77,7 +82,7 @@
 #define ICON_Motion             41
 #define ICON_WriteEEPROM        42
 #define ICON_ReadEEPROM         43
-#define ICON_ResetEEPROM        44
+#define ICON_ResumeEEPROM       44
 #define ICON_Info               45
 
 #define ICON_SetEndTemp         46
@@ -128,21 +133,23 @@
 #define ICON_Info_0             90
 #define ICON_Info_1             91
 
-#define ICON_Folder       ICON_More
-#define ICON_AdvSet       ICON_Language
-#define ICON_HomeOffset   ICON_AdvSet
-#define ICON_HomeOffsetX  ICON_StepX
-#define ICON_HomeOffsetY  ICON_StepY
-#define ICON_HomeOffsetZ  ICON_StepZ
-#define ICON_ProbeOffset  ICON_AdvSet
-#define ICON_ProbeOffsetX ICON_StepX
-#define ICON_ProbeOffsetY ICON_StepY
-#define ICON_ProbeOffsetZ ICON_StepZ
-#define ICON_PIDNozzle    ICON_SetEndTemp
-#define ICON_PIDBed       ICON_SetBedTemp
-#define ICON_FWRetract    ICON_StepE
-#define ICON_FWRetLength  ICON_StepE
-#define ICON_FWRetSpeed   ICON_Setspeed
-#define ICON_FWRetZRaise  ICON_MoveZ
-#define ICON_FWRecSpeed   ICON_Setspeed
-#define ICON_FWRecExtra   ICON_StepE
+#ifndef DWIN_LCD_PROUI
+  #define ICON_Folder       ICON_More
+  #define ICON_AdvSet       ICON_Language
+  #define ICON_HomeOffset   ICON_AdvSet
+  #define ICON_HomeOffsetX  ICON_StepX
+  #define ICON_HomeOffsetY  ICON_StepY
+  #define ICON_HomeOffsetZ  ICON_StepZ
+  #define ICON_ProbeOffset  ICON_AdvSet
+  #define ICON_ProbeOffsetX ICON_StepX
+  #define ICON_ProbeOffsetY ICON_StepY
+  #define ICON_ProbeOffsetZ ICON_StepZ
+  #define ICON_PIDNozzle    ICON_SetEndTemp
+  #define ICON_PIDbed       ICON_SetBedTemp
+  #define ICON_FWRetract    ICON_StepE
+  #define ICON_FWRetLength  ICON_StepE
+  #define ICON_FWRetSpeed   ICON_Setspeed
+  #define ICON_FWRetZRaise  ICON_MoveZ
+  #define ICON_FWRecSpeed   ICON_Setspeed
+  #define ICON_FWRecExtra   ICON_StepE
+#endif

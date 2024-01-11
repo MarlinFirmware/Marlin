@@ -72,6 +72,10 @@
  */
 void GcodeSuite::M600() {
 
+  #if ENABLED(CV_LASER_MODULE)
+    if (laser_device.is_laser_device()) return LCD_MESSAGE_F("Not available in laser mode");
+  #endif
+
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t eindex = get_target_e_stepper_from_command();
     if (eindex < 0) return;

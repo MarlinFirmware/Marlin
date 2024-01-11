@@ -34,6 +34,4 @@
 //
 // I2S (steppers & other output-only pins)
 //
-#ifndef I2S_STEPPER_STREAM
-  #define I2S_STEPPER_STREAM
-#endif
+#define I2S_STEPPER_STREAM

@@ -80,7 +80,14 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  if (ok) probe.offset = offs;
+  #if PROUI_EX
+    if (ok) {
+      probe.offset = offs;
+      proUIEx.applyPhySet();
+    }
+  #else
+    if (ok) probe.offset = offs;
+  #endif
 }
 
 void GcodeSuite::M851_report(const bool forReplay/*=true*/) {

@@ -116,8 +116,11 @@
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_NONE         0U
-#define BLOCK_DELAY_FOR_1ST_MOVE 100U
-
+#if ENABLED(CV_LASER_MODULE) // 107011 -20211020 修复激光 抖动灰模式打印不出的bug
+  #define BLOCK_DELAY_FOR_1ST_MOVE 0
+#else
+  #define BLOCK_DELAY_FOR_1ST_MOVE 100U
+#endif
 Planner planner;
 
 // public:
@@ -1594,7 +1597,7 @@ void Planner::check_axes_activity() {
 
 #if HAS_LEVELING
 
-  constexpr xy_pos_t level_fulcrum = {
+  TERN(PROUI_EX, ,constexpr) xy_pos_t level_fulcrum = {
     TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_HOME_POS),
     TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
   };
@@ -2712,10 +2715,10 @@ bool Planner::_populate_block(
                   -13.3640480f, -18.8928222f, -26.7136841f, -37.7754593f,
                   -53.4201813f, -75.5458374f, -106.836761f, -218.532821f };
                 static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-                   1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
-                   3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
-                   13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
-                   53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
+                  1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
+                  3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
+                  13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
+                  53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
 
                 const float neg = junction_cos_theta < 0 ? -1 : 1,
                             t = neg * junction_cos_theta;

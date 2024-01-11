@@ -71,6 +71,14 @@ GcodeSuite gcode;
 
 #include "../MarlinCore.h" // for idle, kill
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../lcd/e3v2/proui/dwin.h"
+#endif
+
+#if HAS_CGCODE
+  #include "../prouiex/custom_gcodes.h"
+#endif
+
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
          GcodeSuite::max_inactive_time = 0;
@@ -216,27 +224,36 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(LASER_FEATURE)
-    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
-      // Set the cutter power in the planner to configure this move
-      cutter.last_feedrate_mm_m = 0;
-      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
-        planner.laser_inline.status.isPowered = true;
-        if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
-        if (parser.seenval('S')) {
-          const float v = parser.value_float(),
-                      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
-          cutter.menuPower = cutter.unitPower = u;
-          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
+    #if ENABLED(CV_LASER_MODULE)
+      if (laser_device.is_laser_device()) //FDM 打印激光Gcode时，"S"参数会造成死机
+    #endif
+      {
+        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+          // Set the cutter power in the planner to configure this move
+          cutter.last_feedrate_mm_m = 0;
+          if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
+            planner.laser_inline.status.isPowered = true;
+            if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
+            if (parser.seenval('S')) {
+              const float v = parser.value_float(),
+              #if ENABLED(CV_LASER_MODULE)
+                          u = laser_device.power16_to_8(v);
+              #else
+                          u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
+              #endif
+              cutter.menuPower = cutter.unitPower = u;
+              cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
+            }
+          }
+          else if (parser.codenum == 0) {
+            // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
+            if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
+            cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
+          }
         }
+        else if (parser.codenum == 0)
+          cutter.apply_power(0);
       }
-      else if (parser.codenum == 0) {
-        // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
-        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
-        cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
-      }
-    }
-    else if (parser.codenum == 0)
-      cutter.apply_power(0);
   #endif // LASER_FEATURE
 }
 
@@ -287,25 +304,27 @@ void GcodeSuite::dwell(millis_t time) {
     #define G29_MAX_RETRIES 0
   #endif
 
-  void GcodeSuite::G29_with_retry() {
-    uint8_t retries = G29_MAX_RETRIES;
-    while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries) {
-        event_probe_recover();
-        --retries;
+  #if DISABLED(PROUI_EX)
+    void GcodeSuite::G29_with_retry() {
+      uint8_t retries = G29_MAX_RETRIES;
+      while (G29()) { // G29 should return true for failed probes ONLY
+        if (retries) {
+          event_probe_recover();
+          --retries;
+        }
+        else {
+          event_probe_failure();
+          return;
+        }
       }
-      else {
-        event_probe_failure();
-        return;
-      }
+
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+
+      #ifdef G29_SUCCESS_COMMANDS
+        process_subcommands_now(F(G29_SUCCESS_COMMANDS));
+      #endif
     }
-
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
-
-    #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
-    #endif
-  }
+  #endif
 
 #endif // G29_RETRY_AND_RECOVER
 
@@ -562,6 +581,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 78: M78(); break;                                    // M78: Show print statistics
       #endif
 
+      #if ENABLED(CCLOUD_PRINT_SUPPORT)
+        case 79: M79(); break;                                    // M79: Cloud print statistics
+      #endif
+
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
@@ -798,7 +821,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 250: M250(); break;                                  // M250: Set LCD contrast
       #endif
 
-      #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      #if HAS_GCODE_M255
         case 255: M255(); break;                                  // M255: Set LCD Sleep/Backlight Timeout (Minutes)
       #endif
 
@@ -1126,6 +1149,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
     #if ENABLED(REALTIME_REPORTING_COMMANDS)
       case 'S': case 'P': case 'R': break;                        // Invalid S, P, R commands already filtered
+    #endif
+
+    #if HAS_CGCODE
+      case 'C' : customGcode(parser.codenum); break;               // Cn: Custom Gcodes
     #endif
 
     default:

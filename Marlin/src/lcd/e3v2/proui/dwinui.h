@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN Enhanced graphics implementation for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 4.2.1
+ * Date: 2023/09/30
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,18 +14,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
-
-/**
- * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.21.1
- * Date: 2023/03/21
- */
 
 #include "../../../inc/MarlinConfigPre.h"
 
@@ -36,112 +28,158 @@
 #include "dwin_lcd.h"
 
 // Extra Icons
-#define ICON_BedSizeX         ICON_PrintSize
-#define ICON_BedSizeY         ICON_PrintSize
-#define ICON_BedTramming      ICON_SetHome
-#define ICON_Binary           ICON_Contact
-#define ICON_BltouchReset     ICON_StockConfiguration
-#define ICON_Brightness       ICON_Motion
-#define ICON_Cancel           ICON_StockConfiguration
-#define ICON_CustomPreheat    ICON_SetEndTemp
-#define ICON_Error            ICON_TempTooHigh
-#define ICON_esDiag           ICON_Info
-#define ICON_ExtrudeMinT      ICON_HotendTemp
-#define ICON_FilLoad          ICON_WriteEEPROM
-#define ICON_FilMan           ICON_ResetEEPROM
-#define ICON_FilSet           ICON_ResetEEPROM
-#define ICON_FilUnload        ICON_ReadEEPROM
-#define ICON_Flow             ICON_StepE
-#define ICON_HomeX            ICON_MoveX
-#define ICON_HomeY            ICON_MoveY
-#define ICON_HomeZ            ICON_MoveZ
-#define ICON_HSMode           ICON_StockConfiguration
-#define ICON_InputShaping     ICON_MaxAccelerated
-#define ICON_JDmm             ICON_MaxJerk
-#define ICON_Tram             ICON_SetEndTemp
-#define ICON_Level            ICON_HotendTemp
-#define ICON_Lock             ICON_Cool
-#define ICON_ManualMesh       ICON_HotendTemp
-#define ICON_MaxPosX          ICON_MoveX
-#define ICON_MaxPosY          ICON_MoveY
-#define ICON_MaxPosZ          ICON_MoveZ
-#define ICON_MeshEdit         ICON_Homing
-#define ICON_MeshEditX        ICON_MoveX
-#define ICON_MeshEditY        ICON_MoveY
-#define ICON_MeshEditZ        ICON_MoveZ
-#define ICON_MeshNext         ICON_Axis
-#define ICON_MeshPoints       ICON_SetEndTemp
-#define ICON_MeshReset        ICON_StockConfiguration
-#define ICON_MeshSave         ICON_WriteEEPROM
-#define ICON_MeshViewer       ICON_HotendTemp
-#define ICON_MoveZ0           ICON_HotendTemp
-#define ICON_Park             ICON_Motion
-#define ICON_ParkPos          ICON_AdvSet
-#define ICON_ParkPosX         ICON_StepX
-#define ICON_ParkPosY         ICON_StepY
-#define ICON_ParkPosZ         ICON_StepZ
-#define ICON_PhySet           ICON_PrintSize
-#define ICON_PIDCycles        ICON_ResetEEPROM
-#define ICON_PIDValue         ICON_Contact
-#define ICON_PrintStats       ICON_PrintTime
-#define ICON_PrintStatsReset  ICON_RemainTime
-#define ICON_Preheat1         ICON_PLAPreheat
-#define ICON_Preheat2         ICON_ABSPreheat
-#define ICON_Preheat3         ICON_CustomPreheat
-#define ICON_Preheat4         ICON_CustomPreheat
-#define ICON_Preheat5         ICON_CustomPreheat
-#define ICON_Preheat6         ICON_CustomPreheat
-#define ICON_Preheat7         ICON_CustomPreheat
-#define ICON_Preheat8         ICON_CustomPreheat
-#define ICON_Preheat9         ICON_CustomPreheat
-#define ICON_Preheat10        ICON_CustomPreheat
-#define ICON_ProbeDeploy      ICON_SetEndTemp
-#define ICON_ProbeMargin      ICON_PrintSize
-#define ICON_ProbeSet         ICON_SetEndTemp
-#define ICON_ProbeStow        ICON_SetEndTemp
-#define ICON_ProbeTest        ICON_SetEndTemp
-#define ICON_ProbeZSpeed      ICON_MaxSpeedZ
-#define ICON_Pwrlossr         ICON_Motion
-#define ICON_Reboot           ICON_ResetEEPROM
-#define ICON_Runout           ICON_MaxAccE
-#define ICON_Scolor           ICON_MaxSpeed
-#define ICON_SetBaudRate      ICON_Setspeed
-#define ICON_SetCustomPreheat ICON_SetEndTemp
-#define ICON_SetPreheat1      ICON_SetPLAPreheat
-#define ICON_SetPreheat2      ICON_SetABSPreheat
-#define ICON_SetPreheat3      ICON_SetCustomPreheat
-#define ICON_SetPreheat4      ICON_SetCustomPreheat
-#define ICON_SetPreheat5      ICON_SetCustomPreheat
-#define ICON_SetPreheat6      ICON_SetCustomPreheat
-#define ICON_SetPreheat7      ICON_SetCustomPreheat
-#define ICON_SetPreheat8      ICON_SetCustomPreheat
-#define ICON_SetPreheat9      ICON_SetCustomPreheat
-#define ICON_SetPreheat10     ICON_SetCustomPreheat
-#define ICON_ShapingX         ICON_MoveX
-#define ICON_ShapingY         ICON_MoveY
-#define ICON_Sound            ICON_Cool
-#define ICON_TMCSet           ICON_PrintSize
-#define ICON_TMCXSet          ICON_MoveX
-#define ICON_TMCYSet          ICON_MoveY
-#define ICON_TMCZSet          ICON_MoveZ
-#define ICON_TMCESet          ICON_Extruder
-#define ICON_UBLActive        ICON_HotendTemp
-#define ICON_UBLSlot          ICON_ResetEEPROM
-#define ICON_UBLMeshSave      ICON_WriteEEPROM
-#define ICON_UBLMeshLoad      ICON_ReadEEPROM
-#define ICON_UBLTiltGrid      ICON_PrintSize
-#define ICON_UBLSmartFill     ICON_StockConfiguration
-#define ICON_ZAfterHome       ICON_SetEndTemp
+// CI(0,I) uses custom library  9.ICO
+// CI(1,I) uses custom library 10.ICO
+#define CI(L,I) (I TERN_(HAS_CUSTOMICONS, + L*100))
 
-#define ICON_CaseLight        ICON_Motion
-#define ICON_LedControl       ICON_Motion
+#undef ICON_Folder
+#undef ICON_AdvSet
+#undef ICON_HomeOffset
+#undef ICON_HomeOffsetX
+#undef ICON_HomeOffsetY
+#undef ICON_HomeOffsetZ
+#undef ICON_ProbeOffset
+#undef ICON_ProbeOffsetX
+#undef ICON_ProbeOffsetY
+#undef ICON_ProbeOffsetZ
+#undef ICON_PIDNozzle
+#undef ICON_PIDbed
 
-// MPC
-#define ICON_MPCNozzle        ICON_SetEndTemp
-#define ICON_MPCValue         ICON_Contact
-#define ICON_MPCHeater        ICON_Temperature
-#define ICON_MPCHeatCap       ICON_SetBedTemp
-#define ICON_MPCFan           ICON_FanSpeed
+#define ICON_AdvSet            CI(1,ICON_Language)
+#define ICON_BedSizeX          CI(1,ICON_PrintSize)
+#define ICON_BedSizeY          CI(1,ICON_PrintSize)
+#define ICON_BedTramming       CI(1,ICON_SetHome)
+#define ICON_Binary            CI(1,ICON_Contact)
+#define ICON_BltouchReset      CI(1,ICON_StockConfiguration)
+#define ICON_Brightness        CI(1,ICON_Motion)
+#define ICON_Cancel            CI(1,ICON_StockConfiguration)
+#define ICON_CustomPreheat     CI(1,ICON_SetEndTemp)
+#define ICON_Error             CI(1,ICON_TempTooHigh)
+#define ICON_ESDiag            CI(1,ICON_Info)
+#define ICON_ExtrudeMinT       CI(1,ICON_HotendTemp)
+#define ICON_FilLoad           CI(1,ICON_WriteEEPROM)
+#define ICON_FilMan            CI(1,ICON_ResumeEEPROM)
+#define ICON_FilRunOut         CI(1,ICON_MaxAccE)
+#define ICON_FilSet            CI(1,ICON_ResumeEEPROM)
+#define ICON_FilUnload         CI(1,ICON_ReadEEPROM)
+#define ICON_Flow              CI(1,ICON_StepE)
+#define ICON_Folder            CI(1,ICON_More)
+#define ICON_FWRetract         CI(1,ICON_StepE)
+#define ICON_FWRetLength       CI(1,ICON_StepE)
+#define ICON_FWRetSpeed        CI(1,ICON_Setspeed)
+#define ICON_FWRetZRaise       CI(1,ICON_MoveZ)
+#define ICON_FWRecSpeed        CI(1,ICON_Setspeed)
+#define ICON_FWRecExtra        CI(1,ICON_StepE)
+#define ICON_HomeX             CI(1,ICON_MoveX)
+#define ICON_HomeY             CI(1,ICON_MoveY)
+#define ICON_HomeZ             CI(1,ICON_MoveZ)
+#define ICON_HomeOffset        CI(1,ICON_AdvSet)
+#define ICON_HomeOffsetX       CI(1,ICON_StepX)
+#define ICON_HomeOffsetY       CI(1,ICON_StepY)
+#define ICON_HomeOffsetZ       CI(1,ICON_StepZ)
+#define ICON_Host              CI(1,ICON_Contact)
+#define ICON_HSMode            CI(1,ICON_StockConfiguration)
+#define ICON_InputShaping      CI(1,ICON_MaxAccelerated)
+#define ICON_InvertE0          CI(1,ICON_StepE)
+#define ICON_JDmm              CI(1,ICON_MaxJerk)
+#define ICON_Tram              CI(1,ICON_SetEndTemp)
+#define ICON_LaserFocus        CI(1,ICON_MoveZ)
+#define ICON_LaserPrint        CI(1,ICON_StockConfiguration)
+#define ICON_LaserRunRange     CI(1,ICON_PrintSize)
+#define ICON_LaserSet          CI(1,ICON_StockConfiguration)
+#define ICON_LaserToggle       CI(1,ICON_Motion)
+#define ICON_Level             CI(1,ICON_HotendTemp)
+#define ICON_Lock              CI(1,ICON_Cool)
+#define ICON_ManualMesh        CI(1,ICON_HotendTemp)
+#define ICON_MaxPosX           CI(1,ICON_MoveX)
+#define ICON_MaxPosY           CI(1,ICON_MoveY)
+#define ICON_MaxPosZ           CI(1,ICON_MoveZ)
+#define ICON_MeshEdit          CI(1,ICON_Homing)
+#define ICON_MeshEditX         CI(1,ICON_MoveX)
+#define ICON_MeshEditY         CI(1,ICON_MoveY)
+#define ICON_MeshEditZ         CI(1,ICON_MoveZ)
+#define ICON_MeshNext          CI(1,ICON_Axis)
+#define ICON_MeshPointsX       CI(1,ICON_SetEndTemp)
+#define ICON_MeshPointsY       CI(1,ICON_SetEndTemp)
+#define ICON_MeshReset         CI(1,ICON_StockConfiguration)
+#define ICON_MeshSave          CI(1,ICON_WriteEEPROM)
+#define ICON_MeshViewer        CI(1,ICON_HotendTemp)
+#define ICON_MoveZ0            CI(1,ICON_HotendTemp)
+#define ICON_Park              CI(1,ICON_Motion)
+#define ICON_ParkPos           CI(1,ICON_AdvSet)
+#define ICON_ParkPosX          CI(1,ICON_StepX)
+#define ICON_ParkPosY          CI(1,ICON_StepY)
+#define ICON_ParkPosZ          CI(1,ICON_StepZ)
+#define ICON_PhySet            CI(1,ICON_PrintSize)
+#define ICON_PIDNozzle         CI(1,ICON_SetEndTemp)
+#define ICON_PIDBed            CI(1,ICON_SetBedTemp)
+#define ICON_PIDCycles         CI(1,ICON_ResumeEEPROM)
+#define ICON_PIDValue          CI(1,ICON_Contact)
+#define ICON_PrintStats        CI(1,ICON_PrintTime)
+#define ICON_Preheat1          CI(1,ICON_PLAPreheat)
+#define ICON_Preheat2          CI(1,ICON_ABSPreheat)
+#define ICON_Preheat3          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat4          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat5          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat6          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat7          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat8          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat9          CI(1,ICON_CustomPreheat)
+#define ICON_Preheat10         CI(1,ICON_CustomPreheat)
+#define ICON_PrintStatsReset   CI(1,ICON_RemainTime)
+#define ICON_ProbeDeploy       CI(1,ICON_SetEndTemp)
+#define ICON_ProbeMargin       CI(1,ICON_PrintSize)
+#define ICON_ProbeMultiple     CI(1,ICON_SetHome)
+#define ICON_ProbeOffsetX      CI(1,ICON_StepX)
+#define ICON_ProbeOffsetY      CI(1,ICON_StepY)
+#define ICON_ProbeOffsetZ      CI(1,ICON_StepZ)
+#define ICON_ProbeSet          CI(1,ICON_SetEndTemp)
+#define ICON_ProbeStow         CI(1,ICON_SetEndTemp)
+#define ICON_ProbeTest         CI(1,ICON_SetEndTemp)
+#define ICON_ProbeZSpeed       CI(1,ICON_MaxSpeedZ)
+#define ICON_Pwrlossr          CI(1,ICON_Motion)
+#define ICON_Reboot            CI(1,ICON_ResumeEEPROM)
+#define ICON_Runout            CI(1,ICON_MaxAccE)
+#define ICON_Scolor            CI(1,ICON_MaxSpeed)
+#define ICON_SetBaudRate       CI(1,ICON_Setspeed)
+#define ICON_SetCustomPreheat  CI(1,ICON_SetEndTemp)
+#define ICON_SetPreheat1       CI(1,ICON_SetPLAPreheat)
+#define ICON_SetPreheat2       CI(1,ICON_SetABSPreheat)
+#define ICON_SetPreheat3       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat4       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat5       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat6       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat7       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat8       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat9       CI(1,ICON_SetCustomPreheat)
+#define ICON_SetPreheat10      CI(1,ICON_SetCustomPreheat)
+#define ICON_ShapingX          CI(1,ICON_MoveX)
+#define ICON_ShapingY          CI(1,ICON_MoveY)
+#define ICON_Sound             CI(1,ICON_Cool)
+#define ICON_TBSetup           CI(1,ICON_Contact)
+#define ICON_TMCSet            CI(1,ICON_PrintSize)
+#define ICON_TMCXSet           CI(1,ICON_MoveX)
+#define ICON_TMCYSet           CI(1,ICON_MoveY)
+#define ICON_TMCZSet           CI(1,ICON_MoveZ)
+#define ICON_TMCESet           CI(1,ICON_Extruder)
+#define ICON_UBLActive         CI(1,ICON_HotendTemp)
+#define ICON_UBLSlot           CI(1,ICON_ResumeEEPROM)
+#define ICON_UBLMeshSave       CI(1,ICON_WriteEEPROM)
+#define ICON_UBLMeshLoad       CI(1,ICON_ReadEEPROM)
+#define ICON_UBLTiltGrid       CI(1,ICON_PrintSize)
+#define ICON_UBLSmartFill      CI(1,ICON_StockConfiguration)
+#define ICON_ZAfterHome        CI(1,ICON_SetEndTemp)
+
+//LED Lights
+#define ICON_CaseLight         CI(1,ICON_Motion)
+#define ICON_LedControl        CI(1,ICON_Motion)
+
+//MPC
+#define ICON_MPCNozzle         CI(1,ICON_SetEndTemp)
+#define ICON_MPCValue          CI(1,ICON_Contact)
+#define ICON_MPCHeater         CI(1,ICON_Temperature)
+#define ICON_MPCHeatCap        CI(1,ICON_SetBedTemp)
+#define ICON_MPCFan            CI(1,ICON_FanSpeed)
 
 // Buttons
 #define BTN_Continue          85
@@ -150,26 +188,6 @@
 #define BTN_Print             90
 #define BTN_Save              91
 #define BTN_Purge             92
-
-// Extended and default UI Colors
-#define COLOR_BLACK           0
-#define COLOR_GREEN           RGB(0,63,0)
-#define COLOR_AQUA            RGB(0,63,31)
-#define COLOR_BLUE            RGB(0,0,31)
-#define COLOR_LIGHT_WHITE     0xBDD7
-#define COLOR_LIGHT_GREEN     0x3460
-#define COLOR_CYAN            0x07FF
-#define COLOR_LIGHT_CYAN      0x04F3
-#define COLOR_LIGHT_BLUE      0x3A6A
-#define COLOR_MAGENTA         0xF81F
-#define COLOR_LIGHT_MAGENTA   0x9813
-#define COLOR_LIGHT_RED       0x8800
-#define COLOR_ORANGE          0xFA20
-#define COLOR_LIGHT_ORANGE    0xFBC0
-#define COLOR_LIGHT_YELLOW    0x8BE0
-#define COLOR_BROWN           0xCC27
-#define COLOR_LIGHT_BROWN     0x6204
-#define COLOR_GREY            0x18E3
 
 // UI element defines and constants
 #define DWIN_FONT_MENU font8x16
@@ -183,18 +201,15 @@
 #define UNITFDIGITS 1
 #define MINUNITMULT POW(10, UNITFDIGITS)
 
-/**
- * @brief Menu Line Spacing
- */
-constexpr uint8_t  TITLE_HEIGHT = 30,                          //< Title bar height
-                   MLINE = 53,                                 //< Menu line height
-                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  //< Total rows
-                   MROWS = TROWS - 1,                          //< Other-than-Back
-                   ICOX = 26,                                  //< Menu item icon X position
-                   LBLX = 55,                                  //< Menu item label X position
-                   VALX = 210,                                 //< Menu item value X position
-                   MENU_CHR_W = 8, MENU_CHR_H = 16,            //< Menu font 8x16
-                   STAT_CHR_W = 10;                            //< Menu Stats character width
+constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar height
+                   MLINE = 53,                                 // Menu line height
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
+                   MROWS = TROWS - 1,                          // Other-than-Back
+                   ICOX = 26,                                  // Menu item icon X position
+                   LBLX = 55,                                  // Menu item label X position
+                   VALX = 210,                                 // Menu item value X position
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
+                   STAT_CHR_W = 10;
 
 // Menuitem Y position
 #define MYPOS(L) (TITLE_HEIGHT + MLINE * (L))
@@ -210,18 +225,10 @@ typedef struct { uint16_t x, y, w, h; } frame_rect_t;
 
 class Title {
 public:
-  char caption[32] = "";
-  uint8_t frameid = 0;
-  rect_t frame = {0};
-  void draw();
-  void setCaption(const char * const titleStr);
-  inline void setCaption(FSTR_P fTitle) { setCaption((char *)fTitle); }
-  void showCaption(const char * const titleStr);
-  inline void showCaption(FSTR_P fTitle) { showCaption((char *)fTitle); }
-  void setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void setFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-  void frameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void frameCopy(uint16_t x, uint16_t y, uint16_t h, uint16_t v);
+  static uint16_t textColor;
+  static uint16_t backColor;
+  static void draw(const char * const caption);
+  static inline void draw(FSTR_P fcaption) { draw((char *)fcaption); }
 };
 extern Title title;
 
@@ -232,9 +239,6 @@ namespace DWINUI {
   extern uint16_t backColor;
   extern uint16_t buttonColor;
   extern fontid_t fontID;
-  extern FSTR_P const author;
-
-  extern void (*onTitleDraw)(Title* t);
 
   // DWIN LCD Initialization
   void init();
@@ -301,20 +305,20 @@ namespace DWINUI {
   //  libID: Icon library ID
   //  picID: Icon ID
   //  x/y: Upper-left point
-  void ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y);
+  void iconShow(bool BG, uint8_t icon, uint16_t x, uint16_t y);
 
   // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIcon(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(false, icon, x, y);
+    iconShow(false, icon, x, y);
   }
 
   // Draw an Icon from the library ICON with its background
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIconWB(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(true, icon, x, y);
+    iconShow(true, icon, x, y);
   }
 
   // Draw a numeric integer value
@@ -487,6 +491,9 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
+  inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+    drawCenteredString(bShow, fid, color, bColor, 2 * x, 0, y, string);
+  }
   inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
     drawCenteredString(bShow, fid, color, bColor, 0, DWIN_WIDTH, y, string);
   }
@@ -551,6 +558,10 @@ namespace DWINUI {
   //  color2 : End color
   uint16_t colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
+  // -------------------------- Title -------------------------------//
+
+  void drawTitle(uint16_t color, uint16_t bcolor, Title* aTitle);
+
   // ------------------------- Buttons ------------------------------//
 
   void drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption);
@@ -578,7 +589,7 @@ namespace DWINUI {
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
   //  maxv : Maximum value
-  uint16_t rainbowInt(int16_t val, int16_t minv, int16_t maxv);
+  uint16_t rainbowInt(const int16_t val, const int16_t minv, const int16_t maxv);
 
   // Write buffer data to the SRAM
   //  addr: SRAM start address 0x0000-0x7FFF

@@ -57,6 +57,10 @@
   #include "../../feature/password/password.h"
 #endif
 
+#if PROUI_EX
+  #include "menu_prouiex.h"
+#endif
+
 void menu_tmc();
 void menu_backlash();
 
@@ -676,6 +680,10 @@ void menu_advanced_settings() {
   BACK_ITEM(MSG_CONFIGURATION);
 
   #if DISABLED(SLIM_LCD_MENUS)
+
+    #if PROUI_EX
+      SUBMENU(MSG_PROUIEX_SET, menu_advanced_prouiexset);
+    #endif
 
     #if ENABLED(POLARGRAPH)
       // M665 - Polargraph Settings

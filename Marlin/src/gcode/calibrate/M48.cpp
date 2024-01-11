@@ -58,6 +58,7 @@
 
 void GcodeSuite::M48() {
 
+  TERN_(DWIN_LCD_PROUI, gcode.process_subcommands_now(F("G28O")));
   if (homing_needed_error()) return;
 
   const int8_t verbose_level = parser.byteval('V', 1);

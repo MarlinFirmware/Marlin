@@ -44,7 +44,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-constexpr bool has_large_area() {
+TERN(PROUI_EX, bool, constexpr bool) has_large_area() {
   return TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000);
 }
 
@@ -407,7 +407,7 @@ void menu_move() {
     #endif
 
     START_MENU();
-    BACK_ITEM(MSG_MOTION);
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
     MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();

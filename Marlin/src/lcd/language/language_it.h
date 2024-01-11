@@ -85,11 +85,11 @@ namespace LanguageNarrow_it {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Impostaz.filamento");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Gestione filamento");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Livel.manuale");
-  LSTR MSG_TRAM_FL                        = _UxGT("Davanti Sinistra");
-  LSTR MSG_TRAM_FR                        = _UxGT("Davanti Destra");
-  LSTR MSG_TRAM_C                         = _UxGT("Centro");
-  LSTR MSG_TRAM_BL                        = _UxGT("Dietro Sinistra");
-  LSTR MSG_TRAM_BR                        = _UxGT("Dietro Destra");
+  LSTR MSG_TRAM_FL                      = _UxGT("Davanti Sinistra");
+  LSTR MSG_TRAM_FR                      = _UxGT("Davanti Destra");
+  LSTR MSG_TRAM_C                       = _UxGT("Centro");
+  LSTR MSG_TRAM_BL                      = _UxGT("Dietro Sinistra");
+  LSTR MSG_TRAM_BR                      = _UxGT("Dietro Destra");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Mesh Manuale");
   LSTR MSG_AUTO_MESH                      = _UxGT("Generaz.Autom.Mesh");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Allineam.automat. Z");
