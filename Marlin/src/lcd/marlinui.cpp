@@ -722,9 +722,7 @@ void MarlinUI::init() {
         #endif
       }
 
-    #endif // ULTIPANEL_FEEDMULTIPLY
-
-    #if ENABLED(ULTIPANEL_FLOWPERCENT)
+    #elif ENABLED(ULTIPANEL_FLOWPERCENT)
 
       const int16_t old_fp = planner.flow_percentage[active_extruder];
             int16_t new_fp = old_fp + int16_t(encoderPosition);
