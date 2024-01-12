@@ -271,16 +271,11 @@ void action_mmu2_reset() {
 }
 
 void menu_mmu2() {
-  const bool busy = printingIsActive()
-    #if HAS_MEDIA
-      , card_detected = card.isMounted()
-      , card_open = card_detected && card.isFileOpen()
-    #endif
-  ;
+  const bool busy = printingIsActive();
 
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
-  if (!busy){
+  if (!busy && TERN1(HAS_PRUSA_MMU3, MMU2::mmu2.mmu_hw_enabled)){
     SUBMENU(MSG_MMU2_LOAD_FILAMENT, menu_mmu2_load_filament);
     SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_load_to_nozzle);
     SUBMENU(MSG_MMU2_EJECT_FILAMENT, menu_mmu2_eject_filament);
@@ -294,7 +289,7 @@ void menu_mmu2() {
     EDIT_ITEM(bool, MSG_MMU_CUTTER, &cutter_enabled, []{
       menu_mmu2_cutter_set_mode((uint8_t)!editable.state);
     });
-    if (!busy && MMU2::cutter_enabled()){
+    if (!busy && MMU2::cutter_enabled() && MMU2::mmu2.mmu_hw_enabled){
       SUBMENU(MSG_MMU2_CUT_FILAMENT, menu_mmu2_cut_filament);
     }
     EDIT_ITEM(bool, MSG_MMU_SPOOL_JOIN, &SpoolJoin::spooljoin.enabled, spool_join_status);
@@ -302,7 +297,23 @@ void menu_mmu2() {
     SUBMENU(MSG_MMU_STATISTICS, menu_mmu2_statistics);
   #endif
 
-  ACTION_ITEM(MSG_MMU2_RESET, action_mmu2_reset);
+  if (TERN1(HAS_PRUSA_MMU3, MMU2::mmu2.mmu_hw_enabled)){
+    ACTION_ITEM(MSG_MMU2_RESET, action_mmu2_reset);
+  }
+
+  #if HAS_PRUSA_MMU3
+    #ifndef __AVR__
+      editable.state = MMU2::mmu2.mmu_hw_enabled;
+      EDIT_ITEM_F(bool, F("MMU"), &MMU2::mmu2.mmu_hw_enabled, []{
+        if(editable.state){
+          MMU2::mmu2.Stop();
+        } else {
+          MMU2::mmu2.Start();
+        }
+      });
+    #endif
+  #endif
+
   END_MENU();
 }
 

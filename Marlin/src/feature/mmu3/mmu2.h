@@ -54,7 +54,7 @@ public:
 
   inline xState State() const { return state; }
 
-  inline bool Enabled() const { return State() == xState::Active; }
+  inline bool Enabled() const { mmu_hw_enabled = State() == xState::Active; return mmu_hw_enabled;}
 
   /// Different levels of resetting the MMU
   enum ResetForm : uint8_t {
@@ -252,9 +252,9 @@ public:
   static uint8_t stealth_mode;    // stealth mode
   static int stealth_mode_addr;   // EEPROM addr for stealth_mode setting
   static bool mmu_hw_enabled;     // MMU hardware can be Enabled/Disabled
-                  // with the M709 S0 or M709 S1 commands
-                  // and the last state is stored in the
-                  // EEPROM
+                                  // with the M709 S0 or M709 S1 commands
+                                  // and the last state is stored in the
+                                  // EEPROM
   static int mmu_hw_enabled_addr; // EEPROM addr for mmu_hw_enabled
 
   bool e_active();

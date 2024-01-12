@@ -1598,8 +1598,13 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU3
-    SETUP_RUN(MMU2::mmu2.Start());
-    SETUP_RUN(SpoolJoin::spooljoin.initSpoolJoinStatus());
+    if( MMU2::mmu2.mmu_hw_enabled){
+      SETUP_RUN(MMU2::mmu2.Start());
+    }
+    SETUP_RUN([]{
+      MMU2::mmu2.Status();
+      SpoolJoin::spooljoin.initSpoolJoinStatus();
+    });
   #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif

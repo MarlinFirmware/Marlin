@@ -54,6 +54,9 @@ uint8_t MMU2::cutter_mode;      // initialized by settings.load
 int MMU2::cutter_mode_addr;     // initialized by settings.load
 uint8_t MMU2::stealth_mode;     // initialized by settings.load
 int MMU2::stealth_mode_addr;    // initialized by settings.load
+// TODO: Currently, by logic, the value stored in the EEPROM for is ignored and
+//       mmu_hw_enabled is always overwritten by the MMU State. Thus restarting
+//       printer will always set the MMU as senabled.
 bool MMU2::mmu_hw_enabled;      // initialized by settings.load
 int MMU2::mmu_hw_enabled_addr;  // initialized by settings.load
 
@@ -83,6 +86,16 @@ void MMU2::Status() {
 }
 
 void MMU2::Start() {
+  mmu_hw_enabled = true;
+
+  #if ENABLED(EEPROM_SETTINGS)
+    // save mmu_hw_enabled to eeprom
+    persistentStore.access_start();
+    persistentStore.write_data(mmu_hw_enabled_addr, mmu_hw_enabled);
+    persistentStore.access_finish();
+    settings.save();
+  #endif
+
   MMU2_SERIAL.begin(MMU_BAUD);
 
   PowerOn();
@@ -103,6 +116,16 @@ void MMU2::Stop() {
 }
 
 void MMU2::StopKeepPowered() {
+  mmu_hw_enabled = false;
+
+  #if ENABLED(EEPROM_SETTINGS)
+    // save mmu_hw_enabled to eeprom
+    persistentStore.access_start();
+    persistentStore.write_data(mmu_hw_enabled_addr, mmu_hw_enabled);
+    persistentStore.access_finish();
+    settings.save();
+  #endif
+
   state = xState::Stopped;
   logic.Stop();
   MMU2_SERIAL.end();
@@ -827,7 +850,8 @@ void MMU2::CheckUserInput() {
     break;
   case Buttons::DisableMMU:
     Stop();
-    DisableMMUInSettings();
+    // DisableMMUInSettings(); // Stop() already does this...
+    Status();
     break;
   case Buttons::StopPrint:
     // @@TODO not sure if we shall handle this high level operation at this spot

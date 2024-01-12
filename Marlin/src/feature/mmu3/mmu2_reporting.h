@@ -104,13 +104,13 @@ void ReportErrorHookSensorLineRender();
 
 /// @returns true if the MMU is communicating and available
 /// can change at runtime
-bool MMUAvailable();
+// bool MMUAvailable();
 
 /// Global Enable/Disable use MMU (to be stored in EEPROM)
-bool UseMMU();
+// bool UseMMU();
 
 /// Disables MMU in EEPROM
-void DisableMMUInSettings();
+// void DisableMMUInSettings();
 
 /// Increments EEPROM cell - number of failed loads into the nozzle
 /// Note: technically, this is not an MMU error but an error of the printer.
