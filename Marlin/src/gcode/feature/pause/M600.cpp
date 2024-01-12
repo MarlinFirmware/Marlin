@@ -108,7 +108,7 @@ void GcodeSuite::M600() {
 
   bool standardM600 = true;
   #if HAS_PRUSA_MMU3
-    standardM600 = TERN1(MMU2_MENUS, !MMU2::mmu2.Enabled());
+    standardM600 = TERN1(MMU2_MENUS, !MMU2::mmu2.mmu_hw_enabled);
   #elif HAS_PRUSA_MMU2
     standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
   #endif
@@ -167,7 +167,9 @@ void GcodeSuite::M600() {
         ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
         ADVANCED_PAUSE_PURGE_LENGTH,
         beep_count,
-        parser.celsiusval('R')
+        parser.celsiusval('R'),
+        true,
+        false
         DXC_PASS
       );
     } else {

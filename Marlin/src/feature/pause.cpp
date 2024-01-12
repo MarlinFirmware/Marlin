@@ -617,7 +617,7 @@ void resume_print(
   const_float_t   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
   const int8_t    max_beep_count/*=0*/,
   const celsius_t targetTemp/*=0*/,
-  const bool      show_lcd /*=false*/,
+  const bool      show_lcd /*=true*/,
   const bool      pause_for_user/*=false*/
   DXC_ARGS) {
   DEBUG_SECTION(rp, "resume_print", true);
