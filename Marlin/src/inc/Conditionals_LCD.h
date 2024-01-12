@@ -962,6 +962,7 @@
   #define DETECT_I2C_LCD_DEVICE 1
 #endif
 
+// Encoder behavior
 #ifndef STD_ENCODER_PULSES_PER_STEP
   #if ENABLED(TOUCH_SCREEN)
     #define STD_ENCODER_PULSES_PER_STEP 2

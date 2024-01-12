@@ -702,7 +702,7 @@ void MarlinUI::init() {
         else
           new_frm = old_frm;
       }
-      else if ((old_frm < 100 && new_frm > 100) || (old_frm > 100 && new_frm < 100))
+      else if ((old_frm < 100) == (new_frm > 100)) // Crossing 100? Stick at 100.
         new_frm = 100;
 
       LIMIT(new_frm, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
@@ -738,10 +738,10 @@ void MarlinUI::init() {
         else
           new_fp = old_fp;
       }
-      else if ((old_fp < 100 && new_fp > 100) || (old_fp > 100 && new_fp < 100))
+      else if ((old_fp < 100) == (new_fp > 100)) // Crossing 100? Stick at 100.
         new_fp = 100;
 
-      LIMIT(new_fp, 10, 999);
+      LIMIT(new_fp, FLOW_EDIT_MIN, FLOW_EDIT_MAX);
 
       if (old_fp != new_fp) {
         planner.set_flow(active_extruder, new_fp);
