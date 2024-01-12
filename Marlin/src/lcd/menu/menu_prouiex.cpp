@@ -1,6 +1,6 @@
 /**
  * Professional Firmware UI extensions menus
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Author: Tommy Smith (TInker-Tom)
  * Version: 1.1.0
  * Date: 2023/11/2
  *

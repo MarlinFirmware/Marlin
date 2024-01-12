@@ -24,7 +24,7 @@
 
 /*
  * Creality Cloud Print support for the Professional Firmware
- * Adapted by: Miguel A. Risco-Castillo (MRISCOC)
+ * Adapted by: Tommy Smith (TInker-Tom)
  * Version: 1.1.0
  * Date: 2023/03/27
  * Original code from https://github.com/CrealityOfficial/Ender-3S1

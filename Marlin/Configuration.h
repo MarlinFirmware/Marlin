@@ -21,9 +21,6 @@
  */
 #pragma once
 
-// Created by configs generator for Professional firmware
-// https://github.com/mriscoc/Ender3V2S1
-
 /**
  * Configuration.h
  *
@@ -64,7 +61,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "Miguel Risco-Castillo (MRiscoC)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "Tommy Smith (Tinker-Tom)" // Who made the changes.
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 // @section machine
@@ -96,9 +93,9 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000  // MRiscoC increase serial performace
+#define BAUDRATE 250000  // Tinker-Tom increase serial performace
 
-#define BAUD_RATE_GCODE     // Enable G-code M575 to set the baud rate  // MRiscoC Enables change the baudrate
+#define BAUD_RATE_GCODE     // Enable G-code M575 to set the baud rate  // Tinker-Tom Enables change the baudrate
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
@@ -851,7 +848,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 180  // MRiscoC Customizable by menu
+#define EXTRUDE_MINTEMP 180  // Tinker-Tom Customizable by menu
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -1254,9 +1251,9 @@
 
 #define DEFAULT_FEEDRATE_MM_M (50*60)
 
-#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2  // MRiscoC allows higher limits
+#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2  // Tinker-Tom allows higher limits
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 3000, 3000, 80, 200 } // ...or, set your own edit limits  // MRiscoC allows higher limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 3000, 3000, 80, 200 } // ...or, set your own edit limits  // Tinker-Tom allows higher limits
 #endif
 
 /**
@@ -1267,9 +1264,9 @@
  */
 #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }  // Ender Configs
 
-#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2  // MRiscoC allows higher limits
+#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2  // Tinker-Tom allows higher limits
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 9999, 9999, 999, 9999 } // ...or, set your own edit limits  // MRiscoC allows higher limits
+  #define MAX_ACCEL_EDIT_VALUES       { 9999, 9999, 999, 9999 } // ...or, set your own edit limits  // Tinker-Tom allows higher limits
 #endif
 
 /**
@@ -1308,7 +1305,7 @@
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2  // Ender Configs
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 20 } // ...or, set your own edit limits  // MRiscoC allows higher limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 20 } // ...or, set your own edit limits  // Tinker-Tom allows higher limits
   #endif
 #endif
 
@@ -1335,7 +1332,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION  // MRiscoC Enabled
+#define S_CURVE_ACCELERATION  // Tinker-Tom Enabled
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1575,7 +1572,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }  // MRiscoC BLTouch offset for support: https://www.thingiverse.com/thing:4605354 (z-offset = -1.80 mm)  // Manual mesh use the nozzle as probe
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }  // Tinker-Tom BLTouch offset for support: https://www.thingiverse.com/thing:4605354 (z-offset = -1.80 mm)  // Manual mesh use the nozzle as probe
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -1585,13 +1582,13 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10  // MRiscoC Avoid clips on borders
+#define PROBING_MARGIN 10  // Tinker-Tom Avoid clips on borders
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_FEEDRATE (200*60)  // MRiscoC increase travel speed between probes
+#define XY_PROBE_FEEDRATE (200*60)  // Tinker-Tom increase travel speed between probes
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (16*60)  // MRiscoC increase probe Z speed
+#define Z_PROBE_FEEDRATE_FAST (16*60)  // Tinker-Tom increase probe Z speed
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
@@ -1768,7 +1765,7 @@
 // @section homing
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
-#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.  // MRiscoC Enabled for safety
+#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.  // Tinker-Tom Enabled for safety
 
 /**
  * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
@@ -1777,10 +1774,10 @@
  */
 //#define Z_IDLE_HEIGHT Z_HOME_POS
 
-//#define Z_CLEARANCE_FOR_HOMING  10   // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...  // MRiscoC Crearance over the bed
+//#define Z_CLEARANCE_FOR_HOMING  10   // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...  // Tinker-Tom Crearance over the bed
                                       // You'll need this much clearance above Z_MAX_POS to avoid grinding.
 
-#define Z_AFTER_HOMING         5   // (mm) Height to move to after homing (if Z was homed)  // MRiscoC Crearance over the bed
+#define Z_AFTER_HOMING         5   // (mm) Height to move to after homing (if Z was homed)  // Tinker-Tom Crearance over the bed
 //#define XY_AFTER_HOMING { 10, 10 }  // (mm) Move to an XY position after homing (and raising Z)
 
 //#define EVENT_GCODE_AFTER_HOMING "M300 P440 S200"  // Commands to run after G28 (and move to XY_AFTER_HOMING)
@@ -1815,15 +1812,15 @@
 // @section geometry
 
 // The size of the printable area
-#define X_BED_SIZE 230  // MRiscoC Max usable bed size
-#define Y_BED_SIZE 230  // MRiscoC Max usable bed size
+#define X_BED_SIZE 230  // Tinker-Tom Max usable bed size
+#define Y_BED_SIZE 230  // Tinker-Tom Max usable bed size
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0  // MRiscoC Stock physical limit
-#define Y_MIN_POS 0  // MRiscoC Stock physical limit
+#define X_MIN_POS 0  // Tinker-Tom Stock physical limit
+#define Y_MIN_POS 0  // Tinker-Tom Stock physical limit
 #define Z_MIN_POS 0
-#define X_MAX_POS 248  // MRiscoC Stock physical limit
-#define Y_MAX_POS 231  // MRiscoC Stock physical limit
+#define X_MAX_POS 248  // Tinker-Tom Stock physical limit
+#define Y_MAX_POS 231  // Tinker-Tom Stock physical limit
 #define Z_MAX_POS 250  // Ender Configs
 //#define I_MIN_POS 0
 //#define I_MAX_POS 50
@@ -1892,12 +1889,12 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-#define FILAMENT_RUNOUT_SENSOR  // MRiscoC Enabled runout sensor support
+#define FILAMENT_RUNOUT_SENSOR  // Tinker-Tom Enabled runout sensor support
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
-  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+  #define FIL_RUNOUT_STATE     HIGH       // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
@@ -1944,7 +1941,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  #define FILAMENT_RUNOUT_DISTANCE_MM 25  // MRiscoC Customizable by menu
+  #define FILAMENT_RUNOUT_DISTANCE_MM 0  // Tinker-Tom Customizable by menu
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -2056,7 +2053,7 @@
 /**
  * Auto-leveling needs preheating
  */
-#define PREHEAT_BEFORE_LEVELING  // MRiscoC Heatting to compensate thermal expansions
+#define PREHEAT_BEFORE_LEVELING  // Tinker-Tom Heatting to compensate thermal expansions
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
   #define LEVELING_NOZZLE_TEMP 175   // (°C) Only applies to E0 at this time  // Preheat nozzle without oozing
   #define LEVELING_BED_TEMP     50
@@ -2112,7 +2109,7 @@
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 5  // MRiscoC Customizable by menu
+  #define GRID_MAX_POINTS_X 5  // Tinker-Tom Customizable by menu
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -2122,7 +2119,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID  // MRiscoC Disabled for better accuracy at edges
+    //#define EXTRAPOLATE_BEYOND_GRID  // Tinker-Tom Disabled for better accuracy at edges
 
     //
     // Subdivision of the grid by Catmull-Rom method.
@@ -2144,8 +2141,8 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 25              // Set Mesh bounds as an inset region of the bed  // MRiscoC Center mesh
-  #define GRID_MAX_POINTS_X 5      // Don't use more than 15 points per axis, implementation limited.  // MRiscoC Customizable by menu
+  #define MESH_INSET 25              // Set Mesh bounds as an inset region of the bed  // Tinker-Tom Center mesh
+  #define GRID_MAX_POINTS_X 5      // Don't use more than 15 points per axis, implementation limited.  // Tinker-Tom Customizable by menu
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define UBL_HILBERT_CURVE       // Use Hilbert distribution for less travel when probing multiple points
@@ -2186,8 +2183,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 25          // Set Mesh bounds as an inset region of the bed  // MRiscoC Center mesh
-  #define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited.  // MRiscoC Customizable by menu
+  #define MESH_INSET 25          // Set Mesh bounds as an inset region of the bed  // Tinker-Tom Center mesh
+  #define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited.  // Tinker-Tom Customizable by menu
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -2274,7 +2271,7 @@
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
-#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (10*60) }  // MRiscoC Homing speed-up
+#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (10*60) }  // Tinker-Tom Homing speed-up
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -2358,7 +2355,7 @@
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.  // Ender Configs
-  #define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.  // MRiscoC Reset EEPROM on first boot
+  #define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.  // Tinker-Tom Reset EEPROM on first boot
 #endif
 
 // @section host
@@ -2425,13 +2422,13 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-#define NOZZLE_PARK_FEATURE  // MRiscoC Enabled
+#define NOZZLE_PARK_FEATURE  // Tinker-Tom Enabled
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_BED_SIZE + 10), (Y_MAX_POS - 10), 20 }
   #define NOZZLE_PARK_MOVE          0   // Park motion: 0 = XY Move, 1 = X Only, 2 = Y Only, 3 = X before Y, 4 = Y before X
-  #define NOZZLE_PARK_Z_RAISE_MIN   0   // (mm) Always raise Z by at least this distance  // MRiscoC uses Park Z Raise from 0 to avoid backlash issues
+  #define NOZZLE_PARK_Z_RAISE_MIN   0   // (mm) Always raise Z by at least this distance  // Tinker-Tom uses Park Z Raise from 0 to avoid backlash issues
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE    5   // (mm/s) Z axis feedrate (not used for delta printers)
 #endif
@@ -2559,7 +2556,7 @@
  *
  * View the current statistics with M78.
  */
-#define PRINTCOUNTER  // MRiscoC Enable Print Statistics
+#define PRINTCOUNTER  // Tinker-Tom Enable Print Statistics
 #if ENABLED(PRINTCOUNTER)
   #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print. A value of 0 will save stats at end of print.
 #endif

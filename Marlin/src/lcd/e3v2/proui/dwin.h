@@ -1,6 +1,6 @@
 /**
  * DWIN Enhanced implementation, general defines and data structs for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Author: Tommy Smith (TInker-Tom)
  * Version: 4.6.3
  * Date: 2023/10/27
  *

@@ -1,6 +1,6 @@
 /**
  * Print Stats page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Author: Tommy Smith (TInker-Tom)
  * Version: 2.1.0
  * Date: 2023/07/12
  *

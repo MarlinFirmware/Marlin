@@ -1,6 +1,6 @@
 /**
  * toolBar for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Author: Tommy Smith (TInker-Tom)
  * version: 3.1.1
  * Date: 2023/09/12
  *

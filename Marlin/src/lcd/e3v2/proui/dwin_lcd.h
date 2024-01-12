@@ -1,6 +1,6 @@
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Author: Tommy Smith (TInker-Tom)
  * Version: 4.1.1
  * Date: 2023/07/12
  *
