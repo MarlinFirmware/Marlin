@@ -119,7 +119,9 @@
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define SDCARD_CONNECTION            ONBOARD
+  #elif HAS_WIRED_LCD
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
