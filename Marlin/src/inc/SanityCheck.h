@@ -2705,7 +2705,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
 #endif
 
-#if ANY(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0, CR10_STOCKDISPLAY) && SD_CONNECTION_IS(LCD)
+#if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
   #error "SDCARD_CONNECTION cannot be set to LCD for the enabled display. No available SD card reader."
 #endif
 
