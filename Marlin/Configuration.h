@@ -3027,7 +3027,7 @@
 
 //
 // Factory display for Creality CR-10 / CR-7 / Ender-3
-// https://www.aliexpress.com/item/32833148327.html
+// https://www.th3dstudio.com/product/creality-12864-oem-lcd-screen/
 //
 // Connect to EXP1 on RAMPS and compatible boards.
 //
