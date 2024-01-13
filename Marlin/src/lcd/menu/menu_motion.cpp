@@ -331,7 +331,7 @@ void menu_move() {
     ui.go_back();
   }
 
-  MString ftmode(5), dmode(10);
+  TString ftmode(5), dmode(10);
 
   void ftm_menu_get_msg_strings() {
     ft_config_t &c = ftMotion.cfg;
