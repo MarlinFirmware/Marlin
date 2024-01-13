@@ -331,6 +331,36 @@ void menu_move() {
     ui.go_back();
   }
 
+  MString ftmode(5), dmode(10);
+
+  void ftm_menu_get_msg_strings() {
+    ft_config_t &c = ftMotion.cfg;
+
+    switch (c.mode) {
+      default:
+      case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
+      case ftMotionMode_ENABLED:  ftmode = GET_TEXT_F(MSG_LCD_ON);   break;
+      case ftMotionMode_ZV:       ftmode = GET_TEXT_F(MSG_FTM_ZV);   break;
+      case ftMotionMode_ZVD:      ftmode = GET_TEXT_F(MSG_FTM_ZVD);  break;
+      case ftMotionMode_ZVDD:     ftmode = GET_TEXT_F(MSG_FTM_ZVDD); break;
+      case ftMotionMode_ZVDDD:    ftmode = GET_TEXT_F(MSG_FTM_ZVDDD);break;
+      case ftMotionMode_EI:       ftmode = GET_TEXT_F(MSG_FTM_EI);   break;
+      case ftMotionMode_2HEI:     ftmode = GET_TEXT_F(MSG_FTM_2HEI); break;
+      case ftMotionMode_3HEI:     ftmode = GET_TEXT_F(MSG_FTM_3HEI); break;
+      case ftMotionMode_MZV:      ftmode = GET_TEXT_F(MSG_FTM_MZV);  break;
+    }
+
+    #if HAS_DYNAMIC_FREQ
+      switch (c.dynFreqMode) {
+        default:
+        case dynFreqMode_DISABLED:   dmode = GET_TEXT_F(MSG_LCD_OFF);        break;
+        case dynFreqMode_Z_BASED:    dmode = GET_TEXT_F(MSG_FTM_Z_BASED);    break;
+        case dynFreqMode_MASS_BASED: dmode = GET_TEXT_F(MSG_FTM_MASS_BASED); break;
+    }
+    #endif
+
+  }
+
   inline void menu_ftm_mode() {
     const ftMotionMode_t mode = ftMotion.cfg.mode;
 
@@ -379,38 +409,13 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    FSTR_P ftmode;
-    switch (c.mode) {
-      default:
-      case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
-      case ftMotionMode_ENABLED:  ftmode = GET_TEXT_F(MSG_LCD_ON);   break;
-      case ftMotionMode_ZV:       ftmode = GET_TEXT_F(MSG_FTM_ZV);   break;
-      case ftMotionMode_ZVD:      ftmode = GET_TEXT_F(MSG_FTM_ZVD);  break;
-      case ftMotionMode_ZVDD:     ftmode = GET_TEXT_F(MSG_FTM_ZVDD); break;
-      case ftMotionMode_ZVDDD:    ftmode = GET_TEXT_F(MSG_FTM_ZVDDD);break;
-      case ftMotionMode_EI:       ftmode = GET_TEXT_F(MSG_FTM_EI);   break;
-      case ftMotionMode_2HEI:     ftmode = GET_TEXT_F(MSG_FTM_2HEI); break;
-      case ftMotionMode_3HEI:     ftmode = GET_TEXT_F(MSG_FTM_3HEI); break;
-      case ftMotionMode_MZV:      ftmode = GET_TEXT_F(MSG_FTM_MZV);  break;
-      //case ftMotionMode_ULENDO_FBS: ftmode = GET_TEXT_F(MSG_FTM_ULENDO_FBS); break;
-      //case ftMotionMode_DISCTF:     ftmode = GET_TEXT_F(MSG_FTM_DISCTF);     break;
-    }
-
-    #if HAS_DYNAMIC_FREQ
-      FSTR_P dmode;
-      switch (c.dynFreqMode) {
-        default:
-        case dynFreqMode_DISABLED:   dmode = GET_TEXT_F(MSG_LCD_OFF);        break;
-        case dynFreqMode_Z_BASED:    dmode = GET_TEXT_F(MSG_FTM_Z_BASED);    break;
-        case dynFreqMode_MASS_BASED: dmode = GET_TEXT_F(MSG_FTM_MASS_BASED); break;
-      }
-    #endif
+    menu_ftm_get_msg_strings();
 
     START_MENU();
     BACK_ITEM(MSG_MOTION);
 
     SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
-    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+    MENU_ITEM_ADDON_START_RJ(ftmode.length()); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
 
     if (c.modeHasShaper()) {
       #if HAS_X_AXIS
@@ -438,7 +443,7 @@ void menu_move() {
 
       #if HAS_DYNAMIC_FREQ
         SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+        MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           #if HAS_X_AXIS
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
@@ -458,12 +463,29 @@ void menu_move() {
     END_MENU();
   }
 
+  void menu_tune_ft_motion() {
+    ft_config_t &c = ftMotion.cfg;
+
+    ftm_menu_get_msg_strings();
+
+    START_MENU();
+      SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
+      MENU_ITEM_ADDON_START_RJ(ftmode.length()); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+    #if HAS_DYNAMIC_FREQ
+      SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+      MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+    #endif
+    #if HAS_EXTRUDERS
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+    #endif
+
+    END_MENU();
+
+  }
+
 #endif // FT_MOTION_MENU
 
 void menu_motion() {
-  #if ENABLED(FT_MOTION_MENU)
-    const bool is_busy = printer_busy();
-  #endif
 
   START_MENU();
 
@@ -494,7 +516,7 @@ void menu_motion() {
   // M493 - Fixed-Time Motion
   //
   #if ENABLED(FT_MOTION_MENU)
-    if (!is_busy) SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
   #endif
 
   //
