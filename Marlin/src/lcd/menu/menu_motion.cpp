@@ -409,7 +409,7 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    menu_ftm_get_msg_strings();
+    ftm_menu_get_msg_strings();
 
     START_MENU();
     BACK_ITEM(MSG_MOTION);
