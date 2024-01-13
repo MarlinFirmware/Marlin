@@ -40,6 +40,7 @@
 #include "../../../MarlinCore.h"
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
+#include "../../../libs/numtostr.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 #include "../../../module/motion.h"
@@ -552,26 +553,27 @@ void drawPrintLabels() {
   }
 }
 
-static uint8_t _percent_done = 242;
+static uint8_t _percent_done = 100;
 void drawPrintProgressBar() {
   DWINUI::drawIconWB(ICON_Bar, 15, 93);
   dwinDrawRectangle(1, hmiData.colorBarfill, 15 + (_percent_done * 242) / 100, 93, 257, 113);
-  DWINUI::drawInt(hmiData.colorPercentTxt, hmiData.colorBackground, 3, 117, 133, _percent_done);
-  DWINUI::drawString(hmiData.colorPercentTxt, 142, 133, F("%"));
+  DWINUI::drawString(hmiData.colorPercentTxt, hmiData.colorBackground, 117, 133, pcttostrpctrj(_percent_done));
 }
 
 duration_t _printtime = print_job_timer.duration();
 void drawPrintProgressElapsed() {
-  MString<14> buf;
-  buf.setf(F("%02i:%02i "), uint16_t(_printtime.hour()), uint16_t(_printtime.minute()));
-  DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 47, 192, buf);
+  char buf[10];
+  const bool has_days = (_printtime.value > 60*60*24L);
+  _printtime.toDigital(buf, has_days);
+  DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 56, 192, buf);
 }
 
 #if ENABLED(SHOW_REMAINING_TIME)
   duration_t _remain_time = 0;
   void drawPrintProgressRemain() {
-    MString<14> buf;
-    buf.setf(F("%02i:%02i "), uint16_t(_remain_time.hour()), uint16_t(_remain_time.minute()));
+    char buf[10];
+    const bool has_days = (_remain_time.value > 60*60*24L);
+    _remain_time.toDigital(buf, has_days);
     DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 181, 192, buf);
   }
 #endif
@@ -1336,8 +1338,10 @@ void eachMomentUpdate() {
     if (checkkey == ID_PrintProcess) { // Print process
 
       // Progress percent
-      _percent_done = card.percentDone();
-      drawPrintProgressBar();
+      if (_percent_done != card.percentDone()) {
+        _percent_done = card.percentDone();
+        drawPrintProgressBar();
+      }
 
       // Remaining time
       #if ENABLED(SHOW_REMAINING_TIME)
@@ -1360,8 +1364,8 @@ void eachMomentUpdate() {
       }
     #endif
 
-    dwinUpdateLCD();
   }
+  dwinUpdateLCD();
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
