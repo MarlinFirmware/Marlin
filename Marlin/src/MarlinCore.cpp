@@ -671,6 +671,25 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
+  #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL)
+    #if defined(PS_ON_EDM_PIN)
+      if(ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE))
+      {
+        if(READ(PS_ON_PIN)!=READ(PS_ON_EDM_PIN))
+          kill(GET_TEXT_F(PS_ON_EDM_FAIL));
+      }
+    #endif
+
+    #if defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT)
+      if(ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE))
+      {
+        if(READ(PS_ON1_PIN)!=READ(PS_ON1_EDM_PIN))
+          kill(GET_TEXT_F(PS_ON1_EDM_FAIL));
+      }
+
+    #endif
+  #endif
+
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))

@@ -60,6 +60,10 @@ bool Power::psu_on;
   millis_t Power::lastPowerOn;
 #endif
 
+#if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+  static millis_t Power::last_state_change_ms = 0;
+#endif
+
 /**
  * Initialize pins & state for the power manager.
  *
@@ -87,6 +91,16 @@ void Power::power_on() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
+  #if ENABLED(PSU_OFF_REDUNDANT)
+    #if (ENABLED(PSU_OFF_REDUNDANT_OPPOSING))
+      OUT_WRITE(PS_ON1_PIN, !PSU_ACTIVE_STATE);
+    #else
+      OUT_WRITE(PS_ON1_PIN, PSU_ACTIVE_STATE);
+    #endif
+  #endif
+  #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+    last_state_change_ms = millis();
+  #endif
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
   restore_stepper_drivers();
@@ -117,6 +131,17 @@ void Power::power_off() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
+  #if ENABLED(PSU_OFF_REDUNDANT)
+    #if (ENABLED(PSU_OFF_REDUNDANT_OPPOSING))
+      OUT_WRITE(PS_ON1_PIN, PSU_ACTIVE_STATE);
+    #else
+      OUT_WRITE(PS_ON1_PIN, !PSU_ACTIVE_STATE);
+    #endif
+  #endif
+  #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+    last_state_change_ms = millis();
+  #endif
+
   psu_on = false;
 
   #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
