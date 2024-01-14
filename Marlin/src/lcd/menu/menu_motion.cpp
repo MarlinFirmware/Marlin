@@ -464,7 +464,6 @@ void menu_move() {
   }
 
   void menu_tune_ft_motion() {
-    ft_config_t &c = ftMotion.cfg;
 
     ftm_menu_get_msg_strings();
 
@@ -476,7 +475,7 @@ void menu_move() {
       MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
     #endif
     #if HAS_EXTRUDERS
-      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
     #endif
 
     END_MENU();
