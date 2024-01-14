@@ -3309,6 +3309,77 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
+// TMC Hybrod Threshold
+#ifdef HYBRID_THRESHOLD
+  #if defined(X_HYBRID_THRESHOLD) && (X_HYBRID_THRESHOLD == 0)
+    #error "X_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(X2_HYBRID_THRESHOLD) && (X2_HYBRID_THRESHOLD == 0)
+    #error "X2_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Y_HYBRID_THRESHOLD) && (Y_HYBRID_THRESHOLD == 0)
+    #error "Y_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Y2_HYBRID_THRESHOLD) && (Y2_HYBRID_THRESHOLD == 0)
+    #error "Y2_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Z_HYBRID_THRESHOLD) && (Z_HYBRID_THRESHOLD == 0)
+    #error "Z_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Z2_HYBRID_THRESHOLD) && (Z2_HYBRID_THRESHOLD == 0)
+    #error "Z2_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Z3_HYBRID_THRESHOLD) && (Z3_HYBRID_THRESHOLD == 0)
+    #error "Z3_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(Z4_HYBRID_THRESHOLD) && (Z4_HYBRID_THRESHOLD == 0)
+    #error "Z4_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(I_HYBRID_THRESHOLD) && (I_HYBRID_THRESHOLD == 0)
+    #error "I_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(J_HYBRID_THRESHOLD) && (J_HYBRID_THRESHOLD == 0)
+    #error "J_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(K_HYBRID_THRESHOLD) && (K_HYBRID_THRESHOLD == 0)
+    #error "K_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(U_HYBRID_THRESHOLD) && (U_HYBRID_THRESHOLD == 0)
+    #error "U_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(V_HYBRID_THRESHOLD) && (V_HYBRID_THRESHOLD == 0)
+    #error "V_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(W_HYBRID_THRESHOLD) && (W_HYBRID_THRESHOLD == 0)
+    #error "W_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E0_HYBRID_THRESHOLD) && (E0_HYBRID_THRESHOLD == 0)
+    #error "E0_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E1_HYBRID_THRESHOLD) && (E1_HYBRID_THRESHOLD == 0)
+    #error "E1_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E2_HYBRID_THRESHOLD) && (E2_HYBRID_THRESHOLD == 0)
+    #error "E2_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E3_HYBRID_THRESHOLD) && (E3_HYBRID_THRESHOLD == 0)
+    #error "E3_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E4_HYBRID_THRESHOLD) && (E4_HYBRID_THRESHOLD == 0)
+    #error "E4_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E5_HYBRID_THRESHOLD) && (E5_HYBRID_THRESHOLD == 0)
+    #error "E5_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E6_HYBRID_THRESHOLD) && (E6_HYBRID_THRESHOLD == 0)
+    #error "E6_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+  #if defined(E7_HYBRID_THRESHOLD) && (E7_HYBRID_THRESHOLD == 0)
+    #error "E7_HYBRID_THRESHOLD cannot be set to zero"
+  #endif
+#endif
+
+
 /**
  * TMC SPI Chaining
  */
