@@ -61,7 +61,7 @@ bool Power::psu_on;
 #endif
 
 #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
-  static millis_t Power::last_state_change_ms = 0;
+  millis_t Power::last_state_change_ms = 0;
 #endif
 
 /**
