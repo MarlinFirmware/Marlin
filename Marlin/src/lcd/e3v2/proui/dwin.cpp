@@ -565,7 +565,7 @@ void drawPrintProgressElapsed() {
   char buf[10];
   const bool has_days = (_printtime.value > 60*60*24L);
   _printtime.toDigital(buf, has_days);
-  DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 56, 192, buf);
+  DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 45, 192, buf);
 }
 
 #if ENABLED(SHOW_REMAINING_TIME)
