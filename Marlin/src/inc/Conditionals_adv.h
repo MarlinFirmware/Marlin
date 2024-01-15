@@ -1357,6 +1357,6 @@
 #endif
 
 // Power-Loss Recovery
-#if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
+#if defined(PLR_BED_THRESHOLD)
   #define HAS_PLR_BED_THRESHOLD 1
 #endif

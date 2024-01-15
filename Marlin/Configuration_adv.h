@@ -1746,9 +1746,9 @@
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define PLR_ENABLED_DEFAULT       false // Power-Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
-    //#define PLR_BED_THRESHOLD BED_MAXTEMP // (°C) Skip user confirmation at or above this bed temperature (0 to disable)
-
-    //#define POWER_LOSS_PIN             44 // Pin to detect power-loss. Set to -1 to disable default pin on boards without module, or comment to use board default.
+    #if TEMP_SENSOR_BED
+      #define PLR_BED_THRESHOLD           0 // (°C) Skip user confirmation at or above this bed temperature (0 to disable)
+    #endif
     //#define POWER_LOSS_STATE         HIGH // State of pin indicating power-loss
     //#define POWER_LOSS_PULLUP             // Set pullup / pulldown as appropriate for your sensor
     //#define POWER_LOSS_PULLDOWN
