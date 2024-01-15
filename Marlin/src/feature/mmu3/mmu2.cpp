@@ -1159,6 +1159,12 @@ void __attribute__((noinline)) MMU2::HelpUnloadToFinda() {
 }
 
 void MMU2::OnMMUProgressMsgSame(ProgressCode pc) {
+  const uint8_t pulley_slow_feedrate = logic.PulleySlowFeedRate();
+  const float extrude_distance = _MIN(
+    _MAX(EXTRUDE_MAXLENGTH - 1, 1),
+    pulley_slow_feedrate
+  );
+
   switch (pc) {
   case ProgressCode::UnloadingToFinda:
     if (unloadFilamentStarted && !planner_any_moves()) { // Only plan a move if there is no move ongoing
@@ -1190,19 +1196,16 @@ void MMU2::OnMMUProgressMsgSame(ProgressCode pc) {
         break;
       case FilamentState::NOT_PRESENT:
         // fsensor not triggered, continue moving extruder
-        // if (!planner_any_moves()) { // Only plan a move if there is no move ongoing
-        //     // Plan a very long move, where 'very long' is hundreds
-        //     // of millimeters. Keep in mind though the move can't be much longer
-        //     // than 450mm because the firmware will ignore too long extrusions
-        //     // for safety reasons. See PREVENT_LENGTHY_EXTRUDE.
-        //     // Use 350mm to be safely away from the prevention threshold
-        //     // extruder_move(350.0f, logic.PulleySlowFeedRate());
-        // }
-        // Instead of doing a very long extrude as PrusaFirmware is doing,
-        // I think Marlin's own MMU2s code has a better approach to this
-        // by spinning the extruder indefinitelly...
+        //
+        // Instead of doing a very long extrude as in PrusaFirmware,
+        // Marlin's own MMU2s code has a better approach to this by spinning
+        // the extruder indefinitelly...
+        //
+        // this ensures that while the MMU is pushing the filament,
+        // the extruder will keep rotating, preventing the filament to hit
+        // the extruder gears...
         while (planner.movesplanned() < 3) {
-          extruder_move(2.5, logic.PulleySlowFeedRate(), false);
+          extruder_move(extrude_distance, pulley_slow_feedrate, false);
         }
         break;
       default:
