@@ -37,6 +37,10 @@
 
 bool PrintJobRecovery::enabled; // Initialized by settings.load()
 
+#if HAS_PLR_BED_THRESHOLD
+  celsius_t PrintJobRecovery::bed_temp_threshold; // Initialized by settings.load()
+#endif
+
 MediaFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
 const char PrintJobRecovery::filename[5] = "/PLR";
@@ -219,15 +223,13 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       #endif
     #endif
 
-    #if HAS_EXTRUDERS
+    #if HAS_HOTEND
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
     TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
 
-    #if HAS_FAN
-      COPY(info.fan_speed, thermalManager.fan_speed);
-    #endif
+    TERN_(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
 
     #if HAS_LEVELING
       info.flag.leveling = planner.leveling_active;
@@ -356,7 +358,9 @@ void PrintJobRecovery::write() {
  * Resume the saved print job
  */
 void PrintJobRecovery::resume() {
-  const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
+  // Get these fields before any moves because stepper.cpp overwrites them
+  const xyze_pos_t resume_pos = info.current_position;
+  const uint32_t resume_sdpos = info.sdpos;
 
   // Apply the dry-run flag if enabled
   if (info.flag.dryrun) marlin_debug_flags |= MARLIN_DEBUG_DRYRUN;
@@ -398,7 +402,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = info.current_position.z,
+  const float z_print = resume_pos.z,
               z_raised = z_print + info.zraise;
 
   //
@@ -538,7 +542,7 @@ void PrintJobRecovery::resume() {
 
   // Move back over to the saved XY
   PROCESS_SUBCOMMANDS_NOW(TS(
-    F("G1F3000X"), p_float_t(info.current_position.x, 3), 'Y', p_float_t(info.current_position.y, 3)
+    F("G1F3000X"), p_float_t(resume_pos.x, 3), 'Y', p_float_t(resume_pos.y, 3)
   ));
 
   // Move back down to the saved Z for printing
@@ -548,7 +552,7 @@ void PrintJobRecovery::resume() {
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
 
   // Restore E position with G92.9
-  PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(info.current_position.e, 3)));
+  PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
@@ -583,9 +587,10 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
         #if ENABLED(GCODE_REPEAT_MARKERS)
-          DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.index);
-          for (uint8_t i = 0; i < info.stored_repeat.index; ++i)
-            DEBUG_ECHOLNPGM("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
+          const uint8_t ind = info.stored_repeat.count();
+          DEBUG_ECHOLNPGM("repeat markers: ", ind);
+          for (uint8_t i = ind; i--;)
+            DEBUG_ECHOLNPGM("...", i, " sdpos: ", info.stored_repeat.get_marker_sdpos(i), " count: ", info.stored_repeat.get_marker_counter(i));
         #endif
 
         #if HAS_HOME_OFFSET
@@ -672,7 +677,9 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPGM("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
         DEBUG_ECHOLNPGM("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
-        DEBUG_ECHOLNPGM("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
+        #if DISABLED(NO_VOLUMETRICS)
+          DEBUG_ECHOLNPGM("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
+        #endif
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");

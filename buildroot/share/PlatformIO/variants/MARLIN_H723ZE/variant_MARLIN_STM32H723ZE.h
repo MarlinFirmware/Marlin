@@ -129,6 +129,8 @@
 #define PH1                     111
 #define PC2_C                   PIN_A26
 #define PC3_C                   PIN_A27
+#define PC2                     PC2_C
+#define PC3                     PC3_C
 
 // Alternate pins number
 #define PA0_ALT1                (PA0  | ALT1)
@@ -197,9 +199,10 @@
 #define PF9_ALT2                (PF9  | ALT2)
 #define PG13_ALT1               (PG13 | ALT1)
 
-#define NUM_DIGITAL_PINS        114
+#define NUM_DIGITAL_PINS        116
 #define NUM_DUALPAD_PINS        2
-#define NUM_ANALOG_INPUTS       28
+#define NUM_ANALOG_INPUTS       30
+#define NUM_ANALOG_FIRST        PA0
 
 // On-board LED pin number
 #ifndef LED_BUILTIN

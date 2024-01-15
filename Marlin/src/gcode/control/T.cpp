@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_TOOLCHANGE
+
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
@@ -71,8 +75,10 @@ void GcodeSuite::T(const int8_t tool_index) {
 
   tool_change(tool_index
     #if HAS_MULTI_EXTRUDER
-      ,  TERN(PARKING_EXTRUDER, false, tool_index == active_extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
-      || parser.boolval('S')
+      , parser.boolval('S')
+        || TERN(PARKING_EXTRUDER, false, tool_index == active_extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
     #endif
   );
 }
+
+#endif // HAS_TOOLCHANGE

@@ -64,6 +64,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+
   DEBUG_SECTION(log_G29, "G29", true);
 
   // G29 Q is also available if debugging

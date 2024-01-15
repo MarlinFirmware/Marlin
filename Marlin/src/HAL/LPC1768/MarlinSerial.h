@@ -30,16 +30,6 @@
 #endif
 #include "../../core/serial_hook.h"
 
-#ifndef SERIAL_PORT
-  #define SERIAL_PORT 0
-#endif
-#ifndef RX_BUFFER_SIZE
-  #define RX_BUFFER_SIZE 128
-#endif
-#ifndef TX_BUFFER_SIZE
-  #define TX_BUFFER_SIZE 32
-#endif
-
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:
   MarlinSerial(LPC_UART_TypeDef *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) { }

@@ -35,10 +35,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -92,7 +88,7 @@ void ac_cleanup() {
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
-  SERIAL_ECHO(F("  "), prefix, AS_CHAR(':'));
+  SERIAL_ECHO(F("  "), prefix, C(':'));
   serial_offset(f);
 }
 
@@ -459,9 +455,8 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
-  PGM_P const checkingac = PSTR("Checking... AC");
-  SERIAL_ECHOPGM_P(checkingac);
-  SERIAL_ECHOPGM(" at radius:", dcr);
+  FSTR_P const checkingac = F("Checking... AC");
+  SERIAL_ECHO(checkingac, F(" at radius:"), dcr);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status(checkingac);
