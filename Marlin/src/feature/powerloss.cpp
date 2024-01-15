@@ -138,6 +138,14 @@ bool PrintJobRecovery::check() {
 }
 
 /**
+ * Cancel recovery
+ */
+void PrintJobRecovery::cancel() {
+  TERN_(PLR_HEAT_BED_ON_REBOOT, set_bed_temp(false));
+  purge();
+}
+
+/**
  * Delete the recovery file and clear the recovery data
  */
 void PrintJobRecovery::purge() {
@@ -354,6 +362,14 @@ void PrintJobRecovery::write() {
   if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
   if (!file.close()) DEBUG_ECHOLNPGM("Power-loss file close failed.");
 }
+
+#if ENABLED(PLR_HEAT_BED_ON_REBOOT)
+void PrintJobRecovery::set_bed_temp(bool turn_on) {
+    // Set the bed temperature
+  const celsius_t bt = turn_on ? info.target_temperature_bed + PLR_HEAT_BED_RAISE: 0;
+  PROCESS_SUBCOMMANDS_NOW(TS(F("M190S"), bt));
+}
+#endif
 
 /**
  * Resume the saved print job
