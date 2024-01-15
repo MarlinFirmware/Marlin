@@ -125,6 +125,36 @@ bool OperationStatistics::reset_per_print_stats(){
 
 
 /**
+ * Reset fail statistics and update EEPROM.
+ * 
+ * This will keep the tool change counter change counters and delete anything
+ * else.
+ * 
+ * @returns true if everything went okay, false otherwise.
+*/
+bool OperationStatistics::reset_fail_stats(){
+  // Update data
+  load_fail_num = 0;
+  load_fail_total_num = 0;
+  fail_num = 0;
+  fail_total_num = 0;
+
+  #if ENABLED(EEPROM_SETTINGS)
+  // Update EEPROM
+  persistentStore.access_start();
+  persistentStore.write_data(load_fail_num_addr, load_fail_num);
+  persistentStore.write_data(load_fail_total_num_addr, load_fail_total_num);
+  persistentStore.write_data(fail_num_addr, fail_num);
+  persistentStore.write_data(fail_total_num_addr, fail_total_num);
+  persistentStore.access_finish();
+  return settings.save();
+  #else
+  return true;
+  #endif
+}
+
+
+/**
  * Reset all operation statistics and update EEPROM.
  * 
  * @returns true if everything went okay, false otherwise.

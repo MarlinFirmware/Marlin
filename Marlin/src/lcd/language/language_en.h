@@ -792,7 +792,8 @@ namespace LanguageNarrow_en {
 
   LSTR MSG_MMU_FAIL_STATS                 = _UxGT("Fail stats");
   LSTR MSG_MMU_STATISTICS                 = _UxGT("Statistics");
-  LSTR MSG_MMU_RESET_STATS                = _UxGT("Reset Stats");
+  LSTR MSG_MMU_RESET_FAIL_STATS           = _UxGT("Reset Fail Stats");
+  LSTR MSG_MMU_RESET_STATS                = _UxGT("Reset All Stats");
   LSTR MSG_MMU_LAST_PRINT                 = _UxGT("Last print");
   LSTR MSG_MMU_LAST_PRINT_FAILURES        = _UxGT("Last print failures");
   LSTR MSG_MMU_TOTAL                      = _UxGT("Total");

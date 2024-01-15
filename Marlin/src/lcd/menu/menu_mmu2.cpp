@@ -42,6 +42,7 @@
 //
 
 inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
+  ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
   #if HAS_PRUSA_MMU3
@@ -53,6 +54,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
 }
 
 void _mmu2_load_to_feeder(const uint8_t tool) {
+  ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
 
@@ -66,7 +68,6 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
 
 void action_mmu2_load_all() {
   EXTRUDER_LOOP() _mmu2_load_to_feeder(e);
-  ui.return_to_status();
 }
 
 void menu_mmu2_load_filament() {
@@ -113,12 +114,17 @@ void action_mmu2_unload_filament() {
   ui.return_to_status();
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
   #if HAS_PRUSA_MMU3
-    MMU2::marlin_idle(false);
-    if (MMU2::mmu2.unload()) ui.reset_status();
+    while (!MMU2::mmu2.unload()){
+      safe_delay(500);
+      MMU2::marlin_idle(false);
+    }
   #else
-    idle();
-    if (mmu2.unload()) ui.reset_status();
+    while (!mmu2.unload()){
+      safe_delay(500);
+      idle();
+    }
   #endif
+  ui.reset_status();
 }
 
 void menu_mmu2_eject_filament() {
@@ -210,6 +216,12 @@ void menu_mmu2_dev_increment_load_fail_stat(){
 }
 #endif
 
+static void mmu2_reset_fail_stats(){
+  bool result = MMU2::operation_statistics.reset_fail_stats();
+  ui.go_back();
+  MarlinUI::completion_feedback(result);
+}
+
 static void mmu2_reset_stats(){
   bool result = MMU2::operation_statistics.reset_stats();
   ui.go_back();
@@ -244,6 +256,11 @@ void menu_mmu2_statistics() {
   SUBMENU(MSG_MMU_LAST_PRINT, menu_mmu2_fail_stats_last_print);
   SUBMENU(MSG_MMU_TOTAL, menu_mmu2_fail_stas_total);
   SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu2_toolchange_stat_total);
+  CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,
+    MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+    mmu2_reset_fail_stats, nullptr,
+    GET_TEXT_F(MSG_MMU_RESET_FAIL_STATS), (const char *)nullptr, F("?")
+  );
   CONFIRM_ITEM(MSG_MMU_RESET_STATS,
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
     mmu2_reset_stats, nullptr,

@@ -33,6 +33,7 @@ public:
   void increment_mmu_fails();
   void increment_tool_change_counter();
   bool reset_per_print_stats(); // Reset only the per print stats.
+  bool reset_fail_stats(); // Reset only fail stats and keep tool change counters
   bool reset_stats();  // Reset MMU stats and update EEPROM
 
   static uint16_t fail_total_num;                 // total failures
