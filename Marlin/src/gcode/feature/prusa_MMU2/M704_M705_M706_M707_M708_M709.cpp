@@ -116,8 +116,8 @@ Does nothing if the A parameter is not present or if MMU is not enabled.
 void GcodeSuite::M707() {
   if ( MMU2::mmu2.Enabled() ) {
     if( parser.seenval('A') ) {
-      uint16_t address = parser.longval('A', -1);
-      MMU2::mmu2.ReadRegister(uint8_t(address));
+      char *address = parser.stringval('A');
+      MMU2::mmu2.ReadRegister(uint8_t(strtol(address, NULL, 16)));
     }
   }
 }
@@ -143,7 +143,8 @@ void GcodeSuite::M708() {
   if ( MMU2::mmu2.Enabled() ){
     uint8_t addr = 0;
     if( parser.seenval('A') ) {
-      addr = parser.byteval('A', 0);
+      char *address = parser.stringval('A');
+      addr = uint8_t(strtol(address, NULL, 16));
     }
     uint16_t data = 0;
     if( parser.seenval('X') ) {
