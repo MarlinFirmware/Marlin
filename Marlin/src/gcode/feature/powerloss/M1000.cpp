@@ -65,6 +65,7 @@ inline void plr_error(FSTR_P const prefix) {
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
  *     ...unless the bed temperature is already above a configured minimum temperature.
+ *   - With 'C' execute a cancel selection
  *   - With no parameters, run recovery commands
  */
 void GcodeSuite::M1000() {

@@ -342,10 +342,10 @@ void onSettingsLoaded(const bool success) {
     // Called when power-loss state is detected
   }
   void onPowerLossResume() {
-    startprogress   = 254;
-    show_status     = true;
-    tpShowStatus    = false;
-    no_reentry  = false;
+    startprogress = 254;
+    show_status   = true;
+    tpShowStatus  = false;
+    no_reentry    = false;
     rts.sendData(ExchangePageBase + 76, ExchangepageAddr);
   }
 #endif
