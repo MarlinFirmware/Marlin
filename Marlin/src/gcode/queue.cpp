@@ -91,6 +91,10 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
+/**
+ * Commit the accumulated G-code command to the ring buffer,
+ * also setting its origin info.
+ */
 void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
