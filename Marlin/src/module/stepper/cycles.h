@@ -156,32 +156,25 @@
 #define _PLUS_AXIS_CYCLES(A) + (ISR_##A##_STEPPER_CYCLES)
 #define MIN_ISR_LOOP_CYCLES (ISR_MIXING_STEPPER_CYCLES LOGICAL_AXIS_MAP(_PLUS_AXIS_CYCLES))
 
-// Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) _MAX(uint32_t((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
-#if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(uint32_t(MINIMUM_STEPPER_PULSE))
-#elif HAS_DRIVER(LV8729)
-  #define MIN_STEPPER_PULSE_CYCLES uint32_t((((F_CPU) - 1) / 2000000) + 1) // 0.5µs, aka 500ns
-#else
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
-#endif
-
 // Calculate the minimum pulse times (high and low)
-#if MINIMUM_STEPPER_PULSE && MAXIMUM_STEPPER_RATE
+#if defined(MINIMUM_STEPPER_PULSE_NS) && defined(MAXIMUM_STEPPER_RATE)
   constexpr uint32_t _MIN_STEP_PERIOD_NS = 1000000000UL / MAXIMUM_STEPPER_RATE;
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
+  constexpr uint32_t _MIN_PULSE_HIGH_NS = MINIMUM_STEPPER_PULSE_NS;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MAX((_MIN_STEP_PERIOD_NS - _MIN(_MIN_STEP_PERIOD_NS, _MIN_PULSE_HIGH_NS)), _MIN_PULSE_HIGH_NS);
-#elif MINIMUM_STEPPER_PULSE
-  // Assume 50% duty cycle
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
+#elif defined(MINIMUM_STEPPER_PULSE_NS)
+  // Assume equal high and low pulse durations
+  constexpr uint32_t _MIN_PULSE_HIGH_NS = MINIMUM_STEPPER_PULSE_NS;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
-#elif MAXIMUM_STEPPER_RATE
-  // Assume 50% duty cycle
+#elif defined(MAXIMUM_STEPPER_RATE)
+  // Assume equal high and low pulse durations
   constexpr uint32_t _MIN_PULSE_HIGH_NS = 500000000UL / MAXIMUM_STEPPER_RATE;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
 #else
-  #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
+  #error "At least one of MINIMUM_STEPPER_PULSE_NS or MAXIMUM_STEPPER_RATE must be defined"
 #endif
+
+// Calculate the minimum MPU cycles needed per pulse to enforce
+constexpr uint32_t MIN_STEPPER_PULSE_CYCLES = _MIN_PULSE_HIGH_NS * CYCLES_PER_MICROSECOND / 1000;
 
 // The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
 // between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:

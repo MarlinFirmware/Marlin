@@ -1723,7 +1723,7 @@ void Stepper::isr() {
   #endif
 }
 
-#if MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE
+#if MINIMUM_STEPPER_PULSE_NS || MAXIMUM_STEPPER_RATE
   #define ISR_PULSE_CONTROL 1
 #endif
 #if ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM)
@@ -2068,7 +2068,7 @@ void Stepper::pulse_phase_isr() {
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
-    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
+    // TODO: need to deal with MINIMUM_STEPPER_PULSE_NS over i2s
     #if ISR_MULTI_STEPS
       START_TIMED_PULSE();
       AWAIT_HIGH_PULSE();
@@ -3696,8 +3696,8 @@ void Stepper::report_positions() {
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _APPLY_DIR(AXIS, FWD) AXIS ##_APPLY_DIR(FWD, true)
 
-  #if MINIMUM_STEPPER_PULSE
-    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #if MINIMUM_STEPPER_PULSE_NS
+    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE_NS) * CYCLES_PER_MICROSECOND / 1000)
   #else
     #define STEP_PULSE_CYCLES 0
   #endif
@@ -3720,7 +3720,7 @@ void Stepper::report_positions() {
   #else
     #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
-      #define _PULSE_WAIT() DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
+      #define _PULSE_WAIT() DELAY_CYCLES(EXTRA_CYCLES_BABYSTEP)
     #elif ENABLED(DELTA)
       #define _PULSE_WAIT() DELAY_US(2);
     #elif STEP_PULSE_CYCLES > 0
