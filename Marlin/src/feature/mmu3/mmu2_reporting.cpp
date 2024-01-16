@@ -603,21 +603,6 @@ void TryLoadUnloadReporter::DumpToSerial(){
   MMU2_ECHO_MSGLN(buf);
 }
 
-/// Disables MMU in EEPROM
-// void DisableMMUInSettings() {
-//   mmu2.mmu_hw_enabled = false;
-
-//   #if ENABLED(EEPROM_SETTINGS)
-//   // save mmu_hw_enabled to eeprom
-//   persistentStore.access_start();
-//   persistentStore.write_data(mmu2.mmu_hw_enabled_addr, mmu2.mmu_hw_enabled);
-//   persistentStore.access_finish();
-//   settings.save();
-//   #endif
-
-//   mmu2.Status();
-// }
-
 void IncrementLoadFails(){
   operation_statistics.increment_load_fails();
 }

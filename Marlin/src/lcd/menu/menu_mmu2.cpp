@@ -176,7 +176,11 @@ void menu_mmu2_fail_stats_last_print(){
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
 
   START_SCREEN();
-  STATIC_ITEM(MSG_MMU_LAST_PRINT_FAILURES, SS_INVERT);
+  if(printJobOngoing()){
+    STATIC_ITEM(MSG_MMU_CURRENT_PRINT_FAILURES, SS_INVERT);
+  } else {
+    STATIC_ITEM(MSG_MMU_LAST_PRINT_FAILURES, SS_INVERT);
+  }
   #ifndef __AVR__
   // TODO: I couldn't make this work on AVR
   PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
@@ -240,7 +244,11 @@ void menu_mmu2_toolchange_stat_total(){
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
   #ifndef __AVR__
   // TODO: I couldn't make this work on AVR
-  PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
+  if(printJobOngoing()){
+    PSTRING_ITEM(MSG_MMU_CURRENT_PRINT, buffer1, SS_FULL);
+  } else {
+    PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
+  }
   PSTRING_ITEM(MSG_MMU_TOTAL, buffer2, SS_FULL);
   #endif
   END_SCREEN();
@@ -253,8 +261,13 @@ void menu_mmu2_statistics() {
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_FAILS, menu_mmu2_dev_increment_fail_stat);
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu2_dev_increment_load_fail_stat);
   #endif
-  SUBMENU(MSG_MMU_LAST_PRINT, menu_mmu2_fail_stats_last_print);
-  SUBMENU(MSG_MMU_TOTAL, menu_mmu2_fail_stas_total);
+
+  if(printJobOngoing()){
+    SUBMENU(MSG_MMU_CURRENT_PRINT_FAILURES, menu_mmu2_fail_stats_last_print);
+  } else {
+    SUBMENU(MSG_MMU_LAST_PRINT_FAILURES, menu_mmu2_fail_stats_last_print);
+  }
+  SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu2_fail_stas_total);
   SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu2_toolchange_stat_total);
   CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
@@ -288,7 +301,7 @@ void action_mmu2_reset() {
 }
 
 void menu_mmu2() {
-  const bool busy = printingIsActive();
+  const bool busy = printJobOngoing(); // printingIsActive();
 
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
