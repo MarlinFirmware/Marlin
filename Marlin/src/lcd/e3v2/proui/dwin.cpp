@@ -198,7 +198,7 @@ typedef struct {
 select_t select_page{0}, select_print{0};
 
 #if ENABLED(LCD_BED_TRAMMING)
-  constexpr float bed_tramming_inset_lfbr[] = BED_TRAMMING_INSET_LFRB;
+  constexpr float lfrb[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
 bool hash_changed = true; // Flag to know if message status was changed
@@ -973,7 +973,7 @@ void onClickSDItem() {
     }
     else if ((selected >= 1 + hasUpDir) && (shift_len > MENU_CHAR_LIMIT)) {
       uint8_t shift_new = _MIN(shift_amt + 1, shift_len - MENU_CHAR_LIMIT); // Try to shift by...
-      drawSDItemShifted(shift_new);             // Draw the item
+      drawSDItemShifted(shift_new);               // Draw the item
       if (shift_new == shift_amt)                 // Scroll reached the end
         shift_new = -1;                           // Reset
       shift_amt = shift_new;                      // Set new scroll
@@ -989,7 +989,7 @@ void onClickSDItem() {
 void onDrawFileName(MenuItem* menuitem, int8_t line) {
   const bool is_subdir = !card.flag.workDirIsRoot;
   if (is_subdir && menuitem->pos == 1) {
-    drawMenuLine(line, ICON_Folder, "..");
+    drawMenuLine(line, ICON_ReadEEPROM, ".. Back");
   }
   else {
     uint8_t icon;
@@ -1004,7 +1004,7 @@ void drawPrintFileMenu() {
   checkkey = ID_Menu;
   if (card.isMounted()) {
     if (SET_MENU(fileMenu, MSG_MEDIA_MENU, nr_sd_menu_items() + 1)) {
-      BACK_ITEM(gotoMainMenu);
+      menuItemAdd(ICON_Back, F("Exit to Main Menu"), onDrawMenuItem, gotoMainMenu);
       for (uint8_t i = 0; i < nr_sd_menu_items(); ++i)
         menuItemAdd(onDrawFileName, onClickSDItem);
     }
@@ -2037,6 +2037,7 @@ void gotoConfirmToPrint() {
 
   void writeEEPROM() {
     dwinDrawStatusLine(GET_TEXT_F(MSG_STORE_EEPROM));
+    safe_delay(500);
     dwinUpdateLCD();
     DONE_BUZZ(settings.save());
   }
@@ -2054,7 +2055,10 @@ void gotoConfirmToPrint() {
   }
 
   #if HAS_MESH
-    void saveMesh() { TERN(AUTO_BED_LEVELING_UBL, ublMeshSave(), writeEEPROM()); }
+    void saveMesh() {
+      TERN_(MESH_BED_LEVELING, manualMeshSave();)
+      TERN(AUTO_BED_LEVELING_UBL, ublMeshSave(), writeEEPROM());
+    }
   #endif
 
 #endif // EEPROM_SETTINGS
@@ -2360,28 +2364,29 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
     switch (point) {
       case 0:
         LCD_MESSAGE(MSG_TRAM_FL);
-        x = bed_tramming_inset_lfbr[0];
-        y = bed_tramming_inset_lfbr[1];
+        x = lfrb[0];
+        y = lfrb[1];
         break;
       case 1:
         LCD_MESSAGE(MSG_TRAM_FR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = bed_tramming_inset_lfbr[1];
+        x = X_BED_SIZE - lfrb[2];
+        y = lfrb[1];
         break;
       case 2:
         LCD_MESSAGE(MSG_TRAM_BR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = X_BED_SIZE - lfrb[2];
+        y = Y_BED_SIZE - lfrb[3];
         break;
       case 3:
         LCD_MESSAGE(MSG_TRAM_BL);
-        x = bed_tramming_inset_lfbr[0];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = lfrb[0];
+        y = Y_BED_SIZE - lfrb[3];
         break;
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
         case 4:
           LCD_MESSAGE(MSG_TRAM_C);
-          x = X_CENTER; y = Y_CENTER;
+          x = X_CENTER;
+          y = Y_CENTER;
           break;
       #endif
     }
@@ -2443,15 +2448,20 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   #endif
 
-  #if ALL(HAS_BED_PROBE, HAS_MESH, HAS_TRAMMING_WIZARD)
+  #if HAS_TRAMMING_WIZARD
 
     void trammingwizard() {
       if (hmiData.fullManualTramming) {
         LCD_MESSAGE_F("Disable manual tramming");
         return;
       }
+      else LCD_MESSAGE_F("Tramming Wizard Start");
+      DWINUI::clearMainArea();
+      meshViewer.drawMeshGrid(2, 2); // Indicate start. Draw the grid
       bed_mesh_t zval = {0};
+      probe.stow();
       zval[0][0] = tram(0);
+      if (checkkey == ID_Homing) meshViewer.drawMeshGrid(2, 2); // Redraw if Homing
       checkkey = ID_NothingToDo;
       meshViewer.drawMesh(zval, 2, 2);
       zval[1][0] = tram(1);
@@ -2459,6 +2469,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       zval[1][1] = tram(2);
       meshViewer.drawMesh(zval, 2, 2);
       zval[0][1] = tram(3);
+      probe.stow();
       meshViewer.drawMesh(zval, 2, 2);
 
       DWINUI::drawCenteredString(140, F("Calculating average"));
@@ -2472,16 +2483,17 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       ui.reset_status();
 
       #ifndef BED_TRAMMING_PROBE_TOLERANCE
-        #define BED_TRAMMING_PROBE_TOLERANCE 0.05
+        #define BED_TRAMMING_PROBE_TOLERANCE 0.05f
       #endif
 
       if (ABS(meshViewer.max - meshViewer.min) < BED_TRAMMING_PROBE_TOLERANCE) {
+        EXIT_TRAMWIZ:
         DWINUI::drawCenteredString(140, F("Corners leveled"));
         DWINUI::drawCenteredString(160, F("Tolerance achieved!"));
       }
       else {
         uint8_t p = 0;
-        float max = 0;
+        float max = 0.0f;
         FSTR_P plabel;
         bool s = true;
         for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) {
@@ -2491,6 +2503,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
             max = d;
             p = x + 2 * y;
           }
+          else { goto EXIT_TRAMWIZ; } // fail-safe if Corners are = 0.00
         }
         switch (p) {
           case 0b00 : plabel = GET_TEXT_F(MSG_TRAM_FL); break;
@@ -2501,7 +2514,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
         }
         DWINUI::drawCenteredString(120, F("Corners not leveled"));
         DWINUI::drawCenteredString(140, F("Knob adjustment required"));
-        DWINUI::drawCenteredString(COLOR_GREEN, 160, s ? F("Lower") : F("Raise"));
+        DWINUI::drawCenteredString((s ? COLOR_GREEN : COLOR_ERROR_RED), 160, (s ? F("Lower") : F("Raise")));
         DWINUI::drawCenteredString(COLOR_GREEN, 180, plabel);
       }
       DWINUI::drawButton(BTN_Continue, 86, 305);
@@ -2544,7 +2557,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   void manualMeshSave() {
     LCD_MESSAGE(MSG_UBL_STORAGE_MESH_MENU);
-    queue.inject(F("M211S1\nM500"));
+    queue.inject(F("M211S1"));
   }
 
 #endif // MESH_BED_LEVELING
@@ -3581,7 +3594,7 @@ void drawFilamentManMenu() {
       mMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MOVE_Z, onDrawMMeshMoveZ, setMMeshMoveZ, &current_position.z);
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
-      MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
+      MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, saveMesh);
     }
     updateMenu(manualMeshMenu);
   }
@@ -4026,23 +4039,16 @@ void drawMaxAccelMenu() {
   #endif
 
   #if ENABLED(PROUI_MESH_EDIT)
-    void manualResetValue() {
-      gcode.process_subcommands_now(
-        TS(F("M421I"), bedLevelTools.mesh_x, 'J', bedLevelTools.mesh_y, 'Z', p_float_t(0, 3))
-      );
-      planner.synchronize();
-    }
-
     bool autoMovToMesh = false;
     void setAutoMovToMesh() { toggleCheckboxLine(autoMovToMesh); }
 
     void liveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
+    void liveEditMeshZ() { *menuData.floatPtr = menuData.value / POW(10, 2); if (autoMovToMesh) bedLevelTools.moveToZ(); }
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; if (autoMovToMesh) bedLevelTools.moveToXY(); }
-    void zeroMesh() { manualResetValue(); editZValueItem->redraw(); LCD_MESSAGE(MSG_MESH_RESET); }
+    void zeroPoint() { bedLevelTools.manualValueUpdate(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true); editZValueItem->redraw(); LCD_MESSAGE_F("Zero Current Point"); }
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
-    void liveEditMeshZ() { *menuData.floatPtr = menuData.value / POW(10, 2); if (autoMovToMesh) bedLevelTools.moveToZ(); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3, nullptr, liveEditMeshZ); if (autoMovToMesh) bedLevelTools.moveToXYZ(); }
   #endif
 
@@ -4106,7 +4112,7 @@ void drawMaxAccelMenu() {
       #endif
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, setUBLSlot, &bedlevel.storage_slot);
-        MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ublMeshSave);
+        MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, saveMesh);
         MENU_ITEM(ICON_UBLMeshLoad, MSG_UBL_LOAD_MESH, onDrawMenuItem, ublMeshLoad);
         EDIT_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILTING_GRID, onDrawPInt8Menu, setUBLTiltGrid, &bedLevelTools.tilt_grid);
         MENU_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILT_MESH, onDrawMenuItem, ublMeshTilt);
@@ -4136,7 +4142,7 @@ void drawMaxAccelMenu() {
         #if HAS_BED_PROBE
           MENU_ITEM_F(ICON_ProbeDeploy, "Probe for Z Value", onDrawMenuItem, bedLevelTools.probeXY);
         #endif
-        MENU_ITEM_F(ICON_SetZOffset, "Zero Current Point", onDrawMenuItem, zeroMesh);
+        MENU_ITEM_F(ICON_SetZOffset, "Zero Current Point", onDrawMenuItem, zeroPoint);
       }
       updateMenu(editMeshMenu);
     }
