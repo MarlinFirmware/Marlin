@@ -42,8 +42,11 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#if DISABLED(BACKUP_POWER_SUPPLY)
+  #undef POWER_LOSS_ZRAISE   // No Z raise at outage without backup power
+#endif
 #ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2
+  #define POWER_LOSS_ZRAISE 0
 #endif
 
 //#define DEBUG_POWER_LOSS_RECOVERY
