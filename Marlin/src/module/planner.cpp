@@ -1905,13 +1905,13 @@ bool Planner::_populate_block(
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
       #if HAS_X_AXIS
-        " A:", target.a, " (", dist.a, " steps)"
+        " " STR_A ":", target.a, " (", dist.a, " steps)"
       #endif
       #if HAS_Y_AXIS
-        " B:", target.b, " (", dist.b, " steps)"
+        " " STR_B ":", target.b, " (", dist.b, " steps)"
       #endif
       #if HAS_Z_AXIS
-        " C:", target.c, " (", dist.c, " steps)"
+        " " STR_C ":", target.c, " (", dist.c, " steps)"
       #endif
       #if HAS_I_AXIS
         " " STR_I ":", target.i, " (", dist.i, " steps)"
