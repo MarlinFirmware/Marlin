@@ -30,10 +30,6 @@
 
 #define DISPLAY_CHARSET_ISO10646_TR
 
-#ifndef PREHEAT_1_LABEL
-  #define PREHEAT_1_LABEL ""
-#endif
-
 namespace LanguageNarrow_tr {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -106,24 +102,24 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
 
-  LSTR MSG_PREHEAT_1                      = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-  LSTR MSG_PREHEAT_1_H                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
-  LSTR MSG_PREHEAT_1_END                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+  LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Ayar");
 
-  LSTR MSG_PREHEAT_M                      = _UxGT("Ön Isınma $");
-  LSTR MSG_PREHEAT_M_H                    = _UxGT("Ön Isınma $ ~");
-  LSTR MSG_PREHEAT_M_END                  = _UxGT("Ön Isınma $ Nozul");
-  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Ön Isınma $ Nozul ~");
-  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Ön Isınma $ Tüm");
-  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Ön Isınma $ Tabla");
-  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Ön Isınma $ Ayarlar");
+  LSTR MSG_PREHEAT_M                      = _UxGT("ÖnIsıtma $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("ÖnIsıtma $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("ÖnIsıtma $ Nozul");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("ÖnIsıtma $ Nozul ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("ÖnIsıtma $ Tüm");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("ÖnIsıtma $ Tabla");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("ÖnIsıtma $ Ayar");
 
-  LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Nozul Ön Isınma");
-  LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isınma");
+  LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Nozul Ön Isıtma");
+  LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isıtma");
   LSTR MSG_COOLDOWN                       = _UxGT("Soğut/(Durdur)");
 
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frekans");
@@ -325,7 +321,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Depolanan Fan ~");
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Ekstra Fan Hızı");
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Ekstra Fan Hızı ~");
-  LSTR MSG_CONTROLLER_FAN                 = _UxGT("Kontrolör Fanı");
+  LSTR MSG_CONTROLLER_FAN                 = _UxGT("Sistem Fan Kontrol");
   LSTR MSG_CONTROLLER_FAN_IDLE_SPEED      = _UxGT("Rölanti Hızı");
   LSTR MSG_CONTROLLER_FAN_AUTO_ON         = _UxGT("Otomatik Mod");
   LSTR MSG_CONTROLLER_FAN_SPEED           = _UxGT("Aktif Hız");
@@ -368,29 +364,29 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SELECT_E                       = _UxGT("Seç *");
   LSTR MSG_ACC                            = _UxGT("İvme");
   LSTR MSG_JERK                           = _UxGT("Sarsım");
-  LSTR MSG_VA_JERK                        = _UxGT("Max ") STR_A _UxGT(" Sarsım");
-  LSTR MSG_VB_JERK                        = _UxGT("Max ") STR_B _UxGT(" Sarsım");
-  LSTR MSG_VC_JERK                        = _UxGT("Max ") STR_C _UxGT(" Sarsım");
-  LSTR MSG_VN_JERK                        = _UxGT("Max @ Sarsım");
-  LSTR MSG_VE_JERK                        = _UxGT("Max E Sarsım");
+  LSTR MSG_VA_JERK                        = _UxGT("Max ") STR_A _UxGT(" Sarsımı");
+  LSTR MSG_VB_JERK                        = _UxGT("Max ") STR_B _UxGT(" Sarsımı");
+  LSTR MSG_VC_JERK                        = _UxGT("Max ") STR_C _UxGT(" Sarsımı");
+  LSTR MSG_VN_JERK                        = _UxGT("Max @ Sarsımı");
+  LSTR MSG_VE_JERK                        = _UxGT("Max E Sarsımı");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Jonksiyon Sapması");
   LSTR MSG_STEP_SMOOTHING                 = _UxGT("Adım Yumuşatma");
   LSTR MSG_MAX_SPEED                      = _UxGT("Max Hız (mm/s)");
-  LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Hız");
-  LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Hız");
-  LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Hız");
-  LSTR MSG_VMAX_N                         = _UxGT("Max @ Hız");
-  LSTR MSG_VMAX_E                         = _UxGT("Max E Hız");
-  LSTR MSG_VMAX_EN                        = _UxGT("Max * Hız");
+  LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Hızı");
+  LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Hızı");
+  LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Hızı");
+  LSTR MSG_VMAX_N                         = _UxGT("Max @ Hızı");
+  LSTR MSG_VMAX_E                         = _UxGT("Max E Hızı");
+  LSTR MSG_VMAX_EN                        = _UxGT("Max * Hızı");
   LSTR MSG_VMIN                           = _UxGT("Min Hız");
   LSTR MSG_VTRAV_MIN                      = _UxGT("Min Gezme Hızı");
-  LSTR MSG_ACCELERATION                   = _UxGT("Ivme");
-  LSTR MSG_AMAX_A                         = _UxGT("Max ") STR_A _UxGT(" İvme");
-  LSTR MSG_AMAX_B                         = _UxGT("Max ") STR_B _UxGT(" İvme");
-  LSTR MSG_AMAX_C                         = _UxGT("Max ") STR_C _UxGT(" İvme");
-  LSTR MSG_AMAX_N                         = _UxGT("Max @ İvme");
-  LSTR MSG_AMAX_E                         = _UxGT("Max E İvme");
-  LSTR MSG_AMAX_EN                        = _UxGT("Max * İvme");
+  LSTR MSG_ACCELERATION                   = _UxGT("İvme");
+  LSTR MSG_AMAX_A                         = _UxGT("Max ") STR_A _UxGT(" İvmesi");
+  LSTR MSG_AMAX_B                         = _UxGT("Max ") STR_B _UxGT(" İvmesi");
+  LSTR MSG_AMAX_C                         = _UxGT("Max ") STR_C _UxGT(" İvmesi");
+  LSTR MSG_AMAX_N                         = _UxGT("Max @ İvmesi");
+  LSTR MSG_AMAX_E                         = _UxGT("Max E İvmesi");
+  LSTR MSG_AMAX_EN                        = _UxGT("Max * İvmesi");
   LSTR MSG_A_RETRACT                      = _UxGT("G.Çekme Hızı");
   LSTR MSG_A_TRAVEL                       = _UxGT("Gezinme Hızı");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
@@ -431,8 +427,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_DRAW_MAX_Y                     = _UxGT("Max Y Çiz");
   LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max Kayış Boyu");
   LSTR MSG_LINEAR_ADVANCE                 = _UxGT("Doğrusal İlerleme");
-  LSTR MSG_ADVANCE_K                      = _UxGT("K İlerlet");
-  LSTR MSG_ADVANCE_K_E                    = _UxGT("K İlerlet *");
+  LSTR MSG_ADVANCE_K                      = _UxGT("K. Değeri");
+  LSTR MSG_ADVANCE_K_E                    = _UxGT("K. Değeri *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Kontrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Parlaklığı");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Zaman Aşımı (m)");
@@ -577,7 +573,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MANUAL_PENUP                   = _UxGT("Kalem yukarı");
   LSTR MSG_MANUAL_PENDOWN                 = _UxGT("Kalem aşağı");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Probe Kapat");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Önce %s%s%s Sıfırla");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Önce %s Sıfırla");
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Prob Ayarları");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Prob Ofsetleri");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofset");
@@ -598,8 +594,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ISI SORUNU");
   LSTR MSG_ERR_TEMP_MALFUNCTION           = _UxGT("SICAKLIK ARIZASI");
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Soğutma Başarısız");
-  LSTR MSG_ERR_MAXTEMP                    = _UxGT("Hata: MAX.SICAKLIK");
-  LSTR MSG_ERR_MINTEMP                    = _UxGT("Hata: MIN.SICAKLIK");
+  LSTR MSG_ERR_MAXTEMP                    = _UxGT("HATA:MAX.SICAK.");
+  LSTR MSG_ERR_MINTEMP                    = _UxGT("HATA:MIN.SICAK.");
   LSTR MSG_HALTED                         = _UxGT("YAZICI DURDURULDU");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Lütfen bekleyin...");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Lütfen Resetleyin");
