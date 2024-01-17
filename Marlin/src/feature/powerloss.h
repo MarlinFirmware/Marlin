@@ -84,6 +84,9 @@ typedef struct {
   #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
   #endif
+  #if HAS_HEATED_CHAMBER
+    celsius_t target_temperature_chamber;
+  #endif
   #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
