@@ -383,9 +383,6 @@ void drawMaxAccelMenu();
   #include "../../../module/temperature.h"
   void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
   void dwinPidTuning(tempcontrol_t result);
-  #if PROUI_TUNING_GRAPH
-    void dwinDrawPIDMPCPopup();
-  #endif
 #endif
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_AUTOTUNE_MENU)
@@ -412,4 +409,8 @@ void drawMaxAccelMenu();
   #if ENABLED(MPC_AUTOTUNE)
     void dwinMPCTuning(tempcontrol_t result);
   #endif
+#endif
+
+#if PROUI_TUNING_GRAPH
+  void dwinDrawPIDMPCPopup();
 #endif
