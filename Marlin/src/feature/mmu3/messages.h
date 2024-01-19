@@ -1,21 +1,46 @@
-//messages.h
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * messages.h
+ */
+
 #include "src/MarlinCore.h"
 
 // Common serial messages
 #define MSG_MARLIN "Marlin"
 
 #if defined(__cplusplus)
-extern "C" {
-#endif //defined(__cplusplus)
+  extern "C" {
+#endif // defined(__cplusplus)
 
 #ifdef CUSTOM_MACHINE_NAME
-#define WELCOME_MSG (CUSTOM_MACHINE_NAME " OK.")
+  #define WELCOME_MSG (CUSTOM_MACHINE_NAME " OK.")
 #else
-#define WELCOME_MSG ("PRINTER OK.")
+  #define WELCOME_MSG ("PRINTER OK.")
 #endif
 
 // LCD Menu Messages
-//internationalized messages
+// internationalized messages
 extern const char MSG_ALWAYS[];
 extern const char MSG_AUTO_HOME[];
 extern const char MSG_BABYSTEP_Z[];
@@ -182,15 +207,15 @@ extern const char MSG_BRIGHT[];
 extern const char MSG_DIM[];
 extern const char MSG_AUTO[];
 #if (FILAMENT_SENSOR_TYPE == FSENSOR_IR_ANALOG)
-extern const char MSG_IR_04_OR_NEWER[];
-extern const char MSG_IR_03_OR_OLDER[];
-extern const char MSG_IR_UNKNOWN[];
+  extern const char MSG_IR_04_OR_NEWER[];
+  extern const char MSG_IR_03_OR_OLDER[];
+  extern const char MSG_IR_UNKNOWN[];
 #endif
 extern const char MSG_PAUSED_THERMAL_ERROR[];
 #ifdef THERMAL_MODEL
-extern const char MSG_THERMAL_ANOMALY[];
-extern const char MSG_TM_NOT_CAL[];
-extern const char MSG_TM_ACK_ERROR[];
+  extern const char MSG_THERMAL_ANOMALY[];
+  extern const char MSG_TM_NOT_CAL[];
+  extern const char MSG_TM_ACK_ERROR[];
 #endif
 extern const char MSG_LOAD_ALL[];
 extern const char MSG_NOZZLE_CNG_MENU [];
@@ -198,9 +223,9 @@ extern const char MSG_NOZZLE_CNG_READ_HELP [];
 extern const char MSG_NOZZLE_CNG_CHANGED [];
 extern const char MSG_REPRINT [];
 
-//not internationalized messages
+// not internationalized messages
 #if 0
-extern const char MSG_FW_VERSION_BETA[];
+  extern const char MSG_FW_VERSION_BETA[];
 #endif
 extern const char MSG_SPOOL_JOIN[];
 extern const char MSG_FIRMWARE[];
@@ -219,7 +244,7 @@ extern const char MSG_Z_MAX[];
 extern const char MSG_Z_MIN[];
 extern const char MSG_ZPROBE_OUT[];
 #ifdef ENABLE_AUTO_BED_LEVELING
-extern const char MSG_ZPROBE_ZOFFSET[];
+  extern const char MSG_ZPROBE_ZOFFSET[];
 #endif
 extern const char MSG_TMC_OVERTEMP[];
 extern const char MSG_Enqueing[];
@@ -266,5 +291,5 @@ extern const char MSG_M701[];
 extern const char MSG_M702[];
 
 #if defined(__cplusplus)
-}
-#endif //defined(__cplusplus)
+  }
+#endif // defined(__cplusplus)

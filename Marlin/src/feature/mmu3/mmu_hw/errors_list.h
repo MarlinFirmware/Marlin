@@ -1,3 +1,29 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * errors_list.h
+ */
+
 #if HAS_PRUSA_MMU3
 // Extracted from Prusa-Error-Codes repo
 // Subject to automation and optimization
@@ -130,10 +156,10 @@ static const constexpr uint16_t errorCodes[] PROGMEM = {
   ERR_ELECTRICAL_MMU_MCU_ERROR,
   ERR_CONNECT_MMU_NOT_RESPONDING,
   ERR_CONNECT_COMMUNICATION_ERROR,
-  ERR_SYSTEM_FILAMENT_ALREADY_LOADED, 
-  ERR_SYSTEM_INVALID_TOOL, 
-  ERR_SYSTEM_QUEUE_FULL, 
-  ERR_SYSTEM_FW_UPDATE_NEEDED, 
+  ERR_SYSTEM_FILAMENT_ALREADY_LOADED,
+  ERR_SYSTEM_INVALID_TOOL,
+  ERR_SYSTEM_QUEUE_FULL,
+  ERR_SYSTEM_FW_UPDATE_NEEDED,
   ERR_SYSTEM_FW_RUNTIME_ERROR,
   ERR_SYSTEM_UNLOAD_MANUALLY,
   ERR_SYSTEM_FILAMENT_EJECTED,
@@ -312,12 +338,12 @@ static const char * const errorDescs[] PROGMEM = {
 // Beware - we only have space for 2 buttons on the LCD while the MMU has 3 buttons
 // -> the left button on the MMU is not used/rendered on the LCD (it is also almost unused on the MMU side)
 static const char MSG_BTN_RETRY[] PROGMEM = ISTR("Retry"); ////MSG_BTN_RETRY c=8
-//static const char MSG_BTN_DONE[] PROGMEM = ISTR("Done"); //Reuse MSG_DONE c=8
+// static const char MSG_BTN_DONE[] PROGMEM = ISTR("Done"); //Reuse MSG_DONE c=8
 static const char MSG_BTN_RESET_MMU[] PROGMEM = ISTR("ResetMMU"); ////MSG_BTN_RESET_MMU c=8
 static const char MSG_BTN_UNLOAD[] PROGMEM = ISTR("Unload"); ////MSG_BTN_UNLOAD c=8
 static const char MSG_BTN_LOAD[] PROGMEM = ISTR("Load"); ////MSG_BTN_LOAD c=8
 static const char MSG_BTN_EJECT[] PROGMEM = ISTR("Eject"); ////MSG_BTN_EJECT c=8
-//static const char MSG_BTN_TUNE_MMU[] PROGMEM = ISTR("Tune"); //Reuse MSG_TUNE c=8
+// static const char MSG_BTN_TUNE_MMU[] PROGMEM = ISTR("Tune"); //Reuse MSG_TUNE c=8
 static const char MSG_BTN_STOP[] PROGMEM = ISTR("Stop"); ////MSG_BTN_STOP c=8
 static const char MSG_BTN_DISABLE_MMU[] PROGMEM = ISTR("Disable"); ////MSG_BTN_DISABLE_MMU c=8
 static const char MSG_BTN_MORE[] PROGMEM = LCD_STR_ARROW_2_DOWN;
@@ -338,60 +364,60 @@ static const char * const btnOperation[] PROGMEM = {
 // We have 8 different operations/buttons at this time, so we need at least 4 bits to encode each.
 // Since one of the buttons is always "More", we can skip that one.
 // Therefore we need just 1 byte to describe the necessary buttons for each screen.
-uint8_t constexpr Btns(ButtonOperations bMiddle, ButtonOperations bRight){
+uint8_t constexpr Btns(ButtonOperations bMiddle, ButtonOperations bRight) {
   return ((uint8_t)bRight) << 4 | ((uint8_t)bMiddle);
 }
 
 static const uint8_t errorButtons[] PROGMEM = {
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//FINDA_DIDNT_TRIGGER
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//FINDA_FILAMENT_STUCK
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//FSENSOR_DIDNT_TRIGGER
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//FSENSOR_FILAMENT_STUCK
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// FINDA_DIDNT_TRIGGER
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// FINDA_FILAMENT_STUCK
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// FSENSOR_DIDNT_TRIGGER
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// FSENSOR_FILAMENT_STUCK
 
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//PULLEY_CANNOT_MOVE
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//FSENSOR_TOO_EARLY
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//INSPECT_FINDA
-  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation),//LOAD_TO_EXTRUDER_FAILED
-  Btns(ButtonOperations::Retry, ButtonOperations::Tune),//SELECTOR_CANNOT_HOME
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//SELECTOR_CANNOT_MOVE
-  Btns(ButtonOperations::Retry, ButtonOperations::Tune),//IDLER_CANNOT_HOME
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//IDLER_CANNOT_MOVE
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// PULLEY_CANNOT_MOVE
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// FSENSOR_TOO_EARLY
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// INSPECT_FINDA
+  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation),// LOAD_TO_EXTRUDER_FAILED
+  Btns(ButtonOperations::Retry, ButtonOperations::Tune),// SELECTOR_CANNOT_HOME
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// SELECTOR_CANNOT_MOVE
+  Btns(ButtonOperations::Retry, ButtonOperations::Tune),// IDLER_CANNOT_HOME
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// IDLER_CANNOT_MOVE
 
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),//WARNING_TMC_PULLEY_TOO_HOT
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),//WARNING_TMC_SELECTOR_TOO_HOT
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),//WARNING_TMC_IDLER_TOO_HOT
+  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),// WARNING_TMC_PULLEY_TOO_HOT
+  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),// WARNING_TMC_SELECTOR_TOO_HOT
+  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),// WARNING_TMC_IDLER_TOO_HOT
 
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_PULLEY_OVERHEAT_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_SELECTOR_OVERHEAT_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_IDLER_OVERHEAT_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_PULLEY_DRIVER_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_SELECTOR_DRIVER_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_IDLER_DRIVER_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_PULLEY_DRIVER_RESET
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_SELECTOR_DRIVER_RESET
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_IDLER_DRIVER_RESET
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_PULLEY_UNDERVOLTAGE_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_SELECTOR_UNDERVOLTAGE_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_IDLER_UNDERVOLTAGE_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_PULLEY_DRIVER_SHORTED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_SELECTOR_DRIVER_SHORTED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//TMC_IDLER_DRIVER_SHORTED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//MMU_PULLEY_SELFTEST_FAILED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//MMU_SELECTOR_SELFTEST_FAILED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//MMU_IDLER_SELFTEST_FAILED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//MMU_MCU_ERROR
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),//MMU_NOT_RESPONDING
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),//COMMUNICATION_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_PULLEY_OVERHEAT_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_SELECTOR_OVERHEAT_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_IDLER_OVERHEAT_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_PULLEY_DRIVER_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_SELECTOR_DRIVER_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_IDLER_DRIVER_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_PULLEY_DRIVER_RESET
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_SELECTOR_DRIVER_RESET
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_IDLER_DRIVER_RESET
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_PULLEY_UNDERVOLTAGE_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_SELECTOR_UNDERVOLTAGE_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_IDLER_UNDERVOLTAGE_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_PULLEY_DRIVER_SHORTED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_SELECTOR_DRIVER_SHORTED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// TMC_IDLER_DRIVER_SHORTED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// MMU_PULLEY_SELFTEST_FAILED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// MMU_SELECTOR_SELFTEST_FAILED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// MMU_IDLER_SELFTEST_FAILED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// MMU_MCU_ERROR
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),// MMU_NOT_RESPONDING
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),// COMMUNICATION_ERROR
 
-  Btns(ButtonOperations::Unload, ButtonOperations::Continue),//FILAMENT_ALREADY_LOADED
-  Btns(ButtonOperations::StopPrint, ButtonOperations::ResetMMU),//INVALID_TOOL
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//QUEUE_FULL
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),//FW_UPDATE_NEEDED
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//FW_RUNTIME_ERROR
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),//UNLOAD_MANUALLY
-  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation),//FILAMENT_EJECTED
-  Btns(ButtonOperations::Eject, ButtonOperations::Load),//FILAMENT_CHANGE
-  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),//UNKOWN_ERROR
+  Btns(ButtonOperations::Unload, ButtonOperations::Continue),// FILAMENT_ALREADY_LOADED
+  Btns(ButtonOperations::StopPrint, ButtonOperations::ResetMMU),// INVALID_TOOL
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// QUEUE_FULL
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),// FW_UPDATE_NEEDED
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// FW_RUNTIME_ERROR
+  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),// UNLOAD_MANUALLY
+  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation),// FILAMENT_EJECTED
+  Btns(ButtonOperations::Eject, ButtonOperations::Load),// FILAMENT_CHANGE
+  Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation),// UNKOWN_ERROR
 };
 
 static_assert( sizeof(errorCodes) / sizeof(errorCodes[0]) == sizeof(errorDescs) / sizeof (errorDescs[0]));
