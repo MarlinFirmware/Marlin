@@ -4147,6 +4147,10 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
   #endif
 #endif
 
+#if ALL(ULTIPANEL_FEEDMULTIPLY, ULTIPANEL_FLOWPERCENT)
+  #error "Only enable ULTIPANEL_FEEDMULTIPLY or ULTIPANEL_FLOWPERCENT, but not both."
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _NUM_AXES_STR
