@@ -342,6 +342,7 @@ void drawMotionMenu();
 void drawFilamentManMenu();
 #if ENABLED(MESH_BED_LEVELING)
   void drawManualMeshMenu();
+  void manualMeshSave();
 #endif
 void drawTemperatureMenu();
 void drawMaxSpeedMenu();
