@@ -213,6 +213,7 @@ uint32_t getHash(char * str);
   void readEEPROM();
   void resetEEPROM();
   #if HAS_MESH
+    void manualMeshSave();
     void saveMesh();
   #endif
 #endif
@@ -342,7 +343,6 @@ void drawMotionMenu();
 void drawFilamentManMenu();
 #if ENABLED(MESH_BED_LEVELING)
   void drawManualMeshMenu();
-  void manualMeshSave();
 #endif
 void drawTemperatureMenu();
 void drawMaxSpeedMenu();
