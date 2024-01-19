@@ -75,6 +75,7 @@ void GcodeSuite::M150() {
     #else
       const uint8_t brightness = neo.brightness();
       neo.neoindex = index;
+      old_color = parser.seen('K') ? neo.pixel_color(index >= 0 ? index : 0) : 0;
     #endif
   #endif
 
