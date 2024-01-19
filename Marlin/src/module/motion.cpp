@@ -2105,6 +2105,91 @@ void prepare_line_to_destination() {
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
 
+    /*
+    #define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
+    #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
+      #define HAS_HOMING_CURRENT 1
+    #endif
+
+    #if HAS_HOMING_CURRENT
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
+        };
+      #else
+        #define debug_current(...)
+      #endif
+
+      #define _SAVE_SET_CURRENT(A) \
+        const int16_t saved_current_##A = stepper##A.getMilliamps(); \
+        stepper##A.rms_current(A##_CURRENT_HOME); \
+        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+
+      #define _RESTORE_CURRENT(A) \
+        stepper##A.rms_current(saved_current_##A); \
+        debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
+
+      #if ANY(CORE_IS_XY,MARKFORGED_XY, MARKFORGED_YX)
+        if (axis == X_AXIS || axis == Y_AXIS) {
+          #if (HAS_CURRENT_HOME(X))
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if (HAS_CURRENT_HOME(Y))
+            _SAVE_SET_CURRENT(Y);
+          #endif
+        }
+      #else
+        if (HAS_CURRENT_HOME(X) && axis == X_AXIS) { _SAVE_SET_CURRENT(X); }
+        if (HAS_CURRENT_HOME(Y) && axis == Y_AXIS) { _SAVE_SET_CURRENT(Y); }
+      #endif
+
+      if (axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(Z)) 
+          _SAVE_SET_CURRENT(Z);
+        #endif
+        #if (HAS_CURRENT_HOME(Z2)) 
+          _SAVE_SET_CURRENT(Z2);
+        #endif
+        #if (HAS_CURRENT_HOME(Z3))
+          _SAVE_SET_CURRENT(Z3);
+        #endif
+        #if (HAS_CURRENT_HOME(Z4))
+          _SAVE_SET_CURRENT(Z4);
+        #endif
+      }
+
+      #if (HAS_CURRENT_HOME(X2) && axis == X2_AXIS)
+        _SAVE_SET_CURRENT(X2);
+      #endif
+      #if (HAS_CURRENT_HOME(Y2) && axis == Y2_AXIS)
+        _SAVE_SET_CURRENT(Y2);
+      #endif
+      #if (HAS_CURRENT_HOME(I) && axis == I_AXIS)
+        _SAVE_SET_CURRENT(I);
+      #endif
+      #if (HAS_CURRENT_HOME(J) && axis == J_AXIS)
+        _SAVE_SET_CURRENT(J);
+      #endif
+      #if (HAS_CURRENT_HOME(K) && axis == K_AXIS)
+        _SAVE_SET_CURRENT(K);
+      #endif
+      #if (HAS_CURRENT_HOME(U) && axis == U_AXIS)
+        _SAVE_SET_CURRENT(U);
+      #endif
+      #if (HAS_CURRENT_HOME(V) && axis == V_AXIS)
+        _SAVE_SET_CURRENT(V);
+      #endif
+      #if (HAS_CURRENT_HOME(W) && axis == W_AXIS)
+        _SAVE_SET_CURRENT(W);
+      #endif
+      #if SENSORLESS_STALLGUARD_DELAY
+        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+      #endif
+    #endif // HAS_HOMING_CURRENT
+    */
+
+
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
     //

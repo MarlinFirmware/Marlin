@@ -119,6 +119,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(X)
   extern TMC_CLASS(X, X) stepperX;
   static constexpr chopper_timing_t chopper_timing_X = CHOPPER_TIMING_X;
+  static int16_t saved_current_X = X_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define X_ENABLE_INIT() NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.toff((STATE)==X_ENABLE_ON ? chopper_timing_X.toff : 0)
@@ -133,6 +134,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(Y)
   extern TMC_CLASS(Y, Y) stepperY;
   static constexpr chopper_timing_t chopper_timing_Y = CHOPPER_TIMING_Y;
+  static int16_t saved_current_Y = Y_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Y_ENABLE_INIT() NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.toff((STATE)==Y_ENABLE_ON ? chopper_timing_Y.toff : 0)
@@ -147,6 +149,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(Z)
   extern TMC_CLASS(Z, Z) stepperZ;
   static constexpr chopper_timing_t chopper_timing_Z = CHOPPER_TIMING_Z;
+  static int16_t saved_current_Z = Z_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z_ENABLE_INIT() NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.toff((STATE)==Z_ENABLE_ON ? chopper_timing_Z.toff : 0)
@@ -164,6 +167,7 @@ void reset_trinamic_drivers();
     #define CHOPPER_TIMING_X2 CHOPPER_TIMING_X
   #endif
   static constexpr chopper_timing_t chopper_timing_X2 = CHOPPER_TIMING_X2;
+  static int16_t saved_current_X2 = X2_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define X2_ENABLE_INIT() NOOP
     #define X2_ENABLE_WRITE(STATE) stepperX2.toff((STATE)==X_ENABLE_ON ? chopper_timing_X2.toff : 0)
@@ -181,6 +185,7 @@ void reset_trinamic_drivers();
     #define CHOPPER_TIMING_Y2 CHOPPER_TIMING_Y
   #endif
   static constexpr chopper_timing_t chopper_timing_Y2 = CHOPPER_TIMING_Y2;
+  static int16_t saved_current_Y2 = Y2_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Y2_ENABLE_INIT() NOOP
     #define Y2_ENABLE_WRITE(STATE) stepperY2.toff((STATE)==Y_ENABLE_ON ? chopper_timing_Y2.toff : 0)
@@ -198,6 +203,7 @@ void reset_trinamic_drivers();
     #define CHOPPER_TIMING_Z2 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z2 = CHOPPER_TIMING_Z2;
+  static int16_t saved_current_Z2 = Z2_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z2_ENABLE_INIT() NOOP
     #define Z2_ENABLE_WRITE(STATE) stepperZ2.toff((STATE)==Z_ENABLE_ON ? chopper_timing_Z2.toff : 0)
@@ -215,6 +221,7 @@ void reset_trinamic_drivers();
     #define CHOPPER_TIMING_Z3 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z3 = CHOPPER_TIMING_Z3;
+  static int16_t saved_current_Z3 = Z3_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z3_ENABLE_INIT() NOOP
     #define Z3_ENABLE_WRITE(STATE) stepperZ3.toff((STATE)==Z_ENABLE_ON ? chopper_timing_Z3.toff : 0)
@@ -232,6 +239,7 @@ void reset_trinamic_drivers();
     #define CHOPPER_TIMING_Z4 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z4 = CHOPPER_TIMING_Z4;
+  static int16_t saved_current_Z4 = Z4_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z4_ENABLE_INIT() NOOP
     #define Z4_ENABLE_WRITE(STATE) stepperZ4.toff((STATE)==Z_ENABLE_ON ? chopper_timing_Z4.toff : 0)
@@ -246,6 +254,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(I)
   extern TMC_CLASS(I, I) stepperI;
   static constexpr chopper_timing_t chopper_timing_I = CHOPPER_TIMING_I;
+  static int16_t saved_current_I = I_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define I_ENABLE_INIT() NOOP
     #define I_ENABLE_WRITE(STATE) stepperI.toff((STATE)==I_ENABLE_ON ? chopper_timing.toff : 0)
@@ -260,6 +269,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(J)
   extern TMC_CLASS(J, J) stepperJ;
   static constexpr chopper_timing_t chopper_timing_J = CHOPPER_TIMING_J;
+  static int16_t saved_current_J = J_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define J_ENABLE_INIT() NOOP
     #define J_ENABLE_WRITE(STATE) stepperJ.toff((STATE)==J_ENABLE_ON ? chopper_timing.toff : 0)
@@ -274,6 +284,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(K)
   extern TMC_CLASS(K, K) stepperK;
   static constexpr chopper_timing_t chopper_timing_K = CHOPPER_TIMING_K;
+  static int16_t saved_current_K = K_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define K_ENABLE_INIT() NOOP
     #define K_ENABLE_WRITE(STATE) stepperK.toff((STATE)==K_ENABLE_ON ? chopper_timing.toff : 0)
@@ -288,6 +299,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(U)
   extern TMC_CLASS(U, U) stepperU;
   static constexpr chopper_timing_t chopper_timing_U = CHOPPER_TIMING_U;
+  static int16_t saved_current_U = U_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define U_ENABLE_INIT() NOOP
     #define U_ENABLE_WRITE(STATE) stepperU.toff((STATE)==U_ENABLE_ON ? chopper_timing_U.toff : 0)
@@ -302,6 +314,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(V)
   extern TMC_CLASS(V, V) stepperV;
   static constexpr chopper_timing_t chopper_timing_V = CHOPPER_TIMING_V;
+  static int16_t saved_current_V = V_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define V_ENABLE_INIT() NOOP
     #define V_ENABLE_WRITE(STATE) stepperV.toff((STATE)==V_ENABLE_ON ? chopper_timing_V.toff : 0)
@@ -316,6 +329,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(W)
   extern TMC_CLASS(W, W) stepperW;
   static constexpr chopper_timing_t chopper_timing_W = CHOPPER_TIMING_W;
+  static int16_t saved_current_W = W_CURRENT;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define W_ENABLE_INIT() NOOP
     #define W_ENABLE_WRITE(STATE) stepperW.toff((STATE)==W_ENABLE_ON ? chopper_timing_W.toff : 0)

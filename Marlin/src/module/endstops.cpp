@@ -1327,10 +1327,229 @@ void Endstops::update() {
 
 #endif // PINS_DEBUGGING
 
-#if USE_SENSORLESS
+#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
+  #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
+    #define HAS_HOMING_CURRENT 1
+  #endif
+
+#if ENABLED(DELTA) && HAS_CURRENT_HOME(X)
+  #define HAS_DELTA_X_CURRENT 1
+#endif
+#if ENABLED(DELTA) && HAS_CURRENT_HOME(Y)
+  #define HAS_DELTA_Y_CURRENT 1
+#endif
+
+#if HAS_HOMING_CURRENT
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+      if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
+    };
+  #else
+    #define debug_current(...)
+  #endif
+
   /**
-   * Change TMC driver currents to N##_CURRENT_HOME, saving the current configuration of each.
+   * 
+   * Sets the axis in parameter to its homing current
+   * 
+   * This function is a rewrite of the original set_z_sensorless_current() that would set homing current only
+   * during sensorless Z probing with nozzle as probe. It was revamped to make it possible to set individual
+   * axis to their homing current when traveling towards an endstop without interfering other axis. 
+   * 
    */
+
+  void set_homing_current(const AxisEnum axis) {
+
+    // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
+    #define _SAVE_SET_CURRENT(A) \
+      stepper##A.rms_current(A##_CURRENT_HOME); \
+      debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+    
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    // Special handling of CORE and Markforged kinematics
+      if (axis == X_AXIS || axis == Y_AXIS) {
+        #if (HAS_CURRENT_HOME(X))
+          _SAVE_SET_CURRENT(X);
+        #endif
+        #if (HAS_CURRENT_HOME(X2))
+          _SAVE_SET_CURRENT(X2);
+        #endif
+        #if (HAS_CURRENT_HOME(Y))
+          _SAVE_SET_CURRENT(Y);
+        #endif
+        #if (HAS_CURRENT_HOME(Y2))
+          _SAVE_SET_CURRENT(Y2);
+        #endif
+        }
+      if (axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(Z)) 
+          _SAVE_SET_CURRENT(Z);
+        #endif
+        #if (HAS_CURRENT_HOME(Z2)) 
+          _SAVE_SET_CURRENT(Z2);
+        #endif
+        #if (HAS_CURRENT_HOME(Z3))
+          _SAVE_SET_CURRENT(Z3);
+        #endif
+        #if (HAS_CURRENT_HOME(Z4))
+          _SAVE_SET_CURRENT(Z4);
+        #endif
+        }
+  
+    #elif ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
+    // Special handling of SCARA and TPARA kinematics
+      // TODO
+    
+    #elif ANY(DELTA, POLARGRAPH, POLAR)
+    // Special handling of DELTA kinematics
+      if (axis == A_AXIS || axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(X))
+          _SAVE_SET_CURRENT(X);
+        #endif
+      }
+      if (axis == B_AXIS || axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(Y))
+          _SAVE_SET_CURRENT(Y);
+        #endif
+      }
+      if (axis == C_AXIS || axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(Z))
+          _SAVE_SET_CURRENT(Z);
+        #endif
+      }
+    
+    #else
+    // Special handling of standard Cartesian kinematics
+      if (axis == X_AXIS) {
+        #if (HAS_CURRENT_HOME(X))
+            _SAVE_SET_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if (HAS_CURRENT_HOME(Y))
+          _SAVE_SET_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if (HAS_CURRENT_HOME(Z)) 
+          _SAVE_SET_CURRENT(Z);
+        #endif
+        #if (HAS_CURRENT_HOME(Z2)) 
+          _SAVE_SET_CURRENT(Z2);
+        #endif
+        #if (HAS_CURRENT_HOME(Z3))
+          _SAVE_SET_CURRENT(Z3);
+        #endif
+        #if (HAS_CURRENT_HOME(Z4))
+          _SAVE_SET_CURRENT(Z4);
+        #endif
+      }
+    #endif
+
+    #if (HAS_CURRENT_HOME(I))
+      _SAVE_SET_CURRENT(I);
+    #endif
+    #if (HAS_CURRENT_HOME(J))
+      _SAVE_SET_CURRENT(J);
+    #endif
+    #if (HAS_CURRENT_HOME(K))
+      _SAVE_SET_CURRENT(K);
+    #endif
+    #if (HAS_CURRENT_HOME(U))
+      _SAVE_SET_CURRENT(U);
+    #endif
+    #if (HAS_CURRENT_HOME(V))
+      _SAVE_SET_CURRENT(V);
+    #endif
+    #if (HAS_CURRENT_HOME(W))
+      _SAVE_SET_CURRENT(W);
+    #endif
+
+
+    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+
+#endif
+  } 
+
+  /**
+   * 
+   * Resets the motor current to its regular running current
+   * 
+   * This function resets the current of every motor to its homing current and does not require a parameter
+   * 
+   */
+  
+  void restore_homing_current() {
+      
+      // Restores the current that was saved in saved_current variable
+    #define _RESTORE_CURRENT(A) \
+      stepper##A.rms_current(saved_current_##A); \
+      debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
+      
+    #if HAS_HOMING_CURRENT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
+      #if HAS_CURRENT_HOME(X)
+        _RESTORE_CURRENT(X);
+      #endif
+      #if HAS_CURRENT_HOME(X2)
+        _RESTORE_CURRENT(X2);
+      #endif
+      #if HAS_CURRENT_HOME(Y)
+        _RESTORE_CURRENT(Y);
+      #endif
+      #if HAS_CURRENT_HOME(Y2)
+        _RESTORE_CURRENT(Y2);
+      #endif
+      #if HAS_CURRENT_HOME(Z)
+        _RESTORE_CURRENT(Z);
+      #endif
+      #if HAS_CURRENT_HOME(Z2)
+        _RESTORE_CURRENT(Z2);
+      #endif
+      #if HAS_CURRENT_HOME(Z3)
+        _RESTORE_CURRENT(Z3);
+      #endif
+      #if HAS_CURRENT_HOME(Z4)
+        _RESTORE_CURRENT(Z4);
+      #endif
+      #if HAS_CURRENT_HOME(I)
+        _RESTORE_CURRENT(I);
+      #endif
+      #if HAS_CURRENT_HOME(J)
+        _RESTORE_CURRENT(J);
+      #endif
+      #if HAS_CURRENT_HOME(K)
+        _RESTORE_CURRENT(K);
+      #endif
+      #if HAS_CURRENT_HOME(U)
+        _RESTORE_CURRENT(U);
+      #endif
+      #if HAS_CURRENT_HOME(V)
+        _RESTORE_CURRENT(V);
+      #endif
+      #if HAS_CURRENT_HOME(W)
+        _RESTORE_CURRENT(W);
+      #endif
+    #endif
+    
+    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+  }
+  // HAS_HOMING_CURRENT
+
+
+// TO DELTE
+/*
+#if USE_SENSORLESS
+   // Change TMC driver currents to N##_CURRENT_HOME, saving the current configuration of each.
   void Endstops::set_z_sensorless_current(const bool onoff) {
     #if ENABLED(DELTA) && HAS_CURRENT_HOME(X)
       #define HAS_DELTA_X_CURRENT 1
@@ -1338,6 +1557,8 @@ void Endstops::update() {
     #if ENABLED(DELTA) && HAS_CURRENT_HOME(Y)
       #define HAS_DELTA_Y_CURRENT 1
     #endif
+
+    // TO DELETE
     #if HAS_DELTA_X_CURRENT || HAS_DELTA_Y_CURRENT || HAS_CURRENT_HOME(Z) || HAS_CURRENT_HOME(Z2) || HAS_CURRENT_HOME(Z3) || HAS_CURRENT_HOME(Z4)
       #if HAS_DELTA_X_CURRENT
         static int16_t saved_current_X;
@@ -1417,3 +1638,4 @@ void Endstops::update() {
     #endif
   }
 #endif // USE_SENSORLESS
+*/

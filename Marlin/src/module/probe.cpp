@@ -626,7 +626,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    endstops.set_z_sensorless_current(true);                                            // The "homing" current also applies to probing
+    set_homing_current(Z_AXIS);                                            // The "homing" current also applies to probing
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
@@ -670,7 +670,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    endstops.set_z_sensorless_current(false);
+    restore_homing_current();
   #endif // SENSORLESS_PROBING
 
   #if ENABLED(BLTOUCH)

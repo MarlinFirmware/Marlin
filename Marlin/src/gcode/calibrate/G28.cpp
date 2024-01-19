@@ -254,6 +254,7 @@ void GcodeSuite::G28() {
     // Reset to the XY plane
     TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
+    /* TO DELETE
     #define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
     #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
       #define HAS_HOMING_CURRENT 1
@@ -320,6 +321,8 @@ void GcodeSuite::G28() {
         safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
       #endif
     #endif // HAS_HOMING_CURRENT
+
+    */
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       motion_state_t saved_motion_state = begin_slow_homing();
@@ -572,6 +575,8 @@ void GcodeSuite::G28() {
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
+    // TO DELETE
+    /*
     #if HAS_HOMING_CURRENT
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
       #if HAS_CURRENT_HOME(X)
@@ -620,6 +625,7 @@ void GcodeSuite::G28() {
         safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
       #endif
     #endif // HAS_HOMING_CURRENT
+    */
 
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));

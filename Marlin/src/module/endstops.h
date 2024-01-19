@@ -273,9 +273,9 @@ class Endstops {
     #endif
   public:
     // Basic functions for Sensorless Homing
-    #if USE_SENSORLESS
-      static void set_z_sensorless_current(const bool onoff);
-    #endif
+    //#if USE_SENSORLESS
+    //  static void set_z_sensorless_current(const bool onoff);
+    //#endif
 };
 
 extern Endstops endstops;
