@@ -937,16 +937,18 @@ void minkill(const bool steppers_off/*=false*/) {
     // Reboot the board
     hal.reboot();
 
+  #elif defined(PLR_REBOOT_TIMEOUT)
+
+    for (uint16_t i = 0; i < PLR_REBOOT_TIMEOUT; i++) {
+      hal.watchdog_refresh();
+      delay(1000);
+    }
+    hal.reboot();
+
   #else
-    #if defined(PLR_REBOOT_TIMEOUT)
-      for (uint16_t i = 0; i < PLR_REBOOT_TIMEOUT; i++) {
-        hal.watchdog_refresh();
-        delayMicroseconds(1000000UL);
-      }
-      hal.reboot();
-    #else
-      for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
-    #endif
+
+    for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
+
   #endif
 }
 
