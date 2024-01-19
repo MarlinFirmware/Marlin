@@ -42,7 +42,7 @@ String.prototype.concat_with_space = function(str) {
 };
 
 const mpatt = [ '-?\\d{1,3}', 'P[A-I]\\d+', 'P\\d_\\d+', 'Pin[A-Z]\\d\\b' ],
-      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${'|'.join(mpatt)})\\s*(//.*)?$`, 'gm'),
+      definePatt = new RegExp(`^\\s*(//)?#define\\s+[A-Z_][A-Z0-9_]+\\s+(${mpatt.join('|')})\\s*(//.*)?$`, 'gm'),
       ppad = [ 3, 4, 5, 5 ],
       col_comment = 50,
       col_value_rj = col_comment - 3;
