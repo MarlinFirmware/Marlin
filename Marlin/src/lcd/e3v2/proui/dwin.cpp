@@ -154,8 +154,8 @@
 #endif
 
 // Editable temperature limits
-#define MIN_ETEMP  0
-#define MAX_ETEMP  (thermalManager.hotend_maxtemp[0] - (HOTEND_OVERSHOOT))
+#define MIN_ETEMP   0
+#define MAX_ETEMP   thermalManager.hotend_max_target(0)
 #define MIN_BEDTEMP 0
 #define MAX_BEDTEMP BED_MAX_TARGET
 
@@ -2306,7 +2306,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   #endif
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
   void setFilLoad()   { setPFloatOnClick(0, EXTRUDE_MAXLENGTH, UNITFDIGITS); }
   void setFilUnload() { setPFloatOnClick(0, EXTRUDE_MAXLENGTH, UNITFDIGITS); }
 #endif
@@ -3528,7 +3528,9 @@ void drawMotionMenu() {
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       EDIT_ITEM(ICON_UBLActive, MSG_STEP_SMOOTHING, onDrawChkbMenu, setAdaptiveStepSmoothing, &hmiData.adaptiveStepSmoothing);
     #endif
-    MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
+    #endif
     EDIT_ITEM(ICON_Flow, MSG_FLOW, onDrawPIntMenu, setFlow, &planner.flow_percentage[0]);
     EDIT_ITEM(ICON_Speed, MSG_SPEED, onDrawPIntMenu, setSpeed, &feedrate_percentage);
   }
@@ -3703,25 +3705,29 @@ void drawMaxAccelMenu() {
 
 #endif // CLASSIC_JERK
 
-void drawStepsMenu() {
-  checkkey = ID_Menu;
-  if (SET_MENU_R(stepsMenu, selrect({1, 16, 28, 13}), MSG_STEPS_PER_MM, 5)) {
-    BACK_ITEM(drawMotionMenu);
-    #if HAS_X_AXIS
-      EDIT_ITEM(ICON_StepX, MSG_A_STEPS, onDrawStepsX, setStepsX, &planner.settings.axis_steps_per_mm[X_AXIS]);
-    #endif
-    #if HAS_Y_AXIS
-      EDIT_ITEM(ICON_StepY, MSG_B_STEPS, onDrawStepsY, setStepsY, &planner.settings.axis_steps_per_mm[Y_AXIS]);
-    #endif
-    #if HAS_Z_AXIS
-      EDIT_ITEM(ICON_StepZ, MSG_C_STEPS, onDrawStepsZ, setStepsZ, &planner.settings.axis_steps_per_mm[Z_AXIS]);
-    #endif
-    #if HAS_HOTEND
-      EDIT_ITEM(ICON_StepE, MSG_E_STEPS, onDrawStepsE, setStepsE, &planner.settings.axis_steps_per_mm[E_AXIS]);
-    #endif
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+
+  void drawStepsMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU_R(stepsMenu, selrect({1, 16, 28, 13}), MSG_STEPS_PER_MM, 5)) {
+      BACK_ITEM(drawMotionMenu);
+      #if HAS_X_AXIS
+        EDIT_ITEM(ICON_StepX, MSG_A_STEPS, onDrawStepsX, setStepsX, &planner.settings.axis_steps_per_mm[X_AXIS]);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM(ICON_StepY, MSG_B_STEPS, onDrawStepsY, setStepsY, &planner.settings.axis_steps_per_mm[Y_AXIS]);
+      #endif
+      #if HAS_Z_AXIS
+        EDIT_ITEM(ICON_StepZ, MSG_C_STEPS, onDrawStepsZ, setStepsZ, &planner.settings.axis_steps_per_mm[Z_AXIS]);
+      #endif
+      #if HAS_HOTEND
+        EDIT_ITEM(ICON_StepE, MSG_E_STEPS, onDrawStepsE, setStepsE, &planner.settings.axis_steps_per_mm[E_AXIS]);
+      #endif
+    }
+    updateMenu(stepsMenu);
   }
-  updateMenu(stepsMenu);
-}
+
+#endif
 
 //=============================================================================
 // UI editable custom colors

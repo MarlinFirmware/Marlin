@@ -46,8 +46,8 @@
   #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
 #endif
 
-#if DISABLED(REPORT_CAPABILITIES_GCODE)
-  #warning "REPORT_CAPABILITIES_GCODE is recommended if you have space. Some hosts rely on it."
+#if DISABLED(CAPABILITIES_REPORT)
+  #warning "CAPABILITIES_REPORT is recommended if you have space. Some hosts rely on it."
 #endif
 
 #if ENABLED(LA_DEBUG)
@@ -825,4 +825,18 @@
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
   #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
+#endif
+
+/**
+ * Fixed-Time Motion
+ */
+#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
+  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#endif
+
+/**
+ * User doesn't have or disabled G92?
+ */
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif

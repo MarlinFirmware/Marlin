@@ -122,14 +122,16 @@ void GcodeSuite::say_units() {
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
-  if (parser.seenval('T')) {
-    const int8_t e = parser.value_byte();
-    if (e < EXTRUDERS) return e;
-    SERIAL_ECHO_START();
-    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-    return -1;
-  }
+  #if HAS_TOOLCHANGE
+    if (parser.seenval('T')) {
+      const int8_t e = parser.value_byte();
+      if (e < EXTRUDERS) return e;
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
+      return -1;
+    }
+  #endif
   return active_extruder;
 }
 
@@ -667,10 +669,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 87: M87(); break;                                    // M87: Cancel Hotend Idle Timeout
       #endif
 
-      case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case 92: M92(); break;                                    // M92: Set the steps-per-unit for one or more axes
+      #endif
+
       case 114: M114(); break;                                    // M114: Report current position
 
-      #if ENABLED(REPORT_CAPABILITIES_GCODE)
+      #if ENABLED(CAPABILITIES_REPORT)
         case 115: M115(); break;                                  // M115: Report capabilities
       #endif
 

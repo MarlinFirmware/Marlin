@@ -102,11 +102,10 @@ class FTMotion {
     }
 
     static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of stepper commands.
-    static uint32_t stepperCmdBuff_produceIdx,            // Index of next stepper command write to the buffer.
-                    stepperCmdBuff_consumeIdx;            // Index of next stepper command read from the buffer.
+    static int32_t stepperCmdBuff_produceIdx,             // Index of next stepper command write to the buffer.
+                   stepperCmdBuff_consumeIdx;             // Index of next stepper command read from the buffer.
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
-
 
     // Public methods
     static void init();
@@ -153,10 +152,10 @@ class FTMotion {
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
 
-    static constexpr uint32_t _ftm_size = TERN(FTM_UNIFIED_BWS, FTM_BW_SIZE, FTM_BATCH_SIZE),
-                              _ftm_wind = TERN(FTM_UNIFIED_BWS, 2, CEIL((FTM_WINDOW_SIZE) / _ftm_size)),
-                              shaper_intervals = _ftm_size * CEIL((FTM_ZMAX) / _ftm_size),
-                              min_max_intervals = _ftm_size * _ftm_wind;
+    #define _DIVCEIL(A,B) (((A) + (B) - 1) / (B))
+    static constexpr uint32_t _ftm_ratio = TERN(FTM_UNIFIED_BWS, 2, _DIVCEIL(FTM_WINDOW_SIZE, FTM_BATCH_SIZE)),
+                              shaper_intervals = (FTM_BATCH_SIZE) * _DIVCEIL(FTM_ZMAX, FTM_BATCH_SIZE),
+                              min_max_intervals = (FTM_BATCH_SIZE) * _ftm_ratio;
 
     // Make vector variables.
     static uint32_t makeVector_idx,
@@ -203,7 +202,7 @@ class FTMotion {
     #endif
 
     // Private methods
-    static uint32_t stepperCmdBuffItems();
+    static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);

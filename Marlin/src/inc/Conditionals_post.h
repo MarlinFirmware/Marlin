@@ -2458,7 +2458,7 @@
   #ifndef BED_OVERSHOOT
     #define BED_OVERSHOOT 10
   #endif
-  #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
+  #define BED_MAX_TARGET ((BED_MAXTEMP) - (BED_OVERSHOOT))
 #else
   #undef PIDTEMPBED
   #undef PREHEAT_BEFORE_LEVELING
@@ -2469,8 +2469,8 @@
   #ifndef COOLER_OVERSHOOT
     #define COOLER_OVERSHOOT 2
   #endif
-  #define COOLER_MIN_TARGET (COOLER_MINTEMP + (COOLER_OVERSHOOT))
-  #define COOLER_MAX_TARGET (COOLER_MAXTEMP - (COOLER_OVERSHOOT))
+  #define COOLER_MIN_TARGET ((COOLER_MINTEMP) + (COOLER_OVERSHOOT))
+  #define COOLER_MAX_TARGET ((COOLER_MAXTEMP) - (COOLER_OVERSHOOT))
 #endif
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
@@ -2482,7 +2482,7 @@
   #ifndef CHAMBER_OVERSHOOT
     #define CHAMBER_OVERSHOOT 10
   #endif
-  #define CHAMBER_MAX_TARGET (CHAMBER_MAXTEMP - (CHAMBER_OVERSHOOT))
+  #define CHAMBER_MAX_TARGET ((CHAMBER_MAXTEMP) - (CHAMBER_OVERSHOOT))
 #else
   #undef PIDTEMPCHAMBER
 #endif
@@ -2762,20 +2762,26 @@
 #endif
 
 // Servos
-#if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
-  #define HAS_SERVO_0 1
-#endif
-#if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
-  #define HAS_SERVO_1 1
-#endif
-#if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
-  #define HAS_SERVO_2 1
-#endif
-#if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
-  #define HAS_SERVO_3 1
-#endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
+  #if PIN_EXISTS(SERVO0)
+    #define HAS_SERVO_0 1
+  #endif
+  #if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
+    #define HAS_SERVO_1 1
+  #endif
+  #if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
+    #define HAS_SERVO_2 1
+  #endif
+  #if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
+    #define HAS_SERVO_3 1
+  #endif
+  #if PIN_EXISTS(SERVO4) && NUM_SERVOS > 4
+    #define HAS_SERVO_4 1
+  #endif
+  #if PIN_EXISTS(SERVO5) && NUM_SERVOS > 5
+    #define HAS_SERVO_5 1
+  #endif
   #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
     #define HAS_PAUSE_SERVO_OUTPUT 1
   #endif

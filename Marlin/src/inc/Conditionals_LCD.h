@@ -82,33 +82,36 @@
 /**
  *  Multi-Material-Unit supported models
  */
-#define PRUSA_MMU1             1
-#define PRUSA_MMU2             2
-#define PRUSA_MMU2S            3
-#define EXTENDABLE_EMU_MMU2   12
-#define EXTENDABLE_EMU_MMU2S  13
-
 #ifdef MMU_MODEL
   #define HAS_MMU 1
   #define SINGLENOZZLE
-  #if MMU_MODEL == PRUSA_MMU1
+
+  #define _PRUSA_MMU1             1
+  #define _PRUSA_MMU2             2
+  #define _PRUSA_MMU2S            3
+  #define _EXTENDABLE_EMU_MMU2   12
+  #define _EXTENDABLE_EMU_MMU2S  13
+  #define _MMU CAT(_,MMU_MODEL)
+
+  #if _MMU == _PRUSA_MMU1
     #define HAS_PRUSA_MMU1 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2
+  #elif _MMU % 10 == _PRUSA_MMU2
     #define HAS_PRUSA_MMU2 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+  #elif _MMU % 10 == _PRUSA_MMU2S
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
+  #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
   #endif
-#endif
 
-#undef PRUSA_MMU1
-#undef PRUSA_MMU2
-#undef PRUSA_MMU2S
-#undef EXTENDABLE_EMU_MMU2
-#undef EXTENDABLE_EMU_MMU2S
+  #undef _MMU
+  #undef _PRUSA_MMU1
+  #undef _PRUSA_MMU2
+  #undef _PRUSA_MMU2S
+  #undef _EXTENDABLE_EMU_MMU2
+  #undef _EXTENDABLE_EMU_MMU2S
+#endif
 
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
@@ -131,6 +134,9 @@
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
+  #endif
+  #ifndef MIXING_VIRTUAL_TOOLS
+    #define MIXING_VIRTUAL_TOOLS 1
   #endif
 
 #elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
@@ -257,10 +263,13 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
+  #define HAS_A_AXIS 1
   #if NUM_AXES >= XY
     #define HAS_Y_AXIS 1
+    #define HAS_B_AXIS 1
     #if NUM_AXES >= XYZ
       #define HAS_Z_AXIS 1
+      #define HAS_C_AXIS 1
       #if NUM_AXES >= 4
         #define HAS_I_AXIS 1
         #if NUM_AXES >= 5
@@ -775,6 +784,7 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC 1
+  #define NO_LCD_SDCARD
   #define LCD_ST7920_DELAY_1           125
   #define LCD_ST7920_DELAY_2           125
   #define LCD_ST7920_DELAY_3           125
@@ -1080,6 +1090,10 @@
    *  - draw_status_message
    */
   #define HAS_DISPLAY 1
+#endif
+
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD)
+  #define HAS_UI_UPDATE 1
 #endif
 
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
@@ -1672,6 +1686,7 @@
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
+  #define NO_LCD_SDCARD
 #elif ANY(LERDGE_TFT35, ANET_ET5_TFT35)                                       // ST7796
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320

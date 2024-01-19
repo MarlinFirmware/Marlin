@@ -422,22 +422,22 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOLNPGM("Attempted travel: ", travelDistance, "mm");
-    SERIAL_ECHOLNPGM("   Actual travel:  ", travelledDistance, "mm");
+    SERIAL_ECHOLNPGM("   Actual travel: ", travelledDistance, "mm");
 
-    //Calculate new axis steps per unit
+    // Calculate new axis steps per unit
     old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
     SERIAL_ECHOLNPGM("Old steps/mm: ", old_steps_mm);
     SERIAL_ECHOLNPGM("New steps/mm: ", new_steps_mm);
 
-    //Save new value
+    // Save new value
     planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
 
     if (iter > 1) {
       total += new_steps_mm;
 
-      // swap start and end points so next loop runs from current position
+      // Swap start and end points so next loop runs from current position
       const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;
