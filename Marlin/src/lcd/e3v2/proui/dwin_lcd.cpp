@@ -127,6 +127,7 @@ void dwinWriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) 
 }
 
 #if ENABLED(DACAI_DISPLAY)
+
   // Draw an Icon from SRAM without background transparency for DACAI Screens support
   void dacaiIconShow(uint16_t x, uint16_t y, uint16_t addr) {
     NOMORE(x, DWIN_WIDTH - 1);
@@ -138,6 +139,7 @@ void dwinWriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) 
     dwinWord(i, addr);
     dwinSend(i);
   }
+
 #endif
 
 void dwinIconShow(uint16_t x, uint16_t y, uint16_t addr) {
