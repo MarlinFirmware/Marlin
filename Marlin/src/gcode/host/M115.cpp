@@ -35,7 +35,7 @@
   #include "../../feature/caselight.h"
 #endif
 
-#if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
+#if ENABLED(MACHINE_UUID_IS_STM32_UUID)
   #include "../../libs/hex_print.h"
 #endif
 
@@ -62,6 +62,26 @@
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
  */
 void GcodeSuite::M115() {
+
+  // STM32UID:111122223333
+  #if ENABLED(MACHINE_UUID_IS_STM32_UUID)
+    // STM32 based devices output the CPU device serial number
+    // Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
+    // https://github.com/opulo-inc/lumenpnp
+    // Although this code should work on all STM32 based boards
+    char uuid_str[25] = {0};
+    uint8_t uuid_str_index = 0;
+    uint32_t *uid_address = (uint32_t*)UID_BASE;
+    for (uint8_t i = 0; i < 3; ++i) {
+      const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
+      uid_address += 4U;
+      for (int B = 24; B >= 0; B -= 8) {
+        uuid_str[uuid_str_index++] = hex_byte(UID >> B)[0];
+        uuid_str[uuid_str_index++] = hex_byte(UID >> B)[1];
+      }
+    }
+  #endif
+
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL
@@ -76,20 +96,6 @@ void GcodeSuite::M115() {
     #endif
   );
 
-  // STM32UID:111122223333
-  #if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
-    // STM32 based devices output the CPU device serial number
-    // Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
-    // https://github.com/opulo-inc/lumenpnp
-    // Although this code should work on all STM32 based boards
-    SERIAL_ECHOPGM(" UUID:");
-    uint32_t *uid_address = (uint32_t*)UID_BASE;
-    for (uint8_t i = 0; i < 3; ++i) {
-      const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
-      uid_address += 4U;
-      for (int B = 24; B >= 0; B -= 8) print_hex_byte(UID >> B);
-    }
-  #endif
 
   SERIAL_EOL();
 
