@@ -165,7 +165,7 @@
  * (SDA) D17 | 1  2 | (A1) D30             3V3 | 1  2 | D4 (SS)             J3_RX |1  2| J3_TX
  * (SCL) D16 | 3  4 | (A2) D29             GND | 3  4 | RESET            (TXO) D9 |3  4| D8 (RX0) D8
  *       D11 | 5  6   (A3) D28      (MOSI) D5  | 5  6   D7 (SCK)           USB_RX |5  6| USB_TX
- *       D10 | 7  8 | (A4) D27 D10         5V  | 7  8 | D6 (MISO)                  ----
+ *       D10 | 7  8 | (A4) D27             5V  | 7  8 | D6 (MISO)                  ----
  *       5V  | 9 10 | GND                J3_RX | 9 10 | J3_TX
  *            ------                            ------
  *             LCD                                J3                              USB_BLE
