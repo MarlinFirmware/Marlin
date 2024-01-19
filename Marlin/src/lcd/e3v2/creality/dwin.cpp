@@ -560,7 +560,7 @@ void dwinDrawLabel(const uint8_t row, FSTR_P title) {
   dwinDrawLabel(row, (char*)title);
 }
 
-void dwinDrawSignedFloat(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, int32_t value) {
+void dwinDrawSignedFloat(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   dwinDrawString(true, size, COLOR_WHITE, bColor, x - 8, y, value < 0 ? F("-") : F(" "));
   dwinDrawFloatValue(true, true, 0, size, COLOR_WHITE, bColor, iNum, fNum, x, y, value < 0 ? -value : value);
 }
