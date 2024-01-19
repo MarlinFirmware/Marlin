@@ -224,12 +224,6 @@ void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 void dwinJPGShowAndCache(const uint8_t id);
 
 // Draw an Icon
-//  libID: Icon library ID
-//  picID: Icon ID
-//  x/y: Upper-left point
-void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
-
-// Draw an Icon
 //  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
 //  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
 //  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)

@@ -32,3 +32,9 @@
 // color: color
 //  x/y: Upper-left coordinate of the first pixel
 void dwinDrawDegreeSymbol(uint16_t color, uint16_t x, uint16_t y);
+
+// Draw an Icon
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);

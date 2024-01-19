@@ -159,12 +159,7 @@
 #define DWIN_VAR_UPDATE_INTERVAL          500
 #define DWIN_UPDATE_INTERVAL             1000
 
-#if HAS_MESH && HAS_BED_PROBE
-  #define BABY_Z_VAR probe.offset.z
-#else
-  float z_offset = 0;
-  #define BABY_Z_VAR z_offset
-#endif
+#define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, hmiData.manualZOffset)
 
 #define _OFFSET_ZMIN TERN(HAS_BED_PROBE, PROBE_OFFSET_ZMIN, -20)
 #define _OFFSET_ZMAX TERN(HAS_BED_PROBE, PROBE_OFFSET_ZMAX,  20)
@@ -318,7 +313,7 @@ void hmiToggleLanguage() {
 
 typedef struct { uint16_t x, y[2], w, h; } text_info_t;
 
-void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico, const text_info_t (&txt), FSTR_P caption) {
+void iconButton(const bool selected, const int iconid, const frame_rect_t &ico, const text_info_t (&txt), FSTR_P caption) {
   DWINUI::drawIconWB(iconid + selected, ico.x, ico.y);
   if (selected) DWINUI::drawBox(0, hmiData.colorHighlight, ico);
   if (hmiIsChinese()) {
@@ -334,73 +329,73 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
 //
 // Main Menu: "Print"
 //
-void ICON_Print() {
+void iconPrint() {
   constexpr frame_rect_t ico = { 17, 110, 110, 100 };
   constexpr text_info_t txt = { 1, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_PRINT, ICON_Print_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PRINT));
+  iconButton(select_page.now == PAGE_PRINT, ICON_Print_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PRINT));
 }
 
 //
 // Main Menu: "Prepare"
 //
-void ICON_Prepare() {
+void iconPrepare() {
   constexpr frame_rect_t ico = { 145, 110, 110, 100 };
   constexpr text_info_t txt = { 31, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, txt, GET_TEXT_F(MSG_PREPARE));
+  iconButton(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, txt, GET_TEXT_F(MSG_PREPARE));
 }
 
 //
 // Main Menu: "Control"
 //
-void ICON_Control() {
+void iconControl() {
   constexpr frame_rect_t ico = { 17, 226, 110, 100 };
   constexpr text_info_t txt = { 61, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt, GET_TEXT_F(MSG_CONTROL));
+  iconButton(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt, GET_TEXT_F(MSG_CONTROL));
 }
 
 //
 // Main Menu: "Advanced Settings"
 //
-void ICON_AdvSettings() {
+void iconAdvSettings() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
   constexpr text_info_t txt = { 91, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_ADVANCE, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_ADVANCED));
+  iconButton(select_page.now == PAGE_ADVANCE, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_ADVANCED));
 }
 
 //
 // Printing: "Tune"
 //
-void ICON_Tune() {
+void iconTune() {
   constexpr frame_rect_t ico = { 8, 232, 80, 100 };
   constexpr text_info_t txt = { 121, { 405, 447 }, 27, 15 };
-  ICON_Button(select_print.now == PRINT_SETUP, ICON_Setup_0, ico, txt, GET_TEXT_F(MSG_TUNE));
+  iconButton(select_print.now == PRINT_SETUP, ICON_Setup_0, ico, txt, GET_TEXT_F(MSG_TUNE));
 }
 
 //
 // Printing: "Pause"
 //
-void ICON_Pause() {
+void iconPause() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
   constexpr text_info_t txt = { 181, { 405, 447 }, 27, 15 };
-  ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Pause_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PAUSE));
+  iconButton(select_print.now == PRINT_PAUSE_RESUME, ICON_Pause_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PAUSE));
 }
 
 //
 // Printing: "Resume"
 //
-void ICON_Resume() {
+void iconResume() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
   constexpr text_info_t txt = { 1, { 405, 447 }, 27, 15 };
-  ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Continue_0, ico, txt, GET_TEXT_F(MSG_BUTTON_RESUME));
+  iconButton(select_print.now == PRINT_PAUSE_RESUME, ICON_Continue_0, ico, txt, GET_TEXT_F(MSG_BUTTON_RESUME));
 }
 
 //
 // Printing: "Stop"
 //
-void ICON_Stop() {
+void iconStop() {
   constexpr frame_rect_t ico = { 184, 232, 80, 100 };
   constexpr text_info_t txt = { 151, { 405, 447 }, 27, 12 };
-  ICON_Button(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt, GET_TEXT_F(MSG_BUTTON_STOP));
+  iconButton(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt, GET_TEXT_F(MSG_BUTTON_STOP));
 }
 
 //
@@ -436,7 +431,7 @@ void popupPauseOrStop() {
       dwinUpdateLCD();
     }
     else
-      dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      dwinPopupContinue(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
   }
 
 #endif
@@ -513,14 +508,14 @@ void dwinDrawStatusMessage() {
       // Get a pointer to the next valid UTF8 character
       // and the string remaining length
       uint8_t rlen;
-      const char *stat = MarlinUI::status_and_len(rlen);
+      const char *stat = ui.status_and_len(rlen);
       dwinDrawRectangle(1, hmiData.colorStatusBg, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
       DWINUI::moveTo(0, STATUS_Y + 2);
       DWINUI::drawString(hmiData.colorStatusTxt, stat, LCD_WIDTH);
 
       // If the string doesn't completely fill the line...
       if (rlen < LCD_WIDTH) {
-        DWINUI::drawChar(hmiData.colorStatusTxt, '.');  // Always at 1+ spaces left, draw a dot
+        DWINUI::drawChar(hmiData.colorStatusTxt, '.');     // Always at 1+ spaces left, draw a dot
         uint8_t chars = LCD_WIDTH - rlen;                  // Amount of space left in characters
         if (--chars) {                                     // Draw a second dot if there's space
           DWINUI::drawChar(hmiData.colorStatusTxt, '.');
@@ -528,7 +523,7 @@ void dwinDrawStatusMessage() {
             DWINUI::drawString(hmiData.colorStatusTxt, ui.status_message, chars); // Print a second copy of the message
         }
       }
-      MarlinUI::advance_status_scroll();
+      ui.advance_status_scroll();
     }
 
   #else
@@ -578,8 +573,8 @@ void drawPrintProgressElapsed() {
   }
 #endif
 
-void ICON_ResumeOrPause() {
-  if (checkkey == ID_PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? ICON_Resume() : ICON_Pause();
+void iconResumeOrPause() {
+  if (checkkey == ID_PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? iconResume() : iconPause();
 }
 
 // Update filename on print
@@ -609,14 +604,14 @@ void drawPrintProcess() {
   drawPrintProgressBar();
   drawPrintProgressElapsed();
   TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
-  ICON_Tune();
-  ICON_ResumeOrPause();
-  ICON_Stop();
+  iconTune();
+  iconResumeOrPause();
+  iconStop();
 }
 
 void gotoPrintProcess() {
   if (checkkey == ID_PrintProcess)
-    ICON_ResumeOrPause();
+    iconResumeOrPause();
   else {
     checkkey = ID_PrintProcess;
     drawPrintProcess();
@@ -668,10 +663,10 @@ void drawMainMenu() {
   else
     title.showCaption(MACHINE_NAME);
   DWINUI::drawIcon(ICON_LOGO, 71, 52);  // CREALITY logo
-  ICON_Print();
-  ICON_Prepare();
-  ICON_Control();
-  ICON_AdvSettings();
+  iconPrint();
+  iconPrepare();
+  iconControl();
+  iconAdvSettings();
 }
 
 void gotoMainMenu() {
@@ -925,7 +920,7 @@ void onClickSDItem() {
     if (card.flag.filenameIsDir) return sdCardFolder(card.filename);
 
     if (card.fileIsBinary())
-      return dwinPopupConfirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+      return dwinPopupContinue(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
     else {
       dwinPrintHeader(card.longest_filename()); // Save filename
       return gotoConfirmToPrint();
@@ -1119,20 +1114,20 @@ void hmiMainMenu() {
   if (encoder_diffState == ENCODER_DIFF_CW) {
     if (select_page.inc(PAGE_COUNT)) {
       switch (select_page.now) {
-        case PAGE_PRINT: ICON_Print(); break;
-        case PAGE_PREPARE: ICON_Print(); ICON_Prepare(); break;
-        case PAGE_CONTROL: ICON_Prepare(); ICON_Control(); break;
-        case PAGE_ADVANCE: ICON_Control(); ICON_AdvSettings(); break;
+        case PAGE_PRINT: iconPrint(); break;
+        case PAGE_PREPARE: iconPrint(); iconPrepare(); break;
+        case PAGE_CONTROL: iconPrepare(); iconControl(); break;
+        case PAGE_ADVANCE: iconControl(); iconAdvSettings(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_page.dec()) {
       switch (select_page.now) {
-        case PAGE_PRINT: ICON_Print(); ICON_Prepare(); break;
-        case PAGE_PREPARE: ICON_Prepare(); ICON_Control(); break;
-        case PAGE_CONTROL: ICON_Control(); ICON_AdvSettings(); break;
-        case PAGE_ADVANCE: ICON_AdvSettings(); break;
+        case PAGE_PRINT: iconPrint(); iconPrepare(); break;
+        case PAGE_PREPARE: iconPrepare(); iconControl(); break;
+        case PAGE_CONTROL: iconControl(); iconAdvSettings(); break;
+        case PAGE_ADVANCE: iconAdvSettings(); break;
       }
     }
   }
@@ -1171,18 +1166,18 @@ void hmiPrinting() {
   if (encoder_diffState == ENCODER_DIFF_CW) {
     if (select_print.inc(PRINT_COUNT)) {
       switch (select_print.now) {
-        case PRINT_SETUP: ICON_Tune(); break;
-        case PRINT_PAUSE_RESUME: ICON_Tune(); ICON_ResumeOrPause(); break;
-        case PRINT_STOP: ICON_ResumeOrPause(); ICON_Stop(); break;
+        case PRINT_SETUP: iconTune(); break;
+        case PRINT_PAUSE_RESUME: iconTune(); iconResumeOrPause(); break;
+        case PRINT_STOP: iconResumeOrPause(); iconStop(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_print.dec()) {
       switch (select_print.now) {
-        case PRINT_SETUP: ICON_Tune(); ICON_ResumeOrPause(); break;
-        case PRINT_PAUSE_RESUME: ICON_ResumeOrPause(); ICON_Stop(); break;
-        case PRINT_STOP: ICON_Stop(); break;
+        case PRINT_SETUP: iconTune(); iconResumeOrPause(); break;
+        case PRINT_PAUSE_RESUME: iconResumeOrPause(); iconStop(); break;
+        case PRINT_STOP: iconStop(); break;
       }
     }
   }
@@ -1315,7 +1310,7 @@ void eachMomentUpdate() {
   if (!PENDING(ms, next_rts_update_ms)) {
     next_rts_update_ms = ms + DWIN_UPDATE_INTERVAL;
 
-    if ((isPrinting() != hmiFlag.printing_flag) && !hmiFlag.home_flag) {
+    if ((hmiFlag.printing_flag != isPrinting()) && !hmiFlag.home_flag && (checkkey != ID_Leveling)) {
       hmiFlag.printing_flag = isPrinting();
       if (hmiFlag.printing_flag)
         dwinPrintStarted();
@@ -1325,7 +1320,7 @@ void eachMomentUpdate() {
         dwinPrintFinished();
     }
 
-    if ((printingIsPaused() != hmiFlag.pause_flag) && !hmiFlag.home_flag) {
+    if ((hmiFlag.pause_flag != printingIsPaused()) && !hmiFlag.home_flag) {
       hmiFlag.pause_flag = printingIsPaused();
       if (hmiFlag.pause_flag)
         dwinPrintPause();
@@ -1482,6 +1477,10 @@ void dwinHomingStart() {
 
 void dwinHomingDone() {
   hmiFlag.home_flag = false;
+  #if JUST_BABYSTEP
+    planner.synchronize();
+    babystep.add_mm(Z_AXIS, hmiData.manualZOffset);
+  #endif
   if (last_checkkey == ID_PrintDone)
     gotoPrintDone();
   else
@@ -1653,7 +1652,7 @@ void dwinLevelingDone() {
           break;
         case PID_TEMP_TOO_HIGH:
           checkkey = last_checkkey;
-          dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
+          dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
           break;
       #endif
       #if ENABLED(PIDTEMPBED)
@@ -1668,15 +1667,15 @@ void dwinLevelingDone() {
       #endif
       case PID_BAD_HEATER_ID:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
+        dwinPopupContinue(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
       case PID_TUNING_TIMEOUT:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
+        dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
         break;
       case AUTOTUNE_DONE:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
+        dwinPopupContinue(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         break;
       default:
         checkkey = last_checkkey;
@@ -1701,17 +1700,17 @@ void dwinLevelingDone() {
         break;
       case MPC_TEMP_ERROR:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), F(STR_MPC_TEMPERATURE_ERROR));
+        dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), F(STR_MPC_TEMPERATURE_ERROR));
         ui.reset_alert_level();
         break;
       case MPC_INTERRUPTED:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
+        dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
         ui.reset_alert_level();
         break;
       case AUTOTUNE_DONE:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_MPC_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
+        dwinPopupContinue(ICON_TempTooLow, GET_TEXT_F(MSG_MPC_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         ui.reset_alert_level();
         break;
       default:
@@ -1736,12 +1735,12 @@ void dwinPrintStarted() {
 
 // Pause a print job
 void dwinPrintPause() {
-  ICON_ResumeOrPause();
+  iconResumeOrPause();
 }
 
 // Resume print job
 void dwinPrintResume() {
-  ICON_ResumeOrPause();
+  iconResumeOrPause();
   LCD_MESSAGE(MSG_RESUME_PRINT);
 }
 
@@ -1764,7 +1763,7 @@ void dwinPrintAborted() {
         #if ENABLED(NOZZLE_PARK_FEATURE)
           F("G27")
         #else
-          TS(F("G0Z"), float(_MIN(current_position.z + (Z_POST_CLEARANCE), Z_MAX_POS)), F("\nG0F2000Y"), Y_MAX_POS);
+          TS(F("G0Z"), float(_MIN(current_position.z + (Z_POST_CLEARANCE), Z_MAX_POS)), F("\nG0F2000Y"), Y_MAX_POS)
         #endif
       );
     }
@@ -1821,6 +1820,9 @@ void dwinSetDataDefaults() {
   hmiData.mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     hmiData.zAfterHoming = DEF_Z_AFTER_HOMING;
+  #endif
+  #if !HAS_BED_PROBE
+    hmiData.manualZOffset = 0;
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     TERN_(LED_COLOR_PRESETS, leds.set_default());
@@ -2152,7 +2154,7 @@ void axisMove(AxisEnum axis) {
   #if HAS_HOTEND
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(0)) {
       gcode.process_subcommands_now(F("G92E0"));  // Reset extruder position
-      return dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      return dwinPopupContinue(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
     }
   #endif
   planner.synchronize();

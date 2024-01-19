@@ -69,11 +69,3 @@ void dwinShowPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t
   dwinDrawPopup(icon, amsg1, amsg2, button);
   dwinUpdateLCD();
 }
-
-template<typename T, typename U>
-void dwinPopupConfirm(const uint8_t icon, T amsg1, U amsg2) {
-  hmiSaveProcessID(ID_WaitResponse);
-  dwinDrawPopup(icon, amsg1, amsg2, BTN_Confirm);  // Button Confirm
-  dwinUpdateLCD();
-}
-
