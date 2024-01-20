@@ -1464,7 +1464,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 
   #if Z_PROBE_LOW_POINT > 0
-    #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
+    #error "Z_PROBE_LOW_POINT must be less than or equal to 0 and must be an int."
   #endif
 
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
