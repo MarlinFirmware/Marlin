@@ -258,19 +258,7 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
-// HAS_HOMING_CURRENT
-
-#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-  #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-    #define HAS_HOMING_CURRENT 1
-  #endif
-
-#if ENABLED(DELTA) && HAS_CURRENT_HOME(X)
-  #define HAS_DELTA_X_CURRENT 1
-#endif
-#if ENABLED(DELTA) && HAS_CURRENT_HOME(Y)
-  #define HAS_DELTA_Y_CURRENT 1
-#endif
+// Begin HAS_HOMING_CURRENT
 
 #if HAS_HOMING_CURRENT
 
@@ -296,6 +284,8 @@ void report_current_position_projected() {
       saved_current_##A = stepper##A.getMilliamps(); \
       stepper##A.rms_current(A##_CURRENT_HOME); \
       debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current...");
     
     #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     // Special handling of CORE and Markforged kinematics
@@ -418,51 +408,50 @@ void report_current_position_projected() {
     #define _RESTORE_CURRENT(A) \
       stepper##A.rms_current(saved_current_##A); \
       debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
-      
-    #if HAS_HOMING_CURRENT
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
-      #if HAS_CURRENT_HOME(X)
-        _RESTORE_CURRENT(X);
-      #endif
-      #if HAS_CURRENT_HOME(X2)
-        _RESTORE_CURRENT(X2);
-      #endif
-      #if HAS_CURRENT_HOME(Y)
-        _RESTORE_CURRENT(Y);
-      #endif
-      #if HAS_CURRENT_HOME(Y2)
-        _RESTORE_CURRENT(Y2);
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        _RESTORE_CURRENT(Z);
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        _RESTORE_CURRENT(Z2);
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        _RESTORE_CURRENT(Z3);
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        _RESTORE_CURRENT(Z4);
-      #endif
-      #if HAS_CURRENT_HOME(I)
-        _RESTORE_CURRENT(I);
-      #endif
-      #if HAS_CURRENT_HOME(J)
-        _RESTORE_CURRENT(J);
-      #endif
-      #if HAS_CURRENT_HOME(K)
-        _RESTORE_CURRENT(K);
-      #endif
-      #if HAS_CURRENT_HOME(U)
-        _RESTORE_CURRENT(U);
-      #endif
-      #if HAS_CURRENT_HOME(V)
-        _RESTORE_CURRENT(V);
-      #endif
-      #if HAS_CURRENT_HOME(W)
-        _RESTORE_CURRENT(W);
-      #endif
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
+
+    #if HAS_CURRENT_HOME(X)
+      _RESTORE_CURRENT(X);
+    #endif
+    #if HAS_CURRENT_HOME(X2)
+      _RESTORE_CURRENT(X2);
+    #endif
+    #if HAS_CURRENT_HOME(Y)
+      _RESTORE_CURRENT(Y);
+    #endif
+    #if HAS_CURRENT_HOME(Y2)
+      _RESTORE_CURRENT(Y2);
+    #endif
+    #if HAS_CURRENT_HOME(Z)
+      _RESTORE_CURRENT(Z);
+    #endif
+    #if HAS_CURRENT_HOME(Z2)
+      _RESTORE_CURRENT(Z2);
+    #endif
+    #if HAS_CURRENT_HOME(Z3)
+      _RESTORE_CURRENT(Z3);
+    #endif
+    #if HAS_CURRENT_HOME(Z4)
+      _RESTORE_CURRENT(Z4);
+    #endif
+    #if HAS_CURRENT_HOME(I)
+      _RESTORE_CURRENT(I);
+    #endif
+    #if HAS_CURRENT_HOME(J)
+      _RESTORE_CURRENT(J);
+    #endif
+    #if HAS_CURRENT_HOME(K)
+      _RESTORE_CURRENT(K);
+    #endif
+    #if HAS_CURRENT_HOME(U)
+      _RESTORE_CURRENT(U);
+    #endif
+    #if HAS_CURRENT_HOME(V)
+      _RESTORE_CURRENT(V);
+    #endif
+    #if HAS_CURRENT_HOME(W)
+      _RESTORE_CURRENT(W);
     #endif
     
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
@@ -2356,9 +2345,7 @@ void prepare_line_to_destination() {
     //
     // Set motor current to the axis being homed if defined
     //
-    #if HAS_HOMING_CURRENT
-      set_homing_current(axis);
-    #endif
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
 
     //
     // Back away to prevent an early sensorless trigger
@@ -2641,9 +2628,7 @@ void prepare_line_to_destination() {
     //
     // Restore motor current after homing
     //
-    #if HAS_HOMING_CURRENT
-      restore_homing_current();
-    #endif
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current());
 
   } // homeaxis()
 

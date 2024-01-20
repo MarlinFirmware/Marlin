@@ -49,6 +49,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+#if HAS_TRINAMIC
+  #include "stepper/trinamic.h"
+#endif
+
 // Initialized by settings.load()
 float delta_height;
 abc_float_t delta_endstop_adj{0};
@@ -242,10 +246,12 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
+  TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
   current_position.z = DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
   TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
+  TERN_(HAS_HOMING_CURRENT, restore_homing_current());
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)

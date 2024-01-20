@@ -110,6 +110,11 @@
 
 #define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
 
+#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
+  #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
+    #define HAS_HOMING_CURRENT 1
+  #endif
+
 #if HAS_TMC220x
   void tmc_serial_begin();
 #endif
