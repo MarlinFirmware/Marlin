@@ -77,6 +77,11 @@
     const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
+    // Set homing current to X and Y axis if defined
+    #if HAS_HOMING_CURRENT
+      set_homing_current(X_AXIS, Y_AXIS);
+    #endif
+
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
         NUM_AXIS_LIST(
@@ -95,6 +100,10 @@
 
     current_position.set(0.0, 0.0);
 
+    #if HAS_HOMING_CURRENT
+      restore_homing_current(X_AXIS, Y_AXIS);
+    #endif
+
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
       TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
@@ -102,6 +111,7 @@
       TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
     #endif
   }
+
 
 #endif // QUICK_HOME
 
@@ -134,7 +144,17 @@
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
+
+      // Set homing current for Z if defined
+      #if HAS_HOMING_CURRENT
+        set_homing_current(Z_AXIS);
+      #endif
+
       homeaxis(Z_AXIS);
+
+      #if HAS_HOMING_CURRENT
+        restore_homing_current();
+      #endif
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);
@@ -253,76 +273,6 @@ void GcodeSuite::G28() {
 
     // Reset to the XY plane
     TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
-
-    /* TO DELETE
-    #define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-    #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-      #define HAS_HOMING_CURRENT 1
-    #endif
-
-    #if HAS_HOMING_CURRENT
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
-        };
-      #else
-        #define debug_current(...)
-      #endif
-
-      #define _SAVE_SET_CURRENT(A) \
-        const int16_t saved_current_##A = stepper##A.getMilliamps(); \
-        stepper##A.rms_current(A##_CURRENT_HOME); \
-        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
-
-      #if HAS_CURRENT_HOME(X)
-        _SAVE_SET_CURRENT(X);
-      #endif
-      #if HAS_CURRENT_HOME(X2)
-        _SAVE_SET_CURRENT(X2);
-      #endif
-      #if HAS_CURRENT_HOME(Y)
-        _SAVE_SET_CURRENT(Y);
-      #endif
-      #if HAS_CURRENT_HOME(Y2)
-        _SAVE_SET_CURRENT(Y2);
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        _SAVE_SET_CURRENT(Z);
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        _SAVE_SET_CURRENT(Z2);
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        _SAVE_SET_CURRENT(Z3);
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        _SAVE_SET_CURRENT(Z4);
-      #endif
-      #if HAS_CURRENT_HOME(I)
-        _SAVE_SET_CURRENT(I);
-      #endif
-      #if HAS_CURRENT_HOME(J)
-        _SAVE_SET_CURRENT(J);
-      #endif
-      #if HAS_CURRENT_HOME(K)
-        _SAVE_SET_CURRENT(K);
-      #endif
-      #if HAS_CURRENT_HOME(U)
-        _SAVE_SET_CURRENT(U);
-      #endif
-      #if HAS_CURRENT_HOME(V)
-        _SAVE_SET_CURRENT(V);
-      #endif
-      #if HAS_CURRENT_HOME(W)
-        _SAVE_SET_CURRENT(W);
-      #endif
-      #if SENSORLESS_STALLGUARD_DELAY
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
-    #endif // HAS_HOMING_CURRENT
-
-    */
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       motion_state_t saved_motion_state = begin_slow_homing();
@@ -574,58 +524,6 @@ void GcodeSuite::G28() {
 
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
-
-    // TO DELETE
-    /*
-    #if HAS_HOMING_CURRENT
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
-      #if HAS_CURRENT_HOME(X)
-        stepperX.rms_current(saved_current_X);
-      #endif
-      #if HAS_CURRENT_HOME(X2)
-        stepperX2.rms_current(saved_current_X2);
-      #endif
-      #if HAS_CURRENT_HOME(Y)
-        stepperY.rms_current(saved_current_Y);
-      #endif
-      #if HAS_CURRENT_HOME(Y2)
-        stepperY2.rms_current(saved_current_Y2);
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        stepperZ.rms_current(saved_current_Z);
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        stepperZ2.rms_current(saved_current_Z2);
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        stepperZ3.rms_current(saved_current_Z3);
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        stepperZ4.rms_current(saved_current_Z4);
-      #endif
-      #if HAS_CURRENT_HOME(I)
-        stepperI.rms_current(saved_current_I);
-      #endif
-      #if HAS_CURRENT_HOME(J)
-        stepperJ.rms_current(saved_current_J);
-      #endif
-      #if HAS_CURRENT_HOME(K)
-        stepperK.rms_current(saved_current_K);
-      #endif
-      #if HAS_CURRENT_HOME(U)
-        stepperU.rms_current(saved_current_U);
-      #endif
-      #if HAS_CURRENT_HOME(V)
-        stepperV.rms_current(saved_current_V);
-      #endif
-      #if HAS_CURRENT_HOME(W)
-        stepperW.rms_current(saved_current_W);
-      #endif
-      #if SENSORLESS_STALLGUARD_DELAY
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
-    #endif // HAS_HOMING_CURRENT
-    */
 
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
