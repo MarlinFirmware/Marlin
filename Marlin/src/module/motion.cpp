@@ -33,6 +33,10 @@
 #include "../lcd/marlinui.h"
 #include "../inc/MarlinConfig.h"
 
+#if HAS_TRINAMIC
+  #include "stepper/trinamic.h"
+#endif
+
 #if IS_SCARA
   #include "../libs/buzzer.h"
   #include "../lcd/marlinui.h"

@@ -33,7 +33,6 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../../feature/tmc_util.h"
-#include "../endstops.h"
 
 #define CLASS_TMC2130 TMC2130Stepper
 #define CLASS_TMC2160 TMC2160Stepper
@@ -108,6 +107,8 @@
 #if HAS_EXTRUDERS && !defined(CHOPPER_TIMING_E)
   #define CHOPPER_TIMING_E CHOPPER_TIMING
 #endif
+
+#define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
 
 #if HAS_TMC220x
   void tmc_serial_begin();

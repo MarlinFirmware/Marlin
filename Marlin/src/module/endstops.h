@@ -37,8 +37,6 @@
 #define _ESN_ITEM(K,A,M) ES_ITEM(K,ES_ENUM(A,M))
 #define ES_MINMAX(A) ES_ITEM(HAS_##A##_MIN_STATE, ES_ENUM(A,MIN)) ES_ITEM(HAS_##A##_MAX_STATE, ES_ENUM(A,MAX))
 
-#define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
-
 /**
  * Basic Endstop Flag Bits:
  * - Each axis with an endstop gets a flag for its homing direction.
