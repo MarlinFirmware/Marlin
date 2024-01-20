@@ -793,11 +793,11 @@ void MarlinUI::draw_status_message(const bool blink) {
     static lcd_uint_t pc = 0, pr = 2;
     inline void setPercentPos(const lcd_uint_t c, const lcd_uint_t r) { pc = c; pr = r; }
     void MarlinUI::drawPercent() {
-      const uint8_t progress = ui.get_progress_percent();
+      const uint8_t progress = get_progress_percent();
       if (progress) {
         lcd_moveto(pc, pr);
         lcd_put_u8str(F(TERN(IS_SD_PRINTING, "SD", "P:")));
-        lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)));
+        lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(get_progress_permyriad()), ui8tostr3rj(progress)));
         lcd_put_u8str(F("%"));
       }
     }
@@ -806,7 +806,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing()) {
-        const duration_t remaint = ui.get_remaining_time();
+        const duration_t remaint = get_remaining_time();
         timepos = TPOFFSET - remaint.toDigital(buffer);
         TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
@@ -817,7 +817,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
-      const duration_t interactt = ui.interaction_time;
+      const duration_t interactt = interaction_time;
       if (printingIsActive() && interactt.value) {
         timepos = TPOFFSET - interactt.toDigital(buffer);
         TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
