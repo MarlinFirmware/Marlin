@@ -3386,8 +3386,12 @@ void Planner::set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS) {
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
         #else
-          { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2,
-            (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
+          LOGICAL_AXIS_ARRAY(
+            (DEFAULT_EJERK) * 2,
+            (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2,
+            (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2,
+            (DEFAULT_UJERK) * 2, (DEFAULT_VJERK) * 2, (DEFAULT_WJERK) * 2
+          )
         #endif
       ;
       limit_and_warn(inMaxJerkMMS, axis, F("Jerk"), max_jerk_edit);
