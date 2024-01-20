@@ -1206,9 +1206,13 @@ void drawMainArea() {
     case ID_MainMenu:         drawMainMenu(); break;
     case ID_PrintProcess:     drawPrintProcess(); break;
     case ID_PrintDone:        drawPrintDone(); break;
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess: drawEndStopDiag(); break;)
+    #if HAS_ESDIAG
+      case ID_ESDiagProcess: drawEndStopDiag(); break;
+    #endif
     case ID_Popup:            popupDraw(); break;
-    TERN_(HAS_LOCKSCREEN, case ID_Locked: lockScreen.draw(); break;)
+    #if HAS_LOCKSCREEN
+      case ID_Locked: lockScreen.draw(); break;
+    #endif
     case ID_Menu:
     case ID_SetInt:
     case ID_SetPInt:
@@ -1227,14 +1231,8 @@ void hmiWaitForUser() {
   }
   if (!wait_for_user) {
     switch (checkkey) {
-      case ID_PrintDone:
-        select_page.reset();
-        gotoMainMenu();
-        break;
-      TERN_(HAS_BED_PROBE, case ID_Leveling:)
-      default:
-        hmiReturnScreen();
-        break;
+      case ID_PrintDone: select_page.reset(); gotoMainMenu(); break;
+      default: hmiReturnScreen(); break;
     }
   }
 }
@@ -1421,8 +1419,9 @@ void dwinHandleScreen() {
     case ID_SetIntNoDraw: hmiSetNoDraw(); break;
     case ID_PrintProcess: hmiPrinting(); break;
     case ID_Popup:        hmiPopup(); break;
-    TERN_(HAS_LOCKSCREEN, case ID_Locked: hmiLockScreen(); break;)
-
+    #if HAS_LOCKSCREEN
+      case ID_Locked: hmiLockScreen(); break;
+    #endif
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
     case ID_PrintDone:
@@ -1585,16 +1584,13 @@ void dwinLevelingDone() {
       hmiSaveProcessID(ID_PlotProcess);
 
       switch (result) {
-        #if ENABLED(MPCTEMP)
-          case MPCTEMP_START:
-        #elif ENABLED(PIDTEMP)
-          case PIDTEMP_START:
-        #endif
-            title.showCaption(GET_TEXT_F(MSG_HOTEND_TEMP_GRAPH));
-            DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Nozzle Temperature"));
-            _maxtemp = thermalManager.hotend_max_target(0);
-            _target = thermalManager.degTargetHotend(0);
-            break;
+        TERN_(MPCTEMP, case MPCTEMP_START:)
+        TERN_(PIDTEMP, case PIDTEMP_START:)
+          title.showCaption(GET_TEXT_F(MSG_HOTEND_TEMP_GRAPH));
+          DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, F("Nozzle Temperature"));
+          _maxtemp = thermalManager.hotend_max_target(0);
+          _target = thermalManager.degTargetHotend(0);
+          break;
         #if ENABLED(PIDTEMPBED)
           case PIDTEMPBED_START:
             title.showCaption(GET_TEXT_F(MSG_BED_TEMP_GRAPH));
@@ -1631,8 +1627,12 @@ void dwinLevelingDone() {
     if (seenC) hmiData.pidCycles = c;
     if (seenS) {
       switch (hid) {
-        OPTCODE(PIDTEMP,    case 0 ... HOTENDS - 1: hmiData.hotendPidT = temp; break)
-        OPTCODE(PIDTEMPBED, case H_BED:             hmiData.bedPidT = temp;    break)
+        #if ENABLED(PIDTEMP)
+          case 0 ... HOTENDS - 1: hmiData.hotendPidT = temp; break;
+        #endif
+        #if ENABLED(PIDTEMPBED)
+          case H_BED: hmiData.bedPidT = temp; break;
+        #endif
         default: break;
       }
     }

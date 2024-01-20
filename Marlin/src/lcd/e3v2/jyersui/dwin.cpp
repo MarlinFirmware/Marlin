@@ -257,15 +257,19 @@ private:
     uint8_t mesh_x = 0;
     uint8_t mesh_y = 0;
 
+    inline void manualValueUpdate(const bool undefined=false) {
+      gcode.process_subcommands_now(
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          TS(F("M421I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
+        #else
+          TS(F("G29I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
+        #endif
+      );
+      planner.synchronize();
+    }
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid = 1;
-
-      void manualValueUpdate(bool undefined=false) {
-        gcode.process_subcommands_now(
-          TS(F("M421I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
-        );
-        planner.synchronize();
-      }
 
       bool createPlaneFromMesh() {
         struct linear_fit_data lsf_results;
@@ -303,15 +307,6 @@ private:
           bedlevel.z_values[i][j] = mz - lsf_results.D;
         }
         return false;
-      }
-
-    #else
-
-      void manualValueUpdate() {
-        gcode.process_subcommands_now(
-          TS(F("G29I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
-        );
-        planner.synchronize();
       }
 
     #endif
