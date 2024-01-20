@@ -46,6 +46,10 @@
   #include "../../feature/bltouch.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -194,6 +198,21 @@
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
+
+  #if ENABLED(FT_MOTION) && IS_CORE
+    // Disable ft-motion for homing
+    struct OnExit {
+      ftMotionMode_t oldmm;
+      OnExit() {
+        oldmm = ftMotion.cfg.mode;
+        ftMotion.cfg.mode = ftMotionMode_DISABLED;
+      }
+      ~OnExit() {
+        ftMotion.cfg.mode = oldmm;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
