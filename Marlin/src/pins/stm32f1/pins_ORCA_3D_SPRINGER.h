@@ -299,7 +299,7 @@
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 
-      //#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       //  #ifndef RGB_LED_R_PIN
       //    #define RGB_LED_R_PIN    EXP1_06_PIN
       //  #endif
