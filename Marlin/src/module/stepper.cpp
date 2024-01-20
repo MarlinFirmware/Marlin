@@ -3460,6 +3460,77 @@ void Stepper::report_positions() {
       TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
     );
 
+    #if IS_CORE
+      // Define conditions for checking endstops
+      #define S_(N) current_block->steps[CORE_AXIS_##N]
+      #define D_(N) current_block->direction_bits[CORE_AXIS_##N]
+
+
+      #if CORE_IS_XY || CORE_IS_XZ
+        /**
+         * Head direction in -X axis for CoreXY and CoreXZ bots.
+         *
+         * If steps differ, both axes are moving.
+         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
+         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
+         */
+        #if ANY(COREXY, COREXZ)
+          #define X_CMP(A,B) ((A)==(B))
+        #else
+          #define X_CMP(A,B) ((A)!=(B))
+        #endif
+        #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && X_CMP(D_(1),D_(2))) )
+      #elif ENABLED(MARKFORGED_XY)
+        #define X_MOVE_TEST (current_block->steps.a != current_block->steps.b)
+      #else
+        #define X_MOVE_TEST !!current_block->steps.a
+      #endif
+
+      #if CORE_IS_XY || CORE_IS_YZ
+        /**
+         * Head direction in -Y axis for CoreXY / CoreYZ bots.
+         *
+         * If steps differ, both axes are moving
+         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
+         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
+         */
+        #if ANY(COREYX, COREYZ)
+          #define Y_CMP(A,B) ((A)==(B))
+        #else
+          #define Y_CMP(A,B) ((A)!=(B))
+        #endif
+        #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Y_CMP(D_(1),D_(2))) )
+      #elif ENABLED(MARKFORGED_YX)
+        #define Y_MOVE_TEST (current_block->steps.a != current_block->steps.b)
+      #else
+        #define Y_MOVE_TEST !!current_block->steps.b
+      #endif
+
+      #if CORE_IS_XZ || CORE_IS_YZ
+        /**
+         * Head direction in -Z axis for CoreXZ or CoreYZ bots.
+         *
+         * If steps differ, both axes are moving
+         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
+         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
+         */
+        #if ANY(COREZX, COREZY)
+          #define Z_CMP(A,B) ((A)==(B))
+        #else
+          #define Z_CMP(A,B) ((A)!=(B))
+        #endif
+        #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Z_CMP(D_(1),D_(2))) )
+      #else
+        #define Z_MOVE_TEST !!current_block->steps.c
+      #endif
+
+      X_MOVE_TEST? axis_did_move.x = true : axis_did_move.x = false;
+     
+      Y_MOVE_TEST? axis_did_move.y = true : axis_did_move.y = false;
+
+      Z_MOVE_TEST? axis_did_move.z = true : axis_did_move.z = false;
+    #endif   
+
     last_direction_bits = LOGICAL_AXIS_ARRAY(
       axis_did_move.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e,
       axis_did_move.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
