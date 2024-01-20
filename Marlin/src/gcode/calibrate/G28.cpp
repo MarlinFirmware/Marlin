@@ -27,6 +27,7 @@
 #include "../../module/endstops.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h" // for various
+#include "../../module/motion.h"
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -79,9 +80,11 @@
 
     // Set homing current to X and Y axis if defined
     #if HAS_HOMING_CURRENT
-      set_homing_current(X_AXIS, Y_AXIS);
+      set_homing_current(X_AXIS);
+      set_homing_current(Y_AXIS);
     #endif
 
+    
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
         NUM_AXIS_LIST(
@@ -100,9 +103,7 @@
 
     current_position.set(0.0, 0.0);
 
-    #if HAS_HOMING_CURRENT
-      restore_homing_current(X_AXIS, Y_AXIS);
-    #endif
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current());
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
@@ -146,15 +147,11 @@
       do_blocking_move_to_xy(destination);
 
       // Set homing current for Z if defined
-      #if HAS_HOMING_CURRENT
-        set_homing_current(Z_AXIS);
-      #endif
+      TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
 
       homeaxis(Z_AXIS);
 
-      #if HAS_HOMING_CURRENT
-        restore_homing_current();
-      #endif
+      TERN_(HAS_HOMING_CURRENT, restore_homing_current());
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);

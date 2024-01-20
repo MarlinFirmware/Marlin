@@ -49,10 +49,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#if HAS_TRINAMIC
-  #include "stepper/trinamic.h"
-#endif
-
 // Initialized by settings.load()
 float delta_height;
 abc_float_t delta_endstop_adj{0};

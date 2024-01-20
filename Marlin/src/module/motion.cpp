@@ -33,10 +33,6 @@
 #include "../lcd/marlinui.h"
 #include "../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
-  #include "stepper/trinamic.h"
-#endif
-
 #if IS_SCARA
   #include "../libs/buzzer.h"
   #include "../lcd/marlinui.h"
@@ -273,9 +269,8 @@ void report_current_position_projected() {
   /**
    * Sets the axis in parameter to its homing current
    * 
-   * This function is a rewrite of the original set_z_sensorless_current() that would set homing current only
-   * during sensorless Z probing with nozzle as probe. It was revamped to make it possible to set individual
-   * axis to their homing current when traveling towards an endstop without interfering other axis. 
+   * This function saves the running current of the steppers of a given axis,
+   * stores it into a variable and then applies the defined _CURRENT_HOME
    */
   void set_homing_current(const AxisEnum axis) {
 
@@ -400,7 +395,8 @@ void report_current_position_projected() {
   /**
    * Resets the motor current to its regular running current
    * 
-   * This function resets the current of every motor to its homing current and does not require a parameter
+   * This function resets the current of every motor to their previously stored values
+   * This should not be called before calling set_homing_current() first
    */
   void restore_homing_current() {
       

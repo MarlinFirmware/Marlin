@@ -110,11 +110,6 @@
 
 #define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
 
-#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-  #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-    #define HAS_HOMING_CURRENT 1
-  #endif
-
 #if HAS_TMC220x
   void tmc_serial_begin();
 #endif
@@ -127,7 +122,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(X, X) stepperX;
   static constexpr chopper_timing_t chopper_timing_X = CHOPPER_TIMING_X;
   #if HAS_CURRENT_HOME(X)
-    static int16_t saved_current_X = X_CURRENT;
+    static int16_t saved_current_X;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define X_ENABLE_INIT() NOOP
@@ -144,7 +139,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(Y, Y) stepperY;
   static constexpr chopper_timing_t chopper_timing_Y = CHOPPER_TIMING_Y;
   #if HAS_CURRENT_HOME(Y)
-    static int16_t saved_current_Y = Y_CURRENT;
+    static int16_t saved_current_Y;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Y_ENABLE_INIT() NOOP
@@ -161,7 +156,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(Z, Z) stepperZ;
   static constexpr chopper_timing_t chopper_timing_Z = CHOPPER_TIMING_Z;
   #if HAS_CURRENT_HOME(Z)
-    static int16_t saved_current_Z = Z_CURRENT;
+    static int16_t saved_current_Z;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z_ENABLE_INIT() NOOP
@@ -181,7 +176,7 @@ void reset_trinamic_drivers();
   #endif
   static constexpr chopper_timing_t chopper_timing_X2 = CHOPPER_TIMING_X2;
   #if HAS_CURRENT_HOME(X2)
-    static int16_t saved_current_X2 = X2_CURRENT;
+    static int16_t saved_current_X2;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define X2_ENABLE_INIT() NOOP
@@ -201,7 +196,7 @@ void reset_trinamic_drivers();
   #endif
   static constexpr chopper_timing_t chopper_timing_Y2 = CHOPPER_TIMING_Y2;
   #if HAS_CURRENT_HOME(Y2)
-    static int16_t saved_current_Y2 = Y2_CURRENT;
+    static int16_t saved_current_Y2;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Y2_ENABLE_INIT() NOOP
@@ -221,7 +216,7 @@ void reset_trinamic_drivers();
   #endif
   static constexpr chopper_timing_t chopper_timing_Z2 = CHOPPER_TIMING_Z2;
   #if HAS_CURRENT_HOME(Z2)
-    static int16_t saved_current_Z2 = Z2_CURRENT;
+    static int16_t saved_current_Z2;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z2_ENABLE_INIT() NOOP
@@ -241,7 +236,7 @@ void reset_trinamic_drivers();
   #endif
   static constexpr chopper_timing_t chopper_timing_Z3 = CHOPPER_TIMING_Z3;
   #if HAS_CURRENT_HOME(Z3)
-    static int16_t saved_current_Z3 = Z3_CURRENT;
+    static int16_t saved_current_Z3;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z3_ENABLE_INIT() NOOP
@@ -261,7 +256,7 @@ void reset_trinamic_drivers();
   #endif
   static constexpr chopper_timing_t chopper_timing_Z4 = CHOPPER_TIMING_Z4;
   #if HAS_CURRENT_HOME(Z4)
-    static int16_t saved_current_Z4 = Z4_CURRENT;
+    static int16_t saved_current_Z4;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define Z4_ENABLE_INIT() NOOP
@@ -278,7 +273,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(I, I) stepperI;
   static constexpr chopper_timing_t chopper_timing_I = CHOPPER_TIMING_I;
   #if HAS_CURRENT_HOME(I)
-    static int16_t saved_current_I = I_CURRENT;
+    static int16_t saved_current_I;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define I_ENABLE_INIT() NOOP
@@ -295,7 +290,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(J, J) stepperJ;
   static constexpr chopper_timing_t chopper_timing_J = CHOPPER_TIMING_J;
   #if HAS_CURRENT_HOME(J)
-    static int16_t saved_current_J = J_CURRENT;
+    static int16_t saved_current_J;
   #endif 
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define J_ENABLE_INIT() NOOP
@@ -312,7 +307,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(K, K) stepperK;
   static constexpr chopper_timing_t chopper_timing_K = CHOPPER_TIMING_K;
   #if HAS_CURRENT_HOME(K)
-    static int16_t saved_current_K = K_CURRENT;
+    static int16_t saved_current_K;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define K_ENABLE_INIT() NOOP
@@ -329,7 +324,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(U, U) stepperU;
   static constexpr chopper_timing_t chopper_timing_U = CHOPPER_TIMING_U;
   #if HAS_CURRENT_HOME(U)
-    static int16_t saved_current_U = U_CURRENT;
+    static int16_t saved_current_U;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define U_ENABLE_INIT() NOOP
@@ -346,7 +341,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(V, V) stepperV;
   static constexpr chopper_timing_t chopper_timing_V = CHOPPER_TIMING_V;
   #if HAS_CURRENT_HOME(V)
-    static int16_t saved_current_V = V_CURRENT;
+    static int16_t saved_current_V;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define V_ENABLE_INIT() NOOP
@@ -363,7 +358,7 @@ void reset_trinamic_drivers();
   extern TMC_CLASS(W, W) stepperW;
   static constexpr chopper_timing_t chopper_timing_W = CHOPPER_TIMING_W;
   #if HAS_CURRENT_HOME(W)
-    static int16_t saved_current_W = W_CURRENT;
+    static int16_t saved_current_W;
   #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define W_ENABLE_INIT() NOOP
