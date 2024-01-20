@@ -3524,11 +3524,11 @@ void Stepper::report_positions() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
-      X_MOVE_TEST? axis_did_move.x = true : axis_did_move.x = false;
+      axis_did_move.x = X_MOVE_TEST? true : false;
      
-      Y_MOVE_TEST? axis_did_move.y = true : axis_did_move.y = false;
+      axis_did_move.y = Y_MOVE_TEST? true : false;
 
-      Z_MOVE_TEST? axis_did_move.z = true : axis_did_move.z = false;
+      axis_did_move.z = Z_MOVE_TEST? true : false;
     #endif   
 
     last_direction_bits = LOGICAL_AXIS_ARRAY(
