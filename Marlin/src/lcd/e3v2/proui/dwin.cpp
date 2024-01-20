@@ -1488,7 +1488,11 @@ void dwinHomingStart() {
   hmiFlag.home_flag = true;
   hmiSaveProcessID(ID_Homing);
   title.showCaption(GET_TEXT_F(MSG_HOMING));
-  dwinShowPopup(TERN(TJC_DISPLAY, ICON_BLTouch, ICON_Printer_0), GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
+  #if ANY(TJC_DISPLAY, DACAI_DISPLAY)
+    dwinShowPopup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
+  #else
+    dwinShowPopup(ICON_Printer_0, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
+  #endif
 }
 
 void dwinHomingDone() {
@@ -1899,7 +1903,11 @@ void MarlinUI::refresh() { /* Nothing to see here */ }
 #endif
 
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
-  dwinDrawPopup(TERN(TJC_DISPLAY, ICON_BLTouch, ICON_Printer_0), GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
+  #if ANY(TJC_DISPLAY, DACAI_DISPLAY)
+    dwinDrawPopup(ICON_BLTouch, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
+  #else
+    dwinDrawPopup(ICON_Printer_0, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
+  #endif
   DWINUI::drawCenteredString(hmiData.colorPopupTxt, 270, GET_TEXT_F(MSG_TURN_OFF));
   dwinUpdateLCD();
 }
