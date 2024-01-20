@@ -289,36 +289,37 @@ void report_current_position_projected() {
 
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
     #define _SAVE_SET_CURRENT(A) \
+      saved_current_##A = stepper##A.getMilliamps(); \
       stepper##A.rms_current(A##_CURRENT_HOME); \
       debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
     
     #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     // Special handling of CORE and Markforged kinematics
       if (axis == X_AXIS || axis == Y_AXIS) {
-        #if (HAS_CURRENT_HOME(X))
+        #if HAS_CURRENT_HOME(X)
           _SAVE_SET_CURRENT(X);
         #endif
-        #if (HAS_CURRENT_HOME(X2))
+        #if HAS_CURRENT_HOME(X2)
           _SAVE_SET_CURRENT(X2);
         #endif
-        #if (HAS_CURRENT_HOME(Y))
+        #if HAS_CURRENT_HOME(Y)
           _SAVE_SET_CURRENT(Y);
         #endif
-        #if (HAS_CURRENT_HOME(Y2))
+        #if HAS_CURRENT_HOME(Y2)
           _SAVE_SET_CURRENT(Y2);
         #endif
         }
       if (axis == Z_AXIS) {
-        #if (HAS_CURRENT_HOME(Z)) 
+        #if HAS_CURRENT_HOME(Z)
           _SAVE_SET_CURRENT(Z);
         #endif
-        #if (HAS_CURRENT_HOME(Z2)) 
+        #if HAS_CURRENT_HOME(Z2)
           _SAVE_SET_CURRENT(Z2);
         #endif
-        #if (HAS_CURRENT_HOME(Z3))
+        #if HAS_CURRENT_HOME(Z3)
           _SAVE_SET_CURRENT(Z3);
         #endif
-        #if (HAS_CURRENT_HOME(Z4))
+        #if HAS_CURRENT_HOME(Z4)
           _SAVE_SET_CURRENT(Z4);
         #endif
         }
@@ -330,17 +331,17 @@ void report_current_position_projected() {
     #elif ANY(DELTA, POLARGRAPH, POLAR)
     // Special handling of DELTA kinematics
       if (axis == A_AXIS || axis == Z_AXIS) {
-        #if (HAS_CURRENT_HOME(X))
+        #if HAS_CURRENT_HOME(X)
           _SAVE_SET_CURRENT(X);
         #endif
       }
       if (axis == B_AXIS || axis == Z_AXIS) {
-        #if (HAS_CURRENT_HOME(Y))
+        #if HAS_CURRENT_HOME(Y)
           _SAVE_SET_CURRENT(Y);
         #endif
       }
       if (axis == C_AXIS || axis == Z_AXIS) {
-        #if (HAS_CURRENT_HOME(Z))
+        #if HAS_CURRENT_HOME(Z)
           _SAVE_SET_CURRENT(Z);
         #endif
       }
@@ -348,47 +349,47 @@ void report_current_position_projected() {
     #else
     // Special handling of standard Cartesian kinematics
       if (axis == X_AXIS) {
-        #if (HAS_CURRENT_HOME(X))
+        #if HAS_CURRENT_HOME(X)
             _SAVE_SET_CURRENT(X);
         #endif
       }
       if (axis == Y_AXIS) {
-        #if (HAS_CURRENT_HOME(Y))
+        #if HAS_CURRENT_HOME(Y)
           _SAVE_SET_CURRENT(Y);
         #endif
       }
       if (axis == Z_AXIS) {
-        #if (HAS_CURRENT_HOME(Z)) 
+        #if HAS_CURRENT_HOME(Z)
           _SAVE_SET_CURRENT(Z);
         #endif
-        #if (HAS_CURRENT_HOME(Z2)) 
+        #if HAS_CURRENT_HOME(Z2)
           _SAVE_SET_CURRENT(Z2);
         #endif
-        #if (HAS_CURRENT_HOME(Z3))
+        #if HAS_CURRENT_HOME(Z3)
           _SAVE_SET_CURRENT(Z3);
         #endif
-        #if (HAS_CURRENT_HOME(Z4))
+        #if HAS_CURRENT_HOME(Z4)
           _SAVE_SET_CURRENT(Z4);
         #endif
       }
     #endif
 
-    #if (HAS_CURRENT_HOME(I))
+    #if HAS_CURRENT_HOME(I)
       _SAVE_SET_CURRENT(I);
     #endif
-    #if (HAS_CURRENT_HOME(J))
+    #if HAS_CURRENT_HOME(J)
       _SAVE_SET_CURRENT(J);
     #endif
-    #if (HAS_CURRENT_HOME(K))
+    #if HAS_CURRENT_HOME(K)
       _SAVE_SET_CURRENT(K);
     #endif
-    #if (HAS_CURRENT_HOME(U))
+    #if HAS_CURRENT_HOME(U)
       _SAVE_SET_CURRENT(U);
     #endif
-    #if (HAS_CURRENT_HOME(V))
+    #if HAS_CURRENT_HOME(V)
       _SAVE_SET_CURRENT(V);
     #endif
-    #if (HAS_CURRENT_HOME(W))
+    #if HAS_CURRENT_HOME(W)
       _SAVE_SET_CURRENT(W);
     #endif
 
