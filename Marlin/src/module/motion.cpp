@@ -382,15 +382,12 @@ void report_current_position_projected() {
       _SAVE_SET_CURRENT(W);
     #endif
 
-
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
-
-#endif
-  } 
+  }
 
   /**
    * Resets the motor current to its regular running current
@@ -456,6 +453,7 @@ void report_current_position_projected() {
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
   }
+#endif
   // End HAS_HOMING_CURRENT
 
 
