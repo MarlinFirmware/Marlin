@@ -38,7 +38,6 @@ extern popupDrawFunc_t popupDraw;
 
 void drawSelectHighlight(const bool sel, const uint16_t ypos);
 inline void drawSelectHighlight(const bool sel) { drawSelectHighlight(sel, 280); };
-void dwinPopupContinue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2);
 void dwinPopupConfirmCancel(const uint8_t icon, FSTR_P const fmsg2);
 void gotoPopup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nullptr, const popupChangeFunc_t fnChange=nullptr);
 void hmiPopup();
@@ -67,5 +66,12 @@ void dwinDrawPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t
 template<typename T, typename U>
 void dwinShowPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
   dwinDrawPopup(icon, amsg1, amsg2, button);
+  dwinUpdateLCD();
+}
+
+template<typename T, typename U>
+void dwinPopupContinue(const uint8_t icon, T amsg1, U amsg2) {
+  hmiSaveProcessID(ID_WaitResponse);
+  dwinDrawPopup(icon, amsg1, amsg2, BTN_Continue);  // Button Continue
   dwinUpdateLCD();
 }
