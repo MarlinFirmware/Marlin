@@ -37,6 +37,9 @@ char* hex_address(const void * const w);
   char* hex_long(const uintptr_t l);
 #endif
 
+inline char* hex_long(const unsigned int w) { return hex_long(w); }
+inline char* hex_word(const unsigned short w) { return hex_word(w); }
+
 void print_hex_nybble(const uint8_t n);
 void print_hex_byte(const uint8_t b);
 void print_hex_word(const uint16_t w);
