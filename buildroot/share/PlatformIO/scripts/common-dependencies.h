@@ -31,7 +31,6 @@
 //
 // Conditionals only used for [features]
 //
-
 #if ENABLED(SR_LCD_3W_NL)
   // Feature checks for SR_LCD_3W_NL
 #elif ANY(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
