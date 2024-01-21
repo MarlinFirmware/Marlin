@@ -2046,9 +2046,8 @@ void gotoConfirmToPrint() {
   }
 
   void readEEPROM() {
-    const bool success = settings.load();
     dwinRedrawScreen();
-    DONE_BUZZ(success);
+    DONE_BUZZ(settings.load());
   }
 
   void resetEEPROM() {
