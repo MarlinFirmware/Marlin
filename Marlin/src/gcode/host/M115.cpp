@@ -88,7 +88,12 @@ void GcodeSuite::M115() {
      * This code should work on all STM32-based boards.
      */
     uint32_t * const UID = (uint32_t*)UID_BASE;
-    SERIAL_ECHO(hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2]));
+    SERIAL_ECHO(
+      #if DISABLED(STM32_UID_GNF)
+        F("embedded-"), hex_long(UID[0]), '-', hex_long(UID[1]), '-', hex_long(UID[2]), '-',
+      #endif
+      hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2])
+    );
   #endif
 
   SERIAL_EOL();
