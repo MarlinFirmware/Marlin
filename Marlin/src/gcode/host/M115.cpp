@@ -87,7 +87,7 @@ void GcodeSuite::M115() {
      * https://github.com/opulo-inc/lumenpnp
      * This code should work on all STM32-based boards.
      */
-    #if DISABLED(STM32_UID_GNF)
+    #if DISABLED(HAS_STM32_UID)
       uint16_t * const UID = (uint16_t*)UID_BASE;
       SERIAL_ECHO(
         F("CEDE2A2F-"), hex_word(UID[0]), '-', hex_word(UID[1]), '-', hex_word(UID[2]), '-',
