@@ -3421,7 +3421,7 @@
 // Machine UUID can come from STM32 CPU Serial Number
 #ifdef MACHINE_UUID
   #undef HAS_STM32_UID
-#elif !HAS_STM32_UID
+#elif !HAS_STM32_UID && defined(DEFAULT_MACHINE_UUID)
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
