@@ -115,6 +115,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MAX Too Far");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
+  LSTR MSG_TRAMMING_DONE                  = _UxGT("Tramming done");
+  LSTR MSG_LOWER                          = _UxGT("Lower");
+  LSTR MSG_RAISE                          = _UxGT("Raise");
+
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Select Origin");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Last value ");
 
@@ -158,8 +162,12 @@ namespace LanguageNarrow_en {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Move Axis");
+
   LSTR MSG_BED_LEVELING                   = _UxGT("Bed Leveling");
   LSTR MSG_LEVEL_BED                      = _UxGT("Level Bed");
+  LSTR MSG_PROBE_FOR_Z_VALUE              = _UxGT("Probe for Z Value");
+  LSTR MSG_ZERO_CURRENT_POINT             = _UxGT("Zero Current Point");
+
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bed Tramming");
   LSTR MSG_BED_TRAMMING_MANUAL            = _UxGT("Manual Tramming");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Adjust bed until the probe triggers.");
@@ -167,6 +175,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Good Points: ");
   LSTR MSG_BED_TRAMMING_LAST_Z            = _UxGT("Last Z: ");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Next Corner");
+
   LSTR MSG_MESH_EDITOR                    = _UxGT("Mesh Editor");
   LSTR MSG_MESH_VIEWER                    = _UxGT("Mesh Viewer");
   LSTR MSG_EDIT_MESH                      = _UxGT("Edit Mesh");
@@ -366,6 +375,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Heating to >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Cooling to ambient");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
+  LSTR MSG_FOR_NOZZLE_RUNNING             = _UxGT("for NOZZLE is running.");
+  LSTR MSG_FOR_BED_RUNNING                = _UxGT("for BED is running.");
   LSTR MSG_MPC_EDIT                       = _UxGT("Edit * MPC");
   LSTR MSG_MPC_POWER                      = _UxGT("Heater Power");
   LSTR MSG_MPC_POWER_E                    = _UxGT("Power *");
@@ -450,6 +461,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
+  LSTR MSG_NOZZLE_TEMPERATURE             = _UxGT("Nozzle Temperature");
+  LSTR MSG_BED_TEMPERATURE                = _UxGT("Bed Temperature");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Backlight Off");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Store Settings");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
@@ -671,6 +684,25 @@ namespace LanguageNarrow_en {
   LSTR MSG_COLORS_GREEN                   = _UxGT("Green");
   LSTR MSG_COLORS_BLUE                    = _UxGT("Blue");
   LSTR MSG_COLORS_WHITE                   = _UxGT("White");
+  LSTR MSG_SCREEN_BACKGROUND              = _UxGT("Screen Background");
+  LSTR MSG_CURSOR                         = _UxGT("Cursor");
+  LSTR MSG_TITLE_BACKGROUND               = _UxGT("Title Background");
+  LSTR MSG_TITLE_TEXT                     = _UxGT("Title Text");
+  LSTR MSG_TEXT                           = _UxGT("Text");
+  LSTR MSG_SELECTED                       = _UxGT("Selected");
+  LSTR MSG_SPLIT_LINE                     = _UxGT("Split Line");
+  LSTR MSG_HIGHLIGHT                      = _UxGT("Highlight");
+  LSTR MSG_STATUS_BACKGROUND              = _UxGT("Status Background");
+  LSTR MSG_STATUS_TEXT                    = _UxGT("Status Text");
+  LSTR MSG_POPUP_BACKGROUND               = _UxGT("Popup Background");
+  LSTR MSG_POPUP_TEXT                     = _UxGT("Popup Text");
+  LSTR MSG_ALERT_BACKGROUND               = _UxGT("Alert Background");
+  LSTR MSG_ALERT_TEXT                     = _UxGT("Alert Text");
+  LSTR MSG_PERCENT_TEXT                   = _UxGT("Percent Text");
+  LSTR MSG_BAR_FILL                       = _UxGT("Bar Fill");
+  LSTR MSG_INDICATOR_VALUE                = _UxGT("Indicator value");
+  LSTR MSG_COORDINATE_VALUE               = _UxGT("Coordinate value");
+
   LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Language");
   LSTR MSG_SOUND_ENABLE                   = _UxGT("Enable sound");
   LSTR MSG_LOCKSCREEN                     = _UxGT("Lock Screen");
@@ -711,6 +743,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
+  LSTR MSG_EXIT_TO_MAIN_MENU              = _UxGT("Exit to Main Menu");
 
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");
   LSTR MSG_MMU2_MENU                      = _UxGT("MMU");
@@ -914,6 +947,21 @@ namespace LanguageWide_en {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
+
+    LSTR MSG_OUTAGE_RECOVERY2             = _UxGT("It looks like the last");
+    LSTR MSG_OUTAGE_RECOVERY3             = _UxGT("file was interrupted.");
+
+    LSTR MSG_DISABLE_MANUAL_TRAMMING      = _UxGT("Disable manual tramming");
+    LSTR MSG_TRAMMING_WIZARD_START        = _UxGT("Tramming Wizard Start");
+    LSTR MSG_CALCULATING_AVERAGE          = _UxGT("Calculating average");
+    LSTR MSG_AND_RELATIVE_HEIGHTS         = _UxGT("and relative heights");
+    LSTR MSG_TOLERANCE_ACHIEVED           = _UxGT("Tolerance achieved!");
+    LSTR MSG_CORNERS_NOT_LEVELED          = _UxGT("Corners not leveled");
+    LSTR MSG_KNOB_ADJUSTMENT_REQUIRED     = _UxGT("Knob adjustment required");
+
+    LSTR MSG_POSITION_UNKNOWN             = _UxGT("WARNING: Current position unknown. Home axes.");
+    LSTR MSG_POSITION_UNKNOWN_Z           = _UxGT("WARNING: Z position unknown, move Z to home");
+
   #endif
 }
 
