@@ -1010,9 +1010,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
-      // TODO disable steppers ; something defintiely went wrong at this point, so we don't want to insist
-      // pushing against something and might want/need to quickly move the machine by hand to avoid damage
-      // (such as a hot nozzle melting the bed) ; playing a tone would be a wise thing too
+      // TODO disable steppers (unless G29_RETRY_AND_RECOVERis or G29_HALT_ON_FAILURE are set); something
+      // defintiely went wrong at this point, so we don't want to insist pushing against something and 
+      // might want/need to quickly move the machine by hand to avoid damage (such as a hot nozzle 
+      // melting the bed) ; playing a tone would be a wise thing too
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)
