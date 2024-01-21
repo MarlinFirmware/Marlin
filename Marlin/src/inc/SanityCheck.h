@@ -1672,6 +1672,11 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+#define WRONG_CURRENT_HOME(N) (N##_CURRENT_HOME > N##_CURRENT) ||
+  #if MAIN_AXIS_MAP(WRONG_CURRENT_HOME) MAP(WRONG_CURRENT_HOME, X2, Y2, Z2, Z3, Z4) 0
+    #error "One of CURRENT_HOME needs to be inferior or equal to its CURRENT"
+  #endif
+
 /**
  * Make sure Z_SAFE_HOMING point is reachable
  */

@@ -607,6 +607,11 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     probe_specific_action(true);  // Always re-deploy in this case
   #endif
 
+  // Change Z motor currents to homing current to prevent damage in case of bad sensor
+  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
+    set_homing_current(Z_AXIS);
+  #endif
+
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
@@ -627,7 +632,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       #endif
     }
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
-    set_homing_current(Z_AXIS);  // The "homing" current also applies to probing
+    
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
@@ -671,9 +676,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    restore_homing_current();
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   #endif // SENSORLESS_PROBING
+
+  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
+    restore_homing_current();
+  #endif
 
   #if ENABLED(BLTOUCH)
     if (probe_triggered && !bltouch.high_speed_mode && bltouch.stow())
