@@ -2476,7 +2476,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       meshViewer.drawMesh(zval, 2, 2);
 
       DWINUI::drawCenteredString(140, GET_TEXT_F(MSG_CALCULATING_AVERAGE));
-      DWINUI::drawCenteredString(160, GET_TEXT_F(MSG_AND RELATIVE_HEIGHTS));
+      DWINUI::drawCenteredString(160, GET_TEXT_F(MSG_AND_RELATIVE_HEIGHTS));
       safe_delay(1000);
       float avg = 0.0f;
       for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) avg += zval[x][y];
