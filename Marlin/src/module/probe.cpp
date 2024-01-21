@@ -626,7 +626,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    set_homing_current(Z_AXIS);                                            // The "homing" current also applies to probing
+    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
+    set_homing_current(Z_AXIS);  // The "homing" current also applies to probing
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
@@ -671,6 +672,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       #endif
     }
     restore_homing_current();
+    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   #endif // SENSORLESS_PROBING
 
   #if ENABLED(BLTOUCH)

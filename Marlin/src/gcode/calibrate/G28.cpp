@@ -145,13 +145,7 @@
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
-
-      // Set homing current for Z if defined
-      TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
-
       homeaxis(Z_AXIS);
-
-      TERN_(HAS_HOMING_CURRENT, restore_homing_current());
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);

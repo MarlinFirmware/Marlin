@@ -280,7 +280,7 @@ void report_current_position_projected() {
       stepper##A.rms_current(A##_CURRENT_HOME); \
       debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current...");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current");
     
     #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     // Special handling of CORE and Markforged kinematics
@@ -382,8 +382,6 @@ void report_current_position_projected() {
       _SAVE_SET_CURRENT(W);
     #endif
 
-    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
-
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
@@ -402,52 +400,50 @@ void report_current_position_projected() {
       stepper##A.rms_current(saved_current_##A); \
       debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current");
 
     #if HAS_CURRENT_HOME(X)
-      _RESTORE_CURRENT(X);
+      if (saved_current_X != 0) { _RESTORE_CURRENT(X); }
     #endif
     #if HAS_CURRENT_HOME(X2)
-      _RESTORE_CURRENT(X2);
+      if (saved_current_X2 != 0) { _RESTORE_CURRENT(X2); }
     #endif
     #if HAS_CURRENT_HOME(Y)
-      _RESTORE_CURRENT(Y);
+      if (saved_current_Y != 0) { _RESTORE_CURRENT(Y); }
     #endif
     #if HAS_CURRENT_HOME(Y2)
-      _RESTORE_CURRENT(Y2);
+      if (saved_current_Y2 != 0) { _RESTORE_CURRENT(Y2); }
     #endif
     #if HAS_CURRENT_HOME(Z)
-      _RESTORE_CURRENT(Z);
+      if (saved_current_Z != 0) { _RESTORE_CURRENT(Z); }
     #endif
     #if HAS_CURRENT_HOME(Z2)
-      _RESTORE_CURRENT(Z2);
+      if (saved_current_Z2 != 0) { _RESTORE_CURRENT(Z2); }
     #endif
     #if HAS_CURRENT_HOME(Z3)
-      _RESTORE_CURRENT(Z3);
+      if (saved_current_Z3 != 0) { _RESTORE_CURRENT(Z3); }
     #endif
     #if HAS_CURRENT_HOME(Z4)
-      _RESTORE_CURRENT(Z4);
+      if (saved_current_Z4 != 0) { _RESTORE_CURRENT(Z4); }
     #endif
     #if HAS_CURRENT_HOME(I)
-      _RESTORE_CURRENT(I);
+      if (saved_current_I != 0) { _RESTORE_CURRENT(I); }
     #endif
     #if HAS_CURRENT_HOME(J)
-      _RESTORE_CURRENT(J);
+      if (saved_current_J != 0) { _RESTORE_CURRENT(J); }
     #endif
     #if HAS_CURRENT_HOME(K)
-      _RESTORE_CURRENT(K);
+      if (saved_current_K != 0) { _RESTORE_CURRENT(K); }
     #endif
     #if HAS_CURRENT_HOME(U)
-      _RESTORE_CURRENT(U);
+      if (saved_current_U != 0) { _RESTORE_CURRENT(U); }
     #endif
     #if HAS_CURRENT_HOME(V)
-      _RESTORE_CURRENT(V);
+      if (saved_current_V != 0) { _RESTORE_CURRENT(V); }
     #endif
     #if HAS_CURRENT_HOME(W)
-      _RESTORE_CURRENT(W);
+      if (saved_current_W != 0) { _RESTORE_CURRENT(W); }
     #endif
-    
-    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
