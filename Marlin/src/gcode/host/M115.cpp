@@ -81,6 +81,7 @@ void GcodeSuite::M115() {
   );
 
   #if !defined(MACHINE_UUID) && HAS_STM32_UID
+  {
     /**
      * STM32-based devices have a 96-bit CPU device serial number.
      * Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations.
@@ -90,10 +91,11 @@ void GcodeSuite::M115() {
     uint32_t * const UID = (uint32_t*)UID_BASE;
     SERIAL_ECHO(
       #if DISABLED(STM32_UID_GNF)
-        F("embedded-"), hex_long(UID[0]), '-', hex_long(UID[1]), '-', hex_long(UID[2]), '-',
+        F("CEDE2A2F-"), hex_long(UID[0]), '-', hex_long(UID[1]), '-', hex_long(UID[2]), '-',
       #endif
       hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2])
     );
+  }
   #endif
 
   SERIAL_EOL();
