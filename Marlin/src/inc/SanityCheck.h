@@ -828,8 +828,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
-  #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
-    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
 #endif
 
@@ -1208,8 +1206,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
-  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE or Z Servo."
+  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2, or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1376,6 +1374,53 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
     #endif
   #endif
+
+  /**
+   * BIQU MicroProbe requirements
+   */
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #if DISABLED(PROBE_ENABLE_DISABLE)
+      #error "BIQU MicroProbe requires PROBE_ENABLE_DISABLE."
+    #elif !PIN_EXISTS(PROBE_ENABLE)
+      #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
+    #endif
+
+    #if ENABLED(BIQU_MICROPROBE_V1)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+        #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != LOW
+            #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+    #elif ENABLED(BIQU_MICROPROBE_V2)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+        #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != HIGH
+            #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #endif
+    #endif
+  #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
 
   /**
    * Require pin options and pins to be defined
