@@ -33,9 +33,12 @@ constexpr char hex_nybble(const uint8_t n) {
 char* hex_byte(const uint8_t b);
 char* hex_word(const uint16_t w);
 char* hex_address(const void * const w);
+#ifdef CPU_32_BIT
+  char* hex_long(const uintptr_t l);
+#endif
 
 void print_hex_nybble(const uint8_t n);
 void print_hex_byte(const uint8_t b);
 void print_hex_word(const uint16_t w);
 void print_hex_address(const void * const w);
-void print_hex_long(const uint32_t w, const char delimiter);
+void print_hex_long(const uint32_t w, const char delimiter='\0');

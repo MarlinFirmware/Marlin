@@ -35,7 +35,7 @@
   #include "../../feature/caselight.h"
 #endif
 
-#if ENABLED(MACHINE_UUID_IS_STM32_UUID)
+#if !defined(MACHINE_UUID) && HAS_STM32_UID
   #include "../../libs/hex_print.h"
 #endif
 
@@ -63,25 +63,6 @@
  */
 void GcodeSuite::M115() {
 
-  // STM32UID:111122223333
-  #if ENABLED(MACHINE_UUID_IS_STM32_UUID)
-    // STM32 based devices output the CPU device serial number
-    // Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
-    // https://github.com/opulo-inc/lumenpnp
-    // Although this code should work on all STM32 based boards
-    char uuid_str[25] = {0};
-    uint8_t uuid_str_index = 0;
-    uint32_t *uid_address = (uint32_t*)UID_BASE;
-    for (uint8_t i = 0; i < 3; ++i) {
-      const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
-      uid_address += 4U;
-      for (int B = 24; B >= 0; B -= 8) {
-        uuid_str[uuid_str_index++] = hex_byte(UID >> B)[0];
-        uuid_str[uuid_str_index++] = hex_byte(UID >> B)[1];
-      }
-    }
-  #endif
-
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL
@@ -91,11 +72,24 @@ void GcodeSuite::M115() {
     #if NUM_AXES != XYZ
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
+    #if defined(MACHINE_UUID) || HAS_STM32_UID
+      " UUID:"
+    #endif
     #ifdef MACHINE_UUID
-      " UUID:" MACHINE_UUID
+      MACHINE_UUID
     #endif
   );
 
+  #if !defined(MACHINE_UUID) && HAS_STM32_UID
+    /**
+     * STM32-based devices have a 96-bit CPU device serial number.
+     * Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations.
+     * https://github.com/opulo-inc/lumenpnp
+     * This code should work on all STM32-based boards.
+     */
+    uint32_t * const UID = (uint32_t*)UID_BASE;
+    SERIAL_ECHO(hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2]));
+  #endif
 
   SERIAL_EOL();
 

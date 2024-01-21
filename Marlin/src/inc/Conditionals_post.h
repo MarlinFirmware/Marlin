@@ -3418,11 +3418,7 @@
   #define USING_PULLDOWNS 1
 #endif
 
-#ifndef MACHINE_UUID
-  #ifdef HAS_STM32_UID
-    #define MACHINE_UUID ,uuid_str
-    #define MACHINE_UUID_IS_STM32_UUID
-  #else
-    #define MACHINE_UUID DEFAULT_MACHINE_UUID
-  #endif
+// Machine UUID can come from STM32 CPU Serial Number
+#if !defined(MACHINE_UUID) && !HAS_STM32_UID
+  #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
