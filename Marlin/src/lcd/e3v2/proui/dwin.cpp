@@ -1611,11 +1611,11 @@ void dwinLevelingDone() {
     }
 
     void drawHPlot() {
-      TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START);)
-      TERN_(MPCTEMP, dwinDrawPlot(MPCTEMP_START);)
+      TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
+      TERN_(MPCTEMP, dwinDrawPlot(MPCTEMP_START));
     }
     void drawBPlot() {
-      TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START);)
+      TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
     }
 
   #endif // PROUI_ITEM_PLOT
@@ -2058,7 +2058,7 @@ void gotoConfirmToPrint() {
 
   #if HAS_MESH
     void saveMesh() {
-      TERN_(MESH_BED_LEVELING, manualMeshSave();)
+      TERN_(MESH_BED_LEVELING, manualMeshSave());
       TERN(AUTO_BED_LEVELING_UBL, ublMeshSave(), writeEEPROM());
     }
   #endif

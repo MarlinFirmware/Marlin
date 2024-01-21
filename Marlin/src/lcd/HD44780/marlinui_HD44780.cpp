@@ -808,7 +808,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (printJobOngoing()) {
         const duration_t remaint = get_remaining_time();
         timepos = TPOFFSET - remaint.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
         lcd_put_u8str(buffer);
       }
@@ -820,7 +820,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       const duration_t interactt = interaction_time;
       if (printingIsActive() && interactt.value) {
         timepos = TPOFFSET - interactt.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'C');
         lcd_put_u8str(buffer);
       }
@@ -832,7 +832,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         timepos = TPOFFSET - elapsedt.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
         lcd_put_u8str(buffer);
       }
