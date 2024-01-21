@@ -41,24 +41,24 @@ char* hex_byte(const uint8_t b) {
   return &_hex[byte_start + 4];
 }
 
-inline void _hex_word(const uint16_t w) {
+inline void __hex_word(const uint16_t w) {
   _hex[byte_start + 2] = hex_nybble(w >> 12);
   _hex[byte_start + 3] = hex_nybble(w >> 8);
   _hex[byte_start + 4] = hex_nybble(w >> 4);
   _hex[byte_start + 5] = hex_nybble(w);
 }
 
-char* hex_word(const uint16_t w) {
-  _hex_word(w);
+char* _hex_word(const uint16_t w) {
+  __hex_word(w);
   return &_hex[byte_start + 2];
 }
 
-char* hex_long(const uintptr_t l) {
+char* _hex_long(const uintptr_t l) {
   _hex[2] = hex_nybble(l >> 28);
   _hex[3] = hex_nybble(l >> 24);
   _hex[4] = hex_nybble(l >> 20);
   _hex[5] = hex_nybble(l >> 16);
-  _hex_word((uint16_t)(l & 0xFFFF));
+  __hex_word((uint16_t)(l & 0xFFFF));
   return &_hex[2];
 }
 
