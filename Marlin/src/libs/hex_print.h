@@ -33,9 +33,7 @@ constexpr char hex_nybble(const uint8_t n) {
 char* hex_byte(const uint8_t b);
 char* hex_word(const uint16_t w);
 char* hex_address(const void * const w);
-#ifdef CPU_32_BIT
-  char* hex_long(const uintptr_t l);
-#endif
+char* hex_long(const uintptr_t l);
 
 template<typename T> char* hex_long(T w) { return hex_long(w); }
 template<typename T> char* hex_word(T w) { return hex_word(w); }
