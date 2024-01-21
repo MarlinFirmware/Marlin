@@ -392,7 +392,7 @@
           lcd_put_lchar(18, 3, current_selection == LCD_MIDDLE_BUTTON_CHOICE ? '>' : ' ');
         }
         // Consume rotation event
-        ui.encoderPosition = 0;
+        //ui.encoderPosition = 0;  // disabled this as this is causing issues with the Menu
       }
     #endif // ifdef HAS_WIRED_LCD
 
