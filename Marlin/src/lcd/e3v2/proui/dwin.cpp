@@ -3788,23 +3788,23 @@ void drawMaxAccelMenu() {
     if (SET_MENU(selectColorMenu, MSG_COLORS_SELECT, 20)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
       MENU_ITEM(ICON_StockConfiguration, MSG_RESTORE_DEFAULTS, onDrawMenuItem, restoreDefaultColors);
-      EDIT_ITEM(0, MSG_SCREEN_BACKGROUND, onDrawSelColorItem, selColor, &hmiData.colorBackground);
-      EDIT_ITEM(0, MSG_CURSOR, onDrawSelColorItem, selColor, &hmiData.colorCursor);
+      EDIT_ITEM(0, MSG_SCREEN_BACKGROUND,onDrawSelColorItem, selColor, &hmiData.colorBackground);
+      EDIT_ITEM(0, MSG_CURSOR,           onDrawSelColorItem, selColor, &hmiData.colorCursor);
       EDIT_ITEM(0, MSG_TITLE_BACKGROUND, onDrawSelColorItem, selColor, &hmiData.colorTitleBg);
-      EDIT_ITEM(0, MSG_TITLE_TEXT, onDrawSelColorItem, selColor, &hmiData.colorTitleTxt);
-      EDIT_ITEM(0, MSG_TEXT, onDrawSelColorItem, selColor, &hmiData.colorText);
-      EDIT_ITEM(0, MSG_SELECTED, onDrawSelColorItem, selColor, &hmiData.colorSelected);
-      EDIT_ITEM(0, MSG_SPLIT_LINE, onDrawSelColorItem, selColor, &hmiData.colorSplitLine);
-      EDIT_ITEM(0, MSG_HIGHLIGHT, onDrawSelColorItem, selColor, &hmiData.colorHighlight);
-      EDIT_ITEM(0, MSG_STATUS_BACKGROUND, onDrawSelColorItem, selColor, &hmiData.colorStatusBg);
-      EDIT_ITEM(0, MSG_STATUS_TEXT, onDrawSelColorItem, selColor, &hmiData.colorStatusTxt);
+      EDIT_ITEM(0, MSG_TITLE_TEXT,       onDrawSelColorItem, selColor, &hmiData.colorTitleTxt);
+      EDIT_ITEM(0, MSG_TEXT,             onDrawSelColorItem, selColor, &hmiData.colorText);
+      EDIT_ITEM(0, MSG_SELECTED,         onDrawSelColorItem, selColor, &hmiData.colorSelected);
+      EDIT_ITEM(0, MSG_SPLIT_LINE,       onDrawSelColorItem, selColor, &hmiData.colorSplitLine);
+      EDIT_ITEM(0, MSG_HIGHLIGHT,        onDrawSelColorItem, selColor, &hmiData.colorHighlight);
+      EDIT_ITEM(0, MSG_STATUS_BACKGROUND,onDrawSelColorItem, selColor, &hmiData.colorStatusBg);
+      EDIT_ITEM(0, MSG_STATUS_TEXT,      onDrawSelColorItem, selColor, &hmiData.colorStatusTxt);
       EDIT_ITEM(0, MSG_POPUP_BACKGROUND, onDrawSelColorItem, selColor, &hmiData.colorPopupBg);
-      EDIT_ITEM(0, MSG_POPUP_TEXT, onDrawSelColorItem, selColor, &hmiData.colorPopupTxt);
+      EDIT_ITEM(0, MSG_POPUP_TEXT,       onDrawSelColorItem, selColor, &hmiData.colorPopupTxt);
       EDIT_ITEM(0, MSG_ALERT_BACKGROUND, onDrawSelColorItem, selColor, &hmiData.colorAlertBg);
-      EDIT_ITEM(0, MSG_ALERT_TEXT, onDrawSelColorItem, selColor, &hmiData.colorAlertTxt);
-      EDIT_ITEM(0, MSG_PERCENT_TEXT, onDrawSelColorItem, selColor, &hmiData.colorPercentTxt);
-      EDIT_ITEM(0, MSG_BAR_FILL, onDrawSelColorItem, selColor, &hmiData.colorBarfill);
-      EDIT_ITEM(0, MSG_INDICATOR_VALUE, onDrawSelColorItem, selColor, &hmiData.colorIndicator);
+      EDIT_ITEM(0, MSG_ALERT_TEXT,       onDrawSelColorItem, selColor, &hmiData.colorAlertTxt);
+      EDIT_ITEM(0, MSG_PERCENT_TEXT,     onDrawSelColorItem, selColor, &hmiData.colorPercentTxt);
+      EDIT_ITEM(0, MSG_BAR_FILL,         onDrawSelColorItem, selColor, &hmiData.colorBarfill);
+      EDIT_ITEM(0, MSG_INDICATOR_VALUE,  onDrawSelColorItem, selColor, &hmiData.colorIndicator);
       EDIT_ITEM(0, MSG_COORDINATE_VALUE, onDrawSelColorItem, selColor, &hmiData.colorCoordinate);
     }
     updateMenu(selectColorMenu);
@@ -3815,9 +3815,9 @@ void drawMaxAccelMenu() {
     if (SET_MENU(getColorMenu, MSG_COLORS_GET, 5)) {
       BACK_ITEM(dwinApplyColor);
       MENU_ITEM(ICON_Cancel, MSG_BUTTON_CANCEL, onDrawMenuItem, drawSelectColorsMenu);
-      MENU_ITEM(0, MSG_COLORS_RED, onDrawGetColorItem, setRGBColor);
+      MENU_ITEM(0, MSG_COLORS_RED,   onDrawGetColorItem, setRGBColor);
       MENU_ITEM(1, MSG_COLORS_GREEN, onDrawGetColorItem, setRGBColor);
-      MENU_ITEM(2, MSG_COLORS_BLUE, onDrawGetColorItem, setRGBColor);
+      MENU_ITEM(2, MSG_COLORS_BLUE,  onDrawGetColorItem, setRGBColor);
     }
     updateMenu(getColorMenu);
     dwinDrawRectangle(1, *menuData.intPtr, 20, 315, DWIN_WIDTH - 20, 335);
