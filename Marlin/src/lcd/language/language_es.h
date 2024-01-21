@@ -71,7 +71,15 @@ namespace LanguageNarrow_es {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("¡Nivelación lista!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Compen. Altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajustar desfases");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Origen desfase X");
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Origen desfase Y");
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Origen desfase Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
+  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MÁX demasiado lejos");
+  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Asistente de Tramming");
+  LSTR MSG_TRAMMING_DONE                  = _UxGT("Tramming hecho");
+  LSTR MSG_LOWER                          = _UxGT("Bajar");
+  LSTR MSG_RAISE                          = _UxGT("Elevar");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Precal. ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
@@ -102,10 +110,15 @@ namespace LanguageNarrow_es {
   LSTR MSG_EXTRUDE                        = _UxGT("Extruir");
   LSTR MSG_RETRACT                        = _UxGT("Retraer");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover ejes");
+
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelando Cama");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivelar Cama");
+  LSTR MSG_PROBE_FOR_Z_VALUE              = _UxGT("Sonda para valor Z");
+  LSTR MSG_ZERO_CURRENT_POINT             = _UxGT("Punto de corriente cero");
+
   LSTR MSG_BED_TRAMMING                   = _UxGT("Recorrido Cama");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Siguente Esquina");
+
   LSTR MSG_MESH_EDITOR                    = _UxGT("Editor Mallado");
   LSTR MSG_EDIT_MESH                      = _UxGT("Editar Mallado");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Ed. Mallado parada");
@@ -259,6 +272,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_LCD_OFF                        = _UxGT("Apg");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");
+  LSTR MSG_FOR_NOZZLE_RUNNING             = _UxGT("para BOQUILLA está funcionando.");
+  LSTR MSG_FOR_BED_RUNNING                = _UxGT("para CAMA está funcionando.");
   LSTR MSG_SELECT_E                       = _UxGT("Seleccionar *");
   LSTR MSG_ACC                            = _UxGT("Aceleración");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -304,6 +319,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_ADVANCE_K                      = _UxGT("Avance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Avance K *");
   LSTR MSG_CONTRAST                       = _UxGT("Contraste LCD");
+  LSTR MSG_NOZZLE_TEMPERATURE             = _UxGT("Temperatura de la boquilla");
+  LSTR MSG_BED_TEMPERATURE                = _UxGT("Temperatura de la cama");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Guardar EEPROM");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Cargar EEPROM");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Rest. fábrica");
@@ -446,6 +463,24 @@ namespace LanguageNarrow_es {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Brillo cabina");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impresora incorrecta");
 
+  LSTR MSG_SCREEN_BACKGROUND              = _UxGT("Fondo de pantalla");
+  LSTR MSG_CURSOR                         = _UxGT("Puntero");
+  LSTR MSG_TITLE_BACKGROUND               = _UxGT("Fondo del título");
+  LSTR MSG_TITLE_TEXT                     = _UxGT("Texto del título");
+  LSTR MSG_TEXT                           = _UxGT("Texto");
+  LSTR MSG_SELECTED                       = _UxGT("Seleccionado");
+  LSTR MSG_SPLIT_LINE                     = _UxGT("Linea divisoria");
+  LSTR MSG_HIGHLIGHT                      = _UxGT("Resaltar");
+  LSTR MSG_STATUS_BACKGROUND              = _UxGT("Fondo de estado");
+  LSTR MSG_STATUS_TEXT                    = _UxGT("Texto de estado");
+  LSTR MSG_POPUP_BACKGROUND               = _UxGT("Fondo emergente");
+  LSTR MSG_POPUP_TEXT                     = _UxGT("Texto emergente");
+  LSTR MSG_ALERT_BACKGROUND               = _UxGT("Fondo de alerta");
+  LSTR MSG_ALERT_TEXT                     = _UxGT("Texto de alerta");
+  LSTR MSG_PERCENT_TEXT                   = _UxGT("Texto porcentual");
+  LSTR MSG_BAR_FILL                       = _UxGT("Relleno de barra");
+  LSTR MSG_INDICATOR_VALUE                = _UxGT("Valor del indicador");
+  LSTR MSG_COORDINATE_VALUE               = _UxGT("Valor de coordenada");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Impresiones");
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completadas");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
@@ -471,6 +506,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist. filamento mm");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Ir a origen Fallado");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondeo Fallado");
+  LSTR MSG_EXIT_TO_MAIN_MENU              = _UxGT("Salir al menú principal");
 
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("ELIJE FILAMENTO");
   LSTR MSG_MMU2_MENU                      = _UxGT("MMU");
@@ -557,6 +593,20 @@ namespace LanguageWide_es {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total de imp.");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Impresión más larga");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Total Extruido");
+
+    LSTR MSG_OUTAGE_RECOVERY2             = _UxGT("Parece que el último");
+    LSTR MSG_OUTAGE_RECOVERY3             = _UxGT("archivo fue interrumpido.");
+
+    LSTR MSG_DISABLE_MANUAL_TRAMMING      = _UxGT("Deshabilitar tramming manual");
+    LSTR MSG_TRAMMING_WIZARD_START        = _UxGT("Iniciar asistente de tramming");
+    LSTR MSG_CALCULATING_AVERAGE          = _UxGT("Calculando promedio");
+    LSTR MSG_AND_RELATIVE_HEIGHTS         = _UxGT("y alturas relativas");
+    LSTR MSG_TOLERANCE_ACHIEVED           = _UxGT("¡Tolerancia lograda!");
+    LSTR MSG_CORNERS_NOT_LEVELED          = _UxGT("Esquinas no niveladas");
+    LSTR MSG_KNOB_ADJUSTMENT_REQUIRED     = _UxGT("Se require ajuste de perilla");
+
+    LSTR MSG_POSITION_UNKNOWN             = _UxGT("ADVERTENCIA: Posición actual desconocida. Ejes de inicio.");
+    LSTR MSG_POSITION_UNKNOWN_Z           = _UxGT("ADVERTENCIA: Posición Z desconocida, mueva Z a inicio");
   #endif
 }
 
