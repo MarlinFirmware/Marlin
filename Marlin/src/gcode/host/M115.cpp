@@ -35,7 +35,7 @@
   #include "../../feature/caselight.h"
 #endif
 
-#if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
+#if !defined(MACHINE_UUID) && HAS_STM32_UID
   #include "../../libs/hex_print.h"
 #endif
 
@@ -62,6 +62,7 @@
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
  */
 void GcodeSuite::M115() {
+
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL
@@ -71,24 +72,31 @@ void GcodeSuite::M115() {
     #if NUM_AXES != XYZ
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
+    #if defined(MACHINE_UUID) || HAS_STM32_UID
+      " UUID:"
+    #endif
     #ifdef MACHINE_UUID
-      " UUID:" MACHINE_UUID
+      MACHINE_UUID
     #endif
   );
 
-  // STM32UID:111122223333
-  #if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
-    // STM32 based devices output the CPU device serial number
-    // Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
-    // https://github.com/opulo-inc/lumenpnp
-    // Although this code should work on all STM32 based boards
-    SERIAL_ECHOPGM(" UUID:");
-    uint32_t *uid_address = (uint32_t*)UID_BASE;
-    for (uint8_t i = 0; i < 3; ++i) {
-      const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
-      uid_address += 4U;
-      for (int B = 24; B >= 0; B -= 8) print_hex_byte(UID >> B);
-    }
+  #if !defined(MACHINE_UUID) && HAS_STM32_UID
+    /**
+     * STM32-based devices have a 96-bit CPU device serial number.
+     * Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations.
+     * https://github.com/opulo-inc/lumenpnp
+     * This code should work on all STM32-based boards.
+     */
+    #if ENABLED(STM32_UID_SHORT_FORM)
+      uint32_t * const UID = (uint32_t*)UID_BASE;
+      SERIAL_ECHO(hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2]));
+    #else
+      uint16_t * const UID = (uint16_t*)UID_BASE;
+      SERIAL_ECHO(
+        F("CEDE2A2F-"), hex_word(UID[0]), '-', hex_word(UID[1]), '-', hex_word(UID[2]), '-',
+        hex_word(UID[3]), hex_word(UID[4]), hex_word(UID[5])
+      );
+    #endif
   #endif
 
   SERIAL_EOL();
