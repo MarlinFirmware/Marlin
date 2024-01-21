@@ -20,7 +20,7 @@
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 #if NEED_HEX_PRINT
 
