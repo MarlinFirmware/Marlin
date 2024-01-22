@@ -2046,8 +2046,8 @@ void gotoConfirmToPrint() {
   }
 
   void readEEPROM() {
-    dwinRedrawScreen();
     DONE_BUZZ(settings.load());
+    dwinRedrawScreen();
   }
 
   void resetEEPROM() {
