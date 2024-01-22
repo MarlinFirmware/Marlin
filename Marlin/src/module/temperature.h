@@ -522,6 +522,9 @@ struct HeaterWatch {
   typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
 #endif
 
+// Just raw temperature sensor ranges
+typedef struct { raw_adc_t raw_min, raw_max; } temp_raw_range_t;
+
 // Temperature sensor read value ranges
 typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
 
@@ -594,7 +597,7 @@ class Temperature {
     #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTENDS];
       static constexpr celsius_t hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-      static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
+      static constexpr celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
 
     #if HAS_HEATED_BED
@@ -727,6 +730,7 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
+      // Sensor ranges, not user-configured
       static temp_range_t temp_range[HOTENDS];
     #endif
 
@@ -737,7 +741,7 @@ class Temperature {
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
       #endif
-      static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
+      static temp_raw_range_t temp_sensor_range_bed;
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -747,7 +751,7 @@ class Temperature {
       #if DISABLED(PIDTEMPCHAMBER)
         static millis_t next_chamber_check_ms;
       #endif
-      static raw_adc_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
+      static temp_raw_range_t temp_sensor_range_chamber;
     #endif
 
     #if HAS_COOLER
@@ -755,11 +759,11 @@ class Temperature {
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
-      static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
+      static temp_raw_range_t temp_sensor_range_cooler;
     #endif
 
     #if ALL(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
-      static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+      static temp_raw_range_t temp_sensor_range_board;
     #endif
 
     #if ALL(HAS_TEMP_SOC, THERMAL_PROTECTION_SOC)
@@ -1193,8 +1197,10 @@ class Temperature {
       static constexpr bool adaptive_fan_slowing = true;
     #endif
 
+    static bool tuning_idle(const millis_t &ms);
+
     /**
-     * Perform auto-tuning for hotend or bed in response to M303
+     * M303 PID auto-tuning for hotends or bed
      */
     #if HAS_PID_HEATING
 
@@ -1219,6 +1225,9 @@ class Temperature {
 
     #endif // HAS_PID_HEATING
 
+    /**
+     * M306 MPC auto-tuning for hotends
+     */
     #if ENABLED(MPC_AUTOTUNE)
 
       // Utility class to perform MPCTEMP auto tuning measurements

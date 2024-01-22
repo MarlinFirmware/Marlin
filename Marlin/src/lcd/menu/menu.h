@@ -146,6 +146,7 @@ typedef union {
   uint32_t  uint32;
   celsius_t celsius;
 } chimera_t;
+
 extern chimera_t editable;
 
 // Base class for Menu Edit Items

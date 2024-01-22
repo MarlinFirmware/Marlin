@@ -96,7 +96,7 @@
   #define BTN_EN1                          P4_28
   #define BTN_EN2                          P1_27
   #define BTN_ENC                          P3_26
-  #ifndef SDCARD_CONNECTION
+  #if !defined(SDCARD_CONNECTION) && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #endif
 #endif

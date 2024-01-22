@@ -133,6 +133,12 @@ volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
 uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
 
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  float Planner::mm_per_step[DISTINCT_AXES];    // (mm) Millimeters per step
+#else
+  constexpr float PlannerSettings::axis_steps_per_mm[DISTINCT_AXES];
+  constexpr float Planner::mm_per_step[DISTINCT_AXES];
+#endif
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
 /**
@@ -145,8 +151,6 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-
-float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;         // (mm) M205 J
@@ -1901,13 +1905,13 @@ bool Planner::_populate_block(
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
       #if HAS_X_AXIS
-        " A:", target.a, " (", dist.a, " steps)"
+        " " STR_A ":", target.a, " (", dist.a, " steps)"
       #endif
       #if HAS_Y_AXIS
-        " B:", target.b, " (", dist.b, " steps)"
+        " " STR_B ":", target.b, " (", dist.b, " steps)"
       #endif
       #if HAS_Z_AXIS
-        " C:", target.c, " (", dist.c, " steps)"
+        " " STR_C ":", target.c, " (", dist.c, " steps)"
       #endif
       #if HAS_I_AXIS
         " " STR_I ":", target.i, " (", dist.i, " steps)"
@@ -3308,22 +3312,20 @@ void Planner::refresh_acceleration_rates() {
  * Must be called whenever settings.axis_steps_per_mm changes!
  */
 void Planner::refresh_positioning() {
-  LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
+  #endif
   set_position_mm(current_position);
   refresh_acceleration_rates();
 }
 
 // Apply limits to a variable and give a warning if the value was out of range
-inline void limit_and_warn(float &val, const AxisEnum axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
+inline void limit_and_warn(float &val, const AxisEnum axis, FSTR_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = TERN_(HAS_EXTRUDERS, axis > E_AXIS ? E_AXIS :) axis;
   const float before = val;
   LIMIT(val, 0.1f, max_limit[lim_axis]);
-  if (before != val) {
-    SERIAL_CHAR(AXIS_CHAR(lim_axis));
-    SERIAL_ECHOPGM(" Max ");
-    SERIAL_ECHOPGM_P(setting_name);
-    SERIAL_ECHOLNPGM(" limited to ", val);
-  }
+  if (before != val)
+    SERIAL_ECHOLN(C(AXIS_CHAR(lim_axis)), F(" Max "), setting_name, F(" limited to "), val);
 }
 
 /**
@@ -3342,7 +3344,7 @@ void Planner::set_max_acceleration(const AxisEnum axis, float inMaxAccelMMS2) {
       constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
       const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
-    limit_and_warn(inMaxAccelMMS2, axis, PSTR("Acceleration"), max_acc_edit_scaled);
+    limit_and_warn(inMaxAccelMMS2, axis, F("Acceleration"), max_acc_edit_scaled);
   #endif
   settings.max_acceleration_mm_per_s2[axis] = inMaxAccelMMS2;
 
@@ -3365,7 +3367,7 @@ void Planner::set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS) {
       constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
       const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
-    limit_and_warn(inMaxFeedrateMMS, axis, PSTR("Feedrate"), max_fr_edit_scaled);
+    limit_and_warn(inMaxFeedrateMMS, axis, F("Feedrate"), max_fr_edit_scaled);
   #endif
   settings.max_feedrate_mm_s[axis] = inMaxFeedrateMMS;
 }
@@ -3384,11 +3386,15 @@ void Planner::set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS) {
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
         #else
-          { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2,
-            (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
+          LOGICAL_AXIS_ARRAY(
+            (DEFAULT_EJERK) * 2,
+            (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2,
+            (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2,
+            (DEFAULT_UJERK) * 2, (DEFAULT_VJERK) * 2, (DEFAULT_WJERK) * 2
+          )
         #endif
       ;
-      limit_and_warn(inMaxJerkMMS, axis, PSTR("Jerk"), max_jerk_edit);
+      limit_and_warn(inMaxJerkMMS, axis, F("Jerk"), max_jerk_edit);
     #endif
     max_jerk[axis] = inMaxJerkMMS;
   }
