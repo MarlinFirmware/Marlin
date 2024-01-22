@@ -139,10 +139,10 @@ bool NextionTFT::readTFTCommand() {
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
-        DEBUG_ECHOLNPGM(  "> ", AS_CHAR(nextion_command[0]),
-                         "\n> ", AS_CHAR(nextion_command[1]),
-                         "\n> ", AS_CHAR(nextion_command[2]),
-                         "\n> ", AS_CHAR(nextion_command[3]),
+        DEBUG_ECHOLNPGM(  "> ", C(nextion_command[0]),
+                         "\n> ", C(nextion_command[1]),
+                         "\n> ", C(nextion_command[2]),
+                         "\n> ", C(nextion_command[3]),
                          "\nprinter_state:", printer_state);
     #endif
   }
@@ -158,8 +158,7 @@ void NextionTFT::sendFileList(int8_t startindex) {
 }
 
 void NextionTFT::selectFile() {
-  strncpy(selectedfile, nextion_command + 4, command_len - 4);
-  selectedfile[command_len - 5] = '\0';
+  strlcpy(selectedfile, nextion_command + 4, command_len - 3);
   #if NEXDEBUG(N_FILE)
     DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
@@ -324,7 +323,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     SEND_PRINT_INFO("t8", getFilamentUsed_str);
     break;
 
-  case 28: // Filament laod/unload
+  case 28: // Filament load/unload
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #define SEND_PAUSE_INFO(A, B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
     #else

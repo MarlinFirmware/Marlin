@@ -655,7 +655,9 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       // Manage the planner
-      static void ftMotion_BlockQueueUpdate();
+      static void ftMotion_blockQueueUpdate();
+      // Set current position in steps when reset flag is set in M493 and planner already synchronized
+      static void ftMotion_syncPosition();
     #endif
 
     #if HAS_ZV_SHAPING
@@ -694,8 +696,7 @@ class Stepper {
     #endif
 
     #if ENABLED(FT_MOTION)
-      static void ftMotion_stepper(const bool applyDir, const ft_command_t command);
-      static void ftMotion_refreshAxisDidMove();
+      static void ftMotion_stepper();
     #endif
 
 };

@@ -22,7 +22,6 @@
  * Web      :  https://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
-
 #pragma once
 
 #include "../../../inc/MarlinConfig.h"

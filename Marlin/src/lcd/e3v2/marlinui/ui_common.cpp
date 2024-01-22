@@ -186,7 +186,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   auto status_changed = []{
     static MString<>::hash_t old_hash = 0x0000;
-    const MString<>::hash_t hash = ui.status_message.hash();
+    const MString<>::hash_t hash = status_message.hash();
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
     return hash_changed || !did_first_redraw;
@@ -324,7 +324,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
 
     bool mv_colon = false;
-    if (vlen) {
+    if (vlen && !center) {
       // Move the leading colon from the value to the label below
       mv_colon = (*vstr == ':');
       // Shorter value, wider label

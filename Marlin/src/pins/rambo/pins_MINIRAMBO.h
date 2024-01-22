@@ -172,7 +172,7 @@
 
       #define SD_DETECT_PIN                   72
 
-    #else                                         // !MINIRAMBO_10A
+    #else // !MINIRAMBO_10A
 
       // AUX-4
       #define BEEPER_PIN                      84

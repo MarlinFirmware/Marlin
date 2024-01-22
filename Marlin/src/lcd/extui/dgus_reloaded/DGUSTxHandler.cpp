@@ -31,7 +31,9 @@
 
 #include "../ui_api.h"
 #include "../../../module/stepper.h"
+#include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
 #endif
@@ -266,15 +268,19 @@ void DGUSTxHandler::tempMax(DGUS_VP &vp) {
 
   switch (vp.addr) {
     default: return;
-    case DGUS_Addr::TEMP_Max_Bed:
-      temp = BED_MAX_TARGET;
-      break;
-    case DGUS_Addr::TEMP_Max_H0:
-      temp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
-      break;
+    #if HAS_HEATED_BED
+      case DGUS_Addr::TEMP_Max_Bed:
+        temp = BED_MAX_TARGET;
+        break;
+    #endif
+    #if HAS_HOTEND
+      case DGUS_Addr::TEMP_Max_H0:
+        temp = thermalManager.hotend_max_target(0);
+        break;
+    #endif
     #if HAS_MULTI_HOTEND
       case DGUS_Addr::TEMP_Max_H1:
-        temp = HEATER_1_MAXTEMP - HOTEND_OVERSHOOT;
+        temp = thermalManager.hotend_max_target(1);
         break;
     #endif
   }
