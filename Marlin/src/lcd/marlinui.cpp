@@ -57,7 +57,7 @@ MarlinUI ui;
   #define BASIC_PROGRESS_BAR 1
 #endif
 
-#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, BASIC_PROGRESS_BAR)
+#if ANY(HAS_DISPLAY, BASIC_PROGRESS_BAR)
   #include "../module/printcounter.h"
 #endif
 
@@ -67,7 +67,7 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if HAS_STATUS_MESSAGE
+#if HAS_DISPLAY
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
@@ -1467,7 +1467,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
 #include <stdarg.h>
 
-#if HAS_STATUS_MESSAGE
+#if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
     #include "extui/ui_api.h"
@@ -1652,7 +1652,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
   #endif
 
-#else // !HAS_STATUS_MESSAGE
+#else // !HAS_DISPLAY
 
   //
   // Send the status line as a host notification
@@ -1679,7 +1679,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     host_notify(msg);
   }
 
-#endif // !HAS_STATUS_MESSAGE
+#endif // !HAS_DISPLAY
 
 #if HAS_DISPLAY
 

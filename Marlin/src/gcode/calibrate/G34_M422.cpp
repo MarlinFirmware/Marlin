@@ -176,7 +176,7 @@ void GcodeSuite::G34() {
         bool adjustment_reverse = false;
       #endif
 
-      #if HAS_STATUS_MESSAGE
+      #if HAS_DISPLAY
         PGM_P const msg_iteration = GET_TEXT(MSG_ITERATION);
         const uint8_t iter_str_len = strlen_P(msg_iteration);
       #endif
@@ -190,7 +190,7 @@ void GcodeSuite::G34() {
 
         const int iter = iteration + 1;
         SERIAL_ECHOLNPGM("\nG34 Iteration: ", iter);
-        #if HAS_STATUS_MESSAGE
+        #if HAS_DISPLAY
           char str[iter_str_len + 2 + 1];
           sprintf_P(str, msg_iteration, iter);
           ui.set_status(str);
