@@ -1944,9 +1944,9 @@ void prepare_line_to_destination() {
         const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
         const bool bad_home = !WITHIN(time_delta, -SHV_ERROR_MARGIN, SHV_ERROR_MARGIN);
         if (DEBUGGING(INFO))
-          SERIAL_ECHOLNPGM("Axis:", AS_CHAR(AXIS_CHAR(axis)), " Distance:", expected_distance, " Feedrate:", home_fr_mm_s, " Expected stop time:", time_to_stop, " Difference:", time_delta);
+          SERIAL_ECHOLNPGM("Axis:", C(AXIS_CHAR(axis)), " Distance:", expected_distance, " Feedrate:", home_fr_mm_s, " Expected stop time:", time_to_stop, " Difference:", time_delta);
         if (DEBUGGING(ERRORS) && bad_home)
-          SERIAL_ECHOLNPGM("Homing fault! Time difference: ", time_delta, ", Axis: ", AS_CHAR(AXIS_CHAR(axis)));
+          SERIAL_ECHOLNPGM("Homing fault! Time difference: ", time_delta, ", Axis: ", C(AXIS_CHAR(axis)));
       #endif
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
