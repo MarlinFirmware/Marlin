@@ -114,7 +114,7 @@
   #define MAX_FLOW_RATE   299
   #define MIN_FLOW_RATE   10
 
-  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+  #define MAX_E_TEMP    thermalManager.hotend_max_target(0)
   #define MIN_E_TEMP    0
 #endif
 
@@ -2364,6 +2364,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           else
             drawMenu(ID_MaxAcceleration);
           break;
+
         #if ENABLED(CLASSIC_JERK)
           case MOTION_JERK:
             if (draw)
@@ -2372,12 +2373,16 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_MaxJerk);
             break;
         #endif
-        case MOTION_STEPS:
-          if (draw)
-            drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
-          else
-            drawMenu(ID_Steps);
-          break;
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          case MOTION_STEPS:
+            if (draw)
+              drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
+            else
+              drawMenu(ID_Steps);
+            break;
+        #endif
+
         #if HAS_HOTEND
           case MOTION_FLOW:
             if (draw) {
@@ -2388,6 +2393,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               modifyValue(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
         #endif
+
         #if ENABLED(LIN_ADVANCE)
           case MOTION_LA:
             if (draw) {
@@ -2613,64 +2619,69 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         }
         break;
     #endif
-    case ID_Steps:
 
-      #define STEPS_BACK 0
-      #define STEPS_X (STEPS_BACK + ENABLED(HAS_X_AXIS))
-      #define STEPS_Y (STEPS_X + ENABLED(HAS_Y_AXIS))
-      #define STEPS_Z (STEPS_Y + ENABLED(HAS_Z_AXIS))
-      #define STEPS_E (STEPS_Z + ENABLED(HAS_HOTEND))
-      #define STEPS_TOTAL STEPS_E
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-      switch (item) {
-        case STEPS_BACK:
-          if (draw)
-            drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
-          else
-            drawMenu(ID_Motion, MOTION_STEPS);
-          break;
-        #if HAS_X_AXIS
-          case STEPS_X:
-            if (draw) {
-              drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_A_STEPS));
-              drawFloat(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
-            }
+      case ID_Steps:
+
+        #define STEPS_BACK 0
+        #define STEPS_X (STEPS_BACK + ENABLED(HAS_X_AXIS))
+        #define STEPS_Y (STEPS_X + ENABLED(HAS_Y_AXIS))
+        #define STEPS_Z (STEPS_Y + ENABLED(HAS_Z_AXIS))
+        #define STEPS_E (STEPS_Z + ENABLED(HAS_HOTEND))
+        #define STEPS_TOTAL STEPS_E
+
+        switch (item) {
+          case STEPS_BACK:
+            if (draw)
+              drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
             else
-              modifyValue(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
+              drawMenu(ID_Motion, MOTION_STEPS);
             break;
-        #endif
-        #if HAS_Y_AXIS
-          case STEPS_Y:
-            if (draw) {
-              drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_B_STEPS));
-              drawFloat(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
-            }
-            else
-              modifyValue(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
-            break;
-        #endif
-        #if HAS_Z_AXIS
-          case STEPS_Z:
-            if (draw) {
-              drawMenuItem(row, ICON_StepZ, GET_TEXT_F(MSG_C_STEPS));
-              drawFloat(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
-            }
-            else
-              modifyValue(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
-            break;
-        #endif
-        #if HAS_HOTEND
-          case STEPS_E:
-            if (draw) {
-              drawMenuItem(row, ICON_StepE, GET_TEXT_F(MSG_E_STEPS));
-              drawFloat(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
-            }
-            else
-              modifyValue(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
-            break;
-        #endif
-      }
-      break;
+          #if HAS_X_AXIS
+            case STEPS_X:
+              if (draw) {
+                drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_A_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_Y_AXIS
+            case STEPS_Y:
+              if (draw) {
+                drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_B_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_Z_AXIS
+            case STEPS_Z:
+              if (draw) {
+                drawMenuItem(row, ICON_StepZ, GET_TEXT_F(MSG_C_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_HOTEND
+            case STEPS_E:
+              if (draw) {
+                drawMenuItem(row, ICON_StepE, GET_TEXT_F(MSG_E_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
+              break;
+          #endif
+        }
+        break;
+
+    #endif // EDITABLE_STEPS_PER_UNIT
 
     case ID_Visual:
 
@@ -2910,7 +2921,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
           case ADVANCED_LOAD:
             if (draw) {
               drawMenuItem(row, ICON_WriteEEPROM, F("Load Length"));
@@ -2927,7 +2938,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               modifyValue(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
-        #endif // ADVANCED_PAUSE_FEATURE
+        #endif // CONFIGURE_FILAMENT_CHANGE
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           case ADVANCED_COLD_EXTRUDE:
@@ -4173,7 +4184,9 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return F("Max Jerk");
     #endif
-    case ID_Steps:          return GET_TEXT_F(MSG_STEPS_PER_MM);
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_Steps:        return GET_TEXT_F(MSG_STEPS_PER_MM);
+    #endif
     case ID_Visual:         return F("Visual Settings");
     case ID_Advanced:       return GET_TEXT_F(MSG_ADVANCED_SETTINGS);
     #if HAS_BED_PROBE
@@ -4250,7 +4263,9 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      return JERK_TOTAL;
     #endif
-    case ID_Steps:          return STEPS_TOTAL;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_Steps:        return STEPS_TOTAL;
+    #endif
     case ID_Visual:         return VISUAL_TOTAL;
     case ID_Advanced:       return ADVANCED_TOTAL;
     #if HAS_BED_PROBE
