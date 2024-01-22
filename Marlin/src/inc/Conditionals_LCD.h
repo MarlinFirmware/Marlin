@@ -1076,15 +1076,23 @@
 
 #if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, HAS_DWIN_E3V2)
   /**
-   * HAS_DISPLAY indicates the display uses these MarlinUI methods...
+   * HAS_DISPLAY provides these MarlinUI settings...
+   *  - SHOW_BOOTSCREEN and sub-options
+   *  - SOUND_MENU_ITEM, SOUND_ON_DEFAULT
+   *  - LCD_TIMEOUT_TO_STATUS, STATUS_MESSAGE_SCROLLING, STATUS_MESSAGE_TIMEOUT_SEC
+   *  - LCD_DECIMAL_SMALL_XY
+   *  - LCD_SHOW_E_TOTAL
+   *  - SHOW_TEMPERATURE_BELOW_ZERO
+   *  - LED_CONTROL_MENU and sub-options
+   *
+   * ...and indicates the LCD is handled in these marlinui.cpp shared methods...
    *  - update
    *  - abort_print
    *  - pause_print
    *  - resume_print
    *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
    *
-   *  ...and implements these MarlinUI methods:
-   *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
+   * ...and implements these MarlinUI methods:
    *  - draw_kill_screen
    *  - kill_screen
    *  - draw_status_message

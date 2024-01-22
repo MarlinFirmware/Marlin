@@ -884,11 +884,9 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLN(lcd_error); }
 
-  #if HAS_DISPLAY && DISABLED(DWIN_CREALITY_LCD)
-    ui.kill_screen(lcd_error ?: GET_TEXT_F(MSG_KILLED), lcd_component ?: FPSTR(NUL_STR));
-  #else
-    UNUSED(lcd_error); UNUSED(lcd_component);
-  #endif
+  ui.kill_screen(lcd_error ?: GET_TEXT_F(MSG_KILLED), lcd_component ?: FPSTR(NUL_STR));
+
+  IF_DISABLED(HAS_DISPLAY, UNUSED(lcd_component));
 
   TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
 

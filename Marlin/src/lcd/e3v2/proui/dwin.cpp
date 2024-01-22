@@ -984,7 +984,7 @@ void onClickSDItem() {
 void onDrawFileName(MenuItem* menuitem, int8_t line) {
   const bool is_subdir = !card.flag.workDirIsRoot;
   if (is_subdir && menuitem->pos == 1) {
-    drawMenuLine(line, ICON_ReadEEPROM, ".. Back");
+    drawMenuLine(line, ICON_ReadEEPROM, ".. (up)");
   }
   else {
     uint8_t icon;

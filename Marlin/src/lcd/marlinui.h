@@ -616,11 +616,6 @@ public:
       static bool did_first_redraw;
     #endif
 
-    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-      static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
-    #endif
-
     static void draw_kill_screen();
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
     #if DISABLED(LIGHTWEIGHT_UI)
@@ -631,6 +626,11 @@ public:
 
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
+  #endif
+
+  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    static void zoffset_overlay(const int8_t dir);
+    static void zoffset_overlay(const_float_t zvalue);
   #endif
 
   #if !HAS_WIRED_LCD
