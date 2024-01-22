@@ -501,6 +501,7 @@
     #endif
 
   #endif
+
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
@@ -531,8 +532,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB0
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PB0
 #endif
 
 #if ENABLED(WIFISUPPORT)

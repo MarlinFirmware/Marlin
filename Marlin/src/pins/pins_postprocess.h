@@ -1723,3 +1723,12 @@
 #undef DIAG_REMAPPED
 #undef _E_DIAG_EXISTS
 #undef E_DIAG_EXISTS
+
+// Get a NeoPixel pin from the LCD or board, if provided
+#ifndef NEOPIXEL_PIN
+  #ifdef LCD_NEOPIXEL_PIN
+    #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
+  #elif defined(BOARD_NEOPIXEL_PIN)
+    #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
+  #endif
+#endif

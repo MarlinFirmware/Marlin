@@ -33,7 +33,7 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Azteeg X5 MINI"
 #endif
-#define BOARD_WEBSITE_URL "tiny.cc/x5_mini"
+#define BOARD_WEBSITE_URL "panucatt.com"
 
 //
 // LED
@@ -56,11 +56,11 @@
 #define Z_STOP_PIN                         P1_28
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                   P2_04
+  #define FIL_RUNOUT_PIN                _EXP1_09
 #endif
 
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                  P0_25_A2  // Analog Input (P0_25)
+  #define FILWIDTH_PIN                  _EXP1_04  // Analog Input (P0_25)
 #endif
 
 //
@@ -110,6 +110,47 @@
 #define FAN1_PIN                           P1_25
 
 //
+// Headers V1.1 - V3.0
+//
+//#define _EXP1_01                         -1     // GND
+#define _EXP1_02                           P1_03
+//#define _EXP1_03                         -1     // 3.3V
+#define _EXP1_04                        P0_25_A2
+#define _EXP1_05                           P0_27  // SDA0
+#define _EXP1_06                           P4_29
+#define _EXP1_07                           P0_28  // SCL0
+#define _EXP1_08                           P2_08
+#define _EXP1_09                           P2_04
+#define _EXP1_10                           P1_22
+
+#define _EXP2_01                           P1_31
+#define _EXP2_02                           P3_26
+#define _EXP2_03                           P2_11
+#define _EXP2_04                           P3_25
+#define _EXP2_05                           P1_23
+#define _EXP2_06                           P0_17
+#define _EXP2_07                           P0_16
+#define _EXP2_08                           P2_06
+#define _EXP2_09                           P0_15
+#define _EXP2_10                           P0_18
+
+//
+// Only V2.0
+//
+//#define _J7_01                           -1     // 3.3V
+//#define _J7_02                           -1     // GND
+#define _J7_03                             P1_16
+#define _J7_04                             P1_17
+#define _J7_05                             P1_15
+#define _J7_06                             P0_14
+#define _J7_07                             P1_09
+#define _J7_08                             P1_10
+#define _J7_09                             P1_08
+#define _J7_10                             P1_04
+#define _J7_11                             P1_00
+#define _J7_12                             P1_01
+
+//
 // Display
 //
 #if HAS_WIRED_LCD
@@ -121,61 +162,60 @@
     // 10-pin IDC connector trimmed or replaced with a 12-pin IDC connector to fit J3.
     // Requires REVERSE_ENCODER_DIRECTION in Configuration.h
 
-    #define BEEPER_PIN                     P2_11  // J3-3 & AUX-4
+    #define BEEPER_PIN                  _EXP2_03
 
-    #define BTN_EN1                        P0_16  // J3-7 & AUX-4
-    #define BTN_EN2                        P1_23  // J3-5 & AUX-4
-    #define BTN_ENC                        P3_25  // J3-4 & AUX-4
+    #define BTN_EN1                     _EXP2_07
+    #define BTN_EN2                     _EXP2_05
+    #define BTN_ENC                     _EXP2_04
 
-    #define LCD_PINS_RS                    P0_15  // J3-9 & AUX-4 (CS)
-    #define LCD_PINS_EN                    P0_18  // J3-10 & AUX-3 (SID, MOSI)
-    #define LCD_PINS_D4                    P2_06  // J3-8 & AUX-3 (SCK, CLK)
+    #define LCD_PINS_RS                 _EXP2_09
+    #define LCD_PINS_EN                 _EXP2_10
+    #define LCD_PINS_D4                 _EXP2_08
 
   #else
 
-    #define BTN_EN1                        P3_26  // (31) J3-2 & AUX-4
-    #define BTN_EN2                        P3_25  // (33) J3-4 & AUX-4
-    #define BTN_ENC                        P2_11  // (35) J3-3 & AUX-4
+    #define BTN_EN1                     _EXP2_02
+    #define BTN_EN2                     _EXP2_04
+    #define BTN_ENC                     _EXP2_03
 
-    #define SD_DETECT_PIN                  P1_31  // (49) not 5V tolerant   J3-1 & AUX-3
-    #define KILL_PIN                       P1_22  // (41) J5-4 & AUX-4
-    #define LCD_PINS_RS                    P0_16  // (16) J3-7 & AUX-4
-    #define LCD_SDSS                       P0_16  // (16) J3-7 & AUX-4
-    #define LCD_BACKLIGHT_PIN              P0_16  // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_EN                    P0_18  // (51) (MOSI) J3-10 & AUX-3
-    #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
+    #define SD_DETECT_PIN               _EXP2_01
+    #define KILL_PIN                    _EXP1_10
+    #define LCD_PINS_RS                 _EXP2_07
+    #define LCD_SDSS                    _EXP2_07
+    #define LCD_BACKLIGHT_PIN           _EXP2_07
+    #define LCD_PINS_EN                 _EXP2_10
+    #define LCD_PINS_D4                 _EXP2_09
 
-    #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
+    #define DOGLCD_A0                   _EXP2_08
 
     #if IS_RRW_KEYPAD
-      #define SHIFT_OUT_PIN                P0_18  // (51)  (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK_PIN                P0_15  // (52)  (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD_PIN                 P1_31  // (49)  not 5V tolerant   J3-1 & AUX-3
+      #define SHIFT_OUT_PIN             _EXP2_10
+      #define SHIFT_CLK_PIN             _EXP2_09
+      #define SHIFT_LD_PIN              _EXP2_01
     #elif !IS_NEWPANEL
-      //#define SHIFT_OUT_PIN              P2_11  // (35)  J3-3 & AUX-4
-      //#define SHIFT_CLK_PIN              P3_26  // (31)  J3-2 & AUX-4
-      //#define SHIFT_LD_PIN               P3_25  // (33)  J3-4 & AUX-4
-      //#define SHIFT_EN_PIN               P1_22  // (41)  J5-4 & AUX-4
+      //#define SHIFT_OUT_PIN           _EXP2_03
+      //#define SHIFT_CLK_PIN           _EXP2_02
+      //#define SHIFT_LD_PIN            _EXP2_04
+      //#define SHIFT_EN_PIN            _EXP1_10
     #endif
 
     #if ANY(VIKI2, miniVIKI)
-      #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
-      #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
+      #define BEEPER_PIN                   P1_30
+      #define DOGLCD_CS                    P0_26
       #define DOGLCD_SCK              SD_SCK_PIN
       #define DOGLCD_MOSI            SD_MOSI_PIN
 
-      #define STAT_LED_BLUE_PIN            P0_26  // (63)  may change if cable changes
-      #define STAT_LED_RED_PIN             P1_21  // ( 6)  may change if cable changes
+      #define STAT_LED_BLUE_PIN            P0_26
+      #define STAT_LED_RED_PIN             P1_21
 
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
     #else
       #if IS_ULTIPANEL
-        #define LCD_PINS_D5                P1_17  // (71) ENET_MDIO
-        #define LCD_PINS_D6                P1_14  // (73) ENET_RX_ER
-        #define LCD_PINS_D7                P1_10  // (75) ENET_RXD1
+        #define LCD_PINS_D5                P1_17
+        #define LCD_PINS_D6                P1_14
+        #define LCD_PINS_D7                P1_10
       #endif
-      #define BEEPER_PIN                   P1_30  // (37) not 5V tolerant
-      #define DOGLCD_CS                    P0_16  // (16)
+      #define BEEPER_PIN                   P1_30
+      #define DOGLCD_CS                 _EXP2_07
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
@@ -183,7 +223,7 @@
 
     #endif
 
-    #if ENABLED(MINIPANEL)
+    #if ANY(VIKI2, miniVIKI, MINIPANEL)
       //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
     #endif
 
@@ -199,10 +239,10 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                       P0_15
-  #define SD_MISO_PIN                      P0_17
-  #define SD_MOSI_PIN                      P0_18
-  #define SD_SS_PIN                        P1_23
+  #define SD_SCK_PIN                    _EXP2_09
+  #define SD_MISO_PIN                   _EXP2_06
+  #define SD_MOSI_PIN                   _EXP2_10
+  #define SD_SS_PIN                     _EXP2_05
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
   #define SD_SCK_PIN                       P0_07

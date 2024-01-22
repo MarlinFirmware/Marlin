@@ -702,7 +702,7 @@ void MarlinSettings::postprocess() {
   if (oldpos != current_position)
     report_current_position();
 
-  // Moved as last update due to interference with Neopixel init
+  // Moved as last update due to interference with NeoPixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
   TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
   TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
