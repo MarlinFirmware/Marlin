@@ -29,10 +29,6 @@
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
 #endif
@@ -59,6 +55,7 @@
  *               51 - Counter-Clockwise M5
  **/
 void GcodeSuite::G35() {
+
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
 
   if (DEBUGGING(LEVELING)) log_machine_info();
@@ -82,9 +79,7 @@ void GcodeSuite::G35() {
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   probe.use_probing_tool();
 
@@ -101,7 +96,7 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
       SERIAL_ECHO(
-        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
         FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y
       );
       err_break = true;
@@ -110,7 +105,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOLN(
-        F("Probing point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), AS_CHAR(')'),
+        F("Probing point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
         FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y,
         FPSTR(SP_Z_STR), z_probed_height
       );

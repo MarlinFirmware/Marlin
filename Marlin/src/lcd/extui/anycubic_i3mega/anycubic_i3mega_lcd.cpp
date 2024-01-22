@@ -697,8 +697,7 @@ void AnycubicTFT::getCommandFromTFT() {
         case 18: { // A18 set fan speed
           float fanPercent;
           if (codeSeen('S')) {
-            fanPercent = codeValue();
-            fanPercent = constrain(fanPercent, 0, 100);
+            fanPercent = constrain(codeValue(), 0, 100);
             setTargetFan_percent(fanPercent, FAN0);
           }
           else
@@ -898,7 +897,7 @@ void AnycubicTFT::doFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     // NOTE: getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
-    if (READ(FIL_RUNOUT1_PIN)) {
+    if (READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
         injectCommands(F("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
@@ -941,7 +940,7 @@ void AnycubicTFT::pausePrint() {
 void AnycubicTFT::resumePrint() {
   #if HAS_MEDIA
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if (READ(FIL_RUNOUT1_PIN)) {
+      if (READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
         DEBUG_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
 
         // trigger the user message box

@@ -87,11 +87,8 @@ namespace LanguageNarrow_ca {
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mou $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mou 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mou 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mou 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mou 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mou 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mou $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mou $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Velocitat");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Llit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");

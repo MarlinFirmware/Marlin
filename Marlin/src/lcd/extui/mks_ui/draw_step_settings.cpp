@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if ALL(HAS_TFT_LVGL_UI, EDITABLE_STEPS_PER_UNIT)
 
 #include "draw_ui.h"
 #include <lv_conf.h>
@@ -114,4 +114,4 @@ void lv_clear_step_settings() {
   lv_obj_del(scr);
 }
 
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && EDITABLE_STEPS_PER_UNIT

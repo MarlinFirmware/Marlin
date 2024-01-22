@@ -31,10 +31,11 @@ if pioutil.is_pio_build():
         }
         platform_name = framewords[platform.__class__.__name__]
     else:
-        platform_name = PackageSpec(platform_packages[0]).name
-
-    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
-        platform_name = "framework-arduinoststm32"
+        spec = PackageSpec(platform_packages[0])
+        if spec.uri and '@' in spec.uri:
+            platform_name = re.sub(r'@.+', '', spec.uri)
+        else:
+            platform_name = spec.name
 
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
     assert FRAMEWORK_DIR.is_dir()

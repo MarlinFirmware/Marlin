@@ -39,13 +39,6 @@
   #include "../../../feature/leds/leds.h"
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE)
-  #define HAS_ZOFFSET_ITEM 1
-  #if !HAS_BED_PROBE
-    #define JUST_BABYSTEP 1
-  #endif
-#endif
-
 namespace GET_LANG(LCD_LANGUAGE) {
   #define _MSG_PREHEAT(N) \
     LSTR MSG_PREHEAT_##N                  = _UxGT("Preheat ") PREHEAT_## N ##_LABEL; \
@@ -74,6 +67,7 @@ enum processID : uint8_t {
   ID_WaitResponse,
   ID_Homing,
   ID_PIDProcess,
+  ID_PlotProcess,
   ID_MPCProcess,
   ID_NothingToDo
 };
@@ -141,9 +135,12 @@ typedef struct {
   #if ENABLED(BAUD_RATE_GCODE)
     bool baud115K = false;
   #endif
-
-  bool fullManualTramming = false;
-  bool mediaSort = true;
+  #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
+    bool fullManualTramming = false;
+  #endif
+  #if ENABLED(PROUI_MEDIASORT)
+    bool mediaSort = true;
+  #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
@@ -151,21 +148,40 @@ typedef struct {
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor ledColor = defColorLeds;
   #endif
-  bool adaptiveStepSmoothing = true;
-  bool enablePreview = true;
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+    bool adaptiveStepSmoothing = true;
+  #endif
+  #if HAS_GCODE_PREVIEW
+    bool enablePreview = true;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
 static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
 
 typedef struct {
-  int8_t Color[3];                    // Color components
+  int8_t r, g, b;
+  void set(int8_t _r, int8_t _g, int8_t _b) { r = _r; g = _g; b = _b; }
+  int8_t& operator[](const int i) {
+    switch (i) {
+      default:
+      case 0: return r;
+      case 1: return g;
+      case 2: return b;
+    }
+  }
+} rgb_t;
+
+typedef struct {
+  rgb_t color;                        // Color
   #if ANY(PROUI_PID_TUNE, MPCTEMP)
     tempcontrol_t tempControl = AUTOTUNE_DONE;
   #endif
-  uint8_t select          = 0;        // Auxiliary selector variable
-  AxisEnum axis           = X_AXIS;   // Axis Select
+  uint8_t select = 0;                 // Auxiliary selector variable
+  AxisEnum axis = X_AXIS;             // Axis Select
 } hmi_value_t;
+
+extern hmi_value_t hmiValue;
 
 typedef struct {
   uint8_t language;
@@ -176,7 +192,6 @@ typedef struct {
   bool home_flag:1;     // homing in course
 } hmi_flag_t;
 
-extern hmi_value_t hmiValue;
 extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
@@ -328,10 +343,12 @@ void drawFilamentManMenu();
 void drawTemperatureMenu();
 void drawMaxSpeedMenu();
 void drawMaxAccelMenu();
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void drawMaxJerkMenu();
 #endif
-void drawStepsMenu();
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  void drawStepsMenu();
+#endif
 #if ANY(HAS_BED_PROBE, BABYSTEPPING)
   void drawZOffsetWizMenu();
 #endif
@@ -343,7 +360,7 @@ void drawStepsMenu();
 #endif
 #if HAS_MESH
   void drawMeshSetMenu();
-  #if ENABLED(MESH_EDIT_MENU)
+  #if ENABLED(PROUI_MESH_EDIT)
     void drawEditMeshMenu();
   #endif
 #endif

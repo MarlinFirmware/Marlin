@@ -379,21 +379,21 @@ void DGUSScreenHandler::handleTemperatureChanged(DGUS_VP_Variable &var, void *va
     default: return;
     #if HAS_HOTEND
       case VP_T_E0_Set:
-        NOMORE(newvalue, HEATER_0_MAXTEMP);
+        NOMORE(newvalue, thermalManager.hotend_max_target(0));
         thermalManager.setTargetHotend(newvalue, 0);
         acceptedvalue = thermalManager.degTargetHotend(0);
         break;
     #endif
     #if HAS_MULTI_HOTEND
       case VP_T_E1_Set:
-        NOMORE(newvalue, HEATER_1_MAXTEMP);
+        NOMORE(newvalue, thermalManager.hotend_max_target(1));
         thermalManager.setTargetHotend(newvalue, 1);
         acceptedvalue = thermalManager.degTargetHotend(1);
         break;
     #endif
     #if HAS_HEATED_BED
       case VP_T_Bed_Set:
-        NOMORE(newvalue, BED_MAXTEMP);
+        NOMORE(newvalue, BED_MAX_TARGET);
         thermalManager.setTargetBed(newvalue);
         acceptedvalue = thermalManager.degTargetBed();
         break;
@@ -469,36 +469,40 @@ void DGUSScreenHandler::handleSettings(DGUS_VP_Variable &var, void *val_ptr) {
   }
 }
 
-void DGUSScreenHandler::handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw / 10;
-  ExtUI::axis_t axis;
-  switch (var.VP) {
-    case VP_X_STEP_PER_MM: axis = ExtUI::axis_t::X; break;
-    case VP_Y_STEP_PER_MM: axis = ExtUI::axis_t::Y; break;
-    case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
-    default: return;
-  }
-  ExtUI::setAxisSteps_per_mm(value, axis);
-  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-}
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-void DGUSScreenHandler::handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_raw = BE16_P(val_ptr);
-  const float value = (float)value_raw / 10;
-  ExtUI::extruder_t extruder;
-  switch (var.VP) {
-    default: return;
-      #if HAS_EXTRUDERS
-        case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
-        #if HAS_MULTI_EXTRUDER
-          case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
-        #endif
-      #endif
+  void DGUSScreenHandler::handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    const uint16_t value_raw = BE16_P(val_ptr);
+    const float value = (float)value_raw / 10;
+    ExtUI::axis_t axis;
+    switch (var.VP) {
+      case VP_X_STEP_PER_MM: axis = ExtUI::axis_t::X; break;
+      case VP_Y_STEP_PER_MM: axis = ExtUI::axis_t::Y; break;
+      case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
+      default: return;
+    }
+    ExtUI::setAxisSteps_per_mm(value, axis);
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
-  ExtUI::setAxisSteps_per_mm(value, extruder);
-  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-}
+
+  void DGUSScreenHandler::handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    const uint16_t value_raw = BE16_P(val_ptr);
+    const float value = (float)value_raw / 10;
+    ExtUI::extruder_t extruder;
+    switch (var.VP) {
+      default: return;
+        #if HAS_EXTRUDERS
+          case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
+          #if HAS_MULTI_EXTRUDER
+            case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
+          #endif
+        #endif
+    }
+    ExtUI::setAxisSteps_per_mm(value, extruder);
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  }
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::handlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr) {
