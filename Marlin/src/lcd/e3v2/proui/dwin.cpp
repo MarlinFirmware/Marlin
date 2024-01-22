@@ -1208,11 +1208,11 @@ void drawMainArea() {
     case ID_PrintProcess:     drawPrintProcess(); break;
     case ID_PrintDone:        drawPrintDone(); break;
     #if HAS_ESDIAG
-      case ID_ESDiagProcess: drawEndStopDiag(); break;
+      case ID_ESDiagProcess:  drawEndStopDiag(); break;
     #endif
     case ID_Popup:            popupDraw(); break;
     #if HAS_LOCKSCREEN
-      case ID_Locked: lockScreen.draw(); break;
+      case ID_Locked:         lockScreen.draw(); break;
     #endif
     case ID_Menu:
     case ID_SetInt:

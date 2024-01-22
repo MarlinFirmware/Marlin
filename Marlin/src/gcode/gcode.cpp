@@ -679,7 +679,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 115: M115(); break;                                  // M115: Report capabilities
       #endif
 
-      case 117: TERN_(HAS_DISPLAY, M117()); break;         // M117: Set LCD message text, if possible
+      case 117: TERN_(HAS_DISPLAY, M117()); break;                // M117: Set LCD message text, if possible
 
       case 118: M118(); break;                                    // M118: Display a message in the host console
       case 119: M119(); break;                                    // M119: Report endstop states

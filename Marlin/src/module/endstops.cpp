@@ -353,7 +353,7 @@ void Endstops::event_handler() {
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
-      )
+      );
     #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)

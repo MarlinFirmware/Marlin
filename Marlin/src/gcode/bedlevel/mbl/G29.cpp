@@ -196,7 +196,7 @@ void GcodeSuite::G29() {
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
-        TERN_(HAS_DISPLAY, LCD_MESSAGE(MSG_MESH_DONE));
+        LCD_MESSAGE(MSG_MESH_DONE);
         OKAY_BUZZ();
 
         home_all_axes();
