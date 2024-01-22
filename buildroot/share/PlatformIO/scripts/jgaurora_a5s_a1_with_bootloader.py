@@ -32,4 +32,4 @@ if pioutil.is_pio_build():
         fw_path.rename(fws_path)
 
     import marlin
-    marlin.add_post_action(addboot);
+    marlin.add_post_action(addboot)

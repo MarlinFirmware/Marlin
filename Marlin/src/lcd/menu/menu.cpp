@@ -298,7 +298,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
                     , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     , new_probe_offset
                   );
-      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+      if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 

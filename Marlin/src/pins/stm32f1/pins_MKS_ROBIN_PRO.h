@@ -61,6 +61,13 @@
 #define Z_MAX_PIN                           PC4
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PE4
@@ -279,7 +286,7 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-  #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+  #else // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4                     PF14
     #if IS_ULTIPANEL

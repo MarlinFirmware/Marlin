@@ -45,12 +45,12 @@
  * Return the number of characters emitted
  */
 lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
-  const uint8_t prop = USE_WIDE_GLYPH ? 2 : 1;
   const uint8_t *p = (uint8_t*)ptpl;
   char *o = outstr;
   int8_t n = maxlen;
   while (n > 0) {
     lchar_t wc;
+    uint8_t *psc = (uint8_t *)p;
     p = get_utf8_value_cb(p, read_byte_rom, wc);
     if (!wc) break;
     if (wc == '{' || wc == '~' || wc == '*') {
@@ -67,41 +67,32 @@ lcd_uint_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t in
       }
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
-        strncpy_P(o, b, n);
-        n -= utf8_strlen_P(b);
+        strlcpy_P(o, b, n + 1);
+        n -= utf8_strlen(o);
         o += strlen(o);
       }
       if (n > 0) {
-        strncpy_P(o, (PGM_P)p, n);
+        strlcpy_P(o, (PGM_P)p, n + 1);
         n -= utf8_strlen(o);
         o += strlen(o);
         break;
       }
     }
     else if (wc == '$' && fstr) {
-      strncpy_P(o, FTOP(fstr), n);
-      n -= utf8_strlen_P(FTOP(fstr));
-      o += strlen(o);
-    }
-    else if (wc == '$' && cstr) {
-      strncpy(o, cstr, n);
+      strlcpy_P(o, FTOP(fstr), n + 1);
       n -= utf8_strlen(o);
       o += strlen(o);
     }
-    else if (wc == '@') {
-      *o++ = AXIS_CHAR(ind);
-      *o = '\0';
-      n--;
-    }
-    else if (wc > 255 && prop == 2) {
-      // Wide glyph support incomplete
-      *((uint16_t*)o) = wc;
-      o += 2;
-      *o = '\0';
-      n--;
+    else if (wc == '$' && cstr) {
+      strlcpy(o, cstr, n + 1);
+      n -= utf8_strlen(o);
+      o += strlen(o);
     }
     else {
-      *o++ = wc;
+      if (wc == '@')
+        *o++ = AXIS_CHAR(ind);
+      else
+        while (psc != p) *o++ = read_byte_rom(psc++);
       *o = '\0';
       n--;
     }

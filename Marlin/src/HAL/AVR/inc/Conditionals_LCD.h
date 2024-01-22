@@ -20,3 +20,7 @@
  *
  */
 #pragma once
+
+#ifndef SERIAL_PORT
+  #define SERIAL_PORT 0
+#endif

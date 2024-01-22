@@ -139,7 +139,6 @@ namespace LanguageNarrow_fr {
   LSTR MSG_G26_LEAVING                    = _UxGT("Sortie G26");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 en cours");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Outils UBL");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Niveau lit unifié");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Maillage manuel");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser câle & mesurer");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
@@ -233,16 +232,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Buse trop froide");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Déplacer $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Déplacer 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Déplacer 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Déplacer 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Déplacer 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Déplacer 100mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Déplacer 0.001\"");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Déplacer 0.01\"");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Déplacer 0.1\"");
-  LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
-  LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Déplacer $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Déplacer $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");

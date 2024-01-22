@@ -1,6 +1,7 @@
 name: 🪲 Report a bug
 description: Create a bug report to help improve Marlin Firmware
 title: "[BUG] (bug summary)"
+labels: ["Bug: Potential ?"]
 body:
   - type: markdown
     attributes:
@@ -109,8 +110,13 @@ body:
 
   - type: input
     attributes:
-      label: Add-ons
-      description: Please list any hardware add-ons that could be involved.
+      label: LCD/Controller
+      description: Some Marlin behaviors are determined by the controller. Describe your LCD/Controller model and version.
+
+  - type: input
+    attributes:
+      label: Other add-ons
+      description: Please list any other hardware add-ons that could be involved.
 
   - type: dropdown
     attributes:

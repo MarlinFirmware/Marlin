@@ -84,6 +84,13 @@
 #define Z_MAX_PIN                           PC4
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PE4
@@ -356,7 +363,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if IS_ULTIPANEL
