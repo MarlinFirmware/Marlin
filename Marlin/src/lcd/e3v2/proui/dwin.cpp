@@ -1879,9 +1879,9 @@ void dwinInitScreen() {
 }
 
 void MarlinUI::update() {
-  hmiSDCardUpdate();   // SD card update
-  eachMomentUpdate();  // Status update
-  dwinHandleScreen();  // Rotary encoder update
+  hmiSDCardUpdate();  // SD card update
+  eachMomentUpdate(); // Status update
+  dwinHandleScreen(); // Rotary encoder update
 }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
