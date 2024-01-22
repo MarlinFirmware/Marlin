@@ -3309,7 +3309,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
-// TMC Hybrod Threshold
+// TMC Hybrid Threshold
 #ifdef HYBRID_THRESHOLD
   #if defined(X_HYBRID_THRESHOLD) && (X_HYBRID_THRESHOLD == 0)
     #error "X_HYBRID_THRESHOLD cannot be set to zero"
