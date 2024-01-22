@@ -61,7 +61,7 @@ void draw_es_state(const bool is_hit, const bool is_fil) {
   const uint8_t LM = 130;
   DWINUI::cursor.x = LM;
   dwinDrawRectangle(1, hmiData.colorPopupBg, LM, DWINUI::cursor.y, LM + 120, DWINUI::cursor.y + 20);
-  is_fil ? (is_hit ? DWINUI::drawString(RGB(16, 63, 16), F("PRESENT")) : DWINUI::drawString(RGB(31, 31, 16), F("Runout Detected"))) :
+  is_fil ? (is_hit ? DWINUI::drawString(RGB(16, 63, 16), GET_TEXT_F(MSG_FILAMENT)) : DWINUI::drawString(RGB(31, 31, 16), GET_TEXT_F(MSG_RUNOUT_SENSOR))) :
   (is_hit ? DWINUI::drawString(RGB(31, 31, 16), F(STR_ENDSTOP_HIT)) : DWINUI::drawString(RGB(16, 63, 16), F(STR_ENDSTOP_OPEN)));
   DWINUI::moveBy(0, 25);
 }
