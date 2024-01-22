@@ -118,12 +118,10 @@
 #endif
 
 #ifdef RS485_SERIAL_PORT
-  #if RS485_SERIAL_PORT == -1
-    #define RS485_SERIAL MSerial0
-  #elif WITHIN(RS485_SERIAL_PORT, 1, 6)
+  #if WITHIN(RS485_SERIAL_PORT, 1, 6)
     #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
   #else
-    #error "RS485_SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
+    #error "RS485_SERIAL_PORT must be from 1 to 6."
   #endif
 #endif
 

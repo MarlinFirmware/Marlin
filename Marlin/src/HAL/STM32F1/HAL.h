@@ -150,7 +150,7 @@
     #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
   #else
     #define RS485_SERIAL MSERIAL(1) // dummy port
-    static_assert(false, "RS485_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+    static_assert(false, "RS485_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
   #endif
 #endif
 
