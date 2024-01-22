@@ -33,9 +33,12 @@
 #include "../../lcd/marlinui.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/tool_change.h"
 #include "../../module/endstops.h"
 #include "../../feature/bedlevel/bedlevel.h"
+
+#if HAS_MULTI_HOTEND
+  #include "../../module/tool_change.h"
+#endif
 
 #if !AXIS_CAN_CALIBRATE(X)
   #undef CALIBRATION_MEASURE_LEFT

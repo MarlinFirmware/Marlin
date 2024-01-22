@@ -56,6 +56,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -238,7 +245,7 @@
     #endif
 
     /**
-     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 display pinout
+     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 display pinout
      *
      *                   Board                               Display
      *                   ------                               ------
@@ -251,13 +258,13 @@
      *                    EXP1                                 EXP1
      *
      *
-     *                  -----                                  ------
+     *                   ---                                  ------
      *                  | 1 | RST                         -- |10  9 | --
      *                  | 2 | PA3 RX2              RESET_BTN | 8  7 | SD_DETECT
      *                  | 3 | PA2 TX2               LCD_MOSI | 6  5   EN2
      *                  | 4 | GND                         -- | 4  3 | EN1
      *                  | 5 | 5V                     LCD_SCK | 2  1 | --
-     *                  -----                                 ------
+     *                   ---                                  ------
      *                   TFT                                   EXP2
 
      *

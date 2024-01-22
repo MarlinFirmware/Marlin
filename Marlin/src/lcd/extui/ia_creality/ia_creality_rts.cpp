@@ -654,12 +654,19 @@ void RTS::handleData() {
 
   switch (recdat.addr) {
     case Flowrate:
-    case StepMM_X ... StepMM_E:
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case StepMM_X ... StepMM_E:
+    #endif
     case ProbeOffset_X ... ProbeOffset_Y:
     case HotendPID_AutoTmp ... BedPID_AutoTmp:
     case HotendPID_P ... HotendPID_D:
     case BedPID_P ... BedPID_D:
-    case T2Offset_X ... T2StepMM_E:
+    #if ENABLED(DUAL_X_CARRIAGE)
+      case T2Offset_X ... T2Offset_Z
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case T2StepMM_E:
+      #endif
+    #endif
     case Accel_X ... Accel_E:
     case Feed_X ... Feed_E:
     case Jerk_X ... Jerk_E:
@@ -940,25 +947,33 @@ void RTS::handleData() {
           tmp_float_handling = (float(recdat.data[0]) - 65536) / 100;
         else
           tmp_float_handling = float(recdat.data[0]) / 100;
-        if (recdat.addr == StepMM_X) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, X);
-        }
-        else if (recdat.addr == StepMM_Y) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, Y);
-        }
-        else if (recdat.addr == StepMM_Z) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, Z);
-        }
-        else if (recdat.addr == StepMM_E) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, E0);
-          #if DISABLED(DUAL_X_CARRIAGE)
-            setAxisSteps_per_mm(tmp_float_handling * 10, E1);
-          #endif
-        }
-        #if ENABLED(DUAL_X_CARRIAGE)
-          else if (recdat.addr == T2StepMM_E) {
-            setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+
+        if (false) {}
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          else if (recdat.addr == StepMM_X) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, X);
           }
+          else if (recdat.addr == StepMM_Y) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, Y);
+          }
+          else if (recdat.addr == StepMM_Z) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, Z);
+          }
+          else if (recdat.addr == StepMM_E) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, E0);
+            #if DISABLED(DUAL_X_CARRIAGE)
+              setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+            #endif
+          }
+        #endif // EDITABLE_STEPS_PER_UNIT
+
+        #if ENABLED(DUAL_X_CARRIAGE)
+          #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+            else if (recdat.addr == T2StepMM_E) {
+              setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+            }
+          #endif
           else if (recdat.addr == T2Offset_X) {
             setNozzleOffset_mm(tmp_float_handling * 10, X, E1);
           }
@@ -1655,9 +1670,9 @@ void RTS::handleData() {
 
     case AutolevelVal: {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2,
-              yPnt = floor(meshPoint / GRID_MAX_POINTS_X),
-              xPnt = meshPoint - (yPnt * GRID_MAX_POINTS_X);
-      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X - 1) - xPnt; // zag row
+              yPnt = meshPoint / (GRID_MAX_POINTS_X),
+              xPnt = meshPoint - yPnt * (GRID_MAX_POINTS_X);
+      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X) - 1 - xPnt; // zag row
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 

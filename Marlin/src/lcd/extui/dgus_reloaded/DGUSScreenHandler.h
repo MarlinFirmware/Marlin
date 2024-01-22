@@ -45,7 +45,7 @@ public:
   static void configurationStoreWritten(bool success);
   static void configurationStoreRead(bool success);
 
-  static void playTone(const uint16_t frequency, const uint16_t duration);
+  static void playTone(const uint16_t frequency, const uint16_t duration=0);
   static void meshUpdate(const int8_t xpos, const int8_t ypos);
   static void printTimerStarted();
   static void printTimerPaused();
@@ -106,7 +106,7 @@ public:
   static char gcode[DGUS_GCODE_LEN + 1];
 
   static DGUS_Data::Heater pid_heater;
-  static uint16_t pid_temp;
+  static celsius_t pid_temp;
   static uint8_t pid_cycles;
 
   static bool wait_continue;

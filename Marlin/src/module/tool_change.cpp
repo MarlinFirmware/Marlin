@@ -22,6 +22,8 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if HAS_TOOLCHANGE
+
 #include "tool_change.h"
 
 #include "motion.h"
@@ -1640,3 +1642,5 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE
+
+#endif // HAS_TOOLCHANGE

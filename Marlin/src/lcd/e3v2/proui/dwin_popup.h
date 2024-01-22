@@ -76,4 +76,3 @@ void dwinPopupConfirm(const uint8_t icon, T amsg1, U amsg2) {
   dwinDrawPopup(icon, amsg1, amsg2, BTN_Confirm);  // Button Confirm
   dwinUpdateLCD();
 }
-
