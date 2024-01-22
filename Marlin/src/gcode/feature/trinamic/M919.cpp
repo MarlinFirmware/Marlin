@@ -118,7 +118,7 @@ void GcodeSuite::M919() {
     // Get the chopper timing for the specified axis and index
     switch (i) {
       default: // A specified axis isn't Trinamic
-        SERIAL_ECHOLNPGM("?Axis ", AS_CHAR(AXIS_CHAR(i)), " has no TMC drivers.");
+        SERIAL_ECHOLNPGM("?Axis ", C(AXIS_CHAR(i)), " has no TMC drivers.");
         break;
 
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
