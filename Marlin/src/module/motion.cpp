@@ -73,7 +73,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-
 #if ENABLED(BD_SENSOR)
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
