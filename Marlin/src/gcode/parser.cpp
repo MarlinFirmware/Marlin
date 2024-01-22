@@ -107,7 +107,7 @@ void GCodeParser::reset() {
 #endif
 
 // Create Variable Declaration
-//#if ENABLED(VARIABLE_SUPPORT)
+//#if ENABLED(GCODE_VARIABLES)
 // Pass the data being stored
 //  char* GCodeParser::input_var(char* &src); //{
 //    if (*src == 'L') src;     // Skip the leading Letter
@@ -236,7 +236,7 @@ void GCodeParser::parse(char *p) {
    */
   switch (letter) {
     TERN_(MARLIN_DEV_MODE, case 'D':)
-    TERN_(VARIABLE_SUPPORT, case 'L':)
+    TERN_(GCODE_VARIABLES, case 'L':)
     case 'G': case 'M': case 'T': {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
@@ -346,7 +346,7 @@ void GCodeParser::parse(char *p) {
     default: break;
   }
 
-  #if ENABLED(VARIABLE_SUPPORT)
+  #if ENABLED(GCODE_VARIABLES)
     // Only use string_arg for these L variables
     if (letter == 'L') switch (codenum) {
       case 100 ... 115: var_arg = input_var(p); return;
@@ -370,7 +370,7 @@ void GCodeParser::parse(char *p) {
     bool quoted_string_arg = false;
   #endif
 
-  #if ENABLED(VARIABLE_SUPPORT)
+  #if ENABLED(GCODE_VARIABLES)
     bool used_var_arg = false;
   #endif
 
@@ -394,7 +394,7 @@ void GCodeParser::parse(char *p) {
       }
     #endif
 
-    #if ENABLED(VARIABLE_SUPPORT)
+    #if ENABLED(GCODE_VARIABLES)
       if (!used_var_arg && param == 'L') {
         used_var_arg = true;
         var_arg = input_var(p);
@@ -425,7 +425,7 @@ void GCodeParser::parse(char *p) {
         #endif
       #endif
 
-      #if ENABLED(VARIABLE_SUPPORT)
+      #if ENABLED(GCODE_VARIABLES)
         const bool is_var = (*p == 'L');
         has_val = is_int || valid_float(p + 1);
         char * const varptr = has_val ? is_var ? input_var(p) : p + 1 : nullptr;

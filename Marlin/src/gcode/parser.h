@@ -29,7 +29,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(VARIABLE_SUPPORT)
+#if ENABLED(GCODE_VARIABLES)
   #include "variables/variables.h"
 #endif
 

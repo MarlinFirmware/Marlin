@@ -69,10 +69,6 @@ GcodeSuite gcode;
   #include "../feature/fancheck.h"
 #endif
 
-#if ENABLED(VARIABLE_SUPPORT)
-  #include "variables/variables.cpp"
-#endif
-
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown

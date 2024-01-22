@@ -263,10 +263,6 @@
   #include "tests/marlin_tests.h"
 #endif
 
-#if ENABLED(VARIABLE_SUPPORT)
-  #include "gcode/variables/variables.h"
-#endif
-
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;

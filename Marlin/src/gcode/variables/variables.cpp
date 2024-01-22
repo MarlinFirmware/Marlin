@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(VARIABLE_SUPPORT)
+#if ENABLED(GCODE_VARIABLES)
 
 #include "variables.h"
 
@@ -142,7 +142,7 @@ void CNCVariables::append() {
 //bool used_var_arg = false;
 
 
-//#if ENABLED(VARIABLE_SUPPORT)
+//#if ENABLED(GCODE_VARIABLES)
 //  uint16_t GCodeParser::input_var;
 //#endif
 
@@ -231,4 +231,4 @@ void CNCVariables::append() {
 
 //char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
 
-#endif // VARIABLE_SUPPORT
+#endif // GCODE_VARIABLES

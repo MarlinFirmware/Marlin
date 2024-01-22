@@ -33,6 +33,7 @@ public:
   //string L = new_string(letter)
 
   static void var_from_command(const int8_t dval=0);
+  static void append();
   static uint8_t StoredVar();
   static void input_var();
   static void export_var();

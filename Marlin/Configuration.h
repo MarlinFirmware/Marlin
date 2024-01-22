@@ -2591,17 +2591,6 @@
   //#include "Configuration_Secure.h"       // External file with PASSWORD_DEFAULT_VALUE
 #endif
 
-/**
- * Variables
- *
- * Store values into variables with 'L' commands L100 - L115:
- *
- * The L variable can take S, a position (X, Y, Z, etc.) or any int8_t number
- * and store it into an L variable with index 0 - 15.
- * These can be recalled in code for value comparison or usage.
- */
-#define VARIABLE_SUPPORT
-
 //=============================================================================
 //============================= LCD and SD support ============================
 //=============================================================================
