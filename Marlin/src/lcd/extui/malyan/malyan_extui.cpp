@@ -137,7 +137,7 @@ namespace ExtUI {
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
-  void onPlayTone(const uint16_t, const uint16_t) {}
+  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
   void onHomingStart() {}

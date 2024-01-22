@@ -8,32 +8,32 @@ import subprocess,re,json,hashlib
 from datetime import datetime
 from pathlib import Path
 
-'''
-Return all enabled #define items from a given C header file in a dictionary.
-A "#define" in a multi-line comment could produce a false positive if it's not
-preceded by a non-space character (like * in a multi-line comment).
-
-Output:
-Each entry is a dictionary with a 'name' and a 'section' key. We end up with:
-    { MOTHERBOARD: { name: "MOTHERBOARD", section: "hardware" }, ... }
-
-The 'name' key might get dropped as redundant, but it's useful for debugging.
-
-Because the option names are the keys, only the last occurrence is retained.
-Use the Schema class for a more complete list of options, soon with full parsing.
-
-This list is used to filter what is actually a config-defined option versus
-defines from elsewhere.
-
-While the Schema class parses the configurations on its own, this script will
-get the preprocessor output and get the intersection of the enabled options from
-our crude scraping method and the actual compiler output.
-We end up with the actual configured state,
-better than what the config files say. You can then use the
-a decent reflection of all enabled options that (probably) came from
-resulting config.ini to produce more exact configuration files.
-'''
 def enabled_defines(filepath):
+    '''
+    Return all enabled #define items from a given C header file in a dictionary.
+    A "#define" in a multi-line comment could produce a false positive if it's not
+    preceded by a non-space character (like * in a multi-line comment).
+
+    Output:
+    Each entry is a dictionary with a 'name' and a 'section' key. We end up with:
+        { MOTHERBOARD: { name: "MOTHERBOARD", section: "hardware" }, ... }
+
+    The 'name' key might get dropped as redundant, but it's useful for debugging.
+
+    Because the option names are the keys, only the last occurrence is retained.
+    Use the Schema class for a more complete list of options, soon with full parsing.
+
+    This list is used to filter what is actually a config-defined option versus
+    defines from elsewhere.
+
+    While the Schema class parses the configurations on its own, this script will
+    get the preprocessor output and get the intersection of the enabled options from
+    our crude scraping method and the actual compiler output.
+    We end up with the actual configured state,
+    better than what the config files say. You can then use the
+    a decent reflection of all enabled options that (probably) came from
+    resulting config.ini to produce more exact configuration files.
+    '''
     outdict = {}
     section = "user"
     spatt = re.compile(r".*@section +([-a-zA-Z0-9_\s]+)$") # must match @section ...
@@ -74,12 +74,12 @@ def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
         zipf.write(filepath, arcname=storedname, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
-'''
-Compute the build signature by extracting all configuration settings and
-building a unique reversible signature that can be included in the binary.
-The signature can be reversed to get a 1:1 equivalent configuration file.
-'''
 def compute_build_signature(env):
+    '''
+    Compute the build signature by extracting all configuration settings and
+    building a unique reversible signature that can be included in the binary.
+    The signature can be reversed to get a 1:1 equivalent configuration file.
+    '''
     if 'BUILD_SIGNATURE' in env: return
     env.Append(BUILD_SIGNATURE=1)
 
