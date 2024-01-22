@@ -168,9 +168,8 @@
 
 // Extended and default UI Colors
 #define COLOR_BLACK           0
-#define COLOR_GREEN           RGB(0,63,0)
-#define COLOR_AQUA            RGB(0,63,31)
-#define COLOR_BLUE            RGB(0,0,31)
+#define COLOR_GREEN           RGB(0, 63, 0)
+#define COLOR_BLUE            RGB(0, 0, 31)
 #define COLOR_LIGHT_WHITE     0xBDD7
 #define COLOR_LIGHT_GREEN     0x3460
 #define COLOR_CYAN            0x07FF

@@ -180,6 +180,8 @@ typedef struct {
   AxisEnum axis = X_AXIS;             // Axis Select
 } hmi_value_t;
 
+extern hmi_value_t hmiValue;
+
 typedef struct {
   uint8_t language;
   bool printing_flag:1; // sd or host printing
@@ -189,7 +191,6 @@ typedef struct {
   bool home_flag:1;     // homing in course
 } hmi_flag_t;
 
-extern hmi_value_t hmiValue;
 extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 

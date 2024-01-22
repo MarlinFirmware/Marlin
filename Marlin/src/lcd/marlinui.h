@@ -465,7 +465,7 @@ public:
    * @param fstr  A constant F-string to set as the status.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level(const char * const cstr, const int8_t level) { _set_status_and_level(cstr, level, false); }
+  static void set_status_and_level(const char * const cstr, const int8_t level=0) { _set_status_and_level(cstr, level, false); }
 
   /**
    * @brief Set Status with a P-string and alert level.
@@ -473,7 +473,7 @@ public:
    * @param ustr  A C- or P-string, according to pgm.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level_P(PGM_P const pstr, const int8_t level) { _set_status_and_level(pstr, level, true); }
+  static void set_status_and_level_P(PGM_P const pstr, const int8_t level=0) { _set_status_and_level(pstr, level, true); }
 
   /**
    * @brief Set Status with a fixed string and alert level.
@@ -481,7 +481,7 @@ public:
    * @param fstr  A constant F-string to set as the status.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level(FSTR_P const fstr, const int8_t level) { set_status_and_level_P(FTOP(fstr), level); }
+  static void set_status_and_level(FSTR_P const fstr, const int8_t level=0) { set_status_and_level_P(FTOP(fstr), level); }
 
   static void set_max_status(FSTR_P const fstr) { set_status_and_level(fstr, 127); }
   static void set_min_status(FSTR_P const fstr) { set_status_and_level(fstr,  -1); }
