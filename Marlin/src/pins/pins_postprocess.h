@@ -487,8 +487,20 @@
   #define SUICIDE_PIN_STATE LOW
 #endif
 
-#ifndef NUM_SERVO_PLUGS
+#if PIN_EXISTS(SERVO5)
+  #define NUM_SERVO_PLUGS 6
+#elif PIN_EXISTS(SERVO4)
+  #define NUM_SERVO_PLUGS 5
+#elif PIN_EXISTS(SERVO3)
   #define NUM_SERVO_PLUGS 4
+#elif PIN_EXISTS(SERVO2)
+  #define NUM_SERVO_PLUGS 3
+#elif PIN_EXISTS(SERVO1)
+  #define NUM_SERVO_PLUGS 2
+#elif PIN_EXISTS(SERVO0)
+  #define NUM_SERVO_PLUGS 1
+#else
+  #define NUM_SERVO_PLUGS 0
 #endif
 
 // Only used within pins files

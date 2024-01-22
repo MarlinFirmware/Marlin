@@ -639,8 +639,8 @@ void GcodeSuite::G28() {
     #endif
 
     #ifdef XY_AFTER_HOMING
-      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
-      do_blocking_move_to(xy_after);
+      if (!axes_should_home(_BV(X_AXIS) | _BV(Y_AXIS)))
+        do_blocking_move_to(xy_pos_t(XY_AFTER_HOMING));
     #endif
 
     restore_feedrate_and_scaling();

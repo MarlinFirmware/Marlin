@@ -116,7 +116,7 @@
 namespace Language_test {
   using namespace Language_en; // Inherit undefined strings from English
 
-  constexpr uint8_t CHARSIZE                  = 1;
+  constexpr uint8_t CHARSIZE                = 1;
 
   #if ENABLED(DISPLAYTEST)
     LSTR WELCOME_MSG                        = _UxGT("Language TEST");

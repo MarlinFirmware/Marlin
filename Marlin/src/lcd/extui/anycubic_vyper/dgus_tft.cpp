@@ -1011,7 +1011,7 @@ namespace Anycubic {
         #if HAS_HOTEND
           else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) { // hotend target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, HEATER_0_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, thermalManager.hotend_max_target(0));
             setTargetTemp_celsius(temp, E0);
             //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
@@ -1021,7 +1021,7 @@ namespace Anycubic {
         #if HAS_HEATED_BED
           else if (control_index == TXT_BED_TARGET || control_index == TXT_ADJUST_BED) {// bed target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, BED_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, BED_MAX_TARGET);
             setTargetTemp_celsius(temp, BED);
             //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_BED);
