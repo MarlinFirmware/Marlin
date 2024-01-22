@@ -672,16 +672,18 @@ namespace ExtUI {
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
-    planner.settings.axis_steps_per_mm[axis] = value;
-    planner.refresh_positioning();
-  }
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
+      planner.settings.axis_steps_per_mm[axis] = value;
+      planner.refresh_positioning();
+    }
 
-  void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
-    UNUSED(extruder);
-    planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
-    planner.refresh_positioning();
-  }
+    void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
+      UNUSED(extruder);
+      planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
+      planner.refresh_positioning();
+    }
+  #endif
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
     return planner.settings.max_feedrate_mm_s[axis];

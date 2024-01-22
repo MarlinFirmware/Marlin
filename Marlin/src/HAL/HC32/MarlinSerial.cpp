@@ -27,7 +27,7 @@
 
 /**
  * Not every MarlinSerial instance should handle emergency parsing, as
- * it would not make sense to parse GCode from TMC responses
+ * it would not make sense to parse G-Code from TMC responses
  */
 constexpr bool serial_handles_emergency(int port) {
   return false

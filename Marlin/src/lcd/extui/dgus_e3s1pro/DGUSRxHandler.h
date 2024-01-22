@@ -51,11 +51,14 @@ namespace DGUSRxHandler {
     float maxJerk = dgus.fromFixedPoint<uint16_t, float, 2>(Endianness::fromBE_P<uint16_t>(data));
     ExtUI::setAxisMaxJerk_mm_s(maxJerk, axis);
   }
-  template <typename T, T axis>
-  void stepsPerMM(DGUS_VP &vp, void *data) {
-    float stepsPerMm = dgus.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
-    ExtUI::setAxisSteps_per_mm(stepsPerMm, axis);
-  }
+
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    template <typename T, T axis>
+    void stepsPerMM(DGUS_VP &vp, void *data) {
+      float stepsPerMm = dgus.fromFixedPoint<uint16_t, float, 1>(Endianness::fromBE_P<uint16_t>(data));
+      ExtUI::setAxisSteps_per_mm(stepsPerMm, axis);
+    }
+  #endif
 
   #if ENABLED(PIDTEMP)
     template <ExtUI::extruder_t extruder>

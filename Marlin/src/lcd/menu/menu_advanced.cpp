@@ -136,7 +136,7 @@ void menu_backlash();
       }
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
@@ -641,32 +641,38 @@ void menu_backlash();
 
 #endif // !SLIM_LCD_MENUS
 
-// M92 Steps-per-mm
-void menu_advanced_steps_per_mm() {
-  START_MENU();
-  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-  LOOP_NUM_AXES(a)
-    EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
+  // M92 Steps-per-mm
+  void menu_advanced_steps_per_mm() {
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-  #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t n = 0; n < E_STEPPERS; ++n)
-      EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
-        const uint8_t e = MenuItemBase::itemIndex;
-        if (e == active_extruder)
-          planner.refresh_positioning();
-        else
-          planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
-      });
-  #elif E_STEPPERS
-    EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
-  #endif
+    LOOP_NUM_AXES(a)
+      EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
-  END_MENU();
-}
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t n = 0; n < E_STEPPERS; ++n)
+        EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
+          const uint8_t e = MenuItemBase::itemIndex;
+          if (e == active_extruder)
+            planner.refresh_positioning();
+          else
+            planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
+        });
+    #elif E_STEPPERS
+      EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
+    #endif
+
+    END_MENU();
+  }
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 void menu_advanced_settings() {
-  const bool is_busy = printer_busy();
+  #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
+    const bool is_busy = printer_busy();
+  #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
@@ -722,8 +728,9 @@ void menu_advanced_settings() {
   #endif // !SLIM_LCD_MENUS
 
   // M92 - Steps Per mm
-  if (!is_busy)
-    SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    if (!is_busy) SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #endif
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);

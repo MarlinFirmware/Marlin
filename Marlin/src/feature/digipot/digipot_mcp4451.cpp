@@ -35,8 +35,8 @@
 
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
 #if MB(5DPRINT)
-  #define DIGIPOT_I2C_FACTOR      117.96f
-  #define DIGIPOT_I2C_MAX_CURRENT   1.736f
+  #define DIGIPOT_I2C_FACTOR     117.96f
+  #define DIGIPOT_I2C_MAX_CURRENT 1.736f
 #elif MB(AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI)
   #define DIGIPOT_I2C_FACTOR      113.5f
   #define DIGIPOT_I2C_MAX_CURRENT   2.0f

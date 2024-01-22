@@ -4,7 +4,7 @@ With Marlin version 2.0.9.x or higher, Laser improvements were introduced that e
 
 ### Architecture
 
-Laser selectable feature capability is defined through 4 global mode flags within gcode ,laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines.
+Laser selectable feature capability is defined through 4 global mode flags within G-code ,laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines.
 
 Inline power feeds from the block->inline_power variable into the planner's laser.power when in continuous power mode. Further power adjustment will be applied if the laser power trap feature is active otherwise laser.power is used as set in the stepper for the entire block. When laser power trap is active the power levels are step incremented during acceleration and step decremented during deceleration.
 
@@ -20,52 +20,52 @@ The following flow charts depict the flow control logic for spindle and laser op
 
 #### Spindle Mode Logic:
 
-                ┌──────────┐  ┌───────────┐  ┌───────────┐
-                │M3 S-Value│  │Dir !same ?│  │Stepper    │
-                │Spindle   │  │stop & wait│  │processes  │
-             ┌──┤Clockwise ├──┤ & start   ├──┤moves      │
-    ┌─────┐  │  │          │  │spindle    │  │           │
-    │GCode│  │  └──────────┘  └───────────┘  └───────────┘
-    │Send ├──┤  ┌──────────┐  ┌───────────┐  ┌───────────┐
-    └─────┘  │  │M4 S-Value│  │Dir !same ?│  │Stepper    │
-             ├──┤Spindle   ├──┤stop & wait├──┤processes  │
-             │  │Counter   │  │& start    │  │moves      │
-             │  │Clockwise │  │spindle    │  │           │
-             │  └──────────┘  └───────────┘  └───────────┘
-             │  ┌──────────┐  ┌────────┐
-             │  │M5        │  │Wait for│
-             │  │Spindle   ├──┤move &  │
-             └──┤Stop      │  │disable │
-                └──────────┘  └────────┘
-                ┌──────────┐  ┌──────────┐
-    Sensors─────┤Fault     ├──┤Disable   │
-                └──────────┘  │power     │
-                              └──────────┘
+                 ┌──────────┐  ┌───────────┐  ┌───────────┐
+                 │M3 S-Value│  │Dir !same ?│  │Stepper    │
+                 │Spindle   │  │stop & wait│  │processes  │
+              ┌──┤Clockwise ├──┤ & start   ├──┤moves      │
+    ┌──────┐  │  │          │  │spindle    │  │           │
+    │G-Code│  │  └──────────┘  └───────────┘  └───────────┘
+    │Send  ├──┤  ┌──────────┐  ┌───────────┐  ┌───────────┐
+    └──────┘  │  │M4 S-Value│  │Dir !same ?│  │Stepper    │
+              ├──┤Spindle   ├──┤stop & wait├──┤processes  │
+              │  │Counter   │  │& start    │  │moves      │
+              │  │Clockwise │  │spindle    │  │           │
+              │  └──────────┘  └───────────┘  └───────────┘
+              │  ┌──────────┐  ┌────────┐
+              │  │M5        │  │Wait for│
+              │  │Spindle   ├──┤move &  │
+              └──┤Stop      │  │disable │
+                 └──────────┘  └────────┘
+                 ┌──────────┐  ┌──────────┐
+     Sensors─────┤Fault     ├──┤Disable   │
+                 └──────────┘  │power     │
+                               └──────────┘
 
 #### Laser Mode Logic:
 
-                ┌──────────┐  ┌─────────────┐  ┌───────────┐
-                │M3,M4,M5 I│  │Set power    │  │Stepper    │
-             ┌──┤Standard  ├──┤Immediately &├──┤processes  │
-             │  │Default   │  │wait for move│  │moves      │
-             │  │          │  │completion   │  │           │
-             │  └──────────┘  └─────────────┘  └───────────┘
-             │  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐
-    ┌─────┐  │  │M3 I      │  │G0,G1,G2,G4│  │Planner    │  │Planner     │  │Planner fan │  │Planner     │  │Stepper    │
-    │GCode│  │  │Continuous│  │M3 receive │  │sets block │  │sync power ?│  │sync power ?│  │trap power ?│  │uses block │
-    │Send ├──┼──┤Inline    ├──┤power from ├──┤power using├──┤process M3  ├──┤process fan ├──┤adjusts for ├──┤values to  │
-    └─────┘  │  │          │  │S-Value    │  │Gx S-Value │  │power inline│  │power inline│  │accel/decel │  │apply power│
-             │  └──────────┘  └───────────┘  └───────────┘  └────────────┘  └────────────┘  └────────────┘  └───────────┘
-             │  ┌──────────┐  ┌───────────┐  ┌────────────────┐  ┌───────────┐
-             │  │M4 I      │  │Gx F-Value │  │Planner         │  │Stepper    │
-             │  │Dynamic   │  │set power  │  │Calc & set block│  │uses block │
-             └──┤Inline    ├──┤or use     ├──┤block power     ├──┤values to  │
-                │          │  │default    │  │using F-Value   │  │apply power│
-                └──────────┘  └───────────┘  └────────────────┘  └───────────┘
-                ┌──────────┐  ┌──────────┐
-    Sensors─────┤Fault     ├──┤Disable   │
-                └──────────┘  │Power     │
-                              └──────────┘
+                 ┌──────────┐  ┌─────────────┐  ┌───────────┐
+                 │M3,M4,M5 I│  │Set power    │  │Stepper    │
+              ┌──┤Standard  ├──┤Immediately &├──┤processes  │
+              │  │Default   │  │wait for move│  │moves      │
+              │  │          │  │completion   │  │           │
+              │  └──────────┘  └─────────────┘  └───────────┘
+              │  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐
+    ┌──────┐  │  │M3 I      │  │G0,G1,G2,G4│  │Planner    │  │Planner     │  │Planner fan │  │Planner     │  │Stepper    │
+    │G-Code│  │  │Continuous│  │M3 receive │  │sets block │  │sync power ?│  │sync power ?│  │trap power ?│  │uses block │
+    │Send  ├──┼──┤Inline    ├──┤power from ├──┤power using├──┤process M3  ├──┤process fan ├──┤adjusts for ├──┤values to  │
+    └──────┘  │  │          │  │S-Value    │  │Gx S-Value │  │power inline│  │power inline│  │accel/decel │  │apply power│
+              │  └──────────┘  └───────────┘  └───────────┘  └────────────┘  └────────────┘  └────────────┘  └───────────┘
+              │  ┌──────────┐  ┌───────────┐  ┌────────────────┐  ┌───────────┐
+              │  │M4 I      │  │Gx F-Value │  │Planner         │  │Stepper    │
+              │  │Dynamic   │  │set power  │  │Calc & set block│  │uses block │
+              └──┤Inline    ├──┤or use     ├──┤block power     ├──┤values to  │
+                 │          │  │default    │  │using F-Value   │  │apply power│
+                 └──────────┘  └───────────┘  └────────────────┘  └───────────┘
+                 ┌──────────┐  ┌──────────┐
+     Sensors─────┤Fault     ├──┤Disable   │
+                 └──────────┘  │Power     │
+                               └──────────┘
 
 <!-- https://asciiflow.com/#/ -->
 
