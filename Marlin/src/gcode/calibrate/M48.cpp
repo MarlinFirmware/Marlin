@@ -265,9 +265,9 @@ void GcodeSuite::M48() {
         #define LCD_WIDTH MAX_MESSAGE_LENGTH
       #endif
       if (STATUS_MESSAGE_WIDTH_LCD > 24)
-        ui.set_status(TS(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 6), F(", "), GET_TEXT_F(MSG_M48_MAX_DELTA), ':', w_float_t(_MAX(mean - min, max - mean), 2, 3)));
+        ui.set_status_and_level(MString<40>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 3)));
       else
-        ui.set_status(TS(GET_TEXT_F(MSG_M48_DEVIATION), ':', w_float_t(sigma, 2, 6)));
+        ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
     #endif
   }
 
