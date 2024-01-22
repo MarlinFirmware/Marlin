@@ -28,9 +28,9 @@
 #include "src/MarlinCore.h"
 #if HAS_PRUSA_MMU3
   #include <stdint.h>
-  #include <avr/pgmspace.h>
 
   #ifdef __AVR__
+    #include <avr/pgmspace.h>
     #include "mmu_hw/error_codes.h"
     #include "mmu_hw/progress_codes.h"
     #include "mmu_hw/buttons.h"
@@ -55,6 +55,7 @@ public:
 
     } // namespace std
   #else // ifdef __AVR__
+    #include <pgmspace.h>
 
     #include <array>
     #include "mmu_hw/error_codes.h"
