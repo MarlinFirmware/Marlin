@@ -20,18 +20,14 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
 
 #include "../../gcode.h"
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
-
-#if HAS_MULTI_EXTRUDER
-  #include "../../../module/tool_change.h"
-#endif
 
 /**
  * M603: Configure filament change
@@ -80,4 +76,4 @@ void GcodeSuite::M603_report(const bool forReplay/*=true*/) {
   #endif
 }
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // CONFIGURE_FILAMENT_CHANGE

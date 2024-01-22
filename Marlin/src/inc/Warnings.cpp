@@ -42,6 +42,14 @@
   #endif
 #endif
 
+#if DISABLED(DEBUG_FLAGS_GCODE)
+  #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
+#endif
+
+#if DISABLED(CAPABILITIES_REPORT)
+  #warning "CAPABILITIES_REPORT is recommended if you have space. Some hosts rely on it."
+#endif
+
 #if ENABLED(LA_DEBUG)
   #warning "WARNING! Disable LA_DEBUG for the final build!"
 #endif
@@ -695,16 +703,16 @@
 #endif
 
 /**
- * FYSETC/MKS/BTT Mini Panel backlighting
+ * FYSETC/MKS/BTT/BEEZ Mini Panel backlighting
  */
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
-  #warning "Your FYSETC/MKS/BTT Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
+  #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
 #endif
 
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
 #elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
+  #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && ALL(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
@@ -821,4 +829,18 @@
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
   #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
+#endif
+
+/**
+ * Fixed-Time Motion
+ */
+#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
+  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#endif
+
+/**
+ * User doesn't have or disabled G92?
+ */
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif
