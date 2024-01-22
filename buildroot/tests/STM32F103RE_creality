@@ -10,12 +10,6 @@ set -e
 # Build with configs included in the PR
 #
 use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
-opt_disable DWIN_CREALITY_LCD
-opt_enable DWIN_LCD_PROUI
-opt_add NO_AUTO_ASSIGN_WARNING
-exec_test $1 $2 "Ender-3 V2 - ProUI (Default)" "$3"
-
-use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
 opt_enable MARLIN_DEV_MODE BUFFER_MONITORING BLTOUCH AUTO_BED_LEVELING_BILINEAR Z_SAFE_HOMING
 exec_test $1 $2 "Ender-3 V2 - CrealityUI" "$3"
 
@@ -28,6 +22,12 @@ use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
 opt_disable DWIN_CREALITY_LCD PIDTEMP
 opt_enable DWIN_MARLINUI_LANDSCAPE LCD_ENDSTOP_TEST AUTO_BED_LEVELING_UBL BLTOUCH Z_SAFE_HOMING MPCTEMP MPC_AUTOTUNE
 exec_test $1 $2 "Ender-3 V2 - MarlinUI (UBL+BLTOUCH, MPCTEMP, LCD_ENDSTOP_TEST)" "$3"
+
+use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
+opt_disable DWIN_CREALITY_LCD
+opt_enable DWIN_LCD_PROUI
+opt_add NO_AUTO_ASSIGN_WARNING
+exec_test $1 $2 "Ender-3 V2 - ProUI (Default)" "$3"
 
 use_example_configs "Creality/Ender-3 S1/STM32F1"
 opt_disable DWIN_CREALITY_LCD Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN AUTO_BED_LEVELING_BILINEAR CANCEL_OBJECTS FWRETRACT EVENT_GCODE_SD_ABORT
