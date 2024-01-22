@@ -3547,7 +3547,7 @@ void Stepper::report_positions() {
     if (current_block) {
       // If the current block is not done processing, return right away
       if (!ftMotion.getBlockProcDn()) return;
-      curent_block = nullptr;
+
       axis_did_move.reset();
       planner.release_current_block();
     }
@@ -3559,7 +3559,7 @@ void Stepper::report_positions() {
       // Sync block? Sync the stepper counts and return
       while (current_block->is_sync()) {
         TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
-        curent_block = nullptr;
+
         axis_did_move.reset();
         planner.release_current_block();
 

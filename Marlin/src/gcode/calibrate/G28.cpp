@@ -41,11 +41,11 @@
 #endif
 
 #include "../../module/probe.h"
-/*
+
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
 #endif
-*/
+
 #if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
@@ -198,7 +198,7 @@
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
-  /*
+  
   #if ENABLED(FT_MOTION) && IS_CORE
     // Disable ft-motion for homing
     struct OnExit {
@@ -213,7 +213,7 @@ void GcodeSuite::G28() {
       }
     } on_exit;
   #endif
-  */
+  
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
       LOOP_NUM_AXES(a) set_axis_is_at_home((AxisEnum)a);
