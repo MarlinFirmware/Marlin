@@ -41,7 +41,7 @@ namespace ExtUI {
   void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
   void onMediaError()     { anycubicTFT.onSDCardError(); }
   void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
   void onPrintTimerStarted()  { anycubicTFT.onPrintTimerStarted(); }

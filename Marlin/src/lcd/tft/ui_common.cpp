@@ -85,7 +85,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
                       , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
                       , new_probe_offset
                     );
-        if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
           babystep.add_steps(Z_AXIS, babystep_increment);
           if (do_probe)
             probe.offset.z = new_offs;
@@ -100,12 +100,12 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
       #else
         // Only change probe.offset.z
         probe.offset.z += diff;
-        if (direction < 0 && current_position.z < Z_PROBE_OFFSET_RANGE_MIN) {
-          current_position.z = Z_PROBE_OFFSET_RANGE_MIN;
+        if (direction < 0 && current_position.z < PROBE_OFFSET_ZMIN) {
+          current_position.z = PROBE_OFFSET_ZMIN;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
-        else if (direction > 0 && current_position.z > Z_PROBE_OFFSET_RANGE_MAX) {
-          current_position.z = Z_PROBE_OFFSET_RANGE_MAX;
+        else if (direction > 0 && current_position.z > PROBE_OFFSET_ZMAX) {
+          current_position.z = PROBE_OFFSET_ZMAX;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
         else
