@@ -54,9 +54,18 @@
 //#define FIL_RUNOUT_PIN                      35
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
@@ -169,7 +178,7 @@
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    // MKS_MINI_12864_V3, BTT_MINI_12864, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864, FYSETC_MINI_12864_2_1, BEEZ_MINI_12864
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN

@@ -542,7 +542,7 @@ void lv_encoder_pin_init() {
 
 #endif // HAS_ENCODER_ACTION
 
-#if __PLAT_NATIVE_SIM__
+#ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>
   typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
   extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}

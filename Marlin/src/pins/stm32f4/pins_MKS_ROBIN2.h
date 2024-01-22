@@ -38,6 +38,13 @@
 #define SRAM_EEPROM_EMULATION
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PB0   // XS2-5
+#define SERVO1_PIN                          PF7   // XS1-5
+#define SERVO2_PIN                          PF8   // XS1-6
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN                           PG8
@@ -48,11 +55,11 @@
 #define Z_MAX_PIN                           PG3
 
 //
-// Servos
+// Probe enable
 //
-#define SERVO0_PIN                          PB0   // XS2-5
-#define SERVO1_PIN                          PF7   // XS1-5
-#define SERVO2_PIN                          PF8   // XS1-6
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
 
 //
 // Steppers
