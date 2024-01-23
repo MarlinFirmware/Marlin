@@ -191,6 +191,8 @@ enum SovolPage : uint8_t {
   ID_Home_L         =   1,      ID_Home_D         =  55 + ID_Home_L,
   ID_Cold_L         =   7,      ID_Cold_D         =  55 + ID_Cold_L,
   ID_Unload_L       =  16,      ID_Unload_D       =  55 + ID_Unload_L,
+  ID_FilamentOut_L  =  39,      ID_FilamentOut_D  =  55 + ID_FilamentOut_L,
+  ID_MediaFail_L    =  46,      ID_MediaFail_D    =  55 + ID_MediaFail_L,
   ID_KillRunaway_L  =  52,      ID_KillRunaway_D  =  55 + ID_KillRunaway_L,
   ID_KillHeat_L     =  53,      ID_KillHeat_D     =  55 + ID_KillHeat_L,
   ID_KillBadTemp_L  =  54,      ID_KillBadTemp_D  =  55 + ID_KillBadTemp_L,
@@ -245,7 +247,7 @@ class RTS {
 
     static bool dark_mode;
     static void gotoPage(SovolPage page) { sendData(ExchangePageBase + page, ExchangepageAddr); }
-    static void gotoPage(SovolPage p1, SovolPage p2) { gotoPage(dark_mode ? p1 : p2); }
+    static void gotoPage(SovolPage p1, SovolPage p2) { gotoPage(dark_mode ? p2 : p1); }
     static void gotoPageBeep(SovolPage p1, SovolPage p2) { gotoPage(p1, p2); sendData(Beep1, SoundAddr); }
 
     static void sendPrinterInfo();

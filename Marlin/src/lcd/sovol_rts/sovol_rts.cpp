@@ -704,7 +704,7 @@ void RTS::handleData() {
 
     case ResumePrintKey: // Restore printing
       if (recdat.data[0] == 1) { // Portal restoration printing
-        if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(39, 94);
+        if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
         //sendData(1, Wait_VP);
         //gotoPage(40, 95);
         card.startOrResumeFilePrinting();
@@ -718,7 +718,7 @@ void RTS::handleData() {
       else if (recdat.data[0] == 2) {
         #if ENABLED(CHECKFILAMENT)
           if (runout.filament_ran_out) {
-            gotoPage(39, 94);
+            gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
           }
           else {
             sendData(1, Wait_VP);
@@ -742,7 +742,7 @@ void RTS::handleData() {
           #endif
         }
         else if (poweroff_continue == false) {
-          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) { gotoPage(39, 94); break; }
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) { gotoPage(ID_FilamentOut_L, ID_FilamentOut_D); break; }
 
           char cmd[30];
           sprintf_P(cmd, M23_STR, cardRec.filename[FilenamesCount]);
@@ -770,10 +770,10 @@ void RTS::handleData() {
         if (!card.flag.mounted) {
           update_sd = true;
           sdCardUpdate();
-          gotoPage(46, 101);
+          gotoPage(ID_MediaFail_L, ID_MediaFail_D);
         }
         else {
-          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(39, 94);
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
           sendData(1, Wait_VP);
           gotoPage(40, 95);
           card.startOrResumeFilePrinting();
@@ -1147,7 +1147,7 @@ void RTS::handleData() {
 
           #if ENABLED(CHECKFILAMENT)
             if (runout.filament_ran_out) {
-              gotoPage(39, 94);
+              gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
               sdcard_pause_check = false;
               break;
             }
@@ -1688,7 +1688,7 @@ void RTS_Update() {
   card_insert_st = IS_SD_INSERTED();
 
   if (!card_insert_st && sd_printing) {
-    rts.gotoPage(46, 101);
+    rts.gotoPage(ID_MediaFail_L, ID_MediaFail_D);
     rts.sendData(0, CHANGE_SDCARD_ICON_VP);
     // Passenger printing so that the nozzle can return to zero
     card.pauseSDPrint();
@@ -1709,7 +1709,7 @@ void RTS_Update() {
     if (card.isPrinting() && poweroff_continue && runout.filament_ran_out) {
       rts.sendData(Beep, SoundAddr);
       if (TERN0(HAS_HOTEND, thermalManager.still_heating(0)) || TERN0(HAS_HEATED_BED, !thermalManager.isCoolingBed())) {
-        rts.gotoPage(39, 94);
+        rts.gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
       }
       else {
         rts.sendData(1, Wait_VP);
@@ -1738,7 +1738,7 @@ void RTS_PauseMoveAxisPage() {
     waitway = 0;
   }
   else if (waitway == 5) {
-    rts.gotoPage(39, 94);
+    rts.gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
     waitway = 0;
   }
 }
