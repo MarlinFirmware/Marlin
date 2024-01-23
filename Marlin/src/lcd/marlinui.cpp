@@ -67,6 +67,8 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
+#define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
+
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -963,6 +965,7 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
+    static millis_t next_encoder_enable_ms = 0;
     const millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
@@ -1013,7 +1016,12 @@ void MarlinUI::init() {
       if (!touch_buttons) {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) do_click();              // Handle the click
+          if (!wait_for_unclick) {
+            if (ELAPSED(ms, next_encoder_enable_ms))
+              do_click();              // Handle the click
+            else
+              wait_for_unclick = true;
+          }
         }
         else
           wait_for_unclick = false;
@@ -1050,68 +1058,59 @@ void MarlinUI::init() {
         uint8_t abs_diff = ABS(encoderDiff);
 
         #if ENCODER_PULSES_PER_STEP > 1
-          // When reversing the encoder direction, a movement step can be missed because
-          // encoderDiff has a non-zero residual value, making the controller unresponsive.
-          // The fix clears the residual value when the encoder is idle.
-          // Also check if past half the threshold to compensate for missed single steps.
           static int8_t lastEncoderDiff;
-
-          // Timeout? No decoder change since last check. 10 or 20 times per second.
-          if (encoderDiff == lastEncoderDiff && abs_diff <= epps / 2)   // Same direction & size but not over a half-step?
-            encoderDiff = 0;                                            // Clear residual pulses.
-          else if (WITHIN(abs_diff, epps / 2 + 1, epps - 1)) {          // Past half of threshold?
-            abs_diff = epps;                                            // Treat as a full step size
-            encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
-          }
           TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
           lastEncoderDiff = encoderDiff;
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold || lcd_clicked) {
-          if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
+        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
-            #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              int32_t encoderMultiplier = 1;
+            int32_t encoderMultiplier = 1;
 
-              if (encoderRateMultiplierEnabled) {
+            if (encoderRateMultiplierEnabled) {
+              if (lastEncoderMovementMillis) {
                 const float encoderMovementSteps = float(abs_diff) / epps;
+                // Note that the rate is always calculated between two passes through the
+                // loop and that the abs of the encoderDiff value is tracked.
+                const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
 
-                if (lastEncoderMovementMillis) {
-                  // Note that the rate is always calculated between two passes through the
-                  // loop and that the abs of the encoderDiff value is tracked.
-                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
+                else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
 
-                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
+                // Enable to output the encoder steps per second value
+                //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                  SERIAL_ECHO_START();
+                  SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
+                  SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
+                  SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
+                  SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
+                  SERIAL_EOL();
+                #endif
+              }
 
-                  // Enable to output the encoder steps per second value
-                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                    SERIAL_ECHO_START();
-                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                    SERIAL_EOL();
-                  #endif
-                }
+              lastEncoderMovementMillis = ms;
+            } // encoderRateMultiplierEnabled
 
-                lastEncoderMovementMillis = ms;
-              } // encoderRateMultiplierEnabled
+          #else
 
-            #else
+            constexpr int32_t encoderMultiplier = 1;
 
-              constexpr int32_t encoderMultiplier = 1;
+          #endif // ENCODER_RATE_MULTIPLIER
 
-            #endif // ENCODER_RATE_MULTIPLIER
-
-            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
-
-            encoderDiff = 0;
+          int8_t fullSteps = encoderDiff / epps;
+          if (fullSteps != 0) {
+            next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
+            encoderDiff -= fullSteps * epps;
+            if (can_encode() && !lcd_clicked)
+              encoderPosition += (fullSteps * encoderMultiplier);
           }
+        }
 
+        if (encoderPastThreshold || lcd_clicked) {
           reset_status_timeout(ms);
 
           #if HAS_BACKLIGHT_TIMEOUT
@@ -1422,14 +1421,26 @@ void MarlinUI::init() {
       } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
+        #define ENCODER_DEBOUNCE_MS 2 
         static uint8_t lastEncoderBits;
+        static uint8_t enc;
+        static uint8_t buttons_was = buttons;
+        static uint32_t en_A_blocked_ms;
+        static uint32_t en_B_blocked_ms;
 
-        // Manage encoder rotation
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
+        const bool en_A = (buttons & EN_A);
+        const bool en_B = (buttons & EN_B);
+        const bool en_A_was = (buttons_was & EN_A);
+        const bool en_B_was = (buttons_was & EN_B);
 
-        uint8_t enc = 0;
-        if (buttons & EN_A) enc |= B01;
-        if (buttons & EN_B) enc |= B10;
+        buttons_was = buttons;
+        
+        if (en_A != en_A_was) en_A_blocked_ms = now + ENCODER_DEBOUNCE_MS;
+        else if (ELAPSED(now, en_A_blocked_ms)) SET_BIT_TO(enc, 0, en_A);
+        if (en_B != en_B_was) en_B_blocked_ms = now + ENCODER_DEBOUNCE_MS;
+        else if (ELAPSED(now, en_B_blocked_ms)) SET_BIT_TO(enc, 1, en_B);
+
+        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; }
         if (enc != lastEncoderBits) {
           switch (enc) {
             case 0: ENCODER_SPIN(1, 2); break;
