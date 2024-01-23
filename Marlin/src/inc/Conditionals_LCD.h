@@ -656,15 +656,6 @@
   #define IS_RRD_SC 1
   #define IS_U8GLIB_SSD1306
 
-#elif ENABLED(SOVOL_SV06_RTS)
-  #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
-      #define LCD_SERIAL_PORT 1
-    #else
-      #define LCD_SERIAL_PORT 3 // Creality 4.x board
-    #endif
-  #endif
-
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL 1
   #define STD_ENCODER_PULSES_PER_STEP 2
