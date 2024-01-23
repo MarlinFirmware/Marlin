@@ -1979,26 +1979,26 @@ bool Planner::_populate_block(
     TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));
   #endif
   #if CORE_IS_XY
-    dm.ja = (dist.a + dist.b > 0);              // Motor A direction
-    dm.jb = (CORESIGN(dist.a - dist.b) > 0);    // Motor B direction
+    dm.a = (dist.a + dist.b > 0);               // Motor A direction
+    dm.b = (CORESIGN(dist.a - dist.b) > 0);     // Motor B direction
   #elif CORE_IS_XZ
     dm.hx = (dist.a > 0);                       // Save the toolhead's true direction in X
     dm.y  = (dist.b > 0);
     dm.hz = (dist.c > 0);                       // ...and Z
-    dm.ja  = (dist.a + dist.c > 0);             // Motor A direction
-    dm.jc  = (CORESIGN(dist.a - dist.c) > 0);   // Motor C direction
+    dm.a  = (dist.a + dist.c > 0);              // Motor A direction
+    dm.c  = (CORESIGN(dist.a - dist.c) > 0);    // Motor C direction
   #elif CORE_IS_YZ
     dm.x  = (dist.a > 0);
     dm.hy = (dist.b > 0);                       // Save the toolhead's true direction in Y
     dm.hz = (dist.c > 0);                       // ...and Z
-    dm.jb  = (dist.b + dist.c > 0);             // Motor B direction
-    dm.jc  = (CORESIGN(dist.b - dist.c) > 0);   // Motor C direction
+    dm.b  = (dist.b + dist.c > 0);              // Motor B direction
+    dm.c  = (CORESIGN(dist.b - dist.c) > 0);    // Motor C direction
   #elif ENABLED(MARKFORGED_XY)
-    dm.ja = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
-    dm.jb = (dist.b > 0);                       // Motor B direction
+    dm.a = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
+    dm.b = (dist.b > 0);                        // Motor B direction
   #elif ENABLED(MARKFORGED_YX)
-    dm.ja = (dist.a > 0);                       // Motor A direction
-    dm.jb = (dist.b TERN(MARKFORGED_INVERSE, -, +) dist.a > 0); // Motor B direction
+    dm.a = (dist.a > 0);                        // Motor A direction
+    dm.b = (dist.b TERN(MARKFORGED_INVERSE, -, +) dist.a > 0); // Motor B direction
   #else
     XYZ_CODE(
       dm.x = (dist.a > 0),
