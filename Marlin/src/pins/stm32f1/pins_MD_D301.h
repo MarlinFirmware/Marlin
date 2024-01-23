@@ -160,8 +160,8 @@
 //
 // SD Support
 //
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
+#if !defined(SDCARD_CONNECTION) && DISABLED(NO_LCD_SDCARD)
+  #define SDCARD_CONNECTION                  LCD
 #endif
 
 #define SD_DETECT_PIN                       PE3
@@ -210,7 +210,7 @@
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-  
+
   // Buffer for Color UI
   #define TFT_BUFFER_WORDS                  3200
 #endif

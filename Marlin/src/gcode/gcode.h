@@ -128,7 +128,7 @@
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
- * M92  - Set planner.settings.axis_steps_per_mm for one or more axes.
+ * M92  - Set planner.settings.axis_steps_per_mm for one or more axes. (Requires EDITABLE_STEPS_PER_UNIT)
  *
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  *
@@ -149,7 +149,7 @@
  *
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
- * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
+ * M115 - Report capabilities. (Requires CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
  * M118 - Display a message in the host console.
  *
@@ -719,8 +719,10 @@ private:
     static void M87();
   #endif
 
-  static void M92();
-  static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    static void M92();
+    static void M92_report(const bool forReplay=true, const int8_t e=-1);
+  #endif
 
   #if ENABLED(M100_FREE_MEMORY_WATCHER)
     static void M100();
@@ -760,7 +762,10 @@ private:
   #endif
 
   static void M114();
-  static void M115();
+
+  #if ENABLED(CAPABILITIES_REPORT)
+    static void M115();
+  #endif
 
   #if HAS_STATUS_MESSAGE
     static void M117();
@@ -909,7 +914,7 @@ private:
     static void M250_report(const bool forReplay=true);
   #endif
 
-  #if HAS_GCODE_M255
+  #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
     static void M255();
     static void M255_report(const bool forReplay=true);
   #endif
@@ -1282,7 +1287,7 @@ private:
     static void M710_report(const bool forReplay=true);
   #endif
 
-  static void T(const int8_t tool_index);
+  static void T(const int8_t tool_index) IF_DISABLED(HAS_TOOLCHANGE, { UNUSED(tool_index); });
 
 };
 

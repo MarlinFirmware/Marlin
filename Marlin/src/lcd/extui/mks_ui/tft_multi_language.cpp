@@ -208,12 +208,14 @@ void machine_setting_disp() {
     machine_menu.Z_Jerk        = Z_JERK_CN;
     machine_menu.E_Jerk        = E_JERK_CN;
 
-    machine_menu.StepsConfTitle = STEPS_CONF_TITLE_CN;
-    machine_menu.X_Steps        = X_STEPS_CN;
-    machine_menu.Y_Steps        = Y_STEPS_CN;
-    machine_menu.Z_Steps        = Z_STEPS_CN;
-    machine_menu.E0_Steps       = E0_STEPS_CN;
-    machine_menu.E1_Steps       = E1_STEPS_CN;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      machine_menu.StepsConfTitle = STEPS_CONF_TITLE_CN;
+      machine_menu.X_Steps        = X_STEPS_CN;
+      machine_menu.Y_Steps        = Y_STEPS_CN;
+      machine_menu.Z_Steps        = Z_STEPS_CN;
+      machine_menu.E0_Steps       = E0_STEPS_CN;
+      machine_menu.E1_Steps       = E1_STEPS_CN;
+    #endif
 
     machine_menu.TmcCurrentConfTitle = TMC_CURRENT_CONF_TITLE_CN;
     machine_menu.X_Current           = X_TMC_CURRENT_CN;
@@ -436,12 +438,14 @@ void machine_setting_disp() {
     machine_menu.Z_Jerk        = Z_JERK_T_CN;
     machine_menu.E_Jerk        = E_JERK_T_CN;
 
-    machine_menu.StepsConfTitle = STEPS_CONF_TITLE_T_CN;
-    machine_menu.X_Steps        = X_STEPS_T_CN;
-    machine_menu.Y_Steps        = Y_STEPS_T_CN;
-    machine_menu.Z_Steps        = Z_STEPS_T_CN;
-    machine_menu.E0_Steps       = E0_STEPS_T_CN;
-    machine_menu.E1_Steps       = E1_STEPS_T_CN;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      machine_menu.StepsConfTitle = STEPS_CONF_TITLE_T_CN;
+      machine_menu.X_Steps        = X_STEPS_T_CN;
+      machine_menu.Y_Steps        = Y_STEPS_T_CN;
+      machine_menu.Z_Steps        = Z_STEPS_T_CN;
+      machine_menu.E0_Steps       = E0_STEPS_T_CN;
+      machine_menu.E1_Steps       = E1_STEPS_T_CN;
+    #endif
 
     machine_menu.TmcCurrentConfTitle = TMC_CURRENT_CONF_TITLE_T_CN;
     machine_menu.X_Current           = X_TMC_CURRENT_T_CN;
@@ -668,12 +672,14 @@ void machine_setting_disp() {
     machine_menu.Z_Jerk        = Z_JERK_EN;
     machine_menu.E_Jerk        = E_JERK_EN;
 
-    machine_menu.StepsConfTitle = STEPS_CONF_TITLE_EN;
-    machine_menu.X_Steps        = X_STEPS_EN;
-    machine_menu.Y_Steps        = Y_STEPS_EN;
-    machine_menu.Z_Steps        = Z_STEPS_EN;
-    machine_menu.E0_Steps       = E0_STEPS_EN;
-    machine_menu.E1_Steps       = E1_STEPS_EN;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      machine_menu.StepsConfTitle = STEPS_CONF_TITLE_EN;
+      machine_menu.X_Steps        = X_STEPS_EN;
+      machine_menu.Y_Steps        = Y_STEPS_EN;
+      machine_menu.Z_Steps        = Z_STEPS_EN;
+      machine_menu.E0_Steps       = E0_STEPS_EN;
+      machine_menu.E1_Steps       = E1_STEPS_EN;
+    #endif
 
     machine_menu.TmcCurrentConfTitle = TMC_CURRENT_CONF_TITLE_EN;
     machine_menu.X_Current           = X_TMC_CURRENT_EN;
@@ -1747,12 +1753,14 @@ void disp_language_init() {
             machine_menu.Z_Jerk        = Z_JERK_RU;
             machine_menu.E_Jerk        = E_JERK_RU;
 
-            machine_menu.StepsConfTitle = STEPS_CONF_TITLE_RU;
-            machine_menu.X_Steps        = X_STEPS_RU;
-            machine_menu.Y_Steps        = Y_STEPS_RU;
-            machine_menu.Z_Steps        = Z_STEPS_RU;
-            machine_menu.E0_Steps       = E0_STEPS_RU;
-            machine_menu.E1_Steps       = E1_STEPS_RU;
+            #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+              machine_menu.StepsConfTitle = STEPS_CONF_TITLE_RU;
+              machine_menu.X_Steps        = X_STEPS_RU;
+              machine_menu.Y_Steps        = Y_STEPS_RU;
+              machine_menu.Z_Steps        = Z_STEPS_RU;
+              machine_menu.E0_Steps       = E0_STEPS_RU;
+              machine_menu.E1_Steps       = E1_STEPS_RU;
+            #endif
 
             machine_menu.TmcCurrentConfTitle = TMC_CURRENT_CONF_TITLE_RU;
             machine_menu.X_Current           = X_TMC_CURRENT_RU;

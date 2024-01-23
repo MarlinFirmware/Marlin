@@ -34,7 +34,9 @@
 //
 // I2S (steppers & other output-only pins)
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              17
   #define I2S_BCK                             22
@@ -110,8 +112,8 @@
 
 // #define FAN_SOFT_PWM_REQUIRED // check if needed
 
-// Neopixel Rings
-#define NEOPIXEL_PIN                          14
+// NeoPixel Rings
+#define BOARD_NEOPIXEL_PIN                    14
 #define NEOPIXEL2_PIN                         27
 
 // SPI

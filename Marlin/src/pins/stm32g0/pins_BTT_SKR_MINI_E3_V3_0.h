@@ -64,6 +64,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -161,6 +168,20 @@
 #define EXP1_08_PIN                         PD6
 #define EXP1_09_PIN                         -1
 #define EXP1_10_PIN                         -1
+
+/**      SPI Port
+ *        ------
+ *  5V   | 1  2 | GND
+ *  CS   | 3  4 | CLK
+ *  MOSI | 5  6 | MISO
+ *  3V3  | 7  8 | GND
+ *        ------
+ *         SPI1
+ */
+#define SPI1_03_PIN                         PD9
+#define SPI1_04_PIN                         PA5
+#define SPI1_05_PIN                         PA7
+#define SPI1_06_PIN                         PA6
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
@@ -435,8 +456,8 @@
 #define SD_MOSI_PIN                         PA7
 
 //
-// Default NEOPIXEL_PIN
+// NeoPixel
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif

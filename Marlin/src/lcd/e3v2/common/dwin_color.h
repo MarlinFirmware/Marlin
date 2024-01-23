@@ -22,14 +22,15 @@
 #pragma once
 
 // Extended and default UI Colors
-#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R: 0..31, G: 0..63, B: 0..31
 #define GetRColor(color) ((color >> 11) & 0x1F)
 #define GetGColor(color) ((color >>  5) & 0x3F)
 #define GetBColor(color) ((color >>  0) & 0x1F)
 
+// RGB565 colors: https://rgbcolorpicker.com/565
 #define COLOR_WHITE         0xFFFF
-#define COLOR_YELLOW        RGB(0x1F,0x3F,0x00)
-#define COLOR_RED           RGB(0x1F,0x00,0x00)
+#define COLOR_YELLOW        RGB(0x1F, 0x3F, 0x00)
+#define COLOR_RED           RGB(0x1F, 0x00, 0x00)
 #define COLOR_ERROR_RED     0xB000  // Error!
 #define COLOR_BG_RED        0xF00F  // Red background color
 #define COLOR_BG_WINDOW     0x31E8  // Popup background color
