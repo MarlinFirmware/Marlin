@@ -313,12 +313,27 @@ void report_current_position_projected() {
         #endif
         }
   
-    #elif ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
-    // Special handling of SCARA and TPARA kinematics
-      // TODO
-    
-    #elif ANY(DELTA, POLARGRAPH, POLAR)
-    // Special handling of DELTA kinematics
+    #elif ANY(MORGAN_SCARA, MP_SCARA) // Unsupported for now? 
+    // Special handling of SCARA kinematics
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _SAVE_SET_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _SAVE_SET_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _SAVE_SET_CURRENT(Z);
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+    // Special handling of TPARA kinematics
+    // Z_AXIS is a special mode to set homing current to all axis
       if (axis == A_AXIS || axis == Z_AXIS) {
         #if HAS_CURRENT_HOME(X)
           _SAVE_SET_CURRENT(X);
@@ -334,17 +349,84 @@ void report_current_position_projected() {
           _SAVE_SET_CURRENT(Z);
         #endif
       }
-    
-    #else
-    // Special handling of standard Cartesian kinematics
+
+    #elif ANY(POLARGRAPH, POLAR)
+    // Special handling of DELTA kinematics
       if (axis == X_AXIS) {
         #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
+          _SAVE_SET_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS || axis == B_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _SAVE_SET_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _SAVE_SET_CURRENT(Z);
+        #endif
+      }
+
+    #elif defined(ARTICULATED_ROBOT_ARM)
+    // Special handling of articulated robot arm
+    // Useful?
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _SAVE_SET_CURRENT(X);
         #endif
       }
       if (axis == Y_AXIS) {
         #if HAS_CURRENT_HOME(Y)
           _SAVE_SET_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _SAVE_SET_CURRENT(Z);
+        #endif
+      }
+
+    #elif defined(FOAMCUTTER_XYUV)
+    // Special handling of foam cutter
+      if (axis == X_AXIS || axis == I_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _SAVE_SET_CURRENT(X);
+        #endif
+        #if HAS_CURRENT_HOME(I)
+          _SAVE_SET_CURRENT(I);
+        #endif
+      }
+      if (axis == Y_AXIS || axis == J_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _SAVE_SET_CURRENT(Y);
+        #endif
+        #if HAS_CURRENT_HOME(J)
+          _SAVE_SET_CURRENT(J);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _SAVE_SET_CURRENT(Z);
+        #endif
+      }
+    
+    #elif
+    // Standard Cartesian kinematics
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _SAVE_SET_CURRENT(X);
+        #endif
+        #if HAS_CURRENT_HOME(X2)
+          _SAVE_SET_CURRENT(X2);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _SAVE_SET_CURRENT(Y);
+        #endif
+        #if HAS_CURRENT_HOME(Y2)
+          _SAVE_SET_CURRENT(Y2);
         #endif
       }
       if (axis == Z_AXIS) {
@@ -363,29 +445,41 @@ void report_current_position_projected() {
       }
     #endif
 
-    #if HAS_CURRENT_HOME(I)
-      _SAVE_SET_CURRENT(I);
-    #endif
-    #if HAS_CURRENT_HOME(J)
-      _SAVE_SET_CURRENT(J);
-    #endif
-    #if HAS_CURRENT_HOME(K)
-      _SAVE_SET_CURRENT(K);
-    #endif
-    #if HAS_CURRENT_HOME(U)
-      _SAVE_SET_CURRENT(U);
-    #endif
-    #if HAS_CURRENT_HOME(V)
-      _SAVE_SET_CURRENT(V);
-    #endif
-    #if HAS_CURRENT_HOME(W)
-      _SAVE_SET_CURRENT(W);
-    #endif
+    if (axis == I_AXIS) {
+        #if HAS_CURRENT_HOME(I)
+          _SAVE_SET_CURRENT(I);
+        #endif
+      }
+    if (axis == J_AXIS) {
+        #if HAS_CURRENT_HOME(J)
+          _SAVE_SET_CURRENT(J);
+        #endif
+      }
+    if (axis == K_AXIS) {
+        #if HAS_CURRENT_HOME(K)
+          _SAVE_SET_CURRENT(K);
+        #endif
+      }
+    if (axis == U_AXIS) {
+        #if HAS_CURRENT_HOME(U)
+          _SAVE_SET_CURRENT(U);
+        #endif
+      }
+    if (axis == V_AXIS) {
+        #if HAS_CURRENT_HOME(V)
+          _SAVE_SET_CURRENT(V);
+        #endif
+      }
+    if (axis == W_AXIS) {
+        #if HAS_CURRENT_HOME(W)
+          _SAVE_SET_CURRENT(W);
+        #endif
+      }
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
-  }
+  } // set_homing_current()
 
   /**
    * Resets the motor current to its regular running current
@@ -393,7 +487,7 @@ void report_current_position_projected() {
    * This function resets the current of every motor to their previously stored values
    * This should not be called before calling set_homing_current() first
    */
-  void restore_homing_current() {
+  void restore_homing_current(const AxisEnum axis) {
       
       // Restores the current that was saved in saved_current variable
     #define _RESTORE_CURRENT(A) \
@@ -402,53 +496,204 @@ void report_current_position_projected() {
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current");
 
-    #if HAS_CURRENT_HOME(X)
-      if (saved_current_X != 0) { _RESTORE_CURRENT(X); }
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    // Special handling of CORE and Markforged kinematics
+      if (axis == X_AXIS || axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+        #if HAS_CURRENT_HOME(X2)
+          _RESTORE_CURRENT(X2);
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+        #if HAS_CURRENT_HOME(Y2)
+          _RESTORE_CURRENT(Y2);
+        #endif
+        }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+        #if HAS_CURRENT_HOME(Z2)
+          _RESTORE_CURRENT(Z2);
+        #endif
+        #if HAS_CURRENT_HOME(Z3)
+          _RESTORE_CURRENT(Z3);
+        #endif
+        #if HAS_CURRENT_HOME(Z4)
+          _RESTORE_CURRENT(Z4);
+        #endif
+        }
+  
+    #elif ANY(MORGAN_SCARA, MP_SCARA) // Unsupported for now? 
+    // Special handling of SCARA kinematics
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+    // Special handling of TPARA kinematics
+    // Z_AXIS is a special mode to set homing current to all axis
+      if (axis == A_AXIS || axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+      }
+      if (axis == B_AXIS || axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+      }
+      if (axis == C_AXIS || axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+      }
+
+    #elif ANY(POLARGRAPH, POLAR)
+    // Special handling of DELTA kinematics
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS || axis == B_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+      }
+
+    #elif defined(ARTICULATED_ROBOT_ARM)
+    // Special handling of articulated robot arm
+    // Useful?
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+      }
+
+    #elif defined(FOAMCUTTER_XYUV)
+    // Special handling of foam cutter
+      if (axis == X_AXIS || axis == I_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+        #if HAS_CURRENT_HOME(I)
+          _RESTORE_CURRENT(I);
+        #endif
+      }
+      if (axis == Y_AXIS || axis == J_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+        #if HAS_CURRENT_HOME(J)
+          _RESTORE_CURRENT(J);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+      }
+    
+    #elif
+    // Standard Cartesian kinematics
+      if (axis == X_AXIS) {
+        #if HAS_CURRENT_HOME(X)
+          _RESTORE_CURRENT(X);
+        #endif
+        #if HAS_CURRENT_HOME(X2)
+          _RESTORE_CURRENT(X2);
+        #endif
+      }
+      if (axis == Y_AXIS) {
+        #if HAS_CURRENT_HOME(Y)
+          _RESTORE_CURRENT(Y);
+        #endif
+        #if HAS_CURRENT_HOME(Y2)
+          _RESTORE_CURRENT(Y2);
+        #endif
+      }
+      if (axis == Z_AXIS) {
+        #if HAS_CURRENT_HOME(Z)
+          _RESTORE_CURRENT(Z);
+        #endif
+        #if HAS_CURRENT_HOME(Z2)
+          _RESTORE_CURRENT(Z2);
+        #endif
+        #if HAS_CURRENT_HOME(Z3)
+          _RESTORE_CURRENT(Z3);
+        #endif
+        #if HAS_CURRENT_HOME(Z4)
+          _RESTORE_CURRENT(Z4);
+        #endif
+      }
     #endif
-    #if HAS_CURRENT_HOME(X2)
-      if (saved_current_X2 != 0) { _RESTORE_CURRENT(X2); }
-    #endif
-    #if HAS_CURRENT_HOME(Y)
-      if (saved_current_Y != 0) { _RESTORE_CURRENT(Y); }
-    #endif
-    #if HAS_CURRENT_HOME(Y2)
-      if (saved_current_Y2 != 0) { _RESTORE_CURRENT(Y2); }
-    #endif
-    #if HAS_CURRENT_HOME(Z)
-      if (saved_current_Z != 0) { _RESTORE_CURRENT(Z); }
-    #endif
-    #if HAS_CURRENT_HOME(Z2)
-      if (saved_current_Z2 != 0) { _RESTORE_CURRENT(Z2); }
-    #endif
-    #if HAS_CURRENT_HOME(Z3)
-      if (saved_current_Z3 != 0) { _RESTORE_CURRENT(Z3); }
-    #endif
-    #if HAS_CURRENT_HOME(Z4)
-      if (saved_current_Z4 != 0) { _RESTORE_CURRENT(Z4); }
-    #endif
-    #if HAS_CURRENT_HOME(I)
-      if (saved_current_I != 0) { _RESTORE_CURRENT(I); }
-    #endif
-    #if HAS_CURRENT_HOME(J)
-      if (saved_current_J != 0) { _RESTORE_CURRENT(J); }
-    #endif
-    #if HAS_CURRENT_HOME(K)
-      if (saved_current_K != 0) { _RESTORE_CURRENT(K); }
-    #endif
-    #if HAS_CURRENT_HOME(U)
-      if (saved_current_U != 0) { _RESTORE_CURRENT(U); }
-    #endif
-    #if HAS_CURRENT_HOME(V)
-      if (saved_current_V != 0) { _RESTORE_CURRENT(V); }
-    #endif
-    #if HAS_CURRENT_HOME(W)
-      if (saved_current_W != 0) { _RESTORE_CURRENT(W); }
-    #endif
+
+    if (axis == I_AXIS) {
+        #if HAS_CURRENT_HOME(I)
+          _RESTORE_CURRENT(I);
+        #endif
+      }
+    if (axis == J_AXIS) {
+        #if HAS_CURRENT_HOME(J)
+          _RESTORE_CURRENT(J);
+        #endif
+      }
+    if (axis == K_AXIS) {
+        #if HAS_CURRENT_HOME(K)
+          _RESTORE_CURRENT(K);
+        #endif
+      }
+    if (axis == U_AXIS) {
+        #if HAS_CURRENT_HOME(U)
+          _RESTORE_CURRENT(U);
+        #endif
+      }
+    if (axis == V_AXIS) {
+        #if HAS_CURRENT_HOME(V)
+          _RESTORE_CURRENT(V);
+        #endif
+      }
+    if (axis == W_AXIS) {
+        #if HAS_CURRENT_HOME(W)
+          _RESTORE_CURRENT(W);
+        #endif
+      }
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
-  }
+  } // restore_homing_current()
 #endif
   // End HAS_HOMING_CURRENT
 
@@ -2618,7 +2863,7 @@ void prepare_line_to_destination() {
     //
     // Restore motor current after homing
     //
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current());
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
 
   } // homeaxis()
 

@@ -680,7 +680,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #endif // SENSORLESS_PROBING
 
   #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-    restore_homing_current();
+    restore_homing_current(Z_AXIS);
   #endif
 
   #if ENABLED(BLTOUCH)
