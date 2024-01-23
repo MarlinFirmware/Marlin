@@ -155,7 +155,6 @@ namespace LanguageNarrow_uk {
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Виконується G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Інструменти UBL");
-  LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Налаштування UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка нахилу");
   LSTR MSG_UBL_MANUAL_MESH                  = _UxGT("Ручне введ. сітки");
   LSTR MSG_UBL_BC_INSERT                    = _UxGT("Розм. шайбу і вимір.");
@@ -263,10 +262,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_MOVE_EN                          = _UxGT("Екструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло дуже холодне");
   LSTR MSG_MOVE_N_MM                        = _UxGT("Рух $мм");
-  LSTR MSG_MOVE_01MM                        = _UxGT("Рух 0.1мм");
-  LSTR MSG_MOVE_1MM                         = _UxGT("Рух 1мм");
-  LSTR MSG_MOVE_10MM                        = _UxGT("Рух 10мм");
-  LSTR MSG_MOVE_100MM                       = _UxGT("Рух 100mm");
+  LSTR MSG_MOVE_N_IN                        = _UxGT("Рух $in");
+  LSTR MSG_MOVE_N_DEG                       = _UxGT("Рух $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                            = _UxGT("Швидкість");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z Столу");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");

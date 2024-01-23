@@ -22,15 +22,15 @@
 #pragma once
 
 /**
-  Fontname: -Misc-Fixed-Medium-R-Normal--9-90-75-75-C-60-ISO10646-1
-  Copyright: Public domain font.  Share and enjoy.
-  Capital A Height: 6, '1' Height: 6
-  Calculated Max Values w= 6 h= 9 x= 5 y= 5 dx= 6 dy= 0 ascent= 7 len= 9
-  Font Bounding box     w= 6 h= 9 x= 0 y=-2
-  Calculated Min Values           x= 0 y=-2 dx= 0 dy= 0
-  Pure Font   ascent = 6 descent=-2
-  X Font      ascent = 6 descent=-2
-  Max Font    ascent = 7 descent=-2
+ * Fontname: -Misc-Fixed-Medium-R-Normal--9-90-75-75-C-60-ISO10646-1
+ * Copyright: Public domain font.  Share and enjoy.
+ * Capital A Height: 6, '1' Height: 6
+ * Calculated Max Values w= 6 h= 9 x= 5 y= 5 dx= 6 dy= 0 ascent= 7 len= 9
+ * Font Bounding box     w= 6 h= 9 x= 0 y=-2
+ * Calculated Min Values           x= 0 y=-2 dx= 0 dy= 0
+ * Pure Font   ascent = 6 descent=-2
+ * X Font      ascent = 6 descent=-2
+ * Max Font    ascent = 7 descent=-2
 */
 #include <U8glib-HAL.h>
 const u8g_fntpgm_uint8_t u8g_font_6x9[2434] U8G_FONT_SECTION(".progmem.u8g_font_6x9") = {
@@ -186,4 +186,5 @@ const u8g_fntpgm_uint8_t u8g_font_6x9[2434] U8G_FONT_SECTION(".progmem.u8g_font_
   0x00,0x50,0x00,0x90,0x90,0x90,0x70,0x04,0x09,0x09,0x06,0x01,0xFE,0x20,0x40,0x00,
   0x90,0x90,0x90,0x70,0x90,0x60,0x04,0x08,0x08,0x06,0x01,0xFE,0x80,0x80,0xE0,0x90,
   0x90,0xE0,0x80,0x80,0x04,0x08,0x08,0x06,0x01,0xFE,0x50,0x00,0x90,0x90,0x90,0x70,
-  0x90,0x60};
+  0x90,0x60
+};

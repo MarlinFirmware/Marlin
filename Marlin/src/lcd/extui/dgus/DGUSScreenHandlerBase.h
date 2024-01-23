@@ -80,8 +80,11 @@ public:
   #endif
   // Hook for settings
   static void handleSettings(DGUS_VP_Variable &var, void *val_ptr);
-  static void handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
-  static void handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    static void handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
+    static void handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
 
   #if HAS_PID_HEATING
     // Hook for "Change this temperature PID para"
