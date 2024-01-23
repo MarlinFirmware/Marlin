@@ -87,7 +87,11 @@ EncoderState encoderReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      if (!ui.backlight) ui.refresh_brightness();
+      TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+      if (!ui.backlight) {
+        ui.refresh_brightness();
+        return ENCODER_DIFF_NO;
+      }
       const bool was_waiting = wait_for_user;
       wait_for_user = false;
       return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
@@ -154,6 +158,10 @@ EncoderState encoderReceiveAnalyze() {
 
     temp_diff = 0;
   }
+  if (temp_diffState != ENCODER_DIFF_NO) {
+    TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+    if (!ui.backlight) ui.refresh_brightness();
+  }
   return temp_diffState;
 }
 
@@ -164,9 +172,9 @@ EncoderState encoderReceiveAnalyze() {
 
   // LED light operation
   void LED_Action() {
-    LED_Control(RGB_SCALE_WARM_WHITE,0x0F);
+    LED_Control(RGB_SCALE_WARM_WHITE, 0x0F);
     delay(30);
-    LED_Control(RGB_SCALE_WARM_WHITE,0x00);
+    LED_Control(RGB_SCALE_WARM_WHITE, 0x00);
   }
 
   // LED initialization

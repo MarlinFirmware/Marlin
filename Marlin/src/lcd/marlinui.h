@@ -88,7 +88,7 @@ typedef bool (*statusResetFunc_t)();
 
 #if ANY(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
   #define LCD_WITH_BLINK 1
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
+  #define LCD_UPDATE_INTERVAL DIV_TERN(DOUBLE_LCD_FRAMERATE, TERN(HAS_TOUCH_BUTTONS, 50, 100), 2)
 #endif
 
 #if HAS_MARLINUI_U8GLIB
@@ -272,17 +272,25 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
+  #if HAS_BACKLIGHT_TIMEOUT
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t backlight_timeout_minutes;
+    #else
+      static constexpr uint8_t backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
+    #endif
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
-    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      static uint8_t sleep_timeout_minutes;
+    #else
+      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
-    static uint8_t sleep_timeout_minutes;
-    static millis_t screen_timeout_millis;
+    static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
     static void sleep_display(const bool sleep=true);
   #endif
@@ -457,7 +465,7 @@ public:
    * @param fstr  A constant F-string to set as the status.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level(const char * const cstr, const int8_t level) { _set_status_and_level(cstr, level, false); }
+  static void set_status_and_level(const char * const cstr, const int8_t level=0) { _set_status_and_level(cstr, level, false); }
 
   /**
    * @brief Set Status with a P-string and alert level.
@@ -465,7 +473,7 @@ public:
    * @param ustr  A C- or P-string, according to pgm.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level_P(PGM_P const pstr, const int8_t level) { _set_status_and_level(pstr, level, true); }
+  static void set_status_and_level_P(PGM_P const pstr, const int8_t level=0) { _set_status_and_level(pstr, level, true); }
 
   /**
    * @brief Set Status with a fixed string and alert level.
@@ -473,7 +481,7 @@ public:
    * @param fstr  A constant F-string to set as the status.
    * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
    */
-  static void set_status_and_level(FSTR_P const fstr, const int8_t level) { set_status_and_level_P(FTOP(fstr), level); }
+  static void set_status_and_level(FSTR_P const fstr, const int8_t level=0) { set_status_and_level_P(FTOP(fstr), level); }
 
   static void set_max_status(FSTR_P const fstr) { set_status_and_level(fstr, 127); }
   static void set_min_status(FSTR_P const fstr) { set_status_and_level(fstr,  -1); }
@@ -497,9 +505,10 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
-  #if HAS_DISPLAY
+  // Periodic or as-needed display update
+  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
 
-    static void update();
+  #if HAS_DISPLAY
 
     static void abort_print();
     static void pause_print();
@@ -620,7 +629,6 @@ public:
 
   #else // No LCD
 
-    static void update() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -660,7 +668,7 @@ public:
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
-      static uint8_t repeat_delay;
+      static uint16_t repeat_delay;
     #else
       static constexpr uint8_t touch_buttons = 0;
     #endif
@@ -729,7 +737,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
+    static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
   #else
 

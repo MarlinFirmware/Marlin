@@ -39,7 +39,7 @@
 
 #if ENABLED(MAX7219_DEBUG)
 
-#define MAX7219_ERRORS // Disable to save 406 bytes of Program Memory
+#define MAX7219_ERRORS // Requires ~400 bytes of flash
 
 #include "max7219.h"
 
@@ -136,7 +136,7 @@ uint8_t Max7219::suspended; // = 0;
 
 void Max7219::error(FSTR_P const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
-    SERIAL_ECHO(F("??? Max7219::"), func, AS_CHAR('('), v1);
+    SERIAL_ECHO(F("??? Max7219::"), func, C('('), v1);
     if (v2 > 0) SERIAL_ECHOPGM(", ", v2);
     SERIAL_CHAR(')');
     SERIAL_EOL();
@@ -706,7 +706,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_PLANNER_QUEUE
     static int16_t last_depth = 0;
-    const int16_t current_depth = (head - tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1) & 0xF;
+    const int16_t current_depth = BLOCK_MOD(head - tail + (BLOCK_BUFFER_SIZE)) & 0xF;
     if (current_depth != last_depth) {
       quantity16(MAX7219_DEBUG_PLANNER_QUEUE, last_depth, current_depth, &row_change_mask);
       last_depth = current_depth;
@@ -732,6 +732,15 @@ void Max7219::idle_tasks() {
       mark16(MAX7219_DEBUG_MULTISTEPPING, log2_old, log2_new, &row_change_mask);
       last_multistepping = multistepping;
       log2_old = log2_new;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_SLOWDOWN
+    static uint8_t last_slowdown_count = 0;
+    const uint8_t slowdown_count = Planner::slowdown_count;
+    if (slowdown_count != last_slowdown_count) {
+      mark16(MAX7219_DEBUG_SLOWDOWN, last_slowdown_count, slowdown_count, &row_change_mask);
+      last_slowdown_count = slowdown_count;
     }
   #endif
 

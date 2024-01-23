@@ -54,9 +54,18 @@
 //#define FIL_RUNOUT_PIN                      35
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
@@ -119,7 +128,7 @@
  *                ------                                 ------
  *  (BEEPER) 149 | 1  2 | 13 (BTN_ENC)    (SPI MISO) 19 | 1  2 | 18 (SPI SCK)
  *  (LCD_EN)  21 | 3  4 |  4 (LCD_RS)      (BTN_EN1) 14 | 3  4 |  5 (SPI CS)
- *  (LCD_D4)   0   5  6 | 16 (LCD_D5)      (BTN_EN2) 12   5  6 | 23 (SPI MOSI)
+ *  (LCD_D4)   0 | 5  6   16 (LCD_D5)      (BTN_EN2) 12 | 5  6   23 (SPI MOSI)
  *  (LCD_D6)  15 | 7  8 | 17 (LCD_D7)      (SPI_DET) 34 | 7  8 | RESET
  *           GND | 9 10 | 5V                        GND | 9 10 | 3.3V
  *                ------                                 ------
@@ -150,6 +159,8 @@
 //#define SD_MOSI_PIN                EXP2_06_PIN  // uses esp32 default 23
 //#define SD_MISO_PIN                EXP2_01_PIN  // uses esp32 default 19
 //#define SD_SCK_PIN                 EXP2_02_PIN  // uses esp32 default 18
+
+// TODO: Migrate external SD Card to pins/lcd
 #define SDSS                         EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN  // IO34 default is SD_DET signal (Jump to SDDET)
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
@@ -169,7 +180,7 @@
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864, FYSETC_MINI_12864_2_1, BEEZ_MINI_12864
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN

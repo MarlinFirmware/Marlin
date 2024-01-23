@@ -36,130 +36,112 @@
 #include "dwin_lcd.h"
 
 // Extra Icons
-#define ICON_AdvSet               ICON_Language
-#define ICON_BedSizeX             ICON_PrintSize
-#define ICON_BedSizeY             ICON_PrintSize
-#define ICON_BedTramming          ICON_SetHome
-#define ICON_Binary               ICON_Contact
-#define ICON_BltouchReset         ICON_StockConfiguration
-#define ICON_Brightness           ICON_Motion
-#define ICON_Cancel               ICON_StockConfiguration
-#define ICON_CustomPreheat        ICON_SetEndTemp
-#define ICON_Error                ICON_TempTooHigh
-#define ICON_esDiag               ICON_Info
-#define ICON_ExtrudeMinT          ICON_HotendTemp
-#define ICON_FilLoad              ICON_WriteEEPROM
-#define ICON_FilMan               ICON_ResumeEEPROM
-#define ICON_FilSet               ICON_ResumeEEPROM
-#define ICON_FilUnload            ICON_ReadEEPROM
-#define ICON_Flow                 ICON_StepE
-#define ICON_Folder               ICON_More
-#define ICON_FWRetract            ICON_StepE
-#define ICON_FWRetLength          ICON_StepE
-#define ICON_FWRetSpeed           ICON_Setspeed
-#define ICON_FWRetZRaise          ICON_MoveZ
-#define ICON_FWRecSpeed           ICON_Setspeed
-#define ICON_FWRecExtra           ICON_StepE
-#define ICON_HomeX                ICON_MoveX
-#define ICON_HomeY                ICON_MoveY
-#define ICON_HomeZ                ICON_MoveZ
-#define ICON_HomeOffset           ICON_AdvSet
-#define ICON_HomeOffsetX          ICON_StepX
-#define ICON_HomeOffsetY          ICON_StepY
-#define ICON_HomeOffsetZ          ICON_StepZ
-#define ICON_HSMode               ICON_StockConfiguration
-#define ICON_InputShaping         ICON_MaxAccelerated
-#define ICON_JDmm                 ICON_MaxJerk
-#define ICON_Tram                 ICON_SetEndTemp
-#define ICON_Level                ICON_HotendTemp
-#define ICON_Lock                 ICON_Cool
-#define ICON_ManualMesh           ICON_HotendTemp
-#define ICON_MaxPosX              ICON_MoveX
-#define ICON_MaxPosY              ICON_MoveY
-#define ICON_MaxPosZ              ICON_MoveZ
-#define ICON_MeshEdit             ICON_Homing
-#define ICON_MeshEditX            ICON_MoveX
-#define ICON_MeshEditY            ICON_MoveY
-#define ICON_MeshEditZ            ICON_MoveZ
-#define ICON_MeshNext             ICON_Axis
-#define ICON_MeshPoints           ICON_SetEndTemp
-#define ICON_MeshReset            ICON_StockConfiguration
-#define ICON_MeshSave             ICON_WriteEEPROM
-#define ICON_MeshViewer           ICON_HotendTemp
-#define ICON_MoveZ0               ICON_HotendTemp
-#define ICON_Park                 ICON_Motion
-#define ICON_ParkPos              ICON_AdvSet
-#define ICON_ParkPosX             ICON_StepX
-#define ICON_ParkPosY             ICON_StepY
-#define ICON_ParkPosZ             ICON_StepZ
-#define ICON_PhySet               ICON_PrintSize
-#define ICON_PIDNozzle            ICON_SetEndTemp
-#define ICON_PIDBed               ICON_SetBedTemp
-#define ICON_PIDCycles            ICON_ResumeEEPROM
-#define ICON_PIDValue             ICON_Contact
-#define ICON_PrintStats           ICON_PrintTime
-#define ICON_PrintStatsReset      ICON_RemainTime
-#define ICON_Preheat1             ICON_PLAPreheat
-#define ICON_Preheat2             ICON_ABSPreheat
-#define ICON_Preheat3             ICON_CustomPreheat
-#define ICON_Preheat4             ICON_CustomPreheat
-#define ICON_Preheat5             ICON_CustomPreheat
-#define ICON_Preheat6             ICON_CustomPreheat
-#define ICON_Preheat7             ICON_CustomPreheat
-#define ICON_Preheat8             ICON_CustomPreheat
-#define ICON_Preheat9             ICON_CustomPreheat
-#define ICON_Preheat10            ICON_CustomPreheat
-#define ICON_ProbeDeploy          ICON_SetEndTemp
-#define ICON_ProbeMargin          ICON_PrintSize
-#define ICON_ProbeOffsetX         ICON_StepX
-#define ICON_ProbeOffsetY         ICON_StepY
-#define ICON_ProbeOffsetZ         ICON_StepZ
-#define ICON_ProbeSet             ICON_SetEndTemp
-#define ICON_ProbeStow            ICON_SetEndTemp
-#define ICON_ProbeTest            ICON_SetEndTemp
-#define ICON_ProbeZSpeed          ICON_MaxSpeedZ
-#define ICON_Pwrlossr             ICON_Motion
-#define ICON_Reboot               ICON_ResumeEEPROM
-#define ICON_Runout               ICON_MaxAccE
-#define ICON_Scolor               ICON_MaxSpeed
-#define ICON_SetBaudRate          ICON_Setspeed
-#define ICON_SetCustomPreheat     ICON_SetEndTemp
-#define ICON_SetPreheat1          ICON_SetPLAPreheat
-#define ICON_SetPreheat2          ICON_SetABSPreheat
-#define ICON_SetPreheat3          ICON_SetCustomPreheat
-#define ICON_SetPreheat4          ICON_SetCustomPreheat
-#define ICON_SetPreheat5          ICON_SetCustomPreheat
-#define ICON_SetPreheat6          ICON_SetCustomPreheat
-#define ICON_SetPreheat7          ICON_SetCustomPreheat
-#define ICON_SetPreheat8          ICON_SetCustomPreheat
-#define ICON_SetPreheat9          ICON_SetCustomPreheat
-#define ICON_SetPreheat10         ICON_SetCustomPreheat
-#define ICON_ShapingX             ICON_MoveX
-#define ICON_ShapingY             ICON_MoveY
-#define ICON_Sound                ICON_Cool
-#define ICON_TMCSet               ICON_PrintSize
-#define ICON_TMCXSet              ICON_MoveX
-#define ICON_TMCYSet              ICON_MoveY
-#define ICON_TMCZSet              ICON_MoveZ
-#define ICON_TMCESet              ICON_Extruder
-#define ICON_UBLActive            ICON_HotendTemp
-#define ICON_UBLActive            ICON_HotendTemp
-#define ICON_UBLSlot              ICON_ResumeEEPROM
-#define ICON_UBLMeshSave          ICON_WriteEEPROM
-#define ICON_UBLMeshLoad          ICON_ReadEEPROM
-#define ICON_UBLTiltGrid          ICON_PrintSize
-#define ICON_UBLSmartFill         ICON_StockConfiguration
-#define ICON_ZAfterHome           ICON_SetEndTemp
+#define ICON_BedSizeX         ICON_PrintSize
+#define ICON_BedSizeY         ICON_PrintSize
+#define ICON_BedTramming      ICON_SetHome
+#define ICON_Binary           ICON_Contact
+#define ICON_BltouchReset     ICON_StockConfiguration
+#define ICON_Brightness       ICON_Motion
+#define ICON_Cancel           ICON_StockConfiguration
+#define ICON_CustomPreheat    ICON_SetEndTemp
+#define ICON_Error            ICON_TempTooHigh
+#define ICON_esDiag           ICON_Info
+#define ICON_ExtrudeMinT      ICON_HotendTemp
+#define ICON_FilLoad          ICON_WriteEEPROM
+#define ICON_FilMan           ICON_ResetEEPROM
+#define ICON_FilSet           ICON_ResetEEPROM
+#define ICON_FilUnload        ICON_ReadEEPROM
+#define ICON_Flow             ICON_StepE
+#define ICON_HomeX            ICON_MoveX
+#define ICON_HomeY            ICON_MoveY
+#define ICON_HomeZ            ICON_MoveZ
+#define ICON_HSMode           ICON_StockConfiguration
+#define ICON_InputShaping     ICON_MaxAccelerated
+#define ICON_JDmm             ICON_MaxJerk
+#define ICON_Tram             ICON_SetEndTemp
+#define ICON_Level            ICON_HotendTemp
+#define ICON_Lock             ICON_Cool
+#define ICON_ManualMesh       ICON_HotendTemp
+#define ICON_MaxPosX          ICON_MoveX
+#define ICON_MaxPosY          ICON_MoveY
+#define ICON_MaxPosZ          ICON_MoveZ
+#define ICON_MeshEdit         ICON_Homing
+#define ICON_MeshEditX        ICON_MoveX
+#define ICON_MeshEditY        ICON_MoveY
+#define ICON_MeshEditZ        ICON_MoveZ
+#define ICON_MeshNext         ICON_Axis
+#define ICON_MeshPoints       ICON_SetEndTemp
+#define ICON_MeshReset        ICON_StockConfiguration
+#define ICON_MeshSave         ICON_WriteEEPROM
+#define ICON_MeshViewer       ICON_HotendTemp
+#define ICON_MoveZ0           ICON_HotendTemp
+#define ICON_Park             ICON_Motion
+#define ICON_ParkPos          ICON_AdvSet
+#define ICON_ParkPosX         ICON_StepX
+#define ICON_ParkPosY         ICON_StepY
+#define ICON_ParkPosZ         ICON_StepZ
+#define ICON_PhySet           ICON_PrintSize
+#define ICON_PIDCycles        ICON_ResetEEPROM
+#define ICON_PIDValue         ICON_Contact
+#define ICON_PrintStats       ICON_PrintTime
+#define ICON_PrintStatsReset  ICON_RemainTime
+#define ICON_Preheat1         ICON_PLAPreheat
+#define ICON_Preheat2         ICON_ABSPreheat
+#define ICON_Preheat3         ICON_CustomPreheat
+#define ICON_Preheat4         ICON_CustomPreheat
+#define ICON_Preheat5         ICON_CustomPreheat
+#define ICON_Preheat6         ICON_CustomPreheat
+#define ICON_Preheat7         ICON_CustomPreheat
+#define ICON_Preheat8         ICON_CustomPreheat
+#define ICON_Preheat9         ICON_CustomPreheat
+#define ICON_Preheat10        ICON_CustomPreheat
+#define ICON_ProbeDeploy      ICON_SetEndTemp
+#define ICON_ProbeMargin      ICON_PrintSize
+#define ICON_ProbeSet         ICON_SetEndTemp
+#define ICON_ProbeStow        ICON_SetEndTemp
+#define ICON_ProbeTest        ICON_SetEndTemp
+#define ICON_ProbeZSpeed      ICON_MaxSpeedZ
+#define ICON_Pwrlossr         ICON_Motion
+#define ICON_Reboot           ICON_ResetEEPROM
+#define ICON_Runout           ICON_MaxAccE
+#define ICON_Scolor           ICON_MaxSpeed
+#define ICON_SetBaudRate      ICON_Setspeed
+#define ICON_SetCustomPreheat ICON_SetEndTemp
+#define ICON_SetPreheat1      ICON_SetPLAPreheat
+#define ICON_SetPreheat2      ICON_SetABSPreheat
+#define ICON_SetPreheat3      ICON_SetCustomPreheat
+#define ICON_SetPreheat4      ICON_SetCustomPreheat
+#define ICON_SetPreheat5      ICON_SetCustomPreheat
+#define ICON_SetPreheat6      ICON_SetCustomPreheat
+#define ICON_SetPreheat7      ICON_SetCustomPreheat
+#define ICON_SetPreheat8      ICON_SetCustomPreheat
+#define ICON_SetPreheat9      ICON_SetCustomPreheat
+#define ICON_SetPreheat10     ICON_SetCustomPreheat
+#define ICON_ShapingX         ICON_MoveX
+#define ICON_ShapingY         ICON_MoveY
+#define ICON_Sound            ICON_Cool
+#define ICON_TMCSet           ICON_PrintSize
+#define ICON_TMCXSet          ICON_MoveX
+#define ICON_TMCYSet          ICON_MoveY
+#define ICON_TMCZSet          ICON_MoveZ
+#define ICON_TMCESet          ICON_Extruder
+#define ICON_UBLActive        ICON_HotendTemp
+#define ICON_UBLSlot          ICON_ResetEEPROM
+#define ICON_UBLMeshSave      ICON_WriteEEPROM
+#define ICON_UBLMeshLoad      ICON_ReadEEPROM
+#define ICON_UBLTiltGrid      ICON_PrintSize
+#define ICON_UBLSmartFill     ICON_StockConfiguration
+#define ICON_ZAfterHome       ICON_SetEndTemp
 
-#define ICON_CaseLight            ICON_Motion
-#define ICON_LedControl           ICON_Motion
+#define ICON_CaseLight        ICON_Motion
+#define ICON_LedControl       ICON_Motion
 
 // MPC
-#define ICON_MPCNozzle         ICON_SetEndTemp
-#define ICON_MPCValue          ICON_Contact
-#define ICON_MPCHeater         ICON_Temperature
-#define ICON_MPCHeatCap        ICON_SetBedTemp
-#define ICON_MPCFan            ICON_FanSpeed
+#define ICON_MPCNozzle        ICON_SetEndTemp
+#define ICON_MPCValue         ICON_Contact
+#define ICON_MPCHeater        ICON_Temperature
+#define ICON_MPCHeatCap       ICON_SetBedTemp
+#define ICON_MPCFan           ICON_FanSpeed
 
 // Buttons
 #define BTN_Continue          85
@@ -171,9 +153,8 @@
 
 // Extended and default UI Colors
 #define COLOR_BLACK           0
-#define COLOR_GREEN           RGB(0,63,0)
-#define COLOR_AQUA            RGB(0,63,31)
-#define COLOR_BLUE            RGB(0,0,31)
+#define COLOR_GREEN           RGB(0, 63, 0)
+#define COLOR_BLUE            RGB(0, 0, 31)
 #define COLOR_LIGHT_WHITE     0xBDD7
 #define COLOR_LIGHT_GREEN     0x3460
 #define COLOR_CYAN            0x07FF
@@ -190,9 +171,9 @@
 #define COLOR_GREY            0x18E3
 
 // UI element defines and constants
-#define DWIN_FONT_MENU font8x16
-#define DWIN_FONT_STAT font10x20
-#define DWIN_FONT_HEAD font10x20
+#define DWIN_FONT_MENU  font8x16
+#define DWIN_FONT_STAT  font10x20
+#define DWIN_FONT_HEAD  font10x20
 #define DWIN_FONT_ALERT font10x20
 #define STATUS_Y 354
 #define LCD_WIDTH (DWIN_WIDTH / 8)  // only if the default fontID is font8x16
@@ -201,15 +182,18 @@
 #define UNITFDIGITS 1
 #define MINUNITMULT POW(10, UNITFDIGITS)
 
-constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar height
-                   MLINE = 53,                                 // Menu line height
-                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
-                   MROWS = TROWS - 1,                          // Other-than-Back
-                   ICOX = 26,                                  // Menu item icon X position
-                   LBLX = 55,                                  // Menu item label X position
-                   VALX = 210,                                 // Menu item value X position
-                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
-                   STAT_CHR_W = 10;
+/**
+ * @brief Menu Line Spacing
+ */
+constexpr uint8_t  TITLE_HEIGHT = 30,                          //< Title bar height
+                   MLINE = 53,                                 //< Menu line height
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  //< Total rows
+                   MROWS = TROWS - 1,                          //< Other-than-Back
+                   ICOX = 26,                                  //< Menu item icon X position
+                   LBLX = 55,                                  //< Menu item label X position
+                   VALX = 210,                                 //< Menu item value X position
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,            //< Menu font 8x16
+                   STAT_CHR_W = 10;                            //< Menu Stats character width
 
 // Menuitem Y position
 #define MYPOS(L) (TITLE_HEIGHT + MLINE * (L))
@@ -341,7 +325,7 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void drawInt(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
   // Draw a positive integer
   inline void drawInt(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
@@ -564,7 +548,7 @@ namespace DWINUI {
   //  maxv : Maximum value
   //  color1 : Start color
   //  color2 : End color
-  uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
+  uint16_t colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
   // ------------------------- Buttons ------------------------------//
 
@@ -593,13 +577,13 @@ namespace DWINUI {
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
   //  maxv : Maximum value
-  uint16_t RainbowInt(int16_t val, int16_t minv, int16_t maxv);
+  uint16_t rainbowInt(int16_t val, int16_t minv, int16_t maxv);
 
   // Write buffer data to the SRAM
   //  addr: SRAM start address 0x0000-0x7FFF
   //  length: Bytes to write
   //  data: address of the buffer with data
-  inline void WriteToSRAM(uint16_t addr, uint16_t length, uint8_t *data) {
+  inline void writeToSRAM(uint16_t addr, uint16_t length, uint8_t *data) {
     dwinWriteToMem(0x5A, addr, length, data);
   }
 
@@ -607,7 +591,7 @@ namespace DWINUI {
   //  addr: Flash start address 0x0000-0x3FFF
   //  length: Bytes to write
   //  data: address of the buffer with data
-  inline void WriteToFlash(uint16_t addr, uint16_t length, uint8_t *data) {
+  inline void writeToFlash(uint16_t addr, uint16_t length, uint8_t *data) {
     dwinWriteToMem(0xA5, addr, length, data);
   }
 

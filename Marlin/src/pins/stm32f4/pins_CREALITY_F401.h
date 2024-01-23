@@ -125,7 +125,7 @@
 #define SDCARD_CONNECTION               ONBOARD
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC12  // SDSS
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 // SPI 2
@@ -140,7 +140,7 @@
 //#define LED_CONTROL_PIN                   PA7
 
 //
-// WiFI Reset
+// WiFi Reset
 //
 #ifdef MENU_RESET_WIFI
   #define RESET_WIFI_PIN                    PB12

@@ -56,6 +56,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -114,26 +121,39 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *         SKR Mini E3 V1.0, V1.2
- *                 ------
- * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
- * (BTN_EN1) PA9  | 3  4 | RESET
- * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
- * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
- *            GND | 9 10 | 5V
- *                 ------
- *                  EXP1
+ *         SKR Mini E3 V1.0, V1.2                    SKR Mini E3 V2.0
+ *                 ------                                  ------
+ * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)   (BEEPER)  PB5  | 1  2 | PA15 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET           (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)   (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)   (LCD_RS)  PB8  | 7  8 | PB15 (LCD_EN)
+ *            GND | 9 10 | 5V                         GND | 9 10 | 5V
+ *                 ------                                  ------
+ *                  EXP1                                    EXP1
  */
-#ifndef EXP1_02_PIN
+#ifndef EXP1_08_PIN
+  #define EXP1_01_PIN                       PB5
   #define EXP1_02_PIN                       PB6
+  #define EXP1_03_PIN                       PA9
+  #define EXP1_04_PIN                       -1    // RESET
+  #define EXP1_05_PIN                       PA10
+  #define EXP1_06_PIN                       PB9
+  #define EXP1_07_PIN                       PB8
   #define EXP1_08_PIN                       PB7
 #endif
-#define EXP1_01_PIN                         PB5
-#define EXP1_03_PIN                         PA9
-#define EXP1_04_PIN                         -1    // RESET
-#define EXP1_05_PIN                         PA10
-#define EXP1_06_PIN                         PB9
-#define EXP1_07_PIN                         PB8
+
+/*   -----
+ *   | 1 | RST
+ *   | 2 | PA3 RX2
+ *   | 3 | PA2 TX2
+ *   | 4 | GND
+ *   | 5 | 5V
+ *   -----
+ *    TFT
+ */
+
+#define TFT_02                              PA3
+#define TFT_03                              PA2
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
@@ -242,15 +262,15 @@
       /**
        * TFTGLCD_PANEL_SPI display pinout
        *
-       *                   Board                        Display
-       *                   ------                        ------
-       * (SD_DET)    PB5  | 1  2 | PB6 (BEEPER)      5V |10  9 | GND
-       * (MOD_RESET) PA9  | 3  4 | RESET             -- | 8  7 | (SD_DET)
-       * (SD_CS)     PA10   5  6 | PB9          (MOSI)  | 6  5 | --
-       * (LCD_CS)    PB8  | 7  8 | PB7          (SD_CS) | 4  3 | (LCD_CS)
-       *              GND | 9 10 | 5V           (SCK)   | 2  1 | (MISO)
-       *                   ------                        ------
-       *                    EXP1                          EXP1
+       *                   Board                                   Display
+       *                   ------                                  ------
+       * (SD_DET)    PB5  | 1  2 | PB6 or PA15 (BEEPER)        5V |10  9 | GND
+       * (MOD_RESET) PA9  | 3  4 | RESET                       -- | 8  7 | (SD_DET)
+       * (SD_CS)     PA10   5  6 | PB9                    (MOSI)  | 6  5 | --
+       * (LCD_CS)    PB8  | 7  8 | PB7 or PB15            (SD_CS) | 4  3 | (LCD_CS)
+       *              GND | 9 10 | 5V                     (SCK)   | 2  1 | (MISO)
+       *                   ------                                  ------
+       *                    EXP1                                    EXP1
        *
        * Needs custom cable:
        *
@@ -275,28 +295,28 @@
   #elif ENABLED(FYSETC_MINI_12864_2_1)
 
     #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864_V1 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+      #error "CAUTION! FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
     #endif
 
     /**
-     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864_V1 display pinout
+     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 display pinout
      *
-     *       Board                      Display
-     *       ------                     ------
-     * PB5  | 1  2 | PA15       (BEEP) |10  9 | BTN_ENC
-     * PA9  | 3  4 | RESET      LCD_CS | 8  7 | LCD A0
-     * PA10 | 5  6 | PB9       LCD_RST | 6  5 | RED
-     * PB8  | 7  8 | PB15      (GREEN) | 4  3 | (BLUE)
-     * GND  | 9 10 | 5V            GND | 2  1 | 5V
-     *       ------                     ------
-     *        EXP1                       EXP1
+     *       Board                         Display
+     *       ------                        ------
+     * PB5  | 1  2 | PB6 or PA15   (BEEP) |10  9 | BTN_ENC
+     * PA9  | 3  4 | RESET         LCD_CS | 8  7 | LCD A0
+     * PA10 | 5  6 | PB9          LCD_RST | 6  5 | RED
+     * PB8  | 7  8 | PB7 or PB15  (GREEN) | 4  3 | (BLUE)
+     * GND  | 9 10 | 5V               GND | 2  1 | 5V
+     *       ------                        ------
+     *        EXP1                          EXP1
      *
      *            ---                   ------
      *       RST | 1 |          (MISO) |10  9 | SCK
      * (RX2) PA3 | 2 |         BTN_EN1 | 8  7 | (SS)
      * (TX2) PA2 | 3 |         BTN_EN2 | 6  5 | MOSI
      *       GND | 4 |            (CD) | 4  3 | (RST)
-     *        5V | 5 |           (GND) | 2  1 | (KILL)
+     *        5V | 5 |             GND | 2  1 | (KILL)
      *            ---                   ------
      *            TFT                    EXP2
      *
@@ -330,14 +350,14 @@
     #define DOGLCD_SCK                      PA2
     #define DOGLCD_MOSI                     PA3
 
-    #define BTN_ENC                         PA15
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_06_PIN
-    #define BTN_EN2                         PB15
+    #define BTN_EN2                  EXP1_08_PIN
 
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -351,15 +371,15 @@
   /**
    * FYSETC TFT TFT81050 display pinout
    *
-   *                   Board                            Display
-   *                   ------                           ------
-   * (SD_DET)    PB5  | 1  2 | PB6 (BEEPER)         5V |10  9 | GND
-   * (MOD_RESET) PA9  | 3  4 | RESET           (RESET) | 8  7 | (SD_DET)
-   * (SD_CS)     PA10   5  6 | PB9             (MOSI)  | 6  5 | (LCD_CS)
-   * (LCD_CS)    PB8  | 7  8 | PB7             (SD_CS) | 4  3 | (MOD_RESET)
-   *              GND | 9 10 | 5V              (SCK)   | 2  1 | (MISO)
-   *                   ------                           ------
-   *                    EXP1                             EXP1
+   *                   Board                                   Display
+   *                   ------                                  ------
+   * (SD_DET)    PB5  | 1  2 | PB6 or PA15 (BEEPER)        5V |10  9 | GND
+   * (MOD_RESET) PA9  | 3  4 | RESET                  (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   5  6 | PB9                    (MOSI)  | 6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 7  8 | PB7 or PB15            (SD_CS) | 4  3 | (MOD_RESET)
+   *              GND | 9 10 | 5V                     (SCK)   | 2  1 | (MISO)
+   *                   ------                                  ------
+   *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *

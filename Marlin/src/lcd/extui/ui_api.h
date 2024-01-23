@@ -43,6 +43,7 @@
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
+
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
 
@@ -72,6 +73,28 @@ namespace ExtUI {
     typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif
 
+  /**
+   * The Extensible UI API is a utility class that can be used to implement:
+   * - An LCD view that responds to standard events, e.g., onMediaInserted(...)
+   * - An LCD that polls firmware states and settings in a standard manner.
+   *   (e.g., With tool indexes and extruder indexes).
+   * - Standard hooks to send data to a serial-based controller.
+   *
+   * ExtUI is best used when:
+   * - The display handles LCD touch / buttons so the firmware doesn't see these events.
+   * - Commands and value edits are sent over serial to Marlin as G-codes.
+   * - The display can get data from Marlin, but is not necessarily drawn by Marlin.
+   * - The display cannot implement a MarlinUI menu.
+   * - The display is implemented with code callbacks alongside ExtUI callbacks.
+   *
+   * Building an ExtUI layer:
+   * - Start by making an lcd/extui subfolder. Copy 'example' or another display.
+   * - Many of these methods are optional. Implement them according to your UI needs.
+   * - If your display needs information from Marlin, add an accessor to ExtUI.
+   * - If some addition seems like it should be standard part of ExtUI, submit a PR with the new
+   *   methods added to this API. Implement in the ExtUI example and/or with some existing displays.
+   */
+
   bool isMoving();
   bool isAxisPositionKnown(const axis_t);
   bool isAxisPositionKnown(const extruder_t);
@@ -89,11 +112,6 @@ namespace ExtUI {
     bool getHostKeepaliveIsPaused();
   #endif
 
-  bool isHeaterIdle(const heater_t);
-  bool isHeaterIdle(const extruder_t);
-  void enableHeater(const heater_t);
-  void enableHeater(const extruder_t);
-
   #if ENABLED(JOYSTICK)
     void jog(const xyz_float_t &dir);
     void _joystick_update(xyz_float_t &norm_jog);
@@ -101,7 +119,7 @@ namespace ExtUI {
 
   /**
    * Getters and setters
-   * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
+   * Use to query or change Marlin's state.
    */
   PGM_P getFirmwareName_str();
 
@@ -110,6 +128,7 @@ namespace ExtUI {
     void setSoftEndstopState(const bool);
   #endif
 
+  // Trinamic Current / Bump Sensitivity
   #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t);
     float getAxisCurrent_mA(const extruder_t);
@@ -120,37 +139,50 @@ namespace ExtUI {
     void setTMCBumpSensitivity(const_float_t, const axis_t);
   #endif
 
+  // Actual and target accessors, by Heater ID, Extruder ID, Fan ID
+  void enableHeater(const heater_t);
+  void enableHeater(const extruder_t);
+  bool isHeaterIdle(const heater_t);
+  bool isHeaterIdle(const extruder_t);
   celsius_float_t getActualTemp_celsius(const heater_t);
   celsius_float_t getActualTemp_celsius(const extruder_t);
   celsius_float_t getTargetTemp_celsius(const heater_t);
   celsius_float_t getTargetTemp_celsius(const extruder_t);
-  float getTargetFan_percent(const fan_t);
   float getActualFan_percent(const fan_t);
+  float getTargetFan_percent(const fan_t);
+
+  // High level positions, by Axis ID, Extruder ID
   float getAxisPosition_mm(const axis_t);
   float getAxisPosition_mm(const extruder_t);
+  // Axis steps-per-mm, by Axis ID, Extruder ID
   float getAxisSteps_per_mm(const axis_t);
   float getAxisSteps_per_mm(const extruder_t);
+  // Speed and acceleration limits, per Axis ID or Extruder ID
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t);
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t);
   float getAxisMaxAcceleration_mm_s2(const axis_t);
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
+  // Standard speeds, as set in the planner
   feedRate_t getMinFeedrate_mm_s();
   feedRate_t getMinTravelFeedrate_mm_s();
   feedRate_t getFeedrate_mm_s();
+  // Standard accelerations, as set in the planner
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
+  // A speed multiplier for overall printing
   float getFeedrate_percent();
+  // The flow percentage of an extruder
   int16_t getFlow_percent(const extruder_t);
 
+  // Progress / Elapsed Time
   inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
-
   #if HAS_PRINT_PROGRESS_PERMYRIAD
     inline uint16_t getProgress_permyriad() { return ui.get_progress_permyriad(); }
   #endif
-
   uint32_t getProgress_seconds_elapsed();
 
+  // Material Preheat Presets
   #if HAS_PREHEAT
     uint16_t getMaterial_preset_E(const uint16_t);
     #if HAS_HEATED_BED
@@ -158,6 +190,7 @@ namespace ExtUI {
     #endif
   #endif
 
+  // IDEX Machine Mode
   #if ENABLED(DUAL_X_CARRIAGE)
     uint8_t getIDEX_Mode();
   #endif
@@ -170,12 +203,14 @@ namespace ExtUI {
   #endif
 
   #if HAS_LEVELING
+    // Global leveling state, events
     bool getLevelingActive();
     void setLevelingActive(const bool);
     bool getLevelingIsValid();
     void onLevelingStart();
     void onLevelingDone();
     #if HAS_MESH
+      // Mesh data, utilities, events
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zval);
@@ -198,17 +233,20 @@ namespace ExtUI {
     #endif
   #endif
 
+  // Send an 'M876 S' host response
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t);
   #endif
 
+  // Provide a simulated click to MarlinUI
   inline void simulateUserClick() {
-    #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+    #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
       ui.lcd_clicked = true;
     #endif
   }
 
   #if ENABLED(PRINTCOUNTER)
+    // Printcounter strings (See nextion_tft.cpp)
     char* getFailedPrints_str(char buffer[21]);
     char* getTotalPrints_str(char buffer[21]);
     char* getFinishedPrints_str(char buffer[21]);
@@ -217,14 +255,21 @@ namespace ExtUI {
     char* getFilamentUsed_str(char buffer[21]);
   #endif
 
+  // Temperature Control
   void setTargetTemp_celsius(const_float_t, const heater_t);
   void setTargetTemp_celsius(const_float_t, const extruder_t);
   void setTargetFan_percent(const_float_t, const fan_t);
   void coolDown();
+
+  // Motion Control
   void setAxisPosition_mm(const_float_t, const axis_t, const feedRate_t=0);
   void setAxisPosition_mm(const_float_t, const extruder_t, const feedRate_t=0);
-  void setAxisSteps_per_mm(const_float_t, const axis_t);
-  void setAxisSteps_per_mm(const_float_t, const extruder_t);
+
+  // Planner Control
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    void setAxisSteps_per_mm(const_float_t, const axis_t);
+    void setAxisSteps_per_mm(const_float_t, const extruder_t);
+  #endif
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const extruder_t);
   void setAxisMaxAcceleration_mm_s2(const_float_t, const axis_t);
@@ -237,20 +282,25 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const_float_t);
   void setFeedrate_percent(const_float_t);
   void setFlow_percent(const int16_t, const extruder_t);
+
+  // Waiting for User Interaction
   bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if M600_PURGE_MORE_RESUMABLE
+    // "Purge More" has a control screen
     void setPauseMenuResponse(PauseMenuResponse);
     extern PauseMessage pauseModeStatus;
     PauseMode getPauseMode();
   #endif
 
   #if ENABLED(LIN_ADVANCE)
+    // Linear Advance Control
     float getLinearAdvance_mm_mm_s(const extruder_t);
     void setLinearAdvance_mm_mm_s(const_float_t, const extruder_t);
   #endif
 
+  // JD or Jerk Control
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
     void setJunctionDeviation_mm(const_float_t);
@@ -261,10 +311,12 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const_float_t, const extruder_t);
   #endif
 
+  // Tool Changing
   extruder_t getTool(const uint8_t extruder);
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 
+  // Babystepping (axis, probe offset)
   #if ENABLED(BABYSTEPPING)
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis);
     float mmFromWholeSteps(int16_t steps, const axis_t axis);
@@ -273,20 +325,24 @@ namespace ExtUI {
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
+  // Hotend Offsets
   #if HAS_HOTEND_OFFSET
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const_float_t, const axis_t, const extruder_t);
     void normalizeNozzleOffset(const axis_t axis);
   #endif
 
+  // The Probe Z Offset
   float getZOffset_mm();
   void setZOffset_mm(const_float_t);
 
+  // The Probe XYZ Offset
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
   #endif
 
+  // Backlash Control
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t);
     void setAxisBacklash_mm(const_float_t, const axis_t);
@@ -300,6 +356,7 @@ namespace ExtUI {
     #endif
   #endif
 
+  // Filament Runout Sensor
   #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
@@ -312,6 +369,7 @@ namespace ExtUI {
     #endif
   #endif
 
+  // Case Light Control
   #if ENABLED(CASE_LIGHT_ENABLE)
     bool getCaseLightState();
     void setCaseLightState(const bool);
@@ -322,11 +380,13 @@ namespace ExtUI {
     #endif
   #endif
 
+  // Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY)
     bool getPowerLossRecoveryEnabled();
     void setPowerLossRecoveryEnabled(const bool);
   #endif
 
+  // Hotend PID
   #if ENABLED(PIDTEMP)
     float getPID_Kp(const extruder_t);
     float getPID_Ki(const extruder_t);
@@ -335,6 +395,7 @@ namespace ExtUI {
     void startPIDTune(const celsius_t, extruder_t);
   #endif
 
+  // Bed PID
   #if ENABLED(PIDTEMPBED)
     float getBedPID_Kp();
     float getBedPID_Ki();
@@ -361,8 +422,7 @@ namespace ExtUI {
 
   /**
    * Media access routines
-   *
-   * Should be used by the EXTENSIBLE_UI to operate on files
+   * Use these to operate on files
    */
   bool isMediaInserted();
   bool isPrintingFromMediaPaused();
@@ -394,15 +454,14 @@ namespace ExtUI {
 
   /**
    * Event callback routines
-   *
-   * Should be declared by EXTENSIBLE_UI and will be called by Marlin
+   * Must be defined, and will be called by Marlin as needed
    */
   void onStartup();
   void onIdle();
   void onMediaInserted();
   void onMediaError();
   void onMediaRemoved();
-  void onPlayTone(const uint16_t frequency, const uint16_t duration);
+  void onPlayTone(const uint16_t frequency, const uint16_t duration=0);
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
   void onSurviveInKilled();
   void onPrintTimerStarted();

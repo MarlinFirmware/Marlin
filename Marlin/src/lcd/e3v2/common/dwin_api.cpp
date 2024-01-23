@@ -234,7 +234,7 @@ void dwinFrameAreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 //  rlimit: To limit the drawn string length
 void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit/*=0xFFFF*/) {
-  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
+  #if ENABLED(DWIN_CREALITY_LCD)
     dwinDrawRectangle(1, bColor, x, y, x + (fontWidth(size) * strlen_P(string)), y + fontHeight(size));
   #endif
   constexpr uint8_t widthAdjust = 0;
@@ -317,7 +317,7 @@ void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
   //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
   #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
-    dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * (iNum+fNum+1), y + fontHeight(size));
+    dwinDrawRectangle(1, bColor, x, y, x + fontWidth(size) * (iNum + fNum + 1), y + fontHeight(size));
   #endif
   dwinByte(i, 0x14);
   dwinByte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);

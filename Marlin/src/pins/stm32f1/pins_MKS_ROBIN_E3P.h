@@ -81,6 +81,13 @@
 #define Z_MAX_PIN                           PC4
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PE4
@@ -265,6 +272,17 @@
  * to let the bootloader init the screen.
  */
 
+#if ENABLED(TFT_CLASSIC_UI)
+  // Emulated DOGM SPI
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+#elif ENABLED(TFT_COLOR_UI)
+  #define TFT_BUFFER_WORDS                 14400
+#endif
+
 #if HAS_SPI_TFT
 
   // Shared SPI TFT
@@ -295,27 +313,16 @@
 
   #define LCD_USE_DMA_SPI
 
-#endif
+#elif HAS_WIRED_LCD
 
-#if ENABLED(TFT_CLASSIC_UI)
-  // Emulated DOGM SPI
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-#elif ENABLED(TFT_COLOR_UI)
-  #define TFT_BUFFER_WORDS                 14400
-#endif
-
-#if HAS_WIRED_LCD && !HAS_SPI_TFT
   #define BEEPER_PIN                 EXP1_01_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
-  #define LCD_BACKLIGHT_PIN                 -1
+
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
 
   #if ENABLED(MKS_MINI_12864)
 
@@ -356,7 +363,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !FYSETC_MINI_12864_2_1
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
@@ -374,9 +381,13 @@
     #define BOARD_ST7920_DELAY_2             125
     #define BOARD_ST7920_DELAY_3             125
 
-  #endif // !MKS_MINI_12864
+  #endif // !FYSETC_MINI_12864_2_1
 
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
+
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+#endif
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
@@ -385,10 +396,6 @@
   #define SPI_FLASH_SCK_PIN                 PB13
   #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_MOSI_PIN                PB15
-#endif
-
-#ifndef BEEPER_PIN
-  #define BEEPER_PIN                 EXP1_01_PIN
 #endif
 
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5

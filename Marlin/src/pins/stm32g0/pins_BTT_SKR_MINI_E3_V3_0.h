@@ -64,6 +64,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -161,6 +168,20 @@
 #define EXP1_08_PIN                         PD6
 #define EXP1_09_PIN                         -1
 #define EXP1_10_PIN                         -1
+
+/**      SPI Port
+ *        ------
+ *  5V   | 1  2 | GND
+ *  CS   | 3  4 | CLK
+ *  MOSI | 5  6 | MISO
+ *  3V3  | 7  8 | GND
+ *        ------
+ *         SPI1
+ */
+#define SPI1_03_PIN                         PD9
+#define SPI1_04_PIN                         PA5
+#define SPI1_05_PIN                         PA7
+#define SPI1_06_PIN                         PA6
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
@@ -322,7 +343,7 @@
        *                 ------                               ------
        *    (EN2)  PB5  | 1  2 | PA15(BTN_ENC)            5V |10  9 | GND
        *  (LCD_CS) PA9  | 3  4 | RST (RESET)              -- | 8  7 | --
-       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET)
+       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET) LCD_RESET
        *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
        *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
        *                 ------                               ------
@@ -330,7 +351,7 @@
        *
        *                                                      ------
        *                                                  -- |10  9 | --
-       *                   ---                       (RESET) | 8  7 | --
+       *                   ---          RESET_BUTTON (RESET) | 8  7 | --
        *                  | 3 |                      (MOSI)  | 6  5   (EN2)
        *                  | 2 | (DIN)                     -- | 4  3 | (EN1)
        *                  | 1 |                     (LCD_SCK)| 2  1 | --
@@ -338,6 +359,7 @@
        *                Neopixel                               EXP2
        *
        * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
+       * Note: The RESET line is connected to 3 pins.
        *
        * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
@@ -434,8 +456,8 @@
 #define SD_MOSI_PIN                         PA7
 
 //
-// Default NEOPIXEL_PIN
+// NeoPixel
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif

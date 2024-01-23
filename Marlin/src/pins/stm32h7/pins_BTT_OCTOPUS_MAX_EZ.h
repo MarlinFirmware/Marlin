@@ -121,6 +121,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PF1   // M5-DET
@@ -254,7 +261,7 @@
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
@@ -406,7 +413,7 @@
 // LCDs and Controllers
 //
 
-#if ENABLED(BTT_MINI_12864_V1)                    // BTT Mini 12864 V2.0 connected via 18-pin FCP cable
+#if ENABLED(BTT_MINI_12864)                       // BTT Mini 12864 V2.0 connected via 18-pin FPC cable
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
@@ -435,21 +442,21 @@
   #define NEOPIXEL_PIN               EXP1_06_PIN
 
 #elif HAS_WIRED_LCD
-  #error "Only BTT_MINI_12864_V1 is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
+  #error "Only BTT_MINI_12864 (BTT Mini 12864 V2.0 with FPC cable) is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
 #endif
 
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE10
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE10
 #endif
 #ifndef NEOPIXEL2_PIN
   #define NEOPIXEL2_PIN                     PE9
 #endif
 
 //
-// WIFI
+// WiFi
 //
 #if ENABLED(WIFISUPPORT)
   /**

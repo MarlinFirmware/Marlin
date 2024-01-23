@@ -446,8 +446,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       diveDir.close();
 
       if (longFilename[0]) {
-        strncpy_P(pathLong, longFilename, 63);
-        pathLong[63] = '\0';
+        strlcpy_P(pathLong, longFilename, 64);
         break;
       }
     }
@@ -488,9 +487,9 @@ void CardReader::mount() {
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(driver))
-    SERIAL_ERROR_MSG(STR_SD_VOL_INIT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_VOL_INIT_FAIL);
   else if (!root.openRoot(&volume))
-    SERIAL_ERROR_MSG(STR_SD_OPENROOT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_OPENROOT_FAIL);
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
@@ -588,6 +587,8 @@ void CardReader::release() {
   flag.workDirIsRoot = true;
   nrItems = -1;
   SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
+
+  TERN_(NO_SD_DETECT, ui.refresh());
 }
 
 /**
@@ -1073,8 +1074,7 @@ const char* CardReader::diveToFile(const bool update_cwd, MediaFile* &inDirPtr, 
     // Isolate the next subitem name
     const uint8_t len = name_end - atom_ptr;
     char dosSubdirname[len + 1];
-    strncpy(dosSubdirname, atom_ptr, len);
-    dosSubdirname[len] = 0;
+    strlcpy(dosSubdirname, atom_ptr, len + 1);
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
@@ -1179,7 +1179,7 @@ void CardReader::cdroot() {
       #endif
     #else
       // Copy filenames into the static array
-      #define _SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+      #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
       #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
         // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)

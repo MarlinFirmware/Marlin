@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/dgus_reloaded/dgus_reloaded_extui.cpp
+ * lcd/extui/dgus_e3s1pro/dgus_e3s1pro_extui.cpp
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -59,7 +59,7 @@ namespace ExtUI {
   void onMediaError()    { TERN_(HAS_MEDIA, screen.sdCardError()); }
   void onMediaRemoved()  { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     screen.playTone(frequency, duration);
   }
 

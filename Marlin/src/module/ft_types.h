@@ -24,47 +24,35 @@
 #include "../core/types.h"
 
 typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0U,
-  ftMotionMode_ENABLED    =  1U,
-  //ftMotionMode_ULENDO_FBS = 2U,
-  ftMotionMode_ZV         = 10U,
-  ftMotionMode_ZVD        = 11U,
-  ftMotionMode_EI         = 12U,
-  ftMotionMode_2HEI       = 13U,
-  ftMotionMode_3HEI       = 14U,
-  ftMotionMode_MZV        = 15U,
-  //ftMotionMode_DISCTF   = 20U
+  ftMotionMode_DISABLED   =  0, // Standard Motion
+  ftMotionMode_ENABLED    =  1, // Time-Based Motion
+  ftMotionMode_ZV         = 10, // Zero Vibration
+  ftMotionMode_ZVD        = 11, // Zero Vibration and Derivative
+  ftMotionMode_ZVDD       = 12, // Zero Vibration, Derivative, and Double Derivative
+  ftMotionMode_ZVDDD      = 13, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+  ftMotionMode_EI         = 14, // Extra-Intensive
+  ftMotionMode_2HEI       = 15, // 2-Hump Extra-Intensive
+  ftMotionMode_3HEI       = 16, // 3-Hump Extra-Intensive
+  ftMotionMode_MZV        = 17  // Mass-based Zero Vibration
 } ftMotionMode_t;
 
 enum dynFreqMode_t : uint8_t {
-  dynFreqMode_DISABLED   = 0U,
-  dynFreqMode_Z_BASED    = 1U,
-  dynFreqMode_MASS_BASED = 2U
+  dynFreqMode_DISABLED   = 0,
+  dynFreqMode_Z_BASED    = 1,
+  dynFreqMode_MASS_BASED = 2
 };
 
-enum stepDirState_t : uint8_t {
-  stepDirState_NOT_SET = 0U,
-  stepDirState_POS     = 1U,
-  stepDirState_NEG     = 2U
-};
+#define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
 
-typedef struct XYZEval<stepDirState_t> xyze_stepDir_t;
-
 enum {
   LIST_N(DOUBLE(LOGICAL_AXES),
     FT_BIT_DIR_E, FT_BIT_STEP_E,
-    FT_BIT_DIR_X, FT_BIT_STEP_X,
-    FT_BIT_DIR_Y, FT_BIT_STEP_Y,
-    FT_BIT_DIR_Z, FT_BIT_STEP_Z,
-    FT_BIT_DIR_I, FT_BIT_STEP_I,
-    FT_BIT_DIR_J, FT_BIT_STEP_J,
-    FT_BIT_DIR_K, FT_BIT_STEP_K,
-    FT_BIT_DIR_U, FT_BIT_STEP_U,
-    FT_BIT_DIR_V, FT_BIT_STEP_V,
-    FT_BIT_DIR_W, FT_BIT_STEP_W
+    FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
+    FT_BIT_DIR_I, FT_BIT_STEP_I, FT_BIT_DIR_J, FT_BIT_STEP_J, FT_BIT_DIR_K, FT_BIT_STEP_K,
+    FT_BIT_DIR_U, FT_BIT_STEP_U, FT_BIT_DIR_V, FT_BIT_STEP_V, FT_BIT_DIR_W, FT_BIT_STEP_W
   ),
   FT_BIT_COUNT
 };
