@@ -2597,15 +2597,15 @@ hal_timer_t Stepper::block_phase_isr() {
 
       AxisBits didmove;
       NUM_AXIS_CODE(
-        if (X_MOVE_TEST)               didmove.ja = true,
-        if (Y_MOVE_TEST)               didmove.jb = true,
-        if (Z_MOVE_TEST)               didmove.jc = true,
-        if (!!current_block->steps._i) didmove.ji = true,
-        if (!!current_block->steps._j) didmove.jj = true,
-        if (!!current_block->steps._k) didmove.jk = true,
-        if (!!current_block->steps._u) didmove.ju = true,
-        if (!!current_block->steps._v) didmove.jv = true,
-        if (!!current_block->steps._w) didmove.jw = true
+        if (X_MOVE_TEST)              didmove.ja = true,
+        if (Y_MOVE_TEST)              didmove.jb = true,
+        if (Z_MOVE_TEST)              didmove.jc = true,
+        if (!!current_block->steps.i) didmove.ji = true,
+        if (!!current_block->steps.j) didmove.jj = true,
+        if (!!current_block->steps.k) didmove.jk = true,
+        if (!!current_block->steps.u) didmove.ju = true,
+        if (!!current_block->steps.v) didmove.jv = true,
+        if (!!current_block->steps.w) didmove.jw = true
       );
       axis_did_move = didmove;
 
@@ -3243,12 +3243,12 @@ void Stepper::_set_position(const abce_long_t &spos) {
       count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, +, -) spos.a, spos.c);
     #endif
     SECONDARY_AXIS_CODE(
-      count_position.i = spos._i,
-      count_position.j = spos._j,
-      count_position.k = spos._k,
-      count_position.u = spos._u,
-      count_position.v = spos._v,
-      count_position.w = spos._w
+      count_position.i = spos.i,
+      count_position.j = spos.j,
+      count_position.k = spos.k,
+      count_position.u = spos.u,
+      count_position.v = spos.v,
+      count_position.w = spos.w
     );
     TERN_(HAS_EXTRUDERS, count_position.e = spos.e);
   #else
