@@ -219,7 +219,7 @@ typedef struct {
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
 //  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
+//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for axes on Core kinematics
 //
 enum AxisEnum : uint8_t {
 
