@@ -46,7 +46,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#if ENABLED(FT_MOTION)
+#if ALL(FT_MOTION, IS_CORE)
   #include "../../module/ft_motion.h"
 #endif
 
