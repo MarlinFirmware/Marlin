@@ -71,6 +71,7 @@
   uint32_t CodeProfiler::total_time = 0;
   uint16_t CodeProfiler::call_count = 0;
 #endif
+
 #if defined(MAX7219_DEBUG_PLANNER_HEAD) && defined(MAX7219_DEBUG_PLANNER_TAIL) && MAX7219_DEBUG_PLANNER_HEAD == MAX7219_DEBUG_PLANNER_TAIL
   static int16_t last_head_cnt = 0xF, last_tail_cnt = 0xF;
 #else
@@ -82,7 +83,7 @@
   #endif
 #endif
 #ifdef MAX7219_DEBUG_PLANNER_QUEUE
-    static int16_t last_depth = 0;
+  static int16_t last_depth = 0;
 #endif
 #ifdef MAX7219_DEBUG_PROFILE
   static uint8_t last_time_fraction = 0;
@@ -569,7 +570,8 @@ void Max7219::init() {
   #if MAX7219_INIT_TEST
     start_test_pattern();
   #endif
-  #if defined(MAX7219_REINIT_ON_POWERUP)
+
+  #ifdef MAX7219_REINIT_ON_POWERUP
     #if defined(MAX7219_DEBUG_PLANNER_HEAD) && defined(MAX7219_DEBUG_PLANNER_TAIL) && MAX7219_DEBUG_PLANNER_HEAD == MAX7219_DEBUG_PLANNER_TAIL
       last_head_cnt = 0xF;
       last_tail_cnt = 0xF;
@@ -582,7 +584,7 @@ void Max7219::init() {
       #endif
     #endif
     #ifdef MAX7219_DEBUG_PLANNER_QUEUE
-        last_depth = 0;
+      last_depth = 0;
     #endif
     #ifdef MAX7219_DEBUG_PROFILE
       last_time_fraction = 0;
@@ -716,6 +718,7 @@ void Max7219::idle_tasks() {
   #endif
 
   #if defined(MAX7219_DEBUG_PLANNER_HEAD) && defined(MAX7219_DEBUG_PLANNER_TAIL) && MAX7219_DEBUG_PLANNER_HEAD == MAX7219_DEBUG_PLANNER_TAIL
+
     if (last_head_cnt != head || last_tail_cnt != tail) {
       range16(MAX7219_DEBUG_PLANNER_HEAD, last_tail_cnt, tail, last_head_cnt, head, &row_change_mask);
       last_head_cnt = head;
