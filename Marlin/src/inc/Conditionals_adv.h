@@ -1351,6 +1351,11 @@
   #undef MANUAL_MOVE_DISTANCE_IN
 #endif
 
+// Clean up if no rotational axes exist
+#if !HAS_ROTATIONAL_AXES
+  #undef MANUAL_MOVE_DISTANCE_DEG
+#endif
+
 // Power-Loss Recovery
 #if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
   #define HAS_PLR_BED_THRESHOLD 1
