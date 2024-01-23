@@ -37,10 +37,6 @@
 #include "../../core/types.h"
 #include "../../core/serial_hook.h"
 
-#ifndef SERIAL_PORT
-  #define SERIAL_PORT 0
-#endif
-
 #ifndef USBCON
 
   // The presence of the UBRRH register is used to detect a UART.

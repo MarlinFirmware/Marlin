@@ -29,8 +29,11 @@
 #include "../../../module/motion.h"
 
 #if ENABLED(E3S1PRO_RTS)
-  #include "../../gcode.h"
   #include "../../../module/printcounter.h"
+#endif
+
+#if HAS_PLR_BED_THRESHOLD
+  #include "../../../module/temperature.h"  // for degBed
 #endif
 
 #include "../../../lcd/marlinui.h"
@@ -65,12 +68,16 @@ inline void plr_error(FSTR_P const prefix) {
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
+ *     ...unless the bed temperature is already above a configured minimum temperature.
+ *   - With 'C' execute a cancel selection
  *   - With no parameters, run recovery commands
  */
 void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
-    if (parser.seen_test('S')) {
+    const bool force_resume = TERN0(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold && (thermalManager.degBed() >= recovery.bed_temp_threshold));
+
+    if (!force_resume && parser.seen_test('S')) {
       #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
       #elif HAS_DWIN_E3V2_BASIC

@@ -42,19 +42,15 @@
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
+#if HAS_LASER_E3S1PRO
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
   #if ENABLED(CANCEL_OBJECTS)
     #include "../../feature/cancel_object.h"
   #endif
-#endif
-
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  #include "../../module/tool_change.h"
-#endif
-
-#if HAS_LASER_E3S1PRO
-  #include "../../feature/spindle_laser.h"
 #endif
 
 /**

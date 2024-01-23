@@ -133,8 +133,8 @@
 //
 // Default NEOPIXEL_PIN
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PD3   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PD3   // LED driving pin
 #endif
 
 //
