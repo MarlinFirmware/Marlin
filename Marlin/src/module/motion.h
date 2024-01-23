@@ -644,5 +644,5 @@ void home_if_needed(const bool keeplev=false);
 
 #if HAS_HOMING_CURRENT
   void set_homing_current(const AxisEnum axis);
-  void restore_homing_current();
+  void restore_homing_current(const AxisEnum axis);
 #endif

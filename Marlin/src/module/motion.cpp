@@ -445,36 +445,48 @@ void report_current_position_projected() {
       }
     #endif
 
-    if (axis == I_AXIS) {
+    #if HAS_I_AXIS && !FOAMCUTTER_XYUV
+      if (axis == I_AXIS) {
         #if HAS_CURRENT_HOME(I)
           _SAVE_SET_CURRENT(I);
         #endif
       }
-    if (axis == J_AXIS) {
+    #endif
+    #if HAS_J_AXIS && !FOAMCUTTER_XYUV
+      if (axis == J_AXIS) {
         #if HAS_CURRENT_HOME(J)
           _SAVE_SET_CURRENT(J);
         #endif
       }
-    if (axis == K_AXIS) {
+    #endif
+    #if HAS_K_AXIS
+      if (axis == K_AXIS) {
         #if HAS_CURRENT_HOME(K)
           _SAVE_SET_CURRENT(K);
         #endif
       }
-    if (axis == U_AXIS) {
+    #endif
+    #if HAS_U_AXIS
+      if (axis == U_AXIS) {
         #if HAS_CURRENT_HOME(U)
           _SAVE_SET_CURRENT(U);
         #endif
       }
-    if (axis == V_AXIS) {
+    #endif
+    #if HAS_V_AXIS
+      if (axis == V_AXIS) {
         #if HAS_CURRENT_HOME(V)
           _SAVE_SET_CURRENT(V);
         #endif
       }
-    if (axis == W_AXIS) {
+    #endif
+    #if HAS_W_AXIS
+      if (axis == W_AXIS) {
         #if HAS_CURRENT_HOME(W)
           _SAVE_SET_CURRENT(W);
         #endif
       }
+    #endif
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
@@ -659,36 +671,48 @@ void report_current_position_projected() {
       }
     #endif
 
-    if (axis == I_AXIS) {
+    #if HAS_I_AXIS && !FOAMCUTTER_XYUV
+      if (axis == I_AXIS) {
         #if HAS_CURRENT_HOME(I)
           _RESTORE_CURRENT(I);
         #endif
       }
-    if (axis == J_AXIS) {
+    #endif
+    #if HAS_J_AXIS && !FOAMCUTTER_XYUV
+      if (axis == J_AXIS) {
         #if HAS_CURRENT_HOME(J)
           _RESTORE_CURRENT(J);
         #endif
       }
-    if (axis == K_AXIS) {
+    #endif
+    #if HAS_K_AXIS
+      if (axis == K_AXIS) {
         #if HAS_CURRENT_HOME(K)
           _RESTORE_CURRENT(K);
         #endif
       }
-    if (axis == U_AXIS) {
+    #endif
+    #if HAS_U_AXIS
+      if (axis == U_AXIS) {
         #if HAS_CURRENT_HOME(U)
           _RESTORE_CURRENT(U);
         #endif
       }
-    if (axis == V_AXIS) {
+    #endif
+    #if HAS_V_AXIS
+      if (axis == V_AXIS) {
         #if HAS_CURRENT_HOME(V)
           _RESTORE_CURRENT(V);
         #endif
       }
-    if (axis == W_AXIS) {
+    #endif
+    #if HAS_W_AXIS
+      if (axis == W_AXIS) {
         #if HAS_CURRENT_HOME(W)
           _RESTORE_CURRENT(W);
         #endif
       }
+    #endif
 
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle

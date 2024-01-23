@@ -103,7 +103,8 @@
 
     current_position.set(0.0, 0.0);
 
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current());
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(X_AXIS));
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(Y_AXIS));
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
