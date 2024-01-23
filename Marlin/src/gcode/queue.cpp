@@ -612,18 +612,6 @@ void GCodeQueue::get_serial_commands() {
       }
       else
         process_stream_char(sd_char, sd_input_state, command.buffer, sd_count);
-
-      #if ENABLED(SOVOL_SV06_RTS)
-        // the printing results
-        if (card_eof) {
-          rts.sendData(100, PRINT_PROCESS_VP); delay(1);
-          rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
-          rts.sendData(0, PRINT_SURPLUS_TIME_HOUR_VP); delay(1);
-          rts.sendData(0, PRINT_SURPLUS_TIME_MIN_VP); delay(1);
-          rts.gotoPage(9, 64);
-          card.fileHasFinished();         // Handle end of file reached
-        }
-      #endif
     }
   }
 
