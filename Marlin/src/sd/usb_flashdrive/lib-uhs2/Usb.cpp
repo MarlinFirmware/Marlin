@@ -201,7 +201,7 @@ uint8_t USB::ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bReque
  * Keep sending INs and writes data to memory area pointed by 'data'
  * rcode 0 if no errors. rcode 01-0f is relayed from dispatchPkt(). Rcode f0 means RCVDAVIRQ error, fe = USB xfer timeout
  */
-uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval /*= 0*/) {
+uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval/*=0*/) {
   EpInfo *pep = nullptr;
   uint16_t nak_limit = 0;
 
@@ -215,7 +215,7 @@ uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *
   return InTransfer(pep, nak_limit, nbytesptr, data, bInterval);
 }
 
-uint8_t USB::InTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval /*= 0*/) {
+uint8_t USB::InTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval/*=0*/) {
   uint8_t rcode = 0;
   uint8_t pktsize;
 

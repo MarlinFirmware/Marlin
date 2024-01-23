@@ -1360,7 +1360,7 @@ void Endstops::update() {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
         };
       #else
         #define debug_current(...)

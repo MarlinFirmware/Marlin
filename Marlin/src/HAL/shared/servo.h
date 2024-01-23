@@ -74,6 +74,8 @@
   #include "../TEENSY40_41/Servo.h"
 #elif defined(TARGET_LPC1768)
   #include "../LPC1768/Servo.h"
+#elif defined(ARDUINO_ARCH_HC32)
+  #include "../HC32/Servo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "../STM32F1/Servo.h"
 #elif defined(ARDUINO_ARCH_STM32)

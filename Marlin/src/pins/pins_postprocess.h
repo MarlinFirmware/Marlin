@@ -487,8 +487,20 @@
   #define SUICIDE_PIN_STATE LOW
 #endif
 
-#ifndef NUM_SERVO_PLUGS
+#if PIN_EXISTS(SERVO5)
+  #define NUM_SERVO_PLUGS 6
+#elif PIN_EXISTS(SERVO4)
+  #define NUM_SERVO_PLUGS 5
+#elif PIN_EXISTS(SERVO3)
   #define NUM_SERVO_PLUGS 4
+#elif PIN_EXISTS(SERVO2)
+  #define NUM_SERVO_PLUGS 3
+#elif PIN_EXISTS(SERVO1)
+  #define NUM_SERVO_PLUGS 2
+#elif PIN_EXISTS(SERVO0)
+  #define NUM_SERVO_PLUGS 1
+#else
+  #define NUM_SERVO_PLUGS 0
 #endif
 
 // Only used within pins files
@@ -1711,3 +1723,12 @@
 #undef DIAG_REMAPPED
 #undef _E_DIAG_EXISTS
 #undef E_DIAG_EXISTS
+
+// Get a NeoPixel pin from the LCD or board, if provided
+#ifndef NEOPIXEL_PIN
+  #ifdef LCD_NEOPIXEL_PIN
+    #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
+  #elif defined(BOARD_NEOPIXEL_PIN)
+    #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
+  #endif
+#endif

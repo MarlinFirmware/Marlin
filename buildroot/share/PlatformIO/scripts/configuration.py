@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 #
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
-import re, shutil, configparser
+import re, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
@@ -43,6 +44,7 @@ def apply_opt(name, val, conf=None):
                 if val in ("on", "", None):
                     newline = re.sub(r'^(\s*)//+\s*(#define)(\s{1,3})?(\s*)', r'\1\2 \4', line)
                 elif val == "off":
+                    # TODO: Comment more lines in a multi-line define with \ continuation
                     newline = re.sub(r'^(\s*)(#define)(\s{1,3})?(\s*)', r'\1//\2 \4', line)
                 else:
                     # For options with values, enable and set the value
@@ -88,8 +90,37 @@ def apply_opt(name, val, conf=None):
                 elif not isdef:
                     break
                 linenum += 1
-            lines.insert(linenum, f"{prefix}#define {added:30} // Added by config.ini\n")
+            currtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            lines.insert(linenum, f"{prefix}#define {added:30} // Added by config.ini {currtime}\n")
             fullpath.write_text(''.join(lines), encoding='utf-8')
+
+# Disable all (most) defined options in the configuration files.
+# Everything in the named sections. Section hint for exceptions may be added.
+def disable_all_options():
+    # Create a regex to match the option and capture parts of the line
+    regex = re.compile(r'^(\s*)(#define\s+)([A-Z0-9_]+\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+
+    # Disable all enabled options in both Config files
+    for file in ("Configuration.h", "Configuration_adv.h"):
+        fullpath = config_path(file)
+        lines = fullpath.read_text(encoding='utf-8').split('\n')
+        found = False
+        for i in range(len(lines)):
+            line = lines[i]
+            match = regex.match(line)
+            if match:
+                name = match[3].upper()
+                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION'): continue
+                if name.startswith('_'): continue
+                found = True
+                # Comment out the define
+                # TODO: Comment more lines in a multi-line define with \ continuation
+                lines[i] = re.sub(r'^(\s*)(#define)(\s{1,3})?(\s*)', r'\1//\2 \4', line)
+                blab(f"Disable {name}")
+
+        # If the option was found, write the modified lines
+        if found:
+            fullpath.write_text('\n'.join(lines), encoding='utf-8')
 
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
@@ -130,7 +161,7 @@ def fetch_example(url):
 def section_items(cp, sectkey):
     return cp.items(sectkey) if sectkey in cp.sections() else []
 
-# Apply all items from a config section
+# Apply all items from a config section. Ignore ini_ items outside of config:base and config:root.
 def apply_ini_by_name(cp, sect):
     iniok = True
     if sect in ('config:base', 'config:root'):
@@ -194,7 +225,7 @@ def apply_config_ini(cp):
             cp2 = configparser.ConfigParser()
             cp2.read(config_path(ckey))
             apply_sections(cp2, sect)
-            ckey = 'base';
+            ckey = 'base'
 
         # (Allow 'example/' as a shortcut for 'examples/')
         elif ckey.startswith('example/'):
@@ -206,7 +237,17 @@ def apply_config_ini(cp):
             fetch_example(ckey)
             ckey = 'base'
 
-        if ckey == 'all':
+        #
+        # [flatten] Write out Configuration.h and Configuration_adv.h files with
+        #           just the enabled options and all other content removed.
+        #
+        #if ckey == '[flatten]':
+        #   write_flat_configs()
+
+        if ckey == '[disable]':
+            disable_all_options()
+
+        elif ckey == 'all':
             apply_sections(cp)
 
         else:

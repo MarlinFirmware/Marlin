@@ -82,7 +82,7 @@ message("-- Running CMake version: " ${CMAKE_VERSION})
 
 # Replace the CMake Ver. in the Arduino.cmake
 file(READ "${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/Platform/Arduino.cmake" ORIGINAL_FILE_CONTENTS)
-string(REPLACE "cmake_minimum_required(VERSION 2.8.5)" "cmake_minimum_required(VERSION 3.5)" NEW_FILE_CONTENTS "${ORIGINAL_FILE_CONTENTS}")
+string(REGEX REPLACE "cmake_minimum_required\\(VERSION[^\n]*\n" "cmake_minimum_required(VERSION 3.5)\n" NEW_FILE_CONTENTS "${ORIGINAL_FILE_CONTENTS}")
 file(WRITE "${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/Platform/Arduino.cmake" "${NEW_FILE_CONTENTS}")
 
 set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cmake/modules)

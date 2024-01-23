@@ -1,7 +1,7 @@
 name: ✨ Request a feature
 description: Request a new Marlin Firmware feature
 title: "[FR] (feature summary)"
-labels: 'T: Feature Request'
+labels: ["T: Feature Request"]
 body:
   - type: markdown
     attributes:

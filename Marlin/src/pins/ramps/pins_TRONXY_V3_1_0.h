@@ -38,7 +38,7 @@
 //
 // Servos
 //
-#define SERVO1_PIN         12   // 2560 PIN 25/PB6
+#define SERVO1_PIN                            12  // 2560 PIN 25/PB6
 
 //
 // Import RAMPS 1.4 pins

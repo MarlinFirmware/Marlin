@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * MKS Robin pro (STM32F103ZET6) board pin assignments
+ * MKS Robin Pro (STM32F103ZET6) board pin assignments
+ * Schematic: https://github.com/makerbase-mks/MKS-Robin-Pro/blob/master/hardware/MKS%20Robin%20Pro%20V1.0_001/MKS%20Robin%20Pro%20V1.0_001%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -59,6 +60,13 @@
 #define Y_MAX_PIN                           PG8
 #define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
 
 //
 // Steppers
@@ -104,6 +112,7 @@
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG9
 #endif
+
 //
 // SPI pins for TMC2130 stepper drivers
 //
@@ -204,11 +213,11 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_DETECT_PIN                     PG3
-  #define SD_SCK_PIN                        PB13
-  #define SD_MISO_PIN                       PB14
-  #define SD_MOSI_PIN                       PB15
-  #define SD_SS_PIN                         PG6
+  #define SD_DETECT_PIN              EXP2_07_PIN
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
   #define ONBOARD_SDIO
   #define SD_DETECT_PIN                     PD12
@@ -216,6 +225,88 @@
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
+
+/**               ------                                      ------
+ * (BEEPER) PC5  | 1  2 | PG2  (BTN_ENC)         (MISO) PB14 | 1  2 | PB13 (SCK)
+ * (LCD_EN) PG0  | 3  4 | PG1  (LCD_RS)       (BTN_EN1) PG5  | 3  4 | PG6  (SD_SS)
+ * (LCD_D4) PF14   5  6 | PF15 (LCD_D5)       (BTN_EN2) PG4    5  6 | PB15 (MOSI)
+ * (LCD_D6) PF12 | 7  8 | PF13 (LCD_D7)     (SD_DETECT) PG3  | 7  8 | RESET
+ *           GND | 9 10 | 5V                             GND | 9 10 | --
+ *                ------                                      ------
+ *                 EXP1                                        EXP2
+ */
+#define EXP1_01_PIN                         PC5
+#define EXP1_02_PIN                         PG2
+#define EXP1_03_PIN                         PG0
+#define EXP1_04_PIN                         PG1
+#define EXP1_05_PIN                         PF14
+#define EXP1_06_PIN                         PF15
+#define EXP1_07_PIN                         PF12
+#define EXP1_08_PIN                         PF13
+
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PG5
+#define EXP2_04_PIN                         PG6
+#define EXP2_05_PIN                         PG4
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PG3
+#define EXP2_08_PIN                         -1    // RESET
+
+/**                -------
+ *                |     0 | DGND-|
+ *           3V3  |  1  2 | DGND-|
+ *      (D0) PD14 |  3  4 | PD15 (D1)
+ *      (D2) PD0  |  5  6 | PD1  (D3)
+ *      (D4) PE7  |  7  8 | PE8  (D5)
+ *      (D6) PE9  |  9 10 | PE10 (D7)
+ *      (D8) PE11 | 11 12 | PE12 (D9)
+ *     (D10) PE13 | 13 14 | PE14 (D11)
+ *     (D12) PE15 | 15 16 | PD8  (D13)
+ *     (D14) PD9  | 17 18 | PD10 (D15)
+ *     (NE4) PD7  | 19 20 | PD11 (A0)
+ *     (NWE) PD5  | 21 22 | PD4  (NOE)
+ *     (RST) PC6? | 23 24 | PD13?(LIGHT)
+ *   (MISO2) PB14 | 25 26 | ---  (INT)
+ *   (MOSI2) PB15 | 27 28 | PC5  (BEEPER)
+ *    (SCK2) PB13 | 29 30 | VCC
+ *    (NSS2) PA7  | 31 32 | DGND
+ *                 -------
+ *                  FSMC
+ */
+//#define FSMC_00_PIN                       -1    // GND
+//#define FSMC_01_PIN                       -1    // 3.3V
+//#define FSMC_02_PIN                       -1    // GND
+#define FSMC_03_PIN                         PD14  // D0
+#define FSMC_04_PIN                         PD15  // D1
+#define FSMC_05_PIN                         PD0   // D2
+#define FSMC_06_PIN                         PD1   // D3
+#define FSMC_07_PIN                         PE7   // D4
+#define FSMC_08_PIN                         PE8   // D5
+#define FSMC_09_PIN                         PE9   // D6
+#define FSMC_10_PIN                         PE10  // D7
+#define FSMC_11_PIN                         PE11  // D8
+#define FSMC_12_PIN                         PE12  // D9
+#define FSMC_13_PIN                         PE13  // D10
+#define FSMC_14_PIN                         PE14  // D11
+#define FSMC_15_PIN                         PE15  // D12
+#define FSMC_16_PIN                         PD8   // D13
+#define FSMC_17_PIN                         PD9   // D14
+#define FSMC_18_PIN                         PD10  // D15
+#define FSMC_19_PIN                         PD7   // NE4
+#define FSMC_20_PIN                         PD11  // A0
+#define FSMC_21_PIN                         PD5   // NWE
+#define FSMC_22_PIN                         PD4   // NOE
+#define FSMC_23_PIN                         PC6   // RST
+#define FSMC_24_PIN                         PD13  // LIGHT
+#define FSMC_25_PIN                         PB14  // MISO2
+#define FSMC_26_PIN                         -1    // INT
+#define FSMC_27_PIN                         PB15  // MOSI2
+#define FSMC_28_PIN                         PC5   // BEEPER
+#define FSMC_29_PIN                         PB13  // SCK2
+//#define FSMC_30_PIN                       -1    // VCC
+#define FSMC_31_PIN                         PA7   // NSS2
+//#define FSMC_32_PIN                       -1    // GND
 
 //
 // TFT with FSMC interface
@@ -229,29 +320,29 @@
   #define TFT_RESET_PIN            LCD_RESET_PIN
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_CS_PIN                FSMC_19_PIN  // NE4
+  #define FSMC_RS_PIN                FSMC_20_PIN  // A0
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #define LCD_RESET_PIN                     PC6
-  #define LCD_BACKLIGHT_PIN                 PD13
+  #define LCD_RESET_PIN              FSMC_23_PIN
+  #define LCD_BACKLIGHT_PIN          FSMC_24_PIN
 
   #define TFT_BUFFER_WORDS                 14400
 
   #if NEED_TOUCH_PINS
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
-    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
+    #define TOUCH_CS_PIN             FSMC_31_PIN  // SPI2_NSS
+    #define TOUCH_SCK_PIN            FSMC_29_PIN  // SPI2_SCK
+    #define TOUCH_MISO_PIN           FSMC_25_PIN  // SPI2_MISO
+    #define TOUCH_MOSI_PIN           FSMC_27_PIN  // SPI2_MOSI
   #else
-    #define BEEPER_PIN                      PC5
-    #define BTN_ENC                         PG2
-    #define BTN_EN1                         PG5
-    #define BTN_EN2                         PG4
+    #define BEEPER_PIN               FSMC_28_PIN
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
   #endif
 
 #elif IS_TFTGLCD_PANEL
@@ -262,30 +353,30 @@
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PG2
-  #define LCD_PINS_EN                       PG0
-  #define LCD_PINS_RS                       PG1
-  #define BTN_EN1                           PG5
-  #define BTN_EN2                           PG4
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
 
   // MKS MINI12864 and MKS LCD12864B. If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+  #if ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                       PF12
-    #define DOGLCD_CS                       PF15
-    #define DOGLCD_SCK                      PB13
-    #define DOGLCD_MOSI                     PB15
+    #define DOGLCD_A0                EXP1_07_PIN
+    #define DOGLCD_CS                EXP1_06_PIN
+    #define DOGLCD_SCK               EXP2_02_PIN
+    #define DOGLCD_MOSI              EXP2_06_PIN
 
-  #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+  #else // !ENDER2_STOCKDISPLAY && !MKS_MINI_12864
 
-    #define LCD_PINS_D4                     PF14
+    #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
-      #define LCD_PINS_D5                   PF15
-      #define LCD_PINS_D6                   PF12
-      #define LCD_PINS_D7                   PF13
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
@@ -293,9 +384,9 @@
 
     #endif
 
-  #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+  #endif
 
-#endif
+#endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
