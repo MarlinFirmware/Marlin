@@ -963,7 +963,7 @@ public:
     };
     // a, b, c, e ... ha, hb, hc
     struct {
-      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _e##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -975,7 +975,7 @@ public:
     };
     // A, B, C, E ... HA, HB, HC
     struct {
-      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _E##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -983,30 +983,6 @@ public:
       #endif
       #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
         bool HA:1, HB:1, HC:1;
-      #endif
-    };
-    // Joints ja, jb, jc ... je0, je1, je2 ... jha, jhb, jhc
-    struct {
-      #if NUM_AXES
-        bool NUM_AXIS_LIST(ja:1, jb:1, jc:1, ji:1, jj:1, jk:1, ju:1, jv:1, jw:1);
-      #endif
-      #define _EN_ITEM(N) bool je##N:1;
-      REPEAT(EXTRUDERS,_EN_ITEM)
-      #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool jha:1, jhb:1, jhc:1;
-      #endif
-    };
-    // Joints JA, JB, JC ... JE0, JE1, JE2 ... JHA, JHB, JHC
-    struct {
-      #if NUM_AXES
-        bool NUM_AXIS_LIST(JA:1, JB:1, JC:1, JI:1, JJ:1, JK:1, JU:1, JV:1, JW:1);
-      #endif
-      #define _EN_ITEM(N) bool JE##N:1;
-      REPEAT(EXTRUDERS,_EN_ITEM)
-      #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool JHA:1, JHB:1, JHC:1;
       #endif
     };
   };
