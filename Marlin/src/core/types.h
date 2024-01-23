@@ -939,7 +939,9 @@ public:
     el bits;
     // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
     struct {
-      bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
+      #if NUM_AXES
+        bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
+      #endif
       #define _EN_ITEM(N) bool e##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
@@ -949,7 +951,9 @@ public:
     };
     // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
     struct {
-      bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
+      #if NUM_AXES
+        bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
+      #endif
       #define _EN_ITEM(N) bool E##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
@@ -983,7 +987,9 @@ public:
     };
     // Joints ja, jb, jc ... je0, je1, je2 ... jha, jhb, jhc
     struct {
-      bool NUM_AXIS_LIST(ja:1, jb:1, jc:1, ji:1, jj:1, jk:1, ju:1, jv:1, jw:1);
+      #if NUM_AXES
+        bool NUM_AXIS_LIST(ja:1, jb:1, jc:1, ji:1, jj:1, jk:1, ju:1, jv:1, jw:1);
+      #endif
       #define _EN_ITEM(N) bool je##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
@@ -993,7 +999,9 @@ public:
     };
     // Joints JA, JB, JC ... JE0, JE1, JE2 ... JHA, JHB, JHC
     struct {
-      bool NUM_AXIS_LIST(JA:1, JB:1, JC:1, JI:1, JJ:1, JK:1, JU:1, JV:1, JW:1);
+      #if NUM_AXES
+        bool NUM_AXIS_LIST(JA:1, JB:1, JC:1, JI:1, JJ:1, JK:1, JU:1, JV:1, JW:1);
+      #endif
       #define _EN_ITEM(N) bool JE##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
