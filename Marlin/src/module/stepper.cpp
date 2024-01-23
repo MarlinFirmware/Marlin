@@ -3560,7 +3560,6 @@ void Stepper::report_positions() {
       while (current_block->is_sync()) {
         TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
 
-        axis_did_move.reset();
         planner.release_current_block();
 
         // Try to get a new block
