@@ -2597,9 +2597,9 @@ hal_timer_t Stepper::block_phase_isr() {
 
       AxisBits didmove;
       NUM_AXIS_CODE(
-        if (X_MOVE_TEST)             didmove.ja = true,
-        if (Y_MOVE_TEST)             didmove.jb = true,
-        if (Z_MOVE_TEST)             didmove.jc = true,
+        if (X_MOVE_TEST)               didmove.ja = true,
+        if (Y_MOVE_TEST)               didmove.jb = true,
+        if (Z_MOVE_TEST)               didmove.jc = true,
         if (!!current_block->steps._i) didmove.ji = true,
         if (!!current_block->steps._j) didmove.jj = true,
         if (!!current_block->steps._k) didmove.jk = true,
@@ -2607,10 +2607,6 @@ hal_timer_t Stepper::block_phase_isr() {
         if (!!current_block->steps._v) didmove.jv = true,
         if (!!current_block->steps._w) didmove.jw = true
       );
-      //if (current_block->steps.e) didmove.e = true;
-      //if (current_block->steps.a) didmove.x = true;
-      //if (current_block->steps.b) didmove.y = true;
-      //if (current_block->steps.c) didmove.z = true;
       axis_did_move = didmove;
 
       // No acceleration / deceleration time elapsed so far

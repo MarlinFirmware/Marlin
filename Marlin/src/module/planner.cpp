@@ -2309,8 +2309,8 @@ bool Planner::_populate_block(
   float inverse_secs = inverse_millimeters * (
     #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
       /**
-       * Work around for the premature feedrate conversion from
-       * inches/s to mm/s by the get_distance_from_command function.
+       * Workaround for premature feedrate conversion
+       * from in/s to mm/s by get_distance_from_command.
        */
       cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
     #else

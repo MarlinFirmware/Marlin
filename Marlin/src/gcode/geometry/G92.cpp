@@ -67,7 +67,7 @@ void GcodeSuite::G92() {
         break;
     #endif
 
-    #if ENABLED(POWER_LOSS_RECOVERY) || HAS_ROTATIONAL_AXES
+    #if ANY(POWER_LOSS_RECOVERY, HAS_ROTATIONAL_AXES)
       case 9:                                                         // G92.9 - Set Current Position directly (like Marlin 1.0)
         LOOP_LOGICAL_AXES(i) {
           if (parser.seenval(AXIS_CHAR(i))) {
