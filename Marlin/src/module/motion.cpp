@@ -411,7 +411,7 @@ void report_current_position_projected() {
         #endif
       }
     
-    #elif
+    #else
     // Standard Cartesian kinematics
       if (axis == X_AXIS) {
         #if HAS_CURRENT_HOME(X)
@@ -637,7 +637,7 @@ void report_current_position_projected() {
         #endif
       }
     
-    #elif
+    #else
     // Standard Cartesian kinematics
       if (axis == X_AXIS) {
         #if HAS_CURRENT_HOME(X)
