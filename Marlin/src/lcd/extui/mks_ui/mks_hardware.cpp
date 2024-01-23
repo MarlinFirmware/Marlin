@@ -727,8 +727,7 @@ void disp_assets_update_progress(FSTR_P const fmsg) {
     static constexpr int buflen = 30;
     char buf[buflen];
     memset(buf, ' ', buflen);
-    strncpy_P(buf, FTOP(fmsg), buflen - 1);
-    buf[buflen - 1] = '\0';
+    strlcpy_P(buf, FTOP(fmsg), buflen);
     disp_string(100, 165, buf, 0xFFFF, 0x0000);
   #else
     disp_string(100, 165, FTOP(fmsg), 0xFFFF, 0x0000);

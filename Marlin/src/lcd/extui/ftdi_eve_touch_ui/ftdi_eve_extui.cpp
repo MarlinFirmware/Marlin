@@ -108,7 +108,7 @@ namespace ExtUI {
   }
   void onSettingsLoaded(const bool) {}
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) { sound.play_tone(frequency, duration); }
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) { sound.play_tone(frequency, duration); }
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg)

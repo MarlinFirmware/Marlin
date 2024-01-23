@@ -118,7 +118,7 @@ inline void toggle_pins() {
 
 inline void servo_probe_test() {
 
-  #if !(NUM_SERVOS > 0 && HAS_SERVO_0)
+  #if !HAS_SERVO_0
 
     SERIAL_ERROR_MSG("SERVO not set up.");
 

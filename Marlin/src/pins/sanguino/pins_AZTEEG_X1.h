@@ -29,6 +29,6 @@
 
 #define BOARD_INFO_NAME "Azteeg X1"
 
-#define FAN0_PIN 4
+#define FAN0_PIN                               4
 
 #include "pins_SANGUINOLOLU_12.h" // ... SANGUINOLOLU_11

@@ -58,10 +58,6 @@
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../../module/tool_change.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
@@ -228,6 +224,7 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
+
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
   // Leveling state is persistent when done manually with multiple G29 commands
@@ -1005,10 +1002,10 @@ G29_TYPE GcodeSuite::G29() {
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
-  #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+  #ifdef EVENT_GCODE_AFTER_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
     planner.synchronize();
-    process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+    process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
   #endif
 
   TERN_(SOVOL_SV06_RTS, RTS_AutoBedLevelPage());
