@@ -2126,8 +2126,8 @@ bool Planner::_populate_block(
   #endif
 
   SECONDARY_AXIS_CODE(
-    dist_mm._i = dist.i * mm_per_step[I_AXIS], dist_mm._j = dist.j * mm_per_step[J_AXIS], dist_mm._k = dist.k * mm_per_step[K_AXIS],
-    dist_mm._u = dist.u * mm_per_step[U_AXIS], dist_mm._v = dist.v * mm_per_step[V_AXIS], dist_mm._w = dist.w * mm_per_step[W_AXIS]
+    dist_mm.i = dist.i * mm_per_step[I_AXIS], dist_mm.j = dist.j * mm_per_step[J_AXIS], dist_mm.k = dist.k * mm_per_step[K_AXIS],
+    dist_mm.u = dist.u * mm_per_step[U_AXIS], dist_mm.v = dist.v * mm_per_step[V_AXIS], dist_mm.w = dist.w * mm_per_step[W_AXIS]
   );
 
   TERN_(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
