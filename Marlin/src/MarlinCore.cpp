@@ -415,10 +415,6 @@ void startOrResumeJob() {
 
 #endif // HAS_MEDIA
 
-#if HAS_LASER_E3S1PRO
-  void get_sdcard_laser_range();
-#endif
-
 /**
  * Minimal management of Marlin's core activities:
  *  - Keep the command buffer full

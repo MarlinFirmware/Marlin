@@ -58,6 +58,7 @@ GCodeQueue queue;
 
 #if HAS_LASER_E3S1PRO
   #include "../feature/spindle_laser.h"
+  #include "../feature/e3s1pro_laser.h"
 #endif
 
 // Frequently used G-code strings
