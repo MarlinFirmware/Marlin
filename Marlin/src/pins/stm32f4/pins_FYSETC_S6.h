@@ -255,7 +255,7 @@
   #define FORCE_SOFT_SPI
 
   #define KILL_PIN                          -1    // NC
-  #define NEOPIXEL_PIN               EXP1_07_PIN
+  #define BOARD_NEOPIXEL_PIN         EXP1_07_PIN
 
 #elif HAS_WIRED_LCD
 
