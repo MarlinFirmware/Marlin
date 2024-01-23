@@ -198,22 +198,7 @@
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
-  
-  #if ENABLED(FT_MOTION) && IS_CORE
-    // Disable ft-motion for homing
-    struct OnExit {
-      ftMotionMode_t oldmm;
-      OnExit() {
-        oldmm = ftMotion.cfg.mode;
-        ftMotion.cfg.mode = ftMotionMode_DISABLED;
-      }
-      ~OnExit() {
-        ftMotion.cfg.mode = oldmm;
-        ftMotion.init();
-      }
-    } on_exit;
-  #endif
-  
+
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
       LOOP_NUM_AXES(a) set_axis_is_at_home((AxisEnum)a);
@@ -251,6 +236,21 @@ void GcodeSuite::G28() {
   reset_stepper_timeout();
 
   #if NUM_AXES
+
+    #if ALL(FT_MOTION, IS_CORE)
+      // Disable Fixed-Time Motion for homing
+      struct OnExit {
+        ftMotionMode_t oldmm;
+        OnExit() {
+          oldmm = ftMotion.cfg.mode;
+          ftMotion.cfg.mode = ftMotionMode_DISABLED;
+        }
+        ~OnExit() {
+          ftMotion.cfg.mode = oldmm;
+          ftMotion.init();
+        }
+      } on_exit;
+    #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
       bool IDEX_saved_duplication_state = extruder_duplication_enabled;
