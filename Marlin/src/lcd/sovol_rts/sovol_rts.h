@@ -330,7 +330,7 @@ const uint32_t Addrbuf[] = {
 extern void RTS_Update();
 extern void RTS_Init();
 
-extern int16_t Update_Time_Value;
+extern int16_t update_time_value;
 extern bool poweroff_continue;
 extern bool sdcard_pause_check;
 extern bool sd_printing_autopause;
