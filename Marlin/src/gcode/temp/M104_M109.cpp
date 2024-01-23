@@ -45,10 +45,6 @@
   #endif
 #endif
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  #include "../../module/tool_change.h"
-#endif
-
 /**
  * M104: Set Hotend Temperature target and return immediately
  * M109: Set Hotend Temperature target and wait

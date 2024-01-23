@@ -55,7 +55,13 @@
  *                 ------
  *                  EXP1
  */
+#define EXP1_01_PIN                         PB5
 #define EXP1_02_PIN                         PA15
+#define EXP1_03_PIN                         PA9
+#define EXP1_04_PIN                         -1    // RESET
+#define EXP1_05_PIN                         PA10
+#define EXP1_06_PIN                         PB9
+#define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB15
 
 #include "pins_BTT_SKR_MINI_E3_common.h"
@@ -63,8 +69,8 @@
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
 
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif
 
 #ifndef PS_ON_PIN

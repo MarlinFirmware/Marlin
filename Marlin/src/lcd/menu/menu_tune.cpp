@@ -34,10 +34,6 @@
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  #include "../../module/tool_change.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif

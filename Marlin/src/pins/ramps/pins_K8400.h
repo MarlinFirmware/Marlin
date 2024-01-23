@@ -58,7 +58,7 @@
 //
 #define FAN0_PIN                               8
 
-#if ANY(BLTOUCH, TOUCH_MI_PROBE)
+#if ANY(BLTOUCH, TOUCH_MI_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #define INVERTED_PROBE_STATE
 #endif
 

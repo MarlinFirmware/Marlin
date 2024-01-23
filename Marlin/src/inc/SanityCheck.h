@@ -116,17 +116,6 @@
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
-// Consolidate TMC26X, validate migration (#24373)
-#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
-#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
-#if DO(ISMAX,||,ALL_AXIS_NAMES)
-  #error "*_MAX_CURRENT is now set with *_CURRENT."
-#elif DO(ISSNS,||,ALL_AXIS_NAMES)
-  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
-#endif
-#undef _ISMAX_1
-#undef _ISSNS_1
-
 /**
  * RADDS is forbidden for non-DUE boards, for now.
  */
@@ -160,16 +149,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Probe temp compensation requirements
  */
 #if HAS_PTC
-  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
-    #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
-      #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
-    #elif !defined(PTC_PARK_POS)
-      #error "PTC_PARK_POS is required for Probe Temperature Compensation."
-    #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
-      #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
-    #elif !defined(PTC_PROBE_POS)
-      #error "PTC_PROBE_POS is required for Probe Temperature Compensation."
-    #endif
+  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED && !(defined(PTC_PARK_POS) && defined(PTC_PROBE_POS))
+    #error "PTC_PARK_POS and PTC_PROBE_POS are required for Probe Temperature Compensation."
   #endif
 
   #if ENABLED(PTC_PROBE)
@@ -252,6 +233,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 #elif ANY(SERIAL_XON_XOFF, SERIAL_STATS_MAX_RX_QUEUED, SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
+#endif
+
+// Serial DMA is only available for some STM32 MCUs
+#if ENABLED(SERIAL_DMA)
+  #if !HAL_STM32 || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+    #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."
+  #elif !defined(HAL_UART_MODULE_ENABLED) || defined(HAL_UART_MODULE_ONLY)
+    #error "SERIAL_DMA requires STM32 platform HAL UART (without HAL_UART_MODULE_ONLY)."
+  #endif
 #endif
 
 /**
@@ -468,6 +458,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(I2C_POSITION_ENCODERS)
   #if !ALL(BABYSTEPPING, BABYSTEP_XY)
     #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
+  #elif DISABLED(EDITABLE_STEPS_PER_UNIT)
+    #error "EDITABLE_STEPS_PER_UNIT is required for I2C_POSITION_ENCODERS."
   #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
     #error "I2CPE_ENCODER_CNT must be between 1 and 5."
   #endif
@@ -550,7 +542,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif FILAMENT_RUNOUT_DISTANCE_MM < 0
     #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE) && defined(FILAMENT_RUNOUT_SCRIPT)
-    static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
+    static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
   #endif
 #endif
 
@@ -603,23 +595,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * Sanity checking for all Průša MMU
- */
-#ifdef SNMM
-  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(MK2_MULTIPLEXER)
-  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(PRUSA_MMU2)
-  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
-#elif ENABLED(PRUSA_MMU2_S_MODE)
-  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
-#elif ENABLED(SMUFF_EMU_MMU2)
-  #error "SMUFF_EMU_MMU2 is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2 instead."
-#elif ENABLED(SMUFF_EMU_MMU2S)
-  #error "SMUFF_EMU_MMU2S is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2S instead."
-#endif
-
-/**
  * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
 #if HAS_PRUSA_MMU2
@@ -639,7 +614,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif ENABLED(MMU2_MENUS) && !HAS_MARLINUI_MENU
     #error "MMU2_MENUS requires an LCD supporting MarlinUI."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
-    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / HAS_EXTENDABLE_MMU(S).");
+    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "MMU2_FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
   #endif
 #endif
 
@@ -853,8 +828,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
-  #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
-    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
 #endif
 
@@ -988,9 +961,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > NUM_SERVO_PLUGS
-  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
-#endif
+static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) is too large. The selected board only has " STRINGIFY(NUM_SERVO_PLUGS) " servos.");
 
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
@@ -1216,7 +1187,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Junction deviation is incompatible with kinematic systems.
  */
 #if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
-  #error "CLASSIC_JERK is required for DELTA, SCARA, and POLAR."
+  #error "CLASSIC_JERK is required for the kinematics of DELTA, SCARA, POLAR, etc."
 #endif
 
 /**
@@ -1235,8 +1206,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
-  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE or Z Servo."
+  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2, or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1403,6 +1374,53 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
     #endif
   #endif
+
+  /**
+   * BIQU MicroProbe requirements
+   */
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #if DISABLED(PROBE_ENABLE_DISABLE)
+      #error "BIQU MicroProbe requires PROBE_ENABLE_DISABLE."
+    #elif !PIN_EXISTS(PROBE_ENABLE)
+      #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
+    #endif
+
+    #if ENABLED(BIQU_MICROPROBE_V1)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+        #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != LOW
+            #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+    #elif ENABLED(BIQU_MICROPROBE_V2)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+        #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != HIGH
+            #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #endif
+    #endif
+  #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
 
   /**
    * Require pin options and pins to be defined
@@ -1574,7 +1592,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "Only enable RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28, but not both."
 #endif
 
-#if HAS_MESH && HAS_CLASSIC_JERK
+#if ALL(HAS_MESH, CLASSIC_JERK)
   static_assert(DEFAULT_ZJERK > 0.1, "Low DEFAULT_ZJERK values are incompatible with mesh-based leveling.");
 #endif
 #if HAS_MESH && DGUS_LCD_UI_IA_CREALITY && GRID_MAX_POINTS > 25
@@ -1813,26 +1831,32 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS)
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX
-    #error "DUAL_X_CARRIAGE requires X_HOME_DIR 1."
+    #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1."
   #endif
 #endif
 
 #undef GOOD_AXIS_PINS
 
 /**
- * Make sure auto fan pins don't conflict with the fan pin
+ * Make sure auto fan pins don't conflict with the first fan pin
  */
 #if HAS_AUTO_FAN
-  #if HAS_FAN0
-    #if PIN_EXISTS(E0_AUTO_FAN) && E0_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E1_AUTO_FAN) && E1_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E2_AUTO_FAN) && E2_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
-    #elif PIN_EXISTS(E3_AUTO_FAN) &&  E3_AUTO_FAN_PIN == FAN0_PIN
-      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
-    #endif
+  #if PINS_EXIST(E0_AUTO_FAN, FAN0) && E0_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E1_AUTO_FAN, FAN0) && E1_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E2_AUTO_FAN, FAN0) && E2_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E3_AUTO_FAN, FAN0) &&  E3_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E4_AUTO_FAN, FAN0) &&  E4_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E4_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E5_AUTO_FAN, FAN0) &&  E5_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E5_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E6_AUTO_FAN, FAN0) &&  E6_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E6_AUTO_FAN_PIN equal to FAN0_PIN."
+  #elif PINS_EXIST(E7_AUTO_FAN, FAN0) &&  E7_AUTO_FAN_PIN == FAN0_PIN
+    #error "You cannot set E7_AUTO_FAN_PIN equal to FAN0_PIN."
   #endif
 #endif
 
@@ -2260,7 +2284,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * FYSETC/MKS/BTT Mini Panel Requirements
+ * FYSETC/MKS/BTT/BEEZ Mini Panel Requirements
  */
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
   #ifndef NEO_RGB
@@ -2268,9 +2292,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #define FAUX_RGB 1
   #endif
   #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
-    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
+    #error "Your FYSETC/MKS/BTT/BEEZ Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
   #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
-    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_PIXELS >= 3."
+    #error "Your FYSETC/MKS/BTT/BEEZ Mini Panel requires NEOPIXEL_PIXELS >= 3."
   #endif
   #if FAUX_RGB
     #undef NEO_RGB
@@ -2603,8 +2627,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
-  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864)) \
-  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864) \
+  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)) \
+  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
@@ -2621,7 +2645,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   + COUNT_ENABLED(VIKI2, miniVIKI) \
   + ENABLED(WYH_L12864) \
   + COUNT_ENABLED(ZONESTAR_12864LCD, ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306) \
-  + COUNT_ENABLED(ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING) \
+  + COUNT_ENABLED(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13) \
   + ENABLED(AZSMZ_12864) \
   + ENABLED(BQ_LCD_SMART_CONTROLLER) \
   + ENABLED(CARTESIO_UI) \
@@ -2726,8 +2750,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
 #endif
 
-#if ANY(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0) && SD_CONNECTION_IS(LCD)
-  #error "SDCARD_CONNECTION cannot be set to LCD for the enabled TFT. No available SD card reader."
+#if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
+  #error "SDCARD_CONNECTION cannot be set to LCD for the enabled display. No available SD card reader."
 #endif
 
 /**
@@ -2753,7 +2777,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 #endif
 
-#if LCD_BACKLIGHT_TIMEOUT_MINS
+#if HAS_BACKLIGHT_TIMEOUT
   #if !HAS_ENCODER_ACTION && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
@@ -3735,7 +3759,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "SPINDLE_LASER_PWM_PIN conflicts with E6_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(E7_AUTO_FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with E7_AUTO_FAN_PIN."
-    #elif _PIN_CONFLICT(FAN)
+    #elif _PIN_CONFLICT(FAN0)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN0_PIN."
     #elif _PIN_CONFLICT(FAN1)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
@@ -4144,8 +4168,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 /**
  * Fixed-Time Motion limitations
  */
-#if ALL(FT_MOTION, MIXING_EXTRUDER)
-  #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(MIXING_EXTRUDER)
+    #error "FT_MOTION does not currently support MIXING_EXTRUDER."
+  #elif DISABLED(FTM_UNIFIED_BWS)
+    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
+  #endif
 #endif
 
 // Multi-Stepping Limit
@@ -4162,6 +4190,10 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
   #elif !defined(HAS_MARLINUI_MENU)
     #error "ONE_CLICK_PRINT needs a display that has Marlin UI menus."
   #endif
+#endif
+
+#if ALL(ULTIPANEL_FEEDMULTIPLY, ULTIPANEL_FLOWPERCENT)
+  #error "Only enable ULTIPANEL_FEEDMULTIPLY or ULTIPANEL_FLOWPERCENT, but not both."
 #endif
 
 // Misc. Cleanup

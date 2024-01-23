@@ -309,7 +309,7 @@
 
   #define LCD_SDSS                   EXP2_07_PIN
 
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
 
   #if ENABLED(FYSETC_MINI_12864)

@@ -297,20 +297,17 @@ void GcodeSuite::M205() {
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
-    #if HAS_CLASSIC_JERK && AXIS_COLLISION('J')
-      #error "Can't set_max_jerk for 'J' axis because 'J' is used for Junction Deviation."
-    #endif
     if (parser.seenval('J')) {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
-        TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
+        TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
       }
       else
         SERIAL_ERROR_MSG("?J out of range (0.01 to 0.3)");
     }
   #endif
-  #if HAS_CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
     bool seenZ = false;
     LOGICAL_AXIS_CODE(
       if (parser.seenval('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units()),
@@ -328,14 +325,14 @@ void GcodeSuite::M205() {
       if (seenZ && planner.max_jerk.z <= 0.1f)
         SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
     #endif
-  #endif // HAS_CLASSIC_JERK
+  #endif // CLASSIC_JERK
 }
 
 void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     "Advanced (" M205_MIN_SEG_TIME_STR "<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       NUM_AXIS_GANG(
         " X<max_jerk>", " Y<max_jerk>", " Z<max_jerk>",
         " " STR_I "<max_jerk>", " " STR_J "<max_jerk>", " " STR_K "<max_jerk>",
@@ -352,7 +349,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
     #if HAS_JUNCTION_DEVIATION
       , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
     #endif
-    #if HAS_CLASSIC_JERK && NUM_AXES
+    #if ENABLED(CLASSIC_JERK) && NUM_AXES
       , LIST_N(DOUBLE(NUM_AXES),
         SP_X_STR, LINEAR_UNIT(planner.max_jerk.x),
         SP_Y_STR, LINEAR_UNIT(planner.max_jerk.y),

@@ -67,6 +67,7 @@ enum processID : uint8_t {
   ID_WaitResponse,
   ID_Homing,
   ID_PIDProcess,
+  ID_PlotProcess,
   ID_MPCProcess,
   ID_NothingToDo
 };
@@ -180,6 +181,8 @@ typedef struct {
   AxisEnum axis = X_AXIS;             // Axis Select
 } hmi_value_t;
 
+extern hmi_value_t hmiValue;
+
 typedef struct {
   uint8_t language;
   bool printing_flag:1; // sd or host printing
@@ -189,7 +192,6 @@ typedef struct {
   bool home_flag:1;     // homing in course
 } hmi_flag_t;
 
-extern hmi_value_t hmiValue;
 extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
@@ -341,10 +343,12 @@ void drawFilamentManMenu();
 void drawTemperatureMenu();
 void drawMaxSpeedMenu();
 void drawMaxAccelMenu();
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void drawMaxJerkMenu();
 #endif
-void drawStepsMenu();
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  void drawStepsMenu();
+#endif
 #if ANY(HAS_BED_PROBE, BABYSTEPPING)
   void drawZOffsetWizMenu();
 #endif
