@@ -206,13 +206,6 @@
 #endif
 
 //
-// SD Support
-//
-#if HAS_WIRED_LCD && !defined(SDCARD_CONNECTION)
-  #define SDCARD_CONNECTION                LCD
-#endif
-
-//
 // SPI pins for TMC5160 HV-STEPPER drivers
 //
 #if HAS_TMC_SPI
@@ -287,11 +280,15 @@
 #define EXP2_10_PIN                         PE4
 
 //
-// SD card options
+// SD Support
 //
+#if !defined(SDCARD_CONNECTION) && DISABLED(NO_LCD_SDCARD)
+  #define SDCARD_CONNECTION                  LCD
+#endif
+
 #if SD_CONNECTION_IS(LCD)
 
-#define SDSS                         EXP2_04_PIN
+  #define SDSS                       EXP2_04_PIN
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
