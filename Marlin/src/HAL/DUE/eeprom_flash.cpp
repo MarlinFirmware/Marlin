@@ -965,7 +965,7 @@ bool PersistentStore::access_finish() { ee_Flush(); return true; }
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   uint16_t written = 0;
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
+    uint8_t * const p = (uint8_t * const)REAL_EEPROM_ADDR(pos);
     uint8_t v = *value;
     if (v != ee_Read(uint32_t(p))) { // EEPROM has only ~100,000 write cycles, so only write bytes that have changed!
       ee_Write(uint32_t(p), v);
