@@ -1591,8 +1591,6 @@
 #endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1
-#endif
-#if IS_CORE
   #if CORE_IS_XY
     #define CORE_AXIS_1 A_AXIS
     #define CORE_AXIS_2 B_AXIS

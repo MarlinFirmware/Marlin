@@ -2595,6 +2595,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
+      // Set flags for all axes that move in this block
       AxisBits didmove;
       NUM_AXIS_CODE(
         if (X_MOVE_TEST)            didmove.a = true,
@@ -3231,15 +3232,12 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #endif
 
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+    // Core equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
     #if CORE_IS_XY
-      // corexy positioning
-      // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
       count_position.set(spos.a + spos.b, CORESIGN(spos.a - spos.b) OPTARG(HAS_Z_AXIS, spos.c));
     #elif CORE_IS_XZ
-      // corexz planning
       count_position.set(spos.a + spos.c, spos.b, CORESIGN(spos.a - spos.c));
     #elif CORE_IS_YZ
-      // coreyz planning
       count_position.set(spos.a, spos.b + spos.c, CORESIGN(spos.b - spos.c));
     #elif ENABLED(MARKFORGED_XY)
       count_position.set(spos.a TERN(MARKFORGED_INVERSE, +, -) spos.b, spos.b, spos.c);
@@ -3453,6 +3451,12 @@ void Stepper::report_positions() {
 
     USING_TIMED_PULSE();
 
+    /**
+     * TODO: Use a local "did_move" for each STEPPER moved by this stepper command.
+     *       Only set stepper.axis_did_move when a new Planner block starts, taking
+     *       account of Core / Markforged kinematics.
+     */
+
     axis_did_move = LOGICAL_AXIS_ARRAY(
       TEST(command, FT_BIT_STEP_E),
       TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
@@ -3460,17 +3464,22 @@ void Stepper::report_positions() {
       TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
     );
 
-    last_direction_bits = LOGICAL_AXIS_ARRAY(
-      axis_did_move.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e,
-      axis_did_move.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
-      axis_did_move.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y,
-      axis_did_move.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
-      axis_did_move.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i,
-      axis_did_move.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
-      axis_did_move.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k,
-      axis_did_move.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
-      axis_did_move.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v,
-      axis_did_move.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
+    /**
+     * TODO: Set hx, hy, hz direction bits for Core kinematics when
+     *       the block is fetched and never overwrite them here.
+     */
+
+    LOGICAL_AXIS_CODE(
+      last_direction_bits.e = axis_did_move.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e,
+      last_direction_bits.x = axis_did_move.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
+      last_direction_bits.y = axis_did_move.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y,
+      last_direction_bits.z = axis_did_move.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
+      last_direction_bits.i = axis_did_move.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i,
+      last_direction_bits.j = axis_did_move.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
+      last_direction_bits.k = axis_did_move.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k,
+      last_direction_bits.u = axis_did_move.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
+      last_direction_bits.v = axis_did_move.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v,
+      last_direction_bits.w = axis_did_move.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
     );
 
     // Apply directions (which will apply to the entire linear move)

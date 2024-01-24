@@ -510,6 +510,11 @@ void FTMotion::loadBlockData(block_t * const current_block) {
     current_block->steps.w * planner.mm_per_step[W_AXIS] * (current_block->direction_bits.w ? 1 : -1)
   );
 
+  //
+  // TODO: Set stepper.axis_did_move for each axis moving with this
+  //       block, taking account of Core / Markforged kinematics.
+  //
+
   ratio = moveDist * oneOverLength;
 
   const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
@@ -747,16 +752,16 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #endif
 
   LOGICAL_AXIS_CODE(
-    command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ?  command_set_pos : command_set_neg,
-    command_set[X_AXIS] = delta.x >= 0 ?  command_set_pos : command_set_neg,
-    command_set[Y_AXIS] = delta.y >= 0 ?  command_set_pos : command_set_neg,
-    command_set[Z_AXIS] = delta.z >= 0 ?  command_set_pos : command_set_neg,
-    command_set[I_AXIS] = delta.i >= 0 ?  command_set_pos : command_set_neg,
-    command_set[J_AXIS] = delta.j >= 0 ?  command_set_pos : command_set_neg,
-    command_set[K_AXIS] = delta.k >= 0 ?  command_set_pos : command_set_neg,
-    command_set[U_AXIS] = delta.u >= 0 ?  command_set_pos : command_set_neg,
-    command_set[V_AXIS] = delta.v >= 0 ?  command_set_pos : command_set_neg,
-    command_set[W_AXIS] = delta.w >= 0 ?  command_set_pos : command_set_neg
+    command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ? command_set_pos : command_set_neg,
+    command_set[X_AXIS] = delta.x >= 0 ? command_set_pos : command_set_neg,
+    command_set[Y_AXIS] = delta.y >= 0 ? command_set_pos : command_set_neg,
+    command_set[Z_AXIS] = delta.z >= 0 ? command_set_pos : command_set_neg,
+    command_set[I_AXIS] = delta.i >= 0 ? command_set_pos : command_set_neg,
+    command_set[J_AXIS] = delta.j >= 0 ? command_set_pos : command_set_neg,
+    command_set[K_AXIS] = delta.k >= 0 ? command_set_pos : command_set_neg,
+    command_set[U_AXIS] = delta.u >= 0 ? command_set_pos : command_set_neg,
+    command_set[V_AXIS] = delta.v >= 0 ? command_set_pos : command_set_neg,
+    command_set[W_AXIS] = delta.w >= 0 ? command_set_pos : command_set_neg
   );
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
