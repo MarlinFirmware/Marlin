@@ -93,7 +93,7 @@ void GcodeSuite::M115() {
     #else
       uint16_t * const UID = (uint16_t*)UID_BASE;
       SERIAL_ECHO(
-        F("CEDE2A2F-"), hex_word(UID[0]), "-", hex_word(UID[1]), "-", hex_word(UID[2]), "-",
+        F("CEDE2A2F-"), hex_word(UID[0]), C('-'), hex_word(UID[1]), C('-'), hex_word(UID[2]), C('-'),
         hex_word(UID[3]), hex_word(UID[4]), hex_word(UID[5])
       );
     #endif
