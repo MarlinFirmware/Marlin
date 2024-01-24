@@ -37,7 +37,7 @@
   #error "MARLIN_EEPROM_SIZE is required for IIC_BL24CXX_EEPROM."
 #endif
 
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   eeprom_init();

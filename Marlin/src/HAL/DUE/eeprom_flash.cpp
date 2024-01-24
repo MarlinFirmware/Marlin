@@ -958,7 +958,7 @@ static void ee_Init() {
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
-size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 bool PersistentStore::access_start()  { ee_Init();  return true; }
 bool PersistentStore::access_finish() { ee_Flush(); return true; }
 

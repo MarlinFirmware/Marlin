@@ -101,7 +101,7 @@ static bool eeprom_data_written = false;
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
 #endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
 

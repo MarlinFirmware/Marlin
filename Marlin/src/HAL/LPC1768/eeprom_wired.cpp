@@ -36,7 +36,7 @@
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE           0x8000 // 32K
 #endif
-size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start()  { eeprom_init(); return true; }
 bool PersistentStore::access_finish() { return true; }
