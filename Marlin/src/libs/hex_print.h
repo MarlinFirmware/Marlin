@@ -35,8 +35,8 @@ char* _hex_word(const uint16_t w);
 char* hex_address(const void * const w);
 char* _hex_long(const uintptr_t l);
 
-template<typename T> char* hex_word(T w) { return hex_word((uint16_t)w); }
-template<typename T> char* hex_long(T w) { return hex_long((uint32_t)w); }
+template<typename T> char* hex_word(T w) { return _hex_word((uint16_t)w); }
+template<typename T> char* hex_long(T w) { return _hex_long((uint32_t)w); }
 
 void print_hex_nybble(const uint8_t n);
 void print_hex_byte(const uint8_t b);
