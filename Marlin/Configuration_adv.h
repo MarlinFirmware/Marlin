@@ -1751,14 +1751,15 @@
     //#define POWER_LOSS_PULLUP             // Set pullup / pulldown as appropriate for your sensor
     //#define POWER_LOSS_PULLDOWN
 
+    //#define POWER_LOSS_ZRAISE        2    // (mm) Z axis raise on resume (on power loss with UPS)
+    //#define POWER_LOSS_PURGE_LEN    20    // (mm) Length of filament to purge on resume
+
     // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
     // especially with "vase mode" printing. Set too high and vases cannot be continued.
     #define POWER_LOSS_MIN_Z_CHANGE    0.05 // (mm) Minimum Z change before saving power-loss data
-    //#define POWER_LOSS_PURGE_LEN     20   // (mm) Length of filament to purge on resume
 
     //#define BACKUP_POWER_SUPPLY           // Backup power / UPS to move the steppers on power-loss
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      //#define POWER_LOSS_ZRAISE         2 // (mm) Z axis raise on power-loss with UPS
       //#define POWER_LOSS_RETRACT_LEN   10 // (mm) Length of filament to retract on fail
     #endif
 
