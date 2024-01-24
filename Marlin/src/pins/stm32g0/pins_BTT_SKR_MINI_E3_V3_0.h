@@ -245,7 +245,7 @@
       #define LCD_BACKLIGHT_PIN             -1
       #define NEOPIXEL_PIN           EXP1_02_PIN
     #else
-      #error "Only CR10_FYSETC_MINI_12864_2_1 and compatibles are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER"
+      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER."
     #endif
 
   #else
