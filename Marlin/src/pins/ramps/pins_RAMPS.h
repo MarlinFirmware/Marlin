@@ -245,7 +245,9 @@
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
 #elif FET_ORDER_EFF                               // Hotend, Fan, Fan
-  #define FAN1_PIN                  MOSFET_C_PIN
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                MOSFET_C_PIN
+  #endif
 #elif DISABLED(FET_ORDER_SF)                      // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
