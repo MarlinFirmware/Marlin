@@ -53,7 +53,7 @@ bool PersistentStore::access_finish() {
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     const uint8_t v = *value;
-    qspi.writeByte(pos, v);
+    qspi.writeByte(REAL_EEPROM_ADDR(pos), v);
     crc16(crc, &v, 1);
     pos++;
     value++;
@@ -63,7 +63,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   while (size--) {
-    uint8_t c = qspi.readByte(pos);
+    const uint8_t c = qspi.readByte(REAL_EEPROM_ADDR(pos));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

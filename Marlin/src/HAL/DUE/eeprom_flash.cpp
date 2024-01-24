@@ -984,7 +984,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    uint8_t c = ee_Read(uint32_t(pos));
+    uint8_t c = ee_Read(uint32_t(REAL_EEPROM_ADDR(pos)));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
