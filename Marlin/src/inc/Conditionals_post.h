@@ -2490,9 +2490,6 @@
 // PID heating
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #define HAS_PID_HEATING 1
-  #if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
-    #define PROUI_PID_TUNE 1
-  #endif
 #endif
 
 // Thermal protection

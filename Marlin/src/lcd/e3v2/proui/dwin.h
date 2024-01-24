@@ -71,17 +71,16 @@ enum processID : uint8_t {
   ID_NothingToDo
 };
 
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE)
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
-    #if PROUI_PID_TUNE
+    #if HAS_PID_HEATING
       PIDTEMP_START,
       PIDTEMPBED_START,
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
-    #endif
-    #if ENABLED(MPC_AUTOTUNE)
+    #elif ENABLED(MPC_AUTOTUNE)
       MPCTEMP_START,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
@@ -116,7 +115,7 @@ typedef struct {
   uint16_t colorCoordinate;
 
   // Temperatures
-  #if PROUI_PID_TUNE
+  #if HAS_PID_HEATING
     int16_t pidCycles = DEF_PIDCYCLES;
     #if ENABLED(PIDTEMP)
       int16_t hotendPidT = DEF_HOTENDPIDT;
@@ -173,7 +172,7 @@ typedef struct {
 
 typedef struct {
   rgb_t color;                        // Color
-  #if ANY(PROUI_PID_TUNE, MPCTEMP)
+  #if ANY(HAS_PID_HEATING, MPCTEMP)
     tempcontrol_t tempControl = AUTOTUNE_DONE;
   #endif
   uint8_t select = 0;                 // Auxiliary selector variable
@@ -380,25 +379,25 @@ void drawMaxAccelMenu();
 #endif
 
 // PID
-#if PROUI_PID_TUNE
+#if HAS_PID_HEATING
   #include "../../../module/temperature.h"
   void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
   void dwinPidTuning(tempcontrol_t result);
-#endif
-#if ENABLED(PIDTEMP)
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    void hotendPID();
+  #if ENABLED(PIDTEMP)
+    #if ENABLED(PID_AUTOTUNE_MENU)
+      void hotendPID();
+    #endif
+    #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+      void drawHotendPIDMenu();
+    #endif
   #endif
-  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void drawHotendPIDMenu();
-  #endif
-#endif
-#if ENABLED(PIDTEMPBED)
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    void bedPID();
-  #endif
-  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void drawBedPIDMenu();
+  #if ENABLED(PIDTEMPBED)
+    #if ENABLED(PID_AUTOTUNE_MENU)
+      void bedPID();
+    #endif
+    #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+      void drawBedPIDMenu();
+    #endif
   #endif
 #endif
 
