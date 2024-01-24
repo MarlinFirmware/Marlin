@@ -38,7 +38,7 @@
 
 static bool initialized;
 
-size_t PersistentStore::capacity() { return qspi.size(); }
+size_t PersistentStore::capacity() { return qspi.size() - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   if (!initialized) {
