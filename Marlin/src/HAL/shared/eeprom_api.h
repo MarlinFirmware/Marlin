@@ -26,8 +26,9 @@
 
 #include "../../libs/crc16.h"
 
-// Define for testing. Should be able to use -DEEPROM_EXCL_ZONE=919,926 if commas are ok
-//#define EEPROM_EXCL_ZONE 919,926
+// For testing. Define with -DEEPROM_EXCL_ZONE=919,926 in INI files.
+//#define EEPROM_EXCL_ZONE 919,926  // Test a range
+//#define EEPROM_EXCL_ZONE 333      // Test a single byte
 
 #ifdef EEPROM_EXCL_ZONE
   static constexpr int eeprom_exclude_zone[] = { EEPROM_EXCL_ZONE },
