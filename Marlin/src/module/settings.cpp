@@ -648,7 +648,7 @@ typedef struct SettingsDataStruct {
 
 MarlinSettings settings;
 
-uint16_t MarlinSettings::datasize() { return sizeof(SettingsData) + TERN0(STM32F4, exclude_size); }
+uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 
 /**
  * Post-process after Retrieve or Reset
@@ -729,7 +729,8 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::sd_update_status() {
     uint8_t val;
-    persistentStore.read_data(SD_FIRMWARE_UPDATE_EEPROM_ADDR, &val);
+    int pos = SD_FIRMWARE_UPDATE_EEPROM_ADDR;
+    persistentStore.read_data(pos, &val);
     return (val == SD_FIRMWARE_UPDATE_ACTIVE_VALUE);
   }
 
@@ -778,13 +779,11 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(DEBUG_EEPROM_OBSERVE)
-    #define EEPROM_READ(V...)        do{ SERIAL_ECHOPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_(V); SERIAL_ECHOLNPGM(" CRC: ", working_crc); }while(0)
-    #define EEPROM_READ_ALWAYS(V...) do{ SERIAL_ECHOPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_ALWAYS_(V); SERIAL_ECHOLNPGM(" CRC: ", working_crc); }while(0)
-    #define EEPROM_WRITE(V...)       do{ SERIAL_ECHOPGM("WRITE: ", F(STRINGIFY(FIRST(V)))); EEPROM_WRITE_(V); SERIAL_ECHOLNPGM(" CRC: ", working_crc); }while(0)
+    #define EEPROM_READ(V...)        do{ SERIAL_ECHOLNPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_(V); }while(0)
+    #define EEPROM_READ_ALWAYS(V...) do{ SERIAL_ECHOLNPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_ALWAYS_(V); }while(0)
   #else
     #define EEPROM_READ(V...)        EEPROM_READ_(V)
     #define EEPROM_READ_ALWAYS(V...) EEPROM_READ_ALWAYS_(V)
-    #define EEPROM_WRITE(V...)       EEPROM_WRITE_(V)
   #endif
 
   const char version[4] = EEPROM_VERSION;
@@ -799,10 +798,6 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
   uint16_t MarlinSettings::working_crc;
-
-  #ifdef STM32F4
-    uint8_t MarlinSettings::exclude_size;
-  #endif
 
   EEPROM_Error MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {

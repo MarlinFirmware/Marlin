@@ -119,64 +119,34 @@ class MarlinSettings {
       static int eeprom_index;
       static uint16_t working_crc;
 
-      #ifdef STM32F4
-        #define START_EXCLUDE 919
-        #define END_EXCLUDE 926
-        static uint8_t exclude_size;
-      #endif
-
       static bool EEPROM_START(int eeprom_offset) {
         if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; }
         eeprom_index = eeprom_offset;
         working_crc = 0;
-        #ifdef STM32F4
-          exclude_size = 0;
-        #endif
         return true;
       }
 
       static void EEPROM_FINISH(void) { persistentStore.access_finish(); }
 
-      #ifdef STM32F4
-        static void INDEX_CHECK(size_t sizeof_VAR) {
-          if (eeprom_index <= END_EXCLUDE &&  (eeprom_index + sizeof_VAR) >= START_EXCLUDE) {
-            #if ENABLED(DEBUG_EEPROM_OBSERVE)
-              SERIAL_ECHOLNPGM("\nexclude start: ", eeprom_index);
-            #endif
-            exclude_size = END_EXCLUDE + 1 - eeprom_index;
-            eeprom_index = END_EXCLUDE + 1;
-            #if ENABLED(DEBUG_EEPROM_OBSERVE)
-              SERIAL_ECHOLNPGM("exclude end: ", eeprom_index);
-            #endif
-          }
-        }
-      #else
-        #define INDEX_CHECK(sizeof_VAR) NOOP
-      #endif
-
       template<typename T>
       static void EEPROM_SKIP(const T &VAR) { eeprom_index += sizeof(VAR); }
 
       template<typename T>
-      static void EEPROM_WRITE_(const T &VAR) {
-        INDEX_CHECK(sizeof(VAR));
+      static void EEPROM_WRITE(const T &VAR) {
         persistentStore.write_data(eeprom_index, (const uint8_t *) &VAR, sizeof(VAR), &working_crc);
       }
 
       template<typename T>
       static void EEPROM_READ_(T &VAR) {
-        INDEX_CHECK(sizeof(VAR));
         persistentStore.read_data(eeprom_index, (uint8_t *) &VAR, sizeof(VAR), &working_crc, !validating);
       }
 
       static void EEPROM_READ_(uint8_t *VAR, size_t sizeof_VAR) {
-        INDEX_CHECK(sizeof_VAR);
         persistentStore.read_data(eeprom_index, VAR, sizeof_VAR, &working_crc, !validating);
       }
 
       template<typename T>
       static void EEPROM_READ_ALWAYS_(T &VAR) {
-        INDEX_CHECK(sizeof(VAR));
         persistentStore.read_data(eeprom_index, (uint8_t *) &VAR, sizeof(VAR), &working_crc);
       }
 

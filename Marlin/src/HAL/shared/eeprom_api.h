@@ -26,6 +26,17 @@
 
 #include "../../libs/crc16.h"
 
+// Define for testing. Should be able to use -DEEPROM_EXCL_ZONE=919,926 if commas are ok
+//#define EEPROM_EXCL_ZONE 919,926
+
+#ifdef EEPROM_EXCL_ZONE
+  static constexpr int eeprom_exclude_zone[] = { EEPROM_EXCL_ZONE };
+  static constexpr int eeprom_exclude_size = eeprom_exclude_zone[COUNT(eeprom_exclude_zone) - 1] - eeprom_exclude_zone[0] + 1;
+  #define REAL_EEPROM_ADDR(A) (A < eeprom_exclude_zone[0] ? (A) : (A) + eeprom_exclude_size)
+#else
+  #define REAL_EEPROM_ADDR(A) (A)
+#endif
+
 class PersistentStore {
 public:
 
