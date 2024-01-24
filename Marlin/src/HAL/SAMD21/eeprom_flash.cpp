@@ -104,8 +104,7 @@ bool PersistentStore::access_finish() {
     volatile uint32_t *dst_addr =  (volatile uint32_t *) &flashdata;
 
     uint32_t *pointer = (uint32_t *) buffer;
-    for (uint32_t i = 0; i < TOTAL_FLASH_SIZE; i+=4) {
-
+    for (uint32_t i = 0; i < TOTAL_FLASH_SIZE; i += 4) {
       *dst_addr = (uint32_t) *pointer;
       pointer++;
       dst_addr ++;
@@ -125,19 +124,19 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   if (!hasWritten) {
     // init temp buffer
     buffer = (uint8_t *) malloc(MARLIN_EEPROM_SIZE);
-    hasWritten=true;
+    hasWritten = true;
   }
 
-  memcpy(buffer+pos,value,size);
+  memcpy(buffer + REAL_EEPROM_ADDR(pos), value, size);
   pos += size;
   return false;
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  volatile uint8_t *dst_addr =  (volatile uint8_t *) &flashdata;
-  dst_addr += pos;
+  volatile uint8_t *dst_addr = (volatile uint8_t *) &flashdata;
+  dst_addr += REAL_EEPROM_ADDR(pos);
 
-  memcpy(value,(const void *) dst_addr,size);
+  memcpy(value, (const void *)dst_addr, size);
   pos += size;
   return false;
 }
