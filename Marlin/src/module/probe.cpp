@@ -97,7 +97,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
+  #include "../lcd/e3v2/proui/dwin_popup.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -356,28 +356,28 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     // Start preheating before waiting for user confirmation that the probe is ready.
     TERN_(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(0, PROBING_BED_TEMP, true));
 
-    FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
+    FSTR_P const ds_fstr = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
-    ui.set_max_status(ds_str);
+    ui.set_max_status(ds_fstr);
     SERIAL_ECHOLN(deploy ? GET_EN_TEXT_F(MSG_MANUAL_DEPLOY) : GET_EN_TEXT_F(MSG_MANUAL_STOW));
 
     OKAY_BUZZ();
 
     #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
+    {
       // Wait for the probe to be attached or detached before asking for explicit user confirmation
       // Allow the user to interrupt
-      {
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
-        while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
-        OKAY_BUZZ();
-      }
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
+      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+      OKAY_BUZZ();
+    }
     #endif
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_str));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_str));
-    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_str, FPSTR(CONTINUE_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
+    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR)));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_status();
