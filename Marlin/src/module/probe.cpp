@@ -607,11 +607,6 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     probe_specific_action(true);  // Always re-deploy in this case
   #endif
 
-  // Change Z motor currents to homing current to prevent damage in case of bad sensor
-  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-    set_homing_current(Z_AXIS);
-  #endif
-
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
@@ -678,10 +673,6 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     }
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   #endif // SENSORLESS_PROBING
-
-  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-    restore_homing_current(Z_AXIS);
-  #endif
 
   #if ENABLED(BLTOUCH)
     if (probe_triggered && !bltouch.high_speed_mode && bltouch.stow())
@@ -992,9 +983,19 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
+  // Change Z motor currents to homing current to prevent damage in case of bad sensor
+  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
+    set_homing_current(Z_AXIS);
+  #endif
+
   #if ENABLED(BD_SENSOR)
 
     safe_delay(4);
+    
+    #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
+      restore_homing_current(Z_AXIS);
+    #endif
+    
     return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
@@ -1032,6 +1033,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       if (verbose_level > 2 || DEBUGGING(LEVELING))
         SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
     }
+
+    #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
+      restore_homing_current(Z_AXIS);
+    #endif
 
     return measured_z;
 
