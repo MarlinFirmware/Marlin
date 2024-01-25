@@ -170,6 +170,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define BTN_ENC                    EXP1_02_PIN

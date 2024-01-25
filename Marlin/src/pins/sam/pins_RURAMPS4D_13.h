@@ -206,6 +206,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #if ANY(RADDS_DISPLAY, IS_RRD_SC, IS_RRD_FG_SC)

@@ -410,8 +410,9 @@
 #define EXP2_07_PIN                         PB10
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
 
   #define TFT_CS_PIN                 EXP2_04_PIN
