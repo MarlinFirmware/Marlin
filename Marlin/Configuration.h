@@ -1658,13 +1658,7 @@
 #define Z_PROBE_ERROR_TOLERANCE     3 // (mm) Tolerance for early trigger (<= -probe.offset.z + ZPET)
 //#define Z_AFTER_PROBING           5 // (mm) Z position after probing is done
 
-/*
- * when probing for a mesh, homing must be performed ; this sets a reference triger point.
- *
- * If the bed is very uneven or if the probe fails to trigger, machine will stop moving
- * and send "Error:Probing Failed" on serial
- */
-#define Z_PROBE_LOW_POINT          -2 // (mm) [int] Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -2 // (mm) Farthest distance below the trigger-point to go before stopping
 
 // For M851 provide ranges for adjusting the X, Y, and Z probe offsets
 //#define PROBE_OFFSET_XMIN -50   // (mm)
