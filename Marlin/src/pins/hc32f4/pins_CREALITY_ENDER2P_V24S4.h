@@ -117,7 +117,6 @@
 //
 #define TEMP_0_PIN                          PC5   // HEATER1 ADC1_IN15
 #define TEMP_BED_PIN                        PC4   // HOT BED ADC1_IN14
-#define ADC_CHANNEL_COUNT                      2
 
 //
 // Heaters / Fans
