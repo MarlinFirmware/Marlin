@@ -622,7 +622,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       for (uint8_t e = 1; e < HOTENDS; ++e)
-        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
+        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
 

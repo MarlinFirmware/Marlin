@@ -228,6 +228,7 @@ static FSTR_P pause_header() {
     case PAUSE_MODE_CHANGE_FILAMENT:  return GET_TEXT_F(MSG_FILAMENT_CHANGE_HEADER);
     case PAUSE_MODE_LOAD_FILAMENT:    return GET_TEXT_F(MSG_FILAMENT_CHANGE_HEADER_LOAD);
     case PAUSE_MODE_UNLOAD_FILAMENT:  return GET_TEXT_F(MSG_FILAMENT_CHANGE_HEADER_UNLOAD);
+    case PAUSE_MODE_TOOL_CHANGE:      return GET_TEXT_F(MSG_TOOL_CHANGE_HEADER);
     default: break;
   }
   return GET_TEXT_F(MSG_FILAMENT_CHANGE_HEADER_PAUSE);
@@ -275,6 +276,7 @@ void menu_pause_option() {
 
 //
 // ADVANCED_PAUSE_FEATURE message screens
+// FIXME: this should be moved to pause files or marlinui files
 //
 // Warning: fmsg must have three null bytes to delimit lines!
 //
@@ -292,7 +294,8 @@ void _lcd_pause_message(FSTR_P const fmsg) {
   if (has2) STATIC_ITEM_F(FPSTR(msg2));                         // 3: Message Line 2
   if (has3 && (LCD_HEIGHT) >= 5) STATIC_ITEM_F(FPSTR(msg3));    // 4: Message Line 3 (if LCD has 5 lines)
   if (skip1 + 1 + has2 + has3 < (LCD_HEIGHT) - 2) SKIP_ITEM();  // Push Hotend Status down, if needed
-  HOTEND_STATUS_ITEM();                                         // 5: Hotend Status
+  if (TERN1(MANUAL_SWITCHING_TOOLHEAD, active_extruder < HOTENDS))
+    HOTEND_STATUS_ITEM();                                       // 5: Hotend Status, if current tool is a hotend
   END_SCREEN();
 }
 
@@ -305,13 +308,34 @@ void lcd_pause_insert_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_C
 void lcd_pause_load_message()     { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD));    }
 void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING));  }
 void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME));  }
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  void lcd_pause_tool_change_message()   { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE));     }
+  void lcd_pause_tool_change_0_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_0));   }
+  void lcd_pause_tool_change_1_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_1));   }
+  #if HAS_TOOL_2
+    void lcd_pause_tool_change_2_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_2)); };
+  #endif
+  #if HAS_TOOL_3
+    void lcd_pause_tool_change_3_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_3)); };
+  #endif
+  #if HAS_TOOL_4
+    void lcd_pause_tool_change_4_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_4)); };
+  #endif
+  #if HAS_TOOL_5
+    void lcd_pause_tool_change_5_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_5)); };
+  #endif
+  #if HAS_TOOL_6
+    void lcd_pause_tool_change_6_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_6)); };
+  #endif
+  #if HAS_TOOL_7
+    void lcd_pause_tool_change_7_message() { _lcd_pause_message(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_7)); };
+  #endif
+#endif
 
 void lcd_pause_purge_message() {
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_CONT_PURGE));
-  #else
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE));
-  #endif
+  _lcd_pause_message(GET_TEXT_F(
+    TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)
+  ));
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
@@ -328,6 +352,18 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_HEATING:  return lcd_pause_heating_message;
     case PAUSE_MESSAGE_OPTION:   pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
                                  return menu_pause_option;
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      case PAUSE_MESSAGE_TOOL_CHANGE:   return lcd_pause_tool_change_message;
+      case PAUSE_MESSAGE_TOOL_CHANGE_0: return lcd_pause_tool_change_0_message;
+      case PAUSE_MESSAGE_TOOL_CHANGE_1: return lcd_pause_tool_change_1_message;
+      OPTCODE(HAS_TOOL_2, case PAUSE_MESSAGE_TOOL_CHANGE_2: return lcd_pause_tool_change_2_message)
+      OPTCODE(HAS_TOOL_3, case PAUSE_MESSAGE_TOOL_CHANGE_3: return lcd_pause_tool_change_3_message)
+      OPTCODE(HAS_TOOL_4, case PAUSE_MESSAGE_TOOL_CHANGE_4: return lcd_pause_tool_change_4_message)
+      OPTCODE(HAS_TOOL_5, case PAUSE_MESSAGE_TOOL_CHANGE_5: return lcd_pause_tool_change_5_message)
+      OPTCODE(HAS_TOOL_6, case PAUSE_MESSAGE_TOOL_CHANGE_6: return lcd_pause_tool_change_6_message)
+      OPTCODE(HAS_TOOL_7, case PAUSE_MESSAGE_TOOL_CHANGE_7: return lcd_pause_tool_change_7_message)
+    #endif
+
     case PAUSE_MESSAGE_STATUS:
     default: break;
   }

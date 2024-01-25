@@ -119,15 +119,18 @@ xyze_pos_t destination; // {0}
 
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
-  xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load()
+  xyz_pos_t hotend_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
   void reset_hotend_offsets() {
-    constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
+    constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
       "Offsets for the first hotend must be 0.0."
     );
+
     // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
-    HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
+    TERN(MANUAL_SWITCHING_TOOLHEAD, TOOLHEAD_LOOP(), HOTEND_LOOP())
+      LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
+
     TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
 #endif
@@ -494,6 +497,8 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
+    if (active_extruder >= EXTRUDERS) return; // No move on non-extruder tools
+
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
@@ -536,6 +541,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[active_extruder], 1.0f));
 
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
+
   if (TERN0(IS_KINEMATIC, is_fast))
     TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
   else
@@ -1552,22 +1558,24 @@ void prepare_line_to_destination() {
       if (ignore_e) SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
-        if (e_delta > (EXTRUDE_MAXLENGTH)) {
-          #if ENABLED(MIXING_EXTRUDER)
-            float collector[MIXING_STEPPERS];
-            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
-            MIXER_STEPPER_LOOP(e) {
-              if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
-                ignore_e = true;
-                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-                break;
+        if (active_extruder < EXTRUDERS) {
+          const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e) {
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
+                  ignore_e = true;
+                  SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+                  break;
+                }
               }
-            }
-          #else
-            ignore_e = true;
-            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-          #endif
+            #else
+              ignore_e = true;
+              SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+            #endif
+          }
         }
       #endif
 

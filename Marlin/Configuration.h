@@ -292,12 +292,87 @@
 #endif
 
 /**
- * Switching Toolhead
+ * Switching Toolhead - Manual
+ *
+ * Support for manual swapping of toolheads, such as the
+ * Wham Bam MUTANT. Toolheads are manually docked/locked,
+ * and all use the same heater/sensor pins when switched.
+ *
+ * !! TOOL TYPE ORDERING MATTERS !!
+ *  1. Hotends (Set TEMP_SENSOR_n)
+ *  2. Non-Hotend Extruder (no TEMP_SENSOR)
+ *  3. Unpowered
+ *  4. Laser/Spindle
+ *
+ * You may also desire to enable/check the following:
+ *  - HOTEND_OFFSET_[XYZ]
+ *  - Tool Change settings in Configuration_adv.h
+ */
+//#define MANUAL_SWITCHING_TOOLHEAD
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  /**
+   * Number of tools that are being set up. The type of tool (e.g., hotend, unpowered tool)
+   * depends on a TEMP_SENSOR_n being defined for each tool. Hotends must come first,
+   * so start with TEMP_SENSOR_0.
+   *
+   * Don't include a laser/spindle in this total; enable MAN_ST_CUTTER to put the cutter last.
+   */
+  #define MAN_ST_NUM_TOOLS 4
+
+  /**
+   * Hotend / Extruder Setup
+   * By default the toolchange code assumes all hotends share a single extruder (e.g., in a Bowden setup).
+   * Enable this option if all hotends have their own direct drive extruders.
+   * If this is used, also consider enabling:
+   *  - DISTINCT_E_FACTORS and related settings
+   *  - PID_PARAMS_PER_HOTEND
+   */
+  //#define MAN_ST_DIRECT_DRIVE
+
+  // TODO: Extra Extruders; use these for extruder-only tools, such as cake/frosting/clay extruders.
+  //#define MAN_ST_EXTRA_EXTRUDERS 0
+
+  /**
+   * TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE or a fan-PWM based laser.
+   * Always the last tool. Cannot be used if MAN_ST_NUM_TOOLS > 7.
+   */
+  //#define MAN_ST_CUTTER
+
+  /**
+   * Define the names of Hotends/Unpowered tools. Optional.
+   * Default to "Hotend #"/"Tool #" as appropriate.
+   */
+  //#define TOOL_NAME_0 "Tool 0"
+  //#define TOOL_NAME_1 "Tool 1"
+  //#define TOOL_NAME_2 "Tool 2"
+  //#define TOOL_NAME_3 "Tool 3"
+  //#define TOOL_NAME_4 "Tool 4"
+  //#define TOOL_NAME_5 "Tool 5"
+  //#define TOOL_NAME_6 "Tool 6"
+  //#define TOOL_NAME_7 "Tool 7"
+
+  // TODO: Display a menu prompting you to select the inserted toolhead at boot.
+  //#define MAN_ST_BOOT_MENU
+
+  // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
+  #define MAN_ST_EEPROM_STORAGE
+  #if ENABLED(MAN_ST_EEPROM_STORAGE)
+    // Auto-save EEPROM on toolchange. Warning: this will save ALL settings.
+    //#define MAN_ST_EEPROM_AUTOSAVE
+  #endif
+#endif
+
+/**
+ * Switching Toolhead w/ Servo-Actuated Lock
  *
  * Support for swappable and dockable toolheads, such as
  * the E3D Tool Changer. Toolheads are locked with a servo.
  */
-//#define SWITCHING_TOOLHEAD
+//#define SERVO_SWITCHING_TOOLHEAD
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
+  #define SST_SERVO_NR       2         // Index of the servo connector
+  #define SST_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+#endif
 
 /**
  * Magnetic Switching Toolhead
@@ -306,6 +381,17 @@
  * docking mechanism using movement and no servo.
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
+#if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
+  #define MAG_ST_Y_RELEASE              5   // (mm) Security distance Y axis
+  #define MAG_ST_X_SECURITY   { 90, 150 }   // (mm) Security distance X axis (T0,T1)
+  //#define MAG_ST_PRIME_BEFORE_REMOVE      // Prime the nozzle before release from the dock
+  #if ENABLED(MAG_ST_PRIME_BEFORE_REMOVE)
+    #define MAG_ST_PRIME_MM             20  // (mm)   Extruder prime length
+    #define MAG_ST_RETRACT_MM           10  // (mm)   Retract after priming length
+    #define MAG_ST_PRIME_FEEDRATE      300  // (mm/min) Extruder prime feedrate
+    #define MAG_ST_RETRACT_FEEDRATE   2400  // (mm/min) Extruder retract feedrate
+  #endif
+#endif
 
 /**
  * Electromagnetic Switching Toolhead
@@ -315,28 +401,18 @@
  * Supports more than 2 Toolheads. See https://youtu.be/JolbsAKTKf4
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define EM_ST_Z_HOP  2  // (mm) Z raise for switching
+#endif
 
-#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
-  #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
-  #define SWITCHING_TOOLHEAD_X_POS          { 215, 0 }  // (mm) X positions for parking the extruders
-  #if ENABLED(SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
-    #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
-  #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
-    #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
-    //#define PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
-    #if ENABLED(PRIME_BEFORE_REMOVE)
-      #define SWITCHING_TOOLHEAD_PRIME_MM           20  // (mm)   Extruder prime length
-      #define SWITCHING_TOOLHEAD_RETRACT_MM         10  // (mm)   Retract after priming length
-      #define SWITCHING_TOOLHEAD_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
-      #define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
-    #endif
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
-  #endif
+/**
+ * Common Switching Toolhead settings
+ */
+#if ANY(SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_Y_POS        235     // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10     // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60     // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS   { 215, 0 }   // (mm) X positions for parking the extruders
 #endif
 
 /**
@@ -359,12 +435,13 @@
   #endif
 #endif
 
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// Offset of additional tools, from tool 0. Uncomment if using more than one tool,
+// and relying on firmware to position when changing.
+// The first offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
-//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
-//#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
+//#define HOTEND_OFFSET_X { 0.0, 20.00, -11.0 }  // (mm) relative X-offset for each nozzle
+//#define HOTEND_OFFSET_Y { 0.0,  5.00,  16.0 }  // (mm) relative Y-offset for each nozzle
+//#define HOTEND_OFFSET_Z { 0.0,  0.00,   0.3 }  // (mm) relative Z-offset for each nozzle
 
 // @section multi-material
 

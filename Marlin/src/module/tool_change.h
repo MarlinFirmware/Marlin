@@ -28,6 +28,9 @@
 #if HAS_MULTI_EXTRUDER
 
   typedef struct {
+    #if ENABLED(MAN_ST_EEPROM_STORAGE)
+      int8_t selected_tool = 0;
+    #endif
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length;            // M217 S
       float extra_prime;            // M217 E
@@ -113,12 +116,30 @@
 
   void mpe_settings_init();
 
-#endif
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  void mst_init();
+
+  extern millis_t last_tool_change;
+  inline millis_t ms_since_tool_change(const millis_t ms=millis()) { return ms - last_tool_change; }
+
+  inline PGM_P tool_name(const uint8_t tool) {
+    switch (tool) {
+      case 0: return GET_TEXT(MSG_TOOL_NAME_0);
+      case 1: return GET_TEXT(MSG_TOOL_NAME_1);
+      OPTCODE(HAS_TOOL_2, case 2: return GET_TEXT(MSG_TOOL_NAME_2))
+      OPTCODE(HAS_TOOL_3, case 3: return GET_TEXT(MSG_TOOL_NAME_3))
+      OPTCODE(HAS_TOOL_4, case 4: return GET_TEXT(MSG_TOOL_NAME_4))
+      OPTCODE(HAS_TOOL_5, case 5: return GET_TEXT(MSG_TOOL_NAME_5))
+      OPTCODE(HAS_TOOL_6, case 6: return GET_TEXT(MSG_TOOL_NAME_6))
+      OPTCODE(HAS_TOOL_7, case 7: return GET_TEXT(MSG_TOOL_NAME_7))
+      default: return PSTR("Tool");
+    }
+  }
+#elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   void est_init();
-#elif ENABLED(SWITCHING_TOOLHEAD)
-  void swt_init();
+#elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
+  void sst_init();
 #endif
 
 #if ENABLED(TOOL_SENSOR)

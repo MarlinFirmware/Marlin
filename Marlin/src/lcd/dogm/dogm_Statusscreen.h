@@ -133,7 +133,7 @@
 //
 // Chamber
 //
-#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
+#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && (ENABLED(MANUAL_SWITCHING_TOOLHEAD) || ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED)))
   #include "status/chamber.h"
 #endif
 #ifndef STATUS_CHAMBER_WIDTH
@@ -143,7 +143,7 @@
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && (HAS_HEATED_BED || HAS_TEMP_CHAMBER)) || ALL(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (DISABLED(MANUAL_SWITCHING_TOOLHEAD) && (HOTENDS == 5 || (HOTENDS == 4 && (HAS_HEATED_BED || HAS_TEMP_CHAMBER)) || ALL(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER)))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -151,7 +151,7 @@
   #error "A maximum of 4 fan animation frames is currently supported."
 #endif
 
-#if HOTENDS > 4
+#if HOTENDS > 4 && DISABLED(MANUAL_SWITCHING_TOOLHEAD)
   #undef STATUS_LOGO_WIDTH
   #undef STATUS_HEATERS_XSPACE
   #define STATUS_HEATERS_XSPACE 24
@@ -189,7 +189,12 @@
   // Disable the logo bitmap if insufficient space
   //
   #if STATUS_HEATERS_XSPACE
-    #define _HEATERS_WIDTH (HOTENDS * (STATUS_HEATERS_XSPACE)) // as many hotends as possible
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      #define _HEATERS_WIDTH STATUS_HEATERS_XSPACE // single heater is shown
+    #else
+      #define _HEATERS_WIDTH (HOTENDS * (STATUS_HEATERS_XSPACE)) // as many hotends as possible
+    #endif
+
   #elif STATUS_HEATERS_WIDTH
     #define _HEATERS_WIDTH STATUS_HEATERS_WIDTH
   #elif HOTENDS
@@ -336,7 +341,9 @@
     #define STATUS_HOTEND2_X STATUS_HOTEND1_X + STATUS_HEATERS_XSPACE
   #endif
 
-  #if HOTENDS > 2
+  #if ENABLED(STM_HAS_MULTI_HOTEND)
+    #define STATUS_HOTEND_X(N) STATUS_HOTEND1_X
+  #elif HOTENDS > 2
     #ifndef STATUS_HOTEND3_X
       #define STATUS_HOTEND3_X STATUS_HOTEND2_X + STATUS_HEATERS_XSPACE
     #endif
@@ -365,7 +372,9 @@
   #endif
 
   #ifndef STATUS_HOTEND_TEXT_X
-    #ifdef STATUS_HOTEND1_TEXT_X
+    #if ENABLED(STM_HAS_MULTI_HOTEND)
+      #define STATUS_HOTEND_TEXT_X(N) (STATUS_HOTEND1_X + 6)
+    #elif defined(STATUS_HOTEND1_TEXT_X)
       #ifndef STATUS_HOTEND2_TEXT_X
         #define STATUS_HOTEND2_TEXT_X STATUS_HOTEND1_TEXT_X + STATUS_HEATERS_XSPACE
       #endif
@@ -724,7 +733,7 @@
 #if HOTENDS > 0
   #define DO_DRAW_HOTENDS 1
 #endif
-#if HAS_HEATED_BED && HOTENDS <= 4
+#if HAS_HEATED_BED && (ENABLED(MANUAL_SWITCHING_TOOLHEAD) || HOTENDS <= 4)
   #define DO_DRAW_BED 1
 #endif
 #if HAS_CUTTER && !DO_DRAW_BED
@@ -740,10 +749,10 @@
   #define DO_DRAW_AMMETER 1
 #endif
 
-#if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4
+#if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && (ENABLED(MANUAL_SWITCHING_TOOLHEAD) || HOTENDS <= 4)
   #define DO_DRAW_CHAMBER 1
 #endif
-#if HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES)
+#if HAS_FAN0 && STATUS_FAN_WIDTH && (ENABLED(MANUAL_SWITCHING_TOOLHEAD) || HOTENDS <= 4) && defined(STATUS_FAN_FRAMES)
   #define DO_DRAW_FAN 1
 #endif
 #if ALL(HAS_HOTEND, STATUS_HOTEND_ANIM)

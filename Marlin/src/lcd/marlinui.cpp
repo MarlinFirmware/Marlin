@@ -1913,11 +1913,34 @@ void MarlinUI::host_notify(const char * const cstr) {
       case PAUSE_MESSAGE_PURGE:
         ExtUI::onUserConfirmRequired(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
         break;
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
-      case PAUSE_MESSAGE_STATUS:   break;
+      case PAUSE_MESSAGE_RESUME:      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
+      case PAUSE_MESSAGE_HEAT:        ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
+      case PAUSE_MESSAGE_HEATING:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
+      case PAUSE_MESSAGE_OPTION:      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
+      #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+        case PAUSE_MESSAGE_TOOL_CHANGE: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE));
+        case PAUSE_MESSAGE_TOOL_CHANGE_0: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_0));
+        case PAUSE_MESSAGE_TOOL_CHANGE_1: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_1));
+        #if HAS_TOOL_2
+          case PAUSE_MESSAGE_TOOL_CHANGE_2: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_2));
+        #endif
+        #if HAS_TOOL_3
+          case PAUSE_MESSAGE_TOOL_CHANGE_3: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_3));
+        #endif
+        #if HAS_TOOL_4
+          case PAUSE_MESSAGE_TOOL_CHANGE_4: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_4));
+        #endif
+        #if HAS_TOOL_5
+          case PAUSE_MESSAGE_TOOL_CHANGE_5: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_5));
+        #endif
+        #if HAS_TOOL_6
+          case PAUSE_MESSAGE_TOOL_CHANGE_6: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_6));
+        #endif
+        #if HAS_TOOL_7
+          case PAUSE_MESSAGE_TOOL_CHANGE_7: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_7));
+        #endif
+      #endif
+      case PAUSE_MESSAGE_STATUS:
       default: break;
     }
   }
