@@ -900,8 +900,11 @@
 //
 // HC32 ARM Cortex-M4
 //
+
 #elif MB(AQUILA_V101)
   #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+#elif MB(CREALITY_ENDER2P_V24S4)
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
 
 //
 // Custom board (with custom PIO env)
