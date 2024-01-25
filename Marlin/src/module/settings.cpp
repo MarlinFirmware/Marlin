@@ -1861,8 +1861,10 @@ void MarlinSettings::postprocess() {
 
         EEPROM_READ(planner.settings.min_segment_time_us);
 
-        float tmp2[NUM_AXES + e_factors];
-        EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          float tmp2[NUM_AXES + e_factors];
+          EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        #endif
 
         feedRate_t tmp3[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
