@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,20 +22,24 @@
 #pragma once
 
 /**
- * Melzi V2.0 as found at https://www.reprap.org/wiki/Melzi
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20V2/Melzi-circuit.png
- * Origin: https://www.reprap.org/mediawiki/images/7/7d/Melzi-circuit.png
- *
- * ATmega644P
+ * pins_lcd.h - Define LCD pins based on the EXP connector / adapter
  */
 
-#define BOARD_INFO_NAME "Melzi V2"
-
-// Alter timing for graphical display
-#if IS_U8GLIB_ST7920
-  #define BOARD_ST7920_DELAY_1                 0
-  #define BOARD_ST7920_DELAY_2               400
-  #define BOARD_ST7920_DELAY_3                 0
+/**
+ * Certain displays use LCD_PINS_RS as LCD_RESET_PIN
+ */
+#if !defined(LCD_RESET_PIN) && ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
+  #define LCD_RESET_PIN LCD_PINS_RS
 #endif
 
-#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
+/**
+ * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
+ */
+#if HAS_MARLINUI_U8GLIB
+  #ifndef DOGLCD_SCK
+    #define DOGLCD_SCK  SD_SCK_PIN
+  #endif
+  #ifndef DOGLCD_MOSI
+    #define DOGLCD_MOSI SD_MOSI_PIN
+  #endif
+#endif

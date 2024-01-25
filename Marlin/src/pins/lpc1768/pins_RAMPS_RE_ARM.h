@@ -167,7 +167,7 @@
 #define TEMP_2_PIN                      P0_26_A3  // A3 - (63) - J5-3 & AUX-2
 #define TEMP_3_PIN                      P1_30_A4  // A4 - (37) - BUZZER_PIN
 //#define TEMP_4_PIN                    P1_31_A5  // A5 - (49) - SD_DETECT_PIN
-//#define ??                  P0_03_A6            // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
+//#define PIN_P0_03                     P0_03_A6  // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
 #define FILWIDTH_PIN                    P0_02_A7  // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
 
 //
@@ -293,14 +293,13 @@
 #if ENABLED(CR10_STOCKDISPLAY)
 
   // Re-Arm can support Creality stock display without SD card reader and single cable on EXP3.
-  // Re-Arm J3 pins 1 (p1.31) & 2 (P3.26) are not used. Stock cable will need to have one
+  // Re-Arm J3 pins 1 (P1.31) & 2 (P3.26) are not used. Stock cable will need to have one
   // 10-pin IDC connector trimmed or replaced with a 12-pin IDC connector to fit J3.
-  // Requires REVERSE_ENCODER_DIRECTION in Configuration.h
 
   #define BEEPER_PIN                       P2_11  // J3-3 & AUX-4
 
-  #define BTN_EN1                          P0_16  // J3-7 & AUX-4
-  #define BTN_EN2                          P1_23  // J3-5 & AUX-4
+  #define BTN_EN1                          P1_23  // J3-5 & AUX-4
+  #define BTN_EN2                          P0_16  // J3-7 & AUX-4
   #define BTN_ENC                          P3_25  // J3-4 & AUX-4
 
   #define LCD_PINS_RS                      P0_15  // J3-9 & AUX-4 (CS)
@@ -325,8 +324,8 @@
 #elif HAS_WIRED_LCD
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define BEEPER_PIN                     P1_01
-    #define BTN_ENC                        P1_04
+    #define BEEPER_PIN                     P1_01  // (79) J12-12
+    #define BTN_ENC                        P1_04  // (77) J12-10
   #else
     #define BEEPER_PIN                     P1_30  // (37) not 5V tolerant
     #define BTN_ENC                        P2_11  // (35) J3-3 & AUX-4
@@ -367,14 +366,14 @@
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_SCK                   P0_15
-      #define DOGLCD_MOSI                  P0_18
+      #define DOGLCD_SCK                   P0_15  // (52) (SCK)  J3-9 & AUX-3
+      #define DOGLCD_MOSI                  P0_18  // (51) (MOSI) J3-10 & AUX-3
 
       // EXP1 on LCD adapter is not usable - using Ethernet connector instead
-      #define DOGLCD_CS                    P1_09
-      #define DOGLCD_A0                    P1_14
-      //#define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+      #define DOGLCD_CS                    P1_09  // (74) J12-7
+      #define DOGLCD_A0                    P1_14  // (73) J12-6
+      //#define FORCE_SOFT_SPI                    // Use this if Hardware SPI causes display problems.
+                                                  // Results in LCD Software SPI mode 3, SD Software SPI mode 0.
 
       #define LCD_RESET_PIN                P0_16  // Must be high or open for LCD to operate normally.
 
@@ -396,24 +395,22 @@
       #define DOGLCD_A0                    P2_06  // (59) J3-8 & AUX-2
     #endif
 
-    #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
+    #define LCD_BACKLIGHT_PIN              P0_16  // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
     #define LCD_PINS_EN                    P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
       #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
       #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
-
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
     #endif
   #endif
 
   #if ENABLED(MINIPANEL)
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
- #endif
+  #endif
 
 #endif // HAS_WIRED_LCD
 
@@ -421,17 +418,17 @@
 // Ethernet pins
 //
 #if !IS_ULTIPANEL
-  #define ENET_MDIO                        P1_17  // (71)  J12-4
-  #define ENET_RX_ER                       P1_14  // (73)  J12-6
-  #define ENET_RXD1                        P1_10  // (75)  J12-8
+  #define ENET_MDIO                        P1_17  // (71) J12-4
+  #define ENET_RX_ER                       P1_14  // (73) J12-6
+  #define ENET_RXD1                        P1_10  // (75) J12-8
 #endif
-#define ENET_MOC                           P1_16  // (70)  J12-3
-#define REF_CLK                            P1_15  // (72)  J12-5
-#define ENET_RXD0                          P1_09  // (74)  J12-7
-#define ENET_CRS                           P1_08  // (76)  J12-9
-#define ENET_TX_EN                         P1_04  // (77)  J12-10
-#define ENET_TXD0                          P1_00  // (78)  J12-11
-#define ENET_TXD1                          P1_01  // (79)  J12-12
+#define ENET_MOC                           P1_16  // (70) J12-3
+#define REF_CLK                            P1_15  // (72) J12-5
+#define ENET_RXD0                          P1_09  // (74) J12-7
+#define ENET_CRS                           P1_08  // (76) J12-9
+#define ENET_TX_EN                         P1_04  // (77) J12-10
+#define ENET_TXD0                          P1_00  // (78) J12-11
+#define ENET_TXD1                          P1_01  // (79) J12-12
 
 //
 // SD Support
@@ -441,10 +438,10 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                       P0_15  // (52)  system defined J3-9 & AUX-3
-  #define SD_MISO_PIN                      P0_17  // (50)  system defined J3-10 & AUX-3
-  #define SD_MOSI_PIN                      P0_18  // (51)  system defined J3-10 & AUX-3
-  #define SD_SS_PIN                        P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define SD_SCK_PIN                       P0_15  // (52) System-defined J3-9 & AUX-3
+  #define SD_MISO_PIN                      P0_17  // (50) System-defined J3-10 & AUX-3
+  #define SD_MOSI_PIN                      P0_18  // (51) System-defined J3-10 & AUX-3
+  #define SD_SS_PIN                        P1_23  // (53) System-defined J3-5 & AUX-3 (aka SDSS, CS)
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
   #define SD_SCK_PIN                       P0_07

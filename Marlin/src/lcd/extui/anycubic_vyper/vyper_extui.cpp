@@ -49,7 +49,7 @@ namespace ExtUI {
   void onMediaError()    { dgus.mediaEvent(AC_media_error);    }
   void onMediaRemoved()  { dgus.mediaEvent(AC_media_removed);  }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     #if ENABLED(SPEAKER)
       ::tone(BEEPER_PIN, frequency, duration);
     #endif
