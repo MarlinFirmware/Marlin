@@ -126,18 +126,6 @@
 
 #define FAN0_PIN                            PA0   // FAN0
 
-#if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
-  #define BEEPER_PIN                        PC6   // LCD_ENC
-
-  #define BTN_ENC                           PC7   // LCD_RST
-  #define BTN_EN1                           PA2   // UART4-TX
-  #define BTN_EN2                           PB13  // SPI MISO
-
-  #define LCD_PINS_RS                       PB15  // SPI3_NSS
-  #define LCD_PINS_EN                       PB12  // SPI3_MOSI
-  #define LCD_PINS_D4                       PB14  // SPI3_CLK
-#endif
-
 //
 // SD Card
 //
@@ -151,9 +139,9 @@
   #define LCD_SERIAL_PORT                      1
 #endif
 
-/*
- * SDIO Pins
-*/
+//
+// SDIO Pins
+//
 #define BOARD_SDIO_D0                       PC8
 #define BOARD_SDIO_D1                       PC9
 #define BOARD_SDIO_D2                       PC10
@@ -188,3 +176,47 @@
 #define SPI_SCK                             PB14  // SPI3_CLK
 #define SPI_MISO                            PB13  // SPI3_MISO
 #define SPI_MOSI                            PB12  // SPI3_MOSI
+
+//
+// LCD / Controller
+//
+
+/**        ------
+ *   PC6  | 1  2 | PC7
+ *   PA2  | 3  4 | PC1
+ *   PB13   5  6 | PB14
+ *   PB15 | 7  8 | PB12
+ *    GND | 9 10 | 5V
+ *         ------
+ *          EXP1
+ */
+#define EXP1_01_PIN                         PC6
+#define EXP1_02_PIN                         PC7
+#define EXP1_03_PIN                         PA2
+#define EXP1_04_PIN                         PC1
+#define EXP1_05_PIN                         PB13
+#define EXP1_06_PIN                         PB14
+#define EXP1_07_PIN                         PB15
+#define EXP1_08_PIN                         PB12
+
+#if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
+  /**          ------
+   *   BEEPER | 1  2 | ENC
+   *      EN1 | 3  4 | KILL
+   *      EN2   5  6 | LCD_D4
+   *   LCD_RS | 7  8 | LCD_EN
+   *      GND | 9 10 | 5V
+   *           ------
+   */
+  #define BEEPER_PIN                 EXP1_01_PIN
+
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
+
+  #define KILL_PIN                   EXP1_04_PIN
+#endif
