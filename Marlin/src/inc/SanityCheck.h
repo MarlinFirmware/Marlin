@@ -3298,87 +3298,65 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "MARKFORGED requires both X and Y to use sensorless homing if either one does."
 #endif
 
+// TMC Hybrid Threshold
+#if ENABLED(HYBRID_THRESHOLD)
+  #if !STEALTHCHOP_ENABLED
+    #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
+  #if defined(X_HYBRID_THRESHOLD) && !X_HYBRID_THRESHOLD == 0
+    #error "X_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(X2_HYBRID_THRESHOLD) && !X2_HYBRID_THRESHOLD == 0
+    #error "X2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y_HYBRID_THRESHOLD) && !Y_HYBRID_THRESHOLD == 0
+    #error "Y_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y2_HYBRID_THRESHOLD) && !Y2_HYBRID_THRESHOLD == 0
+    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z_HYBRID_THRESHOLD) && !Z_HYBRID_THRESHOLD == 0
+    #error "Z_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z2_HYBRID_THRESHOLD) && !Z2_HYBRID_THRESHOLD == 0
+    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z3_HYBRID_THRESHOLD) && !Z3_HYBRID_THRESHOLD == 0
+    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z4_HYBRID_THRESHOLD) && !Z4_HYBRID_THRESHOLD == 0
+    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(I_HYBRID_THRESHOLD) && !I_HYBRID_THRESHOLD == 0
+    #error "I_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(J_HYBRID_THRESHOLD) && !J_HYBRID_THRESHOLD == 0
+    #error "J_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(K_HYBRID_THRESHOLD) && !K_HYBRID_THRESHOLD == 0
+    #error "K_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(U_HYBRID_THRESHOLD) && !U_HYBRID_THRESHOLD == 0
+    #error "U_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(V_HYBRID_THRESHOLD) && !V_HYBRID_THRESHOLD == 0
+    #error "V_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(W_HYBRID_THRESHOLD) && !W_HYBRID_THRESHOLD == 0
+    #error "W_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E0_HYBRID_THRESHOLD) && !E0_HYBRID_THRESHOLD == 0
+    #error "E0_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E1_HYBRID_THRESHOLD) && !E1_HYBRID_THRESHOLD == 0
+    #error "E1_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E2_HYBRID_THRESHOLD) && !E2_HYBRID_THRESHOLD == 0
+    #error "E2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E3_HYBRID_THRESHOLD) && !E3_HYBRID_THRESHOLD == 0
+    #error "E3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E4_HYBRID_THRESHOLD) && !E4_HYBRID_THRESHOLD == 0
+    #error "E4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E5_HYBRID_THRESHOLD) && !E5_HYBRID_THRESHOLD == 0
+    #error "E5_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E6_HYBRID_THRESHOLD) && !E6_HYBRID_THRESHOLD == 0
+    #error "E6_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E7_HYBRID_THRESHOLD) && !E7_HYBRID_THRESHOLD == 0
+    #error "E7_HYBRID_THRESHOLD must be greater than 0."
+  #endif
+#endif // HYBRID_THRESHOLD
+
 // Other TMC feature requirements
-#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
-  #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-#elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
   #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
 #elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
-
-// TMC Hybrid Threshold
-#ifdef HYBRID_THRESHOLD
-  #if defined(X_HYBRID_THRESHOLD) && (X_HYBRID_THRESHOLD == 0)
-    #error "X_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(X2_HYBRID_THRESHOLD) && (X2_HYBRID_THRESHOLD == 0)
-    #error "X2_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Y_HYBRID_THRESHOLD) && (Y_HYBRID_THRESHOLD == 0)
-    #error "Y_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Y2_HYBRID_THRESHOLD) && (Y2_HYBRID_THRESHOLD == 0)
-    #error "Y2_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Z_HYBRID_THRESHOLD) && (Z_HYBRID_THRESHOLD == 0)
-    #error "Z_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Z2_HYBRID_THRESHOLD) && (Z2_HYBRID_THRESHOLD == 0)
-    #error "Z2_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Z3_HYBRID_THRESHOLD) && (Z3_HYBRID_THRESHOLD == 0)
-    #error "Z3_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(Z4_HYBRID_THRESHOLD) && (Z4_HYBRID_THRESHOLD == 0)
-    #error "Z4_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(I_HYBRID_THRESHOLD) && (I_HYBRID_THRESHOLD == 0)
-    #error "I_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(J_HYBRID_THRESHOLD) && (J_HYBRID_THRESHOLD == 0)
-    #error "J_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(K_HYBRID_THRESHOLD) && (K_HYBRID_THRESHOLD == 0)
-    #error "K_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(U_HYBRID_THRESHOLD) && (U_HYBRID_THRESHOLD == 0)
-    #error "U_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(V_HYBRID_THRESHOLD) && (V_HYBRID_THRESHOLD == 0)
-    #error "V_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(W_HYBRID_THRESHOLD) && (W_HYBRID_THRESHOLD == 0)
-    #error "W_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E0_HYBRID_THRESHOLD) && (E0_HYBRID_THRESHOLD == 0)
-    #error "E0_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E1_HYBRID_THRESHOLD) && (E1_HYBRID_THRESHOLD == 0)
-    #error "E1_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E2_HYBRID_THRESHOLD) && (E2_HYBRID_THRESHOLD == 0)
-    #error "E2_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E3_HYBRID_THRESHOLD) && (E3_HYBRID_THRESHOLD == 0)
-    #error "E3_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E4_HYBRID_THRESHOLD) && (E4_HYBRID_THRESHOLD == 0)
-    #error "E4_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E5_HYBRID_THRESHOLD) && (E5_HYBRID_THRESHOLD == 0)
-    #error "E5_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E6_HYBRID_THRESHOLD) && (E6_HYBRID_THRESHOLD == 0)
-    #error "E6_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-  #if defined(E7_HYBRID_THRESHOLD) && (E7_HYBRID_THRESHOLD == 0)
-    #error "E7_HYBRID_THRESHOLD cannot be set to zero"
-  #endif
-#endif
-
 
 /**
  * TMC SPI Chaining
