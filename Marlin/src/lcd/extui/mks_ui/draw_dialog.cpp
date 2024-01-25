@@ -396,7 +396,7 @@ void lv_draw_dialog(uint8_t type) {
           F(DIALOG_UPLOAD_FINISH_EN), '\n',
           F(DIALOG_UPLOAD_SIZE_EN), F(": "), int(upload_size / 1024), F(" KBytes\n"),
           F(DIALOG_UPLOAD_TIME_EN), F(": "), int(upload_time_sec), F(" s\n"),
-          F(DIALOG_UPLOAD_SPEED_EN), F(": "), int(upload_size / upload_time_sec / 1024), F(" KBytes/s\n"),
+          F(DIALOG_UPLOAD_SPEED_EN), F(": "), int(upload_size / upload_time_sec / 1024), F(" KBytes/s\n")
         );
         lv_label_set_text(labelDialog, buf);
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
