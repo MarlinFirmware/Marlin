@@ -23,6 +23,7 @@
 
 //
 // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
+// Derived from https://github.com/Klipper3d/klipper/blob/master/config/printer-creality-ender2pro-hc32-2022.cfg
 //
 #include "env_validate.h"
 
@@ -138,8 +139,6 @@
   #define LCD_PINS_D4                       PB14  // SPI3_CLK
 #endif
 
-// ****** checked with klipper/config/printer-creality-ender2pro-hc32-2022.cfg ; https://github.com/Klipper3d/klipper/blob/master/config/printer-creality-ender2pro-hc32-2022.cfg
-
 //
 // SD Card
 //
@@ -169,11 +168,11 @@
 //
 
 // Display
-#define BOARD_USART1_TX_PIN                 PA2 // LCD
+#define BOARD_USART1_TX_PIN                 PA2   // LCD
 #define BOARD_USART1_RX_PIN                 PA3
 
 // Host
-#define BOARD_USART2_TX_PIN                 PA8 // USB
+#define BOARD_USART2_TX_PIN                 PA8   // USB
 #define BOARD_USART2_RX_PIN                 PA7
 
 // Onboard LED (HIGH = off, LOW = on)
