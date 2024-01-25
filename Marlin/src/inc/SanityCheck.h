@@ -1678,7 +1678,11 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 */
 #define WRONG_CURRENT_HOME(N) (N##_CURRENT_HOME > N##_CURRENT) ||
   #if MAIN_AXIS_MAP(WRONG_CURRENT_HOME) MAP(WRONG_CURRENT_HOME, X2, Y2, Z2, Z3, Z4) 0
-    #error "N_CURRENT_HOME needs to be inferior or equal to corresponding N_CURRENT. Check motor current configuration"
+    #if !defined(ALLOW_HIGH_HOMING_CURRENTS)
+      #error "N_CURRENT_HOME needs to be inferior or equal to corresponding N_CURRENT. Check motor current configuration"
+    #else
+      #warning "High homing currents can lead to damage if a sensor fails or if setup incorrectly"
+    #endif
   #endif
 
 #if defined(IMPROVE_PROBING_SAFETY) && !HAS_BED_PROBE

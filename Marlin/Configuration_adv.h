@@ -3184,11 +3184,21 @@
   /**
    * Make use of Z*_CURRENT_HOME to help prevent damage in case of incorrectly
    * installed bed sensor or sensor failure. This will use lower current for
-   * probing (like G29 Bed Leveling or G345 Z-Steppers Auto-Alignment)
+   * probing (like G29 Bed Leveling or G34 Z-Steppers Auto-Alignment)
    * 
    * Requires Z*_CURRENT_HOME to be defined and strictly less than Z*_CURRENT.
   */
   //#define IMPROVE_PROBING_SAFETY
+
+  /**
+   * Unlock the possibility to use homing currents higher than running currents
+   * 
+   * WARNING -- Not recommended.
+   * High homing current defeats the purpose of having homing currents at all and 
+   * invalidates the benefits of IMPROVE_PROBING_SAFETY. Physical damage can occur 
+   * if set incorrectly. Do not use with sensorless homing!
+  */
+  //#define ALLOW_HIGH_HOMING_CURRENTS
 
   // @section tmc/spi
 
