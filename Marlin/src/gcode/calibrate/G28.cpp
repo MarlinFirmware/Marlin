@@ -79,12 +79,9 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    #if HAS_HOMING_CURRENT
-      set_homing_current(X_AXIS);
-      set_homing_current(Y_AXIS);
-    #endif
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(X_AXIS));
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(Y_AXIS));
 
-    
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
         NUM_AXIS_LIST(
@@ -113,7 +110,6 @@
       TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
     #endif
   }
-
 
 #endif // QUICK_HOME
 

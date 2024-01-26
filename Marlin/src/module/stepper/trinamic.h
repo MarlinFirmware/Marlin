@@ -108,8 +108,6 @@
   #define CHOPPER_TIMING_E CHOPPER_TIMING
 #endif
 
-#define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
-
 #if HAS_TMC220x
   void tmc_serial_begin();
 #endif
@@ -291,7 +289,7 @@ void reset_trinamic_drivers();
   static constexpr chopper_timing_t chopper_timing_J = CHOPPER_TIMING_J;
   #if HAS_CURRENT_HOME(J)
     static int16_t saved_current_J;
-  #endif 
+  #endif
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define J_ENABLE_INIT() NOOP
     #define J_ENABLE_WRITE(STATE) stepperJ.toff((STATE)==J_ENABLE_ON ? chopper_timing.toff : 0)

@@ -635,13 +635,6 @@ void home_if_needed(const bool keeplev=false);
   void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif
 
-#define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
-
-#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-  #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-    #define HAS_HOMING_CURRENT 1
-  #endif
-
 #if HAS_HOMING_CURRENT
   void set_homing_current(const AxisEnum axis);
   void restore_homing_current(const AxisEnum axis);

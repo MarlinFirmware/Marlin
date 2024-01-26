@@ -1673,20 +1673,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * Homing current needs to be different from running current for HAS_HOMING_CURRENT to be true
- * 
-*/
-#define WRONG_CURRENT_HOME(N) (N##_CURRENT_HOME > N##_CURRENT) ||
-  #if MAIN_AXIS_MAP(WRONG_CURRENT_HOME) MAP(WRONG_CURRENT_HOME, X2, Y2, Z2, Z3, Z4) 0
-    #if !defined(ALLOW_HIGH_HOMING_CURRENTS)
-      #error "N_CURRENT_HOME needs to be inferior or equal to corresponding N_CURRENT. Check motor current configuration"
-    #else
-      #warning "High homing currents can lead to damage if a sensor fails or if setup incorrectly"
-    #endif
+ * Assert that the homing current must not be greater than the base current.
+ * Current may be reduced "to prevent damage" but in fact it's typically reduced to prevent spurious
+ * DIAG triggering from fast high torque moves with large jerk values which are more prone to cause binding.
+ */
+#define _BAD_HOME_CURRENT(N) (N##_CURRENT_HOME > N##_CURRENT) ||
+#if MAIN_AXIS_MAP(_BAD_HOME_CURRENT) MAP(_BAD_HOME_CURRENT, X2, Y2, Z2, Z3, Z4) 0
+  #ifndef ALLOW_HIGHER_CURRENT_HOME
+    #error "*_CURRENT_HOME should be <= *_CURRENT. Define ALLOW_HIGHER_CURRENT_HOME in your configuration to continue anyway."
+  #else
+    #define HIGHER_CURRENT_HOME_WARNING 1
   #endif
+#endif
+#undef _BAD_HOME_CURRENT
 
-#if defined(IMPROVE_PROBING_SAFETY) && !HAS_BED_PROBE
-  #error "IMPROVE_PROBING_SAFETY requires a bed probe"
+#if ENABLED(PROBING_USE_CURRENT_HOME) && !HAS_BED_PROBE
+  #error "PROBING_USE_CURRENT_HOME requires a bed probe."
 #endif
 
 /**

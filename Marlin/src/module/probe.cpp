@@ -627,7 +627,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       #endif
     }
     TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
-    
+
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
@@ -984,18 +984,14 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   // Change Z motor currents to homing current to prevent damage in case of bad sensor
-  #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-    set_homing_current(Z_AXIS);
-  #endif
+  TERM_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
 
   #if ENABLED(BD_SENSOR)
 
     safe_delay(4);
-    
-    #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-      restore_homing_current(Z_AXIS);
-    #endif
-    
+
+    TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
+
     return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
@@ -1034,9 +1030,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
     }
 
-    #if (HAS_HOMING_CURRENT && defined(IMPROVE_PROBING_SAFETY))
-      restore_homing_current(Z_AXIS);
-    #endif
+    TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
 
     return measured_z;
 

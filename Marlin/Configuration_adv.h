@@ -2970,13 +2970,13 @@
   #define INTERPOLATE      true
 
   #if AXIS_IS_TMC_CONFIG(X)
-    #define X_CURRENT       800                   // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  X_CURRENT             // (mA) RMS current for homing. Lower values enables homing current management, reducing chances of damage from collision
-    #define X_MICROSTEPS     16                   // 0..256
-    #define X_RSENSE          0.11                // Multiplied x1000 for TMC26X
-    #define X_CHAIN_POS      -1                   // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
-    //#define X_INTERPOLATE  true                 // Enable to override 'INTERPOLATE' for the X axis
-    //#define X_HOLD_MULTIPLIER 0.5               // Enable to override 'HOLD_MULTIPLIER' for the X axis
+    #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for homing. (Typically lower than *_CURRENT.)
+    #define X_MICROSTEPS     16        // 0..256
+    #define X_RSENSE          0.11     // Multiplied x1000 for TMC26X
+    #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
+    //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
+    //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X2)
@@ -3182,23 +3182,11 @@
   #endif
 
   /**
-   * Make use of Z*_CURRENT_HOME to help prevent damage in case of incorrectly
-   * installed bed sensor or sensor failure. This will use lower current for
-   * probing (like G29 Bed Leveling or G34 Z-Steppers Auto-Alignment)
-   * 
-   * Requires Z*_CURRENT_HOME to be defined and strictly less than Z*_CURRENT.
-  */
-  //#define IMPROVE_PROBING_SAFETY
-
-  /**
-   * Unlock the possibility to use homing currents higher than running currents
-   * 
-   * WARNING -- Not recommended.
-   * High homing current defeats the purpose of having homing currents at all and 
-   * invalidates the benefits of IMPROVE_PROBING_SAFETY. Physical damage can occur 
-   * if set incorrectly. Do not use with sensorless homing!
-  */
-  //#define ALLOW_HIGH_HOMING_CURRENTS
+   * Use the homing current for all probing. (e.g., Current may be reduced to the
+   * point where a collision makes the motor skip instead of damaging the bed,
+   * though this is unlikely to save delicate probes from being damaged.
+   */
+  //#define PROBING_USE_CURRENT_HOME
 
   // @section tmc/spi
 
