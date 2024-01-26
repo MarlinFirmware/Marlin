@@ -249,6 +249,8 @@ void home_delta() {
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
   TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
+
+  // Restore the homing current for all motors
   TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
