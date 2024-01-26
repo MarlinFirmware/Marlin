@@ -983,20 +983,20 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
-  // Change Z motor currents to homing current to prevent damage in case of bad sensor
+  // Change Z motor current to homing current
   TERN_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
+
+  float measured_z;
 
   #if ENABLED(BD_SENSOR)
 
     safe_delay(4);
 
-    TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
-
-    return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
+    measured_z = current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
 
-    float measured_z = deploy() ? NAN : run_z_probe(sanity_check, z_min_point, z_clearance) + offset.z;
+    measured_z = deploy() ? NAN : run_z_probe(sanity_check, z_min_point, z_clearance) + offset.z;
 
     // Deploy succeeded and a successful measurement was done.
     // Raise and/or stow the probe depending on 'raise_after' and settings.
@@ -1034,11 +1034,12 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
     }
 
-    TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
-
-    return measured_z;
-
   #endif // !BD_SENSOR
+
+  // Restore the Z homing current
+  TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
+
+  return measured_z;
 }
 
 #if HAS_Z_SERVO_PROBE
