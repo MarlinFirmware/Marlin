@@ -1687,8 +1687,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 #undef _BAD_HOME_CURRENT
 
-#if ENABLED(PROBING_USE_CURRENT_HOME) && !HAS_BED_PROBE
-  #error "PROBING_USE_CURRENT_HOME requires a bed probe."
+#if ENABLED(PROBING_USE_CURRENT_HOME)
+  #if !HAS_BED_PROBE
+    #error "PROBING_USE_CURRENT_HOME requires a bed probe."
+  #elif !HAS_CURRENT_HOME(Z)
+    #error "PROBING_USE_CURRENT_HOME requires Z_CURRENT_HOME, and it must differ from Z_CURRENT."
+  #endif
 #endif
 
 /**
