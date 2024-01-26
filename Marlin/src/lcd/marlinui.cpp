@@ -1057,9 +1057,9 @@ void MarlinUI::init() {
 
         uint8_t abs_diff = ABS(encoderDiff);
 
-        #if ENCODER_PULSES_PER_STEP > 1
+        #if ALL(ENCODER_PULSES_PER_STEP > 1, HAS_TOUCH_SLEEP)
           static int8_t lastEncoderDiff;
-          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
+          if (lastEncoderDiff != encoderDiff) wakeup_screen():
           lastEncoderDiff = encoderDiff;
         #endif
 
@@ -1421,7 +1421,7 @@ void MarlinUI::init() {
       } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
-        #define ENCODER_DEBOUNCE_MS 2 
+        #define ENCODER_DEBOUNCE_MS 3 
         static uint8_t lastEncoderBits;
         static uint8_t enc;
         static uint8_t buttons_was = buttons;
