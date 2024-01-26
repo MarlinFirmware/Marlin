@@ -256,35 +256,43 @@
    * action item.
    */
   void show_more_info_screen() {
-    if(drawing_more_info_screen)
-      return;
-    drawing_more_info_screen = true;
-    const char *msg = PrusaErrorDesc(editable.uint8);
-    if (ui.use_click()){
-      if(msg_next_is_consumed){
-        drawing_more_info_screen = false;
-        msg_next_is_consumed = false;
-        msg_next = nullptr;
-        // prevent this function to be triggered again...
-        SetButtonResponse(ButtonOperations::NoOperation);
-        return ui.go_back();
-      } else {
+    #ifdef HAS_WIRED_LCD
+      if(drawing_more_info_screen)
+        return;
+      drawing_more_info_screen = true;
+      const char *msg = PrusaErrorDesc(editable.uint8);
+      if (ui.use_click()){
+        if(msg_next_is_consumed){
+          drawing_more_info_screen = false;
+          msg_next_is_consumed = false;
+          msg_next = nullptr;
+          // prevent this function to be triggered again...
+          SetButtonResponse(ButtonOperations::NoOperation);
+          return ui.go_back();
+        } else {
+          msg = msg_next;
+        }
+      } else if (msg_next_is_consumed){
         msg = msg_next;
       }
-    } else if (msg_next_is_consumed){
-      msg = msg_next;
-    }
-    const char *msg_next_int = lcd_display_message_fullscreen_P(msg);
-    if (strlen_P(msg_next_int) == 0){
-      msg_next_is_consumed = true;
-    } else {
+      const char *msg_next_int = lcd_display_message_fullscreen_P(msg);
+      if (strlen_P(msg_next_int) == 0){
+        msg_next_is_consumed = true;
+      } else {
+        msg_next_is_consumed = false;
+        strcpy(msg_next, msg_next_int);
+      }
+      // set the button response to MoreInfo so we keep coming back to this
+      // screen until all messages are consumed
+      SetButtonResponse(ButtonOperations::MoreInfo);
+      drawing_more_info_screen = false;
+    #else
+      // no lcd, no error display... just break the loop...
+      drawing_more_info_screen = false;
       msg_next_is_consumed = false;
-      strcpy(msg_next, msg_next_int);
-    }
-    // set the button response to MoreInfo so we keep coming back to this
-    // screen until all messages are consumed
-    SetButtonResponse(ButtonOperations::MoreInfo);
-    drawing_more_info_screen = false;
+      msg_next = nullptr;
+      SetButtonResponse(ButtonOperations::NoOperation);
+    #endif // HAS_WIRED_LCD
   }
 
   /**
@@ -578,13 +586,15 @@
       ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
       START_SCREEN();
-      STATIC_ITEM_F(F(pgmS), SS_DEFAULT|SS_INVERT);
-      // SETCURSOR(0, 1);
-      // lcd_moveto(0, 1);
-      // lcd_put_u8str_P(pgmS);
-      // SETCURSOR(1, 0);
-      // lcd_moveto(1, 0);
-      // lcd_put_int(slot + 1);
+      #ifndef __AVR__
+        STATIC_ITEM_F(F(pgmS), SS_DEFAULT|SS_INVERT);
+        // SETCURSOR(0, 1);
+        // lcd_moveto(0, 1);
+        // lcd_put_u8str_P(pgmS);
+        // SETCURSOR(1, 0);
+        // lcd_moveto(1, 0);
+        // lcd_put_int(slot + 1);
+      #endif // __AVR__
       END_SCREEN();
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.screen_changed = true;
