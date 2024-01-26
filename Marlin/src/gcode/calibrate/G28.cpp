@@ -85,7 +85,7 @@
     #if HAS_CURRENT_HOME(X)
       set_homing_current(X_AXIS);
     #endif
-    #if HAS_CURRENT_HOME(Y)
+    #if HAS_CURRENT_HOME(Y) && !ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
 
