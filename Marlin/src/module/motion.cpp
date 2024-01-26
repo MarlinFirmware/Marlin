@@ -2688,7 +2688,7 @@ void prepare_line_to_destination() {
     #endif
 
     //
-    // Set motor current to the axis being homed if defined
+    // Set a new current for the homed axis motor(s)
     //
     TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
 
@@ -2971,7 +2971,7 @@ void prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
 
     //
-    // Restore motor current after homing
+    // Restore axis motor(s) current after homing
     //
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
 
