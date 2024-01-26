@@ -29,12 +29,13 @@
 #define BOARD_INFO_NAME "Melzi (Malyan)"
 
 #if ENABLED(CR10_STOCKDISPLAY)
+  #define BTN_ENC                             28
+  #define BTN_EN1                             30
+  #define BTN_EN2                             29
+
   #define LCD_PINS_RS                         17  // ST9720 CS
   #define LCD_PINS_EN                         16  // ST9720 DAT
   #define LCD_PINS_D4                         11  // ST9720 CLK
-  #define BTN_EN1                             30
-  #define BTN_EN2                             29
-  #define BTN_ENC                             28
 
   #define LCD_PINS_DEFINED
 #endif

@@ -133,13 +133,14 @@
 //
 // Default NEOPIXEL_PIN
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PD3   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PD3   // LED driving pin
 #endif
 
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5

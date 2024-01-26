@@ -156,7 +156,7 @@ void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool 
   }
 }
 
-// Move / Probe methods. As examples, not yet used.
+// Move / Probe methods.
 void BedLevelTools::moveToXYZ() {
   goto_mesh_value = true;
   manualMove(mesh_x, mesh_y, false);

@@ -61,7 +61,7 @@ static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 static int current_slot = 0;
 
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   uint32_t first_nblank_loc, first_nblank_val;
@@ -112,7 +112,8 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  for (size_t i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
+  const int p = REAL_EEPROM_ADDR(pos);
+  for (size_t i = 0; i < size; i++) ram_eeprom[p + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);
   pos += size;
@@ -120,8 +121,9 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+  const int p = REAL_EEPROM_ADDR(pos);
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
-  if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
+  if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[p + i];
   crc16(crc, buff, size);
   pos += size;
   return false;  // return true for any error

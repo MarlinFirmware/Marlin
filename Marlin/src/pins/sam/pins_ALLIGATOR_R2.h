@@ -148,6 +148,7 @@
 //
 // LCD / Controller
 //
+
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                         18
   #define LCD_PINS_EN                         15

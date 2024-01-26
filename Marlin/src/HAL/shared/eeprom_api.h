@@ -26,6 +26,19 @@
 
 #include "../../libs/crc16.h"
 
+// For testing. Define with -DEEPROM_EXCL_ZONE=919,926 in INI files.
+//#define EEPROM_EXCL_ZONE 919,926  // Test a range
+//#define EEPROM_EXCL_ZONE 333      // Test a single byte
+
+#ifdef EEPROM_EXCL_ZONE
+  static constexpr int eeprom_exclude_zone[] = { EEPROM_EXCL_ZONE },
+                       eeprom_exclude_size = eeprom_exclude_zone[COUNT(eeprom_exclude_zone) - 1] - eeprom_exclude_zone[0] + 1;
+  #define REAL_EEPROM_ADDR(A) (A < eeprom_exclude_zone[0] ? (A) : (A) + eeprom_exclude_size)
+#else
+  #define REAL_EEPROM_ADDR(A) (A)
+  static constexpr int eeprom_exclude_size = 0;
+#endif
+
 class PersistentStore {
 public:
 

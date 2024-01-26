@@ -937,7 +937,7 @@ public:
   typedef bits_t(NUM_AXIS_ENUMS) el;
   union {
     el bits;
-    // x, y, z ... e0, e1, e2 ... hx, hy, hz
+    // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
@@ -949,7 +949,7 @@ public:
         bool hx:1, hy:1, hz:1;
       #endif
     };
-    // X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
+    // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
@@ -963,7 +963,7 @@ public:
     };
     // a, b, c, e ... ha, hb, hc
     struct {
-      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _e##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -975,7 +975,7 @@ public:
     };
     // A, B, C, E ... HA, HB, HC
     struct {
-      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _E##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
