@@ -241,8 +241,10 @@ void home_delta() {
     #endif
   #endif
 
+  // Set homing current for all motors
+  TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
+
   // Move all carriages together linearly until an endstop is hit.
-  TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS)); // This sets homing current to all motors
   current_position.z = DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();

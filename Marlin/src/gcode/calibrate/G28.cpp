@@ -27,7 +27,10 @@
 #include "../../module/endstops.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h" // for various
-#include "../../module/motion.h"
+
+#if HAS_HOMING_CURRENT
+  #include "../../module/motion.h" // for set/restore_homing_current
+#endif
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -79,8 +82,12 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(X_AXIS));
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(Y_AXIS));
+    #if HAS_CURRENT_HOME(X)
+      set_homing_current(X_AXIS);
+    #endif
+    #if HAS_CURRENT_HOME(Y)
+      set_homing_current(Y_AXIS);
+    #endif
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
@@ -100,8 +107,12 @@
 
     current_position.set(0.0, 0.0);
 
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(X_AXIS));
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(Y_AXIS));
+    #if HAS_CURRENT_HOME(X)
+      restore_homing_current(X_AXIS);
+    #endif
+    #if HAS_CURRENT_HOME(Y)
+      restore_homing_current(Y_AXIS);
+    #endif
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));

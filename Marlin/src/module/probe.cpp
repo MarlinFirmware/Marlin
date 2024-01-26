@@ -984,7 +984,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   // Change Z motor currents to homing current to prevent damage in case of bad sensor
-  TERM_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
+  TERN_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
 
   #if ENABLED(BD_SENSOR)
 
