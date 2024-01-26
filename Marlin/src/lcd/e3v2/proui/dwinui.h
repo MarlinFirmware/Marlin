@@ -153,9 +153,8 @@
 
 // Extended and default UI Colors
 #define COLOR_BLACK           0
-#define COLOR_GREEN           RGB(0,63,0)
-#define COLOR_AQUA            RGB(0,63,31)
-#define COLOR_BLUE            RGB(0,0,31)
+#define COLOR_GREEN           RGB(0, 63, 0)
+#define COLOR_BLUE            RGB(0, 0, 31)
 #define COLOR_LIGHT_WHITE     0xBDD7
 #define COLOR_LIGHT_GREEN     0x3460
 #define COLOR_CYAN            0x07FF
@@ -172,9 +171,9 @@
 #define COLOR_GREY            0x18E3
 
 // UI element defines and constants
-#define DWIN_FONT_MENU font8x16
-#define DWIN_FONT_STAT font10x20
-#define DWIN_FONT_HEAD font10x20
+#define DWIN_FONT_MENU  font8x16
+#define DWIN_FONT_STAT  font10x20
+#define DWIN_FONT_HEAD  font10x20
 #define DWIN_FONT_ALERT font10x20
 #define STATUS_Y 354
 #define LCD_WIDTH (DWIN_WIDTH / 8)  // only if the default fontID is font8x16

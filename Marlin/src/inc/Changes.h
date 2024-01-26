@@ -82,6 +82,8 @@
   #error "Z_ENDSTOP_SERVO_NR is now Z_PROBE_SERVO_NR."
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
+#elif defined(ALLOW_LOW_EJERK)
+  #error "ALLOW_LOW_EJERK is deprecated and should be removed."
 #elif defined(XY_TRAVEL_SPEED)
   #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
 #elif defined(XY_PROBE_SPEED)

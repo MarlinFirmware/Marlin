@@ -43,6 +43,7 @@
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
+
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
 
@@ -460,7 +461,7 @@ namespace ExtUI {
   void onMediaInserted();
   void onMediaError();
   void onMediaRemoved();
-  void onPlayTone(const uint16_t frequency, const uint16_t duration);
+  void onPlayTone(const uint16_t frequency, const uint16_t duration=0);
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
   void onSurviveInKilled();
   void onPrintTimerStarted();

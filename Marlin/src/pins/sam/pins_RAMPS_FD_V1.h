@@ -134,7 +134,9 @@
 #define SDSS                                   4
 #define LED_PIN                               13
 
-/**        ------                     ------
+/**
+ *                RAMPS-FD LCD adapter
+ *         ------                     ------
  *     37 | 1  2 | 35      (MISO) 50 | 1  2 | 76 (SCK)
  *     29 | 3  4 | 27       (EN2) 31 | 3  4 |  4 (SD_SS)
  *     25   5  6 | 23       (EN1) 33   5  6 | 75 (MOSI)
@@ -164,8 +166,8 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
-  // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                 EXP1_01_PIN
 

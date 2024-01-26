@@ -158,6 +158,37 @@
   #define SPINDLE_DIR_PIN                  P2_06  // FET 4
 #endif
 
+/**               ------                                        ------
+ * (BEEPER) 1.31 | 1  2 | 1.30 (BTN_ENC)         (MISO)    0.8 | 1  2 | 0.7  (SD_SCK)
+ * (EN)     0.18 | 3  4 | 0.16 (RS)              (EN1)    3.26 | 3  4 | 0.28 (SD_CS2)
+ * (D4)     0.15   5  6 | --                     (EN2)    3.25   5  6 | 0.9  (SD_MOSI)
+ *            -- | 7  8 | 0.27 (D7)              (SD_DET) 0.27 | 7  8 | 2.11
+ *           GND | 9 10 | 5V                               GND | 9 10 | --
+ *                ------                                        ------
+ *                 EXP1                                          EXP2
+ */
+#define EXP1_01_PIN                        P1_31
+#define EXP1_02_PIN                        P1_30
+#define EXP1_03_PIN                        P0_18
+#define EXP1_04_PIN                        P0_16
+#define EXP1_05_PIN                        P0_15
+#define EXP1_06_PIN                        -1
+#define EXP1_07_PIN                        -1
+#define EXP1_08_PIN                        P0_27  // (also on EXP2-7)
+#define EXP1_09_PIN                        -1
+#define EXP1_10_PIN                        -1
+
+#define EXP2_01_PIN                        P0_08
+#define EXP2_02_PIN                        P0_07
+#define EXP2_03_PIN                        P3_26
+#define EXP2_04_PIN                        P0_28
+#define EXP2_05_PIN                        P3_25
+#define EXP2_06_PIN                        P0_09
+#define EXP2_07_PIN                        P0_27  // (also on EXP1-8)
+#define EXP2_08_PIN                        P2_11
+#define EXP2_09_PIN                        -1
+#define EXP2_10_PIN                        -1
+
 //
 // LCD / Controller
 //
@@ -171,54 +202,54 @@
 
 #if ENABLED(FYSETC_MINI_12864)
 
-  #define FORCE_SOFT_SPI                          // REQUIRED - results in LCD soft SPI mode 3
+  #define FORCE_SOFT_SPI                          // REQUIRED. Results in LCD Software SPI mode 3
 
-  #define BEEPER_PIN                       P1_31  // EXP1-1
-  #define BTN_ENC                          P1_30  // EXP1-2
-  #define DOGLCD_CS                        P0_18  // EXP1-3
-  #define DOGLCD_A0                        P0_16  // EXP1-4
-  #define LCD_RESET_PIN                    P0_15  // EXP1-5
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define DOGLCD_CS                  EXP1_03_PIN
+  #define DOGLCD_A0                  EXP1_04_PIN
+  #define LCD_RESET_PIN              EXP1_05_PIN
 
   // A custom cable is REQUIRED for EXP2 cable because the SCK & MOSI on the card's EXP2 are dedicated
   // to the onboard SD card.  All required EXP2 signals come from the Ethernet connector.  Pin 1 of this
   // connector is the one nearest the motor power connector.
-  #define DOGLCD_SCK                       P1_17  // EXP2-2  =>  Ethernet pin  5 (bottom, 3 from left)
-  #define BTN_EN2                          P1_09  // EXP2-3  =>  Ethernet pin  9 (bottom, 5 from left)
-  #define BTN_EN1                          P1_04  // EXP2-5  =>  Ethernet pin 11 (bottom, 6 from left)
-  #define DOGLCD_MOSI                      P1_01  // EXP2-6  =>  Ethernet pin 13 (bottom, 7 from left)
+  #define DOGLCD_SCK                       P1_17  // LCD2-2  =>  Ethernet pin  5 (bottom, 3 from left)
+  #define BTN_EN2                          P1_09  // LCD2-3  =>  Ethernet pin  9 (bottom, 5 from left)
+  #define BTN_EN1                          P1_04  // LCD2-5  =>  Ethernet pin 11 (bottom, 6 from left)
+  #define DOGLCD_MOSI                      P1_01  // LCD2-6  =>  Ethernet pin 13 (bottom, 7 from left)
 
   // A custom EXP1 cable is required colored LEDs. Pins 1-5, 9, 10 of the cable go to pins 1-5, 9, 10
   // on the board's EXP1 connector. Pins 6, 7, and 8 of the EXP1 cable go to the Ethernet connector.
   // Rev 1.2 displays do NOT require the RGB LEDs. 2.0 and 2.1 displays do require RGB.
   #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN                P1_16  // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
+      #define RGB_LED_R_PIN                P1_16  // LCD1-6  =>  Ethernet pin  6 (top row, 3 from left)
     #endif
     #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN                P1_10  // EXP1-7  =>  Ethernet pin 10 (top row, 5 from left)
+      #define RGB_LED_G_PIN                P1_10  // LCD1-7  =>  Ethernet pin 10 (top row, 5 from left)
     #endif
     #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN                P1_00  // EXP1-8  =>  Ethernet pin 12 (top row, 6 from left)
+      #define RGB_LED_B_PIN                P1_00  // LCD1-8  =>  Ethernet pin 12 (top row, 6 from left)
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                   P1_16  // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
+    #define NEOPIXEL_PIN                   P1_16  // LCD1-6  =>  Ethernet pin  6 (top row, 3 from left)
   #endif
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                       P1_31  // EXP1-1
-  //#define SD_DETECT_PIN                  P0_27  // EXP2-7
+  #define BEEPER_PIN                 EXP1_01_PIN
+  //#define SD_DETECT_PIN            EXP2_07_PIN
 
-  #define BTN_EN1                          P3_26  // EXP2-5
-  #define BTN_EN2                          P3_25  // EXP2-3
-  #define BTN_ENC                          P1_30  // EXP1-2
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_SDSS                         P0_28  // EXP2-4
-  #define LCD_PINS_EN                      P0_18  // EXP1-3
-  #define LCD_PINS_D4                      P0_15  // EXP1-5
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_SDSS                   EXP2_04_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
 
-  #define KILL_PIN                         P2_11  // EXP2-10
+  #define KILL_PIN                   EXP2_08_PIN
 
 #endif // HAS_WIRED_LCD
 
@@ -230,11 +261,11 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
-  #define SD_SCK_PIN                       P0_07  // (52)  system defined J3-9 & AUX-3
-  #define SD_MISO_PIN                      P0_08  // (50)  system defined J3-10 & AUX-3
-  #define SD_MOSI_PIN                      P0_09  // (51)  system defined J3-10 & AUX-3
+  #define SD_SCK_PIN                 EXP2_02_PIN  // (52) System-defined J3-9 & AUX-3
+  #define SD_MISO_PIN                EXP2_01_PIN  // (50) System-defined J3-10 & AUX-3
+  #define SD_MOSI_PIN                EXP2_06_PIN  // (51) System-defined J3-10 & AUX-3
   #if SD_CONNECTION_IS(LCD)
-    #define SD_SS_PIN                      P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+    #define SD_SS_PIN                      P1_23  // (53) System-defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
   #else
     #undef SD_DETECT_PIN
     #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
@@ -257,30 +288,3 @@
 //#define ENET_TX_EN                       P1_04  // Ethernet pin 11 (bottom, 6 from left)
 //#define ENET_TXD0                        P1_00  // Ethernet pin 12 (top row, 6 from left)
 //#define ENET_TXD1                        P1_01  // Ethernet pin 13 (bottom, 7 from left)
-
-/**
- *  EXP1 pins
- *    1 - P1_31
- *    2 - P1_30
- *    3 - P0_18
- *    4 - P0_16
- *    5 - P0_15
- *    6 - N/C
- *    7 - N/C
- *    8 - P0_27 (also on EXP2-7)
- *    9 - GND
- *   10 - +5V
- *
- *
- *  EXP2 pins
- *    1 - P0_08
- *    2 - P0_07
- *    3 - P3_26
- *    4 - P0_28
- *    5 - P3_25
- *    6 - P0_09
- *    7 - P0_27 (also on EXP1_8)
- *    8 - P2_11
- *    9 - GND
- *   10 - N/C
- */

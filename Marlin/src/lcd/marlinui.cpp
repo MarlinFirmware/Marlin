@@ -847,52 +847,51 @@ void MarlinUI::init() {
       if (processing) return;   // Prevent re-entry from idle() calls
 
       // Add a manual move to the queue?
-      if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
+      if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-        const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
-        #if IS_KINEMATIC
+      #if IS_KINEMATIC
 
-          #if HAS_MULTI_EXTRUDER
-            REMEMBER(ae, active_extruder);
-            #if MULTI_E_MANUAL
-              if (axis == E_AXIS) active_extruder = e_index;
-            #endif
+        #if HAS_MULTI_EXTRUDER
+          REMEMBER(ae, active_extruder);
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
           #endif
-
-          // Apply a linear offset to a single axis
-          if (axis == ALL_AXES_ENUM)
-            destination = all_axes_destination;
-          else if (axis <= LOGICAL_AXES) {
-            destination = current_position;
-            destination[axis] += offset;
-          }
-
-          // Reset for the next move
-          offset = 0;
-          axis = NO_AXIS_ENUM;
-
-          // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
-          // move_to_destination. This will cause idle() to be called, which can then call this function while the
-          // previous invocation is being blocked. Modifications to offset shouldn't be made while
-          // processing is true or the planner will get out of sync.
-          processing = true;
-          prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
-          processing = false;
-
-        #else
-
-          // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position, fr_mm_s,
-            TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
-          );
-
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
-
-          axis = NO_AXIS_ENUM;
-
         #endif
-      }
+
+        // Apply a linear offset to a single axis
+        if (axis == ALL_AXES_ENUM)
+          destination = all_axes_destination;
+        else if (axis <= LOGICAL_AXES) {
+          destination = current_position;
+          destination[axis] += offset;
+        }
+
+        // Reset for the next move
+        offset = 0;
+        axis = NO_AXIS_ENUM;
+
+        // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
+        // move_to_destination. This will cause idle() to be called, which can then call this function while the
+        // previous invocation is being blocked. Modifications to offset shouldn't be made while
+        // processing is true or the planner will get out of sync.
+        processing = true;
+        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        processing = false;
+
+      #else
+
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
+
+        //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+
+        axis = NO_AXIS_ENUM;
+
+      #endif
     }
 
     //

@@ -135,6 +135,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                     P1_26  // E0DET
@@ -591,8 +598,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     P1_24
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN               P1_24
 #endif
 
 /**

@@ -828,8 +828,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
-  #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
-    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
 #endif
 
@@ -1208,8 +1206,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
-  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE or Z Servo."
+  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2, or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1378,6 +1376,53 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 
   /**
+   * BIQU MicroProbe requirements
+   */
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #if DISABLED(PROBE_ENABLE_DISABLE)
+      #error "BIQU MicroProbe requires PROBE_ENABLE_DISABLE."
+    #elif !PIN_EXISTS(PROBE_ENABLE)
+      #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
+    #endif
+
+    #if ENABLED(BIQU_MICROPROBE_V1)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+        #error "BIQU_MICROPROBE_V1 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != LOW
+            #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+    #elif ENABLED(BIQU_MICROPROBE_V2)
+      #if ENABLED(INVERTED_PROBE_STATE)
+        #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
+        #error "BIQU_MICROPROBE_V2 requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
+      #endif
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #if ENABLED(INVERTED_PROBE_STATE)
+          #if Z_MIN_ENDSTOP_HIT_STATE != HIGH
+            #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+          #endif
+        #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
+          #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
+        #endif
+      #endif
+    #endif
+  #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
+
+  /**
    * Require pin options and pins to be defined
    */
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
@@ -1463,9 +1508,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #endif
 
-  #if Z_PROBE_LOW_POINT > 0
-    #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
-  #endif
+  static_assert(Z_PROBE_LOW_POINT <= 0, "Z_PROBE_LOW_POINT must be less than or equal to 0.");
 
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     #ifndef PROBE_ACTIVATION_SWITCH_STATE
@@ -1678,6 +1721,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(Z_SAFE_HOMING)
   static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
   static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+#endif
+
+/**
+ * Make sure Z_CLEARANCE_FOR_HOMING is below Z_MAX_POS
+ */
+#if HAS_Z_AXIS
+  static_assert(Z_CLEARANCE_FOR_HOMING <= Z_MAX_POS, "Z_CLEARANCE_FOR_HOMING must be smaller than or equal to Z_MAX_POS.");
 #endif
 
 // Check Safe Bed Leveling settings
@@ -3298,10 +3348,59 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "MARKFORGED requires both X and Y to use sensorless homing if either one does."
 #endif
 
+// TMC Hybrid Threshold
+#if ENABLED(HYBRID_THRESHOLD)
+  #if !STEALTHCHOP_ENABLED
+    #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
+  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
+    #error "X_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
+    #error "X2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
+    #error "Y_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
+    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
+    #error "Z_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
+    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
+    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
+    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
+    #error "I_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
+    #error "J_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
+    #error "K_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
+    #error "U_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
+    #error "V_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
+    #error "W_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
+    #error "E0_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
+    #error "E1_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
+    #error "E2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
+    #error "E3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
+    #error "E4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
+    #error "E5_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
+    #error "E6_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
+    #error "E7_HYBRID_THRESHOLD must be greater than 0."
+  #endif
+#endif // HYBRID_THRESHOLD
+
 // Other TMC feature requirements
-#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
-  #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-#elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
   #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."

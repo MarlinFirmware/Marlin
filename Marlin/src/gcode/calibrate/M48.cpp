@@ -66,9 +66,6 @@ void GcodeSuite::M48() {
     return;
   }
 
-  if (verbose_level > 0)
-    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
-
   const int8_t n_samples = parser.byteval('P', 10);
   if (!WITHIN(n_samples, 4, 50)) {
     SERIAL_ECHOLNPGM("?Sample size not plausible (4-50).");
@@ -101,6 +98,9 @@ void GcodeSuite::M48() {
   // Schizoid motion as an optional stress-test
   const bool schizoid_flag = parser.boolval('S');
   if (schizoid_flag && !seen_L) n_legs = 7;
+
+  if (verbose_level > 0)
+    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
 
   if (verbose_level > 2)
     SERIAL_ECHOLNPGM("Positioning the probe...");
@@ -261,8 +261,7 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      char sigma_str[8];
-      ui.status_printf(0, F(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
+      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
     #endif
   }
 
