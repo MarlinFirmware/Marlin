@@ -326,7 +326,7 @@
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
@@ -454,8 +454,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)

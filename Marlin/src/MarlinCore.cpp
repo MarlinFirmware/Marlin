@@ -819,7 +819,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  TERN(DWIN_CREALITY_LCD, dwinUpdate(), ui.update());
+  ui.update();
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1063,7 +1063,7 @@ inline void tmc_standby_setup() {
  *  - Init the buzzer, possibly a custom timer
  *  - Init more optional hardware:
  *    • Color LED illumination
- *    • Neopixel illumination
+ *    • NeoPixel illumination
  *    • Controller Fan
  *    • Creality DWIN LCD (show boot image)
  *    • Tare the Probe if possible

@@ -162,8 +162,8 @@
 //
 // SD Support
 //
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
+#if !defined(SDCARD_CONNECTION) && DISABLED(NO_LCD_SDCARD)
+  #define SDCARD_CONNECTION                  LCD
 #endif
 
 #define SD_DETECT_PIN                       PE3

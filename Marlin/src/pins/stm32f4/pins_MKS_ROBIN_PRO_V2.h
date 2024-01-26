@@ -75,6 +75,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PE4
@@ -284,6 +291,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253

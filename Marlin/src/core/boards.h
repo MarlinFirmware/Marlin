@@ -519,7 +519,9 @@
 //
 // HC32 ARM Cortex-M4
 //
+
 #define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 as found in the Voxelab Aquila X2 and C2
+#define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
 // Custom board

@@ -681,11 +681,11 @@ void unified_bed_leveling::G29() {
     ui.release();
   #endif
 
-  #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+  #ifdef EVENT_GCODE_AFTER_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
     if (probe_deployed) {
       planner.synchronize();
-      gcode.process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
     }
   #else
     UNUSED(probe_deployed);
@@ -1817,7 +1817,8 @@ void unified_bed_leveling::smart_fill_mesh() {
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
-        persistentStore.read_data(i + j, &cccc, sizeof(uint8_t));
+        int pos = i + j;
+        persistentStore.read_data(pos, &cccc, sizeof(uint8_t));
         print_hex_byte(cccc);
         SERIAL_CHAR(' ');
       }

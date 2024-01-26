@@ -278,6 +278,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!

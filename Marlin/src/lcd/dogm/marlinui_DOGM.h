@@ -45,13 +45,16 @@
     #ifdef __SAMD21__
       #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL             // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #else
+      // Hardware SPI on DUE
       #define U8G_CLASS U8GLIB_ST7920_128X64_4X                 // 2 stripes, SW SPI (Original u8glib device)
     #endif
     #define U8G_PARAM LCD_PINS_RS
   #elif (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+    // Hardware SPI shared with SD Card
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
+    // Software SPI
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X                   // 2 stripes, SW SPI (Original u8glib device)
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS
   #endif
@@ -102,7 +105,7 @@
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
 
-  #if (SMART_RAMPS && defined(__SAM3X8E__)) || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
+  #if (SMART_RAMPS && defined(__SAM3X8E__)) || (defined(DOGLCD_SCK) && (DOGLCD_SCK != -1 && DOGLCD_SCK != SD_SCK_PIN)) || (defined(DOGLCD_MOSI) && (DOGLCD_MOSI != -1 && DOGLCD_MOSI != SD_MOSI_PIN))
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
@@ -245,7 +248,7 @@
   #elif IS_I2C_LCD
     #define U8G_PARAM U8G_I2C_OPT_NONE                          // I2C LCD
   #else
-    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                          // HW-SPI
   #endif
 #endif
 

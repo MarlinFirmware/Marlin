@@ -125,6 +125,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PG12  // E0DET
@@ -246,7 +253,7 @@
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
@@ -416,8 +423,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)

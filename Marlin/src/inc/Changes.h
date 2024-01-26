@@ -82,6 +82,8 @@
   #error "Z_ENDSTOP_SERVO_NR is now Z_PROBE_SERVO_NR."
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
+#elif defined(ALLOW_LOW_EJERK)
+  #error "ALLOW_LOW_EJERK is deprecated and should be removed."
 #elif defined(XY_TRAVEL_SPEED)
   #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
 #elif defined(XY_PROBE_SPEED)
@@ -685,6 +687,8 @@
   #error "SDIO_SUPPORT is now ONBOARD_SDIO."
 #elif defined(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
   #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
+#elif defined(Z_PROBE_END_SCRIPT)
+  #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
 #endif
 
 // Changes to Probe Temp Compensation (#17392)

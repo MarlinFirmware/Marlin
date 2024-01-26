@@ -615,7 +615,7 @@ void GcodeSuite::G26() {
 
   // If any preset or temperature was specified
   if (noztemp) {
-    if (!WITHIN(noztemp, 165, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))) {
+    if (!WITHIN(noztemp, 165, thermalManager.hotend_max_target(active_extruder))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }

@@ -67,8 +67,6 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
-
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -702,7 +700,7 @@ void MarlinUI::init() {
         else
           new_frm = old_frm;
       }
-      else if ((old_frm < 100 && new_frm > 100) || (old_frm > 100 && new_frm < 100))
+      else if ((old_frm < 100) == (new_frm > 100)) // Crossing 100? Stick at 100.
         new_frm = 100;
 
       LIMIT(new_frm, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
@@ -722,7 +720,31 @@ void MarlinUI::init() {
         #endif
       }
 
-    #endif // ULTIPANEL_FEEDMULTIPLY
+    #elif ENABLED(ULTIPANEL_FLOWPERCENT)
+
+      const int16_t old_fp = planner.flow_percentage[active_extruder];
+            int16_t new_fp = old_fp + int16_t(encoderPosition);
+
+      // Dead zone at 100% flow percentage
+      if (old_fp == 100) {
+        if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
+          new_fp -= ENCODER_FEEDRATE_DEADZONE;
+        else if (int16_t(encoderPosition) < -(ENCODER_FEEDRATE_DEADZONE))
+          new_fp += ENCODER_FEEDRATE_DEADZONE;
+        else
+          new_fp = old_fp;
+      }
+      else if ((old_fp < 100) == (new_fp > 100)) // Crossing 100? Stick at 100.
+        new_fp = 100;
+
+      LIMIT(new_fp, FLOW_EDIT_MIN, FLOW_EDIT_MAX);
+
+      if (old_fp != new_fp) {
+        planner.set_flow(active_extruder, new_fp);
+        encoderPosition = 0;
+      }
+
+    #endif // ULTIPANEL_FLOWPERCENT
 
     draw_status_screen();
   }
@@ -825,52 +847,51 @@ void MarlinUI::init() {
       if (processing) return;   // Prevent re-entry from idle() calls
 
       // Add a manual move to the queue?
-      if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
+      if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-        const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
-        #if IS_KINEMATIC
+      #if IS_KINEMATIC
 
-          #if HAS_MULTI_EXTRUDER
-            REMEMBER(ae, active_extruder);
-            #if MULTI_E_MANUAL
-              if (axis == E_AXIS) active_extruder = e_index;
-            #endif
+        #if HAS_MULTI_EXTRUDER
+          REMEMBER(ae, active_extruder);
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
           #endif
-
-          // Apply a linear offset to a single axis
-          if (axis == ALL_AXES_ENUM)
-            destination = all_axes_destination;
-          else if (axis <= LOGICAL_AXES) {
-            destination = current_position;
-            destination[axis] += offset;
-          }
-
-          // Reset for the next move
-          offset = 0;
-          axis = NO_AXIS_ENUM;
-
-          // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
-          // move_to_destination. This will cause idle() to be called, which can then call this function while the
-          // previous invocation is being blocked. Modifications to offset shouldn't be made while
-          // processing is true or the planner will get out of sync.
-          processing = true;
-          prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
-          processing = false;
-
-        #else
-
-          // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position, fr_mm_s,
-            TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
-          );
-
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
-
-          axis = NO_AXIS_ENUM;
-
         #endif
-      }
+
+        // Apply a linear offset to a single axis
+        if (axis == ALL_AXES_ENUM)
+          destination = all_axes_destination;
+        else if (axis <= LOGICAL_AXES) {
+          destination = current_position;
+          destination[axis] += offset;
+        }
+
+        // Reset for the next move
+        offset = 0;
+        axis = NO_AXIS_ENUM;
+
+        // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
+        // move_to_destination. This will cause idle() to be called, which can then call this function while the
+        // previous invocation is being blocked. Modifications to offset shouldn't be made while
+        // processing is true or the planner will get out of sync.
+        processing = true;
+        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        processing = false;
+
+      #else
+
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
+
+        //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+
+        axis = NO_AXIS_ENUM;
+
+      #endif
     }
 
     //
@@ -942,7 +963,6 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
-    static millis_t next_encoder_enable_ms = 0;
     const millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
@@ -993,12 +1013,7 @@ void MarlinUI::init() {
       if (!touch_buttons) {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) {
-            if (ELAPSED(ms, next_encoder_enable_ms))
-              do_click();              // Handle the click
-            else
-              wait_for_unclick = true;
-          }
+          if (!wait_for_unclick) do_click();              // Handle the click
         }
         else
           wait_for_unclick = false;
@@ -1035,73 +1050,68 @@ void MarlinUI::init() {
         uint8_t abs_diff = ABS(encoderDiff);
 
         #if ENCODER_PULSES_PER_STEP > 1
-          #if HAS_TOUCH_SLEEP
-            static int8_t lastEncoderDiff;
-            if (lastEncoderDiff != encoderDiff) {
-              wakeup_screen();
-              lastEncoderDiff = encoderDiff;
-            }
-          #endif
+          // When reversing the encoder direction, a movement step can be missed because
+          // encoderDiff has a non-zero residual value, making the controller unresponsive.
+          // The fix clears the residual value when the encoder is idle.
+          // Also check if past half the threshold to compensate for missed single steps.
+          static int8_t lastEncoderDiff;
+
+          // Timeout? No decoder change since last check. 10 or 20 times per second.
+          if (encoderDiff == lastEncoderDiff && abs_diff <= epps / 2)   // Same direction & size but not over a half-step?
+            encoderDiff = 0;                                            // Clear residual pulses.
+          else if (WITHIN(abs_diff, epps / 2 + 1, epps - 1)) {          // Past half of threshold?
+            abs_diff = epps;                                            // Treat as a full step size
+            encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
+          }
+          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
+          lastEncoderDiff = encoderDiff;
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
-
-          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
-
-            int32_t encoderMultiplier = 1;
-
-            if (encoderRateMultiplierEnabled) {
-              if (lastEncoderMovementMillis) {
-                const float encoderMovementSteps = float(abs_diff) / epps;
-                // Note that the rate is always calculated between two passes through the
-                // loop and that the abs of the encoderDiff value is tracked.
-                const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
-
-                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-
-                // Enable to output the encoder steps per second value
-                //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                  SERIAL_ECHO_START();
-                  SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                  SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                  SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                  SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                  SERIAL_EOL();
-                #endif
-              }
-
-              lastEncoderMovementMillis = ms;
-            } // encoderRateMultiplierEnabled
-
-          #else
-
-            constexpr int32_t encoderMultiplier = 1;
-
-          #endif // ENCODER_RATE_MULTIPLIER
-
-          int8_t fullSteps = encoderDiff / epps;
-          if (fullSteps != 0) {
-
-            #if ENABLED(ENCODER_RATE_MULTIPLIER)
-              static bool lastFwd;
-              const bool fwd = fullSteps > 0;
-              if (encoderMultiplier != 1 && fwd != lastFwd)
-                fullSteps *= -1;  // Fast move and direction changed? Assume glitch.
-              else
-                lastFwd = fwd;    // Slow move or lastFwd==fwd already. Remember dir.
-            #endif
-
-            next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
-            encoderDiff -= fullSteps * epps;
-            if (can_encode() && !lcd_clicked)
-              encoderPosition += (fullSteps * encoderMultiplier);
-          }
-        }
-
         if (encoderPastThreshold || lcd_clicked) {
+          if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
+
+            #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+
+              int32_t encoderMultiplier = 1;
+
+              if (encoderRateMultiplierEnabled) {
+                const float encoderMovementSteps = float(abs_diff) / epps;
+
+                if (lastEncoderMovementMillis) {
+                  // Note that the rate is always calculated between two passes through the
+                  // loop and that the abs of the encoderDiff value is tracked.
+                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+
+                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
+                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
+
+                  // Enable to output the encoder steps per second value
+                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                    SERIAL_ECHO_START();
+                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
+                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
+                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
+                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
+                    SERIAL_EOL();
+                  #endif
+                }
+
+                lastEncoderMovementMillis = ms;
+              } // encoderRateMultiplierEnabled
+
+            #else
+
+              constexpr int32_t encoderMultiplier = 1;
+
+            #endif // ENCODER_RATE_MULTIPLIER
+
+            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+
+            encoderDiff = 0;
+          }
+
           reset_status_timeout(ms);
 
           #if HAS_BACKLIGHT_TIMEOUT
@@ -1115,7 +1125,7 @@ void MarlinUI::init() {
           #if LED_POWEROFF_TIMEOUT > 0
             if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
-        }
+        } // encoder activity
 
       #endif // HAS_ENCODER_ACTION
 
@@ -1413,10 +1423,9 @@ void MarlinUI::init() {
 
       #if HAS_ENCODER_WHEEL
         static uint8_t lastEncoderBits;
-        bool ignore = false;
 
         // Manage encoder rotation
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; default: ignore = true; }
+        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
 
         uint8_t enc = 0;
         if (buttons & EN_A) enc |= B01;
@@ -1431,7 +1440,7 @@ void MarlinUI::init() {
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
-          if (!ignore) lastEncoderBits = enc;
+          lastEncoderBits = enc;
         }
 
       #endif // HAS_ENCODER_WHEEL

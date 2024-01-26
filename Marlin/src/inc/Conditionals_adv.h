@@ -1243,11 +1243,6 @@
   #define NO_EEPROM_SELECTED 1
 #endif
 
-// Flag whether hex_print.cpp is used
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT)
-  #define NEED_HEX_PRINT 1
-#endif
-
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ANY(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
@@ -1309,6 +1304,12 @@
   #define HAS_ZV_SHAPING 1
 #endif
 
+// FT Motion unified window and batch size
+#if ALL(FT_MOTION, FTM_UNIFIED_BWS)
+  #define FTM_WINDOW_SIZE FTM_BW_SIZE
+  #define FTM_BATCH_SIZE  FTM_BW_SIZE
+#endif
+
 // Toolchange Event G-code
 #if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
   #undef TC_GCODE_USE_GLOBAL_X
@@ -1348,4 +1349,14 @@
 // Clean up if only mm units are used
 #if DISABLED(INCH_MODE_SUPPORT)
   #undef MANUAL_MOVE_DISTANCE_IN
+#endif
+
+// Clean up if no rotational axes exist
+#if !HAS_ROTATIONAL_AXES
+  #undef MANUAL_MOVE_DISTANCE_DEG
+#endif
+
+// Power-Loss Recovery
+#if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
+  #define HAS_PLR_BED_THRESHOLD 1
 #endif
