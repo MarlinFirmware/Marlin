@@ -230,16 +230,61 @@
   extern void ReportErrorHookDynamicRender(void) {
     #ifdef HAS_WIRED_LCD
       // beware - this optimization abuses the fact, that FindaDetectsFilament returns 0 or 1 and '0' is followed by '1' in the ASCII table
-      lcd_put_int(3, 2, mmu2.FindaDetectsFilament() + '0');
-      lcd_put_int(8, 2, FILAMENT_PRESENT() + '0');
+      lcd_put_int(3, LCD_HEIGHT - 1, mmu2.FindaDetectsFilament() + '0');
+      lcd_put_int(8, LCD_HEIGHT - 1, FILAMENT_PRESENT() + '0');
 
       // print active/changing filament slot
-      lcd_moveto(10, 2);
+      lcd_moveto(10, LCD_HEIGHT - 1);
       lcdui_print_extruder();
 
       // Print active extruder temperature
-      lcd_put_int(16, 2, (int)(thermalManager.degHotend(0) + 0.5));
+      lcd_put_int(16, LCD_HEIGHT - 1, (int)(thermalManager.degHotend(0) + 0.5));
     #endif
+  }
+
+  static bool drawing_more_info_screen = false;
+  static bool msg_next_is_consumed = false;
+  static char *msg_next = nullptr;
+
+  /**
+   * Display more info about the error. If the error message doesn't fit into
+   * the screen, clicking the LCD button will go to the next screen to display
+   * the rest of the message, until no messages left to display and a final
+   * click will return to the previous screen.
+   * 
+   * This gets the message data from the "editable.uint8" which is set in the
+   * action item.
+   */
+  void show_more_info_screen() {
+    if(drawing_more_info_screen)
+      return;
+    drawing_more_info_screen = true;
+    const char *msg = PrusaErrorDesc(editable.uint8);
+    if (ui.use_click()){
+      if(msg_next_is_consumed){
+        drawing_more_info_screen = false;
+        msg_next_is_consumed = false;
+        msg_next = nullptr;
+        // prevent this function to be triggered again...
+        SetButtonResponse(ButtonOperations::NoOperation);
+        return ui.go_back();
+      } else {
+        msg = msg_next;
+      }
+    } else if (msg_next_is_consumed){
+      msg = msg_next;
+    }
+    const char *msg_next_int = lcd_display_message_fullscreen_P(msg);
+    if (strlen_P(msg_next_int) == 0){
+      msg_next_is_consumed = true;
+    } else {
+      msg_next_is_consumed = false;
+      strcpy(msg_next, msg_next_int);
+    }
+    // set the button response to MoreInfo so we keep coming back to this
+    // screen until all messages are consumed
+    SetButtonResponse(ButtonOperations::MoreInfo);
+    drawing_more_info_screen = false;
   }
 
   /**
@@ -267,42 +312,74 @@
         // Two operations not specified, the error menu should only show two choices
         two_choices = true;
 
-      ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_NO_REDRAW;
-      ui.clear_lcd();
-
-      START_SCREEN();
+      START_MENU();
       #ifndef __AVR__
         // TODO: I couldn't make this work on AVR
         STATIC_ITEM_F(F(PrusaErrorTitle(ei)), SS_DEFAULT | SS_INVERT);
 
+        // write the help page and error code
         MString<LCD_WIDTH> url("");
-        url.append(
-      "prusa.io/04%hu",
-      PrusaErrorCode(ei)
-      );
+        url.appendf(
+          "prusa.io/04%hu",
+          PrusaErrorCode(ei)
+        );
         STATIC_ITEM_F(F(url.buffer()));
+
+        // ReportErrorHookSensorLineRender();
+
+        editable.uint8 = button_op_middle;
+        ACTION_ITEM_F(
+          F(PrusaErrorButtonTitle(button_op_middle)),
+          []{
+            SetButtonResponse((ButtonOperations)editable.uint8);
+          }
+        );
+
+        if(!two_choices){
+          editable.uint8 = button_op_right;
+          ACTION_ITEM_F(
+            F(PrusaErrorButtonTitle(button_op_right)),
+            []{SetButtonResponse((ButtonOperations)editable.uint8);}
+          );
+        }
+
+        // Add a More Info option
+        editable.uint8 = ei;
+        ACTION_ITEM_F(
+          F(PrusaErrorButtonMore()),
+          []{
+            // only when the menu item is used push the current screen back
+            ui.push_current_screen();
+            msg_next_is_consumed = false;
+            msg_next = nullptr;
+            SetButtonResponse(ButtonOperations::MoreInfo);
+          }
+        );
+
       #endif
 
-      ReportErrorHookSensorLineRender();
-
       // Render the choices
-      lcd_show_choices_prompt_P(
-      two_choices ? LCD_LEFT_BUTTON_CHOICE : LCD_MIDDLE_BUTTON_CHOICE,
-      PrusaErrorButtonTitle(button_op_middle),
-      two_choices ? PrusaErrorButtonMore() : PrusaErrorButtonTitle(button_op_right),
-      two_choices ? 18 : 9,
-      two_choices ? nullptr : PrusaErrorButtonMore()
-      );
+      // lcd_show_choices_prompt_P(
+      //   two_choices ? LCD_LEFT_BUTTON_CHOICE : LCD_MIDDLE_BUTTON_CHOICE,
+      //   PrusaErrorButtonTitle(button_op_middle),
+      //   two_choices ? PrusaErrorButtonMore() : PrusaErrorButtonTitle(button_op_right),
+      //   two_choices ? 18 : 9,
+      //   two_choices ? nullptr : PrusaErrorButtonMore()
+      // );
 
-      END_SCREEN();
-      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+      END_MENU();
+      // ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
     #endif // ifdef HAS_WIRED_LCD
   }
 
   void ReportErrorHookSensorLineRender() {
     #ifdef HAS_WIRED_LCD
       // Render static characters in third line
-      lcd_put_u8str(0, 2, F("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE));
+      lcd_put_u8str(
+        0,
+        LCD_HEIGHT - 1,
+        F("FI:  FS:    >  " LCD_STR_THERMOMETER "   " LCD_STR_DEGREE)
+      );
     #endif
   }
 
@@ -318,115 +395,14 @@
    */
   static uint8_t ReportErrorHookMonitor(uint8_t ei) {
     uint8_t ret = 0;
-    bool two_choices = false;
-    static uint8_t reset_button_selection;
-
-    // Read and determine what operations should be shown on the menu
-    const uint8_t button_operation   = PrusaErrorButtons(ei);
-    const uint8_t button_op_right = BUTTON_OP_RIGHT(button_operation);
-    const uint8_t button_op_middle  = BUTTON_OP_MIDDLE(button_operation);
-
-    // Check if the menu should have three or two choices
-    if (button_op_right == (uint8_t)ButtonOperations::NoOperation)
-      // Two operations not specified, the error menu should only show two choices
-      two_choices = true;
-
-    static int8_t current_selection = two_choices ? LCD_LEFT_BUTTON_CHOICE : LCD_MIDDLE_BUTTON_CHOICE;
-    static int8_t choice_selected = -1;
-
-    if (reset_button_selection) {
-      // If a new error screen is shown, we must reset the button selection
-      // Default selection is different depending on how many buttons are present
-      current_selection = two_choices ? LCD_LEFT_BUTTON_CHOICE : LCD_MIDDLE_BUTTON_CHOICE;
-      choice_selected = -1;
-      reset_button_selection = 0;
-    }
-
-    #ifdef HAS_WIRED_LCD
-      // Check if knob was rotated
-      if (ui.encoderPosition != 0) {
-        if (two_choices == false) { // third_choice is not nullptr, safe to dereference
-          if (ui.encoderPosition < 0 && current_selection != LCD_LEFT_BUTTON_CHOICE)
-            // Rotating knob counter clockwise
-            current_selection--;
-          else if (ui.encoderPosition > 0 && current_selection != LCD_RIGHT_BUTTON_CHOICE)
-            // Rotating knob clockwise
-            current_selection++;
-        }
-        else {
-          if (ui.encoderPosition < 0 && current_selection != LCD_LEFT_BUTTON_CHOICE)
-            // Rotating knob counter clockwise
-            current_selection = LCD_LEFT_BUTTON_CHOICE;
-          else if (ui.encoderPosition > 0 && current_selection != LCD_MIDDLE_BUTTON_CHOICE)
-            // Rotating knob clockwise
-            current_selection = LCD_MIDDLE_BUTTON_CHOICE;
-        }
-
-        // Update '>' render only
-        //! @brief Button menu
-        //!
-        //! @code{.unparsed}
-        //! |01234567890123456789|
-        //! |                    |
-        //! |                    |
-        //! |                    |
-        //! |>(left)             |
-        //! ----------------------
-        //! Three choices
-        //! |>(left)>(mid)>(righ)|
-        //! ----------------------
-        //! Two choices
-        //! ----------------------
-        //! |>(left)   >(mid)    |
-        //! ----------------------
-        //! @endcode
-        //
-
-        lcd_put_lchar(0, 3, current_selection == LCD_LEFT_BUTTON_CHOICE ? '>' : ' ');
-        if (two_choices == false) {
-          lcd_put_lchar(9, 3, current_selection == LCD_MIDDLE_BUTTON_CHOICE ? '>' : ' ');
-          lcd_put_lchar(18, 3, current_selection == LCD_RIGHT_BUTTON_CHOICE ? '>' : ' ');
-        }
-        else {
-          // More button for two button screen
-          lcd_put_lchar(18, 3, current_selection == LCD_MIDDLE_BUTTON_CHOICE ? '>' : ' ');
-        }
-        // Consume rotation event
-        //ui.encoderPosition = 0;  // disabled this as this is causing issues with the Menu
-      }
-    #endif // ifdef HAS_WIRED_LCD
-
-    // Check if knob was clicked and consume the event
-    if (ui.button_pressed())
-      choice_selected = current_selection;
-    else
-      // continue monitoring
-      return ret;
-
-    if ((two_choices && choice_selected == LCD_MIDDLE_BUTTON_CHOICE)    // Two choices and middle button selected
-        || (!two_choices && choice_selected == LCD_RIGHT_BUTTON_CHOICE)
-        ) {                                                          // Three choices and right most button selected
-      // 'More' show error description
-      #ifdef HAS_WIRED_LCD
-        lcd_show_fullscreen_message_and_wait_P(PrusaErrorDesc(ei));
-        #ifndef __AVR__
-          // TODO: I couldn't make this work on AVR
-          LCD_ALERTMESSAGE_F(PrusaErrorDesc(ei));
-        #endif
-      #endif
+    if (GetButtonResponse() == ButtonOperations::MoreInfo){
+      SetButtonResponse(ButtonOperations::NoOperation);
       ret = 1;
-    }
-    else if (choice_selected == LCD_MIDDLE_BUTTON_CHOICE) {
-      SetButtonResponse((ButtonOperations)button_op_right);
+    } else if (GetButtonResponse() != ButtonOperations::NoOperation){
       ret = 2;
     }
-    else {
-      SetButtonResponse((ButtonOperations)button_op_middle);
-      ret = 2;
-    }
-
     // Next MMU error screen should reset the choice selection
-    reset_button_selection = 1;
+    // reset_button_selection = 1;
     return ret;
   }
 
@@ -460,88 +436,45 @@
   void ReportErrorHook(CommandInProgress /*cip*/, ErrorCode ec, uint8_t /*es*/) {
     if (putErrorScreenToSleep) return;
 
-    if (mmu2.MMUCurrentErrorCode() == ErrorCode::OK && mmu2.MMULastErrorSource() == MMU2::ErrorSourceMMU)
+    if (mmu2.MMUCurrentErrorCode() == ErrorCode::OK && mmu2.MMULastErrorSource() == MMU2::ErrorSourceMMU){
       // If the error code suddenly changes to OK, that means
       // a button was pushed on the MMU and the LCD should
       // dismiss the error screen until MMU raises a new error
       ReportErrorHookState = ReportErrorHookStates::DISMISS_ERROR_SCREEN;
+      drawing_more_info_screen = false;
+      msg_next_is_consumed = true;
+    }
 
     const uint8_t ei = PrusaErrorCodeIndex((ErrorCode)ec);
-
-    // TODO: This part requires C++17 as "fallthrough" is not allowed in C++11,
-    //       Converting this section to a if clause before the switch..case
-    // switch ((uint8_t)ReportErrorHookState) {
-    // case (uint8_t)ReportErrorHookStates::RENDER_ERROR_SCREEN:
-    //     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    //     ReportErrorHookStaticRender(ei);
-    //     ReportErrorHookState = ReportErrorHookStates::MONITOR_SELECTION;
-    //     [[fallthrough]];
-    // case (uint8_t)ReportErrorHookStates::MONITOR_SELECTION:
-    //     is_mmu_error_monitor_active = true;
-    //     ReportErrorHookDynamicRender(); // Render dynamic characters
-    //     sound_wait_for_user();
-    //     switch (ReportErrorHookMonitor(ei)) {
-    //         case 0:
-    //             // No choice selected, return to loop()
-    //             break;
-    //         case 1:
-    //             // More button selected, change state
-    //             ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
-    //             break;
-    //         case 2:
-    //             // Exit error screen and enable lcd updates
-    //             // lcd_update_enable(true);
-    //             ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-    //             // lcd_return_to_status();
-    //             ui.return_to_status();
-    //             sound_wait_for_user_reset();
-    //             // Reset the state in case a new error is reported
-    //             is_mmu_error_monitor_active = false;
-    //             KEEPALIVE_STATE(IN_HANDLER);
-    //             ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     return; // Always return to loop() to let MMU trigger a call to ReportErrorHook again
-    //     break;
-    // case (uint8_t)ReportErrorHookStates::DISMISS_ERROR_SCREEN:
-    //     // lcd_update_enable(true);
-    //     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-    //     // lcd_return_to_status();
-    //     ui.return_to_status();
-    //     sound_wait_for_user_reset();
-    //     // Reset the state in case a new error is reported
-    //     is_mmu_error_monitor_active = false;
-    //     KEEPALIVE_STATE(IN_HANDLER);
-    //     ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
-    //     break;
-    // default:
-    //     break;
-    // }
 
     // This should be the equivelent of the switch..case above...
     if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::RENDER_ERROR_SCREEN) {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       #if HAS_WIRED_LCD
-        ReportErrorHookStaticRender(ei);
+        drawing_more_info_screen = false;
+        msg_next_is_consumed = false;
+        msg_next = nullptr;
+        editable.uint8 = ei;
+        ui.defer_status_screen();
+        ui.goto_screen([]{ReportErrorHookStaticRender(editable.uint8);});
       #endif
       ReportErrorHookState = ReportErrorHookStates::MONITOR_SELECTION;
     }
 
     if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::MONITOR_SELECTION) {
       is_mmu_error_monitor_active = true;
-      ReportErrorHookDynamicRender(); // Render dynamic characters
+      // ReportErrorHookDynamicRender(); // Render dynamic characters
       sound_wait_for_user();
       uint8_t result = ReportErrorHookMonitor(ei);
       if (result == 0) {
         // No choice selected, return to loop()
-      }
-      else if (result == 1) {
-        // More button selected, change state
-        ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
-      }
-      else if (result == 2) {
+      } else if (result == 1) {
+        // More Info button selected, change state
+        editable.uint8 = ei;
+        // ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
+        ui.goto_screen(show_more_info_screen);
+        ReportErrorHookState = ReportErrorHookStates::MONITOR_SELECTION;
+      } else if (result == 2) {
         // Exit error screen and enable lcd updates
         #ifdef HAS_WIRED_LCD
           ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
@@ -554,8 +487,7 @@
         ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
       }
       return; // Always return to loop() to let MMU trigger a call to ReportErrorHook again
-    }
-    else if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::DISMISS_ERROR_SCREEN) {
+    } else if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::DISMISS_ERROR_SCREEN) {
       #ifdef HAS_WIRED_LCD
         ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_CALL_REDRAW_NEXT;
         ui.return_to_status();
@@ -645,15 +577,17 @@
     #if HAS_WIRED_LCD
       ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
-      // START_SCREEN();
+      START_SCREEN();
+      STATIC_ITEM_F(F(pgmS), SS_DEFAULT|SS_INVERT);
       // SETCURSOR(0, 1);
-      lcd_moveto(0, 1);
-      lcd_put_u8str_P(pgmS);
+      // lcd_moveto(0, 1);
+      // lcd_put_u8str_P(pgmS);
       // SETCURSOR(1, 0);
-      lcd_moveto(1, 0);
-      lcd_put_int(slot + 1);
-      // END_SCREEN();
+      // lcd_moveto(1, 0);
+      // lcd_put_int(slot + 1);
+      END_SCREEN();
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+      ui.screen_changed = true;
     #endif
   }
 

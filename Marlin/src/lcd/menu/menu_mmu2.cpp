@@ -115,12 +115,12 @@ void action_mmu2_unload_filament() {
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
   #if HAS_PRUSA_MMU3
     while (!MMU2::mmu2.unload()){
-      safe_delay(500);
-      MMU2::marlin_idle(false);
+      safe_delay(50);
+      MMU2::marlin_idle(true);
     }
   #else
     while (!mmu2.unload()){
-      safe_delay(500);
+      safe_delay(50);
       idle();
     }
   #endif
@@ -176,15 +176,14 @@ void menu_mmu2_fail_stats_last_print(){
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
 
   START_SCREEN();
-  if(printJobOngoing()){
-    STATIC_ITEM(MSG_MMU_CURRENT_PRINT_FAILURES, SS_INVERT);
-  } else {
-    STATIC_ITEM(MSG_MMU_LAST_PRINT_FAILURES, SS_INVERT);
-  }
+  STATIC_ITEM(
+    TERN(printJobOngoing(), MSG_MMU_CURRENT_PRINT_FAILURES, MSG_MMU_LAST_PRINT_FAILURES),
+    SS_INVERT
+  );
   #ifndef __AVR__
-  // TODO: I couldn't make this work on AVR
-  PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
-  PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
+    // TODO: I couldn't make this work on AVR
+    PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
+    PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
   #endif
   END_SCREEN();
 }
@@ -262,11 +261,10 @@ void menu_mmu2_statistics() {
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu2_dev_increment_load_fail_stat);
   #endif
 
-  if(printJobOngoing()){
-    SUBMENU(MSG_MMU_CURRENT_PRINT_FAILURES, menu_mmu2_fail_stats_last_print);
-  } else {
-    SUBMENU(MSG_MMU_LAST_PRINT_FAILURES, menu_mmu2_fail_stats_last_print);
-  }
+  SUBMENU(
+    TERN(printJobOngoing(), MSG_MMU_CURRENT_PRINT_FAILURES, MSG_MMU_LAST_PRINT_FAILURES),
+    menu_mmu2_fail_stats_last_print
+  );
   SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu2_fail_stas_total);
   SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu2_toolchange_stat_total);
   CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,

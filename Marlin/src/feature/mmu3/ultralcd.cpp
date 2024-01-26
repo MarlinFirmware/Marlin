@@ -112,8 +112,9 @@
   static const char* lcd_display_message_fullscreen_nonBlocking_P(const char *msg) {
     const char *msgend = msg;
     bool multi_screen = false;
-    START_SCREEN();
     for (uint8_t row = 0; row < LCD_HEIGHT; ++row) {
+      if(pgm_read_byte(msgend) == 0)
+        break;
       SETCURSOR(0, row);
 
       // Previous row ended with a complete word, so the first character in the
@@ -129,8 +130,9 @@
         // Last line of the display, full line shall be displayed.
         // Find out, whether this message will be split into multiple screens.
         multi_screen = pgm_read_byte(msgend) != 0;
-        if (multi_screen)
-          msgend = (msgend2 -= 2);
+        // We do not need this...
+        // if (multi_screen)
+        //   msgend = (msgend2 -= 2);
       }
       if (pgm_read_byte(msgend) != 0 && !pgm_is_whitespace(msgend) && !pgm_is_interpunction(msgend)) {
         // Splitting a word. Find the start of the current word.
@@ -142,34 +144,31 @@
       for (; msg < msgend; ++msg) {
         char c = char(pgm_read_byte(msg));
         if (c == '\n')
-          // Abort early if '\n' is encontered.
+          // Abort early if '\n' is encountered.
           // This character is used to force the following words to be printed on the next line.
           break;
         lcd_put_lchar(c);
       }
     }
-
-    if (multi_screen)
-      // Display the double down arrow.
-      lcd_put_lchar(19, 3, LCD_STR_ARROW_2_DOWN[0]);
-    END_SCREEN();
-    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-
-    return multi_screen ? msgend : NULL;
+    // We do not need this part...
+    // if (multi_screen)
+    //   // Display the double down arrow.
+    //   lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_ARROW_2_DOWN[0]);
+    // return multi_screen ? msgend : NULL;
+    return msgend;
   }
 
 
   const char* lcd_display_message_fullscreen_P(const char *msg) {
     // Disable update of the screen by the usual lcd_update(0) routine.
     #if HAS_WIRED_LCD
-      ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
+      // ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
       return lcd_display_message_fullscreen_nonBlocking_P(msg);
     #else
       return msg
     #endif
   }
-
 
   /**
    * @brief show full screen message and wait
@@ -181,32 +180,38 @@
     LcdUpdateDisabler lcdUpdateDisabler;
     const char *msg_next = lcd_display_message_fullscreen_P(msg);
     bool multi_screen = msg_next != NULL;
-    ui.lcd_clicked = false;
+    ui.use_click();
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     // Until confirmed by a button click.
     for (;;) {
       if (msg_next == NULL)
         // Display the confirm char.
-        lcd_put_lchar(19, 3, LCD_STR_CONFIRM[0]);
+        // lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_CONFIRM[0]);
       // Wait for 5 seconds before displaying the next text.
       for (uint8_t i = 0; i < 100; ++i) {
         idle(true);
         safe_delay(50);
-        if (ui.lcd_clicked) {
+        if (ui.use_click()) {
           if (msg_next == NULL) {
             KEEPALIVE_STATE(IN_HANDLER);
-            return;
-          }
-          else {
-            break;
+            return ui.go_back();
+          } else {
+            // break;
+            if (multi_screen) {
+              if (msg_next == NULL)
+                msg_next = msg;
+              msg_next = lcd_display_message_fullscreen_P(msg_next);
+            } else {
+              break;
+            }
           }
         }
       }
-      if (multi_screen) {
-        if (msg_next == NULL)
-          msg_next = msg;
-        msg_next = lcd_display_message_fullscreen_P(msg_next);
-      }
+    //   if (multi_screen) {
+    //     if (msg_next == NULL)
+    //       msg_next = msg;
+    //     msg_next = lcd_display_message_fullscreen_P(msg_next);
+    //   }
     }
   }
 

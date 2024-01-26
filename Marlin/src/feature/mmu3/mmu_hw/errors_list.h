@@ -346,7 +346,7 @@ static const char MSG_BTN_EJECT[] PROGMEM = ISTR("Eject"); ////MSG_BTN_EJECT c=8
 // static const char MSG_BTN_TUNE_MMU[] PROGMEM = ISTR("Tune"); //Reuse MSG_TUNE c=8
 static const char MSG_BTN_STOP[] PROGMEM = ISTR("Stop"); ////MSG_BTN_STOP c=8
 static const char MSG_BTN_DISABLE_MMU[] PROGMEM = ISTR("Disable"); ////MSG_BTN_DISABLE_MMU c=8
-static const char MSG_BTN_MORE[] PROGMEM = LCD_STR_ARROW_2_DOWN;
+static const char MSG_BTN_MORE[] PROGMEM = ISTR("More Info"); //// LCD_STR_ARROW_2_DOWN;
 
 // Used to parse the buttons from Btns().
 static const char * const btnOperation[] PROGMEM = {

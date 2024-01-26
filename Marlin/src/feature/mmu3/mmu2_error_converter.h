@@ -63,6 +63,7 @@
   /// Sets the selected button for later pick-up by the MMU state machine.
   /// Used to save the GUI selection/decoupling
   void SetButtonResponse(ButtonOperations rsp);
+  ButtonOperations GetButtonResponse();
 
   /// @returns button index/code based on currently processed error/screen
   /// Clears the "pressed" button upon exit

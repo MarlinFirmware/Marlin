@@ -221,7 +221,7 @@
   }
 
   Buttons ButtonPressed(ErrorCode ec) {
-    if (buttonSelectedOperation == ButtonOperations::NoOperation)
+    if (buttonSelectedOperation == ButtonOperations::NoOperation || buttonSelectedOperation == ButtonOperations::MoreInfo)
       return Buttons::NoButton; // no button
 
     const auto result = ButtonAvailable(ec);
@@ -377,6 +377,10 @@
 
   void SetButtonResponse(ButtonOperations rsp) {
     buttonSelectedOperation = rsp;
+  }
+
+  ButtonOperations GetButtonResponse(){
+    return buttonSelectedOperation;
   }
 
   } // namespace MMU2
