@@ -79,8 +79,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Wys. zanikania");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ust. poz. zer.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Poz. zerowa ust.");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wybierz punkt zero");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Poprzednia wartość ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Wybierz punkt zero");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Rozgrzej ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Rozgrzej ") PREHEAT_1_LABEL " ~";

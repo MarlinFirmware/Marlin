@@ -78,7 +78,7 @@
       ui.goto_previous_screen_no_defer();
       ui.completion_feedback();
     }
-    if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT_F(MSG_LEVEL_BED_DONE));
+    if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, GET_TEXT_F(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }
 

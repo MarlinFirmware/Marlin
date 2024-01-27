@@ -105,8 +105,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastavené");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Chyba: Príliš ďaleko!");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Vyberte začiatok");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Posl. hodnota ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Vyberte začiatok");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Zahriať ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";

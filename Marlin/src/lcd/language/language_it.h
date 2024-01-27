@@ -108,8 +108,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset applicato");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Err: Troppo lontano!");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Wizard Tramming");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Selez. origine");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ultimo valore ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Selez. origine");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
