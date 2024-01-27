@@ -113,7 +113,7 @@ void menu_media_filelist() {
   #endif
 
   START_MENU();
-  #if ENABLED(MULTI_VOLUME)
+  #if HAS_MULTI_VOLUME
     ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
   #else
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
@@ -142,22 +142,39 @@ void menu_media_filelist() {
   END_MENU();
 }
 
-#if ENABLED(MULTI_VOLUME)
+#if HAS_MULTI_VOLUME
+
   void menu_media_select() {
+    auto _select_media = [&](DiskIODriver *driver) {
+      card.changeMedia(driver);
+      card.mount();
+      ui.goto_screen(menu_media_filelist);
+    };
     START_MENU();
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
-    #if ENABLED(VOLUME_SD_ONBOARD)
-      ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #if ANY_VOLUME_IS(ONBOARD)
+      #if ANY_VOLUME_IS(LCD)
+        ACTION_ITEM(MSG_SD_CARD_EXTERNAL, []{ _select_media(&card.media_driver_sdcard); });
+        #define SDCARD_LABEL MSG_SD_CARD_ONBOARD
+      #else
+        #define SDCARD_LABEL MSG_SD_CARD
+      #endif
+      #if ENABLED(ONBOARD_SDIO)
+        ACTION_ITEM(SDCARD_LABEL, []{ _select_media(&card.media_driver_sdiocard); });
+      #else
+        ACTION_ITEM(SDCARD_LABEL, []{ _select_media(&card.media_driver_sdcard); });
+      #endif
     #endif
-    #if ENABLED(VOLUME_USB_FLASH_DRIVE)
-      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #if HAS_USB_FLASH_DRIVE
+      ACTION_ITEM(MSG_USB_DISK, []{ _select_media(&card.media_driver_usbFlash); });
     #endif
     END_MENU();
   }
-#endif
+
+#endif // HAS_MULTI_VOLUME
 
 void menu_media() {
-  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
+  TERN(HAS_MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
 #endif // HAS_MARLINUI_MENU && HAS_MEDIA

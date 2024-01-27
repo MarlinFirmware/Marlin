@@ -132,8 +132,14 @@ int16_t CardReader::nrItems = -1;
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
-#if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+// Onboard and/or external SPI SD Card
+#if NEED_SD2CARD_SPI
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
+#endif
+
+// Onboard SDIO SD Card
+#if NEED_SD2CARD_SDIO
+  CardReader::sdiocard_driver_t CardReader::media_driver_sdiocard;
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
@@ -150,7 +156,7 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
+    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(ONBOARD)
       media_driver_usbFlash
     #else
       media_driver_sdcard
@@ -498,7 +504,7 @@ void CardReader::mount() {
   if (flag.mounted)
     cdroot();
   else {
-    #if ANY(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
+    #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
       if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
     #endif
   }

@@ -118,9 +118,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PC10
-#define MISO_PIN                            PC11
-#define MOSI_PIN                            PC12
+#define SD_SCK_PIN                          PC10
+#define SD_MISO_PIN                         PC11
+#define SD_MOSI_PIN                         PC12
 
 //
 // LCD / Controller

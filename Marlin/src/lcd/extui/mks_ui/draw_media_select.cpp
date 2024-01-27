@@ -21,7 +21,7 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MULTI_VOLUME)
+#if ALL(HAS_TFT_LVGL_UI, HAS_MULTI_VOLUME)
 
 #include "draw_ui.h"
 #include <lv_conf.h>
@@ -70,4 +70,4 @@ void lv_clear_media_select() {
   lv_obj_del(scr);
 }
 
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && HAS_MULTI_VOLUME

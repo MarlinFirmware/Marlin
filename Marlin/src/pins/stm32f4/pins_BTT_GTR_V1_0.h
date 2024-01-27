@@ -355,8 +355,8 @@
   //#define FAN7_PIN                        PE14  // M5 FAN5
 #endif
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif
 
 //
@@ -364,12 +364,12 @@
 // Onboard SD is on a completely separate SPI bus, and requires
 // overriding pins to access.
 //
-#if SD_CONNECTION_IS(LCD)
+#if ANY_VOLUME_IS(LCD)
 
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SDSS                       EXP2_04_PIN
 
-#elif SD_CONNECTION_IS(ONBOARD)
+#elif ANY_VOLUME_IS(ONBOARD)
 
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
@@ -378,8 +378,8 @@
   #define SD_MOSI_PIN                       PA7
   #define SD_DETECT_PIN                     PC4
 
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+#elif ANY_VOLUME_IS(CUSTOM)
+  #error "CUSTOM is not a supported DRIVE for this board"
 #endif
 
 /**
@@ -449,7 +449,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #if SD_CONNECTION_IS(ONBOARD)
+    #if ANY_VOLUME_IS(ONBOARD)
       #define SOFTWARE_SPI
     #endif
   #else
@@ -466,7 +466,7 @@
       #define DOGLCD_CS              EXP1_03_PIN
       #define DOGLCD_A0              EXP1_04_PIN
 
-      #if SD_CONNECTION_IS(ONBOARD)
+      #if ANY_VOLUME_IS(ONBOARD)
         #define SOFTWARE_SPI
       #endif
 
