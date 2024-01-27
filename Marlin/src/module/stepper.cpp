@@ -3576,6 +3576,12 @@ void Stepper::report_positions() {
           return; // No queued blocks.
       }
 
+      #if IS_CORE
+        last_direction_bits.hx = current_block->direction_bits.hx;
+        last_direction_bits.hy = current_block->direction_bits.hy;
+        last_direction_bits.hz = current_block->direction_bits.hz;
+      #endif
+
       ftMotion.startBlockProc();
       return;
     }
