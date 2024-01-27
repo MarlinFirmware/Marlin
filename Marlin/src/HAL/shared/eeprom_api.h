@@ -26,8 +26,8 @@
 
 #include "../../libs/crc16.h"
 
-// For testing. Define with -DEEPROM_EXCL_ZONE=919,926 in INI files.
-//#define EEPROM_EXCL_ZONE 919,926  // Test a range
+// For testing. Define with -DEEPROM_EXCL_ZONE=916,926 in INI files.
+//#define EEPROM_EXCL_ZONE 916,926  // Test a range
 //#define EEPROM_EXCL_ZONE 333      // Test a single byte
 
 #ifdef EEPROM_EXCL_ZONE
