@@ -46,7 +46,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura SD/FD");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
-  LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
+  LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Rebosar subllamada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
@@ -63,8 +63,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Origen Z");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto alineado Z");
   LSTR MSG_ITERATION                      = _UxGT("G34 Iteración: %i");
-  LSTR MSG_DECREASING_ACCURACY            = _UxGT("¡Precisión disminuyendo!");
-  LSTR MSG_ACCURACY_ACHIEVED              = _UxGT("Precisión conseguida");
+  LSTR MSG_DECREASING_ACCURACY            = _UxGT("¡Precisión menos!");
+  LSTR MSG_ACCURACY_ACHIEVED              = _UxGT("Precisión lograda");
   LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Origen XYZ");
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Pulsar para comenzar");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Siguiente punto");
@@ -75,8 +75,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Origen desfase Y");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Origen desfase Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
-  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MÁX demasiado lejos");
-  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Asistente de Tramming");
+  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MÁX muy lejos");
+  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Asistente Tramming");
   LSTR MSG_TRAMMING_DONE                  = _UxGT("Tramming hecho");
   LSTR MSG_LOWER                          = _UxGT("Bajar");
   LSTR MSG_RAISE                          = _UxGT("Elevar");
@@ -114,7 +114,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelando Cama");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivelar Cama");
   LSTR MSG_PROBE_FOR_Z_VALUE              = _UxGT("Sonda para valor Z");
-  LSTR MSG_ZERO_CURRENT_POINT             = _UxGT("Punto de corriente cero");
+  LSTR MSG_ZERO_CURRENT_POINT             = _UxGT("Cero este punto");
 
   LSTR MSG_BED_TRAMMING                   = _UxGT("Recorrido Cama");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Siguente Esquina");
@@ -272,8 +272,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_LCD_OFF                        = _UxGT("Apg");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");
-  LSTR MSG_FOR_NOZZLE_RUNNING             = _UxGT("para BOQUILLA está funcionando.");
-  LSTR MSG_FOR_BED_RUNNING                = _UxGT("para CAMA está funcionando.");
+  LSTR MSG_FOR_NOZZLE_RUNNING             = _UxGT("BOQUILLA funcionando");
+  LSTR MSG_FOR_BED_RUNNING                = _UxGT("CAMA funcionando");
   LSTR MSG_SELECT_E                       = _UxGT("Seleccionar *");
   LSTR MSG_ACC                            = _UxGT("Aceleración");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -319,8 +319,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_ADVANCE_K                      = _UxGT("Avance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Avance K *");
   LSTR MSG_CONTRAST                       = _UxGT("Contraste LCD");
-  LSTR MSG_NOZZLE_TEMPERATURE             = _UxGT("Temperatura de la boquilla");
-  LSTR MSG_BED_TEMPERATURE                = _UxGT("Temperatura de la cama");
+  LSTR MSG_NOZZLE_TEMPERATURE             = _UxGT("Temperatura boquilla");
+  LSTR MSG_BED_TEMPERATURE                = _UxGT("Temperatura cama");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Guardar EEPROM");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Cargar EEPROM");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Rest. fábrica");
@@ -401,7 +401,6 @@ namespace LanguageNarrow_es {
   LSTR MSG_BLTOUCH_MODE_STORE_5V          = _UxGT("Poner BLTouch a 5V");
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Poner BLTouch a OD");
   LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Informe de drenaje");
-  LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("PELIGRO: ¡Una mala configuración puede producir daños! ¿Proceder igualmente?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Iniciar TouchMI");
   LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Test de desfase Z");
@@ -625,6 +624,7 @@ namespace LanguageTall_es {
     LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Espere para", "purgar el filamento"));
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Pulse para finalizar", "la purga de filamen."));
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Esperando impresora", "para reanudar..."));
+    LSTR MSG_BLTOUCH_MODE_CHANGE          = _UxGT(MSG_3_LINE("PELIGRO: Mala config", "puede causar daños!", "¿Proceder?"));
   #endif
 }
 
