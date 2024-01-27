@@ -2489,7 +2489,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif
 
-        TERN_(LASER_SYNCHRONOUS_M106_M107, if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed));
+        TERN_(LASER_SYNCHRONOUS_M106_M107, if (current_block->is_fan_sync()) Fan::sync_speeds(current_block->fan_speed));
 
         if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
 
