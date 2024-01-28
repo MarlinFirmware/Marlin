@@ -54,7 +54,7 @@ char* _hex_word(const uint16_t w) {
 }
 
 char* _hex_long(const uintptr_t l) {
-  #if CPU_32_BIT
+  #ifdef CPU_32_BIT
     _hex[2] = hex_nybble(l >> 28);
     _hex[3] = hex_nybble(l >> 24);
     _hex[4] = hex_nybble(l >> 20);
