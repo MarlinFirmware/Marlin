@@ -78,8 +78,8 @@ void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
 void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
 void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
-void print_hex_long(const uint32_t w, const char delimiter/*='\0'*/) {
-  SERIAL_ECHOPGM("0x");
+void print_hex_long(const uint32_t w, const char delimiter/*='\0'*/, const bool prefix/*=false*/) {
+  if (prefix) SERIAL_ECHOPGM("0x");
   for (int B = 24; B >= 8; B -= 8) {
     print_hex_byte(w >> B);
     if (delimiter) SERIAL_CHAR(delimiter);

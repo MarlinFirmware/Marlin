@@ -89,13 +89,14 @@ void GcodeSuite::M115() {
      */
     #if ENABLED(STM32_UID_SHORT_FORM)
       uint32_t * const UID = (uint32_t*)UID_BASE;
-      SERIAL_ECHO(strdup(hex_long(UID[0])), strdup(hex_long(UID[1])), hex_long(UID[2]));
+      for (uint8_t i = 0; i < 3; i++) print_hex_long(UID[i]);
     #else
       uint16_t * const UID = (uint16_t*)UID_BASE;
-      SERIAL_ECHO(
-        F("CEDE2A2F-"), strdup(hex_word(UID[1])), C('-'), strdup(hex_word(UID[0])), C('-'), strdup(hex_word(UID[3])), C('-'),
-        strdup(hex_word(UID[2])), strdup(hex_word(UID[5])), hex_word(UID[4])
-      );
+      SERIAL_ECHO(F("CEDE2A2F-"));
+      for (uint8_t i = 1; i < 7; i++) {
+        print_hex_word((i%2) ? UID[i] : UID[i-2]);
+        if (i == 1 || i == 2 || i == 3) SERIAL_ECHO(C('-'));
+      }
     #endif
   #endif
 
