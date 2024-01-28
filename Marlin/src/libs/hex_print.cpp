@@ -54,10 +54,12 @@ char* _hex_word(const uint16_t w) {
 }
 
 char* _hex_long(const uintptr_t l) {
-  _hex[2] = hex_nybble(l >> 28);
-  _hex[3] = hex_nybble(l >> 24);
-  _hex[4] = hex_nybble(l >> 20);
-  _hex[5] = hex_nybble(l >> 16);
+  #if CPU_32_BIT
+    _hex[2] = hex_nybble(l >> 28);
+    _hex[3] = hex_nybble(l >> 24);
+    _hex[4] = hex_nybble(l >> 20);
+    _hex[5] = hex_nybble(l >> 16);
+  #endif
   __hex_word((uint16_t)(l & 0xFFFF));
   return &_hex[2];
 }
