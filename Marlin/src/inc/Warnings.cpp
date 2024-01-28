@@ -694,6 +694,16 @@
   #warning "High homing currents can lead to damage if a sensor fails or if set up incorrectly."
 #endif
 
+#if NO_X_HOMING_CURRENT_WARN
+  #warning "X*_CURRENT_HOME was not set, it is recommended to set it lower than X*_CURRENT for SENSORLESS_HOMING."
+#endif
+#if NO_Y_HOMING_CURRENT_WARN
+  #warning "Y*_CURRENT_HOME was not set, it is recommended to set it lower than Y*_CURRENT for SENSORLESS_HOMING."
+#endif
+#if NO_Z_HOMING_CURRENT_WARN
+  #warning "Z*_CURRENT_HOME was not set, it is recommended to set it lower than Z*_CURRENT for SENSORLESS_HOMING."
+#endif
+
 #if CANNOT_EMBED_CONFIGURATION
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif

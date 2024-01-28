@@ -1730,10 +1730,26 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 #undef _BAD_HOME_CURRENT
 
+#if defined(SENSORLESS_HOMING)
+  #if !HAS_CURRENT_HOME(X) || defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
+    #define NO_X_HOMING_CURRENT_WARN 1
+  #elif !HAS_CURRENT_HOME(Y) || defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
+    #define NO_Y_HOMING_CURRENT_WARN 1
+  #endif
+#endif
+
+#if defined(SENSORLESS_PROBING) // Had to separate for some reason
+  #if defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
+    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #define NO_Z_HOMING_CURRENT_WARN 1
+  #endif
+#endif
+
 #if ENABLED(PROBING_USE_CURRENT_HOME)
   #if !HAS_BED_PROBE
     #error "PROBING_USE_CURRENT_HOME requires a bed probe."
-  #elif !HAS_CURRENT_HOME(Z)
+  #elif defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
+    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
     #error "PROBING_USE_CURRENT_HOME requires Z_CURRENT_HOME, and it must differ from Z_CURRENT."
   #endif
 #endif
