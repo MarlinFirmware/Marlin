@@ -41,7 +41,7 @@
     if (!parser.seen("DST" TERN_(VOLUMETRIC_EXTRUDER_LIMIT, "L")))
       return M200_report();
 
-    const int8_t target_extruder = get_target_extruder_from_command();
+    const int_fast8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
 
     bool vol_enable = parser.volumetric_enabled,
@@ -125,7 +125,7 @@ void GcodeSuite::M201() {
   if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS")))
     return M201_report();
 
-  const int8_t target_extruder = get_target_extruder_from_command();
+  const int_fast8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
   #ifdef XY_FREQUENCY_LIMIT
@@ -168,7 +168,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
+    for (uint_fast8_t i = 0; i < E_STEPPERS; ++i) {
       report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(
           PSTR("  M201 T"), i
@@ -187,7 +187,7 @@ void GcodeSuite::M203() {
   if (!parser.seen("T" STR_AXES_LOGICAL))
     return M203_report();
 
-  const int8_t target_extruder = get_target_extruder_from_command();
+  const int_fast8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
   LOOP_LOGICAL_AXES(i)
@@ -224,7 +224,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t i = 0; i < E_STEPPERS; ++i) {
+    for (uint_fast8_t i = 0; i < E_STEPPERS; ++i) {
       if (!forReplay) SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i

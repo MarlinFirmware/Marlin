@@ -483,7 +483,7 @@ void __O2 Endstops::report_states() {
   #endif
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
-    for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
+    for (uint_fast8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
       pin_t pin;
       uint8_t state;
       switch (i) {

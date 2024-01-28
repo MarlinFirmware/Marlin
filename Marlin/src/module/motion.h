@@ -113,9 +113,9 @@ extern int16_t feedrate_percentage;
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
-  extern uint8_t active_extruder;
+  extern uint_fast8_t active_extruder;
 #else
-  constexpr uint8_t active_extruder = 0;
+  constexpr uint_fast8_t active_extruder = 0;
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
