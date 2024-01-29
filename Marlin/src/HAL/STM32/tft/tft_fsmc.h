@@ -96,8 +96,9 @@ class TFT_FSMC {
     }
 };
 
-#if defined(FMC_NORSRAM_DEVICE) // Flexible Memory Controller on STM32F446
-  #if defined(STM32F4xx)
+#ifdef FMC_NORSRAM_DEVICE // Flexible Memory Controller on STM32F446
+
+  #ifdef STM32F4xx
     #define FMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FMC)
     #define FMC_BANK1_1    0x60000000U
     #define FMC_BANK1_2    0x64000000U
@@ -136,19 +137,19 @@ class TFT_FSMC {
   };
 
   const PinMap pinMap_FMC_CS[] = {
-  {PD_7,  (void *)FMC_NORSRAM_BANK1, FMC_PIN_DATA}, // FMC_NE1
-  #ifdef PF0
-    {PG_9,  (void *)FMC_NORSRAM_BANK2, FMC_PIN_DATA}, // FMC_NE2
-    {PG_10, (void *)FMC_NORSRAM_BANK3, FMC_PIN_DATA}, // FMC_NE3
-    {PG_12, (void *)FMC_NORSRAM_BANK4, FMC_PIN_DATA}, // FMC_NE4
-  #endif
-  {NC,    NP,    0}
+    {PD_7,  (void *)FMC_NORSRAM_BANK1, FMC_PIN_DATA}, // FMC_NE1
+    #ifdef PF0
+      {PG_9,  (void *)FMC_NORSRAM_BANK2, FMC_PIN_DATA}, // FMC_NE2
+      {PG_10, (void *)FMC_NORSRAM_BANK3, FMC_PIN_DATA}, // FMC_NE3
+      {PG_12, (void *)FMC_NORSRAM_BANK4, FMC_PIN_DATA}, // FMC_NE4
+    #endif
+    {NC,    NP,    0}
   };
 
   #if ENABLED(TFT_INTERFACE_FMC_8BIT)
-    #define FMC_RS(A)  (void *)((2 << (A-1)) - 1)
+    #define FMC_RS(A) (void *)((2 << (A - 1)) - 1)
   #else
-    #define FMC_RS(A)  (void *)((2 << A) - 2)
+    #define FMC_RS(A) (void *)((2 << A) - 2)
   #endif
 
   const PinMap pinMap_FMC_RS[] = {
@@ -184,7 +185,9 @@ class TFT_FSMC {
     #endif
     {NC,    NP,    0}
   };
+
 #elif defined(FSMC_NORSRAM_DEVICE) // Flexible Static Memory Controller on STM32F103 and STM32F407
+
   #ifdef STM32F1xx
     #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
   #elif defined(STM32F4xx)

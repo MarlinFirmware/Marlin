@@ -38,8 +38,8 @@ LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 void TFT_FSMC::init() {
   uint32_t controllerAddress;
   uint32_t nsBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PINMAP_TFT_CS);
-  
-  #if defined(FMC_NORSRAM_DEVICE)
+
+  #ifdef FMC_NORSRAM_DEVICE
     FMC_NORSRAM_TimingTypeDef timing, extTiming;
 
     // Perform the SRAM1 memory initialization sequence
@@ -58,7 +58,7 @@ void TFT_FSMC::init() {
     SRAMx.Init.WaitSignal = FMC_WAIT_SIGNAL_DISABLE;
     SRAMx.Init.ExtendedMode = FMC_EXTENDED_MODE_ENABLE;
     SRAMx.Init.AsynchronousWait = FMC_ASYNCHRONOUS_WAIT_DISABLE;
-    
+
     SRAMx.Init.ContinuousClock = FMC_CONTINUOUS_CLOCK_SYNC_ONLY;
     SRAMx.Init.WriteFifo = FMC_WRITE_FIFO_ENABLE;
 
@@ -66,7 +66,7 @@ void TFT_FSMC::init() {
     SRAMx.Init.PageSize = FMC_PAGE_SIZE_NONE;
   #elif defined(FSMC_NORSRAM_DEVICE)
     FSMC_NORSRAM_TimingTypeDef timing, extTiming;
-    
+
     // Perform the SRAM1 memory initialization sequence
     SRAMx.Instance = FSMC_NORSRAM_DEVICE;
     SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
@@ -90,7 +90,7 @@ void TFT_FSMC::init() {
   #else
     #error "Selected MCU does not support FSMC/FMC"
   #endif
-  
+
   // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
   // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
   timing.AddressSetupTime = 15;
@@ -99,7 +99,7 @@ void TFT_FSMC::init() {
   timing.BusTurnAroundDuration = 0;
   timing.CLKDivision = 16;
   timing.DataLatency = 17;
-  
+
   // Write Timing
   // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
   extTiming.AddressSetupTime = 8;
@@ -108,8 +108,8 @@ void TFT_FSMC::init() {
   extTiming.BusTurnAroundDuration = 0;
   extTiming.CLKDivision = 16;
   extTiming.DataLatency = 17;
-  
-  #if defined(FMC_NORSRAM_DEVICE)
+
+  #ifdef FMC_NORSRAM_DEVICE
     timing.AccessMode = FMC_ACCESS_MODE_A;
     extTiming.AccessMode = FMC_ACCESS_MODE_A;
     __HAL_RCC_FMC_CLK_ENABLE();
@@ -129,7 +129,7 @@ void TFT_FSMC::init() {
   // Note: Code below assume that MCU in LQFP-100 package has only one NE pin. STM32H743 has two - NE1 and NE2.
   #ifdef PF0
     switch (nsBank) {
-      #if defined(FMC_NORSRAM_DEVICE)
+      #ifdef FMC_NORSRAM_DEVICE
         case FMC_NORSRAM_BANK2: controllerAddress = FMC_BANK1_2 ; break;
         case FMC_NORSRAM_BANK3: controllerAddress = FMC_BANK1_3 ; break;
         case FMC_NORSRAM_BANK4: controllerAddress = FMC_BANK1_4 ; break;
