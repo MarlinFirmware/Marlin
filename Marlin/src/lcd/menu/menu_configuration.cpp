@@ -31,6 +31,7 @@
 #include "menu_item.h"
 
 #include "../../MarlinCore.h"
+#include "../../module/temperature.h"
 
 #if ENABLED(LCD_ENDSTOP_TEST)
   #include "../../module/endstops.h"
