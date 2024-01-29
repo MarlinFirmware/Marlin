@@ -702,7 +702,7 @@
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_ULTIPANEL 1
-  #define ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -831,6 +831,7 @@
   #endif
 #endif
 
+// U8GLIB_SSD1306 may be set alone or for other displays that need it
 #if ENABLED(IS_U8GLIB_SSD1306)
   #define U8GLIB_SSD1306
 #endif
@@ -854,10 +855,25 @@
 #endif
 
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
-#if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
+#if ANY(U8GLIB_SH1106, U8GLIB_SSD1306, U8GLIB_SSD1309)
   #define HAS_U8GLIB_I2C_OLED 1
   #define HAS_WIRED_LCD 1
   #define DOGLCD
+
+  // Define this to reduce build size and optimize performance
+  //#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
+
+  #ifdef COMPILE_TIME_I2C_IS_HARDWARE
+    #if COMPILE_TIME_I2C_IS_HARDWARE
+      #define U8G_USES_HW_I2C
+    #else
+      #define U8G_USES_SW_I2C
+    #endif
+  #else
+    #define U8G_USES_HW_I2C
+    #define U8G_USES_SW_I2C
+  #endif
+
 #endif
 
 /**

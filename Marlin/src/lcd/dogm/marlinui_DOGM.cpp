@@ -310,7 +310,22 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
-    SET_OUTPUT(LCD_PINS_DC);
+
+    #if defined(LCD_PINS_DC) && LCD_PINS_DC != -1
+      #if IS_I2C_LCD
+        I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
+        I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);
+        const bool isSoftI2C = !(i2cInstance1 && (i2cInstance1 == i2cInstance2)); // Using software I2C driver for LCD
+      #else
+        constexpr bool isSoftI2C = false;
+      #endif
+      if (!isSoftI2C) SET_OUTPUT(LCD_PINS_DC);  // For these LCDs, set as output if not using software I2C driver
+    #endif
+
+    #ifndef LCD_RESET_PIN
+      #define LCD_RESET_PIN LCD_PINS_RS
+    #endif
+
   #endif
 
   #if PIN_EXISTS(LCD_RESET)

@@ -164,7 +164,7 @@
     #define DOGLCD_SCK               EXP1_06_PIN
     #define DOGLCD_MOSI              EXP1_08_PIN
 
-    #if ANY(FYSETC_MINI_12864, U8GLIB_ST7920)
+    #if ANY(FYSETC_MINI_12864, IS_U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270

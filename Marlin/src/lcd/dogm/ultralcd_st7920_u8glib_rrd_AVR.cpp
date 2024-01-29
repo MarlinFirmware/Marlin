@@ -20,8 +20,8 @@
  *
  */
 
-// NOTE - the HAL version of the rrd device uses a generic ST7920 device.
-// See u8g_dev_st7920_128x64_HAL.cpp for the HAL version.
+// NOTE - The HAL version of the RRD device uses a generic ST7920 device.
+// See u8g_dev_st7920_128x64_HAL.cpp
 
 #include "../../inc/MarlinConfigPre.h"
 
