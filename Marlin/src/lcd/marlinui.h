@@ -286,7 +286,7 @@ public:
     #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
       static uint8_t sleep_timeout_minutes;
     #else
-      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+      static constexpr uint8_t sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
     #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
