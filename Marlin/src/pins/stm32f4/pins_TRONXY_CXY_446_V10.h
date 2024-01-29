@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,8 +37,8 @@
 #define BOARD_INFO_NAME      "BOARD_TRONXY_CXY_446_V10"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define STEP_TIMER                         6
-#define TEMP_TIMER                         14
+#define STEP_TIMER                             6
+#define TEMP_TIMER                            14
 
 //
 // EEPROM
@@ -48,17 +48,17 @@
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE                0x800 // 2K (FT24C16A)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K (FT24C16A)
 #endif
 
 //
-//  SPI Flash
+// SPI Flash
 //
 #define SPI_FLASH                                 // W25Q16
 
 #if ENABLED(SPI_FLASH)
   #define SPI_DEVICE                           1
-  #define SPI_FLASH_SIZE                    0x1000000 // 16MB
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   // SPI1/SPI3
   #define SPI_FLASH_CS_PIN                  PG15  // W25Q16 CS - USART6_CTS, FMC_SDNCAS, DCMI_D13, EVENTOUT
   #define SPI_FLASH_MOSI_PIN                PB5   // W25Q16 DIN - TIM3_CH2, I2C1_SMBA, SPI1_MOSI/I2S1_SD, SPI3_MOSI/I2S3_SD, CAN2_RX, OTG_HS_ULPI_D7, FMC_SDCKE1, DCMI_D10, EVENTOUT
@@ -152,7 +152,7 @@
    * Instructions: https://zenn.dev/marbocub/articles/tronxy-stm32f4-mainboard-tmc-serial-wiring
    */
   // Comment out error line below once pins have been configured to continue.
-  #error "TMC UART not supported by default on this board. Modification to board required. See pins_TRONXY_CXY_446_V10.h for details."
+  #error "TMC UART not supported by default on this board. Board modification required. See pins_TRONXY_CXY_446_V10.h for details."
   /*
   #define X_SERIAL_TX_PIN                   PE4   // TRACED1, SPI4_NSS, SAI1_FS_A, FMC_A20, DCMI_D4, EVENTOUT
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
@@ -205,11 +205,11 @@
 #define FAN0_PIN                            PG0   // Part Cooling Fan #1 - FMC_A10, EVENTOUT
 
 #if EXTRUDERS == 2
-	#define FAN1_PIN                           PB6   // Part Cooling Fan #2 - TIM4_CH1, HDMI_CEC, I2C1_SCL, USART1_TX, CAN2_TX, QUADSPI_BK1_NCS, FMC_SDNE1, DCMI_D5, EVENTOUT
-	#define FAN2_PIN                           PG9   // Extruder/Hotend #1 Heatsink Fan - SPDIFRX_IN3, USART6_RX, QUADSPI_BK2_IO2, SAI2_FS_B, FMC_NE2/FMC_NCE3, DCMI_VSYNC, EVENTOUT
-	#define FAN3_PIN                           PF10  // Extruder/Hotend #2 Heatsink Fan - DCMI_D11, EVENTOUT, ADC3_IN8
+	#define FAN1_PIN                          PB6   // Part Cooling Fan #2 - TIM4_CH1, HDMI_CEC, I2C1_SCL, USART1_TX, CAN2_TX, QUADSPI_BK1_NCS, FMC_SDNE1, DCMI_D5, EVENTOUT
+	#define FAN2_PIN                          PG9   // Extruder/Hotend #1 Heatsink Fan - SPDIFRX_IN3, USART6_RX, QUADSPI_BK2_IO2, SAI2_FS_B, FMC_NE2/FMC_NCE3, DCMI_VSYNC, EVENTOUT
+	#define FAN3_PIN                          PF10  // Extruder/Hotend #2 Heatsink Fan - DCMI_D11, EVENTOUT, ADC3_IN8
 #else
-	#define FAN1_PIN                           PG9   // Extruder/Hotend #1 Heatsink Fan - SPDIFRX_IN3, USART6_RX, QUADSPI_BK2_IO2, SAI2_FS_B, FMC_NE2/FMC_NCE3, DCMI_VSYNC, EVENTOUT
+	#define FAN1_PIN                          PG9   // Extruder/Hotend #1 Heatsink Fan - SPDIFRX_IN3, USART6_RX, QUADSPI_BK2_IO2, SAI2_FS_B, FMC_NE2/FMC_NCE3, DCMI_VSYNC, EVENTOUT
 #endif
 
 #define CONTROLLER_FAN_PIN                  PD7   // USART2_CK, SPDIFRX_IN0, FMC_NE1, EVENTOUT
@@ -268,7 +268,7 @@
 //
 #if ANY(TFT_TRONXY_X5SA, MKS_ROBIN_TFT43)
 
-  //SPI2
+  // SPI2
   #define TOUCH_CS_PIN                      PD11  // TOUCH SCREEN HR2046 CS - FMPI2C1_SMBA, USART3_CTS, QUADSPI_BK1_IO0, SAI2_SD_A, FMC_A16, EVENTOUT
   #define TOUCH_SCK_PIN                     PB13  // TOUCH SCREEN HR2046 DCLK - TIM1_CH1N, SPI2_SCK/I2S2_CK, USART3_CTS, CAN2_TX, OTG_HS_ULPI_D6, EVENTOUT
   #define TOUCH_MISO_PIN                    PB14  // TOUCH SCREEN HR2046 DOUT - TIM1_CH2N, TIM8_CH2N, SPI2_MISO, USART3_RTS, TIM12_CH1, OTG_HS_DM, EVENTOUT
@@ -277,7 +277,7 @@
   #define TFT_RESET_PIN                     PB12  // TOUCH SCREEN HR2046 CS	- TIM1_BKIN, I2C2_SMBA, SPI2_NSS/I2S2_WS, SAI1_SCK_B, USART3_CK, CAN2_RX, OTG_HS_ULPI_D5, OTG_HS_ID, EVENTOUT
   #define TFT_BACKLIGHT_PIN                 PG8   // LCD MODULE BACKLIGHT - SPDIFRX_IN2, USART6_RTS, FMC_SDCLK, EVENTOUT
 
-  #define LCD_USE_DMA_FSMC                  // Use DMA transfers to send data to the TFT
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
@@ -295,11 +295,11 @@
     #define HAS_BAK_VIEW_IN_FLASH                0
     #define HAS_LOGO_IN_FLASH                    0
   #elif ENABLED(TFT_COLOR_UI)
-    #define TFT_DRIVER                   ILI9488
+    #define TFT_DRIVER                     ILI9488
     #define TFT_BUFFER_SIZE                  14400
   #endif
 
-  //Touch Screen calibration
+  // Touch Screen calibration
   #if ANY(TFT_LVGL_UI, TFT_COLOR_UI, TFT_CLASSIC_UI)
     #if DISABLED(TOUCH_SCREEN_CALIBRATION)
       #error "TFT screen requires TOUCH_SCREEN_CALIBRATION"
@@ -334,10 +334,12 @@
   #define HAS_OTG_USB_HOST_SUPPORT
 #endif
 
+//
 // SD Card
+//
 #define ONBOARD_SDIO
-#define SD_DETECT_PIN                       -1
-#define SDIO_CLOCK                        4500000
+#define SD_DETECT_PIN                       -1    // PF0, but not connected
+#define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
 
 #define SDIO_D0_PIN                         PC8   // TRACED0, TIM3_CH3, TIM8_CH3, UART5_RTS, USART6_CK, SDIO_D0, DCMI_D2, EVENTOUT
@@ -363,7 +365,7 @@
 #endif
 
 //
-// Misc
+// Misc. Functions
 //
 #ifndef PS_ON_PIN
   #define LED_PIN                           PG10  // SAI2_SD_B, FMC_NE3, DCMI_D2, EVENTOUT
