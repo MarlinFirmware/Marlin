@@ -468,7 +468,7 @@ void GcodeSuite::G28() {
       #endif
     }
 
-    #if BOTH(FOAMCUTTER_XYUV, HAS_I_AXIS)
+    #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
       // Home I (after X)
       if (doI) homeaxis(I_AXIS);
     #endif
@@ -479,7 +479,7 @@ void GcodeSuite::G28() {
         homeaxis(Y_AXIS);
     #endif
 
-    #if BOTH(FOAMCUTTER_XYUV, HAS_J_AXIS)
+    #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
       // Home J (after Y)
       if (doJ) homeaxis(J_AXIS);
     #endif
@@ -493,7 +493,7 @@ void GcodeSuite::G28() {
       // Home Z last if homing towards the bed
       #if HAS_Z_AXIS && DISABLED(HOME_Z_FIRST)
         if (doZ) {
-          #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+          #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
             stepper.set_all_z_lock(false);
             stepper.set_separate_multi_axis(false);
           #endif

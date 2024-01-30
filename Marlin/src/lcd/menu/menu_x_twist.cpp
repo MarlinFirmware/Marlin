@@ -170,7 +170,7 @@ void xatc_wizard_homing_done() {
     MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
 
     // Color UI needs a control to detect a touch
-    #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+    #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
       touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     #endif
   }

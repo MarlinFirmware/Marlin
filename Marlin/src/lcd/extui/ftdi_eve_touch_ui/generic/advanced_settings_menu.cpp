@@ -37,7 +37,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   }
 
     #if ENABLED(TOUCH_UI_PORTRAIT)
-      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
+      #if ANY(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
         #define GRID_ROWS 8
@@ -58,7 +58,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
       #define OFFSETS_POS             BTN_POS(1,8), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
-      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
+      #if ANY(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
@@ -99,7 +99,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(14).button(TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .enabled(ENABLED(HAS_MULTI_HOTEND))
       .tag(4) .button(OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
-      .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
+      .enabled(ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
       .tag(11).button(FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
       .tag(12).button(ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(15).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
@@ -133,7 +133,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #endif
     case  9: GOTO_SCREEN(InterfaceSettingsScreen);  LockScreen::check_passcode(); break;
     case 10: GOTO_SCREEN(RestoreFailsafeDialogBox); LockScreen::check_passcode(); break;
-    #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+    #if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
     case 11: GOTO_SCREEN(FilamentMenu); break;
     #endif
     case 12: GOTO_SCREEN(EndstopStatesScreen); break;

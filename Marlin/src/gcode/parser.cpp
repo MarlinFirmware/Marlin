@@ -233,7 +233,7 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
 
-      #if EITHER(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
+      #if ANY(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
         case 'I' ... 'J': case 'P':
           if (TERN1(BEZIER_CURVE_SUPPORT, motion_mode_codenum != 5)
             && TERN1(ARC_P_CIRCLES, !WITHIN(motion_mode_codenum, 2, 3))

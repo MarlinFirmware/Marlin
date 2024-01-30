@@ -35,7 +35,7 @@
 #include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
-#if EITHER(BABYSTEPPING, HAS_BED_PROBE)
+#if ANY(BABYSTEPPING, HAS_BED_PROBE)
   #define HAS_ZOFFSET_ITEM 1
   #if !HAS_BED_PROBE
     #define JUST_BABYSTEP 1
@@ -128,10 +128,10 @@ typedef struct {
 
   bool FullManualTramming = false;
   bool MediaAutoMount = ENABLED(HAS_SD_EXTENDER);
-  #if BOTH(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t z_after_homing = DEF_Z_AFTER_HOMING;
   #endif
-  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+  #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
   #endif
 } HMI_data_t;
@@ -211,7 +211,7 @@ void ParkHead();
 #if HAS_ONESTEP_LEVELING
   void Trammingwizard();
 #endif
-#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+#if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   void ApplyLEDColor();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -319,7 +319,7 @@ void Draw_FilSet_Menu();
 void Draw_PhySet_Menu();
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
-#if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+#if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
   void Draw_CaseLight_Menu();
 #endif
 #if ENABLED(LED_CONTROL_MENU)
@@ -340,7 +340,7 @@ void Draw_MaxAccel_Menu();
   void Draw_MaxJerk_Menu();
 #endif
 void Draw_Steps_Menu();
-#if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+#if ANY(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)

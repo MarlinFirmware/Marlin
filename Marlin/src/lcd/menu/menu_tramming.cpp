@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, ASSISTED_TRAMMING_WIZARD)
+#if ALL(HAS_MARLINUI_MENU, ASSISTED_TRAMMING_WIZARD)
 
 #include "menu_item.h"
 

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+#if ALL(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
 
 #include "../gcode.h"
 #include "../../module/temperature.h"

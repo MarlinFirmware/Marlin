@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, PROBE_OFFSET_WIZARD)
+#if ALL(HAS_TFT_LVGL_UI, PROBE_OFFSET_WIZARD)
 
 #include "draw_ui.h"
 #include <lv_conf.h>

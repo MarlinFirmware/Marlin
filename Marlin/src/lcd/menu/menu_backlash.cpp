@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, BACKLASH_GCODE)
+#if ALL(HAS_MARLINUI_MENU, BACKLASH_GCODE)
 
 #include "menu_item.h"
 
@@ -39,7 +39,7 @@ void menu_backlash() {
   editable.uint8 = backlash.get_correction_uint8();
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &editable.uint8, backlash.all_off, backlash.all_on, []{ backlash.set_correction_uint8(editable.uint8); });
 
-  #if DISABLED(CORE_BACKLASH) || EITHER(MARKFORGED_XY, MARKFORGED_YX)
+  #if DISABLED(CORE_BACKLASH) || ANY(MARKFORGED_XY, MARKFORGED_YX)
     #define _CAN_CALI AXIS_CAN_CALIBRATE
   #else
     #define _CAN_CALI(A) true
