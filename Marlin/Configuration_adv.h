@@ -2730,6 +2730,14 @@
 // @section gcode
 
 /**
+ * Firmware-based and LCD-controlled leak compensation
+ * Add quick extrusion before next extrusion commands
+ * To compensate lost material during travel on big machine for ex
+ *
+ */
+//#define LEAK_COMPENSATION
+
+/**
  * Firmware-based and LCD-controlled retract
  *
  * Add G10 / G11 commands for automatic firmware-based retract / recover.
