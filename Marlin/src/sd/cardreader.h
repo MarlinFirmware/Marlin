@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 extern const char M23_STR[], M24_STR[];
 
@@ -370,7 +370,7 @@ private:
 
 extern CardReader card;
 
-#else // !SDSUPPORT
+#else // !HAS_MEDIA
 
 #define IS_SD_PRINTING()  false
 #define IS_SD_FETCHING()  false
@@ -379,4 +379,4 @@ extern CardReader card;
 
 #define LONG_FILENAME_LENGTH 0
 
-#endif // !SDSUPPORT
+#endif // !HAS_MEDIA

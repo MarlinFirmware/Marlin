@@ -135,7 +135,7 @@ void wifi_reset() {
 
 void mount_file_sys(uint8_t disk_type) {
   if (disk_type == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
+    TERN_(HAS_MEDIA, card.mount());
   }
   else if (disk_type == FILE_SYS_USB) {
   }
@@ -711,7 +711,7 @@ void get_file_list(char *path) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
+    TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // udisk
@@ -970,7 +970,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
               uiCfg.print_state = WORKING;
               lv_draw_printing();
 
-              #if ENABLED(SDSUPPORT)
+              #if HAS_MEDIA
                 if (!gcode_preview_over) {
                   char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
@@ -1035,7 +1035,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             clear_cur_ui();
 
-            #if ENABLED(SDSUPPORT)
+            #if HAS_MEDIA
               card.pauseSDPrint();
               uiCfg.print_state = PAUSING;
             #endif
@@ -1054,7 +1054,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             stop_print_time();
 
             clear_cur_ui();
-            #if ENABLED(SDSUPPORT)
+            #if HAS_MEDIA
               uiCfg.print_state = IDLE;
               card.abortFilePrintSoon();
             #endif
@@ -1095,7 +1095,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
               }
               mount_file_sys(gCfgItems.fileSysType);
 
-              #if ENABLED(SDSUPPORT)
+              #if HAS_MEDIA
                 char *cur_name = strrchr(list_file.file_name[sel_id], '/');
                 card.openFileWrite(cur_name);
                 if (card.isFileOpen()) {
@@ -1502,7 +1502,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
   ZERO(saveFilePath);
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
+    TERN_(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // nothing
@@ -1514,11 +1514,11 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
   wifiTransError.start_tick = 0;
   wifiTransError.now_tick = 0;
 
-  TERN_(SDSUPPORT, card.closefile());
+  TERN_(HAS_MEDIA, card.closefile());
 
   wifi_delay(1000);
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     char dosName[FILENAME_LENGTH];
 
@@ -1547,7 +1547,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
       return;
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   wifi_link_state = WIFI_TRANS_FILE;
 
@@ -1747,7 +1747,7 @@ void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
     wifi_link_state = WIFI_CONNECTED;
 
-  TERN_(SDSUPPORT, card.closefile());
+  TERN_(HAS_MEDIA, card.closefile());
 
   if (upload_result != 3) {
     wifiTransError.flag = 1;

@@ -70,7 +70,7 @@ void GcodeSuite::M360() {
   config_line(F("InputBuffer"),                 MAX_CMD_SIZE);
   config_line(F("PrintlineCache"),              BUFSIZE);
   config_line(F("MixingExtruder"),              ENABLED(MIXING_EXTRUDER));
-  config_line(F("SDCard"),                      ENABLED(SDSUPPORT));
+  config_line(F("SDCard"),                      ENABLED(HAS_MEDIA));
   config_line(F("Fan"),                         ENABLED(HAS_FAN));
   config_line(F("LCD"),                         ENABLED(HAS_DISPLAY));
   config_line(F("SoftwarePowerSwitch"),         1);

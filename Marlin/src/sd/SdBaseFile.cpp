@@ -35,7 +35,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "SdBaseFile.h"
 
@@ -2268,4 +2268,4 @@ int16_t SdBaseFile::write(const void *buf, const uint16_t nbyte) {
   return -1;
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

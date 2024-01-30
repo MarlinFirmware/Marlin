@@ -23,7 +23,7 @@
 
 namespace DGUSSetupHandler {
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     bool Print();
   #endif
   bool PrintStatus();

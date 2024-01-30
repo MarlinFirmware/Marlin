@@ -55,7 +55,7 @@ extern char public_buf_m[100];
 
 uint8_t sel_id = 0;
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   static uint8_t search_file() {
     int valid_name_cnt = 0;
@@ -100,10 +100,10 @@ uint8_t sel_id = 0;
     return valid_name_cnt;
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 bool have_pre_pic(char *path) {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     char *ps1, *ps2, *cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
@@ -130,7 +130,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
 
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         file_count = search_file();
       #endif
       if (file_count != 0) {
@@ -144,7 +144,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     if (dir_offset[curDirLever].cur_page_last_offset > 0) {
       list_file.Sd_file_cnt    = 0;
       list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
-      #if ENABLED(SDSUPPORT)
+      #if HAS_MEDIA
         file_count = search_file();
       #endif
       if (file_count != 0) {
@@ -161,7 +161,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
       if (ch) {
         *ch = 0;
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           card.cdup();
         #endif
         dir_offset[curDirLever].curPage               = 0;
@@ -169,7 +169,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         dir_offset[curDirLever].cur_page_last_offset  = 0;
         curDirLever--;
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           file_count = search_file();
         #endif
         lv_clear_print_file();
@@ -189,7 +189,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             strcpy(list_file.curDirPath, list_file.file_name[i]);
             curDirLever++;
             list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-            #if ENABLED(SDSUPPORT)
+            #if HAS_MEDIA
               file_count = search_file();
             #endif
             lv_clear_print_file();
@@ -222,7 +222,7 @@ void lv_draw_print_file() {
   ZERO(list_file.curDirPath);
 
   list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     card.mount();
     file_count = search_file();
   #endif
@@ -359,7 +359,7 @@ void disp_gcode_icon(uint8_t file_num) {
 }
 
 uint32_t lv_open_gcode_file(char *path) {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     uint32_t *ps4;
     uintptr_t pre_sread_cnt = UINTPTR_MAX;
     char *cur_name;
@@ -375,7 +375,7 @@ uint32_t lv_open_gcode_file(char *path) {
       card.setIndex(pre_sread_cnt);
     }
     return pre_sread_cnt;
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 }
 
 int ascii2dec_test(char *ascii) {
@@ -395,7 +395,7 @@ int ascii2dec_test(char *ascii) {
 }
 
 void lv_gcode_file_read(uint8_t *data_buf) {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     uint16_t i = 0, j = 0, k = 0;
     uint16_t row_1    = 0;
     bool ignore_start = true;
@@ -454,10 +454,10 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       }
     #endif // !HAS_TFT_LVGL_UI_SPI
     memcpy(data_buf, public_buf, 200);
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 }
 
-void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}
+void lv_close_gcode_file() {TERN_(HAS_MEDIA, card.closefile());}
 
 void lv_gcode_file_seek(uint32_t pos) {
   card.setIndex(pos);

@@ -202,7 +202,7 @@
   #define IS_TFTGLCD_PANEL 1
   #define IS_ULTIPANEL 1                    // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
-  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
+  #if HAS_MEDIA && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
@@ -1020,6 +1020,11 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
+
+// Support for SD Card and other file storage
+#if ENABLED(SDSUPPORT)
+  #define HAS_MEDIA 1
+#endif
 
 /**
  * Default hotend offsets, if not defined

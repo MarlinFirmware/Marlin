@@ -145,12 +145,12 @@ void MarlinHAL::reboot() {
 // Free Memory Accessor
 // ------------------------
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   #include "../../sd/SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
 
-#else // !SDSUPPORT
+#else // !HAS_MEDIA
 
   extern "C" {
     extern char __bss_end;
@@ -167,6 +167,6 @@ void MarlinHAL::reboot() {
     }
   }
 
-#endif // !SDSUPPORT
+#endif // !HAS_MEDIA
 
 #endif // __AVR__

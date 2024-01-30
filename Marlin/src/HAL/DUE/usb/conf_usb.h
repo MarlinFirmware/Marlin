@@ -101,7 +101,7 @@
 #define  USB_DEVICE_SPECIFIC_REQUEST()  usb_task_other_requests()
 //@}
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   /**
    * USB Device low level configuration
    * When only one interface is used, these configurations are defined by the class module.
@@ -185,7 +185,7 @@
 //! Enable id string of interface to add an extra USB string
 #define  UDI_CDC_IAD_STRING_ID            4
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   /**
    * USB CDC low level configuration
    * In standalone these configurations are defined by the CDC module.

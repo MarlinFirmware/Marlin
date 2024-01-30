@@ -39,7 +39,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../../libs/duration_t.h"
 #endif
 
@@ -449,7 +449,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     if (yes) draw_boxed_string(true, yes,  yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -469,7 +469,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       }
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 

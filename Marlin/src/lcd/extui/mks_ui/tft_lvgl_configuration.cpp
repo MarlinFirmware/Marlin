@@ -78,7 +78,7 @@ XPT2046 touch;
 
 static lv_disp_buf_t disp_buf;
 lv_group_t*  g;
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void UpdateAssets();
 #endif
 uint16_t DeviceCode = 0x9488;
@@ -156,7 +156,7 @@ void tft_lvgl_init() {
 
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     UpdateAssets();
     hal.watchdog_refresh();   // LVGL init takes time
     TERN_(MKS_TEST, mks_test_get());
@@ -249,7 +249,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if ALL(MKS_TEST, SDSUPPORT)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }

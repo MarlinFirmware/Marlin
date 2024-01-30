@@ -137,7 +137,7 @@
 
   #define CLCD_SPI_CS                    BTN_EN1
   #define CLCD_MOD_RESET                 BTN_EN2
-  #if MB(EINSY_RAMBO, EINSY_RETRO) && DISABLED(SDSUPPORT)
+  #if MB(EINSY_RAMBO, EINSY_RETRO) && !HAS_MEDIA
     #define CLCD_SPI_EXTRA_CS            SDSS
   #endif
 

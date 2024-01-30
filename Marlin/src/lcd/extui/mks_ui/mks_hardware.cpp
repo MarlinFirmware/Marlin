@@ -205,7 +205,7 @@
 
   void mks_test_beeper() { buzzer.click(100); }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void mks_gpio_test() {
       init_test_gpio();
@@ -723,7 +723,7 @@ void disp_assets_update_progress(FSTR_P const fmsg) {
   #endif
 }
 
-#if ALL(MKS_TEST, SDSUPPORT)
+#if ALL(MKS_TEST, HAS_MEDIA)
   uint8_t mks_test_flag = 0;
   const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
