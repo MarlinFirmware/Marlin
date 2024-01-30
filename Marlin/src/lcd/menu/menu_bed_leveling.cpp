@@ -53,7 +53,7 @@
   //
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
+  constexpr grid_count_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -293,7 +293,7 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

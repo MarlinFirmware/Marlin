@@ -39,7 +39,7 @@ namespace Language_bg {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Готов.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Картата е поставена");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Картата е извадена");
-  LSTR MSG_MAIN                           = _UxGT("Меню");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Меню");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Изкл. двигатели");
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");

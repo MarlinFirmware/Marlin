@@ -48,7 +48,7 @@ namespace Language_pt_br {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB falhou");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Fins de curso");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Fins curso");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. Avançada");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuração");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Início automático");
@@ -293,7 +293,7 @@ namespace Language_pt_br {
   LSTR MSG_STOP_PRINT                     = _UxGT("Parar impressão");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Imprimindo objeto");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancelar Objeto");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Recuperar Impressão");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Imprimir do SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Sem cartão SD");

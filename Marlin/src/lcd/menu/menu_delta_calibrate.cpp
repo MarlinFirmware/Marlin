@@ -132,7 +132,7 @@ void menu_delta_calibrate() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, F("G33"));

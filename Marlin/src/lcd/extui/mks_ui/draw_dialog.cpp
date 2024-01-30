@@ -380,6 +380,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, DIALOG_UPDATE_NO_DEVICE_EN);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
+
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 1) {
@@ -422,6 +423,7 @@ void lv_draw_dialog(uint8_t type) {
       lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
     }
   #endif // MKS_WIFI_MODULE
+
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);

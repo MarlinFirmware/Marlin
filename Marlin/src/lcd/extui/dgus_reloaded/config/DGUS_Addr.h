@@ -21,19 +21,19 @@
  */
 #pragma once
 
-constexpr uint8_t DGUS_LINE_LEN             = 32;
-constexpr uint8_t DGUS_STATUS_LEN           = 32;
-constexpr uint8_t DGUS_FILE_COUNT           = 5;
-constexpr uint8_t DGUS_FILENAME_LEN         = 32;
-constexpr uint8_t DGUS_ELLAPSED_LEN         = 15;
-constexpr uint8_t DGUS_LEVEL_GRID_SIZE      = 25;
-constexpr uint8_t DGUS_MACHINE_LEN          = 24;
-constexpr uint8_t DGUS_BUILDVOLUME_LEN      = 24;
-constexpr uint8_t DGUS_VERSION_LEN          = 16;
-constexpr uint8_t DGUS_PRINTTIME_LEN        = 24;
-constexpr uint8_t DGUS_LONGESTPRINT_LEN     = 24;
-constexpr uint8_t DGUS_FILAMENTUSED_LEN     = 24;
-constexpr uint8_t DGUS_GCODE_LEN            = 32;
+#define DGUS_LINE_LEN         32
+#define DGUS_STATUS_LEN       32
+#define DGUS_FILE_COUNT       5
+#define DGUS_FILENAME_LEN     32
+#define DGUS_ELAPSED_LEN      15
+#define DGUS_LEVEL_GRID_SIZE  25
+#define DGUS_MACHINE_LEN      24
+#define DGUS_BUILDVOLUME_LEN  24
+#define DGUS_VERSION_LEN      16
+#define DGUS_PRINTTIME_LEN    24
+#define DGUS_LONGESTPRINT_LEN 24
+#define DGUS_FILAMENTUSED_LEN 24
+#define DGUS_GCODE_LEN        32
 
 enum class DGUS_Addr : uint16_t {
   MESSAGE_Line1           = 0x1100, // 0x1100 - 0x111F

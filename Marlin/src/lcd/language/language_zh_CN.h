@@ -48,7 +48,7 @@ namespace Language_zh_CN {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
-  LSTR MSG_MAIN                           = _UxGT("主菜单");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主菜单");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始");     // "Autostart"
@@ -348,7 +348,7 @@ namespace Language_zh_CN {
   LSTR MSG_STOP_PRINT                     = _UxGT("停止打印");     // "Stop print"
   LSTR MSG_PRINTING_OBJECT                = _UxGT("打印物体");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("取消物体");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("中断恢复");
   LSTR MSG_MEDIA_MENU                     = _UxGT("从存储卡上打印");     // "Print from SD"
   LSTR MSG_NO_MEDIA                       = _UxGT("无存储卡");     // "No SD card"
@@ -532,7 +532,7 @@ namespace Language_zh_CN {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("移出, 按下");
 
   LSTR MSG_MIX                            = _UxGT("混合");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  {");
   LSTR MSG_MIXER                          = _UxGT("混合器");
   LSTR MSG_GRADIENT                       = _UxGT("梯度");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("全梯度");

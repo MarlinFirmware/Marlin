@@ -62,7 +62,7 @@
   #warning "MESH_EDIT_MENU is recommended with ProUI."
 #endif
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include "../../../sd/cardreader.h"
@@ -1003,9 +1003,8 @@ void Draw_Print_File_Menu() {
   if (card.isMounted()) {
     if (SET_MENU(FileMenu, MSG_MEDIA_MENU, nr_sd_menu_items() + 1)) {
       BACK_ITEM(Goto_Main_Menu);
-      for (uint8_t i = 0; i < nr_sd_menu_items(); ++i) {
+      for (uint8_t i = 0; i < nr_sd_menu_items(); ++i)
         MenuItemAdd(onDrawFileName, onClickSDItem);
-      }
     }
     UpdateMenu(FileMenu);
     TERN_(DASH_REDRAW, DWIN_RedrawDash());

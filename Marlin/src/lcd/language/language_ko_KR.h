@@ -39,7 +39,7 @@ namespace Language_ko_KR {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("엔드스탑");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("소프트 엔드스탑");
-  LSTR MSG_MAIN                           = _UxGT("뒤로");
+  LSTR MSG_MAIN_MENU                      = _UxGT("뒤로");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("고급 설정");
   LSTR MSG_CONFIGURATION                  = _UxGT("설정");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("자동 시작");

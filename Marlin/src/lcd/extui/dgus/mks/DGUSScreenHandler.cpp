@@ -429,7 +429,7 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 #if ENABLED(MESH_BED_LEVELING)
-  uint8_t mesh_point_count = GRID_MAX_POINTS;
+  grid_count_t mesh_point_count = GRID_MAX_POINTS;
 #endif
 
 void DGUSScreenHandlerMKS::Level_Ctrl(DGUS_VP_Variable &var, void *val_ptr) {
@@ -825,7 +825,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPGM(" homing ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" homing ", C(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
@@ -847,7 +847,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
-    DEBUG_ECHOPGM(" move ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" move ", C(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -885,7 +885,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPGM(" cannot move ", AS_CHAR(axiscode));
+    DEBUG_ECHOLNPGM(" cannot move ", C(axiscode));
     return;
 }
 

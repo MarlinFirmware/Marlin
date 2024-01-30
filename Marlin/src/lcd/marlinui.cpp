@@ -42,7 +42,7 @@ MarlinUI ui;
 
 #if HAS_DISPLAY
   #include "../gcode/queue.h"
-  #include "fontutils.h"
+  #include "utf8.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -213,6 +213,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 void MarlinUI::init() {
 
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+  #endif
+
   init_lcd();
 
   #if HAS_DIGITAL_BUTTONS
@@ -267,10 +271,6 @@ void MarlinUI::init() {
 
   #if ALL(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
-  #endif
-
-  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.begin(int(I2C_SDA_PIN), int(I2C_SCL_PIN));
   #endif
 
   update_buttons();
@@ -403,7 +403,7 @@ void MarlinUI::init() {
 
     #if HAS_TOUCH_BUTTONS
       uint8_t MarlinUI::touch_buttons;
-      uint8_t MarlinUI::repeat_delay;
+      uint16_t MarlinUI::repeat_delay;
     #endif
 
     #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
@@ -439,8 +439,9 @@ void MarlinUI::init() {
             p = get_utf8_value_cb(p, cb_read_byte, wc);
             const bool eol = !wc;         // zero ends the string
             // End or a break between phrases?
-            if (eol || wc == ' ' || wc == '-' || wc == '+' || wc == '.') {
-              if (!c && wc == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
+            if (eol || wc == ' ' || wc == '-' || wc == '+' || wc == '.' || wc == '\n') {
+              const bool newline_after = wc == '\n';
+              if (!c && (wc == ' ' || newline_after)) { if (wrd) wrd++; continue; } // collapse extra spaces
               // Past the right and the word is not too long?
               if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
               c += !eol;                  // +1 so the space will be printed
@@ -451,6 +452,7 @@ void MarlinUI::init() {
                 lcd_put_lchar(wc);        // character to the LCD
               }
               if (eol) break;             // all done!
+              if (newline_after) _newline();
               wrd = nullptr;              // set up for next word
             }
             else c++;                     // count word characters
@@ -467,20 +469,20 @@ void MarlinUI::init() {
         }
       }
 
-      void MarlinUI::draw_select_screen_prompt(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-        const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
+      void MarlinUI::draw_select_screen_prompt(FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+        const uint8_t plen = utf8_strlen_P(FTOP(fpre)), slen = fsuf ? utf8_strlen_P(FTOP(fsuf)) : 0;
         uint8_t col = 0, row = 0;
         if (!string && plen + slen <= LCD_WIDTH) {
           col = (LCD_WIDTH - plen - slen) / 2;
           row = LCD_HEIGHT > 3 ? 1 : 0;
         }
         if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
-        wrap_string_P(col, row, FTOP(pref), true);
+        wrap_string_P(col, row, FTOP(fpre), true);
         if (string) {
           if (col) { col = 0; row++; } // Move to the start of the next line
           wrap_string(col, row, string);
         }
-        if (suff) wrap_string_P(col, row, FTOP(suff));
+        if (fsuf) wrap_string_P(col, row, FTOP(fsuf));
       }
 
     #endif // !HAS_GRAPHICAL_TFT
@@ -497,7 +499,7 @@ void MarlinUI::init() {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          case X_AXIS:
+          TERN_(HAS_X_AXIS, case X_AXIS:)
           TERN_(HAS_Y_AXIS, case Y_AXIS:)
           TERN_(HAS_Z_AXIS, case Z_AXIS:)
             lcd_move_axis(axis);
@@ -848,7 +850,7 @@ void MarlinUI::init() {
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
 
           axis = NO_AXIS_ENUM;
 
@@ -865,7 +867,7 @@ void MarlinUI::init() {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
       start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
       axis = move_axis;
-      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " soon.");
+      //SERIAL_ECHOLNPGM("Post Move with Axis ", C(AXIS_CHAR(axis)), " soon.");
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1655,11 +1657,13 @@ void MarlinUI::init() {
 
   #endif
 
-  void MarlinUI::flow_fault() {
-    LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
-    BUZZ(1000, 440);
-    TERN_(HAS_MARLINUI_MENU, return_to_status());
-  }
+  #if ENABLED(FLOWMETER_SAFETY)
+    void MarlinUI::flow_fault() {
+      LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
+      BUZZ(1000, 440);
+      TERN_(HAS_MARLINUI_MENU, return_to_status());
+    }
+  #endif
 
   void MarlinUI::pause_print() {
     #if HAS_MARLINUI_MENU

@@ -139,10 +139,10 @@ bool NextionTFT::ReadTFTCommand() {
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
-        DEBUG_ECHOLNPGM(  "> ", AS_CHAR(nextion_command[0]),
-                         "\n> ", AS_CHAR(nextion_command[1]),
-                         "\n> ", AS_CHAR(nextion_command[2]),
-                         "\n> ", AS_CHAR(nextion_command[3]),
+        DEBUG_ECHOLNPGM(  "> ", C(nextion_command[0]),
+                         "\n> ", C(nextion_command[1]),
+                         "\n> ", C(nextion_command[2]),
+                         "\n> ", C(nextion_command[3]),
                          "\nprinter_state:", printer_state);
     #endif
   }
@@ -445,9 +445,9 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #elif Z_HOME_TO_MAX
       SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
     #endif
-    #if HAS_Z2_MIN
+    #if USE_Z2_MIN
       SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-    #elif HAS_Z2_MAX
+    #elif USE_Z2_MAX
       SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE

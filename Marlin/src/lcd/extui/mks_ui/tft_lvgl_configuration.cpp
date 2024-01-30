@@ -129,15 +129,14 @@ void tft_lvgl_init() {
   hal.watchdog_refresh();     // LVGL init takes time
 
   // Init TFT first!
-  SPI_TFT.spi_init(SPI_FULL_SPEED);
-  SPI_TFT.LCD_init();
+  SPI_TFT.spiInit(SPI_FULL_SPEED);
+  SPI_TFT.lcdInit();
 
   hal.watchdog_refresh();     // LVGL init takes time
 
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     uint16_t usb_flash_loop = 1000;
     #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
       if (IS_SD_INSERTED())
         card.changeMedia(&card.media_driver_sdcard);
       else
@@ -238,11 +237,11 @@ void tft_lvgl_init() {
       uiCfg.print_state = REPRINTING;
 
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m) - 1);
         card.printLongPath(public_buf_m);
-        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]) - 1);
       #else
-        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]) - 1);
       #endif
       lv_draw_printing();
     }
@@ -302,18 +301,16 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-#define TICK_CYCLE 1
-
-unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
-  return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
+uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick) {
+  return (TICK_CYCLE) * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-static bool get_point(int16_t *x, int16_t *y) {
+static bool get_point(int16_t * const x, int16_t * const y) {
   if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
-    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+    if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_RIGHT)) {
       if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
       return false;
     }
@@ -328,27 +325,10 @@ static bool get_point(int16_t *x, int16_t *y) {
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
-  static int16_t last_x = 0, last_y = 0;
-  if (get_point(&last_x, &last_y)) {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
-      data->point.x = last_x;
-      data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_PR;
-  }
-  else {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
-      data->point.x = last_x;
-      data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_REL;
-  }
+  static xy_int_t last { 0, 0 };
+  data->state = get_point(&last.x, &last.y) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+  data->point.x = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_WIDTH - last.x : last.x;
+  data->point.y = (TFT_ROTATION == TFT_ROTATE_180) ? TFT_HEIGHT - last.y : last.y;
   return false; // Return `false` since no data is buffering or left to read
 }
 
@@ -564,7 +544,7 @@ void lv_encoder_pin_init() {
 
 #endif // HAS_ENCODER_ACTION
 
-#if __PLAT_NATIVE_SIM__
+#ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>
   typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
   extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}

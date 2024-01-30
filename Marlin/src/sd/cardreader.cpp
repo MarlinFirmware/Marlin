@@ -961,7 +961,7 @@ const char* CardReader::diveToFile(const bool update_cwd, MediaFile* &inDirPtr, 
     // Isolate the next subitem name
     const uint8_t len = name_end - atom_ptr;
     char dosSubdirname[len + 1];
-    strlcpy(dosSubdirname, atom_ptr, len + 1);
+    strncpy(dosSubdirname, atom_ptr, len);
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
@@ -1067,7 +1067,7 @@ void CardReader::cdroot() {
       #endif
     #else
       // Copy filenames into the static array
-      #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
+      #define _SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
       #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
         // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)

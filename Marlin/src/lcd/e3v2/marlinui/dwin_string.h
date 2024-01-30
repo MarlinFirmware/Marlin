@@ -23,7 +23,7 @@
 
 // TODO: Make AVR-compatible with separate ROM / RAM string methods
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include <stdint.h>

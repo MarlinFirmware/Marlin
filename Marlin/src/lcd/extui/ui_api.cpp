@@ -393,8 +393,8 @@ namespace ExtUI {
   //
   bool canMove(const axis_t axis) {
     switch (axis) {
-      #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return !axis_should_home(X_AXIS);
+      #if ANY(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING)
+        OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
       #else
@@ -810,7 +810,9 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: babystep.add_steps(X_AXIS, steps); break;
+          #if HAS_X_AXIS
+            case X: babystep.add_steps(X_AXIS, steps); break;
+          #endif
           #if HAS_Y_AXIS
             case Y: babystep.add_steps(Y_AXIS, steps); break;
           #endif
@@ -855,7 +857,7 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[e][axis] += mm;
 
-          normalizeNozzleOffset(X);
+          TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
           TERN_(HAS_Z_AXIS, normalizeNozzleOffset(Z));
         }
@@ -954,7 +956,7 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getMeshValid() { return leveling_is_valid(); }
+    bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if HAS_MESH
 
@@ -963,7 +965,7 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
         if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
-          TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+          TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
         }
       }
 
@@ -974,14 +976,14 @@ namespace ExtUI {
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
             destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
             prepare_line_to_destination();
-            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
             destination.set(x_target, y_target);
             prepare_line_to_destination();
           }
-          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
           destination.z = z;
           prepare_line_to_destination();
         #else

@@ -316,7 +316,7 @@ void menu_motion() {
   //
   // ^ Main
   //
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Move Axis
@@ -403,7 +403,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

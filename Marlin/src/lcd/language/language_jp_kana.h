@@ -46,7 +46,7 @@ namespace Language_jp_kana {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("メディアガアリマセン");               // "Card removed"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("メディアノトリダシ");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("メイン");                       // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("メイン");                       // "Main"
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("ジドウカイシ");                   // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("モーターデンゲン オフ");            // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("デバッグメニュー");                // "Debug Menu"

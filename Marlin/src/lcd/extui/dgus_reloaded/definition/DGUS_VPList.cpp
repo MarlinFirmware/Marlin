@@ -178,7 +178,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                     nullptr,
                     &DGUSTxHandler::PositionZ),
   VP_HELPER(DGUS_Addr::STATUS_Ellapsed,
-            DGUS_ELLAPSED_LEN,
+            DGUS_ELAPSED_LEN,
             VPFLAG_AUTOUPLOAD,
             nullptr,
             nullptr,

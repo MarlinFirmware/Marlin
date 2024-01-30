@@ -476,9 +476,23 @@ void menu_backlash();
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
-    float max_accel = planner.settings.max_acceleration_mm_per_s2[A_AXIS];
-    TERN_(HAS_Y_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[B_AXIS]));
-    TERN_(HAS_Z_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[C_AXIS]));
+    float max_accel = (
+      #if NUM_AXES
+        _MAX(NUM_AXIS_LIST(
+          planner.settings.max_acceleration_mm_per_s2[A_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[B_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[C_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[I_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[J_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[K_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[U_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[V_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[W_AXIS]
+        ))
+      #else
+        0
+      #endif
+    );
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =
@@ -580,12 +594,6 @@ void menu_backlash();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-      #if HAS_JUNCTION_DEVIATION
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, TERN(LIN_ADVANCE, 0.3f, 0.5f)
-          OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
-        );
-      #endif
-
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
@@ -598,7 +606,7 @@ void menu_backlash();
       ;
 
       LOOP_LOGICAL_AXES(a) {
-        if (a == C_AXIS || TERN0(HAS_EXTRUDERS, a == E_AXIS))
+        if (TERN0(HAS_C_AXIS, a == C_AXIS) || TERN0(HAS_EXTRUDERS, a == E_AXIS))
           EDIT_ITEM_FAST_N(float52sign, a, MSG_VN_JERK, &planner.max_jerk[a], 0.1f, max_jerk_edit[a]);
         else
           EDIT_ITEM_FAST_N(float3, a, MSG_VN_JERK, &planner.max_jerk[a], 1.0f, max_jerk_edit[a]);

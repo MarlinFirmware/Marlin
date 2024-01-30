@@ -16,7 +16,7 @@
 #include "../marlinui.h"
 #include "../../MarlinCore.h"
 
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "u8g_fontutf8.h"
 #include "../lcdprint.h"
 

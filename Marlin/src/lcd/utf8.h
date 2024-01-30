@@ -21,8 +21,8 @@
  */
 
 /**
- * @file    fontutils.h
- * @brief   help functions for font and char
+ * @file    utf8.h
+ * @brief   Helper functions for UTF-8 strings
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2016-08-19

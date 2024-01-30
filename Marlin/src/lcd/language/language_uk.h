@@ -60,7 +60,7 @@ namespace Language_uk {
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Прогр.кінцевики");
   #endif
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Кінцевик"); // Max length 8 characters
-  LSTR MSG_MAIN                             = _UxGT("Основне меню");
+  LSTR MSG_MAIN_MENU                        = _UxGT("Основне меню");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Інші налаштування");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфігурація");
   LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
@@ -313,7 +313,7 @@ namespace Language_uk {
   LSTR MSG_SET_LEDS_VIOLET                  = _UxGT("Фіолетовий");
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Білий");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("За умовчанням");
-  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал =");
+  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
   LSTR MSG_LEDS2                            = _UxGT("Світло #2");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_NEO2_PRESETS                   = _UxGT("Передустановка світла #2");
@@ -507,7 +507,7 @@ namespace Language_uk {
   LSTR MSG_END_LOOPS                        = _UxGT("End Repeat Loops"); // needs translation
   LSTR MSG_PRINTING_OBJECT                  = _UxGT("Друк об'єкта");
   LSTR MSG_CANCEL_OBJECT                    = _UxGT("Завершити об'єкт");
-  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершити об'єкт =");
+  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершити об'єкт {");
   LSTR MSG_OUTAGE_RECOVERY                  = _UxGT("Віднов. після збою");
   LSTR MSG_MEDIA_MENU                       = _UxGT("Друкувати з SD");
   LSTR MSG_NO_MEDIA                         = _UxGT("SD-картки немає");
@@ -780,7 +780,7 @@ namespace Language_uk {
   #else
     LSTR MSG_MIX                            = _UxGT("Змішув.");
   #endif
-  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент =");
+  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент {");
   LSTR MSG_MIXER                            = _UxGT("Змішувач");
   LSTR MSG_GRADIENT                         = _UxGT("Градієнт");
   LSTR MSG_FULL_GRADIENT                    = _UxGT("Повний градієнт");
