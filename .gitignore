@@ -163,6 +163,7 @@ __pycache__
 *.bak
 *.idea
 *.i
+*.s
 *.ii
 *.swp
 tags
