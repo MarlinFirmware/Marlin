@@ -19,214 +19,198 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_FSMC_TFT
+#ifdef STM32F1xx
+  #include "stm32f1xx_hal.h"
+#elif defined(STM32F4xx)
+  #include "stm32f4xx_hal.h"
+#else
+  #error "FSMC/FMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
+#endif
 
-#include "tft_fsmc.h"
-#include "pinconfig.h"
+#ifndef HAL_SRAM_MODULE_ENABLED
+  #error "SRAM module disabled for the STM32 framework (HAL_SRAM_MODULE_ENABLED)! Please consult the development team."
+#endif
 
-SRAM_HandleTypeDef TFT_FSMC::SRAMx;
-DMA_HandleTypeDef TFT_FSMC::DMAtx;
-LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
+#ifndef LCD_READ_ID
+  #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
+#endif
+#ifndef LCD_READ_ID4
+  #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
+#endif
 
-void TFT_FSMC::init() {
-  uint32_t controllerAddress;
-  #if defined(STM32F446xx)
-    FMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
-  #else
-    FSMC_NORSRAM_TimingTypeDef timing, extTiming;
-  #endif
+#define DATASIZE_8BIT  SPI_DATASIZE_8BIT
+#define DATASIZE_16BIT SPI_DATASIZE_16BIT
+#define TFT_IO_DRIVER  TFT_FSMC
+#define DMA_MAX_WORDS  0xFFFF
 
-  uint32_t nsBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), pinMap_FSMC_CS);
+#define TFT_DATASIZE TERN(TFT_INTERFACE_FSMC_8BIT, DATASIZE_8BIT, DATASIZE_16BIT)
+typedef TERN(TFT_INTERFACE_FSMC_8BIT, uint8_t, uint16_t) tft_data_t;
 
-  // Perform the SRAM1 memory initialization sequence
-  #if defined(STM32F446xx)
-    SRAMx.Instance = FMC_NORSRAM_DEVICE;
-    SRAMx.Extended = FMC_NORSRAM_EXTENDED_DEVICE;
-  #else
-    SRAMx.Instance = FSMC_NORSRAM_DEVICE;
-    SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-  #endif
-  // SRAMx.Init
-  SRAMx.Init.NSBank = nsBank;
-  #if defined(STM32F446xx)
-    SRAMx.Init.DataAddressMux = FMC_DATA_ADDRESS_MUX_DISABLE;
-    SRAMx.Init.MemoryType = FMC_MEMORY_TYPE_SRAM;
-    SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FMC_8BIT, FMC_NORSRAM_MEM_BUS_WIDTH_8, FMC_NORSRAM_MEM_BUS_WIDTH_16);
-    SRAMx.Init.BurstAccessMode = FMC_BURST_ACCESS_MODE_DISABLE;
-    SRAMx.Init.WaitSignalPolarity = FMC_WAIT_SIGNAL_POLARITY_LOW;
-    SRAMx.Init.WrapMode = FMC_WRAP_MODE_DISABLE;
-    SRAMx.Init.WaitSignalActive = FMC_WAIT_TIMING_BEFORE_WS;
-    SRAMx.Init.WriteOperation = FMC_WRITE_OPERATION_ENABLE;
-    SRAMx.Init.WaitSignal = FMC_WAIT_SIGNAL_DISABLE;
-    SRAMx.Init.ExtendedMode = FMC_EXTENDED_MODE_ENABLE;
-    SRAMx.Init.AsynchronousWait = FMC_ASYNCHRONOUS_WAIT_DISABLE;
-    SRAMx.Init.WriteBurst = FMC_WRITE_BURST_DISABLE;
-    SRAMx.Init.PageSize = FMC_PAGE_SIZE_NONE;
-  #else
-    SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
-    SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-    SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
-    SRAMx.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
-    SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
-    SRAMx.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
-    SRAMx.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
-    SRAMx.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
-    SRAMx.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
-    SRAMx.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
-    SRAMx.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
-    SRAMx.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
-    #ifdef STM32F4xx
-      SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
-    #endif
-  #endif
-  // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
-  // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
-  timing.AddressSetupTime = 15;
-  timing.AddressHoldTime = 15;
-  timing.DataSetupTime = 24;
-  timing.BusTurnAroundDuration = 0;
-  timing.CLKDivision = 16;
-  timing.DataLatency = 17;
-  #if defined(STM32F446xx)
-    Timing.AccessMode = FMC_ACCESS_MODE_A;
-  #else
-    timing.AccessMode = FSMC_ACCESS_MODE_A;
-  #endif
-  // Write Timing
-  // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
-  extTiming.AddressSetupTime = 8;
-  extTiming.AddressHoldTime = 15;
-  extTiming.DataSetupTime = 8;
-  extTiming.BusTurnAroundDuration = 0;
-  extTiming.CLKDivision = 16;
-  extTiming.DataLatency = 17;
-  #if defined(STM32F446xx)
-    ExtTiming.AccessMode = FMC_ACCESS_MODE_A;
+typedef struct {
+  __IO tft_data_t REG;
+  __IO tft_data_t RAM;
+} LCD_CONTROLLER_TypeDef;
 
-    __HAL_RCC_FMC_CLK_ENABLE();
-  #else
-    extTiming.AccessMode = FSMC_ACCESS_MODE_A;
+class TFT_FSMC {
+  private:
+    static SRAM_HandleTypeDef SRAMx;
+    static DMA_HandleTypeDef DMAtx;
 
-    __HAL_RCC_FSMC_CLK_ENABLE();
-  #endif
+    static LCD_CONTROLLER_TypeDef *LCD;
 
-  for (uint16_t i = 0; pinMap_FSMC[i].pin != NC; i++)
-    pinmap_pinout(pinMap_FSMC[i].pin, pinMap_FSMC);
-  pinmap_pinout(digitalPinToPinName(TFT_CS_PIN), pinMap_FSMC_CS);
-  pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), pinMap_FSMC_RS);
+    static uint32_t readID(const tft_data_t reg);
+    static void transmit(tft_data_t data) { LCD->RAM = data; __DSB(); }
+    static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
+    static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
 
-  controllerAddress = FSMC_BANK1_1;
-  #ifdef PF0
-    switch (nsBank) {
-      #if defined(STM32F446xx)
-        case FMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2 ; break;
-        case FMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3 ; break;
-        case FMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4 ; break;
-      #else
-        case FSMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2 ; break;
-        case FSMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3 ; break;
-        case FSMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4 ; break;
-      #endif
+  public:
+    static void init();
+    static uint32_t getID();
+    static bool isBusy();
+    static void abort();
+
+    static void dataTransferBegin(uint16_t dataWidth=TFT_DATASIZE) {}
+    static void dataTransferEnd() {}
+
+    static void writeData(uint16_t data) { transmit(tft_data_t(data)); }
+    static void writeReg(const uint16_t inReg) { LCD->REG = tft_data_t(inReg); __DSB(); }
+
+    static void writeSequence_DMA(uint16_t *data, uint16_t count) { transmitDMA(DMA_PINC_ENABLE, data, count); }
+    static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_PINC_DISABLE, &data, count); }
+
+    static void writeSequence(uint16_t *data, uint16_t count) { transmit(DMA_PINC_ENABLE, data, count); }
+    static void writeMultiple(uint16_t color, uint32_t count) {
+      while (count > 0) {
+        transmit(DMA_MINC_DISABLE, &color, count > DMA_MAX_WORDS ? DMA_MAX_WORDS : count);
+        count = count > DMA_MAX_WORDS ? count - DMA_MAX_WORDS : 0;
+      }
     }
+};
+
+#ifdef STM32F1xx
+  #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
+#elif defined(STM32F4xx)
+  #if defined(STM32F446xx)
+    #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FMC)
+  #else
+    #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
   #endif
+  #define FSMC_BANK1_1    0x60000000U
+  #define FSMC_BANK1_2    0x64000000U
+  #define FSMC_BANK1_3    0x68000000U
+  #define FSMC_BANK1_4    0x6C000000U
+#else
+  #error No configuration for this MCU
+#endif
 
-  controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), pinMap_FSMC_RS);
-
-  HAL_SRAM_Init(&SRAMx, &timing, &extTiming);
-
-  #ifdef STM32F1xx
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    DMAtx.Instance = DMA1_Channel1;
-  #elif defined(STM32F4xx)
-    __HAL_RCC_DMA2_CLK_ENABLE();
-    DMAtx.Instance = DMA2_Stream0;
-    DMAtx.Init.Channel = DMA_CHANNEL_0;
-    DMAtx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    DMAtx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    DMAtx.Init.MemBurst = DMA_MBURST_SINGLE;
-    DMAtx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+const PinMap pinMap_FSMC[] = {
+  #if defined(STM32F446xx)  //
+    {PD_14,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D00
+    {PD_15,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D01
+    {PD_0,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D02
+    {PD_1,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D03
+    {PE_7,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D04
+    {PE_8,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D05
+    {PE_9,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D06
+    {PE_10,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D07
+    #if DISABLED(TFT_INTERFACE_FSMC_8BIT)
+      {PE_11,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D08
+      {PE_12,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D09
+      {PE_13,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D10
+      {PE_14,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D11
+      {PE_15,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D12
+      {PD_8,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D13
+      {PD_9,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D14
+      {PD_10,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D15
+    #endif
+    {PD_4,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NOE
+    {PD_5,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NWE
+    {NC,    NP,    0}
+  #else
+    {PD_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D00
+    {PD_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D01
+    {PD_0,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D02
+    {PD_1,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D03
+    {PE_7,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D04
+    {PE_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D05
+    {PE_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D06
+    {PE_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D07
+    #if DISABLED(TFT_INTERFACE_FSMC_8BIT)
+      {PE_11,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D08
+      {PE_12,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D09
+      {PE_13,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D10
+      {PE_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D11
+      {PE_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D12
+      {PD_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D13
+      {PD_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D14
+      {PD_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D15
+    #endif
+    {PD_4,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NOE
+    {PD_5,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NWE
+    {NC,    NP,    0}
   #endif
+};
 
-  DMAtx.Init.Direction = DMA_MEMORY_TO_MEMORY;
-  DMAtx.Init.MemInc = DMA_MINC_DISABLE;
-  DMAtx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-  DMAtx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-  DMAtx.Init.Mode = DMA_NORMAL;
-  DMAtx.Init.Priority = DMA_PRIORITY_HIGH;
-
-  LCD = (LCD_CONTROLLER_TypeDef *)controllerAddress;
-}
-
-uint32_t TFT_FSMC::getID() {
-  uint32_t id;
-  writeReg(0);
-  id = LCD->RAM;
-
-  if (id == 0)
-    id = readID(LCD_READ_ID);
-  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
-    id = readID(LCD_READ_ID4);
-  return id;
-}
-
-uint32_t TFT_FSMC::readID(const tft_data_t inReg) {
-  uint32_t id;
-  writeReg(inReg);
-  id = LCD->RAM; // dummy read
-  id = inReg << 24;
-  id |= (LCD->RAM & 0x00FF) << 16;
-  id |= (LCD->RAM & 0x00FF) << 8;
-  id |= LCD->RAM & 0x00FF;
-  return id;
-}
-
-bool TFT_FSMC::isBusy() {
-  #ifdef STM32F1xx
-    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
-    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->CPAR != 0)
-  #elif defined(STM32F4xx)
-    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
-    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->PAR != 0)
+const PinMap pinMap_FSMC_CS[] = {
+  #if defined(STM32F446xx)  //
+    {PD_7,  (void *)FMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
+    #ifdef PF0
+      {PG_9,  (void *)FMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
+      {PG_10, (void *)FMC_NORSRAM_BANK3, FSMC_PIN_DATA}, // FSMC_NE3
+      {PG_12, (void *)FMC_NORSRAM_BANK4, FSMC_PIN_DATA}, // FSMC_NE4
+    #endif
+    {NC,    NP,    0}
+  #else
+    {PD_7,  (void *)FSMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
+    #ifdef PF0
+      {PG_9,  (void *)FSMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
+      {PG_10, (void *)FSMC_NORSRAM_BANK3, FSMC_PIN_DATA}, // FSMC_NE3
+      {PG_12, (void *)FSMC_NORSRAM_BANK4, FSMC_PIN_DATA}, // FSMC_NE4
+    #endif
+    {NC,    NP,    0}
   #endif
+};
 
-  if (!__IS_DMA_CONFIGURED(&DMAtx)) return false;
+#if ENABLED(TFT_INTERFACE_FSMC_8BIT)
+  #define FSMC_RS(A)  (void *)((2 << (A-1)) - 1)
+#else
+  #define FSMC_RS(A)  (void *)((2 << A) - 2)
+#endif
 
-  // Check if DMA transfer error or transfer complete flags are set
-  if ((__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) == 0) && (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) == 0)) return true;
-
-  __DSB();
-  abort();
-  return false;
-}
-
-void TFT_FSMC::abort() {
-  HAL_DMA_Abort(&DMAtx);  // Abort DMA transfer if any
-  HAL_DMA_DeInit(&DMAtx); // Deconfigure DMA
-}
-
-void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  DMAtx.Init.PeriphInc = memoryIncrease;
-  HAL_DMA_Init(&DMAtx);
-  HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
-
-  TERN_(TFT_SHARED_IO, while (isBusy()));
-}
-
-void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  DMAtx.Init.PeriphInc = memoryIncrease;
-  HAL_DMA_Init(&DMAtx);
-  dataTransferBegin();
-  HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
-  HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
-  abort();
-}
-
-#endif // HAS_FSMC_TFT
-#endif // HAL_STM32
+const PinMap pinMap_FSMC_RS[] = {
+  #ifdef PF0
+    {PF_0,  FSMC_RS( 0), FSMC_PIN_DATA}, // FSMC_A0
+    {PF_1,  FSMC_RS( 1), FSMC_PIN_DATA}, // FSMC_A1
+    {PF_2,  FSMC_RS( 2), FSMC_PIN_DATA}, // FSMC_A2
+    {PF_3,  FSMC_RS( 3), FSMC_PIN_DATA}, // FSMC_A3
+    {PF_4,  FSMC_RS( 4), FSMC_PIN_DATA}, // FSMC_A4
+    {PF_5,  FSMC_RS( 5), FSMC_PIN_DATA}, // FSMC_A5
+    {PF_12, FSMC_RS( 6), FSMC_PIN_DATA}, // FSMC_A6
+    {PF_13, FSMC_RS( 7), FSMC_PIN_DATA}, // FSMC_A7
+    {PF_14, FSMC_RS( 8), FSMC_PIN_DATA}, // FSMC_A8
+    {PF_15, FSMC_RS( 9), FSMC_PIN_DATA}, // FSMC_A9
+    {PG_0,  FSMC_RS(10), FSMC_PIN_DATA}, // FSMC_A10
+    {PG_1,  FSMC_RS(11), FSMC_PIN_DATA}, // FSMC_A11
+    {PG_2,  FSMC_RS(12), FSMC_PIN_DATA}, // FSMC_A12
+    {PG_3,  FSMC_RS(13), FSMC_PIN_DATA}, // FSMC_A13
+    {PG_4,  FSMC_RS(14), FSMC_PIN_DATA}, // FSMC_A14
+    {PG_5,  FSMC_RS(15), FSMC_PIN_DATA}, // FSMC_A15
+  #endif
+  {PD_11, FSMC_RS(16), FSMC_PIN_DATA}, // FSMC_A16
+  {PD_12, FSMC_RS(17), FSMC_PIN_DATA}, // FSMC_A17
+  {PD_13, FSMC_RS(18), FSMC_PIN_DATA}, // FSMC_A18
+  {PE_3,  FSMC_RS(19), FSMC_PIN_DATA}, // FSMC_A19
+  {PE_4,  FSMC_RS(20), FSMC_PIN_DATA}, // FSMC_A20
+  {PE_5,  FSMC_RS(21), FSMC_PIN_DATA}, // FSMC_A21
+  {PE_6,  FSMC_RS(22), FSMC_PIN_DATA}, // FSMC_A22
+  {PE_2,  FSMC_RS(23), FSMC_PIN_DATA}, // FSMC_A23
+  #ifdef PF0
+    {PG_13, FSMC_RS(24), FSMC_PIN_DATA}, // FSMC_A24
+    {PG_14, FSMC_RS(25), FSMC_PIN_DATA}, // FSMC_A25
+  #endif
+  {NC,    NP,    0}
+};
