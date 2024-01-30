@@ -30,7 +30,7 @@
 
 #include "leds.h"
 
-#if EITHER(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
+#if ANY(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
   #include "../../feature/caselight.h"
 #endif
 
@@ -50,7 +50,7 @@
 LEDLights leds;
 
 void LEDLights::setup() {
-  #if EITHER(RGB_LED, RGBW_LED)
+  #if ANY(RGB_LED, RGBW_LED)
     if (PWM_PIN(RGB_LED_R_PIN)) SET_PWM(RGB_LED_R_PIN); else SET_OUTPUT(RGB_LED_R_PIN);
     if (PWM_PIN(RGB_LED_G_PIN)) SET_PWM(RGB_LED_G_PIN); else SET_OUTPUT(RGB_LED_G_PIN);
     if (PWM_PIN(RGB_LED_B_PIN)) SET_PWM(RGB_LED_B_PIN); else SET_OUTPUT(RGB_LED_B_PIN);
@@ -121,7 +121,7 @@ void LEDLights::set_color(const LEDColor &incol
       #endif
     #endif
 
-    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+    #if ALL(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
       // Update brightness only if caselight is ON or switching leds off
       if (caselight.on || incol.is_off())
     #endif
@@ -136,7 +136,7 @@ void LEDLights::set_color(const LEDColor &incol
       }
     #endif
 
-    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+    #if ALL(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
       // Update color only if caselight is ON or switching leds off
       if (caselight.on || incol.is_off())
     #endif
@@ -151,7 +151,7 @@ void LEDLights::set_color(const LEDColor &incol
 
   #endif
 
-  #if EITHER(RGB_LED, RGBW_LED)
+  #if ANY(RGB_LED, RGBW_LED)
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
@@ -173,7 +173,7 @@ void LEDLights::set_color(const LEDColor &incol
   TERN_(PCA9632, PCA9632_set_led_color(incol));
   TERN_(PCA9533, PCA9533_set_rgb(incol.r, incol.g, incol.b));
 
-  #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
+  #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
     lights_on = !incol.is_off();
     if (lights_on) color = incol;

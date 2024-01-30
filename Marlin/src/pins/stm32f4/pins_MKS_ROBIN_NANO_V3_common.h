@@ -33,7 +33,7 @@
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
   #define I2C_SCL_PIN                       PB6

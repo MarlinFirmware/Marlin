@@ -628,7 +628,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     //
     // Draw knob rotation => Z motion key for:

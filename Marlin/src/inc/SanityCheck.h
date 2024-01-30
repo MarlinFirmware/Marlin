@@ -46,8 +46,8 @@
 #if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
   #error "ENABLED is borked!"
 #endif
-#if BOTH(TEST0, TEST1)
-  #error "BOTH is borked!"
+#if ALL(TEST0, TEST1)
+  #error "ALL is borked!"
 #endif
 #if DISABLED(TEST1) || !DISABLED(TEST3) || DISABLED(TEST4) || DISABLED(TEST0, TEST1, TEST2, TEST4) || !DISABLED(TEST0, TEST3)
   #error "DISABLED is borked!"
@@ -860,45 +860,45 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
-#if BOTH(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)
+#if ALL(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)
   #error "Enable only one of ENDSTOPPULLUPS or ENDSTOPPULLDOWNS."
-#elif BOTH(FIL_RUNOUT_PULLUP, FIL_RUNOUT_PULLDOWN)
+#elif ALL(FIL_RUNOUT_PULLUP, FIL_RUNOUT_PULLDOWN)
   #error "Enable only one of FIL_RUNOUT_PULLUP or FIL_RUNOUT_PULLDOWN."
-#elif BOTH(ENDSTOPPULLUP_XMAX, ENDSTOPPULLDOWN_XMAX)
+#elif ALL(ENDSTOPPULLUP_XMAX, ENDSTOPPULLDOWN_XMAX)
   #error "Enable only one of ENDSTOPPULLUP_X_MAX or ENDSTOPPULLDOWN_X_MAX."
-#elif BOTH(ENDSTOPPULLUP_YMAX, ENDSTOPPULLDOWN_YMAX)
+#elif ALL(ENDSTOPPULLUP_YMAX, ENDSTOPPULLDOWN_YMAX)
   #error "Enable only one of ENDSTOPPULLUP_Y_MAX or ENDSTOPPULLDOWN_Y_MAX."
-#elif BOTH(ENDSTOPPULLUP_ZMAX, ENDSTOPPULLDOWN_ZMAX)
+#elif ALL(ENDSTOPPULLUP_ZMAX, ENDSTOPPULLDOWN_ZMAX)
   #error "Enable only one of ENDSTOPPULLUP_Z_MAX or ENDSTOPPULLDOWN_Z_MAX."
-#elif BOTH(ENDSTOPPULLUP_IMAX, ENDSTOPPULLDOWN_IMAX)
+#elif ALL(ENDSTOPPULLUP_IMAX, ENDSTOPPULLDOWN_IMAX)
   #error "Enable only one of ENDSTOPPULLUP_I_MAX or ENDSTOPPULLDOWN_I_MAX."
-#elif BOTH(ENDSTOPPULLUP_JMAX, ENDSTOPPULLDOWN_JMAX)
+#elif ALL(ENDSTOPPULLUP_JMAX, ENDSTOPPULLDOWN_JMAX)
   #error "Enable only one of ENDSTOPPULLUP_J_MAX or ENDSTOPPULLDOWN_J_MAX."
-#elif BOTH(ENDSTOPPULLUP_KMAX, ENDSTOPPULLDOWN_KMAX)
+#elif ALL(ENDSTOPPULLUP_KMAX, ENDSTOPPULLDOWN_KMAX)
   #error "Enable only one of ENDSTOPPULLUP_K_MAX or ENDSTOPPULLDOWN_K_MAX."
-#elif BOTH(ENDSTOPPULLUP_UMAX, ENDSTOPPULLDOWN_UMAX)
+#elif ALL(ENDSTOPPULLUP_UMAX, ENDSTOPPULLDOWN_UMAX)
   #error "Enable only one of ENDSTOPPULLUP_U_MAX or ENDSTOPPULLDOWN_U_MAX."
-#elif BOTH(ENDSTOPPULLUP_VMAX, ENDSTOPPULLDOWN_VMAX)
+#elif ALL(ENDSTOPPULLUP_VMAX, ENDSTOPPULLDOWN_VMAX)
   #error "Enable only one of ENDSTOPPULLUP_V_MAX or ENDSTOPPULLDOWN_V_MAX."
-#elif BOTH(ENDSTOPPULLUP_WMAX, ENDSTOPPULLDOWN_WMAX)
+#elif ALL(ENDSTOPPULLUP_WMAX, ENDSTOPPULLDOWN_WMAX)
   #error "Enable only one of ENDSTOPPULLUP_W_MAX or ENDSTOPPULLDOWN_W_MAX."
-#elif BOTH(ENDSTOPPULLUP_XMIN, ENDSTOPPULLDOWN_XMIN)
+#elif ALL(ENDSTOPPULLUP_XMIN, ENDSTOPPULLDOWN_XMIN)
   #error "Enable only one of ENDSTOPPULLUP_X_MIN or ENDSTOPPULLDOWN_X_MIN."
-#elif BOTH(ENDSTOPPULLUP_YMIN, ENDSTOPPULLDOWN_YMIN)
+#elif ALL(ENDSTOPPULLUP_YMIN, ENDSTOPPULLDOWN_YMIN)
   #error "Enable only one of ENDSTOPPULLUP_Y_MIN or ENDSTOPPULLDOWN_Y_MIN."
-#elif BOTH(ENDSTOPPULLUP_ZMIN, ENDSTOPPULLDOWN_ZMIN)
+#elif ALL(ENDSTOPPULLUP_ZMIN, ENDSTOPPULLDOWN_ZMIN)
   #error "Enable only one of ENDSTOPPULLUP_Z_MIN or ENDSTOPPULLDOWN_Z_MIN."
-#elif BOTH(ENDSTOPPULLUP_IMIN, ENDSTOPPULLDOWN_IMIN)
+#elif ALL(ENDSTOPPULLUP_IMIN, ENDSTOPPULLDOWN_IMIN)
   #error "Enable only one of ENDSTOPPULLUP_I_MIN or ENDSTOPPULLDOWN_I_MIN."
-#elif BOTH(ENDSTOPPULLUP_JMIN, ENDSTOPPULLDOWN_JMIN)
+#elif ALL(ENDSTOPPULLUP_JMIN, ENDSTOPPULLDOWN_JMIN)
   #error "Enable only one of ENDSTOPPULLUP_J_MIN or ENDSTOPPULLDOWN_J_MIN."
-#elif BOTH(ENDSTOPPULLUP_KMIN, ENDSTOPPULLDOWN_KMIN)
+#elif ALL(ENDSTOPPULLUP_KMIN, ENDSTOPPULLDOWN_KMIN)
   #error "Enable only one of ENDSTOPPULLUP_K_MIN or ENDSTOPPULLDOWN_K_MIN."
-#elif BOTH(ENDSTOPPULLUP_UMIN, ENDSTOPPULLDOWN_UMIN)
+#elif ALL(ENDSTOPPULLUP_UMIN, ENDSTOPPULLDOWN_UMIN)
   #error "Enable only one of ENDSTOPPULLUP_U_MIN or ENDSTOPPULLDOWN_U_MIN."
-#elif BOTH(ENDSTOPPULLUP_VMIN, ENDSTOPPULLDOWN_VMIN)
+#elif ALL(ENDSTOPPULLUP_VMIN, ENDSTOPPULLDOWN_VMIN)
   #error "Enable only one of ENDSTOPPULLUP_V_MIN or ENDSTOPPULLDOWN_V_MIN."
-#elif BOTH(ENDSTOPPULLUP_WMIN, ENDSTOPPULLDOWN_WMIN)
+#elif ALL(ENDSTOPPULLUP_WMIN, ENDSTOPPULLDOWN_WMIN)
   #error "Enable only one of ENDSTOPPULLUP_W_MIN or ENDSTOPPULLDOWN_W_MIN."
 #endif
 
@@ -1007,7 +1007,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * I2C Position Encoders
  */
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #if !BOTH(BABYSTEPPING, BABYSTEP_XY)
+  #if !ALL(BABYSTEPPING, BABYSTEP_XY)
     #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
   #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
     #error "I2CPE_ENCODER_CNT must be between 1 and 5."
@@ -1020,11 +1020,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if ENABLED(BABYSTEPPING)
   #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #elif ENABLED(BABYSTEP_XY) && EITHER(MARKFORGED_XY, MARKFORGED_YX)
+  #elif ENABLED(BABYSTEP_XY) && ANY(MARKFORGED_XY, MARKFORGED_YX)
     #error "BABYSTEPPING only implemented for Z axis on MarkForged."
-  #elif BOTH(DELTA, BABYSTEP_XY)
+  #elif ALL(DELTA, BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
-  #elif BOTH(BABYSTEP_ZPROBE_OFFSET, MESH_BED_LEVELING)
+  #elif ALL(BABYSTEP_ZPROBE_OFFSET, MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
@@ -1034,7 +1034,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
   #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_HOTEND_OFFSET
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
-  #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
+  #elif ALL(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
   #elif !defined(BABYSTEP_MULTIPLICATOR_Z)
     #error "BABYSTEPPING requires BABYSTEP_MULTIPLICATOR_Z."
@@ -1072,21 +1072,21 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
   #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
     #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
-  #elif BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
+  #elif ALL(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
     #error "You can't enable FIL_RUNOUT1_PULLUP and FIL_RUNOUT1_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
+  #elif ALL(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
     #error "You can't enable FIL_RUNOUT2_PULLUP and FIL_RUNOUT2_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
+  #elif ALL(FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
     #error "You can't enable FIL_RUNOUT3_PULLUP and FIL_RUNOUT3_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
+  #elif ALL(FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
     #error "You can't enable FIL_RUNOUT4_PULLUP and FIL_RUNOUT4_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
+  #elif ALL(FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
     #error "You can't enable FIL_RUNOUT5_PULLUP and FIL_RUNOUT5_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
+  #elif ALL(FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
     #error "You can't enable FIL_RUNOUT6_PULLUP and FIL_RUNOUT6_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
+  #elif ALL(FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
     #error "You can't enable FIL_RUNOUT7_PULLUP and FIL_RUNOUT7_PULLDOWN at the same time."
-  #elif BOTH(FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
+  #elif ALL(FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
     #error "You can't enable FIL_RUNOUT8_PULLUP and FIL_RUNOUT8_PULLDOWN at the same time."
   #elif FILAMENT_RUNOUT_DISTANCE_MM < 0
     #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
@@ -1139,7 +1139,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Individual axis homing is useless for DELTAS
  */
-#if BOTH(INDIVIDUAL_AXIS_HOMING_MENU, DELTA)
+#if ALL(INDIVIDUAL_AXIS_HOMING_MENU, DELTA)
   #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
@@ -1381,7 +1381,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * (Magnetic) Parking Extruder requirements
  */
-#if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if ANY(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #if ENABLED(EXT_SOLENOID)
     #error "(MAGNETIC_)PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif EXTRUDERS != 2
@@ -1439,7 +1439,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Magnetic / Electromagnetic Switching Toolhead requirements
  */
-#if EITHER(MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if ANY(MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #ifndef SWITCHING_TOOLHEAD_Y_POS
     #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
   #elif !defined(SWITCHING_TOOLHEAD_X_POS)
@@ -1504,7 +1504,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Extruder temperature control algorithm - There can be only one!
  */
-#if BOTH(PIDTEMP, MPCTEMP)
+#if ALL(PIDTEMP, MPCTEMP)
   #error "Only enable PIDTEMP or MPCTEMP, but not both."
 #endif
 
@@ -1524,7 +1524,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Bed Heating Options - PID vs Limit Switching
  */
-#if BOTH(PIDTEMPBED, BED_LIMIT_SWITCHING)
+#if ALL(PIDTEMPBED, BED_LIMIT_SWITCHING)
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
 #endif
 
@@ -1547,7 +1547,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Chamber Heating Options - PID vs Limit Switching
  */
-#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+#if ALL(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
   #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
 #endif
 
@@ -1698,7 +1698,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * Some things should not be used on Belt Printers
  */
-#if BOTH(BELTPRINTER, HAS_LEVELING)
+#if ALL(BELTPRINTER, HAS_LEVELING)
   #error "Bed Leveling is not compatible with BELTPRINTER."
 #endif
 
@@ -1720,7 +1720,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   /**
    * Z_PROBE_SLED is incompatible with DELTA
    */
-  #if BOTH(Z_PROBE_SLED, DELTA)
+  #if ALL(Z_PROBE_SLED, DELTA)
     #error "You cannot use Z_PROBE_SLED with DELTA."
   #endif
 
@@ -1857,7 +1857,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   /**
    * Mag mounted probe requirements
    */
-  #if BOTH(MAG_MOUNTED_PROBE, USE_PROBE_FOR_Z_HOMING) && DISABLED(Z_SAFE_HOMING)
+  #if ALL(MAG_MOUNTED_PROBE, USE_PROBE_FOR_Z_HOMING) && DISABLED(Z_SAFE_HOMING)
     #error "MAG_MOUNTED_PROBE requires Z_SAFE_HOMING if it's being used to home Z."
   #endif
 
@@ -2074,7 +2074,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
-#if BOTH(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+#if ALL(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
   #error "Disable PREHEAT_BEFORE_LEVELING when using PREHEAT_BEFORE_PROBING."
 #endif
 
@@ -2192,7 +2192,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * Make sure DISABLE_[XYZ] compatible with selected homing options
  */
 #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W)
-  #if EITHER(HOME_AFTER_DEACTIVATE, Z_SAFE_HOMING)
+  #if ANY(HOME_AFTER_DEACTIVATE, Z_SAFE_HOMING)
     #error "DISABLE_[XYZIJKUVW] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif
@@ -2215,7 +2215,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "POWER_MONITOR_CURRENT requires a valid POWER_MONITOR_CURRENT_PIN."
 #elif ENABLED(POWER_MONITOR_VOLTAGE) && !PIN_EXISTS(POWER_MONITOR_VOLTAGE)
   #error "POWER_MONITOR_VOLTAGE requires POWER_MONITOR_VOLTAGE_PIN to be defined."
-#elif BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE) && POWER_MONITOR_CURRENT_PIN == POWER_MONITOR_VOLTAGE_PIN
+#elif ALL(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE) && POWER_MONITOR_CURRENT_PIN == POWER_MONITOR_VOLTAGE_PIN
   #error "POWER_MONITOR_CURRENT_PIN and POWER_MONITOR_VOLTAGE_PIN must be different."
 #endif
 
@@ -2247,7 +2247,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if ENABLED(SAV_3DGLCD)
   #if NONE(U8GLIB_SSD1306, U8GLIB_SH1106)
     #error "Enable a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
-  #elif BOTH(U8GLIB_SSD1306, U8GLIB_SH1106)
+  #elif ALL(U8GLIB_SSD1306, U8GLIB_SH1106)
     #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
   #endif
 #endif
@@ -2509,7 +2509,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
 #elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+#elif ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
   #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
 #endif
 
@@ -2652,7 +2652,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 /**
  * FYSETC/MKS/BTT Mini Panel Requirements
  */
-#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
+#if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
   #ifndef NEO_RGB
     #define NEO_RGB 123
     #define FAUX_RGB 1
@@ -2666,7 +2666,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #undef NEO_RGB
     #undef FAUX_RGB
   #endif
-#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
+#elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #error "Your FYSETC Mini Panel requires RGB_LED."
 #endif
 
@@ -2815,14 +2815,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
   #elif Z_HOME_TO_MAX && ENABLED(USE_PROBE_FOR_Z_HOMING)
     #error "Z_HOME_DIR must be -1 when homing Z with the probe."
-  #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
+  #elif ALL(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
     #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
   #elif Z_HOME_TO_MAX && DISABLED(USE_ZMAX_PLUG)
     #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
   #endif
 #endif
 
-#if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
+#if ALL(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
   #error "HOME_Z_FIRST can't be used when homing Z with a probe."
 #endif
 
@@ -2957,21 +2957,21 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * Fan check
  */
 #if HAS_FANCHECK
-  #if BOTH(E0_FAN_TACHO_PULLUP, E0_FAN_TACHO_PULLDOWN)
+  #if ALL(E0_FAN_TACHO_PULLUP, E0_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E0_FAN_TACHO_PULLUP or E0_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E1_FAN_TACHO_PULLUP, E1_FAN_TACHO_PULLDOWN)
+  #elif ALL(E1_FAN_TACHO_PULLUP, E1_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E1_FAN_TACHO_PULLUP or E1_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E2_FAN_TACHO_PULLUP, E2_FAN_TACHO_PULLDOWN)
+  #elif ALL(E2_FAN_TACHO_PULLUP, E2_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E2_FAN_TACHO_PULLUP or E2_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E3_FAN_TACHO_PULLUP, E3_FAN_TACHO_PULLDOWN)
+  #elif ALL(E3_FAN_TACHO_PULLUP, E3_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E3_FAN_TACHO_PULLUP or E3_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E4_FAN_TACHO_PULLUP, E4_FAN_TACHO_PULLDOWN)
+  #elif ALL(E4_FAN_TACHO_PULLUP, E4_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E4_FAN_TACHO_PULLUP or E4_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E5_FAN_TACHO_PULLUP, E5_FAN_TACHO_PULLDOWN)
+  #elif ALL(E5_FAN_TACHO_PULLUP, E5_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E5_FAN_TACHO_PULLUP or E5_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E6_FAN_TACHO_PULLUP, E6_FAN_TACHO_PULLDOWN)
+  #elif ALL(E6_FAN_TACHO_PULLUP, E6_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E6_FAN_TACHO_PULLUP or E6_FAN_TACHO_PULLDOWN."
-  #elif BOTH(E7_FAN_TACHO_PULLUP, E7_FAN_TACHO_PULLDOWN)
+  #elif ALL(E7_FAN_TACHO_PULLUP, E7_FAN_TACHO_PULLDOWN)
     #error "Enable only one of E7_FAN_TACHO_PULLUP or E7_FAN_TACHO_PULLDOWN."
   #endif
 #elif ENABLED(AUTO_REPORT_FANS)
@@ -3102,7 +3102,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "TFT_GENERIC requires either TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI interface."
 #endif
 
-#if BOTH(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
+#if ALL(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
   #error "Please enable only one of TFT_INTERFACE_SPI or TFT_INTERFACE_SPI."
 #endif
 
@@ -3126,7 +3126,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "GRAPHICAL_TFT_UPSCALE must be between 2 and 8."
 #endif
 
-#if BOTH(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
+#if ALL(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
   #error "Please select only one of CHIRON_TFT_STANDARD or CHIRON_TFT_NEW."
 #endif
 
@@ -3144,7 +3144,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
-#if EITHER(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0) && SD_CONNECTION_IS(LCD)
+#if ANY(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0) && SD_CONNECTION_IS(LCD)
   #error "SDCARD_CONNECTION cannot be set to LCD for the enabled TFT. No available SD card reader."
 #endif
 
@@ -3154,25 +3154,25 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if ENABLED(DWIN_CREALITY_LCD)
   #if DISABLED(SDSUPPORT)
     #error "DWIN_CREALITY_LCD requires SDSUPPORT to be enabled."
-  #elif EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
+  #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
-  #elif EITHER(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+  #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support MPC_EDIT_MENU or MPC_AUTOTUNE_MENU."
   #elif ENABLED(LCD_BED_TRAMMING)
     #error "DWIN_CREALITY_LCD does not support LCD_BED_TRAMMING."
-  #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
+  #elif ALL(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_CREALITY_LCD does not support LCD_BED_LEVELING with PROBE_MANUALLY."
   #endif
 #elif ENABLED(DWIN_LCD_PROUI)
   #if DISABLED(SDSUPPORT)
     #error "DWIN_LCD_PROUI requires SDSUPPORT to be enabled."
-  #elif EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
+  #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
     #error "DWIN_LCD_PROUI does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
-  #elif EITHER(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+  #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     #error "DWIN_LCD_PROUI does not support MPC_EDIT_MENU or MPC_AUTOTUNE_MENU."
   #elif ENABLED(LCD_BED_TRAMMING)
     #error "DWIN_LCD_PROUI does not support LCD_BED_TRAMMING."
-  #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
+  #elif ALL(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_LCD_PROUI does not support LCD_BED_LEVELING with PROBE_MANUALLY."
   #endif
 #endif
@@ -3237,7 +3237,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #else
   #if HAS_DGUS_LCD
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
-  #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
     #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
@@ -3644,7 +3644,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #endif
   #endif
 
-  #if ENABLED(DELTA) && !BOTH(STEALTHCHOP_XY, STEALTHCHOP_Z)
+  #if ENABLED(DELTA) && !ALL(STEALTHCHOP_XY, STEALTHCHOP_Z)
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP_XY and STEALTHCHOP_Z."
   #elif ENDSTOP_NOISE_THRESHOLD
     #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_THRESHOLD."
@@ -3683,7 +3683,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #error "CoreXZ requires both X and Z to use sensorless homing if either one does."
 #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS && !HOMING_Z_WITH_PROBE
   #error "CoreYZ requires both Y and Z to use sensorless homing if either one does."
-#elif EITHER(MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS != Y_SENSORLESS
+#elif ANY(MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS != Y_SENSORLESS
   #error "MARKFORGED requires both X and Y to use sensorless homing if either one does."
 #endif
 
@@ -3770,7 +3770,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  * Digipot requirement
  */
 #if HAS_MOTOR_CURRENT_I2C
-  #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+  #if ALL(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
   #elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
     && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
@@ -3841,7 +3841,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #undef _PLUS_TEST
 #undef _EXTRA_NOTE
 
-#if BOTH(CNC_COORDINATE_SYSTEMS, NO_WORKSPACE_OFFSETS)
+#if ALL(CNC_COORDINATE_SYSTEMS, NO_WORKSPACE_OFFSETS)
   #error "CNC_COORDINATE_SYSTEMS is incompatible with NO_WORKSPACE_OFFSETS."
 #endif
 
@@ -3877,18 +3877,18 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
-#if BOTH(X_AXIS_TWIST_COMPENSATION, NOZZLE_AS_PROBE)
+#if ALL(X_AXIS_TWIST_COMPENSATION, NOZZLE_AS_PROBE)
   #error "X_AXIS_TWIST_COMPENSATION is incompatible with NOZZLE_AS_PROBE."
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
     #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
-  #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
+  #elif ALL(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
   #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MAX
     #error "POWER_LOSS_RECOVER_ZHOME is not needed on a machine that homes to ZMAX."
-  #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MIN && !defined(POWER_LOSS_ZHOME_POS)
+  #elif ALL(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MIN && !defined(POWER_LOSS_ZHOME_POS)
     #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
   #endif
 #endif
@@ -3950,7 +3950,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #error "BACKLASH_COMPENSATION requires BACKLASH_DISTANCE_MM."
   #elif !defined(BACKLASH_CORRECTION)
     #error "BACKLASH_COMPENSATION requires BACKLASH_CORRECTION."
-  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
+  #elif ANY(MARKFORGED_XY, MARKFORGED_YX)
     constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
     static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
                   "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " on a MarkForged system.");
@@ -4000,7 +4000,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Require soft endstops for certain setups
  */
-#if !BOTH(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
+#if !ALL(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
   #elif HAS_HOTEND_OFFSET
@@ -4061,7 +4061,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 
   #define _PIN_CONFLICT(P) (PIN_EXISTS(P) && P##_PIN == SPINDLE_LASER_PWM_PIN)
-  #if BOTH(SPINDLE_FEATURE, LASER_FEATURE)
+  #if ALL(SPINDLE_FEATURE, LASER_FEATURE)
     #error "Enable only one of SPINDLE_FEATURE or LASER_FEATURE."
   #elif NONE(SPINDLE_SERVO, SPINDLE_LASER_USE_PWM) && !PIN_EXISTS(SPINDLE_LASER_ENA)
     #error "(SPINDLE|LASER)_FEATURE requires SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_USE_PWM, or SPINDLE_SERVO to control the power."
@@ -4172,7 +4172,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "ESP3D_WIFISUPPORT requires an ESP32 MOTHERBOARD."
 #elif ENABLED(WEBSUPPORT) && NONE(ARDUINO_ARCH_ESP32, WIFISUPPORT)
   #error "WEBSUPPORT requires WIFISUPPORT and an ESP32 MOTHERBOARD."
-#elif BOTH(ESP3D_WIFISUPPORT, WIFISUPPORT)
+#elif ALL(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "Enable only one of ESP3D_WIFISUPPORT or WIFISUPPORT."
 #endif
 
@@ -4190,14 +4190,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
-#if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
+#if ALL(HAS_MEATPACK, BINARY_FILE_TRANSFER)
   #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
 #endif
 
 /**
  * Sanity Check for Slim LCD Menus and Probe Offset Wizard
  */
-#if BOTH(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
+#if ALL(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
   #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
 #endif
 
@@ -4219,7 +4219,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 /**
  * Sanity check for MIXING_EXTRUDER & DISTINCT_E_FACTORS these are not compatible
  */
-#if BOTH(MIXING_EXTRUDER, DISTINCT_E_FACTORS)
+#if ALL(MIXING_EXTRUDER, DISTINCT_E_FACTORS)
   #error "MIXING_EXTRUDER can't be used with DISTINCT_E_FACTORS. But you may use SINGLENOZZLE with DISTINCT_E_FACTORS."
 #endif
 
@@ -4332,7 +4332,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 // Check requirements for upload.py
-#if ENABLED(XFER_BUILD) && !BOTH(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+#if ENABLED(XFER_BUILD) && !ALL(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
   #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif
 
@@ -4352,12 +4352,12 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #error "Input Shaping is not compatible with POLARGRAPH kinematics."
   #elif ENABLED(DIRECT_STEPPING)
     #error "Input Shaping is not compatible with DIRECT_STEPPING."
-  #elif BOTH(INPUT_SHAPING_X, CORE_IS_XZ)
+  #elif ALL(INPUT_SHAPING_X, CORE_IS_XZ)
     #error "INPUT_SHAPING_X is not supported with COREXZ."
-  #elif BOTH(INPUT_SHAPING_Y, CORE_IS_YZ)
+  #elif ALL(INPUT_SHAPING_Y, CORE_IS_YZ)
     #error "INPUT_SHAPING_Y is not supported with COREYZ."
   #elif ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    #if !BOTH(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+    #if !ALL(INPUT_SHAPING_X, INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_X and INPUT_SHAPING_Y must both be enabled for COREXY, COREYX, or MARKFORGED_*."
     #else
       static_assert(SHAPING_FREQ_X == SHAPING_FREQ_Y, "SHAPING_FREQ_X and SHAPING_FREQ_Y must be the same for COREXY / COREYX / MARKFORGED_*.");

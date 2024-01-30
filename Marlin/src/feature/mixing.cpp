@@ -42,7 +42,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
@@ -138,7 +138,7 @@ void Mixer::init() {
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
     update_mix_from_vtool();
   #endif
 

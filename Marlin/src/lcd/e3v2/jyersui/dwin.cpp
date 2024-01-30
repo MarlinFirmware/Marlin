@@ -1107,7 +1107,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
       #define PREPARE_MANUALLEVEL (PREPARE_HOME + 1)
       #define PREPARE_ZOFFSET (PREPARE_MANUALLEVEL + ENABLED(HAS_ZOFFSET_ITEM))
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
-      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + EITHER(HAS_HOTEND, HAS_HEATED_BED))
+      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ANY(HAS_HOTEND, HAS_HEATED_BED))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define PREPARE_CUSTOM_MENU (PREPARE_CHANGEFIL + ENABLED(HAS_CUSTOM_MENU))
       #define PREPARE_TOTAL PREPARE_CUSTOM_MENU
@@ -3060,7 +3060,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
 
         #define LEVELING_BACK 0
         #define LEVELING_ACTIVE (LEVELING_BACK + 1)
-        #define LEVELING_GET_TILT (LEVELING_ACTIVE + BOTH(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL))
+        #define LEVELING_GET_TILT (LEVELING_ACTIVE + ALL(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL))
         #define LEVELING_GET_MESH (LEVELING_GET_TILT + 1)
         #define LEVELING_MANUAL (LEVELING_GET_MESH + 1)
         #define LEVELING_VIEW (LEVELING_MANUAL + 1)
@@ -3095,7 +3095,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Checkbox(row, planner.leveling_active);
             }
             break;
-          #if BOTH(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL)
+          #if ALL(HAS_BED_PROBE, AUTO_BED_LEVELING_UBL)
             case LEVELING_GET_TILT:
               if (draw)
                 Draw_Menu_Item(row, ICON_Tilt, F("Autotilt Current Mesh"));

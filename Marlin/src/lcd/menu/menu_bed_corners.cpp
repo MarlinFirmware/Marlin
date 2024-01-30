@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
+#if ALL(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
 
 #include "menu_item.h"
 #include "../../module/motion.h"

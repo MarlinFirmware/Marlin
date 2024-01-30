@@ -651,7 +651,7 @@ void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val
 #define mks_min(a, b) ((a) < (b)) ? (a) : (b)
 #define mks_max(a, b) ((a) > (b)) ? (a) : (b)
 void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
-  #if EITHER(HAS_TRINAMIC_CONFIG, HAS_STEALTHCHOP)
+  #if ANY(HAS_TRINAMIC_CONFIG, HAS_STEALTHCHOP)
     const uint16_t tmc_value = BE16_P(val_ptr);
   #endif
 
@@ -1181,7 +1181,7 @@ void DGUSScreenHandlerMKS::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *v
 }
 
 void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
-  #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+  #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
     uint8_t swap_tool = 0;
   #else
     constexpr uint8_t swap_tool = 1; // T0 (or none at all)
@@ -1202,7 +1202,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
         if (thermalManager.tooColdToExtrude(0))
           hotend_too_cold = 1;
         else {
-          #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+          #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
             swap_tool = 1;
           #endif
         }
@@ -1217,7 +1217,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
       break;
   }
 
-  #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
+  #if ALL(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
       sendinfoscreen(F("NOTICE"), nullptr, F("Please wait."), F("Nozzle heating!"), true, true, true, true);
@@ -1229,7 +1229,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
   if (swap_tool) {
     char buf[30];
     snprintf_P(buf, 30
-      #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+      #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
         , PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
       #else
         , PSTR("M1002E%dF%d")
@@ -1245,7 +1245,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
  *        within the G-code execution window for best concurrency.
  */
 void GcodeSuite::M1002() {
-  #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+  #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
   {
     char buf[3];
     sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));

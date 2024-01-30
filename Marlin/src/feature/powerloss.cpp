@@ -691,7 +691,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         // Mixing extruder and gradient
-        #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
+        #if ALL(MIXING_EXTRUDER, GRADIENT_MIX)
           DEBUG_ECHOLNPGM("gradient: ", info.gradient.enabled ? "ON" : "OFF");
         #endif
 

@@ -56,7 +56,7 @@
   #include "../feature/pause.h"
 #endif
 
-#define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
+#define DEBUG_OUT ANY(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
 
@@ -172,7 +172,7 @@ CardReader::CardReader() {
   workDirDepth = 0;
   ZERO(workDirParents);
 
-  #if BOTH(SDSUPPORT, HAS_SD_DETECT)
+  #if ALL(SDSUPPORT, HAS_SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
@@ -465,7 +465,7 @@ void CardReader::mount() {
   if (flag.mounted)
     cdroot();
   else {
-    #if EITHER(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
+    #if ANY(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
       if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
     #endif
   }
@@ -1243,7 +1243,7 @@ void CardReader::cdroot() {
       }
       else {
         sort_order[0] = 0;
-        #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
+        #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortshort = new char*[1];

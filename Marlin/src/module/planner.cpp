@@ -788,7 +788,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+  #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
     uint32_t cruise_rate = block->nominal_rate;
   #endif
@@ -822,7 +822,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
       decelerate_steps = block->step_event_count - accelerate_steps;
 
-      #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
+      #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
         cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
       #endif
@@ -1342,7 +1342,7 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if EITHER(HAS_TAIL_FAN_SPEED, BARICUDA)
+    #if ANY(HAS_TAIL_FAN_SPEED, BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
@@ -1762,7 +1762,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
-  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
+  #elif ANY(MARKFORGED_XY, MARKFORGED_YX)
 
     // Requesting one of the joined axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
@@ -1922,7 +1922,7 @@ bool Planner::_populate_block(
     );
   //*/
 
-  #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
+  #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
     if (de) {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
@@ -2131,7 +2131,7 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+  #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
     bool cartesian_move = true;
   #endif
 
@@ -2356,7 +2356,7 @@ bool Planner::_populate_block(
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
   float inverse_secs;
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+  #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
     inverse_secs = inverse_millimeters * (cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s));
   #else
     inverse_secs = fr_mm_s * inverse_millimeters;
@@ -2366,7 +2366,7 @@ bool Planner::_populate_block(
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if EITHER(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if ANY(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time in microseconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2963,7 +2963,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   #if ENABLED(BACKLASH_COMPENSATION)
     LOOP_NUM_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
   #endif
-  #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
+  #if ALL(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 

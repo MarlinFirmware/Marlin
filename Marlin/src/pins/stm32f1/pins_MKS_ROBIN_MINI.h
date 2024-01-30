@@ -43,7 +43,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE              (0x800U)  // 2K
   #define EEPROM_START_ADDRESS      (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -149,7 +149,7 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if EITHER(HAS_FSMC_GRAPHICAL_TFT, TFT_320x240)
+#if ANY(HAS_FSMC_GRAPHICAL_TFT, TFT_320x240)
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
@@ -164,7 +164,7 @@
   #define LCD_BACKLIGHT_PIN                 PD13
 #endif
 
-#if BOTH(NEED_TOUCH_PINS, HAS_FSMC_GRAPHICAL_TFT) || ENABLED(TFT_320x240)
+#if ALL(NEED_TOUCH_PINS, HAS_FSMC_GRAPHICAL_TFT) || ENABLED(TFT_320x240)
   #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO

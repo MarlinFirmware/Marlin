@@ -31,14 +31,14 @@
 #include "temperature.h"
 #include "../lcd/marlinui.h"
 
-#define DEBUG_OUT BOTH(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
+#define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include HAL_PATH(.., endstop_interrupts.h)
 #endif
 
-#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+#if ALL(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
   #include "printcounter.h" // for print_job_timer
 #endif
 
@@ -546,7 +546,7 @@ void Endstops::event_handler() {
       )
     );
 
-    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
+    #if ALL(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
         quickstop_stepper();
@@ -1381,11 +1381,11 @@ void Endstops::update() {
 
   void Endstops::clear_endstop_state() {
     TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
-    #if BOTH(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
+    #if ALL(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
       CBI(live_state, X2_ENDSTOP);
     #endif
     TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
-    #if BOTH(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
+    #if ALL(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
       CBI(live_state, Y2_ENDSTOP);
     #endif
     TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));

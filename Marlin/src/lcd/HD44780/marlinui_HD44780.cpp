@@ -41,12 +41,12 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
-#if DISABLED(LCD_PROGRESS_BAR) && BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+#if DISABLED(LCD_PROGRESS_BAR) && ALL(FILAMENT_LCD_DISPLAY, SDSUPPORT)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
 #endif
 
-#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+#if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -70,7 +70,7 @@
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
 
-#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+#elif ANY(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
   LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
@@ -289,7 +289,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
+  #if ALL(SDSUPPORT, HAS_MARLINUI_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -339,7 +339,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
+          #if ALL(SDSUPPORT, HAS_MARLINUI_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -687,7 +687,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (progress > 2) return draw_progress_bar(progress);
     }
 
-  #elif BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+  #elif ALL(FILAMENT_LCD_DISPLAY, SDSUPPORT)
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
@@ -1015,7 +1015,7 @@ void MarlinUI::draw_status_screen() {
           uint16_t per;
           #if HAS_FAN0
             if (true
-              #if BOTH(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
+              #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
                 && (blink || thermalManager.fan_speed_scaler[0] < 128)
               #endif
             ) {

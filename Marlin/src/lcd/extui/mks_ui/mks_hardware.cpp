@@ -723,7 +723,7 @@ void disp_assets_update_progress(FSTR_P const fmsg) {
   #endif
 }
 
-#if BOTH(MKS_TEST, SDSUPPORT)
+#if ALL(MKS_TEST, SDSUPPORT)
   uint8_t mks_test_flag = 0;
   const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {

@@ -32,7 +32,7 @@
   #error "Creality v24S1 only supports 1 hotend / E stepper."
 #endif
 
-#if BOTH(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #error "Disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN when using BLTOUCH with Creality V24S1-301."
 #endif
 

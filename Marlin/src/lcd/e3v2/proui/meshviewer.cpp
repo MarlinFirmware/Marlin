@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_MESH)
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
 
 #include "../../../core/types.h"
 #include "../../marlinui.h"

@@ -73,7 +73,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if BOTH(IS_NEWPANEL, PANEL_ONE)
+  #if ALL(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4                       68
 

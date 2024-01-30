@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+#if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
