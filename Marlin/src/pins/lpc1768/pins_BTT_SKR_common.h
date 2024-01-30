@@ -27,8 +27,8 @@
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
-  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+#if ALL(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
     #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
@@ -101,8 +101,8 @@
     #define HEATER_1_PIN                   P2_04
   #endif
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                          P2_03
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P2_03
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                   P2_05
@@ -111,15 +111,16 @@
 //
 // LCD / Controller
 //
+
 #if !defined(BEEPER_PIN) && HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
-  #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
+  #define BEEPER_PIN                       P1_30  // (EXP1-1) Not 5V-tolerant
 #endif
 
 //
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD

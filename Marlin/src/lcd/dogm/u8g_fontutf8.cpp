@@ -12,7 +12,7 @@
 #if HAS_MARLINUI_U8GLIB
 
 #include <string.h>
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "u8g_fontutf8.h"
 
 typedef void font_t;
@@ -121,8 +121,8 @@ static font_group_t g_fontgroup_root = { nullptr, 0 };
  */
 static inline bool uxg_Utf8FontIsInited() { return flag_fontgroup_was_inited; }
 
-int uxg_SetUtf8Fonts (const uxg_fontinfo_t * fntinfo, int number) {
-  flag_fontgroup_was_inited = 1;
+int uxg_SetUtf8Fonts(const uxg_fontinfo_t *fntinfo, int number) {
+  flag_fontgroup_was_inited = true;
   return fontgroup_init(&g_fontgroup_root, fntinfo, number);
 }
 

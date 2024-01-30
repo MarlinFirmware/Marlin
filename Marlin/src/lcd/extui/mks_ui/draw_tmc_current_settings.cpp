@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, HAS_TRINAMIC_CONFIG)
+#if ALL(HAS_TFT_LVGL_UI, HAS_TRINAMIC_CONFIG)
 
 #include "draw_ui.h"
 #include <lv_conf.h>

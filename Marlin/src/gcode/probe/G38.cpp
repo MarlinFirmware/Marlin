@@ -105,18 +105,13 @@ inline bool G38_run_probe() {
  *  G38.5 - Probe away from workpiece, stop on contact break
  */
 void GcodeSuite::G38(const int8_t subcode) {
+
   // Get X Y Z E F
   get_destination_from_command();
 
   remember_feedrate_scaling_off();
 
-  const bool error_on_fail =
-    #if ENABLED(G38_PROBE_AWAY)
-      !TEST(subcode, 0)
-    #else
-      (subcode == 2)
-    #endif
-  ;
+  const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
   LOOP_NUM_AXES(i)

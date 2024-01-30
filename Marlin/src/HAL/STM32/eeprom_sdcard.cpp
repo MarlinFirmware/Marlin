@@ -40,7 +40,7 @@
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 #define _ALIGN(x) __attribute__ ((aligned(x)))
 static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];
@@ -48,7 +48,7 @@ static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];
 bool PersistentStore::access_start() {
   if (!card.isMounted()) return false;
 
-  SdFile file, root = card.getroot();
+  MediaFile file, root = card.getroot();
   if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
     return true;
 
@@ -63,7 +63,7 @@ bool PersistentStore::access_start() {
 bool PersistentStore::access_finish() {
   if (!card.isMounted()) return false;
 
-  SdFile file, root = card.getroot();
+  MediaFile file, root = card.getroot();
   int bytes_written = 0;
   if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
     bytes_written = file.write(HAL_eeprom_data, MARLIN_EEPROM_SIZE);

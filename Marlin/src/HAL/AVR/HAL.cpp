@@ -61,23 +61,46 @@ void save_reset_reason() {
   wdt_disable();
 }
 
+#include "registers.h"
+
+MarlinHAL::MarlinHAL() {
+  TERN_(HAL_AVR_DIRTY_INIT, _ATmega_resetperipherals()); // Clean-wipe the device state.
+}
+
 void MarlinHAL::init() {
   // Init Servo Pins
-  #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
   #if HAS_SERVO_0
-    INIT_SERVO(0);
+    OUT_WRITE(SERVO0_PIN, LOW);
   #endif
   #if HAS_SERVO_1
-    INIT_SERVO(1);
+    OUT_WRITE(SERVO1_PIN, LOW);
   #endif
   #if HAS_SERVO_2
-    INIT_SERVO(2);
+    OUT_WRITE(SERVO2_PIN, LOW);
   #endif
   #if HAS_SERVO_3
-    INIT_SERVO(3);
+    OUT_WRITE(SERVO3_PIN, LOW);
+  #endif
+  #if HAS_SERVO_4
+    OUT_WRITE(SERVO4_PIN, LOW);
+  #endif
+  #if HAS_SERVO_5
+    OUT_WRITE(SERVO5_PIN, LOW);
   #endif
 
   init_pwm_timers();   // Init user timers to default frequency - 1000HZ
+
+  #if PIN_EXISTS(BEEPER) && ENABLED(HAL_AVR_DIRTY_INIT) && DISABLED(ATMEGA_NO_BEEPFIX)
+    // Make sure no alternative is locked onto the BEEPER.
+    // This fixes the issue where the ATmega is constantly beeping.
+    // Might disable other peripherals using the pin; to circumvent that please undefine one of the above things!
+    // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
+    // (USART1 on the GeeeTech GT2560)
+    // https://www.youtube.com/watch?v=jMgCvRXkexk
+    _ATmega_savePinAlternate(BEEPER_PIN);
+
+    OUT_WRITE(BEEPER_PIN, LOW);
+  #endif
 }
 
 void MarlinHAL::reboot() {
@@ -145,12 +168,12 @@ void MarlinHAL::reboot() {
 // Free Memory Accessor
 // ------------------------
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   #include "../../sd/SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
 
-#else // !SDSUPPORT
+#else // !HAS_MEDIA
 
   extern "C" {
     extern char __bss_end;
@@ -167,6 +190,6 @@ void MarlinHAL::reboot() {
     }
   }
 
-#endif // !SDSUPPORT
+#endif // !HAS_MEDIA
 
 #endif // __AVR__

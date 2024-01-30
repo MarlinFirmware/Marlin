@@ -118,6 +118,7 @@ class CLCD {
     static void     mem_write_fill (uint32_t reg_address, uint8_t w_data, uint16_t len);
     static void     mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_pgm  (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
+    static void     mem_write_xbm  (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_bulk (uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding = 0);
     static void     mem_write_xbm  (uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding = 0);
 

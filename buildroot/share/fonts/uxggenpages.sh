@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 #####################################################################
-# genpages.sh for u8g
+# uxggenpages.sh for u8g
 #
 # This script will generate u8g c files for specified fonts
 #
 # Copyright 2015-2018 Yunhui Fu <yhfudev@gmail.com>
-# License: GPL/BSD
+# License: BSD
 #####################################################################
 
 my_getpath() {
@@ -31,16 +31,11 @@ DN_EXEC=$(dirname $(my_getpath "$0") )
 
 #####################################################################
 
-EXEC_GENPAGES=${DN_EXEC}/genpages
-[ -x "${EXEC_GENPAGES}" ] || EXEC_GENPAGES="$(my_getpath ${DN_EXEC}/../../../genpages)"
-[ -x "${EXEC_GENPAGES}" ] || EXEC_GENPAGES=$(which genpages)
+EXEC_GENPAGES=${DN_EXEC}/genpages/genpages.exe
 [ -x "${EXEC_GENPAGES}" ] || { echo "Error: genpages not found!" ; exit 1; }
-#echo "EXEC_GENPAGES=${EXEC_GENPAGES}"
 
-EXEC_BDF2U8G=${DN_EXEC}/bdf2u8g
-[ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G="${DN_EXEC}/../../../bdf2u8g"
-[ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G=$(which bdf2u8g)
-[ -x "${EXEC_BDF2U8G}" ] || { echo "Error: bdf2u8g not found!" ; echo "Please compile u8glib/tools/font/bdf2u8g/bdf2u8g and link to it from here!"; exit 1; }
+EXEC_BDF2U8G=${DN_EXEC}/bdf2u8g/bdf2u8g.exe
+[ -x "${EXEC_BDF2U8G}" ] || { echo "Error: bdf2u8g not found!" ; exit 1; }
 
 DN_CUR=$(pwd)
 DN_DATA=$(pwd)/datatmp
@@ -56,6 +51,7 @@ FN_FONT_BASE="marlin-6x12-3"
 #FN_FONT_BASE=wenquanyi_9pt
 
 FN_FONT="${1:-}"
+LANG="$2"
 DN_FONT0=`dirname ${FN_FONT}`
 DN_FONT="$(my_getpath  ${DN_FONT0})"
 FN_FONT="$(my_getpath "${DN_FONT}")/"`basename ${FN_FONT}`
@@ -151,14 +147,14 @@ grep -Hrn _UxGT . | grep '"' \
       ${EXEC_BDF2U8G} -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
     fi ; \
     grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ; \
-    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END}), // '${UTF8BEGIN}' -- '${UTF8END}'" >> tmpb ;\
+    echo "  FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END}), // '${UTF8BEGIN}' -- '${UTF8END}'" >> tmpb ;\
   done
 
 TMPA=$(cat tmpa)
 TMPB=$(cat tmpb)
 
 EOL=$'\n'
-[[ ! "$TMPA" == "" ]] && TMPA="$EOL$TMPA$EOL"
+[[ ! "$TMPA" == "" ]] && TMPA="$TMPA$EOL$EOL"
 [[ ! "$TMPB" == "" ]] && TMPB="$EOL$TMPB$EOL"
 
 rm -f tmpa tmpb "proc.awk"
@@ -169,8 +165,9 @@ cat <<EOF >fontutf8-data.h
  * Contents will be REPLACED by future processing!
  * Use genallfont.sh to generate font data for updated languages.
  */
-#include <U8glib-HAL.h>
-$TMPA
-#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
-static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {$TMPB};
+#pragma once
+
+#include "langdata.h"
+
+${TMPA}static const uxg_fontinfo_t g_fontinfo_${LANG}[] PROGMEM = {${TMPB}};
 EOF

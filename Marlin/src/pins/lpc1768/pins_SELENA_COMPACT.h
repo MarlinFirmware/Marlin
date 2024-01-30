@@ -23,6 +23,8 @@
 
 /**
  * Selena Compact pin assignments
+ * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Selena%20Compact/Compact%20Pinout.pdf
+ * Origin: https://github.com/f61/Selena/blob/master/Compact%20Pinout.pdf
  */
 
 #include "env_validate.h"
@@ -85,8 +87,8 @@
 #define HEATER_BED2_PIN                    P2_04
 #define HEATER_0_PIN                       P2_07
 #define HEATER_1_PIN                       P2_06
-#ifndef FAN_PIN
-  #define FAN_PIN                          P1_24
+#ifndef FAN0_PIN
+  #define FAN0_PIN                         P1_24
 #endif
 #define FAN1_PIN                           P1_26
 
@@ -96,7 +98,7 @@
 
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                      P0_16
-  #define LCD_PINS_ENABLE                  P0_18
+  #define LCD_PINS_EN                      P0_18
   #define LCD_PINS_D4                      P0_15
   #define LCD_PINS_D5                      P1_00
   #define LCD_PINS_D6                      P1_01

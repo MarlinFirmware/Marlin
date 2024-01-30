@@ -82,14 +82,17 @@ void plan_arc(
               rt_X = cart[axis_p] - center_P,
               rt_Y = cart[axis_q] - center_Q;
 
-  ARC_LIJKUVW_CODE(
-    const float start_L = current_position[axis_l],
-    const float start_I = current_position.i,
-    const float start_J = current_position.j,
-    const float start_K = current_position.k,
-    const float start_U = current_position.u,
-    const float start_V = current_position.v,
-    const float start_W = current_position.w
+  // Starting position of the move for all non-arc axes
+  // i.e., only one of X, Y, or Z, plus the rest.
+  ARC_LIJKUVWE_CODE(
+    float start_L = current_position[axis_l],
+    float start_I = current_position.i,
+    float start_J = current_position.j,
+    float start_K = current_position.k,
+    float start_U = current_position.u,
+    float start_V = current_position.v,
+    float start_W = current_position.w,
+    float start_E = current_position.e
   );
 
   // Angle of rotation between position and target from the circle center.
@@ -125,6 +128,7 @@ void plan_arc(
     min_segments = CEIL((MIN_CIRCLE_SEGMENTS) * portion_of_circle);     // Minimum segments for the arc
   }
 
+  // Total travel on all the non-arc axes
   ARC_LIJKUVWE_CODE(
     float travel_L = cart[axis_l] - start_L,
     float travel_I = cart.i       - start_I,
@@ -133,7 +137,7 @@ void plan_arc(
     float travel_U = cart.u       - start_U,
     float travel_V = cart.v       - start_V,
     float travel_W = cart.w       - start_W,
-    float travel_E = cart.e       - current_position.e
+    float travel_E = cart.e       - start_E
   );
 
   // If "P" specified circles, call plan_arc recursively then continue with the rest of the arc
@@ -142,8 +146,8 @@ void plan_arc(
               part_per_circle = RADIANS(360) / total_angular;                   // Each circle's part of the total
 
     ARC_LIJKUVWE_CODE(
-      const float per_circle_L = travel_L * part_per_circle,    // L movement per circle
-      const float per_circle_I = travel_I * part_per_circle,
+      const float per_circle_L = travel_L * part_per_circle,    // X, Y, or Z movement per circle
+      const float per_circle_I = travel_I * part_per_circle,    // The rest are also non-arc
       const float per_circle_J = travel_J * part_per_circle,
       const float per_circle_K = travel_K * part_per_circle,
       const float per_circle_U = travel_U * part_per_circle,
@@ -154,9 +158,9 @@ void plan_arc(
 
     xyze_pos_t temp_position = current_position;
     for (uint16_t n = circles; n--;) {
-      ARC_LIJKUVWE_CODE(                                           // Destination Linear Axes
-        temp_position[axis_l] += per_circle_L,
-        temp_position.i       += per_circle_I,
+      ARC_LIJKUVWE_CODE(                                        // Destination Linear Axes
+        temp_position[axis_l] += per_circle_L,                  // Linear X, Y, or Z
+        temp_position.i       += per_circle_I,                  // The rest are also non-circular
         temp_position.j       += per_circle_J,
         temp_position.k       += per_circle_K,
         temp_position.u       += per_circle_U,
@@ -166,15 +170,29 @@ void plan_arc(
       );
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }
+
+    // Get starting coordinates for the remainder from the current position
     ARC_LIJKUVWE_CODE(
-      travel_L = cart[axis_l] - current_position[axis_l],
-      travel_I = cart.i       - current_position.i,
-      travel_J = cart.j       - current_position.j,
-      travel_K = cart.k       - current_position.k,
-      travel_U = cart.u       - current_position.u,
-      travel_V = cart.v       - current_position.v,
-      travel_W = cart.w       - current_position.w,
-      travel_E = cart.e       - current_position.e
+      start_L = current_position[axis_l],
+      start_I = current_position.i,
+      start_J = current_position.j,
+      start_K = current_position.k,
+      start_U = current_position.u,
+      start_V = current_position.v,
+      start_W = current_position.w,
+      start_E = current_position.e
+    );
+
+    // Update travel distance for the remainder
+    ARC_LIJKUVWE_CODE(
+      travel_L = cart[axis_l] - start_L,                        // Linear X, Y, or Z
+      travel_I = cart.i       - start_I,                        // The rest are also non-arc
+      travel_J = cart.j       - start_J,
+      travel_K = cart.k       - start_K,
+      travel_U = cart.u       - start_U,
+      travel_V = cart.v       - start_V,
+      travel_W = cart.w       - start_W,
+      travel_E = cart.e       - start_E
     );
   }
 
@@ -183,16 +201,21 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
-    GANG_N(SUB2(NUM_AXES),
-      && travel_L < 0.0001f,
-      && travel_I < 0.0001f,
-      && travel_J < 0.0001f,
-      && travel_K < 0.0001f,
-      && travel_U < 0.0001f,
-      && travel_V < 0.0001f,
-      && travel_W < 0.0001f
+    GANG_N(SUB2(NUM_AXES),                                      // Two axes for the arc
+      && NEAR_ZERO(travel_L),                                   // Linear X, Y, or Z
+      && NEAR_ZERO(travel_I),
+      && NEAR_ZERO(travel_J),
+      && NEAR_ZERO(travel_K),
+      && NEAR_ZERO(travel_U),
+      && NEAR_ZERO(travel_V),
+      && NEAR_ZERO(travel_W)
     )
-  ) return;
+  ) {
+    #if HAS_EXTRUDERS
+      if (!NEAR_ZERO(travel_E)) gcode.G0_G1();                  // Handle retract/recover as G1
+      return;
+    #endif
+  }
 
   // Feedrate for the move, scaled by the feedrate multiplier
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
@@ -218,7 +241,7 @@ void plan_arc(
 
   // Add hints to help optimize the move
   PlannerHints hints;
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
+  #if ENABLED(FEEDRATE_SCALING)
     hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
@@ -251,7 +274,7 @@ void plan_arc(
 
   xyze_pos_t raw;
 
-  // do not calculate rotation parameters for trivial single-segment arcs
+  // Don't calculate rotation parameters for trivial single-segment arcs
   if (segments > 1) {
     // Vector rotation matrix values
     const float theta_per_segment = angular_travel / segments,
@@ -259,30 +282,27 @@ void plan_arc(
                 sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
                 cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
-    #if DISABLED(AUTO_BED_LEVELING_UBL)
-      ARC_LIJKUVW_CODE(
-        const float per_segment_L = travel_L / segments,
-        const float per_segment_I = travel_I / segments,
-        const float per_segment_J = travel_J / segments,
-        const float per_segment_K = travel_K / segments,
-        const float per_segment_U = travel_U / segments,
-        const float per_segment_V = travel_V / segments,
-        const float per_segment_W = travel_W / segments
-      );
-    #endif
-
-    CODE_ITEM_E(const float extruder_per_segment = travel_E / segments);
+    ARC_LIJKUVWE_CODE(
+      const float per_segment_L = travel_L / segments,
+      const float per_segment_I = travel_I / segments,
+      const float per_segment_J = travel_J / segments,
+      const float per_segment_K = travel_K / segments,
+      const float per_segment_U = travel_U / segments,
+      const float per_segment_V = travel_V / segments,
+      const float per_segment_W = travel_W / segments,
+      const float per_segment_E = travel_E / segments
+    );
 
     // Initialize all linear axes and E
     ARC_LIJKUVWE_CODE(
-      raw[axis_l] = current_position[axis_l],
-      raw.i       = current_position.i,
-      raw.j       = current_position.j,
-      raw.k       = current_position.k,
-      raw.u       = current_position.u,
-      raw.v       = current_position.v,
-      raw.w       = current_position.w,
-      raw.e       = current_position.e
+      raw[axis_l] = start_L,
+      raw.i       = start_I,
+      raw.j       = start_J,
+      raw.k       = start_K,
+      raw.u       = start_U,
+      raw.v       = start_V,
+      raw.w       = start_W,
+      raw.e       = start_E
     );
 
     millis_t next_idle_ms = millis() + 200UL;
@@ -298,9 +318,8 @@ void plan_arc(
     // d) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
     // The last has to be calculated every time through the loop.
     const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
-                limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
+                limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_feedrate_mm_s[axis_q]),
                 limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius, sq(scaled_fr_mm_s));
-    float arc_mm_remaining = flat_mm;
 
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
@@ -338,16 +357,14 @@ void plan_arc(
       raw[axis_p] = center_P + rvec.a;
       raw[axis_q] = center_Q + rvec.b;
       ARC_LIJKUVWE_CODE(
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          raw[axis_l] = start_L,
-          raw.i = start_I, raw.j = start_J, raw.k = start_K,
-          raw.u = start_U, raw.v = start_V, raw.w = start_V
-        #else
-          raw[axis_l] += per_segment_L,
-          raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
-          raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
-        #endif
-        , raw.e += extruder_per_segment
+        raw[axis_l] = start_L + per_segment_L * i,
+        raw.i       = start_I + per_segment_I * i,
+        raw.j       = start_J + per_segment_J * i,
+        raw.k       = start_K + per_segment_K * i,
+        raw.u       = start_U + per_segment_U * i,
+        raw.v       = start_V + per_segment_V * i,
+        raw.w       = start_W + per_segment_W * i,
+        raw.e       = start_E + per_segment_E * i
       );
 
       apply_motion_limits(raw);
@@ -357,7 +374,7 @@ void plan_arc(
       #endif
 
       // calculate safe speed for stopping by the end of the arc
-      arc_mm_remaining -= segment_mm;
+      const float arc_mm_remaining = flat_mm - segment_mm * i;
       hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
@@ -369,13 +386,6 @@ void plan_arc(
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKUVW_CODE(
-      raw[axis_l] = start_L,
-      raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.u = start_U, raw.v = start_V, raw.w = start_W
-    );
-  #endif
 
   apply_motion_limits(raw);
 
@@ -387,14 +397,7 @@ void plan_arc(
   hints.safe_exit_speed_sqr = 0.0f;
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKUVW_CODE(
-      raw[axis_l] = start_L,
-      raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.u = start_U, raw.v = start_V, raw.w = start_W
-    );
-  #endif
-  current_position = raw;
+  current_position = cart;
 
 } // plan_arc
 
@@ -426,71 +429,70 @@ void plan_arc(
  *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
  */
 void GcodeSuite::G2_G3(const bool clockwise) {
-  if (MOTION_CONDITIONS) {
+  if (!MOTION_CONDITIONS) return;
 
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
-    #if ENABLED(SF_ARC_FIX)
-      const bool relative_mode_backup = relative_mode;
-      relative_mode = true;
-    #endif
+  #if ENABLED(SF_ARC_FIX)
+    const bool relative_mode_backup = relative_mode;
+    relative_mode = true;
+  #endif
 
-    get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
+  get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
 
-    TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
+  TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
-    ab_float_t arc_offset = { 0, 0 };
-    if (parser.seenval('R')) {
-      const float r = parser.value_linear_units();
-      if (r) {
-        const xy_pos_t p1 = current_position, p2 = destination;
-        if (p1 != p2) {
-          const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
-          const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
-                      len = d2.magnitude(),              // Distance to mid-point of move from current
-                      h2 = (r - len) * (r + len),        // factored to reduce rounding error
-                      h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
-          const xy_pos_t s = { -d2.y, d2.x };            // Perpendicular bisector. (Divide by len for unit vector.)
-          arc_offset = d2 + s / len * e * h;             // The calculated offset (mid-point if |r| <= len)
-        }
+  ab_float_t arc_offset = { 0, 0 };
+  if (parser.seenval('R')) {
+    const float r = parser.value_linear_units();
+    if (r) {
+      const xy_pos_t p1 = current_position, p2 = destination;
+      if (p1 != p2) {
+        const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
+        const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
+                    len = d2.magnitude(),              // Distance to mid-point of move from current
+                    h2 = (r - len) * (r + len),        // factored to reduce rounding error
+                    h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
+        const xy_pos_t s = { -d2.y, d2.x };            // Perpendicular bisector. (Divide by len for unit vector.)
+        arc_offset = d2 + s / len * e * h;             // The calculated offset (mid-point if |r| <= len)
       }
     }
-    else {
-      #if ENABLED(CNC_WORKSPACE_PLANES)
-        char achar, bchar;
-        switch (workspace_plane) {
-          default:
-          case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
-          case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
-          case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
-        }
-      #else
-        constexpr char achar = 'I', bchar = 'J';
-      #endif
-      if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
-      if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
-    }
-
-    if (arc_offset) {
-
-      #if ENABLED(ARC_P_CIRCLES)
-        // P indicates number of circles to do
-        const int8_t circles_to_do = parser.byteval('P');
-        if (!WITHIN(circles_to_do, 0, 100))
-          SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
-      #else
-        constexpr uint8_t circles_to_do = 0;
-      #endif
-
-      // Send the arc to the planner
-      plan_arc(destination, arc_offset, clockwise, circles_to_do);
-      reset_stepper_timeout();
-    }
-    else
-      SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
-
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   }
+  else {
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      char achar, bchar;
+      switch (workspace_plane) {
+        default:
+        case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
+        case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
+        case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
+      }
+    #else
+      constexpr char achar = 'I', bchar = 'J';
+    #endif
+    if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
+    if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
+  }
+
+  if (arc_offset) {
+
+    #if ENABLED(ARC_P_CIRCLES)
+      // P indicates number of circles to do
+      const int8_t circles_to_do = parser.byteval('P');
+      if (!WITHIN(circles_to_do, 0, 100))
+        SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+    #else
+      constexpr uint8_t circles_to_do = 0;
+    #endif
+
+    // Send the arc to the planner
+    plan_arc(destination, arc_offset, clockwise, circles_to_do);
+    reset_stepper_timeout();
+  }
+  else
+    SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // ARC_SUPPORT

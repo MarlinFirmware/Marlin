@@ -33,7 +33,7 @@
  */
 void GcodeSuite::M997() {
 
-  TERN_(DWIN_LCD_PROUI, DWIN_RebootScreen());
+  TERN_(DWIN_LCD_PROUI, dwinRebootScreen());
 
   flashFirmware(parser.intval('S'));
 

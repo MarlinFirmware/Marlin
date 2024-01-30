@@ -46,12 +46,13 @@
 void GcodeSuite::M425() {
   bool noArgs = true;
 
-  auto axis_can_calibrate = [](const uint8_t a) {
-    #define _CAN_CASE(N) case N##_AXIS: return AXIS_CAN_CALIBRATE(N);
+  auto axis_can_calibrate = [](const uint8_t a) -> bool {
+    #define _CAN_CASE(N) case N##_AXIS: return bool(AXIS_CAN_CALIBRATE(N));
     switch (a) {
-      default: return false;
       MAIN_AXIS_MAP(_CAN_CASE)
+      default: break;
     }
+    return false;
   };
 
   LOOP_NUM_AXES(a) {
@@ -111,17 +112,19 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
-    , LIST_N(DOUBLE(NUM_AXES),
-        SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
-        SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
-        SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
-        SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
-        SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
-        SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
-        SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
-        SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
-        SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
-      )
+    #if NUM_AXES
+      , LIST_N(DOUBLE(NUM_AXES),
+          SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
+          SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
+          SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
+          SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
+          SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
+          SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
+          SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
+          SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
+          SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
+        )
+    #endif
   );
 }
 

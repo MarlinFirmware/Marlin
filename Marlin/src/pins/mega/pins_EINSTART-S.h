@@ -23,6 +23,7 @@
 
 /**
  * Einstart-S pin assignments
+ * ATmega2560, ATmega1280
  * PCB Silkscreen: 3DPrinterCon_v3.5
  */
 
@@ -69,7 +70,7 @@
 #define HEATER_0_PIN                          83
 #define HEATER_BED_PIN                        38
 
-#define FAN_PIN                               82
+#define FAN0_PIN                              82
 
 //
 // Misc. Functions
@@ -77,12 +78,8 @@
 #define SDSS                                  53
 #define LED_PIN                                4
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
-
 //
-// LCD Display output pins
+// LCD / Controller
 //
 
 // Requires #define U8GLIB_SH1106_EINSTART in Configuration.h

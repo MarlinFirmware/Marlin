@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.10.1
- * Date: 2022/03/06
+ * Version: 3.12.1
+ * Date: 2023/01/22
  */
 
 #include "../common/dwin_api.h"
@@ -35,10 +35,10 @@
 //  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
 //  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
 //  str: multi-bit data
-void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
+void dwinDrawQR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
 
-inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, FSTR_P title) {
-  DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
+inline void dwinDrawQR(uint8_t QR_Pixel, uint16_t x, uint16_t y, FSTR_P fTitle) {
+  dwinDrawQR(QR_Pixel, x, y, (char *)fTitle);
 }
 
 // Copy area from virtual display area to current screen
@@ -46,13 +46,13 @@ inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, FSTR_P title)
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+void dwinFrameAreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
 
 // Copy area from current virtual display area to current screen
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+void dwinFrameAreaCopy(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
 
 // Copy area from virtual display area to current screen
 //  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
@@ -62,15 +62,20 @@ void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(bool IBD, bool BIR, bool BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+void dwinFrameAreaCopy(bool IBD, bool BIR, bool BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
 
 // Write buffer data to the SRAM or Flash
 //  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
 //  addr: start address
 //  length: Bytes to write
 //  data: address of the buffer with data
-void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);
+void dwinWriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);
+
+// Draw an Icon from SRAM
+//  x/y: Upper-left point
+//  addr: SRAM address
+void dwinIconShow(uint16_t x, uint16_t y, uint16_t addr);
 
 // Write the contents of the 32KB SRAM data memory into the designated image memory space.
 //  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
-void DWIN_SRAMToPic(uint8_t picID);
+void dwinSRAMToPic(uint8_t picID);

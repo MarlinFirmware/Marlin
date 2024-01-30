@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#if HAS_FSMC_TFT
-  #error "Sorry! FSMC TFT displays are not current available for HAL/LPC1768."
+#ifndef SERIAL_PORT
+  #define SERIAL_PORT 0
 #endif

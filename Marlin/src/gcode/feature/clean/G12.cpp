@@ -57,10 +57,16 @@ void GcodeSuite::G12() {
     }
   #endif
 
-  const uint8_t pattern = parser.ushortval('P', 0),
-                strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
-                objects = parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES);
-  const float radius = parser.linearval('R', NOZZLE_CLEAN_CIRCLE_RADIUS);
+  const uint8_t pattern = (
+    #if COUNT_ENABLED(NOZZLE_CLEAN_PATTERN_LINE, NOZZLE_CLEAN_PATTERN_ZIGZAG, NOZZLE_CLEAN_PATTERN_CIRCLE) > 1
+      parser.ushortval('P', NOZZLE_CLEAN_DEFAULT_PATTERN)
+    #else
+      NOZZLE_CLEAN_DEFAULT_PATTERN
+    #endif
+  );
+  const uint8_t strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
+                objects = TERN0(NOZZLE_CLEAN_PATTERN_ZIGZAG, parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES));
+  const float radius = TERN0(NOZZLE_CLEAN_PATTERN_CIRCLE, parser.linearval('R', NOZZLE_CLEAN_CIRCLE_RADIUS));
 
   const bool seenxyz = parser.seen("XYZ");
   const uint8_t cleans =  (!seenxyz || parser.boolval('X') ? _BV(X_AXIS) : 0)

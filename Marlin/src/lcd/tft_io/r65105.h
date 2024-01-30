@@ -41,7 +41,7 @@
 
 #define R61505_DRVCTRL_GS         0x8000 // Gate Scan direction
 
-// MKS Robin TFT v1.1 - 320x240 ; Cable on the left side
+// MKS Robin TFT v1.1 - 320x240 ; FPC cable on the left side
 
 #if TFT_ROTATION == TFT_ROTATE_180
   #define R61505_DRVCTL_DATA      0x0000
@@ -66,7 +66,6 @@
 #endif
 
 #define R61505_ETMOD_DATA       (R61505_ETMOD_ORIENTATION) | (R61505_ETMOD_COLOR)
-
 
 #define R61505_RDDID              0x00 // ID code - 0x1505
 #define R61505_DRVCTL             0x01 // Driver Output Control
@@ -128,7 +127,6 @@
 #define R61505_IFCTL6             0x98 // Panel Interface Control 6
 
 #define R61505_OSC_CTRL           0xA4 // Oscillation Control
-
 
 static const uint16_t r61505_init[] = {
   DATASIZE_16BIT,

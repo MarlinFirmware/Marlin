@@ -47,7 +47,7 @@ void GcodeSuite::M145() {
     preheat_t &mat = ui.material_preset[material];
     #if HAS_HOTEND
       if (parser.seenval('H'))
-        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+        mat.hotend_temp = constrain(parser.value_int(), thermalManager.extrude_min_temp, thermalManager.hotend_max_target(0));
     #endif
     #if HAS_HEATED_BED
       if (parser.seenval('B'))
@@ -62,7 +62,7 @@ void GcodeSuite::M145() {
 
 void GcodeSuite::M145_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F(STR_MATERIAL_HEATUP));
-  LOOP_L_N(i, PREHEAT_COUNT) {
+  for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(
       PSTR("  M145 S"), i

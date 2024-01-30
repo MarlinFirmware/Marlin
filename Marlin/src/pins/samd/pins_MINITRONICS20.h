@@ -60,8 +60,9 @@
 #define Z_STOP_PIN                             4
 
 /**
- * NOTE: Useful if extra TMC2209 are to be used as independent axes.
- * We need to configure the new digital PIN, for this we could configure on the board the extra pin of this stepper, for example as a MIN_PIN/MAX_PIN. This pin is the D14.
+ * NOTE: For extra TMC2209 used as independent axes a new digital PIN is needed.
+ * We can configure on the board the extra pin of this stepper,
+ * e.g., as a MIN_PIN/MAX_PIN. This pin is D14.
  */
 //#define Z2_STOP_PIN                         14
 //#define X2_STOP_PIN                         14
@@ -105,7 +106,7 @@
 
 // This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
 #if EXTRUDERS < 2
-  // TODO: Corregir aquí que cuando tenemos dos extrusores o lo que sea, utiliza los endstop que le sobran, osea los max, no hay Z2_endstop
+  // TODO: Correct here that when we have two extruders (or whatever), use the extra endstops. i.e., The max, there is no Z2_endstop.
   #if NUM_Z_STEPPERS > 1
     #define Z2_STOP_PIN                       14
   #endif
@@ -117,8 +118,8 @@
   #undef Z3_DRIVER_TYPE
   #undef Z4_DRIVER_TYPE
 
-  // Si tenemos más de un extrusor lo que hacemos es definir el nuevo extrusor así como sus pines
-  // Acordarse de definir el #define TEMP_SENSOR_1, ya que este contiene el tipo de sonda del extrusor E1
+  // For more than one extruder define the new extruder and its pins.
+  // Remember to #define TEMP_SENSOR_1, since this contains the E1 sensor type.
 
   #define FIL_RUNOUT2_PIN                     14
 
@@ -149,7 +150,7 @@
 #define SPINDLE_LASER_PWM_PIN                  6
 
 // The board has 4 PWM fans, use and configure as desired
-#define FAN_PIN                               24
+#define FAN0_PIN                              24
 
 //
 // LCD / Controller
@@ -166,18 +167,14 @@
   #define EXP3_08_PIN                EXP1_08_PIN
 #endif
 
-/************************************/
-/***** Configurations Section  ******/
-/************************************/
-
 /**
- * This sections starts with the pins_RAMPS_144.h as example, after if you need any new
- * display, you could use normal duponts and connect it with with the scheme showed before.
+ * This section is based on pins_RAMPS_144.h. To use a new display, you
+ * could use normal duponts and connect with the scheme shown before.
  * Tested:
- *   - Ender 3 Old display (Character LCD)
- *   - Ender 3 New Serial DWING Display
+ *   - Ender-3 Old display (Character LCD)
+ *   - Ender-3 New Serial DWING Display
  *   - Reprap Display
- *   - Ender 5 New Serial Display
+ *   - Ender-5 New Serial Display
  *   - Any Reprap character display like
  */
 
@@ -190,18 +187,18 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       18  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 MOSI  // SID (MOSI)
+    #define LCD_PINS_EN                     MOSI  // SID (MOSI)
     #define LCD_PINS_D4                      SCK  // SCK (CLK) clock
 
     #define BTN_ENC                           23
     #define BTN_EN1                           27
     #define BTN_EN2                           33
 
-  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
+  #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS            EXP1_02_PIN
-    //#define LCD_PINS_ENABLE        EXP2_05_PIN
+    //#define LCD_PINS_EN            EXP2_05_PIN
     //#define LCD_PINS_D4                     57  // Mega/Due:65 - AGCM4:57
     //#define LCD_PINS_D5                     58  // Mega/Due:66 - AGCM4:58
     //#define LCD_PINS_D6            EXP2_07_PIN
@@ -212,9 +209,9 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       // TO TEST
-      //#define LCD_PINS_RS            EXP3_04_PIN
-      //#define LCD_PINS_ENABLE        EXP3_03_PIN
-      //#define LCD_PINS_D4            EXP3_05_PIN
+      //#define LCD_PINS_RS          EXP3_04_PIN
+      //#define LCD_PINS_EN          EXP3_03_PIN
+      //#define LCD_PINS_D4          EXP3_05_PIN
 
       #if !IS_NEWPANEL
         // TO TEST
@@ -225,7 +222,7 @@
 
       // TO TEST
       //#define LCD_PINS_RS                   56  // Mega/Due:64 - AGCM4:56
-      //#define LCD_PINS_ENABLE      EXP2_07_PIN
+      //#define LCD_PINS_EN          EXP2_07_PIN
       //#define LCD_PINS_D4                   55  // Mega/Due:63 - AGCM4:55
       //#define LCD_PINS_D5          EXP1_02_PIN
       //#define LCD_PINS_D6          EXP2_05_PIN
@@ -233,7 +230,7 @@
 
     #else
 
-      #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         // TO TEST
         //#define LCD_PINS_DC                 25  // Set as output on init
         //#define LCD_PINS_RS                 27  // Pull low for 1s to init
@@ -246,7 +243,7 @@
       #else
         // Definitions for any standard Display
         #define LCD_PINS_RS          EXP1_04_PIN
-        #define LCD_PINS_ENABLE      EXP1_03_PIN
+        #define LCD_PINS_EN          EXP1_03_PIN
         #define LCD_PINS_D4          EXP1_05_PIN
         #define LCD_PINS_D5          EXP1_06_PIN
         #define LCD_PINS_D6          EXP1_07_PIN
@@ -278,7 +275,7 @@
 
     #if IS_RRD_SC
 
-      //#define BEEPER_PIN             EXP1_01_PIN
+      //#define BEEPER_PIN           EXP1_01_PIN
 
       #if ENABLED(CR10_STOCKDISPLAY)
         // TO TEST
@@ -297,7 +294,7 @@
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
-      //#define KILL_PIN               EXP2_10_PIN
+      //#define KILL_PIN             EXP2_10_PIN
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         //#define LCD_BACKLIGHT_PIN  EXP1_08_PIN  // TO TEST
@@ -322,7 +319,7 @@
       //#define LCD_SDSS                    SDSS
       //#define SD_DETECT_PIN        EXP2_10_PIN
 
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
 
       // TO TEST
       //#define DOGLCD_CS                     45
@@ -357,7 +354,7 @@
       //#define SD_DETECT_PIN        EXP2_10_PIN
       //#define KILL_PIN             EXP1_01_PIN
 
-    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
+    #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
       // TO TEST
       //#define BEEPER_PIN           EXP1_06_PIN
@@ -402,7 +399,7 @@
 
         //#define LCD_RESET_PIN               23  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             // TO TEST
             //#define RGB_LED_R_PIN           25
@@ -427,7 +424,7 @@
       // TO TEST
       //#define BEEPER_PIN           EXP2_05_PIN
       // not connected to a pin
-      //#define LCD_BACKLIGHT_PIN             57  // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
+      //#define LCD_BACKLIGHT_PIN             57  // Backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
       //#define DOGLCD_A0            EXP2_07_PIN
       //#define DOGLCD_CS                     58  // Mega/Due:66 - AGCM4:58
@@ -502,8 +499,8 @@
 #if HAS_TMC_UART
 
   /**
-   * Address for the UART Configuration of the TMC2209. Override in Configuration files.
-   * To test TMC2209 Steppers enable TMC_DEBUG in Configuration_adv.h and test the M122 command with voltage on the steppers.
+   * TMC2209 UART Address. Override in Configuration files.
+   * To test TMC2209 Steppers enable TMC_DEBUG and test M122 with voltage on the steppers.
    */
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS                 0b00
@@ -523,8 +520,8 @@
 
   /**
    * TMC2208/TMC2209 stepper drivers
-   *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
-   *  Steppers 1,2,3,4 (X,Y,Z,E0) are on the Serial1, Sercom (RX = 0, TX = 1), extra stepper 5 (E1 or any axis you want) is on Serial2, Sercom (RX = 17, TX = 16)
+   * Seems to work fine with Software Serial. If you want to test, use SAMD51 Serial1 and Serial2. Be careful with the Sercom configurations.
+   * Steppers 1,2,3,4 (X,Y,Z,E0) are on Serial1, Sercom (RX=0, TX=1), extra stepper 5 (E1 or any axis you want) is on Serial2, Sercom (RX=17, TX=16)
    */
 
   //#define X_HARDWARE_SERIAL  Serial1

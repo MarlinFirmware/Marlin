@@ -55,6 +55,13 @@
 #define Z_MAX_PIN                           PB1
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PC0
@@ -82,7 +89,7 @@
 //
 #define HEATER_0_PIN                        PC9
 #define HEATER_1_PIN                        PC7
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //
@@ -101,7 +108,7 @@
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
-  #define LCD_PINS_ENABLE                   PA4
+  #define LCD_PINS_EN                       PA4
   #define LCD_PINS_RS                       PA5
   #define BTN_EN1                           PB11
   #define BTN_EN2                           PB0
@@ -122,7 +129,7 @@
       #define TFTGLCD_CS                    PB11
     #endif
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6
     #if IS_ULTIPANEL
@@ -152,7 +159,7 @@
 //
 // SPI
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 #define SD_SCK_PIN                          PB13
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15

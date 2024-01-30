@@ -142,7 +142,6 @@ HSD_sink_res heatshrink_decoder_sink(heatshrink_decoder *hsd,
   return HSDR_SINK_OK;
 }
 
-
 /*****************
  * Decompression *
  *****************/

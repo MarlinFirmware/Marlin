@@ -125,7 +125,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     inline CommandProcessor& set_button_style_callback(const btn_style_func_t *func) {
-      _btn_style_callback = func ? func : default_button_style_func;
+      _btn_style_callback = func ?: default_button_style_func;
       return *this;
     }
 

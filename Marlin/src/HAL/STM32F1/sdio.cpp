@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +25,7 @@
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
 #include "sdio.h"
 
@@ -136,8 +135,13 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
 }
 
 bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
-  uint32_t retries = SDIO_READ_RETRIES;
-  while (retries--) if (SDIO_ReadBlock_DMA(blockAddress, data)) return true;
+  uint8_t retries = SDIO_READ_RETRIES;
+  while (retries--) {
+    if (SDIO_ReadBlock_DMA(blockAddress, data)) return true;
+    #if SD_RETRY_DELAY_MS
+      delay(SD_RETRY_DELAY_MS);
+    #endif
+  }
   return false;
 }
 

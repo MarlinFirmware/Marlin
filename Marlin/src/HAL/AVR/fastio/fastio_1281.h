@@ -26,36 +26,36 @@
  *
  *   Logical Pin: 38 39 40 41 42 43 44 45 16 10 11 12 06 07 08 09 30 31 32 33 34 35 36 37 17 18 19 20 21 22 23 24 00 01 13 05 02 03 14 15 46 47 48 49 50 51 52 53 25 26 27 28 29 04
  *   Port:        A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7 E0 E1 E2 E3 E4 E5 E6 E7 F0 F1 F2 F3 F4 F5 F6 F7 G0 G1 G2 G3 G4 G5
+ *
+ * Arduino Pin Layout video: https://youtu.be/rIqeVCX09FA
+ * AVR alternate pin function overview video: https://youtu.be/1yd8wuI5Plg
  */
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO46
-
 // UART
-#define RXD         DIO0
-#define TXD         DIO1
+#define RXD         0
+#define TXD         1
 
 // SPI
-#define SCK         DIO10
-#define MISO        DIO12
-#define MOSI        DIO11
-#define SS          DIO16
+#define SCK         10
+#define MISO        12
+#define MOSI        11
+#define SS          16
 
 // TWI (I2C)
-#define SCL         DIO17
-#define SDA         DIO18
+#define SCL         17
+#define SDA         18
 
 // Timers and PWM
-#define OC0A        DIO9
-#define OC0B        DIO4
-#define OC1A        DIO7
-#define OC1B        DIO8
-#define OC2A        DIO6
-#define OC3A        DIO5
-#define OC3B        DIO2
-#define OC3C        DIO3
+#define OC0A        9
+#define OC0B        4
+#define OC1A        7
+#define OC1B        8
+#define OC2A        6
+#define OC3A        5
+#define OC3B        2
+#define OC3C        3
 
 // Digital I/O
 

@@ -34,7 +34,7 @@ static lv_obj_t *scr;
 
 enum {
   ID_MOTOR_RETURN = 1,
-  ID_MOTOR_STEPS,
+  OPTITEM(EDITABLE_STEPS_PER_UNIT, ID_MOTOR_STEPS)
   ID_MOTOR_TMC_CURRENT,
   ID_MOTOR_STEP_MODE,
   ID_HOME_SENSE
@@ -44,26 +44,20 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   lv_clear_motor_settings();
   switch (obj->mks_obj_id) {
-    case ID_MOTOR_RETURN:
-      draw_return_ui();
-      break;
-    case ID_MOTOR_STEPS:
-      lv_draw_step_settings();
-      break;
+    case ID_MOTOR_RETURN: draw_return_ui(); break;
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_MOTOR_STEPS: lv_draw_step_settings(); break;
+    #endif
+
     #if USE_SENSORLESS
-      case ID_HOME_SENSE:
-        lv_draw_homing_sensitivity_settings();
-        break;
+      case ID_HOME_SENSE: lv_draw_homing_sensitivity_settings(); break;
     #endif
 
     #if HAS_TRINAMIC_CONFIG
-      case ID_MOTOR_TMC_CURRENT:
-        lv_draw_tmc_current_settings();
-        break;
+      case ID_MOTOR_TMC_CURRENT: lv_draw_tmc_current_settings(); break;
       #if HAS_STEALTHCHOP
-        case ID_MOTOR_STEP_MODE:
-          lv_draw_tmc_step_mode_settings();
-          break;
+        case ID_MOTOR_STEP_MODE: lv_draw_tmc_step_mode_settings(); break;
       #endif
     #endif
   }
@@ -73,17 +67,19 @@ void lv_draw_motor_settings() {
   int index = 0;
 
   scr = lv_screen_create(MOTOR_SETTINGS_UI, machine_menu.MotorConfTitle);
-  lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index++);
-  #if USE_SENSORLESS
-    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index);
-    index++;
+
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index++);
   #endif
+
+  #if USE_SENSORLESS
+    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index++);
+  #endif
+
   #if HAS_TRINAMIC_CONFIG
-    lv_screen_menu_item(scr, machine_menu.TMCcurrentConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_TMC_CURRENT, index);
-    index++;
+    lv_screen_menu_item(scr, machine_menu.TMCcurrentConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_TMC_CURRENT, index++);
     #if HAS_STEALTHCHOP
-      lv_screen_menu_item(scr, machine_menu.TMCStepModeConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_STEP_MODE, index);
-      index++;
+      lv_screen_menu_item(scr, machine_menu.TMCStepModeConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_STEP_MODE, index++);
     #endif
   #endif
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_MOTOR_RETURN, true);

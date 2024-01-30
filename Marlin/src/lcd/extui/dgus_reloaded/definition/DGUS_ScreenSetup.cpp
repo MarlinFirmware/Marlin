@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUS_ScreenSetup.h"
 
@@ -30,28 +30,26 @@
 
 #include "../../ui_api.h"
 
-#define SETUP_HELPER(SCREEN, SETUP) \
-  { .screen = SCREEN, \
-  .setup_fn = SETUP }
+#define SETUP_HELPER(SCREEN, SETUP) { .screenID = SCREEN, .setup_fn = SETUP }
 
 const struct DGUS_ScreenSetup screen_setup_list[] PROGMEM = {
-  #if ENABLED(SDSUPPORT)
-    SETUP_HELPER(DGUS_Screen::PRINT,            &DGUSSetupHandler::Print),
+  #if HAS_MEDIA
+    SETUP_HELPER(DGUS_ScreenID::PRINT,            &DGUSSetupHandler::print),
   #endif
-  SETUP_HELPER(DGUS_Screen::PRINT_STATUS,       &DGUSSetupHandler::PrintStatus),
-  SETUP_HELPER(DGUS_Screen::PRINT_ADJUST,       &DGUSSetupHandler::PrintAdjust),
-  SETUP_HELPER(DGUS_Screen::LEVELING_MENU,      &DGUSSetupHandler::LevelingMenu),
-  SETUP_HELPER(DGUS_Screen::LEVELING_OFFSET,    &DGUSSetupHandler::LevelingOffset),
-  SETUP_HELPER(DGUS_Screen::LEVELING_MANUAL,    &DGUSSetupHandler::LevelingManual),
-  SETUP_HELPER(DGUS_Screen::LEVELING_AUTOMATIC, &DGUSSetupHandler::LevelingAutomatic),
-  SETUP_HELPER(DGUS_Screen::LEVELING_PROBING,   &DGUSSetupHandler::LevelingProbing),
-  SETUP_HELPER(DGUS_Screen::FILAMENT,           &DGUSSetupHandler::Filament),
-  SETUP_HELPER(DGUS_Screen::MOVE,               &DGUSSetupHandler::Move),
-  SETUP_HELPER(DGUS_Screen::GCODE,              &DGUSSetupHandler::Gcode),
-  SETUP_HELPER(DGUS_Screen::PID,                &DGUSSetupHandler::PID),
-  SETUP_HELPER(DGUS_Screen::INFOS,              &DGUSSetupHandler::Infos),
+  SETUP_HELPER(DGUS_ScreenID::PRINT_STATUS,       &DGUSSetupHandler::printStatus),
+  SETUP_HELPER(DGUS_ScreenID::PRINT_ADJUST,       &DGUSSetupHandler::printAdjust),
+  SETUP_HELPER(DGUS_ScreenID::LEVELING_MENU,      &DGUSSetupHandler::levelingMenu),
+  SETUP_HELPER(DGUS_ScreenID::LEVELING_OFFSET,    &DGUSSetupHandler::levelingOffset),
+  SETUP_HELPER(DGUS_ScreenID::LEVELING_MANUAL,    &DGUSSetupHandler::levelingManual),
+  SETUP_HELPER(DGUS_ScreenID::LEVELING_AUTOMATIC, &DGUSSetupHandler::levelingAutomatic),
+  SETUP_HELPER(DGUS_ScreenID::LEVELING_PROBING,   &DGUSSetupHandler::levelingProbing),
+  SETUP_HELPER(DGUS_ScreenID::FILAMENT,           &DGUSSetupHandler::filament),
+  SETUP_HELPER(DGUS_ScreenID::MOVE,               &DGUSSetupHandler::move),
+  SETUP_HELPER(DGUS_ScreenID::GCODE,              &DGUSSetupHandler::gcode),
+  SETUP_HELPER(DGUS_ScreenID::PID,                &DGUSSetupHandler::pid),
+  SETUP_HELPER(DGUS_ScreenID::INFOS,              &DGUSSetupHandler::infos),
 
-  SETUP_HELPER((DGUS_Screen)0, nullptr)
+  SETUP_HELPER((DGUS_ScreenID)0, nullptr)
 };
 
 #endif // DGUS_LCD_UI_RELOADED

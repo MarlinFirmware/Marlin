@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include HAL_PATH(../HAL, MarlinSPI.h)
+#include HAL_PATH(.., MarlinSPI.h)
 
 #define W25X_WriteEnable        0x06
 #define W25X_WriteDisable       0x04

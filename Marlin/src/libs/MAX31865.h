@@ -45,7 +45,7 @@
 
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/Delay.h"
-#include HAL_PATH(../HAL, MarlinSPI.h)
+#include HAL_PATH(.., MarlinSPI.h)
 
 #define MAX31865_CONFIG_REG 0x00
 #define MAX31865_CONFIG_BIAS 0x80

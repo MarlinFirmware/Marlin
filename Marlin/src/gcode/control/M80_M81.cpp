@@ -48,7 +48,7 @@
 
     // S: Report the current power supply state and exit
     if (parser.seen('S')) {
-      SERIAL_ECHOF(powerManager.psu_on ? F("PS:1\n") : F("PS:0\n"));
+      SERIAL_ECHO(powerManager.psu_on ? F("PS:1\n") : F("PS:0\n"));
       return;
     }
 
@@ -79,7 +79,7 @@ void GcodeSuite::M81() {
 
   print_job_timer.stop();
 
-  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+  #if ALL(HAS_FAN, PROBING_FANS_OFF)
     thermalManager.fans_paused = false;
     ZERO(thermalManager.saved_fan_speed);
   #endif

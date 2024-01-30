@@ -165,7 +165,6 @@ namespace Theme {
     {ORGAN,        NOTE_A4,  4},
     {SILENCE,      REST,     36},
 
-
     {ORGAN,        NOTE_C5S, 4},
     {ORGAN,        NOTE_D5,  2},
     {ORGAN,        NOTE_E5,  2},
@@ -300,6 +299,44 @@ namespace Theme {
     {SILENCE,      END_SONG, 0}
   };
 
+  const PROGMEM SoundPlayer::sound_t flagpole[] = {
+    {TRIANGLE_WAVE, NOTE_G3,  2},
+    {TRIANGLE_WAVE, NOTE_C4,  2},
+    {TRIANGLE_WAVE, NOTE_E4,  2},
+    {TRIANGLE_WAVE, NOTE_G4,  2},
+    {TRIANGLE_WAVE, NOTE_C5,  2},
+    {TRIANGLE_WAVE, NOTE_E5,  2},
+    {TRIANGLE_WAVE, NOTE_G5,  5},
+    {TRIANGLE_WAVE, NOTE_E5,  2},
+
+    {TRIANGLE_WAVE, NOTE_G3S, 2},
+    {TRIANGLE_WAVE, NOTE_C4,  2},
+    {TRIANGLE_WAVE, NOTE_D4S, 2},
+    {TRIANGLE_WAVE, NOTE_G4S, 2},
+    {TRIANGLE_WAVE, NOTE_C5,  2},
+    {TRIANGLE_WAVE, NOTE_D5S, 2},
+    {TRIANGLE_WAVE, NOTE_G5S, 5},
+    {TRIANGLE_WAVE, NOTE_D5S, 5},
+
+    {TRIANGLE_WAVE, NOTE_A3S, 2},
+    {TRIANGLE_WAVE, NOTE_D4,  2},
+    {TRIANGLE_WAVE, NOTE_F4,  2},
+    {TRIANGLE_WAVE, NOTE_A4S, 2},
+    {TRIANGLE_WAVE, NOTE_D5,  2},
+    {TRIANGLE_WAVE, NOTE_F5,  2},
+    {TRIANGLE_WAVE, NOTE_A5S, 5},
+
+    {SILENCE,       REST,     1},
+    {TRIANGLE_WAVE, NOTE_A5S, 1},
+    {SILENCE,       REST,     1},
+    {TRIANGLE_WAVE, NOTE_A5S, 1},
+    {SILENCE,       REST,     1},
+    {TRIANGLE_WAVE, NOTE_A5S, 1},
+    {SILENCE,       REST,     1},
+    {TRIANGLE_WAVE, NOTE_A5S, 8},
+    {SILENCE,       END_SONG, 0}
+  };
+
   const PROGMEM SoundPlayer::sound_t big_band[] = {
     {XYLOPHONE,    NOTE_F4,  3},
     {XYLOPHONE,    NOTE_G4,  3},
@@ -402,7 +439,8 @@ const SoundList::list_t SoundList::list[] = {
   {"Carousel",     Theme::carousel},
   {"Beats",        Theme::beats},
   {"Bach Joy",     Theme::js_bach_joy},
-  {"Bach Toccata", Theme::js_bach_toccata}
+  {"Bach Toccata", Theme::js_bach_toccata},
+  {"Flagpole",     Theme::flagpole}
 };
 
 const uint8_t SoundList::n = N_ELEMENTS(SoundList::list);

@@ -53,19 +53,17 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
 #define TMC_USE_SW_SPI
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PE14
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PE13
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PE12
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PE14
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PE13
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 #include "pins_FYSETC_S6.h"
