@@ -639,7 +639,7 @@ private:
 
   static void M18_M84();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M20();
     static void M21();
     static void M22();
@@ -655,7 +655,7 @@ private:
 
   static void M31();
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #if HAS_MEDIA_SUBCALLS
       static void M32();
     #endif
@@ -1055,7 +1055,7 @@ private:
     #endif
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M524();
   #endif
 
@@ -1188,7 +1188,7 @@ private:
     static void M910();
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M928();
   #endif
 
@@ -1200,7 +1200,7 @@ private:
     static void M995();
   #endif
 
-  #if ALL(SPI_FLASH, SDSUPPORT)
+  #if ALL(SPI_FLASH, HAS_MEDIA)
     static void M993();
     static void M994();
   #endif
@@ -1222,7 +1222,7 @@ private:
     static void M423_report(const bool forReplay=true);
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static void M1001();
   #endif
 

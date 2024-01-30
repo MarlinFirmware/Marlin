@@ -702,7 +702,7 @@
   #undef MENU_ADDAUTOSTART
 #endif
 
-#if ANY(SDSUPPORT, SET_PROGRESS_MANUALLY)
+#if ANY(HAS_MEDIA, SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
 #endif
 
@@ -720,7 +720,7 @@
   #define HAS_STATUS_MESSAGE_TIMEOUT 1
 #endif
 
-#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+#if HAS_MEDIA && SD_PROCEDURE_DEPTH
   #define HAS_MEDIA_SUBCALLS 1
 #endif
 
@@ -754,7 +754,7 @@
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
-#if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
+#if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
 #if DISPLAY_SLEEP_MINUTES || TOUCH_IDLE_SLEEP_MINS
@@ -1096,7 +1096,7 @@
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define _SDCARD_LCD          1
   #define _SDCARD_ONBOARD      2
   #define _SDCARD_CUSTOM_CABLE 3
@@ -1176,7 +1176,7 @@
 #endif
 
 // AVR are (usually) too limited in resources to store the configuration into the binary
-#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || ANY(SDCARD_READONLY, DISABLE_M503))
+#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || ANY(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif

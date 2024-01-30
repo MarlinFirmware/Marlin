@@ -25,7 +25,7 @@
  * Test STM32F1-specific configuration values for errors at compile-time.
  */
 
-#if ENABLED(SDCARD_EEPROM_EMULATION) && DISABLED(SDSUPPORT)
+#if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
   #if USE_FALLBACK_EEPROM
     #warning "EEPROM type not specified. Fallback is SDCARD_EEPROM_EMULATION."

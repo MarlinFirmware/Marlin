@@ -56,7 +56,7 @@
 #include "../../module/printcounter.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../libs/duration_t.h"
 #endif
 
@@ -527,7 +527,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -539,7 +539,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       }
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 

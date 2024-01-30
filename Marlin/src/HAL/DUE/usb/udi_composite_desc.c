@@ -50,7 +50,7 @@
 #include "udd.h"
 #include "udc_desc.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 /**
  * \defgroup udi_group_desc Descriptors for a USB Device
@@ -189,4 +189,4 @@ UDC_DESC_STORAGE udc_config_t udc_config = {
 
 #endif // ARDUINO_ARCH_SAM
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

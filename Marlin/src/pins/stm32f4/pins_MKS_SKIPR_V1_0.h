@@ -262,7 +262,7 @@
 // SD Support
 // Onboard SD card use hardware SPI3 (defined in variant), LCD SD card use hardware SPI1
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #ifndef SDCARD_CONNECTION
     #define SDCARD_CONNECTION                LCD
   #endif

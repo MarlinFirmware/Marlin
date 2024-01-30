@@ -168,10 +168,10 @@ void GcodeSuite::M115() {
     cap_line(F("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
     // SDCARD (M20, M23, M24, etc.)
-    cap_line(F("SDCARD"), ENABLED(SDSUPPORT));
+    cap_line(F("SDCARD"), ENABLED(HAS_MEDIA));
 
     // MULTI_VOLUME (M21 S/M21 U)
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
     #endif
 
@@ -179,7 +179,7 @@ void GcodeSuite::M115() {
     cap_line(F("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
     // SD_WRITE (M928, M28, M29)
-    cap_line(F("SD_WRITE"), ENABLED(SDSUPPORT) && DISABLED(SDCARD_READONLY));
+    cap_line(F("SD_WRITE"), ENABLED(HAS_MEDIA) && DISABLED(SDCARD_READONLY));
 
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(F("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));

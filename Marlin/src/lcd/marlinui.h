@@ -252,7 +252,7 @@ public:
     }
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
@@ -469,7 +469,7 @@ public:
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 
-      #if ALL(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
         static millis_t next_filament_display;
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
@@ -531,7 +531,7 @@ public:
     static void completion_feedback(const bool=true) {}
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif

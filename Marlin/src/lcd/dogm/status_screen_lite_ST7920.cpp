@@ -81,7 +81,7 @@
 #include "../../module/temperature.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../sd/cardreader.h"
 #endif
 

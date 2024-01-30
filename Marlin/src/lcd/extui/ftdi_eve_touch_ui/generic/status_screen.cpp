@@ -417,7 +417,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       case 3: GOTO_SCREEN(FilesScreen); break;
     #endif
     case 4:

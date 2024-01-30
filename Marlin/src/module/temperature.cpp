@@ -1896,7 +1896,7 @@ void Temperature::task() {
       quickstop_stepper();
     }
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (emergency_parser.sd_abort_by_M524) { // abort SD print immediately
         emergency_parser.sd_abort_by_M524 = false;
         card.flag.abort_sd_printing = true;

@@ -160,7 +160,7 @@
 #define KILL_PIN                            PD5
 #define POWER_LOSS_PIN                      PA4   // ?? Power loss / nAC_FAULT
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SS_PIN                         PB15  // USD_CS -> CS for onboard SD
 #endif
@@ -198,7 +198,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
 
