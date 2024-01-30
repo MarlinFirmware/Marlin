@@ -94,7 +94,7 @@ class TFT_FSMC {
 #ifdef STM32F1xx
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
 #elif defined(STM32F4xx)
-  #if defined(STM32F446xx)
+  #ifdef STM32F446xx
     #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FMC)
   #else
     #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
@@ -108,7 +108,7 @@ class TFT_FSMC {
 #endif
 
 const PinMap pinMap_FSMC[] = {
-  #if defined(STM32F446xx)  //
+  #ifdef STM32F446xx
     {PD_14,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D00
     {PD_15,  FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D01
     {PD_0,   FMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D02
@@ -156,7 +156,7 @@ const PinMap pinMap_FSMC[] = {
 };
 
 const PinMap pinMap_FSMC_CS[] = {
-  #if defined(STM32F446xx)  //
+  #ifdef STM32F446xx
     {PD_7,  (void *)FMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
     #ifdef PF0
       {PG_9,  (void *)FMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
