@@ -279,7 +279,6 @@ void MarlinUI::draw_status_screen() {
     tft.add_text(Z_VALUE_X - offset, Z_VALUE_Y, nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-
   #if ENABLED(LCD_SHOW_E_TOTAL) && defined(E_MARK_X) && defined(E_MARK_Y) && defined(E_VALUE_X) && defined(E_VALUE_Y)
     tft.add_text(E_MARK_X, E_MARK_Y, COLOR_AXIS_HOMED, "E");
     if (printingIsActive()) {

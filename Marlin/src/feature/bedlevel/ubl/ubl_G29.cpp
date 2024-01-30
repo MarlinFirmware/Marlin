@@ -615,7 +615,6 @@ void unified_bed_leveling::G29() {
 
   #endif // UBL_DEVEL_DEBUGGING
 
-
   //
   // Load a Mesh from the EEPROM
   //

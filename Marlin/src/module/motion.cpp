@@ -380,7 +380,6 @@ void report_current_position_projected() {
 
 #endif // CARTESIAN
 
-
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
 }
