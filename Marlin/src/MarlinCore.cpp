@@ -683,7 +683,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #if defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT)
       if(ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE))
       {
-        if(READ(PS_ON1_PIN)!=READ(PS_ON1_EDM_PIN))
+        if(extDigitalRead(PS_ON1_PIN)!=extDigitalRead(PS_ON1_EDM_PIN))
           kill(GET_TEXT_F(PS_ON1_EDM_FAIL));
       }
 
