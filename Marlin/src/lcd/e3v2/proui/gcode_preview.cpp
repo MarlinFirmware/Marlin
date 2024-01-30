@@ -21,7 +21,7 @@
  */
 
 /**
- * DWIN g-code thumbnail preview
+ * DWIN G-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
  * version: 3.1.2
  * Date: 2022/09/03

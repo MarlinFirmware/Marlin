@@ -21,7 +21,9 @@
  */
 #pragma once
 
-// Use this file to select the com driver for device drivers that are NOT in the U8G library
+/**
+ * Assign custom or standard U8G device drivers
+ */
 
 #include <U8glib-HAL.h>
 
@@ -114,6 +116,7 @@
   #define U8G_COM_ST7920_HAL_SW_SPI   u8g_com_ST7920_sw_spi_fn
 #endif
 
+// U8G_HAL_LINKS is defined for LPC1768/9 and Native envs by -DU8G_HAL_LINKS in platform.ini
 #ifndef U8G_COM_HAL_SW_SPI_FN
   #define U8G_COM_HAL_SW_SPI_FN     u8g_com_null_fn
 #endif

@@ -30,7 +30,7 @@
  * Substitutions are applied for the following characters when used in menu items titles:
  *
  *   $ displays an inserted string
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -58,7 +58,7 @@ namespace Language_pl {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Błąd uruchomienia USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Krańców."); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Progr. Krańcówki");
-  LSTR MSG_MAIN                           = _UxGT("Menu główne");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu główne");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ustawienie zaawansowane");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguracja");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
@@ -221,7 +221,7 @@ namespace Language_pl {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Fioletowy");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Biały");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Domyślny");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanał =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanał {");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Jasność");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Własne światła");
   LSTR MSG_INTENSITY_R                    = _UxGT("Czerwony");
@@ -330,7 +330,7 @@ namespace Language_pl {
   LSTR MSG_STOP_PRINT                     = _UxGT("Stop");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Drukowanie obiektu");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Anunuj obiekt");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Anunuj obiekt =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Anunuj obiekt {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Odzyskiwanie po awarii");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Karta SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Brak karty");
@@ -474,7 +474,7 @@ namespace Language_pl {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Usuń, kliknij");
 
   LSTR MSG_MIX                            = _UxGT("Miks");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent {");
   LSTR MSG_MIXER                          = _UxGT("Mikser");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Pełny gradient");
   LSTR MSG_TOGGLE_MIX                     = _UxGT("Przełacz miks");

@@ -21,7 +21,7 @@
  */
 
 //
-// Level Bed Corners menu
+// Bed Tramming menu
 //
 
 #include "../../inc/MarlinConfigPre.h"
@@ -54,7 +54,7 @@
   #endif
   float last_z;
   int good_points;
-  bool corner_probing_done, wait_for_probe;
+  bool tramming_done, wait_for_probe;
 
   #if HAS_MARLINUI_U8GLIB
     #include "../dogm/marlinui_DOGM.h"
@@ -66,6 +66,11 @@
 
 static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0. Please update your configuration.");
 
+#define LF 1
+#define RF 2
+#define RB 3
+#define LB 4
+
 #ifndef BED_TRAMMING_LEVELING_ORDER
   #define BED_TRAMMING_LEVELING_ORDER { LF, RF, LB, RB } // Default
   //#define BED_TRAMMING_LEVELING_ORDER { LF, LB, RF  }  // 3 hard-coded points
@@ -75,18 +80,14 @@ static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0. Please 
   //#define BED_TRAMMING_LEVELING_ORDER { LB, RB }       // 3-Point tramming - Front
 #endif
 
-#define LF 1
-#define RF 2
-#define RB 3
-#define LB 4
 constexpr int lco[] = BED_TRAMMING_LEVELING_ORDER;
-constexpr bool level_corners_3_points = COUNT(lco) == 2;
-static_assert(level_corners_3_points || COUNT(lco) == 4, "BED_TRAMMING_LEVELING_ORDER must have exactly 2 or 4 corners.");
+constexpr bool tramming_3_points = COUNT(lco) == 2;
+static_assert(tramming_3_points || COUNT(lco) == 4, "BED_TRAMMING_LEVELING_ORDER must have exactly 2 or 4 corners.");
 
 constexpr int lcodiff = ABS(lco[0] - lco[1]);
 static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BED_TRAMMING_LEVELING_ORDER corners must be on the same edge.");
 
-constexpr int nr_edge_points = level_corners_3_points ? 3 : 4;
+constexpr int nr_edge_points = tramming_3_points ? 3 : 4;
 constexpr int available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER);
 constexpr int center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
 constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
@@ -98,9 +99,9 @@ static int8_t bed_corner;
 /**
  * Select next corner coordinates
  */
-static void _lcd_level_bed_corners_get_next_position() {
+static void _lcd_bed_tramming_get_next_position() {
 
-  if (level_corners_3_points) {
+  if (tramming_3_points) {
     if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
     switch (bed_corner) {
       case 0 ... 1:
@@ -141,9 +142,9 @@ static void _lcd_level_bed_corners_get_next_position() {
     else {
       current_position = lf;                       // Left front
       switch (lco[bed_corner]) {
-        case RF: current_position.x = rb.x; break; // Right front
-        case RB: current_position   = rb;   break; // Right rear
-        case LB: current_position.y = rb.y; break; // Left rear
+        case RF: current_position.x = rb.x; break; // Right Front
+        case RB: current_position   = rb;   break; // Right Back
+        case LB: current_position.y = rb.y; break; // Left Back
       }
     }
   }
@@ -198,7 +199,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::select_screen(
         GET_TEXT_F(MSG_BUTTON_DONE), GET_TEXT_F(MSG_BUTTON_SKIP)
-      , []{ corner_probing_done = true; wait_for_probe = false; }
+      , []{ tramming_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT_F(MSG_BED_TRAMMING_RAISE)
     );
@@ -207,23 +208,25 @@ static void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::select_screen(
-        GET_TEXT_F(TERN(HAS_LEVELING, MSG_BUTTON_LEVEL, MSG_BUTTON_DONE)),
-        TERN(HAS_LEVELING, GET_TEXT_F(MSG_BUTTON_BACK), nullptr)
+        GET_TEXT_F(TERN(HAS_LEVELING, MSG_BUTTON_LEVEL, MSG_BUTTON_DONE))
+      , TERN(HAS_LEVELING, GET_TEXT_F(MSG_BUTTON_BACK), nullptr)
       , []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
       , TERN(HAS_LEVELING, ui.goto_previous_screen_no_defer, []{})
       , GET_TEXT_F(MSG_BED_TRAMMING_IN_RANGE)
     );
   }
 
-  bool _lcd_level_bed_corners_probe(bool verify=false) {
-    if (verify) do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP); // do clearance if needed
+  bool _lcd_bed_tramming_probe(bool verify=false) {
+    if (verify) line_to_z(BED_TRAMMING_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
+
       TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
+
       // Triggered outside tolerance range?
       if (ABS(current_position.z - last_z) > BED_TRAMMING_PROBE_TOLERANCE) {
         last_z = current_position.z; // Above tolerance. Set a new Z for subsequent corners.
@@ -231,13 +234,13 @@ static void _lcd_level_bed_corners_get_next_position() {
       }
       return true; // probe triggered
     }
-    do_blocking_move_to_z(last_z); // go back to tolerance middle point before raise
+    line_to_z(last_z); // go back to tolerance middle point before raise
     return false; // probe not triggered
   }
 
-  bool _lcd_level_bed_corners_raise() {
+  bool _lcd_bed_tramming_raise() {
     bool probe_triggered = false;
-    corner_probing_done = false;
+    tramming_done = false;
     wait_for_probe = true;
     ui.goto_screen(_lcd_draw_raise); // show raise screen
     ui.set_selection(true);
@@ -264,25 +267,25 @@ static void _lcd_level_bed_corners_get_next_position() {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                // update screen with # of good points
 
-      do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
+      line_to_z(current_position.z + BED_TRAMMING_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
 
-      _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
+      _lcd_bed_tramming_get_next_position();              // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
       do_blocking_move_to_xy(current_position);           // Goto corner
 
       TERN_(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
-      if (!_lcd_level_bed_corners_probe()) {              // Probe down to tolerance
-        if (_lcd_level_bed_corners_raise()) {             // Prompt user to raise bed if needed
-          #if ENABLED(BED_TRAMMING_VERIFY_RAISED)        // Verify
-            while (!_lcd_level_bed_corners_probe(true)) { // Loop while corner verified
-              if (!_lcd_level_bed_corners_raise()) {      // Prompt user to raise bed if needed
-                if (corner_probing_done) return;          // Done was selected
+      if (!_lcd_bed_tramming_probe()) {                   // Probe down to tolerance
+        if (_lcd_bed_tramming_raise()) {                  // Prompt user to raise bed if needed
+          #if ENABLED(BED_TRAMMING_VERIFY_RAISED)         // Verify
+            while (!_lcd_bed_tramming_probe(true)) {      // Loop while corner verified
+              if (!_lcd_bed_tramming_raise()) {           // Prompt user to raise bed if needed
+                if (tramming_done) return;                // Done was selected
                 break;                                    // Skip was selected
               }
             }
           #endif
         }
-        else if (corner_probing_done)                     // Done was selected
+        else if (tramming_done)                           // Done was selected
           return;
       }
 
@@ -293,9 +296,9 @@ static void _lcd_level_bed_corners_get_next_position() {
 
     #if ENABLED(BLTOUCH)
       if (bltouch.high_speed_mode) {
-        // In HIGH SPEED MODE do clearance and stow at the very end
-        do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP);
+        // In HIGH SPEED MODE do stow and clearance at the very end
         bltouch.stow();
+        do_z_clearance(BED_TRAMMING_Z_HOP);
       }
     #endif
 
@@ -309,7 +312,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     line_to_z(BED_TRAMMING_Z_HOP);
 
     // Select next corner coordinates
-    _lcd_level_bed_corners_get_next_position();
+    _lcd_bed_tramming_get_next_position();
 
     line_to_current_position(manual_feedrate_mm_s.x);
     line_to_z(BED_TRAMMING_HEIGHT);
@@ -318,15 +321,19 @@ static void _lcd_level_bed_corners_get_next_position() {
 
 #endif // !BED_TRAMMING_USE_PROBE
 
-static void _lcd_level_bed_corners_homing() {
+void _lcd_bed_tramming_homing() {
   _lcd_draw_homing();
   if (!all_axes_homed()) return;
+
   #if ENABLED(BED_TRAMMING_USE_PROBE)
+
     _lcd_test_corners();
-    if (corner_probing_done) ui.goto_previous_screen_no_defer();
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+    if (tramming_done) ui.goto_previous_screen_no_defer();
+    TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
     endstops.enable_z_probe(false);
-  #else
+
+  #else // !BED_TRAMMING_USE_PROBE
+
     bed_corner = 0;
     ui.goto_screen([]{
       MenuItem_confirm::select_screen(
@@ -334,7 +341,7 @@ static void _lcd_level_bed_corners_homing() {
         , _lcd_goto_next_corner
         , []{
             line_to_z(BED_TRAMMING_Z_HOP); // Raise Z off the bed when done
-            TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+            TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
             ui.goto_previous_screen_no_defer();
           }
         , GET_TEXT_F(TERN(BED_TRAMMING_INCLUDE_CENTER, MSG_LEVEL_BED_NEXT_POINT, MSG_NEXT_CORNER))
@@ -343,10 +350,11 @@ static void _lcd_level_bed_corners_homing() {
     });
     ui.set_selection(true);
     _lcd_goto_next_corner();
-  #endif
+
+  #endif // !BED_TRAMMING_USE_PROBE
 }
 
-void _lcd_level_bed_corners() {
+void _lcd_bed_tramming() {
   ui.defer_status_screen();
   if (!all_axes_trusted()) {
     set_all_unhomed();
@@ -355,11 +363,11 @@ void _lcd_level_bed_corners() {
 
   // Disable leveling so the planner won't mess with us
   #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
+    menu_leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 
-  ui.goto_screen(_lcd_level_bed_corners_homing);
+  ui.goto_screen(_lcd_bed_tramming_homing);
 }
 
 #endif // HAS_MARLINUI_MENU && LCD_BED_TRAMMING

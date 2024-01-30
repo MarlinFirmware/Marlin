@@ -162,7 +162,7 @@ void menu_temperature() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Nozzle:
@@ -222,7 +222,7 @@ void menu_temperature() {
     DEFINE_SINGLENOZZLE_ITEM();
 
     #if HAS_FAN0
-      _FAN_EDIT_ITEMS(0,FIRST_FAN_SPEED);
+      _FAN_EDIT_ITEMS(0, FIRST_FAN_SPEED);
     #endif
     #if HAS_FAN1 && REDUNDANT_PART_COOLING_FAN != 1
       FAN_EDIT_ITEMS(1);
@@ -291,7 +291,7 @@ void menu_temperature() {
 
   void menu_preheat_only() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m) {
       editable.int8 = m;

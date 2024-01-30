@@ -96,7 +96,7 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 352
 
-#define MAX_PRINT_SPEED   500
+#define MAX_PRINT_SPEED   999
 #define MIN_PRINT_SPEED   10
 
 #if HAS_FAN
@@ -116,7 +116,7 @@
 #endif
 
 #if HAS_HOTEND
-  #define MAX_FLOW_RATE   200
+  #define MAX_FLOW_RATE   299
   #define MIN_FLOW_RATE   10
 
   #define MAX_E_TEMP    (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
@@ -203,7 +203,7 @@ bool livemove = false;
 bool liveadjust = false;
 uint8_t preheatmode = 0;
 float zoffsetvalue = 0;
-uint8_t gridpoint;
+grid_count_t gridpoint;
 float corner_avg;
 float corner_pos;
 
@@ -416,7 +416,7 @@ private:
 
         // Draw value text on
         if (viewer_print_value) {
-          int8_t offset_x, offset_y = cell_height_px / 2 - 6;
+          const int8_t offset_y = cell_height_px / 2 - 6;
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
             DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
@@ -425,7 +425,7 @@ private:
               sprintf_P(buf, PSTR("%s"), dtostrf(abs(bedlevel.z_values[x][y]), 1, 2, str_1));
             else
               sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
-            offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
+            const int8_t offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
             if (!(GRID_MAX_POINTS_X < 10))
               DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
@@ -810,8 +810,8 @@ void CrealityDWINClass::Draw_SD_Item(const uint8_t item, const uint8_t row) {
   else {
     card.selectFileByIndexSorted(item - 1);
     char * const filename = card.longest_filename();
-    size_t max = MENU_CHAR_LIMIT;
-    size_t pos = strlen(filename), len = pos;
+    constexpr uint8_t max = MENU_CHAR_LIMIT;
+    uint8_t pos = strlen(filename), len = pos;
     if (!card.flag.filenameIsDir)
       while (pos && filename[pos] != '.') pos--;
     len = pos;
@@ -832,7 +832,7 @@ void CrealityDWINClass::Draw_SD_List(const bool removed/*=false*/) {
   scrollpos = 0;
   process = File;
   if (card.isMounted() && !removed) {
-    for (uint8_t i = 0; i < _MIN(card.get_num_Files() + 1, TROWS); ++i)
+    for (int16_t i = 0; i < _MIN(card.get_num_items() + 1, TROWS); ++i)
       Draw_SD_Item(i, i);
   }
   else {

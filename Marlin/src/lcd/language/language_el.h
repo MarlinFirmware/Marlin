@@ -51,7 +51,7 @@ namespace Language_el {
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB αφαιρέθη");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Αποτυχία εκκίνησης USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Αποτυχία αρχικοποίησης SD");
-  LSTR MSG_MAIN                           = _UxGT("Αρχική Οθόνη");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Αρχική Οθόνη");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Αυτόματη εκκίνηση");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση μοτέρ");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτόμ. επαναφορά XYZ");

@@ -40,7 +40,7 @@ namespace Language_pt {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactivar motores");
   LSTR MSG_AUTO_HOME                      = _UxGT("Ir para origem");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Ir para origem X");

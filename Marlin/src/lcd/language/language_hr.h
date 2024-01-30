@@ -40,7 +40,7 @@ namespace Language_hr {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD kartica umetnuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Main");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Main");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto pokretanje");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Ugasi steppere");
   LSTR MSG_AUTO_HOME                      = _UxGT("Automatski homing");

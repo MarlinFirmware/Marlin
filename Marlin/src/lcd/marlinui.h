@@ -297,16 +297,17 @@ public:
     }
   #endif
 
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    typedef uint16_t progress_t;
+    #define PROGRESS_SCALE 100U
+    #define PROGRESS_MASK 0x7FFF
+  #else
+    typedef uint8_t progress_t;
+    #define PROGRESS_SCALE 1U
+    #define PROGRESS_MASK 0x7F
+  #endif
+
   #if HAS_PRINT_PROGRESS
-    #if HAS_PRINT_PROGRESS_PERMYRIAD
-      typedef uint16_t progress_t;
-      #define PROGRESS_SCALE 100U
-      #define PROGRESS_MASK 0x7FFF
-    #else
-      typedef uint8_t progress_t;
-      #define PROGRESS_SCALE 1U
-      #define PROGRESS_MASK 0x7F
-    #endif
     #if ENABLED(SET_PROGRESS_PERCENT)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
@@ -561,7 +562,7 @@ public:
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
-      static uint8_t repeat_delay;
+      static uint16_t repeat_delay;
     #else
       static constexpr uint8_t touch_buttons = 0;
     #endif
@@ -630,7 +631,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
+    static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
   #else
 

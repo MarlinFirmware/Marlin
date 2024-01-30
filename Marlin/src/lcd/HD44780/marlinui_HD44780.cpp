@@ -103,7 +103,7 @@
 
 #elif ENABLED(YHCB2004)
 
-  LCD_CLASS lcd(YHCB2004_CLK, 20, 4, YHCB2004_MOSI, YHCB2004_MISO); // CLK, cols, rows, MOSI, MISO
+  LCD_CLASS lcd(YHCB2004_SCK_PIN, 20, 4, YHCB2004_MOSI_PIN, YHCB2004_MISO_PIN); // CLK, cols, rows, MOSI, MISO
 
 #else
 
@@ -521,7 +521,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
+    lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -537,7 +537,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
-    const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
+    const bool isBed = heater_id == H_BED;
     const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
@@ -546,7 +546,17 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
   if (prefix >= 0) lcd_put_lchar(prefix);
 
-  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
+  if (t1 >= 0)
+    lcd_put_u8str(ui16tostr3rj(t1));
+  else {
+    #if ENABLED(SHOW_TEMPERATURE_BELOW_ZERO)
+      char * const str = i16tostr3rj(t1);
+      lcd_put_u8str(&str[1]);
+    #else
+      lcd_put_u8str(F("err"));
+    #endif
+  }
+
   lcd_put_u8str(F("/"));
 
   #if !HEATER_IDLE_HANDLER
@@ -762,9 +772,10 @@ void MarlinUI::draw_status_message(const bool blink) {
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
   static char buffer[8];
-  static lcd_uint_t pc, pr;
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
+    static lcd_uint_t pc = 0, pr = 2;
+    inline void setPercentPos(const lcd_uint_t c, const lcd_uint_t r) { pc = c; pr = r; }
     void MarlinUI::drawPercent() {
       const uint8_t progress = ui.get_progress_percent();
       if (progress) {
@@ -926,7 +937,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH < 20
 
         #if HAS_PRINT_PROGRESS
-          pc = 0; pr = 2;
+          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 2));
           rotate_progress();
         #endif
 
@@ -952,25 +963,25 @@ void MarlinUI::draw_status_screen() {
 
             // Two-component mix / gradient instead of XY
 
-            char mixer_messages[12];
-            const char *mix_label;
+            char mixer_messages[15];
+            PGM_P mix_label;
             #if ENABLED(GRADIENT_MIX)
               if (mixer.gradient.enabled) {
                 mixer.update_mix_from_gradient();
-                mix_label = "Gr";
+                mix_label = PSTR("Gr");
               }
               else
             #endif
               {
                 mixer.update_mix_from_vtool();
-                mix_label = "Mx";
+                mix_label = PSTR("Mx");
               }
-            sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+            sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
             lcd_put_u8str(mixer_messages);
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
+            const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -981,10 +992,14 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
             else {
-              const xy_pos_t lpos = current_position.asLogical();
-              _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
-              lcd_put_u8str(F(" "));
-              _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #if HAS_X_AXIS
+                const xy_pos_t lpos = current_position.asLogical();
+                _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+              #endif
+              #if HAS_Y_AXIS
+                TERN_(HAS_X_AXIS, lcd_put_u8str(F(" ")));
+                _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+              #endif
             }
 
           #endif // !HAS_DUAL_MIXING
@@ -993,11 +1008,12 @@ void MarlinUI::draw_status_screen() {
 
       #endif // LCD_WIDTH >= 20
 
-      lcd_moveto(LCD_WIDTH - 8, 1);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
-
-      #if HAS_LEVELING && !HAS_HEATED_BED
-        lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+      #if HAS_Z_AXIS
+        lcd_moveto(LCD_WIDTH - 8, 1);
+        _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+        #if HAS_LEVELING && !HAS_HEATED_BED
+          lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+        #endif
       #endif
 
     #endif // LCD_HEIGHT > 2
@@ -1013,7 +1029,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH >= 20
 
         #if HAS_PRINT_PROGRESS
-          pc = 6; pr = 2;
+          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(6, 2));
           rotate_progress();
         #else
           char c;
@@ -1059,8 +1075,10 @@ void MarlinUI::draw_status_screen() {
     //
     // Z Coordinate
     //
-    lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #if HAS_Z_AXIS
+      lcd_moveto(LCD_WIDTH - 9, 0);
+      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    #endif
 
     #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_lchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
@@ -1094,7 +1112,7 @@ void MarlinUI::draw_status_screen() {
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1
-      pc = 0; pr = 2;
+      TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 2));
       rotate_progress();
     #endif
 
@@ -1102,7 +1120,7 @@ void MarlinUI::draw_status_screen() {
     // All progress strings
     //
     #if HAS_PRINT_PROGRESS && !DREW_PRINT_PROGRESS
-      pc = LCD_WIDTH - 9; pr = 2;
+      TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(LCD_WIDTH - 9, 2));
       rotate_progress();
     #endif
   #endif // LCD_INFO_SCREEN_STYLE 1

@@ -179,14 +179,14 @@ extern CLOUD_PARA cloud_para;
 
 extern WIFI_GCODE_BUFFER espGcodeFifo;
 
-uint32_t getWifiTick();
-uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick);
+millis_t getWifiTick();
+millis_t getWifiTickDiff(const millis_t lastTick, const millis_t curTick);
 
 void mks_esp_wifi_init();
 extern int cfg_cloud_flag;
-int send_to_wifi(uint8_t *buf, int len);
+int send_to_wifi(uint8_t * const buf, const int len);
 void wifi_looping();
-int raw_send_to_wifi(uint8_t *buf, int len);
+int raw_send_to_wifi(uint8_t * const buf, const int len);
 int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len);
 void get_wifi_list_command_send();
 void get_wifi_commands();

@@ -47,7 +47,7 @@
 #endif
 
 #include "../lcdprint.h"
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../../libs/numtostr.h"
 #include "../marlinui.h"
 

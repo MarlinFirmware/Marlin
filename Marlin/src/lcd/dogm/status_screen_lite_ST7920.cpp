@@ -73,7 +73,7 @@
 #if ENABLED(LIGHTWEIGHT_UI)
 
 #include "../marlinui.h"
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"
 #include "../../module/motion.h"
@@ -680,10 +680,10 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   void ST7920_Lite_Status_Screen::draw_progress_string(uint8_t addr, const char *str) {
     set_ddram_address(addr);
     begin_data();
-    write_str(str, TERN(HOTENDS == 1, 8, 6));
+    write_str(str, HOTENDS == 1 ? 8 : 6);
   }
 
-  #define PPOS (DDRAM_LINE_3 + TERN(HOTENDS == 1, 4, 5)) // progress string position, in 16-bit words
+  constexpr uint8_t PPOS = (DDRAM_LINE_3 + (HOTENDS == 1 ? 4 : 5)); // Progress string position, in 16-bit words
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() { lightUI.drawPercent(); }

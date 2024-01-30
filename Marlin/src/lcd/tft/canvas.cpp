@@ -41,7 +41,7 @@ void CANVAS::New(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
 
 void CANVAS::Continue() {
   startLine = endLine;
-  endLine = TFT_BUFFER_SIZE < width * (height - startLine) ? startLine + TFT_BUFFER_SIZE / width : height;
+  endLine = TFT_BUFFER_WORDS < width * (height - startLine) ? startLine + TFT_BUFFER_WORDS / width : height;
 }
 
 bool CANVAS::ToScreen() {
