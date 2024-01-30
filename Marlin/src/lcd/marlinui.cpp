@@ -68,6 +68,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
+#define RESET_ENCODER_AFTER_MS 500
 
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
@@ -965,7 +966,7 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
-    static millis_t next_encoder_enable_ms = 0;
+    static millis_t next_click_enable_ms = 0;
     const millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
@@ -1017,7 +1018,7 @@ void MarlinUI::init() {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
           if (!wait_for_unclick) {
-            if (ELAPSED(ms, next_encoder_enable_ms))
+            if (ELAPSED(ms, next_click_enable_ms))
               do_click();              // Handle the click
             else
               wait_for_unclick = true;
@@ -1057,9 +1058,17 @@ void MarlinUI::init() {
 
         uint8_t abs_diff = ABS(encoderDiff);
 
-        #if ALL(ENCODER_PULSES_PER_STEP > 1, HAS_TOUCH_SLEEP)
+        #if ENCODER_PULSES_PER_STEP > 1
           static int8_t lastEncoderDiff;
-          if (lastEncoderDiff != encoderDiff) wakeup_screen():
+          static millis_t encoder_reset_timeout_ms;
+          if (lastEncoderDiff != encoderDiff) {
+            TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
+            encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
+          } else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
+              // Reset encoder substeps after a while.
+              // This solves the issue of the haptic ticks of some encoders physically getting out of sync with the actual steps after a while .
+              encoderDiff = 0;
+          }
           lastEncoderDiff = encoderDiff;
         #endif
 
@@ -1103,12 +1112,12 @@ void MarlinUI::init() {
 
           int8_t fullSteps = encoderDiff / epps;
           if (fullSteps != 0) {
-            next_encoder_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
+            next_click_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
               encoderPosition += (fullSteps * encoderMultiplier);
           }
-        }
+        } 
 
         if (encoderPastThreshold || lcd_clicked) {
           reset_status_timeout(ms);
@@ -1425,8 +1434,8 @@ void MarlinUI::init() {
         static uint8_t lastEncoderBits;
         static uint8_t enc;
         static uint8_t buttons_was = buttons;
-        static uint32_t en_A_blocked_ms;
-        static uint32_t en_B_blocked_ms;
+        static millis_t en_A_blocked_ms;
+        static millis_t en_B_blocked_ms;
 
         const bool en_A = (buttons & EN_A);
         const bool en_B = (buttons & EN_B);
