@@ -28,14 +28,6 @@
 
 #if HAS_MARLINUI_MENU
 
-#if ENABLED(TRULY_LARGE_AREA)
-  #define LARGE_AREA_TEST true
-#elif ENABLED(SLIM_LCD_MENUS)
-  #define LARGE_AREA_TEST false
-#else
-  #define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
-#endif
-
 #include "menu_item.h"
 #include "menu_addon.h"
 
@@ -52,6 +44,10 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+constexpr bool has_large_area() {
+  return TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000);
+}
+
 //
 // "Motion" > "Move Axis" submenu
 //
@@ -67,7 +63,7 @@ void lcd_move_axis(const AxisEnum axis) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -87,7 +83,7 @@ void lcd_move_axis(const AxisEnum axis) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
     else
-      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ? (LARGE_AREA_TEST ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ? (has_large_area() ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
   }
 }
 
@@ -118,7 +114,7 @@ void lcd_move_axis(const AxisEnum axis) {
 
 #endif // E_MANUAL
 
-#if EITHER(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+#if ANY(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
 
   void _goto_manual_move_z(const_float_t scale) {
     ui.manual_move.menu_scale = scale;
@@ -155,23 +151,35 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  if (parser.using_inch_units()) {
-    if (LARGE_AREA_TEST) {
-      SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });
-      SUBMENU(MSG_MOVE_05IN, []{ _goto_manual_move(IN_TO_MM(0.500f)); });
-    }
-    SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move(IN_TO_MM(0.100f)); });
-    SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move(IN_TO_MM(0.010f)); });
-    SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
+
+  #define __LINEAR_LIMIT(D) ((D) < max_length(axis) / 2 + 1)
+  #if HAS_EXTRUDERS
+    #ifndef EXTRUDE_MAXLENGTH
+      #define EXTRUDE_MAXLENGTH 50
+    #endif
+    #define _LINEAR_LIMIT(D) ((axis < E_AXIS) ? __LINEAR_LIMIT(D) : ((D) < (EXTRUDE_MAXLENGTH) / 2 + 1))
+  #else
+    #define _LINEAR_LIMIT __LINEAR_LIMIT
+  #endif
+  #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
+
+  if (rotational[axis]) {
+    #ifdef MANUAL_MOVE_DISTANCE_DEG
+      #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
+      MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)
+    #endif
+  }
+  else if (parser.using_inch_units()) {
+    #ifdef MANUAL_MOVE_DISTANCE_IN
+      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(I), IN_TO_MM(I));
+      MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
+    #endif
   }
   else {
-    if (LARGE_AREA_TEST) {
-      SUBMENU(MSG_MOVE_100MM, []{ _goto_manual_move(100); });
-      SUBMENU(MSG_MOVE_50MM, []{ _goto_manual_move(50); });
-    }
-    SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
-    SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
-    SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
+    #ifdef MANUAL_MOVE_DISTANCE_MM
+      #define _MOVE_MM(M) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(M), M);
+      MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
+    #endif
     #if HAS_Z_AXIS
       if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f)
         SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
@@ -206,14 +214,16 @@ void menu_move() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
-  #if BOTH(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
+  #if ALL(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
   #endif
 
   // Move submenu for each axis
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
-      SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
+      #if HAS_X_AXIS
+        SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
+      #endif
       #if HAS_Y_AXIS
         SUBMENU_N(Y_AXIS, MSG_MOVE_N, []{ _menu_move_distance(Y_AXIS, []{ lcd_move_axis(Y_AXIS); }); });
       #endif
@@ -231,7 +241,7 @@ void menu_move() {
   else
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
 
-  #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
+  #if ANY(HAS_SWITCHING_EXTRUDER, HAS_SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
 
     #if EXTRUDERS >= 4
       switch (active_extruder) {
@@ -245,25 +255,15 @@ void menu_move() {
         #endif
       }
     #elif EXTRUDERS == 3
-      if (active_extruder < 2) {
-        if (active_extruder)
-          GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-        else
-          GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
-      }
+      if (active_extruder < 2)
+        GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #else
-      if (active_extruder)
-        GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-      else
-        GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+      GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    if (active_extruder)
-      GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-    else
-      GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+    GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
 
   #endif
 
@@ -274,7 +274,7 @@ void menu_move() {
 
     #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
 
-    #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+    #if HAS_SWITCHING_EXTRUDER || HAS_SWITCHING_NOZZLE
 
       // ...and the non-switching
       #if E_MANUAL == 7 || E_MANUAL == 5 || E_MANUAL == 3
@@ -320,13 +320,157 @@ void menu_move() {
   void goto_tramming_wizard();
 #endif
 
+#if ENABLED(FT_MOTION_MENU)
+
+  #include "../../module/ft_motion.h"
+  #include "../../gcode/gcode.h"
+
+  void ftm_menu_setShaping(const ftMotionMode_t s) {
+    ftMotion.cfg.mode = s;
+    ftMotion.refreshShapingN();
+    ui.go_back();
+  }
+
+  inline void menu_ftm_mode() {
+    const ftMotionMode_t mode = ftMotion.cfg.mode;
+
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+    if (mode != ftMotionMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_setShaping(ftMotionMode_DISABLED); });
+    if (mode != ftMotionMode_ENABLED)  ACTION_ITEM(MSG_LCD_ON,   []{ ftm_menu_setShaping(ftMotionMode_ENABLED); });
+    #if HAS_X_AXIS
+      if (mode != ftMotionMode_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_setShaping(ftMotionMode_ZV); });
+      if (mode != ftMotionMode_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_setShaping(ftMotionMode_ZVD); });
+      if (mode != ftMotionMode_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_setShaping(ftMotionMode_ZVDD); });
+      if (mode != ftMotionMode_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_setShaping(ftMotionMode_ZVDDD); });
+      if (mode != ftMotionMode_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_setShaping(ftMotionMode_EI); });
+      if (mode != ftMotionMode_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_setShaping(ftMotionMode_2HEI); });
+      if (mode != ftMotionMode_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_setShaping(ftMotionMode_3HEI); });
+      if (mode != ftMotionMode_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_setShaping(ftMotionMode_MZV); });
+      //if (mode != ftMotionMode_ULENDO_FBS) ACTION_ITEM(MSG_FTM_ULENDO_FBS, []{ ftm_menu_setShaping(ftMotionMode_ULENDO_FBS); });
+      //if (mode != ftMotionMode_DISCTF)     ACTION_ITEM(MSG_FTM_DISCTF,     []{ ftm_menu_setShaping(ftMotionMode_DISCTF); });
+    #endif
+
+    END_MENU();
+  }
+
+  #if HAS_DYNAMIC_FREQ
+
+    inline void menu_ftm_dyn_mode() {
+      const dynFreqMode_t dmode = ftMotion.cfg.dynFreqMode;
+
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
+      #if HAS_DYNAMIC_FREQ_MM
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
+      #endif
+      #if HAS_DYNAMIC_FREQ_G
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
+      #endif
+
+      END_MENU();
+    }
+
+  #endif // HAS_DYNAMIC_FREQ
+
+  void menu_ft_motion() {
+    ft_config_t &c = ftMotion.cfg;
+
+    FSTR_P ftmode;
+    switch (c.mode) {
+      default:
+      case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
+      case ftMotionMode_ENABLED:  ftmode = GET_TEXT_F(MSG_LCD_ON);   break;
+      case ftMotionMode_ZV:       ftmode = GET_TEXT_F(MSG_FTM_ZV);   break;
+      case ftMotionMode_ZVD:      ftmode = GET_TEXT_F(MSG_FTM_ZVD);  break;
+      case ftMotionMode_ZVDD:     ftmode = GET_TEXT_F(MSG_FTM_ZVDD); break;
+      case ftMotionMode_ZVDDD:    ftmode = GET_TEXT_F(MSG_FTM_ZVDDD);break;
+      case ftMotionMode_EI:       ftmode = GET_TEXT_F(MSG_FTM_EI);   break;
+      case ftMotionMode_2HEI:     ftmode = GET_TEXT_F(MSG_FTM_2HEI); break;
+      case ftMotionMode_3HEI:     ftmode = GET_TEXT_F(MSG_FTM_3HEI); break;
+      case ftMotionMode_MZV:      ftmode = GET_TEXT_F(MSG_FTM_MZV);  break;
+      //case ftMotionMode_ULENDO_FBS: ftmode = GET_TEXT_F(MSG_FTM_ULENDO_FBS); break;
+      //case ftMotionMode_DISCTF:     ftmode = GET_TEXT_F(MSG_FTM_DISCTF);     break;
+    }
+
+    #if HAS_DYNAMIC_FREQ
+      FSTR_P dmode;
+      switch (c.dynFreqMode) {
+        default:
+        case dynFreqMode_DISABLED:   dmode = GET_TEXT_F(MSG_LCD_OFF);        break;
+        case dynFreqMode_Z_BASED:    dmode = GET_TEXT_F(MSG_FTM_Z_BASED);    break;
+        case dynFreqMode_MASS_BASED: dmode = GET_TEXT_F(MSG_FTM_MASS_BASED); break;
+      }
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_MOTION);
+
+    SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
+    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+
+    if (c.modeHasShaper()) {
+      #if HAS_X_AXIS
+        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.refreshShapingN);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.refreshShapingN);
+      #endif
+
+      #if HAS_X_AXIS
+        EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
+      #endif
+
+      if (IS_EI_MODE(c.mode)) {
+        #if HAS_X_AXIS
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        #endif
+        #if HAS_Y_AXIS
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.refreshShapingN);
+        #endif
+      }
+
+      #if HAS_DYNAMIC_FREQ
+        SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+        if (c.dynFreqMode != dynFreqMode_DISABLED) {
+          #if HAS_X_AXIS
+            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
+          #endif
+          #if HAS_Y_AXIS
+            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
+          #endif
+        }
+      #endif
+    }
+
+    #if HAS_EXTRUDERS
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+    #endif
+
+    END_MENU();
+  }
+
+#endif // FT_MOTION_MENU
+
 void menu_motion() {
+  #if ENABLED(FT_MOTION_MENU)
+    const bool is_busy = printer_busy();
+  #endif
+
   START_MENU();
 
   //
   // ^ Main
   //
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Move Axis
@@ -347,39 +491,18 @@ void menu_motion() {
   #endif
 
   //
-  // Auto-calibration
+  // M493 - Fixed-Time Motion
   //
-  #if ENABLED(CALIBRATION_GCODE)
-    GCODES_ITEM(MSG_AUTO_CALIBRATE, F("G425"));
+  #if ENABLED(FT_MOTION_MENU)
+    if (!is_busy) SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
   #endif
 
   //
-  // Auto Z-Align
+  // Pen up/down menu
   //
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
-    GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
-  #endif
-
-  //
-  // Probe Deploy/Stow
-  //
-  #if ENABLED(PROBE_DEPLOY_STOW_MENU)
-    GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
-    GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
-  #endif
-
-  //
-  // Probe Offset Wizard
-  //
-  #if ENABLED(PROBE_OFFSET_WIZARD)
-    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
-  #endif
-
-  //
-  // Assisted Bed Tramming
-  //
-  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
-    SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
+  #if ENABLED(PEN_UP_DOWN_MENU)
+    GCODES_ITEM(MSG_MANUAL_PENUP, F("M280 P0 S90"));
+    GCODES_ITEM(MSG_MANUAL_PENDOWN, F("M280 P0 S50"));
   #endif
 
   //
@@ -387,7 +510,7 @@ void menu_motion() {
   //
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    SUBMENU(MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
+    SUBMENU(MSG_UBL_LEVELING, _lcd_ubl_level_bed);
 
   #elif ENABLED(LCD_BED_LEVELING)
 
@@ -412,12 +535,47 @@ void menu_motion() {
 
   #endif
 
-  #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+  //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+    SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
   #endif
 
+  //
+  // Bed Tramming Submenu
+  //
+  #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
+  #endif
+
+  //
+  // Auto Z-Align
+  //
+  #if ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+    GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
+  #endif
+
+  //
+  // Probe Deploy/Stow
+  //
+  #if ENABLED(PROBE_DEPLOY_STOW_MENU)
+    GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
+    GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
+  #endif
+
+  //
+  // Probe Repeatability Test
+  //
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     GCODES_ITEM(MSG_M48_TEST, F("G28O\nM48 P10"));
+  #endif
+
+  //
+  // Auto-calibration with Object
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, F("G425"));
   #endif
 
   //

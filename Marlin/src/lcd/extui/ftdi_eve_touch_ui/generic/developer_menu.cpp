@@ -44,7 +44,7 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
       constexpr bool has_flash = false;
     #endif
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       constexpr bool has_media = true;
     #else
       constexpr bool has_media = false;
@@ -98,7 +98,7 @@ bool DeveloperMenu::onTouchEnd(uint8_t tag) {
       break;
     case 4: GOTO_SCREEN(TouchRegistersScreen);          break;
     case 5: sound.play(js_bach_joy, PLAY_ASYNCHRONOUS); break;
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
     case 6:
         if (!MediaPlayerScreen::playCardMedia())
           AlertDialogBox::showError(F("Cannot open STARTUP.AVI"));

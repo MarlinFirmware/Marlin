@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 /**
- * 10 Dec 2017 Victor Perez Marlin for stm32f1 test
+ * 2017 Victor Perez Marlin for stm32f1 test
  */
 
 #define BOARD_INFO_NAME      "STM3R Mini"
@@ -86,8 +86,8 @@
 //#define HEATER_BED2_PIN                   -1    // BED2
 //#define HEATER_BED3_PIN                   -1    // BED3
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PD14
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PD14
 #endif
 #define FAN1_PIN                            PD13
 
@@ -116,7 +116,7 @@
     #error "REPRAPWORLD_GRAPHICAL_LCD is not supported."
   #else
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PD2
+    #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
@@ -144,7 +144,7 @@
       #error "LCD_I2C_PANELOLU2 is not supported."
     #elif ENABLED(LCD_I2C_VIKI)
       #error "LCD_I2C_VIKI is not supported."
-    #elif EITHER(VIKI2, miniVIKI)
+    #elif ANY(VIKI2, miniVIKI)
       #error "VIKI2 / miniVIKI is not supported."
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #error "ELB_FULL_GRAPHIC_CONTROLLER is not supported."

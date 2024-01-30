@@ -57,7 +57,6 @@ class TFTGLCD {
 
 extern TFTGLCD lcd;
 
-#include "../fontutils.h"
 #include "../lcdprint.h"
 
 // Use panel encoder - free old encoder pins

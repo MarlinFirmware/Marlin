@@ -77,6 +77,10 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
   #endif
 #endif
 
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not current available for HAL/LPC1768."
+#endif
+
 static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported on LPC176x.");
 
 /**
@@ -95,7 +99,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #if USING_HW_SERIAL0
   #define IS_TX0(P) (P == P0_02)
   #define IS_RX0(P) (P == P0_03)
-  #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
+  #if IS_TX0(TMC_SPI_MISO) || IS_RX0(TMC_SPI_MOSI)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
   #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
     #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
@@ -111,7 +115,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX1(P) (P == P0_16)
   #define _IS_TX1_1 IS_TX1
   #define _IS_RX1_1 IS_RX1
-  #if IS_TX1(TMC_SW_SCK)
+  #if IS_TX1(TMC_SPI_SCK)
     #error "Serial port pins (1) conflict with other pins!"
   #elif HAS_ROTARY_ENCODER
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
@@ -146,7 +150,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with other pins!"
   #elif Y_HOME_TO_MIN && IS_TX2(Y_STOP_PIN)
     #error "Serial port pins (2) conflict with Y endstop pin!"
-  #elif USES_Z_MIN_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
+  #elif USE_Z_MIN_PROBE && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
   #elif ANY_TX(2, X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
@@ -197,7 +201,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)
     #define PIN_IS_SDA0(P) (P##_PIN == P0_27)
     #define IS_SCL0(P)     (P == P0_28)
-    #if ENABLED(SDSUPPORT) && PIN_IS_SDA0(SD_DETECT)
+    #if HAS_MEDIA && PIN_IS_SDA0(SD_DETECT)
       #error "SDA0 overlaps with SD_DETECT_PIN!"
     #elif PIN_IS_SDA0(E0_AUTO_FAN)
       #error "SDA0 overlaps with E0_AUTO_FAN_PIN!"
@@ -237,7 +241,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #define PIN_IS_SCL2(P) (P##_PIN == P0_11)
     #if PIN_IS_SDA2(Y_STOP)
       #error "i2c SDA2 overlaps with Y endstop pin!"
-    #elif USES_Z_MIN_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
+    #elif USE_Z_MIN_PROBE && PIN_IS_SDA2(Z_MIN_PROBE)
       #error "i2c SDA2 overlaps with Z probe pin!"
     #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
       #error "i2c SDA2 overlaps with X/Y ENABLE pin!"

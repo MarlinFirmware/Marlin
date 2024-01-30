@@ -39,7 +39,7 @@
     #endif
 
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #if ENABLED(SPINDLE_LASER_USE_PWM)
       // Change the cutter's "current power" value without turning the cutter on or off

@@ -29,19 +29,17 @@
 #if ENABLED(M114_DETAIL)
 
   void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=LOGICAL_AXES, const uint8_t precision=3) {
-    char str[12];
-    LOOP_L_N(a, n) {
+    for (uint8_t a = 0; a < n; ++a) {
       SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]));
       if (pos[a] >= 0) SERIAL_CHAR(' ');
-      SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
+      SERIAL_ECHO(p_float_t(pos[a], precision));
     }
     SERIAL_EOL();
   }
   inline void report_linear_axis_pos(const xyze_pos_t &pos) { report_all_axis_pos(pos, XYZ); }
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
-    char str[12];
-    LOOP_NUM_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
+    LOOP_NUM_AXES(a) SERIAL_ECHO(FPSTR(pgm_read_ptr(&SP_AXIS_LBL[a])), p_float_t(pos[a], precision));
     SERIAL_EOL();
   }
 
@@ -71,7 +69,7 @@
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
-      SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
+      SERIAL_ECHOPGM(TERN(POLAR, "Polar", TERN(IS_SCARA, "Scara", "Delta")) "K: " );
       inverse_kinematics(leveled);  // writes delta[]
       report_linear_axis_pos(delta);
     #endif
@@ -128,9 +126,7 @@ void GcodeSuite::M114() {
 
   #if ENABLED(M114_DETAIL)
     if (parser.seen_test('D')) {
-      #if DISABLED(M114_LEGACY)
-        planner.synchronize();
-      #endif
+      IF_DISABLED(M114_LEGACY, planner.synchronize());
       report_current_position();
       report_current_position_detail();
       return;
@@ -143,9 +139,7 @@ void GcodeSuite::M114() {
     #endif
   #endif
 
-  #if ENABLED(M114_REALTIME)
-    if (parser.seen_test('R')) { report_real_position(); return; }
-  #endif
+  TERN_(M114_REALTIME, if (parser.seen_test('R')) return report_real_position());
 
   TERN_(M114_LEGACY, planner.synchronize());
   report_current_position_projected();

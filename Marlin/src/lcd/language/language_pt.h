@@ -29,9 +29,9 @@
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
- #define DISPLAY_CHARSET_ISO10646_1
+#define DISPLAY_CHARSET_ISO10646_1
 
-namespace Language_pt {
+namespace LanguageNarrow_pt {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -40,7 +40,7 @@ namespace Language_pt {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactivar motores");
   LSTR MSG_AUTO_HOME                      = _UxGT("Ir para origem");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Ir para origem X");
@@ -52,23 +52,23 @@ namespace Language_pt {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Pronto !");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Definir desvio");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets aplicados");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Definições ") PREHEAT_1_LABEL;
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Pre-aquecer $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Pre-aquecer $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Pre-aquecer $ Bico");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Pre-aquecer $ Bico ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Pre-aq. $ Tudo");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Pre-aq. $ ") LCD_STR_THERMOMETER _UxGT("Base");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Definições $");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Definições ") PREHEAT_1_LABEL;
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Pre-aquecer $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Pre-aquecer $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Pre-aquecer $ Bico");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Pre-aquecer $ Bico ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Pre-aq. $ Tudo");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Pre-aq. $ ") LCD_STR_THERMOMETER _UxGT("Base");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Definições $");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Arrefecer");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Ligar");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Desligar");
@@ -82,12 +82,10 @@ namespace Language_pt {
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mover $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mover $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Base Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" Bico");
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Bico ~");
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Base");
@@ -148,7 +146,7 @@ namespace Language_pt {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Aquecimento falhou");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: T Máxima");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: T Mínima");
   LSTR MSG_HEATING                        = _UxGT("Aquecendo...");
@@ -169,4 +167,21 @@ namespace Language_pt {
   LSTR MSG_BOTTOM_RIGHT                   = _UxGT("Inferior Direto");
   LSTR MSG_CALIBRATION_COMPLETED          = _UxGT("Calibração Completa");
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Calibração Falhou");
+}
+
+namespace LanguageWide_pt {
+  using namespace LanguageNarrow_pt;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+  #endif
+}
+
+namespace LanguageTall_pt {
+  using namespace LanguageWide_pt;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_pt {
+  using namespace LanguageTall_pt;
 }

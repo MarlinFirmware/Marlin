@@ -23,6 +23,7 @@
 
 /**
  * Geeetech GT2560 V 3.0 board pin assignments (for Mecreator 2)
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "GT2560 V3.0 (MC2)"

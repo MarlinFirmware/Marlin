@@ -99,7 +99,7 @@
 // Fans
 //
 #define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
-#define FAN_PIN                             PG13  // FAN
+#define FAN0_PIN                            PG13  // FAN
 #define FAN2_PIN                            PG14
 
 //
@@ -113,17 +113,17 @@
   #define FIL_RUNOUT_PIN                    PA15  // MT_DET
 #endif
 
-// SPI Flash
+//
+// SPI Flash (SPI 2)
+//
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x200000  // 2MB
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif
-
-// SPI 2
-#define SPI_FLASH_CS_PIN                    PB12
-#define SPI_FLASH_MOSI_PIN                  PB15
-#define SPI_FLASH_MISO_PIN                  PB14
-#define SPI_FLASH_SCK_PIN                   PB13
 
 //
 // TFT with FSMC interface
@@ -140,8 +140,6 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
@@ -157,12 +155,12 @@
   #define HAS_LOGO_IN_FLASH                    0
 #elif ENABLED(TFT_COLOR_UI)
   // Color UI
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
 // so SPI2 is required.
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 #define SD_SCK_PIN                          PB13
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15
@@ -171,7 +169,7 @@
 //
 // SD Card
 //
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SD_DETECT_PIN                       -1    // PF0, but it isn't connected
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16

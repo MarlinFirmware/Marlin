@@ -28,6 +28,10 @@
 #include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 
+#if HAS_PLR_BED_THRESHOLD
+  #include "../../../module/temperature.h"  // for degBed
+#endif
+
 #include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -47,8 +51,7 @@ void menu_job_recovery();
 inline void plr_error(FSTR_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    DEBUG_ECHOF(prefix);
-    DEBUG_ECHOLNPGM(" Job Recovery Data");
+    DEBUG_ECHOLN(prefix, F(" Job Recovery Data"));
   #else
     UNUSED(prefix);
   #endif
@@ -61,18 +64,22 @@ inline void plr_error(FSTR_P const prefix) {
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
+ *     ...unless the bed temperature is already above a configured minimum temperature.
+ *   - With 'C' execute a cancel selection
  *   - With no parameters, run recovery commands
  */
 void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
-    if (parser.seen_test('S')) {
+    const bool force_resume = TERN0(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold && (thermalManager.degBed() >= recovery.bed_temp_threshold));
+
+    if (!force_resume && parser.seen_test('S')) {
       #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
       #elif HAS_DWIN_E3V2_BASIC
         recovery.dwin_flag = true;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
-        CrealityDWIN.Popup_Handler(Resume);
+        jyersDWIN.popupHandler(Popup_Resume);
       #elif ENABLED(EXTENSIBLE_UI)
         ExtUI::onPowerLossResume();
       #else

@@ -30,7 +30,7 @@
 void stop();
 
 // Pass true to keep steppers from timing out
-void idle(bool no_stepper_sleep=false);
+void idle(const bool no_stepper_sleep=false);
 inline void idle_no_sleep() { idle(true); }
 
 #if ENABLED(G38_PROBE_TARGET)

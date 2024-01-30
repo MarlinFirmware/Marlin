@@ -23,6 +23,9 @@
 
 /**
  * Ultimaker pin assignments (Old electronics)
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
+ * Origin: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
+ * ATmega2560, ATmega1280
  */
 
 /**
@@ -113,7 +116,7 @@
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#if !defined(Z_MIN_PROBE_PIN) && !BOTH(HAS_CUTTER, BOARD_REV_1_0)
+#if !defined(Z_MIN_PROBE_PIN) && !ALL(HAS_CUTTER, BOARD_REV_1_0)
   #define Z_MIN_PROBE_PIN              Z_MAX_PIN
 #endif
 
@@ -132,7 +135,7 @@
 #define Z_DIR_PIN                             39
 #define Z_ENABLE_PIN                          35
 
-#if BOTH(HAS_CUTTER, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
+#if ALL(HAS_CUTTER, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
   // Move E0 to the spare and get Spindle/Laser signals from E0
   #define E0_STEP_PIN                         49
   #define E0_DIR_PIN                          47
@@ -163,23 +166,24 @@
 //
 // LCD / Controller
 //
-#if EITHER(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
+
+#if ANY(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
 
   #define LCD_PINS_RS                         24
-  #define LCD_PINS_ENABLE                     22
+  #define LCD_PINS_EN                         22
   #define LCD_PINS_D4                         36
   #define LCD_PINS_D5                         34
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif BOTH(BOARD_REV_1_5, HAS_WIRED_LCD)
+#elif ALL(BOARD_REV_1_5, HAS_WIRED_LCD)
 
   #define BEEPER_PIN                          18
 
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       16
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                        5
@@ -192,7 +196,7 @@
 
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !IS_NEWPANEL - Old style panel with shift register
+  #else // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
     #define SHIFT_CLK_PIN                     38
@@ -201,7 +205,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20
@@ -222,10 +226,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if EITHER(BOARD_REV_1_0, BOARD_REV_1_5)        // Use the last three SW positions
-    #define SPINDLE_DIR_PIN                   10  // 1.0: SW4  1.5: EXP3-6 ("10")
+  #if ANY(BOARD_REV_1_0, BOARD_REV_1_5)           // Use the last three SW positions
     #define SPINDLE_LASER_PWM_PIN              9  // 1.0: SW5  1.5: EXP3-7 ( "9") .. MUST BE HARDWARE PWM
     #define SPINDLE_LASER_ENA_PIN              8  // 1.0: SW6  1.5: EXP3-8 ( "8") .. Pin should have a pullup!
+    #define SPINDLE_DIR_PIN                   10  // 1.0: SW4  1.5: EXP3-6 ("10")
   #elif ENABLED(BOARD_REV_1_1_TO_1_3)
     /**
      * Only four hardware PWMs physically connected to anything on these boards:
@@ -239,14 +243,14 @@
      * They have an LED and resistor pullup to +24V which could damage 3.3V-5V ICs.
      */
     #if EXTRUDERS == 1
-      #define SPINDLE_DIR_PIN                 43
       #define SPINDLE_LASER_PWM_PIN           45  // Hardware PWM
       #define SPINDLE_LASER_ENA_PIN           41  // Pullup!
+      #define SPINDLE_DIR_PIN                 43
     #elif TEMP_SENSOR_BED == 0                    // Can't use E0 so see if HEATER_BED_PIN is available
       #undef HEATER_BED_PIN
-      #define SPINDLE_DIR_PIN                 38  // Probably pin 4 on 10 pin connector closest to the E0 socket
       #define SPINDLE_LASER_PWM_PIN            4  // Hardware PWM - Special precautions usually needed.
       #define SPINDLE_LASER_ENA_PIN           40  // Pullup! (Probably pin 6 on the 10-pin
+      #define SPINDLE_DIR_PIN                 38  // Probably pin 4 on 10 pin connector closest to the E0 socket
                                             // connector closest to the E0 socket)
     #endif
   #endif

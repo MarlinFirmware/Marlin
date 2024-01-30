@@ -116,7 +116,7 @@ A stepper for E0 extruder
 //
 #define HEATER_0_PIN                          55  // "Hold":   Analog pin 1, Digital pin 55
 #define HEATER_BED_PIN                        57  // "CoolEn": Analog pin 3, Digital pin 57
-#define FAN_PIN                               54  // "Abort":  Analog pin 0, Digital pin 54
+#define FAN0_PIN                              54  // "Abort":  Analog pin 0, Digital pin 54
 #undef E0_AUTO_FAN_PIN
 #define E0_AUTO_FAN_PIN                       56  // "Resume": Analog pin 2, Digital pin 56
 
@@ -160,7 +160,7 @@ A stepper for E0 extruder
   //
   // LCD / Controller
   //
-  #define LCD_PINS_ENABLE                     14
+  #define LCD_PINS_EN                         14
   #define LCD_PINS_RS                         15
   #define LCD_PINS_D4                         16
   #define LCD_PINS_D5                         17

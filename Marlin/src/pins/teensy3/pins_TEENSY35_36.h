@@ -57,7 +57,7 @@
  *                                           3.3V |               | GND
  *        Z_STOP_PIN                           24 |   40 * * 53   |    A22 DAC1
  *  AUX2                                       25 |   41 * * 52   |    A21 DAC0
- *  AUX2  FAN_PIN             SCL2    TX1      26 |   42 * * 51   | 39 A20      MISO0             SDSS
+ *  AUX2  FAN0_PIN            SCL2    TX1      26 |   42 * * 51   | 39 A20      MISO0             SDSS
  *  AUX2  Z-PROBE PWR         SCK0    RX1      27 | *  *  *  *  * | 38 A19 PWM        SDA1
  *  AUX2  SOL1_PIN            MOSI0            28 |   43 * * 50   | 37 A18 PWM        SCL1
  *  D10   CONTROLLER_FAN_PIN  CAN0TX       PWM 29 |   44 * * 49   | 36 A17 PWM
@@ -67,7 +67,7 @@
  *
  *            Interior pins:
  *                            LCD_PINS_RS             40 * * 53   SCK2
- *                            LCD_PINS_ENABLE         41 * * 52   MOSI2
+ *                            LCD_PINS_EN             41 * * 52   MOSI2
  *                            LCD_PINS_D4             42 * * 51   MISO2
  *                            LCD_PINS_D5     CS2     43 * * 50   A24
  *                            LCD_PINS_D6     MOSI2   44 * * 49   A23
@@ -109,8 +109,8 @@
 #define HEATER_0_PIN                          30
 #define HEATER_1_PIN                          36
 #define HEATER_BED_PIN                        31
-#ifndef FAN_PIN
-  #define FAN_PIN                              2
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             2
 #endif
 
 #define TEMP_0_PIN                             2  // Extruder / Analog pin numbering: 2 => A2
@@ -132,7 +132,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         40
-  #define LCD_PINS_ENABLE                     41
+  #define LCD_PINS_EN                         41
   #define LCD_PINS_D4                         42
   #define LCD_PINS_D5                         43
   #define LCD_PINS_D6                         44

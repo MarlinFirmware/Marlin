@@ -27,18 +27,18 @@
  *   Logical Pin: 28 29 30 31 32 33 34 35 20 21 22 23 24 25 26 27 10 11 12 13 14 15 16 17 00 01 02 03 04 05 06 07 08 09(46*47)36 37 18 19 38 39 40 41 42 43 44 45
  *   Port:        A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7 E0 E1 E2 E3 E4 E5 E6 E7 F0 F1 F2 F3 F4 F5 F6 F7
  *            The logical pins 46 and 47 are not supported by Teensyduino, but are supported below as E2 and E3
+ *
+ * Arduino Pin Layout video: https://youtu.be/rIqeVCX09FA
+ * AVR alternate pin function overview video: https://youtu.be/1yd8wuI5Plg
  */
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO31 /* led D5 red */
-
 // SPI
-#define SCK         DIO21  //  9
-#define MISO        DIO23  // 11
-#define MOSI        DIO22  // 10
-#define SS          DIO20  //  8
+#define SS          20  //  8
+#define SCK         21  //  9
+#define MOSI        22  // 10
+#define MISO        23  // 11
 
 // Digital I/O
 
@@ -678,7 +678,6 @@
 #define PF7_WPORT   PORTF
 #define PF7_PWM     0
 #define PF7_DDR     DDRF
-
 
 /**
  * Some of the pin mapping functions of the Teensduino extension to the Arduino IDE

@@ -25,14 +25,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if EITHER(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
+#if U8G_HW_SPI_ESP32
 
 #include <U8glib-HAL.h>
 #include "../shared/HAL_SPI.h"
 #include "HAL.h"
 #include "SPI.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../sd/cardreader.h"
   #if ENABLED(ESP3D_WIFISUPPORT)
     #include "sd_ESP32.h"
@@ -40,7 +40,6 @@
 #endif
 
 static SPISettings spiConfig;
-
 
 #ifndef LCD_SPI_SPEED
   #ifdef SD_SPI_SPEED
@@ -50,7 +49,7 @@ static SPISettings spiConfig;
   #endif
 #endif
 
-uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+uint8_t u8g_esp32_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
   #if ENABLED(PAUSE_LCD_FOR_BUSY_SD)
@@ -101,6 +100,5 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
   return 1;
 }
 
-#endif // EITHER(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
-
+#endif // U8G_HW_SPI_ESP32
 #endif // ARDUINO_ARCH_ESP32

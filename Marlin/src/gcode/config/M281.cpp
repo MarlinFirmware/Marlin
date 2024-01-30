@@ -56,7 +56,7 @@ void GcodeSuite::M281() {
 
 void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_SERVO_ANGLES));
-  LOOP_L_N(i, NUM_SERVOS) {
+  for (uint8_t i = 0; i < NUM_SERVOS; ++i) {
     switch (i) {
       default: break;
       #if ENABLED(SWITCHING_EXTRUDER)
@@ -66,6 +66,9 @@ void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
         #endif
       #elif ENABLED(SWITCHING_NOZZLE)
         case SWITCHING_NOZZLE_SERVO_NR:
+        #if ENABLED(SWITCHING_NOZZLE_TWO_SERVOS)
+          case SWITCHING_NOZZLE_E1_SERVO_NR:
+        #endif
       #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
         case Z_PROBE_SERVO_NR:
       #endif

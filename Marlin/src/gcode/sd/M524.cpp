@@ -22,13 +22,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
+  #include "../../lcd/marlinui.h"
 #endif
 
 /**
@@ -38,7 +38,7 @@ void GcodeSuite::M524() {
 
   #if ENABLED(DWIN_LCD_PROUI)
 
-    HMI_flag.abort_flag = true;    // The LCD will handle it
+    ui.abort_print();
 
   #else
 
@@ -51,4 +51,4 @@ void GcodeSuite::M524() {
 
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

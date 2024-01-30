@@ -84,10 +84,10 @@
 #elif ENABLED(USE_OTG_USB_HOST)
 
   #if HAS_SD_HOST_DRIVE
-    #include HAL_PATH(../../HAL, msc_sd.h)
+    #include HAL_PATH(../.., msc_sd.h)
   #endif
 
-  #include HAL_PATH(../../HAL, usb_host.h)
+  #include HAL_PATH(../.., usb_host.h)
 
   #define UHS_START usb.start()
   #define rREVISION 0

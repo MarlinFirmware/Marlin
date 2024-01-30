@@ -33,60 +33,16 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XSTOP_  0x01
-#define _YSTOP_  0x02
-#define _ZSTOP_  0x03
-#define _ISTOP_  0x04
-#define _JSTOP_  0x05
-#define _KSTOP_  0x06
-#define _USTOP_  0x07
-#define _VSTOP_  0x08
-#define _WSTOP_  0x09
-#define _XMIN_   0x11
-#define _YMIN_   0x12
-#define _ZMIN_   0x13
-#define _IMIN_   0x14
-#define _JMIN_   0x15
-#define _KMIN_   0x16
-#define _UMIN_   0x17
-#define _VMIN_   0x18
-#define _WMIN_   0x19
-#define _XMAX_   0x21
-#define _YMAX_   0x22
-#define _ZMAX_   0x23
-#define _IMAX_   0x24
-#define _JMAX_   0x25
-#define _KMAX_   0x26
-#define _UMAX_   0x27
-#define _VMAX_   0x28
-#define _WMAX_   0x29
-#define _XDIAG_  0x31
-#define _YDIAG_  0x32
-#define _ZDIAG_  0x33
-#define _IDIAG_  0x34
-#define _JDIAG_  0x35
-#define _KDIAG_  0x36
-#define _UDIAG_  0x37
-#define _VDIAG_  0x38
-#define _WDIAG_  0x39
-#define _E0DIAG_ 0xE0
-#define _E1DIAG_ 0xE1
-#define _E2DIAG_ 0xE2
-#define _E3DIAG_ 0xE3
-#define _E4DIAG_ 0xE4
-#define _E5DIAG_ 0xE5
-#define _E6DIAG_ 0xE6
-#define _E7DIAG_ 0xE7
-
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
-#define __O0         __attribute__((optimize("O0")))
-#define __Os         __attribute__((optimize("Os")))
-#define __O1         __attribute__((optimize("O1")))
-#define __O2         __attribute__((optimize("O2")))
-#define __O3         __attribute__((optimize("O3")))
+#define __O0         __attribute__((optimize("O0")))  // No optimization and less debug info
+#define __Og         __attribute__((optimize("Og")))  // Optimize the debugging experience
+#define __Os         __attribute__((optimize("Os")))  // Optimize for size
+#define __O1         __attribute__((optimize("O1")))  // Try to reduce size and cycles; nothing that takes a lot of time to compile
+#define __O2         __attribute__((optimize("O2")))  // Optimize even more
+#define __O3         __attribute__((optimize("O3")))  // Optimize yet more
 
 #define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
@@ -223,22 +179,29 @@
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
 
-// Macros to support option testing
+// Concatenate symbol names, without or with pre-expansion
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
 
+// Recognize "true" values: blank, 1, 0x1, true
 #define _ISENA_     ~,1
 #define _ISENA_1    ~,1
 #define _ISENA_0x1  ~,1
 #define _ISENA_true ~,1
 #define _ISENA(V...)        IS_PROBE(V)
 
+// Macros to evaluate simple option switches
 #define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
 #define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define ANY(V...)          !DISABLED(V)
+#define ALL                 ENABLED
+#define NONE                DISABLED
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
+// Ternary pre-compiler macros conceal non-emitted content from the compiler
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
 #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
@@ -246,7 +209,9 @@
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+#define IF_DISABLED(O,A)    TERN(O,,A)
 
+// Macros to conditionally emit array items and function arguments
 #define _OPTITEM(A...)      A,
 #define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A))
 #define _OPTARG(A...)       , A
@@ -254,22 +219,16 @@
 #define _OPTCODE(A)         A;
 #define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 
-// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
 #define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
 #define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define MUL_TERN1(O,A)      _TERN(_ENA_1(O),,* (A)) // OPTION ? '* (A)' : '<nul>'
+#define DIV_TERN1(O,A)      _TERN(_ENA_1(O),,/ (A)) // OPTION ? '/ (A)' : '<nul>'
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
-
-#define IF_ENABLED          TERN_
-#define IF_DISABLED(O,A)    TERN(O,,A)
-
-#define ANY(V...)          !DISABLED(V)
-#define NONE(V...)          DISABLED(V)
-#define ALL(V...)           ENABLED(V)
-#define BOTH(V1,V2)         ALL(V1,V2)
-#define EITHER(V1,V2)       ANY(V1,V2)
-#define MANY(V...)          (COUNT_ENABLED(V) > 1)
+#define MUL_TERN(O,B,A)     ((B) MUL_TERN1(O,A))    // ((B) (OPTION ? '* (A)' : '<nul>'))
+#define DIV_TERN(O,B,A)     ((B) DIV_TERN1(O,A))    // ((B) (OPTION ? '/ (A)' : '<nul>'))
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
@@ -282,6 +241,7 @@
 #define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
+// Value helper macros
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
 #define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')
@@ -289,6 +249,8 @@
 #define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
+
+// Array shorthand
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
 #define ZERO(a)             memset((void*)a,0,sizeof(a))
 #define COPY(a,b) do{ \
@@ -296,6 +258,7 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
+// Expansion of some code
 #define CODE_16( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O; P
 #define CODE_15( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O
 #define CODE_14( A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N
@@ -316,6 +279,7 @@
 #define _CODE_N(N,V...) CODE_##N(V)
 #define CODE_N(N,V...) _CODE_N(N,V)
 
+// Expansion of some non-delimited content
 #define GANG_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A B C D E F G H I J K L M N O P
 #define GANG_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A B C D E F G H I J K L M N O
 #define GANG_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A B C D E F G H I J K L M N
@@ -337,7 +301,7 @@
 #define GANG_N(N,V...) _GANG_N(N,V)
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
-// Macros for initializing arrays
+// Expansion of some list items
 #define LIST_26(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
 #define LIST_25(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y
 #define LIST_24(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X
@@ -374,11 +338,6 @@
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
-
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
-#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
-#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
 
 #define NOOP (void(0))
 
@@ -429,6 +388,8 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class N> static constexpr N _MIN(const N val) { return val; }
+      template <class N> static constexpr N _MAX(const N val) { return val; }
       template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
@@ -448,9 +409,9 @@
     FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+    FORCE_INLINE T & operator&=(T &x, T y) { x = x & y; return x; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { x = x | y; return x; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { x = x ^ y; return x; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
@@ -462,7 +423,41 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // remove const/volatile type qualifiers
+    template<typename T> struct remove_const { typedef T type; };
+    template<typename T> struct remove_const<T const> { typedef T type; };
+
+    template<typename T> struct remove_volatile { typedef T type; };
+    template<typename T> struct remove_volatile<T volatile> { typedef T type; };
+
+    template<typename T> struct remove_cv { typedef typename remove_const<typename remove_volatile<T>::type>::type type; };
+
+    // test if type is integral
+    template<typename>  struct _is_integral { enum { value = false }; };
+    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
+    template<>          struct _is_integral<char> { enum { value = true }; };
+    template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
+    template<>          struct _is_integral<long> { enum { value = true }; };
+    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
   }
+
+  // enum type check and regression to its underlying integral.
+  namespace Private {
+    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+
+    template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
+    template<typename T>                            struct _underlying_type<T, false> { };
+
+    template<typename T> struct underlying_type : public _underlying_type<T> { };
+  }
+
   // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
@@ -634,7 +629,9 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL(V...)     EVAL16(V)
+#define EVAL           EVAL16
+#define EVAL4096(V...) EVAL2048(EVAL2048(V))
+#define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))
 #define EVAL512(V...)  EVAL256(EVAL256(V))
 #define EVAL256(V...)  EVAL128(EVAL128(V))
@@ -712,10 +709,24 @@
     ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
     ( /* Do nothing */ )
 #define __RREPEAT2() _RREPEAT2
-#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
-#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
-#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
-#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+#define RREPEAT_S(S,N,OP)       EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)           RREPEAT_S(0,N,OP)
+#define RREPEAT_1(N,OP)         RREPEAT_S(1,INCREMENT(N),OP)
+#define RREPEAT2_S(S,N,OP,V...) EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)     RREPEAT2_S(0,N,OP,V)
+
+// Emit a list of N OP(I) items with ascending counter.
+#define _REPLIST(_RPT_I,_RPT_N,_RPT_OP)                          \
+  _RPT_OP(_RPT_I)                                                \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( , DEFER2(__REPLIST)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPLIST() _REPLIST
+
+// Repeat a macro, comma-separated, passing S...N-1.
+#define REPLIST_S(S,N,OP)       EVAL(_REPLIST(S,SUB##S(N),OP))
+#define REPLIST(N,OP)           REPLIST_S(0,N,OP)
+#define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
 
 // Call OP(A) with each item as an argument
 #define _MAP(_MAP_OP,A,V...)       \
@@ -742,3 +753,14 @@
 #define _HAS_E_TEMP(N) || TEMP_SENSOR(N)
 #define HAS_E_TEMP_SENSOR (0 REPEAT(EXTRUDERS, _HAS_E_TEMP))
 #define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR(T) == -5 || TEMP_SENSOR(T) == -3 || TEMP_SENSOR(T) == -2)
+
+#define _UI_NONE          0
+#define _UI_ORIGIN      101
+#define _UI_FYSETC      102
+#define _UI_HIPRECY     103
+#define _UI_MKS         104
+#define _UI_RELOADED    105
+#define _UI_IA_CREALITY 106
+#define _UI_E3S1PRO     107
+#define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
+#define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))

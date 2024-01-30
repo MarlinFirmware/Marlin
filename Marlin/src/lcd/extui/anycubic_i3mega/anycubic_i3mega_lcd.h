@@ -45,51 +45,48 @@ enum AnycubicMediaPauseState {
   AMPAUSESTATE_REHEAT_FINISHED
 };
 
-class AnycubicTFTClass {
+class AnycubicTFT {
 public:
-  AnycubicTFTClass();
-  static void OnSetup();
-  static void OnCommandScan();
-  static void OnKillTFT();
-  static void OnSDCardStateChange(bool);
-  static void OnSDCardError();
-  static void OnFilamentRunout();
-  static void OnUserConfirmRequired(const char *);
-  static void OnPrintTimerStarted();
-  static void OnPrintTimerPaused();
-  static void OnPrintTimerStopped();
+  AnycubicTFT();
+  static void onSetup();
+  static void onCommandScan();
+  static void onKillTFT();
+  static void onSDCardStateChange(bool);
+  static void onSDCardError();
+  static void onFilamentRunout();
+  static void onUserConfirmRequired(const char *);
+  static void onPrintTimerStarted();
+  static void onPrintTimerPaused();
+  static void onPrintTimerStopped();
 
 private:
-  static char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
-  static int TFTbuflen, TFTbufindr, TFTbufindw;
-  static char serial3_char;
-  static int serial3_count;
-  static char *TFTstrchr_pointer;
-  static uint8_t SpecialMenu;
+  static char tftCommands[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
+  static int tftBufLen, tftBufIndR, tftBufIndW;
+  static char *tftStrchrPtr;
+  static uint8_t specialMenu;
   static AnycubicMediaPrintState mediaPrintingState;
   static AnycubicMediaPauseState mediaPauseState;
 
-  static float CodeValue();
-  static bool CodeSeen(char);
-  static bool IsNozzleHomed();
-  static void RenderCurrentFileList();
-  static void RenderSpecialMenu(uint16_t);
-  static void RenderCurrentFolder(uint16_t);
-  static void GetCommandFromTFT();
-  static void CheckSDCardChange();
-  static void CheckPauseState();
-  static void CheckPrintCompletion();
-  static void HandleSpecialMenu();
-  static void DoSDCardStateCheck();
-  static void DoFilamentRunoutCheck();
-  static void StartPrint();
-  static void PausePrint();
-  static void ResumePrint();
-  static void StopPrint();
+  static float codeValue();
+  static bool codeSeen(char);
+  static bool isNozzleHomed();
+  static void renderCurrentFileList();
+  static void renderSpecialMenu(uint16_t);
+  static void renderCurrentFolder(uint16_t);
+  static void getCommandFromTFT();
+  static void checkSDCardChange();
+  static void checkPauseState();
+  static void handleSpecialMenu();
+  static void doSDCardStateCheck();
+  static void doFilamentRunoutCheck();
+  static void startPrint();
+  static void pausePrint();
+  static void resumePrint();
+  static void stopPrint();
 
-  static char SelectedDirectory[30];
-  static char SelectedFile[FILENAME_LENGTH];
+  static char selectedDirectory[30];
+  static char selectedFile[FILENAME_LENGTH];
 };
 
-extern AnycubicTFTClass AnycubicTFT;
+extern AnycubicTFT anycubicTFT;
 extern const char G28_STR[];

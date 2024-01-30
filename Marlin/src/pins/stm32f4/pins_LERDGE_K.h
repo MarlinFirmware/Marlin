@@ -154,13 +154,16 @@
   #ifndef EX_SERIAL_RX_PIN
     #define EX_SERIAL_RX_PIN    EX_SERIAL_TX_PIN
   #endif
-  //#define Z2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
-  //#define Z2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
-  //#define E2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
-  //#define E2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+  //#define Z2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
+  //#define Z2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
+  //#define E2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
+  //#define E2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -182,8 +185,8 @@
 #define HEATER_1_PIN                        PA0
 #define HEATER_BED_PIN                      PA2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PF7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PF7
 #endif
 
 #define FAN1_PIN                            PF6
@@ -203,7 +206,6 @@
 //
 #define LED_PIN                             PA15  // Status LED
 //#define CASE_LIGHT_PIN                    PB6   // LED Ribbon Connector (PWM TIM4_CH1)
-//#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
@@ -217,10 +219,10 @@
 //
 // SD support
 //
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4800000
 #define SD_DETECT_PIN                       PA8
-#if DISABLED(SDIO_SUPPORT)
+#if DISABLED(ONBOARD_SDIO)
   #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8

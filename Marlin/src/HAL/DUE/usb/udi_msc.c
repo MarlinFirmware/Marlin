@@ -57,7 +57,7 @@
 #include "ctrl_access.h"
 #include <string.h>
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #ifndef UDI_MSC_NOTIFY_TRANS_EXT
 #  define UDI_MSC_NOTIFY_TRANS_EXT()
@@ -85,7 +85,6 @@ UDC_DESC_STORAGE udi_api_t udi_api_msc = {
   .sof_notify = NULL,
 };
 //@}
-
 
 /**
  * \ingroup udi_msc_group
@@ -136,7 +135,6 @@ volatile bool udi_msc_b_reset_trans = true;
 //@}
 
 //@}
-
 
 /**
  * \name Internal routines
@@ -190,7 +188,6 @@ static void udi_msc_cbw_received(udd_ep_status_t status,
 static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag);
 //@}
 
-
 /**
  * \name Routines to process small data packet
  */
@@ -216,7 +213,6 @@ static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size);
 static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
 //@}
-
 
 /**
  * \name Routines to process CSW packet
@@ -249,7 +245,6 @@ void udi_msc_csw_send(void);
 static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
 //@}
-
 
 /**
  * \name Routines manage sense data
@@ -306,7 +301,6 @@ static void udi_msc_sense_fail_cdb_invalid(void);
  */
 static void udi_msc_sense_command_invalid(void);
 //@}
-
 
 /**
  * \name Routines manage SCSI Commands
@@ -372,9 +366,7 @@ static void udi_msc_sbc_trans(bool b_read);
 
 //@}
 
-
-bool udi_msc_enable(void)
-{
+bool udi_msc_enable(void) {
   uint8_t lun;
   udi_msc_b_trans_req = false;
   udi_msc_b_cbw_invalid = false;
@@ -397,18 +389,14 @@ bool udi_msc_enable(void)
   return true;
 }
 
-
-void udi_msc_disable(void)
-{
+void udi_msc_disable(void) {
   udi_msc_b_trans_req = false;
   udi_msc_b_ack_trans = true;
   udi_msc_b_reset_trans = true;
   UDI_MSC_DISABLE_EXT();
 }
 
-
-bool udi_msc_setup(void)
-{
+bool udi_msc_setup(void) {
   if (Udd_setup_is_in()) {
     // Requests Interface GET
     if (Udd_setup_type() == USB_REQ_TYPE_CLASS) {
@@ -451,17 +439,14 @@ bool udi_msc_setup(void)
   return false; // Not supported request
 }
 
-uint8_t udi_msc_getsetting(void)
-{
+uint8_t udi_msc_getsetting(void) {
   return 0; // MSC don't have multiple alternate setting
 }
-
 
 // ------------------------
 //------- Routines to process CBW packet
 
-static void udi_msc_cbw_invalid(void)
-{
+static void udi_msc_cbw_invalid(void) {
   if (!udi_msc_b_cbw_invalid)
     return; // Don't re-stall endpoint if error reset by setup
   udd_ep_set_halt(UDI_MSC_EP_OUT);
@@ -469,8 +454,7 @@ static void udi_msc_cbw_invalid(void)
   udd_ep_wait_stall_clear(UDI_MSC_EP_OUT, udi_msc_cbw_invalid);
 }
 
-static void udi_msc_csw_invalid(void)
-{
+static void udi_msc_csw_invalid(void) {
   if (!udi_msc_b_cbw_invalid)
     return; // Don't re-stall endpoint if error reset by setup
   udd_ep_set_halt(UDI_MSC_EP_IN);
@@ -478,8 +462,7 @@ static void udi_msc_csw_invalid(void)
   udd_ep_wait_stall_clear(UDI_MSC_EP_IN, udi_msc_csw_invalid);
 }
 
-static void udi_msc_cbw_wait(void)
-{
+static void udi_msc_cbw_wait(void) {
   // Register buffer and callback on OUT endpoint
   if (!udd_ep_run(UDI_MSC_EP_OUT, true,
           (uint8_t *) & udi_msc_cbw,
@@ -490,10 +473,8 @@ static void udi_msc_cbw_wait(void)
   }
 }
 
-
 static void udi_msc_cbw_received(udd_ep_status_t status,
-    iram_size_t nb_received, udd_ep_id_t ep)
-{
+    iram_size_t nb_received, udd_ep_id_t ep) {
   UNUSED(ep);
   // Check status of transfer
   if (UDD_EP_TRANSFER_OK != status) {
@@ -582,9 +563,7 @@ static void udi_msc_cbw_received(udd_ep_status_t status,
   }
 }
 
-
-static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag)
-{
+static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag) {
   /*
    * The following cases should result in a phase error:
    *  - Case  2: Hn < Di
@@ -612,12 +591,10 @@ static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag)
   return true;
 }
 
-
 // ------------------------
 //------- Routines to process small data packet
 
-static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size)
-{
+static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size) {
   // Sends data on IN endpoint
   if (!udd_ep_run(UDI_MSC_EP_IN, true,
           buffer, buf_size, udi_msc_data_sent)) {
@@ -627,10 +604,8 @@ static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size)
   }
 }
 
-
 static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
-    udd_ep_id_t ep)
-{
+    udd_ep_id_t ep) {
   UNUSED(ep);
   if (UDD_EP_TRANSFER_OK != status) {
     // Error protocol
@@ -644,12 +619,10 @@ static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
   udi_msc_csw_process();
 }
 
-
 // ------------------------
 //------- Routines to process CSW packet
 
-static void udi_msc_csw_process(void)
-{
+static void udi_msc_csw_process(void) {
   if (0 != udi_msc_csw.dCSWDataResidue) {
     // Residue not NULL
     // then STALL next request from USB host on corresponding endpoint
@@ -664,9 +637,7 @@ static void udi_msc_csw_process(void)
   udi_msc_csw_send();
 }
 
-
-void udi_msc_csw_send(void)
-{
+void udi_msc_csw_send(void) {
   // Sends CSW on IN endpoint
   if (!udd_ep_run(UDI_MSC_EP_IN, false,
           (uint8_t *) & udi_msc_csw,
@@ -678,10 +649,8 @@ void udi_msc_csw_send(void)
   }
 }
 
-
 static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
-    udd_ep_id_t ep)
-{
+    udd_ep_id_t ep) {
   UNUSED(ep);
   UNUSED(status);
   UNUSED(nb_sent);
@@ -690,20 +659,17 @@ static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
   udi_msc_cbw_wait();
 }
 
-
 // ------------------------
 //------- Routines manage sense data
 
-static void udi_msc_clear_sense(void)
-{
+static void udi_msc_clear_sense(void) {
   memset((uint8_t*)&udi_msc_sense, 0, sizeof(struct scsi_request_sense_data));
   udi_msc_sense.valid_reponse_code = SCSI_SENSE_VALID | SCSI_SENSE_CURRENT;
   udi_msc_sense.AddSenseLen = SCSI_SENSE_ADDL_LEN(sizeof(udi_msc_sense));
 }
 
 static void udi_msc_sense_fail(uint8_t sense_key, uint16_t add_sense,
-    uint32_t lba)
-{
+    uint32_t lba) {
   udi_msc_clear_sense();
   udi_msc_csw.bCSWStatus = USB_CSW_STATUS_FAIL;
   udi_msc_sense.sense_flag_key = sense_key;
@@ -715,53 +681,39 @@ static void udi_msc_sense_fail(uint8_t sense_key, uint16_t add_sense,
   udi_msc_sense.AddSnsCodeQlfr = add_sense;
 }
 
-static void udi_msc_sense_pass(void)
-{
+static void udi_msc_sense_pass(void) {
   udi_msc_clear_sense();
   udi_msc_csw.bCSWStatus = USB_CSW_STATUS_PASS;
 }
 
-
-static void udi_msc_sense_fail_not_present(void)
-{
+static void udi_msc_sense_fail_not_present(void) {
   udi_msc_sense_fail(SCSI_SK_NOT_READY, SCSI_ASC_MEDIUM_NOT_PRESENT, 0);
 }
 
-static void udi_msc_sense_fail_busy_or_change(void)
-{
-  udi_msc_sense_fail(SCSI_SK_UNIT_ATTENTION,
-      SCSI_ASC_NOT_READY_TO_READY_CHANGE, 0);
+static void udi_msc_sense_fail_busy_or_change(void) {
+  udi_msc_sense_fail(SCSI_SK_UNIT_ATTENTION, SCSI_ASC_NOT_READY_TO_READY_CHANGE, 0);
 }
 
-static void udi_msc_sense_fail_hardware(void)
-{
-  udi_msc_sense_fail(SCSI_SK_HARDWARE_ERROR,
-      SCSI_ASC_NO_ADDITIONAL_SENSE_INFO, 0);
+static void udi_msc_sense_fail_hardware(void) {
+  udi_msc_sense_fail(SCSI_SK_HARDWARE_ERROR, SCSI_ASC_NO_ADDITIONAL_SENSE_INFO, 0);
 }
 
-static void udi_msc_sense_fail_protected(void)
-{
+static void udi_msc_sense_fail_protected(void) {
   udi_msc_sense_fail(SCSI_SK_DATA_PROTECT, SCSI_ASC_WRITE_PROTECTED, 0);
 }
 
-static void udi_msc_sense_fail_cdb_invalid(void)
-{
-  udi_msc_sense_fail(SCSI_SK_ILLEGAL_REQUEST,
-      SCSI_ASC_INVALID_FIELD_IN_CDB, 0);
+static void udi_msc_sense_fail_cdb_invalid(void) {
+  udi_msc_sense_fail(SCSI_SK_ILLEGAL_REQUEST, SCSI_ASC_INVALID_FIELD_IN_CDB, 0);
 }
 
-static void udi_msc_sense_command_invalid(void)
-{
-  udi_msc_sense_fail(SCSI_SK_ILLEGAL_REQUEST,
-      SCSI_ASC_INVALID_COMMAND_OPERATION_CODE, 0);
+static void udi_msc_sense_command_invalid(void) {
+  udi_msc_sense_fail(SCSI_SK_ILLEGAL_REQUEST, SCSI_ASC_INVALID_COMMAND_OPERATION_CODE, 0);
 }
-
 
 // ------------------------
 //------- Routines manage SCSI Commands
 
-static void udi_msc_spc_requestsense(void)
-{
+static void udi_msc_spc_requestsense(void) {
   uint8_t length = udi_msc_cbw.CDB[4];
 
   // Can't send more than sense data length
@@ -774,9 +726,7 @@ static void udi_msc_spc_requestsense(void)
   udi_msc_data_send((uint8_t*)&udi_msc_sense, length);
 }
 
-
-static void udi_msc_spc_inquiry(void)
-{
+static void udi_msc_spc_inquiry(void) {
   uint8_t length, i;
   UDC_DATA(4)
   // Constant inquiry data for all LUNs
@@ -835,9 +785,7 @@ static void udi_msc_spc_inquiry(void)
   udi_msc_data_send((uint8_t *) & udi_msc_inquiry_data, length);
 }
 
-
-static bool udi_msc_spc_testunitready_global(void)
-{
+static bool udi_msc_spc_testunitready_global(void) {
   switch (mem_test_unit_ready(udi_msc_cbw.bCBWLUN)) {
   case CTRL_GOOD:
     return true;  // Don't change sense data
@@ -855,9 +803,7 @@ static bool udi_msc_spc_testunitready_global(void)
   return false;
 }
 
-
-static void udi_msc_spc_testunitready(void)
-{
+static void udi_msc_spc_testunitready(void) {
   if (udi_msc_spc_testunitready_global()) {
     // LUN ready, then update sense data with status pass
     udi_msc_sense_pass();
@@ -866,9 +812,7 @@ static void udi_msc_spc_testunitready(void)
   udi_msc_csw_process();
 }
 
-
-static void udi_msc_spc_mode_sense(bool b_sense10)
-{
+static void udi_msc_spc_mode_sense(bool b_sense10) {
   // Union of all mode sense structures
   union sense_6_10 {
     struct {
@@ -943,9 +887,7 @@ static void udi_msc_spc_mode_sense(bool b_sense10)
   udi_msc_data_send((uint8_t *) & sense, request_lgt);
 }
 
-
-static void udi_msc_spc_prevent_allow_medium_removal(void)
-{
+static void udi_msc_spc_prevent_allow_medium_removal(void) {
   uint8_t prevent = udi_msc_cbw.CDB[4];
   if (0 == prevent) {
     udi_msc_sense_pass();
@@ -955,9 +897,7 @@ static void udi_msc_spc_prevent_allow_medium_removal(void)
   udi_msc_csw_process();
 }
 
-
-static void udi_msc_sbc_start_stop(void)
-{
+static void udi_msc_sbc_start_stop(void) {
   bool start = 0x1 & udi_msc_cbw.CDB[4];
   bool loej = 0x2 & udi_msc_cbw.CDB[4];
   if (loej) {
@@ -967,9 +907,7 @@ static void udi_msc_sbc_start_stop(void)
   udi_msc_csw_process();
 }
 
-
-static void udi_msc_sbc_read_capacity(void)
-{
+static void udi_msc_sbc_read_capacity(void) {
   UDC_BSS(4) static struct sbc_read_capacity10_data udi_msc_capacity;
 
   if (!udi_msc_cbw_validate(sizeof(udi_msc_capacity),
@@ -1003,9 +941,7 @@ static void udi_msc_sbc_read_capacity(void)
       sizeof(udi_msc_capacity));
 }
 
-
-static void udi_msc_sbc_trans(bool b_read)
-{
+static void udi_msc_sbc_trans(bool b_read) {
   uint32_t trans_size;
 
   if (!b_read) {
@@ -1038,9 +974,7 @@ static void udi_msc_sbc_trans(bool b_read)
   UDI_MSC_NOTIFY_TRANS_EXT();
 }
 
-
-bool udi_msc_process_trans(void)
-{
+bool udi_msc_process_trans(void) {
   Ctrl_status status;
 
   if (!udi_msc_b_trans_req)
@@ -1084,10 +1018,8 @@ bool udi_msc_process_trans(void)
   return true;
 }
 
-
 static void udi_msc_trans_ack(udd_ep_status_t status, iram_size_t n,
-    udd_ep_id_t ep)
-{
+    udd_ep_id_t ep) {
   UNUSED(ep);
   UNUSED(n);
   // Update variable to signal the end of transfer
@@ -1095,10 +1027,8 @@ static void udi_msc_trans_ack(udd_ep_status_t status, iram_size_t n,
   udi_msc_b_ack_trans = true;
 }
 
-
 bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
-    void (*callback) (udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep))
-{
+    void (*callback) (udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep)) {
   if (!udi_msc_b_ack_trans)
     return false; // No possible, transfer on going
 
@@ -1127,6 +1057,6 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
 
 //@}
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 #endif // ARDUINO_ARCH_SAM

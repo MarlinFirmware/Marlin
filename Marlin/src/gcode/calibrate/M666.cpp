@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+#if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
 
 #include "../gcode.h"
 
@@ -52,7 +52,7 @@
           is_err = true;
         else {
           delta_endstop_adj[i] = v;
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", v);
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj[", C(AXIS_CHAR(i)), "] = ", v);
         }
       }
     }

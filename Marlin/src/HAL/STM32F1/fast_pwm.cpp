@@ -39,7 +39,7 @@ inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   const uint16_t duty = invert ? v_size - v : v;
   if (PWM_PIN(pin)) {
-    timer_dev *timer; UNUSED(timer);
+    timer_dev *timer;
     if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
       set_pwm_frequency(pin, PWM_FREQUENCY);
     const uint8_t channel = PIN_MAP[pin].timer_channel;
@@ -55,7 +55,7 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
 void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
-  timer_dev *timer; UNUSED(timer);
+  timer_dev *timer;
   timer_freq[timer_and_index_for_pin(pin, &timer)] = f_desired;
 
   // Protect used timers

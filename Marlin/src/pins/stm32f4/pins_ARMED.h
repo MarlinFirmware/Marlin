@@ -128,7 +128,7 @@
 #define HEATER_1_PIN                        PA2   // Hardware PWM
 #define HEATER_BED_PIN                      PA0   // Hardware PWM
 
-#define FAN_PIN                             PC6   // Hardware PWM, Part cooling fan
+#define FAN0_PIN                            PC6   // Hardware PWM, Part cooling fan
 #define FAN1_PIN                            PC7   // Hardware PWM, Extruder fan
 #define FAN2_PIN                            PC8   // Hardware PWM, Controller fan
 
@@ -158,7 +158,7 @@
 
   #define LCD_RESET_PIN                     PB12  // Must be high or open for LCD to operate normally.
 
-  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+  #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
     #ifndef RGB_LED_R_PIN
       #define RGB_LED_R_PIN                 PB13
     #endif
@@ -173,7 +173,7 @@
   #endif
 #else
   #define LCD_PINS_RS                       PE9
-  #define LCD_PINS_ENABLE                   PE8
+  #define LCD_PINS_EN                       PE8
   #define LCD_PINS_D4                       PB12
   #define LCD_PINS_D5                       PB13
   #define LCD_PINS_D6                       PB14
@@ -223,5 +223,8 @@
   #define Z2_SERIAL_RX_PIN              EXT4_PIN
   #define Z2_SERIAL_TX_PIN              EXT4_PIN
 
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART

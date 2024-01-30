@@ -23,6 +23,7 @@
 
 /**
  * RIGIDBOARD V2 Arduino Mega with RAMPS v1.4 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define BOARD_INFO_NAME "RigidBoard V2"

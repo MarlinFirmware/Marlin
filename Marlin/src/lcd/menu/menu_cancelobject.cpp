@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, CANCEL_OBJECTS)
+#if ALL(HAS_MARLINUI_MENU, CANCEL_OBJECTS)
 
 #include "menu_item.h"
 #include "menu_addon.h"
@@ -56,7 +56,7 @@ void menu_cancelobject() {
   const int8_t ao = cancelable.active_object;
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   // Draw cancelable items in a loop
   for (int8_t i = -1; i < cancelable.object_count; i++) {

@@ -47,7 +47,6 @@
 #endif
 
 #include "../lcdprint.h"
-#include "../fontutils.h"
 #include "../../libs/numtostr.h"
 #include "../marlinui.h"
 
@@ -56,7 +55,7 @@
 #include "../../module/printcounter.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../libs/duration_t.h"
 #endif
 
@@ -128,14 +127,52 @@ bool MarlinUI::detected() { return true; }
         #else
           const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame]);
         #endif
+      #elif ANY(COMPACT_CUSTOM_BOOTSCREEN, COMPACT_CUSTOM_BOOTSCREEN_EXT)
+        #define BMPSIZE (CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH * CUSTOM_BOOTSCREEN_BMPHEIGHT)
+        uint8_t bmp[BMPSIZE];
+        uint8_t *bmp_rle = (uint8_t*)custom_start_bmp_rle;
       #else
         const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
       #endif
 
+      #if ANY(COMPACT_CUSTOM_BOOTSCREEN, COMPACT_CUSTOM_BOOTSCREEN_EXT)
+
+        uint8_t *dst = (uint8_t*)bmp;
+
+        auto rle_nybble = [&](const uint16_t i) -> uint8_t {
+          const uint8_t b = bmp_rle[i / 2];
+          return (i & 1 ? b & 0xF : b >> 4);
+        };
+
+        uint8_t workbyte = 0, bitstate = rle_nybble(0) << 7;
+        uint16_t inindex = 1, outindex = 0;
+        while (outindex < BMPSIZE * 8) {
+          int16_t c = rle_nybble(inindex++);
+          if (c == 15) {
+            const uint8_t d = rle_nybble(inindex++), e = rle_nybble(inindex++);
+            #if ENABLED(COMPACT_CUSTOM_BOOTSCREEN_EXT)
+              if (d == 15)
+                c = 256 + 16 * e + rle_nybble(inindex++) - 1;
+              else
+            #endif
+                c = 16 * d + e + 15; // From 16 to 270
+          }
+          while (c-- >= 0) {
+            const uint8_t bitind = outindex & 7,
+                          bitval = bitstate >> bitind;
+            workbyte |= bitval;
+            if (bitind == 7) { *dst++ = workbyte; workbyte = 0; }
+            outindex++;
+          }
+          bitstate ^= 0x80;
+        }
+
+      #endif // COMPACT_CUSTOM_BOOTSCREEN || COMPACT_CUSTOM_BOOTSCREEN_EXT
+
+      u8g.TERN(COMPACT_CUSTOM_BOOTSCREEN, drawBitmap, drawBitmapP)
+        (left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
+
       UNUSED(frame);
-
-      u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
-
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         if (frame == 0) {
           u8g.setColorIndex(1);
@@ -156,7 +193,7 @@ bool MarlinUI::detected() { return true; }
         #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
           constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
-        LOOP_L_N(f, COUNT(custom_bootscreen_animation))
+        for (uint8_t f = 0; f < COUNT(custom_bootscreen_animation); ++f)
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
@@ -229,7 +266,7 @@ bool MarlinUI::detected() { return true; }
       draw_bootscreen_bmp(start_bmp);
     #else
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
-      LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
+      for (uint8_t f = 0; f < COUNT(marlin_bootscreen_animation); ++f) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
         if (frame_time) safe_delay(frame_time);
       }
@@ -274,9 +311,6 @@ void MarlinUI::init_lcd() {
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
     SET_OUTPUT(LCD_PINS_DC);
-    #ifndef LCD_RESET_PIN
-      #define LCD_RESET_PIN LCD_PINS_RS
-    #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
@@ -411,48 +445,79 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+    if (!mark_as_selected(row, style & SS_INVERT)) return;
 
-    if (mark_as_selected(row, style & SS_INVERT)) {
-      pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
+    pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
+    const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
 
-      const int plen = ftpl ? calculateWidth(ftpl) : 0,
-                vlen = vstr ? utf8_strlen(vstr) : 0;
-      if (style & SS_CENTER) {
-        int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
-        while (--pad >= 0) n -= lcd_put_u8str(F(" "));
-      }
+    char estr[calculateWidth(ftpl) + 3] = "\0";
+    pixel_len_t lwide = ftpl ? (MENU_FONT_WIDTH) * expand_u8str(estr, ftpl, itemIndex, itemStringC, itemStringF, (LCD_PIXEL_WIDTH) / (MENU_FONT_WIDTH)) : 0;
 
-      if (plen) n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-      if (vlen) n -= lcd_put_u8str_max(vstr, n);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+    // Value length, if any
+    int8_t vlen = vstr ? utf8_strlen(vstr) : 0;
+
+    bool mv_colon = false;
+    if (vlen && !center) {
+      // Move the leading colon from the value to the label below
+      mv_colon = (*vstr == ':');
+      // Shorter value, wider label
+      if (mv_colon) { vstr++; vlen--; lwide += MENU_FONT_WIDTH; }
+      // Remove leading spaces from the value and shorten
+      while (*vstr == ' ') { vstr++; vlen--; }
     }
+
+    // Padding for center or full justification
+    int8_t pad = (center || full) ? ((LCD_PIXEL_WIDTH) - lwide - vlen * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH) : 0;
+
+    // SS_CENTER: Pad with half of the unused space first
+    if (center) for (int8_t lpad = pad / 2; lpad > 0; --lpad) n -= lcd_put_u8str(F(" "));
+
+    // Draw as much of the label as fits (without the relocated colon, drawn below)
+    if (lwide) lcd_put_u8str_max(estr, n);
+
+    // Value string?
+    if (vlen) {
+      // SS_FULL: Pad with enough space to justify the value
+      if (full && !center && n > MENU_FONT_WIDTH) {
+        // Draw the leading colon moved from the value to the label
+        if (mv_colon) n -= lcd_put_u8str(F(":"));
+        // Pad in-between
+        for (; pad > 0; --pad) n -= lcd_put_u8str(F(" "));
+      }
+      // Draw the value string
+      n -= lcd_put_u8str_max(vstr, n);
+    }
+    // Always fill out the rest with spaces
+    while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
   }
 
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
-    if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
-      lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
-      lcd_put_u8str(F(" "));
-    }
+    if (!mark_as_selected(row, sel)) return;
+
+    uint8_t n = LCD_WIDTH - 1;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+    for (; n; --n) lcd_put_u8str(F(" "));
+    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+    lcd_put_u8str(F(" "));
   }
 
   // Draw a menu item with an editable value
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
-    if (mark_as_selected(row, sel)) {
-      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
-      const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
+    if (!mark_as_selected(row, sel)) return;
 
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
-      if (vallen) {
-        lcd_put_u8str(F(":"));
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
-        lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
-        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
-      }
+    const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
+                  pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
+    const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
+
+    uint8_t n = LCD_WIDTH - 2 - vallen * prop;
+    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+    if (vallen) {
+      lcd_put_u8str(F(":"));
+      for (; n; --n) lcd_put_u8str(F(" "));
+      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
+      if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
     }
   }
 
@@ -521,25 +586,25 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (inv) u8g.setColorIndex(1);
   }
 
-  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
-    ui.draw_select_screen_prompt(fpre, string, suff);
+  void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
+    ui.draw_select_screen_prompt(fpre, string, fsuf);
     if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
-      if (mark_as_selected(row, sel)) {
-        const uint8_t maxlen = LCD_WIDTH - isDir;
-        if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
-        const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-        pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
-      }
+      if (!mark_as_selected(row, sel)) return;
+
+      const uint8_t maxlen = LCD_WIDTH - isDir;
+      if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
+      const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -628,7 +693,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     //
     // Draw knob rotation => Z motion key for:
@@ -746,7 +811,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       }
     }
 
-  #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
+  #endif // BABYSTEP_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
 #endif // HAS_MARLINUI_MENU
 

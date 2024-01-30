@@ -78,6 +78,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PE5   // "Pulled-high"
@@ -133,9 +140,9 @@
 #define HEATER_1_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PB14  // FAN
+#define FAN0_PIN                            PB14  // FAN
 #define FAN1_PIN                            PB12  // FAN
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
@@ -144,7 +151,7 @@
 #define SDCARD_CONNECTION                ONBOARD
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC11  // SDSS
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
@@ -168,7 +175,7 @@
   #define EXP3_07_PIN                       PB12
   #define EXP3_08_PIN                       PB15
 
-#elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
+#elif ANY(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
 
   /**
    *    VET6 12864 LCD
@@ -197,7 +204,7 @@
   #endif
 
   #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
   #define LCD_PINS_D4                EXP3_06_PIN
 
   #define BTN_ENC                    EXP3_02_PIN
@@ -218,9 +225,4 @@
     #define BEEPER_PIN               EXP3_06_PIN
   #endif
 
-#endif
-
-// DGUS LCDs
-#if HAS_DGUS_LCD
-  #define LCD_SERIAL_PORT                      3
 #endif

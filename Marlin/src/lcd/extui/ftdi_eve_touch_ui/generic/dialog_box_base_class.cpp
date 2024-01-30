@@ -39,7 +39,7 @@ void DialogBoxBaseClass::drawMessage(T message, const int16_t font) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,6), message, OPT_CENTER, font ? font : font_large);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,6), message, OPT_CENTER, font ?: font_large);
   cmd.colors(normal_btn);
 }
 

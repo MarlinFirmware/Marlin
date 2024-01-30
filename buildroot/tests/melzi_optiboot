@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for melzi_optiboot
+#
+
+# exit on first failure
+set -e
+
+#
+# Ender-2
+#
+use_example_configs Creality/Ender-2
+exec_test $1 $2 "Ender-2" "$3"
+
+# clean up
+restore_configs

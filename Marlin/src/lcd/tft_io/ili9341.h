@@ -33,10 +33,10 @@
 #define ILI9341_MADCTL_RGB        0x00
 #define ILI9341_MADCTL_MH         0x04 // Horizontal Refresh Order
 
-#define ILI9341_ORIENTATION_UP    ILI9341_MADCTL_MY                                         // 240x320 ; Cable on the upper side
-#define ILI9341_ORIENTATION_RIGHT ILI9341_MADCTL_MV                                         // 320x240 ; Cable on the right side
-#define ILI9341_ORIENTATION_LEFT  ILI9341_MADCTL_MY | ILI9341_MADCTL_MX | ILI9341_MADCTL_MV // 320x240 ; Cable on the left side
-#define ILI9341_ORIENTATION_DOWN  ILI9341_MADCTL_MX                                         // 240x320 ; Cable on the upper side
+#define ILI9341_ORIENTATION_TOP     ILI9341_MADCTL_MY                                         // 240x320 ; FPC cable on the top side
+#define ILI9341_ORIENTATION_RIGHT   ILI9341_MADCTL_MV                                         // 320x240 ; FPC cable on the right side
+#define ILI9341_ORIENTATION_LEFT    ILI9341_MADCTL_MY | ILI9341_MADCTL_MX | ILI9341_MADCTL_MV // 320x240 ; FPC cable on the left side
+#define ILI9341_ORIENTATION_BOTTOM  ILI9341_MADCTL_MX                                         // 240x320 ; FPC cable on the bottom side
 
 #define ILI9341_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9341_MADCTL_MV) | \
                             IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ILI9341_MADCTL_MX) | \
@@ -52,7 +52,7 @@
 
 #define ILI9341_NOP               0x00 // No Operation
 #define ILI9341_SWRESET           0x01 // Software Reset
-#define ILI9341_RDDIDIF           0x04 // Read display identification information
+#define ILI9341_RDDIDIF           0x04 // Read Display Identification Information
 #define ILI9341_RDDST             0x09 // Read Display Status
 #define ILI9341_RDDPM             0x0A // Read Display Power Mode
 #define ILI9341_RDDMADCTL         0x0B // Read Display MADCTL
@@ -136,25 +136,25 @@
 #define ILI9341_IFCTL             0xF6 // Interface Control
 #define ILI9341_PUMPRCTL          0xF7 // Pump ratio control
 
-
 static const uint16_t ili9341_init[] = {
   DATASIZE_8BIT,
   ESC_REG(ILI9341_SWRESET), ESC_DELAY(100),
   ESC_REG(ILI9341_SLPOUT), ESC_DELAY(20),
-/*
-  ESC_REG(ILI9341_PWCTRLA), 0x0039, 0x002C, 0x0000, 0x0034, 0x0002, // Power control A
-  ESC_REG(ILI9341_PWCTRLB), 0x0000, 0x00C1, 0x0030,                 // Power control B
-  ESC_REG(ILI9341_DRVTCTLA1), 0x0085, 0x0000, 0x0078,               // Driver timing control A
-  ESC_REG(ILI9341_DRVTCTLB), 0x0000, 0x0000,                        // Driver timing control B
-  ESC_REG(ILI9341_PONSEQCTL), 0x0064, 0x0003, 0x0012, 0x0081,       // Power on sequence control
-  ESC_REG(ILI9341_DISCTRL), 0x0008, 0x0082, 0x0027,                 // Display Function Control
-  ESC_REG(ILI9341_PUMPRCTL), 0x0020,                                // Pump ratio control
-  ESC_REG(ILI9341_VMCTRL1), 0x003E, 0x0028,                         // VCOM Control 1
-  ESC_REG(ILI9341_VMCTRL2), 0x0086,                                 // VCOM Control 2
-  ESC_REG(ILI9341_FRMCTR1), 0x0000, 0x0018,                         // Frame Rate Control (In Normal Mode/Full Colors)
-  ESC_REG(ILI9341_PWCTRL1), 0x0023,                                 // Power Control 1
-  ESC_REG(ILI9341_PWCTRL2), 0x0010,                                 // Power Control 2
-*/
+
+  ESC_REG(ILI9341_PWCTRLA), 0x0039, 0x002C, 0x0000, 0x0034, 0x0002,
+  ESC_REG(ILI9341_PWCTRLB), 0x0000, 0x00C1, 0x0030,
+  ESC_REG(ILI9341_DRVTCTLA1), 0x0085, 0x0000, 0x0078,
+  ESC_REG(ILI9341_DRVTCTLB), 0x0000, 0x0000,
+  ESC_REG(ILI9341_PONSEQCTL), 0x0064, 0x0003, 0x0012, 0x0081,
+  ESC_REG(ILI9341_DISCTRL), 0x0008, 0x0082, 0x0027, // Source Output Scan Direction: 0, Gate Output Scan Direction: 0
+  ESC_REG(ILI9341_DINVOFF),
+  ESC_REG(ILI9341_PUMPRCTL), 0x0020,
+  ESC_REG(ILI9341_VMCTRL1), 0x003E, 0x0028,
+  ESC_REG(ILI9341_VMCTRL2), 0x0086,
+  ESC_REG(ILI9341_FRMCTR1), 0x0000, 0x0018,
+  ESC_REG(ILI9341_PWCTRL1), 0x0023,
+  ESC_REG(ILI9341_PWCTRL2), 0x0010,
+
   ESC_REG(ILI9341_MADCTL), ILI9341_MADCTL_DATA,
   ESC_REG(ILI9341_PIXSET), 0x0055,
 

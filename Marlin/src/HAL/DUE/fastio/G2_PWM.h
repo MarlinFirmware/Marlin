@@ -49,7 +49,6 @@ extern volatile uint32_t *SODR_A, *SODR_B, *CODR_A, *CODR_B;
 
 #define PWM_MAP_INIT_ROW(IO,ZZ) { ZZ == 'A' ? SODR_A : SODR_B,  ZZ == 'A' ? CODR_A : CODR_B, 1 << _PIN(IO) }
 
-
 #define PWM_MAP_INIT {  PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_X_PIN, 'B'), \
                         PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_Y_PIN, 'B'), \
                         PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_Z_PIN, 'B'), \
@@ -63,7 +62,7 @@ extern PWM_map ISR_table[NUM_PWMS];
 extern uint32_t motor_current_setting[3];
 
 #define IR_BIT(p) (WITHIN(p, 0, 3) ? (p) : (p) + 4)
-#define COPY_ACTIVE_TABLE() do{ LOOP_L_N(i, 6) work_table[i] = active_table[i]; }while(0)
+#define COPY_ACTIVE_TABLE() do{ for (uint8_t i = 0; i < 6; ++i) work_table[i] = active_table[i]; }while(0)
 
 #define PWM_MR0 19999         // base repetition rate minus one count - 20mS
 #define PWM_PR 24             // prescaler value - prescaler divide by 24 + 1  -  1 MHz output

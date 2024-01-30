@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +25,19 @@
 #include <stdint.h>
 
 #include "../../libs/crc16.h"
+
+// For testing. Define with -DEEPROM_EXCL_ZONE=916,926 in INI files.
+//#define EEPROM_EXCL_ZONE 916,926  // Test a range
+//#define EEPROM_EXCL_ZONE 333      // Test a single byte
+
+#ifdef EEPROM_EXCL_ZONE
+  static constexpr int eeprom_exclude_zone[] = { EEPROM_EXCL_ZONE },
+                       eeprom_exclude_size = eeprom_exclude_zone[COUNT(eeprom_exclude_zone) - 1] - eeprom_exclude_zone[0] + 1;
+  #define REAL_EEPROM_ADDR(A) (A < eeprom_exclude_zone[0] ? (A) : (A) + eeprom_exclude_size)
+#else
+  #define REAL_EEPROM_ADDR(A) (A)
+  static constexpr int eeprom_exclude_size = 0;
+#endif
 
 class PersistentStore {
 public:
