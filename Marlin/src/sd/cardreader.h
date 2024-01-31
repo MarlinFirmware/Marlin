@@ -31,7 +31,10 @@ extern const char M23_STR[], M24_STR[];
   #if ENABLED(SDSORT_DYNAMIC_RAM)
     #define SD_RESORT 1
   #endif
-  #if FOLDER_SORTING || ENABLED(SDSORT_GCODE)
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS 0
+  #endif
+  #if SDSORT_FOLDERS || ENABLED(SDSORT_GCODE)
     #define HAS_FOLDER_SORTING 1
   #endif
 #endif
