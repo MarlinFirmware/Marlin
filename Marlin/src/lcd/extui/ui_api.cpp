@@ -770,18 +770,16 @@ namespace ExtUI {
       return stepper.get_shaping_damping_ratio(AxisEnum(axis));
     }
     void setShapingZeta(const float zeta, const axis_t axis) {
-      if (WITHIN(zeta, 0, 1)) {
-        stepper.set_shaping_damping_ratio(AxisEnum(axis), zeta);
-      }
+      if (!WITHIN(zeta, 0, 1)) return;
+      stepper.set_shaping_damping_ratio(AxisEnum(axis), zeta);
     }
     float getShapingFrequency(const axis_t axis) {
       return stepper.get_shaping_frequency(AxisEnum(axis));
     }
     void setShapingFrequency(const float freq, const axis_t axis) {
       constexpr float min_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
-      if (freq == 0.0f || freq > min_freq) {
+      if (freq == 0.0f || freq > min_freq)
         stepper.set_shaping_frequency(AxisEnum(axis), freq);
-      }
     }
   #endif
 
@@ -953,7 +951,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
     void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
-    probe_limits getBedProbeLimits() {return (probe_limits){probe.min_x(), probe.min_y(), probe.max_x(), probe.max_y()};}
+    probe_limits getBedProbeLimits() { return probe_limits({ probe.min_x(), probe.min_y(), probe.max_x(), probe.max_y() }); }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1161,7 +1159,7 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() { return TERN0(HAS_MEDIA, IS_SD_INSERTED() || card.isMounted()); }
+  bool isMediaInserted() { return TERN0(HAS_MEDIA, card.isMounted()); }
 
   // Pause/Resume/Stop are implemented in MarlinUI
   void pausePrint()  { ui.pause_print(); }
