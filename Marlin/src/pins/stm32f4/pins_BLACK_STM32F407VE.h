@@ -121,7 +121,7 @@
 
 #define BEEPER_PIN                          PD10
 #define LCD_PINS_RS                         PE15
-#define LCD_PINS_ENABLE                     PD8
+#define LCD_PINS_EN                         PD8
 #define LCD_PINS_D4                         PE10
 #define LCD_PINS_D5                         PE12
 #define LCD_PINS_D6                         PD1

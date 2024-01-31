@@ -141,7 +141,7 @@
   #define BTN_EN2                          P1_24
   #define BTN_ENC                          P1_25
   #define LCD_PINS_RS                      P0_20
-  #define LCD_PINS_ENABLE                  P0_21
+  #define LCD_PINS_EN                      P0_21
   #define LCD_PINS_D4                      P2_11
   #define LCD_PINS_D5                      P0_22
   #define LCD_PINS_D6                      P1_29

@@ -175,11 +175,11 @@
 
   #if IS_NEWPANEL
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
   #endif
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS            LCD_PINS_ENABLE
+    #define DOGLCD_CS                LCD_PINS_EN
     #define DOGLCD_A0                LCD_PINS_RS
     #define DOGLCD_SCK               EXP2_02_PIN
     #define DOGLCD_MOSI              EXP2_06_PIN

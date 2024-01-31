@@ -204,7 +204,7 @@
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #define LCD_PINS_RS                       70
-    #define LCD_PINS_ENABLE                   71
+    #define LCD_PINS_EN                       71
     #define LCD_PINS_D4                       72
     #define LCD_PINS_D5                       73
     #define LCD_PINS_D6                       74
@@ -264,7 +264,7 @@
     //#define SHIFT_EN_PIN                    17
 
     #define LCD_PINS_RS                       75
-    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_EN                       17
     #define LCD_PINS_D4                       23
     #define LCD_PINS_D5                       25
     #define LCD_PINS_D6                       27

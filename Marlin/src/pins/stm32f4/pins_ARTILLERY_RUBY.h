@@ -160,7 +160,7 @@
     #define LCD_CONTRAST_INIT                255
   #else
     #define LCD_PINS_RS                     PC15
-    #define LCD_PINS_ENABLE                 PB6
+    #define LCD_PINS_EN                     PB6
     #define LCD_PINS_D4                     PB5
     #define LCD_PINS_D5                     PB9
     #define LCD_PINS_D6                     PB8
