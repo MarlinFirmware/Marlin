@@ -58,14 +58,14 @@
   #define TMC_USE_SW_SPI
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
-    #define TMC_SW_MOSI                     PD14
+  #if !defined(TMC_SPI_MOSI) || TMC_SPI_MOSI == -1
+    #define TMC_SPI_MOSI                    PD14
   #endif
-  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
-    #define TMC_SW_MISO                     PD1
+  #if !defined(TMC_SPI_MISO) || TMC_SPI_MISO == -1
+    #define TMC_SPI_MISO                    PD1
   #endif
-  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
-    #define TMC_SW_SCK                      PD0
+  #if !defined(TMC_SPI_SCK) || TMC_SPI_SCK == -1
+    #define TMC_SPI_SCK                     PD0
   #endif
 #endif
 

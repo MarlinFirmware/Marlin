@@ -146,14 +146,14 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PC12  // Shared with SPI header, Pin 5 (SPI3)
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PC12  // Shared with SPI header, Pin 5 (SPI3)
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PC11  // Shared with SPI header, Pin 6 (SPI3)
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PC11  // Shared with SPI header, Pin 6 (SPI3)
   #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PC10  // Shared with SPI header, Pin 4 (SPI3)
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PC10  // Shared with SPI header, Pin 4 (SPI3)
   #endif
 #endif
 
