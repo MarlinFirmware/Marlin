@@ -237,7 +237,7 @@
     #endif
 
     /**
-     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864_V1 display pinout
+     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 display pinout
      *
      *                   Board                               Display
      *                   ------                               ------
