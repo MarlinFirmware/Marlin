@@ -630,7 +630,7 @@ void DWIN_Print_Header(const char *text = nullptr) {
   static char headertxt[31] = "";  // Print header text
   if (text) {
     const int8_t size = _MIN(30U, strlen_P(text));
-    LOOP_L_N(i, size) headertxt[i] = text[i];
+    for (uint8_t i = 0; i < size; ++i) headertxt[i] = text[i];
     headertxt[size] = '\0';
   }
   if (checkkey == PrintProcess || checkkey == PrintDone) {
@@ -999,7 +999,7 @@ void Draw_Print_File_Menu() {
   if (card.isMounted()) {
     if (SET_MENU(FileMenu, MSG_MEDIA_MENU, nr_sd_menu_items() + 1)) {
       BACK_ITEM(Goto_Main_Menu);
-      LOOP_L_N(i, nr_sd_menu_items()) {
+      for (uint8_t i = 0; i < nr_sd_menu_items(); ++i) {
         MenuItemAdd(onDrawFileName, onClickSDItem);
       }
     }
@@ -1101,7 +1101,7 @@ void Draw_Info_Menu() {
   DWINUI::Draw_CenteredString(122, F(MACHINE_SIZE));
   DWINUI::Draw_CenteredString(195, F(SHORT_BUILD_VERSION));
 
-  LOOP_L_N(i, 3) {
+  for (uint8_t i = 0; i < 3; ++i) {
     DWINUI::Draw_Icon(ICON_PrintSize + i, ICOX, 99 + i * 73);
     DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MBASE(2) + i * 73, 240);
   }
@@ -2394,9 +2394,9 @@ void TramC () { Tram(4); }
     DWINUI::Draw_CenteredString(160, F("and relative heights"));
     safe_delay(1000);
     float avg = 0.0f;
-    LOOP_L_N(x, 2) LOOP_L_N(y, 2) avg += zval[x][y];
+    for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) avg += zval[x][y];
     avg /= 4.0f;
-    LOOP_L_N(x, 2) LOOP_L_N(y, 2) zval[x][y] -= avg;
+    for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) zval[x][y] -= avg;
     MeshViewer.DrawMesh(zval, 2, 2);
     ui.reset_status();
 
@@ -2409,7 +2409,7 @@ void TramC () { Tram(4); }
       float max = 0;
       FSTR_P plabel;
       bool s = true;
-      LOOP_L_N(x, 2) LOOP_L_N(y, 2) {
+      for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) {
         const float d = ABS(zval[x][y]);
         if (max < d) {
           s = (zval[x][y] >= 0);
@@ -3616,7 +3616,7 @@ void Draw_Steps_Menu() {
   }
 
   void UBLSmartFillMesh() {
-    LOOP_L_N(x, GRID_MAX_POINTS_Y) bedlevel.smart_fill_mesh();
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_Y; ++x) bedlevel.smart_fill_mesh();
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 

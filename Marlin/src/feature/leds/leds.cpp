@@ -76,8 +76,8 @@ void LEDLights::setup() {
         #endif
         delay(200);
 
-        LOOP_L_N(i, led_pin_count) {
-          LOOP_LE_N(b, 200) {
+        for (uint8_t i = 0; i < led_pin_count; ++i) {
+          for (uint8_t b = 0; b <= 200; ++b) {
             const uint16_t led_pwm = b <= 100 ? b : 200 - b;
             if (i == 0 && PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), led_pwm); else WRITE(RGB_LED_R_PIN, b < 100 ? HIGH : LOW);
             if (i == 1 && PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), led_pwm); else WRITE(RGB_LED_G_PIN, b < 100 ? HIGH : LOW);

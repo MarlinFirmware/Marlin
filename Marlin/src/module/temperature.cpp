@@ -1235,7 +1235,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     }while(0)
 
     uint8_t fanDone = 0;
-    LOOP_L_N(f, COUNT(fanBit)) {
+    for (uint8_t f = 0; f < COUNT(fanBit); ++f) {
       const uint8_t realFan = pgm_read_byte(&fanBit[f]);
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);

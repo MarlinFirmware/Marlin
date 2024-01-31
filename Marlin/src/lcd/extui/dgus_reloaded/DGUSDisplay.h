@@ -121,7 +121,7 @@ public:
     } src, dst;
 
     src.val = value;
-    LOOP_L_N(i, sizeof(T)) dst.byte[i] = src.byte[sizeof(T) - i - 1];
+    for (uint8_t i = 0; i < sizeof(T); ++i) dst.byte[i] = src.byte[sizeof(T) - i - 1];
     return dst.val;
   }
 

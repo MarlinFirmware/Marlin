@@ -258,7 +258,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       base::reset();
       prev_e_pos = 0;
       lpq_ptr = 0;
-      LOOP_L_N(i, LPQ_ARR_SZ) lpq[i] = 0;
+      for (uint8_t i = 0; i < LPQ_ARR_SZ; ++i) lpq[i] = 0;
     }
 
     float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
@@ -847,7 +847,7 @@ class Temperature {
     #if HAS_FAN
 
       static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
+      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
 
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 
