@@ -21,9 +21,12 @@ void sd_mmc_spi_mem_init() {
 inline bool media_ready() {
   return IS_SD_INSERTED() && !IS_SD_PRINTING() && !IS_SD_FILE_OPEN() && card.isMounted();
 }
-inline bool sd_mmc_spi_unload(bool) { return true; }
-inline bool sd_mmc_spi_wr_protect() { return false; }
-inline bool sd_mmc_spi_removal() { return !media_ready(); }
+
+bool sd_mmc_spi_unload(bool) { return true; }
+
+bool sd_mmc_spi_wr_protect() { return false; }
+
+bool sd_mmc_spi_removal() { return !media_ready(); }
 
 Ctrl_status sd_mmc_spi_test_unit_ready() {
   #ifdef DISABLE_DUE_SD_MMC
