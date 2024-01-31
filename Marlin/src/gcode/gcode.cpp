@@ -289,22 +289,27 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
-    while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries) {
-        event_probe_recover();
-        --retries;
-      }
-      else {
-        event_probe_failure();
-        return;
-      }
+    bool fail = false;
+    for (;;) {
+      fail = G29(); // G29 should return true for failed probes ONLY
+      if (!fail || !retries) break;
+      event_probe_recover();
+      --retries;
     }
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+    if (fail) {
+      event_probe_failure();
+      TERN_(G29_HALT_ON_FAILURE, return);
+    }
+    else {
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+      #ifdef G29_SUCCESS_COMMANDS
+        process_subcommands_now(F(G29_SUCCESS_COMMANDS));
+      #endif
+    }
 
-    #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
-    #endif
+    TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 
 #endif // G29_RETRY_AND_RECOVER

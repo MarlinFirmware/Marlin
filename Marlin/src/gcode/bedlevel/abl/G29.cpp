@@ -78,7 +78,9 @@ static void pre_g29_return(const bool retry, const bool did) {
   }
   if (did) {
     TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+    #if DISABLED(G29_RETRY_AND_RECOVER) && ENABLED(EXTENSIBLE_UI)
+      ExtUI::onLevelingDone();
+    #endif
   }
 }
 
