@@ -27,40 +27,34 @@
 #include "hex_print.h"
 #include "../core/serial.h"
 
-static char _hex[] = "00000000";
+static char _hex[] = "0x00000000";
 
-inline void __hex_byte(const uint8_t b, uint8_t o) {
+inline void __hex_byte(const uint8_t b, const uint8_t o=8) {
   _hex[o + 0] = hex_nybble(b >> 4);
   _hex[o + 1] = hex_nybble(b);
 }
-inline void __hex_word(const uint16_t w, const uint8_t o=4) {
-  __hex_byte(w >> 8, o + 0);
+inline void __hex_word(const uint16_t w, const uint8_t o=6) {
+  __hex_byte(w >> 2, o + 0);
   __hex_byte(w >> 0, o + 2);
 }
 inline void __hex_long(const uint16_t w) {
-  __hex_byte(w >> 8, 0);
-  __hex_byte(w >> 0, 4);
+  __hex_word(w >> 4, 2);
+  __hex_word(w >> 0, 6);
 }
 
-char* hex_byte(const uint8_t b) {
-  __hex_byte(b, 6);
-  return &_hex[6];
-}
-char* _hex_word(const uint16_t w) {
-  __hex_word(w, 4);
-  return &_hex[4];
-}
-char* _hex_long(const uint32_t l) {
-  __hex_long(l);
-  return _hex;
-}
-char* hex_address(const void * const w) {
+char*  hex_byte(const uint8_t b)  { __hex_byte(b); return &_hex[8]; }
+char* _hex_word(const uint16_t w) { __hex_word(w); return &_hex[6]; }
+char* _hex_long(const uint32_t l) { __hex_long(l); return &_hex[2]; }
+
+char* hex_address(const void * const a) {
   #ifdef CPU_32_BIT
-    (void)hex_long((uintptr_t)w);
+    (void)_hex_long((uintptr_t)a);
+    return _hex;
   #else
-    (void)hex_word((uintptr_t)w);
+    hex[4] = '0'; hex[5] = 'x';
+    (void)_hex_word((uintptr_t)a);
+    return &_hex[4];
   #endif
-  return _hex;
 }
 
 void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
