@@ -91,11 +91,11 @@ void GcodeSuite::M115() {
       uint32_t * const UID = (uint32_t*)UID_BASE;
       for (uint8_t i = 0; i < 3; i++) print_hex_long(UID[i]);
     #else
-      uint16_t * const UID = (uint16_t*)UID_BASE;
+      uint16_t * const UID = (uint16_t*)UID_BASE;       // Little-endian!
       SERIAL_ECHO(F("CEDE2A2F-"));
       for (uint8_t i = 1; i < 7; i++) {
-        print_hex_word((i%2) ? UID[i] : UID[i-2]);
-        if (i == 1 || i == 2 || i == 3) SERIAL_ECHO(C('-'));
+        print_hex_word((i % 2) ? UID[i] : UID[i - 2]);  // 1111-0000-3333-2222555544447777
+        if (i <= 3) SERIAL_ECHO(C('-'));
       }
     #endif
   #endif
