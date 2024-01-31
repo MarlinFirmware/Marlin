@@ -2396,7 +2396,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   #if HAS_BED_PROBE
 
-    float tram(const uint8_t point) {
+    float tram(const uint8_t point, bool stow_probe/*=true*/) {
       static bool inLev = false;
       if (inLev) return NAN;
 
@@ -2425,10 +2425,10 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
         LIMIT(xpos, MESH_MIN_X, MESH_MAX_X);
         LIMIT(ypos, MESH_MIN_Y, MESH_MAX_Y);
-        probe.stow();
-        gcode.process_subcommands_now(F("M420S0\nG28O"));
+        set_bed_leveling_enabled(false);
+        if (stow_probe) { probe.stow(); }
         inLev = true;
-        zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
+        zval = probe.probe_at_point(xpos, ypos, (stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE));
         if (isnan(zval))
           LCD_MESSAGE(MSG_ZPROBE_OUT);
         else
@@ -2462,15 +2462,14 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       meshViewer.drawMeshGrid(2, 2); // Indicate start. Draw the grid
       bed_mesh_t zval = {0};
       probe.stow();
-      zval[0][0] = tram(0);
-      if (checkkey == ID_Homing) meshViewer.drawMeshGrid(2, 2); // Redraw if Homing
       checkkey = ID_NothingToDo;
+      zval[0][0] = tram(0, false);
       meshViewer.drawMesh(zval, 2, 2);
-      zval[1][0] = tram(1);
+      zval[1][0] = tram(1, false);
       meshViewer.drawMesh(zval, 2, 2);
-      zval[1][1] = tram(2);
+      zval[1][1] = tram(2, false);
       meshViewer.drawMesh(zval, 2, 2);
-      zval[0][1] = tram(3);
+      zval[0][1] = tram(3, false);
       probe.stow();
       meshViewer.drawMesh(zval, 2, 2);
 
@@ -2503,15 +2502,15 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
           if (max < d) {
             s = (zval[x][y] >= 0);
             max = d;
-            p = x + 2 * y;
+            p = y + 2 * x;
           }
           else { goto EXIT_TRAMWIZ; } // fail-safe if Corners are = 0.00
         }
         switch (p) {
           case 0b00 : plabel = GET_TEXT_F(MSG_TRAM_FL); break;
           case 0b01 : plabel = GET_TEXT_F(MSG_TRAM_FR); break;
-          case 0b10 : plabel = GET_TEXT_F(MSG_TRAM_BL); break;
-          case 0b11 : plabel = GET_TEXT_F(MSG_TRAM_BR); break;
+          case 0b10 : plabel = GET_TEXT_F(MSG_TRAM_BR); break;
+          case 0b11 : plabel = GET_TEXT_F(MSG_TRAM_BL); break;
           default   : plabel = F(""); break;
         }
         DWINUI::drawCenteredString(120, GET_TEXT_F(MSG_CORNERS_NOT_LEVELED));

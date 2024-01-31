@@ -240,9 +240,6 @@ void doCoolDown();
 #if ENABLED(NOZZLE_PARK_FEATURE)
   void parkHead();
 #endif
-#if HAS_AUTOLEVEL
-  void trammingwizard();
-#endif
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   void applyLEDColor();
 #endif
@@ -330,6 +327,8 @@ void drawTrammingMenu();
 #endif
 #if HAS_BED_PROBE
   void drawProbeSetMenu();
+  void trammingwizard();
+  float tram(uint8_t point, bool stow_probe=true);
 #endif
 void drawFilSetMenu();
 #if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
