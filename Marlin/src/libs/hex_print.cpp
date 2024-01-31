@@ -27,19 +27,19 @@
 #include "hex_print.h"
 #include "../core/serial.h"
 
-static char _hex[] = "0x00000000";
+static char _hex[] = "0x00000000"; // 0:adr32 2:long 4:adr16 6:word 8:byte
 
 inline void __hex_byte(const uint8_t b, const uint8_t o=8) {
   _hex[o + 0] = hex_nybble(b >> 4);
   _hex[o + 1] = hex_nybble(b);
 }
 inline void __hex_word(const uint16_t w, const uint8_t o=6) {
-  __hex_byte(w >> 2, o + 0);
-  __hex_byte(w >> 0, o + 2);
+  __hex_byte(w >> 8, o + 0);
+  __hex_byte(w     , o + 2);
 }
-inline void __hex_long(const uint16_t w) {
-  __hex_word(w >> 4, 2);
-  __hex_word(w >> 0, 6);
+inline void __hex_long(const uint32_t w) {
+  __hex_word(w >> 16, 2);
+  __hex_word(w      , 6);
 }
 
 char*  hex_byte(const uint8_t b)  { __hex_byte(b); return &_hex[8]; }
@@ -51,7 +51,7 @@ char* hex_address(const void * const a) {
     (void)_hex_long((uintptr_t)a);
     return _hex;
   #else
-    hex[4] = '0'; hex[5] = 'x';
+    _hex[4] = '0'; _hex[5] = 'x';
     (void)_hex_word((uintptr_t)a);
     return &_hex[4];
   #endif
@@ -59,7 +59,7 @@ char* hex_address(const void * const a) {
 
 void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
 void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
-void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
+void print_hex_word(const uint16_t w)        { SERIAL_ECHO(_hex_word(w));    }
 void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
 void print_hex_long(const uint32_t w, const char delimiter/*='\0'*/, const bool prefix/*=false*/) {
