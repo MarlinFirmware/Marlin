@@ -44,6 +44,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/e3v2/proui/meshviewer.h"
+#endif
+
 #if ENABLED(UBL_HILBERT_CURVE)
   #include "../hilbert_curve.h"
 #endif
@@ -799,6 +803,7 @@ void unified_bed_leveling::shift_mesh_height() {
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
         #endif
+        TERN_(DWIN_LCD_PROUI, if (!hmiFlag.cancel_lev) meshViewer.drawMeshPoint(best.pos.x, best.pos.y, measured_z); )
       }
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
@@ -813,7 +818,7 @@ void unified_bed_leveling::shift_mesh_height() {
     probe.stow();
     TERN_(HAS_MARLINUI_MENU, ui.capture());
 
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     restore_ubl_active_state_and_leave();
 
@@ -1442,10 +1447,10 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
 void unified_bed_leveling::smart_fill_mesh() {
   static const smart_fill_info
-    info0 PROGMEM = { 0, GRID_MAX_POINTS_X,       0, (GRID_MAX_POINTS_Y) - 2, false },  // Bottom of the mesh looking up
-    info1 PROGMEM = { 0, GRID_MAX_POINTS_X,     (GRID_MAX_POINTS_Y) - 1, 0,   false },  // Top of the mesh looking down
-    info2 PROGMEM = { 0, (GRID_MAX_POINTS_X) - 2, 0, GRID_MAX_POINTS_Y,       true  },  // Left side of the mesh looking right
-    info3 PROGMEM = { (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,       true  };  // Right side of the mesh looking left
+    info0 PROGMEM = { 0,  GRID_MAX_POINTS_X, 0,        (GRID_MAX_POINTS_Y) - 2,    false },  // Bottom of the mesh looking up
+    info1 PROGMEM = { 0,  GRID_MAX_POINTS_X,           (GRID_MAX_POINTS_Y) - 1, 0, false },  // Top of the mesh looking down
+    info2 PROGMEM = { 0, (GRID_MAX_POINTS_X) - 2, 0,    GRID_MAX_POINTS_Y,         true  },  // Left side of the mesh looking right
+    info3 PROGMEM = {    (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,         true  };  // Right side of the mesh looking left
   static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
   for (uint8_t i = 0; i < COUNT(info); ++i) {
@@ -1513,7 +1518,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
 
       probe.stow();
-      probe.move_z_after_probing();
+      TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
       if (abort_flag) {
         SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1599,7 +1604,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
     }
     probe.stow();
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     if (abort_flag || finish_incremental_LSF(&lsf_results)) {
       SERIAL_ECHOLNPGM("Could not complete LSF!");

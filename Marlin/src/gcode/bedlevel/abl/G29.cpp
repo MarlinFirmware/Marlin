@@ -663,6 +663,8 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
+        TERN_(DWIN_LCD_PROUI, if (HMI_flag.cancel_lev) break);
+
         if (zig) {                      // Zig away from origin
           inStart = 0;                  // Left or front
           inStop = PR_INNER_SIZE;       // Right or back
@@ -780,6 +782,7 @@ G29_TYPE GcodeSuite::G29() {
 
           abl.reenable = false; // Don't re-enable after modifying the mesh
           idle_no_sleep();
+          TERN_(DWIN_LCD_PROUI, if (HMI_flag.cancel_lev) break);
 
         } // inner
       } // outer
@@ -985,7 +988,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
+  TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);

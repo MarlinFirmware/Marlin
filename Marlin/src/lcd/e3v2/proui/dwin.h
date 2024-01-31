@@ -190,6 +190,7 @@ typedef struct {
   bool pause_flag:1;    // printing is paused
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
+  bool cancel_lev:1;    // cancel abl
 } hmi_flag_t;
 
 extern hmi_flag_t hmiFlag;
@@ -217,6 +218,7 @@ void rebootPrinter();
 void disableMotors();
 void autoLevel();
 void autoHome();
+void homeZ();
 #if HAS_PREHEAT
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
@@ -278,8 +280,10 @@ void dwinHomingDone();
 #if HAS_MESH
   void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
-void dwinLevelingStart();
-void dwinLevelingDone();
+#if HAS_LEVELING
+  void dwinLevelingStart();
+  void dwinLevelingDone();
+#endif
 void dwinPrintStarted();
 void dwinPrintPause();
 void dwinPrintResume();

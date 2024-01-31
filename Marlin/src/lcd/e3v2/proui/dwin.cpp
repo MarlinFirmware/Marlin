@@ -1236,6 +1236,11 @@ void hmiWaitForUser() {
   if (!wait_for_user) {
     switch (checkkey) {
       case ID_PrintDone: select_page.reset(); gotoMainMenu(); break;
+      case ID_Leveling:
+        hmiFlag.cancel_lev = 1;
+        dwinDrawStatusLine("Canceling auto leveling...");
+      case ID_NothingToDo:
+        break;
       default: hmiReturnScreen(); break;
     }
   }
@@ -1480,7 +1485,7 @@ void hmiReturnScreen() {
 
 void dwinHomingStart() {
   hmiFlag.home_flag = true;
-  hmiSaveProcessID(ID_Homing);
+  if (checkkey != ID_NothingToDo) { hmiSaveProcessID(ID_Homing); }
   title.showCaption(GET_TEXT_F(MSG_HOMING));
   dwinShowPopup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
 }
@@ -1489,41 +1494,57 @@ void dwinHomingDone() {
   hmiFlag.home_flag = false;
   if (last_checkkey == ID_PrintDone)
     gotoPrintDone();
-  else
-    hmiReturnScreen();
+  else if (checkkey != ID_NothingToDo) { hmiReturnScreen(); }
 }
 
-void dwinLevelingStart() {
-  #if HAS_BED_PROBE
-    hmiSaveProcessID(ID_Leveling);
-    title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
-    dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
-    #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-      #if HAS_BED_PROBE
-        if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
-      #else
-        #if HAS_HOTEND
-          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP) {
-            thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-            thermalManager.wait_for_hotend(0);
-          }
-        #endif
-        #if HAS_HEATED_BED
-          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetBed() < hmiData.bedLevT) {
-            thermalManager.setTargetBed(hmiData.bedLevT);
-            thermalManager.wait_for_bed_heating();
-          }
+#if HAS_LEVELING
+  void dwinLevelingStart() {
+    #if HAS_BED_PROBE
+      homeZ(); // Home Z for accurate reading
+      queue.inject(F("G28XY")); // Go to 0,0 to start
+      hmiSaveProcessID(ID_Leveling);
+      title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
+      dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
+      hmiFlag.cancel_lev = 0;
+      meshViewer.drawMeshGrid(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+      DWINUI::drawButton(BTN_Cancel, 86, 305, true);
+      #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
+        #if HAS_BED_PROBE
+          if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
+        #else
+          #if HAS_HOTEND
+            if (!DEBUGGING(DRYRUN) && thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP) {
+              thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+              thermalManager.wait_for_hotend(0);
+            }
+          #endif
+          #if HAS_HEATED_BED
+            if (!DEBUGGING(DRYRUN) && thermalManager.degTargetBed() < hmiData.bedLevT) {
+              thermalManager.setTargetBed(hmiData.bedLevT);
+              thermalManager.wait_for_bed_heating();
+            }
+          #endif
         #endif
       #endif
+    #elif ENABLED(MESH_BED_LEVELING)
+      drawManualMeshMenu();
     #endif
-  #elif ENABLED(MESH_BED_LEVELING)
-    drawManualMeshMenu();
-  #endif
-}
+  }
 
-void dwinLevelingDone() {
-  TERN_(HAS_MESH, gotoMeshViewer(true));
-}
+  void dwinLevelingDone() {
+    #if HAS_MESH
+      if (hmiFlag.cancel_lev) {
+        probe.stow();
+        reset_bed_level();
+        hmiReturnScreen();
+        ui.set_status(F("Mesh was cancelled"));
+      }
+      else {
+        gotoMeshViewer(true);
+      }
+    #endif
+  }
+#endif // HAS_LEVELING
 
 #if HAS_MESH
   void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval) {
