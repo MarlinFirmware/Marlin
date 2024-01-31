@@ -220,14 +220,14 @@
 // TMC software SPI
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       51
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                      51
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       50
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                      50
   #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        53
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                       53
   #endif
 #endif
 

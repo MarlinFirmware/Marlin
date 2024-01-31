@@ -94,14 +94,14 @@
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PC6
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PC6
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PG3
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PG3
   #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PC7
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PC7
   #endif
 #endif
 
