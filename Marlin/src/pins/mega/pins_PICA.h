@@ -108,8 +108,8 @@
 #endif
 #define HEATER_BED_PIN                         8  // HEAT-BED
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 #ifndef FAN_2_PIN
   #define FAN_2_PIN                            7

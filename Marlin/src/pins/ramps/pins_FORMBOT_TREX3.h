@@ -132,7 +132,7 @@
 #define HEATER_1_PIN                           7
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN1_PIN                              12
 
 #define FIL_RUNOUT_PIN                        22

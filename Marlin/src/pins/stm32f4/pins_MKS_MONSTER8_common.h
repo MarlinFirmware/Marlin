@@ -193,7 +193,7 @@
 #define HEATER_2_PIN                        PA3   // HE2
 #define HEATER_BED_PIN                      PB10  // H-BED
 
-#define FAN_PIN                             PA2   // FAN0
+#define FAN0_PIN                            PA2   // FAN0
 #define FAN1_PIN                            PA1   // FAN1
 #define FAN2_PIN                            PA0   // FAN2
 

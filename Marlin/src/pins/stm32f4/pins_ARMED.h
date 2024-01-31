@@ -128,7 +128,7 @@
 #define HEATER_1_PIN                        PA2   // Hardware PWM
 #define HEATER_BED_PIN                      PA0   // Hardware PWM
 
-#define FAN_PIN                             PC6   // Hardware PWM, Part cooling fan
+#define FAN0_PIN                            PC6   // Hardware PWM, Part cooling fan
 #define FAN1_PIN                            PC7   // Hardware PWM, Extruder fan
 #define FAN2_PIN                            PC8   // Hardware PWM, Controller fan
 

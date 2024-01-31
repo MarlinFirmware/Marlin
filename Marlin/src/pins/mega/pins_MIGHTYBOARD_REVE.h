@@ -168,8 +168,8 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           MOSFET_2_PIN
 #else
-  #ifndef FAN_PIN
-    #define FAN_PIN                 MOSFET_2_PIN
+  #ifndef FAN0_PIN
+    #define FAN0_PIN                MOSFET_2_PIN
   #endif
 #endif
 // EX2 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)

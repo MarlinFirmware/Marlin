@@ -72,6 +72,6 @@
 //
 #define HEATER_0_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA1   // HOT BED
-#define FAN_PIN                             PA2   // FAN
+#define FAN0_PIN                            PA2   // FAN
 
 #include "pins_CREALITY_V4.h"

@@ -291,7 +291,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PC8   // Fan0
+#define FAN0_PIN                            PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
 
 #ifndef E0_AUTO_FAN_PIN

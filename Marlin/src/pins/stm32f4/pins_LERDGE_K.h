@@ -182,8 +182,8 @@
 #define HEATER_1_PIN                        PA0
 #define HEATER_BED_PIN                      PA2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PF7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PF7
 #endif
 
 #define FAN1_PIN                            PF6

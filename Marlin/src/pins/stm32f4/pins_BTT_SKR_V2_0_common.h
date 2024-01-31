@@ -251,8 +251,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PD7   // Hotbed
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB7   // Fan0
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB7   // Fan0
 #endif
 
 #if HAS_CUTTER

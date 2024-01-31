@@ -114,7 +114,7 @@
 #define HEATER_0_PIN                        PB14  // HEATER1
 #define HEATER_BED_PIN                      PB13  // HOT BED
 
-#define FAN_PIN                             PB15  // FAN
+#define FAN0_PIN                            PB15  // FAN
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN                   PC13  // FAN
 #endif

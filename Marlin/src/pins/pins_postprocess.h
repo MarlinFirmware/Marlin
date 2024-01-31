@@ -377,10 +377,9 @@
   #undef W_SERIAL_RX_PIN
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN -1
+#ifndef FAN0_PIN
+  #define FAN0_PIN -1
 #endif
-#define FAN0_PIN FAN_PIN
 #ifndef FAN1_PIN
   #define FAN1_PIN -1
 #endif

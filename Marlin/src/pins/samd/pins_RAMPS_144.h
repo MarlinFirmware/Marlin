@@ -123,7 +123,7 @@
 #else
   #define HEATER_1_PIN                         8
 #endif
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 #define FAN1_PIN                               7
 #define FAN2_PIN                              12
 

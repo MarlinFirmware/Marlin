@@ -186,7 +186,7 @@
 #define HEATER_1_PIN                        PB0   // Heater1
 #define HEATER_2_PIN                        PA3   // Heater2
 
-#define FAN_PIN                             PA2   // Fan0
+#define FAN0_PIN                            PA2   // Fan0
 #define FAN1_PIN                            PA1   // Fan1
 #define FAN2_PIN                            PA0   // Fan2
 

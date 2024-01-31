@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PC3
 #define HEATER_BED_PIN                      PA0
 
-#define FAN_PIN                             PB1   // FAN
+#define FAN0_PIN                            PB1   // FAN
 
 //
 // Misc. Functions

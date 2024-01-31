@@ -172,11 +172,11 @@
 #define HEATER_0_PIN                        PE6   // Heater0
 #define HEATER_BED_PIN                      PE5   // Hotbed
 
-#ifndef FAN_PIN
+#ifndef FAN0_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN_PIN                         PB8   // Fan1
+    #define FAN0_PIN                        PB8   // Fan1
   #else
-    #define FAN_PIN                         PB9   // Fan0
+    #define FAN0_PIN                        PB9   // Fan0
   #endif
 #endif
 

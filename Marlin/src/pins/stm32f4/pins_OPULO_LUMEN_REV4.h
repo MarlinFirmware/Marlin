@@ -148,7 +148,7 @@
 //
 // Heaters / Fans
 //
-#define FAN_PIN                             PE2
+#define FAN0_PIN                            PE2
 #define FAN1_PIN                            PE3
 #define FAN2_PIN                            PE4
 #define FAN3_PIN                            PE5

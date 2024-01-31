@@ -152,7 +152,7 @@
 #define HEATER_BED_PIN                      PE2   // HOT BED
 //#define HEATER_BED_INVERTING              true
 
-#define FAN_PIN                             PG0   // FAN0
+#define FAN0_PIN                            PG0   // FAN0
 #define FAN1_PIN                            PB6   // FAN1
 #define FAN2_PIN                            PG9   // FAN2
 #define FAN3_PIN                            PF10  // FAN3

@@ -159,7 +159,7 @@
   #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
 #endif
 
-#define FAN_PIN                             PB5   // "FAN0"
+#define FAN0_PIN                            PB5   // "FAN0"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"

@@ -29,7 +29,7 @@
 #define BOARD_INFO_NAME      "Formbot Raptor2"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define FAN_PIN                                6
+#define FAN0_PIN                               6
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                      22

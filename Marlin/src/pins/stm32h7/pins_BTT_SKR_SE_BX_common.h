@@ -160,7 +160,7 @@
 #define HEATER_1_PIN                        PC5
 #define HEATER_BED_PIN                      PA4
 
-#define FAN_PIN                             PA5   // "FAN0"
+#define FAN0_PIN                            PA5   // "FAN0"
 #define FAN1_PIN                            PA6   // "FAN1"
 #define FAN2_PIN                            PA7   // "FAN2"
 

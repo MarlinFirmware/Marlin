@@ -138,8 +138,8 @@
 #define HEATER_0_PIN                          40  // PA5
 #define HEATER_BED_PIN                        41  // PB24
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             13  //  PB27 Fan1A
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            13  //  PB27 Fan1A
 #endif
 #define FAN1_PIN                              58  //  PA6  Fan1B
 
