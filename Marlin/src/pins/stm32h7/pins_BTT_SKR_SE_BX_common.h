@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "Biqu BX"
+#define DEFAULT_MACHINE_NAME "BIQU BX"
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
