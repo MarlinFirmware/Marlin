@@ -545,8 +545,8 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"  // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M4P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+#elif MB(BTT_MANTA_M4P_V2_1)
+  #include "stm32g0/pins_BTT_MANTA_M4P_V2_1.h"    // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_M5P_V1_0)
   #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
 #elif MB(BTT_MANTA_E3_EZ_V1_0)
@@ -842,6 +842,7 @@
   #define BOARD_BTT_SKR_SE_BX           99924
   #define BOARD_MKS_MONSTER8            99925
   #define BOARD_LINUX_RAMPS             99926
+  #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
 
   #if MB(MKS_13)
@@ -900,6 +901,8 @@
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
   #elif MB(LINUX_RAMPS)
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
+  #elif MB(BTT_MANTA_M4P_V1_0)
+    #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
@@ -936,6 +939,7 @@
   #undef BOARD_BTT_SKR_SE_BX
   #undef BOARD_MKS_MONSTER8
   #undef BOARD_LINUX_RAMPS
+  #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
 
 #endif
