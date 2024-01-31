@@ -1511,7 +1511,7 @@ void Planner::check_axes_activity() {
    * The multiplier converts a given E value into a length.
    */
   void Planner::calculate_volumetric_multipliers() {
-    LOOP_L_N(i, COUNT(filament_size)) {
+    for (uint8_t i = 0; i < COUNT(filament_size); ++i) {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
@@ -2317,7 +2317,7 @@ bool Planner::_populate_block(
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
         // Count down all steppers that were recently moved
-        LOOP_L_N(i, E_STEPPERS)
+        for (uint8_t i = 0; i < E_STEPPERS; ++i)
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
         // Switching Extruder uses one E stepper motor per two nozzles

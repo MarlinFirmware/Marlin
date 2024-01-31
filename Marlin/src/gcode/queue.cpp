@@ -294,7 +294,7 @@ static bool serial_data_available(serial_index_t index) {
 #if NO_TIMEOUTS > 0
   // Multiserial already handles dispatch to/from multiple ports
   static bool any_serial_data_available() {
-    LOOP_L_N(p, NUM_SERIAL)
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p)
       if (serial_data_available(p))
         return true;
     return false;
@@ -423,7 +423,7 @@ void GCodeQueue::get_serial_commands() {
     // Unless a serial port has data, this will exit on next iteration
     hadData = false;
 
-    LOOP_L_N(p, NUM_SERIAL) {
+    for (uint8_t p = 0; p < NUM_SERIAL; ++p) {
       // Check if the queue is full and exit if it is.
       if (ring_buffer.full()) return;
 

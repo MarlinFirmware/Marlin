@@ -1908,7 +1908,7 @@ void Redraw_SD_List() {
 
   if (card.isMounted()) {
     // As many files as will fit
-    LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
+    for (uint8_t i = 0; i < _MIN(nr_sd_menu_items(), MROWS); ++i)
       Draw_SDItem(i, i + 1);
 
     TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
@@ -2055,7 +2055,7 @@ void Draw_Info_Menu() {
   DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE));
 
   Draw_Back_First();
-  LOOP_L_N(i, 3) {
+  for (uint8_t i = 0; i < 3; ++i) {
     DWIN_ICON_Show(ICON, ICON_PrintSize + i, 26, 99 + i * 73);
     DWIN_Draw_Line(Line_Color, 16, MBASE(2) + i * 73, 256, 156 + i * 73);
   }
@@ -2407,7 +2407,7 @@ void Draw_Move_Menu() {
   if (select_axis.now != CASE_BACK) Draw_Menu_Cursor(select_axis.now);
 
   // Draw separators and icons
-  LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MoveX + i);
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) Draw_Menu_Line(i + 1, ICON_MoveX + i);
 }
 
 void Item_Adv_HomeOffsets(const uint8_t row) {
@@ -3281,7 +3281,7 @@ void Draw_Max_Speed_Menu() {
   }
 
   Draw_Back_First();
-  LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedX + i);
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) Draw_Menu_Line(i + 1, ICON_MaxSpeedX + i);
   Draw_Edit_Integer4(1, planner.settings.max_feedrate_mm_s[X_AXIS]);
   Draw_Edit_Integer4(2, planner.settings.max_feedrate_mm_s[Y_AXIS]);
   Draw_Edit_Integer4(3, planner.settings.max_feedrate_mm_s[Z_AXIS]);
@@ -3335,7 +3335,7 @@ void Draw_Max_Accel_Menu() {
   }
 
   Draw_Back_First();
-  LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxAccX + i);
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) Draw_Menu_Line(i + 1, ICON_MaxAccX + i);
   Draw_Edit_Integer4(1, planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
   Draw_Edit_Integer4(2, planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
   Draw_Edit_Integer4(3, planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
@@ -3394,7 +3394,7 @@ void Draw_Max_Accel_Menu() {
     }
 
     Draw_Back_First();
-    LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
+    for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
     Draw_Edit_Float3(1, planner.max_jerk.x * MINUNITMULT);
     Draw_Edit_Float3(2, planner.max_jerk.y * MINUNITMULT);
     Draw_Edit_Float3(3, planner.max_jerk.z * MINUNITMULT);
@@ -3445,7 +3445,7 @@ void Draw_Steps_Menu() {
   }
 
   Draw_Back_First();
-  LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_StepX + i);
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) Draw_Menu_Line(i + 1, ICON_StepX + i);
   Draw_Edit_Float3(1, planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
   Draw_Edit_Float3(2, planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
   Draw_Edit_Float3(3, planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);

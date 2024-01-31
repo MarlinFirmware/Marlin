@@ -137,7 +137,7 @@ void reset_bed_level() {
    */
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
     #ifndef SCAD_MESH_OUTPUT
-      LOOP_L_N(x, sx) {
+      for (uint8_t x = 0; x < sx; ++x) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
@@ -146,14 +146,14 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    LOOP_L_N(y, sy) {
+    for (uint8_t y = 0; y < sy; ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      LOOP_L_N(x, sx) {
+      for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_CHAR(' ');
         const float offset = values[x * sy + y];
         if (!isnan(offset)) {
@@ -166,7 +166,7 @@ void reset_bed_level() {
               SERIAL_CHAR(' ');
             SERIAL_ECHOPGM("NAN");
           #else
-            LOOP_L_N(i, precision + 3)
+            for (uint8_t i = 0; i < precision + 3; ++i)
               SERIAL_CHAR(i ? '=' : ' ');
           #endif
         }

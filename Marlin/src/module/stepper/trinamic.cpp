@@ -501,7 +501,7 @@ enum StealthIndex : uint8_t {
       struct {
         const void *ptr[TMCAxis::TOTAL];
         bool began(const TMCAxis a, const void * const p) {
-          LOOP_L_N(i, a) if (p == ptr[i]) return true;
+          for (uint8_t i = 0; i < a; ++i) if (p == ptr[i]) return true;
           ptr[a] = p; return false;
         };
       } sp_helper;

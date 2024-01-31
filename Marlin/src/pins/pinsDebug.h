@@ -204,7 +204,7 @@ inline void report_pin_state_extended(const pin_t pin, const bool ignore, const 
     return true;
   };
 
-  LOOP_L_N(x, COUNT(pin_array))  {    // scan entire array and report all instances of this pin
+  for (uint8_t x = 0; x < COUNT(pin_array); ++x)  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
         if (start_string) SERIAL_ECHOF(start_string);

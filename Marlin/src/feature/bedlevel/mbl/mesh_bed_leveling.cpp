@@ -40,9 +40,9 @@
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    LOOP_L_N(i, GRID_MAX_POINTS_X)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    LOOP_L_N(i, GRID_MAX_POINTS_Y)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }

@@ -84,7 +84,7 @@
 
     inline void spin_photo_pin() {
       static constexpr uint32_t sequence[] = PHOTO_PULSES_US;
-      LOOP_L_N(i, COUNT(sequence))
+      for (uint8_t i = 0; i < COUNT(sequence); ++i)
         pulse_photo_pin(sequence[i], !(i & 1));
     }
 
