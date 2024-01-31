@@ -157,7 +157,7 @@ CardReader::CardReader() {
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
       sort_alpha = true;
-      sort_folders = FOLDER_SORTING;
+      sort_folders = SDSORT_FOLDERS;
       //sort_reverse = false;
     #endif
   #endif
@@ -1210,7 +1210,7 @@ void CardReader::cdroot() {
                 #if ENABLED(SDSORT_GCODE)
                   sort_folders ? _SORT_CMP_DIR(sort_folders) : _SORT_CMP_NODIR()
                 #else
-                  _SORT_CMP_DIR(FOLDER_SORTING)
+                  _SORT_CMP_DIR(SDSORT_FOLDERS)
                 #endif
               #else
                 _SORT_CMP_NODIR()

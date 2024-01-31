@@ -3404,8 +3404,8 @@
   #define SDSORT_USES_RAM    true
   #define SDSORT_USES_STACK  false
   #define SDSORT_CACHE_NAMES true
-  #ifndef FOLDER_SORTING
-    #define FOLDER_SORTING     -1
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS     -1
   #endif
   #ifndef SDSORT_GCODE
     #define SDSORT_GCODE       false
