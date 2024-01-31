@@ -993,6 +993,8 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
   #endif
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+
   probe.use_probing_tool(false);
 
   report_current_position();

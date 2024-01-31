@@ -83,7 +83,7 @@ void GcodeSuite::G30() {
         F(  " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
-      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+      #if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
         ui.set_status(msg);
       #endif
     }
