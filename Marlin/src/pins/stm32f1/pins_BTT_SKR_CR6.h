@@ -112,7 +112,7 @@
 #define HEATER_0_PIN                        PC8   // HEATER1
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
-#define FAN_PIN                             PC6   // FAN
+#define FAN0_PIN                            PC6   // FAN
 #define FAN_SOFT_PWM_REQUIRED
 
 #define CONTROLLER_FAN_PIN                  PC7

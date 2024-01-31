@@ -231,7 +231,7 @@
 #define HEATER_2_PIN                        PB6   // HE2
 #define HEATER_3_PIN                        PE1   // HE3
 
-#define FAN_PIN                             PE6   // FAN0
+#define FAN0_PIN                            PE6   // FAN0
 #define FAN1_PIN                            PE0   // FAN1
 #define FAN2_PIN                            PC12  // FAN2
 #define FAN3_PIN                            PE5   // FAN3

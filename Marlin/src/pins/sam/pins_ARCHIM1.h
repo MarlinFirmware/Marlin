@@ -153,8 +153,8 @@
 #define HEATER_2_PIN                           8  // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN                         9  // D9 PC21 BED_PWM
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              4  // D4 PC26 FET_PWM1
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             4  // D4 PC26 FET_PWM1
 #endif
 #define FAN1_PIN                               5  // D5 PC25 FET_PWM2
 

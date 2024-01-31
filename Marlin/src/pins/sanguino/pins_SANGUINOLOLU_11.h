@@ -100,8 +100,8 @@
 //
 #define HEATER_0_PIN                          13  // (extruder)
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              4  // Works for Panelolu2 too
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             4  // Works for Panelolu2 too
 #endif
 
 #if DISABLED(SANGUINOLOLU_V_1_2)

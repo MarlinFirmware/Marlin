@@ -90,7 +90,7 @@
 #define HEATER_0_PIN                        PF3   // Heater0
 #define HEATER_1_PIN                        PF2   // Heater1
 #define HEATER_BED_PIN                      PF4   // Hotbed
-#define FAN_PIN                             PA7   // Fan0
+#define FAN0_PIN                            PA7   // Fan0
 
 //
 // Misc. Functions

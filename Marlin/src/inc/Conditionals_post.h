@@ -2685,7 +2685,7 @@
                      && _NOT_E_AUTO(6,F) \
                      && _NOT_E_AUTO(7,F) \
                      && F < MAX_FANS)
-#if PIN_EXISTS(FAN)
+#if PIN_EXISTS(FAN0)
   #define HAS_FAN0 1
 #endif
 #if _HAS_FAN(1)

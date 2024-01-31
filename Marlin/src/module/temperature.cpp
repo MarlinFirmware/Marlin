@@ -2642,7 +2642,7 @@ void Temperature::init() {
   #endif
 
   #if HAS_FAN0
-    INIT_FAN_PIN(FAN_PIN);
+    INIT_FAN_PIN(FAN0_PIN);
   #endif
   #if HAS_FAN1
     INIT_FAN_PIN(FAN1_PIN);

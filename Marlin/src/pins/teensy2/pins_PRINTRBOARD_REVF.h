@@ -203,8 +203,8 @@
 #endif
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6 PWM3A
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            16  // C6 PWM3A
 #endif
 
 //

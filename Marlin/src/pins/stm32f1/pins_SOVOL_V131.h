@@ -175,8 +175,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA2   // HOT BED
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PA0   // FAN
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PA0   // FAN
 #endif
 #define FAN_SOFT_PWM_REQUIRED
 

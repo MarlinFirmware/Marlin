@@ -99,7 +99,7 @@
   PIN:   2   Port: B2        Z_DIR_PIN                   protected
   PIN:   3   Port: B3        Z_STEP_PIN                  protected
   PIN:   4   Port: B4        AVR_SS_PIN                  protected
-  .                          FAN_PIN                     protected
+  .                          FAN0_PIN                    protected
   .                       SD_SS_PIN                      protected
   PIN:   5   Port: B5        AVR_MOSI_PIN                Output = 1
   .                       SD_MOSI_PIN                    Output = 1

@@ -155,7 +155,7 @@
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PD8   // "HB"
 
-#define FAN_PIN                             PD2   // "FAN0"
+#define FAN0_PIN                            PD2   // "FAN0"
 #define FAN1_PIN                            PD3   // "FAN1"
 #define FAN2_PIN                            PD4   // "FAN2"
 

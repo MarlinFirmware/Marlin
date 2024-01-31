@@ -191,7 +191,7 @@
 #define HEATER_1_PIN                        PB10  // "HE1"
 #define HEATER_BED_PIN                      PB2   // "HB"
 
-#define FAN_PIN                             PA8   // "FAN0"
+#define FAN0_PIN                            PA8   // "FAN0"
 #define FAN1_PIN                            PB15  // "FAN1"
 #define FAN2_PIN                            PB14  // "FAN2"
 

@@ -113,8 +113,8 @@
 #define HEATER_3_PIN                          97  // PC20 on piggy
 #define HEATER_BED_PIN                        69  // PA0
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             92  // PA5
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            92  // PA5
 #endif
 #define FAN1_PIN                              31  // PA7
 

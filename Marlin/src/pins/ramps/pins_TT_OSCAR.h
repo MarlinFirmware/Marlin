@@ -194,7 +194,7 @@
 #define HEATER_2_PIN                          44
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 #if EXTRUDERS >= 5
   #define HEATER_4_PIN                         6

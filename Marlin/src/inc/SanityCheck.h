@@ -2286,21 +2286,21 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
  */
 #if HAS_AUTO_FAN
   #if HAS_FAN0
-    #if PIN_EXISTS(E0_AUTO_FAN) && E0_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif PIN_EXISTS(E1_AUTO_FAN) && E1_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif PIN_EXISTS(E2_AUTO_FAN) && E2_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif PIN_EXISTS(E3_AUTO_FAN) &&  E3_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN_PIN."
+    #if PIN_EXISTS(E0_AUTO_FAN) && E0_AUTO_FAN_PIN == FAN0_PIN
+      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
+    #elif PIN_EXISTS(E1_AUTO_FAN) && E1_AUTO_FAN_PIN == FAN0_PIN
+      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
+    #elif PIN_EXISTS(E2_AUTO_FAN) && E2_AUTO_FAN_PIN == FAN0_PIN
+      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
+    #elif PIN_EXISTS(E3_AUTO_FAN) &&  E3_AUTO_FAN_PIN == FAN0_PIN
+      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
     #endif
   #endif
 #endif
 
 #if HAS_FAN0
-  #if CONTROLLER_FAN_PIN == FAN_PIN
-    #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
+  #if CONTROLLER_FAN_PIN == FAN0_PIN
+    #error "You cannot set CONTROLLER_FAN_PIN equal to FAN0_PIN."
   #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
     #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
   #endif
@@ -2342,8 +2342,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
     #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
-  #elif CASE_LIGHT_PIN == FAN_PIN
-    #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
+  #elif CASE_LIGHT_PIN == FAN0_PIN
+    #error "CASE_LIGHT_PIN conflicts with FAN0_PIN. Resolve before continuing."
   #endif
 #endif
 
@@ -4100,8 +4100,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
       #error "SPINDLE_LASER_PWM_PIN conflicts with E6_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(E7_AUTO_FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with E7_AUTO_FAN_PIN."
-    #elif _PIN_CONFLICT(FAN)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN_PIN."
+    #elif _PIN_CONFLICT(FAN0)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN0_PIN."
     #elif _PIN_CONFLICT(FAN1)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
     #elif _PIN_CONFLICT(FAN2)
