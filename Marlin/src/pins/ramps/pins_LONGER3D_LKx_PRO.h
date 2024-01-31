@@ -131,7 +131,7 @@
   /**           CR-10 Stock Display
    *                  ------
    *             GND | 9 10 | 5V
-   * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_ENABLE
+   * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_EN
    *     BTN_EN2 D19 | 5  6   D6  LCD_PINS_D4
    *     BTN_EN1 D18 | 3  4 | GND
    *  BEEPER_PIN D11 | 1  2 | D15 BTN_ENC
@@ -140,7 +140,7 @@
    *      Aux-1, J21, J17 and Y-Max.
    */
   #define LCD_PINS_RS                          5
-  #define LCD_PINS_ENABLE                      4
+  #define LCD_PINS_EN                          4
   #define LCD_PINS_D4                          6
   #define BTN_EN1                             18
   #define BTN_EN2                             19

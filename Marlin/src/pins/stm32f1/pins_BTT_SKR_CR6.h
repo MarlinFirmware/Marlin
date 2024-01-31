@@ -126,7 +126,7 @@
   #define BTN_EN2                           PA10
 
   #define LCD_PINS_RS                       PB8
-  #define LCD_PINS_ENABLE                   PB15
+  #define LCD_PINS_EN                       PB15
   #define LCD_PINS_D4                       PB9
 
   #define BEEPER_PIN                        PB5

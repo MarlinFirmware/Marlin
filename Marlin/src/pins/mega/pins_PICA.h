@@ -142,7 +142,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         33
-  #define LCD_PINS_ENABLE                     30
+  #define LCD_PINS_EN                         30
   #define LCD_PINS_D4                         35
   #define LCD_PINS_D5                         32
   #define LCD_PINS_D6                         37

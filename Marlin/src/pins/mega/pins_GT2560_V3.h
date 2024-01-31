@@ -180,8 +180,8 @@
   #ifndef LCD_PINS_RS
     #define LCD_PINS_RS                       20
   #endif
-  #ifndef LCD_PINS_ENABLE
-    #define LCD_PINS_ENABLE                   17
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN                       17
   #endif
   #ifndef LCD_PINS_D4
     #define LCD_PINS_D4                       16

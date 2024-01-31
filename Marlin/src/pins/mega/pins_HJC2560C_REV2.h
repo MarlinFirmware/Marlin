@@ -129,7 +129,7 @@
   #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20  // LCD_CS
-    #define LCD_PINS_ENABLE                   15  // LCD_SDA
+    #define LCD_PINS_EN                       15  // LCD_SDA
     #define LCD_PINS_D4                       14  // LCD_SCK
 
     #if ENABLED(HJC_LCD_SMART_CONTROLLER)
@@ -161,7 +161,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20

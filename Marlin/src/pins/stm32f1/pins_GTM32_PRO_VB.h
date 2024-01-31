@@ -148,7 +148,7 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     //
     #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
+    #define LCD_PINS_EN                     PE14  // SID (MOSI)
     #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD9
     #define LCD_PINS_D6                     PD10

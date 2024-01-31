@@ -166,7 +166,7 @@
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                        PE12
   #define BTN_ENC                           PE11
-  #define LCD_PINS_ENABLE                   PE10
+  #define LCD_PINS_EN                       PE10
   #define LCD_PINS_RS                       PE9
   #define BTN_EN1                           PE4
   #define BTN_EN2                           PE3

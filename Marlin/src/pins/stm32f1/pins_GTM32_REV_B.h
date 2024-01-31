@@ -146,7 +146,7 @@
     //
     #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
     // RW is hardwired to VSS
-    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
+    #define LCD_PINS_EN                     PC7   // SID (MOSI)
     #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD4
     #define LCD_PINS_D6                     PD5

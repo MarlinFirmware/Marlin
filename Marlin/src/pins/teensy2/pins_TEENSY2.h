@@ -169,7 +169,7 @@
 //
 #if IS_ULTIPANEL
   #define LCD_PINS_RS                          8  // E0
-  #define LCD_PINS_ENABLE                      9  // E1
+  #define LCD_PINS_EN                          9  // E1
   #define LCD_PINS_D4                         10  // C0
   #define LCD_PINS_D5                         11  // C1
   #define LCD_PINS_D6                         12  // C2

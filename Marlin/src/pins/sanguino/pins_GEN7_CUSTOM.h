@@ -116,7 +116,7 @@
 
 // 4bit LCD Support
 #define LCD_PINS_RS                           18
-#define LCD_PINS_ENABLE                       17
+#define LCD_PINS_EN                           17
 #define LCD_PINS_D4                           16
 #define LCD_PINS_D5                           15
 #define LCD_PINS_D6                           13
