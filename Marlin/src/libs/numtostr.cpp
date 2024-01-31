@@ -25,16 +25,27 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
+constexpr char DIGIT(const uint8_t n) { return '0' + n; }
+
+template <typename T1, typename T2>
+constexpr char DIGIMOD(const T1 n, const T2 f) { return DIGIT((n / f) % 10); }
+
+template <typename T1, typename T2>
+constexpr char RJDIGIT(const T1 n, const T2 f) { return (n >= (T1)f ? DIGIMOD(n, f) : ' '); }
+
+template <typename T>
+constexpr char MINUSOR(T &n, const char alt) { return (n >= 0) ? alt : (n = -n) ? '-' : '-'; }
+
+constexpr long INTFLOAT(const float V, const int N) {
+  return long((V * 10.0f * pow(10.0f, N) + (V < 0.0f ? -5.0f : 5.0f)) / 10.0f);
+}
+constexpr long UINTFLOAT(const float V, const int N) {
+  return INTFLOAT(V < 0.0f ? -V : V, N);
+}
+
 char conv[9] = { 0 };
 
-#define DIGIT(n) ('0' + (n))
-#define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
-#define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
-#define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
-#define INTFLOAT(V,N) (((V) * 10 * pow(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10?
-#define UINTFLOAT(V,N) INTFLOAT((V) < 0 ? -(V) : (V), N)
-
-// Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
+// Format uint8_t (0-100) as rj string with __3% / _23% / 123% format
 const char* pcttostrpctrj(const uint8_t i) {
   conv[4] = RJDIGIT(i, 100);
   conv[5] = RJDIGIT(i, 10);
@@ -48,7 +59,7 @@ const char* ui8tostr4pctrj(const uint8_t i) {
   return pcttostrpctrj(ui8_to_percent(i));
 }
 
-// Convert unsigned 8bit int to string 123 format
+// Convert unsigned 8bit int to string with __3 / _23 / 123 format
 const char* ui8tostr3rj(const uint8_t i) {
   conv[5] = RJDIGIT(i, 100);
   conv[6] = RJDIGIT(i, 10);
@@ -63,7 +74,7 @@ const char* ui8tostr2(const uint8_t i) {
   return &conv[6];
 }
 
-// Convert signed 8bit int to rj string with 123 or -12 format
+// Convert signed 8bit int to rj string with __3 / _23 / 123 / -_3 / -23 format
 const char* i8tostr3rj(const int8_t x) {
   int xx = x;
   conv[5] = MINUSOR(xx, RJDIGIT(xx, 100));
@@ -211,7 +222,7 @@ const char* ftostr41ns(const_float_t f) {
   return &conv[3];
 }
 
-// Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
+// Convert float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
 const char* ftostr42_52(const_float_t f) {
   if (f <= -10 || f >= 100) return ftostr52(f); // -23.45 / 123.45
   long i = INTFLOAT(f, 2);
@@ -223,7 +234,7 @@ const char* ftostr42_52(const_float_t f) {
   return &conv[3];
 }
 
-// Convert signed float to fixed-length string with 023.45 / -23.45 format
+// Convert float to fixed-length string with 023.45 / -23.45 format
 const char* ftostr52(const_float_t f) {
   long i = INTFLOAT(f, 2);
   conv[2] = MINUSOR(i, DIGIMOD(i, 10000));
@@ -235,7 +246,7 @@ const char* ftostr52(const_float_t f) {
   return &conv[2];
 }
 
-// Convert signed float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
+// Convert float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
 const char* ftostr53_63(const_float_t f) {
   if (f <= -10 || f >= 100) return ftostr63(f); // -23.456 / 123.456
   long i = INTFLOAT(f, 3);
@@ -248,7 +259,7 @@ const char* ftostr53_63(const_float_t f) {
   return &conv[2];
 }
 
-// Convert signed float to fixed-length string with 023.456 / -23.456 format
+// Convert float to fixed-length string with 023.456 / -23.456 format
 const char* ftostr63(const_float_t f) {
   long i = INTFLOAT(f, 3);
   conv[1] = MINUSOR(i, DIGIMOD(i, 100000));
@@ -407,17 +418,17 @@ const char* ftostr52sp(const_float_t f) {
   conv[3] = RJDIGIT(i, 1000);
   conv[4] = DIGIMOD(i, 100);
 
-  if ((dig = i % 10)) {          // second digit after decimal point?
+  if ((dig = i % 10)) {           // Second digit after decimal point?
     conv[5] = '.';
     conv[6] = DIGIMOD(i, 10);
     conv[7] = DIGIT(dig);
   }
   else {
-    if ((dig = (i / 10) % 10)) { // first digit after decimal point?
+    if ((dig = (i / 10) % 10)) {  // First digit after decimal point?
       conv[5] = '.';
       conv[6] = DIGIT(dig);
     }
-    else                          // nothing after decimal point
+    else                          // Nothing after decimal point
       conv[5] = conv[6] = ' ';
     conv[7] = ' ';
   }

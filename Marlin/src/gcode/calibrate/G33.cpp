@@ -97,7 +97,7 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
-  SERIAL_ECHOF(prefix, AS_CHAR(':'));
+  SERIAL_ECHOF(prefix, C(':'));
   serial_offset(f);
 }
 

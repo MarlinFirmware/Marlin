@@ -41,8 +41,7 @@
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
     PROBE_PT_STOW,      // Do a complete stow after run_z_probe
     PROBE_PT_LAST_STOW, // Stow for sure, even in BLTouch HS mode
-    PROBE_PT_RAISE,     // Raise to "between" clearance after run_z_probe
-    PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
+    PROBE_PT_RAISE      // Raise to "between" clearance after run_z_probe
   };
 #endif
 
@@ -158,7 +157,7 @@ public:
 
     static bool set_deployed(const bool) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
+    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
 
   #endif // !HAS_BED_PROBE
 

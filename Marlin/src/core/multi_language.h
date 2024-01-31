@@ -64,6 +64,9 @@ typedef const char Language_Str[];
 
 #if NUM_LANGUAGES > 1
   #define HAS_MULTI_LANGUAGE 1
+  #if HAS_MARLINUI_MENU
+    #define HAS_MENU_MULTI_LANGUAGE 1
+  #endif
   #define GET_TEXT(MSG) ( \
     ui.language == 4 ? GET_LANG(LCD_LANGUAGE_5)::MSG : \
     ui.language == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \

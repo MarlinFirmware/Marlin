@@ -89,19 +89,15 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   auto get_s_power = [] {
-    float u;
     if (parser.seenval('S')) {
       const float v = parser.value_float();
-      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
+      cutter.menuPower = cutter.unitPower = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
     }
     else if (cutter.cutter_mode == CUTTER_MODE_STANDARD)
-      u = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
-
-    cutter.menuPower = cutter.unitPower = u;
+      cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
 
     // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
-    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0);
-    return u;
+    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0);
   };
 
   if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {  // Laser power in inline mode

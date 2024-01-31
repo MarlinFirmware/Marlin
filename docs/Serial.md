@@ -69,6 +69,5 @@ The following macros are defined (in `serial.h`) to output data to the serial po
 | `SERIAL_ERROR_MSG` | Same as `SERIAL_ECHOLNPGM` | Print a full error line | `SERIAL_ERROR_MSG("Not found");` | `Error:Not found` |
 | `SERIAL_ECHO_SP` | Number of spaces | Print one or more spaces | `SERIAL_ECHO_SP(3)` | `   ` |
 | `SERIAL_EOL` | None | Print an end of line | `SERIAL_EOL();` | `\n` |
-| `SERIAL_OUT` | `SERIAL_OUT(myMethod)` | Call a custom serial method | `SERIAL_OUT(msgDone);` | ... |
 
 *This document was written by [X-Ryl669](https://blog.cyril.by) and is under [CC-SA license](https://creativecommons.org/licenses/by-sa)*

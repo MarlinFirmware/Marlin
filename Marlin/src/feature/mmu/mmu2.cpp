@@ -140,6 +140,8 @@ int8_t MMU2::get_current_tool() { return extruder == MMU2_NO_TOOL ? -1 : extrude
 
 #if ANY(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
   #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
+#else
+  #define FILAMENT_PRESENT() true
 #endif
 
 void mmu2_attn_buzz(const bool two=false) {
@@ -827,7 +829,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
       }
     }
     else if (mmu_print_saved) {
-      SERIAL_ECHOLNPGM("MMU starts responding\n");
+      SERIAL_ECHOLNPGM("\nMMU starts responding");
 
       if (turn_off_nozzle && resume_hotend_temp) {
         thermalManager.setTargetHotend(resume_hotend_temp, active_extruder);

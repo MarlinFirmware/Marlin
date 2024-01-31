@@ -628,7 +628,7 @@ void GcodeSuite::G26() {
   }
 
   // Get repeat from 'R', otherwise do one full circuit
-  int16_t g26_repeats;
+  grid_count_t g26_repeats;
   #if HAS_MARLINUI_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
   #else

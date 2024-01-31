@@ -144,7 +144,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i = 0; i < 8; ++i) SERIAL_ECHO('0' + TEST(runout_flags, i));
+            for (uint8_t i = 0; i < 8; ++i) SERIAL_CHAR('0' + TEST(runout_flags, i));
             SERIAL_ECHOPGM(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();

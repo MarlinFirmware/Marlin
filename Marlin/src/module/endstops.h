@@ -51,44 +51,44 @@
  */
 enum EndstopEnum : char {
   // Common XYZ (ABC) endstops. Defined according to USE_[XYZ](MIN|MAX)_PLUG settings.
-  _ES_ITEM(HAS_X_MIN, X_MIN)
-  _ES_ITEM(HAS_X_MAX, X_MAX)
-  _ES_ITEM(HAS_Y_MIN, Y_MIN)
-  _ES_ITEM(HAS_Y_MAX, Y_MAX)
-  _ES_ITEM(HAS_Z_MIN, Z_MIN)
-  _ES_ITEM(HAS_Z_MAX, Z_MAX)
-  _ES_ITEM(HAS_I_MIN, I_MIN)
-  _ES_ITEM(HAS_I_MAX, I_MAX)
-  _ES_ITEM(HAS_J_MIN, J_MIN)
-  _ES_ITEM(HAS_J_MAX, J_MAX)
-  _ES_ITEM(HAS_K_MIN, K_MIN)
-  _ES_ITEM(HAS_K_MAX, K_MAX)
-  _ES_ITEM(HAS_U_MIN, U_MIN)
-  _ES_ITEM(HAS_U_MAX, U_MAX)
-  _ES_ITEM(HAS_V_MIN, V_MIN)
-  _ES_ITEM(HAS_V_MAX, V_MAX)
-  _ES_ITEM(HAS_W_MIN, W_MIN)
-  _ES_ITEM(HAS_W_MAX, W_MAX)
+  _ES_ITEM(USE_X_MIN, X_MIN)
+  _ES_ITEM(USE_X_MAX, X_MAX)
+  _ES_ITEM(USE_Y_MIN, Y_MIN)
+  _ES_ITEM(USE_Y_MAX, Y_MAX)
+  _ES_ITEM(USE_Z_MIN, Z_MIN)
+  _ES_ITEM(USE_Z_MAX, Z_MAX)
+  _ES_ITEM(USE_I_MIN, I_MIN)
+  _ES_ITEM(USE_I_MAX, I_MAX)
+  _ES_ITEM(USE_J_MIN, J_MIN)
+  _ES_ITEM(USE_J_MAX, J_MAX)
+  _ES_ITEM(USE_K_MIN, K_MIN)
+  _ES_ITEM(USE_K_MAX, K_MAX)
+  _ES_ITEM(USE_U_MIN, U_MIN)
+  _ES_ITEM(USE_U_MAX, U_MAX)
+  _ES_ITEM(USE_V_MIN, V_MIN)
+  _ES_ITEM(USE_V_MAX, V_MAX)
+  _ES_ITEM(USE_W_MIN, W_MIN)
+  _ES_ITEM(USE_W_MAX, W_MAX)
 
   // Extra Endstops for XYZ
   #if ENABLED(X_DUAL_ENDSTOPS)
-    _ES_ITEM(HAS_X_MIN, X2_MIN)
-    _ES_ITEM(HAS_X_MAX, X2_MAX)
+    _ES_ITEM(USE_X_MIN, X2_MIN)
+    _ES_ITEM(USE_X_MAX, X2_MAX)
   #endif
   #if ENABLED(Y_DUAL_ENDSTOPS)
-    _ES_ITEM(HAS_Y_MIN, Y2_MIN)
-    _ES_ITEM(HAS_Y_MAX, Y2_MAX)
+    _ES_ITEM(USE_Y_MIN, Y2_MIN)
+    _ES_ITEM(USE_Y_MAX, Y2_MAX)
   #endif
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    _ES_ITEM(HAS_Z_MIN, Z2_MIN)
-    _ES_ITEM(HAS_Z_MAX, Z2_MAX)
+    _ES_ITEM(USE_Z_MIN, Z2_MIN)
+    _ES_ITEM(USE_Z_MAX, Z2_MAX)
     #if NUM_Z_STEPPERS >= 3
-      _ES_ITEM(HAS_Z_MIN, Z3_MIN)
-      _ES_ITEM(HAS_Z_MAX, Z3_MAX)
+      _ES_ITEM(USE_Z_MIN, Z3_MIN)
+      _ES_ITEM(USE_Z_MAX, Z3_MAX)
     #endif
     #if NUM_Z_STEPPERS >= 4
-      _ES_ITEM(HAS_Z_MIN, Z4_MIN)
-      _ES_ITEM(HAS_Z_MAX, Z4_MAX)
+      _ES_ITEM(USE_Z_MIN, Z4_MIN)
+      _ES_ITEM(USE_Z_MAX, Z4_MAX)
     #endif
   #endif
 
@@ -101,28 +101,28 @@ enum EndstopEnum : char {
   NUM_ENDSTOP_STATES
 
   // Endstops can be either MIN or MAX but not both
-  #if HAS_X_MIN || HAS_X_MAX
+  #if USE_X_MIN || USE_X_MAX
     , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
     #if ENABLED(X_DUAL_ENDSTOPS)
 	    , X2_ENDSTOP = TERN(X_HOME_TO_MAX, X2_MAX, X2_MIN)
     #endif
   #endif
-  #if HAS_Y_MIN || HAS_Y_MAX
+  #if USE_Y_MIN || USE_Y_MAX
     , Y_ENDSTOP = TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
     #if ENABLED(Y_DUAL_ENDSTOPS)
       , Y2_ENDSTOP = TERN(Y_HOME_TO_MAX, Y2_MAX, Y2_MIN)
     #endif
   #endif
-  #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
+  #if USE_Z_MIN || USE_Z_MAX || HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, TERN(Z_HOME_TO_MAX, Z_MAX, Z_MIN))
   #endif
-  #if HAS_I_MIN || HAS_I_MAX
+  #if USE_I_MIN || USE_I_MAX
     , I_ENDSTOP = TERN(I_HOME_TO_MAX, I_MAX, I_MIN)
   #endif
-  #if HAS_J_MIN || HAS_J_MAX
+  #if USE_J_MIN || USE_J_MAX
     , J_ENDSTOP = TERN(J_HOME_TO_MAX, J_MAX, J_MIN)
   #endif
-  #if HAS_K_MIN || HAS_K_MAX
+  #if USE_K_MIN || USE_K_MAX
     , K_ENDSTOP = TERN(K_HOME_TO_MAX, K_MAX, K_MIN)
   #endif
 };
@@ -133,7 +133,7 @@ enum EndstopEnum : char {
 class Endstops {
   public:
 
-    typedef IF<(NUM_ENDSTOP_STATES > 8), uint16_t, uint8_t>::type endstop_mask_t;
+    typedef bits_t(NUM_ENDSTOP_STATES) endstop_mask_t;
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static float x2_endstop_adj;

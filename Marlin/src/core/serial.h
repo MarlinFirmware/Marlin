@@ -125,8 +125,6 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL         SERIAL_LEAF_1
 #endif
 
-#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
-
 #define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()     _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P) SerialMask::from(P)
@@ -149,10 +147,8 @@ template <typename T>
 void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
 
 // Wrapper for ECHO commands to interpret a char
-typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
 inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
-#define AS_CHAR(C) serial_char_t(C)
-#define AS_DIGIT(C) AS_CHAR('0' + (C))
+#define AS_DIGIT(n) C('0' + (n))
 
 template <typename T>
 void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
