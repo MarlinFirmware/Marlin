@@ -429,7 +429,7 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
-    MPC_t constants;
+    MPC_t mpc;
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
@@ -614,10 +614,6 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
-    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controller_speed;
-    #endif
-
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
       static bool allow_cold_extrude_override;
       static void set_menu_cold_override(const bool allow) { allow_cold_extrude_override = allow; }
@@ -633,6 +629,8 @@ class Temperature {
       static bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
       static bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
     #else
+      static constexpr bool allow_cold_extrude = true;
+      static constexpr celsius_t extrude_min_temp = 0;
       static bool tooColdToExtrude(const uint8_t) { return false; }
       static bool targetTooColdToExtrude(const uint8_t) { return false; }
     #endif
@@ -677,7 +675,7 @@ class Temperature {
 
       // Convert the given heater_id_t to idle array index
       static IdleIndex idle_index_for_id(const int8_t heater_id) {
-        TERN_(HAS_HEATED_BED, if (heater_id == H_BED) return IDLE_INDEX_BED);
+        OPTCODE(HAS_HEATED_BED, if (heater_id == H_BED) return IDLE_INDEX_BED)
         return (IdleIndex)_MAX(heater_id, 0);
       }
 
@@ -1013,7 +1011,7 @@ class Temperature {
       }
 
       // Start watching the Bed to make sure it's really heating up
-      static void start_watching_bed() { TERN_(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())); }
+      static void start_watching_bed() { OPTCODE(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())) }
 
       static void setTargetBed(const celsius_t celsius) {
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
@@ -1063,7 +1061,7 @@ class Temperature {
         start_watching_chamber();
       }
       // Start watching the Chamber to make sure it's really heating up
-      static void start_watching_chamber() { TERN_(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())); }
+      static void start_watching_chamber() { OPTCODE(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())) }
     #endif
 
     #if HAS_TEMP_COOLER
@@ -1105,7 +1103,7 @@ class Temperature {
         start_watching_cooler();
       }
       // Start watching the Cooler to make sure it's really cooling down
-      static void start_watching_cooler() { TERN_(WATCH_COOLER, watch_cooler.restart(degCooler(), degTargetCooler())); }
+      static void start_watching_cooler() { OPTCODE(WATCH_COOLER, watch_cooler.restart(degCooler(), degTargetCooler())) }
     #endif
 
     /**
@@ -1134,6 +1132,12 @@ class Temperature {
       static void auto_job_check_timer(const bool can_start, const bool can_stop);
     #endif
 
+    #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+      static bool adaptive_fan_slowing;
+    #elif ENABLED(ADAPTIVE_FAN_SLOWING)
+      static constexpr bool adaptive_fan_slowing = true;
+    #endif
+
     /**
      * Perform auto-tuning for hotend or bed in response to M303
      */
@@ -1144,12 +1148,6 @@ class Temperature {
       #endif
 
       static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
-
-      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
-        static bool adaptive_fan_slowing;
-      #elif ENABLED(ADAPTIVE_FAN_SLOWING)
-        static constexpr bool adaptive_fan_slowing = true;
-      #endif
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
@@ -1225,14 +1223,15 @@ class Temperature {
 
     // MAX Thermocouples
     #if HAS_MAX_TC
-      #define MAX_TC_COUNT TEMP_SENSOR_IS_MAX_TC(0) + TEMP_SENSOR_IS_MAX_TC(1) + TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
+      #define MAX_TC_COUNT TEMP_SENSOR_IS_MAX_TC(0) + TEMP_SENSOR_IS_MAX_TC(1) + TEMP_SENSOR_IS_MAX_TC(2) + TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
-        #define READ_MAX_TC(N) read_max_tc(N)
-      #else
-        #define READ_MAX_TC(N) read_max_tc()
       #endif
+      #define READ_MAX_TC(N) read_max_tc(TERN_(HAS_MULTI_MAX_TC, N))
       static raw_adc_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+    #endif
+    #if TEMP_SENSOR_IS_MAX_TC(BED)
+      static raw_adc_t read_max_tc_bed();
     #endif
 
     #if HAS_AUTO_FAN
@@ -1276,9 +1275,9 @@ class Temperature {
 
       // Convert the given heater_id_t to runaway state array index
       static RunawayIndex runaway_index_for_id(const int8_t heater_id) {
-        TERN_(THERMAL_PROTECTION_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
-        TERN_(THERMAL_PROTECTION_COOLER,  if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
-        TERN_(THERMAL_PROTECTION_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
+        OPTCODE(THERMAL_PROTECTION_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER)
+        OPTCODE(THERMAL_PROTECTION_COOLER,  if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER)
+        OPTCODE(THERMAL_PROTECTION_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED)
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 

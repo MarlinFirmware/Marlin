@@ -136,7 +136,7 @@ uint8_t Max7219::suspended; // = 0;
 void Max7219::error(FSTR_P const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
     SERIAL_ECHOPGM("??? Max7219::");
-    SERIAL_ECHOF(func, AS_CHAR('('));
+    SERIAL_ECHOF(func, C('('));
     SERIAL_ECHO(v1);
     if (v2 > 0) SERIAL_ECHOPGM(", ", v2);
     SERIAL_CHAR(')');
@@ -471,7 +471,7 @@ void Max7219::register_setup() {
     constexpr millis_t pattern_delay = 4;
 
     int8_t spiralx, spiraly, spiral_dir;
-    IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type spiral_count;
+    uvalue_t(MAX7219_LEDS) spiral_count;
 
     void Max7219::test_pattern() {
       constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
@@ -707,7 +707,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_PLANNER_QUEUE
     static int16_t last_depth = 0;
-    const int16_t current_depth = (head - tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1) & 0xF;
+    const int16_t current_depth = BLOCK_MOD(head - tail + (BLOCK_BUFFER_SIZE)) & 0xF;
     if (current_depth != last_depth) {
       quantity16(MAX7219_DEBUG_PLANNER_QUEUE, last_depth, current_depth, &row_change_mask);
       last_depth = current_depth;

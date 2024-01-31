@@ -25,7 +25,6 @@
 #if ENABLED(DIRECT_PIN_CONTROL)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
 
 #if HAS_FAN
   #include "../../module/temperature.h"
@@ -37,6 +36,8 @@
   #define INPUT_ANALOG INPUT_ANALOG
   #define OUTPUT_OPEN_DRAIN OUTPUT_OPEN_DRAIN
 #endif
+
+bool pin_is_protected(const pin_t pin);
 
 void protected_pin_err() {
   SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
@@ -53,6 +54,7 @@ void protected_pin_err() {
  *  I       Flag to ignore Marlin's pin protection
  *
  *  T<mode> Pin mode: 0=INPUT  1=OUTPUT  2=INPUT_PULLUP  3=INPUT_PULLDOWN
+ *                    4=INPUT_ANALOG  5=OUTPUT_OPEN_DRAIN
  */
 void GcodeSuite::M42() {
   const int pin_index = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));

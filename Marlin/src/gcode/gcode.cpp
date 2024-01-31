@@ -81,7 +81,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+relative_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.e << REL_E),
   | (ar_init.x << REL_X),
   | (ar_init.y << REL_Y),
@@ -581,7 +581,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
-      #if HAS_EXTRUDERS
+      #if HAS_HOTEND
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -934,7 +934,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
-      #if HAS_SHAPING
+      #if HAS_ZV_SHAPING
         case 593: M593(); break;                                  // M593: Set Input Shaping parameters
       #endif
 
@@ -1058,7 +1058,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
-      #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+      #if SPI_FLASH_BACKUP
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif
@@ -1121,7 +1121,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
   if (!no_ok) queue.ok_to_send();
 
-  SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
+  SERIAL_IMPL.msgDone(); // Call the msgDone serial hook to signal command processing done
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)

@@ -229,9 +229,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Move all carriages together linearly until an endstop is hit.
     //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
 
-    current_position.x = 0 ;
-    current_position.y = 0 ;
-    current_position.z = max_length(Z_AXIS) ;
+    current_position.set(0, 0, max_length(Z_AXIS));
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
 

@@ -263,8 +263,12 @@
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
 #define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
 #define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define MUL_TERN1(O,A)      _TERN(_ENA_1(O),,* (A)) // OPTION ? '* (A)' : '<nul>'
+#define DIV_TERN1(O,A)      _TERN(_ENA_1(O),,/ (A)) // OPTION ? '/ (A)' : '<nul>'
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
+#define MUL_TERN(O,B,A)     ((B) MUL_TERN1(O,A))    // ((B) (OPTION ? '* (A)' : '<nul>'))
+#define DIV_TERN(O,B,A)     ((B) DIV_TERN1(O,A))    // ((B) (OPTION ? '/ (A)' : '<nul>'))
 
 #define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
@@ -434,6 +438,8 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class N> static constexpr N _MIN(const N val) { return val; }
+      template <class N> static constexpr N _MAX(const N val) { return val; }
       template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
@@ -453,9 +459,9 @@
     FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+    FORCE_INLINE T & operator&=(T &x, T y) { x = x & y; return x; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { x = x | y; return x; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { x = x ^ y; return x; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
@@ -467,6 +473,39 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // remove const/volatile type qualifiers
+    template<typename T> struct remove_const { typedef T type; };
+    template<typename T> struct remove_const<T const> { typedef T type; };
+
+    template<typename T> struct remove_volatile { typedef T type; };
+    template<typename T> struct remove_volatile<T volatile> { typedef T type; };
+
+    template<typename T> struct remove_cv { typedef typename remove_const<typename remove_volatile<T>::type>::type type; };
+
+    // test if type is integral
+    template<typename>  struct _is_integral { enum { value = false }; };
+    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
+    template<>          struct _is_integral<char> { enum { value = true }; };
+    template<>          struct _is_integral<short> { enum { value = true }; };
+    template<>          struct _is_integral<int> { enum { value = true }; };
+    template<>          struct _is_integral<long> { enum { value = true }; };
+    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
+  }
+
+  // enum type check and regression to its underlying integral.
+  namespace Private {
+    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+
+    template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
+    template<typename T>                            struct _underlying_type<T, false> { };
+
+    template<typename T> struct underlying_type : public _underlying_type<T> { };
   }
 
   // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
@@ -725,6 +764,19 @@
 #define RREPEAT_1(N,OP)         RREPEAT_S(1,INCREMENT(N),OP)
 #define RREPEAT2_S(S,N,OP,V...) EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)     RREPEAT2_S(0,N,OP,V)
+
+// Emit a list of N OP(I) items with ascending counter.
+#define _REPLIST(_RPT_I,_RPT_N,_RPT_OP)                          \
+  _RPT_OP(_RPT_I)                                                \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( , DEFER2(__REPLIST)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPLIST() _REPLIST
+
+// Repeat a macro, comma-separated, passing S...N-1.
+#define REPLIST_S(S,N,OP)       EVAL(_REPLIST(S,SUB##S(N),OP))
+#define REPLIST(N,OP)           REPLIST_S(0,N,OP)
+#define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
 
 // Call OP(A) with each item as an argument
 #define _MAP(_MAP_OP,A,V...)       \

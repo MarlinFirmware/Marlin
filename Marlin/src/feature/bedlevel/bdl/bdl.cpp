@@ -110,7 +110,7 @@ void BDS_Leveling::process() {
         }
         else {
           babystep.set_mm(Z_AXIS, 0);          //if (old_cur_z <= cur_z) Z_DIR_WRITE(!INVERT_Z_DIR);
-          stepper.set_directions();
+          stepper.apply_directions();
         }
       #endif
       old_cur_z = cur_z;
@@ -119,7 +119,7 @@ void BDS_Leveling::process() {
       //endstops.update();
     }
     else
-      stepper.set_directions();
+      stepper.apply_directions();
 
     #if ENABLED(DEBUG_OUT_BD)
       SERIAL_ECHOLNPGM("BD:", tmp & 0x3FF, ", Z:", cur_z, "|", current_position.z);
@@ -150,7 +150,7 @@ void BDS_Leveling::process() {
       if (config_state == -6) {
         //BD_I2C_SENSOR.BD_i2c_write(1019); // begin calibrate
         //delay(1000);
-        gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
+        TERN_(HAS_DISABLE_IDLE_AXES, gcode.stepper_inactive_time = SEC_TO_MS(60 * 5));
         gcode.process_subcommands_now(F("M17 Z"));
         gcode.process_subcommands_now(F("G1 Z0.0"));
         z_pose = 0;

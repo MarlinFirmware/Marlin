@@ -106,11 +106,11 @@ public:
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    int abl_points;
+    grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-    static constexpr int abl_points = 3;
+    static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr int abl_points = GRID_MAX_POINTS;
+    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
   #if ABL_USES_GRID
@@ -136,8 +136,8 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-      float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
-            eqnBVector[GRID_MAX_POINTS],       // "B" vector of Z points
+      float eqnAMatrix[GRID_MAX_POINTS * 3],  // "A" matrix of the linear system of equations
+            eqnBVector[GRID_MAX_POINTS],      // "B" vector of Z points
             mean;
     #endif
   #endif
@@ -145,7 +145,7 @@ public:
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
   constexpr xy_uint8_t G29_State::grid_points;
-  constexpr int G29_State::abl_points;
+  constexpr grid_count_t G29_State::abl_points;
 #endif
 
 /**
@@ -502,20 +502,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      if (!abl.dryrun
-        && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)
-      ) {
-        // Reset grid to 0.0 or "not probed". (Also disables ABL)
-        reset_bed_level();
-
-        // Can't re-enable (on error) until the new grid is written
-        abl.reenable = false;
+      if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
+        reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
+        abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
-
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
-
-    #endif // AUTO_BED_LEVELING_BILINEAR
+    #endif
 
   } // !g29_in_progress
 
@@ -692,7 +685,7 @@ G29_TYPE GcodeSuite::G29() {
         zig ^= true; // zag
 
         // An index to print current state
-        uint8_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
+        grid_count_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
 
         // Inner loop is Y with PROBE_Y_FIRST enabled
         // Inner loop is X with PROBE_Y_FIRST disabled

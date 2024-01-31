@@ -48,17 +48,19 @@ inline stepper_flags_t selected_axis_bits() {
         selected.bits = e_axis_mask;
     }
   #endif
-  selected.bits |= NUM_AXIS_GANG(
-      (parser.seen_test('X')        << X_AXIS),
-    | (parser.seen_test('Y')        << Y_AXIS),
-    | (parser.seen_test('Z')        << Z_AXIS),
-    | (parser.seen_test(AXIS4_NAME) << I_AXIS),
-    | (parser.seen_test(AXIS5_NAME) << J_AXIS),
-    | (parser.seen_test(AXIS6_NAME) << K_AXIS),
-    | (parser.seen_test(AXIS7_NAME) << U_AXIS),
-    | (parser.seen_test(AXIS8_NAME) << V_AXIS),
-    | (parser.seen_test(AXIS9_NAME) << W_AXIS)
-  );
+  #if NUM_AXES
+    selected.bits |= NUM_AXIS_GANG(
+        (parser.seen_test('X')        << X_AXIS),
+      | (parser.seen_test('Y')        << Y_AXIS),
+      | (parser.seen_test('Z')        << Z_AXIS),
+      | (parser.seen_test(AXIS4_NAME) << I_AXIS),
+      | (parser.seen_test(AXIS5_NAME) << J_AXIS),
+      | (parser.seen_test(AXIS6_NAME) << K_AXIS),
+      | (parser.seen_test(AXIS7_NAME) << U_AXIS),
+      | (parser.seen_test(AXIS8_NAME) << V_AXIS),
+      | (parser.seen_test(AXIS9_NAME) << W_AXIS)
+    );
+  #endif
   return selected;
 }
 

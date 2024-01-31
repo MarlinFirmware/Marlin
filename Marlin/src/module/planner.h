@@ -286,7 +286,19 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-#define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+constexpr uint8_t block_dec_mod(const uint8_t v1, const uint8_t v2) {
+  return v1 >= v2 ? v1 - v2 : v1 - v2 + BLOCK_BUFFER_SIZE;
+}
+
+constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
+  return v1 + v2 < BLOCK_BUFFER_SIZE ? v1 + v2 : v1 + v2 - BLOCK_BUFFER_SIZE;
+}
+
+#if IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
+  #define BLOCK_MOD(n) ((n)&((BLOCK_BUFFER_SIZE)-1))
+#else
+  #define BLOCK_MOD(n) ((n)%(BLOCK_BUFFER_SIZE))
+#endif
 
 #if ENABLED(LASER_FEATURE)
   typedef struct {
@@ -346,7 +358,7 @@ typedef struct {
 } skew_factor_t;
 
 #if ENABLED(DISABLE_OTHER_EXTRUDERS)
-  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+  typedef uvalue_t((BLOCK_BUFFER_SIZE) * 2) last_move_t;
 #endif
 
 #if ENABLED(ARC_SUPPORT)
@@ -474,7 +486,9 @@ class Planner {
       static xyze_pos_t position_cart;
     #endif
 
-    static skew_factor_t skew_factor;
+    #if ENABLED(SKEW_CORRECTION)
+      static skew_factor_t skew_factor;
+    #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
@@ -736,10 +750,10 @@ class Planner {
     #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
-    FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail); }
+    FORCE_INLINE static uint8_t movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_tail); }
 
     // Number of nonbusy moves currently in the planner
-    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_nonbusy); }
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
     FORCE_INLINE static void clear_block_buffer() { block_buffer_nonbusy = block_buffer_planned = block_buffer_head = block_buffer_tail = 0; }
@@ -748,7 +762,7 @@ class Planner {
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Get count of movement slots free
-    FORCE_INLINE static uint8_t moves_free() { return BLOCK_BUFFER_SIZE - 1 - movesplanned(); }
+    FORCE_INLINE static uint8_t moves_free() { return (BLOCK_BUFFER_SIZE) - 1 - movesplanned(); }
 
     /**
      * Planner::get_next_free_block
@@ -999,8 +1013,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr uint8_t next_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order
