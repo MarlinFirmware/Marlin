@@ -401,18 +401,18 @@
   //#define PS_OFF_SOUND            // Beep 1s when power off
   #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
 
-  //#define PSU_DEFAULT_OFF               // Keep power off until enabled directly with M80
-  //#define PSU_POWERUP_DELAY      250    // (ms) Delay for the PSU to warm up to full power
-  //#define LED_POWEROFF_TIMEOUT 10000    // (ms) Turn off LEDs after power-off, with this amount of delay
+  //#define PSU_DEFAULT_OFF             // Keep power off until enabled directly with M80
+  //#define PSU_POWERUP_DELAY      250  // (ms) Delay for the PSU to warm up to full power
+  //#define LED_POWEROFF_TIMEOUT 10000  // (ms) Turn off LEDs after power-off, with this amount of delay
 
-  //#define PSU_OFF_REDUNDANT             // Second pin for redundant power control
-  //#define PSU_OFF_REDUNDANT_OPPOSING    // Redundant pin works opposite standard pin
+  //#define PSU_OFF_REDUNDANT           // Second pin for redundant power control
+  //#define PSU_OFF_REDUNDANT_INVERTED  // Redundant pin works opposite standard pin
 
-  //#define PS_ON1_PIN                  6  // Redundant Pin
+  //#define PS_ON1_PIN               6  // Redundant pin required to enable power in combination with PS_ON_PIN
 
-  //#define PS_ON_EDM_PIN             8    // EDM Pins to monitor feedback on external power control relay. Fault on mismatch.
-  //#define PS_ON1_EDM_PIN            9
-  #define PS_EDM_RESPONSE       250     // Time in MS to allow for relay action
+  //#define PS_ON_EDM_PIN            8  // EDM Pins to monitor feedback on external power control relay. Fault on mismatch.
+  //#define PS_ON1_EDM_PIN           9
+  #define PS_EDM_RESPONSE          250  // (ms) Time to allow for relay action
 
   //#define POWER_OFF_TIMER               // Enable M81 D<seconds> to power off after a delay
   //#define POWER_OFF_WAIT_FOR_COOLDOWN   // Enable M81 S to power off only after cooldown

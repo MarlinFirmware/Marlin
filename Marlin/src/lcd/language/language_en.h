@@ -155,8 +155,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_SPINDLE_REVERSE                = _UxGT("Spindle Reverse");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Switch Power On");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Switch Power Off");
-  LSTR PS_ON_EDM_FAIL                     = _UxGT("PS_ON EDM Fault");
-  LSTR PS_ON1_EDM_FAIL                    = _UxGT("PS_ON1 EDM Fault");
+  LSTR MSG_POWER_EDM_FAULT                = _UxGT("Power EDM Fault");
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Move Axis");

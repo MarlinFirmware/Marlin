@@ -25,7 +25,7 @@
  * power.h - power control
  */
 
-#if ANY(AUTO_POWER_CONTROL, POWER_OFF_TIMER) || defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+#if ANY(AUTO_POWER_CONTROL, POWER_OFF_TIMER) || PIN_EXISTS(PS_ON_EDM)
   #include "../core/millis_t.h"
 #endif
 
@@ -37,7 +37,7 @@ class Power {
     static void power_on();
     static void power_off();
 
-    #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+    #if PIN_EXISTS(PS_ON_EDM)
       static millis_t last_state_change_ms;
     #endif
 

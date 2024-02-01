@@ -60,7 +60,7 @@ bool Power::psu_on;
   millis_t Power::lastPowerOn;
 #endif
 
-#if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+#if PIN_EXISTS(PS_ON_EDM)
   millis_t Power::last_state_change_ms = 0;
 #endif
 
@@ -92,13 +92,9 @@ void Power::power_on() {
 
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
   #if ENABLED(PSU_OFF_REDUNDANT)
-    #if (ENABLED(PSU_OFF_REDUNDANT_OPPOSING))
-      OUT_WRITE(PS_ON1_PIN, !PSU_ACTIVE_STATE);
-    #else
-      OUT_WRITE(PS_ON1_PIN, PSU_ACTIVE_STATE);
-    #endif
+    OUT_WRITE(PS_ON1_PIN, TERN_(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+  #if PIN_EXISTS(PS_ON_EDM)
     last_state_change_ms = millis();
   #endif
   psu_on = true;
@@ -132,13 +128,9 @@ void Power::power_off() {
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
   #if ENABLED(PSU_OFF_REDUNDANT)
-    #if (ENABLED(PSU_OFF_REDUNDANT_OPPOSING))
-      OUT_WRITE(PS_ON1_PIN, PSU_ACTIVE_STATE);
-    #else
-      OUT_WRITE(PS_ON1_PIN, !PSU_ACTIVE_STATE);
-    #endif
+    OUT_WRITE(PS_ON1_PIN, IF_DISABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  #if defined(PS_ON_EDM_PIN) || (defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT))
+  #if PIN_EXISTS(PS_ON_EDM)
     last_state_change_ms = millis();
   #endif
 

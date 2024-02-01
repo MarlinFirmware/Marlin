@@ -671,23 +671,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
-  #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL)
-    #if defined(PS_ON_EDM_PIN)
-      if(ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE))
-      {
-        if(READ(PS_ON_PIN)!=READ(PS_ON_EDM_PIN))
-          kill(GET_TEXT_F(PS_ON_EDM_FAIL));
-      }
-    #endif
-
-    #if defined(PS_ON_EDM_PIN) && ENABLED(PSU_OFF_REDUNDANT)
-      if(ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE))
-      {
-        if(extDigitalRead(PS_ON1_PIN)!=extDigitalRead(PS_ON1_EDM_PIN))
-          kill(GET_TEXT_F(PS_ON1_EDM_FAIL));
-      }
-
-    #endif
+  #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL) && PIN_EXISTS(PS_ON_EDM)
+    if ( ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE)
+      && (READ(PS_ON_PIN) != READ(PS_ON_EDM_PIN) || TERN0(PSU_OFF_REDUNDANT, extDigitalRead(PS_ON1_PIN) != extDigitalRead(PS_ON1_EDM_PIN)))
+    ) kill(GET_TEXT_F(MSG_POWER_EDM_FAULT));
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
