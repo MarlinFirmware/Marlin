@@ -772,7 +772,7 @@ void unified_bed_leveling::shift_mesh_height() {
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
-      TERN_(DWIN_LCD_PROUI, dwinRedrawScreen());
+      TERN_(DWIN_LCD_PROUI, if (!hmiFlag.cancel_lev) { dwinRedrawScreen(); } else { break; })
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -803,11 +803,13 @@ void unified_bed_leveling::shift_mesh_height() {
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
         #endif
-        TERN_(DWIN_LCD_PROUI, if (!hmiFlag.cancel_lev) meshViewer.drawMeshPoint(best.pos.x, best.pos.y, measured_z); )
+        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(best.pos.x, best.pos.y, measured_z));
       }
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
     } while (best.pos.x >= 0 && --count);
+
+    TERN_(DWIN_LCD_PROUI, if (hmiFlag.cancel_lev) { goto EXIT_PROBE_MESH; })
 
     GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
@@ -828,7 +830,7 @@ void unified_bed_leveling::shift_mesh_height() {
     );
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
+    TERN_(DWIN_LCD_PROUI, EXIT_PROBE_MESH: dwinLevelingDone());
   }
 
 #endif // HAS_BED_PROBE
