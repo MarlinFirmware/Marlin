@@ -1500,8 +1500,6 @@ void dwinHomingDone() {
 #if HAS_LEVELING
   void dwinLevelingStart() {
     #if HAS_BED_PROBE
-      homeZ(); // Home Z for accurate reading
-      queue.inject(F("G28XY")); // Go to 0,0 to start
       hmiSaveProcessID(ID_Leveling);
       title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
       dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
@@ -2107,10 +2105,6 @@ void gotoInfoMenu() {
 
 void disableMotors() { queue.inject(F("M84")); }
 
-void autoLevel() {   // Always reacquire the Z "home" position
-  queue.inject(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1", "G29")));
-}
-
 void autoHome() { queue.inject_P(G28_STR); }
 
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
@@ -2304,6 +2298,11 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
     void setHSMode() { toggleCheckboxLine(bltouch.high_speed_mode); }
   #endif
 
+  void autoLevel() {
+    homeZ(); // Always reacquire the Z "home" position for an accurate reading
+    queue.inject(F("G28XY")); // Go to 0,0 to start
+    queue.inject(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1", "G29")));
+  }
 #endif
 
 #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)

@@ -214,11 +214,14 @@ uint32_t getHash(char * str);
     void saveMesh();
   #endif
 #endif
+#if HAS_BED_PROBE
+  void autoLevel();
+#else
+  void homeZAndDisable();
+#endif
 void rebootPrinter();
 void disableMotors();
-void autoLevel();
 void autoHome();
-void homeZ();
 #if HAS_PREHEAT
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
@@ -248,9 +251,6 @@ void doCoolDown();
   void ublMeshTilt();
   void ublMeshSave();
   void ublMeshLoad();
-#endif
-#if DISABLED(HAS_BED_PROBE)
-  void homeZAndDisable();
 #endif
 
 // Other
