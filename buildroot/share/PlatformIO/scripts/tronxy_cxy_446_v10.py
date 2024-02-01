@@ -11,11 +11,6 @@ if pioutil.is_pio_build():
 
     env = DefaultEnvironment()
 
-    # Already handled by offset_and_rename.py
-    #board = env.BoardConfig()
-    #if 'offset' in board.get("build").keys():
-    #    marlin.relocate_vtab(board.get('build.offset'))
-
     # Check whether the "update" folder exists
     outpath = "update"
     if not os.path.exists(outpath): os.makedirs(outpath)
