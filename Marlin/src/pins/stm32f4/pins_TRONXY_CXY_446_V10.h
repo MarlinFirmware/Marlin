@@ -162,8 +162,9 @@
 //
 #define SPINDLE_LASER_ENA_PIN               PB11  // WiFi Module TXD (Pin5)
 #define SPINDLE_LASER_PWM_PIN               PB10  // WiFi Module RXD (Pin4)
+
 //
-// NOTE: The PWM pin definition const PinMap PinMap_PWM[] in PeripheralPins.c must be compounded here.
+// NOTE: The PWM pin definition const PinMap PinMap_PWM[] in PeripheralPins.c must be augmented here.
 // See PWM_PIN(x) definition for details.
 //
 
