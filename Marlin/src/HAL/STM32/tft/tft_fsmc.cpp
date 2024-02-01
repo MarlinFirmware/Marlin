@@ -37,69 +37,45 @@ LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 
 void TFT_FSMC::init() {
   uint32_t controllerAddress;
-  #ifdef STM32F446xx
-    FMC_NORSRAM_TimingTypeDef timing, extTiming;
-  #else
-    FSMC_NORSRAM_TimingTypeDef timing, extTiming;
-  #endif
+  FMC_OR_FSMC(NORSRAM_TimingTypeDef) timing, extTiming;
 
   uint32_t nsBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), pinMap_FSMC_CS);
 
   // Perform the SRAM1 memory initialization sequence
-  #ifdef STM32F446xx
-    SRAMx.Instance = FMC_NORSRAM_DEVICE;
-    SRAMx.Extended = FMC_NORSRAM_EXTENDED_DEVICE;
-  #else
-    SRAMx.Instance = FSMC_NORSRAM_DEVICE;
-    SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-  #endif
+  SRAMx.Instance = FMC_OR_FSMC(NORSRAM_DEVICE);
+  SRAMx.Extended = FMC_OR_FSMC(NORSRAM_EXTENDED_DEVICE);
+
   // SRAMx.Init
   SRAMx.Init.NSBank = nsBank;
+  SRAMx.Init.DataAddressMux     = FMC_OR_FSMC(DATA_ADDRESS_MUX_DISABLE);
+  SRAMx.Init.MemoryType         = FMC_OR_FSMC(MEMORY_TYPE_SRAM);
   #ifdef STM32F446xx
-    SRAMx.Init.DataAddressMux     = FMC_DATA_ADDRESS_MUX_DISABLE;
-    SRAMx.Init.MemoryType         = FMC_MEMORY_TYPE_SRAM;
-    SRAMx.Init.MemoryDataWidth    = TERN(TFT_INTERFACE_FMC_8BIT, FMC_NORSRAM_MEM_BUS_WIDTH_8, FMC_NORSRAM_MEM_BUS_WIDTH_16);
-    SRAMx.Init.BurstAccessMode    = FMC_BURST_ACCESS_MODE_DISABLE;
-    SRAMx.Init.WaitSignalPolarity = FMC_WAIT_SIGNAL_POLARITY_LOW;
-    SRAMx.Init.WrapMode           = FMC_WRAP_MODE_DISABLE;
-    SRAMx.Init.WaitSignalActive   = FMC_WAIT_TIMING_BEFORE_WS;
-    SRAMx.Init.WriteOperation     = FMC_WRITE_OPERATION_ENABLE;
-    SRAMx.Init.WaitSignal         = FMC_WAIT_SIGNAL_DISABLE;
-    SRAMx.Init.ExtendedMode       = FMC_EXTENDED_MODE_ENABLE;
-    SRAMx.Init.AsynchronousWait   = FMC_ASYNCHRONOUS_WAIT_DISABLE;
-    SRAMx.Init.WriteBurst         = FMC_WRITE_BURST_DISABLE;
-    SRAMx.Init.PageSize           = FMC_PAGE_SIZE_NONE;
+    SRAMx.Init.MemoryDataWidth  = TERN(TFT_INTERFACE_FMC_8BIT, FMC_NORSRAM_MEM_BUS_WIDTH_8, FMC_NORSRAM_MEM_BUS_WIDTH_16);
   #else
-    SRAMx.Init.DataAddressMux     = FSMC_DATA_ADDRESS_MUX_DISABLE;
-    SRAMx.Init.MemoryType         = FSMC_MEMORY_TYPE_SRAM;
-    SRAMx.Init.MemoryDataWidth    = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
-    SRAMx.Init.BurstAccessMode    = FSMC_BURST_ACCESS_MODE_DISABLE;
-    SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
-    SRAMx.Init.WrapMode           = FSMC_WRAP_MODE_DISABLE;
-    SRAMx.Init.WaitSignalActive   = FSMC_WAIT_TIMING_BEFORE_WS;
-    SRAMx.Init.WriteOperation     = FSMC_WRITE_OPERATION_ENABLE;
-    SRAMx.Init.WaitSignal         = FSMC_WAIT_SIGNAL_DISABLE;
-    SRAMx.Init.ExtendedMode       = FSMC_EXTENDED_MODE_ENABLE;
-    SRAMx.Init.AsynchronousWait   = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
-    SRAMx.Init.WriteBurst         = FSMC_WRITE_BURST_DISABLE;
-    #ifdef STM32F4xx
-      SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
-    #endif
+    SRAMx.Init.MemoryDataWidth  = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
+  #endif
+  SRAMx.Init.BurstAccessMode    = FMC_OR_FSMC(BURST_ACCESS_MODE_DISABLE);
+  SRAMx.Init.WaitSignalPolarity = FMC_OR_FSMC(WAIT_SIGNAL_POLARITY_LOW);
+  SRAMx.Init.WrapMode           = FMC_OR_FSMC(WRAP_MODE_DISABLE);
+  SRAMx.Init.WaitSignalActive   = FMC_OR_FSMC(WAIT_TIMING_BEFORE_WS);
+  SRAMx.Init.WriteOperation     = FMC_OR_FSMC(WRITE_OPERATION_ENABLE);
+  SRAMx.Init.WaitSignal         = FMC_OR_FSMC(WAIT_SIGNAL_DISABLE);
+  SRAMx.Init.ExtendedMode       = FMC_OR_FSMC(EXTENDED_MODE_ENABLE);
+  SRAMx.Init.AsynchronousWait   = FMC_OR_FSMC(ASYNCHRONOUS_WAIT_DISABLE);
+  SRAMx.Init.WriteBurst         = FMC_OR_FSMC(WRITE_BURST_DISABLE);
+  #if defined(STM32F446xx) || defined(STM32F4xx)
+    SRAMx.Init.PageSize         = FMC_OR_FSMC(PAGE_SIZE_NONE);
   #endif
 
   // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
   // Can be decreased from 15-15-24 to 4-4-8 with risk of stability loss
-  timing.AddressSetupTime      = 15;
-  timing.AddressHoldTime       = 15;
-  timing.DataSetupTime         = 24;
-  timing.BusTurnAroundDuration =  0;
-  timing.CLKDivision           = 16;
-  timing.DataLatency           = 17;
-  #ifdef STM32F446xx
-    timing.AccessMode = FMC_ACCESS_MODE_A;
-  #else
-    timing.AccessMode = FSMC_ACCESS_MODE_A;
-  #endif
+  timing.AddressSetupTime         = 15;
+  timing.AddressHoldTime          = 15;
+  timing.DataSetupTime            = 24;
+  timing.BusTurnAroundDuration    =  0;
+  timing.CLKDivision              = 16;
+  timing.DataLatency              = 17;
+  timing.AccessMode               = FMC_OR_FSMC(ACCESS_MODE_A);
 
   // Write Timing
   // Can be decreased from 8-15-8 to 0-0-1 with risk of stability loss
@@ -109,11 +85,11 @@ void TFT_FSMC::init() {
   extTiming.BusTurnAroundDuration =  0;
   extTiming.CLKDivision           = 16;
   extTiming.DataLatency           = 17;
+  extTiming.AccessMode            = FMC_OR_FSMC(ACCESS_MODE_A);
+
   #ifdef STM32F446xx
-    extTiming.AccessMode = FMC_ACCESS_MODE_A;
     __HAL_RCC_FMC_CLK_ENABLE();
   #else
-    extTiming.AccessMode = FSMC_ACCESS_MODE_A;
     __HAL_RCC_FSMC_CLK_ENABLE();
   #endif
 
@@ -125,15 +101,9 @@ void TFT_FSMC::init() {
   controllerAddress = FSMC_BANK1_1;
   #ifdef PF0
     switch (nsBank) {
-      #ifdef STM32F446xx
-        case FMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2; break;
-        case FMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3; break;
-        case FMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4; break;
-      #else
-        case FSMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2; break;
-        case FSMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3; break;
-        case FSMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4; break;
-      #endif
+      case FMC_OR_FSMC(NORSRAM_BANK2): controllerAddress = FSMC_BANK1_2; break;
+      case FMC_OR_FSMC(NORSRAM_BANK3): controllerAddress = FSMC_BANK1_3; break;
+      case FMC_OR_FSMC(NORSRAM_BANK4): controllerAddress = FSMC_BANK1_4; break;
     }
   #endif
 
@@ -144,22 +114,22 @@ void TFT_FSMC::init() {
   __HAL_RCC_DMA2_CLK_ENABLE();
 
   #ifdef STM32F1xx
-    DMAtx.Instance = DMA2_Channel1;
+    DMAtx.Instance                = DMA2_Channel1;
   #elif defined(STM32F4xx)
-    DMAtx.Instance           = DMA2_Stream0;
-    DMAtx.Init.Channel       = DMA_CHANNEL_0;
-    DMAtx.Init.FIFOMode      = DMA_FIFOMODE_ENABLE;
-    DMAtx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    DMAtx.Init.MemBurst      = DMA_MBURST_SINGLE;
-    DMAtx.Init.PeriphBurst   = DMA_PBURST_SINGLE;
+    DMAtx.Instance                = DMA2_Stream0;
+    DMAtx.Init.Channel            = DMA_CHANNEL_0;
+    DMAtx.Init.FIFOMode           = DMA_FIFOMODE_ENABLE;
+    DMAtx.Init.FIFOThreshold      = DMA_FIFO_THRESHOLD_FULL;
+    DMAtx.Init.MemBurst           = DMA_MBURST_SINGLE;
+    DMAtx.Init.PeriphBurst        = DMA_PBURST_SINGLE;
   #endif
 
-  DMAtx.Init.Direction           = DMA_MEMORY_TO_MEMORY;
-  DMAtx.Init.MemInc              = DMA_MINC_DISABLE;
-  DMAtx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-  DMAtx.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
-  DMAtx.Init.Mode                = DMA_NORMAL;
-  DMAtx.Init.Priority            = DMA_PRIORITY_HIGH;
+  DMAtx.Init.Direction            = DMA_MEMORY_TO_MEMORY;
+  DMAtx.Init.MemInc               = DMA_MINC_DISABLE;
+  DMAtx.Init.PeriphDataAlignment  = DMA_PDATAALIGN_HALFWORD;
+  DMAtx.Init.MemDataAlignment     = DMA_MDATAALIGN_HALFWORD;
+  DMAtx.Init.Mode                 = DMA_NORMAL;
+  DMAtx.Init.Priority             = DMA_PRIORITY_HIGH;
 
   LCD = (LCD_CONTROLLER_TypeDef *)controllerAddress;
 }
@@ -178,7 +148,7 @@ uint32_t TFT_FSMC::readID(tft_data_t inReg) {
   id = inReg << 24;
   id |= (LCD->RAM & 0x00FF) << 16;
   id |= (LCD->RAM & 0x00FF) << 8;
-  id |= LCD->RAM & 0x00FF;
+  id |= (LCD->RAM & 0x00FF);
   return id;
 }
 
@@ -191,7 +161,9 @@ bool TFT_FSMC::isBusy() {
     #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->PAR != 0)
   #endif
 
-  if (!__IS_DMA_CONFIGURED(&DMAtx)) return false;
+  #ifdef __IS_DMA_CONFIGURED
+    if (!__IS_DMA_CONFIGURED(&DMAtx)) return false;
+  #endif
 
   // Check if DMA transfer error or transfer complete flags are set
   if ((__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) == 0) && (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) == 0)) return true;
