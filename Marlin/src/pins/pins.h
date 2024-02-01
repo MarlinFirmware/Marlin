@@ -956,6 +956,7 @@
   #define BOARD_LINUX_RAMPS             99926
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
+  #define BOARD_TRONXY_V10              99929
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1015,6 +1016,8 @@
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif MB(BTT_MANTA_M4P_V1_0)
     #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
+  #elif MB(BOARD_TRONXY_V10)
+    #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
@@ -1053,6 +1056,7 @@
   #undef BOARD_LINUX_RAMPS
   #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
+  #undef BOARD_TRONXY_V10
 
 #endif
 
