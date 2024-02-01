@@ -406,11 +406,11 @@
   //#define LED_POWEROFF_TIMEOUT 10000  // (ms) Turn off LEDs after power-off, with this amount of delay
 
   //#define PSU_OFF_REDUNDANT           // Second pin for redundant power control
-  //#define PSU_OFF_REDUNDANT_INVERTED  // Redundant pin works opposite standard pin
+  //#define PSU_OFF_REDUNDANT_INVERTED  // Redundant pin state is the inverse of PSU_ACTIVE_STATE
 
   //#define PS_ON1_PIN               6  // Redundant pin required to enable power in combination with PS_ON_PIN
 
-  //#define PS_ON_EDM_PIN            8  // EDM Pins to monitor feedback on external power control relay. Fault on mismatch.
+  //#define PS_ON_EDM_PIN            8  // External Device Monitoring pins for external power control relay feedback. Fault on mismatch.
   //#define PS_ON1_EDM_PIN           9
   #define PS_EDM_RESPONSE          250  // (ms) Time to allow for relay action
 
