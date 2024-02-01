@@ -110,21 +110,21 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
 
-  LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL; 					//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";				//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_END                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul"); 	//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_END_E                = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");  	//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tüm");	 	//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tabla");		//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Ayar"); 		//Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL;                   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";              // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul ~"); // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tüm");     // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tabla");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Ayar");    // Çalışma gerekli Hata
 
-  LSTR MSG_PREHEAT_M                      = _UxGT("ÖnIsıtma $");			//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_H                    = _UxGT("ÖnIsıtma $ ~"); 			//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_END                  = _UxGT("ÖnIsıtma $ Nozul"); 		//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_END_E                = _UxGT("ÖnIsıtma $ Nozul ~");	//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("ÖnIsıtma $ Tüm"); 		//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("ÖnIsıtma $ Tabla"); 		//Çalışma gerekli Hata
-  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("ÖnIsıtma $ Ayar"); 		//Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M                      = _UxGT("ÖnIsıtma $");         // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("ÖnIsıtma $ ~");       // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("ÖnIsıtma $ Nozul");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("ÖnIsıtma $ Nozul ~"); // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("ÖnIsıtma $ Tüm");     // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("ÖnIsıtma $ Tabla");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("ÖnIsıtma $ Ayar");    // Çalışma gerekli Hata
 
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Nozul Ön Isıtma");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isıtma");
@@ -238,7 +238,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Mesh Seviyesi");
   LSTR MSG_UBL_SIDE_POINTS                = _UxGT("Yan Noktalar");
   LSTR MSG_UBL_MAP_TYPE                   = _UxGT("Haritalama Türü");
-  LSTR MSG_UBL_OUTPUT_MAP                 = _UxGT("Mesh Çikis Haritası"); //Çalışma gerekli Hata
+  LSTR MSG_UBL_OUTPUT_MAP                 = _UxGT("Mesh Çikis Haritası"); // Çalışma gerekli Hata
   LSTR MSG_UBL_OUTPUT_MAP_HOST            = _UxGT("Host için Çıktı");
   LSTR MSG_UBL_OUTPUT_MAP_CSV             = _UxGT("CSV için Çıktı");
   LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Yedekleme Kapalı");
@@ -249,9 +249,9 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Mesh Dolgu");
   LSTR MSG_UBL_MESH_FILLED                = _UxGT("Eksikler Dolduruldu");
   LSTR MSG_UBL_MESH_INVALID               = _UxGT("Geçersiz Mesh");
-  LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Tumunu Gecersiz Kil"); //Çalışma gerekli Hata
-  LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Yakini Gecersiz Kil"); //Çalışma gerekli Hata
-  LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Tumunu İnce Ayarla"); //Çalışma gerekli Hata
+  LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Tumunu Gecersiz Kil"); // Çalışma gerekli Hata
+  LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Yakini Gecersiz Kil"); // Çalışma gerekli Hata
+  LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Tumunu İnce Ayarla");  // Çalışma gerekli Hata
   LSTR MSG_UBL_FINE_TUNE_CLOSEST          = _UxGT("Yakını İnce Ayarla");
   LSTR MSG_UBL_STORAGE_MESH_MENU          = _UxGT("Mesh Depolama");
   LSTR MSG_UBL_STORAGE_SLOT               = _UxGT("Bellek Yuvası");
@@ -269,10 +269,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("Adım Adım UBL");
   LSTR MSG_UBL_1_BUILD_COLD_MESH          = _UxGT("1.Soğuk Mesh Oluştur");
   LSTR MSG_UBL_2_SMART_FILLIN             = _UxGT("2.Akıllı Dolgu");
-  LSTR MSG_UBL_3_VALIDATE_MESH_MENU       = _UxGT("3.Mesh Dogrulama"); //Çalışma gerekli Hata
-  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Tumunu ince Ayarla"); //Çalışma gerekli Hata
-  LSTR MSG_UBL_5_VALIDATE_MESH_MENU       = _UxGT("5.Mesh Dogrulama"); //Çalışma gerekli Hata
-  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Tumunu ince Ayarla"); //Çalışma gerekli Hata
+  LSTR MSG_UBL_3_VALIDATE_MESH_MENU       = _UxGT("3.Mesh Dogrulama");      // Çalışma gerekli Hata
+  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Tumunu ince Ayarla");  // Çalışma gerekli Hata
+  LSTR MSG_UBL_5_VALIDATE_MESH_MENU       = _UxGT("5.Mesh Dogrulama");      // Çalışma gerekli Hata
+  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Tumunu ince Ayarla");  // Çalışma gerekli Hata
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Tabla Mesh Kaydet");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontrolü");
