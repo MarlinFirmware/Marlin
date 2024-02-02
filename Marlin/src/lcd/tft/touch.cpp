@@ -308,7 +308,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       next_touch_ms = millis() + 100;
       safe_delay(20);
     }
-    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
 #endif // HAS_TOUCH_SLEEP

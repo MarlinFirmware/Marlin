@@ -71,7 +71,6 @@ typedef struct __attribute__((__packed__)) {
 #define UBL_REPEAT_DELAY    125
 #define FREE_MOVE_RANGE     32
 
-#define TSLP_PREINIT  0
 #define TSLP_SLEEPING 1
 
 class Touch {

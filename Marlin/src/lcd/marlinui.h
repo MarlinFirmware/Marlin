@@ -286,7 +286,7 @@ public:
     #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
       static uint8_t sleep_timeout_minutes;
     #else
-      static constexpr uint8_t sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
+      static constexpr uint8_t sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
     #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
@@ -582,15 +582,11 @@ public:
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
-      #if HAS_TOUCH_SLEEP
-        static void wakeup_screen();
-      #endif
-
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
-        static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
+        static void completion_feedback(const bool=true) { wake_touch_screen(); }
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -632,6 +628,8 @@ public:
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
+
+  static void wake_touch_screen() IF_DISABLED(HAS_TOUCH_SLEEP, {});
 
   #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}

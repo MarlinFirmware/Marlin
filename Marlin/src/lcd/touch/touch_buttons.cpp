@@ -58,7 +58,9 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.init();
-  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
+  #if HAS_TOUCH_SLEEP
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+  #endif
 }
 
 uint8_t TouchButtons::read_buttons() {
@@ -73,7 +75,7 @@ uint8_t TouchButtons::read_buttons() {
       #if HAS_TOUCH_SLEEP
         if (is_touched)
           wakeUp();
-        else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        else if (next_sleep_ms && !isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
           sleepTimeout();
       #endif
 
@@ -147,7 +149,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
 #endif // HAS_TOUCH_SLEEP

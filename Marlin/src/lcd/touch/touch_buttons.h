@@ -53,7 +53,6 @@
 #define BUTTON_Y_HI (TFT_HEIGHT) - BUTTON_SPACING
 #define BUTTON_Y_LO BUTTON_Y_HI - BUTTON_HEIGHT
 
-#define TSLP_PREINIT  0
 #define TSLP_SLEEPING 1
 
 class TouchButtons {
