@@ -139,6 +139,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #if IS_RRD_SC

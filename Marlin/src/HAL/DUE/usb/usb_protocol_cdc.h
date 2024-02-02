@@ -168,7 +168,6 @@ COMPILER_PACK_SET(1)
 //! \name USB CDC Descriptors
 //@{
 
-
 //! CDC Header Functional Descriptor
 typedef struct {
   uint8_t bFunctionLength;
@@ -202,7 +201,6 @@ typedef struct {
   uint8_t bMasterInterface;
   uint8_t bSlaveInterface0;
 } usb_cdc_union_desc_t;
-
 
 //! \name USB CDC Call Management Capabilities
 //@{
@@ -277,7 +275,6 @@ typedef struct {
 #define  CDC_CTRL_SIGNAL_DTE_PRESENT         (1 << 0)
 //@}
 //@}
-
 
 //! \name USB CDC notification message
 //@{

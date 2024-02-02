@@ -125,7 +125,6 @@ enum BlockFlagBit {
   // Direct stepping page
   OPTARG(DIRECT_STEPPING, BLOCK_BIT_PAGE)
 
-
   // Sync the fan speeds from the block
   OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_BIT_SYNC_FANS)
 
@@ -340,10 +339,30 @@ constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
   } laser_state_t;
 #endif
 
-typedef struct {
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  static constexpr float _dasu[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+#endif
+
+typedef struct PlannerSettings {
    uint32_t max_acceleration_mm_per_s2[DISTINCT_AXES], // (mm/s^2) M201 XYZE
             min_segment_time_us;                // (µs) M205 B
-      float axis_steps_per_mm[DISTINCT_AXES];   // (steps) M92 XYZE - Steps per millimeter
+
+  // (steps) M92 XYZE - Steps per millimeter
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    float axis_steps_per_mm[DISTINCT_AXES];
+  #else
+    #define _DLIM(I) _MIN(I, (signed)COUNT(_dasu) - 1)
+    #define _DASU(N) _dasu[_DLIM(N)],
+    #define _EASU(N) _dasu[_DLIM(E_AXIS + N)],
+    static constexpr float axis_steps_per_mm[DISTINCT_AXES] = {
+      REPEAT(NUM_AXES, _DASU)
+      TERN_(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
+    };
+    #undef _EASU
+    #undef _DASU
+    #undef _DLIM
+  #endif
+
  feedRate_t max_feedrate_mm_s[DISTINCT_AXES];   // (mm/s) M203 XYZE - Max speeds
       float acceleration,                       // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
             retract_acceleration,               // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
@@ -434,7 +453,6 @@ class Planner {
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
     static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
 
-
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
@@ -450,15 +468,15 @@ class Planner {
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-                   volumetric_area_nominal,           // Nominal cross-sectional area
-                   volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+      static float filament_size[EXTRUDERS],          // (mm) Diameter of filament, typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                   volumetric_area_nominal,           // (mm^3) Nominal cross-sectional area
+                   volumetric_multiplier[EXTRUDERS];  // (1/mm^2) Reciprocal of cross-sectional area of filament. Pre-calculated to reduce computation in the planner
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      static float volumetric_extruder_limit[EXTRUDERS],          // Maximum mm^3/sec the extruder can handle
-                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // Feedrate limit (mm/s) calculated from volume limit
+      static float volumetric_extruder_limit[EXTRUDERS],          // (mm^3/sec) Maximum volume the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // (mm/s) Feedrate limit calculated from volume limit
     #endif
 
     static planner_settings_t settings;
@@ -468,7 +486,14 @@ class Planner {
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-    static float mm_per_step[DISTINCT_AXES];          // Millimeters per step
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      static float mm_per_step[DISTINCT_AXES];        // Millimeters per step
+    #else
+      #define _RSTEP(N) RECIPROCAL(settings.axis_steps_per_mm[N]),
+      static constexpr float mm_per_step[DISTINCT_AXES] = { REPEAT(DISTINCT_AXES, _RSTEP) };
+      #undef _RSTEP
+    #endif
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;             // (mm) M205 J

@@ -41,7 +41,7 @@
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE ((EEPROM_PAGE_SIZE) * 2)
 #endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;

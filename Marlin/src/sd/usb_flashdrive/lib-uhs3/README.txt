@@ -5,13 +5,11 @@ The lib-uhs3/ folder contains a subset of the files from the USB Host Shield
 
   https://github.com/felis/UHS30
 
-
 ==== LICENSE SUMMARY ====
 
 Source Path:              Repository:                    License:
 ------------              -----------                    --------
 usb_flashdrive/lib        github.com/felis/UHS30         GPLv2 or later
-
 
 ==== MARLIN INTEGRATION WORK ====
 

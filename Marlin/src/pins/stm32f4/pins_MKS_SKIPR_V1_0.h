@@ -102,6 +102,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PC14
@@ -250,7 +257,11 @@
 //
 #if HAS_MEDIA
   #ifndef SDCARD_CONNECTION
-    #define SDCARD_CONNECTION                LCD
+    #if ENABLED(NO_LCD_SDCARD)
+      #define SDCARD_CONNECTION          ONBOARD
+    #else
+      #define SDCARD_CONNECTION              LCD
+    #endif
   #endif
   #if SD_CONNECTION_IS(ONBOARD)
     //#define SOFTWARE_SPI
@@ -273,8 +284,9 @@
 #endif
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -348,8 +360,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PC5
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PC5
 #endif
 
 //

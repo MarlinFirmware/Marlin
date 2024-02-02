@@ -7,6 +7,7 @@
 set -e
 
 use_example_configs Opulo/Lumen_REV3
+opt_disable TMC_DEBUG
 exec_test $1 $2 "Opulo Lumen REV3 Pick-and-Place" "$3"
 
 # cleanup

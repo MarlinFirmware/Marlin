@@ -265,7 +265,6 @@ void drawBtn(const int x, const int y, const char *label, intptr_t data, const M
   TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
 
-
 //
 // lcdprint.h functions
 //

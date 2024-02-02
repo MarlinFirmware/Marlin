@@ -135,6 +135,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                     P1_26  // E0DET
@@ -289,9 +296,9 @@
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+  #if ENABLED(CTC_A10S_A13)
     #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+      #error "CAUTION! CTC_A10S_A13 requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
     #endif
 
     /**
@@ -300,7 +307,7 @@
      *
      * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
      *
-     * The ANET_FULL_GRAPHICS_LCD_ALT_WIRING connector plug:
+     * The CTC_A10S_A13 connector plug:
      *
      *                BEFORE                     AFTER
      *                ------                     ------
@@ -591,8 +598,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     P1_24
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN               P1_24
 #endif
 
 /**
