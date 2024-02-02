@@ -376,7 +376,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
       #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
 
-
       // Draw a heating progress bar, if specified
       #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
         uint8_t tall = 0;
