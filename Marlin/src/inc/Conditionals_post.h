@@ -412,6 +412,20 @@
 #ifdef GRID_MAX_POINTS_X
   #define GRID_MAX_CELLS_X (GRID_MAX_POINTS_X - 1)
   #define GRID_MAX_CELLS_Y (GRID_MAX_POINTS_Y - 1)
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #define GRID_POINTS_X grid_points_x
+    #define GRID_POINTS_Y grid_points_y
+
+    #define GRID_CELLS_X (GRID_POINTS_X - 1)
+    #define GRID_CELLS_Y (GRID_POINTS_Y - 1)
+
+    extern uint8_t grid_points_x;
+    extern uint8_t grid_points_y;
+  #else
+    #define GRID_POINTS_X GRID_MAX_POINTS_X
+    #define GRID_POINTS_Y GRID_MAX_POINTS_Y
+  #endif
 #endif
 
 /**

@@ -105,7 +105,7 @@ public:
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
+    static grid_count_t abl_points;
   #endif
 
   #if ABL_USES_GRID
@@ -121,7 +121,7 @@ public:
       bool                topography_map;
       xy_uint8_t          grid_points;
     #else // Bilinear
-      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      static xy_uint8_t grid_points;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -139,8 +139,12 @@ public:
 };
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  constexpr xy_uint8_t G29_State::grid_points;
-  constexpr grid_count_t G29_State::abl_points;
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    uint8_t grid_points_x = GRID_MAX_POINTS_X;
+    uint8_t grid_points_y = GRID_MAX_POINTS_Y;
+  #endif  
+  xy_uint8_t G29_State::grid_points  = { GRID_POINTS_X, GRID_POINTS_Y };
+  grid_count_t G29_State::abl_points = GRID_POINTS;
 #endif
 
 /**
@@ -207,6 +211,8 @@ public:
  *
  * Extra parameters with BILINEAR only:
  *
+ *  G  horizontal grid points number
+ *  M  vertical grid points number
  *  W  Write a mesh point. (If G29 is idle.)
  *  I  X index for mesh point
  *  J  Y index for mesh point
@@ -287,6 +293,21 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+      grid_points_x = parser.seenval('G') ? parser.value_byte() : GRID_MAX_POINTS_X;
+      grid_points_y = parser.seenval('M') ? parser.value_byte() : GRID_MAX_POINTS_Y;
+
+      if (!WITHIN(grid_points_x, 2, GRID_MAX_POINTS_X) || !WITHIN(grid_points_y, 2, GRID_MAX_POINTS_Y)) {
+        if (DEBUGGING(LEVELING)) {
+          DEBUG_ECHOLNPGM("G29 G", grid_points_x, " M", grid_points_y);
+        }
+        SERIAL_ERROR_MSG("G, M are not in range 2..GRID_MAX_POINTS_(X,Y)");
+        G29_RETURN(false, false);
+      }
+
+      G29_State::grid_points.x  = GRID_POINTS_X;
+      G29_State::grid_points.y  = GRID_POINTS_Y;
+      G29_State::abl_points     =   GRID_POINTS;
+
       const bool seen_w = parser.seen_test('W');
       if (seen_w) {
         if (!leveling_is_valid()) {
@@ -311,13 +332,13 @@ G29_TYPE GcodeSuite::G29() {
           // Get nearest i / j from rx / ry
           i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
           j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
-          LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
-          LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
+          LIMIT(i, 0, (GRID_POINTS_X) - 1);
+          LIMIT(j, 0, (GRID_POINTS_Y) - 1);
         }
 
         #pragma GCC diagnostic pop
 
-        if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
+        if (WITHIN(i, 0, (GRID_POINTS_X) - 1) && WITHIN(j, 0, (GRID_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();

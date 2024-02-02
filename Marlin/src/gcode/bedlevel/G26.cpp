@@ -287,8 +287,8 @@ typedef struct {
     p2.x = p1.x + dx;
     p2.y = p1.y + dy;
 
-    if (p2.x < 0 || p2.x >= (GRID_MAX_POINTS_X)) return;
-    if (p2.y < 0 || p2.y >= (GRID_MAX_POINTS_Y)) return;
+    if (p2.x < 0 || p2.x >= (GRID_POINTS_X)) return;
+    if (p2.y < 0 || p2.y >= (GRID_POINTS_Y)) return;
 
     if (circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
       xyz_pos_t s, e;
@@ -632,7 +632,7 @@ void GcodeSuite::G26() {
   // Get repeat from 'R', otherwise do one full circuit
   grid_count_t g26_repeats;
   #if HAS_MARLINUI_MENU
-    g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
+    g26_repeats = parser.intval('R', GRID_POINTS + 1);
   #else
     if (parser.seen('R'))
       g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
@@ -731,8 +731,8 @@ void GcodeSuite::G26() {
       // which is always drawn counter-clockwise.
       const xy_int8_t st = location;
       const bool f = st.y == 0,
-                 r = st.x >= (GRID_MAX_POINTS_X) - 1,
-                 b = st.y >= (GRID_MAX_POINTS_Y) - 1;
+                 r = st.x >= (GRID_POINTS_X) - 1,
+                 b = st.y >= (GRID_POINTS_Y) - 1;
 
       #if ENABLED(ARC_SUPPORT)
 
