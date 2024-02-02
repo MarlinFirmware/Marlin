@@ -1500,32 +1500,38 @@ void dwinHomingDone() {
 #if HAS_LEVELING
   void dwinLevelingStart() {
     #if HAS_BED_PROBE
+      homeZ(); // Always reacquire the Z "home" position for an accurate reading
+      queue.inject(F("G28XY")); // Go to 0,0 to start
+      hmiFlag.cancel_lev = 0;
       hmiSaveProcessID(ID_Leveling);
       title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
-      dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
-      hmiFlag.cancel_lev = 0;
-      meshViewer.drawMeshGrid(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
-      DWINUI::drawButton(BTN_Cancel, 86, 305, true);
-      #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-        #if HAS_BED_PROBE
-          if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
-        #else
-          #if HAS_HOTEND
-            if (!DEBUGGING(DRYRUN) && thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP) {
-              thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-              thermalManager.wait_for_hotend(0);
-            }
-          #endif
-          #if HAS_HEATED_BED
-            if (!DEBUGGING(DRYRUN) && thermalManager.degTargetBed() < hmiData.bedLevT) {
-              thermalManager.setTargetBed(hmiData.bedLevT);
-              thermalManager.wait_for_bed_heating();
-            }
-          #endif
-        #endif
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        meshViewer.drawMeshGrid(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+        DWINUI::drawButton(BTN_Cancel, 86, 305, true);
+      #else
+        dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
       #endif
     #elif ENABLED(MESH_BED_LEVELING)
       drawManualMeshMenu();
+    #endif
+
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      #if HAS_BED_PROBE
+        if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
+      #else
+        #if HAS_HOTEND
+          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP) {
+            thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+            thermalManager.wait_for_hotend(0);
+          }
+        #endif
+        #if HAS_HEATED_BED
+          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetBed() < hmiData.bedLevT) {
+            thermalManager.setTargetBed(hmiData.bedLevT);
+            thermalManager.wait_for_bed_heating();
+          }
+        #endif
+      #endif
     #endif
   }
 
@@ -2299,8 +2305,6 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   #endif
 
   void autoLevel() {
-    homeZ(); // Always reacquire the Z "home" position for an accurate reading
-    queue.inject(F("G28XY")); // Go to 0,0 to start
     queue.inject(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1", "G29")));
   }
 #endif
