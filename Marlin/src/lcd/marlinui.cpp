@@ -68,7 +68,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
-#define RESET_ENCODER_AFTER_MS 500
+#define RESET_ENCODER_AFTER_MS (1000/ENCODER_PULSES_PER_STEP)
 
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
@@ -1064,10 +1064,14 @@ void MarlinUI::init() {
           if (lastEncoderDiff != encoderDiff) {
             TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
             encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
-          } else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
-              // Reset encoder substeps after a while.
-              // This solves the issue of the haptic ticks of some encoders physically getting out of sync with the actual steps after a while .
-              encoderDiff = 0;
+          } else if (encoderDiff != 0 && ELAPSED(ms, encoder_reset_timeout_ms)) {
+              // In some machines, the haptic ticks physically get out of sync with the actual steps.
+              if (abs_diff <= epps / 2)           // If below half a step
+                encoderDiff = 0;                  // Clear residual pulses.
+              else if (abs_diff < epps) {         // If beyond half but below full
+                abs_diff = epps;                  // Treat as a full step size
+                encoderDiff = SIGN(encoderDiff) * abs_diff;        // ...in the spin direction.
+              }
           }
           lastEncoderDiff = encoderDiff;
         #endif
