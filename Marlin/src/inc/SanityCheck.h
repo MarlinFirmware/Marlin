@@ -2384,8 +2384,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
   #elif Y_HOME_TO_MAX && !HAS_Y_MAX_STATE
     #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
-  #elif Z_HOME_TO_MIN && !HAS_Z_MIN_STATE
-    #error "Z_MIN_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
+  #elif Z_HOME_TO_MIN && !(HAS_Z_MIN_STATE || ENABLED(USE_PROBE_FOR_Z_HOMING))
+    #error "Z_MIN_PIN, Z_STOP_PIN, Z_SPI_SENSORLESS, or USE_PROBE_FOR_Z_HOMING is required for Z axis homing."
   #elif Z_HOME_TO_MAX && !HAS_Z_MAX_STATE
     #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
   #elif I_HOME_TO_MIN && !HAS_I_MIN_STATE
