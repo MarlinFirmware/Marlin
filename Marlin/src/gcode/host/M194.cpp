@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,35 +20,27 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MULTI_LANGUAGE
+#if ENABLED(MENU_RESET_WIFI)
 
 #include "../gcode.h"
 #include "../../MarlinCore.h"
-#include "../../lcd/marlinui.h"
+
 #if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
+  #include "../../../src/lcd/rts/lcd_rts.h"
 #endif
 
 /**
- * M414: Set the language for the UI
- *
- * Parameters
- *  S<index> : The language to select
+ * M194: Reset WiFi Module
  */
-void GcodeSuite::M414() {
+void GcodeSuite::M194() {
+  TERN_(CREALITY_RTS, if (parser.seen('S')) wifi_enable_flag = parser.boolval('S'));
 
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
-
+  // record pressed state and output low level
+  WIFI_STATE = PRESSED;
+  OUT_WRITE(RESET_WIFI_PIN, LOW);
+  SERIAL_ECHOLNPGM(STR_OK " wifi is resetting");
 }
 
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
-
-#endif // HAS_MULTI_LANGUAGE
+#endif // MENU_RESET_WIFI

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,35 +20,21 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE
-
-#include "../gcode.h"
-#include "../../MarlinCore.h"
-#include "../../lcd/marlinui.h"
 #if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
-#endif
+
+#include "../../gcode.h"
+#include "../../../lcd/rts/lcd_rts.h"
 
 /**
- * M414: Set the language for the UI
- *
- * Parameters
- *  S<index> : The language to select
+ * M224: LED On
  */
-void GcodeSuite::M414() {
+void GcodeSuite::M224() { RTS_SetLED(true); }
 
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
+/**
+ * M225: LED Off
+ */
+void GcodeSuite::M225() { RTS_SetLED(false); }
 
-}
-
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
-
-#endif // HAS_MULTI_LANGUAGE
+#endif // CREALITY_RTS

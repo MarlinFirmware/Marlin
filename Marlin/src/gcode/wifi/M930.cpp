@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,33 +22,37 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE
+#if ENABLED(CREALITY_WIFI)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h"
-#include "../../lcd/marlinui.h"
-#if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
-#endif
+#include "../../lcd/rts/lcd_rts.h"
 
 /**
- * M414: Set the language for the UI
- *
- * Parameters
- *  S<index> : The language to select
+ * M930: WIFI Box Function
  */
-void GcodeSuite::M414() {
+void GcodeSuite::M930() {
+  if (parser.boolval('F')) {
+    switch (parser.intval('S')) {
+      case 1:
+        if (flag_counter_wifi_reset) {
+          flag_counter_wifi_reset = false;
+          rts.sendData(ExchangePageBase + 33, ExchangepageAddr);
+          change_page_font = 33;
+        }
+        rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
+        break;
 
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
+      case 2:
+        rts.sendData(0, ADV_SETTING_WIFI_ICON_VP);
+        rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
+        break;
 
+      case 3:
+        rts.sendData(1, ADV_SETTING_WIFI_ICON_VP);
+        rts.sendData(0, WIFI_CONNECTED_DISPLAY_ICON_VP);
+        break;
+    }
+  }
 }
 
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
-
-#endif // HAS_MULTI_LANGUAGE
+#endif // CREALITY_WIFI

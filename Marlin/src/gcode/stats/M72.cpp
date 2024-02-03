@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,33 +22,31 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE
+#if ALL(SDSUPPORT, CREALITY_RTS)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h"
+#include "../../sd/cardreader.h"
 #include "../../lcd/marlinui.h"
-#if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
+#include "../../lcd/rts/lcd_rts.h"
+
+#if HAS_FILAMENT_SENSOR
+  #include "../../feature/runout.h"
 #endif
 
 /**
- * M414: Set the language for the UI
+ * M72: Open a file
  *
- * Parameters
- *  S<index> : The language to select
+ * The path is relative to the root directory
  */
-void GcodeSuite::M414() {
+void GcodeSuite::M72() {
+  // Simplify3D includes the size, so zero out all spaces (#7227)
+  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
 
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
+  card.openFileRead(parser.string_arg);
 
+  RTS_OpenFileCloud();
+
+  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
 }
 
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
-
-#endif // HAS_MULTI_LANGUAGE
+#endif // SDSUPPORT && CREALITY_RTS

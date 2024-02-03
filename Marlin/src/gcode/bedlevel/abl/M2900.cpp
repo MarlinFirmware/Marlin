@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,35 +20,26 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE
-
-#include "../gcode.h"
-#include "../../MarlinCore.h"
-#include "../../lcd/marlinui.h"
 #if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
-#endif
+
+#include "../../gcode.h"
+#include "../../../feature/bedlevel/bedlevel.h"
+#include "../../../lcd/rts/lcd_rts.h"
+
+#define DIMLFAC1 (0.8f)
+#define DIMLFAC2 ((1.0f - DIMLFAC1) / 2.0f) // 0.1
 
 /**
- * M414: Set the language for the UI
- *
- * Parameters
- *  S<index> : The language to select
+ * M2900.cpp - Report Bed Leveling Grid and test result
  */
-void GcodeSuite::M414() {
-
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
-
+void GcodeSuite::M2900() {
+  bedlevel.print_leveling_grid();
+  const float z_valuesTest = DIMLFAC1 * bedlevel.z_values[0][0]
+                           + DIMLFAC2 * (  (bedlevel.z_values[0][1] + bedlevel.z_values[1][0]) * 2.0f
+                                         - (bedlevel.z_values[0][2] + bedlevel.z_values[2][0]) );
+  SERIAL_ECHOLNPGM("z_valuesTest = ", z_valuesTest, " algorithm");
 }
 
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
-
-#endif // HAS_MULTI_LANGUAGE
+#endif // CREALITY_RTS

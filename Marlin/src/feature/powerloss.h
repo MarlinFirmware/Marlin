@@ -155,6 +155,10 @@ class PrintJobRecovery {
       static bool dwin_flag;
     #endif
 
+    #if ENABLED(CREALITY_RTS)
+      static bool recovery_flag;
+    #endif
+
     static void init();
     static void prepare();
 
