@@ -154,10 +154,10 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
-  #if DISABLED(BD_SENSOR)
-    uint8_t multipleProbing = MULTIPLE_PROBING;
-  #endif
   #if HAS_BED_PROBE
+    #if DISABLED(BD_SENSOR)
+      uint8_t multipleProbing = MULTIPLE_PROBING;
+    #endif
     uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
 } hmi_data_t;

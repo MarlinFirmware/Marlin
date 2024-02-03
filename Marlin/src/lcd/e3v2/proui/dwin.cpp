@@ -1862,7 +1862,10 @@ void dwinSetDataDefaults() {
   #endif
   TERN_(ADAPTIVE_STEP_SMOOTHING, hmiData.adaptiveStepSmoothing = true);
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
-  IF_DISABLED(BD_SENSOR, hmiData.multipleProbing = MULTIPLE_PROBING);
+  #if HAS_BED_PROBE
+    IF_DISABLED(BD_SENSOR, hmiData.multipleProbing = MULTIPLE_PROBING);
+    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
+  #endif
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -2309,6 +2312,8 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
     void applyProbeMultiple() { hmiData.multipleProbing = menuData.value; }
     void setProbeMultiple()  { setIntOnClick(0, 4, hmiData.multipleProbing, applyProbeMultiple); }
   #endif
+
+  void setProbeZSpeed()  { setPIntOnClick(60, 1000); }
 
   void autoLevel() {
     queue.inject(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1", "G29")));
@@ -3299,6 +3304,7 @@ void drawMoveMenu() {
         EDIT_ITEM(ICON_ProbeOffsetZ, MSG_ZPROBE_ZOFFSET, onDrawPFloat2Menu, setProbeOffsetZ, &probe.offset.z);
       #endif
       IF_DISABLED(BD_SENSOR, EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multipleProbing));
+      EDIT_ITEM(ICON_ProbeZSpeed, MSG_Z_FEED_RATE, onDrawPIntMenu, setProbeZSpeed, &hmiData.zprobeFeed);
       #if ENABLED(BLTOUCH)
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, probeStow);
         MENU_ITEM(ICON_ProbeDeploy, MSG_MANUAL_DEPLOY, onDrawMenuItem, probeDeploy);
