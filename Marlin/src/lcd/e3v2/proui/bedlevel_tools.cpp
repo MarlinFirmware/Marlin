@@ -213,15 +213,15 @@ bool BedLevelTools::meshValidate() {
   void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
-                   cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
+                   cell_width_px  = total_width_px / (GRID_POINTS_X),
                    cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
     const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
     dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
     if (selected >= 0) {
-      const auto selected_y = selected / (GRID_MAX_POINTS_X);
-      const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
+      const auto selected_y = selected / (GRID_POINTS_X);
+      const auto selected_x = selected - (GRID_POINTS_X) * selected_y;
       const auto start_y_px = padding_y_top + selected_y * cell_height_px;
       const auto start_x_px = padding_x + selected_x * cell_width_px;
       dwinDrawRectangle(1, COLOR_WHITE, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
@@ -255,7 +255,7 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        constexpr bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
+        constexpr bool is_wide = (GRID_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         else

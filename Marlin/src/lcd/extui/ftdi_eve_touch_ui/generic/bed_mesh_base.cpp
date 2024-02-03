@@ -27,8 +27,8 @@
 using namespace FTDI;
 
 void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t opts, float autoscale_max, uint8_t highlightedTag, mesh_getter_ptr func, void *data) {
-  constexpr uint8_t rows = GRID_MAX_POINTS_Y;
-  constexpr uint8_t cols = GRID_MAX_POINTS_X;
+  uint8_t rows = GRID_POINTS_Y;
+  uint8_t cols = GRID_POINTS_X;
 
   #define VALUE(X,Y)  (func ? func(X,Y,data) : 0)
   #define ISVAL(X,Y)  (func ? !isnan(VALUE(X,Y)) : true)
@@ -84,17 +84,17 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
   // transforming the four corner points via the transformation equations and finding
   // the min and max for each axis.
 
-  constexpr float bounds[][3]  = {{TRANSFORM(0     , 0     , 0)},
-                                  {TRANSFORM(cols-1, 0     , 0)},
-                                  {TRANSFORM(0     , rows-1, 0)},
-                                  {TRANSFORM(cols-1, rows-1, 0)}};
+   float bounds[][3]  = {{TRANSFORM(0     , 0     , 0)},
+                        {TRANSFORM(cols-1, 0     , 0)},
+                        {TRANSFORM(0     , rows-1, 0)},
+                        {TRANSFORM(cols-1, rows-1, 0)}};
   #define APPLY(FUNC, AXIS) FUNC(FUNC(bounds[0][AXIS], bounds[1][AXIS]), FUNC(bounds[2][AXIS], bounds[3][AXIS]))
-  constexpr float grid_x       = APPLY(min,0);
-  constexpr float grid_y       = APPLY(min,1);
-  constexpr float grid_w       = APPLY(max,0) - grid_x;
-  constexpr float grid_h       = APPLY(max,1) - grid_y;
-  constexpr float grid_cx      = grid_x + grid_w/2;
-  constexpr float grid_cy      = grid_y + grid_h/2;
+   float grid_x       = APPLY(min,0);
+   float grid_y       = APPLY(min,1);
+   float grid_w       = APPLY(max,0) - grid_x;
+   float grid_h       = APPLY(max,1) - grid_y;
+   float grid_cx      = grid_x + grid_w/2;
+   float grid_cy      = grid_y + grid_h/2;
 
   // Figure out scale and offset such that the grid fits within the rectangle given by (x,y,w,h)
 
@@ -194,13 +194,13 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
 }
 
 uint8_t BedMeshBase::pointToTag(uint8_t x, uint8_t y) {
-  return x >= 0 && x < GRID_MAX_POINTS_X && y >= 0 && y < GRID_MAX_POINTS_Y ? y * (GRID_MAX_POINTS_X) + x + 10 : 0;
+  return x >= 0 && x < GRID_POINTS_X && y >= 0 && y < GRID_POINTS_Y ? y * (GRID_POINTS_X) + x + 10 : 0;
 }
 
 bool BedMeshBase::tagToPoint(uint8_t tag, xy_uint8_t &pt) {
   if (tag < 10) return false;
-  pt.x = (tag - 10) % (GRID_MAX_POINTS_X);
-  pt.y = (tag - 10) / (GRID_MAX_POINTS_X);
+  pt.x = (tag - 10) % (GRID_POINTS_X);
+  pt.y = (tag - 10) / (GRID_POINTS_X);
   return true;
 }
 

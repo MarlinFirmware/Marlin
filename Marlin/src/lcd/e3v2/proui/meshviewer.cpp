@@ -116,7 +116,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
     bedLevelTools.viewer_print_value = true;
     bedLevelTools.drawBedMesh(-1, 1, 8, 10 + TITLE_HEIGHT);
   #else
-    if (redraw) drawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+    if (redraw) drawMesh(bedlevel.z_values, GRID_POINTS_X, GRID_POINTS_Y);
     else DWINUI::drawBox(1, hmiData.colorBackground, { 89, 305, 99, 38 });
   #endif
   if (withsave) {

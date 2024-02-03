@@ -2115,7 +2115,7 @@ void autoHome() { queue.inject_P(G28_STR); }
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       babystep.accum = round(planner.settings.axis_steps_per_mm[Z_AXIS] * BABY_Z_VAR);
     #endif
-    setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2, applyZOffset, liveZOffset);
+    setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 2, applyZOffset, liveZOffset);
   }
 
   void setMoveZto0() {
@@ -4027,8 +4027,8 @@ void drawMaxAccelMenu() {
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
-    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
-    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
+    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
+    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
   #endif
 

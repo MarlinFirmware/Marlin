@@ -1066,10 +1066,10 @@ void RTS::handleData() {
 
           if (ExtUI::getLevelingIsValid()) {
             uint8_t abl_probe_index = 0;
-            for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-              for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+            for (uint8_t outer = 0; outer < GRID_POINTS_Y; outer++)
+              for (uint8_t inner = 0; inner < GRID_POINTS_X; inner++) {
                 const bool zig = outer & 1;
-                const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+                const xy_uint8_t point = { uint8_t(zig ? (GRID_POINTS_X - 1) - inner : inner), outer };
                 sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
                 ++abl_probe_index;
               }
@@ -1627,9 +1627,9 @@ void RTS::handleData() {
 
     case AutolevelVal: {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2,
-              yPnt = meshPoint / (GRID_MAX_POINTS_X),
-              xPnt = meshPoint - yPnt * (GRID_MAX_POINTS_X);
-      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X) - 1 - xPnt; // zag row
+              yPnt = meshPoint / (GRID_POINTS_X),
+              xPnt = meshPoint - yPnt * (GRID_POINTS_X);
+      if (yPnt % 2 != 0) xPnt = (GRID_POINTS_X) - 1 - xPnt; // zag row
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
