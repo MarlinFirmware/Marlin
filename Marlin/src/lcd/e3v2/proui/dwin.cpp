@@ -1500,8 +1500,6 @@ void dwinHomingDone() {
 #if HAS_LEVELING
   void dwinLevelingStart() {
     #if HAS_BED_PROBE
-      homeZ(); // Always reacquire the Z "home" position for an accurate reading
-      queue.inject(F("G28XY")); // Go to 0,0 to start
       hmiFlag.cancel_lev = 0;
       hmiSaveProcessID(ID_Leveling);
       title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));

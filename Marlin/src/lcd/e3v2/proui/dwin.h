@@ -222,7 +222,6 @@ uint32_t getHash(char * str);
 void rebootPrinter();
 void disableMotors();
 void autoHome();
-void homeZ();
 #if HAS_PREHEAT
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
