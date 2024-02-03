@@ -2307,7 +2307,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   #if DISABLED(BD_SENSOR)
     void applyProbeMultiple() { hmiData.multipleProbing = menuData.value; }
-    void setProbeMultiple()  { SetIntOnClick(0, 4, hmiData.multipleProbing, applyProbeMultiple); }
+    void setProbeMultiple()  { setIntOnClick(0, 4, hmiData.multipleProbing, applyProbeMultiple); }
   #endif
 
   void autoLevel() {

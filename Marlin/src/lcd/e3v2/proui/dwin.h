@@ -157,6 +157,9 @@ typedef struct {
   #if DISABLED(BD_SENSOR)
     uint8_t multipleProbing = MULTIPLE_PROBING;
   #endif
+  #if HAS_BED_PROBE
+    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
