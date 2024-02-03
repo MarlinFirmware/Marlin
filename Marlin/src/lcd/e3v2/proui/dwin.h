@@ -154,6 +154,9 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
+  #if DISABLED(BD_SENSOR)
+    uint8_t multipleProbing = MULTIPLE_PROBING;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;

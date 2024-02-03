@@ -1239,6 +1239,7 @@ void hmiWaitForUser() {
       case ID_Leveling:
         hmiFlag.cancel_lev = 1;
         dwinDrawStatusLine("Canceling auto leveling...");
+        dwinUpdateLCD();
       case ID_NothingToDo:
         break;
       default: hmiReturnScreen(); break;
@@ -1505,7 +1506,7 @@ void dwinHomingDone() {
       title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         meshViewer.drawMeshGrid(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
-        DWINUI::drawButton(BTN_Cancel, 86, 305, true);
+        DWINUI::drawButton(BTN_Cancel, 86, 305);
       #else
         dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
       #endif
@@ -1539,6 +1540,7 @@ void dwinHomingDone() {
         probe.stow();
         reset_bed_level();
         hmiReturnScreen();
+        dwinUpdateLCD();
         ui.set_status(F("Mesh was cancelled"));
       }
       else {
@@ -1860,6 +1862,7 @@ void dwinSetDataDefaults() {
   #endif
   TERN_(ADAPTIVE_STEP_SMOOTHING, hmiData.adaptiveStepSmoothing = true);
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
+  IF_DISABLED(BD_SENSOR, hmiData.multipleProbing = MULTIPLE_PROBING);
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -2300,6 +2303,11 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   #if HAS_BLTOUCH_HS_MODE
     void setHSMode() { toggleCheckboxLine(bltouch.high_speed_mode); }
+  #endif
+
+  #if DISABLED(BD_SENSOR)
+    void applyProbeMultiple() { hmiData.multipleProbing = menuData.value; }
+    void setProbeMultiple()  { SetIntOnClick(0, 4, hmiData.multipleProbing, applyProbeMultiple); }
   #endif
 
   void autoLevel() {
@@ -3290,6 +3298,7 @@ void drawMoveMenu() {
       #if HAS_Z_AXIS
         EDIT_ITEM(ICON_ProbeOffsetZ, MSG_ZPROBE_ZOFFSET, onDrawPFloat2Menu, setProbeOffsetZ, &probe.offset.z);
       #endif
+      IF_DISABLED(BD_SENSOR, EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multipleProbing));
       #if ENABLED(BLTOUCH)
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, probeStow);
         MENU_ITEM(ICON_ProbeDeploy, MSG_MANUAL_DEPLOY, onDrawMenuItem, probeDeploy);
