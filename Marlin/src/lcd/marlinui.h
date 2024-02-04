@@ -585,11 +585,6 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_SOUND
-        static void completion_feedback(const bool good=true);
-      #else
-        static void completion_feedback(const bool=true) { wake_display(); }
-      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
@@ -602,7 +597,7 @@ public:
 
       static void status_screen();
 
-    #endif
+    #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
       static bool drawing_screen, first_page;
@@ -633,8 +628,9 @@ public:
 
   #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}
-    static void completion_feedback(const bool=true) {}
   #endif
+
+  static void completion_feedback(const bool good=true);
 
   #if HAS_MEDIA
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
