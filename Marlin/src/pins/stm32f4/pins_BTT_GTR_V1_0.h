@@ -31,7 +31,7 @@
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS                            // DIAG jumpers rendered useless due to a board design error
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define M5_EXTENDER                               // The M5 extender is attached
 
@@ -106,6 +106,7 @@
 // Pins on the extender
 //
 #if ENABLED(M5_EXTENDER)
+  #define USES_DIAG_JUMPERS                       // DIAG jumpers work on M5 extender
   #ifndef X2_STOP_PIN
     #define X2_STOP_PIN                     PI4   // M5 M1_STOP
   #endif
