@@ -36,6 +36,33 @@
     #define Z_OFFSET_MIN  -3.0  // (mm)
     #define Z_OFFSET_MAX   3.0  // (mm)
   #endif
+  #ifndef   MESH_INSET
+    #define MESH_INSET 10
+  #endif
+  #ifndef   MESH_MIN_X
+    #define MESH_MIN_X MESH_INSET
+  #endif
+  #ifndef   MESH_MIN_Y
+    #define MESH_MIN_Y MESH_INSET
+  #endif
+  #ifndef   MESH_MAX_X
+    #define MESH_MAX_X  X_BED_SIZE - (MESH_INSET)
+  #endif
+  #ifndef   MESH_MAX_Y
+    #define MESH_MAX_Y  Y_BED_SIZE - (MESH_INSET)
+  #endif
+  constexpr uint16_t DEF_MESH_MIN_X = MESH_MIN_X;
+  constexpr uint16_t DEF_MESH_MAX_X = MESH_MAX_X;
+  constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
+  constexpr uint16_t DEF_MESH_MAX_Y = MESH_MAX_Y;
+  #undef  MESH_MIN_X
+  #undef  MESH_MIN_Y
+  #undef  MESH_MAX_X
+  #undef  MESH_MAX_Y
+  #define MESH_MIN_X hmiData.mesh_min_x
+  #define MESH_MIN_Y hmiData.mesh_max_x
+  #define MESH_MAX_X hmiData.mesh_min_y
+  #define MESH_MAX_Y hmiData.mesh_max_y
 #endif
 
 #if defined(__STM32F1__) || defined(STM32F1)
@@ -89,7 +116,7 @@
 #define DEF_PIDCYCLES 5
 #if HAS_BED_PROBE
   constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
-  #undef Z_PROBE_FEEDRATE_SLOW
+  #undef  Z_PROBE_FEEDRATE_SLOW
   #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
 #endif
 

@@ -160,6 +160,10 @@ typedef struct {
     #endif
     uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
+  float mesh_min_x = DEF_MESH_MIN_X;
+  float mesh_max_x = DEF_MESH_MAX_X;
+  float mesh_min_y = DEF_MESH_MIN_Y;
+  float mesh_max_y = DEF_MESH_MAX_Y;
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
@@ -373,6 +377,7 @@ void drawMaxAccelMenu();
   #if ENABLED(PROUI_MESH_EDIT)
     void drawEditMeshMenu();
   #endif
+  void drawMeshInsetMenu();
 #endif
 #if HAS_TRINAMIC_CONFIG
   void drawTrinamicConfigMenu();

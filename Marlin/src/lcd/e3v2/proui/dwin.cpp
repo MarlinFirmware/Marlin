@@ -269,6 +269,7 @@ Menu *stepsMenu = nullptr;
   #if ENABLED(PROUI_MESH_EDIT)
     Menu *editMeshMenu = nullptr;
   #endif
+  Menu *meshInsetMenu = nullptr;
 #endif
 #if ENABLED(SHAPING_MENU)
   Menu *inputShapingMenu = nullptr;
@@ -1222,7 +1223,7 @@ void drawMainArea() {
     case ID_SetPInt:
     case ID_SetIntNoDraw:
     case ID_SetFloat:
-    case ID_SetPFloat:        ReDrawMenu(true); break;
+    case ID_SetPFloat:        redrawMenu(true); break;
     default: break;
   }
 }
@@ -1864,8 +1865,15 @@ void dwinSetDataDefaults() {
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
   #if HAS_BED_PROBE
     IF_DISABLED(BD_SENSOR, hmiData.multipleProbing = MULTIPLE_PROBING);
-    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
+    hmiData.zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
+  #if HAS_MESH
+    hmiData.mesh_min_x = DEF_MESH_MIN_X;
+    hmiData.mesh_max_x = DEF_MESH_MAX_X;
+    hmiData.mesh_min_y = DEF_MESH_MIN_Y;
+    hmiData.mesh_max_y = DEF_MESH_MAX_Y;
+  #endif
+
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -4055,6 +4063,8 @@ void drawMaxAccelMenu() {
     dwinUpdateLCD();
   }
 
+  void setMeshInset() { setPFloatOnClick(X_MIN_POS, X_MAX_POS, UNITFDIGITS, reset_bed_level, redrawItem);  }
+
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
     void setBedLevT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
   #endif
@@ -4115,7 +4125,7 @@ void drawMaxAccelMenu() {
 
   void drawMeshSetMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 14)) {
+    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 15)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
@@ -4138,6 +4148,7 @@ void drawMaxAccelMenu() {
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
+      MENU_ITEM(ICON_PrintSize, MSG_MESH_LEVELING, onDrawSubMenu, drawMeshInsetMenu);
     }
     updateMenu(meshMenu);
   }
@@ -4157,6 +4168,21 @@ void drawMaxAccelMenu() {
       updateMenu(editMeshMenu);
     }
   #endif
+
+  void drawMeshInsetMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU(meshInsetMenu, MSG_MESH_INSET, 7)) {
+      BACK_ITEM(drawMeshSetMenu);
+      EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_x);
+      EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_x);
+      EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_y);
+      EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_y);
+      //MENU_ITEM(254 /*ICON_AxisC*/, MSG_MESH_AMAX, onDrawMenuItem, maxMeshArea);
+      //MENU_ITEM(ICON_SetHome, MSG_MESH_CENTER, onDrawMenuItem, centerMeshArea);
+    }
+    updateMenu(meshInsetMenu);
+    //LCD_MESSAGE_F("..Center Area sets mesh equidistant by greatest inset from edge.");
+  }
 
 #endif // HAS_MESH
 
