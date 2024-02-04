@@ -1957,8 +1957,9 @@
  *   Currently this must be distinct, but we can add a mechanism to use the same pin for sensorless
  *   or switches wired to the same pin, or for the single SPI stall state on the axis.
  */
-#define _USE_STOP(A,N,M,C) ((ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
-#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) && A##_SPI_SENSORLESS))
+#define _ANY_STOP(A,N,M) ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP)
+#define _USE_STOP(A,N,M,C) ((_ANY_STOP(A,N,M) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
+#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (_ANY_STOP(A,N,M) && A##_SPI_SENSORLESS))
 
 #if _USE_STOP(X,,MIN,)
   #define USE_X_MIN 1
@@ -2199,7 +2200,9 @@
   #define HAS_Z_PROBE_STATE 1
 #endif
 
+#undef _ANY_STOP
 #undef _USE_STOP
+#undef _HAS_STATE
 
 /**
  * Set ENDSTOPPULLUPS for active endstop switches
