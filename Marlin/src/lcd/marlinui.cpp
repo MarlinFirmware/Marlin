@@ -68,8 +68,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
-#define RESET_ENCODER_AFTER_MS (2000/ENCODER_PULSES_PER_STEP)
-#define ADVANCE_ENCODER_AFTER_MS (200/ENCODER_PULSES_PER_STEP)
+#define RESET_ENCODER_AFTER_MS (1000/ENCODER_PULSES_PER_STEP)
 
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
@@ -1057,29 +1056,26 @@ void MarlinUI::init() {
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
+        uint8_t abs_diff = ABS(encoderDiff);
+
         #if ENCODER_PULSES_PER_STEP > 1
           static int8_t lastEncoderDiff;
-          static millis_t last_encoder_change_ms;
-          static int8_t last_full_step_dir;
-          static bool changed_dir;
-
+          static millis_t encoder_reset_timeout_ms;
           if (lastEncoderDiff != encoderDiff) {
             TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
-            last_encoder_change_ms = ms;
-          } else if (encoderDiff != 0) {
-            // In some machines, the haptic ticks physically get out of sync with the actual steps.
-            if (ELAPSED(ms, last_encoder_change_ms + RESET_ENCODER_AFTER_MS)) {
-              encoderDiff = 0; // Clear residual pulses.
-            } else if (ELAPSED(ms, last_encoder_change_ms + ADVANCE_ENCODER_AFTER_MS)) {
-              changed_dir = SIGN(encoderDiff) != last_full_step_dir;
-              bool beyond_half_step = ABS(encoderDiff) > epps / 2;
-              if (changed_dir && beyond_half_step) encoderDiff = SIGN(encoderDiff) * epps; // Treat as a full step
-            }
+            encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
+          } else if (encoderDiff != 0 && ELAPSED(ms, encoder_reset_timeout_ms)) {
+              // In some machines, the haptic ticks physically get out of sync with the actual steps.
+              if (abs_diff <= epps / 2)           // If below half a step
+                encoderDiff = 0;                  // Clear residual pulses.
+              else if (abs_diff < epps) {         // If beyond half but below full
+                abs_diff = epps;                  // Treat as a full step size
+                encoderDiff = SIGN(encoderDiff) * abs_diff;        // ...in the spin direction.
+              }
           }
           lastEncoderDiff = encoderDiff;
         #endif
 
-        uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
@@ -1122,12 +1118,8 @@ void MarlinUI::init() {
           if (fullSteps != 0) {
             next_click_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
-            if (can_encode() && !lcd_clicked) {
+            if (can_encode() && !lcd_clicked)
               encoderPosition += (fullSteps * encoderMultiplier);
-              #if ENCODER_PULSES_PER_STEP > 1
-                last_full_step_dir = SIGN(fullSteps);
-              #endif
-            }
           }
         } 
 
