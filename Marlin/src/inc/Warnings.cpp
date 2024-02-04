@@ -841,10 +841,3 @@
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif
-
-/**
- * G34 Z-Stepper Alignment
-*/
-#if Z_STEPPER_ALIGN_ACC_WARN
-  #warning "Z_STEPPER_ALIGN_ACC below 0.01 requires a very precise probe. Check the probe with M48."
-#endif

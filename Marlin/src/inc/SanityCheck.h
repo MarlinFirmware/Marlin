@@ -3616,12 +3616,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #if NUM_Z_STEPPERS < 3
       #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
-  #elif !WITHIN(Z_STEPPER_ALIGN_ACC, 0.01, 1.0)
-    #error "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0"
-  #elif Z_STEPPER_ALIGN_ACC < 0.1
-    #define Z_STEPPER_ALIGN_ACC_WARN 1
   #endif
+  static_assert(WITHIN(Z_STEPPER_ALIGN_ACC, 0.001, 1.0), "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0");
 #endif
+
+
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
   #if NONE(HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC, HAS_TRINAMIC_CONFIG, HAS_MOTOR_CURRENT_PWM)
