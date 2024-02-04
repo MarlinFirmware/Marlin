@@ -417,9 +417,9 @@
 
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
 #ifdef LCD_PINS_DEFINED
 

@@ -263,5 +263,4 @@ void FWRetract::M208_report() {
 
 #endif // FWRETRACT_AUTORETRACT
 
-
 #endif // FWRETRACT

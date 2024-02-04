@@ -214,13 +214,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   millis_t MarlinUI::screen_timeout_ms = 0;
   void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_ms = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-    sleep_display(false);
+    screen_timeout_ms = sleep_timeout_minutes ? millis() + MIN_TO_MS(sleep_timeout_minutes) : 0;
+    wake_display();
   }
-
-  #if !HAS_TOUCH_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
-    void MarlinUI::sleep_display(const bool sleep) {} // if unimplemented
-  #endif
 
 #endif
 
@@ -766,25 +762,9 @@ void MarlinUI::init() {
     draw_kill_screen();
   }
 
-  #if HAS_TOUCH_SLEEP
-    #if HAS_TOUCH_BUTTONS
-      #include "touch/touch_buttons.h"
-    #else
-      #include "tft/touch.h"
-    #endif
-    // Wake up a sleeping TFT
-    void MarlinUI::wakeup_screen() {
-      TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
-    }
-    #if HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
-      void MarlinUI::sleep_display(const bool sleep) {
-        if (!sleep) wakeup_screen(); // relay extra wake up events
-      }
-    #endif
-  #endif
-
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up the TFT with most buttons
+    wake_display(); // Wake the screen for any click sound
+
     TERN_(HAS_MARLINUI_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
@@ -847,52 +827,51 @@ void MarlinUI::init() {
       if (processing) return;   // Prevent re-entry from idle() calls
 
       // Add a manual move to the queue?
-      if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
+      if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-        const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
-        #if IS_KINEMATIC
+      #if IS_KINEMATIC
 
-          #if HAS_MULTI_EXTRUDER
-            REMEMBER(ae, active_extruder);
-            #if MULTI_E_MANUAL
-              if (axis == E_AXIS) active_extruder = e_index;
-            #endif
+        #if HAS_MULTI_EXTRUDER
+          REMEMBER(ae, active_extruder);
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
           #endif
-
-          // Apply a linear offset to a single axis
-          if (axis == ALL_AXES_ENUM)
-            destination = all_axes_destination;
-          else if (axis <= LOGICAL_AXES) {
-            destination = current_position;
-            destination[axis] += offset;
-          }
-
-          // Reset for the next move
-          offset = 0;
-          axis = NO_AXIS_ENUM;
-
-          // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
-          // move_to_destination. This will cause idle() to be called, which can then call this function while the
-          // previous invocation is being blocked. Modifications to offset shouldn't be made while
-          // processing is true or the planner will get out of sync.
-          processing = true;
-          prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
-          processing = false;
-
-        #else
-
-          // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position, fr_mm_s,
-            TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
-          );
-
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
-
-          axis = NO_AXIS_ENUM;
-
         #endif
-      }
+
+        // Apply a linear offset to a single axis
+        if (axis == ALL_AXES_ENUM)
+          destination = all_axes_destination;
+        else if (axis <= LOGICAL_AXES) {
+          destination = current_position;
+          destination[axis] += offset;
+        }
+
+        // Reset for the next move
+        offset = 0;
+        axis = NO_AXIS_ENUM;
+
+        // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
+        // move_to_destination. This will cause idle() to be called, which can then call this function while the
+        // previous invocation is being blocked. Modifications to offset shouldn't be made while
+        // processing is true or the planner will get out of sync.
+        processing = true;
+        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        processing = false;
+
+      #else
+
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
+
+        //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+
+        axis = NO_AXIS_ENUM;
+
+      #endif
     }
 
     //
@@ -1064,7 +1043,7 @@ void MarlinUI::init() {
             abs_diff = epps;                                            // Treat as a full step size
             encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
           }
-          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
+          if (lastEncoderDiff != encoderDiff) wake_display();
           lastEncoderDiff = encoderDiff;
         #endif
 
@@ -1449,14 +1428,14 @@ void MarlinUI::init() {
 
   #endif // HAS_ENCODER_ACTION
 
-  #if HAS_SOUND
-    void MarlinUI::completion_feedback(const bool good/*=true*/) {
-      TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
-      if (good) OKAY_BUZZ(); else ERR_BUZZ();
-    }
-  #endif
-
 #endif // HAS_WIRED_LCD
+
+void MarlinUI::completion_feedback(const bool good/*=true*/) {
+  wake_display(); // Wake the screen for all audio feedback
+  #if HAS_SOUND
+    if (good) OKAY_BUZZ(); else ERR_BUZZ();
+  #endif
+}
 
 void MarlinUI::host_notify_P(PGM_P const pstr) {
   TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify_P(pstr));
@@ -1575,7 +1554,7 @@ void MarlinUI::host_notify(const char * const cstr) {
    */
   void MarlinUI::_set_alert(const char * const ustr, const int8_t level, const bool pgm) {
     pgm ? set_status_and_level_P(ustr, level) : set_status_and_level(ustr, level);
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
+    wake_display();
     TERN_(HAS_MARLINUI_MENU, return_to_status());
   }
 
@@ -1723,7 +1702,8 @@ void MarlinUI::host_notify(const char * const cstr) {
       defer_status_screen();
     #endif
 
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
+    wake_display();
+
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
 
     LCD_MESSAGE(MSG_PRINT_PAUSED);

@@ -42,8 +42,11 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#if DISABLED(BACKUP_POWER_SUPPLY)
+  #undef POWER_LOSS_ZRAISE    // No Z raise at outage without backup power
+#endif
 #ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2
+  #define POWER_LOSS_ZRAISE 2 // Default Z-raise on outage or resume
 #endif
 
 //#define DEBUG_POWER_LOSS_RECOVERY
@@ -83,6 +86,9 @@ typedef struct {
   #endif
   #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
+  #endif
+  #if HAS_HEATED_CHAMBER
+    celsius_t target_temperature_chamber;
   #endif
   #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
