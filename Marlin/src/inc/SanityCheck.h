@@ -3620,8 +3620,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   static_assert(WITHIN(Z_STEPPER_ALIGN_ACC, 0.001, 1.0), "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0");
 #endif
 
-
-
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
   #if NONE(HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC, HAS_TRINAMIC_CONFIG, HAS_MOTOR_CURRENT_PWM)
     #error "Adjustable current drivers are highly recommended to prevent damage. Comment out this line to continue anyway."
