@@ -88,14 +88,15 @@ void GcodeSuite::M115() {
      * This code should work on all STM32-based boards.
      */
     #if ENABLED(STM32_UID_SHORT_FORM)
-      uint32_t * const UID = (uint32_t*)UID_BASE;
-      SERIAL_ECHO(hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2]));
+      const uint32_t * const UID = (uint32_t*)UID_BASE;
+      for (uint8_t i = 0; i < 3; i++) print_hex_long(UID[i]);
     #else
-      uint16_t * const UID = (uint16_t*)UID_BASE;
-      SERIAL_ECHO(
-        F("CEDE2A2F-"), hex_word(UID[0]), C('-'), hex_word(UID[1]), C('-'), hex_word(UID[2]), C('-'),
-        hex_word(UID[3]), hex_word(UID[4]), hex_word(UID[5])
-      );
+      const uint16_t * const UID = (uint16_t*)UID_BASE; // Little-endian!
+      SERIAL_ECHO(F("CEDE2A2F-"));
+      for (uint8_t i = 1; i <= 6; i++) {
+        print_hex_word(UID[(i % 2) ? i : i - 2]);       // 1111-0000-3333-222255554444
+        if (i <= 3) SERIAL_ECHO(C('-'));
+      }
     #endif
   #endif
 
