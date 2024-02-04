@@ -59,7 +59,7 @@ class TouchButtons {
 public:
   static void init();
   static uint8_t read_buttons();
-  #if HAS_TOUCH_SLEEP
+  #if HAS_DISPLAY_SLEEP
     static millis_t next_sleep_ms;
     static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
     static void sleepTimeout();

@@ -292,8 +292,10 @@ public:
     static constexpr uint8_t sleep_timeout_max = 99;
     static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
-    static void sleep_display(const bool sleep=true);
   #endif
+
+  static void sleep_display(const bool=true) IF_DISABLED(HAS_DISPLAY_SLEEP, {});
+  static void wake_display() { sleep_display(false); }
 
   #if HAS_DWIN_E3V2_BASIC
     static void refresh();
@@ -586,7 +588,7 @@ public:
       #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
-        static void completion_feedback(const bool=true) { wake_touch_screen(); }
+        static void completion_feedback(const bool=true) { wake_display(); }
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -628,8 +630,6 @@ public:
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
-
-  static void wake_touch_screen() IF_DISABLED(HAS_TOUCH_SLEEP, {});
 
   #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}

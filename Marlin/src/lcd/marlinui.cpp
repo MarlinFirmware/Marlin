@@ -215,7 +215,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   millis_t MarlinUI::screen_timeout_ms = 0;
   void MarlinUI::refresh_screen_timeout() {
     screen_timeout_ms = sleep_timeout_minutes ? millis() + MIN_TO_MS(sleep_timeout_minutes) : 0;
-    sleep_display(false);
+    wake_display();
   }
 
 #endif
@@ -762,27 +762,9 @@ void MarlinUI::init() {
     draw_kill_screen();
   }
 
-  #if HAS_TOUCH_SLEEP
-    #if HAS_TOUCH_BUTTONS
-      #include "touch/touch_buttons.h"
-    #else
-      #include "tft/touch.h"
-    #endif
-    // Wake up a sleeping TFT
-    void MarlinUI::wake_touch_screen() {
-      TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
-    }
-  #endif
-
-  // DOGM implements its own sleep_display
-  #if !HAS_BACKLIGHT_TIMEOUT && HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB
-    void MarlinUI::sleep_display(const bool sleep) {
-      if (!sleep) wake_touch_screen();
-    }
-  #endif
-
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
-    wake_touch_screen(); // Wake up the TFT with most buttons
+    wake_display(); // Wake the screen for any click sound
+
     TERN_(HAS_MARLINUI_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
@@ -1061,7 +1043,7 @@ void MarlinUI::init() {
             abs_diff = epps;                                            // Treat as a full step size
             encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
           }
-          if (lastEncoderDiff != encoderDiff) wake_touch_screen();
+          if (lastEncoderDiff != encoderDiff) wake_display();
           lastEncoderDiff = encoderDiff;
         #endif
 
@@ -1448,7 +1430,7 @@ void MarlinUI::init() {
 
   #if HAS_SOUND
     void MarlinUI::completion_feedback(const bool good/*=true*/) {
-      wake_touch_screen(); // Wake up on rotary encoder click...
+      wake_display(); // Wake the screen for all audio feedback
       if (good) OKAY_BUZZ(); else ERR_BUZZ();
     }
   #endif
@@ -1572,7 +1554,7 @@ void MarlinUI::host_notify(const char * const cstr) {
    */
   void MarlinUI::_set_alert(const char * const ustr, const int8_t level, const bool pgm) {
     pgm ? set_status_and_level_P(ustr, level) : set_status_and_level(ustr, level);
-    wake_touch_screen();
+    wake_display();
     TERN_(HAS_MARLINUI_MENU, return_to_status());
   }
 
@@ -1720,7 +1702,8 @@ void MarlinUI::host_notify(const char * const cstr) {
       defer_status_screen();
     #endif
 
-    wake_touch_screen();
+    wake_display();
+
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
 
     LCD_MESSAGE(MSG_PRINT_PAUSED);
