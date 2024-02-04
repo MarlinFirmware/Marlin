@@ -151,7 +151,7 @@
   #else
     HAL_HardwareSerial HSerial6(UART6);
   #endif
-  void serialEvent5() __attribute__((weak));
+  void serialEvent6() __attribute__((weak));
 #endif
 
 // Constructors ////////////////////////////////////////////////////////////////
