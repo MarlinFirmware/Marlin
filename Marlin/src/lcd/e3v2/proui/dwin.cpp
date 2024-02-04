@@ -4063,7 +4063,8 @@ void drawMaxAccelMenu() {
     dwinUpdateLCD();
   }
 
-  void setMeshInset() { setPFloatOnClick(X_MIN_POS, X_MAX_POS, UNITFDIGITS, reset_bed_level, redrawItem);  }
+  void applyMeshInset() { reset_bed_level(); redrawItem(); }
+  void setMeshInset() { setPFloatOnClick(X_MIN_POS, X_MAX_POS, UNITFDIGITS, applyMeshInset);  }
 
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
     void setBedLevT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }

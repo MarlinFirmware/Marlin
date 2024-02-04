@@ -553,7 +553,7 @@ void redrawMenu(bool force/*=false*/) {
 }
 
 void redrawItem() {
-  static_cast<MenuItem*>(currentMenu->selectedItem())-> redraw(false);
+  static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
 }
 
 #endif // DWIN_LCD_PROUI
