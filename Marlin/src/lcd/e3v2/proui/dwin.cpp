@@ -2459,19 +2459,19 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       }
       LCD_MESSAGE(MSG_TRAMMING_WIZARD_START);
       DWINUI::clearMainArea();
-      meshViewer.drawMeshGrid(2, 2); // Indicate start. Draw the grid
-      bed_mesh_t zval = {0};
+      static bed_mesh_t zval = {};
       probe.stow();
       checkkey = ID_NothingToDo;
       zval[0][0] = tram(0, false);
-      meshViewer.drawMesh(zval, 2, 2);
+      meshViewer.drawMeshGrid(2, 2); // Indicate start. Draw the grid
+      meshViewer.drawMeshPoint(0, 0, zval[0][0]);
       zval[1][0] = tram(1, false);
-      meshViewer.drawMesh(zval, 2, 2);
+      meshViewer.drawMeshPoint(1, 0, zval[1][0]);
       zval[1][1] = tram(2, false);
-      meshViewer.drawMesh(zval, 2, 2);
+      meshViewer.drawMeshPoint(1, 1, zval[1][1]);
       zval[0][1] = tram(3, false);
+      meshViewer.drawMeshPoint(0, 1, zval[0][1]);
       probe.stow();
-      meshViewer.drawMesh(zval, 2, 2);
 
       DWINUI::drawCenteredString(140, GET_TEXT_F(MSG_CALCULATING_AVERAGE));
       DWINUI::drawCenteredString(160, GET_TEXT_F(MSG_AND_RELATIVE_HEIGHTS));
@@ -2487,30 +2487,28 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
         #define BED_TRAMMING_PROBE_TOLERANCE 0.05f
       #endif
 
-      if (ABS(meshViewer.max - meshViewer.min) < BED_TRAMMING_PROBE_TOLERANCE) {
-        EXIT_TRAMWIZ:
+      uint8_t p = 0;
+      float max = 0.0f;
+      FSTR_P plabel;
+      bool s = true;
+      for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) {
+        const float d = fabsf(zval[x][y]);
+        if (max < d) {
+          s = (zval[x][y] >= 0);
+          max = d;
+          p = y + 2 * x;
+        }
+      }
+      if (fabsf(meshViewer.max - meshViewer.min) < BED_TRAMMING_PROBE_TOLERANCE || UNEAR_ZERO(max)) {
         DWINUI::drawCenteredString(140, GET_TEXT_F(MSG_TRAMMING_DONE));
         DWINUI::drawCenteredString(160, GET_TEXT_F(MSG_TOLERANCE_ACHIEVED));
       }
       else {
-        uint8_t p = 0;
-        float max = 0.0f;
-        FSTR_P plabel;
-        bool s = true;
-        for (uint8_t x = 0; x < 2; ++x) for (uint8_t y = 0; y < 2; ++y) {
-          const float d = ABS(zval[x][y]);
-          if (max < d) {
-            s = (zval[x][y] >= 0);
-            max = d;
-            p = y + 2 * x;
-          }
-          else { goto EXIT_TRAMWIZ; } // fail-safe if Corners are = 0.00
-        }
         switch (p) {
           case 0b00 : plabel = GET_TEXT_F(MSG_TRAM_FL); break;
-          case 0b01 : plabel = GET_TEXT_F(MSG_TRAM_FR); break;
-          case 0b10 : plabel = GET_TEXT_F(MSG_TRAM_BR); break;
-          case 0b11 : plabel = GET_TEXT_F(MSG_TRAM_BL); break;
+          case 0b01 : plabel = GET_TEXT_F(MSG_TRAM_BL); break;
+          case 0b10 : plabel = GET_TEXT_F(MSG_TRAM_FR); break;
+          case 0b11 : plabel = GET_TEXT_F(MSG_TRAM_BR); break;
           default   : plabel = F(""); break;
         }
         DWINUI::drawCenteredString(120, GET_TEXT_F(MSG_CORNERS_NOT_LEVELED));
