@@ -1036,11 +1036,12 @@ void MarlinUI::init() {
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
+        static int8_t lastEncoderDiff;
+        if (lastEncoderDiff != encoderDiff) wake_display();
+
         #if ENCODER_PULSES_PER_STEP > 1
-          static int8_t lastEncoderDiff;
           static millis_t encoder_reset_timeout_ms;
           if (lastEncoderDiff != encoderDiff) {
-            wake_display();
             encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
           } else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
               // Reset encoder substeps after a while.
