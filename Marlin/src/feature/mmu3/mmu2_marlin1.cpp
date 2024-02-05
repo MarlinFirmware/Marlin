@@ -115,7 +115,7 @@
     #if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
       #if ALL(ADVANCED_PAUSE_FEATURE)
         xyz_pos_t park_point = NOZZLE_PARK_POINT;
-        nozzle.park(2, park_point);
+        nozzle.park(0, park_point);
       #endif
     #endif
   }
