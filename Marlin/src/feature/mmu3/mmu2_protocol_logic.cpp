@@ -854,14 +854,11 @@
         // We are ok, switching to Idle if there is no potential next request planned.
         // But the trouble is we must report a finished command if the previous command has just been finished
         // i.e. only try to find some planned command if we just finished the Idle cycle
-        bool previousCommandFinished = currentScope == Scope::Command; // @@TODO this is a nasty hack :(
         if (!ActivatePlannedRequest()) {                           // if nothing is planned, switch to Idle
           SwitchToIdle();
-        }
-        else {
+        } else if (ExpectsResponse()){
           // if the previous cycle was Idle and now we have planned a new command -> avoid returning Finished
-          if (!previousCommandFinished && currentScope == Scope::Command)
-            currentStatus = Processing;
+          currentStatus = Processing;
         }
       }
       break;
