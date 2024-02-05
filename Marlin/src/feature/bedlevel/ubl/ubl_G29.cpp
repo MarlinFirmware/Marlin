@@ -1445,7 +1445,7 @@ bool unified_bed_leveling::smart_fill_one(const uint8_t x, const uint8_t y, cons
   return false;
 }
 
-typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
+typedef struct { TERN(PROUI_ITEM_GRID, int, uint8_t) sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
 void unified_bed_leveling::smart_fill_mesh() {
   static const smart_fill_info
@@ -1687,7 +1687,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     // being extrapolated so that nearby points will have greater influence on
     // the point being extrapolated.  Then extrapolate the mesh point from WLSF.
 
-    static_assert((GRID_MAX_POINTS_Y) <= 16, "GRID_MAX_POINTS_Y too big");
+    static_assert((TERN(PROUI_ITEM_GRID, GRID_LIMIT, GRID_MAX_POINTS_Y)) <= 16, "GRID_MAX_POINTS_Y too big");
     uint16_t bitmap[GRID_MAX_POINTS_X] = { 0 };
     struct linear_fit_data lsf_results;
 

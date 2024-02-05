@@ -33,7 +33,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   inline void serial_delay(const millis_t) {}
 #endif
 
-#if GRID_MAX_POINTS
+#if TERN(PROUI_ITEM_GRID, HAS_MESH, GRID_MAX_POINTS)
 
   // 16x16 bit arrays
   template <int W, int H>
@@ -49,7 +49,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
     inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
   };
 
-  typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
+  typedef FlagBits<TERN(PROUI_ITEM_GRID, GRID_LIMIT, GRID_MAX_POINTS_X), TERN(PROUI_ITEM_GRID, GRID_LIMIT, GRID_MAX_POINTS_Y)> MeshFlags;
 
 #endif
 

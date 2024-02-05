@@ -4057,10 +4057,10 @@ void drawMaxAccelMenu() {
     void drawMeshPoints(bool selected, int8_t line, int8_t value) {
       char mpmsg[10];
       sprintf(mpmsg, "%ix%i", value, value);
-      if (selected) { DWINUI::Draw_String(DWINUI::textColor, hmiData.colorSelected, VALX + MENU_CHR_H, MBASE(line), mpmsg); }
-      else { DWINUI::Draw_String(VALX + MENU_CHR_H, MBASE(line), mpmsg); }
+      if (selected) { DWINUI::drawString(DWINUI::textColor, hmiData.colorSelected, VALX + MENU_CHR_H, MBASE(line), mpmsg); }
+      else { DWINUI::drawString(VALX + MENU_CHR_H, MBASE(line), mpmsg); }
     }
-    void onDrawMeshPoints(MenuItemClass* menuitem, int8_t line) {
+    void onDrawMeshPoints(MenuItem* menuitem, int8_t line) {
       onDrawMenuItem(menuitem, line);
       drawMeshPoints(false, line, hmiData.grid_max_points);
       redrawItem();
@@ -4068,7 +4068,7 @@ void drawMaxAccelMenu() {
 
     void applyMeshPoints() { hmiData.grid_max_points = menuData.value; }
 
-    void setMeshPoints() { SetPIntOnClick(GRID_MIN, GRID_LIMIT, applyMeshPoints); }
+    void setMeshPoints() { setPIntOnClick(GRID_MIN, GRID_LIMIT, applyMeshPoints); }
 
     // void ApplyMeshPoints() { ProEx.ApplyMeshPoints(); redrawMenu(); }
     // void LiveMeshPoints() { drawMeshPoints(true, currentMenu->line(), menuData.value); }
@@ -4149,13 +4149,13 @@ void drawMaxAccelMenu() {
 
   void drawMeshSetMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 15)) {
+    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 16)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
       #endif
-      EDIT_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawPInt8Menu, setMeshPoints, &PRO_data.grid_max_points);
-      MENU_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawMeshPoints, SetMeshPoints);
+      EDIT_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawPInt8Menu, setMeshPoints, &hmiData.grid_max_points);
+      MENU_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawMeshPoints, setMeshPoints);
       EDIT_ITEM(ICON_SetZOffset, MSG_Z_FADE_HEIGHT, onDrawPFloatMenu, setMeshFadeHeight, &planner.z_fade_height);
       EDIT_ITEM(ICON_UBLActive, MSG_ACTIVATE_MESH, onDrawChkbMenu, setMeshActive, &planner.leveling_active);
       #if HAS_BED_PROBE
