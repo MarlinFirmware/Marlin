@@ -1036,8 +1036,6 @@ void MarlinUI::init() {
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
-        uint8_t abs_diff = ABS(encoderDiff);
-
         #if ENCODER_PULSES_PER_STEP > 1
           static int8_t lastEncoderDiff;
           static millis_t encoder_reset_timeout_ms;
@@ -1052,6 +1050,7 @@ void MarlinUI::init() {
           lastEncoderDiff = encoderDiff;
         #endif
 
+        uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
