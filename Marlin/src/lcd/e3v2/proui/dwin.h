@@ -164,6 +164,7 @@ typedef struct {
   float mesh_max_x = DEF_MESH_MAX_X;
   float mesh_min_y = DEF_MESH_MIN_Y;
   float mesh_max_y = DEF_MESH_MAX_Y;
+  uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
 } hmi_data_t;
 
 extern hmi_data_t hmiData;

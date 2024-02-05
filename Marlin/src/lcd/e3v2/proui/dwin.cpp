@@ -1872,6 +1872,7 @@ void dwinSetDataDefaults() {
     hmiData.mesh_max_x = DEF_MESH_MAX_X;
     hmiData.mesh_min_y = DEF_MESH_MIN_Y;
     hmiData.mesh_max_y = DEF_MESH_MAX_Y;
+    hmiData.grid_max_points = DEF_GRID_MAX_POINTS;
   #endif
 
 }
@@ -4053,6 +4054,28 @@ void drawMaxAccelMenu() {
 //=============================================================================
 
 #if HAS_MESH
+    void drawMeshPoints(bool selected, int8_t line, int8_t value) {
+      char mpmsg[10];
+      sprintf(mpmsg, "%ix%i", value, value);
+      if (selected) { DWINUI::Draw_String(DWINUI::textColor, hmiData.colorSelected, VALX + MENU_CHR_H, MBASE(line), mpmsg); }
+      else { DWINUI::Draw_String(VALX + MENU_CHR_H, MBASE(line), mpmsg); }
+    }
+    void onDrawMeshPoints(MenuItemClass* menuitem, int8_t line) {
+      onDrawMenuItem(menuitem, line);
+      drawMeshPoints(false, line, hmiData.grid_max_points);
+      redrawItem();
+    }
+
+    void applyMeshPoints() { hmiData.grid_max_points = menuData.value; }
+
+    void setMeshPoints() { SetPIntOnClick(GRID_MIN, GRID_LIMIT, applyMeshPoints); }
+
+    // void ApplyMeshPoints() { ProEx.ApplyMeshPoints(); redrawMenu(); }
+    // void LiveMeshPoints() { drawMeshPoints(true, currentMenu->line(), menuData.value); }
+    // void SetMeshPoints() {
+    //   setOnClick(ID_SetIntNoDraw, GRID_MIN, GRID_LIMIT, 0, hmiData.grid_max_points, ApplyMeshPoints, LiveMeshPoints);
+    //   ProEx.DrawMeshPoints(true, currentMenu->line(), hmiData.grid_max_points);
+    // }
 
   void applyMeshFadeHeight() { set_z_fade_height(planner.z_fade_height); }
   void setMeshFadeHeight() { setPFloatOnClick(0, 100, 1, applyMeshFadeHeight); }
@@ -4131,6 +4154,8 @@ void drawMaxAccelMenu() {
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
       #endif
+      EDIT_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawPInt8Menu, setMeshPoints, &PRO_data.grid_max_points);
+      MENU_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawMeshPoints, SetMeshPoints);
       EDIT_ITEM(ICON_SetZOffset, MSG_Z_FADE_HEIGHT, onDrawPFloatMenu, setMeshFadeHeight, &planner.z_fade_height);
       EDIT_ITEM(ICON_UBLActive, MSG_ACTIVATE_MESH, onDrawChkbMenu, setMeshActive, &planner.leveling_active);
       #if HAS_BED_PROBE

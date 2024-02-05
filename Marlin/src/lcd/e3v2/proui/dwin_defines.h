@@ -76,8 +76,8 @@
 #else
   #define DEF_Z_AFTER_HOMING 0
 #endif
-#define DEF_HOTENDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 195)
-#define DEF_BEDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 60)
+#define DEF_HOTENDPIDT PREHEAT_1_TEMP_HOTEND
+#define DEF_BEDPIDT PREHEAT_1_TEMP_BED
 #define DEF_PIDCYCLES 5
 #if HAS_BED_PROBE
   constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
@@ -105,6 +105,7 @@
   #ifndef   MESH_MAX_Y
     #define MESH_MAX_Y  Y_BED_SIZE - (MESH_INSET)
   #endif
+  constexpr uint16_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
   constexpr uint16_t DEF_MESH_MIN_X = MESH_MIN_X;
   constexpr uint16_t DEF_MESH_MAX_X = MESH_MAX_X;
   constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
@@ -113,10 +114,16 @@
   #undef  MESH_MIN_Y
   #undef  MESH_MAX_X
   #undef  MESH_MAX_Y
+  #undef GRID_MAX_POINTS_X
+  #undef GRID_MAX_POINTS_Y
+  #undef GRID_MAX_POINTS
   #define MESH_MIN_X hmiData.mesh_min_x
   #define MESH_MIN_Y hmiData.mesh_max_x
   #define MESH_MAX_X hmiData.mesh_min_y
   #define MESH_MAX_Y hmiData.mesh_max_y
+  #define GRID_MAX_POINTS_X hmiData.grid_max_points
+  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
+  #define GRID_MAX_POINTS (hmiData.grid_max_points * hmiData.grid_max_points)
 #endif
 
 /**
