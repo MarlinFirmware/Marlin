@@ -2831,8 +2831,6 @@
 
   //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
-
-  //#define FILAMENT_CHANGE_MENU_AT_BOTTOM        // Add the filament change menu to the bottom of the main menu instead of below temperature.
 #endif
 
 // @section tmc_smart
