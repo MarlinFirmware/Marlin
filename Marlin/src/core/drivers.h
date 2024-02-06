@@ -120,6 +120,10 @@
   #define HAS_TMC220x 1
 #endif
 
+#if HAS_DRIVER(TMC26X)
+  #define HAS_TMC26X 1
+#endif
+
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
                            || AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) \
                            || AXIS_DRIVER_TYPE(A,TMC2660) \
@@ -184,10 +188,9 @@
 #if ANY_AXIS_HAS(SPI)
   #define HAS_TMC_SPI 1
 #endif
-
-//
-// TMC26XX Stepper Drivers
-//
-#if HAS_DRIVER(TMC26X)
-  #define HAS_TMC26X 1
+#if HAS_STALLGUARD || HAS_DRIVER(TMC2160_STANDALONE) || HAS_DRIVER(TMC2130_STANDALONE) \
+                   || HAS_DRIVER(TMC2209_STANDALONE) || HAS_DRIVER(TMC26X)             \
+                   || HAS_DRIVER(TMC26X_STANDALONE)  || HAS_DRIVER(TMC2660_STANDALONE) \
+                   || HAS_DRIVER(TMC5130_STANDALONE) || HAS_DRIVER(TMC5160_STANDALONE)
+  #define HAS_DIAG_PINS 1
 #endif
