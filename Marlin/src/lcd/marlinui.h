@@ -292,8 +292,10 @@ public:
     static constexpr uint8_t sleep_timeout_max = 99;
     static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
-    static void sleep_display(const bool sleep=true);
   #endif
+
+  static void sleep_display(const bool=true) IF_DISABLED(HAS_DISPLAY_SLEEP, {});
+  static void wake_display() { sleep_display(false); }
 
   #if HAS_DWIN_E3V2_BASIC
     static void refresh();
@@ -582,16 +584,7 @@ public:
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
-      #if HAS_TOUCH_SLEEP
-        static void wakeup_screen();
-      #endif
-
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_SOUND
-        static void completion_feedback(const bool good=true);
-      #else
-        static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
-      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
@@ -604,7 +597,7 @@ public:
 
       static void status_screen();
 
-    #endif
+    #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
       static bool drawing_screen, first_page;
@@ -635,8 +628,9 @@ public:
 
   #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}
-    static void completion_feedback(const bool=true) {}
   #endif
+
+  static void completion_feedback(const bool good=true);
 
   #if HAS_MEDIA
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)

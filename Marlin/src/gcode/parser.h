@@ -288,6 +288,17 @@ public:
   // Bool is true with no value or non-zero
   static bool value_bool() { return !has_value() || !!value_byte(); }
 
+  static constexpr bool axis_is_rotational(const AxisEnum axis) {
+    return (false
+      || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+      || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+      || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+      || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+      || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+      || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+    );
+  }
+
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
@@ -307,14 +318,7 @@ public:
     }
 
     static float axis_unit_factor(const AxisEnum axis) {
-      if (false
-        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-      ) return 1.0f;
+      if (axis_is_rotational(axis)) return 1.0f;
       #if HAS_EXTRUDERS
         if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
       #endif
@@ -327,12 +331,12 @@ public:
 
   #else
 
-    static float mm_to_linear_unit(const_float_t mm)     { return mm; }
-    static float mm_to_volumetric_unit(const_float_t mm) { return mm; }
+    static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static float linear_value_to_mm(const_float_t v)             { return v; }
-    static float axis_value_to_mm(const AxisEnum, const float v) { return v; }
-    static float per_axis_value(const AxisEnum, const float v)   { return v; }
+    static constexpr float linear_value_to_mm(const_float_t v)             { return v; }
+    static constexpr float axis_value_to_mm(const AxisEnum, const float v) { return v; }
+    static constexpr float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
@@ -402,7 +406,7 @@ public:
 
   #else // !TEMPERATURE_UNITS_SUPPORT
 
-    static float to_temp_units(int16_t c) { return (float)c; }
+    static constexpr float to_temp_units(int16_t c) { return (float)c; }
 
     static celsius_t value_celsius()      { return value_int(); }
     static celsius_t value_celsius_diff() { return value_int(); }
