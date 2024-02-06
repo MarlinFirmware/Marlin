@@ -2967,7 +2967,7 @@
     #define PROBE_OFFSET_XMAX  X_BED_SIZE
   #endif
   #ifndef PROBE_OFFSET_YMIN
-    #define PROBE_OFFSET_YMIN -(Y_BED_SIZE),
+    #define PROBE_OFFSET_YMIN -(Y_BED_SIZE)
   #endif
   #ifndef PROBE_OFFSET_YMAX
     #define PROBE_OFFSET_YMAX Y_BED_SIZE
