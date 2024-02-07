@@ -68,7 +68,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
-#define RESET_ENCODER_AFTER_MS (2000/ENCODER_PULSES_PER_STEP)
+#define RESET_ENCODER_AFTER_MS (2000UL / (ENCODER_PULSES_PER_STEP))
 
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
@@ -1043,15 +1043,17 @@ void MarlinUI::init() {
           static millis_t encoder_reset_timeout_ms;
           if (lastEncoderDiff != encoderDiff) {
             encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
-          } else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
-              // Reset encoder substeps after a while.
-              // This solves the issue of the haptic ticks of some encoders physically getting out of sync with the actual steps after a while .
-              encoderDiff = 0;
+          }
+          else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
+            // Reset encoder substeps after a while.
+            // This solves the issue of the haptic ticks of some encoders
+            // physically getting out of sync with the actual steps after a while.
+            encoderDiff = 0;
           }
           lastEncoderDiff = encoderDiff;
         #endif
 
-        uint8_t abs_diff = ABS(encoderDiff);
+        const uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
@@ -1411,22 +1413,20 @@ void MarlinUI::init() {
 
       #if HAS_ENCODER_WHEEL
         #define ENCODER_DEBOUNCE_MS 3 
-        static uint8_t lastEncoderBits;
-        static uint8_t enc;
+        static uint8_t lastEncoderBits, enc;
         static uint8_t buttons_was = buttons;
-        static millis_t en_A_blocked_ms;
-        static millis_t en_B_blocked_ms;
+        static millis_t en_A_blocked_ms, en_B_blocked_ms;
 
-        const bool en_A = (buttons & EN_A);
-        const bool en_B = (buttons & EN_B);
-        const bool en_A_was = (buttons_was & EN_A);
-        const bool en_B_was = (buttons_was & EN_B);
+        const bool en_A = (buttons & EN_A),
+                   en_B = (buttons & EN_B),
+                   en_A_was = (buttons_was & EN_A),
+                   en_B_was = (buttons_was & EN_B);
 
         buttons_was = buttons;
         
-        if (en_A != en_A_was) en_A_blocked_ms = now + ENCODER_DEBOUNCE_MS;
+        if (en_A != en_A_was) en_A_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
         else if (ELAPSED(now, en_A_blocked_ms)) SET_BIT_TO(enc, 0, en_A);
-        if (en_B != en_B_was) en_B_blocked_ms = now + ENCODER_DEBOUNCE_MS;
+        if (en_B != en_B_was) en_B_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
         else if (ELAPSED(now, en_B_blocked_ms)) SET_BIT_TO(enc, 1, en_B);
 
         #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; }
