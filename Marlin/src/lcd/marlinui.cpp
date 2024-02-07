@@ -1429,7 +1429,8 @@ void MarlinUI::init() {
         if (en_B != en_B_was) en_B_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
         else if (ELAPSED(now, en_B_blocked_ms)) SET_BIT_TO(enc, 1, en_B);
 
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; }
+        bool valid = true;
+        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; default: valid = false; }
         if (enc != lastEncoderBits) {
           switch (enc) {
             case 0: ENCODER_SPIN(1, 2); break;
@@ -1440,7 +1441,7 @@ void MarlinUI::init() {
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
-          lastEncoderBits = enc;
+          if (valid) lastEncoderBits = enc;
         }
 
       #endif // HAS_ENCODER_WHEEL
