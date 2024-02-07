@@ -42,7 +42,7 @@ struct mesh_index_pair;
 #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
-  typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  typedef int16_t mesh_store_t[TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)][TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y)];
 #endif
 
 typedef struct {
@@ -116,8 +116,9 @@ public:
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
-  static const float _mesh_index_to_xpos[TERN(PROUI_ITEM_GRID, GRID_LIMIT, GRID_MAX_POINTS_X)],
-                     _mesh_index_to_ypos[TERN(PROUI_ITEM_GRID, GRID_LIMIT, GRID_MAX_POINTS_Y)];
+
+  static const bed_mesh_t _mesh_index_to_xpos,
+                          _mesh_index_to_ypos;
 
   #if HAS_MARLINUI_MENU
     static bool lcd_map_control;

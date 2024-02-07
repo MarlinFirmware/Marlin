@@ -1498,13 +1498,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
   #endif
 
-  #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
-    #if MULTIPLE_PROBING == 0
-      #error "EXTRA_PROBING requires MULTIPLE_PROBING."
-    #elif MULTIPLE_PROBING < 2
-      #error "MULTIPLE_PROBING must be 2 or more."
-    #elif MULTIPLE_PROBING <= EXTRA_PROBING
-      #error "EXTRA_PROBING must be less than MULTIPLE_PROBING."
+  #if DISABLED(DWIN_LCD_PROUI)
+    #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
+      #if MULTIPLE_PROBING == 0
+        #error "EXTRA_PROBING requires MULTIPLE_PROBING."
+      #elif MULTIPLE_PROBING < 2
+        #error "MULTIPLE_PROBING must be 2 or more."
+      #elif MULTIPLE_PROBING <= EXTRA_PROBING
+        #error "EXTRA_PROBING must be less than MULTIPLE_PROBING."
+      #endif
     #endif
   #endif
 
@@ -1555,30 +1557,31 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Bed Leveling Requirements
  */
-#if !PROUI_ITEM_GRID
-#if IS_SCARA && ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  #error "SCARA machines can only use AUTO_BED_LEVELING_BILINEAR or MESH_BED_LEVELING."
-#elif ENABLED(AUTO_BED_LEVELING_LINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 2, 255) && WITHIN(GRID_MAX_POINTS_Y, 2, 255))
-  #error "GRID_MAX_POINTS_[XY] must be between 2 and 255 with AUTO_BED_LEVELING_LINEAR."
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
-  #error "GRID_MAX_POINTS_[XY] must be between 3 and 255 with AUTO_BED_LEVELING_BILINEAR."
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-  #if ENABLED(POLAR)
-    #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
-  #elif DISABLED(EEPROM_SETTINGS)
-    #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
-  #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
-    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
-  #elif ALL(UBL_HILBERT_CURVE, DELTA)
-    #error "UBL_HILBERT_CURVE can only be used with a square / rectangular printable area."
+
+#if !PROUI_GRID_PNTS
+  #if IS_SCARA && ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
+    #error "SCARA machines can only use AUTO_BED_LEVELING_BILINEAR or MESH_BED_LEVELING."
+  #elif ENABLED(AUTO_BED_LEVELING_LINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 2, 255) && WITHIN(GRID_MAX_POINTS_Y, 2, 255))
+    #error "GRID_MAX_POINTS_[XY] must be between 2 and 255 with AUTO_BED_LEVELING_LINEAR."
+  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !(WITHIN(GRID_MAX_POINTS_X, 3, 255) && WITHIN(GRID_MAX_POINTS_Y, 3, 255))
+    #error "GRID_MAX_POINTS_[XY] must be between 3 and 255 with AUTO_BED_LEVELING_BILINEAR."
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(POLAR)
+      #error "AUTO_BED_LEVELING_UBL does not yet support POLAR printers."
+    #elif DISABLED(EEPROM_SETTINGS)
+      #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS."
+    #elif !WITHIN(GRID_MAX_POINTS_X, 3, 255) || !WITHIN(GRID_MAX_POINTS_Y, 3, 255)
+      #error "GRID_MAX_POINTS_[XY] must be between 3 and 255."
+    #elif ALL(UBL_HILBERT_CURVE, DELTA)
+      #error "UBL_HILBERT_CURVE can only be used with a square / rectangular printable area."
+    #endif
+  #elif ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(DELTA)
+      #error "MESH_BED_LEVELING is not compatible with DELTA printers."
+    #elif (GRID_MAX_POINTS_X) > 9 || (GRID_MAX_POINTS_Y) > 9
+      #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
+    #endif
   #endif
-#elif ENABLED(MESH_BED_LEVELING)
-  #if ENABLED(DELTA)
-    #error "MESH_BED_LEVELING is not compatible with DELTA printers."
-  #elif (GRID_MAX_POINTS_X) > 9 || (GRID_MAX_POINTS_Y) > 9
-    #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
-  #endif
-#endif
 #endif
 
 #define _POINT_COUNT (defined(PROBE_PT_1) + defined(PROBE_PT_2) + defined(PROBE_PT_3))
@@ -1594,10 +1597,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ALL(HAS_MESH, CLASSIC_JERK)
   static_assert(DEFAULT_ZJERK > 0.1, "Low DEFAULT_ZJERK values are incompatible with mesh-based leveling.");
 #endif
-#if !PROUI_ITEM_GRID
-#if HAS_MESH && DGUS_LCD_UI_IA_CREALITY && GRID_MAX_POINTS > 25
-  #error "DGUS_LCD_UI IA_CREALITY requires a mesh with no more than 25 points as defined by GRID_MAX_POINTS_X/Y."
-#endif
+#if !PROUI_GRID_PNTS
+  #if HAS_MESH && DGUS_LCD_UI_IA_CREALITY && GRID_MAX_POINTS > 25
+    #error "DGUS_LCD_UI IA_CREALITY requires a mesh with no more than 25 points as defined by GRID_MAX_POINTS_X/Y."
+  #endif
 #endif
 
 #if ENABLED(G26_MESH_VALIDATION)

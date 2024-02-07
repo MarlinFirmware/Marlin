@@ -67,6 +67,13 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  float MarlinUI::mesh_inset_min_x = DEF_MESH_MIN_X;
+  float MarlinUI::mesh_inset_max_x = DEF_MESH_MAX_X;
+  float MarlinUI::mesh_inset_min_y = DEF_MESH_MIN_Y;
+  float MarlinUI::mesh_inset_max_y = DEF_MESH_MAX_Y;
+#endif
+
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0

@@ -53,6 +53,7 @@
   #include "../../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
+  #include "../../../lcd/e3v2/proui/meshviewer.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -105,7 +106,7 @@ public:
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
+    TERN(PROUI_GRID_PNTS, const, static constexpr) grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
   #if ABL_USES_GRID
@@ -121,7 +122,7 @@ public:
       bool                topography_map;
       xy_uint8_t          grid_points;
     #else // Bilinear
-      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      IF_DISABLED(PROUI_GRID_PNTS, static constexpr) xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -139,8 +140,10 @@ public:
 };
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  constexpr xy_uint8_t G29_State::grid_points;
-  constexpr grid_count_t G29_State::abl_points;
+  #if DISABLED(PROUI_GRID_PNTS)
+    constexpr xy_uint8_t G29_State::grid_points;
+    constexpr grid_count_t G29_State::abl_points;
+  #endif
 #endif
 
 /**
@@ -254,6 +257,12 @@ G29_TYPE GcodeSuite::G29() {
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen_test('N'))
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
+  #if ENABLED(DWIN_LCD_PROUI)
+  else {
+    process_subcommands_now(F("G28Z"));
+    process_subcommands_now(F("G28XY"));
+  }
+  #endif
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false, false);
@@ -663,7 +672,7 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        TERN_(DWIN_LCD_PROUI, if (HMI_flag.cancel_lev) break);
+        TERN_(DWIN_LCD_PROUI, if (hmiFlag.cancel_lev) break);
 
         if (zig) {                      // Zig away from origin
           inStart = 0;                  // Left or front
@@ -777,12 +786,13 @@ G29_TYPE GcodeSuite::G29() {
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
+            TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(abl.meshCount.x, abl.meshCount.y, z));
 
           #endif
 
           abl.reenable = false; // Don't re-enable after modifying the mesh
           idle_no_sleep();
-          TERN_(DWIN_LCD_PROUI, if (HMI_flag.cancel_lev) break);
+          TERN_(DWIN_LCD_PROUI, if (hmiFlag.cancel_lev) break);
 
         } // inner
       } // outer

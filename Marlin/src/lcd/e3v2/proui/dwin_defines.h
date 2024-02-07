@@ -83,10 +83,16 @@
 /**
  * ProUI internal feature flags
  */
-#define PROUI_MESH_EDIT       // Add a menu to edit mesh points
-#if ENABLED(PROUI_MESH_EDIT)
-  #define Z_OFFSET_MIN  -3.0  // (mm)
-  #define Z_OFFSET_MAX   3.0  // (mm)
+#if HAS_MESH
+  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset + points
+  #if ENABLED(PROUI_MESH_EDIT)
+    #define Z_OFFSET_MIN  -3.0  // (mm)
+    #define Z_OFFSET_MAX   3.0  // (mm)
+  #endif
+  #define PROUI_GRID_PNTS 1   // Add a menu item to change GRID_MAX_POINTS - grid array
+#endif
+#if HAS_BED_PROBE
+  #define PROUI_ITEM_ZFRS     // Add a menu item to change Z_PROBE_FEEDRATE_SLOW - probe speed
 #endif
 #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
   #define PROUI_MEDIASORT     // Enable option to sort G-code files
@@ -106,13 +112,6 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
-#if HAS_BED_PROBE
-  #define PROUI_ITEM_ZFRS     // Change Z_PROBE_FEEDRATE_SLOW - probe speed
-#endif
-#if HAS_MESH
-  #define PROUI_ITEM_GRID 1   // Change GRID_MAX_POINTS - grid array
-  #define PROUI_ITEM_MESH 1   // Change MESH_INSET - mesh size
-#endif
 #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
@@ -122,13 +121,26 @@
 /**
  * ProUI extra features
  */
+#include "../../../core/types.h"
 #if HAS_BED_PROBE
   constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
   #undef  Z_PROBE_FEEDRATE_SLOW
   #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
 #endif
 
-#if PROUI_ITEM_MESH
+#if PROUI_GRID_PNTS
+  constexpr uint8_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
+  #undef GRID_MAX_POINTS_X
+  #undef GRID_MAX_POINTS_Y
+  #undef GRID_MAX_POINTS
+  #define GRID_MAX_POINTS_X hmiData.grid_max_points
+  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
+  #define GRID_MAX_POINTS (hmiData.grid_max_points * hmiData.grid_max_points)
+  #define GRID_MIN 3
+  #define GRID_LIMIT 9
+#endif
+
+#if ENABLED(PROUI_MESH_EDIT)
   #ifndef   MESH_INSET
     #define MESH_INSET 10
   #endif
@@ -149,23 +161,18 @@
   constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
   constexpr uint16_t DEF_MESH_MAX_Y = MESH_MAX_Y;
   #undef  MESH_MIN_X
-  #undef  MESH_MIN_Y
   #undef  MESH_MAX_X
+  #undef  MESH_MIN_Y
   #undef  MESH_MAX_Y
-  #define MESH_MIN_X hmiData.mesh_min_x
-  #define MESH_MIN_Y hmiData.mesh_max_x
-  #define MESH_MAX_X hmiData.mesh_min_y
-  #define MESH_MAX_Y hmiData.mesh_max_y
+  //#include "../../marlinui.h"
+  #define MESH_MIN_X ui.mesh_inset_min_x
+  #define MESH_MAX_X ui.mesh_inset_max_x
+  #define MESH_MIN_Y ui.mesh_inset_min_y
+  #define MESH_MAX_Y ui.mesh_inset_max_y
+  #define MIN_MESH_INSET 0
+  #define MAX_MESH_INSET X_BED_SIZE
 #endif
 
-#if PROUI_ITEM_GRID
-  constexpr uint16_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
-  #undef GRID_MAX_POINTS_X
-  #undef GRID_MAX_POINTS_Y
-  #undef GRID_MAX_POINTS
-  #define GRID_MAX_POINTS_X hmiData.grid_max_points
-  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
-  #define GRID_MAX_POINTS (hmiData.grid_max_points * hmiData.grid_max_points)
-  #define GRID_MIN 3
-  #define GRID_LIMIT 9
+#ifndef MULTIPLE_PROBING
+  #define MULTIPLE_PROBING 0
 #endif

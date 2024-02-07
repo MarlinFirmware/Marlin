@@ -155,16 +155,10 @@ typedef struct {
     bool enablePreview = true;
   #endif
   #if HAS_BED_PROBE
-    #if DISABLED(BD_SENSOR)
-      uint8_t multipleProbing = MULTIPLE_PROBING;
-    #endif
+    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
     uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
-  float mesh_min_x = DEF_MESH_MIN_X;
-  float mesh_max_x = DEF_MESH_MAX_X;
-  float mesh_min_y = DEF_MESH_MIN_Y;
-  float mesh_max_y = DEF_MESH_MAX_Y;
-  uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
+  TERN_(PROUI_GRID_PNTS, uint8_t grid_max_points = DEF_GRID_MAX_POINTS);
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
@@ -426,3 +420,7 @@ void drawMaxAccelMenu();
     void dwinMPCTuning(tempcontrol_t result);
   #endif
 #endif
+
+// /**
+//  * ProUI extra features
+//  */

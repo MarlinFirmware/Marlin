@@ -30,10 +30,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #include "../lcd/e3v2/proui/dwin.h"
-#endif
-
 #if IS_SCARA
   #include "scara.h"
 #elif ENABLED(POLAR)
@@ -237,9 +233,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
-    #if HAS_HOTEND_OFFSET
-      , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
-    #endif
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
   );
   #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
 
@@ -414,7 +408,10 @@ void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
   #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    #include "../lcd/e3v2/proui/dwin.h"
+    #ifndef Z_POST_CLEARANCE
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
+    #endif
   #elif defined(Z_AFTER_HOMING)
     #define Z_POST_CLEARANCE Z_AFTER_HOMING
   #else

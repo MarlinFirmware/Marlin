@@ -1535,20 +1535,20 @@ void dwinHomingDone() {
     #endif
   }
 
-  void dwinLevelingDone() {
-    #if HAS_MESH
-      if (hmiFlag.cancel_lev) {
-        probe.stow();
-        reset_bed_level();
-        hmiReturnScreen();
-        dwinUpdateLCD();
-        ui.set_status(F("Mesh was cancelled"));
-      }
-      else {
-        gotoMeshViewer(true);
-      }
-    #endif
-  }
+  #if ALL(HAS_MESH, HAS_BED_PROBE)
+    void dwinLevelingDone() {
+        if (hmiFlag.cancel_lev) {
+          probe.stow();
+          reset_bed_level();
+          hmiReturnScreen();
+          dwinUpdateLCD();
+          ui.set_status(F("Mesh was cancelled"));
+        }
+        else {
+          gotoMeshViewer(true);
+        }
+    }
+  #endif
 #endif // HAS_LEVELING
 
 #if HAS_MESH
@@ -1864,14 +1864,10 @@ void dwinSetDataDefaults() {
   TERN_(ADAPTIVE_STEP_SMOOTHING, hmiData.adaptiveStepSmoothing = true);
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
   #if HAS_BED_PROBE
-    IF_DISABLED(BD_SENSOR, hmiData.multipleProbing = MULTIPLE_PROBING);
+    IF_DISABLED(BD_SENSOR, hmiData.multiple_probing = MULTIPLE_PROBING);
     hmiData.zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
-  #if HAS_MESH
-    hmiData.mesh_min_x = DEF_MESH_MIN_X;
-    hmiData.mesh_max_x = DEF_MESH_MAX_X;
-    hmiData.mesh_min_y = DEF_MESH_MIN_Y;
-    hmiData.mesh_max_y = DEF_MESH_MAX_Y;
+  #if ENABLED(PROUI_MESH_EDIT)
     hmiData.grid_max_points = DEF_GRID_MAX_POINTS;
   #endif
 
@@ -2318,8 +2314,8 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   #endif
 
   #if DISABLED(BD_SENSOR)
-    void applyProbeMultiple() { hmiData.multipleProbing = menuData.value; }
-    void setProbeMultiple()  { setIntOnClick(0, 4, hmiData.multipleProbing, applyProbeMultiple); }
+    void applyProbeMultiple() { hmiData.multiple_probing = menuData.value; }
+    void setProbeMultiple()  { setIntOnClick(0, 4, hmiData.multiple_probing, applyProbeMultiple); }
   #endif
 
   void setProbeZSpeed()  { setPIntOnClick(60, 1000); }
@@ -3312,7 +3308,7 @@ void drawMoveMenu() {
       #if HAS_Z_AXIS
         EDIT_ITEM(ICON_ProbeOffsetZ, MSG_ZPROBE_ZOFFSET, onDrawPFloat2Menu, setProbeOffsetZ, &probe.offset.z);
       #endif
-      IF_DISABLED(BD_SENSOR, EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multipleProbing));
+      IF_DISABLED(BD_SENSOR, EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multiple_probing));
       EDIT_ITEM(ICON_ProbeZSpeed, MSG_Z_FEED_RATE, onDrawPIntMenu, setProbeZSpeed, &hmiData.zprobeFeed);
       #if ENABLED(BLTOUCH)
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, probeStow);
@@ -4174,7 +4170,6 @@ void drawMaxAccelMenu() {
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
-      MENU_ITEM(ICON_PrintSize, MSG_MESH_LEVELING, onDrawSubMenu, drawMeshInsetMenu);
     }
     updateMenu(meshMenu);
   }
@@ -4184,31 +4179,22 @@ void drawMaxAccelMenu() {
       if (!leveling_is_valid()) { LCD_MESSAGE(MSG_UBL_MESH_INVALID); return; }
       set_bed_leveling_enabled(false);
       checkkey = ID_Menu;
-      if (SET_MENU(editMeshMenu, MSG_EDIT_MESH, 4)) {
+      if (SET_MENU(editMeshMenu, MSG_EDIT_MESH, 10)) {
         bedLevelTools.mesh_x = bedLevelTools.mesh_y = 0;
         BACK_ITEM(drawMeshSetMenu);
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
+        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_X, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_min_x);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_max_x);
+        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_Y, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_min_y);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_max_y);
+        //MENU_ITEM(254 /*ICON_AxisC*/, MSG_MESH_AMAX, onDrawMenuItem, maxMeshArea);
+        //MENU_ITEM(ICON_SetHome, MSG_MESH_CENTER, onDrawMenuItem, centerMeshArea);
       }
       updateMenu(editMeshMenu);
     }
   #endif
-
-  void drawMeshInsetMenu() {
-    checkkey = ID_Menu;
-    if (SET_MENU(meshInsetMenu, MSG_MESH_INSET, 7)) {
-      BACK_ITEM(drawMeshSetMenu);
-      EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_x);
-      EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_x);
-      EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_y);
-      EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_y);
-      //MENU_ITEM(254 /*ICON_AxisC*/, MSG_MESH_AMAX, onDrawMenuItem, maxMeshArea);
-      //MENU_ITEM(ICON_SetHome, MSG_MESH_CENTER, onDrawMenuItem, centerMeshArea);
-    }
-    updateMenu(meshInsetMenu);
-    //LCD_MESSAGE_F("..Center Area sets mesh equidistant by greatest inset from edge.");
-  }
 
 #endif // HAS_MESH
 

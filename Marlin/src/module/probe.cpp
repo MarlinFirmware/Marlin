@@ -949,14 +949,14 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
     const float z1 = current_position.z;
 
     // Do a slow probe for the last probe
-    for (uint8_t p = 0; p < hmiData.multipleProbing - 1; p++) {
+    for (uint8_t p = 0; p < hmiData.multiple_probing - 1; p++) {
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW), sanity_check)) return NAN;
       const float z = current_position.z;
       probes_z_sum += z;
     }
     // Calculate the average measured Z value
     probes_z_sum += z1;
-    const float measured_z = probes_z_sum * RECIPROCAL(hmiData.multipleProbing);
+    const float measured_z = probes_z_sum * RECIPROCAL(hmiData.multiple_probing);
 
     return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[active_extruder].z);
 }
@@ -1013,7 +1013,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
 
   float probes_z_sum = 0;
-  for (uint8_t p = 0; p < hmiData.multipleProbing; p++) {
+  for (uint8_t p = 0; p < hmiData.multiple_probing; p++) {
     // If the probe won't tare, return
     if (TERN0(PROBE_TARE, tare())) return true;
 
@@ -1026,10 +1026,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
     const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
     probes_z_sum += z;
     // Small Z raise after all but the last probe
-    if (p < hmiData.multipleProbing - 1) do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
+    if (p < hmiData.multiple_probing - 1) do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
   }
 
-  const float measured_z = (z1 + probes_z_sum) * RECIPROCAL(hmiData.multipleProbing);
+  const float measured_z = (z1 + probes_z_sum) * RECIPROCAL(hmiData.multiple_probing);
 
   return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[active_extruder].z);
 }
