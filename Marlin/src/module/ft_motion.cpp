@@ -497,7 +497,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               oneOverLength = 1.0f / totalLength;
 
   startPosn = endPosn_prevBlock;
-  xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
+  const xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
     current_block->steps.e * planner.mm_per_step[E_AXIS_N(current_block->extruder)] * (current_block->direction_bits.e ? 1 : -1),
     current_block->steps.x * planner.mm_per_step[X_AXIS] * (current_block->direction_bits.x ? 1 : -1),
     current_block->steps.y * planner.mm_per_step[Y_AXIS] * (current_block->direction_bits.y ? 1 : -1),
@@ -509,11 +509,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
     current_block->steps.v * planner.mm_per_step[V_AXIS] * (current_block->direction_bits.v ? 1 : -1),
     current_block->steps.w * planner.mm_per_step[W_AXIS] * (current_block->direction_bits.w ? 1 : -1)
   );
-
-  //
-  // TODO: Set stepper.axis_did_move for each axis moving with this
-  //       block, taking account of Core / Markforged kinematics.
-  //
 
   ratio = moveDist * oneOverLength;
 

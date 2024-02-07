@@ -2218,6 +2218,90 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
   return calc_timer_interval(step_rate);
 }
 
+// Method to get all moving axes (for proper endstop handling)
+void Stepper::set_axis_moved_for_current_block() {
+
+  #if IS_CORE
+    // Define conditions for checking endstops
+    #define S_(N) current_block->steps[CORE_AXIS_##N]
+    #define D_(N) current_block->direction_bits[CORE_AXIS_##N]
+  #endif
+
+  #if CORE_IS_XY || CORE_IS_XZ
+    /**
+     * Head direction in -X axis for CoreXY and CoreXZ bots.
+     *
+     * If steps differ, both axes are moving.
+     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
+     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
+     */
+    #if ANY(COREXY, COREXZ)
+      #define X_CMP(A,B) ((A)==(B))
+    #else
+      #define X_CMP(A,B) ((A)!=(B))
+    #endif
+    #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && X_CMP(D_(1),D_(2))) )
+  #elif ENABLED(MARKFORGED_XY)
+    #define X_MOVE_TEST (current_block->steps.a != current_block->steps.b)
+  #else
+    #define X_MOVE_TEST !!current_block->steps.a
+  #endif
+
+  #if CORE_IS_XY || CORE_IS_YZ
+    /**
+     * Head direction in -Y axis for CoreXY / CoreYZ bots.
+     *
+     * If steps differ, both axes are moving
+     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
+     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
+     */
+    #if ANY(COREYX, COREYZ)
+      #define Y_CMP(A,B) ((A)==(B))
+    #else
+      #define Y_CMP(A,B) ((A)!=(B))
+    #endif
+    #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Y_CMP(D_(1),D_(2))) )
+  #elif ENABLED(MARKFORGED_YX)
+    #define Y_MOVE_TEST (current_block->steps.a != current_block->steps.b)
+  #else
+    #define Y_MOVE_TEST !!current_block->steps.b
+  #endif
+
+  #if CORE_IS_XZ || CORE_IS_YZ
+    /**
+     * Head direction in -Z axis for CoreXZ or CoreYZ bots.
+     *
+     * If steps differ, both axes are moving
+     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
+     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
+     */
+    #if ANY(COREZX, COREZY)
+      #define Z_CMP(A,B) ((A)==(B))
+    #else
+      #define Z_CMP(A,B) ((A)!=(B))
+    #endif
+    #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Z_CMP(D_(1),D_(2))) )
+  #else
+    #define Z_MOVE_TEST !!current_block->steps.c
+  #endif
+
+  // Set flags for all axes that move in this block
+  // These are set per-axis, not per-stepper
+  AxisBits didmove;
+  NUM_AXIS_CODE(
+    if (X_MOVE_TEST)              didmove.a = true, // Cartesian X or Kinematic A
+    if (Y_MOVE_TEST)              didmove.b = true, // Cartesian Y or Kinematic B
+    if (Z_MOVE_TEST)              didmove.c = true, // Cartesian Z or Kinematic C
+    if (!!current_block->steps.i) didmove.i = true,
+    if (!!current_block->steps.j) didmove.j = true,
+    if (!!current_block->steps.k) didmove.k = true,
+    if (!!current_block->steps.u) didmove.u = true,
+    if (!!current_block->steps.v) didmove.v = true,
+    if (!!current_block->steps.w) didmove.w = true
+  );
+  axis_did_move = didmove;
+}
+
 /**
  * This last phase of the stepper interrupt processes and properly
  * schedules planner blocks. This is executed after the step pulses
@@ -2529,86 +2613,8 @@ hal_timer_t Stepper::block_phase_isr() {
         }
       #endif
 
-      // Flag all moving axes for proper endstop handling
-
-      #if IS_CORE
-        // Define conditions for checking endstops
-        #define S_(N) current_block->steps[CORE_AXIS_##N]
-        #define D_(N) current_block->direction_bits[CORE_AXIS_##N]
-      #endif
-
-      #if CORE_IS_XY || CORE_IS_XZ
-        /**
-         * Head direction in -X axis for CoreXY and CoreXZ bots.
-         *
-         * If steps differ, both axes are moving.
-         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
-         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
-         */
-        #if ANY(COREXY, COREXZ)
-          #define X_CMP(A,B) ((A)==(B))
-        #else
-          #define X_CMP(A,B) ((A)!=(B))
-        #endif
-        #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && X_CMP(D_(1),D_(2))) )
-      #elif ENABLED(MARKFORGED_XY)
-        #define X_MOVE_TEST (current_block->steps.a != current_block->steps.b)
-      #else
-        #define X_MOVE_TEST !!current_block->steps.a
-      #endif
-
-      #if CORE_IS_XY || CORE_IS_YZ
-        /**
-         * Head direction in -Y axis for CoreXY / CoreYZ bots.
-         *
-         * If steps differ, both axes are moving
-         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
-         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
-         */
-        #if ANY(COREYX, COREYZ)
-          #define Y_CMP(A,B) ((A)==(B))
-        #else
-          #define Y_CMP(A,B) ((A)!=(B))
-        #endif
-        #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Y_CMP(D_(1),D_(2))) )
-      #elif ENABLED(MARKFORGED_YX)
-        #define Y_MOVE_TEST (current_block->steps.a != current_block->steps.b)
-      #else
-        #define Y_MOVE_TEST !!current_block->steps.b
-      #endif
-
-      #if CORE_IS_XZ || CORE_IS_YZ
-        /**
-         * Head direction in -Z axis for CoreXZ or CoreYZ bots.
-         *
-         * If steps differ, both axes are moving
-         * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
-         * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
-         */
-        #if ANY(COREZX, COREZY)
-          #define Z_CMP(A,B) ((A)==(B))
-        #else
-          #define Z_CMP(A,B) ((A)!=(B))
-        #endif
-        #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Z_CMP(D_(1),D_(2))) )
-      #else
-        #define Z_MOVE_TEST !!current_block->steps.c
-      #endif
-
-      // Set flags for all axes that move in this block
-      AxisBits didmove;
-      NUM_AXIS_CODE(
-        if (X_MOVE_TEST)              didmove.a = true,
-        if (Y_MOVE_TEST)              didmove.b = true,
-        if (Z_MOVE_TEST)              didmove.c = true,
-        if (!!current_block->steps.i) didmove.i = true,
-        if (!!current_block->steps.j) didmove.j = true,
-        if (!!current_block->steps.k) didmove.k = true,
-        if (!!current_block->steps.u) didmove.u = true,
-        if (!!current_block->steps.v) didmove.v = true,
-        if (!!current_block->steps.w) didmove.w = true
-      );
-      axis_did_move = didmove;
+      // Set flags for all moving axes, accounting for kinematics
+      set_axis_moved_for_current_block();
 
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
@@ -3228,7 +3234,7 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #endif
 
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    // Core equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
+    // Core equations follow the form of the dA and dB equations at https://www.corexy.com/theory.html
     #if CORE_IS_XY
       count_position.set(spos.a + spos.b, CORESIGN(spos.a - spos.b) OPTARG(HAS_Z_AXIS, spos.c));
     #elif CORE_IS_XZ
@@ -3437,8 +3443,6 @@ void Stepper::report_positions() {
     if (!ftMotion.sts_stepperBusy) return;
 
     // "Pop" one command from current motion buffer
-    // Use one byte to restore one stepper command in the format:
-    // |X_step|X_direction|Y_step|Y_direction|Z_step|Z_direction|E_step|E_direction|
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
@@ -3447,68 +3451,38 @@ void Stepper::report_positions() {
 
     USING_TIMED_PULSE();
 
-    /**
-     * TODO: Use a local "did_move" for each STEPPER moved by this stepper command.
-     *       Only set stepper.axis_did_move when a new Planner block starts, taking
-     *       account of Core / Markforged kinematics.
-     */
-
-    axis_did_move = LOGICAL_AXIS_ARRAY(
-      TEST(command, FT_BIT_STEP_E),
-      TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
-      TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
-      TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
-    );
+    // Get FT Motion command flags for axis STEP / DIR
+    #define _FTM_STEP(AXIS) TEST(command, FT_BIT_STEP_##AXIS)
+    #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
 
     /**
-     * TODO: Set hx, hy, hz direction bits for Core kinematics when
-     *       the block is fetched and never overwrite them here.
+     * Update direction bits for steppers that were stepped by this command.
+     * HX, HY, HZ direction bits were set for Core kinematics
+     * when the block was fetched and are not overwritten here.
      */
-
-    LOGICAL_AXIS_CODE(
-      last_direction_bits.e = axis_did_move.e ? TEST(command, FT_BIT_DIR_E) : last_direction_bits.e,
-      last_direction_bits.x = axis_did_move.x ? TEST(command, FT_BIT_DIR_X) : last_direction_bits.x,
-      last_direction_bits.y = axis_did_move.y ? TEST(command, FT_BIT_DIR_Y) : last_direction_bits.y,
-      last_direction_bits.z = axis_did_move.z ? TEST(command, FT_BIT_DIR_Z) : last_direction_bits.z,
-      last_direction_bits.i = axis_did_move.i ? TEST(command, FT_BIT_DIR_I) : last_direction_bits.i,
-      last_direction_bits.j = axis_did_move.j ? TEST(command, FT_BIT_DIR_J) : last_direction_bits.j,
-      last_direction_bits.k = axis_did_move.k ? TEST(command, FT_BIT_DIR_K) : last_direction_bits.k,
-      last_direction_bits.u = axis_did_move.u ? TEST(command, FT_BIT_DIR_U) : last_direction_bits.u,
-      last_direction_bits.v = axis_did_move.v ? TEST(command, FT_BIT_DIR_V) : last_direction_bits.v,
-      last_direction_bits.w = axis_did_move.w ? TEST(command, FT_BIT_DIR_W) : last_direction_bits.w
-    );
+    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
+    LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
     // Apply directions (which will apply to the entire linear move)
-    LOGICAL_AXIS_CODE(
-      E_APPLY_DIR(last_direction_bits.e, false),
-      X_APPLY_DIR(last_direction_bits.x, false), Y_APPLY_DIR(last_direction_bits.y, false), Z_APPLY_DIR(last_direction_bits.z, false),
-      I_APPLY_DIR(last_direction_bits.i, false), J_APPLY_DIR(last_direction_bits.j, false), K_APPLY_DIR(last_direction_bits.k, false),
-      U_APPLY_DIR(last_direction_bits.u, false), V_APPLY_DIR(last_direction_bits.v, false), W_APPLY_DIR(last_direction_bits.w, false)
-    );
+    #define _FTM_APPLY_DIR(AXIS) AXIS##_APPLY_DIR(last_direction_bits[_AXIS(AXIS)], false);
+    LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
+    // Any DIR change requires a wait period
     DIR_WAIT_AFTER();
 
-    // Start a step pulse
-    LOGICAL_AXIS_CODE(
-      E_APPLY_STEP(axis_did_move.e, false),
-      X_APPLY_STEP(axis_did_move.x, false), Y_APPLY_STEP(axis_did_move.y, false), Z_APPLY_STEP(axis_did_move.z, false),
-      I_APPLY_STEP(axis_did_move.i, false), J_APPLY_STEP(axis_did_move.j, false), K_APPLY_STEP(axis_did_move.k, false),
-      U_APPLY_STEP(axis_did_move.u, false), V_APPLY_STEP(axis_did_move.v, false), W_APPLY_STEP(axis_did_move.w, false)
-    );
+    // Start step pulses
+    #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
+    LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
+    // Apply steps via I2S
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
     // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
     // Update step counts
-    LOGICAL_AXIS_CODE(
-      if (axis_did_move.e) count_position.e += last_direction_bits.e ? 1 : -1, if (axis_did_move.x) count_position.x += last_direction_bits.x ? 1 : -1,
-      if (axis_did_move.y) count_position.y += last_direction_bits.y ? 1 : -1, if (axis_did_move.z) count_position.z += last_direction_bits.z ? 1 : -1,
-      if (axis_did_move.i) count_position.i += last_direction_bits.i ? 1 : -1, if (axis_did_move.j) count_position.j += last_direction_bits.j ? 1 : -1,
-      if (axis_did_move.k) count_position.k += last_direction_bits.k ? 1 : -1, if (axis_did_move.u) count_position.u += last_direction_bits.u ? 1 : -1,
-      if (axis_did_move.v) count_position.v += last_direction_bits.v ? 1 : -1, if (axis_did_move.w) count_position.w += last_direction_bits.w ? 1 : -1
-    );
+    #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
+    LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     #if HAS_EXTRUDERS
       #if ENABLED(E_DUAL_STEPPER_DRIVERS)
@@ -3522,22 +3496,18 @@ void Stepper::report_positions() {
 
     // Only wait for axes without edge stepping
     const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!e_axis_has_dedge && axis_did_move.e),
-      || (!AXIS_HAS_DEDGE(X) && axis_did_move.x), || (!AXIS_HAS_DEDGE(Y) && axis_did_move.y), || (!AXIS_HAS_DEDGE(Z) && axis_did_move.z),
-      || (!AXIS_HAS_DEDGE(I) && axis_did_move.i), || (!AXIS_HAS_DEDGE(J) && axis_did_move.j), || (!AXIS_HAS_DEDGE(K) && axis_did_move.k),
-      || (!AXIS_HAS_DEDGE(U) && axis_did_move.u), || (!AXIS_HAS_DEDGE(V) && axis_did_move.v), || (!AXIS_HAS_DEDGE(W) && axis_did_move.w)
+      || (!e_axis_has_dedge  && _FTM_STEP(E)),
+      || (!AXIS_HAS_DEDGE(X) && _FTM_STEP(X)), || (!AXIS_HAS_DEDGE(Y) && _FTM_STEP(Y)), || (!AXIS_HAS_DEDGE(Z) && _FTM_STEP(Z)),
+      || (!AXIS_HAS_DEDGE(I) && _FTM_STEP(I)), || (!AXIS_HAS_DEDGE(J) && _FTM_STEP(J)), || (!AXIS_HAS_DEDGE(K) && _FTM_STEP(K)),
+      || (!AXIS_HAS_DEDGE(U) && _FTM_STEP(U)), || (!AXIS_HAS_DEDGE(V) && _FTM_STEP(V)), || (!AXIS_HAS_DEDGE(W) && _FTM_STEP(W))
     );
 
     // Allow pulses to be registered by stepper drivers
     if (any_wait) AWAIT_HIGH_PULSE();
 
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
-    LOGICAL_AXIS_CODE(
-      E_APPLY_STEP(!STEP_STATE_E, false),
-      X_APPLY_STEP(!STEP_STATE_X, false), Y_APPLY_STEP(!STEP_STATE_Y, false), Z_APPLY_STEP(!STEP_STATE_Z, false),
-      I_APPLY_STEP(!STEP_STATE_I, false), J_APPLY_STEP(!STEP_STATE_J, false), K_APPLY_STEP(!STEP_STATE_K, false),
-      U_APPLY_STEP(!STEP_STATE_U, false), V_APPLY_STEP(!STEP_STATE_V, false), W_APPLY_STEP(!STEP_STATE_W, false)
-    );
+    #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
+    LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
 
     // Check endstops on every step
     IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
@@ -3572,9 +3542,17 @@ void Stepper::report_positions() {
           return; // No queued blocks.
       }
 
-      #if IS_CORE
+      // Set flags for all moving axes, accounting for kinematics
+      set_axis_moved_for_current_block();
+
+      // Some kinematics track axis motion in HX, HY, HZ
+      #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
         last_direction_bits.hx = current_block->direction_bits.hx;
+      #endif
+      #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
         last_direction_bits.hy = current_block->direction_bits.hy;
+      #endif
+      #if ANY(CORE_IS_XZ, CORE_IS_YZ)
         last_direction_bits.hz = current_block->direction_bits.hz;
       #endif
 

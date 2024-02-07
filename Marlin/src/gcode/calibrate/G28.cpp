@@ -45,11 +45,7 @@
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
 #endif
-/*
-#if ALL(FT_MOTION, IS_CORE)
-  #include "../../module/ft_motion.h"
-#endif
-*/
+
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -236,22 +232,7 @@ void GcodeSuite::G28() {
   reset_stepper_timeout();
 
   #if NUM_AXES
-    /*
-    #if ALL(FT_MOTION, IS_CORE)
-      // Disable Fixed-Time Motion for homing
-      struct OnExit {
-        ftMotionMode_t oldmm;
-        OnExit() {
-          oldmm = ftMotion.cfg.mode;
-          ftMotion.cfg.mode = ftMotionMode_DISABLED;
-        }
-        ~OnExit() {
-          ftMotion.cfg.mode = oldmm;
-          ftMotion.init();
-        }
-      } on_exit;
-    #endif
-    */
+
     #if ENABLED(DUAL_X_CARRIAGE)
       bool IDEX_saved_duplication_state = extruder_duplication_enabled;
       DualXMode IDEX_saved_mode = dual_x_carriage_mode;
