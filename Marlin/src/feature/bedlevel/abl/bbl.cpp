@@ -37,12 +37,12 @@
 
 LevelingBilinear bedlevel;
 
-xy_pos_t LevelingBilinear::grid_spacing,
-         LevelingBilinear::grid_start;
 xy_float_t LevelingBilinear::grid_factor;
-bed_mesh_t LevelingBilinear::z_values;
-xy_pos_t LevelingBilinear::cached_rel;
+xy_pos_t LevelingBilinear::grid_spacing,
+         LevelingBilinear::grid_start,
+         LevelingBilinear::cached_rel;
 xy_int8_t LevelingBilinear::cached_g;
+bed_mesh_t LevelingBilinear::z_values;
 
 /**
  * Extrapolate a single point from its neighbors

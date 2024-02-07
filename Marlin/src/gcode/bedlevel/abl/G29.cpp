@@ -258,10 +258,10 @@ G29_TYPE GcodeSuite::G29() {
   if (parser.seen_test('N'))
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   #if ENABLED(DWIN_LCD_PROUI)
-  else {
-    process_subcommands_now(F("G28Z"));
-    process_subcommands_now(F("G28XY"));
-  }
+    else {
+      process_subcommands_now(F("G28Z"));
+      process_subcommands_now(F("G28XY"));
+    }
   #endif
 
   // Don't allow auto-leveling without homing first
