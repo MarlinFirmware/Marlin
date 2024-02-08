@@ -214,9 +214,10 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
+  bool is_pos_sync() { return flag.sync_position; }
   bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
   bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
+  bool is_sync() { return is_pos_sync() || is_fan_sync() || is_pwr_sync(); }
   bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
   bool is_move() { return !(is_sync() || is_page()); }
 

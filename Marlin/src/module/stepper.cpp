@@ -2561,9 +2561,10 @@ hal_timer_t Stepper::block_phase_isr() {
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
 
-      // Sync block? Sync the stepper counts or fan speeds and return
+      // Run through all sync blocks
       while (current_block->is_sync()) {
 
+        // Set laser power
         #if ENABLED(LASER_POWER_SYNC)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (current_block->is_pwr_sync()) {
@@ -2573,13 +2574,18 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif
 
-        TERN_(LASER_SYNCHRONOUS_M106_M107, if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed));
+        // Set "fan speeds" for a laser module
+        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+          if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed);
+        #endif
 
-        if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
+        // Set position
+        if (current_block->is_pos_sync()) _set_position(current_block->position);
 
+        // Done with this block
         discard_current_block();
 
-        // Try to get a new block
+        // Try to get a new block. Exit if there are no more.
         if (!(current_block = planner.get_current_block()))
           return interval; // No more queued movements!
       }
@@ -3531,10 +3537,29 @@ void Stepper::report_positions() {
     current_block = planner.get_current_block();
 
     if (current_block) {
-      // Sync block? Sync the stepper counts and return
-      while (current_block->is_sync()) {
-        TERN_(LASER_FEATURE, if (!(current_block->is_fan_sync() || current_block->is_pwr_sync()))) _set_position(current_block->position);
 
+      // Sync position, fan power, laser power?
+      while (current_block->is_sync()) {
+
+        // Set laser power
+        #if ENABLED(LASER_POWER_SYNC)
+          if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+            if (current_block->is_pwr_sync()) {
+              planner.laser_inline.status.isSyncPower = true;
+              cutter.apply_power(current_block->laser.power);
+            }
+          }
+        #endif
+
+        // Set "fan speeds" for a laser module
+        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+          if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed);
+        #endif
+
+        // Set position
+        if (current_block->is_pos_sync()) _set_position(current_block->position);
+
+        // Done with this block
         planner.release_current_block();
 
         // Try to get a new block
