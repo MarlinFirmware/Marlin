@@ -2961,16 +2961,16 @@
 #endif
 #if HAS_BED_PROBE
   #ifndef PROBE_OFFSET_XMIN
-    #define PROBE_OFFSET_XMIN -50
+    #define PROBE_OFFSET_XMIN -(X_BED_SIZE)
   #endif
   #ifndef PROBE_OFFSET_XMAX
-    #define PROBE_OFFSET_XMAX  50
+    #define PROBE_OFFSET_XMAX  X_BED_SIZE
   #endif
   #ifndef PROBE_OFFSET_YMIN
-    #define PROBE_OFFSET_YMIN -50
+    #define PROBE_OFFSET_YMIN -(Y_BED_SIZE)
   #endif
   #ifndef PROBE_OFFSET_YMAX
-    #define PROBE_OFFSET_YMAX  50
+    #define PROBE_OFFSET_YMAX Y_BED_SIZE
   #endif
   #if ALL(ENDSTOPPULLUPS, USE_Z_MIN_PROBE)
     #define ENDSTOPPULLUP_ZMIN_PROBE
