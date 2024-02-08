@@ -61,7 +61,7 @@
   #include HAL_PATH(.., inc/Conditionals_adv.h)
 #endif
 
-// TODO: for testing different bed leveling
+// ProUI extra featuresW
 #if ENABLED(DWIN_LCD_PROUI)
-  //#include "../lcd/e3v2/proui/dwin_defines.h"
+  #include "../lcd/e3v2/proui/dwin_defines.h"
 #endif

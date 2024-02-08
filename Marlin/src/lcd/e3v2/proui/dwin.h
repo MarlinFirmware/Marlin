@@ -424,3 +424,27 @@ void drawMaxAccelMenu();
 // /**
 //  * ProUI extra features
 //  */
+#if PROUI_GRID_PNTS
+  #undef  GRID_MAX_POINTS_X
+  #undef  GRID_MAX_POINTS_Y
+  #undef  GRID_MAX_POINTS
+  #define GRID_MAX_POINTS_X hmiData.grid_max_points
+  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
+  #define GRID_MAX_POINTS  (hmiData.grid_max_points * hmiData.grid_max_points)
+#endif
+#if HAS_BED_PROBE
+  #undef Z_PROBE_FEEDRATE_SLOW
+  #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
+#endif
+
+#if HAS_MESH
+  #undef  MESH_MIN_X
+  #undef  MESH_MAX_X
+  #undef  MESH_MIN_Y
+  #undef  MESH_MAX_Y
+  #include "../../marlinui.h"
+  #define MESH_MIN_X ui.mesh_inset_min_x
+  #define MESH_MAX_X ui.mesh_inset_max_x
+  #define MESH_MIN_Y ui.mesh_inset_min_y
+  #define MESH_MAX_Y ui.mesh_inset_max_y
+#endif

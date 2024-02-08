@@ -121,21 +121,12 @@
 /**
  * ProUI extra features
  */
-#include "../../../core/types.h"
 #if HAS_BED_PROBE
   constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
-  #undef  Z_PROBE_FEEDRATE_SLOW
-  #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
 #endif
 
 #if PROUI_GRID_PNTS
   constexpr uint8_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
-  #undef GRID_MAX_POINTS_X
-  #undef GRID_MAX_POINTS_Y
-  #undef GRID_MAX_POINTS
-  #define GRID_MAX_POINTS_X hmiData.grid_max_points
-  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
-  #define GRID_MAX_POINTS (hmiData.grid_max_points * hmiData.grid_max_points)
   #define GRID_MIN 3
   #define GRID_LIMIT 9
 #endif
@@ -160,15 +151,6 @@
   constexpr uint16_t DEF_MESH_MAX_X = MESH_MAX_X;
   constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
   constexpr uint16_t DEF_MESH_MAX_Y = MESH_MAX_Y;
-  #undef  MESH_MIN_X
-  #undef  MESH_MAX_X
-  #undef  MESH_MIN_Y
-  #undef  MESH_MAX_Y
-  //#include "../../marlinui.h"
-  #define MESH_MIN_X ui.mesh_inset_min_x
-  #define MESH_MAX_X ui.mesh_inset_max_x
-  #define MESH_MIN_Y ui.mesh_inset_min_y
-  #define MESH_MAX_Y ui.mesh_inset_max_y
   #define MIN_MESH_INSET 0
   #define MAX_MESH_INSET X_BED_SIZE
 #endif
