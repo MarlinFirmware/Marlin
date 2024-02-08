@@ -67,9 +67,6 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#define BLOCK_CLICK_AFTER_MOVEMENT_MS 100
-#define RESET_ENCODER_AFTER_MS (2000UL / (ENCODER_PULSES_PER_STEP))
-
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -939,7 +936,6 @@ void MarlinUI::init() {
   void MarlinUI::update() {
 
     static uint16_t max_display_update_time = 0;
-    static millis_t next_click_enable_ms = 0;
     const millis_t ms = millis();
 
     #if LED_POWEROFF_TIMEOUT > 0
@@ -990,12 +986,7 @@ void MarlinUI::init() {
       if (!touch_buttons) {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) {
-            if (ELAPSED(ms, next_click_enable_ms))
-              do_click();              // Handle the click
-            else
-              wait_for_unclick = true;
-          }
+          if (!wait_for_unclick) do_click();              // Handle the click
         }
         else
           wait_for_unclick = false;
@@ -1031,20 +1022,7 @@ void MarlinUI::init() {
 
         static int8_t lastEncoderDiff;
         if (lastEncoderDiff != encoderDiff) wake_display();
-
-        #if ENCODER_PULSES_PER_STEP > 1
-          static millis_t encoder_reset_timeout_ms;
-          if (lastEncoderDiff != encoderDiff) {
-            encoder_reset_timeout_ms = ms + RESET_ENCODER_AFTER_MS;
-          }
-          else if (ELAPSED(ms, encoder_reset_timeout_ms)) {
-            // Reset encoder substeps after a while.
-            // This solves the issue of the haptic ticks of some encoders
-            // physically getting out of sync with the actual steps after a while.
-            encoderDiff = 0;
-          }
-          lastEncoderDiff = encoderDiff;
-        #endif
+        lastEncoderDiff = encoderDiff;
 
         const uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
@@ -1084,7 +1062,6 @@ void MarlinUI::init() {
 
           int8_t fullSteps = encoderDiff / epps;
           if (fullSteps != 0) {
-            next_click_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
               encoderPosition += (fullSteps * encoder_multiplier);
@@ -1402,7 +1379,7 @@ void MarlinUI::init() {
       } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
-        #define ENCODER_DEBOUNCE_MS 3
+        #define ENCODER_DEBOUNCE_MS 2 
         static uint8_t lastEncoderBits, enc;
         static uint8_t buttons_was = buttons;
         static millis_t en_A_blocked_ms, en_B_blocked_ms;
@@ -1419,8 +1396,9 @@ void MarlinUI::init() {
         if (en_B != en_B_was) en_B_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
         else if (ELAPSED(now, en_B_blocked_ms)) SET_BIT_TO(enc, 1, en_B);
 
-        bool valid = true;
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; break; default: valid = false; }
+        static int8_t last_dir;
+        int8_t dir = 0;
+        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: dir = encoderDirection; break; case _E2: dir = -encoderDirection; break; }
         if (enc != lastEncoderBits) {
           switch (enc) {
             case 0: ENCODER_SPIN(1, 2); break;
@@ -1428,10 +1406,18 @@ void MarlinUI::init() {
             case 3: ENCODER_SPIN(2, 1); break;
             case 1: ENCODER_SPIN(3, 0); break;
           }
+          if (dir == 0) {
+            // The encoder is 2 pulses away from last update, assume same direction.
+            // Without this, the "tick" in encoders with 4 pulses per step get of synch with encoderPosition
+            encoderDiff += last_dir * 2;
+          } else {
+            encoderDiff += dir;
+            last_dir = dir;
+          }
+          lastEncoderBits = enc;
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
-          if (valid) lastEncoderBits = enc;
         }
 
       #endif // HAS_ENCODER_WHEEL
