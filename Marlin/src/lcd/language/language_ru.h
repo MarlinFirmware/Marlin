@@ -686,14 +686,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MESH_VIEW                        = _UxGT("Смотреть сетку");
   LSTR MSG_NO_VALID_MESH                    = _UxGT("Нет годной сетки");
   LSTR MSG_ACTIVATE_MESH                    = _UxGT("Включить сетку");
-  LSTR MSG_MESH_INSET                       = _UxGT("Отступы сетки");
-  LSTR MSG_MESH_MIN_X                       = _UxGT("Сетка X минимум");
-  LSTR MSG_MESH_MAX_X                       = _UxGT("Сетка X максимум");
-  LSTR MSG_MESH_MIN_Y                       = _UxGT("Сетка Y минимум");
-  LSTR MSG_MESH_MAX_Y                       = _UxGT("Сетка Y максимум");
-  LSTR MSG_MESH_AMAX                        = _UxGT("Максимальная зона");
-  LSTR MSG_MESH_CENTER                      = _UxGT("Центрировать зону");
-  LSTR MSG_MESH_CANCEL                      = _UxGT("Сетка отменена");
   LSTR MSG_UBL_TILT_MESH                    = _UxGT("Наколнить сетку");
   LSTR MSG_UBL_TILTING_GRID                 = _UxGT("Величина наклона");
   LSTR MSG_UBL_MESH_TILTED                  = _UxGT("Сетка наклонена");

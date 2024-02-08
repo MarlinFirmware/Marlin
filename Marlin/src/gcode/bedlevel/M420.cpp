@@ -156,14 +156,14 @@ void GcodeSuite::M420() {
 
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
-            GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+            GRID_LOOP_USED(x, y) mesh_sum += bedlevel.z_values[x][y];
+            const float zmean = mesh_sum / float(GRID_USED_POINTS);
 
           #else // midrange
 
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
-            GRID_LOOP(x, y) {
+            GRID_LOOP_USED(x, y) {
               const float z = bedlevel.z_values[x][y];
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
@@ -177,7 +177,7 @@ void GcodeSuite::M420() {
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
-            GRID_LOOP(x, y) {
+            GRID_LOOP_USED(x, y) {
               bedlevel.z_values[x][y] -= zmean;
               TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
             }

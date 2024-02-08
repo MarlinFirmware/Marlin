@@ -291,6 +291,9 @@ typedef struct SettingsDataStruct {
   uint16_t grid_check;                                  // Hash to check against X/Y
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      xy_uint8_t bilinear_grid_points;
+    #endif
     bed_mesh_t z_values;                                // G29
   #else
     float z_values[3][3];
@@ -1020,9 +1023,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          EEPROM_WRITE(bedlevel.nr_grid_points);
+        #endif
         EEPROM_WRITE(bedlevel.z_values);              // 9-256 floats
       #else
         dummyf = 0;
+        xy_uint8_t dummyXY{0};
+        EEPROM_WRITE(dummyXY);
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
@@ -2041,13 +2049,17 @@ void MarlinSettings::postprocess() {
         }
 
         xy_pos_t spacing, start;
-        EEPROM_READ(spacing);                          // 2 ints
-        EEPROM_READ(start);                            // 2 ints
+        EEPROM_READ(spacing);                          // 2 floats
+        EEPROM_READ(start);                            // 2 floats
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
-            bedlevel.set_grid(spacing, start);
-            EEPROM_READ(bedlevel.z_values);            // 9 to 256 floats
+            #if ENABLED(VARIABLE_GRID_POINTS)
+              xy_uint8_t points;
+              EEPROM_READ(points);                      // 2 uint8_t
+            #endif
+            bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, points));
+            EEPROM_READ(bedlevel.z_values);             // 9 to 256 floats
           }
           else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
             eeprom_error = ERR_EEPROM_CORRUPT;
@@ -2057,6 +2069,8 @@ void MarlinSettings::postprocess() {
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
+            xy_uint8_t dummyXY;
+            EEPROM_READ(dummyXY);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }
@@ -2969,14 +2983,15 @@ void MarlinSettings::postprocess() {
       return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;
     }
 
-    #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, bedlevel.z_values))
+    #define MESH_DATA_SIZE sizeof(xy_uint8_t) + sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, bedlevel.z_values))
+    #define MESH_SLOT_SIZE (sizeof(xy_uint8_t) + MESH_DATA_SIZE)
 
     uint16_t MarlinSettings::calc_num_meshes() {
-      return (meshes_end - meshes_start_index()) / MESH_STORE_SIZE;
+      return (meshes_end - meshes_start_index()) / MESH_SLOT_SIZE;
     }
 
     int MarlinSettings::mesh_slot_offset(const int8_t slot) {
-      return meshes_end - (slot + 1) * MESH_STORE_SIZE;
+      return meshes_end - (slot + 1) * MESH_SLOT_SIZE;
     }
 
     void MarlinSettings::store_mesh(const int8_t slot) {
@@ -3003,11 +3018,12 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool status = persistentStore.write_data(pos, src, MESH_STORE_SIZE, &crc);
+        const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.grid_points, sizeof(bedlevel.grid_points), &crc)
+                      || persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
-        if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
-        else        DEBUG_ECHOLNPGM("Mesh saved in slot ", slot);
+        if (err) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
+        else     DEBUG_ECHOLNPGM("Mesh saved in slot ", slot);
 
       #else
 
@@ -3037,7 +3053,9 @@ void MarlinSettings::postprocess() {
         #endif
 
         persistentStore.access_start();
-        uint16_t status = persistentStore.read_data(pos, dest, MESH_STORE_SIZE, &crc);
+        xy_uint8_t grid_points;
+        bool err = persistentStore.read_data(pos, (uint8_t *)&grid_points, sizeof(grid_points), &crc)
+                || persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
         #if ENABLED(OPTIMIZED_MESH_STORAGE)
@@ -3051,8 +3069,8 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshValidate();
-          if (status) {
+          err = !bedLevelTools.meshValidate();
+          if (err) {
             bedlevel.invalidate();
             LCD_MESSAGE(MSG_UBL_MESH_INVALID);
           }
@@ -3060,8 +3078,12 @@ void MarlinSettings::postprocess() {
             ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
         #endif
 
-        if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
-        else        DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
+        if (err)
+          SERIAL_ECHOLNPGM("?Unable to load mesh data.");
+        else {
+          bedlevel.set_grid_points(grid_points);
+          DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
+        }
 
         EEPROM_FINISH();
 

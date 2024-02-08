@@ -169,15 +169,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PROBING_POINT                  = _UxGT("Prop Noktası");
   LSTR MSG_MESH_X                         = _UxGT("İndeks X");
   LSTR MSG_MESH_Y                         = _UxGT("İndeks Y");
-  LSTR MSG_MESH_INSET                     = _UxGT("Mesh Inset");
-  LSTR MSG_MESH_MIN_X                     = _UxGT("Mesh X Minimum");
-  LSTR MSG_MESH_MAX_X                     = _UxGT("Mesh X Maximum");
-  LSTR MSG_MESH_MIN_Y                     = _UxGT("Mesh Y Minimum");
-  LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y Maximum");
-  LSTR MSG_MESH_AMAX                      = _UxGT("Alanı Büyüt");
-  LSTR MSG_MESH_CENTER                    = _UxGT("Merkez Alan");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z Değeri");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh iptal edildi");
   LSTR MSG_MESH_RESET                     = _UxGT("Mesh reset");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Özel Komutlar");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Prob Testi");

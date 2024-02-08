@@ -23,10 +23,20 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+#ifndef GRID_MIN_SPACING
+  #define GRID_MIN_SPACING 25
+#endif
+
 class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static xy_uint8_t nr_grid_points;
+  #else
+    static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+  #endif
 
 private:
   static xy_float_t grid_factor;
@@ -36,12 +46,17 @@ private:
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
-    #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_MAX_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_MAX_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
 
-    static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+    static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      static xy_uint_t nr_grid_points_virt;
+    #else
+      static constexpr xy_uint_t nr_grid_points_virt { ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y };
+    #endif
 
     static float virt_coord(const uint8_t x, const uint8_t y);
     static float virt_cmr(const float p[4], const uint8_t i, const float t);
@@ -51,13 +66,13 @@ private:
 
 public:
   static void reset();
-  static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start);
+  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points={ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
   static void extrapolate_unprobed_bed_level();
-  static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr);
+  static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points=nullptr));
   static void refresh_bed_level();
   static bool has_mesh() { return !!grid_spacing.x; }
   static bool mesh_is_valid() { return has_mesh(); }
-  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; }
+  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; } // Caller beware. Don't go out of bounds.
   static float get_mesh_y(const uint8_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
   static constexpr float get_z_offset() { return 0.0f; }

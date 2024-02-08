@@ -177,15 +177,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_PROBING_POINT                  = _UxGT("Probing Point");
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
-  LSTR MSG_MESH_INSET                     = _UxGT("Mesh Inset");
-  LSTR MSG_MESH_MIN_X                     = _UxGT("Mesh X Minimum");
-  LSTR MSG_MESH_MAX_X                     = _UxGT("Mesh X Maximum");
-  LSTR MSG_MESH_MIN_Y                     = _UxGT("Mesh Y Minimum");
-  LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y Maximum");
-  LSTR MSG_MESH_AMAX                      = _UxGT("Maximize Area");
-  LSTR MSG_MESH_CENTER                    = _UxGT("Center Area");
+  LSTR MSG_MESH_XY_INDEX                  = _UxGT("XY Index");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z Value");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancelled");
   LSTR MSG_MESH_RESET                     = _UxGT("Mesh reset");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Custom Commands");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Probe Test");

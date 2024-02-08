@@ -170,15 +170,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_PROBING_POINT                  = _UxGT("Punto sondato");
   LSTR MSG_MESH_X                         = _UxGT("Indice X");
   LSTR MSG_MESH_Y                         = _UxGT("Indice Y");
-  LSTR MSG_MESH_INSET                     = _UxGT("Mesh Inset");
-  LSTR MSG_MESH_MIN_X                     = _UxGT("Mesh X minimo");
-  LSTR MSG_MESH_MAX_X                     = _UxGT("Mesh X massimo");
-  LSTR MSG_MESH_MIN_Y                     = _UxGT("Mesh Y minimo");
-  LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y massimo");
-  LSTR MSG_MESH_AMAX                      = _UxGT("Massimizza area");
-  LSTR MSG_MESH_CENTER                    = _UxGT("Area centrale");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Valore di Z");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");
   LSTR MSG_MESH_RESET                     = _UxGT("Resetta mesh");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Comandi personaliz.");
   LSTR MSG_M48_TEST                       = _UxGT("Test sonda M48");

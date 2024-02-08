@@ -211,12 +211,20 @@
   }
 
   void menu_edit_mesh() {
-    static uint8_t xind, yind; // =0
+    static uint8_t xind, yind; // = 0
+    MString<13> msg(bedlevel.get_mesh_x(xind), F(" / "), bedlevel.get_mesh_y(yind));
+
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
-    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);
-    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_MAX_POINTS_Y) - 1);
-    EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &bedlevel.z_values[xind][yind], -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
+    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, GRID_USED_POINTS_X - 1);
+    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, GRID_USED_POINTS_Y - 1);
+    #if LCD_HEIGHT > 4
+      STATIC_ITEM(MSG_MESH_XY_INDEX, SS_FULL, &msg);
+    #endif
+    EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &bedlevel.z_values[xind][yind], -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f, refresh_planner);
+    #if LCD_HEIGHT <= 4
+      STATIC_ITEM(MSG_MESH_XY_INDEX, SS_FULL, &msg);
+    #endif
     END_MENU();
   }
 

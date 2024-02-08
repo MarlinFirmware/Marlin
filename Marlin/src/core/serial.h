@@ -250,6 +250,18 @@ inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR
   print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
 }
 
+template<typename T>
+inline void SERIAL_ECHO_NUM(T num, int digits) {
+  switch (digits) {
+    case 6: if (num < 100000) SERIAL_CHAR(' ');
+    case 5: if (num < 10000)  SERIAL_CHAR(' ');
+    case 4: if (num < 1000)   SERIAL_CHAR(' ');
+    case 3: if (num < 100)    SERIAL_CHAR(' ');
+    case 2: if (num < 10)     SERIAL_CHAR(' ');
+  }
+  SERIAL_ECHO(num);
+}
+
 #define SERIAL_POS(SUFFIX,VAR) do { print_xyz(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
 #define SERIAL_XYZ(PREFIX,V...) do { print_xyz(V, F(PREFIX)); }while(0)
 
