@@ -26,6 +26,12 @@
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
+#if ENABLED(MARLIN_SMALL_BUILD)
+  #undef EEPROM_CHITCHAT
+  #undef CAPABILITIES_REPORT
+  #define DISABLE_M503
+#endif
+
 #ifndef AXIS_RELATIVE_MODES
   #define AXIS_RELATIVE_MODES {}
 #endif
