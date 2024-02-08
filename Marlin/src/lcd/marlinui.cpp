@@ -1087,7 +1087,7 @@ void MarlinUI::init() {
             next_click_enable_ms = ms + BLOCK_CLICK_AFTER_MOVEMENT_MS;
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
-              encoderPosition += (fullSteps * encoderMultiplier);
+              encoderPosition += (fullSteps * encoder_multiplier);
           }
         }
 
