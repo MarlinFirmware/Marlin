@@ -3963,7 +3963,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Sanity Check for Slim LCD Menus and Probe Offset Wizard
  */
 #if ALL(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
-  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
+  #error "SLIM_LCD_MENUS disables 'Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.'"
 #endif
 
 /**

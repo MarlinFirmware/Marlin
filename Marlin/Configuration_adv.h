@@ -4527,3 +4527,6 @@
 
 // Report uncleaned reset reason from register r2 instead of MCUSR. Supported by Optiboot on AVR.
 //#define OPTIBOOT_RESET_REASON
+
+// Shrink the build for smaller boards by sacrificing some serial feedback
+//#define MARLIN_SMALL_BUILD
