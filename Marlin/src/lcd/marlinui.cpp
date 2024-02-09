@@ -1379,42 +1379,40 @@ void MarlinUI::init() {
       } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
-        #define ENCODER_DEBOUNCE_MS 2 
-        static uint8_t lastEncoderBits, enc;
-        static uint8_t buttons_was = buttons;
-        static millis_t en_A_blocked_ms, en_B_blocked_ms;
+        #define ENCODER_DEBOUNCE_MS 2
+        static uint8_t old_buttons;
+        const uint8_t button_diff = buttons ^ old_buttons;
+        old_buttons = buttons;
 
-        const bool en_A = (buttons & EN_A),
-                   en_B = (buttons & EN_B),
-                   en_A_was = (buttons_was & EN_A),
-                   en_B_was = (buttons_was & EN_B);
+        static uint8_t enc;
 
-        buttons_was = buttons;
+        static millis_t en_A_bounce_ms;
+        if (button_diff & EN_A) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+        else if (ELAPSED(now, en_A_bounce_ms)) SET_BIT_TO(enc, 0, buttons & EN_A);
 
-        if (en_A != en_A_was) en_A_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_A_blocked_ms)) SET_BIT_TO(enc, 0, en_A);
-        if (en_B != en_B_was) en_B_blocked_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_B_blocked_ms)) SET_BIT_TO(enc, 1, en_B);
+        static millis_t en_B_bounce_ms;
+        if (button_diff & EN_B) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+        else if (ELAPSED(now, en_B_bounce_ms)) SET_BIT_TO(enc, 1, buttons & EN_B);
 
-        static int8_t last_dir;
-        int8_t dir = 0;
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: dir = encoderDirection; break; case _E2: dir = -encoderDirection; break; }
-        if (enc != lastEncoderBits) {
-          switch (enc) {
-            case 0: ENCODER_SPIN(1, 2); break;
-            case 2: ENCODER_SPIN(0, 3); break;
-            case 3: ENCODER_SPIN(2, 1); break;
-            case 1: ENCODER_SPIN(3, 0); break;
+        static uint8_t old_enc;
+        if (enc != old_enc) {
+          int8_t dir = 0;
+          switch ((old_enc << 2) | enc) {
+            case 2: case 11: case 13: case 4: dir =  encoderDirection; break;
+            case 8: case 14: case  7: case 1: dir = -encoderDirection; break;
           }
-          if (dir == 0) {
-            // The encoder is 2 pulses away from last update, assume same direction.
-            // Without this, the "tick" in encoders with 4 pulses per step get of synch with encoderPosition
-            encoderDiff += last_dir * 2;
-          } else {
+          old_enc = enc;
+
+          static int8_t last_dir;
+          if (dir) {
             encoderDiff += dir;
             last_dir = dir;
           }
-          lastEncoderBits = enc;
+          else {
+            // The encoder is likely 2 pulses away from last update, assume same direction.
+            // Keeps encoders with 4 pulses-per-step in better sync, but for fast initial spin the dir may be wrong.
+            encoderDiff += last_dir * 2;
+          }
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
