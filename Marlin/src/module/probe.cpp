@@ -1010,6 +1010,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
+      // TODO: Disable steppers (unless G29_RETRY_AND_RECOVER or G29_HALT_ON_FAILURE are set).
+      // Something definitely went wrong at this point, so it might be a good idea to release the steppers.
+      // The user may want to quickly move the carriage or bed by hand to avoid bed damage from the (hot) nozzle.
+      // This would also benefit from the contemplated "Audio Alerts" feature.
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)

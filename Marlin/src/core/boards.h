@@ -459,7 +459,7 @@
 #define BOARD_OPULO_LUMEN_REV4        5242  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
 #define BOARD_FYSETC_SPIDER_KING407   5243  // FYSETC Spider King407 (STM32F407ZG)
 #define BOARD_MKS_SKIPR_V1            5244  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
-#define BOARD_TRONXY_V10              5245  // TRONXY V10 (STM32F446ZE)
+#define BOARD_TRONXY_CXY_446_V10      5245  // TRONXY CXY-446-V10-220413/CXY-V6-191121 (STM32F446ZE)
 #define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
 #define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
@@ -519,7 +519,9 @@
 //
 // HC32 ARM Cortex-M4
 //
+
 #define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 as found in the Voxelab Aquila X2 and C2
+#define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
 // Custom board

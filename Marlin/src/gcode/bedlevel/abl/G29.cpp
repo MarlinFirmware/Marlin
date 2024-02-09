@@ -344,7 +344,7 @@ G29_TYPE GcodeSuite::G29() {
 
     abl.verbose_level = parser.intval('V');
     if (!WITHIN(abl.verbose_level, 0, 4)) {
-      SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(V)erbose level implausible (0-4)."));
       G29_RETURN(false, false);
     }
 
@@ -365,11 +365,11 @@ G29_TYPE GcodeSuite::G29() {
       if (parser.seenval('P')) abl.grid_points.x = abl.grid_points.y = parser.value_int();
 
       if (!WITHIN(abl.grid_points.x, 2, GRID_MAX_POINTS_X)) {
-        SERIAL_ECHOLNPGM("?Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ")."));
         G29_RETURN(false, false);
       }
       if (!WITHIN(abl.grid_points.y, 2, GRID_MAX_POINTS_Y)) {
-        SERIAL_ECHOLNPGM("?Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ")."));
         G29_RETURN(false, false);
       }
 
@@ -404,7 +404,7 @@ G29_TYPE GcodeSuite::G29() {
           DEBUG_ECHOLNPGM("G29 L", abl.probe_position_lf.x, " R", abl.probe_position_rb.x,
                              " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
         }
-        SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG(" (L,R,F,B) out of bounds."));
         G29_RETURN(false, false);
       }
 

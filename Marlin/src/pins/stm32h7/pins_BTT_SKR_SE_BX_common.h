@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "Biqu BX"
+#define DEFAULT_MACHINE_NAME "BIQU BX"
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
@@ -172,7 +172,7 @@
 #define FAN1_PIN                            PA6   // "FAN1"
 #define FAN2_PIN                            PA7   // "FAN2"
 
-#define NEOPIXEL_PIN                        PH3
+#define BOARD_NEOPIXEL_PIN                  PH3
 #define NEOPIXEL2_PIN                       PB1
 
 #if HAS_LTDC_TFT

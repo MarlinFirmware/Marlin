@@ -56,11 +56,13 @@
         }
       }
     }
-    if (is_err) SERIAL_ECHOLNPGM("?M666 offsets must be <= 0");
+    if (is_err) SERIAL_ECHOLNPGM(GCODE_ERR_MSG("M666 offsets must be <= 0"));
     if (!is_set) M666_report();
   }
 
   void GcodeSuite::M666_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_ENDSTOP_ADJUSTMENT));
     SERIAL_ECHOLNPGM_P(
         PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
@@ -105,6 +107,8 @@
   }
 
   void GcodeSuite::M666_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_ENDSTOP_ADJUSTMENT));
     SERIAL_ECHOPGM("  M666");
     #if ENABLED(X_DUAL_ENDSTOPS)

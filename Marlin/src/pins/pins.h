@@ -806,8 +806,8 @@
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h"   // STM32F4                              env:FYSETC_SPIDER_KING407
 #elif MB(MKS_SKIPR_V1)
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"          // STM32F4                              env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
-#elif MB(TRONXY_V10)
-  #include "stm32f4/pins_TRONXY_V10.h"              // STM32F4                              env:STM32F446_tronxy
+#elif MB(TRONXY_CXY_446_V10)
+  #include "stm32f4/pins_TRONXY_CXY_446_V10.h"      // STM32F4                              env:TRONXY_CXY_446_V10 env:TRONXY_CXY_446_V10_usb_flash_drive
 #elif MB(CREALITY_F401RE)
   #include "stm32f4/pins_CREALITY_F401.h"           // STM32F4                              env:STM32F401RE_creality
 #elif MB(BLACKPILL_CUSTOM)
@@ -900,8 +900,11 @@
 //
 // HC32 ARM Cortex-M4
 //
+
 #elif MB(AQUILA_V101)
   #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+#elif MB(CREALITY_ENDER2P_V24S4)
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
 
 //
 // Custom board (with custom PIO env)
@@ -953,6 +956,7 @@
   #define BOARD_LINUX_RAMPS             99926
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
+  #define BOARD_TRONXY_V10              99929
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1012,6 +1016,8 @@
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif MB(BTT_MANTA_M4P_V1_0)
     #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
+  #elif MB(TRONXY_V10)
+    #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
@@ -1050,8 +1056,14 @@
   #undef BOARD_LINUX_RAMPS
   #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
+  #undef BOARD_TRONXY_V10
 
 #endif
+
+//
+// LCD / Controller Pins based on board expansion headers with adapters
+//
+#include "pins_lcd.h"
 
 //
 // Post-process pins according to configured settings

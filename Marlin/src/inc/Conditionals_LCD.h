@@ -507,6 +507,10 @@
   #define ROTATIONAL_AXES 0
 #endif
 
+#if ROTATIONAL_AXES
+  #define HAS_ROTATIONAL_AXES 1
+#endif
+
 /**
  * Number of Secondary Linear Axes (e.g., UVW)
  * All secondary axes for which AXIS*_ROTATES is not defined.
@@ -575,7 +579,7 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
+// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
 #if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
@@ -1846,9 +1850,6 @@
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN)
-  #if TOUCH_IDLE_SLEEP_MINS
-    #define HAS_TOUCH_SLEEP 1
-  #endif
   #if NONE(TFT_TOUCH_DEVICE_GT911, TFT_TOUCH_DEVICE_XPT2046)
     #define TFT_TOUCH_DEVICE_XPT2046          // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
   #endif
