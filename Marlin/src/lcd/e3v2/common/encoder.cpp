@@ -68,7 +68,7 @@ void encoderConfiguration() {
 // Analyze encoder value and return state
 EncoderState encoderReceiveAnalyze() {
   const millis_t now = millis();
-  static signed char temp_diff = 0;
+  static int8_t temp_diff = 0;
 
   EncoderState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(ENC)) {
@@ -92,9 +92,7 @@ EncoderState encoderReceiveAnalyze() {
   }
 
   static uint8_t old_enc;
-  uint8_t enc = 0;
-  if (BUTTON_PRESSED(EN1)) enc |= EN_A;
-  if (BUTTON_PRESSED(EN2)) enc |= EN_B;
+  const uint8_t enc = (BUTTON_PRESSED(EN1) ? EN_A : 0) | (BUTTON_PRESSED(EN2) ? EN_B : 0);
   if (enc != old_enc) {
     switch ((old_enc << 2) | enc) {
       case 2: case 11: case 13: case 4: ++temp_diff; break;
@@ -103,7 +101,8 @@ EncoderState encoderReceiveAnalyze() {
     old_enc = enc;
   }
 
-  if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
+  const int8_t abs_diff = ABS(temp_diff);
+  if (abs_diff >= ENCODER_PULSES_PER_STEP) {
     temp_diffState = temp_diff > 0
       ? TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW)
       : TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW,  ENCODER_DIFF_CCW);
@@ -115,8 +114,7 @@ EncoderState encoderReceiveAnalyze() {
 
       // Encoder rate multiplier
       if (encoderRate.enabled) {
-        const float abs_diff = ABS(temp_diff),
-                    encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+        const float encoderMovementSteps = float(abs_diff) / (ENCODER_PULSES_PER_STEP);
         if (encoderRate.lastEncoderTime) {
           // Note that the rate is always calculated between two passes through the
           // loop and that the abs of the temp_diff value is tracked.
@@ -137,14 +135,16 @@ EncoderState encoderReceiveAnalyze() {
 
     #endif
 
-    encoderRate.encoderMoveValue = ABS((temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP));
+    encoderRate.encoderMoveValue = abs_diff * encoder_multiplier / (ENCODER_PULSES_PER_STEP);
 
     temp_diff = 0;
   }
+
   if (temp_diffState != ENCODER_DIFF_NO) {
     TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
     if (!ui.backlight) ui.refresh_brightness();
   }
+
   return temp_diffState;
 }
 
