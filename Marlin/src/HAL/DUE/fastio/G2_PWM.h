@@ -49,7 +49,6 @@ extern volatile uint32_t *SODR_A, *SODR_B, *CODR_A, *CODR_B;
 
 #define PWM_MAP_INIT_ROW(IO,ZZ) { ZZ == 'A' ? SODR_A : SODR_B,  ZZ == 'A' ? CODR_A : CODR_B, 1 << _PIN(IO) }
 
-
 #define PWM_MAP_INIT {  PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_X_PIN, 'B'), \
                         PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_Y_PIN, 'B'), \
                         PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_Z_PIN, 'B'), \

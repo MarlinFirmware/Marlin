@@ -436,6 +436,9 @@
 
 #endif // HAS_WIRED_LCD
 
+//
+// SD Card
+//
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

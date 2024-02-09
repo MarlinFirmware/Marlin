@@ -311,9 +311,6 @@ void MarlinUI::init_lcd() {
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
     SET_OUTPUT(LCD_PINS_DC);
-    #ifndef LCD_RESET_PIN
-      #define LCD_RESET_PIN LCD_PINS_RS
-    #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
@@ -380,7 +377,7 @@ void MarlinUI::draw_kill_screen() {
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep)  { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
 #endif
 
 #if HAS_LCD_BRIGHTNESS

@@ -78,12 +78,8 @@
 #define SDSS                                  53
 #define LED_PIN                                4
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
-
 //
-// LCD Display output pins
+// LCD / Controller
 //
 
 // Requires #define U8GLIB_SH1106_EINSTART in Configuration.h

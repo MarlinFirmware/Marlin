@@ -374,7 +374,6 @@ typedef struct {
   uint8_t bNumDeviceCaps;
 } usb_dev_bos_desc_t;
 
-
 /**
  * \brief USB Device Capabilities - USB 2.0 Extension Descriptor structure
  *
@@ -411,7 +410,6 @@ typedef struct {
   uint8_t iFunction;        //!< Index of string descriptor
 } usb_association_desc_t;
 
-
 /**
  * \brief Standard USB configuration descriptor structure
  */
@@ -425,7 +423,6 @@ typedef struct {
   uint8_t bmAttributes;
   uint8_t bMaxPower;
 } usb_conf_desc_t;
-
 
 #define  USB_CONFIG_ATTR_MUST_SET         (1 << 7) //!< Must always be set
 #define  USB_CONFIG_ATTR_BUS_POWERED      (0 << 6) //!< Bus-powered
@@ -474,7 +471,6 @@ typedef struct {
   le16_t wMaxPacketSize;
   uint8_t bInterval;
 } usb_ep_desc_t;
-
 
 /**
  * \brief A standard USB string descriptor structure

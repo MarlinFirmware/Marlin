@@ -26,6 +26,12 @@
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
+#if ENABLED(MARLIN_SMALL_BUILD)
+  #undef EEPROM_CHITCHAT
+  #undef CAPABILITIES_REPORT
+  #define DISABLE_M503
+#endif
+
 #ifndef AXIS_RELATIVE_MODES
   #define AXIS_RELATIVE_MODES {}
 #endif
@@ -912,7 +918,7 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
-#if defined(DISPLAY_SLEEP_MINUTES) || defined(TOUCH_IDLE_SLEEP_MINS)
+#ifdef DISPLAY_SLEEP_MINUTES
   #define HAS_DISPLAY_SLEEP 1
 #endif
 #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
@@ -1349,6 +1355,11 @@
 // Clean up if only mm units are used
 #if DISABLED(INCH_MODE_SUPPORT)
   #undef MANUAL_MOVE_DISTANCE_IN
+#endif
+
+// Clean up if no rotational axes exist
+#if !HAS_ROTATIONAL_AXES
+  #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
 
 // Power-Loss Recovery
