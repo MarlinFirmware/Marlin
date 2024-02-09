@@ -976,6 +976,17 @@
   #define DETECT_I2C_LCD_DEVICE 1
 #endif
 
+/**
+ * Ender-3 V2 DWIN with Encoder
+ */
+#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+  #define HAS_DWIN_E3V2_BASIC 1
+#endif
+#if ANY(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
+  #define HAS_DWIN_E3V2 1
+  #define STD_ENCODER_PULSES_PER_STEP 4
+#endif
+
 // Encoder behavior
 #ifndef STD_ENCODER_PULSES_PER_STEP
   #if ENABLED(TOUCH_SCREEN)
@@ -997,10 +1008,12 @@
   #define ENCODER_FEEDRATE_DEADZONE 6
 #endif
 
-// Shift register panels
-// ---------------------
-// 2 wire Non-latching LCD SR from:
-// https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+/**
+ * Shift register panels
+ * ---------------------
+ * 2 wire Non-latching LCD SR from:
+ * https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+ */
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
   #define IS_ULTIPANEL 1
@@ -1038,14 +1051,6 @@
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
-#endif
-
-// Aliases for LCD features
-#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-  #define HAS_DWIN_E3V2_BASIC 1
-#endif
-#if ANY(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
-  #define HAS_DWIN_E3V2 1
 #endif
 
 // E3V2 extras

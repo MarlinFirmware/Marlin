@@ -42,10 +42,6 @@
 
 #include <stdlib.h>
 
-#ifndef ENCODER_PULSES_PER_STEP
-  #define ENCODER_PULSES_PER_STEP 4
-#endif
-
 EncoderRate encoderRate;
 
 // TODO: Replace with ui.quick_feedback
@@ -98,6 +94,7 @@ EncoderState encoderReceiveAnalyze() {
     }
     else return ENCODER_DIFF_NO;
   }
+
   if (newbutton != lastEncoderBits) {
     switch (newbutton) {
       case 0:
@@ -129,7 +126,7 @@ EncoderState encoderReceiveAnalyze() {
       millis_t ms = millis();
       int32_t encoder_multiplier = 1;
 
-      // if must encoder rati multiplier
+      // Encoder rate multiplier
       if (encoderRate.enabled) {
         const float abs_diff = ABS(temp_diff),
                     encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
