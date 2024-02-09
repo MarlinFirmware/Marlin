@@ -429,7 +429,7 @@
 
   bool MMU2::ToolChangeCommonOnce(uint8_t slot) {
     static_assert(MAX_RETRIES > 1); // need >1 retries to do the cut in the last attempt
-    for (uint8_t retries = MAX_RETRIES; retries; --retries) {
+    for (uint8_t retries = 0; retries < MAX_RETRIES; ++retries) {
       for (;;) {
         Disable_E0(); // it may seem counterintuitive to disable the E-motor, but it gets enabled in the planner whenever the E-motor is to move
         tool_change_extruder = slot;
@@ -454,7 +454,7 @@
       }
       else {         // Prepare a retry attempt
         UnloadInner();
-        if (retries == 2 && cutter_enabled())
+        if (retries == MAX_RETRIES - 1 && cutter_enabled())
           CutFilamentInner(slot); // try cutting filament tip at the last attempt
       }
     }
