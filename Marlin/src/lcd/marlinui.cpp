@@ -1065,7 +1065,7 @@ void MarlinUI::init() {
 
           #endif // ENCODER_RATE_MULTIPLIER
 
-          int8_t fullSteps = encoderDiff / epps;
+          const int8_t fullSteps = encoderDiff / epps;
           if (fullSteps != 0) {
             encoderDiff -= fullSteps * epps;
             if (can_encode() && !lcd_clicked)
