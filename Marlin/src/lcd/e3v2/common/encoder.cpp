@@ -68,13 +68,9 @@ void encoderConfiguration() {
 // Analyze encoder value and return state
 EncoderState encoderReceiveAnalyze() {
   const millis_t now = millis();
-  static uint8_t lastEncoderBits;
-  uint8_t newbutton = 0;
   static signed char temp_diff = 0;
 
   EncoderState temp_diffState = ENCODER_DIFF_NO;
-  if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-  if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
   if (BUTTON_PRESSED(ENC)) {
     static millis_t next_click_update_ms;
     if (ELAPSED(now, next_click_update_ms)) {
@@ -95,35 +91,26 @@ EncoderState encoderReceiveAnalyze() {
     else return ENCODER_DIFF_NO;
   }
 
-  if (newbutton != lastEncoderBits) {
-    switch (newbutton) {
-      case 0:
-             if (lastEncoderBits == 1) temp_diff++;
-        else if (lastEncoderBits == 2) temp_diff--;
-        break;
-      case 2:
-             if (lastEncoderBits == 0) temp_diff++;
-        else if (lastEncoderBits == 3) temp_diff--;
-        break;
-      case 3:
-             if (lastEncoderBits == 2) temp_diff++;
-        else if (lastEncoderBits == 1) temp_diff--;
-        break;
-      case 1:
-             if (lastEncoderBits == 3) temp_diff++;
-        else if (lastEncoderBits == 0) temp_diff--;
-        break;
+  static uint8_t old_enc;
+  uint8_t enc = 0;
+  if (BUTTON_PRESSED(EN1)) enc |= EN_A;
+  if (BUTTON_PRESSED(EN2)) enc |= EN_B;
+  if (enc != old_enc) {
+    switch ((old_enc << 2) | enc) {
+      case 2: case 11: case 13: case 4: ++temp_diff; break;
+      case 8: case 14: case  7: case 1: --temp_diff; break;
     }
-    lastEncoderBits = newbutton;
+    old_enc = enc;
   }
 
   if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    if (temp_diff > 0) temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
-    else temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
+    temp_diffState = temp_diff > 0
+      ? TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW)
+      : TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW,  ENCODER_DIFF_CCW);
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
-      millis_t ms = millis();
+      const millis_t ms = millis();
       int32_t encoder_multiplier = 1;
 
       // Encoder rate multiplier
@@ -150,9 +137,7 @@ EncoderState encoderReceiveAnalyze() {
 
     #endif
 
-    // encoderRate.encoderMoveValue += (temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP);
-    encoderRate.encoderMoveValue = (temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP);
-    if (encoderRate.encoderMoveValue < 0) encoderRate.encoderMoveValue = -encoderRate.encoderMoveValue;
+    encoderRate.encoderMoveValue = ABS((temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP));
 
     temp_diff = 0;
   }
