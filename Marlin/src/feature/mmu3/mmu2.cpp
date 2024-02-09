@@ -757,9 +757,8 @@
         mmu_print_saved |= SavedState::ParkExtruder;
         resume_position = planner_current_position(); // save current pos
 
-        // lift Z
-        constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
-        move_raise_z(park_point.z);
+        // Do not lift Z, as it will double lift if there is another error
+        // right after the current one is solved.
 
         // move XY aside
         if (all_axes_homed())
