@@ -410,7 +410,7 @@
 #endif
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
 
 #if ENABLED(BTT_MINI_12864)                       // BTT Mini 12864 V2.0 connected via 18-pin FPC cable
@@ -448,8 +448,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE10
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE10
 #endif
 #ifndef NEOPIXEL2_PIN
   #define NEOPIXEL2_PIN                     PE9

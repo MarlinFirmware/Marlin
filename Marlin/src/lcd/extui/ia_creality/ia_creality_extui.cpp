@@ -98,7 +98,7 @@ void onMediaRemoved() {
   }
 }
 
-void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+void onPlayTone(const uint16_t, const uint16_t/*=0*/) {
   rts.sendData(StartSoundSet, SoundAddr);
 }
 

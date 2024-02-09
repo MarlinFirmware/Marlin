@@ -21,7 +21,11 @@
  */
 #pragma once
 
-// ATmega2560
+/**
+ * TT OSCAR by YM Tech.LTD
+ *
+ * ATmega2560
+ */
 
 #include "env_validate.h"
 
@@ -73,12 +77,12 @@
 #define Z_STEP_PIN                            46
 #define Z_DIR_PIN                             48
 #define Z_ENABLE_PIN                          62
-#define Z_CS_PIN                              53
+#define Z_CS_PIN                              53  // EXP2-4
 
 #define E0_STEP_PIN                           26
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
-#define E0_CS_PIN                             49
+#define E0_CS_PIN                             49  // EXP2-7
 
 #define E1_STEP_PIN                           36
 #define E1_DIR_PIN                            34
@@ -209,11 +213,11 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SDSS                                  53  // EXP2-4
 #define LED_PIN                               13
 
 //#ifndef FILWIDTH_PIN
-//  #define FILWIDTH_PIN      5   // Analog Input
+//  #define FILWIDTH_PIN                       5  // Analog Input
 //#endif
 
 // DIO 4 (Servos plug) for the runout sensor.
@@ -257,16 +261,52 @@
     #define E_MUX0_PIN                        58  // Y_CS_PIN
   #endif
   #ifndef E_MUX1_PIN
-    #define E_MUX1_PIN                        53  // Z_CS_PIN
+    #define E_MUX1_PIN                        53  // EXP2-4
   #endif
   #ifndef E_MUX2_PIN
-    #define E_MUX2_PIN                        49  // En_CS_PIN
+    #define E_MUX2_PIN                        49  // EXP2-7
   #endif
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+/**           TT OSCAR Expansion Headers
+ *         ------
+ *     -- | 1  2 | --
+ *     --   3  4 | --
+ *     --   5  6 | --
+ *     49 | 7  8 | --
+ *         ------
+ *          AUX1
+ *
+ *         ------                     ------
+ *     37 | 1  2 | 35      (MISO) 44 | 1  2 | 52 (SCK)
+ *     17 | 3  4 | 41?            35 | 3  4 | 53
+ *     23   5  6 | 25             31   5  6 | 51 (MOSI)
+ *     27 | 7  8 | 29             49 | 7  8 | 41
+ *    GND | 9 10 | 5V            GND | 9 10 | --
+ *         ------                     ------
+ *          EXP1                       EXP2
+ */
+#define EXP1_01_PIN                           37  // BEEPER
+#define EXP1_02_PIN                           35  // ENC
+#define EXP1_03_PIN                           17  // ENC1
+#define EXP1_04_PIN                           41  // RESET
+#define EXP1_05_PIN                           23  // ENC2
+#define EXP1_06_PIN                           25  // D4
+#define EXP1_07_PIN                           27  // RS
+#define EXP1_08_PIN                           29  // EN
+
+#define EXP2_01_PIN                           44  // MISO
+#define EXP2_02_PIN                           52  // SCK
+#define EXP2_03_PIN                           35  // EN2 / EN1
+#define EXP2_04_PIN                           53  // SDSS
+#define EXP2_05_PIN                           31  // EN1 / EN2
+#define EXP2_06_PIN                           51  // MOSI
+#define EXP2_07_PIN                           49  // SD_DET
+#define EXP2_08_PIN                           41  // KILL / RESET
+
+//
+// LCD / Controller
+//
 
 #if HAS_WIRED_LCD
 
@@ -275,9 +315,9 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_EN                       51  // SID (MOSI)
-    #define LCD_PINS_D4                       52  // SCK (CLK) clock
+    #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
+    #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
+    #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
 
   #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
@@ -369,7 +409,7 @@
       #endif
 
       #define BTN_ENC                         35
-      #define SD_DETECT_PIN                   49
+      #define SD_DETECT_PIN          EXP2_07_PIN
       //#define KILL_PIN                      41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
@@ -388,7 +428,7 @@
       #define BTN_EN1                         47
       #define BTN_EN2                         43
       #define BTN_ENC                         32
-      #define LCD_SDSS                        53
+      #define LCD_SDSS               EXP2_04_PIN
       //#define KILL_PIN                      41
 
     #elif ENABLED(LCD_I2C_VIKI)
@@ -397,8 +437,8 @@
       #define BTN_EN2                          7  // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC                         -1
 
-      #define LCD_SDSS                        53
-      #define SD_DETECT_PIN                   49
+      #define LCD_SDSS               EXP2_04_PIN
+      #define SD_DETECT_PIN          EXP2_07_PIN
 
     #elif ANY(VIKI2, miniVIKI)
 
@@ -413,7 +453,7 @@
       #define BTN_EN2                          7
       #define BTN_ENC                         39
 
-      #define SDSS                            53
+      #define SDSS                   EXP2_04_PIN
       #define SD_DETECT_PIN                   -1  // Pin 49 for display SD interface, 72 for easy adapter board
       //#define KILL_PIN                      31
 
@@ -431,8 +471,8 @@
       #define BTN_EN2                         37
       #define BTN_ENC                         31
 
-      #define LCD_SDSS                        53
-      #define SD_DETECT_PIN                   49
+      #define LCD_SDSS               EXP2_04_PIN
+      #define SD_DETECT_PIN          EXP2_07_PIN
       //#define KILL_PIN                      41
 
     #elif ENABLED(MKS_MINI_12864)
@@ -447,8 +487,8 @@
       #define BTN_EN1                         31
       #define BTN_EN2                         33
       #define BTN_ENC                         35
-      //#define SDSS                          53
-      #define SD_DETECT_PIN                   49
+      //#define SDSS                 EXP2_04_PIN
+      #define SD_DETECT_PIN          EXP2_07_PIN
       //#define KILL_PIN                      64
 
       //#define LCD_CONTRAST_INIT            190
@@ -467,8 +507,8 @@
       #define BTN_EN2                         63
       #define BTN_ENC                         59
 
-      #define SDSS                            53
-      #define SD_DETECT_PIN                   49
+      #define SDSS                   EXP2_04_PIN
+      #define SD_DETECT_PIN          EXP2_07_PIN
       //#define KILL_PIN                      64
 
       //#define LCD_CONTRAST_INIT            190
@@ -498,7 +538,7 @@
       #endif
 
       #if ENABLED(G3D_PANEL)
-        #define SD_DETECT_PIN                 49
+        #define SD_DETECT_PIN        EXP2_07_PIN
         //#define KILL_PIN                    41
       #endif
 

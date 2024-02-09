@@ -127,7 +127,7 @@ EncoderState encoderReceiveAnalyze() {
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
       millis_t ms = millis();
-      int32_t encoderMultiplier = 1;
+      int32_t encoder_multiplier = 1;
 
       // if must encoder rati multiplier
       if (encoderRate.enabled) {
@@ -137,10 +137,10 @@ EncoderState encoderReceiveAnalyze() {
           // Note that the rate is always calculated between two passes through the
           // loop and that the abs of the temp_diff value is tracked.
           const float encoderStepRate = encoderMovementSteps / float(ms - encoderRate.lastEncoderTime) * 1000;
-               if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
-          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
+               if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoder_multiplier = 100;
+          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoder_multiplier = 10;
           #if ENCODER_5X_STEPS_PER_SEC
-            else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
+            else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoder_multiplier = 5;
           #endif
         }
         encoderRate.lastEncoderTime = ms;
@@ -148,12 +148,12 @@ EncoderState encoderReceiveAnalyze() {
 
     #else
 
-      constexpr int32_t encoderMultiplier = 1;
+      constexpr int32_t encoder_multiplier = 1;
 
     #endif
 
-    // encoderRate.encoderMoveValue += (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
-    encoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
+    // encoderRate.encoderMoveValue += (temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP);
+    encoderRate.encoderMoveValue = (temp_diff * encoder_multiplier) / (ENCODER_PULSES_PER_STEP);
     if (encoderRate.encoderMoveValue < 0) encoderRate.encoderMoveValue = -encoderRate.encoderMoveValue;
 
     temp_diff = 0;
