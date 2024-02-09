@@ -64,7 +64,7 @@ void GcodeSuite::G35() {
 
   const uint8_t screw_thread = parser.byteval('S', TRAMMING_SCREW_THREAD);
   if (!WITHIN(screw_thread, 30, 51) || screw_thread % 10 > 1) {
-    SERIAL_ECHOLNPGM("?(S)crew thread must be 30, 31, 40, 41, 50, or 51.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S)crew thread must be 30, 31, 40, 41, 50, or 51."));
     return;
   }
 
