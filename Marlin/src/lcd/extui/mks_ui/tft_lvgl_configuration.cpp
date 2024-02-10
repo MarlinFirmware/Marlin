@@ -331,12 +331,12 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 }
 
 int16_t enc_diff = 0;
-lv_indev_state_t lv_state = LV_INDEV_STATE_REL; // ENC button is pressed or released
+lv_indev_state_t indev_enc_state = LV_INDEV_STATE_REL; // ENC button is pressed or released
 
 bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
   UNUSED(indev_drv);
 
-  data->state = lv_state;
+  data->state = indev_enc_state;
   data->enc_diff = enc_diff;
   enc_diff = 0;
 
@@ -500,7 +500,7 @@ void lv_update_encoder() {
     static uint8_t old_button_enc = LV_INDEV_STATE_REL;
     const uint8_t enc_c = BUTTON_PRESSED(ENC) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     if (enc_c != old_button_enc) {
-      lv_state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+      indev_enc_state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
       old_button_enc = enc_c;
     }
 
