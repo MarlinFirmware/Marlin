@@ -3466,6 +3466,10 @@ void Stepper::report_positions() {
      * HX, HY, HZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
+
+    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
+    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
+
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
@@ -3566,9 +3570,6 @@ void Stepper::report_positions() {
         if (!(current_block = planner.get_current_block()))
           return; // No queued blocks.
       }
-
-      // Set flags for all moving axes, accounting for kinematics
-      set_axis_moved_for_current_block();
 
       // Some kinematics track axis motion in HX, HY, HZ
       #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
