@@ -1399,32 +1399,26 @@ void MarlinUI::init() {
         if (button_diff & EN_B) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
         else if (ELAPSED(now, en_B_bounce_ms)) SET_BIT_TO(enc, 1, buttons & EN_B);
 
-        static uint8_t old_enc;
-        if (enc != old_enc) {
-          int8_t dir = 0;
-          switch ((old_enc << 2) | enc) {
-            case 2: case 11: case 13: case 4: dir =  encoderDirection; break;
-            case 8: case 14: case  7: case 1: dir = -encoderDirection; break;
-          }
-          old_enc = enc;
+        const uint8_t pos = en_A ^ en_B | (en_B << 1); // 0:00  1:01  2:11  3:10
+        static uint8_t old_pos = pos;
+        if (pos != old_pos) {
+          uint8_t delta = (pos - old_pos + 4 + 1) % 4 - 1;
+          old_pos = pos;
 
           static int8_t last_dir;
-          if (dir) {
-            encoderDiff += dir;
-            last_dir = dir;
-          }
-          else {
-            // The encoder is likely 2 pulses away from last update, assume same direction.
-            // Keeps encoders with 4 pulses-per-step in better sync, but for fast initial spin the dir may be wrong.
-            encoderDiff += last_dir * 2;
-          }
+          if (delta == 2) delta = last_dir * 2;
+          else last_dir = delta;
+
+          encoderDiff += delta * encoderDirection;
+
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
         }
 
       #endif // HAS_ENCODER_WHEEL
-    }
+
+    } // update_buttons
 
   #endif // HAS_ENCODER_ACTION
 
