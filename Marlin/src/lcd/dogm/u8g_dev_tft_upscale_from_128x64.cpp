@@ -78,10 +78,6 @@ TFT_IO tftio;
   #include "../marlinui.h"
 #endif
 
-#if HAS_TOUCH_BUTTONS && HAS_TOUCH_SLEEP
-  #define HAS_TOUCH_BUTTONS_SLEEP 1
-#endif
-
 #include "../touch/touch_buttons.h"
 #include "../scaled_tft.h"
 
@@ -389,25 +385,29 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_PAGE_FIRST: {
       page = 0;
-      #if HAS_TOUCH_BUTTONS_SLEEP
-        static bool sleepCleared;
-        if (touchBt.isSleeping()) {
-          if (!sleepCleared) {
-            sleepCleared = true;
-            u8g_upscale_clear_lcd(u8g, dev, buffer);
-            TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+      #if HAS_TOUCH_BUTTONS
+        #if HAS_DISPLAY_SLEEP
+          static bool sleepCleared;
+          if (touchBt.isSleeping()) {
+            if (!sleepCleared) {
+              sleepCleared = true;
+              u8g_upscale_clear_lcd(u8g, dev, buffer);
+              redrawTouchButtons = true;
+            }
+            break;
           }
-          break;
-        }
-        else
-          sleepCleared = false;
+          else
+            sleepCleared = false;
+        #endif
+        drawTouchButtons(u8g, dev);
       #endif
-      TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
     } break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
-      if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;
+      #if HAS_TOUCH_BUTTONS && HAS_DISPLAY_SLEEP
+        if (touchBt.isSleeping()) break;
+      #endif
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
       for (uint8_t y = 0; y < PAGE_HEIGHT; ++y) {

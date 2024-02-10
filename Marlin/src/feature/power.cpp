@@ -102,11 +102,11 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
-  SERIAL_ECHOLNPGM(STR_POWEROFF);
-
   TERN_(HAS_SUICIDE, suicide());
 
   if (!psu_on) return;
+
+  SERIAL_ECHOLNPGM(STR_POWEROFF);
 
   #ifdef PSU_POWEROFF_GCODE
     gcode.process_subcommands_now(F(PSU_POWEROFF_GCODE));

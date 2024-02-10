@@ -54,15 +54,15 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#define defColorBackground  RGB( 1, 12,  8)
+#define defColorBackground  RGB(1, 12, 8)
 #define defColorCursor      RGB(20, 49, 31)
-#define defColorTitleBg     RGB( 0, 23, 16)
+#define defColorTitleBg     RGB(0, 23, 16)
 #define defColorTitleTxt    COLOR_WHITE
 #define defColorText        COLOR_WHITE
 #define defColorSelected    COLOR_SELECT
-#define defColorSplitLine   RGB( 0, 23, 16)
+#define defColorSplitLine   RGB(0, 23, 16)
 #define defColorHighlight   COLOR_WHITE
-#define defColorStatusBg    RGB( 0, 23, 16)
+#define defColorStatusBg    RGB(0, 23, 16)
 #define defColorStatusTxt   COLOR_YELLOW
 #define defColorPopupBg     COLOR_BG_WINDOW
 #define defColorPopupTxt    COLOR_POPUP_TEXT
@@ -72,7 +72,7 @@
 #define defColorBarfill     COLOR_BARFILL
 #define defColorIndicator   COLOR_WHITE
 #define defColorCoordinate  COLOR_WHITE
-#define defColorButton      RGB( 0, 23, 16)
+#define defColorButton      RGB(0, 23, 16)
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define defColorLeds      LEDColorWhite()
 #endif

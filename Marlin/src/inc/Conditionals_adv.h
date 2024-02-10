@@ -26,6 +26,12 @@
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
+#if ENABLED(MARLIN_SMALL_BUILD)
+  #undef EEPROM_CHITCHAT
+  #undef CAPABILITIES_REPORT
+  #define DISABLE_M503
+#endif
+
 #ifndef AXIS_RELATIVE_MODES
   #define AXIS_RELATIVE_MODES {}
 #endif
@@ -863,6 +869,24 @@
   #define HAS_ENCODER_ACTION 1
 #endif
 
+#if ENABLED(ENCODER_RATE_MULTIPLIER)
+  #ifndef ENCODER_5X_STEPS_PER_SEC
+    #define ENCODER_5X_STEPS_PER_SEC 0
+  #endif
+  #ifndef ENCODER_10X_STEPS_PER_SEC
+    #define ENCODER_10X_STEPS_PER_SEC 0
+  #endif
+  #ifndef ENCODER_100X_STEPS_PER_SEC
+    #define ENCODER_100X_STEPS_PER_SEC 0
+  #endif
+  #if !((HAS_MARLINUI_MENU || HAS_DWIN_E3V2) && (ENCODER_5X_STEPS_PER_SEC || ENCODER_10X_STEPS_PER_SEC || ENCODER_100X_STEPS_PER_SEC))
+    #undef ENCODER_RATE_MULTIPLIER
+    #undef ENCODER_5X_STEPS_PER_SEC
+    #undef ENCODER_10X_STEPS_PER_SEC
+    #undef ENCODER_100X_STEPS_PER_SEC
+  #endif
+#endif
+
 #if STATUS_MESSAGE_TIMEOUT_SEC > 0
   #define HAS_STATUS_MESSAGE_TIMEOUT 1
 #endif
@@ -912,7 +936,7 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
-#if defined(DISPLAY_SLEEP_MINUTES) || defined(TOUCH_IDLE_SLEEP_MINS)
+#ifdef DISPLAY_SLEEP_MINUTES
   #define HAS_DISPLAY_SLEEP 1
 #endif
 #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
@@ -1243,11 +1267,6 @@
   #define NO_EEPROM_SELECTED 1
 #endif
 
-// Flag whether hex_print.cpp is used
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT)
-  #define NEED_HEX_PRINT 1
-#endif
-
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ANY(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
@@ -1354,6 +1373,11 @@
 // Clean up if only mm units are used
 #if DISABLED(INCH_MODE_SUPPORT)
   #undef MANUAL_MOVE_DISTANCE_IN
+#endif
+
+// Clean up if no rotational axes exist
+#if !HAS_ROTATIONAL_AXES
+  #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
 
 // Power-Loss Recovery

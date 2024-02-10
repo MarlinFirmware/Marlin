@@ -251,6 +251,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN  // NC
   #define BTN_ENC                    EXP1_02_PIN

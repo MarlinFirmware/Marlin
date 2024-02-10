@@ -168,6 +168,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BTN_ENC                           PA0
   #define BTN_EN1                           PC4

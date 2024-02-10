@@ -60,7 +60,6 @@
 #define ACMD41_SD_APP_OP_COND                         (uint16_t)(SDMMC_ACMD_SD_APP_OP_COND | SDIO_CMD_WAIT_SHORT_RESP)
 #define ACMD42_SD_APP_SET_CLR_CARD_DETECT             (uint16_t)(SDMMC_ACMD_SD_APP_SET_CLR_CARD_DETECT | SDIO_CMD_WAIT_SHORT_RESP)
 
-
 #define SDMMC_ALLZERO                        0x00000000U
 #define SDMMC_OCR_ERRORBITS                  0xFDFFE008U
 
