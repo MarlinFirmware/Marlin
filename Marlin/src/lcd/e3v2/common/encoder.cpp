@@ -92,11 +92,11 @@ EncoderState encoderReceiveAnalyze() {
   }
 
   static uint8_t old_enc;
-  const uint8_t enc = (BUTTON_PRESSED(EN1) ? 1 : 0) | (BUTTON_PRESSED(EN2) ? 2 : 0);
+  const uint8_t enc = (BUTTON_PRESSED(EN1) ? B01 : 0) | (BUTTON_PRESSED(EN2) ? B10 : 0);
   if (enc != old_enc) {
     switch ((old_enc << 2) | enc) {
-      case 2: case 11: case 13: case 4: ++temp_diff; break;
-      case 8: case 14: case  7: case 1: --temp_diff; break;
+      case B0010: case B1011: case B1101: case B0100: ++temp_diff; break; // no change: 0000, 0101, 1010, 1111
+      case B1000: case B1110: case B0111: case B0001: --temp_diff; break; //  multiple: 0011, 0110, 1001, 1100
     }
     old_enc = enc;
   }

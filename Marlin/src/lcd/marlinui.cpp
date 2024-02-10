@@ -1028,9 +1028,9 @@ void MarlinUI::init() {
         const bool encoderPastThreshold = (abs_diff >= epps);
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
-          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+          int32_t encoder_multiplier = 1;
 
-            int32_t encoder_multiplier = 1;
+          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
             if (encoder_multiplier_enabled) {
               // Note that the rate is always calculated between two passes through the
@@ -1058,10 +1058,6 @@ void MarlinUI::init() {
                 );
               #endif
             }
-
-          #else
-
-            constexpr int32_t encoder_multiplier = 1;
 
           #endif // ENCODER_RATE_MULTIPLIER
 
