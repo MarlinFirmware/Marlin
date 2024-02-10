@@ -68,7 +68,7 @@ void encoderConfiguration() {
 // Analyze encoder value and return state
 EncoderState encoderReceiveAnalyze() {
   const millis_t now = millis();
-  static int8_t temp_diff = 0;
+  static int8_t temp_diff = 0; // Cleared on each full step, as configured
 
   EncoderState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(ENC)) {
@@ -107,10 +107,11 @@ EncoderState encoderReceiveAnalyze() {
       ? TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW)
       : TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW,  ENCODER_DIFF_CCW);
 
+    int32_t encoder_multiplier = 1;
+
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
       const millis_t ms = millis();
-      int32_t encoder_multiplier = 1;
 
       // Encoder rate multiplier
       if (encoderRate.enabled) {
@@ -125,10 +126,6 @@ EncoderState encoderReceiveAnalyze() {
         else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
           encoder_multiplier = 5;
       }
-
-    #else
-
-      constexpr int32_t encoder_multiplier = 1;
 
     #endif
 
