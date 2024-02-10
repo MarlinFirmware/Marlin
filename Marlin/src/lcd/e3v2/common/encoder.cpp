@@ -92,7 +92,7 @@ EncoderState encoderReceiveAnalyze() {
   }
 
   static uint8_t old_enc;
-  const uint8_t enc = (BUTTON_PRESSED(EN1) ? EN_A : 0) | (BUTTON_PRESSED(EN2) ? EN_B : 0);
+  const uint8_t enc = (BUTTON_PRESSED(EN1) ? 1 : 0) | (BUTTON_PRESSED(EN2) ? 2 : 0);
   if (enc != old_enc) {
     switch ((old_enc << 2) | enc) {
       case 2: case 11: case 13: case 4: ++temp_diff; break;

@@ -475,72 +475,41 @@ void lv_encoder_pin_init() {
   #endif
 }
 
-#if 1 // HAS_ENCODER_ACTION
+void lv_update_encoder() {
 
-  void lv_update_encoder() {
-    static uint32_t encoder_time1;
-    uint32_t tmpTime, diffTime = 0;
-    tmpTime = millis();
-    diffTime = getTickDiff(tmpTime, encoder_time1);
-    if (diffTime > 50) {
+  #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
-      #if HAS_ENCODER_WHEEL
+    static millis_t last_encoder_ms;
+    const millis_t now = millis(), diffTime = getTickDiff(now, last_encoder_ms);
+    if (diffTime <= 50) return;
 
-        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
+    uint8_t buttons = 0;
+    if (BUTTON_PRESSED(EN1))  buttons |= EN_A;
+    if (BUTTON_PRESSED(EN2))  buttons |= EN_B;
+    if (BUTTON_PRESSED(ENC))  buttons |= EN_C;
+    if (BUTTON_PRESSED(BACK)) buttons |= EN_D;
 
-          uint8_t newbutton = 0;
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-
-        #else
-
-          constexpr uint8_t newbutton = 0;
-
-        #endif
-
-        static uint8_t buttons = 0;
-        buttons = newbutton;
-        static uint8_t lastEncoderBits;
-
-        #define encrot0 0
-        #define encrot1 1
-        #define encrot2 2
-
-        uint8_t enc = 0;
-        if (buttons & EN_A) enc |= B01;
-        if (buttons & EN_B) enc |= B10;
-        if (enc != lastEncoderBits) {
-          switch (enc) {
-            case encrot1:
-              if (lastEncoderBits == encrot0) {
-                enc_diff--;
-                encoder_time1 = tmpTime;
-              }
-              break;
-            case encrot2:
-              if (lastEncoderBits == encrot0) {
-                enc_diff++;
-                encoder_time1 = tmpTime;
-              }
-              break;
-          }
-          lastEncoderBits = enc;
+    static uint8_t old_enc;
+    const uint8_t enc = (buttons & EN_A ? B01 : 0) | (buttons & EN_B ? B10 : 0);
+    if (enc != old_enc) {
+      if (old_enc == 0) {
+        switch (enc) {
+          case 1: --enc_diff; last_encoder_ms = now; break;
+          case 2: ++enc_diff; last_encoder_ms = now; break;
         }
-        static uint8_t last_button_state = LV_INDEV_STATE_REL;
-        const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-        if (enc_c != last_button_state) {
-          state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-          last_button_state = enc_c;
-        }
+      }
+      old_enc = enc;
+    }
 
-      #endif // HAS_ENCODER_WHEEL
+    static uint8_t old_buttons = LV_INDEV_STATE_REL;
+    const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+    if (enc_c != old_buttons) {
+      state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+      old_buttons = enc_c;
+    }
 
-    } // encoder_time1
-  }
-
-#endif // HAS_ENCODER_ACTION
+  #endif // ANY_BUTTON
+}
 
 #ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>
