@@ -1393,14 +1393,14 @@ void MarlinUI::init() {
 
         static millis_t en_A_bounce_ms;
         if (button_diff & EN_A) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_A_bounce_ms)) SET_BIT_TO(enc, 0, buttons & EN_A);
+        else if (ELAPSED(now, en_A_bounce_ms)) SET_BIT_TO(enc, 1, buttons & EN_A);
 
         static millis_t en_B_bounce_ms;
         if (button_diff & EN_B) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_B_bounce_ms)) SET_BIT_TO(enc, 1, buttons & EN_B);
+        else if (ELAPSED(now, en_B_bounce_ms)) SET_BIT_TO(enc, 0, buttons & EN_B);
 
-        const uint8_t pos = en_A ^ en_B | (en_B << 1); // 0:00  1:01  2:11  3:10
-        static uint8_t old_pos = pos;
+        static uint8_t old_pos;
+        const uint8_t pos = (enc & 1) ^ ((enc & 2) >> 1) | (enc & 2); // 0:00  1:01  2:11  3:10
         if (pos != old_pos) {
           uint8_t delta = (pos - old_pos + 4 + 1) % 4 - 1;
           old_pos = pos;
