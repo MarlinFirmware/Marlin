@@ -1293,8 +1293,7 @@ void MarlinUI::init() {
 
       #if HAS_ENCODER_WHEEL
 
-        const enc_t enc = { BUTTON_PRESSED(EN1), BUTTON_PRESSED(EN2) };
-        const int8_t delta = get_encoder_delta(enc, now);
+        const int8_t delta = get_encoder_delta(now);
         if (delta) {
           encoderDiff += delta * encoderDirection;
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
@@ -1393,12 +1392,15 @@ void MarlinUI::init() {
 
   #define ENCODER_DEBOUNCE_MS 2
 
-  int8_t MarlinUI::get_encoder_delta(const enc_t &live_enc, const millis_t &now/*=millis()*/) {
+  int8_t MarlinUI::get_encoder_delta(const millis_t &now/*=millis()*/) {
+
+    typedef struct { bool a:1, b:1; } enc_t;
+
+    const enc_t live_enc = { BUTTON_PRESSED(EN1), BUTTON_PRESSED(EN2) };
 
     #if ENCODER_DEBOUNCE_MS
 
       static enc_t enc;
-
       static enc_t old_live;
 
       static millis_t en_A_bounce_ms;

@@ -251,8 +251,7 @@ public:
   #endif
 
   #if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2
-    typedef struct { bool a:1, b:1; } enc_t;
-    static int8_t get_encoder_delta(const enc_t &live_enc, const millis_t &now=millis());
+    static int8_t get_encoder_delta(const millis_t &now=millis());
   #endif
 
   #if HAS_MEDIA
