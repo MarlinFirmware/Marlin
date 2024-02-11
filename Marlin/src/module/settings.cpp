@@ -1999,11 +1999,11 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(MESH_BED_LEVELING)
           if (!validating) bedlevel.z_offset = dummyf;
-          if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
+          if (mesh_num_x == (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)) && mesh_num_y == (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y))) {
             // EEPROM data fits the current mesh
             EEPROM_READ(bedlevel.z_values);
           }
-          else if (mesh_num_x > (GRID_MAX_POINTS_X) || mesh_num_y > (GRID_MAX_POINTS_Y)) {
+          else if (mesh_num_x > (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)) || mesh_num_y > (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y))) {
             eeprom_error = ERR_EEPROM_CORRUPT;
             break;
           }
@@ -2064,12 +2064,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(spacing);                          // 2 ints
         EEPROM_READ(start);                            // 2 ints
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
+          if (grid_max_x == (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)) && grid_max_y == (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y))) {
             if (!validating) set_bed_leveling_enabled(false);
             bedlevel.set_grid(spacing, start);
             EEPROM_READ(bedlevel.z_values);            // 9 to 256 floats
           }
-          else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
+          else if (grid_max_x > (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)) || grid_max_y > (TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y))) {
             eeprom_error = ERR_EEPROM_CORRUPT;
             break;
           }
@@ -3801,8 +3801,8 @@ void MarlinSettings::reset() {
       #if ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
-          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
-            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
+          for (uint8_t py = 0; py < TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X); ++py) {
+            for (uint8_t px = 0; px < TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X); ++px) {
               CONFIG_ECHO_START();
               SERIAL_ECHOLN(F("  G29 S3 I"), px, F(" J"), py, FPSTR(SP_Z_STR), p_float_t(LINEAR_UNIT(bedlevel.z_values[px][py]), 5));
             }
@@ -3826,8 +3826,8 @@ void MarlinSettings::reset() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         if (leveling_is_valid()) {
-          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
-            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
+          for (uint8_t py = 0; py < TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X); ++py) {
+            for (uint8_t px = 0; px < TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X); ++px) {
               CONFIG_ECHO_START();
               SERIAL_ECHOLN(F("  G29 W I"), px, F(" J"), py, FPSTR(SP_Z_STR), p_float_t(LINEAR_UNIT(bedlevel.z_values[px][py]), 5));
             }
