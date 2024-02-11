@@ -1415,7 +1415,7 @@ void MarlinUI::init() {
 
     #else
 
-      enc_t &enc = live_enc;
+      const enc_t &enc = live_enc;
 
     #endif
 
