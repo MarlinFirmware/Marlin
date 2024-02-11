@@ -1380,33 +1380,10 @@ void MarlinUI::init() {
       } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
-        #define ENCODER_DEBOUNCE_MS 2
-        static uint8_t old_buttons;
-        const uint8_t button_diff = buttons ^ old_buttons;
-        old_buttons = buttons;
 
-        static struct { bool a:1, b:1; } enc;
-
-        static millis_t en_A_bounce_ms;
-        if (button_diff & EN_A) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_A_bounce_ms)) enc.a = buttons & EN_A;
-
-        static millis_t en_B_bounce_ms;
-        if (button_diff & EN_B) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-        else if (ELAPSED(now, en_B_bounce_ms)) enc.b = buttons & EN_B;
-
-        static uint8_t old_pos;
-        const uint8_t pos = (enc.a ^ enc.b) | (enc.a << 1); // 0:00  1:10  2:11  3:01
-        if (pos != old_pos) {
-          uint8_t delta = (pos - old_pos + 4 + 1) % 4 - 1;
-          old_pos = pos;
-
-          static int8_t last_dir;
-          if (delta == 2) delta = last_dir * 2;
-          else last_dir = delta;
-
+        const int8_t delta = get_encoder_delta(now);
+        if (delta) {
           encoderDiff += delta * encoderDirection;
-
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
@@ -1419,6 +1396,54 @@ void MarlinUI::init() {
   #endif // HAS_ENCODER_ACTION
 
 #endif // HAS_WIRED_LCD
+
+#if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2
+
+  #define ENCODER_DEBOUNCE_MS 2
+
+  int8_t MarlinUI::get_encoder_delta(const millis_t now/*=millis()*/) {
+
+    typedef struct { bool a:1, b:1; } enc_t;
+
+    #if ENCODER_DEBOUNCE_MS
+
+      static enc_t enc;
+
+      static enc_t old_live;
+      const enc_t live_enc = { buttons & EN_A, buttons & EN_B };
+
+      static millis_t en_A_bounce_ms;
+      if (old_live.a != live_enc.a) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+      else if (ELAPSED(now, en_A_bounce_ms)) enc.a = live_enc.a;
+
+      static millis_t en_B_bounce_ms;
+      if (old_live.b != live_enc.b) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+      else if (ELAPSED(now, en_B_bounce_ms)) enc.b = live_enc.b;
+
+      old_live = live_enc;
+
+    #else
+
+      enc_t enc = { buttons & EN_A, buttons & EN_B };
+
+    #endif
+
+    static uint8_t old_pos;
+    const uint8_t pos = (enc.a ^ enc.b) | (enc.a << 1); // 0:00  1:10  2:11  3:01
+    int8_t delta = 0;
+    if (pos != old_pos) {
+      delta = (pos - old_pos + 4 + 1) % 4 - 1;
+      old_pos = pos;
+
+      static int8_t last_dir;
+      if (delta == 2) delta = last_dir * 2;
+      else last_dir = delta;
+    }
+    return delta;
+
+  }
+
+#endif
 
 void MarlinUI::completion_feedback(const bool good/*=true*/) {
   wake_display(); // Wake the screen for all audio feedback

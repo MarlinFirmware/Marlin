@@ -91,15 +91,7 @@ EncoderState encoderReceiveAnalyze() {
     else return ENCODER_DIFF_NO;
   }
 
-  static uint8_t old_enc;
-  const uint8_t enc = (BUTTON_PRESSED(EN1) ? B01 : 0) | (BUTTON_PRESSED(EN2) ? B10 : 0);
-  if (enc != old_enc) {
-    switch ((old_enc << 2) | enc) {
-      case B0010: case B1011: case B1101: case B0100: ++temp_diff; break; // no change: 0000, 0101, 1010, 1111
-      case B1000: case B1110: case B0111: case B0001: --temp_diff; break; //  multiple: 0011, 0110, 1001, 1100
-    }
-    old_enc = enc;
-  }
+  temp_diff += MarlinUI::get_encoder_delta();
 
   const int8_t abs_diff = ABS(temp_diff);
   if (abs_diff >= ENCODER_PULSES_PER_STEP) {

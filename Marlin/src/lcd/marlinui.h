@@ -250,6 +250,10 @@ public:
     }
   #endif
 
+  #if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2
+    static int8_t get_encoder_delta(const millis_t now=millis());
+  #endif
+
   #if HAS_MEDIA
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
