@@ -91,7 +91,8 @@ EncoderState encoderReceiveAnalyze() {
     else return ENCODER_DIFF_NO;
   }
 
-  temp_diff += MarlinUI::get_encoder_delta();
+  const MarlinUI::enc_t enc = { BUTTON_PRESSED(EN1), BUTTON_PRESSED(EN2) };
+  temp_diff += ui.get_encoder_delta(enc);
 
   const int8_t abs_diff = ABS(temp_diff);
   if (abs_diff >= ENCODER_PULSES_PER_STEP) {

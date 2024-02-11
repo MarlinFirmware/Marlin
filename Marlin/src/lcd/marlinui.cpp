@@ -1290,98 +1290,11 @@ void MarlinUI::init() {
      */
     void MarlinUI::update_buttons() {
       const millis_t now = millis();
-      if (ELAPSED(now, next_button_update_ms)) {
-
-        #if HAS_DIGITAL_BUTTONS
-
-          #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-            uint8_t newbutton = 0;
-            if (BUTTON_PRESSED(EN1))                 newbutton |= EN_A;
-            if (BUTTON_PRESSED(EN2))                 newbutton |= EN_B;
-            if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-            if (BUTTON_PRESSED(BACK))                newbutton |= EN_D;
-
-          #else
-
-            constexpr uint8_t newbutton = 0;
-
-          #endif
-
-          //
-          // Directional buttons
-          //
-          #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
-
-            const int8_t pulses = epps * encoderDirection;
-
-            if (BUTTON_PRESSED(UP)) {
-              encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(DOWN)) {
-              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(LEFT)) {
-              encoderDiff = -pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(RIGHT)) {
-              encoderDiff = pulses;
-              next_button_update_ms = now + 300;
-            }
-
-          #endif // UP || DOWN || LEFT || RIGHT
-
-          buttons = (newbutton | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
-            #if ALL(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
-              | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
-            #endif
-          );
-
-        #elif HAS_ADC_BUTTONS
-
-          buttons = 0;
-
-        #endif
-
-        #if HAS_ADC_BUTTONS
-          if (keypad_buttons == 0) {
-            const uint8_t b = get_ADC_keyValue();
-            if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
-          }
-        #endif
-
-        #if HAS_SHIFT_ENCODER
-          /**
-           * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
-           * These values are independent of which pins are used for EN_A / EN_B indications.
-           * The rotary encoder part is also independent of the LCD chipset.
-           */
-          uint8_t val = 0;
-          WRITE(SHIFT_LD_PIN, LOW);
-          WRITE(SHIFT_LD_PIN, HIGH);
-          for (uint8_t i = 0; i < 8; ++i) {
-            val >>= 1;
-            if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
-            WRITE(SHIFT_CLK_PIN, HIGH);
-            WRITE(SHIFT_CLK_PIN, LOW);
-          }
-          TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
-        #endif
-
-        #if IS_TFTGLCD_PANEL
-          next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
-          buttons = slow_buttons;
-          TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
-        #endif
-
-      } // next_button_update_ms
 
       #if HAS_ENCODER_WHEEL
 
-        const int8_t delta = get_encoder_delta(now);
+        const enc_t enc = { BUTTON_PRESSED(EN1), BUTTON_PRESSED(EN2) };
+        const int8_t delta = get_encoder_delta(enc, now);
         if (delta) {
           encoderDiff += delta * encoderDirection;
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
@@ -1390,6 +1303,85 @@ void MarlinUI::init() {
         }
 
       #endif // HAS_ENCODER_WHEEL
+
+      if (PENDING(now, next_button_update_ms)) return;
+
+      #if HAS_DIGITAL_BUTTONS
+
+        uint8_t newbuttons = 0;
+        #if ANY_BUTTON(ENC, BACK)
+          if (can_encode() && BUTTON_PRESSED(ENC)) newbuttons |= EN_C;
+          if (BUTTON_PRESSED(BACK))                newbuttons |= EN_D;
+        #endif
+
+        //
+        // Directional buttons
+        //
+        #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
+
+          const int8_t pulses = epps * encoderDirection;
+
+          if (BUTTON_PRESSED(UP)) {
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(DOWN)) {
+            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(LEFT)) {
+            encoderDiff = -pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(RIGHT)) {
+            encoderDiff = pulses;
+            next_button_update_ms = now + 300;
+          }
+
+        #endif // UP || DOWN || LEFT || RIGHT
+
+        buttons = (newbuttons | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
+          #if ALL(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
+            | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
+          #endif
+        );
+
+      #elif HAS_ADC_BUTTONS
+
+        buttons = 0;
+
+      #endif
+
+      #if HAS_ADC_BUTTONS
+        if (keypad_buttons == 0) {
+          const uint8_t b = get_ADC_keyValue();
+          if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
+        }
+      #endif
+
+      #if HAS_SHIFT_ENCODER
+        /**
+         * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
+         * These values are independent of which pins are used for EN_A / EN_B indications.
+         * The rotary encoder part is also independent of the LCD chipset.
+         */
+        uint8_t val = 0;
+        WRITE(SHIFT_LD_PIN, LOW);
+        WRITE(SHIFT_LD_PIN, HIGH);
+        for (uint8_t i = 0; i < 8; ++i) {
+          val >>= 1;
+          if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
+          WRITE(SHIFT_CLK_PIN, HIGH);
+          WRITE(SHIFT_CLK_PIN, LOW);
+        }
+        TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
+      #endif
+
+      #if IS_TFTGLCD_PANEL
+        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
+        buttons = slow_buttons;
+        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
+      #endif
 
     } // update_buttons
 
@@ -1401,16 +1393,13 @@ void MarlinUI::init() {
 
   #define ENCODER_DEBOUNCE_MS 2
 
-  int8_t MarlinUI::get_encoder_delta(const millis_t now/*=millis()*/) {
-
-    typedef struct { bool a:1, b:1; } enc_t;
+  int8_t MarlinUI::get_encoder_delta(const enc_t &live_enc, const millis_t &now/*=millis()*/) {
 
     #if ENCODER_DEBOUNCE_MS
 
       static enc_t enc;
 
       static enc_t old_live;
-      const enc_t live_enc = { buttons & EN_A, buttons & EN_B };
 
       static millis_t en_A_bounce_ms;
       if (old_live.a != live_enc.a) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
@@ -1424,7 +1413,7 @@ void MarlinUI::init() {
 
     #else
 
-      enc_t enc = { buttons & EN_A, buttons & EN_B };
+      enc_t &enc = live_enc;
 
     #endif
 
@@ -1441,7 +1430,7 @@ void MarlinUI::init() {
     }
     return delta;
 
-  }
+  } // get_encoder_delta
 
 #endif
 
