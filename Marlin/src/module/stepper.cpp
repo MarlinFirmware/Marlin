@@ -3539,8 +3539,10 @@ void Stepper::report_positions() {
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
 
-    // Check endstops on every step
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
+    // Check endstops on every step using axis_did_move as set by every step
+    // TODO: Update endstop states less frequently to save processing.
+    // NOTE: endstops.poll is still called at 1KHz by Temperature ISR.
+    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, if ((bool)axis_did_move) endstops.update());
 
   } // Stepper::ftMotion_stepper
 
