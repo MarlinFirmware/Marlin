@@ -3498,8 +3498,8 @@ void Stepper::report_positions() {
 
     if (old_direction_bits != last_direction_bits) {
       // Apply directions (which will apply to the entire linear move)
-      #define _FTM_APPLY_DIR(AXIS) if (old_direction_bits[_AXIS(AXIS)] != last_direction_bits[_AXIS(AXIS)]) \
-                                     AXIS##_APPLY_DIR(last_direction_bits[_AXIS(AXIS)], false);
+      #define _FTM_APPLY_DIR(AXIS) if (last_direction_bits[_AXIS(A)] != old_direction_bits[_AXIS(AXIS)]) \
+                                     SET_STEP_DIR(AXIS);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       // Any DIR change requires a wait period
