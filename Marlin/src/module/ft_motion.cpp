@@ -746,39 +746,21 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     );
   #endif
 
-  LOGICAL_AXIS_CODE(
-    command_set[E_AXIS] = delta.e >= 0 ? command_set_pos : command_set_neg,
-    command_set[X_AXIS] = delta.x >= 0 ? command_set_pos : command_set_neg,
-    command_set[Y_AXIS] = delta.y >= 0 ? command_set_pos : command_set_neg,
-    command_set[Z_AXIS] = delta.z >= 0 ? command_set_pos : command_set_neg,
-    command_set[I_AXIS] = delta.i >= 0 ? command_set_pos : command_set_neg,
-    command_set[J_AXIS] = delta.j >= 0 ? command_set_pos : command_set_neg,
-    command_set[K_AXIS] = delta.k >= 0 ? command_set_pos : command_set_neg,
-    command_set[U_AXIS] = delta.u >= 0 ? command_set_pos : command_set_neg,
-    command_set[V_AXIS] = delta.v >= 0 ? command_set_pos : command_set_neg,
-    command_set[W_AXIS] = delta.w >= 0 ? command_set_pos : command_set_neg
-  );
+  #define _COMMAND_SET(AXIS) command_set[_AXIS(AXIS)] = delta[_AXIS(AXIS)] >= 0 ? command_set_pos : command_set_neg;
+  LOGICAL_AXIS_MAP(_COMMAND_SET);
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
 
+    ft_command_t &cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
+
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
-    stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
+    cmd = 0;
 
     err_P += delta;
 
     // Set up step/dir bits for all axes
-    LOGICAL_AXIS_CODE(
-      command_set[E_AXIS](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      command_set[X_AXIS](err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      command_set[Y_AXIS](err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      command_set[Z_AXIS](err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      command_set[I_AXIS](err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      command_set[J_AXIS](err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      command_set[K_AXIS](err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      command_set[U_AXIS](err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      command_set[V_AXIS](err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      command_set[W_AXIS](err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
-    );
+    #define _COMMAND_RUN(AXIS) command_set[_AXIS(AXIS)](err_P[_AXIS(AXIS)], steps[_AXIS(AXIS)], cmd, _BV(FT_BIT_DIR_##AXIS), _BV(FT_BIT_STEP_##AXIS));
+    LOGICAL_AXIS_MAP(_COMMAND_RUN);
 
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       stepperCmdBuff_produceIdx = 0;
