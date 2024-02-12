@@ -1032,7 +1032,7 @@ void RTS::handleData() {
           sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           break;
 
-        case 5: {
+        case 5:
           if (planner.has_blocks_queued()) break;
           thermalManager.setTargetHotend(change_filament_temp_0, 0);
           updateTempE0();
@@ -1143,7 +1143,7 @@ void RTS::handleData() {
           for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
           ZERO(cmdbuf);
-          strncpy(cmdbuf, cmd, 29);
+          strncpy(cmdbuf, cmd, 20);
           FilenamesCount = cardRec.recordcount;
 
           #if ENABLED(CHECKFILAMENT)
@@ -1234,7 +1234,7 @@ void RTS::handleData() {
           #if ENABLED(PIDTEMP)
             const float hot_p = thermalManager.temp_hotend[0].pid.p() * 100.0f,
                         hot_i = (thermalManager.temp_hotend[0].pid.i() / 8.0f * 10000.0f) + 0.00001f,
-                        hot_d = thermalManager.temp_hotend[0].pid.d() * 8.0f,
+                        hot_d = thermalManager.temp_hotend[0].pid.d() * 8.0f;
             sendData(hot_p, Nozzle_P_VP);
             sendData(hot_i, Nozzle_I_VP);
             sendData(hot_d, Nozzle_D_VP);
@@ -1274,7 +1274,7 @@ void RTS::handleData() {
           gotoPage(ID_Accel_L, ID_Accel_D);
           break;
 
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           case 4: // Jerk
             TERN_(HAS_X_AXIS, sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
             TERN_(HAS_Y_AXIS, sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
@@ -1306,6 +1306,7 @@ void RTS::handleData() {
         #if ENABLED(EEPROM_SETTINGS)
           case 9: settings.save(); break;   // Save Settings
         #endif
+      }
       break;
 
     #if ENABLED(PIDTEMP)
@@ -1388,7 +1389,7 @@ void RTS::handleData() {
       case ZOffsetKey:
           last_zoffset = zprobe_zoffset;
           zprobe_zoffset = float(recdat.data[0] >= 32767 ? recdat.data[0] - 65537 : recdat.data[0]) / 100.0f + 0.0001f;
-          if (WITHIN(zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          if (WITHIN(zprobe_zoffset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
             babystep.add_mm(Z_AXIS, zprobe_zoffset - last_zoffset);
           probe.offset.z = zprobe_zoffset;
           sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
@@ -1464,10 +1465,10 @@ void RTS::handleData() {
       #endif
 
       #if AXIS_IS_TMC(E0)
-        case Current_E0:   sprintf_P(cmd, PSTR("M906 E%i"), recdat.data[0]); queue.inject(cmd); break;
+        case Current_E:   sprintf_P(cmd, PSTR("M906 E%i"), recdat.data[0]); queue.inject(cmd); break;
       #endif
       #if E0_HAS_STEALTHCHOP
-        case Threshold_E0: sprintf_P(cmd, PSTR("M913 E%i"), recdat.data[0]); queue.inject(cmd); break;
+        case Threshold_E: sprintf_P(cmd, PSTR("M913 E%i"), recdat.data[0]); queue.inject(cmd); break;
       #endif
 
     #endif // HAS_TRINAMIC_CONFIG
@@ -1556,7 +1557,7 @@ void RTS::sendPrinterInfo() {
   char printarea[20] = { '\0' };
   sprintf_P(printarea,
     PSTR(TERN_(HAS_X_AXIS, "%d x") TERN_(HAS_Y_AXIS, " %d x") TERN_(HAS_Z_AXIS, " %d"))
-    OPTARG(HAS_X_AXIS, X_BED_SIZE) OPTARG(HAS_Y_AXIS, Y_BED_SIZE) OPTARG(HAS_Z_AXIS, Z_MAX_POS)
+    , X_BED_SIZE, Y_BED_SIZE, Z_MAX_POS
   );
   sendData(printarea, PRINTER_PRINTSIZE_TEXT_VP);
 }
