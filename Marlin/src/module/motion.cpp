@@ -2187,6 +2187,18 @@ void prepare_line_to_destination() {
           MAIN_AXIS_MAP(_ESCASE)
           default: break;
         }
+        #if ENABLED(DUAL_X_CARRIAGE)
+        if (axis == X_AXIS){
+          if(axis_home_dir == -1){
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MIN");
+            es = X_MIN;
+          }
+          else if(axis_home_dir == 1){
+            es = X_MAX;
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
+          }
+        }
+        #endif
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
           kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
