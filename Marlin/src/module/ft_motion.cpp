@@ -199,22 +199,12 @@ void FTMotion::loop() {
       trajMod = traj; // Move the window to traj
     #else
       // Copy the uncompensated vectors.
-      #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
-      LOGICAL_AXIS_CODE(
-        TCOPY(e),
-        TCOPY(x), TCOPY(y), TCOPY(z),
-        TCOPY(i), TCOPY(j), TCOPY(k),
-        TCOPY(u), TCOPY(v), TCOPY(w)
-      );
+      #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A));
+      LOGICAL_AXIS_MAP_LC(TCOPY);
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]))
-      LOGICAL_AXIS_CODE(
-        TSHIFT(e),
-        TSHIFT(x), TSHIFT(y), TSHIFT(z),
-        TSHIFT(i), TSHIFT(j), TSHIFT(k),
-        TSHIFT(u), TSHIFT(v), TSHIFT(w)
-      );
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]));
+      LOGICAL_AXIS_MAP_LC(TSHIFT);
     #endif
 
     // ... data is ready in trajMod.
@@ -616,18 +606,8 @@ void FTMotion::makeVector() {
     accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
   }
 
-  LOGICAL_AXIS_CODE(
-    traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
-    traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
-    traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
-    traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
-    traj.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
-    traj.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
-    traj.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
-    traj.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
-    traj.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
-    traj.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
-  );
+  #define _FTM_TRAJ(A) traj.A[makeVector_batchIdx] = startPosn.A + ratio.A * dist;
+  LOGICAL_AXIS_MAP_LC(_FTM_TRAJ);
 
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
