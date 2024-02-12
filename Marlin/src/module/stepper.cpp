@@ -1505,8 +1505,20 @@ void Stepper::isr() {
           nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
           ftMotion_stepper();             // Run FTM Stepping
         }
-        interval = nextMainISR;           // Interval is either some old nextMainISR or FTM_MIN_TICKS
-        nextMainISR = 0;                  // For FT Motion fire again ASAP
+
+        #if ENABLED(BABYSTEPPING)
+          if (nextBabystepISR == 0) {                   // Avoid ANY stepping too soon after baby-stepping
+            nextBabystepISR = babystepping_isr();
+            NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);  // FULL STOP for 125µs after a baby-step
+          }
+          if (nextBabystepISR != BABYSTEP_NEVER)        // Avoid baby-stepping too close to axis Stepping
+            NOLESS(nextBabystepISR, nextMainISR / 2);   // TODO: Only look at axes enabled for baby-stepping
+        #endif
+
+        interval = nextMainISR;                         // Interval is either some old nextMainISR or FTM_MIN_TICKS
+        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR)); // Come back early for Babystepping?
+
+        nextMainISR = 0;                                // For FT Motion fire again ASAP
       }
 
     #endif
@@ -3514,9 +3526,6 @@ void Stepper::report_positions() {
 
     // Check endstops on every step
     IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
-
-    // Also handle babystepping here
-    TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
 
   } // Stepper::ftMotion_stepper
 
