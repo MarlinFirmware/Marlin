@@ -3230,6 +3230,10 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
  * The provided ABCE position is in machine units.
  */
 void Planner::set_machine_position_mm(const abce_pos_t &abce) {
+
+  // When FT Motion is enabled, call synchronize() here instead of generating a sync block
+  if (TERN0(FT_MOTION, ftMotion.cfg.mode)) synchronize();
+
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float = abce);
   position.set(

@@ -3557,6 +3557,12 @@ void Stepper::report_positions() {
       // Sync position, fan power, laser power?
       while (current_block->is_sync()) {
 
+        #if 0
+
+        // TODO: Implement compatible sync blocks with FT Motion commands,
+        //       perhaps by setting a FT_BIT_SYNC flag that holds the current block
+        //       until it is processed by ftMotion_stepper
+
         // Set laser power
         #if ENABLED(LASER_POWER_SYNC)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
@@ -3574,6 +3580,8 @@ void Stepper::report_positions() {
 
         // Set position
         if (current_block->is_pos_sync()) _set_position(current_block->position);
+
+        #endif
 
         // Done with this block
         planner.release_current_block();
