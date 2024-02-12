@@ -3493,7 +3493,7 @@ void Stepper::report_positions() {
     // Any DIR change requires a wait period
     DIR_WAIT_AFTER();
 
-    // Start step pulses
+    // Start step pulses. Edge stepping will toggle the STEP pin.
     #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
@@ -3507,6 +3507,7 @@ void Stepper::report_positions() {
     #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
+    // Provide EDGE flags for E stepper(s)
     #if HAS_EXTRUDERS
       #if ENABLED(E_DUAL_STEPPER_DRIVERS)
         constexpr bool e_axis_has_dedge = AXIS_HAS_DEDGE(E0) && AXIS_HAS_DEDGE(E1);
@@ -3537,6 +3538,7 @@ void Stepper::report_positions() {
 
   } // Stepper::ftMotion_stepper
 
+  // Called from FTMotion::loop which is called from Marlin idle()
   void Stepper::ftMotion_blockQueueUpdate() {
 
     if (current_block) {
