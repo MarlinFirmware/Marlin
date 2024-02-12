@@ -617,6 +617,11 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
+#if ENABLED(FTM_OPTIMIZE_DIR_STATES)
+  // We'll compare the updated DIR bits to the last set state
+  static AxisBits last_set_direction;
+#endif
+
 // Set a single axis direction based on the last set flags.
 // A direction bit of "1" indicates forward or positive motion.
 #define SET_STEP_DIR(A) do{                     \
@@ -641,6 +646,8 @@ void Stepper::apply_directions() {
     SET_STEP_DIR(I), SET_STEP_DIR(J), SET_STEP_DIR(K),
     SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
   );
+
+  TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
 
   DIR_WAIT_AFTER();
 }
@@ -1783,6 +1790,7 @@ void Stepper::pulse_phase_isr() {
           last_direction_bits.toggle(_AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
+          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits); \
           DIR_WAIT_AFTER(); \
         } \
       } \
@@ -2475,6 +2483,8 @@ hal_timer_t Stepper::block_phase_isr() {
                 DIR_WAIT_BEFORE();
 
                 E_APPLY_DIR(forward_e, false);
+
+                TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
 
                 DIR_WAIT_AFTER();
               }
@@ -3490,17 +3500,16 @@ void Stepper::report_positions() {
     #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
     LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
 
-    // We'll compare the updated DIR bits to the last set state
-    const AxisBits old_direction_bits = last_direction_bits;
-
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
-    if (old_direction_bits != last_direction_bits) {
-      // Apply directions (which will apply to the entire linear move)
-      #define _FTM_APPLY_DIR(AXIS) if (last_direction_bits[_AXIS(A)] != old_direction_bits[_AXIS(AXIS)]) \
+    if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
+      // Apply directions (generally applying to the entire linear move)
+      #define _FTM_APPLY_DIR(AXIS) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits[_AXIS(A)] != last_set_direction[_AXIS(AXIS)])) \
                                      SET_STEP_DIR(AXIS);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
+
+      TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
 
       // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
