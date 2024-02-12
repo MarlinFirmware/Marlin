@@ -583,19 +583,13 @@
 
   static void FullScreenMsg(const char *pgmS, uint8_t slot) {
     #if HAS_WIRED_LCD
-      ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
-      START_SCREEN();
       #ifndef __AVR__
-        STATIC_ITEM_F(F(pgmS), SS_DEFAULT|SS_INVERT);
-        // SETCURSOR(0, 1);
-        // lcd_moveto(0, 1);
-        // lcd_put_u8str_P(pgmS);
-        // SETCURSOR(1, 0);
-        // lcd_moveto(1, 0);
-        // lcd_put_int(slot + 1);
+        SETCURSOR(0, 1);
+        lcd_put_u8str_P(pgmS);
+        lcd_put_lchar(' ');
+        lcd_put_int(slot + 1);
       #endif // __AVR__
-      END_SCREEN();
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.screen_changed = true;
     #endif
