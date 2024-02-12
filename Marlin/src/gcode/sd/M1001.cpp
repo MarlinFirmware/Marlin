@@ -116,7 +116,7 @@ void GcodeSuite::M1001() {
     rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
     rts.sendData(0, PRINT_SURPLUS_TIME_HOUR_VP); delay(1);
     rts.sendData(0, PRINT_SURPLUS_TIME_MIN_VP); delay(1);
-    rts.gotoPage(9, 64);
+    rts.gotoPage(ID_Finish_L, ID_Finish_D);
   #endif
 }
 

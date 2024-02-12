@@ -442,7 +442,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.updateTempE0();
           rts.updateTempBed();
           rts.sendData(1, Wait_VP);
-          rts.gotoPage(123, 124);
+          rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if ALL(DWIN_LCD_PROUI, HAS_HEATED_BED)
@@ -788,7 +788,7 @@ G29_TYPE GcodeSuite::G29() {
             #if ENABLED(SOVOL_SV06_RTS)
               if (pt_index <= GRID_MAX_POINTS) rts.sendData(pt_index, AUTO_BED_LEVEL_ICON_VP);
               rts.sendData(z * 100.0f, AUTO_BED_LEVEL_1POINT_VP + (pt_index - 1) * 2);
-              rts.gotoPage(38, 93);
+              rts.gotoPage(ID_ABL_Wait_L, ID_ABL_Wait_D);
             #endif
 
           #endif

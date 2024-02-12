@@ -573,10 +573,10 @@ void RTS::handleData() {
         cardRec.recordcount = -1;
         if (card.flag.mounted) {
           for (uint8_t j = 0; j < 20; j++) sendData(0, SELECT_FILE_TEXT_VP + j);
-          gotoPage(2, 57);
+          gotoPage(ID_Page1_L, ID_Page1_D);
         }
         else
-          gotoPage(47, 102);
+          gotoPage(ID_BrowseNoSd_L, ID_BrowseNoSd_D);
       }
       else if (recdat.data[0] == 2) { // Complete printing
         waitway = 7;
@@ -600,26 +600,26 @@ void RTS::handleData() {
         queue.enqueue_now(F("G28\nG1 F200 Z0.0"));
         updateFan0();
         sendData(1, Wait_VP);
-        gotoPage(32, 87);
+        gotoPage(ID_AutoHome_L, ID_AutoHome_D);
       }
       else if (recdat.data[0] == 4) { // Enter the settings interface
-        gotoPage(21, 76);
+        gotoPage(ID_Settings_L, ID_Settings_D);
       }
       else if (recdat.data[0] == 5) { // Enter the temperature interface
         updateFan0();
-        gotoPage(15, 70);
+        gotoPage(ID_TempChange_L, ID_TempChange_D);
       }
       else if (recdat.data[0] == 6) { // Light mode
         dark_mode = false;
         BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
-        gotoPage(56);
+        gotoPage(ID_Home_D);
         change_page_number = 56;
         settings.save();
       }
       else if (recdat.data[0] == 7) { // Dark mode
         dark_mode = true;
         BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
-        gotoPage(1);
+        gotoPage(ID_Home_L);
         change_page_number = 1;
         settings.save();
       }
@@ -629,14 +629,14 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // Enter the adjustment interface
         updateFan0();
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        gotoPage(28, 83);
+        gotoPage(ID_PrintAdjust5_L, ID_PrintAdjust5_D);
       }
       else if (recdat.data[0] == 2) { // Return to print interface
         if (start_print_flag) {
-          gotoPage(10, 65);
+          gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
         }
         else if (!sdcard_pause_check) {
-          gotoPage(12, 67);
+          gotoPage(ID_PrintResume_L, ID_PrintResume_D);
         }
         else {
           refreshTime();
@@ -663,7 +663,7 @@ void RTS::handleData() {
     case StopPrintKey: // Stop printing
       if ((recdat.data[0] == 1) || (recdat.data[0] == 0xF1)) {
         sendData(1, Wait_VP);
-        gotoPage(40, 95);
+        gotoPage(ID_Processing_L, ID_Processing_D);
         sendData(0, PRINT_TIME_HOUR_VP);
         sendData(0, PRINT_TIME_MIN_VP);
         sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
@@ -674,9 +674,9 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 0xF0) {
         if (start_print_flag)
-          gotoPage(10, 65);
+          gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
         else if (!sdcard_pause_check)
-          gotoPage(12, 67);
+          gotoPage(ID_PrintResume_L, ID_PrintResume_D);
         else {
           refreshTime();
           start_print_flag = false;
@@ -689,7 +689,7 @@ void RTS::handleData() {
 
       if (recdat.data[0] == 0xF1) {
         sendData(1, Wait_VP);
-        gotoPage(40, 95);
+        gotoPage(ID_Processing_L, ID_Processing_D);
         // Reject to receive cmd
         change_page_number = 12;
         waitway = 1;
@@ -706,7 +706,7 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // Portal restoration printing
         if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
         //sendData(1, Wait_VP);
-        //gotoPage(40, 95);
+        //gotoPage(ID_Processing_L, ID_Processing_D);
         card.startOrResumeFilePrinting();
         update_time_value = 0;
         sdcard_pause_check = true;
@@ -722,7 +722,7 @@ void RTS::handleData() {
           }
           else {
             sendData(1, Wait_VP);
-            gotoPage(40, 95);
+            gotoPage(ID_Processing_L, ID_Processing_D);
             card.startOrResumeFilePrinting();
             print_job_timer.start();
 
@@ -738,7 +738,7 @@ void RTS::handleData() {
         if (poweroff_continue) {
           #if ENABLED(CHECKFILAMENT)
             sendData(runout.filament_ran_out ? 0 : 1, CHANGE_FILAMENT_ICON_VP);
-            gotoPage(8, 63);
+            gotoPage(ID_Change_L, ID_Change_D);
           #endif
         }
         else if (poweroff_continue == false) {
@@ -762,7 +762,7 @@ void RTS::handleData() {
           zprobe_zoffset = last_zoffset;
           sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
           poweroff_continue = true;
-          gotoPage(10, 65);
+          gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
           sdcard_pause_check = true;
         }
       }
@@ -775,7 +775,7 @@ void RTS::handleData() {
         else {
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_FilamentOut_L, ID_FilamentOut_D);
           sendData(1, Wait_VP);
-          gotoPage(40, 95);
+          gotoPage(ID_Processing_L, ID_Processing_D);
           card.startOrResumeFilePrinting();
           update_time_value = 0;
           sdcard_pause_check = true;
@@ -804,7 +804,7 @@ void RTS::handleData() {
         updateTempBed();
       }
       else if (recdat.data[0] == 3) { // Back to Home page
-        gotoPage(1, 56);
+        gotoPage(ID_Home_L, ID_Home_D);
       }
       else if (recdat.data[0] == 0xF1) { // Cool down
         #if FAN_COUNT > 0
@@ -819,10 +819,10 @@ void RTS::handleData() {
           updateTempBed(); delay(1);
         #endif
 
-        gotoPage(15, 70);
+        gotoPage(ID_TempChange_L, ID_TempChange_D);
       }
       else if (recdat.data[0] == 0xF0) {
-        gotoPage(15, 70);
+        gotoPage(ID_TempChange_L, ID_TempChange_D);
       }
       break;
 
@@ -849,24 +849,24 @@ void RTS::handleData() {
         case 1:
           AxisUnitMode = 1;
           axis_unit = 10.0;
-          gotoPage(29, 84);
+          gotoPage(ID_Move10_L, ID_Move10_D);
           break;
         case 2:
           AxisUnitMode = 2;
           axis_unit = 1.0;
-          gotoPage(30, 85);
+          gotoPage(ID_Move1_L, ID_Move1_D);
           break;
         case 3:
           AxisUnitMode = 3;
           axis_unit = 0.1;
-          gotoPage(31, 86);
+          gotoPage(ID_Move01_L, ID_Move01_D);
           break;
         case 4:
           waitway = 4;
           queue.enqueue_now(F("G28"));
           update_time_value = 0;
           sendData(1, Wait_VP);
-          gotoPage(32, 87);
+          gotoPage(ID_AutoHome_L, ID_AutoHome_D);
           sendData(0, MOTOR_FREE_ICON_VP);
           break;
         case 5: // Unlock motor
@@ -884,7 +884,7 @@ void RTS::handleData() {
             sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
             updateTempE0();
             delay(2);
-            gotoPage(23, 78);
+            gotoPage(ID_Load_L, ID_Load_D);
             break;
         #endif
 
@@ -893,22 +893,22 @@ void RTS::handleData() {
           TERN_(HAS_X_AXIS, sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
           TERN_(HAS_Y_AXIS, sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
           TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
-          gotoPage(29, 84);
+          gotoPage(ID_Move10_L, ID_Move10_D);
           break;
 
         case 4: // Go to Advanced Settings
           TERN_(LIN_ADVANCE, sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP));
-          gotoPage(49, 104);
+          gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
         case 5: // Information
           sendPrinterInfo();
           sendData(MARLINVERSION, MARLIN_VERSION_TEXT_VP);
-          gotoPage(33, 88);
+          gotoPage(ID_Info_L, ID_Info_D);
           break;
 
         case 7: // Return
-          gotoPage(1, 56);
+        gotoPage(ID_Home_L, ID_Home_D);
           break;
       }
       break;
@@ -917,11 +917,11 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         update_time_value = RTS_UPDATE_VALUE;
         //settings.save();
-        gotoPage(1, 56);
+        gotoPage(ID_Home_L, ID_Home_D);
       }
       else if (recdat.data[0] == 2) {
         if (!planner.has_blocks_queued()) {
-          gotoPage(111, 117);
+          gotoPage(ID_Level5_L, ID_Level5_D);
         }
       }
       break;
@@ -988,12 +988,12 @@ void RTS::handleData() {
       switch (recdat.data[0]) {
         case 1:
           if (planner.has_blocks_queued()) break;
-          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_NoFilament_L, ID_NoFilament_D);
           current_position.e -= filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
             sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
-            gotoPage(24, 79);
+            gotoPage(ID_LoadCold_L, ID_LoadCold_D);
           }
           else {
             RTS_line_to_current(E_AXIS);
@@ -1003,12 +1003,12 @@ void RTS::handleData() {
 
         case 2:
           if (planner.has_blocks_queued()) break;
-          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(20, 75);
+          if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_NoFilament_L, ID_NoFilament_D);
           current_position.e += filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
             sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
-            gotoPage(24, 79);
+            gotoPage(ID_LoadCold_L, ID_LoadCold_D);
           }
           else {
             RTS_line_to_current(E_AXIS);
@@ -1019,14 +1019,14 @@ void RTS::handleData() {
         case 3:
           updateTempE0();
           sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
-          gotoPage(27, 82);
+          gotoPage(ID_LoadCancel_L, ID_LoadCancel_D);
           break;
 
         case 4:
           if (planner.has_blocks_queued()) break;
           thermalManager.setTargetHotend(0, 0);
           updateTempE0();
-          gotoPage(23, 78);
+          gotoPage(ID_Load_L, ID_Load_D);
           filament_load_0 = 10.0f;
           sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
           break;
@@ -1035,7 +1035,7 @@ void RTS::handleData() {
           if (planner.has_blocks_queued()) break;
           thermalManager.setTargetHotend(change_filament_temp_0, 0);
           updateTempE0();
-          gotoPage(26, 81);
+          gotoPage(ID_LoadHeating_L, ID_LoadHeating_D);
           heatway = 1;
           break;
 
@@ -1043,14 +1043,14 @@ void RTS::handleData() {
           if (planner.has_blocks_queued()) break;
           filament_load_0 = 10.0f;
           sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
-          gotoPage(23, 78);
+          gotoPage(ID_Load_L, ID_Load_D);
           break;
 
         case 8:
           if (planner.has_blocks_queued()) break;
           thermalManager.setTargetHotend(change_filament_temp_0, 0);
           updateTempE0();
-          gotoPage(26, 81);
+          gotoPage(ID_LoadHeating_L, ID_LoadHeating_D);
           heatway = 1;
           break;
       }
@@ -1059,10 +1059,10 @@ void RTS::handleData() {
     case FilamentCheckKey:
       switch (recdat.data[0]) {
         case 1:
-          TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? 20 : 23, runout.filament_ran_out ? 75 : 78));
+          TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? ID_NoFilament_L : ID_Load_L, runout.filament_ran_out ? ID_NoFilament_D : ID_Load_D)); // TODO: add page enum
           break;
         case 2:
-          gotoPage(21, 76);
+          gotoPage(ID_Settings_L, ID_Settings_D);
           filament_load_0 = 10.0f;
           break;
       }
@@ -1074,7 +1074,7 @@ void RTS::handleData() {
           if (!poweroff_continue) break;
           power_off_type_yes = true;
           update_time_value = 0;
-          gotoPage(10, 65);
+          gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
           queue.enqueue_now(F("M1000"));
 
           poweroff_continue = true;
@@ -1087,7 +1087,7 @@ void RTS::handleData() {
 
         case 2:
           update_time_value = RTS_UPDATE_VALUE;
-          gotoPage(1, 56);
+          gotoPage(ID_Home_L, ID_Home_D);
           poweroff_continue = false;
           sdcard_pause_check = true;
           queue.clear();
@@ -1172,20 +1172,20 @@ void RTS::handleData() {
           #endif
 
           poweroff_continue = true;
-          gotoPage(10, 65);
+          gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
           change_page_number = 11;
           update_time_value = 0;
           start_print_flag = true;
           print_state = 2;
         } break;
 
-        case 2: gotoPage(3, 58); break;
-        case 3: gotoPage(2, 57); break;
-        case 4: gotoPage(4, 59); break;
-        case 5: gotoPage(3, 58); break;
-        case 6: gotoPage(5, 60); break;
-        case 7: gotoPage(4, 59); break;
-        case 8: gotoPage(1, 56); break;
+        case 2: gotoPage(ID_Page2_L, ID_Page2_D); break;
+        case 3: gotoPage(ID_Page1_L, ID_Page1_D); break;
+        case 4: gotoPage(ID_Page3_L, ID_Page3_D); break;
+        case 5: gotoPage(ID_Page2_L, ID_Page2_D); break;
+        case 6: gotoPage(ID_Page4_L, ID_Page4_D); break;
+        case 7: gotoPage(ID_Page3_L, ID_Page3_D); break;
+        case 8: gotoPage(ID_Home_L, ID_Home_D); break;
       }
       break;
 
@@ -1220,10 +1220,10 @@ void RTS::handleData() {
         zprobe_zoffset = 0;
         last_zoffset = 0;
         sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        gotoPage(1, 56);
+        gotoPage(ID_Home_L, ID_Home_D);
       }
       else if (recdat.data[0] == 0xF0) {
-        gotoPage(21, 76);
+        gotoPage(ID_Settings_L, ID_Settings_D);
       }
       break;
 
@@ -1248,7 +1248,7 @@ void RTS::handleData() {
             sendData(bed_i, Hot_Bed_I_VP);
             sendData(bed_d, Hot_Bed_D_VP);
           #endif
-          gotoPage(41, 96);
+          gotoPage(ID_TempPID_L, ID_TempPID_D);
         } break;
 
         case 2: // Speed
@@ -1256,7 +1256,7 @@ void RTS::handleData() {
           TERN_(HAS_Y_AXIS, sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
           TERN_(HAS_Z_AXIS, sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
           TERN_(HAS_HOTEND, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
-          gotoPage(25, 80);
+          gotoPage(ID_Velocity_L, ID_Velocity_D);
           break;
 
         case 3: // Acceleration
@@ -1270,7 +1270,7 @@ void RTS::handleData() {
             sendData(planner.settings.retract_acceleration, A_Retract_VP);
             sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
           #endif
-          gotoPage(34, 89);
+          gotoPage(ID_Accel_L, ID_Accel_D);
           break;
 
         #if HAS_CLASSIC_JERK
@@ -1279,7 +1279,7 @@ void RTS::handleData() {
             TERN_(HAS_Y_AXIS, sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
             TERN_(HAS_Z_AXIS, sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
             TERN_(HAS_HOTEND, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
-            gotoPage(35, 90);
+            gotoPage(ID_Jerk_L, ID_Jerk_D);
             break;
         #endif
 
@@ -1288,19 +1288,19 @@ void RTS::handleData() {
           TERN_(HAS_Y_AXIS, sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
           TERN_(HAS_Z_AXIS, sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
           TERN_(HAS_HOTEND, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
-          gotoPage(37, 92);
+          gotoPage(ID_Steps_L, ID_Steps_D);
           break;
 
-        case 6: gotoPage(21, 76); break;  // Return
+        case 6: gotoPage(ID_Settings_L, ID_Settings_D); break;  // Return
 
         #if ENABLED(LIN_ADVANCE)
           case 7: // Confirm
             sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
-            gotoPage(18, 73);
+            gotoPage(ID_Advanced_L, ID_Advanced_D);
             break;
         #endif
 
-        case 8: gotoPage(113, 119); break;  // TMC
+        case 8: gotoPage(ID_SettingsTMC_L, ID_SettingsTMC_D); break;  // TMC
 
         #if ENABLED(EEPROM_SETTINGS)
           case 9: settings.save(); break;   // Save Settings
@@ -1358,7 +1358,7 @@ void RTS::handleData() {
     case Accel: planner.settings.acceleration = recdat.data[0]; break;
     case A_Travel: planner.settings.travel_acceleration = recdat.data[0]; break;
 
-    case AdvancedBackKey: gotoPage(18, 73); break;
+    case AdvancedBackKey: gotoPage(ID_Advanced_L, ID_Advanced_D); break;
 
     #if HAS_FILAMENT_SENSOR
       case FilamentChange: // Automatic material
@@ -1377,10 +1377,10 @@ void RTS::handleData() {
     #if HAS_BED_PROBE
       case ZoffsetUnitKey: // Zoffset unit
         switch (recdat.data[0]) {
-          case 1: gotoPage(28, 83); break;
-          case 2: gotoPage(14, 69); break;
-          case 3: gotoPage(111, 117); break;
-          case 4: gotoPage(22, 77); break;
+          case 1: gotoPage(ID_PrintAdjust5_L, ID_PrintAdjust5_D); break;
+          case 2: gotoPage(ID_PrintAdjust1_L, ID_PrintAdjust1_D); break;
+          case 3: gotoPage(ID_Level5_L, ID_Level5_D); break;
+          case 4: gotoPage(ID_Level1_L, ID_Level1_D); break;
         }
         break;
 
@@ -1411,7 +1411,7 @@ void RTS::handleData() {
             #if AXIS_IS_TMC(E0)
               sendData(stepperE0.getMilliamps(), Current_E_VP);
             #endif
-            gotoPage(114, 120);
+            gotoPage(ID_DriverA_L, ID_DriverA_D);
             break;
 
           case 2:  // Threshold
@@ -1419,19 +1419,19 @@ void RTS::handleData() {
             TERN_(Y_HAS_STEALTHCHOP,  sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP));
             TERN_(Z_HAS_STEALTHCHOP,  sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP));
             TERN_(E0_HAS_STEALTHCHOP, sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP));
-            gotoPage(115, 121);
+            gotoPage(ID_DriverTrsh_L, ID_DriverTrsh_D);
             break;
 
           #if ENABLED(SENSORLESS_HOMING)
             case 3:  // Sensorless
               TERN_(X_SENSORLESS, sendData(stepperX.homing_threshold(), Sensorless_X_VP));
               TERN_(Y_SENSORLESS, sendData(stepperY.homing_threshold(), Sensorless_Y_VP));
-              gotoPage(116, 122);
+              gotoPage(ID_DriverSens_L, ID_DriverSens_D);
               break;
           #endif
 
-          case 4: gotoPage(18, 73); break;
-          case 5: gotoPage(113, 119); break;
+          case 4: gotoPage(ID_Advanced_L, ID_Advanced_D); break;
+          case 5: gotoPage(ID_SettingsTMC_L, ID_SettingsTMC_D); break;
         }
         break;
 
@@ -1480,7 +1480,7 @@ void RTS::handleData() {
           start_print_flag = false;
           break;
 
-        case 12: gotoPage(12, 67); break;
+        case 12: gotoPage(ID_PrintResume_L, ID_PrintResume_D); break;
 
         default:
           if (card.isPrinting()) {
@@ -1599,7 +1599,7 @@ void RTS::onIdle() {
       for (uint16_t i = 0; i < cardRec.Filesum; i++) {
         if (!strcmp(cardRec.filename[i], &recovery.info.sd_filename[1])) {
           sendData(cardRec.display_filename[i], PRINT_FILE_TEXT_VP);
-          gotoPage(36, 91);
+          gotoPage(ID_Resume_L, ID_Resume_D);
           break;
         }
       }
@@ -1608,7 +1608,7 @@ void RTS::onIdle() {
     if (!poweroff_continue && power_off_type_yes) {
       update_time_value = RTS_UPDATE_VALUE;
       change_page_number = dark_mode ? 1 : 56;
-      gotoPage(change_page_number);
+      gotoPage((SovolPage)change_page_number);
     }
     return;
   }
@@ -1669,7 +1669,7 @@ void RTS::onIdle() {
   #if HAS_HOTEND
     if (heatway == 1 && !thermalManager.isHeatingHotend(0)) {
       heatway = 0;
-      gotoPage(23, 78);
+      gotoPage(ID_Load_L, ID_Load_D);
       sendData(filament_load_0 * 10.0f, HEAD0_FILAMENT_LOAD_DATA_VP);
     }
   #endif
@@ -1713,7 +1713,7 @@ void RTS_Update() {
       }
       else {
         rts.sendData(1, Wait_VP);
-        rts.gotoPage(40, 95);
+        rts.gotoPage(ID_Processing_L, ID_Processing_D);
         waitway = 5;
         TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
       }
@@ -1734,7 +1734,7 @@ void RTS_Update() {
 
 void RTS_PauseMoveAxisPage() {
   if (waitway == 1) {
-    rts.gotoPage(12, 67);
+    rts.gotoPage(ID_PrintResume_L, ID_PrintResume_D);
     waitway = 0;
   }
   else if (waitway == 5) {
@@ -1745,23 +1745,23 @@ void RTS_PauseMoveAxisPage() {
 
 void RTS_AutoBedLevelPage() {
   if (waitway == 3) {
-    rts.gotoPage(111, 117);
+    rts.gotoPage(ID_Level5_L, ID_Level5_D);
     waitway = 0;
   }
 }
 
 void RTS_MoveAxisHoming() {
   if (waitway == 4) {
-    rts.gotoPage(29 + AxisUnitMode - 1, 84 + AxisUnitMode - 1);
+    rts.gotoPage((SovolPage)(ID_Move10_L + AxisUnitMode - 1), (SovolPage)(ID_Move10_D + AxisUnitMode - 1));
     waitway = 0;
   }
   else if (waitway == 6) {
-    rts.gotoPage(111, 117);
+    rts.gotoPage(ID_Level5_L, ID_Level5_D);
     waitway = 0;
   }
   else if (waitway == 7) {
     // Click Print finish
-    rts.gotoPage(1, 56);
+    rts.gotoPage(ID_Home_L, ID_Home_D);
     waitway = 0;
   }
 

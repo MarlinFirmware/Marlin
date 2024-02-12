@@ -286,7 +286,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
         #if ENABLED(SOVOL_SV06_RTS)
           rts.updateTempE0();
-          rts.gotoPage(43, 98);
+          rts.gotoPage(ID_Purge_L, ID_Purge_D);
         #endif
 
         // Extrude filament to get into hotend
@@ -304,7 +304,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-            TERN_(SOVOL_SV06_RTS, rts.gotoPage(44, 100));
+            TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
@@ -523,7 +523,7 @@ void show_continue_prompt(const bool is_reload) {
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
   #if ENABLED(SOVOL_SV06_RTS)
     rts.updateTempE0();
-    rts.gotoPage(17, 72);
+    rts.gotoPage(ID_Insert_L, ID_Insert_D);
     rts.sendData(Beep, SoundAddr);
   #endif
   SERIAL_ECHO_START();
@@ -569,7 +569,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
       #if ENABLED(SOVOL_SV06_RTS)
         rts.updateTempE0();
-        rts.gotoPage(45, 99);
+        rts.gotoPage(ID_HeatNozzle_L, ID_HeatNozzle_D);
       #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
@@ -720,7 +720,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)
     if (pause_flag)
-      rts.gotoPage(12, 67);
+      rts.gotoPage(ID_PrintResume_L, ID_PrintResume_D);
     else
       rts.refreshTime();
   #endif

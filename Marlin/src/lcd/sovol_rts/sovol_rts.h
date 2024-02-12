@@ -188,15 +188,62 @@
 #define FilenameNature                  0x6003
 
 enum SovolPage : uint8_t {
-  ID_Home_L         =   1,      ID_Home_D         =  55 + ID_Home_L,
-  ID_Cold_L         =   7,      ID_Cold_D         =  55 + ID_Cold_L,
-  ID_Unload_L       =  16,      ID_Unload_D       =  55 + ID_Unload_L,
-  ID_FilamentOut_L  =  39,      ID_FilamentOut_D  =  55 + ID_FilamentOut_L,
-  ID_MediaFail_L    =  46,      ID_MediaFail_D    =  55 + ID_MediaFail_L,
-  ID_KillRunaway_L  =  52,      ID_KillRunaway_D  =  55 + ID_KillRunaway_L,
-  ID_KillHeat_L     =  53,      ID_KillHeat_D     =  55 + ID_KillHeat_L,
-  ID_KillBadTemp_L  =  54,      ID_KillBadTemp_D  =  55 + ID_KillBadTemp_L,
-  ID_KillHome_L     =  55,      ID_KillHome_D     =  55 + ID_KillHome_L
+  ID_Home_L         =   1,      ID_Home_D         =  55 + ID_Home_L,             // Home screen
+  ID_Page1_L        =   2,      ID_Page1_D        =  55 + ID_Page1_L,            // File picker page 1
+  ID_Page2_L        =   3,      ID_Page2_D        =  55 + ID_Page2_L,            // File picker page 2
+  ID_Page3_L        =   4,      ID_Page3_D        =  55 + ID_Page3_L,            // File picker page 3
+  ID_Page4_L        =   5,      ID_Page4_D        =  55 + ID_Page4_L,            // File picker page 4
+  ID_ChangeWait_L   =   6,      ID_ChangeWait_D   =  55 + ID_ChangeWait_L,       // Wait for filament change to start
+  ID_Cold_L         =   7,      ID_Cold_D         =  55 + ID_Cold_L,             // Nozzle heating, please wait
+  ID_Change_L       =   8,      ID_Change_D       =  55 + ID_Change_L,           // Manually change filament dialog
+  ID_Finish_L       =   9,      ID_Finish_D       =  55 + ID_Finish_L,           // Confirm print finish
+  ID_PrintHeating_L =  10,      ID_PrintHeating_D =  55 + ID_PrintHeating_L,     // Wait for heating before print starts
+  ID_PrintStatus_L  =  11,      ID_PrintStatus_D  =  55 + ID_PrintStatus_L,      // Printing status progress
+  ID_PrintResume_L  =  12,      ID_PrintResume_D  =  55 + ID_PrintResume_L,      // Resume printing
+  ID_PrintAdjust1_L =  14,      ID_PrintAdjust1_D =  55 + ID_PrintAdjust1_L,     // Modify print settings while printing, 0.01mm z offset
+  ID_TempChange_L   =  15,      ID_TempChange_D   =  55 + ID_TempChange_L,       // Temp / fan change and preset menu
+  ID_Unload_L       =  16,      ID_Unload_D       =  55 + ID_Unload_L,           // Wait for filament unload
+  ID_Insert_L       =  17,      ID_Insert_D       =  55 + ID_Insert_L,           // Insert filament
+  ID_Advanced_L     =  18,      ID_Advanced_D     =  55 + ID_Advanced_L,         // Advanced settings
+  ID_NoFilament_L   =  20,      ID_NoFilament_D   =  55 + ID_NoFilament_L,       // No filament
+  ID_Settings_L     =  21,      ID_Settings_D     =  55 + ID_Settings_L,         // Settings screen
+  ID_Level1_L       =  22,      ID_Level1_D       =  55 + ID_Level1_L,           // Leveling screen 0.01mm
+  ID_Load_L         =  23,      ID_Load_D         =  55 + ID_Load_L,             // Filament loading screen, feed / retreat filament
+  ID_LoadCold_L     =  24,      ID_LoadCold_D     =  55 + ID_LoadCold_L,         // Cold nozzle warning on filament load screen
+  ID_Velocity_L     =  25,      ID_Velocity_D     =  55 + ID_Velocity_L,         // Speed limit settings menu
+  ID_LoadHeating_L  =  26,      ID_LoadHeating_D  =  55 + ID_LoadHeating_L,      // Nozzle heating in filament load screen
+  ID_LoadCancel_L   =  27,      ID_LoadCancel_D   =  55 + ID_LoadCancel_L,       // Filament change menu, cancel feed / retreat
+  ID_PrintAdjust5_L =  28,      ID_PrintAdjust5_D =  55 + ID_PrintAdjust5_L,     // Modify print settings while printing, 0.05mm z offset
+  ID_Move10_L       =  29,      ID_Move10_D       =  55 + ID_Move10_L,           // Move axis, 10mm
+  ID_Move1_L        =  30,      ID_Move1_D        =  55 + ID_Move1_L,            // Move axis, 1mm
+  ID_Move01_L       =  31,      ID_Move01_D       =  55 + ID_Move01_L,           // Move axis, 0.1mm
+  ID_AutoHome_L     =  32,      ID_AutoHome_D     =  55 + ID_AutoHome_L,         // Auto homing in progress
+  ID_Info_L         =  33,      ID_Info_D         =  55 + ID_Info_L,             // Printer info screen
+  ID_Accel_L        =  34,      ID_Accel_D        =  55 + ID_Accel_L,            // Accelaration settings menu
+  ID_Jerk_L         =  35,      ID_Jerk_D         =  55 + ID_Jerk_L,             // Jerk settings menu
+  ID_Resume_L       =  36,      ID_Resume_D       =  55 + ID_Resume_L,           // Resume print after power loss
+  ID_Steps_L        =  37,      ID_Steps_D        =  55 + ID_Steps_L,            // Steps settings menu
+  ID_ABL_Wait_L     =  38,      ID_ABL_Wait_D     =  55 + ID_ABL_Wait_L,         // Auto leveling, please wait
+  ID_FilamentOut_L  =  39,      ID_FilamentOut_D  =  55 + ID_FilamentOut_L,      // Click yes to heat and change filament
+  ID_Processing_L   =  40,      ID_Processing_D   =  55 + ID_Processing_L,       // Processing please wait
+  ID_TempPID_L      =  41,      ID_TempPID_D      =  55 + ID_TempPID_L,          // PID settings menu
+  ID_Purge_L        =  43,      ID_Purge_D        =  55 + ID_Purge_L,            // Wait for filament purge
+  ID_PurgeMore_L    =  44,      ID_PurgeMore_D    =  56 + ID_PurgeMore_L,        // Purge more or resume screen
+  ID_HeatNozzle_L   =  45,      ID_HeatNozzle_D   =  54 + ID_HeatNozzle_L,       // Heat nozzle after pause
+  ID_MediaFail_L    =  46,      ID_MediaFail_D    =  55 + ID_MediaFail_L,        // Sd card removed
+  ID_BrowseNoSd_L   =  47,      ID_BrowseNoSd_D   =  55 + ID_BrowseNoSd_L,       // No sd card on browse screen
+  ID_AdvWarn_L      =  49,      ID_AdvWarn_D      =  55 + ID_AdvWarn_L,          // Warning when entering advanced settings
+  ID_KillRunaway_L  =  52,      ID_KillRunaway_D  =  55 + ID_KillRunaway_L,      // Thermal runaway
+  ID_KillHeat_L     =  53,      ID_KillHeat_D     =  55 + ID_KillHeat_L,         // Thermistor error
+  ID_KillBadTemp_L  =  54,      ID_KillBadTemp_D  =  55 + ID_KillBadTemp_L,      // Heating failed 
+  ID_KillHome_L     =  55,      ID_KillHome_D     =  55 + ID_KillHome_L,         // Auto-home failed
+  ID_Level5_L       =  111,     ID_Level5_D       =   6 + ID_Level5_L,           // Leveling screen 0.05mm
+  ID_DriverError_L  =  112,     ID_DriverError_D  =   6 + ID_DriverError_L,      // Driver error
+  ID_SettingsTMC_L  =  113,     ID_SettingsTMC_D  =   6 + ID_SettingsTMC_L,      // TMC Driver settings
+  ID_DriverA_L      =  114,     ID_DriverA_D      =   6 + ID_DriverA_L,          // TMC Driver current settings
+  ID_DriverTrsh_L   =  115,     ID_DriverTrsh_D   =   6 + ID_DriverTrsh_L,       // TMC Driver hybrid treshold settings
+  ID_DriverSens_L   =  116,     ID_DriverSens_D   =   6 + ID_DriverSens_L,       // TMC Driver sensorless homing settings
+  ID_ABL_HeatWait_L =  123,     ID_ABL_HeatWait_D =   1 + ID_ABL_HeatWait_L,     // Wait for nozzle & bed to heat up
 };
 
 /************struct**************/
@@ -257,7 +304,7 @@ class RTS {
 
     static void onIdle();
 
-    static void refreshTime() { sendData(1, dark_mode ? Time_VP : Time1_VP); gotoPage(11, 66); }
+    static void refreshTime() { sendData(1, dark_mode ? Time_VP : Time1_VP); gotoPage(ID_PrintStatus_L, ID_PrintStatus_D); }
 
     static DB recdat;
     static DB snddat;
