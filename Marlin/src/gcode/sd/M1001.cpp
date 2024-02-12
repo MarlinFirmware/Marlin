@@ -59,6 +59,10 @@
   #define PE_LEDS_COMPLETED_TIME (30*60)
 #endif
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 /**
  * M1001: Execute actions for SD print completion
  */

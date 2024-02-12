@@ -68,6 +68,7 @@ RTS rts;
 
 #if HAS_FILAMENT_SENSOR
   //#define CHECKFILAMENT
+  #include "../../feature/runout.h"
 #endif
 
 float zprobe_zoffset;

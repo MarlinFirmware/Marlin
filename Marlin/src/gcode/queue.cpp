@@ -49,10 +49,6 @@ GCodeQueue queue;
   #include "../feature/repeat.h"
 #endif
 
-#if ENABLED(SOVOL_SV06_RTS)
-  #include "../lcd/sovol_rts/sovol_rts.h"
-#endif
-
 // Frequently used G-code strings
 PGMSTR(G28_STR, "G28");
 
