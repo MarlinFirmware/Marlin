@@ -3483,15 +3483,21 @@ void Stepper::report_positions() {
     #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
     LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
 
+    // We'll compare the updated DIR bits to the last set state
+    const AxisBits old_direction_bits = last_direction_bits;
+
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
-    // Apply directions (which will apply to the entire linear move)
-    #define _FTM_APPLY_DIR(AXIS) AXIS##_APPLY_DIR(last_direction_bits[_AXIS(AXIS)], false);
-    LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
+    if (old_direction_bits != last_direction_bits) {
+      // Apply directions (which will apply to the entire linear move)
+      #define _FTM_APPLY_DIR(AXIS) if (old_direction_bits[_AXIS(AXIS)] != last_direction_bits[_AXIS(AXIS)]) \
+                                     AXIS##_APPLY_DIR(last_direction_bits[_AXIS(AXIS)], false);
+      LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
-    // Any DIR change requires a wait period
-    DIR_WAIT_AFTER();
+      // Any DIR change requires a wait period
+      DIR_WAIT_AFTER();
+    }
 
     // Start step pulses. Edge stepping will toggle the STEP pin.
     #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
