@@ -706,7 +706,7 @@ void FTMotion::makeVector() {
  * - Tests for delta are moved outside the loop.
  * - Two functions are used for command computation with an array of function pointers.
  */
-static void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
+static void (*command_set[SUM_TERN(HAS_EXTRUDERS, NUM_AXES, 1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
 
 static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
   if (e < FTM_CTS_COMPARE_VAL) return;
@@ -747,7 +747,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #endif
 
   LOGICAL_AXIS_CODE(
-    command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ? command_set_pos : command_set_neg,
+    command_set[E_AXIS] = delta.e >= 0 ? command_set_pos : command_set_neg,
     command_set[X_AXIS] = delta.x >= 0 ? command_set_pos : command_set_neg,
     command_set[Y_AXIS] = delta.y >= 0 ? command_set_pos : command_set_neg,
     command_set[Z_AXIS] = delta.z >= 0 ? command_set_pos : command_set_neg,
@@ -768,7 +768,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
 
     // Set up step/dir bits for all axes
     LOGICAL_AXIS_CODE(
-      command_set[E_AXIS_N(current_block->extruder)](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
+      command_set[E_AXIS](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
       command_set[X_AXIS](err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
       command_set[Y_AXIS](err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
       command_set[Z_AXIS](err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
