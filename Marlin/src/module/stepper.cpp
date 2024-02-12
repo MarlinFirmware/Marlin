@@ -3446,7 +3446,15 @@ void Stepper::report_positions() {
 
 #if ENABLED(FT_MOTION)
 
-  // Set stepper I/O for fixed time controller.
+  /**
+   * Run stepping from the Stepper ISR at regular short intervals.
+   *
+   * - Set ftMotion.sts_stepperBusy state to reflect whether there are any commands in the circular buffer.
+   * - If there are no commands in the buffer, return.
+   * - Get the next command from the circular buffer ftMotion.stepperCmdBuff[].
+   * - If the block is being aborted, return without processing the command.
+   * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
+   */
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
@@ -3532,7 +3540,9 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_blockQueueUpdate() {
 
     if (current_block) {
-      // If the current block is not done processing, return right away
+      // If the current block is not done processing, return right away.
+      // A block is done processing when the command buffer has been
+      // filled, not necessarily when it's done running.
       if (!ftMotion.getBlockProcDn()) return;
 
       axis_did_move.reset();

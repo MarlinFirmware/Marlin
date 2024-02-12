@@ -132,6 +132,7 @@ constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 // Public functions.
 
 // Sets controller states to begin processing a block.
+// Called by Stepper::ftMotion_blockQueueUpdate, invoked from the main loop.
 void FTMotion::startBlockProc() {
   blockProcRdy = true;
   blockProcDn = false;
