@@ -623,7 +623,7 @@ void Stepper::disable_all_steppers() {
     const bool fwd = motor_direction(_AXIS(A)); \
     A##_APPLY_DIR(fwd, false);                  \
     count_direction[_AXIS(A)] = fwd ? 1 : -1;   \
-  }while(0);
+  }while(0)
 
 /**
  * Set the stepper direction of each axis
@@ -634,7 +634,14 @@ void Stepper::disable_all_steppers() {
  */
 void Stepper::apply_directions() {
   DIR_WAIT_BEFORE();
-  LOGICAL_AXIS_MAP(SET_STEP_DIR);
+
+  LOGICAL_AXIS_CODE(
+    SET_STEP_DIR(E),
+    SET_STEP_DIR(X), SET_STEP_DIR(Y), SET_STEP_DIR(Z), // ABC
+    SET_STEP_DIR(I), SET_STEP_DIR(J), SET_STEP_DIR(K),
+    SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
+  );
+
   DIR_WAIT_AFTER();
 }
 
