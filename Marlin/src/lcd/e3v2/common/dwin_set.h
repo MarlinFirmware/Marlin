@@ -25,10 +25,7 @@
 #define Language_English    1
 #define Language_Chinese    2
 
-#define ICON 7 // Stock icons = 7.ICO; Custom icon DWIN_SET may be different
-#ifdef ICON
-  #warning "Check your DWIN_SET .ICO file for this value of ICON"
-#endif
+#define ICON 7 // 7.ICO
 
 #ifndef CORP_WEBSITE
   #define CORP_WEBSITE WEBSITE_URL
