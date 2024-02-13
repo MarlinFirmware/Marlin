@@ -76,8 +76,6 @@ class DWIN_ICO_File():
             self._parseHeader(infile)
             self._splitEntryData(infile, outDir)
 
-        return
-
     def _parseHeader(self, infile):
         maxEntries = 256
         count = 0
@@ -91,7 +89,6 @@ class DWIN_ICO_File():
             if (entry.offset > 0) or count not in icon_nums:
                 self.entries.append(entry)
             count += 1
-        return
 
     def _splitEntryData(self, infile, outDir):
         print('Splitting Entry Data...')
@@ -119,7 +116,6 @@ class DWIN_ICO_File():
                       (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename)))
 
             count += 1
-        return
 
     def createFile(self, iconDir, filename):
         '''Create a new .ico file from the contents of iconDir.
@@ -177,7 +173,6 @@ class DWIN_ICO_File():
             offset += e.length
             #print('%03d: (%d x %d) len=%d off=%d' %
             #      (i, e.width, e.height, e.length, e.offset))
-        return
 
     def _combineAndWriteIcoFile(self, filename):
         """Write out final .ico file.
@@ -196,7 +191,6 @@ class DWIN_ICO_File():
                 if 0 == e.length: continue
                 guts = self._getFileContents(e.filename, e.length)
                 outfile.write(guts)
-        return
 
     def _getFileContents(self, filename, length):
         """Read contents of filename, and return bytes"""
@@ -230,7 +224,6 @@ class Entry():
         self.height = h
         self.offset = off
         self.length = len3 * 65536 + len21
-        return
 
     def serialize(self):
         """Convert this Entry's information into a 16-byte
