@@ -822,8 +822,8 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 25: // A25 cool down
           if (!isPrinting()) {
-            setTargetTemp_celsius(0, (heater_t) BED);
-            setTargetTemp_celsius(0, (extruder_t) E0);
+            setTargetTemp_celsius(0, (heater_t)BED);
+            setTargetTemp_celsius(0, (extruder_t)E0);
 
             SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Cooling down... J12"); // J12 cool down
           }

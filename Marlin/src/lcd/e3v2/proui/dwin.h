@@ -119,17 +119,17 @@ typedef struct {
   #if HAS_PID_HEATING
     int16_t pidCycles = DEF_PIDCYCLES;
     #if ENABLED(PIDTEMP)
-      int16_t hotendPidT = DEF_HOTENDPIDT;
+      celsius_t hotendPidT = DEF_HOTENDPIDT;
     #endif
     #if ENABLED(PIDTEMPBED)
-      int16_t bedPidT = DEF_BEDPIDT;
+      celsius_t bedPidT = DEF_BEDPIDT;
     #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    int16_t extMinT = EXTRUDE_MINTEMP;
+    celsius_t extMinT = EXTRUDE_MINTEMP;
   #endif
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    int16_t bedLevT = LEVELING_BED_TEMP;
+    celsius_t bedLevT = LEVELING_BED_TEMP;
   #endif
   #if ENABLED(BAUD_RATE_GCODE)
     bool baud115K = false;
@@ -143,12 +143,10 @@ typedef struct {
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
+    #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor ledColor = defColorLeds;
-  #endif
-  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-    bool adaptiveStepSmoothing = true;
   #endif
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
@@ -156,7 +154,8 @@ typedef struct {
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
-static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
+
+#define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
 
 typedef struct {
   int8_t r, g, b;
@@ -287,7 +286,7 @@ void dwinPrintAborted();
 #if HAS_FILAMENT_SENSOR
   void dwinFilamentRunout(const uint8_t extruder);
 #endif
-void dwinPrintHeader(const char *text);
+void dwinPrintHeader(const char * const cstr=nullptr);
 void dwinSetColorDefaults();
 void dwinCopySettingsTo(char * const buff);
 void dwinCopySettingsFrom(const char * const buff);
@@ -382,7 +381,7 @@ void drawMaxAccelMenu();
 // PID
 #if HAS_PID_HEATING
   #include "../../../module/temperature.h"
-  void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
+  void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
   void dwinPidTuning(tempcontrol_t result);
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_AUTOTUNE_MENU)

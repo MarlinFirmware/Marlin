@@ -323,6 +323,13 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
+// Some displays can toggle Adaptive Step Smoothing.
+// The state is saved to EEPROM.
+// In future this may be added to a G-code such as M205 A.
+#if ALL(ADAPTIVE_STEP_SMOOTHING, DWIN_LCD_PROUI)
+  #define ADAPTIVE_STEP_SMOOTHING_TOGGLE
+#endif
+
 /**
  * Temperature Sensors; define what sensor(s) we have.
  */

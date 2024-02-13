@@ -570,16 +570,17 @@ void ICON_ResumeOrPause() {
   if (checkkey == ID_PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? ICON_Resume() : ICON_Pause();
 }
 
-// Update filename on print
-void dwinPrintHeader(const char *text = nullptr) {
+// Print a string (up to 30 characters) in the header,
+// e.g., The filename or string sent with M75.
+void dwinPrintHeader(const char * const cstr/*=nullptr*/) {
   static char headertxt[31] = "";  // Print header text
-  if (text) {
-    const int8_t size = _MIN(30U, strlen_P(text));
-    for (uint8_t i = 0; i < size; ++i) headertxt[i] = text[i];
+  if (cstr) {
+    const int8_t size = _MIN(30U, strlen(cstr));
+    for (uint8_t i = 0; i < size; ++i) headertxt[i] = cstr[i];
     headertxt[size] = '\0';
   }
   if (checkkey == ID_PrintProcess || checkkey == ID_PrintDone) {
-    dwinDrawRectangle(1, hmiData.colorBackground, 0, 60, DWIN_WIDTH, 60+16);
+    dwinDrawRectangle(1, hmiData.colorBackground, 0, 60, DWIN_WIDTH, 60 + 16);
     DWINUI::drawCenteredString(60, headertxt);
   }
 }
@@ -590,7 +591,7 @@ void drawPrintProcess() {
   else
     title.showCaption(GET_TEXT_F(MSG_PRINTING));
   DWINUI::clearMainArea();
-  dwinPrintHeader(nullptr);
+  dwinPrintHeader();
   drawPrintLabels();
   DWINUI::drawIcon(ICON_PrintTime, 15, 173);
   DWINUI::drawIcon(ICON_RemainTime, 150, 171);
@@ -618,7 +619,7 @@ void drawPrintDone() {
   TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   title.showCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::clearMainArea();
-  dwinPrintHeader(nullptr);
+  dwinPrintHeader();
   #if HAS_GCODE_PREVIEW
     const bool haspreview = preview.valid();
     if (haspreview) {
@@ -1179,7 +1180,7 @@ void hmiPrinting() {
       case PRINT_SETUP: drawTuneMenu(); break;
       case PRINT_PAUSE_RESUME:
         if (printingIsPaused()) {  // If printer is already in pause
-          ui.resume_print();
+          ExtUI::resumePrint();
           break;
         }
         else
@@ -1352,7 +1353,7 @@ void eachMomentUpdate() {
       }
     }
     #if ENABLED(POWER_LOSS_RECOVERY)
-      else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // Resume print before power off
+      else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
         return gotoPowerLossRecovery();
       }
     #endif
@@ -1401,7 +1402,7 @@ void eachMomentUpdate() {
   }
 
   void gotoPowerLossRecovery() {
-    recovery.dwin_flag = false;
+    recovery.ui_flag_resume = false;
     LCD_MESSAGE(MSG_CONTINUE_PRINT_JOB);
     gotoPopup(popupPowerLossRecovery, onClickPowerLossRecovery);
   }
@@ -1500,22 +1501,7 @@ void dwinLevelingStart() {
     title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
     dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
     #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-      #if HAS_BED_PROBE
-        if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
-      #else
-        #if HAS_HOTEND
-          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP) {
-            thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-            thermalManager.wait_for_hotend(0);
-          }
-        #endif
-        #if HAS_HEATED_BED
-          if (!DEBUGGING(DRYRUN) && thermalManager.degTargetBed() < hmiData.bedLevT) {
-            thermalManager.setTargetBed(hmiData.bedLevT);
-            thermalManager.wait_for_bed_heating();
-          }
-        #endif
-      #endif
+      if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
     #endif
   #elif ENABLED(MESH_BED_LEVELING)
     drawManualMeshMenu();
@@ -1633,18 +1619,16 @@ void dwinLevelingDone() {
 
 #if HAS_PID_HEATING
 
-  void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp) {
-    if (seenC) hmiData.pidCycles = c;
-    if (seenS) {
-      switch (hid) {
-        #if ENABLED(PIDTEMP)
-          case 0 ... HOTENDS - 1: hmiData.hotendPidT = temp; break;
-        #endif
-        #if ENABLED(PIDTEMPBED)
-          case H_BED: hmiData.bedPidT = temp; break;
-        #endif
-        default: break;
-      }
+  void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+    hmiData.pidCycles = c;
+    switch (hid) {
+      #if ENABLED(PIDTEMP)
+        case 0 ... HOTENDS - 1: hmiData.hotendPidT = temp; break;
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: hmiData.bedPidT = temp; break;
+      #endif
+      default: break;
     }
   }
 
@@ -1809,6 +1793,8 @@ void dwinSetColorDefaults() {
   hmiData.colorCoordinate = defColorCoordinate;
 }
 
+static_assert(ExtUI::eeprom_data_size >= sizeof(hmi_data_t), "Insufficient space in EEPROM for UI parameters");
+
 void dwinSetDataDefaults() {
   dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
@@ -1836,12 +1822,11 @@ void dwinSetDataDefaults() {
     TERN_(LED_COLOR_PRESETS, leds.set_default());
     applyLEDColor();
   #endif
-  TERN_(ADAPTIVE_STEP_SMOOTHING, hmiData.adaptiveStepSmoothing = true);
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
 }
 
 void dwinCopySettingsTo(char * const buff) {
-  memcpy(buff, &hmiData, eeprom_data_size);
+  memcpy(buff, &hmiData, sizeof(hmi_data_t));
 }
 
 void dwinCopySettingsFrom(const char * const buff) {
@@ -1891,8 +1876,6 @@ void MarlinUI::update() {
   dwinHandleScreen(); // Rotary encoder update
 }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
-
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
@@ -1927,29 +1910,10 @@ void dwinRedrawScreen() {
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
   void dwinPopupPause(FSTR_P const fmsg, uint8_t button/*=0*/) {
     hmiSaveProcessID(button ? ID_WaitResponse : ID_NothingToDo);
     dwinShowPopup(ICON_Pause_1, GET_TEXT_F(MSG_ADVANCED_PAUSE), fmsg, button);
-  }
-
-  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
-    //if (mode == PAUSE_MODE_SAME) return;
-    pause_mode = mode;
-    switch (message) {
-      case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING));    break;                // M125
-      case PAUSE_MESSAGE_CHANGING: dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT));   break;                // pause_print (M125, M600)
-      case PAUSE_MESSAGE_WAITING:  dwinPopupPause(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING), BTN_Continue); break;
-      case PAUSE_MESSAGE_INSERT:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT), BTN_Continue); break;
-      case PAUSE_MESSAGE_LOAD:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD));   break;
-      case PAUSE_MESSAGE_UNLOAD:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;                // Unload of pause and Unload of M702
-      case PAUSE_MESSAGE_PURGE:    dwinPopupPause(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))); break;
-      case PAUSE_MESSAGE_OPTION:   gotoFilamentPurge(); break;
-      case PAUSE_MESSAGE_RESUME:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT), BTN_Continue);   break;
-      case PAUSE_MESSAGE_HEATING:  dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_STATUS:   hmiReturnScreen(); break;                                                      // Exit from Pause, Load and Unload
-      default: break;
-    }
   }
 
   void drawPopupFilamentPurge() {
@@ -3433,9 +3397,9 @@ void drawTuneMenu() {
   updateMenu(tuneMenu);
 }
 
-#if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+#if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
   void setAdaptiveStepSmoothing() {
-    toggleCheckboxLine(hmiData.adaptiveStepSmoothing);
+    toggleCheckboxLine(stepper.adaptive_step_smoothing_enabled);
   }
 #endif
 
@@ -3526,8 +3490,8 @@ void drawMotionMenu() {
     #if ENABLED(SHAPING_MENU)
       MENU_ITEM(ICON_InputShaping, MSG_INPUT_SHAPING, onDrawSubMenu, drawInputShaping_menu);
     #endif
-    #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-      EDIT_ITEM(ICON_UBLActive, MSG_STEP_SMOOTHING, onDrawChkbMenu, setAdaptiveStepSmoothing, &hmiData.adaptiveStepSmoothing);
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+      EDIT_ITEM(ICON_UBLActive, MSG_STEP_SMOOTHING, onDrawChkbMenu, setAdaptiveStepSmoothing, &stepper.adaptive_step_smoothing_enabled);
     #endif
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
