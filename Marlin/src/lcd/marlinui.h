@@ -658,6 +658,13 @@ public:
     TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
 
+  #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+    static bool encoder_multiplier_enabled;
+    static void enable_encoder_multiplier(const bool onoff) { encoder_multiplier_enabled = onoff; }
+  #else
+    static void enable_encoder_multiplier(const bool) {}
+  #endif
+
   #if HAS_MARLINUI_MENU
 
     #if HAS_TOUCH_BUTTONS
@@ -665,15 +672,6 @@ public:
       static uint16_t repeat_delay;
     #else
       static constexpr uint8_t touch_buttons = 0;
-    #endif
-
-    #if ENABLED(ENCODER_RATE_MULTIPLIER)
-      static bool encoderRateMultiplierEnabled;
-      static millis_t lastEncoderMovementMillis;
-      static void enable_encoder_multiplier(const bool onoff);
-      #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)
-    #else
-      #define ENCODER_RATE_MULTIPLY(F) NOOP
     #endif
 
     // Manual Movement

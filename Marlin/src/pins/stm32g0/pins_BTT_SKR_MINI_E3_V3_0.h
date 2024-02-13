@@ -461,3 +461,14 @@
 #ifndef BOARD_NEOPIXEL_PIN
   #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default usage LCD connector
+#define UART1_RX_PIN                        PA10  // default usage LCD connector
+#define UART2_TX_PIN                        PA2   // default usage TFT connector
+#define UART2_RX_PIN                        PA3   // default usage TFT connector
+#define UART4_TX_PIN                        PC10  // default usage TMC UART
+#define UART4_RX_PIN                        PC11  // default usage TMC UART

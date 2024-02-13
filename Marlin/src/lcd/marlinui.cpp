@@ -398,12 +398,7 @@ void MarlinUI::init() {
     bool MarlinUI::screen_changed;
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
-      bool MarlinUI::encoderRateMultiplierEnabled;
-      millis_t MarlinUI::lastEncoderMovementMillis = 0;
-      void MarlinUI::enable_encoder_multiplier(const bool onoff) {
-        encoderRateMultiplierEnabled = onoff;
-        lastEncoderMovementMillis = 0;
-      }
+      bool MarlinUI::encoder_multiplier_enabled;
     #endif
 
     #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
@@ -613,8 +608,6 @@ void MarlinUI::init() {
   #endif
 
   void MarlinUI::status_screen() {
-
-    TERN_(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLY(false));
 
     #if BASIC_PROGRESS_BAR
 
@@ -1053,41 +1046,42 @@ void MarlinUI::init() {
 
             #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              int32_t encoderMultiplier = 1;
+              int32_t encoder_multiplier = 1;
 
-              if (encoderRateMultiplierEnabled) {
-                const float encoderMovementSteps = float(abs_diff) / epps;
+              if (encoder_multiplier_enabled) {
+                // Note that the rate is always calculated between two passes through the
+                // loop and that the abs of the encoderDiff value is tracked.
+                static millis_t encoder_mult_prev_ms = 0;
+                const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
+                encoder_mult_prev_ms = ms;
 
-                if (lastEncoderMovementMillis) {
-                  // Note that the rate is always calculated between two passes through the
-                  // loop and that the abs of the encoderDiff value is tracked.
-                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+                if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
+                  encoder_multiplier = 100;
+                else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
+                  encoder_multiplier = 10;
+                else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
+                  encoder_multiplier = 5;
 
-                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-
-                  // Enable to output the encoder steps per second value
-                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                    SERIAL_ECHO_START();
-                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                    SERIAL_EOL();
-                  #endif
-                }
-
-                lastEncoderMovementMillis = ms;
-              } // encoderRateMultiplierEnabled
+                // Enable to output the encoder steps per second value
+                //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                  SERIAL_ECHO_MSG(
+                    "Enc Step Rate: ", encoderStepRate,
+                    "  Mult: ", encoder_multiplier,
+                    "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
+                    "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
+                    "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
+                  );
+                #endif
+              }
 
             #else
 
-              constexpr int32_t encoderMultiplier = 1;
+              constexpr int32_t encoder_multiplier = 1;
 
             #endif // ENCODER_RATE_MULTIPLIER
 
-            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+            if (can_encode()) encoderPosition += (encoderDiff * encoder_multiplier) / epps;
 
             encoderDiff = 0;
           }
