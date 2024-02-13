@@ -2589,7 +2589,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // Set laser power
         #if ENABLED(LASER_POWER_SYNC)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-            if (current_block->is_pwr_sync()) {
+            if (current_block->is_sync_pwr()) {
               planner.laser_inline.status.isSyncPower = true;
               cutter.apply_power(current_block->laser.power);
             }
@@ -2598,11 +2598,11 @@ hal_timer_t Stepper::block_phase_isr() {
 
         // Set "fan speeds" for a laser module
         #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-          if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed);
+          if (current_block->is_sync_fan()) planner.sync_fan_speeds(current_block->fan_speed);
         #endif
 
         // Set position
-        if (current_block->is_pos_sync()) _set_position(current_block->position);
+        if (current_block->is_sync_pos()) _set_position(current_block->position);
 
         // Done with this block
         discard_current_block();
@@ -3592,7 +3592,7 @@ void Stepper::report_positions() {
         // Set laser power
         #if ENABLED(LASER_POWER_SYNC)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-            if (current_block->is_pwr_sync()) {
+            if (current_block->is_sync_pwr()) {
               planner.laser_inline.status.isSyncPower = true;
               cutter.apply_power(current_block->laser.power);
             }
@@ -3601,11 +3601,11 @@ void Stepper::report_positions() {
 
         // Set "fan speeds" for a laser module
         #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-          if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed);
+          if (current_block->is_sync_fan()) planner.sync_fan_speeds(current_block->fan_speed);
         #endif
 
         // Set position
-        if (current_block->is_pos_sync()) _set_position(current_block->position);
+        if (current_block->is_sync_pos()) _set_position(current_block->position);
 
         #endif
 
