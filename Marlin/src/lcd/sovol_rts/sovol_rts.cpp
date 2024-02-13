@@ -249,7 +249,7 @@ void RTS::init() {
     bool zig = false;
     int8_t inStart, inStop, inInc, showcount;
     showcount = 0;
-    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+    for (int8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
       // Away from origin
       if (zig) {
         inStart = 0;
@@ -263,7 +263,7 @@ void RTS::init() {
         inInc = -1;
       }
       zig ^= true;
-      for (uint8_t x = inStart; x != inStop; x += inInc) {
+      for (int8_t x = inStart; x != inStop; x += inInc) {
         sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
         showcount++;
       }
@@ -1197,7 +1197,7 @@ void RTS::handleData() {
           bool zig = true;
           int8_t inStart, inStop, inInc, showcount;
           showcount = 0;
-          for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          for (int8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
             // Away from origin
             if (zig) {
               inStart = 0;
@@ -1211,7 +1211,7 @@ void RTS::handleData() {
               inInc = -1;
             }
             zig ^= true;
-            for (uint8_t x = inStart; x != inStop; x += inInc) {
+            for (int8_t x = inStart; x != inStop; x += inInc) {
               sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
               showcount++;
             }
